@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 474C93C5357
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8210A3C4D64
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352309AbhGLHyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S241813AbhGLHM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350188AbhGLHun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C509611ED;
-        Mon, 12 Jul 2021 07:44:00 +0000 (UTC)
+        id S244345AbhGLHKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C7F6052B;
+        Mon, 12 Jul 2021 07:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075840;
-        bh=tvrW9tHGUSb1V+PTUYp3OEQtAB+taDs2wzg+TwVxSa8=;
+        s=korg; t=1626073670;
+        bh=ONwR6GIp6AWuHc/W2qm3Dsm3wMyhQ7b21oIuAaqXs3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DorK/aXt8prXQ2T9WRkIyBb+kt0sCes6kQ9bCfFnBAXpQeqIx91OmR+x2sQZiYirW
-         AHx/4bVoiYO0XYgm/RoGsWbNUz8uUDProJdsU9ZY0yqtowRsXzdrMVJnREc8YG22R4
-         EtAmYjOaTNYQ5m0Ux2WCThy6Luj05OyRrBxf+7Ec=
+        b=o84rBMCA/uwOlKI6YThWJ0/xbta2mfCnlUDCvnFOad0Og1+Ylwg0CGIsy5alhhIMf
+         m41qsb+DrnkgP4FEUy/3lEovWHnIn6g/Mv3hzNKNSHvcH4NzEPl5Wxn8Y9/qzwJr5F
+         mw+QKUudwM/ecMpHmv39oJcIFNGqJ3XXR7EeG7QQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 380/800] ocfs2: fix snprintf() checking
-Date:   Mon, 12 Jul 2021 08:06:43 +0200
-Message-Id: <20210712061007.581873982@linuxfoundation.org>
+Subject: [PATCH 5.12 321/700] media: mtk-vpu: on suspend, read/write regs only if vpu is running
+Date:   Mon, 12 Jul 2021 08:06:44 +0200
+Message-Id: <20210712061010.533722194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 54e948c60cc843b6e84dc44496edc91f51d2a28e ]
+[ Upstream commit 11420749c6b4b237361750de3d5b5579175f8622 ]
 
-The snprintf() function returns the number of bytes which would have been
-printed if the buffer was large enough.  In other words it can return ">=
-remain" but this code assumes it returns "== remain".
+If the vpu is not running, we should not rely on VPU_IDLE_REG
+value. In this case, the suspend cb should only unprepare the
+clock. This fixes a system-wide suspend to ram failure:
 
-The run time impact of this bug is not very severe.  The next iteration
-through the loop would trigger a WARN() when we pass a negative limit to
-snprintf().  We would then return success instead of -E2BIG.
+[  273.073363] PM: suspend entry (deep)
+[  273.410502] mtk-msdc 11230000.mmc: phase: [map:ffffffff] [maxlen:32] [final:10]
+[  273.455926] Filesystems sync: 0.378 seconds
+[  273.589707] Freezing user space processes ... (elapsed 0.003 seconds) done.
+[  273.600104] OOM killer disabled.
+[  273.603409] Freezing remaining freezable tasks ... (elapsed 0.001 seconds) done.
+[  273.613361] mwifiex_sdio mmc2:0001:1: None of the WOWLAN triggers enabled
+[  274.784952] mtk_vpu 10020000.vpu: vpu idle timeout
+[  274.789764] PM: dpm_run_callback(): platform_pm_suspend+0x0/0x70 returns -5
+[  274.796740] mtk_vpu 10020000.vpu: PM: failed to suspend: error -5
+[  274.802842] PM: Some devices failed to suspend, or early wake event detected
+[  275.426489] OOM killer enabled.
+[  275.429718] Restarting tasks ...
+[  275.435765] done.
+[  275.447510] PM: suspend exit
 
-The kernel implementation of snprintf() will never return negatives so
-there is no need to check and I have deleted that dead code.
-
-Link: https://lkml.kernel.org/r/20210511135350.GV1955@kadam
-Fixes: a860f6eb4c6a ("ocfs2: sysfile interfaces for online file check")
-Fixes: 74ae4e104dfc ("ocfs2: Create stack glue sysfs files.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 1f565e263c3e ("media: mtk-vpu: VPU should be in idle state before system is suspended")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/filecheck.c | 6 +-----
- fs/ocfs2/stackglue.c | 8 ++------
- 2 files changed, 3 insertions(+), 11 deletions(-)
+ drivers/media/platform/mtk-vpu/mtk_vpu.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/ocfs2/filecheck.c b/fs/ocfs2/filecheck.c
-index 90b8d300c1ee..de56e6231af8 100644
---- a/fs/ocfs2/filecheck.c
-+++ b/fs/ocfs2/filecheck.c
-@@ -326,11 +326,7 @@ static ssize_t ocfs2_filecheck_attr_show(struct kobject *kobj,
- 		ret = snprintf(buf + total, remain, "%lu\t\t%u\t%s\n",
- 			       p->fe_ino, p->fe_done,
- 			       ocfs2_filecheck_error(p->fe_status));
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index d50e8b8dfea4..16f1bfc407f2 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -500,11 +500,7 @@ static ssize_t ocfs2_loaded_cluster_plugins_show(struct kobject *kobj,
- 	list_for_each_entry(p, &ocfs2_stack_list, sp_list) {
- 		ret = snprintf(buf, remain, "%s\n",
- 			       p->sp_name);
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-@@ -531,7 +527,7 @@ static ssize_t ocfs2_active_cluster_plugin_show(struct kobject *kobj,
- 	if (active_stack) {
- 		ret = snprintf(buf, PAGE_SIZE, "%s\n",
- 			       active_stack->sp_name);
--		if (ret == PAGE_SIZE)
-+		if (ret >= PAGE_SIZE)
- 			ret = -E2BIG;
+diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+index 043894f7188c..f49f6d53a941 100644
+--- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
++++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+@@ -987,6 +987,12 @@ static int mtk_vpu_suspend(struct device *dev)
+ 		return ret;
  	}
- 	spin_unlock(&ocfs2_stack_lock);
+ 
++	if (!vpu_running(vpu)) {
++		vpu_clock_disable(vpu);
++		clk_unprepare(vpu->clk);
++		return 0;
++	}
++
+ 	mutex_lock(&vpu->vpu_mutex);
+ 	/* disable vpu timer interrupt */
+ 	vpu_cfg_writel(vpu, vpu_cfg_readl(vpu, VPU_INT_STATUS) | VPU_IDLE_STATE,
 -- 
 2.30.2
 
