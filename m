@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9360E3C4537
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69ED3C454B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235293AbhGLGYo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41280 "EHLO mail.kernel.org"
+        id S235406AbhGLGZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234377AbhGLGX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:23:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13CDD610A7;
-        Mon, 12 Jul 2021 06:20:14 +0000 (UTC)
+        id S233946AbhGLGXc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:23:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60E37610CD;
+        Mon, 12 Jul 2021 06:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070815;
-        bh=8Y+8ynbx2OCSKfxB71y/b0xJs0zIgHjnEj/SFWeN/FU=;
+        s=korg; t=1626070817;
+        bh=y5VGwTrzuQwT2plzHSrl2/5rCfn4r0bcXrI0UDrKkDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1/mmgPZ/SOsToET3E+0rHGHBboIXWizk572llvfkszPPJfumlaAmuO56j8jpHF004
-         D5XWo1zTf6rfAQIK31zAhqFgD0q8REb2TzGtJwTW7BVB8ImrnhNU9T8VvNXigqAAe6
-         7bx5rRkbWjX5fULjnnUNY5I2awexyGqgWePXr4KA=
+        b=kPUnDxz+XA3LUa+2oUjF5kZfoQuO5mW+dAeVLbnioM7lk788CNih+Mn7TS9NWH5nQ
+         8Tw+pLwdZCAyvFBPUmwr0a0GjJ0mG5a3rifhVJgQ1GEpyoiPyLGQnD1oxTeM8zWCXX
+         UlaU9efIgEpr7L/ViF1SbebmfxrdBqHxjubgQE/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 151/348] media: rc: i2c: Fix an error message
-Date:   Mon, 12 Jul 2021 08:08:55 +0200
-Message-Id: <20210712060721.140384869@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 152/348] pata_ep93xx: fix deferred probing
+Date:   Mon, 12 Jul 2021 08:08:56 +0200
+Message-Id: <20210712060721.250916595@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,38 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 9c87ae1a0dbeb5794957421157fd266d38a869b4 ]
+[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
 
-'ret' is known to be 1 here. In fact 'i' is expected instead.
-Store the return value of 'i2c_master_recv()' in 'ret' so that the error
-message print the correct error code.
+The driver overrides the error codes returned by platform_get_irq() to
+-ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
+permanently instead of the deferred probing.  Propagate the error code
+upstream, as it should have been done from the start...
 
-Fixes: acaa34bf06e9 ("media: rc: implement zilog transmitter")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ir-kbd-i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/ata/pata_ep93xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
-index e8119ad0bc71..92376592455e 100644
---- a/drivers/media/i2c/ir-kbd-i2c.c
-+++ b/drivers/media/i2c/ir-kbd-i2c.c
-@@ -678,8 +678,8 @@ static int zilog_tx(struct rc_dev *rcdev, unsigned int *txbuf,
- 		goto out_unlock;
+diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
+index badab6708893..46208ececbb6 100644
+--- a/drivers/ata/pata_ep93xx.c
++++ b/drivers/ata/pata_ep93xx.c
+@@ -928,7 +928,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
+ 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		err = -ENXIO;
++		err = irq;
+ 		goto err_rel_gpio;
  	}
  
--	i = i2c_master_recv(ir->tx_c, buf, 1);
--	if (i != 1) {
-+	ret = i2c_master_recv(ir->tx_c, buf, 1);
-+	if (ret != 1) {
- 		dev_err(&ir->rc->dev, "i2c_master_recv failed with %d\n", ret);
- 		ret = -EIO;
- 		goto out_unlock;
 -- 
 2.30.2
 
