@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFDF43C4F86
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF16F3C5471
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbhGLH0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
+        id S1343820AbhGLH6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:58:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243118AbhGLHXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:23:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D771961370;
-        Mon, 12 Jul 2021 07:20:43 +0000 (UTC)
+        id S1349193AbhGLH4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:56:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D138613E4;
+        Mon, 12 Jul 2021 07:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074444;
-        bh=PGPwFByimew3NOMYXmeazQrzDVNi1cBMz0s3ADpp2Go=;
+        s=korg; t=1626076339;
+        bh=iEvtYpsaHqh5Cn96sSfMZTS2D/n1Pw29uI5uAlAXdCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3W12sdc720QajEqxlQAEyxSLtAGZ/65RHKSdDibOSVs1G0bRDhVCsR1CbOWVztZO
-         ungREWrhPvCJABNx3mz6V2vf5n0WNq7hZ0nNe4WSxUhDbPvs+OkyHR97zqjE1Ejt5M
-         tQQUkl03shMRkl8Sg3P8FrXsvbPcBlqhDF075b2Y=
+        b=gtLoAgFzKiDMyCTrerHAyiU6TS52sCDPrhuJbJseDLkqqpnJ+YbSR1bGn/aET3D2F
+         3+tUI/M7UMHIj2NiFksKfSHNUdl+2AIdBYfRu/fwdWnBnpTL6JqlD5Ra+6tnb48VH/
+         hHYEUsfUf09jhNKIBzCTekkkB1MqQVF0j5qWsfKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Daniel Baluta <daniel.baluta@nxp.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 539/700] iio: adc: ti-ads1015: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:10:22 +0200
-Message-Id: <20210712061033.727771916@linuxfoundation.org>
+Subject: [PATCH 5.13 600/800] RDMA/core: Always release restrack object
+Date:   Mon, 12 Jul 2021 08:10:23 +0200
+Message-Id: <20210712061031.182595458@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit d85d71dd1ab67eaa7351f69fec512d8f09d164e1 ]
+[ Upstream commit 3d8287544223a3d2f37981c1f9ffd94d0b5e9ffc ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+Change location of rdma_restrack_del() to fix the bug where
+task_struct was acquired but not released, causing to resource leak.
 
-Found during an audit of all calls of this function.
+  ucma_create_id() {
+    ucma_alloc_ctx();
+    rdma_create_user_id() {
+      rdma_restrack_new();
+      rdma_restrack_set_name() {
+        rdma_restrack_attach_task.part.0(); <--- task_struct was gotten
+      }
+    }
+    ucma_destroy_private_ctx() {
+      ucma_put_ctx();
+      rdma_destroy_id() {
+        _destroy_id()                       <--- id_priv was freed
+      }
+    }
+  }
 
-Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Daniel Baluta <daniel.baluta@nxp.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-9-jic23@kernel.org
+Fixes: 889d916b6f8a ("RDMA/core: Don't access cm_id after its destruction")
+Link: https://lore.kernel.org/r/073ec27acb943ca8b6961663c47c5abe78a5c8cc.1624948948.git.leonro@nvidia.com
+Reported-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads1015.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/cma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
-index 9fef39bcf997..5b828428be77 100644
---- a/drivers/iio/adc/ti-ads1015.c
-+++ b/drivers/iio/adc/ti-ads1015.c
-@@ -395,10 +395,14 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
- 	struct iio_poll_func *pf = p;
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct ads1015_data *data = iio_priv(indio_dev);
--	s16 buf[8]; /* 1x s16 ADC val + 3x s16 padding +  4x s16 timestamp */
-+	/* Ensure natural alignment of timestamp */
-+	struct {
-+		s16 chan;
-+		s64 timestamp __aligned(8);
-+	} scan;
- 	int chan, ret, res;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 8bbffa04fb48..ad9a9ba5f00d 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1852,6 +1852,7 @@ static void _destroy_id(struct rdma_id_private *id_priv,
+ {
+ 	cma_cancel_operation(id_priv, state);
  
--	memset(buf, 0, sizeof(buf));
-+	memset(&scan, 0, sizeof(scan));
- 
- 	mutex_lock(&data->lock);
- 	chan = find_first_bit(indio_dev->active_scan_mask,
-@@ -409,10 +413,10 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
- 		goto err;
++	rdma_restrack_del(&id_priv->res);
+ 	if (id_priv->cma_dev) {
+ 		if (rdma_cap_ib_cm(id_priv->id.device, 1)) {
+ 			if (id_priv->cm_id.ib)
+@@ -1861,7 +1862,6 @@ static void _destroy_id(struct rdma_id_private *id_priv,
+ 				iw_destroy_cm_id(id_priv->cm_id.iw);
+ 		}
+ 		cma_leave_mc_groups(id_priv);
+-		rdma_restrack_del(&id_priv->res);
+ 		cma_release_dev(id_priv);
  	}
  
--	buf[0] = res;
-+	scan.chan = res;
- 	mutex_unlock(&data->lock);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, buf,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
- 					   iio_get_time_ns(indio_dev));
- 
- err:
 -- 
 2.30.2
 
