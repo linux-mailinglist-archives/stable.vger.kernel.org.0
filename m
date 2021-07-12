@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0065D3C4BB9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E26B13C5143
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241609AbhGLG7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:59:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32804 "EHLO mail.kernel.org"
+        id S1345747AbhGLHiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239541AbhGLG6V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 943B66102A;
-        Mon, 12 Jul 2021 06:55:32 +0000 (UTC)
+        id S244834AbhGLHgv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:36:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B3961621;
+        Mon, 12 Jul 2021 07:32:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072933;
-        bh=uYegv75YXwXYGm3pbXDEJRlo5vmTRcR5qItmqKXASVs=;
+        s=korg; t=1626075166;
+        bh=IRahy8Wid1WMEgo0OYOhuwHB3w43NqKCswQBYR0jPLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jiq+XTr/wUmQypLdc9VBLjckSvC02DR/PSMPqnWSmPvkJZ3dFyskcfACf2WZT70xy
-         i/0tEvHmD8UmtjmVe8eR12zBZ0FKTeky6yfnOHQav5ra96g7kcSJLwqJalgBEr6XW0
-         igvdGspndA2BG7kCwBmp2uWkpQ+QMwlXPQ7XOe6s=
+        b=Mz91hc5OFyBJgoPtTT7LGtcfZSxFwfq7kg4FCBO5Y5/LousXknvJjfymhZt+XfK0Z
+         9U2zs7jqVqDj0IA0e9XNTBg485YZxT0I4v68lxLuD/b0Seb5+tizMH7BrbcjQce7oi
+         NRyZWPN+OPNxbrFb3QV85nTSLZfrUug9zHo2Gg50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Kirill A. Shutemov" <kirill@shutemov.name>,
-        Jan Kara <jack@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 068/700] mm/gup: fix try_grab_compound_head() race with split_huge_page()
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        Alexey Gladkov <legion@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 128/800] Add a reference to ucounts for each cred
 Date:   Mon, 12 Jul 2021 08:02:31 +0200
-Message-Id: <20210712060934.314878937@linuxfoundation.org>
+Message-Id: <20210712060931.016144297@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,166 +41,341 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Alexey Gladkov <legion@kernel.org>
 
-commit c24d37322548a6ec3caec67100d28b9c1f89f60a upstream.
+[ Upstream commit 905ae01c4ae2ae3df05bb141801b1db4b7d83c61 ]
 
-try_grab_compound_head() is used to grab a reference to a page from
-get_user_pages_fast(), which is only protected against concurrent freeing
-of page tables (via local_irq_save()), but not against concurrent TLB
-flushes, freeing of data pages, or splitting of compound pages.
+For RLIMIT_NPROC and some other rlimits the user_struct that holds the
+global limit is kept alive for the lifetime of a process by keeping it
+in struct cred. Adding a pointer to ucounts in the struct cred will
+allow to track RLIMIT_NPROC not only for user in the system, but for
+user in the user_namespace.
 
-Because no reference is held to the page when try_grab_compound_head() is
-called, the page may have been freed and reallocated by the time its
-refcount has been elevated; therefore, once we're holding a stable
-reference to the page, the caller re-checks whether the PTE still points
-to the same page (with the same access rights).
+Updating ucounts may require memory allocation which may fail. So, we
+cannot change cred.ucounts in the commit_creds() because this function
+cannot fail and it should always return 0. For this reason, we modify
+cred.ucounts before calling the commit_creds().
 
-The problem is that try_grab_compound_head() has to grab a reference on
-the head page; but between the time we look up what the head page is and
-the time we actually grab a reference on the head page, the compound page
-may have been split up (either explicitly through split_huge_page() or by
-freeing the compound page to the buddy allocator and then allocating its
-individual order-0 pages).  If that happens, get_user_pages_fast() may end
-up returning the right page but lifting the refcount on a now-unrelated
-page, leading to use-after-free of pages.
+Changelog
 
-To fix it: Re-check whether the pages still belong together after lifting
-the refcount on the head page.  Move anything else that checks
-compound_head(page) below the refcount increment.
+v6:
+* Fix null-ptr-deref in is_ucounts_overlimit() detected by trinity. This
+  error was caused by the fact that cred_alloc_blank() left the ucounts
+  pointer empty.
 
-This can't actually happen on bare-metal x86 (because there, disabling
-IRQs locks out remote TLB flushes), but it can happen on virtualized x86
-(e.g.  under KVM) and probably also on arm64.  The race window is pretty
-narrow, and constantly allocating and shattering hugepages isn't exactly
-fast; for now I've only managed to reproduce this in an x86 KVM guest with
-an artificially widened timing window (by adding a loop that repeatedly
-calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits, so
-that PV TLB flushes are used instead of IPIs).
-
-As requested on the list, also replace the existing VM_BUG_ON_PAGE() with
-a warning and bailout.  Since the existing code only performed the BUG_ON
-check on DEBUG_VM kernels, ensure that the new code also only performs the
-check under that configuration - I don't want to mix two logically
-separate changes together too much.  The macro VM_WARN_ON_ONCE_PAGE()
-doesn't return a value on !DEBUG_VM, so wrap the whole check in an #ifdef
-block.  An alternative would be to change the VM_WARN_ON_ONCE_PAGE()
-definition for !DEBUG_VM such that it always returns false, but since that
-would differ from the behavior of the normal WARN macros, it might be too
-confusing for readers.
-
-Link: https://lkml.kernel.org/r/20210615012014.1100672-1-jannh@google.com
-Fixes: 7aef4172c795 ("mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reviewed-by: John Hubbard <jhubbard@nvidia.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Kirill A. Shutemov <kirill@shutemov.name>
-Cc: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Alexey Gladkov <legion@kernel.org>
+Link: https://lkml.kernel.org/r/b37aaef28d8b9b0d757e07ba6dd27281bbe39259.1619094428.git.legion@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c |   58 +++++++++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 43 insertions(+), 15 deletions(-)
+ fs/exec.c                      |  4 ++++
+ include/linux/cred.h           |  2 ++
+ include/linux/user_namespace.h |  4 ++++
+ kernel/cred.c                  | 40 ++++++++++++++++++++++++++++++++++
+ kernel/fork.c                  |  6 +++++
+ kernel/sys.c                   | 12 ++++++++++
+ kernel/ucount.c                | 40 +++++++++++++++++++++++++++++++---
+ kernel/user_namespace.c        |  3 +++
+ 8 files changed, 108 insertions(+), 3 deletions(-)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -44,6 +44,23 @@ static void hpage_pincount_sub(struct pa
- 	atomic_sub(refs, compound_pincount_ptr(page));
- }
+diff --git a/fs/exec.c b/fs/exec.c
+index 18594f11c31f..d7c4187ca023 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1360,6 +1360,10 @@ int begin_new_exec(struct linux_binprm * bprm)
+ 	WRITE_ONCE(me->self_exec_id, me->self_exec_id + 1);
+ 	flush_signal_handlers(me, 0);
  
-+/* Equivalent to calling put_page() @refs times. */
-+static void put_page_refs(struct page *page, int refs)
++	retval = set_cred_ucounts(bprm->cred);
++	if (retval < 0)
++		goto out_unlock;
++
+ 	/*
+ 	 * install the new credentials for this executable
+ 	 */
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+index 14971322e1a0..65014e50d5fa 100644
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -143,6 +143,7 @@ struct cred {
+ #endif
+ 	struct user_struct *user;	/* real user ID subscription */
+ 	struct user_namespace *user_ns; /* user_ns the caps and keyrings are relative to. */
++	struct ucounts *ucounts;
+ 	struct group_info *group_info;	/* supplementary groups for euid/fsgid */
+ 	/* RCU deletion */
+ 	union {
+@@ -169,6 +170,7 @@ extern int set_security_override_from_ctx(struct cred *, const char *);
+ extern int set_create_files_as(struct cred *, struct inode *);
+ extern int cred_fscmp(const struct cred *, const struct cred *);
+ extern void __init cred_init(void);
++extern int set_cred_ucounts(struct cred *);
+ 
+ /*
+  * check for validity of credentials
+diff --git a/include/linux/user_namespace.h b/include/linux/user_namespace.h
+index 1d08dbbcfe32..bfa6463f8a95 100644
+--- a/include/linux/user_namespace.h
++++ b/include/linux/user_namespace.h
+@@ -104,11 +104,15 @@ struct ucounts {
+ };
+ 
+ extern struct user_namespace init_user_ns;
++extern struct ucounts init_ucounts;
+ 
+ bool setup_userns_sysctls(struct user_namespace *ns);
+ void retire_userns_sysctls(struct user_namespace *ns);
+ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid, enum ucount_type type);
+ void dec_ucount(struct ucounts *ucounts, enum ucount_type type);
++struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid);
++struct ucounts *get_ucounts(struct ucounts *ucounts);
++void put_ucounts(struct ucounts *ucounts);
+ 
+ #ifdef CONFIG_USER_NS
+ 
+diff --git a/kernel/cred.c b/kernel/cred.c
+index e1d274cd741b..642d62f7b46d 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -60,6 +60,7 @@ struct cred init_cred = {
+ 	.user			= INIT_USER,
+ 	.user_ns		= &init_user_ns,
+ 	.group_info		= &init_groups,
++	.ucounts		= &init_ucounts,
+ };
+ 
+ static inline void set_cred_subscribers(struct cred *cred, int n)
+@@ -119,6 +120,8 @@ static void put_cred_rcu(struct rcu_head *rcu)
+ 	if (cred->group_info)
+ 		put_group_info(cred->group_info);
+ 	free_uid(cred->user);
++	if (cred->ucounts)
++		put_ucounts(cred->ucounts);
+ 	put_user_ns(cred->user_ns);
+ 	kmem_cache_free(cred_jar, cred);
+ }
+@@ -222,6 +225,7 @@ struct cred *cred_alloc_blank(void)
+ #ifdef CONFIG_DEBUG_CREDENTIALS
+ 	new->magic = CRED_MAGIC;
+ #endif
++	new->ucounts = get_ucounts(&init_ucounts);
+ 
+ 	if (security_cred_alloc_blank(new, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+@@ -284,6 +288,11 @@ struct cred *prepare_creds(void)
+ 
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
++
++	new->ucounts = get_ucounts(new->ucounts);
++	if (!new->ucounts)
++		goto error;
++
+ 	validate_creds(new);
+ 	return new;
+ 
+@@ -363,6 +372,8 @@ int copy_creds(struct task_struct *p, unsigned long clone_flags)
+ 		ret = create_user_ns(new);
+ 		if (ret < 0)
+ 			goto error_put;
++		if (set_cred_ucounts(new) < 0)
++			goto error_put;
+ 	}
+ 
+ #ifdef CONFIG_KEYS
+@@ -653,6 +664,31 @@ int cred_fscmp(const struct cred *a, const struct cred *b)
+ }
+ EXPORT_SYMBOL(cred_fscmp);
+ 
++int set_cred_ucounts(struct cred *new)
 +{
-+#ifdef CONFIG_DEBUG_VM
-+	if (VM_WARN_ON_ONCE_PAGE(page_ref_count(page) < refs, page))
-+		return;
-+#endif
++	struct task_struct *task = current;
++	const struct cred *old = task->real_cred;
++	struct ucounts *old_ucounts = new->ucounts;
++
++	if (new->user == old->user && new->user_ns == old->user_ns)
++		return 0;
 +
 +	/*
-+	 * Calling put_page() for each ref is unnecessarily slow. Only the last
-+	 * ref needs a put_page().
++	 * This optimization is needed because alloc_ucounts() uses locks
++	 * for table lookups.
 +	 */
-+	if (refs > 1)
-+		page_ref_sub(page, refs - 1);
-+	put_page(page);
++	if (old_ucounts && old_ucounts->ns == new->user_ns && uid_eq(old_ucounts->uid, new->euid))
++		return 0;
++
++	if (!(new->ucounts = alloc_ucounts(new->user_ns, new->euid)))
++		return -EAGAIN;
++
++	if (old_ucounts)
++		put_ucounts(old_ucounts);
++
++	return 0;
 +}
 +
  /*
-  * Return the compound head page with ref appropriately incremented,
-  * or NULL if that failed.
-@@ -56,6 +73,21 @@ static inline struct page *try_get_compo
- 		return NULL;
- 	if (unlikely(!page_cache_add_speculative(head, refs)))
- 		return NULL;
+  * initialise the credentials stuff
+  */
+@@ -719,6 +755,10 @@ struct cred *prepare_kernel_cred(struct task_struct *daemon)
+ 	if (security_prepare_creds(new, old, GFP_KERNEL_ACCOUNT) < 0)
+ 		goto error;
+ 
++	new->ucounts = get_ucounts(new->ucounts);
++	if (!new->ucounts)
++		goto error;
 +
-+	/*
-+	 * At this point we have a stable reference to the head page; but it
-+	 * could be that between the compound_head() lookup and the refcount
-+	 * increment, the compound page was split, in which case we'd end up
-+	 * holding a reference on a page that has nothing to do with the page
-+	 * we were given anymore.
-+	 * So now that the head page is stable, recheck that the pages still
-+	 * belong together.
-+	 */
-+	if (unlikely(compound_head(page) != head)) {
-+		put_page_refs(head, refs);
-+		return NULL;
+ 	put_cred(old);
+ 	validate_creds(new);
+ 	return new;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index a070caed5c8e..24a689df61c9 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2997,6 +2997,12 @@ int ksys_unshare(unsigned long unshare_flags)
+ 	if (err)
+ 		goto bad_unshare_cleanup_cred;
+ 
++	if (new_cred) {
++		err = set_cred_ucounts(new_cred);
++		if (err)
++			goto bad_unshare_cleanup_cred;
 +	}
 +
- 	return head;
- }
+ 	if (new_fs || new_fd || do_sysvsem || new_cred || new_nsproxy) {
+ 		if (do_sysvsem) {
+ 			/*
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 3a583a29815f..142ee040f573 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -558,6 +558,10 @@ long __sys_setreuid(uid_t ruid, uid_t euid)
+ 	if (retval < 0)
+ 		goto error;
  
-@@ -95,6 +127,14 @@ __maybe_unused struct page *try_grab_com
- 			return NULL;
- 
- 		/*
-+		 * CAUTION: Don't use compound_head() on the page before this
-+		 * point, the result won't be stable.
-+		 */
-+		page = try_get_compound_head(page, refs);
-+		if (!page)
-+			return NULL;
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
 +
-+		/*
- 		 * When pinning a compound page of order > 1 (which is what
- 		 * hpage_pincount_available() checks for), use an exact count to
- 		 * track it, via hpage_pincount_add/_sub().
-@@ -102,15 +142,10 @@ __maybe_unused struct page *try_grab_com
- 		 * However, be sure to *also* increment the normal page refcount
- 		 * field at least once, so that the page really is pinned.
- 		 */
--		if (!hpage_pincount_available(page))
--			refs *= GUP_PIN_COUNTING_BIAS;
--
--		page = try_get_compound_head(page, refs);
--		if (!page)
--			return NULL;
--
- 		if (hpage_pincount_available(page))
- 			hpage_pincount_add(page, refs);
-+		else
-+			page_ref_add(page, refs * (GUP_PIN_COUNTING_BIAS - 1));
+ 	return commit_creds(new);
  
- 		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED,
- 				    orig_refs);
-@@ -134,14 +169,7 @@ static void put_compound_head(struct pag
- 			refs *= GUP_PIN_COUNTING_BIAS;
- 	}
+ error:
+@@ -616,6 +620,10 @@ long __sys_setuid(uid_t uid)
+ 	if (retval < 0)
+ 		goto error;
  
--	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
--	/*
--	 * Calling put_page() for each ref is unnecessarily slow. Only the last
--	 * ref needs a put_page().
--	 */
--	if (refs > 1)
--		page_ref_sub(page, refs - 1);
--	put_page(page);
-+	put_page_refs(page, refs);
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
++
+ 	return commit_creds(new);
+ 
+ error:
+@@ -691,6 +699,10 @@ long __sys_setresuid(uid_t ruid, uid_t euid, uid_t suid)
+ 	if (retval < 0)
+ 		goto error;
+ 
++	retval = set_cred_ucounts(new);
++	if (retval < 0)
++		goto error;
++
+ 	return commit_creds(new);
+ 
+ error:
+diff --git a/kernel/ucount.c b/kernel/ucount.c
+index 8d8874f1c35e..1f4455874aa0 100644
+--- a/kernel/ucount.c
++++ b/kernel/ucount.c
+@@ -8,6 +8,12 @@
+ #include <linux/kmemleak.h>
+ #include <linux/user_namespace.h>
+ 
++struct ucounts init_ucounts = {
++	.ns    = &init_user_ns,
++	.uid   = GLOBAL_ROOT_UID,
++	.count = 1,
++};
++
+ #define UCOUNTS_HASHTABLE_BITS 10
+ static struct hlist_head ucounts_hashtable[(1 << UCOUNTS_HASHTABLE_BITS)];
+ static DEFINE_SPINLOCK(ucounts_lock);
+@@ -129,7 +135,15 @@ static struct ucounts *find_ucounts(struct user_namespace *ns, kuid_t uid, struc
+ 	return NULL;
  }
  
- /**
+-static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
++static void hlist_add_ucounts(struct ucounts *ucounts)
++{
++	struct hlist_head *hashent = ucounts_hashentry(ucounts->ns, ucounts->uid);
++	spin_lock_irq(&ucounts_lock);
++	hlist_add_head(&ucounts->node, hashent);
++	spin_unlock_irq(&ucounts_lock);
++}
++
++struct ucounts *alloc_ucounts(struct user_namespace *ns, kuid_t uid)
+ {
+ 	struct hlist_head *hashent = ucounts_hashentry(ns, uid);
+ 	struct ucounts *ucounts, *new;
+@@ -164,7 +178,26 @@ static struct ucounts *get_ucounts(struct user_namespace *ns, kuid_t uid)
+ 	return ucounts;
+ }
+ 
+-static void put_ucounts(struct ucounts *ucounts)
++struct ucounts *get_ucounts(struct ucounts *ucounts)
++{
++	unsigned long flags;
++
++	if (!ucounts)
++		return NULL;
++
++	spin_lock_irqsave(&ucounts_lock, flags);
++	if (ucounts->count == INT_MAX) {
++		WARN_ONCE(1, "ucounts: counter has reached its maximum value");
++		ucounts = NULL;
++	} else {
++		ucounts->count += 1;
++	}
++	spin_unlock_irqrestore(&ucounts_lock, flags);
++
++	return ucounts;
++}
++
++void put_ucounts(struct ucounts *ucounts)
+ {
+ 	unsigned long flags;
+ 
+@@ -198,7 +231,7 @@ struct ucounts *inc_ucount(struct user_namespace *ns, kuid_t uid,
+ {
+ 	struct ucounts *ucounts, *iter, *bad;
+ 	struct user_namespace *tns;
+-	ucounts = get_ucounts(ns, uid);
++	ucounts = alloc_ucounts(ns, uid);
+ 	for (iter = ucounts; iter; iter = tns->ucounts) {
+ 		int max;
+ 		tns = iter->ns;
+@@ -241,6 +274,7 @@ static __init int user_namespace_sysctl_init(void)
+ 	BUG_ON(!user_header);
+ 	BUG_ON(!setup_userns_sysctls(&init_user_ns));
+ #endif
++	hlist_add_ucounts(&init_ucounts);
+ 	return 0;
+ }
+ subsys_initcall(user_namespace_sysctl_init);
+diff --git a/kernel/user_namespace.c b/kernel/user_namespace.c
+index 8d62863721b0..27670ab7a4ed 100644
+--- a/kernel/user_namespace.c
++++ b/kernel/user_namespace.c
+@@ -1340,6 +1340,9 @@ static int userns_install(struct nsset *nsset, struct ns_common *ns)
+ 	put_user_ns(cred->user_ns);
+ 	set_cred_user_ns(cred, get_user_ns(user_ns));
+ 
++	if (set_cred_ucounts(cred) < 0)
++		return -EINVAL;
++
+ 	return 0;
+ }
+ 
+-- 
+2.30.2
+
 
 
