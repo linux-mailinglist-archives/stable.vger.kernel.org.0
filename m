@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0433C545B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5083C4A71
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348425AbhGLH5r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46920 "EHLO mail.kernel.org"
+        id S238216AbhGLGwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348240AbhGLHzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:55:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 039CE61206;
-        Mon, 12 Jul 2021 07:51:46 +0000 (UTC)
+        id S238970AbhGLGtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF3336124C;
+        Mon, 12 Jul 2021 06:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076307;
-        bh=pXn31TkCyFWQq5xPePd9IsCjXV2Uf7TMp52YGIPBvuE=;
+        s=korg; t=1626072326;
+        bh=SuJWx5aikfgjLPsi/izRltDjym6hqrl6MuXVSfVMQVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xasQg3oQIROa+PFpoe7J9a2I1aOGvMXQLxDQVrRBe+j9Vobfq4267J7fvAqcNmIok
-         kTsLxZ3Vfh0KU6JSDZn9QvjdSjwcwWY7Sm11Etxh+87B6wycsKrYfNZW46bBj6YXqo
-         Hzbc6OScJD5/IIZXGNwj1E34IDfd0OEAZPfU0ERg=
+        b=PzHAAejNS9UvpTRF9E2fN/6TYOe70Hz5mJsRyKw8O7gvaebNLzjz7WCZ3kdfDXo0p
+         0AZdeAHu5yQEPRS/byiOZWNNB+GE9vtTcjZuVpcVAgzI1XHiwkRVo6kfs9YjqbkXoq
+         quGTwQfSS3Be/P7Tp7YIhYvU8e8SLLJOhp8Un5y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 587/800] clk: actions: Fix bisp_factor_table based clocks on Owl S500 SoC
+Subject: [PATCH 5.10 450/593] iio: accel: stk8312: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:10 +0200
-Message-Id: <20210712061029.737190200@linuxfoundation.org>
+Message-Id: <20210712060938.753729611@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,141 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit a8f1f03caa51aa7a69c671aa87c475034db7d368 ]
+[ Upstream commit f40a71ffec808e7e51848f63f0c0d3c32d65081b ]
 
-The following clocks of the Actions Semi Owl S500 SoC have been defined
-to use a shared clock factor table 'bisp_factor_table[]': DE[1-2], VCE,
-VDE, BISP, SENSOR[0-1]
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-There are several issues involved in this approach:
+Found during an audit of all calls of this function.
 
-* 'bisp_factor_table[]' describes the configuration of a regular 8-rates
-  divider, so its usage is redundant. Additionally, judging by the BISP
-  clock context, it is incomplete since it maps only 8 out of 12
-  possible entries.
-
-* The clocks mentioned above are not identical in terms of the available
-  rates, therefore cannot rely on the same factor table. Specifically,
-  BISP and SENSOR* are standard 12-rate dividers so their configuration
-  should rely on a proper clock div table, while VCE and VDE require a
-  factor table that is a actually a subset of the one needed for DE[1-2]
-  clocks.
-
-Let's fix this by implementing the following:
-
-* Add new factor tables 'de_factor_table' and 'hde_factor_table' to
-  properly handle DE[1-2], VCE and VDE clocks.
-
-* Add a common div table 'std12rate_div_table' for BISP and SENSOR[0-1]
-  clocks converted to OWL_COMP_DIV.
-
-* Drop the now unused 'bisp_factor_table[]'.
-
-Additionally, drop the CLK_IGNORE_UNUSED flag for SENSOR[0-1] since
-there is no reason to always keep ON those clocks.
-
-Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/e675820a46cd9930d8d576c6cae61d41c1a8416f.1623354574.git.cristian.ciocaltea@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 95c12bba51c3 ("iio: accel: Add buffer mode for Sensortek STK8312")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-7-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/actions/owl-s500.c | 44 ++++++++++++++++++++++------------
- 1 file changed, 29 insertions(+), 15 deletions(-)
+ drivers/iio/accel/stk8312.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
-index 42abdf964044..42d6899755e6 100644
---- a/drivers/clk/actions/owl-s500.c
-+++ b/drivers/clk/actions/owl-s500.c
-@@ -140,9 +140,16 @@ static struct clk_factor_table sd_factor_table[] = {
- 	{ 0, 0, 0 },
+diff --git a/drivers/iio/accel/stk8312.c b/drivers/iio/accel/stk8312.c
+index 3b59887a8581..7d24801e8aa7 100644
+--- a/drivers/iio/accel/stk8312.c
++++ b/drivers/iio/accel/stk8312.c
+@@ -103,7 +103,11 @@ struct stk8312_data {
+ 	u8 mode;
+ 	struct iio_trigger *dready_trig;
+ 	bool dready_trigger_on;
+-	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 64-bit timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s8 chans[3];
++		s64 timestamp __aligned(8);
++	} scan;
  };
  
--static struct clk_factor_table bisp_factor_table[] = {
--	{ 0, 1, 1 }, { 1, 1, 2 }, { 2, 1, 3 }, { 3, 1, 4 },
--	{ 4, 1, 5 }, { 5, 1, 6 }, { 6, 1, 7 }, { 7, 1, 8 },
-+static struct clk_factor_table de_factor_table[] = {
-+	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
-+	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
-+	{ 8, 1, 12 },
-+	{ 0, 0, 0 },
-+};
-+
-+static struct clk_factor_table hde_factor_table[] = {
-+	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
-+	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
- 	{ 0, 0, 0 },
- };
+ static IIO_CONST_ATTR(in_accel_scale_available, STK8312_SCALE_AVAIL);
+@@ -438,7 +442,7 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8312_REG_XOUT,
+ 						    STK8312_ALL_CHANNEL_SIZE,
+-						    data->buffer);
++						    data->scan.chans);
+ 		if (ret < STK8312_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			mutex_unlock(&data->lock);
+@@ -452,12 +456,12 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 				mutex_unlock(&data->lock);
+ 				goto err;
+ 			}
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
+ 	mutex_unlock(&data->lock);
  
-@@ -156,6 +163,13 @@ static struct clk_div_table rmii_ref_div_table[] = {
- 	{ 0, 0 },
- };
- 
-+static struct clk_div_table std12rate_div_table[] = {
-+	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
-+	{ 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 8 },
-+	{ 8, 9 }, { 9, 10 }, { 10, 11 }, { 11, 12 },
-+	{ 0, 0 },
-+};
-+
- static struct clk_div_table i2s_div_table[] = {
- 	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
- 	{ 4, 6 }, { 5, 8 }, { 6, 12 }, { 7, 16 },
-@@ -191,39 +205,39 @@ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNE
- 
- /* factor clocks */
- static OWL_FACTOR(ahb_clk, "ahb_clk", "h_clk", CMU_BUSCLK1, 2, 2, ahb_factor_table, 0, 0);
--static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 3, bisp_factor_table, 0, 0);
--static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 3, bisp_factor_table, 0, 0);
-+static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 4, de_factor_table, 0, 0);
-+static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 4, de_factor_table, 0, 0);
- 
- /* composite clocks */
- static OWL_COMP_FACTOR(vce_clk, "vce_clk", hde_clk_mux_p,
- 			OWL_MUX_HW(CMU_VCECLK, 4, 2),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 26, 0),
--			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, bisp_factor_table),
-+			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, hde_factor_table),
- 			0);
- 
- static OWL_COMP_FACTOR(vde_clk, "vde_clk", hde_clk_mux_p,
- 			OWL_MUX_HW(CMU_VDECLK, 4, 2),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 25, 0),
--			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, bisp_factor_table),
-+			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, hde_factor_table),
- 			0);
- 
--static OWL_COMP_FACTOR(bisp_clk, "bisp_clk", bisp_clk_mux_p,
-+static OWL_COMP_DIV(bisp_clk, "bisp_clk", bisp_clk_mux_p,
- 			OWL_MUX_HW(CMU_BISPCLK, 4, 1),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
--			OWL_FACTOR_HW(CMU_BISPCLK, 0, 3, 0, bisp_factor_table),
-+			OWL_DIVIDER_HW(CMU_BISPCLK, 0, 4, 0, std12rate_div_table),
- 			0);
- 
--static OWL_COMP_FACTOR(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
-+static OWL_COMP_DIV(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
- 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
--			OWL_FACTOR_HW(CMU_SENSORCLK, 0, 3, 0, bisp_factor_table),
--			CLK_IGNORE_UNUSED);
-+			OWL_DIVIDER_HW(CMU_SENSORCLK, 0, 4, 0, std12rate_div_table),
-+			0);
- 
--static OWL_COMP_FACTOR(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
-+static OWL_COMP_DIV(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
- 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
- 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
--			OWL_FACTOR_HW(CMU_SENSORCLK, 8, 3, 0, bisp_factor_table),
--			CLK_IGNORE_UNUSED);
-+			OWL_DIVIDER_HW(CMU_SENSORCLK, 8, 4, 0, std12rate_div_table),
-+			0);
- 
- static OWL_COMP_FACTOR(sd0_clk, "sd0_clk", sd_clk_mux_p,
- 			OWL_MUX_HW(CMU_SD0CLK, 9, 1),
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
 
