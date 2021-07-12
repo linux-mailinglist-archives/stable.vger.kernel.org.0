@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C0F3C4BA1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BACB53C4B9E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239830AbhGLG6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
+        id S239458AbhGLG6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240009AbhGLG5n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:57:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B648161132;
-        Mon, 12 Jul 2021 06:54:53 +0000 (UTC)
+        id S239849AbhGLG5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93983613D9;
+        Mon, 12 Jul 2021 06:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072894;
-        bh=FvwUpQ2nmy72RY4rak7jDjupjX9dGsTCsai5zJ8RPPE=;
+        s=korg; t=1626072900;
+        bh=0aE05FEyTHLwX7nNashTmQdzwBxZWWMVD/FG57n+2nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQEGxAyG/3G/fHA8Fc2cWBWfBgGX3z/TBHVox1fSa6urE86u34wGtVakXzvSyp2wX
-         94/NuKio6SVXB/+hqvcywc7QRy54KPIC2YMohRFLh5zBOJmBuGG3lHu8tB2F1ZCU2+
-         EBG9GxQshwt5ygvvDRQxN0NpUTC7e+tDGVmav5zY=
+        b=Pqqgi37nGjunK3HTzU8nsr8uDtjmvvvxJmSFi+Wsctm0eS3MXXnQe6RH++IJJTBUu
+         W24UTxYViSLfYS/7IdiIsHHVvvZqHV7PRY1dSR6KLtqDAVrX0WRSM87KnlUv1DkIom
+         SKj9glFo7bTXBBvuSXOeK5VCdBBSqgw/guovF1ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.12 057/700] can: bcm: delay release of struct bcm_op after synchronize_rcu()
-Date:   Mon, 12 Jul 2021 08:02:20 +0200
-Message-Id: <20210712060932.786443661@linuxfoundation.org>
+Subject: [PATCH 5.12 058/700] can: gw: synchronize rcu operations before removing gw job entry
+Date:   Mon, 12 Jul 2021 08:02:21 +0200
+Message-Id: <20210712060932.919495351@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -43,64 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit d5f9023fa61ee8b94f37a93f08e94b136cf1e463 upstream.
+commit fb8696ab14adadb2e3f6c17c18ed26b3ecd96691 upstream.
 
-can_rx_register() callbacks may be called concurrently to the call to
-can_rx_unregister(). The callbacks and callback data, though, are
-protected by RCU and the struct sock reference count.
+can_can_gw_rcv() is called under RCU protection, so after calling
+can_rx_unregister(), we have to call synchronize_rcu in order to wait
+for any RCU read-side critical sections to finish before removing the
+kmem_cache entry with the referenced gw job entry.
 
-So the callback data is really attached to the life of sk, meaning
-that it should be released on sk_destruct. However, bcm_remove_op()
-calls tasklet_kill(), and RCU callbacks may be called under RCU
-softirq, so that cannot be used on kernels before the introduction of
-HRTIMER_MODE_SOFT.
-
-However, bcm_rx_handler() is called under RCU protection, so after
-calling can_rx_unregister(), we may call synchronize_rcu() in order to
-wait for any RCU read-side critical sections to finish. That is,
-bcm_rx_handler() won't be called anymore for those ops. So, we only
-free them, after we do that synchronize_rcu().
-
-Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
-Link: https://lore.kernel.org/r/20210619161813.2098382-1-cascardo@canonical.com
+Link: https://lore.kernel.org/r/20210618173645.2238-1-socketcan@hartkopp.net
+Fixes: c1aabdf379bc ("can-gw: add netlink based CAN routing")
 Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/bcm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/can/gw.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -785,6 +785,7 @@ static int bcm_delete_rx_op(struct list_
- 						  bcm_rx_handler, op);
- 
- 			list_del(&op->list);
-+			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
+--- a/net/can/gw.c
++++ b/net/can/gw.c
+@@ -596,6 +596,7 @@ static int cgw_notifier(struct notifier_
+ 			if (gwj->src.dev == dev || gwj->dst.dev == dev) {
+ 				hlist_del(&gwj->list);
+ 				cgw_unregister_filter(net, gwj);
++				synchronize_rcu();
+ 				kmem_cache_free(cgw_cache, gwj);
+ 			}
  		}
-@@ -1533,9 +1534,13 @@ static int bcm_release(struct socket *so
- 					  REGMASK(op->can_id),
- 					  bcm_rx_handler, op);
- 
--		bcm_remove_op(op);
+@@ -1154,6 +1155,7 @@ static void cgw_remove_all_jobs(struct n
+ 	hlist_for_each_entry_safe(gwj, nx, &net->can.cgw_list, list) {
+ 		hlist_del(&gwj->list);
+ 		cgw_unregister_filter(net, gwj);
++		synchronize_rcu();
+ 		kmem_cache_free(cgw_cache, gwj);
  	}
+ }
+@@ -1222,6 +1224,7 @@ static int cgw_remove_job(struct sk_buff
  
-+	synchronize_rcu();
-+
-+	list_for_each_entry_safe(op, next, &bo->rx_ops, list)
-+		bcm_remove_op(op);
-+
- #if IS_ENABLED(CONFIG_PROC_FS)
- 	/* remove procfs entry */
- 	if (net->can.bcmproc_dir && bo->bcm_proc_read)
+ 		hlist_del(&gwj->list);
+ 		cgw_unregister_filter(net, gwj);
++		synchronize_rcu();
+ 		kmem_cache_free(cgw_cache, gwj);
+ 		err = 0;
+ 		break;
 
 
