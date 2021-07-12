@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C603C4756
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB3873C4711
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236264AbhGLGcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52414 "EHLO mail.kernel.org"
+        id S234080AbhGLGbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236290AbhGLG3z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:29:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF08360FE3;
-        Mon, 12 Jul 2021 06:27:05 +0000 (UTC)
+        id S236666AbhGLGaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:30:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D0C360238;
+        Mon, 12 Jul 2021 06:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071226;
-        bh=5TDp1Kdz9R/7LzYSeUsllTeJyhdmJpTqPoMmJdtdadg=;
+        s=korg; t=1626071251;
+        bh=E8jrvBp7NQyVPO9QxXNVoK7M83EnFpEZZanD7Y8asMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XxKWixRK4UQsxHcGNjC/+BCKsPAxFStXPjuwbwqh4dqy4lyzUVLO65rTEfDiN1VQ
-         CU3M/wAm/W/yF/69AodK8aE188tuZVRcgxeoOTRpTe3cRhizLv9dQIFFjATVni5nAe
-         kTyjEDp5a4DSfV7nY5UoH2mYugld9+wGavAzyCF0=
+        b=n7hR5hrIXmnc9Fzw/KRAylvD98R9o5JDUnnw8jRBlUmkgZGjvHt4FK0GKTpu4hYT1
+         EwxPZJIsbnc9WAaAO8+urP7KBc+QCklCt+G/lZH+yoI9fpxKTWsPo99LqLTgpsxgkC
+         DQ3odX89VJtUeqnuw14OGIHYVyd06W4oYfaPwKJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 301/348] s390: appldata depends on PROC_SYSCTL
-Date:   Mon, 12 Jul 2021 08:11:25 +0200
-Message-Id: <20210712060743.544717627@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinath Mannam <srinath.mannam@broadcom.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sven Peter <sven@svenpeter.dev>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 302/348] iommu/dma: Fix IOVA reserve dma ranges
+Date:   Mon, 12 Jul 2021 08:11:26 +0200
+Message-Id: <20210712060743.708489154@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,44 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Srinath Mannam <srinath.mannam@broadcom.com>
 
-[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
+[ Upstream commit 571f316074a203e979ea90211d9acf423dfe5f46 ]
 
-APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
-Building with PROC_FS but not PROC_SYSCTL causes a build error,
-since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
+Fix IOVA reserve failure in the case when address of first memory region
+listed in dma-ranges is equal to 0x0.
 
-arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
-appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
-
-Fixes: c185b783b099 ("[S390] Remove config options.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: aadad097cd46f ("iommu/dma: Reserve IOVA for PCIe inaccessible DMA address")
+Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Tested-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20200914072319.6091-1-srinath.mannam@broadcom.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/dma-iommu.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 43a81d0ad507..0023b78391f1 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -920,7 +920,7 @@ config CMM_IUCV
- config APPLDATA_BASE
- 	def_bool n
- 	prompt "Linux - VM Monitor Stream, base infrastructure"
--	depends on PROC_FS
-+	depends on PROC_SYSCTL
- 	help
- 	  This provides a kernel interface for creating and updating z/VM APPLDATA
- 	  monitor records. The monitor records are updated at certain time
+diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+index 76bd2309e023..d3b6898626e7 100644
+--- a/drivers/iommu/dma-iommu.c
++++ b/drivers/iommu/dma-iommu.c
+@@ -216,9 +216,11 @@ resv_iova:
+ 			lo = iova_pfn(iovad, start);
+ 			hi = iova_pfn(iovad, end);
+ 			reserve_iova(iovad, lo, hi);
+-		} else {
++		} else if (end < start) {
+ 			/* dma_ranges list should be sorted */
+-			dev_err(&dev->dev, "Failed to reserve IOVA\n");
++			dev_err(&dev->dev,
++				"Failed to reserve IOVA [%#010llx-%#010llx]\n",
++				start, end);
+ 			return -EINVAL;
+ 		}
+ 
 -- 
 2.30.2
 
