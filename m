@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB053C4D5E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FDF83C534B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242370AbhGLHMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42596 "EHLO mail.kernel.org"
+        id S1352272AbhGLHy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244239AbhGLHKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 098BC610D1;
-        Mon, 12 Jul 2021 07:07:32 +0000 (UTC)
+        id S1349994AbhGLHuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1871161879;
+        Mon, 12 Jul 2021 07:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073653;
-        bh=8Yp9lNsy+iOakIq3cbwUDGisQWV9MqX/9kzDmE0CePE=;
+        s=korg; t=1626075817;
+        bh=rNG5DcWA9KDHMgAglAzkWJWc5snz95lOb8j/k4helOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4X7e7Nah8tnrslFDTvOrVZWL0lRIZV8UOIzHL6tcS+DPPu4bAhwRtFB2bemwA33e
-         F2svJXeJfC6swAktlEoHAUpxPxw+QXkzqrxlyT8FtImVHnA9iY3TtsgZj3xLLCzx+7
-         CRCS10/WoFf3/qmFJZJ/sLOXt+QSSedjq22FpkbA=
+        b=vA4+DHV4MNgN0jkM4r6dnE/IIaPYw2vseRj5QmPe03dbTnr0VhpmlDhGHNvW4aVqf
+         UIgpbfLBu24ST+x/0rqVkU24a5w4aCZnQVYIzxK+D1nxh4AqZBKZ0qdy7dVjtHCy1h
+         Mxg2WIHrwAlQK9mz/0f8eLvQKsm6ngoDHcVSHDSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mirko Vogt <mirko-dev|linux@nanl.de>,
-        Ralf Schlatterbeck <rsc@runtux.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 315/700] spi: spi-sun6i: Fix chipselect/clock bug
+Subject: [PATCH 5.13 375/800] ACPI: bgrt: Fix CFI violation
 Date:   Mon, 12 Jul 2021 08:06:38 +0200
-Message-Id: <20210712061009.864386497@linuxfoundation.org>
+Message-Id: <20210712061006.967584970@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirko Vogt <mirko-dev|linux@nanl.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 0d7993b234c9fad8cb6bec6adfaa74694ba85ecb ]
+[ Upstream commit f37ccf8fce155d08ae2a4fb3db677911ced0c21a ]
 
-The current sun6i SPI implementation initializes the transfer too early,
-resulting in SCK going high before the transfer. When using an additional
-(gpio) chipselect with sun6i, the chipselect is asserted at a time when
-clock is high, making the SPI transfer fail.
+clang's Control Flow Integrity requires that every indirect call has a
+valid target, which is based on the type of the function pointer. The
+*_show() functions in this file are written as if they will be called
+from dev_attr_show(); however, they will be called from
+sysfs_kf_seq_show() because the files were created by
+sysfs_create_group() and the sysfs ops are based on kobj_sysfs_ops
+because of kobject_add_and_create(). Because the *_show() functions do
+not match the type of the show() member in struct kobj_attribute, there
+is a CFI violation.
 
-This is due to SUN6I_GBL_CTL_BUS_ENABLE being written into
-SUN6I_GBL_CTL_REG at an early stage. Moving that to the transfer
-function, hence, right before the transfer starts, mitigates that
-problem.
+$ cat /sys/firmware/acpi/bgrt/{status,type,version,{x,y}offset}}
+1
+0
+1
+522
+307
 
-Fixes: 3558fe900e8af (spi: sunxi: Add Allwinner A31 SPI controller driver)
-Signed-off-by: Mirko Vogt <mirko-dev|linux@nanl.de>
-Signed-off-by: Ralf Schlatterbeck <rsc@runtux.com>
-Link: https://lore.kernel.org/r/20210614144507.y3udezjfbko7eavv@runtux.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+$ dmesg | grep "CFI failure"
+[  267.761825] CFI failure (target: type_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762246] CFI failure (target: xoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762584] CFI failure (target: status_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.762973] CFI failure (target: yoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+[  267.763330] CFI failure (target: version_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
+
+Convert these functions to the type of the show() member in struct
+kobj_attribute so that there is no more CFI violation. Because these
+functions are all so similar, combine them into a macro.
+
+Fixes: d1ff4b1cdbab ("ACPI: Add support for exposing BGRT data")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1406
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sun6i.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/acpi/bgrt.c | 57 ++++++++++++++-------------------------------
+ 1 file changed, 18 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
-index cc8401980125..23ad052528db 100644
---- a/drivers/spi/spi-sun6i.c
-+++ b/drivers/spi/spi-sun6i.c
-@@ -379,6 +379,10 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 	}
+diff --git a/drivers/acpi/bgrt.c b/drivers/acpi/bgrt.c
+index 19bb7f870204..e0d14017706e 100644
+--- a/drivers/acpi/bgrt.c
++++ b/drivers/acpi/bgrt.c
+@@ -15,40 +15,19 @@
+ static void *bgrt_image;
+ static struct kobject *bgrt_kobj;
  
- 	sun6i_spi_write(sspi, SUN6I_CLK_CTL_REG, reg);
-+	/* Finally enable the bus - doing so before might raise SCK to HIGH */
-+	reg = sun6i_spi_read(sspi, SUN6I_GBL_CTL_REG);
-+	reg |= SUN6I_GBL_CTL_BUS_ENABLE;
-+	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG, reg);
+-static ssize_t version_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.version);
+-}
+-static DEVICE_ATTR_RO(version);
+-
+-static ssize_t status_show(struct device *dev,
+-			   struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.status);
+-}
+-static DEVICE_ATTR_RO(status);
+-
+-static ssize_t type_show(struct device *dev,
+-			 struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_type);
+-}
+-static DEVICE_ATTR_RO(type);
+-
+-static ssize_t xoffset_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_x);
+-}
+-static DEVICE_ATTR_RO(xoffset);
+-
+-static ssize_t yoffset_show(struct device *dev,
+-			    struct device_attribute *attr, char *buf)
+-{
+-	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_y);
+-}
+-static DEVICE_ATTR_RO(yoffset);
++#define BGRT_SHOW(_name, _member) \
++	static ssize_t _name##_show(struct kobject *kobj,			\
++				    struct kobj_attribute *attr, char *buf)	\
++	{									\
++		return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab._member);	\
++	}									\
++	struct kobj_attribute bgrt_attr_##_name = __ATTR_RO(_name)
++
++BGRT_SHOW(version, version);
++BGRT_SHOW(status, status);
++BGRT_SHOW(type, image_type);
++BGRT_SHOW(xoffset, image_offset_x);
++BGRT_SHOW(yoffset, image_offset_y);
  
- 	/* Setup the transfer now... */
- 	if (sspi->tx_buf)
-@@ -504,7 +508,7 @@ static int sun6i_spi_runtime_resume(struct device *dev)
- 	}
+ static ssize_t image_read(struct file *file, struct kobject *kobj,
+ 	       struct bin_attribute *attr, char *buf, loff_t off, size_t count)
+@@ -60,11 +39,11 @@ static ssize_t image_read(struct file *file, struct kobject *kobj,
+ static BIN_ATTR_RO(image, 0);	/* size gets filled in later */
  
- 	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG,
--			SUN6I_GBL_CTL_BUS_ENABLE | SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
-+			SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
- 
- 	return 0;
+ static struct attribute *bgrt_attributes[] = {
+-	&dev_attr_version.attr,
+-	&dev_attr_status.attr,
+-	&dev_attr_type.attr,
+-	&dev_attr_xoffset.attr,
+-	&dev_attr_yoffset.attr,
++	&bgrt_attr_version.attr,
++	&bgrt_attr_status.attr,
++	&bgrt_attr_type.attr,
++	&bgrt_attr_xoffset.attr,
++	&bgrt_attr_yoffset.attr,
+ 	NULL,
+ };
  
 -- 
 2.30.2
