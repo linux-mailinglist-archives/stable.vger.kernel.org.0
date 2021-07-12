@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 139AC3C4D58
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C843C5331
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239455AbhGLHMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
+        id S1344104AbhGLHyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244165AbhGLHK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8850561205;
-        Mon, 12 Jul 2021 07:06:33 +0000 (UTC)
+        id S1344981AbhGLHsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:48:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 231CE6162B;
+        Mon, 12 Jul 2021 07:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073593;
-        bh=9UUc3f9+EGkY5PHSfYXsv9G80kacFjvDyph61i1Qs/Y=;
+        s=korg; t=1626075761;
+        bh=G/K3Crhd6tJ6ZgMrsEAgkpCBVgafFxlC8sWRLdF9XLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkMVroL4ce0Goaoi8ER62k9iG+Ro4KSdo+wSv/PLvFZ4H4cfi4n9duwUh35Rl7vFD
-         iNFDEV6tKolJnuiXUAvYVrjuy54chdCgd/+mtO3/SZ+IHQ8gbaVISA3CuQvyYzT5M6
-         NvdOno+SzwEdkGlqnpsQlRlS78pSBfy1L8doGJSc=
+        b=Uq+DdtFbNpJa3vautgssV8V7nwiynERvn9MT+7vLWSDZih5bzjY0uPijfMEwXuPl6
+         RM1K106TXko+G0e+bojqiVXRsXkWiJHgYKkEnmH/0hyKPjkVW9eLriPklSJtjmt0xU
+         9C3PG3kUQtsvdtkuNkpWlXn9b0A7B3NnjfpHeF5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 293/700] media: i2c: rdacm21: Power up OV10640 before OV490
+Subject: [PATCH 5.13 353/800] media: mtk-vpu: on suspend, read/write regs only if vpu is running
 Date:   Mon, 12 Jul 2021 08:06:16 +0200
-Message-Id: <20210712061007.434002777@linuxfoundation.org>
+Message-Id: <20210712061004.652134891@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,135 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-[ Upstream commit 2b821698dc73c00719e3dc367db712f727bbda85 ]
+[ Upstream commit 11420749c6b4b237361750de3d5b5579175f8622 ]
 
-The current RDACM21 initialization routine powers up the OV10640 image
-sensor after the OV490 ISP. The ISP is programmed with a firmware loaded
-from an embedded serial flash that (most probably) tries to interact and
-program also the image sensor connected to the ISP.
+If the vpu is not running, we should not rely on VPU_IDLE_REG
+value. In this case, the suspend cb should only unprepare the
+clock. This fixes a system-wide suspend to ram failure:
 
-As described in commit "media: i2c: rdacm21: Fix OV10640 powerup" the
-image sensor powerdown signal is kept high by an internal pull up
-resistor and occasionally fails to startup correctly if the powerdown
-line is not asserted explicitly. Failures in the OV10640 startup causes
-the OV490 firmware to fail to boot correctly resulting in the camera
-module initialization to fail consequentially.
+[  273.073363] PM: suspend entry (deep)
+[  273.410502] mtk-msdc 11230000.mmc: phase: [map:ffffffff] [maxlen:32] [final:10]
+[  273.455926] Filesystems sync: 0.378 seconds
+[  273.589707] Freezing user space processes ... (elapsed 0.003 seconds) done.
+[  273.600104] OOM killer disabled.
+[  273.603409] Freezing remaining freezable tasks ... (elapsed 0.001 seconds) done.
+[  273.613361] mwifiex_sdio mmc2:0001:1: None of the WOWLAN triggers enabled
+[  274.784952] mtk_vpu 10020000.vpu: vpu idle timeout
+[  274.789764] PM: dpm_run_callback(): platform_pm_suspend+0x0/0x70 returns -5
+[  274.796740] mtk_vpu 10020000.vpu: PM: failed to suspend: error -5
+[  274.802842] PM: Some devices failed to suspend, or early wake event detected
+[  275.426489] OOM killer enabled.
+[  275.429718] Restarting tasks ...
+[  275.435765] done.
+[  275.447510] PM: suspend exit
 
-Fix this by powering up the OV10640 image sensor before testing the
-OV490 firmware boot completion, by splitting the ov10640_initialize()
-function in an ov10640_power_up() one and an ov10640_check_id() one.
-
-Also make sure the OV10640 identification procedure gives enough time to
-the image sensor to resume after the programming phase performed by the
-OV490 firmware by repeating the ID read procedure.
-
-This commit fixes a sporadic start-up error triggered by a failure to
-detect the OV490 firmware boot completion:
-rdacm21 8-0054: Timeout waiting for firmware boot
-
-[hverkuil: fixed two typos in commit log]
-
-Fixes: a59f853b3b4b ("media: i2c: Add driver for RDACM21 camera module")
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Fixes: 1f565e263c3e ("media: mtk-vpu: VPU should be in idle state before system is suspended")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/rdacm21.c | 46 ++++++++++++++++++++++++++-----------
- 1 file changed, 32 insertions(+), 14 deletions(-)
+ drivers/media/platform/mtk-vpu/mtk_vpu.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/media/i2c/rdacm21.c b/drivers/media/i2c/rdacm21.c
-index 4b0dfd0a75e1..50e2af522760 100644
---- a/drivers/media/i2c/rdacm21.c
-+++ b/drivers/media/i2c/rdacm21.c
-@@ -69,6 +69,7 @@
- #define OV490_ISP_VSIZE_LOW		0x80820062
- #define OV490_ISP_VSIZE_HIGH		0x80820063
- 
-+#define OV10640_PID_TIMEOUT		20
- #define OV10640_ID_HIGH			0xa6
- #define OV10640_CHIP_ID			0x300a
- #define OV10640_PIXEL_RATE		55000000
-@@ -329,10 +330,8 @@ static const struct v4l2_subdev_ops rdacm21_subdev_ops = {
- 	.pad		= &rdacm21_subdev_pad_ops,
- };
- 
--static int ov10640_initialize(struct rdacm21_device *dev)
-+static void ov10640_power_up(struct rdacm21_device *dev)
- {
--	u8 val;
--
- 	/* Enable GPIO0#0 (reset) and GPIO1#0 (pwdn) as output lines. */
- 	ov490_write_reg(dev, OV490_GPIO_SEL0, OV490_GPIO0);
- 	ov490_write_reg(dev, OV490_GPIO_SEL1, OV490_SPWDN0);
-@@ -347,18 +346,35 @@ static int ov10640_initialize(struct rdacm21_device *dev)
- 	usleep_range(1500, 3000);
- 	ov490_write_reg(dev, OV490_GPIO_OUTPUT_VALUE0, OV490_GPIO0);
- 	usleep_range(3000, 5000);
-+}
- 
--	/* Read OV10640 ID to test communications. */
--	ov490_write_reg(dev, OV490_SCCB_SLAVE0_DIR, OV490_SCCB_SLAVE_READ);
--	ov490_write_reg(dev, OV490_SCCB_SLAVE0_ADDR_HIGH, OV10640_CHIP_ID >> 8);
--	ov490_write_reg(dev, OV490_SCCB_SLAVE0_ADDR_LOW, OV10640_CHIP_ID & 0xff);
--
--	/* Trigger SCCB slave transaction and give it some time to complete. */
--	ov490_write_reg(dev, OV490_HOST_CMD, OV490_HOST_CMD_TRIGGER);
--	usleep_range(1000, 1500);
-+static int ov10640_check_id(struct rdacm21_device *dev)
-+{
-+	unsigned int i;
-+	u8 val;
- 
--	ov490_read_reg(dev, OV490_SCCB_SLAVE0_DIR, &val);
--	if (val != OV10640_ID_HIGH) {
-+	/* Read OV10640 ID to test communications. */
-+	for (i = 0; i < OV10640_PID_TIMEOUT; ++i) {
-+		ov490_write_reg(dev, OV490_SCCB_SLAVE0_DIR,
-+				OV490_SCCB_SLAVE_READ);
-+		ov490_write_reg(dev, OV490_SCCB_SLAVE0_ADDR_HIGH,
-+				OV10640_CHIP_ID >> 8);
-+		ov490_write_reg(dev, OV490_SCCB_SLAVE0_ADDR_LOW,
-+				OV10640_CHIP_ID & 0xff);
-+
-+		/*
-+		 * Trigger SCCB slave transaction and give it some time
-+		 * to complete.
-+		 */
-+		ov490_write_reg(dev, OV490_HOST_CMD, OV490_HOST_CMD_TRIGGER);
-+		usleep_range(1000, 1500);
-+
-+		ov490_read_reg(dev, OV490_SCCB_SLAVE0_DIR, &val);
-+		if (val == OV10640_ID_HIGH)
-+			break;
-+		usleep_range(1000, 1500);
-+	}
-+	if (i == OV10640_PID_TIMEOUT) {
- 		dev_err(dev->dev, "OV10640 ID mismatch: (0x%02x)\n", val);
- 		return -ENODEV;
- 	}
-@@ -374,6 +390,8 @@ static int ov490_initialize(struct rdacm21_device *dev)
- 	unsigned int i;
- 	int ret;
- 
-+	ov10640_power_up(dev);
-+
- 	/*
- 	 * Read OV490 Id to test communications. Give it up to 40msec to
- 	 * exit from reset.
-@@ -411,7 +429,7 @@ static int ov490_initialize(struct rdacm21_device *dev)
- 		return -ENODEV;
- 	}
- 
--	ret = ov10640_initialize(dev);
-+	ret = ov10640_check_id(dev);
- 	if (ret)
+diff --git a/drivers/media/platform/mtk-vpu/mtk_vpu.c b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+index c8a56271b259..7c4428cf14e6 100644
+--- a/drivers/media/platform/mtk-vpu/mtk_vpu.c
++++ b/drivers/media/platform/mtk-vpu/mtk_vpu.c
+@@ -987,6 +987,12 @@ static int mtk_vpu_suspend(struct device *dev)
  		return ret;
+ 	}
  
++	if (!vpu_running(vpu)) {
++		vpu_clock_disable(vpu);
++		clk_unprepare(vpu->clk);
++		return 0;
++	}
++
+ 	mutex_lock(&vpu->vpu_mutex);
+ 	/* disable vpu timer interrupt */
+ 	vpu_cfg_writel(vpu, vpu_cfg_readl(vpu, VPU_INT_STATUS) | VPU_IDLE_STATE,
 -- 
 2.30.2
 
