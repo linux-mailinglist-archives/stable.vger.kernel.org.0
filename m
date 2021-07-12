@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B3D3C443D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F0153C4444
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233375AbhGLGR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36110 "EHLO mail.kernel.org"
+        id S233461AbhGLGSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233376AbhGLGRz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:17:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C5B610CA;
-        Mon, 12 Jul 2021 06:15:05 +0000 (UTC)
+        id S233417AbhGLGSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 287706101E;
+        Mon, 12 Jul 2021 06:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070506;
-        bh=zbmoZgRHMCzEsl0EbklKS4MEXACPnmIi0gnDcLtROr0=;
+        s=korg; t=1626070515;
+        bh=A0JomnEOIAsFEzniIOSQpC+0e357aHWqV9yPVjud+LY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BAs+P/Xq3F7YdVFdODSxD/xa4g0WgSq6ilrHnuUFHfD7XMuOCCW3Ntq0EixO//jsV
-         +J2ReLx04fVZfQMw3QoGLog3CBbWF8xW8vnicq8+hDDWo+c1i9fEOwQrlCEv3Z00ej
-         6hxHT8YM1p5+GYp68+vogKGBfo+5sKK0/uDfVgxw=
+        b=bMX1+c42cq8v5gNzrGcvPqMlhhwE3n2M6z4/VirG8Q0b6p9zpLcHA2fQPXxlFOLa5
+         uJpso2dCrMdejTl2q7+vb1L0pkI7NIE8Fmmu6ISUj7iunhGSaFaMTuYKnaK7R+P94F
+         CdhipgpPZCLOZVDna4FsNJoENWKHuNMQdsyVJ7yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 002/348] ALSA: usb-audio: Fix OOB access at proc output
-Date:   Mon, 12 Jul 2021 08:06:26 +0200
-Message-Id: <20210712060700.221768027@linuxfoundation.org>
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 003/348] ALSA: usb-audio: scarlett2: Fix wrong resume call
+Date:   Mon, 12 Jul 2021 08:06:27 +0200
+Message-Id: <20210712060700.387583365@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,35 +41,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Iwai <tiwai@suse.de>
 
-commit 362372ceb6556f338e230f2d90af27b47f82365a upstream.
+commit 785b6f29a795f109685f286b91e0250c206fbffb upstream.
 
-At extending the available mixer values for 32bit types, we forgot to
-add the corresponding entries for the format dump in the proc output.
-This may result in OOB access.  Here adds the missing entries.
+The current way of the scarlett2 mixer code managing the
+usb_mixer_elem_info object is wrong in two ways: it passes its
+internal index to the head.id field, and the val_type field is
+uninitialized.  This ended up with the wrong execution at the resume
+because a bogus unit id is passed wrongly.  Also, in the later code
+extensions, we'll have more mixer elements, and passing the index will
+overflow the unit id size (of 256).
 
-Fixes: bc18e31c3042 ("ALSA: usb-audio: Fix parameter block size for UAC2 control requests")
+This patch corrects those issues.  It introduces a new value type,
+USB_MIXER_BESPOKEN, which indicates a non-standard mixer element, and
+use this type for all scarlett2 mixer elements, as well as
+initializing the fixed unit id 0 for avoiding the overflow.
+
+Tested-by: Geoffrey D. Bennett <g@b4.vu>
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210622090647.14021-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/49721219f45b7e175e729b0d9d9c142fd8f4342a.1624379707.git.g@b4.vu
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/usb/mixer.c               |    3 +++
+ sound/usb/mixer.h               |    1 +
+ sound/usb/mixer_scarlett_gen2.c |    7 ++++++-
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
 --- a/sound/usb/mixer.c
 +++ b/sound/usb/mixer.c
-@@ -3241,8 +3241,9 @@ static void snd_usb_mixer_dump_cval(stru
- 				    struct usb_mixer_elem_list *list)
- {
+@@ -3599,6 +3599,9 @@ static int restore_mixer_value(struct us
  	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
--	static const char * const val_types[] = {"BOOLEAN", "INV_BOOLEAN",
--				    "S8", "U8", "S16", "U16"};
-+	static const char * const val_types[] = {
-+		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
-+	};
- 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
- 			    "channels=%i, type=\"%s\"\n", cval->head.id,
- 			    cval->control, cval->cmask, cval->channels,
+ 	int c, err, idx;
+ 
++	if (cval->val_type == USB_MIXER_BESPOKEN)
++		return 0;
++
+ 	if (cval->cmask) {
+ 		idx = 0;
+ 		for (c = 0; c < MAX_CHANNELS; c++) {
+--- a/sound/usb/mixer.h
++++ b/sound/usb/mixer.h
+@@ -55,6 +55,7 @@ enum {
+ 	USB_MIXER_U16,
+ 	USB_MIXER_S32,
+ 	USB_MIXER_U32,
++	USB_MIXER_BESPOKEN,	/* non-standard type */
+ };
+ 
+ typedef void (*usb_mixer_elem_dump_func_t)(struct snd_info_buffer *buffer,
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -949,10 +949,15 @@ static int scarlett2_add_new_ctl(struct
+ 	if (!elem)
+ 		return -ENOMEM;
+ 
++	/* We set USB_MIXER_BESPOKEN type, so that the core USB mixer code
++	 * ignores them for resume and other operations.
++	 * Also, the head.id field is set to 0, as we don't use this field.
++	 */
+ 	elem->head.mixer = mixer;
+ 	elem->control = index;
+-	elem->head.id = index;
++	elem->head.id = 0;
+ 	elem->channels = channels;
++	elem->val_type = USB_MIXER_BESPOKEN;
+ 
+ 	kctl = snd_ctl_new1(ncontrol, elem);
+ 	if (!kctl) {
 
 
