@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 645F13C4D7A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 107A93C524B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241167AbhGLHNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
+        id S1345806AbhGLHpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243750AbhGLHIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:08:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC59761132;
-        Mon, 12 Jul 2021 07:04:51 +0000 (UTC)
+        id S1346844AbhGLHmk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E32386115A;
+        Mon, 12 Jul 2021 07:39:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073492;
-        bh=EtMTpQ8I4EdC0xibPZD+ySQyMUcReeDYMDHNjgDRpWk=;
+        s=korg; t=1626075592;
+        bh=0OFL4N10rEiwQSZSmGcXrtiPHmfuMmmN/yYuJSRHC0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RC+DEGBmt4yqC2E4jJZVofG1ktVFsKCYDbXkDfSUKZSIOfa2wv5tW9oQACTvk4Ahy
-         fHFJynYEyTZjtx7s92BEOeIFrd2qaG9sUidtiTpAFBdss5FU4lHorLulMUymu96i+l
-         nPGNeR6TUNqryoZEKuhg6UGjxMsdyNDaRTIqDMQA=
+        b=w1SEuap8yKTpawxg5tcTJrAwu9z2tqBihOmSAPufliInouSU6QADabjCwjm7bU7fi
+         TMMgLG/eahl7hltmH9YYNYBunbv3kAex8G0uJNrYfGMbOsiiekZPUhJgudmfIxTQyt
+         AeJJfafiCW5TShghTaXWpofN2CB5IOqZtqh8Jqhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Manuel Krause <manuelkrause@netscape.net>,
-        Hui Wang <hui.wang@canonical.com>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 218/700] ACPI: resources: Add checks for ACPI IRQ override
-Date:   Mon, 12 Jul 2021 08:05:01 +0200
-Message-Id: <20210712060957.681512893@linuxfoundation.org>
+Subject: [PATCH 5.13 279/800] sched/uclamp: Fix wrong implementation of cpu.uclamp.min
+Date:   Mon, 12 Jul 2021 08:05:02 +0200
+Message-Id: <20210712060954.179288697@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,80 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 0ec4e55e9f571f08970ed115ec0addc691eda613 ]
+[ Upstream commit 0c18f2ecfcc274a4bcc1d122f79ebd4001c3b445 ]
 
-The laptop keyboard doesn't work on many MEDION notebooks, but the
-keyboard works well under Windows and Unix.
+cpu.uclamp.min is a protection as described in cgroup-v2 Resource
+Distribution Model
 
-Through debugging, we found this log in the dmesg:
+	Documentation/admin-guide/cgroup-v2.rst
 
- ACPI: IRQ 1 override to edge, high
- pnp 00:03: Plug and Play ACPI device, IDs PNP0303 (active)
+which means we try our best to preserve the minimum performance point of
+tasks in this group. See full description of cpu.uclamp.min in the
+cgroup-v2.rst.
 
- And we checked the IRQ definition in the DSDT, it is:
+But the current implementation makes it a limit, which is not what was
+intended.
 
-    IRQ (Level, ActiveLow, Exclusive, )
-        {1}
+For example:
 
-So the BIOS defines the keyboard IRQ to Level_Low, but the Linux
-kernel override it to Edge_High. If the Linux kernel is modified
-to skip the IRQ override, the keyboard will work normally.
+	tg->cpu.uclamp.min = 20%
 
->From the existing comment in acpi_dev_get_irqresource(), the override
-function only needs to be called when IRQ() or IRQNoFlags() is used
-to populate the resource descriptor, and according to Section 6.4.2.1
-of ACPI 6.4 [1], if IRQ() is empty or IRQNoFlags() is used, the IRQ
-is High true, edge sensitive and non-shareable. ACPICA also assumes
-that to be the case (see acpi_rs_set_irq[] in rsirq.c).
+	p0->uclamp[UCLAMP_MIN] = 0
+	p1->uclamp[UCLAMP_MIN] = 50%
 
-In accordance with the above, check 3 additional conditions
-(EdgeSensitive, ActiveHigh and Exclusive) when deciding whether or
-not to treat an ACPI_RESOURCE_TYPE_IRQ resource as "legacy", in which
-case the IRQ override is applicable to it.
+	Previous Behavior (limit):
 
-Link: https://uefi.org/specs/ACPI/6.4/06_Device_Configuration/Device_Configuration.html#irq-descriptor # [1]
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213031
-BugLink: http://bugs.launchpad.net/bugs/1909814
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reported-by: Manuel Krause <manuelkrause@netscape.net>
-Tested-by: Manuel Krause <manuelkrause@netscape.net>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-[ rjw: Subject rewrite, changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+		p0->effective_uclamp = 0
+		p1->effective_uclamp = 20%
+
+	New Behavior (Protection):
+
+		p0->effective_uclamp = 20%
+		p1->effective_uclamp = 50%
+
+Which is inline with how protections should work.
+
+With this change the cgroup and per-task behaviors are the same, as
+expected.
+
+Additionally, we remove the confusing relationship between cgroup and
+!user_defined flag.
+
+We don't want for example RT tasks that are boosted by default to max to
+change their boost value when they attach to a cgroup. If a cgroup wants
+to limit the max performance point of tasks attached to it, then
+cpu.uclamp.max must be set accordingly.
+
+Or if they want to set different boost value based on cgroup, then
+sysctl_sched_util_clamp_min_rt_default must be used to NOT boost to max
+and set the right cpu.uclamp.min for each group to let the RT tasks
+obtain the desired boost value when attached to that group.
+
+As it stands the dependency on !user_defined flag adds an extra layer of
+complexity that is not required now cpu.uclamp.min behaves properly as
+a protection.
+
+The propagation model of effective cpu.uclamp.min in child cgroups as
+implemented by cpu_util_update_eff() is still correct. The parent
+protection sets an upper limit of what the child cgroups will
+effectively get.
+
+Fixes: 3eac870a3247 (sched/uclamp: Use TG's clamps to restrict TASK's clamps)
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210510145032.1934078-2-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/resource.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ kernel/sched/core.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index 20a7892c6d3f..f0b2c3791253 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -423,6 +423,13 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
- 	}
- }
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 9724dd30ad44..49b713da023d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1067,7 +1067,6 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+ {
+ 	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
+-	struct uclamp_se uc_max;
  
-+static bool irq_is_legacy(struct acpi_resource_irq *irq)
-+{
-+	return irq->triggering == ACPI_EDGE_SENSITIVE &&
-+		irq->polarity == ACPI_ACTIVE_HIGH &&
-+		irq->shareable == ACPI_EXCLUSIVE;
-+}
-+
- /**
-  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
-  * @ares: Input ACPI resource object.
-@@ -461,7 +468,7 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
- 		}
- 		acpi_dev_get_irqresource(res, irq->interrupts[index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, true);
-+					 irq->shareable, irq_is_legacy(irq));
- 		break;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		ext_irq = &ares->data.extended_irq;
+ 	/*
+ 	 * Tasks in autogroups or root task group will be
+@@ -1078,9 +1077,23 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+ 	if (task_group(p) == &root_task_group)
+ 		return uc_req;
+ 
+-	uc_max = task_group(p)->uclamp[clamp_id];
+-	if (uc_req.value > uc_max.value || !uc_req.user_defined)
+-		return uc_max;
++	switch (clamp_id) {
++	case UCLAMP_MIN: {
++		struct uclamp_se uc_min = task_group(p)->uclamp[clamp_id];
++		if (uc_req.value < uc_min.value)
++			return uc_min;
++		break;
++	}
++	case UCLAMP_MAX: {
++		struct uclamp_se uc_max = task_group(p)->uclamp[clamp_id];
++		if (uc_req.value > uc_max.value)
++			return uc_max;
++		break;
++	}
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
+ #endif
+ 
+ 	return uc_req;
 -- 
 2.30.2
 
