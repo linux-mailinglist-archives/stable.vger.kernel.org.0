@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EA33C4AF9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E7D23C4F76
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238418AbhGLGzP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
+        id S243243AbhGLH0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239645AbhGLGt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B0260241;
-        Mon, 12 Jul 2021 06:47:07 +0000 (UTC)
+        id S241492AbhGLHW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:22:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 741DC611BF;
+        Mon, 12 Jul 2021 07:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072428;
-        bh=1MIAf3d4QGmYMvT3UMfZo+tSyjLWakCaiTgLJlb/o8M=;
+        s=korg; t=1626074411;
+        bh=D253tO/PrmWtsVUdihOyE2wbESmvUFwLG7lApVK4M/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHm3w1xGTdZgx0xgn9Hr0JJiD2Ni14QWK/mwrK/Vh4+RFMkSUuYMxR3HJCgvlO0+X
-         b8zHBzg8hQoUVHsTQLwylwP+LknIwWjgsr2OQKOTfTbjxovJ4XOrfekGxEsjyapuZj
-         By/3L3D3qyyMkxM6jC71FzYkNFLdNdFZ/y0a1cLI=
+        b=lBNl7j5SleZ9b9hInxlpZOGFEXlEodnPReZANr7xvSK21aLpSg4cpmt56HE2ne5hm
+         XV70N9tGtE8H7uBrwHo0NH7dprCi8B5+qfzcEQ5Irt5a9BdTUEa9dL5x0giHqVmw+S
+         dVoclGtEvoOIkeP+8Ne82mq3Qvt65StvWcj+DNbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joachim Fenkes <fenkes@de.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 493/593] fsi/sbefifo: Fix reset timeout
+        stable@vger.kernel.org,
+        Amireddy Mallikarjuna reddy 
+        <mallikarjunax.reddy@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 570/700] leds: lgm-sso: Fix clock handling
 Date:   Mon, 12 Jul 2021 08:10:53 +0200
-Message-Id: <20210712060945.553155416@linuxfoundation.org>
+Message-Id: <20210712061036.744417450@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +42,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joachim Fenkes <FENKES@de.ibm.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 9ab1428dfe2c66b51e0b41337cd0164da0ab6080 ]
+[ Upstream commit fba8a6f2263bc54683cf3fd75df4dbd5d041c195 ]
 
-On BMCs with lower timer resolution than 1ms, msleep(1) will take
-way longer than 1ms, so looping 10k times won't wait for 10s but
-significantly longer.
+The clock handling has a few issues:
+ - when getting second clock fails, the first one left prepared and enabled
+ - on ->remove() clocks are unprepared and disabled twice
 
-Fix this by using jiffies like the rest of the code.
+Fix all these by converting to use bulk clock operations since both clocks
+are mandatory.
 
-Fixes: 9f4a8a2d7f9d ("fsi/sbefifo: Add driver for the SBE FIFO")
-Signed-off-by: Joachim Fenkes <fenkes@de.ibm.com>
-Link: https://lore.kernel.org/r/20200724071518.430515-3-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: c3987cd2bca3 ("leds: lgm: Add LED controller driver for LGM SoC")
+Cc: Amireddy Mallikarjuna reddy <mallikarjunax.reddy@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-sbefifo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/leds/blink/leds-lgm-sso.c | 44 ++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/fsi/fsi-sbefifo.c b/drivers/fsi/fsi-sbefifo.c
-index de27c435d706..84cb965bfed5 100644
---- a/drivers/fsi/fsi-sbefifo.c
-+++ b/drivers/fsi/fsi-sbefifo.c
-@@ -325,7 +325,8 @@ static int sbefifo_up_write(struct sbefifo *sbefifo, __be32 word)
- static int sbefifo_request_reset(struct sbefifo *sbefifo)
+diff --git a/drivers/leds/blink/leds-lgm-sso.c b/drivers/leds/blink/leds-lgm-sso.c
+index 6a63846d10b5..7d5f0bf2817a 100644
+--- a/drivers/leds/blink/leds-lgm-sso.c
++++ b/drivers/leds/blink/leds-lgm-sso.c
+@@ -132,8 +132,7 @@ struct sso_led_priv {
+ 	struct regmap *mmap;
+ 	struct device *dev;
+ 	struct platform_device *pdev;
+-	struct clk *gclk;
+-	struct clk *fpid_clk;
++	struct clk_bulk_data clocks[2];
+ 	u32 fpid_clkrate;
+ 	u32 gptc_clkrate;
+ 	u32 freq[MAX_FREQ_RANK];
+@@ -763,12 +762,11 @@ static int sso_probe_gpios(struct sso_led_priv *priv)
+ 	return sso_gpio_gc_init(dev, priv);
+ }
+ 
+-static void sso_clk_disable(void *data)
++static void sso_clock_disable_unprepare(void *data)
  {
- 	struct device *dev = &sbefifo->fsi_dev->dev;
--	u32 status, timeout;
-+	unsigned long end_time;
-+	u32 status;
- 	int rc;
+ 	struct sso_led_priv *priv = data;
  
- 	dev_dbg(dev, "Requesting FIFO reset\n");
-@@ -341,7 +342,8 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
+-	clk_disable_unprepare(priv->fpid_clk);
+-	clk_disable_unprepare(priv->gclk);
++	clk_bulk_disable_unprepare(ARRAY_SIZE(priv->clocks), priv->clocks);
+ }
+ 
+ static int intel_sso_led_probe(struct platform_device *pdev)
+@@ -785,36 +783,30 @@ static int intel_sso_led_probe(struct platform_device *pdev)
+ 	priv->dev = dev;
+ 
+ 	/* gate clock */
+-	priv->gclk = devm_clk_get(dev, "sso");
+-	if (IS_ERR(priv->gclk)) {
+-		dev_err(dev, "get sso gate clock failed!\n");
+-		return PTR_ERR(priv->gclk);
+-	}
++	priv->clocks[0].id = "sso";
++
++	/* fpid clock */
++	priv->clocks[1].id = "fpid";
+ 
+-	ret = clk_prepare_enable(priv->gclk);
++	ret = devm_clk_bulk_get(dev, ARRAY_SIZE(priv->clocks), priv->clocks);
+ 	if (ret) {
+-		dev_err(dev, "Failed to prepare/enable sso gate clock!\n");
++		dev_err(dev, "Getting clocks failed!\n");
+ 		return ret;
  	}
  
- 	/* Wait for it to complete */
--	for (timeout = 0; timeout < SBEFIFO_RESET_TIMEOUT; timeout++) {
-+	end_time = jiffies + msecs_to_jiffies(SBEFIFO_RESET_TIMEOUT);
-+	while (!time_after(jiffies, end_time)) {
- 		rc = sbefifo_regr(sbefifo, SBEFIFO_UP | SBEFIFO_STS, &status);
- 		if (rc) {
- 			dev_err(dev, "Failed to read UP fifo status during reset"
-@@ -355,7 +357,7 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 			return 0;
- 		}
- 
--		msleep(1);
-+		cond_resched();
+-	priv->fpid_clk = devm_clk_get(dev, "fpid");
+-	if (IS_ERR(priv->fpid_clk)) {
+-		dev_err(dev, "Failed to get fpid clock!\n");
+-		return PTR_ERR(priv->fpid_clk);
+-	}
+-
+-	ret = clk_prepare_enable(priv->fpid_clk);
++	ret = clk_bulk_prepare_enable(ARRAY_SIZE(priv->clocks), priv->clocks);
+ 	if (ret) {
+-		dev_err(dev, "Failed to prepare/enable fpid clock!\n");
++		dev_err(dev, "Failed to prepare and enable clocks!\n");
+ 		return ret;
  	}
- 	dev_err(dev, "FIFO reset timed out\n");
+-	priv->fpid_clkrate = clk_get_rate(priv->fpid_clk);
  
+-	ret = devm_add_action_or_reset(dev, sso_clk_disable, priv);
+-	if (ret) {
+-		dev_err(dev, "Failed to devm_add_action_or_reset, %d\n", ret);
++	ret = devm_add_action_or_reset(dev, sso_clock_disable_unprepare, priv);
++	if (ret)
+ 		return ret;
+-	}
++
++	priv->fpid_clkrate = clk_get_rate(priv->clocks[1].clk);
++
++	priv->mmap = syscon_node_to_regmap(dev->of_node);
+ 
+ 	priv->mmap = syscon_node_to_regmap(dev->of_node);
+ 	if (IS_ERR(priv->mmap)) {
+@@ -859,8 +851,6 @@ static int intel_sso_led_remove(struct platform_device *pdev)
+ 		sso_led_shutdown(led);
+ 	}
+ 
+-	clk_disable_unprepare(priv->fpid_clk);
+-	clk_disable_unprepare(priv->gclk);
+ 	regmap_exit(priv->mmap);
+ 
+ 	return 0;
 -- 
 2.30.2
 
