@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D403C4AB7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D583C5551
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240379AbhGLGx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
+        id S1355533AbhGLIJw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240761AbhGLGwL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61D6A61004;
-        Mon, 12 Jul 2021 06:49:23 +0000 (UTC)
+        id S1353471AbhGLICU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A963C61242;
+        Mon, 12 Jul 2021 07:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072564;
-        bh=KLpYMna0Mp92fE4JnC0Oo1e4UK0aKXVADn8xsAytkow=;
+        s=korg; t=1626076515;
+        bh=YS150Zw3EMrfbg7HTU/kACgheRdPjXylbhg3QzhH4fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulDIDnWyxZEqCzGWAHktIcsbI/Lhg2ldhqoQTN1HgEE1CvgnkMU2NF3VyDiVPZ3EX
-         LjgYEo7kBbWLTjb/sMWLzeptgx87eQ/mafzCGorXUgJasaXziU6M50HbFzWwLWJ+C/
-         s+WaZUJbo/uJjC0ryNfqxsDk+oyMu1hD8/pTJFnM=
+        b=KkHQQZUzmAFS0ByyTl2CPp+ROo32LRBNyI8ZFtIZi8wmbuTQ7sy3SfJXJ588jWyUS
+         RX7klx0QMuaSyLK/YXn13+cARzbUugSLWecJFy3s19yisEYt+Ob2Wu21MAabEGxen8
+         2HoGrrr95FA/Nmq/S7DJJR/nBV0F6G+WcLmVvMUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 539/593] extcon: sm5502: Drop invalid register write in sm5502_reg_data
+Subject: [PATCH 5.13 676/800] visorbus: fix error return code in visorchipset_init()
 Date:   Mon, 12 Jul 2021 08:11:39 +0200
-Message-Id: <20210712060953.169585075@linuxfoundation.org>
+Message-Id: <20210712061038.825369121@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit d25b224f8e5507879b36a769a6d1324cf163466c ]
+[ Upstream commit ce52ec5beecc1079c251f60e3973b3758f60eb59 ]
 
-When sm5502_init_dev_type() iterates over sm5502_reg_data to
-initialize the registers it is limited by ARRAY_SIZE(sm5502_reg_data).
-There is no need to add another empty element to sm5502_reg_data.
+Commit 1366a3db3dcf ("staging: unisys: visorbus: visorchipset_init clean
+up gotos") assigns the initial value -ENODEV to the local variable 'err',
+and the first several error branches will return this value after "goto
+error". But commit f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate
+controlvm channel creation.") overwrites 'err' in the middle of the way.
+As a result, some error branches do not successfully return the initial
+value -ENODEV of 'err', but return 0.
 
-Having the additional empty element in sm5502_reg_data will just
-result in writing 0xff to register 0x00, which does not really
-make sense.
+In addition, when kzalloc() fails, -ENOMEM should be returned instead of
+-ENODEV.
 
-Fixes: 914b881f9452 ("extcon: sm5502: Add support new SM5502 extcon device driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate controlvm channel creation.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210528082614.9337-1-thunder.leizhen@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/visorbus/visorchipset.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 106d4da647bd..5e0718dee03b 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -88,7 +88,6 @@ static struct reg_data sm5502_reg_data[] = {
- 			| SM5502_REG_INTM2_MHL_MASK,
- 		.invert = true,
- 	},
--	{ }
- };
+diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
+index cb1eb7e05f87..5668cad86e37 100644
+--- a/drivers/visorbus/visorchipset.c
++++ b/drivers/visorbus/visorchipset.c
+@@ -1561,7 +1561,7 @@ schedule_out:
  
- /* List of detectable cables */
+ static int visorchipset_init(struct acpi_device *acpi_device)
+ {
+-	int err = -ENODEV;
++	int err = -ENOMEM;
+ 	struct visorchannel *controlvm_channel;
+ 
+ 	chipset_dev = kzalloc(sizeof(*chipset_dev), GFP_KERNEL);
+@@ -1584,8 +1584,10 @@ static int visorchipset_init(struct acpi_device *acpi_device)
+ 				 "controlvm",
+ 				 sizeof(struct visor_controlvm_channel),
+ 				 VISOR_CONTROLVM_CHANNEL_VERSIONID,
+-				 VISOR_CHANNEL_SIGNATURE))
++				 VISOR_CHANNEL_SIGNATURE)) {
++		err = -ENODEV;
+ 		goto error_delete_groups;
++	}
+ 	/* if booting in a crash kernel */
+ 	if (is_kdump_kernel())
+ 		INIT_DELAYED_WORK(&chipset_dev->periodic_controlvm_work,
 -- 
 2.30.2
 
