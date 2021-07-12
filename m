@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE73E3C52B7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48A43C4D86
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240338AbhGLHs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51472 "EHLO mail.kernel.org"
+        id S240903AbhGLHNW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346675AbhGLHql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3129F61158;
-        Mon, 12 Jul 2021 07:42:06 +0000 (UTC)
+        id S242314AbhGLHG3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BEF661154;
+        Mon, 12 Jul 2021 07:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075726;
-        bh=gk9wxkxzzavHAiG3JBaUottOGtuwQO1NZ4tjNWkAm4U=;
+        s=korg; t=1626073421;
+        bh=I8wdIfFGfFwk8ZHmzi/UfXFOalguRc+26UAZKv1x+2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBTa+06sqm2urXT4Gl33l3GHCYvyieBzNP5jDCC6L3basOzTInq8ZuKUBoA1r22ar
-         EQxu50dxoNFak+H2KyuGDQPI33dBkwaAj87pMhahZ0vvX2ZijPUt9LFRm5EHAqTSBc
-         Y01a32ScSS5W9mr/+eKowdE176MDOwkH0bn4w5Ow=
+        b=kvAhrQKRkjwGd6/qhM1EZELPx/H+AL/Vc0SMuGvexXHaZguQi771cJ595H0Mz6UpD
+         r61/WgJSbT0axApimZ5WGIeeIC/uy3MKcEzO0Gfc99+3zi4qJPYPbiMsVfCaNkeuBJ
+         aJy0ORa3EkaPNYBZjOBhycntafQLy+P55TJWyGk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Alexander Wellbrock <a.wellbrock@mailbox.org>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Peter Robinson <pbrobinson@gmail.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 296/800] media: ipu3-cio2: Fix reference counting when looping over ACPI devices
+Subject: [PATCH 5.12 236/700] tpm_tis_spi: add missing SPI device ID entries
 Date:   Mon, 12 Jul 2021 08:05:19 +0200
-Message-Id: <20210712060956.632846734@linuxfoundation.org>
+Message-Id: <20210712061000.306864149@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 2cb2705cf7ffe41dc5bd81290e4241bfb7f031cc ]
+[ Upstream commit c46ed2281bbe4b84e6f3d4bdfb0e4e9ab813fa9d ]
 
-When we continue, due to device is disabled, loop we have to drop
-reference count. When we have an array full of devices we have to also
-drop the reference count. Note, in this case the
-cio2_bridge_unregister_sensors() is called by the caller.
+The SPI core always reports a "MODALIAS=spi:<foo>", even if the device was
+registered via OF. This means that this module won't auto-load if a DT has
+for example has a node with a compatible "infineon,slb9670" string.
 
-Fixes: 803abec64ef9 ("media: ipu3-cio2: Add cio2-bridge to ipu3-cio2 driver")
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Daniel Scally <djrscally@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+In that case kmod will expect a "MODALIAS=of:N*T*Cinfineon,slb9670" uevent
+but instead will get a "MODALIAS=spi:slb9670", which is not present in the
+kernel module aliases:
+
+$ modinfo drivers/char/tpm/tpm_tis_spi.ko | grep alias
+alias:          of:N*T*Cgoogle,cr50C*
+alias:          of:N*T*Cgoogle,cr50
+alias:          of:N*T*Ctcg,tpm_tis-spiC*
+alias:          of:N*T*Ctcg,tpm_tis-spi
+alias:          of:N*T*Cinfineon,slb9670C*
+alias:          of:N*T*Cinfineon,slb9670
+alias:          of:N*T*Cst,st33htpm-spiC*
+alias:          of:N*T*Cst,st33htpm-spi
+alias:          spi:cr50
+alias:          spi:tpm_tis_spi
+alias:          acpi*:SMO0768:*
+
+To workaround this issue, add in the SPI device ID table all the entries
+that are present in the OF device ID table.
+
+Reported-by: Alexander Wellbrock <a.wellbrock@mailbox.org>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/intel/ipu3/cio2-bridge.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/char/tpm/tpm_tis_spi_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/pci/intel/ipu3/cio2-bridge.c b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-index e8511787c1e4..4657e99df033 100644
---- a/drivers/media/pci/intel/ipu3/cio2-bridge.c
-+++ b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-@@ -173,14 +173,15 @@ static int cio2_bridge_connect_sensor(const struct cio2_sensor_config *cfg,
- 	int ret;
- 
- 	for_each_acpi_dev_match(adev, cfg->hid, NULL, -1) {
--		if (!adev->status.enabled)
-+		if (!adev->status.enabled) {
-+			acpi_dev_put(adev);
- 			continue;
-+		}
- 
- 		if (bridge->n_sensors >= CIO2_NUM_PORTS) {
-+			acpi_dev_put(adev);
- 			dev_err(&cio2->dev, "Exceeded available CIO2 ports\n");
--			cio2_bridge_unregister_sensors(bridge);
--			ret = -EINVAL;
--			goto err_out;
-+			return -EINVAL;
- 		}
- 
- 		sensor = &bridge->sensors[bridge->n_sensors];
-@@ -228,7 +229,6 @@ err_free_swnodes:
- 	software_node_unregister_nodes(sensor->swnodes);
- err_put_adev:
- 	acpi_dev_put(sensor->adev);
--err_out:
- 	return ret;
+diff --git a/drivers/char/tpm/tpm_tis_spi_main.c b/drivers/char/tpm/tpm_tis_spi_main.c
+index 3856f6ebcb34..de4209003a44 100644
+--- a/drivers/char/tpm/tpm_tis_spi_main.c
++++ b/drivers/char/tpm/tpm_tis_spi_main.c
+@@ -260,6 +260,8 @@ static int tpm_tis_spi_remove(struct spi_device *dev)
  }
  
+ static const struct spi_device_id tpm_tis_spi_id[] = {
++	{ "st33htpm-spi", (unsigned long)tpm_tis_spi_probe },
++	{ "slb9670", (unsigned long)tpm_tis_spi_probe },
+ 	{ "tpm_tis_spi", (unsigned long)tpm_tis_spi_probe },
+ 	{ "cr50", (unsigned long)cr50_spi_probe },
+ 	{}
 -- 
 2.30.2
 
