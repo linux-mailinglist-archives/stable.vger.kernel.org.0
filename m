@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C5A3C4DA7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30C243C4DAA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240096AbhGLHNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
+        id S238883AbhGLHNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241921AbhGLHMf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:12:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD9C610D0;
-        Mon, 12 Jul 2021 07:09:45 +0000 (UTC)
+        id S242236AbhGLHMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:12:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F499610CA;
+        Mon, 12 Jul 2021 07:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073785;
-        bh=ray8K8VWckHS5BNfFQ0ZhUnz3jpdtvuVPCjANCf8kxM=;
+        s=korg; t=1626073788;
+        bh=ZalyV7O2QyA+eOzD/9i/AUg1dJdQAOO3HHi8Lp7G87A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTECVt+78UHgkZrGxhsw6m8j06k9+YmApC2uxmOSs0kj61CtDQoZpAEL/PupgNxD/
-         MKSyuu1Un6oEf0+1JyNNgXhcokuHVOkYT9V0LJiWPEfbafIZJ9soVZw6eMFqoaV6/N
-         xbjO2aZ6H576l/nKG8jSYI27hCD6lR6SOCLcODuo=
+        b=PXacnSAXLmAoQkox7nJ0eTZZApLX8lmoTblFflLI0U6JtfTfifcvvDTzUuo1iimsc
+         +ebaqYeOMWV1TTItQ7Wm2FDXUaOJqjDh7LYgOqofye7GBVVi95bYvFYRr8zLVxCEvD
+         RodmCF+Mdg93JZD/v/QZzJmMtOfBoZpG9cGCtMiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S. Miller" <davem@davemloft.net>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 360/700] net: pch_gbe: Propagate error from devm_gpio_request_one()
-Date:   Mon, 12 Jul 2021 08:07:23 +0200
-Message-Id: <20210712061014.642461821@linuxfoundation.org>
+Subject: [PATCH 5.12 361/700] pinctrl: renesas: r8a7796: Add missing bias for PRESET# pin
+Date:   Mon, 12 Jul 2021 08:07:24 +0200
+Message-Id: <20210712061014.760173171@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -42,54 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 9e3617a7b84512bf96c04f9cf82d1a7257d33794 ]
+[ Upstream commit 2cee31cd49733e89dfedf4f68a56839fc2e42040 ]
 
-If GPIO controller is not available yet we need to defer
-the probe of GBE until provider will become available.
+R-Car Gen3 Hardware Manual Errata for Rev. 0.52 of Nov 30, 2016, added
+the configuration bit for bias pull-down control for the PRESET# pin on
+R-Car M3-W.  Add driver support for controlling pull-down on this pin.
 
-While here, drop GPIOF_EXPORT because it's deprecated and
-may not be available.
-
-Fixes: f1a26fdf5944 ("pch_gbe: Add MinnowBoard support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2d40bd24274d2577 ("pinctrl: sh-pfc: r8a7796: Add bias pinconf support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/c479de5b3f235c2f7d5faea9e7e08e6fccb135df.1619785375.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pinctrl/renesas/pfc-r8a7796.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 140cee7c459d..1b32a43f7024 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -2531,9 +2531,13 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->hw.reg = pcim_iomap_table(pdev)[PCH_GBE_PCI_BAR];
-+
- 	adapter->pdata = (struct pch_gbe_privdata *)pci_id->driver_data;
--	if (adapter->pdata && adapter->pdata->platform_init)
--		adapter->pdata->platform_init(pdev);
-+	if (adapter->pdata && adapter->pdata->platform_init) {
-+		ret = adapter->pdata->platform_init(pdev);
-+		if (ret)
-+			goto err_free_netdev;
-+	}
- 
- 	adapter->ptp_pdev =
- 		pci_get_domain_bus_and_slot(pci_domain_nr(adapter->pdev->bus),
-@@ -2628,7 +2632,7 @@ err_free_netdev:
-  */
- static int pch_gbe_minnow_platform_init(struct pci_dev *pdev)
- {
--	unsigned long flags = GPIOF_DIR_OUT | GPIOF_INIT_HIGH | GPIOF_EXPORT;
-+	unsigned long flags = GPIOF_OUT_INIT_HIGH;
- 	unsigned gpio = MINNOW_PHY_RESET_GPIO;
- 	int ret;
- 
+diff --git a/drivers/pinctrl/renesas/pfc-r8a7796.c b/drivers/pinctrl/renesas/pfc-r8a7796.c
+index 96b5b1509bb7..c4f1f5607601 100644
+--- a/drivers/pinctrl/renesas/pfc-r8a7796.c
++++ b/drivers/pinctrl/renesas/pfc-r8a7796.c
+@@ -68,6 +68,7 @@
+ 	PIN_NOGP_CFG(QSPI1_MOSI_IO0, "QSPI1_MOSI_IO0", fn, CFG_FLAGS),	\
+ 	PIN_NOGP_CFG(QSPI1_SPCLK, "QSPI1_SPCLK", fn, CFG_FLAGS),	\
+ 	PIN_NOGP_CFG(QSPI1_SSL, "QSPI1_SSL", fn, CFG_FLAGS),		\
++	PIN_NOGP_CFG(PRESET_N, "PRESET#", fn, SH_PFC_PIN_CFG_PULL_DOWN),\
+ 	PIN_NOGP_CFG(RPC_INT_N, "RPC_INT#", fn, CFG_FLAGS),		\
+ 	PIN_NOGP_CFG(RPC_RESET_N, "RPC_RESET#", fn, CFG_FLAGS),		\
+ 	PIN_NOGP_CFG(RPC_WP_N, "RPC_WP#", fn, CFG_FLAGS),		\
+@@ -6191,7 +6192,7 @@ static const struct pinmux_bias_reg pinmux_bias_regs[] = {
+ 		[ 4] = RCAR_GP_PIN(6, 29),	/* USB30_OVC */
+ 		[ 5] = RCAR_GP_PIN(6, 30),	/* GP6_30 */
+ 		[ 6] = RCAR_GP_PIN(6, 31),	/* GP6_31 */
+-		[ 7] = SH_PFC_PIN_NONE,
++		[ 7] = PIN_PRESET_N,		/* PRESET# */
+ 		[ 8] = SH_PFC_PIN_NONE,
+ 		[ 9] = SH_PFC_PIN_NONE,
+ 		[10] = SH_PFC_PIN_NONE,
 -- 
 2.30.2
 
