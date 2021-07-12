@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32AC63C4C06
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C073C5220
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240697AbhGLHBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:01:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
+        id S1349848AbhGLHot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241986AbhGLG7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:59:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7091161004;
-        Mon, 12 Jul 2021 06:56:49 +0000 (UTC)
+        id S1347806AbhGLHkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFF6B6195E;
+        Mon, 12 Jul 2021 07:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073010;
-        bh=NB6E3KwBM6wGhIWrWqZ4+ALN3wc+8vsNTzk/9JDGrQE=;
+        s=korg; t=1626075377;
+        bh=TSvhwjjIRCuy4ZF5RtOACoeAoEzRBrwReraD+c3BIGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=leEbJApBV3WJN3aJHu8Mf9cL7eplDdOhQRXlNVGF0c3H/hQW8t94GG21ku4v2HcrR
-         o9WHizv1VTUEcFuFHSF3lqd4+1thjXZQgzS0cdb5//7mwiKm+PTkfhB8+jMz4TZgkk
-         OO/SkSqiO0m5omCHgE4+F1N4iRT6ECTrk/mexLqQ=
+        b=nvhpaw9x0SkCZQQGf1kPjGv9lGhvHOsfnwjOpjvMFjvf1CXnlkCWhrgIzWLdWDKAG
+         B+Zb1C4twYPDihLO4AaQRyONjxsp3Yp9jwDxmNKzIa/04GLjtybo4xyY/TCIgsW9cI
+         KH3vaObfxM79E6yLTDb8UFw+9UnPaoMNexrEKYeE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>
-Subject: [PATCH 5.12 096/700] serial_cs: Add Option International GSM-Ready 56K/ISDN modem
-Date:   Mon, 12 Jul 2021 08:02:59 +0200
-Message-Id: <20210712060938.379050432@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
+        Zhehui Xiang <zhehui.xiang@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 157/800] crypto: qat - remove unused macro in FW loader
+Date:   Mon, 12 Jul 2021 08:03:00 +0200
+Message-Id: <20210712060935.065926393@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,31 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Jack Xu <jack.xu@intel.com>
 
-commit d495dd743d5ecd47288156e25c4d9163294a0992 upstream.
+[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
 
-Add support for Option International GSM-Ready 56K/ISDN PCMCIA modem
-card.
+Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
+loader.
 
-Signed-off-by: Ondrej Zary <linux@zary.sk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210611201940.23898-2-linux@zary.sk
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is to fix the following warning when compiling the driver using the
+clang compiler with CC=clang W=2:
 
+    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
+
+Signed-off-by: Jack Xu <jack.xu@intel.com>
+Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/serial_cs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -777,6 +777,7 @@ static const struct pcmcia_device_id ser
- 	PCMCIA_DEVICE_PROD_ID12("Multi-Tech", "MT2834LT", 0x5f73be51, 0x4cd7c09e),
- 	PCMCIA_DEVICE_PROD_ID12("OEM      ", "C288MX     ", 0xb572d360, 0xd2385b7a),
- 	PCMCIA_DEVICE_PROD_ID12("Option International", "V34bis GSM/PSTN Data/Fax Modem", 0x9d7cd6f5, 0x5cb8bf41),
-+	PCMCIA_DEVICE_PROD_ID12("Option International", "GSM-Ready 56K/ISDN", 0x9d7cd6f5, 0xb23844aa),
- 	PCMCIA_DEVICE_PROD_ID12("PCMCIA   ", "C336MX     ", 0x99bcafe9, 0xaa25bcab),
- 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "PCMCIA Dual RS-232 Serial Port Card", 0xc4420b35, 0x92abc92f),
- 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "Dual RS-232 Serial Port PC Card", 0xc4420b35, 0x031a380d),
+diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
+index 1fb5fc852f6b..6d95160e451e 100644
+--- a/drivers/crypto/qat/qat_common/qat_uclo.c
++++ b/drivers/crypto/qat/qat_common/qat_uclo.c
+@@ -342,7 +342,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
+ 	return 0;
+ }
+ 
+-#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
+ static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
+ 				   struct icp_qat_uof_initmem *init_mem)
+ {
+-- 
+2.30.2
+
 
 
