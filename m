@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BA003C519C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C0F3C4BA1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244490AbhGLHmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S239830AbhGLG6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345358AbhGLHiS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:38:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A3DA614A5;
-        Mon, 12 Jul 2021 07:33:36 +0000 (UTC)
+        id S240009AbhGLG5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B648161132;
+        Mon, 12 Jul 2021 06:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075216;
-        bh=A2+8fG99w7GHpWwEaqe3YyMQcIbBN3yQSNxiQ/lWZ/M=;
+        s=korg; t=1626072894;
+        bh=FvwUpQ2nmy72RY4rak7jDjupjX9dGsTCsai5zJ8RPPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zn8EbhmtWviPNEw9NevvjDrkp8ZaNmFSvhW74vP/qj6c2s20AzCN0LqT0dYxnK/95
-         eo4diaKXpVjEk6RFCxP5QTrqsUOXddbs2bOud7lG6dALBNHpDQeqipLbNbyQRMw8bY
-         1tPPvJJ2RtLhPNfmuFRVXKltetccY2hxbcqsVEcg=
+        b=XQEGxAyG/3G/fHA8Fc2cWBWfBgGX3z/TBHVox1fSa6urE86u34wGtVakXzvSyp2wX
+         94/NuKio6SVXB/+hqvcywc7QRy54KPIC2YMohRFLh5zBOJmBuGG3lHu8tB2F1ZCU2+
+         EBG9GxQshwt5ygvvDRQxN0NpUTC7e+tDGVmav5zY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kristian Klausen <kristian@klausen.dk>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 117/800] loop: Fix missing discard support when using LOOP_CONFIGURE
+        stable@vger.kernel.org,
+        syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.12 057/700] can: bcm: delay release of struct bcm_op after synchronize_rcu()
 Date:   Mon, 12 Jul 2021 08:02:20 +0200
-Message-Id: <20210712060929.416715005@linuxfoundation.org>
+Message-Id: <20210712060932.786443661@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Klausen <kristian@klausen.dk>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit 2b9ac22b12a266eb4fec246a07b504dd4983b16b upstream.
+commit d5f9023fa61ee8b94f37a93f08e94b136cf1e463 upstream.
 
-Without calling loop_config_discard() the discard flag and parameters
-aren't set/updated for the loop device and worst-case they could
-indicate discard support when it isn't the case (ex: if the
-LOOP_SET_STATUS ioctl was used with a different file prior to
-LOOP_CONFIGURE).
+can_rx_register() callbacks may be called concurrently to the call to
+can_rx_unregister(). The callbacks and callback data, though, are
+protected by RCU and the struct sock reference count.
 
-Cc: <stable@vger.kernel.org> # 5.8.x-
-Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
-Signed-off-by: Kristian Klausen <kristian@klausen.dk>
-Link: https://lore.kernel.org/r/20210618115157.31452-1-kristian@klausen.dk
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+So the callback data is really attached to the life of sk, meaning
+that it should be released on sk_destruct. However, bcm_remove_op()
+calls tasklet_kill(), and RCU callbacks may be called under RCU
+softirq, so that cannot be used on kernels before the introduction of
+HRTIMER_MODE_SOFT.
+
+However, bcm_rx_handler() is called under RCU protection, so after
+calling can_rx_unregister(), we may call synchronize_rcu() in order to
+wait for any RCU read-side critical sections to finish. That is,
+bcm_rx_handler() won't be called anymore for those ops. So, we only
+free them, after we do that synchronize_rcu().
+
+Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
+Link: https://lore.kernel.org/r/20210619161813.2098382-1-cascardo@canonical.com
+Cc: linux-stable <stable@vger.kernel.org>
+Reported-by: syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com
+Reported-by: Norbert Slusarek <nslusarek@gmx.net>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/block/loop.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/can/bcm.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1154,6 +1154,7 @@ static int loop_configure(struct loop_de
- 	blk_queue_physical_block_size(lo->lo_queue, bsize);
- 	blk_queue_io_min(lo->lo_queue, bsize);
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -785,6 +785,7 @@ static int bcm_delete_rx_op(struct list_
+ 						  bcm_rx_handler, op);
  
-+	loop_config_discard(lo);
- 	loop_update_rotational(lo);
- 	loop_update_dio(lo);
- 	loop_sysfs_init(lo);
+ 			list_del(&op->list);
++			synchronize_rcu();
+ 			bcm_remove_op(op);
+ 			return 1; /* done */
+ 		}
+@@ -1533,9 +1534,13 @@ static int bcm_release(struct socket *so
+ 					  REGMASK(op->can_id),
+ 					  bcm_rx_handler, op);
+ 
+-		bcm_remove_op(op);
+ 	}
+ 
++	synchronize_rcu();
++
++	list_for_each_entry_safe(op, next, &bo->rx_ops, list)
++		bcm_remove_op(op);
++
+ #if IS_ENABLED(CONFIG_PROC_FS)
+ 	/* remove procfs entry */
+ 	if (net->can.bcmproc_dir && bo->bcm_proc_read)
 
 
