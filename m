@@ -2,52 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D583C503F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8043C4B19
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344361AbhGLHbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43378 "EHLO mail.kernel.org"
+        id S239747AbhGLGzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344401AbhGLH3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4107061453;
-        Mon, 12 Jul 2021 07:24:58 +0000 (UTC)
+        id S241124AbhGLGyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B41610CA;
+        Mon, 12 Jul 2021 06:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074698;
-        bh=sotzp4vjjswgvpon5TPoI2fGgunuSzPX7j+uzbSC46g=;
+        s=korg; t=1626072708;
+        bh=JTvUYKWUfQZKkQs/m0INxt4XbirfO+uD4+zGzmMgvC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YU+opw+WvwbxqZj3J2hAL/w+JX5yRmkzMDTevZc1A5fsLfKKmz2bWqslK/VU4IKZf
-         y2YzzhQrR9KgJ0aWHqoylqx39xCcENHOgiug+2QuDsgrqN5uHE4TJDpq7sChRp7C0H
-         GSiApkk6TVoU63rfWXFavmJX4Ec9Uc2xLZYnYyOU=
+        b=N/00ojUcqB9QwiYQAWF6V1z7a4q9gUlU6SxhFAPlSeQuyQOPSdtKaPrXBfOTLEuFc
+         sb/aA96137IatWEZZEuYYQkYWDNfgEwbk7NdcfIEUTsK3oxIdLrTezliQxNtkIvHUp
+         gIZ6Yffggj+uiQhFBOL+FYPnUDwTEo8x5b06Sqlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>, Zi Yan <ziy@nvidia.com>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Song Liu <songliubraving@fb.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 665/700] mm/huge_memory.c: remove dedicated macro HPAGE_CACHE_INDEX_MASK
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Long Li <longli@microsoft.com>, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.10 588/593] block: return the correct bvec when checking for gaps
 Date:   Mon, 12 Jul 2021 08:12:28 +0200
-Message-Id: <20210712061046.648021828@linuxfoundation.org>
+Message-Id: <20210712061000.264976350@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,73 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Long Li <longli@microsoft.com>
 
-[ Upstream commit b2bd53f18bb7f7cfc91b3bb527d7809376700a8e ]
+commit c9c9762d4d44dcb1b2ba90cfb4122dc11ceebf31 upstream.
 
-Patch series "Cleanup and fixup for huge_memory:, v3.
+After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
+have multiple pages. But bio_will_gap() still assumes one page bvec while
+checking for merging. If the pages in the bvec go across the
+seg_boundary_mask, this check for merging can potentially succeed if only
+the 1st page is tested, and can fail if all the pages are tested.
 
-This series contains cleanups to remove dedicated macro and remove
-unnecessary tlb_remove_page_size() for huge zero pmd.  Also this adds
-missing read-only THP checking for transparent_hugepage_enabled() and
-avoids discarding hugepage if other processes are mapping it.  More
-details can be found in the respective changelogs.
+Later, when SCSI builds the SG list the same check for merging is done in
+__blk_segment_map_sg_merge() with all the pages in the bvec tested. This
+time the check may fail if the pages in bvec go across the
+seg_boundary_mask (but tested okay in bio_will_gap() earlier, so those
+BIOs were merged). If this check fails, we end up with a broken SG list
+for drivers assuming the SG list not having offsets in intermediate pages.
+This results in incorrect pages written to the disk.
 
-Thi patch (of 5):
+Fix this by returning the multi-page bvec when testing gaps for merging.
 
-Rewrite the pgoff checking logic to remove macro HPAGE_CACHE_INDEX_MASK
-which is only used here to simplify the code.
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 07173c3ec276 ("block: enable multipage bvecs")
+Signed-off-by: Long Li <longli@microsoft.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/1623094445-22332-1-git-send-email-longli@linuxonhyperv.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: https://lkml.kernel.org/r/20210511134857.1581273-1-linmiaohe@huawei.com
-Link: https://lkml.kernel.org/r/20210511134857.1581273-2-linmiaohe@huawei.com
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/huge_mm.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ include/linux/bio.h |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/huge_mm.h b/include/linux/huge_mm.h
-index 6686a0baa91d..2a7c58ea5ca9 100644
---- a/include/linux/huge_mm.h
-+++ b/include/linux/huge_mm.h
-@@ -155,15 +155,13 @@ static inline bool __transparent_hugepage_enabled(struct vm_area_struct *vma)
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -38,9 +38,6 @@
+ #define bio_offset(bio)		bio_iter_offset((bio), (bio)->bi_iter)
+ #define bio_iovec(bio)		bio_iter_iovec((bio), (bio)->bi_iter)
  
- bool transparent_hugepage_enabled(struct vm_area_struct *vma);
- 
--#define HPAGE_CACHE_INDEX_MASK (HPAGE_PMD_NR - 1)
+-#define bio_multiple_segments(bio)				\
+-	((bio)->bi_iter.bi_size != bio_iovec(bio).bv_len)
 -
- static inline bool transhuge_vma_suitable(struct vm_area_struct *vma,
- 		unsigned long haddr)
- {
- 	/* Don't have to check pgoff for anonymous vma */
- 	if (!vma_is_anonymous(vma)) {
--		if (((vma->vm_start >> PAGE_SHIFT) & HPAGE_CACHE_INDEX_MASK) !=
--			(vma->vm_pgoff & HPAGE_CACHE_INDEX_MASK))
-+		if (!IS_ALIGNED((vma->vm_start >> PAGE_SHIFT) - vma->vm_pgoff,
-+				HPAGE_PMD_NR))
- 			return false;
- 	}
+ #define bvec_iter_sectors(iter)	((iter).bi_size >> 9)
+ #define bvec_iter_end_sector(iter) ((iter).bi_sector + bvec_iter_sectors((iter)))
  
--- 
-2.30.2
-
+@@ -252,7 +249,7 @@ static inline void bio_clear_flag(struct
+ 
+ static inline void bio_get_first_bvec(struct bio *bio, struct bio_vec *bv)
+ {
+-	*bv = bio_iovec(bio);
++	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+ }
+ 
+ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+@@ -260,10 +257,9 @@ static inline void bio_get_last_bvec(str
+ 	struct bvec_iter iter = bio->bi_iter;
+ 	int idx;
+ 
+-	if (unlikely(!bio_multiple_segments(bio))) {
+-		*bv = bio_iovec(bio);
+-		return;
+-	}
++	bio_get_first_bvec(bio, bv);
++	if (bv->bv_len == bio->bi_iter.bi_size)
++		return;		/* this bio only has a single bvec */
+ 
+ 	bio_advance_iter(bio, &iter, iter.bi_size);
+ 
 
 
