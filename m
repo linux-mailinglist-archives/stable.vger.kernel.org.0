@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 043663C49FE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 327963C5428
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237609AbhGLGr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:47:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45554 "EHLO mail.kernel.org"
+        id S1347545AbhGLH5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238316AbhGLGrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 355BA61221;
-        Mon, 12 Jul 2021 06:43:04 +0000 (UTC)
+        id S244612AbhGLHxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:53:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE313610D1;
+        Mon, 12 Jul 2021 07:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072184;
-        bh=ZNQmPDaypOBZQ7wR67fztU/ke2WJJ/OsEPsCEOsz240=;
+        s=korg; t=1626076214;
+        bh=dUnfEYdCnzav6JuAymT1HVAkcNz9jqlKCpblGKHx1hA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAd6ADdkwFHYiidNN0OmlB+gmz7C8Bm7arGqt8GpoyxfS+kB45gecpwzGrsgGKBV+
-         fblEmgpoOKNEg/GahmuomrMJ73G73pwVOghG2hFNAG4d2NaESRznDDPo/Q9S36eiyC
-         KNBcOYlcSoVCsOblZ4tLMMso1Ks/e4x52fAxIgnE=
+        b=VxY2oBi2Baanep3MVewVRK34Olc7fNMG1jGHnmZXGa2wN3ijpeQirBi5niu0Gt2/l
+         qChF7PqKT1u2nEZw8andHsP7+CCqsw5jYdZWGg98MNIaWlF451KkLVJCiSSiY90Uz+
+         QEdbtHEuvrReNZVcFUDY74ZVyQKdwUda97qUjhHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miao Wang <shankerwangmiao@gmail.com>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Vadim Fedorenko <vfedorenko@novek.ru>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 383/593] net/ipv4: swap flow ports when validating source
+Subject: [PATCH 5.13 520/800] selftests: tls: fix chacha+bidir tests
 Date:   Mon, 12 Jul 2021 08:09:03 +0200
-Message-Id: <20210712060929.145260623@linuxfoundation.org>
+Message-Id: <20210712061022.563116245@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miao Wang <shankerwangmiao@gmail.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit c69f114d09891adfa3e301a35d9e872b8b7b5a50 ]
+[ Upstream commit 291c53e4dacd3a2cc3152d8af37f07f8496c594a ]
 
-When doing source address validation, the flowi4 struct used for
-fib_lookup should be in the reverse direction to the given skb.
-fl4_dport and fl4_sport returned by fib4_rules_early_flow_dissect
-should thus be swapped.
+ChaCha support did not adjust the bidirectional test.
+We need to set up KTLS in reverse direction correctly,
+otherwise these two cases will fail:
 
-Fixes: 5a847a6e1477 ("net/ipv4: Initialize proto and ports in flow struct")
-Signed-off-by: Miao Wang <shankerwangmiao@gmail.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+  tls.12_chacha.bidir
+  tls.13_chacha.bidir
+
+Fixes: 4f336e88a870 ("selftests/tls: add CHACHA20-POLY1305 to tls selftests")
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_frontend.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/net/tls.c | 67 ++++++++++++++++++-------------
+ 1 file changed, 39 insertions(+), 28 deletions(-)
 
-diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
-index 84bb707bd88d..647bceab56c2 100644
---- a/net/ipv4/fib_frontend.c
-+++ b/net/ipv4/fib_frontend.c
-@@ -371,6 +371,8 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
- 		fl4.flowi4_proto = 0;
- 		fl4.fl4_sport = 0;
- 		fl4.fl4_dport = 0;
-+	} else {
-+		swap(fl4.fl4_sport, fl4.fl4_dport);
+diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
+index 58fea6eb588d..112d41d01b12 100644
+--- a/tools/testing/selftests/net/tls.c
++++ b/tools/testing/selftests/net/tls.c
+@@ -25,6 +25,35 @@
+ #define TLS_PAYLOAD_MAX_LEN 16384
+ #define SOL_TLS 282
+ 
++struct tls_crypto_info_keys {
++	union {
++		struct tls12_crypto_info_aes_gcm_128 aes128;
++		struct tls12_crypto_info_chacha20_poly1305 chacha20;
++	};
++	size_t len;
++};
++
++static void tls_crypto_info_init(uint16_t tls_version, uint16_t cipher_type,
++				 struct tls_crypto_info_keys *tls12)
++{
++	memset(tls12, 0, sizeof(*tls12));
++
++	switch (cipher_type) {
++	case TLS_CIPHER_CHACHA20_POLY1305:
++		tls12->len = sizeof(struct tls12_crypto_info_chacha20_poly1305);
++		tls12->chacha20.info.version = tls_version;
++		tls12->chacha20.info.cipher_type = cipher_type;
++		break;
++	case TLS_CIPHER_AES_GCM_128:
++		tls12->len = sizeof(struct tls12_crypto_info_aes_gcm_128);
++		tls12->aes128.info.version = tls_version;
++		tls12->aes128.info.cipher_type = cipher_type;
++		break;
++	default:
++		break;
++	}
++}
++
+ static void memrnd(void *s, size_t n)
+ {
+ 	int *dword = s;
+@@ -145,33 +174,16 @@ FIXTURE_VARIANT_ADD(tls, 13_chacha)
+ 
+ FIXTURE_SETUP(tls)
+ {
+-	union {
+-		struct tls12_crypto_info_aes_gcm_128 aes128;
+-		struct tls12_crypto_info_chacha20_poly1305 chacha20;
+-	} tls12;
++	struct tls_crypto_info_keys tls12;
+ 	struct sockaddr_in addr;
+ 	socklen_t len;
+ 	int sfd, ret;
+-	size_t tls12_sz;
+ 
+ 	self->notls = false;
+ 	len = sizeof(addr);
+ 
+-	memset(&tls12, 0, sizeof(tls12));
+-	switch (variant->cipher_type) {
+-	case TLS_CIPHER_CHACHA20_POLY1305:
+-		tls12_sz = sizeof(struct tls12_crypto_info_chacha20_poly1305);
+-		tls12.chacha20.info.version = variant->tls_version;
+-		tls12.chacha20.info.cipher_type = variant->cipher_type;
+-		break;
+-	case TLS_CIPHER_AES_GCM_128:
+-		tls12_sz = sizeof(struct tls12_crypto_info_aes_gcm_128);
+-		tls12.aes128.info.version = variant->tls_version;
+-		tls12.aes128.info.cipher_type = variant->cipher_type;
+-		break;
+-	default:
+-		tls12_sz = 0;
+-	}
++	tls_crypto_info_init(variant->tls_version, variant->cipher_type,
++			     &tls12);
+ 
+ 	addr.sin_family = AF_INET;
+ 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
+@@ -199,7 +211,7 @@ FIXTURE_SETUP(tls)
+ 
+ 	if (!self->notls) {
+ 		ret = setsockopt(self->fd, SOL_TLS, TLS_TX, &tls12,
+-				 tls12_sz);
++				 tls12.len);
+ 		ASSERT_EQ(ret, 0);
  	}
  
- 	if (fib_lookup(net, &fl4, &res, 0))
+@@ -212,7 +224,7 @@ FIXTURE_SETUP(tls)
+ 		ASSERT_EQ(ret, 0);
+ 
+ 		ret = setsockopt(self->cfd, SOL_TLS, TLS_RX, &tls12,
+-				 tls12_sz);
++				 tls12.len);
+ 		ASSERT_EQ(ret, 0);
+ 	}
+ 
+@@ -854,18 +866,17 @@ TEST_F(tls, bidir)
+ 	int ret;
+ 
+ 	if (!self->notls) {
+-		struct tls12_crypto_info_aes_gcm_128 tls12;
++		struct tls_crypto_info_keys tls12;
+ 
+-		memset(&tls12, 0, sizeof(tls12));
+-		tls12.info.version = variant->tls_version;
+-		tls12.info.cipher_type = TLS_CIPHER_AES_GCM_128;
++		tls_crypto_info_init(variant->tls_version, variant->cipher_type,
++				     &tls12);
+ 
+ 		ret = setsockopt(self->fd, SOL_TLS, TLS_RX, &tls12,
+-				 sizeof(tls12));
++				 tls12.len);
+ 		ASSERT_EQ(ret, 0);
+ 
+ 		ret = setsockopt(self->cfd, SOL_TLS, TLS_TX, &tls12,
+-				 sizeof(tls12));
++				 tls12.len);
+ 		ASSERT_EQ(ret, 0);
+ 	}
+ 
 -- 
 2.30.2
 
