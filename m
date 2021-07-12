@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6453B3C4540
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD8F3C4561
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbhGLGYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45340 "EHLO mail.kernel.org"
+        id S234858AbhGLGZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235059AbhGLGY3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:24:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5689A61166;
-        Mon, 12 Jul 2021 06:21:08 +0000 (UTC)
+        id S235121AbhGLGYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B49611AF;
+        Mon, 12 Jul 2021 06:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070868;
-        bh=+ilQCIlE2y3de7ZS9NMuQr591m8ljn399G6pW+yPewM=;
+        s=korg; t=1626070871;
+        bh=Yi5NytIE9J3gmo0GWWAKPRo90xCSBXEVAHL4emG5zCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bodp3IEb67wD31kpdYUVowKxmmrCmJWRS2bF81cvttroTN+GlUmdN6GubLc8jVk2v
-         pVZc1GKz1C5aazC78thDTK8vrO7mie/iq8NSY+mVNNEB/F4brk6y55SibLdRM0Llsb
-         2lu4M6Cxull9hJCa4AjjRE1dp2IHksGMtsRQoGY4=
+        b=X7Gw5LXRH+hgEQrlJOtd4JPlCqVFfJ0JRWAjwiwuYho+xhO9rxGjPtZLtlbhUHXT3
+         BPHrul5pez5s4Cu4K99coQVtoVJCDR4O15Cq0hFliH9WR+cqyvwf66QSnghWZn/nHw
+         YGSJxLgcSXok9vQEjTkU/eAjm3Qmq9ysDYKV7Of0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 176/348] extcon: extcon-max8997: Fix IRQ freeing at error path
-Date:   Mon, 12 Jul 2021 08:09:20 +0200
-Message-Id: <20210712060724.257904861@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 177/348] blk-wbt: introduce a new disable state to prevent false positive by rwb_enabled()
+Date:   Mon, 12 Jul 2021 08:09:21 +0200
+Message-Id: <20210712060724.385474539@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,39 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-[ Upstream commit 610bdc04830a864115e6928fc944f1171dfff6f3 ]
+[ Upstream commit 1d0903d61e9645c6330b94247b96dd873dfc11c8 ]
 
-If reading MAX8997_MUIC_REG_STATUS1 fails at probe the driver exits
-without freeing the requested IRQs.
+Now that we disable wbt by simply zero out rwb->wb_normal in
+wbt_disable_default() when switch elevator to bfq, but it's not safe
+because it will become false positive if we change queue depth. If it
+become false positive between wbt_wait() and wbt_track() when submit
+write request, it will lead to drop rqw->inflight to -1 in wbt_done(),
+which will end up trigger IO hung. Fix this issue by introduce a new
+state which mean the wbt was disabled.
 
-Free the IRQs prior returning if reading the status fails.
-
-Fixes: 3e34c8198960 ("extcon: max8997: Avoid forcing UART path on drive probe")
-Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Link: https://lore.kernel.org/r/27ee4a48ee775c3f8c9d90459c18b6f2b15edc76.1623146580.git.matti.vaittinen@fi.rohmeurope.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: a79050434b45 ("blk-rq-qos: refactor out common elements of blk-wbt")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Link: https://lore.kernel.org/r/20210619093700.920393-2-yi.zhang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-max8997.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-wbt.c | 5 +++--
+ block/blk-wbt.h | 1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
-index 172e116ac1ce..ac1633adb55d 100644
---- a/drivers/extcon/extcon-max8997.c
-+++ b/drivers/extcon/extcon-max8997.c
-@@ -729,7 +729,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
- 				2, info->status);
- 	if (ret) {
- 		dev_err(info->dev, "failed to read MUIC register\n");
--		return ret;
-+		goto err_irq;
+diff --git a/block/blk-wbt.c b/block/blk-wbt.c
+index 8641ba9793c5..7c7dd5c14391 100644
+--- a/block/blk-wbt.c
++++ b/block/blk-wbt.c
+@@ -77,7 +77,8 @@ enum {
+ 
+ static inline bool rwb_enabled(struct rq_wb *rwb)
+ {
+-	return rwb && rwb->wb_normal != 0;
++	return rwb && rwb->enable_state != WBT_STATE_OFF_DEFAULT &&
++		      rwb->wb_normal != 0;
+ }
+ 
+ static void wb_timestamp(struct rq_wb *rwb, unsigned long *var)
+@@ -710,7 +711,7 @@ void wbt_disable_default(struct request_queue *q)
+ 	rwb = RQWB(rqos);
+ 	if (rwb->enable_state == WBT_STATE_ON_DEFAULT) {
+ 		blk_stat_deactivate(rwb->cb);
+-		rwb->wb_normal = 0;
++		rwb->enable_state = WBT_STATE_OFF_DEFAULT;
  	}
- 	cable_type = max8997_muic_get_cable_type(info,
- 					   MAX8997_CABLE_GROUP_ADC, &attached);
+ }
+ EXPORT_SYMBOL_GPL(wbt_disable_default);
+diff --git a/block/blk-wbt.h b/block/blk-wbt.h
+index 8e4e37660971..d8d9f41b42f9 100644
+--- a/block/blk-wbt.h
++++ b/block/blk-wbt.h
+@@ -34,6 +34,7 @@ enum {
+ enum {
+ 	WBT_STATE_ON_DEFAULT	= 1,
+ 	WBT_STATE_ON_MANUAL	= 2,
++	WBT_STATE_OFF_DEFAULT
+ };
+ 
+ struct rq_wb {
 -- 
 2.30.2
 
