@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A634A3C444A
+	by mail.lfdr.de (Postfix) with ESMTP id 394B63C4449
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233445AbhGLGSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233559AbhGLGSR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:18:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36524 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233499AbhGLGSJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D217261042;
-        Mon, 12 Jul 2021 06:15:19 +0000 (UTC)
+        id S233516AbhGLGSL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 392C4610A6;
+        Mon, 12 Jul 2021 06:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070520;
-        bh=5/Y7ew45YuoPjNtagYkY5XIePDS8vM5uxqtzY86VDSc=;
+        s=korg; t=1626070522;
+        bh=wwmiMhpNVP6iTEQ6cl8tW30kdJ51L/SlJb0A80+MixE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U8Bx1wk0irgH0I1W6M0EbaVcdIyS/Ich/wcqNiIs3bouOnFl2YIkAUqb4Ygp59l3i
-         eJ41AyAhtiXt2BJKzpdCkYGzM4NxamL0bR8P0DlRh16Qn84HU4N1ERdR+cblqbd1wQ
-         rHdvoM2MRbqGiPLkRT87zZQ4LgtC4SH9UWxmTEIY=
+        b=gMmDgRkpbXtpu6fbIaNwyBM0aKcYeb0/DGHTCPt0rA+j0iB/OLE0Y1XwewPPYJamv
+         1iByEOvaliveRVhvUeLw1qOymPZyTG83vNR+6WF4eKFDoWnoSN5QHK6oADiy4EmHBT
+         Av4yU2Ie4VIi0jnejAroSTp3g8bjCLA6zC5sKhX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 005/348] ALSA: hda/realtek: Add another ALC236 variant support
-Date:   Mon, 12 Jul 2021 08:06:29 +0200
-Message-Id: <20210712060700.691324147@linuxfoundation.org>
+        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 006/348] ALSA: hda/realtek: Improve fixup for HP Spectre x360 15-df0xxx
+Date:   Mon, 12 Jul 2021 08:06:30 +0200
+Message-Id: <20210712060700.924571964@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -38,128 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Elia Devito <eliadevito@gmail.com>
 
-commit 1948fc065a89f18d057b8ffaef6d7242ad99edb8 upstream.
+commit 434591b2a77def0e78abfa38e5d7c4bca954e68a upstream.
 
-The codec chip 10ec:0230 is another variant of ALC236, combined with a
-card reader.  Apply the equivalent setup as 10ec:0236.
+On HP Spectre x360 15-df0xxx, after system boot with plugged headset, the
+headset mic are not detected.
+Moving pincfg and DAC's config to single fixup function fix this.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1184869
+[ The actual bug in the original code was that it used a chain to
+  ALC286_FIXUP_SPEAKER2_TO_DAC1, and it contains not only the DAC1
+  route fix but also another chain to ALC269_FIXUP_THINKPAD_ACPI.
+  I thought the latter one is harmless for non-Thinkpad, but it
+  doesn't seem so; it contains again yet another chain to
+  ALC269_FIXUP_SKI_IGNORE, and this might be bad for some machines,
+  including this HP machine.  -- tiwai ]
+
+Signed-off-by: Elia Devito <eliadevito@gmail.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210618161720.28694-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20210619204105.5682-1-eliadevito@gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ sound/pci/hda/patch_realtek.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -375,6 +375,7 @@ static void alc_fill_eapd_coef(struct hd
- 		alc_update_coef_idx(codec, 0x67, 0xf000, 0x3000);
- 		/* fallthrough */
- 	case 0x10ec0215:
-+	case 0x10ec0230:
- 	case 0x10ec0233:
- 	case 0x10ec0235:
- 	case 0x10ec0236:
-@@ -3143,6 +3144,7 @@ static void alc_disable_headset_jack_key
- 		alc_update_coef_idx(codec, 0x49, 0x0045, 0x0);
- 		alc_update_coef_idx(codec, 0x44, 0x0045 << 8, 0x0);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_write_coef_idx(codec, 0x48, 0x0);
-@@ -3170,6 +3172,7 @@ static void alc_enable_headset_jack_key(
- 		alc_update_coef_idx(codec, 0x49, 0x007f, 0x0045);
- 		alc_update_coef_idx(codec, 0x44, 0x007f << 8, 0x0045 << 8);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_write_coef_idx(codec, 0x48, 0xd011);
-@@ -4630,6 +4633,7 @@ static void alc_headset_mode_unplugged(s
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_process_coef_fw(codec, coef0256);
-@@ -4744,6 +4748,7 @@ static void alc_headset_mode_mic_in(stru
- 		alc_process_coef_fw(codec, coef0255);
- 		snd_hda_set_pin_ctl_cache(codec, mic_pin, PIN_VREF50);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_write_coef_idx(codec, 0x45, 0xc489);
-@@ -4893,6 +4898,7 @@ static void alc_headset_mode_default(str
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_write_coef_idx(codec, 0x1b, 0x0e4b);
-@@ -4991,6 +4997,7 @@ static void alc_headset_mode_ctia(struct
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_process_coef_fw(codec, coef0256);
-@@ -5104,6 +5111,7 @@ static void alc_headset_mode_omtp(struct
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, coef0255);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_process_coef_fw(codec, coef0256);
-@@ -5199,6 +5207,7 @@ static void alc_determine_headset_type(s
- 		val = alc_read_coef_idx(codec, 0x46);
- 		is_ctia = (val & 0x0070) == 0x0070;
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_write_coef_idx(codec, 0x1b, 0x0e4b);
-@@ -5492,6 +5501,7 @@ static void alc255_set_default_jack_type
- 	case 0x10ec0255:
- 		alc_process_coef_fw(codec, alc255fw);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		alc_process_coef_fw(codec, alc256fw);
-@@ -6092,6 +6102,7 @@ static void alc_combo_jack_hp_jd_restart
- 		alc_update_coef_idx(codec, 0x4a, 0x8000, 1 << 15); /* Reset HP JD */
- 		alc_update_coef_idx(codec, 0x4a, 0x8000, 0 << 15);
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0235:
- 	case 0x10ec0236:
- 	case 0x10ec0255:
-@@ -9063,6 +9074,7 @@ static int patch_alc269(struct hda_codec
- 		spec->shutup = alc256_shutup;
- 		spec->init_hook = alc256_init;
- 		break;
-+	case 0x10ec0230:
- 	case 0x10ec0236:
- 	case 0x10ec0256:
- 		spec->codec_variant = ALC269_TYPE_ALC256;
-@@ -10354,6 +10366,7 @@ static const struct hda_device_id snd_hd
- 	HDA_CODEC_ENTRY(0x10ec0221, "ALC221", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0222, "ALC222", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0225, "ALC225", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0230, "ALC236", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0231, "ALC231", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0233, "ALC233", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0234, "ALC234", patch_alc269),
+@@ -6218,6 +6218,24 @@ static void alc274_fixup_hp_headset_mic(
+ 	}
+ }
+ 
++static void alc285_fixup_hp_spectre_x360(struct hda_codec *codec,
++					  const struct hda_fixup *fix, int action)
++{
++	static const hda_nid_t conn[] = { 0x02 };
++	static const struct hda_pintbl pincfgs[] = {
++		{ 0x14, 0x90170110 },  /* rear speaker */
++		{ }
++	};
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_apply_pincfgs(codec, pincfgs);
++		/* force front speaker to DAC1 */
++		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
++		break;
++	}
++}
++
+ /* for hda_fixup_thinkpad_acpi() */
+ #include "thinkpad_helper.c"
+ 
+@@ -7916,13 +7934,8 @@ static const struct hda_fixup alc269_fix
+ 		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
+ 	},
+ 	[ALC285_FIXUP_HP_SPECTRE_X360] = {
+-		.type = HDA_FIXUP_PINS,
+-		.v.pins = (const struct hda_pintbl[]) {
+-			{ 0x14, 0x90170110 }, /* enable top speaker */
+-			{}
+-		},
+-		.chained = true,
+-		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1,
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc285_fixup_hp_spectre_x360,
+ 	},
+ };
+ 
 
 
