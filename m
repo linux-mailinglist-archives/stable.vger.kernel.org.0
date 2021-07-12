@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABBB3C4BB7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 390723C5108
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240892AbhGLG65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
+        id S1345117AbhGLHgL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:36:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239286AbhGLG6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 518C561369;
-        Mon, 12 Jul 2021 06:55:29 +0000 (UTC)
+        id S245696AbhGLHdt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:33:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68CB061400;
+        Mon, 12 Jul 2021 07:31:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072930;
-        bh=HlmL8ZEFf25jX5xlbAq1x65up61lml7RPN6niPzCn00=;
+        s=korg; t=1626075060;
+        bh=0G7WDUneSnvB3wdCJmnVPCLfW7xqQoNe83QOSnntyTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EEOJgvLtLgbKFIPREvE4Hs4uTbOVEOt0qYhdrlsd/oERFfTmAHy5tNEw5wg/UOKgr
-         REP1+BOzw8bU2eh7VLP6w3tNYqNTolF5jITYJzFMIqP65/dUM0AUAbBLT6grE4uE0O
-         JmVubQFqZHsbB0HVVKhjb1vtANEAg6iXaw1Uj8R0=
+        b=SxhOkkR5jD7zhvF013paOAWlhT1bztZeC839FRo764Spn/nHDHXP64L00/sKCtE3+
+         eberz98f8+2xOyja2P43iQDTQHYF+dEg1BHR6aBND5zMQX5v+uSWF5VrraWHbYLB+h
+         PbG9ZPFkOWt8Yrw7UhQZfHAS3DBjUl80QOChrl/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>,
-        syzbot+213ac8bb98f7f4420840@syzkaller.appspotmail.com,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 032/700] ntfs: fix validity check for file name attribute
+        stable@vger.kernel.org, frank zago <frank@zago.net>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.13 092/800] iio: light: tcs3472: do not free unallocated IRQ
 Date:   Mon, 12 Jul 2021 08:01:55 +0200
-Message-Id: <20210712060929.166683245@linuxfoundation.org>
+Message-Id: <20210712060926.001768399@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+From: frank zago <frank@zago.net>
 
-commit d98e4d95411bbde2220a7afa38dcc9c14d71acbe upstream.
+commit 7cd04c863f9e1655d607705455e7714f24451984 upstream.
 
-When checking the file name attribute, we want to ensure that it fits
-within the bounds of ATTR_RECORD.  To do this, we should check that (attr
-record + file name offset + file name length) < (attr record + attr record
-length).
+Allocating an IRQ is conditional to the IRQ existence, but freeing it
+was not. If no IRQ was allocate, the driver would still try to free
+IRQ 0. Add the missing checks.
 
-However, the original check did not include the file name offset in the
-calculation.  This means that corrupted on-disk metadata might not caught
-by the incorrect file name check, and lead to an invalid memory access.
+This fixes the following trace when the driver is removed:
 
-An example can be seen in the crash report of a memory corruption error
-found by Syzbot:
-https://syzkaller.appspot.com/bug?id=a1a1e379b225812688566745c3e2f7242bffc246
+[  100.667788] Trying to free already-free IRQ 0
+[  100.667793] WARNING: CPU: 0 PID: 2315 at kernel/irq/manage.c:1826 free_irq+0x1fd/0x370
+...
+[  100.667914] Call Trace:
+[  100.667920]  tcs3472_remove+0x3a/0x90 [tcs3472]
+[  100.667927]  i2c_device_remove+0x2b/0xa0
 
-Adding the file name offset to the validity check fixes this error and
-passes the Syzbot reproducer test.
-
-Link: https://lkml.kernel.org/r/20210614050540.289494-1-desmondcheongzx@gmail.com
-Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-Reported-by: syzbot+213ac8bb98f7f4420840@syzkaller.appspotmail.com
-Tested-by: syzbot+213ac8bb98f7f4420840@syzkaller.appspotmail.com
-Acked-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: frank zago <frank@zago.net>
+Link: https://lore.kernel.org/r/20210427022017.19314-2-frank@zago.net
+Fixes: 9d2f715d592e ("iio: light: tcs3472: support out-of-threshold events")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ntfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/light/tcs3472.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/ntfs/inode.c
-+++ b/fs/ntfs/inode.c
-@@ -477,7 +477,7 @@ err_corrupt_attr:
- 		}
- 		file_name_attr = (FILE_NAME_ATTR*)((u8*)attr +
- 				le16_to_cpu(attr->data.resident.value_offset));
--		p2 = (u8*)attr + le32_to_cpu(attr->data.resident.value_length);
-+		p2 = (u8 *)file_name_attr + le32_to_cpu(attr->data.resident.value_length);
- 		if (p2 < (u8*)attr || p2 > p)
- 			goto err_corrupt_attr;
- 		/* This attribute is ok, but is it in the $Extend directory? */
+--- a/drivers/iio/light/tcs3472.c
++++ b/drivers/iio/light/tcs3472.c
+@@ -531,7 +531,8 @@ static int tcs3472_probe(struct i2c_clie
+ 	return 0;
+ 
+ free_irq:
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	return ret;
+@@ -559,7 +560,8 @@ static int tcs3472_remove(struct i2c_cli
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+ 
+ 	iio_device_unregister(indio_dev);
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	tcs3472_powerdown(iio_priv(indio_dev));
+ 
 
 
