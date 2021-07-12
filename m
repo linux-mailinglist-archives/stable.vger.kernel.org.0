@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 379813C4515
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935463C4518
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234368AbhGLGX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:23:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
+        id S234558AbhGLGX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:23:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234551AbhGLGW2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:22:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F9A2610A6;
-        Mon, 12 Jul 2021 06:19:19 +0000 (UTC)
+        id S234398AbhGLGW3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:22:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D7D26113E;
+        Mon, 12 Jul 2021 06:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070759;
-        bh=lih3W99nVGZKyW4Zkbj1v+KnbsdkmMAQa/vyFDAV83o=;
+        s=korg; t=1626070762;
+        bh=yvNRTY8dx/rRiSFF4wbIfn7uiJmpmS+18keA0sMRdVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfIEyahmW6m3p+e+NdU7lj7On60qNz9RCh5AmjvOPSdayY6qgKD42Evnl2eT45syU
-         JmQF6V0En/tCTAsTwukwtmicgSisTMMCKRmagPH1X/tkVX9hrWDdc22hwlASaf+Gw5
-         4esIswUdrkSIW9dIo+We7RQZluxDNYltbpw+O6FA=
+        b=PkmIUI3iQ0Xku/V4RcUdqyizmjHFobKtxi3HYhMavn7uPtvUmu7dd89qOxSjj9afs
+         b3oiVQ4gsstYhh4ffMRnX/NqVawLqj9nd0g5sVKBySjMQIqVcFEfEdeCMvLUT273Cf
+         oanTAedEFNgsoAeraeslZwKwUM/qaI5I3bXqPIGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
-Subject: [PATCH 5.4 129/348] PCI: hv: Add check for hyperv_initialized in init_hv_pci_drv()
-Date:   Mon, 12 Jul 2021 08:08:33 +0200
-Message-Id: <20210712060718.451702902@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Mason <clm@fb.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Feng Tang <feng.tang@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 130/348] clocksource: Retry clock read if long delays detected
+Date:   Mon, 12 Jul 2021 08:08:34 +0200
+Message-Id: <20210712060718.571489048@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,39 +42,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Paul E. McKenney <paulmck@kernel.org>
 
-[ Upstream commit 7d815f4afa87f2032b650ae1bba7534b550a6b8b ]
+[ Upstream commit db3a34e17433de2390eb80d436970edcebd0ca3e ]
 
-Add check for hv_is_hyperv_initialized() at the top of
-init_hv_pci_drv(), so if the pci-hyperv driver is force-loaded on non
-Hyper-V platforms, the init_hv_pci_drv() will exit immediately, without
-any side effects, like assignments to hvpci_block_ops, etc.
+When the clocksource watchdog marks a clock as unstable, this might be due
+to that clock being unstable or it might be due to delays that happen to
+occur between the reads of the two clocks.  Yes, interrupts are disabled
+across those two reads, but there are no shortage of things that can delay
+interrupts-disabled regions of code ranging from SMI handlers to vCPU
+preemption.  It would be good to have some indication as to why the clock
+was marked unstable.
 
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reported-and-tested-by: Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
-Reviewed-by: Wei Liu <wei.liu@kernel.org>
-Link: https://lore.kernel.org/r/1621984653-1210-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Therefore, re-read the watchdog clock on either side of the read from the
+clock under test.  If the watchdog clock shows an excessive time delta
+between its pair of reads, the reads are retried.
+
+The maximum number of retries is specified by a new kernel boot parameter
+clocksource.max_cswd_read_retries, which defaults to three, that is, up to
+four reads, one initial and up to three retries.  If more than one retry
+was required, a message is printed on the console (the occasional single
+retry is expected behavior, especially in guest OSes).  If the maximum
+number of retries is exceeded, the clock under test will be marked
+unstable.  However, the probability of this happening due to various sorts
+of delays is quite small.  In addition, the reason (clock-read delays) for
+the unstable marking will be apparent.
+
+Reported-by: Chris Mason <clm@fb.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Feng Tang <feng.tang@intel.com>
+Link: https://lore.kernel.org/r/20210527190124.440372-1-paulmck@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-hyperv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ .../admin-guide/kernel-parameters.txt         |  6 +++
+ kernel/time/clocksource.c                     | 53 ++++++++++++++++---
+ 2 files changed, 53 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-index f1f300218fab..8c45d6c32c30 100644
---- a/drivers/pci/controller/pci-hyperv.c
-+++ b/drivers/pci/controller/pci-hyperv.c
-@@ -3121,6 +3121,9 @@ static void __exit exit_hv_pci_drv(void)
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index a19ae163c058..dbb68067ba4e 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -567,6 +567,12 @@
+ 			loops can be debugged more effectively on production
+ 			systems.
  
- static int __init init_hv_pci_drv(void)
- {
-+	if (!hv_is_hyperv_initialized())
-+		return -ENODEV;
++	clocksource.max_cswd_read_retries= [KNL]
++			Number of clocksource_watchdog() retries due to
++			external delays before the clock will be marked
++			unstable.  Defaults to three retries, that is,
++			four attempts to read the clock under test.
 +
- 	/* Set the invalid domain number's bit, so it will not be used */
- 	set_bit(HVPCI_DOM_INVALID, hvpci_dom_map);
+ 	clearcpuid=BITNUM[,BITNUM...] [X86]
+ 			Disable CPUID feature X for the kernel. See
+ 			arch/x86/include/asm/cpufeatures.h for the valid bit
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index 428beb69426a..6863a054c970 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -124,6 +124,13 @@ static void __clocksource_change_rating(struct clocksource *cs, int rating);
+ #define WATCHDOG_INTERVAL (HZ >> 1)
+ #define WATCHDOG_THRESHOLD (NSEC_PER_SEC >> 4)
  
++/*
++ * Maximum permissible delay between two readouts of the watchdog
++ * clocksource surrounding a read of the clocksource being validated.
++ * This delay could be due to SMIs, NMIs, or to VCPU preemptions.
++ */
++#define WATCHDOG_MAX_SKEW (100 * NSEC_PER_USEC)
++
+ static void clocksource_watchdog_work(struct work_struct *work)
+ {
+ 	/*
+@@ -184,12 +191,45 @@ void clocksource_mark_unstable(struct clocksource *cs)
+ 	spin_unlock_irqrestore(&watchdog_lock, flags);
+ }
+ 
++static ulong max_cswd_read_retries = 3;
++module_param(max_cswd_read_retries, ulong, 0644);
++
++static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
++{
++	unsigned int nretries;
++	u64 wd_end, wd_delta;
++	int64_t wd_delay;
++
++	for (nretries = 0; nretries <= max_cswd_read_retries; nretries++) {
++		local_irq_disable();
++		*wdnow = watchdog->read(watchdog);
++		*csnow = cs->read(cs);
++		wd_end = watchdog->read(watchdog);
++		local_irq_enable();
++
++		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
++		wd_delay = clocksource_cyc2ns(wd_delta, watchdog->mult,
++					      watchdog->shift);
++		if (wd_delay <= WATCHDOG_MAX_SKEW) {
++			if (nretries > 1 || nretries >= max_cswd_read_retries) {
++				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
++					smp_processor_id(), watchdog->name, nretries);
++			}
++			return true;
++		}
++	}
++
++	pr_warn("timekeeping watchdog on CPU%d: %s read-back delay of %lldns, attempt %d, marking unstable\n",
++		smp_processor_id(), watchdog->name, wd_delay, nretries);
++	return false;
++}
++
+ static void clocksource_watchdog(struct timer_list *unused)
+ {
+-	struct clocksource *cs;
+ 	u64 csnow, wdnow, cslast, wdlast, delta;
+-	int64_t wd_nsec, cs_nsec;
+ 	int next_cpu, reset_pending;
++	int64_t wd_nsec, cs_nsec;
++	struct clocksource *cs;
+ 
+ 	spin_lock(&watchdog_lock);
+ 	if (!watchdog_running)
+@@ -206,10 +246,11 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 			continue;
+ 		}
+ 
+-		local_irq_disable();
+-		csnow = cs->read(cs);
+-		wdnow = watchdog->read(watchdog);
+-		local_irq_enable();
++		if (!cs_watchdog_read(cs, &csnow, &wdnow)) {
++			/* Clock readout unreliable, so give it up. */
++			__clocksource_unstable(cs);
++			continue;
++		}
+ 
+ 		/* Clocksource initialized ? */
+ 		if (!(cs->flags & CLOCK_SOURCE_WATCHDOG) ||
 -- 
 2.30.2
 
