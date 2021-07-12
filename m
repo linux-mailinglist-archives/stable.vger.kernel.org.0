@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE1A33C4F99
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 925CE3C4F96
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243801AbhGLH03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
+        id S243795AbhGLH02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344178AbhGLHY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344183AbhGLHY2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 03:24:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7BE46052B;
-        Mon, 12 Jul 2021 07:21:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C90B361221;
+        Mon, 12 Jul 2021 07:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074489;
-        bh=pk9h27xzFngeoU6rqILM+rhgFvQrnIgc/xtXeHGJMaI=;
+        s=korg; t=1626074492;
+        bh=rT08U/FPIup2idCnowpyZrlo2Naoyv/qPZWHmJioUiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YG1KcDBIWMKl7Jun74vnkFVkoVWVnJceHCgdUKYga6wtXsKRIYYaL13qtYYUHpctd
-         DqbjMyj6siRfrSWJEdwCrmUiB5WFPWh7qL68XqjnTIlxVxVyAhWXuAXeyjlKAU5IC5
-         DkpQHtWz2SZdiMKJXDKkwy6pBRZkSto4SzubUvXk=
+        b=nv4VJU/F6FN/J0W4CwFUqDyBOklwoSt7SF1lQ5Yg69zwVcF/pj8tdGRL6yNHalXZp
+         Rfm3pD34fy64kFhq+tlJgFh6DgBDYzcNcHaVw6cRe1MQGo8iLZW6nBdYI5k6ZQ2q5y
+         Qg0oyZhL2lPLlSdYE7ghzTNOyobmLgTnTFsQaEA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bard Liao <bard.liao@intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 597/700] ASoC: max98373-sdw: use first_hw_init flag on resume
-Date:   Mon, 12 Jul 2021 08:11:20 +0200
-Message-Id: <20210712061039.458740245@linuxfoundation.org>
+Subject: [PATCH 5.12 598/700] ASoC: rt1308-sdw: use first_hw_init flag on resume
+Date:   Mon, 12 Jul 2021 08:11:21 +0200
+Message-Id: <20210712061039.564118402@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -45,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit bf881170311ea74ff30c3be0be8fb097132ce696 ]
+[ Upstream commit 30e102dab5fad1db71684f8ac5e1ac74e49da06d ]
 
 The intent of the status check on resume was to verify if a SoundWire
 peripheral reported ATTACHED before waiting for the initialization to
@@ -57,90 +57,32 @@ Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
 another error, the resume operation never timed out, but the volume
 settings were not properly restored.
 
-This patch renames the status flag to 'first_hw_init' for consistency
-with other drivers.
-
+BugLink: https://github.com/thesofproject/linux/issues/2908
 BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 56a5b7910e96 ('ASoC: codecs: max98373: add SoundWire support')
+Fixes: a87a6653a28c0 ('ASoC: rt1308-sdw: add rt1308 SdW amplifier driver')
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-3-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20210607222239.582139-4-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98373-sdw.c | 12 ++++++------
- sound/soc/codecs/max98373.h     |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ sound/soc/codecs/rt1308-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
-index c7a3506046db..dc520effc61c 100644
---- a/sound/soc/codecs/max98373-sdw.c
-+++ b/sound/soc/codecs/max98373-sdw.c
-@@ -271,7 +271,7 @@ static __maybe_unused int max98373_resume(struct device *dev)
- 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
+diff --git a/sound/soc/codecs/rt1308-sdw.c b/sound/soc/codecs/rt1308-sdw.c
+index afd2c3b687cc..0ec741cf70fc 100644
+--- a/sound/soc/codecs/rt1308-sdw.c
++++ b/sound/soc/codecs/rt1308-sdw.c
+@@ -709,7 +709,7 @@ static int __maybe_unused rt1308_dev_resume(struct device *dev)
+ 	struct rt1308_sdw_priv *rt1308 = dev_get_drvdata(dev);
  	unsigned long time;
  
--	if (!max98373->hw_init)
-+	if (!max98373->first_hw_init)
+-	if (!rt1308->hw_init)
++	if (!rt1308->first_hw_init)
  		return 0;
  
  	if (!slave->unattach_request)
-@@ -362,7 +362,7 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	struct device *dev = &slave->dev;
- 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
- 
--	if (max98373->pm_init_once) {
-+	if (max98373->first_hw_init) {
- 		regcache_cache_only(max98373->regmap, false);
- 		regcache_cache_bypass(max98373->regmap, true);
- 	}
-@@ -370,7 +370,7 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	/*
- 	 * PM runtime is only enabled when a Slave reports as Attached
- 	 */
--	if (!max98373->pm_init_once) {
-+	if (!max98373->first_hw_init) {
- 		/* set autosuspend parameters */
- 		pm_runtime_set_autosuspend_delay(dev, 3000);
- 		pm_runtime_use_autosuspend(dev);
-@@ -462,12 +462,12 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	regmap_write(max98373->regmap, MAX98373_R20B5_BDE_EN, 1);
- 	regmap_write(max98373->regmap, MAX98373_R20E2_LIMITER_EN, 1);
- 
--	if (max98373->pm_init_once) {
-+	if (max98373->first_hw_init) {
- 		regcache_cache_bypass(max98373->regmap, false);
- 		regcache_mark_dirty(max98373->regmap);
- 	}
- 
--	max98373->pm_init_once = true;
-+	max98373->first_hw_init = true;
- 	max98373->hw_init = true;
- 
- 	pm_runtime_mark_last_busy(dev);
-@@ -797,7 +797,7 @@ static int max98373_init(struct sdw_slave *slave, struct regmap *regmap)
- 	max98373_slot_config(dev, max98373);
- 
- 	max98373->hw_init = false;
--	max98373->pm_init_once = false;
-+	max98373->first_hw_init = false;
- 
- 	/* codec registration  */
- 	ret = devm_snd_soc_register_component(dev, &soc_codec_dev_max98373_sdw,
-diff --git a/sound/soc/codecs/max98373.h b/sound/soc/codecs/max98373.h
-index 71f5a5228f34..c09c73678a9a 100644
---- a/sound/soc/codecs/max98373.h
-+++ b/sound/soc/codecs/max98373.h
-@@ -223,7 +223,7 @@ struct max98373_priv {
- 	/* variables to support soundwire */
- 	struct sdw_slave *slave;
- 	bool hw_init;
--	bool pm_init_once;
-+	bool first_hw_init;
- 	int slot;
- 	unsigned int rx_mask;
- };
 -- 
 2.30.2
 
