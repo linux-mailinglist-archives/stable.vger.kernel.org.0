@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A093C4CB4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FB1A3C522A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242708AbhGLHG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
+        id S1349906AbhGLHo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243902AbhGLHF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA3261205;
-        Mon, 12 Jul 2021 07:02:42 +0000 (UTC)
+        id S1348266AbhGLHkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 756FC60724;
+        Mon, 12 Jul 2021 07:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073363;
-        bh=Oc/muHyp/WkHhV5wU9XuA3AaY1FnzFrQ4sTl6k/RmDA=;
+        s=korg; t=1626075484;
+        bh=GGSDtAdxzjHSHDsf8YrTAWML9GL98TFyDuH7C4/yPtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=II0b0LBoL+dP1NITULkerxWrCozswKc2teaLbm1zAhpJyp02uBnGmuJT6QBaGjibi
-         Y4M13bOJ0gHqQ3NLKpTEnPrqwRx+y0eUvnl+tqxrzGFIKdd52DHgc6KPEZrAwZrTSB
-         59D1dEnHiuk3IY6sp+mWJknsXb07sGPT8QhfyQ7I=
+        b=p9oP3264xNfw0y+/a5GjDzyq4nT17zngJov1+YWFl9wb0ovDosmerURTzyaOkNvYY
+         BLpe11vXWYecj4OiiQ36LX3FwSG6ff/5wmmDgXuNCnFQfiuh1raw2uncI6mvolf1qj
+         qRTTX+Sw55+6Hy0SIuFjx21as0vdBrysLj0gnLD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 174/700] media: dvbdev: fix error logic at dvb_register_device()
-Date:   Mon, 12 Jul 2021 08:04:17 +0200
-Message-Id: <20210712060950.941183854@linuxfoundation.org>
+        stable@vger.kernel.org, Pascal Giard <pascal.giard@etsmtl.ca>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 235/800] HID: sony: fix freeze when inserting ghlive ps3/wii dongles
+Date:   Mon, 12 Jul 2021 08:04:18 +0200
+Message-Id: <20210712060946.855940665@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +39,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Pascal Giard <pascal.giard@etsmtl.ca>
 
-[ Upstream commit 1fec2ecc252301110e4149e6183fa70460d29674 ]
+[ Upstream commit fb1a79a6b6e1223ddb18f12aa35e36f832da2290 ]
 
-As reported by smatch:
+This commit fixes a freeze on insertion of a Guitar Hero Live PS3/WiiU
+USB dongle. Indeed, with the current implementation, inserting one of
+those USB dongles will lead to a hard freeze. I apologize for not
+catching this earlier, it didn't occur on my old laptop.
 
-	drivers/media/dvb-core/dvbdev.c: drivers/media/dvb-core/dvbdev.c:510 dvb_register_device() warn: '&dvbdev->list_head' not removed from list
-	drivers/media/dvb-core/dvbdev.c: drivers/media/dvb-core/dvbdev.c:530 dvb_register_device() warn: '&dvbdev->list_head' not removed from list
-	drivers/media/dvb-core/dvbdev.c: drivers/media/dvb-core/dvbdev.c:545 dvb_register_device() warn: '&dvbdev->list_head' not removed from list
+While the issue was isolated to memory alloc/free, I could not figure
+out why it causes a freeze. So this patch fixes this issue by
+simplifying memory allocation and usage.
 
-The error logic inside dvb_register_device() doesn't remove
-devices from the dvb_adapter_list in case of errors.
+We remind that for the dongle to work properly, a control URB needs to
+be sent periodically. We used to alloc/free the URB each time this URB
+needed to be sent.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+With this patch, the memory for the URB is allocated on the probe, reused
+for as long as the dongle is plugged in, and freed once the dongle is
+unplugged.
+
+Signed-off-by: Pascal Giard <pascal.giard@etsmtl.ca>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvbdev.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-sony.c | 98 +++++++++++++++++++++---------------------
+ 1 file changed, 49 insertions(+), 49 deletions(-)
 
-diff --git a/drivers/media/dvb-core/dvbdev.c b/drivers/media/dvb-core/dvbdev.c
-index 3862ddc86ec4..795d9bfaba5c 100644
---- a/drivers/media/dvb-core/dvbdev.c
-+++ b/drivers/media/dvb-core/dvbdev.c
-@@ -506,6 +506,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 			break;
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 8319b0ce385a..b3722c51ec78 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -597,9 +597,8 @@ struct sony_sc {
+ 	/* DS4 calibration data */
+ 	struct ds4_calibration_data ds4_calib_data[6];
+ 	/* GH Live */
++	struct urb *ghl_urb;
+ 	struct timer_list ghl_poke_timer;
+-	struct usb_ctrlrequest *ghl_cr;
+-	u8 *ghl_databuf;
+ };
  
- 	if (minor == MAX_DVB_MINORS) {
-+		list_del (&dvbdev->list_head);
- 		kfree(dvbdevfops);
- 		kfree(dvbdev);
- 		up_write(&minor_rwsem);
-@@ -526,6 +527,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 		      __func__);
+ static void sony_set_leds(struct sony_sc *sc);
+@@ -625,66 +624,54 @@ static inline void sony_schedule_work(struct sony_sc *sc,
  
- 		dvb_media_device_free(dvbdev);
-+		list_del (&dvbdev->list_head);
- 		kfree(dvbdevfops);
- 		kfree(dvbdev);
- 		mutex_unlock(&dvbdev_register_lock);
-@@ -541,6 +543,7 @@ int dvb_register_device(struct dvb_adapter *adap, struct dvb_device **pdvbdev,
- 		pr_err("%s: failed to create device dvb%d.%s%d (%ld)\n",
- 		       __func__, adap->num, dnames[type], id, PTR_ERR(clsdev));
- 		dvb_media_device_free(dvbdev);
-+		list_del (&dvbdev->list_head);
- 		kfree(dvbdevfops);
- 		kfree(dvbdev);
- 		return PTR_ERR(clsdev);
+ static void ghl_magic_poke_cb(struct urb *urb)
+ {
+-	if (urb) {
+-		/* Free sc->ghl_cr and sc->ghl_databuf allocated in
+-		 * ghl_magic_poke()
+-		 */
+-		kfree(urb->setup_packet);
+-		kfree(urb->transfer_buffer);
+-	}
++	struct sony_sc *sc = urb->context;
++
++	if (urb->status < 0)
++		hid_err(sc->hdev, "URB transfer failed : %d", urb->status);
++
++	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+ }
+ 
+ static void ghl_magic_poke(struct timer_list *t)
+ {
++	int ret;
+ 	struct sony_sc *sc = from_timer(sc, t, ghl_poke_timer);
+ 
+-	int ret;
++	ret = usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
++	if (ret < 0)
++		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
++}
++
++static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev)
++{
++	struct usb_ctrlrequest *cr;
++	u16 poke_size;
++	u8 *databuf;
+ 	unsigned int pipe;
+-	struct urb *urb;
+-	struct usb_device *usbdev = to_usb_device(sc->hdev->dev.parent->parent);
+-	const u16 poke_size =
+-		ARRAY_SIZE(ghl_ps3wiiu_magic_data);
+ 
++	poke_size = ARRAY_SIZE(ghl_ps3wiiu_magic_data);
+ 	pipe = usb_sndctrlpipe(usbdev, 0);
+ 
+-	if (!sc->ghl_cr) {
+-		sc->ghl_cr = kzalloc(sizeof(*sc->ghl_cr), GFP_ATOMIC);
+-		if (!sc->ghl_cr)
+-			goto resched;
+-	}
+-
+-	if (!sc->ghl_databuf) {
+-		sc->ghl_databuf = kzalloc(poke_size, GFP_ATOMIC);
+-		if (!sc->ghl_databuf)
+-			goto resched;
+-	}
++	cr = devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
++	if (cr == NULL)
++		return -ENOMEM;
+ 
+-	urb = usb_alloc_urb(0, GFP_ATOMIC);
+-	if (!urb)
+-		goto resched;
++	databuf = devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
++	if (databuf == NULL)
++		return -ENOMEM;
+ 
+-	sc->ghl_cr->bRequestType =
++	cr->bRequestType =
+ 		USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT;
+-	sc->ghl_cr->bRequest = USB_REQ_SET_CONFIGURATION;
+-	sc->ghl_cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
+-	sc->ghl_cr->wIndex = 0;
+-	sc->ghl_cr->wLength = cpu_to_le16(poke_size);
+-	memcpy(sc->ghl_databuf, ghl_ps3wiiu_magic_data, poke_size);
+-
++	cr->bRequest = USB_REQ_SET_CONFIGURATION;
++	cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
++	cr->wIndex = 0;
++	cr->wLength = cpu_to_le16(poke_size);
++	memcpy(databuf, ghl_ps3wiiu_magic_data, poke_size);
+ 	usb_fill_control_urb(
+-		urb, usbdev, pipe,
+-		(unsigned char *) sc->ghl_cr, sc->ghl_databuf,
+-		poke_size, ghl_magic_poke_cb, NULL);
+-	ret = usb_submit_urb(urb, GFP_ATOMIC);
+-	if (ret < 0) {
+-		kfree(sc->ghl_databuf);
+-		kfree(sc->ghl_cr);
+-	}
+-	usb_free_urb(urb);
+-
+-resched:
+-	/* Reschedule for next time */
+-	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
++		sc->ghl_urb, usbdev, pipe,
++		(unsigned char *) cr, databuf, poke_size,
++		ghl_magic_poke_cb, sc);
++	return 0;
+ }
+ 
+ static int guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
+@@ -2981,6 +2968,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	int ret;
+ 	unsigned long quirks = id->driver_data;
+ 	struct sony_sc *sc;
++	struct usb_device *usbdev;
+ 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
+ 
+ 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
+@@ -3000,6 +2988,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	sc->quirks = quirks;
+ 	hid_set_drvdata(hdev, sc);
+ 	sc->hdev = hdev;
++	usbdev = to_usb_device(sc->hdev->dev.parent->parent);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+@@ -3042,6 +3031,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
++		sc->ghl_urb = usb_alloc_urb(0, GFP_ATOMIC);
++		if (!sc->ghl_urb)
++			return -ENOMEM;
++		ret = ghl_init_urb(sc, usbdev);
++		if (ret) {
++			hid_err(hdev, "error preparing URB\n");
++			return ret;
++		}
++
+ 		timer_setup(&sc->ghl_poke_timer, ghl_magic_poke, 0);
+ 		mod_timer(&sc->ghl_poke_timer,
+ 			  jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
+@@ -3054,8 +3052,10 @@ static void sony_remove(struct hid_device *hdev)
+ {
+ 	struct sony_sc *sc = hid_get_drvdata(hdev);
+ 
+-	if (sc->quirks & GHL_GUITAR_PS3WIIU)
++	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
+ 		del_timer_sync(&sc->ghl_poke_timer);
++		usb_free_urb(sc->ghl_urb);
++	}
+ 
+ 	hid_hw_close(hdev);
+ 
 -- 
 2.30.2
 
