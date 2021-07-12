@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 614863C50F5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533533C4B3C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344402AbhGLHfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
+        id S234194AbhGLG4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244848AbhGLHdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3AE260FF3;
-        Mon, 12 Jul 2021 07:30:27 +0000 (UTC)
+        id S239136AbhGLGzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:55:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F081861186;
+        Mon, 12 Jul 2021 06:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075028;
-        bh=xqwa26HKMkIS43izkXldqaP25XIeWFRozEGyYOLo3MA=;
+        s=korg; t=1626072776;
+        bh=D4EbMpgOIU0bxTAfxbzis8uGgXIaS9yw2L2Wt2HOaKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oh+jl/908hWgK3osdNTmRQ30R9haqmRwxVeaJSIQgX8qxToRiuqccI7bxcM23ZLV+
-         bF4c0ReIjbAKEeQdyYZB51UysbEO7eQDGodlh5CSQYG+lu52fDRzadjnr9cYAXX9lq
-         6yqonyBIDqQ4e2vzZwDW6Fy2UHOUTNVC4/n5hMlI=
+        b=NQFzItqdAxOmMFpl0QWl4K+weP4Zo7V7Kao3DxVMBRdIam9v3VSqQBWgIBEmseFcC
+         J9+y9c931g76FkivOHDrQQ7zuTjj+ojvGuGoeRrnKe8+F0eJsu+5CFmywyhJK1FBs/
+         W45NthNccUVCnHCFw19Ti/3uaavM8dKsKPJQ59t0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 077/800] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
-Date:   Mon, 12 Jul 2021 08:01:40 +0200
-Message-Id: <20210712060923.961879850@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.12 018/700] media: dvb-usb: fix wrong definition
+Date:   Mon, 12 Jul 2021 08:01:41 +0200
+Message-Id: <20210712060927.334607639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 112022bdb5bc372e00e6e43cb88ee38ea67b97bd upstream.
+commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
 
-Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
-NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
-Checking the mitigation itself is not sufficient as it can be toggled on
-at any time and KVM doesn't reset MMU contexts when that happens.  KVM
-could reset the contexts, but that would require purging all SPTEs in all
-MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
-disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
-for shadow MMUs.
+syzbot reported WARNING in vmalloc. The problem
+was in zero size passed to vmalloc.
 
-Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+The root case was in wrong cxusb_bluebird_lgz201_properties
+definition. adapter array has only 1 entry, but num_adapters was
+2.
+
+Call Trace:
+ __vmalloc_node mm/vmalloc.c:2963 [inline]
+ vmalloc+0x67/0x80 mm/vmalloc.c:2996
+ dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
+ dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
+ dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
+ dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+ dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+ cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+
+Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/mmu/mmu.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/cxusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -4168,7 +4168,15 @@ static inline u64 reserved_hpa_bits(void
- void
- reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
- {
--	bool uses_nx = context->nx ||
-+	/*
-+	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
-+	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
-+	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
-+	 * The iTLB multi-hit workaround can be toggled at any time, so assume
-+	 * NX can be used by any non-nested shadow MMU to avoid having to reset
-+	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
-+	 */
-+	bool uses_nx = context->nx || !tdp_enabled ||
- 		context->mmu_role.base.smep_andnot_wp;
- 	struct rsvd_bits_validate *shadow_zero_check;
- 	int i;
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -1947,7 +1947,7 @@ static struct dvb_usb_device_properties
+ 
+ 	.size_of_priv     = sizeof(struct cxusb_state),
+ 
+-	.num_adapters = 2,
++	.num_adapters = 1,
+ 	.adapter = {
+ 		{
+ 		.num_frontends = 1,
 
 
