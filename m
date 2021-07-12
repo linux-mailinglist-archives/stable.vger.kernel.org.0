@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E6D3C47CE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 886BD3C482B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236492AbhGLGfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55424 "EHLO mail.kernel.org"
+        id S233996AbhGLGgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237105AbhGLGeJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1BEA61152;
-        Mon, 12 Jul 2021 06:30:19 +0000 (UTC)
+        id S236658AbhGLGfW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:35:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F408611C0;
+        Mon, 12 Jul 2021 06:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071420;
-        bh=Mc2o0mKA+e5b0/Jg87QMiGwTum9UxfWN2g2j+WJ9h+U=;
+        s=korg; t=1626071541;
+        bh=NUozkwmHPh6gfRjEmtU3I+0oeJFHpmWF6sODACJ4GiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kABtg5/MnFXf2Nlp72NJpXYBh/KvmyRQpHY4C5onLC4C7MOqvzpNESNCjZdSVLW+J
-         G3Yjdgf6VX5H0/8KQl8/XKYmJYc1Xuav2fDgE3Xl9sEDTxwb4Q7ICAw4t2sAx03s4s
-         s1kizCisMZLzagn4/1mQfkLlFeb0aJoCb7BEV5Ro=
+        b=XNfpECHvLoTHXWzTdaq3sg1gtllAxRir/I5B29BiN3roajs4PigRqOTn+ej6lCDI0
+         GvSjRIR5Ak9ZfEBc7U6JP//CNiLVfvPqNFWZepFMMn5qUcwj4GekRmXdwCZou80kgQ
+         CrF/I0PXJ0FQpEqNknwNV6GjqCAQFe9NNW67KDug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 060/593] perf/smmuv3: Dont trample existing events with global filter
-Date:   Mon, 12 Jul 2021 08:03:40 +0200
-Message-Id: <20210712060849.751800106@linuxfoundation.org>
+        stable@vger.kernel.org, Xiaoyao Li <xiaoyao.li@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 061/593] KVM: nVMX: Handle split-lock #AC exceptions that happen in L2
+Date:   Mon, 12 Jul 2021 08:03:41 +0200
+Message-Id: <20210712060849.878415750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,64 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 4c1daba15c209b99d192f147fea3dade30f72ed2 upstream.
+commit b33bb78a1fada6445c265c585ee0dd0fc6279102 upstream.
 
-With global filtering, we only allow an event to be scheduled if its
-filter settings exactly match those of any existing events, therefore
-it is pointless to reapply the filter in that case. Much worse, though,
-is that in doing that we trample the event type of counter 0 if it's
-already active, and never touch the appropriate PMEVTYPERn so the new
-event is likely not counting the right thing either. Don't do that.
+Mark #ACs that won't be reinjected to the guest as wanted by L0 so that
+KVM handles split-lock #AC from L2 instead of forwarding the exception to
+L1.  Split-lock #AC isn't yet virtualized, i.e. L1 will treat it like a
+regular #AC and do the wrong thing, e.g. reinject it into L2.
 
-CC: stable@vger.kernel.org
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/32c80c0e46237f49ad8da0c9f8864e13c4a803aa.1623153312.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: e6f8b6c12f03 ("KVM: VMX: Extend VMXs #AC interceptor to handle split lock #AC in guest")
+Cc: Xiaoyao Li <xiaoyao.li@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622172244.3561540-1-seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/perf/arm_smmuv3_pmu.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ arch/x86/kvm/vmx/nested.c |    3 +++
+ arch/x86/kvm/vmx/vmcs.h   |    5 +++++
+ arch/x86/kvm/vmx/vmx.c    |    4 ++--
+ arch/x86/kvm/vmx/vmx.h    |    1 +
+ 4 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/perf/arm_smmuv3_pmu.c
-+++ b/drivers/perf/arm_smmuv3_pmu.c
-@@ -275,7 +275,7 @@ static int smmu_pmu_apply_event_filter(s
- 				       struct perf_event *event, int idx)
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -5787,6 +5787,9 @@ static bool nested_vmx_l0_wants_exit(str
+ 		else if (is_breakpoint(intr_info) &&
+ 			 vcpu->guest_debug & KVM_GUESTDBG_USE_SW_BP)
+ 			return true;
++		else if (is_alignment_check(intr_info) &&
++			 !vmx_guest_inject_ac(vcpu))
++			return true;
+ 		return false;
+ 	case EXIT_REASON_EXTERNAL_INTERRUPT:
+ 		return true;
+--- a/arch/x86/kvm/vmx/vmcs.h
++++ b/arch/x86/kvm/vmx/vmcs.h
+@@ -117,6 +117,11 @@ static inline bool is_gp_fault(u32 intr_
+ 	return is_exception_n(intr_info, GP_VECTOR);
+ }
+ 
++static inline bool is_alignment_check(u32 intr_info)
++{
++	return is_exception_n(intr_info, AC_VECTOR);
++}
++
+ static inline bool is_machine_check(u32 intr_info)
  {
- 	u32 span, sid;
--	unsigned int num_ctrs = smmu_pmu->num_counters;
-+	unsigned int cur_idx, num_ctrs = smmu_pmu->num_counters;
- 	bool filter_en = !!get_filter_enable(event);
+ 	return is_exception_n(intr_info, MC_VECTOR);
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -4755,7 +4755,7 @@ static int handle_machine_check(struct k
+  *  - Guest has #AC detection enabled in CR0
+  *  - Guest EFLAGS has AC bit set
+  */
+-static inline bool guest_inject_ac(struct kvm_vcpu *vcpu)
++bool vmx_guest_inject_ac(struct kvm_vcpu *vcpu)
+ {
+ 	if (!boot_cpu_has(X86_FEATURE_SPLIT_LOCK_DETECT))
+ 		return true;
+@@ -4864,7 +4864,7 @@ static int handle_exception_nmi(struct k
+ 		kvm_run->debug.arch.exception = ex_no;
+ 		break;
+ 	case AC_VECTOR:
+-		if (guest_inject_ac(vcpu)) {
++		if (vmx_guest_inject_ac(vcpu)) {
+ 			kvm_queue_exception_e(vcpu, AC_VECTOR, error_code);
+ 			return 1;
+ 		}
+--- a/arch/x86/kvm/vmx/vmx.h
++++ b/arch/x86/kvm/vmx/vmx.h
+@@ -352,6 +352,7 @@ void vmx_set_segment(struct kvm_vcpu *vc
+ u64 construct_eptp(struct kvm_vcpu *vcpu, unsigned long root_hpa,
+ 		   int root_level);
  
- 	span = filter_en ? get_filter_span(event) :
-@@ -283,17 +283,19 @@ static int smmu_pmu_apply_event_filter(s
- 	sid = filter_en ? get_filter_stream_id(event) :
- 			   SMMU_PMCG_DEFAULT_FILTER_SID;
- 
--	/* Support individual filter settings */
--	if (!smmu_pmu->global_filter) {
-+	cur_idx = find_first_bit(smmu_pmu->used_counters, num_ctrs);
-+	/*
-+	 * Per-counter filtering, or scheduling the first globally-filtered
-+	 * event into an empty PMU so idx == 0 and it works out equivalent.
-+	 */
-+	if (!smmu_pmu->global_filter || cur_idx == num_ctrs) {
- 		smmu_pmu_set_event_filter(event, idx, span, sid);
- 		return 0;
- 	}
- 
--	/* Requested settings same as current global settings*/
--	idx = find_first_bit(smmu_pmu->used_counters, num_ctrs);
--	if (idx == num_ctrs ||
--	    smmu_pmu_check_global_filter(smmu_pmu->events[idx], event)) {
--		smmu_pmu_set_event_filter(event, 0, span, sid);
-+	/* Otherwise, must match whatever's currently scheduled */
-+	if (smmu_pmu_check_global_filter(smmu_pmu->events[cur_idx], event)) {
-+		smmu_pmu_set_evtyper(smmu_pmu, idx, get_event(event));
- 		return 0;
- 	}
- 
++bool vmx_guest_inject_ac(struct kvm_vcpu *vcpu);
+ void update_exception_bitmap(struct kvm_vcpu *vcpu);
+ void vmx_update_msr_bitmap(struct kvm_vcpu *vcpu);
+ bool vmx_nmi_blocked(struct kvm_vcpu *vcpu);
 
 
