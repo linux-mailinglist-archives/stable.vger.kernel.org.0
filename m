@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 559D13C51E1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A943C4CAE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345677AbhGLHnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
+        id S242479AbhGLHGw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348131AbhGLHkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4B3E610D1;
-        Mon, 12 Jul 2021 07:37:54 +0000 (UTC)
+        id S243904AbhGLHGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13EB3611C2;
+        Mon, 12 Jul 2021 07:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075475;
-        bh=9IN4mdPOZIJkEmHGxG01aTcoyfS0FNKSFSazwpYZr+I=;
+        s=korg; t=1626073360;
+        bh=ehz4wRZJTq5WtUVqNeuBwjXjAL4ZYS58kSqK78k9AMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq2uFUqFH/D/8Vi/eqx0PxuGdD/ObMggu0PbdK/PSmhuNYuaeJ4QNAb7Q8wFY2Jb9
-         g+f1arypMyacQ8eoRoa38JCtJri/i77+JOVxgo/gPG0x09b+UvV18UUryBvvp/2QUH
-         k091Ed0G19CpGqcNvRRvrndCMTpDyJiucWDuvAhs=
+        b=icO9+uMK82e2oFJi9rtjmAJO1WfLxH5km4unKyQsQRRlnx9YH/EnP7iiCKSWlgCXT
+         BZTSHLjwLU0do6PFgfgTXUC5s+jdEarPmkfqeChJ8/Tqe3XV04hhN+9jOrhQVhQTco
+         WSgTCgc141mETfxAVnOIRX0c+XgKKMqWSxzWF2Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 232/800] ACPI: bus: Call kobject_put() in acpi_init() error path
-Date:   Mon, 12 Jul 2021 08:04:15 +0200
-Message-Id: <20210712060946.432583393@linuxfoundation.org>
+Subject: [PATCH 5.12 173/700] media: dvb_net: avoid speculation from net slot
+Date:   Mon, 12 Jul 2021 08:04:16 +0200
+Message-Id: <20210712060950.762712580@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <guohanjun@huawei.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
+[ Upstream commit abc0226df64dc137b48b911c1fe4319aec5891bb ]
 
-Although the system will not be in a good condition or it will not
-boot if acpi_bus_init() fails, it is still necessary to put the
-kobject in the error path before returning to avoid leaking memory.
+The risk of especulation is actually almost-non-existing here,
+as there are very few users of TCP/IP using the DVB stack,
+as, this is mainly used with DVB-S/S2 cards, and only by people
+that receives TCP/IP from satellite connections, which limits
+a lot the number of users of such feature(*).
 
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+(*) In thesis, DVB-C cards could also benefit from it, but I'm
+yet to see a hardware that supports it.
+
+Yet, fixing it is trivial.
+
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bus.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/dvb-core/dvb_net.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index a4bd673934c0..44b4f02e2c6d 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -1321,6 +1321,7 @@ static int __init acpi_init(void)
+diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
+index 89620da983ba..dddebea644bb 100644
+--- a/drivers/media/dvb-core/dvb_net.c
++++ b/drivers/media/dvb-core/dvb_net.c
+@@ -45,6 +45,7 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
++#include <linux/nospec.h>
+ #include <linux/etherdevice.h>
+ #include <linux/dvb/net.h>
+ #include <linux/uio.h>
+@@ -1462,14 +1463,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct dvb_net_if *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
  
- 	result = acpi_bus_init();
- 	if (result) {
-+		kobject_put(acpi_kobj);
- 		disable_acpi();
- 		return result;
- 	}
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (if_num >= DVB_NET_DEVICES_MAX) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
+ 
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		if (!dvbnet->state[if_num]) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
++
++		netdev = dvbnet->device[if_num];
+ 
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
+@@ -1522,14 +1529,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct __dvb_net_if_old *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
++
++		if (if_num >= DVB_NET_DEVICES_MAX) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
+ 
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (!dvbnet->state[if_num]) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
+ 
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		netdev = dvbnet->device[if_num];
+ 
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
 -- 
 2.30.2
 
