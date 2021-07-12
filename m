@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 452813C4C8E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 604803C4CA5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242025AbhGLHGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
+        id S242237AbhGLHG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242936AbhGLHEP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F4B461107;
-        Mon, 12 Jul 2021 07:01:27 +0000 (UTC)
+        id S242955AbhGLHET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:04:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24450610FA;
+        Mon, 12 Jul 2021 07:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073287;
-        bh=Oy5be5t/1nI8ffgcw3IWyLLcAjSX2IFQuUsBDWkUY+E=;
+        s=korg; t=1626073290;
+        bh=2Wi38nQN3VKnV4ahUhGFIElpkM/7DNUZ3EbizulaLTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uC0L5nyYioiWHragYkCEaA+uTVnGnhMqFNeqEU9hQQNPdEmWJ0qPS789hIAsffmh
-         NSsrns99OyWgvVQzAhYLUtfitFrzV7/QTYrDav6dtYnBgi3TJFGy7lO+HzRggy3EOB
-         iqD63iwRAeaoBhRTL7p0ZN1pa4q+n58gehg9N88g=
+        b=iEphu6tmxBE0yvCZRKAxQv5SVVXGa8BOPaw1klMlr47ZjLHWs32Pu8fxTQxxx2yXh
+         ayaZeJJ2sC4rfdBFEPpHC1Tm5V4mQeuBkGkCAbKnoSA+Lx3X2eHyz+Dh+eBGCSYfND
+         K2TDb8/ih04ruin0mpOEdWP/T55rgTXH0n7/KHug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Thomas Huth <thuth@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 190/700] lockding/lockdep: Avoid to find wrong lock dep path in check_irq_usage()
-Date:   Mon, 12 Jul 2021 08:04:33 +0200
-Message-Id: <20210712060953.672063206@linuxfoundation.org>
+Subject: [PATCH 5.12 191/700] KVM: s390: get rid of register asm usage
+Date:   Mon, 12 Jul 2021 08:04:34 +0200
+Message-Id: <20210712060953.823500083@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -41,56 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boqun Feng <boqun.feng@gmail.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 7b1f8c6179769af6ffa055e1169610b51d71edd5 ]
+[ Upstream commit 4fa3b91bdee1b08348c82660668ca0ca34e271ad ]
 
-In the step #3 of check_irq_usage(), we seach backwards to find a lock
-whose usage conflicts the usage of @target_entry1 on safe/unsafe.
-However, we should only keep the irq-unsafe usage of @target_entry1 into
-consideration, because it could be a case where a lock is hardirq-unsafe
-but soft-safe, and in check_irq_usage() we find it because its
-hardirq-unsafe could result into a hardirq-safe-unsafe deadlock, but
-currently since we don't filter out the other usage bits, so we may find
-a lock dependency path softirq-unsafe -> softirq-safe, which in fact
-doesn't cause a deadlock. And this may cause misleading lockdep splats.
+Using register asm statements has been proven to be very error prone,
+especially when using code instrumentation where gcc may add function
+calls, which clobbers register contents in an unexpected way.
 
-Fix this by only keeping LOCKF_ENABLED_IRQ_ALL bits when we try the
-backwards search.
+Therefore get rid of register asm statements in kvm code, even though
+there is currently nothing wrong with them. This way we know for sure
+that this bug class won't be introduced here.
 
-Reported-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lore.kernel.org/r/20210618170110.3699115-4-boqun.feng@gmail.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210621140356.1210771-1-hca@linux.ibm.com
+[borntraeger@de.ibm.com: checkpatch strict fix]
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/lockdep.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/s390/kvm/kvm-s390.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 03a9d9b96045..b56c3855756e 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -2772,8 +2772,18 @@ static int check_irq_usage(struct task_struct *curr, struct held_lock *prev,
- 	 * Step 3: we found a bad match! Now retrieve a lock from the backward
- 	 * list whose usage mask matches the exclusive usage mask from the
- 	 * lock found on the forward list.
-+	 *
-+	 * Note, we should only keep the LOCKF_ENABLED_IRQ_ALL bits, considering
-+	 * the follow case:
-+	 *
-+	 * When trying to add A -> B to the graph, we find that there is a
-+	 * hardirq-safe L, that L -> ... -> A, and another hardirq-unsafe M,
-+	 * that B -> ... -> M. However M is **softirq-safe**, if we use exact
-+	 * invert bits of M's usage_mask, we will find another lock N that is
-+	 * **softirq-unsafe** and N -> ... -> A, however N -> .. -> M will not
-+	 * cause a inversion deadlock.
- 	 */
--	backward_mask = original_mask(target_entry1->class->usage_mask);
-+	backward_mask = original_mask(target_entry1->class->usage_mask & LOCKF_ENABLED_IRQ_ALL);
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 24ad447e648c..dd7136b3ed9a 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -323,31 +323,31 @@ static void allow_cpu_feat(unsigned long nr)
  
- 	ret = find_usage_backwards(&this, backward_mask, &target_entry);
- 	if (bfs_error(ret)) {
+ static inline int plo_test_bit(unsigned char nr)
+ {
+-	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
++	unsigned long function = (unsigned long)nr | 0x100;
+ 	int cc;
+ 
+ 	asm volatile(
++		"	lgr	0,%[function]\n"
+ 		/* Parameter registers are ignored for "test bit" */
+ 		"	plo	0,0,0,0(0)\n"
+ 		"	ipm	%0\n"
+ 		"	srl	%0,28\n"
+ 		: "=d" (cc)
+-		: "d" (r0)
+-		: "cc");
++		: [function] "d" (function)
++		: "cc", "0");
+ 	return cc == 0;
+ }
+ 
+ static __always_inline void __insn32_query(unsigned int opcode, u8 *query)
+ {
+-	register unsigned long r0 asm("0") = 0;	/* query function */
+-	register unsigned long r1 asm("1") = (unsigned long) query;
+-
+ 	asm volatile(
+-		/* Parameter regs are ignored */
++		"	lghi	0,0\n"
++		"	lgr	1,%[query]\n"
++		/* Parameter registers are ignored */
+ 		"	.insn	rrf,%[opc] << 16,2,4,6,0\n"
+ 		:
+-		: "d" (r0), "a" (r1), [opc] "i" (opcode)
+-		: "cc", "memory");
++		: [query] "d" ((unsigned long)query), [opc] "i" (opcode)
++		: "cc", "memory", "0", "1");
+ }
+ 
+ #define INSN_SORTL 0xb938
 -- 
 2.30.2
 
