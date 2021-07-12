@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A20DB3C4AB0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD6883C4FA9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235750AbhGLGxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51174 "EHLO mail.kernel.org"
+        id S245020AbhGLH1B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:27:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240471AbhGLGvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:51:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 153596112D;
-        Mon, 12 Jul 2021 06:48:52 +0000 (UTC)
+        id S1345270AbhGLHZO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:25:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 539626113B;
+        Mon, 12 Jul 2021 07:22:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072533;
-        bh=GwE8RPq5pMt2EPWshQUKIzJE5UeMVqs9MYiF1KNprCw=;
+        s=korg; t=1626074522;
+        bh=BxHwDuV56DoQxQglk3mxcCOPIw5dgd0dvHM0XdlZGM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyyNYZ/URTkznWvBYSOHWsvZSZxqw/cO3qwufRSnkQqiFT7G0Pj1MG+h/OwJBG7Nc
-         pZccP0WHZdAiC3Fx93yxwjoz7ENzSbm/J2n7jfz6PaQBj1+skP/XdAG8PKU/rrgbKp
-         T+vsGYk1+0ZStgUg56Y/O3OUGmB0qpz9kFycoalY=
+        b=2wIXLXfNASRvqjogryI6i+HKvvrQNx1ENySrl/HaW9p7LiWGyl1MoywJwKzpCDKCi
+         1xjN3ROuWBCugPDrQVxw8s6O2PAcmZyCW7kThMY7CtJjO3AXkford5dMY3O1MvkjSZ
+         Z7m9vKBlZJ2z4rgA9cu9kqHHaXsO3KmN64pFovXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mathieu Othacehe <m.othacehe@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        =?UTF-8?q?Cl=C3=A9ment=20Lassieur?= <clement@lassieur.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 530/593] iio: prox: isl29501: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.12 607/700] usb: dwc2: Dont reset the core after setting turnaround time
 Date:   Mon, 12 Jul 2021 08:11:30 +0200
-Message-Id: <20210712060951.748732631@linuxfoundation.org>
+Message-Id: <20210712061040.513033251@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Clément Lassieur <clement@lassieur.org>
 
-[ Upstream commit 92babc9938ebbf4050f2fba774836f7edc16a570 ]
+[ Upstream commit aafe93516b8567ab5864e1f4cd3eeabc54fb0e5a ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+Every time the hub signals a reset while we (device) are hsotg->connected,
+dwc2_hsotg_core_init_disconnected() is called, which in turn calls
+dwc2_hs_phy_init().
 
-Here an explicit structure is not used, because the holes would
-necessitate the addition of an explict memset(), to avoid a kernel
-data leak, making for a less minimal fix.
+GUSBCFG.USBTrdTim is cleared upon Core Soft Reset, so if
+hsotg->params.phy_utmi_width is 8-bit, the value of GUSBCFG.USBTrdTim (the
+default one: 0x5, corresponding to 16-bit) is always different from
+hsotg->params.phy_utmi_width, thus dwc2_core_reset() is called every
+time (usbcfg != usbcfg_old), which causes 2 issues:
 
-Fixes: 1c28799257bc ("iio: light: isl29501: Add support for the ISL29501 ToF sensor.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Mathieu Othacehe <m.othacehe@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-9-jic23@kernel.org
+1) The call to dwc2_core_reset() does another reset 300us after the initial
+Chirp K of the first reset (which should last at least Tuch = 1ms), and
+messes up the High-speed Detection Handshake: both hub and device drive
+current into the D+ and D- lines at the same time.
+
+2) GUSBCFG.USBTrdTim is cleared by the second reset, so its value is always
+the default one (0x5).
+
+Setting GUSBCFG.USBTrdTim after the potential call to dwc2_core_reset()
+fixes both issues.  It is now set even when select_phy is false because the
+cost of the Core Soft Reset is removed.
+
+Fixes: 1e868545f2bb ("usb: dwc2: gadget: Move gadget phy init into core phy init")
+Signed-off-by: Clément Lassieur <clement@lassieur.org>
+Link: https://lore.kernel.org/r/20210603155921.940651-1-clement@lassieur.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/isl29501.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc2/core.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/proximity/isl29501.c b/drivers/iio/proximity/isl29501.c
-index 90e76451c972..5b6ea783795d 100644
---- a/drivers/iio/proximity/isl29501.c
-+++ b/drivers/iio/proximity/isl29501.c
-@@ -938,7 +938,7 @@ static irqreturn_t isl29501_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct isl29501_private *isl29501 = iio_priv(indio_dev);
- 	const unsigned long *active_mask = indio_dev->active_scan_mask;
--	u32 buffer[4] = {}; /* 1x16-bit + ts */
-+	u32 buffer[4] __aligned(8) = {}; /* 1x16-bit + naturally aligned ts */
+diff --git a/drivers/usb/dwc2/core.c b/drivers/usb/dwc2/core.c
+index fec17a2d2447..15911ac7582b 100644
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -1167,15 +1167,6 @@ static int dwc2_hs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 		usbcfg &= ~(GUSBCFG_ULPI_UTMI_SEL | GUSBCFG_PHYIF16);
+ 		if (hsotg->params.phy_utmi_width == 16)
+ 			usbcfg |= GUSBCFG_PHYIF16;
+-
+-		/* Set turnaround time */
+-		if (dwc2_is_device_mode(hsotg)) {
+-			usbcfg &= ~GUSBCFG_USBTRDTIM_MASK;
+-			if (hsotg->params.phy_utmi_width == 16)
+-				usbcfg |= 5 << GUSBCFG_USBTRDTIM_SHIFT;
+-			else
+-				usbcfg |= 9 << GUSBCFG_USBTRDTIM_SHIFT;
+-		}
+ 		break;
+ 	default:
+ 		dev_err(hsotg->dev, "FS PHY selected at HS!\n");
+@@ -1197,6 +1188,24 @@ static int dwc2_hs_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 	return retval;
+ }
  
- 	if (test_bit(ISL29501_DISTANCE_SCAN_INDEX, active_mask))
- 		isl29501_register_read(isl29501, REG_DISTANCE, buffer);
++static void dwc2_set_turnaround_time(struct dwc2_hsotg *hsotg)
++{
++	u32 usbcfg;
++
++	if (hsotg->params.phy_type != DWC2_PHY_TYPE_PARAM_UTMI)
++		return;
++
++	usbcfg = dwc2_readl(hsotg, GUSBCFG);
++
++	usbcfg &= ~GUSBCFG_USBTRDTIM_MASK;
++	if (hsotg->params.phy_utmi_width == 16)
++		usbcfg |= 5 << GUSBCFG_USBTRDTIM_SHIFT;
++	else
++		usbcfg |= 9 << GUSBCFG_USBTRDTIM_SHIFT;
++
++	dwc2_writel(hsotg, usbcfg, GUSBCFG);
++}
++
+ int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ {
+ 	u32 usbcfg;
+@@ -1214,6 +1223,9 @@ int dwc2_phy_init(struct dwc2_hsotg *hsotg, bool select_phy)
+ 		retval = dwc2_hs_phy_init(hsotg, select_phy);
+ 		if (retval)
+ 			return retval;
++
++		if (dwc2_is_device_mode(hsotg))
++			dwc2_set_turnaround_time(hsotg);
+ 	}
+ 
+ 	if (hsotg->hw_params.hs_phy_type == GHWCFG2_HS_PHY_TYPE_ULPI &&
 -- 
 2.30.2
 
