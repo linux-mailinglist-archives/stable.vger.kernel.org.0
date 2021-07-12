@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F293C5342
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADB1A3C48C8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352204AbhGLHyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
+        id S236880AbhGLGk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245372AbhGLHtW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:49:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C84EC6199B;
-        Mon, 12 Jul 2021 07:43:20 +0000 (UTC)
+        id S238359AbhGLGkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B6B1610E5;
+        Mon, 12 Jul 2021 06:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075801;
-        bh=k3kZ2VEBrJ7CdTD5g3GNvFDitEJ7OpDfeIsF0NqydwM=;
+        s=korg; t=1626071819;
+        bh=5zRK0KAG/PhuMcV0IHsynN+7j8FzB8ftwDg+TfRBx8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/KQXbUOQ4/bh56Mly0ly7p1GSDpbBvt8w0kmAiuRl99hacE17LSDxCaZ74lCLwDO
-         ZlM7+0RAzUafsb9v8D1zY7RCl5hjFaO8i6mEQkEi0vcJfkPSF6wuh1PAUngRAwAJiG
-         KZGeQT/iLFF2HBnNcQM0P7EP/U9syQ7T+sFDbkvo=
+        b=P6yXo6awPh/G6p4RFr1FCDJpTruLQTrJAPrjFQkZ4DkxIJDYJ0rz3rdgBcmBJjEh3
+         aBVNGVs9PHaQ7kT3yG8U4iNDLdM2y1Tn0q9zs7Z30sJImMfOp6v8w+jbObUJcLmjFx
+         scIRlY6pVX8RP9QC7mQeANAlAWJM2SUQJa7HC240=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaofei Tan <tanxiaofei@huawei.com>,
-        James Morse <james.morse@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
+        Adrian Ratiu <adrian.ratiu@collabora.com>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 369/800] ACPI: APEI: fix synchronous external aborts in user-mode
+Subject: [PATCH 5.10 232/593] media: rkvdec: Fix .buf_prepare
 Date:   Mon, 12 Jul 2021 08:06:32 +0200
-Message-Id: <20210712061006.309999361@linuxfoundation.org>
+Message-Id: <20210712060908.433906482@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,157 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaofei Tan <tanxiaofei@huawei.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit ccb5ecdc2ddeaff744ee075b54cdff8a689e8fa7 ]
+[ Upstream commit ba1ed4ae760a81caf39f54232e089d95157a0dba ]
 
-Before commit 8fcc4ae6faf8 ("arm64: acpi: Make apei_claim_sea()
-synchronise with APEI's irq work"), do_sea() would unconditionally
-signal the affected task from the arch code. Since that change,
-the GHES driver sends the signals.
+The driver should only set the payload on .buf_prepare if the
+buffer is CAPTURE type. If an OUTPUT buffer has a zero bytesused
+set by userspace then v4l2-core will set it to buffer length.
 
-This exposes a problem as errors the GHES driver doesn't understand
-or doesn't handle effectively are silently ignored. It will cause
-the errors get taken again, and circulate endlessly. User-space task
-get stuck in this loop.
+If we overwrite bytesused for OUTPUT buffers, too, then
+vb2_get_plane_payload() will return incorrect value which might be then
+written to hw registers by the driver in rkvdec-h264.c.
 
-Existing firmware on Kunpeng9xx systems reports cache errors with the
-'ARM Processor Error' CPER records.
+[Changed the comment and used V4L2_TYPE_IS_CAPTURE macro]
 
-Do memory failure handling for ARM Processor Error Section just like
-for Memory Error Section.
-
-Fixes: 8fcc4ae6faf8 ("arm64: acpi: Make apei_claim_sea() synchronise with APEI's irq work")
-Signed-off-by: Xiaofei Tan <tanxiaofei@huawei.com>
-Reviewed-by: James Morse <james.morse@arm.com>
-[ rjw: Subject edit ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Adrian Ratiu <adrian.ratiu@collabora.com>
+Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 81 +++++++++++++++++++++++++++++++---------
- 1 file changed, 64 insertions(+), 17 deletions(-)
+ drivers/staging/media/rkvdec/rkvdec.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index fce7ade2aba9..0c8330ed1ffd 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -441,28 +441,35 @@ static void ghes_kick_task_work(struct callback_head *head)
- 	gen_pool_free(ghes_estatus_pool, (unsigned long)estatus_node, node_len);
- }
- 
--static bool ghes_handle_memory_failure(struct acpi_hest_generic_data *gdata,
--				       int sev)
-+static bool ghes_do_memory_failure(u64 physical_addr, int flags)
- {
- 	unsigned long pfn;
--	int flags = -1;
--	int sec_sev = ghes_severity(gdata->error_severity);
--	struct cper_sec_mem_err *mem_err = acpi_hest_get_payload(gdata);
- 
- 	if (!IS_ENABLED(CONFIG_ACPI_APEI_MEMORY_FAILURE))
- 		return false;
- 
--	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
--		return false;
--
--	pfn = mem_err->physical_addr >> PAGE_SHIFT;
-+	pfn = PHYS_PFN(physical_addr);
- 	if (!pfn_valid(pfn)) {
- 		pr_warn_ratelimited(FW_WARN GHES_PFX
- 		"Invalid address in generic error data: %#llx\n",
--		mem_err->physical_addr);
-+		physical_addr);
- 		return false;
+diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
+index b630e161d4ce..e68303e2b390 100644
+--- a/drivers/staging/media/rkvdec/rkvdec.c
++++ b/drivers/staging/media/rkvdec/rkvdec.c
+@@ -471,7 +471,15 @@ static int rkvdec_buf_prepare(struct vb2_buffer *vb)
+ 		if (vb2_plane_size(vb, i) < sizeimage)
+ 			return -EINVAL;
  	}
- 
-+	memory_failure_queue(pfn, flags);
-+	return true;
-+}
+-	vb2_set_plane_payload(vb, 0, f->fmt.pix_mp.plane_fmt[0].sizeimage);
 +
-+static bool ghes_handle_memory_failure(struct acpi_hest_generic_data *gdata,
-+				       int sev)
-+{
-+	int flags = -1;
-+	int sec_sev = ghes_severity(gdata->error_severity);
-+	struct cper_sec_mem_err *mem_err = acpi_hest_get_payload(gdata);
++	/*
++	 * Buffer's bytesused must be written by driver for CAPTURE buffers.
++	 * (for OUTPUT buffers, if userspace passes 0 bytesused, v4l2-core sets
++	 * it to buffer length).
++	 */
++	if (V4L2_TYPE_IS_CAPTURE(vq->type))
++		vb2_set_plane_payload(vb, 0, f->fmt.pix_mp.plane_fmt[0].sizeimage);
 +
-+	if (!(mem_err->validation_bits & CPER_MEM_VALID_PA))
-+		return false;
-+
- 	/* iff following two events can be handled properly by now */
- 	if (sec_sev == GHES_SEV_CORRECTED &&
- 	    (gdata->flags & CPER_SEC_ERROR_THRESHOLD_EXCEEDED))
-@@ -470,14 +477,56 @@ static bool ghes_handle_memory_failure(struct acpi_hest_generic_data *gdata,
- 	if (sev == GHES_SEV_RECOVERABLE && sec_sev == GHES_SEV_RECOVERABLE)
- 		flags = 0;
- 
--	if (flags != -1) {
--		memory_failure_queue(pfn, flags);
--		return true;
--	}
-+	if (flags != -1)
-+		return ghes_do_memory_failure(mem_err->physical_addr, flags);
- 
- 	return false;
+ 	return 0;
  }
- 
-+static bool ghes_handle_arm_hw_error(struct acpi_hest_generic_data *gdata, int sev)
-+{
-+	struct cper_sec_proc_arm *err = acpi_hest_get_payload(gdata);
-+	bool queued = false;
-+	int sec_sev, i;
-+	char *p;
-+
-+	log_arm_hw_error(err);
-+
-+	sec_sev = ghes_severity(gdata->error_severity);
-+	if (sev != GHES_SEV_RECOVERABLE || sec_sev != GHES_SEV_RECOVERABLE)
-+		return false;
-+
-+	p = (char *)(err + 1);
-+	for (i = 0; i < err->err_info_num; i++) {
-+		struct cper_arm_err_info *err_info = (struct cper_arm_err_info *)p;
-+		bool is_cache = (err_info->type == CPER_ARM_CACHE_ERROR);
-+		bool has_pa = (err_info->validation_bits & CPER_ARM_INFO_VALID_PHYSICAL_ADDR);
-+		const char *error_type = "unknown error";
-+
-+		/*
-+		 * The field (err_info->error_info & BIT(26)) is fixed to set to
-+		 * 1 in some old firmware of HiSilicon Kunpeng920. We assume that
-+		 * firmware won't mix corrected errors in an uncorrected section,
-+		 * and don't filter out 'corrected' error here.
-+		 */
-+		if (is_cache && has_pa) {
-+			queued = ghes_do_memory_failure(err_info->physical_fault_addr, 0);
-+			p += err_info->length;
-+			continue;
-+		}
-+
-+		if (err_info->type < ARRAY_SIZE(cper_proc_error_type_strs))
-+			error_type = cper_proc_error_type_strs[err_info->type];
-+
-+		pr_warn_ratelimited(FW_WARN GHES_PFX
-+				    "Unhandled processor error type: %s\n",
-+				    error_type);
-+		p += err_info->length;
-+	}
-+
-+	return queued;
-+}
-+
- /*
-  * PCIe AER errors need to be sent to the AER driver for reporting and
-  * recovery. The GHES severities map to the following AER severities and
-@@ -605,9 +654,7 @@ static bool ghes_do_proc(struct ghes *ghes,
- 			ghes_handle_aer(gdata);
- 		}
- 		else if (guid_equal(sec_type, &CPER_SEC_PROC_ARM)) {
--			struct cper_sec_proc_arm *err = acpi_hest_get_payload(gdata);
--
--			log_arm_hw_error(err);
-+			queued = ghes_handle_arm_hw_error(gdata, sev);
- 		} else {
- 			void *err = acpi_hest_get_payload(gdata);
  
 -- 
 2.30.2
