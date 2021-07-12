@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793C53C4C01
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 474FA3C51A9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240584AbhGLHBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34476 "EHLO mail.kernel.org"
+        id S1346840AbhGLHmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242241AbhGLG74 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:59:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EE56102A;
-        Mon, 12 Jul 2021 06:57:06 +0000 (UTC)
+        id S1346312AbhGLHjc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:39:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5976160724;
+        Mon, 12 Jul 2021 07:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073027;
-        bh=BeB+0SJu7eQWjDDNzQut1WWX6Ive+aysT5ziMqnmH+I=;
+        s=korg; t=1626075265;
+        bh=ZqLNNHBgodSGe3XV9UyZ6+pz+SaY+pd5HC5KCRYvgLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWATJ8Ej1awGf10Dt5XBLWijK7GtdDEBhCjJp2YAr3l4/ozMyGDfF81LwDL7dxNyc
-         QJnX32OyMUioRUYZ4LAEp2dDFFiaiNSxLe+z4d/QBmtddO2MZvd37XYGmp1aCxmBRW
-         U0qe73uLYW+SVs9BU3FIRofOHmiGPqFz5WZMPV98=
+        b=i5U4YAXcs/saq1Tm354csw503eh2OVacn6QoD0hhMIHXJwPQ6x80zn7EwFdntuMEy
+         Cgswa8b1gPJyUnrfeJNNeR/jvCLO+SouyI6vzvqsf2XT7wK6x+A28BFwn6unGr5C7H
+         DeUTSfJYWpIJjWSJTs/GHDHyO/jS1U63Pcrg+inw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Tom Zanussi <zanussi@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.12 102/700] tracing/histograms: Fix parsing of "sym-offset" modifier
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 162/800] sched/fair: Fix ascii art by relpacing tabs
 Date:   Mon, 12 Jul 2021 08:03:05 +0200
-Message-Id: <20210712060939.233766621@linuxfoundation.org>
+Message-Id: <20210712060935.773500838@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Odin Ugedal <odin@uged.al>
 
-commit 26c563731056c3ee66f91106c3078a8c36bb7a9e upstream.
+[ Upstream commit 08f7c2f4d0e9f4283f5796b8168044c034a1bfcb ]
 
-With the addition of simple mathematical operations (plus and minus), the
-parsing of the "sym-offset" modifier broke, as it took the '-' part of the
-"sym-offset" as a minus, and tried to break it up into a mathematical
-operation of "field.sym - offset", in which case it failed to parse
-(unless the event had a field called "offset").
+When using something other than 8 spaces per tab, this ascii art
+makes not sense, and the reader might end up wondering what this
+advanced equation "is".
 
-Both .sym and .sym-offset modifiers should not be entered into
-mathematical calculations anyway. If ".sym-offset" is found in the
-modifier, then simply make it not an operation that can be calculated on.
-
-Link: https://lkml.kernel.org/r/20210707110821.188ae255@oasis.local.home
-
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210518125202.78658-4-odin@uged.al
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ kernel/sched/fair.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -1539,6 +1539,13 @@ static int contains_operator(char *str)
- 
- 	switch (*op) {
- 	case '-':
-+		/*
-+		 * Unfortunately, the modifier ".sym-offset"
-+		 * can confuse things.
-+		 */
-+		if (op - str >= 4 && !strncmp(op - 4, ".sym-offset", 11))
-+			return FIELD_OP_NONE;
-+
- 		if (*str == '-')
- 			field_op = FIELD_OP_UNARY_MINUS;
- 		else
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 23663318fb81..190ae8004a22 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3139,7 +3139,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------               (1)
+- *			  \Sum grq->load.weight
++ *                       \Sum grq->load.weight
+  *
+  * Now, because computing that sum is prohibitively expensive to compute (been
+  * there, done that) we approximate it with this average stuff. The average
+@@ -3153,7 +3153,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->avg.load_avg
+  *   ge->load.weight = ------------------------------              (3)
+- *				tg->load_avg
++ *                             tg->load_avg
+  *
+  * Where: tg->load_avg ~= \Sum grq->avg.load_avg
+  *
+@@ -3169,7 +3169,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = ----------------------------- = tg->weight   (4)
+- *			    grp->load.weight
++ *                         grp->load.weight
+  *
+  * That is, the sum collapses because all other CPUs are idle; the UP scenario.
+  *
+@@ -3188,7 +3188,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------		   (6)
+- *				tg_load_avg'
++ *                             tg_load_avg'
+  *
+  * Where:
+  *
+-- 
+2.30.2
+
 
 
