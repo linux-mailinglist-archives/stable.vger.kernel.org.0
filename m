@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A754E3C456E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFE593C4570
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234973AbhGLGZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40098 "EHLO mail.kernel.org"
+        id S235045AbhGLGZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235240AbhGLGYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235244AbhGLGYh (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:24:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC0AD61107;
-        Mon, 12 Jul 2021 06:21:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B55E6112D;
+        Mon, 12 Jul 2021 06:21:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070901;
-        bh=S3cat7jqKDuOfWkjAQ60rEyOYkTuV0sQRnGeH9zFpqA=;
+        s=korg; t=1626070903;
+        bh=FhnN1XQCTvm1+21zvR3i9hSTgDVOL8eTTguF8dgaDtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pj0Qyy10ZZDwXWaMbymcqHLyxLqHm/XxzSQXKRU945U7WIw4gPHmeC8VYjdfVzobA
-         3tTOf28Vg1vYHzAYas3kZwF4c9cnGcP+2XL2QirRQysOVttP5R3BViL07HqRKrtQGE
-         ocU8D4AXwlit8POifWOPz5R0ZGTgf7qTll8P8oOY=
+        b=cE/esfjpkf2KvhIWFxPg4JqaWarCji40nv68CGpcyqfbQ1FMHCC6qRjh+cZDPbO60
+         yq5lTm6iejRqdWhvvIBlUHAi1W/NCmECmYXPxqt3QjecUPloA5Eo+eurn3t9C0mHXk
+         4fWGsg+vwT9Y2adEFJkM5LbFUE4FfMfpvcrnuzWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 189/348] pinctrl: renesas: r8a77990: JTAG pins do not have pull-down capabilities
-Date:   Mon, 12 Jul 2021 08:09:33 +0200
-Message-Id: <20210712060726.102178712@linuxfoundation.org>
+Subject: [PATCH 5.4 190/348] clk: meson: g12a: fix gp0 and hifi ranges
+Date:   Mon, 12 Jul 2021 08:09:34 +0200
+Message-Id: <20210712060726.230277110@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,41 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 702a5fa2fe4d7e7f28fed92a170b540acfff9d34 ]
+[ Upstream commit bc794f8c56abddf709f1f84fcb2a3c9e7d9cc9b4 ]
 
-Hence remove the SH_PFC_PIN_CFG_PULL_DOWN flags from their pin
-descriptions.
+While some SoC samples are able to lock with a PLL factor of 55, others
+samples can't. ATM, a minimum of 60 appears to work on all the samples
+I have tried.
 
-Fixes: 83f6941a42a5e773 ("pinctrl: sh-pfc: r8a77990: Add bias pinconf support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/da4b2d69955840a506412f1e8099607a0da97ecc.1619785375.git.geert+renesas@glider.be
+Even with 60, it sometimes takes a long time for the PLL to eventually
+lock. The documentation says that the minimum rate of these PLLs DCO
+should be 3GHz, a factor of 125. Let's use that to be on the safe side.
+
+With factor range changed, the PLL seems to lock quickly (enough) so far.
+It is still unclear if the range was the only reason for the delay.
+
+Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210429090325.60970-1-jbrunet@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sh-pfc/pfc-r8a77990.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/clk/meson/g12a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/sh-pfc/pfc-r8a77990.c b/drivers/pinctrl/sh-pfc/pfc-r8a77990.c
-index 5200dadd6b3e..f4b51e5e7e02 100644
---- a/drivers/pinctrl/sh-pfc/pfc-r8a77990.c
-+++ b/drivers/pinctrl/sh-pfc/pfc-r8a77990.c
-@@ -54,10 +54,10 @@
- 	PIN_NOGP_CFG(FSCLKST_N, "FSCLKST_N", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(MLB_REF, "MLB_REF", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(PRESETOUT_N, "PRESETOUT_N", fn, CFG_FLAGS),	\
--	PIN_NOGP_CFG(TCK, "TCK", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TDI, "TDI", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TMS, "TMS", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TRST_N, "TRST_N", fn, CFG_FLAGS)
-+	PIN_NOGP_CFG(TCK, "TCK", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TDI, "TDI", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TMS, "TMS", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TRST_N, "TRST_N", fn, SH_PFC_PIN_CFG_PULL_UP)
+diff --git a/drivers/clk/meson/g12a.c b/drivers/clk/meson/g12a.c
+index 3143e16065de..a55b22ebf103 100644
+--- a/drivers/clk/meson/g12a.c
++++ b/drivers/clk/meson/g12a.c
+@@ -1602,7 +1602,7 @@ static struct clk_regmap g12b_cpub_clk_trace = {
+ };
  
- /*
-  * F_() : just information
+ static const struct pll_mult_range g12a_gp0_pll_mult_range = {
+-	.min = 55,
++	.min = 125,
+ 	.max = 255,
+ };
+ 
 -- 
 2.30.2
 
