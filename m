@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6160C3C5046
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9623C4ADB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344523AbhGLHby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43510 "EHLO mail.kernel.org"
+        id S240392AbhGLGyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:54:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344383AbhGLH3b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5545D613EE;
-        Mon, 12 Jul 2021 07:25:10 +0000 (UTC)
+        id S239386AbhGLGwu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA069608FE;
+        Mon, 12 Jul 2021 06:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074710;
-        bh=JQwM40WNdPqzcQ7fMsFA9WLHrmw7Mf8lh8qEUkgf8Y4=;
+        s=korg; t=1626072602;
+        bh=37jubKHrX9AAPncdNUwS8cXQD9ZifQv4/JTpfQpsaow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nq+lXD67V4EKYZ5mbIHmUBhAHkB0mTGrdCGRyjdqWjsjZShwco8ry3h4cHDEJZBaI
-         JFXdzc7XtLiP2M/4l1+px90shWfdT8Q1gG9C3bp9RSOpIfh3aBD8/DI+qXVMiQ9GIV
-         IWTIF5CaEgGoe9w+WvrQfe9L5zg65jemVXhzny4c=
+        b=N1eWAwYeitR+GAZW1uOG8A2mimh9H1qqgmJwJYY0giOrBktFgUofra8/ZRt/XtVbd
+         ehrNQUlvBRHf/dWklLOVGiIm0nFYJFIWaSm2Q9tPswnLu/YFkir+3uDQ6bHEHG88Lf
+         +5Pjt2Bs1EVjJHMYWC1VqaunkZTjEscPXkBsju8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 628/700] serial: 8250: Actually allow UPF_MAGIC_MULTIPLIER baud rates
+Subject: [PATCH 5.10 551/593] serial: 8250: 8250_omap: Disable RX interrupt after DMA enable
 Date:   Mon, 12 Jul 2021 08:11:51 +0200
-Message-Id: <20210712061042.659574334@linuxfoundation.org>
+Message-Id: <20210712060954.967514563@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,81 +39,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 78bcae8616ac277d6cb7f38e211493948ed73e30 ]
+[ Upstream commit 439c7183e5b97952bba1747f5ffc4dea45a6a18b ]
 
-Support for magic baud rate divisors of 32770 and 32769 used with SMSC
-Super I/O chips for extra baud rates of 230400 and 460800 respectively
-where base rate is 115200[1] has been added around Linux 2.5.64, which
-predates our repo history, but the origin could be identified as commit
-2a717aad772f ("Merge with Linux 2.5.64.") with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>.
+UARTs on TI SoCs prior to J7200 don't provide independent control over
+RX FIFO not empty interrupt (RHR_IT) and RX timeout interrupt.
+Starting with J7200 SoC, its possible to disable RHR_IT independent of
+RX timeout interrupt using bit 2 of IER2 register. So disable RHR_IT
+once RX DMA is started so as to avoid spurious interrupt being raised
+when data is in the RX FIFO but is yet to be drained by DMA (a known
+errata in older SoCs).
 
-Code that is now in `serial8250_do_get_divisor' was added back then to
-`serial8250_get_divisor', but that code would only ever trigger if one
-of the higher baud rates was actually requested, and that cannot ever
-happen, because the earlier call to `serial8250_get_baud_rate' never
-returns them.  This is because it calls `uart_get_baud_rate' with the
-maximum requested being the base rate, that is clk/16 or 115200 for SMSC
-chips at their nominal clock rate.
-
-Fix it then and allow UPF_MAGIC_MULTIPLIER baud rates to be selected, by
-requesting the maximum baud rate of clk/4 rather than clk/16 if the flag
-has been set.  Also correct the minimum baud rate, observing that these
-ports only support actual (non-magic) divisors of up to 32767 only.
-
-
-[1] "FDC37M81x, PC98/99 Compliant Enhanced Super I/O Controller with
-    Keyboard/Mouse Wake-Up", Standard Microsystems Corporation, Rev.
-    03/27/2000, Table 31 - "Baud Rates", p. 77
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2105190412280.29169@angie.orcam.me.uk
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20201029051930.7097-1-vigneshr@ti.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_port.c | 19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_omap.c | 42 ++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 6e141429c980..6d9c494bed7d 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -2635,6 +2635,21 @@ static unsigned int serial8250_get_baud_rate(struct uart_port *port,
- 					     struct ktermios *old)
- {
- 	unsigned int tolerance = port->uartclk / 100;
-+	unsigned int min;
-+	unsigned int max;
-+
-+	/*
-+	 * Handle magic divisors for baud rates above baud_base on SMSC
-+	 * Super I/O chips.  Enable custom rates of clk/4 and clk/8, but
-+	 * disable divisor values beyond 32767, which are unavailable.
-+	 */
-+	if (port->flags & UPF_MAGIC_MULTIPLIER) {
-+		min = port->uartclk / 16 / UART_DIV_MAX >> 1;
-+		max = (port->uartclk + tolerance) / 4;
-+	} else {
-+		min = port->uartclk / 16 / UART_DIV_MAX;
-+		max = (port->uartclk + tolerance) / 16;
-+	}
+diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
+index f284c6f77a6c..a9cfe1c57642 100644
+--- a/drivers/tty/serial/8250/8250_omap.c
++++ b/drivers/tty/serial/8250/8250_omap.c
+@@ -27,6 +27,7 @@
+ #include <linux/pm_qos.h>
+ #include <linux/pm_wakeirq.h>
+ #include <linux/dma-mapping.h>
++#include <linux/sys_soc.h>
  
- 	/*
- 	 * Ask the core to calculate the divisor for us.
-@@ -2642,9 +2657,7 @@ static unsigned int serial8250_get_baud_rate(struct uart_port *port,
- 	 * slower than nominal still match standard baud rates without
- 	 * causing transmission errors.
- 	 */
--	return uart_get_baud_rate(port, termios, old,
--				  port->uartclk / 16 / UART_DIV_MAX,
--				  (port->uartclk + tolerance) / 16);
-+	return uart_get_baud_rate(port, termios, old, min, max);
+ #include "8250.h"
+ 
+@@ -41,6 +42,7 @@
+  */
+ #define UART_ERRATA_CLOCK_DISABLE	(1 << 3)
+ #define	UART_HAS_EFR2			BIT(4)
++#define UART_HAS_RHR_IT_DIS		BIT(5)
+ 
+ #define OMAP_UART_FCR_RX_TRIG		6
+ #define OMAP_UART_FCR_TX_TRIG		4
+@@ -94,6 +96,10 @@
+ #define OMAP_UART_REV_52 0x0502
+ #define OMAP_UART_REV_63 0x0603
+ 
++/* Interrupt Enable Register 2 */
++#define UART_OMAP_IER2			0x1B
++#define UART_OMAP_IER2_RHR_IT_DIS	BIT(2)
++
+ /* Enhanced features register 2 */
+ #define UART_OMAP_EFR2			0x23
+ #define UART_OMAP_EFR2_TIMEOUT_BEHAVE	BIT(6)
+@@ -756,17 +762,27 @@ static void __dma_rx_do_complete(struct uart_8250_port *p)
+ {
+ 	struct uart_8250_dma    *dma = p->dma;
+ 	struct tty_port         *tty_port = &p->port.state->port;
++	struct omap8250_priv	*priv = p->port.private_data;
+ 	struct dma_chan		*rxchan = dma->rxchan;
+ 	dma_cookie_t		cookie;
+ 	struct dma_tx_state     state;
+ 	int                     count;
+ 	int			ret;
++	u32			reg;
+ 
+ 	if (!dma->rx_running)
+ 		goto out;
+ 
+ 	cookie = dma->rx_cookie;
+ 	dma->rx_running = 0;
++
++	/* Re-enable RX FIFO interrupt now that transfer is complete */
++	if (priv->habit & UART_HAS_RHR_IT_DIS) {
++		reg = serial_in(p, UART_OMAP_IER2);
++		reg &= ~UART_OMAP_IER2_RHR_IT_DIS;
++		serial_out(p, UART_OMAP_IER2, UART_OMAP_IER2_RHR_IT_DIS);
++	}
++
+ 	dmaengine_tx_status(rxchan, cookie, &state);
+ 
+ 	count = dma->rx_size - state.residue + state.in_flight_bytes;
+@@ -862,6 +878,7 @@ static int omap_8250_rx_dma(struct uart_8250_port *p)
+ 	int				err = 0;
+ 	struct dma_async_tx_descriptor  *desc;
+ 	unsigned long			flags;
++	u32				reg;
+ 
+ 	if (priv->rx_dma_broken)
+ 		return -EINVAL;
+@@ -897,6 +914,17 @@ static int omap_8250_rx_dma(struct uart_8250_port *p)
+ 
+ 	dma->rx_cookie = dmaengine_submit(desc);
+ 
++	/*
++	 * Disable RX FIFO interrupt while RX DMA is enabled, else
++	 * spurious interrupt may be raised when data is in the RX FIFO
++	 * but is yet to be drained by DMA.
++	 */
++	if (priv->habit & UART_HAS_RHR_IT_DIS) {
++		reg = serial_in(p, UART_OMAP_IER2);
++		reg |= UART_OMAP_IER2_RHR_IT_DIS;
++		serial_out(p, UART_OMAP_IER2, UART_OMAP_IER2_RHR_IT_DIS);
++	}
++
+ 	dma_async_issue_pending(dma->rxchan);
+ out:
+ 	spin_unlock_irqrestore(&priv->rx_dma_lock, flags);
+@@ -1163,6 +1191,11 @@ static int omap8250_no_handle_irq(struct uart_port *port)
+ 	return 0;
  }
  
- /*
++static const struct soc_device_attribute k3_soc_devices[] = {
++	{ .family = "AM65X",  },
++	{ .family = "J721E", .revision = "SR1.0" },
++};
++
+ static struct omap8250_dma_params am654_dma = {
+ 	.rx_size = SZ_2K,
+ 	.rx_trigger = 1,
+@@ -1177,7 +1210,7 @@ static struct omap8250_dma_params am33xx_dma = {
+ 
+ static struct omap8250_platdata am654_platdata = {
+ 	.dma_params	= &am654_dma,
+-	.habit		= UART_HAS_EFR2,
++	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS,
+ };
+ 
+ static struct omap8250_platdata am33xx_platdata = {
+@@ -1367,6 +1400,13 @@ static int omap8250_probe(struct platform_device *pdev)
+ 			up.dma->rxconf.src_maxburst = RX_TRIGGER;
+ 			up.dma->txconf.dst_maxburst = TX_TRIGGER;
+ 		}
++
++		/*
++		 * AM65x SR1.0, AM65x SR2.0 and J721e SR1.0 don't
++		 * don't have RHR_IT_DIS bit in IER2 register
++		 */
++		if (soc_device_match(k3_soc_devices))
++			priv->habit &= ~UART_HAS_RHR_IT_DIS;
+ 	}
+ #endif
+ 	ret = serial8250_register_8250_port(&up);
 -- 
 2.30.2
 
