@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF0A53C4A5E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C0ED3C4ED6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240752AbhGLGwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48266 "EHLO mail.kernel.org"
+        id S241855AbhGLHVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238197AbhGLGsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12D2F6115A;
-        Mon, 12 Jul 2021 06:44:23 +0000 (UTC)
+        id S245335AbhGLHTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06C5C610A6;
+        Mon, 12 Jul 2021 07:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072264;
-        bh=OCif2ZsNIOhHAWJltQSZzdH7Ucun+7oFwwXTFZNaHWo=;
+        s=korg; t=1626074202;
+        bh=d76Nba8OGNFNuSlOSe5Byv95i7Vx6q1q/eWWBeOcAmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lvkAi2e+lZmW8lj8IVRdAo8oUZ3MpwlNwPaluAHEEq/PPgASa7JEsbTG1LiDxbnSL
-         dl/BU/GfAQApIrSKmmgJWBYcgFKYR3wVnyi7CaoFWhZVGbk5ooiKl35wVY8B94jf1y
-         20zgulQgH48XGfUPCmAawa3Vypsw2sZawzo2WSnM=
+        b=jIze8omDJiUkDQyJgqMBxHV5YK2e1uCfn6OvPyIpflpmU2ZI5nFaielIGzvWHveKc
+         p+1RXH+oYUXHLRtnLn1enMMTZsdbzMKUUIm0c45Y2+qP925GqGqcBQcuIfN4VbX6BL
+         kHIsEygkLnve7N89bSLMpFx76qJnoZr68uI40DRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 422/593] clk: si5341: Wait for DEVICE_READY on startup
-Date:   Mon, 12 Jul 2021 08:09:42 +0200
-Message-Id: <20210712060934.679964885@linuxfoundation.org>
+Subject: [PATCH 5.12 500/700] Bluetooth: Fix handling of HCI_LE_Advertising_Set_Terminated event
+Date:   Mon, 12 Jul 2021 08:09:43 +0200
+Message-Id: <20210712061029.678372237@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 6e7d2de1e000d36990923ed80d2e78dfcb545cee ]
+[ Upstream commit 23837a6d7a1a61818ed94a6b8af552d6cf7d32d5 ]
 
-The Si5341 datasheet warns that before accessing any other registers,
-including the PAGE register, we need to wait for the DEVICE_READY register
-to indicate the device is ready, or the process of the device loading its
-state from NVM can be corrupted. Wait for DEVICE_READY on startup before
-continuing initialization. This is done using a raw I2C register read
-prior to setting up regmap to avoid any potential unwanted automatic PAGE
-register accesses from regmap at this stage.
+Error status of this event means that it has ended due reasons other
+than a connection:
 
-Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20210325192643.2190069-3-robert.hancock@calian.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+ 'If advertising has terminated as a result of the advertising duration
+ elapsing, the Status parameter shall be set to the error code
+ Advertising Timeout (0x3C).'
+
+ 'If advertising has terminated because the
+ Max_Extended_Advertising_Events was reached, the Status parameter
+ shall be set to the error code Limit Reached (0x43).'
+
+Fixes: acf0aeae431a0 ("Bluetooth: Handle ADv set terminated event")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ net/bluetooth/hci_event.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index e0446e66fa64..b8a960e927bc 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -94,6 +94,7 @@ struct clk_si5341_output_config {
- #define SI5341_STATUS		0x000C
- #define SI5341_SOFT_RST		0x001C
- #define SI5341_IN_SEL		0x0021
-+#define SI5341_DEVICE_READY	0x00FE
- #define SI5341_XAXB_CFG		0x090E
- #define SI5341_IN_EN		0x0949
- #define SI5341_INX_TO_PFD_EN	0x094A
-@@ -1189,6 +1190,32 @@ static const struct regmap_range_cfg si5341_regmap_ranges[] = {
- 	},
- };
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 03245ab74e67..c6f400b108d9 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5271,8 +5271,19 @@ static void hci_le_ext_adv_term_evt(struct hci_dev *hdev, struct sk_buff *skb)
  
-+static int si5341_wait_device_ready(struct i2c_client *client)
-+{
-+	int count;
+ 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
+ 
+-	if (ev->status)
++	if (ev->status) {
++		struct adv_info *adv;
 +
-+	/* Datasheet warns: Any attempt to read or write any register other
-+	 * than DEVICE_READY before DEVICE_READY reads as 0x0F may corrupt the
-+	 * NVM programming and may corrupt the register contents, as they are
-+	 * read from NVM. Note that this includes accesses to the PAGE register.
-+	 * Also: DEVICE_READY is available on every register page, so no page
-+	 * change is needed to read it.
-+	 * Do this outside regmap to avoid automatic PAGE register access.
-+	 * May take up to 300ms to complete.
-+	 */
-+	for (count = 0; count < 15; ++count) {
-+		s32 result = i2c_smbus_read_byte_data(client,
-+						      SI5341_DEVICE_READY);
-+		if (result < 0)
-+			return result;
-+		if (result == 0x0F)
-+			return 0;
-+		msleep(20);
++		adv = hci_find_adv_instance(hdev, ev->handle);
++		if (!adv)
++			return;
++
++		/* Remove advertising as it has been terminated */
++		hci_remove_adv_instance(hdev, ev->handle);
++		mgmt_advertising_removed(NULL, hdev, ev->handle);
++
+ 		return;
 +	}
-+	dev_err(&client->dev, "timeout waiting for DEVICE_READY\n");
-+	return -EIO;
-+}
-+
- static const struct regmap_config si5341_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -1385,6 +1412,11 @@ static int si5341_probe(struct i2c_client *client,
  
- 	data->i2c_client = client;
- 
-+	/* Must be done before otherwise touching hardware */
-+	err = si5341_wait_device_ready(client);
-+	if (err)
-+		return err;
-+
- 	for (i = 0; i < SI5341_NUM_INPUTS; ++i) {
- 		input = devm_clk_get(&client->dev, si5341_input_clock_names[i]);
- 		if (IS_ERR(input)) {
+ 	conn = hci_conn_hash_lookup_handle(hdev, __le16_to_cpu(ev->conn_handle));
+ 	if (conn) {
 -- 
 2.30.2
 
