@@ -2,238 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 130493C5E55
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 16:28:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5163D3C5F44
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 17:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbhGLOas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 10:30:48 -0400
-Received: from foss.arm.com ([217.140.110.172]:56390 "EHLO foss.arm.com"
+        id S235437AbhGLPcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 11:32:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231154AbhGLOas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 10:30:48 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5645F1FB;
-        Mon, 12 Jul 2021 07:27:59 -0700 (PDT)
-Received: from e110467-lin.cambridge.arm.com (e110467-lin.cambridge.arm.com [10.1.196.41])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 3A4CE3F774;
-        Mon, 12 Jul 2021 07:27:58 -0700 (PDT)
-From:   Robin Murphy <robin.murphy@arm.com>
-To:     will@kernel.org, catalin.marinas@arm.com
-Cc:     linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chen Huang <chenhuang5@huawei.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH] arm64: Avoid premature usercopy failure
-Date:   Mon, 12 Jul 2021 15:27:46 +0100
-Message-Id: <dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com>
-X-Mailer: git-send-email 2.21.0.dirty
+        id S229987AbhGLPcp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 11:32:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2F2160E08;
+        Mon, 12 Jul 2021 15:29:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626103797;
+        bh=EETKv1I4YGOmBxga+KZiuwr9pxvmkfcPdpdY1biTvq4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Fy0XJdC9Afif46oIDUjOh7CkNt7rkHuWkO5bg/W29g9l28HGDMYk642gqwjjhMzcP
+         M2wYQ2YCpF6IJz99QgyNE4XH2xfuKvuwdjyRVHxzu5irpJIQyGcJIBJOUlDbL/cq67
+         4wu9M2xAlhuhUd7AsbOOHjlkqTpCn/0uqO5ZSl/TbmqeLMfuTY0LwCC8p/PzDv62SQ
+         yaNBr+sn2Y0P80U1JLCsXsbf+Kgj87aEowjsFa4zE10vVWIK1dIAmdQuQP1dEDr/zG
+         qj022gelCSf/nYDgjMefXismo2fRuTeo6KbQU51B8A5R04fSFc9p39OT0e566v/j5m
+         8/4+gnrA6dNlQ==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-fscrypt@vger.kernel.org
+Subject: [PATCH 5.4/4.19/4.14] fscrypt: don't ignore minor_hash when hash is 0
+Date:   Mon, 12 Jul 2021 10:27:17 -0500
+Message-Id: <20210712152717.6480-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Al reminds us that the usercopy API must only return complete failure
-if absolutely nothing could be copied. Currently, if userspace does
-something silly like giving us an unaligned pointer to Device memory,
-or a size which overruns MTE tag bounds, we may fail to honour that
-requirement when faulting on a multi-byte access even though a smaller
-access could have succeeded.
+From: Eric Biggers <ebiggers@google.com>
 
-Add a mitigation to the fixup routines to fall back to a single-byte
-copy if we faulted on a larger access before anything has been written
-to the destination, to guarantee making *some* forward progress. We
-needn't be too concerned about the overall performance since this should
-only occur when callers are doing something a bit dodgy in the first
-place. Particularly broken userspace might still be able to trick
-generic_perform_write() into an infinite loop by targeting write() at
-an mmap() of some read-only device register where the fault-in load
-succeeds but any store synchronously aborts such that copy_to_user() is
-genuinely unable to make progress, but, well, don't do that...
+commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+[Please apply to 5.4-stable, 4.19-stable, and 4.14-stable.]
 
-CC: stable@vger.kernel.org
-Reported-by: Chen Huang <chenhuang5@huawei.com>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+minor_hash to 0 if the (major) hash is 0.
+
+This doesn't make sense because 0 is a valid hash code, so we shouldn't
+ignore the filesystem-provided minor_hash in that case.  Fix this by
+removing the special case for 'hash == 0'.
+
+This is an old bug that appears to have originated when the encryption
+code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+f2fs code passed the hash by pointer instead of by value.  So
+'if (hash)' actually made sense then, as it was checking whether a
+pointer was NULL.  But now the hashes are passed by value, and
+filesystems just pass 0 for any hashes they don't have.  There is no
+need to handle this any differently from the hashes actually being 0.
+
+It is difficult to reproduce this bug, as it only made a difference in
+the case where a filename's 32-bit major hash happened to be 0.
+However, it probably had the largest chance of causing problems on
+ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+a readdir cookie, and f2fs doesn't use minor_hash at all.
+
+Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+Cc: <stable@vger.kernel.org> # v4.6+
+Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
+ fs/crypto/fname.c | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-I've started trying the "replay" approach for figuring out more precise
-remainders in general, but that quickly got more complicated with
-rebasing the fault address passing stuff, so I'm resending this now as
-a point fix and will continue to explore that as an improvement on top.
-
-Robin.
-
- arch/arm64/lib/copy_from_user.S | 13 ++++++++++---
- arch/arm64/lib/copy_in_user.S   | 21 ++++++++++++++-------
- arch/arm64/lib/copy_to_user.S   | 14 +++++++++++---
- 3 files changed, 35 insertions(+), 13 deletions(-)
-
-diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
-index 95cd62d67371..2cf999e41d30 100644
---- a/arch/arm64/lib/copy_from_user.S
-+++ b/arch/arm64/lib/copy_from_user.S
-@@ -29,7 +29,7 @@
- 	.endm
- 
- 	.macro ldrh1 reg, ptr, val
--	user_ldst 9998f, ldtrh, \reg, \ptr, \val
-+	user_ldst 9997f, ldtrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro strh1 reg, ptr, val
-@@ -37,7 +37,7 @@
- 	.endm
- 
- 	.macro ldr1 reg, ptr, val
--	user_ldst 9998f, ldtr, \reg, \ptr, \val
-+	user_ldst 9997f, ldtr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro str1 reg, ptr, val
-@@ -45,7 +45,7 @@
- 	.endm
- 
- 	.macro ldp1 reg1, reg2, ptr, val
--	user_ldp 9998f, \reg1, \reg2, \ptr, \val
-+	user_ldp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
-@@ -53,8 +53,10 @@
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_from_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0				// Nothing to copy
- 	ret
-@@ -63,6 +65,11 @@ EXPORT_SYMBOL(__arch_copy_from_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+	strb	tmp1w, [dst], #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
-diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
-index 1f61cd0df062..dbea3799c3ef 100644
---- a/arch/arm64/lib/copy_in_user.S
-+++ b/arch/arm64/lib/copy_in_user.S
-@@ -30,33 +30,34 @@
- 	.endm
- 
- 	.macro ldrh1 reg, ptr, val
--	user_ldst 9998f, ldtrh, \reg, \ptr, \val
-+	user_ldst 9997f, ldtrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro strh1 reg, ptr, val
--	user_ldst 9998f, sttrh, \reg, \ptr, \val
-+	user_ldst 9997f, sttrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldr1 reg, ptr, val
--	user_ldst 9998f, ldtr, \reg, \ptr, \val
-+	user_ldst 9997f, ldtr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro str1 reg, ptr, val
--	user_ldst 9998f, sttr, \reg, \ptr, \val
-+	user_ldst 9997f, sttr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldp1 reg1, reg2, ptr, val
--	user_ldp 9998f, \reg1, \reg2, \ptr, \val
-+	user_ldp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
--	user_stp 9998f, \reg1, \reg2, \ptr, \val
-+	user_stp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- end	.req	x5
--
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_in_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
-@@ -65,6 +66,12 @@ EXPORT_SYMBOL(__arch_copy_in_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+USER(9998f, ldtrb tmp1w, [srcin])
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
-diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
-index 043da90f5dd7..9f380eecf653 100644
---- a/arch/arm64/lib/copy_to_user.S
-+++ b/arch/arm64/lib/copy_to_user.S
-@@ -32,7 +32,7 @@
- 	.endm
- 
- 	.macro strh1 reg, ptr, val
--	user_ldst 9998f, sttrh, \reg, \ptr, \val
-+	user_ldst 9997f, sttrh, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldr1 reg, ptr, val
-@@ -40,7 +40,7 @@
- 	.endm
- 
- 	.macro str1 reg, ptr, val
--	user_ldst 9998f, sttr, \reg, \ptr, \val
-+	user_ldst 9997f, sttr, \reg, \ptr, \val
- 	.endm
- 
- 	.macro ldp1 reg1, reg2, ptr, val
-@@ -48,12 +48,14 @@
- 	.endm
- 
- 	.macro stp1 reg1, reg2, ptr, val
--	user_stp 9998f, \reg1, \reg2, \ptr, \val
-+	user_stp 9997f, \reg1, \reg2, \ptr, \val
- 	.endm
- 
- end	.req	x5
-+srcin	.req	x15
- SYM_FUNC_START(__arch_copy_to_user)
- 	add	end, x0, x2
-+	mov	srcin, x1
- #include "copy_template.S"
- 	mov	x0, #0
- 	ret
-@@ -62,6 +64,12 @@ EXPORT_SYMBOL(__arch_copy_to_user)
- 
- 	.section .fixup,"ax"
- 	.align	2
-+9997:	cmp	dst, dstin
-+	b.ne	9998f
-+	// Before being absolutely sure we couldn't copy anything, try harder
-+	ldrb	tmp1w, [srcin]
-+USER(9998f, sttrb tmp1w, [dst])
-+	add	dst, dst, #1
- 9998:	sub	x0, end, dst			// bytes not copied
- 	ret
- 	.previous
+diff --git a/fs/crypto/fname.c b/fs/crypto/fname.c
+index 3da3707c10e3..891328f09b3c 100644
+--- a/fs/crypto/fname.c
++++ b/fs/crypto/fname.c
+@@ -273,13 +273,8 @@ int fscrypt_fname_disk_to_usr(struct inode *inode,
+ 					   oname->name);
+ 		return 0;
+ 	}
+-	if (hash) {
+-		digested_name.hash = hash;
+-		digested_name.minor_hash = minor_hash;
+-	} else {
+-		digested_name.hash = 0;
+-		digested_name.minor_hash = 0;
+-	}
++	digested_name.hash = hash;
++	digested_name.minor_hash = minor_hash;
+ 	memcpy(digested_name.digest,
+ 	       FSCRYPT_FNAME_DIGEST(iname->name, iname->len),
+ 	       FSCRYPT_FNAME_DIGEST_SIZE);
 -- 
-2.21.0.dirty
+2.32.0
 
