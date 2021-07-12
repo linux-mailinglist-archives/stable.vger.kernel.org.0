@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03F783C4A7E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C908B3C544B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239218AbhGLGwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48248 "EHLO mail.kernel.org"
+        id S1348288AbhGLH5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239189AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6013610E5;
-        Mon, 12 Jul 2021 06:46:34 +0000 (UTC)
+        id S1347931AbhGLHyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:54:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CE356141F;
+        Mon, 12 Jul 2021 07:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072395;
-        bh=oKGTv/+PZn0kbg/Fp9P2DxsFCRvl9SzCqxXU/N/6o6Y=;
+        s=korg; t=1626076274;
+        bh=ji+O9IzA+RBuQraGaWtstJSZbuwrc94Hf/BM5DOxx8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nycpq3H7Va/uKBbwJrPiymFU2A0APsgCoOm7OCp2INGl2xIAXQtHx9s7cFBYCMoC1
-         GIpEd1a8NuOiENQXhcNDvo/LXZleMpcnkd4ZoYBOr43giKH0gOS1XbIbRZIR0ISoi4
-         M8PD18KvYVsAsC7ugnniCocJsxBtauK4cCm195tY=
+        b=w8m3zK3aaIr9GxHw+TE5KGkASNzzvt2YZtoCduktN0TJCf5vLzicBw+knxyBbQUZZ
+         0d6qoV1DueLV5AvGrTt4N21uamyR1b7TpRb4ZQvMiLhvdlcxuCrCH3W20yoidAryxO
+         c96AGX4FbwTs3YE4bf3BPDWQq4NbuUVwHfYRur3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 437/593] serial: fsl_lpuart: dont modify arbitrary data on lpuart32
+Subject: [PATCH 5.13 574/800] net: dsa: sja1105: fix NULL pointer dereference in sja1105_reload_cbs()
 Date:   Mon, 12 Jul 2021 08:09:57 +0200
-Message-Id: <20210712060936.777103067@linuxfoundation.org>
+Message-Id: <20210712061028.440792015@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit ccf08fd1204bcb5311cc10aea037c71c6e74720a ]
+[ Upstream commit be7f62eebaff2f86c1467a2d33930a0a7a87675b ]
 
-lpuart_rx_dma_startup() is used for both the 8 bit and the 32 bit
-version of the LPUART. Modify the UARTCR only for the 8 bit version.
+priv->cbs is an array of priv->info->num_cbs_shapers elements of type
+struct sja1105_cbs_entry which only get allocated if CONFIG_NET_SCH_CBS
+is enabled.
 
-Fixes: f4eef224a09f ("serial: fsl_lpuart: add sysrq support when using dma")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20210512141255.18277-2-michael@walle.cc
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, sja1105_reload_cbs() is called from sja1105_static_config_reload()
+which in turn is called for any of the items in sja1105_reset_reasons,
+therefore during the normal runtime of the driver and not just from a
+code path which can be triggered by the tc-cbs offload.
+
+The sja1105_reload_cbs() function does not contain a check whether the
+priv->cbs array is NULL or not, it just assumes it isn't and proceeds to
+iterate through the credit-based shaper elements. This leads to a NULL
+pointer dereference.
+
+The solution is to return success if the priv->cbs array has not been
+allocated, since sja1105_reload_cbs() has nothing to do.
+
+Fixes: 4d7525085a9b ("net: dsa: sja1105: offload the Credit-Based Shaper qdisc")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index bd047e1f9bea..6b8e638c2389 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1625,7 +1625,7 @@ static void lpuart_rx_dma_startup(struct lpuart_port *sport)
- 	sport->lpuart_dma_rx_use = true;
- 	rx_dma_timer_init(sport);
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index b88d9ef45a1f..ebe4d33cda27 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -1798,6 +1798,12 @@ static int sja1105_reload_cbs(struct sja1105_private *priv)
+ {
+ 	int rc = 0, i;
  
--	if (sport->port.has_sysrq) {
-+	if (sport->port.has_sysrq && !lpuart_is_32(sport)) {
- 		cr3 = readb(sport->port.membase + UARTCR3);
- 		cr3 |= UARTCR3_FEIE;
- 		writeb(cr3, sport->port.membase + UARTCR3);
++	/* The credit based shapers are only allocated if
++	 * CONFIG_NET_SCH_CBS is enabled.
++	 */
++	if (!priv->cbs)
++		return 0;
++
+ 	for (i = 0; i < priv->info->num_cbs_shapers; i++) {
+ 		struct sja1105_cbs_entry *cbs = &priv->cbs[i];
+ 
 -- 
 2.30.2
 
