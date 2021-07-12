@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B9C03C4AB6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE1A33C4F99
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240303AbhGLGx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51188 "EHLO mail.kernel.org"
+        id S243801AbhGLH03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240417AbhGLGvw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:51:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24BBE610FA;
-        Mon, 12 Jul 2021 06:48:46 +0000 (UTC)
+        id S1344178AbhGLHY2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:24:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7BE46052B;
+        Mon, 12 Jul 2021 07:21:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072527;
-        bh=CO02HGpR4gwSOc93xPDJUXZ4YgGAb9nP2Ad9BgTe4B0=;
+        s=korg; t=1626074489;
+        bh=pk9h27xzFngeoU6rqILM+rhgFvQrnIgc/xtXeHGJMaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFHpeNrvmXexG78zmbeQrnCoVZdHFfnvMQutbQ0ppw4Ga4Wm/MbecqC6qWRuWtXXm
-         QgPkqOWpbbCXl5d1QUhyp8+5w2R0Yi+fHvFQbXb1NCL8sksGHCya1fLX1qBzjFeS8K
-         DvZOrrg31Budb+NfEjB47KjX5aOazxhizCSbPfKA=
+        b=YG1KcDBIWMKl7Jun74vnkFVkoVWVnJceHCgdUKYga6wtXsKRIYYaL13qtYYUHpctd
+         DqbjMyj6siRfrSWJEdwCrmUiB5WFPWh7qL68XqjnTIlxVxVyAhWXuAXeyjlKAU5IC5
+         DkpQHtWz2SZdiMKJXDKkwy6pBRZkSto4SzubUvXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mathieu Othacehe <m.othacehe@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 520/593] iio: light: vcnl4000: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.12 597/700] ASoC: max98373-sdw: use first_hw_init flag on resume
 Date:   Mon, 12 Jul 2021 08:11:20 +0200
-Message-Id: <20210712060949.739546936@linuxfoundation.org>
+Message-Id: <20210712061039.458740245@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit dce793c0ab00c35039028fdcd5ce123805a01361 ]
+[ Upstream commit bf881170311ea74ff30c3be0be8fb097132ce696 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+The intent of the status check on resume was to verify if a SoundWire
+peripheral reported ATTACHED before waiting for the initialization to
+complete. This is required to avoid timeouts that will happen with
+'ghost' devices that are exposed in the platform firmware but are not
+populated in hardware.
 
-Here an explicit structure is not used, because the holes would
-necessitate the addition of an explict memset(), to avoid a kernel
-data leak, making for a less minimal fix.
+Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
+another error, the resume operation never timed out, but the volume
+settings were not properly restored.
 
-Found during an audit of all callers of iio_push_to_buffers_with_timestamp()
+This patch renames the status flag to 'first_hw_init' for consistency
+with other drivers.
 
-Fixes: 8fe78d5261e7 ("iio: vcnl4000: Add buffer support for VCNL4010/20.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Mathieu Othacehe <m.othacehe@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-7-jic23@kernel.org
+BugLink: https://github.com/thesofproject/linux/issues/2637
+Fixes: 56a5b7910e96 ('ASoC: codecs: max98373: add SoundWire support')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20210607222239.582139-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/vcnl4000.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/max98373-sdw.c | 12 ++++++------
+ sound/soc/codecs/max98373.h     |  2 +-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iio/light/vcnl4000.c b/drivers/iio/light/vcnl4000.c
-index fff4b36b8b58..f4feb44903b3 100644
---- a/drivers/iio/light/vcnl4000.c
-+++ b/drivers/iio/light/vcnl4000.c
-@@ -910,7 +910,7 @@ static irqreturn_t vcnl4010_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct vcnl4000_data *data = iio_priv(indio_dev);
- 	const unsigned long *active_scan_mask = indio_dev->active_scan_mask;
--	u16 buffer[8] = {0}; /* 1x16-bit + ts */
-+	u16 buffer[8] __aligned(8) = {0}; /* 1x16-bit + naturally aligned ts */
- 	bool data_read = false;
- 	unsigned long isr;
- 	int val = 0;
+diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
+index c7a3506046db..dc520effc61c 100644
+--- a/sound/soc/codecs/max98373-sdw.c
++++ b/sound/soc/codecs/max98373-sdw.c
+@@ -271,7 +271,7 @@ static __maybe_unused int max98373_resume(struct device *dev)
+ 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
+ 	unsigned long time;
+ 
+-	if (!max98373->hw_init)
++	if (!max98373->first_hw_init)
+ 		return 0;
+ 
+ 	if (!slave->unattach_request)
+@@ -362,7 +362,7 @@ static int max98373_io_init(struct sdw_slave *slave)
+ 	struct device *dev = &slave->dev;
+ 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
+ 
+-	if (max98373->pm_init_once) {
++	if (max98373->first_hw_init) {
+ 		regcache_cache_only(max98373->regmap, false);
+ 		regcache_cache_bypass(max98373->regmap, true);
+ 	}
+@@ -370,7 +370,7 @@ static int max98373_io_init(struct sdw_slave *slave)
+ 	/*
+ 	 * PM runtime is only enabled when a Slave reports as Attached
+ 	 */
+-	if (!max98373->pm_init_once) {
++	if (!max98373->first_hw_init) {
+ 		/* set autosuspend parameters */
+ 		pm_runtime_set_autosuspend_delay(dev, 3000);
+ 		pm_runtime_use_autosuspend(dev);
+@@ -462,12 +462,12 @@ static int max98373_io_init(struct sdw_slave *slave)
+ 	regmap_write(max98373->regmap, MAX98373_R20B5_BDE_EN, 1);
+ 	regmap_write(max98373->regmap, MAX98373_R20E2_LIMITER_EN, 1);
+ 
+-	if (max98373->pm_init_once) {
++	if (max98373->first_hw_init) {
+ 		regcache_cache_bypass(max98373->regmap, false);
+ 		regcache_mark_dirty(max98373->regmap);
+ 	}
+ 
+-	max98373->pm_init_once = true;
++	max98373->first_hw_init = true;
+ 	max98373->hw_init = true;
+ 
+ 	pm_runtime_mark_last_busy(dev);
+@@ -797,7 +797,7 @@ static int max98373_init(struct sdw_slave *slave, struct regmap *regmap)
+ 	max98373_slot_config(dev, max98373);
+ 
+ 	max98373->hw_init = false;
+-	max98373->pm_init_once = false;
++	max98373->first_hw_init = false;
+ 
+ 	/* codec registration  */
+ 	ret = devm_snd_soc_register_component(dev, &soc_codec_dev_max98373_sdw,
+diff --git a/sound/soc/codecs/max98373.h b/sound/soc/codecs/max98373.h
+index 71f5a5228f34..c09c73678a9a 100644
+--- a/sound/soc/codecs/max98373.h
++++ b/sound/soc/codecs/max98373.h
+@@ -223,7 +223,7 @@ struct max98373_priv {
+ 	/* variables to support soundwire */
+ 	struct sdw_slave *slave;
+ 	bool hw_init;
+-	bool pm_init_once;
++	bool first_hw_init;
+ 	int slot;
+ 	unsigned int rx_mask;
+ };
 -- 
 2.30.2
 
