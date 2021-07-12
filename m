@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 917753C5573
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A47403C502E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355726AbhGLIKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S239770AbhGLHbg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353667AbhGLICo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACD716145E;
-        Mon, 12 Jul 2021 07:56:33 +0000 (UTC)
+        id S1343611AbhGLH2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:28:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E930961930;
+        Mon, 12 Jul 2021 07:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076594;
-        bh=sENWkQ5uR0IMnAxF0xKSzpMQnClAuWfwxn0h+ba6SMU=;
+        s=korg; t=1626074651;
+        bh=3VXaGHAyaewTOYvIuxByWSQBhJuMqKKqUenoZ6rXq30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otjsAVtqfzI03rEJNhA6tPSzbW9BRZG9miCX5up0YlroUX8CTIckIQeXZr+x8P0vP
-         JH9y7V6EVH38oGqkOQ9w2hhnDq72MTw9gSJiKBKhtBDudgu67gEzJp3RgBwXkYbkfZ
-         lsV7tNEOdZ5vmTgDJh+qOMsirHTHbvijLiIAbW+M=
+        b=swKXngbFrysMLU+Mwrfjq3tl/EI4h9rMjgws6Ro8esMY3rg9qQQfsvCWe1XFcq8go
+         cn4Zb+kpIx87yCz9gCammFcgl03d83JvIbFm7jDYD8uGgL4y3MjxQyYrh2BjNKX8Cu
+         YfvN+kjXZqE/wxaBFuKAQ8xWlnRnVuk6TgM+W5Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andreas Klinger <ak@it-klinger.de>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 711/800] iio: adc: mxs-lradc: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 651/700] leds: ktd2692: Fix an error handling path
 Date:   Mon, 12 Jul 2021 08:12:14 +0200
-Message-Id: <20210712061042.366401833@linuxfoundation.org>
+Message-Id: <20210712061045.107740421@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 6a6be221b8bd561b053f0701ec752a5ed9007f69 ]
+[ Upstream commit ee78b9360e14c276f5ceaa4a0d06f790f04ccdad ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
-Add a comment on why the buffer is the size it is as not immediately
-obvious.
+In 'ktd2692_parse_dt()', if an error occurs after a successful
+'regulator_enable()' call, we should call 'regulator_enable()'.
 
-Found during an audit of all calls of this function.
+This is the same in 'ktd2692_probe()', if an error occurs after a
+successful 'ktd2692_parse_dt()' call.
 
-Fixes: 6dd112b9f85e ("iio: adc: mxs-lradc: Add support for ADC driver")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Andreas Klinger <ak@it-klinger.de>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-4-jic23@kernel.org
+Instead of adding 'regulator_enable()' in several places, implement a
+resource managed solution and simplify the remove function accordingly.
+
+Fixes: b7da8c5c725c ("leds: Add ktd2692 flash LED driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/mxs-lradc-adc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/leds/leds-ktd2692.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
-index 30e29f44ebd2..c480cb489c1a 100644
---- a/drivers/iio/adc/mxs-lradc-adc.c
-+++ b/drivers/iio/adc/mxs-lradc-adc.c
-@@ -115,7 +115,8 @@ struct mxs_lradc_adc {
- 	struct device		*dev;
+diff --git a/drivers/leds/leds-ktd2692.c b/drivers/leds/leds-ktd2692.c
+index 632f10db4b3f..f341da1503a4 100644
+--- a/drivers/leds/leds-ktd2692.c
++++ b/drivers/leds/leds-ktd2692.c
+@@ -256,6 +256,17 @@ static void ktd2692_setup(struct ktd2692_context *led)
+ 				 | KTD2692_REG_FLASH_CURRENT_BASE);
+ }
  
- 	void __iomem		*base;
--	u32			buffer[10];
-+	/* Maximum of 8 channels + 8 byte ts */
-+	u32			buffer[10] __aligned(8);
- 	struct iio_trigger	*trig;
- 	struct completion	completion;
- 	spinlock_t		lock;
++static void regulator_disable_action(void *_data)
++{
++	struct device *dev = _data;
++	struct ktd2692_context *led = dev_get_drvdata(dev);
++	int ret;
++
++	ret = regulator_disable(led->regulator);
++	if (ret)
++		dev_err(dev, "Failed to disable supply: %d\n", ret);
++}
++
+ static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
+ 			    struct ktd2692_led_config_data *cfg)
+ {
+@@ -286,8 +297,14 @@ static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
+ 
+ 	if (led->regulator) {
+ 		ret = regulator_enable(led->regulator);
+-		if (ret)
++		if (ret) {
+ 			dev_err(dev, "Failed to enable supply: %d\n", ret);
++		} else {
++			ret = devm_add_action_or_reset(dev,
++						regulator_disable_action, dev);
++			if (ret)
++				return ret;
++		}
+ 	}
+ 
+ 	child_node = of_get_next_available_child(np, NULL);
+@@ -377,17 +394,9 @@ static int ktd2692_probe(struct platform_device *pdev)
+ static int ktd2692_remove(struct platform_device *pdev)
+ {
+ 	struct ktd2692_context *led = platform_get_drvdata(pdev);
+-	int ret;
+ 
+ 	led_classdev_flash_unregister(&led->fled_cdev);
+ 
+-	if (led->regulator) {
+-		ret = regulator_disable(led->regulator);
+-		if (ret)
+-			dev_err(&pdev->dev,
+-				"Failed to disable supply: %d\n", ret);
+-	}
+-
+ 	mutex_destroy(&led->lock);
+ 
+ 	return 0;
 -- 
 2.30.2
 
