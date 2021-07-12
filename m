@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0283C4B76
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EFE3C4B79
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240658AbhGLG5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58140 "EHLO mail.kernel.org"
+        id S238627AbhGLG5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239554AbhGLG40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:56:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD64C611B0;
-        Mon, 12 Jul 2021 06:53:37 +0000 (UTC)
+        id S240646AbhGLG43 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99DF561175;
+        Mon, 12 Jul 2021 06:53:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072818;
-        bh=ByUDmKPkm879Guxqu+tJMet4VjQuRfdUKxJqad5il4g=;
+        s=korg; t=1626072821;
+        bh=HAquGJCDQ/8lRG49kp5ahn/EIwqsWChZbOHrTjwJ4fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VitvHQ6OEoYKCNcDEBPvbV1hyMQh9PwIlkS3nM4GAoinN0bRNQYxPMd72GkcSwR94
-         cQpPGHDsFjNCrZ4A0Y0ZL7gXnlpdH7qvuMua4H+wFjILtt0JPEIGhW7pTBU5iUVQUS
-         skWXWWBjeNV00x9n9UlAjGdGuCItZgjG/QCObplE=
+        b=Idb6D/y3TbjFE6FE841pBCzhdMkxm3auAFw0AIEBHf79jG4EGmVG5MGem0mS68+FG
+         w1YLAdMlruGZI7wiusicXvexWB7sFIzSylKpfaYRE95Cd1iVea9rz8dm0/i7l1SY33
+         V1FgiqaWs9KGp+5bdvYgQl6cqR8LAWWlr+QKtIvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 006/700] ALSA: firewire-motu: fix stream format for MOTU 8pre FireWire
-Date:   Mon, 12 Jul 2021 08:01:29 +0200
-Message-Id: <20210712060925.673395934@linuxfoundation.org>
+Subject: [PATCH 5.12 007/700] ALSA: usb-audio: scarlett2: Fix wrong resume call
+Date:   Mon, 12 Jul 2021 08:01:30 +0200
+Message-Id: <20210712060925.810689530@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,35 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fc36ef80ca2c68b2c9df06178048f08280e4334f upstream.
+commit 785b6f29a795f109685f286b91e0250c206fbffb upstream.
 
-My previous refactoring for ALSA firewire-motu driver brought regression
-to handle MOTU 8pre FireWire. The packet format is not operated correctly.
+The current way of the scarlett2 mixer code managing the
+usb_mixer_elem_info object is wrong in two ways: it passes its
+internal index to the head.id field, and the val_type field is
+uninitialized.  This ended up with the wrong execution at the resume
+because a bogus unit id is passed wrongly.  Also, in the later code
+extensions, we'll have more mixer elements, and passing the index will
+overflow the unit id size (of 256).
 
+This patch corrects those issues.  It introduces a new value type,
+USB_MIXER_BESPOKEN, which indicates a non-standard mixer element, and
+use this type for all scarlett2 mixer elements, as well as
+initializing the fixed unit id 0 for avoiding the overflow.
+
+Tested-by: Geoffrey D. Bennett <g@b4.vu>
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
 Cc: <stable@vger.kernel.org>
-Fixes: dfbaa4dc11eb ("ALSA: firewire-motu: add model-specific table of chunk count")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210614083133.39753-1-o-takashi@sakamocchi.jp
+Link: https://lore.kernel.org/r/49721219f45b7e175e729b0d9d9c142fd8f4342a.1624379707.git.g@b4.vu
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/firewire/motu/motu-protocol-v2.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/usb/mixer.c               |    3 +++
+ sound/usb/mixer.h               |    1 +
+ sound/usb/mixer_scarlett_gen2.c |    7 ++++++-
+ 3 files changed, 10 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/motu/motu-protocol-v2.c
-+++ b/sound/firewire/motu/motu-protocol-v2.c
-@@ -353,6 +353,7 @@ const struct snd_motu_spec snd_motu_spec
- 	.protocol_version = SND_MOTU_PROTOCOL_V2,
- 	.flags = SND_MOTU_SPEC_RX_MIDI_2ND_Q |
- 		 SND_MOTU_SPEC_TX_MIDI_2ND_Q,
--	.tx_fixed_pcm_chunks = {10, 6, 0},
--	.rx_fixed_pcm_chunks = {10, 6, 0},
-+	// Two dummy chunks always in the end of data block.
-+	.tx_fixed_pcm_chunks = {10, 10, 0},
-+	.rx_fixed_pcm_chunks = {6, 6, 0},
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -3591,6 +3591,9 @@ static int restore_mixer_value(struct us
+ 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+ 	int c, err, idx;
+ 
++	if (cval->val_type == USB_MIXER_BESPOKEN)
++		return 0;
++
+ 	if (cval->cmask) {
+ 		idx = 0;
+ 		for (c = 0; c < MAX_CHANNELS; c++) {
+--- a/sound/usb/mixer.h
++++ b/sound/usb/mixer.h
+@@ -55,6 +55,7 @@ enum {
+ 	USB_MIXER_U16,
+ 	USB_MIXER_S32,
+ 	USB_MIXER_U32,
++	USB_MIXER_BESPOKEN,	/* non-standard type */
  };
+ 
+ typedef void (*usb_mixer_elem_dump_func_t)(struct snd_info_buffer *buffer,
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -949,10 +949,15 @@ static int scarlett2_add_new_ctl(struct
+ 	if (!elem)
+ 		return -ENOMEM;
+ 
++	/* We set USB_MIXER_BESPOKEN type, so that the core USB mixer code
++	 * ignores them for resume and other operations.
++	 * Also, the head.id field is set to 0, as we don't use this field.
++	 */
+ 	elem->head.mixer = mixer;
+ 	elem->control = index;
+-	elem->head.id = index;
++	elem->head.id = 0;
+ 	elem->channels = channels;
++	elem->val_type = USB_MIXER_BESPOKEN;
+ 
+ 	kctl = snd_ctl_new1(ncontrol, elem);
+ 	if (!kctl) {
 
 
