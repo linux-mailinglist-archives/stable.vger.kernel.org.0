@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4948D3C5435
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181493C4A5B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347920AbhGLH5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42364 "EHLO mail.kernel.org"
+        id S240737AbhGLGwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345980AbhGLHx2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14D6B6113E;
-        Mon, 12 Jul 2021 07:50:36 +0000 (UTC)
+        id S236706AbhGLGsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC89D6112D;
+        Mon, 12 Jul 2021 06:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076237;
-        bh=Ezk68U3KPrK3AOs86AFK5jXSaB8Nd/WCafjogq95FuA=;
+        s=korg; t=1626072255;
+        bh=pXn31TkCyFWQq5xPePd9IsCjXV2Uf7TMp52YGIPBvuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJl2pY4220nGA2HAUcDe4qAUGvYvW7xeXPKxeENGTNTXtOtvxB61UK42fe364Si/R
-         Um297h+2X+ZjrBgvp3LI77gwnYZBPbezZBACEs4J3A4KeSVtEWalsj3I7obqdFjeS9
-         +9LIfByp4ciMXR/23XEgDIfRE9DeOsy4g/JQaHOY=
+        b=cHP3QN03WJHIucxl+cFVyHhZgAlevP/QmORQw+sboJu2oDZCuht9a1xWmUNNpwFXx
+         6/p/icQth/WaRGnydt/dneMSbA4cJtaNHrFw6/GWdrlNLzlRcI6uFKXFq0eC/94auV
+         H3ydySnbGpJsU2YN8egy3M1TRxo5PBeVOayK+Un8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dongseok Yi <dseok.yi@samsung.com>,
-        Willem de Bruijn <willemb@google.com>,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 556/800] bpf: Do not change gso_size during bpf_skb_change_proto()
+Subject: [PATCH 5.10 419/593] clk: actions: Fix bisp_factor_table based clocks on Owl S500 SoC
 Date:   Mon, 12 Jul 2021 08:09:39 +0200
-Message-Id: <20210712061026.549571534@linuxfoundation.org>
+Message-Id: <20210712060934.273156110@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,140 +42,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit 364745fbe981a4370f50274475da4675661104df ]
+[ Upstream commit a8f1f03caa51aa7a69c671aa87c475034db7d368 ]
 
-This is technically a backwards incompatible change in behaviour, but I'm
-going to argue that it is very unlikely to break things, and likely to fix
-*far* more then it breaks.
+The following clocks of the Actions Semi Owl S500 SoC have been defined
+to use a shared clock factor table 'bisp_factor_table[]': DE[1-2], VCE,
+VDE, BISP, SENSOR[0-1]
 
-In no particular order, various reasons follow:
+There are several issues involved in this approach:
 
-(a) I've long had a bug assigned to myself to debug a super rare kernel crash
-on Android Pixel phones which can (per stacktrace) be traced back to BPF clat
-IPv6 to IPv4 protocol conversion causing some sort of ugly failure much later
-on during transmit deep in the GSO engine, AFAICT precisely because of this
-change to gso_size, though I've never been able to manually reproduce it. I
-believe it may be related to the particular network offload support of attached
-USB ethernet dongle being used for tethering off of an IPv6-only cellular
-connection. The reason might be we end up with more segments than max permitted,
-or with a GSO packet with only one segment... (either way we break some
-assumption and hit a BUG_ON)
+* 'bisp_factor_table[]' describes the configuration of a regular 8-rates
+  divider, so its usage is redundant. Additionally, judging by the BISP
+  clock context, it is incomplete since it maps only 8 out of 12
+  possible entries.
 
-(b) There is no check that the gso_size is > 20 when reducing it by 20, so we
-might end up with a negative (or underflowing) gso_size or a gso_size of 0.
-This can't possibly be good. Indeed this is probably somehow exploitable (or
-at least can result in a kernel crash) by delivering crafted packets and perhaps
-triggering an infinite loop or a divide by zero... As a reminder: gso_size (MSS)
-is related to MTU, but not directly derived from it: gso_size/MSS may be
-significantly smaller then one would get by deriving from local MTU. And on
-some NICs (which do loose MTU checking on receive, it may even potentially be
-larger, for example my work pc with 1500 MTU can receive 1520 byte frames [and
-sometimes does due to bugs in a vendor plat46 implementation]). Indeed even just
-going from 21 to 1 is potentially problematic because it increases the number
-of segments by a factor of 21 (think DoS, or some other crash due to too many
-segments).
+* The clocks mentioned above are not identical in terms of the available
+  rates, therefore cannot rely on the same factor table. Specifically,
+  BISP and SENSOR* are standard 12-rate dividers so their configuration
+  should rely on a proper clock div table, while VCE and VDE require a
+  factor table that is a actually a subset of the one needed for DE[1-2]
+  clocks.
 
-(c) It's always safe to not increase the gso_size, because it doesn't result in
-the max packet size increasing.  So the skb_increase_gso_size() call was always
-unnecessary for correctness (and outright undesirable, see later). As such the
-only part which is potentially dangerous (ie. could cause backwards compatibility
-issues) is the removal of the skb_decrease_gso_size() call.
+Let's fix this by implementing the following:
 
-(d) If the packets are ultimately destined to the local device, then there is
-absolutely no benefit to playing around with gso_size. It only matters if the
-packets will egress the device. ie. we're either forwarding, or transmitting
-from the device.
+* Add new factor tables 'de_factor_table' and 'hde_factor_table' to
+  properly handle DE[1-2], VCE and VDE clocks.
 
-(e) This logic only triggers for packets which are GSO. It does not trigger for
-skbs which are not GSO. It will not convert a non-GSO MTU sized packet into a
-GSO packet (and you don't even know what the MTU is, so you can't even fix it).
-As such your transmit path must *already* be able to handle an MTU 20 bytes
-larger then your receive path (for IPv4 to IPv6 translation) - and indeed 28
-bytes larger due to IPv4 fragments. Thus removing the skb_decrease_gso_size()
-call doesn't actually increase the size of the packets your transmit side must
-be able to handle. ie. to handle non-GSO max-MTU packets, the IPv4/IPv6 device/
-route MTUs must already be set correctly. Since for example with an IPv4 egress
-MTU of 1500, IPv4 to IPv6 translation will already build 1520 byte IPv6 frames,
-so you need a 1520 byte device MTU. This means if your IPv6 device's egress
-MTU is 1280, your IPv4 route must be 1260 (and actually 1252, because of the
-need to handle fragments). This is to handle normal non-GSO packets. Thus the
-reduction is simply not needed for GSO packets, because when they're correctly
-built, they will already be the right size.
+* Add a common div table 'std12rate_div_table' for BISP and SENSOR[0-1]
+  clocks converted to OWL_COMP_DIV.
 
-(f) TSO/GSO should be able to exactly undo GRO: the number of packets (TCP
-segments) should not be modified, so that TCP's MSS counting works correctly
-(this matters for congestion control). If protocol conversion changes the
-gso_size, then the number of TCP segments may increase or decrease. Packet loss
-after protocol conversion can result in partial loss of MSS segments that the
-sender sent. How's the sending TCP stack going to react to receiving ACKs/SACKs
-in the middle of the segments it sent?
+* Drop the now unused 'bisp_factor_table[]'.
 
-(g) skb_{decrease,increase}_gso_size() are already no-ops for GSO_BY_FRAGS
-case (besides triggering WARN_ON_ONCE). This means you already cannot guarantee
-that gso_size (and thus resulting packet MTU) is changed. ie. you must assume
-it won't be changed.
+Additionally, drop the CLK_IGNORE_UNUSED flag for SENSOR[0-1] since
+there is no reason to always keep ON those clocks.
 
-(h) changing gso_size is outright buggy for UDP GSO packets, where framing
-matters (I believe that's also the case for SCTP, but it's already excluded
-by [g]).  So the only remaining case is TCP, which also doesn't want it
-(see [f]).
-
-(i) see also the reasoning on the previous attempt at fixing this
-(commit fa7b83bf3b156c767f3e4a25bbf3817b08f3ff8e) which shows that the current
-behaviour causes TCP packet loss:
-
-  In the forwarding path GRO -> BPF 6 to 4 -> GSO for TCP traffic, the
-  coalesced packet payload can be > MSS, but < MSS + 20.
-
-  bpf_skb_proto_6_to_4() will upgrade the MSS and it can be > the payload
-  length. After then tcp_gso_segment checks for the payload length if it
-  is <= MSS. The condition is causing the packet to be dropped.
-
-  tcp_gso_segment():
-    [...]
-    mss = skb_shinfo(skb)->gso_size;
-    if (unlikely(skb->len <= mss)) goto out;
-    [...]
-
-Thus changing the gso_size is simply a very bad idea. Increasing is unnecessary
-and buggy, and decreasing can go negative.
-
-Fixes: 6578171a7ff0 ("bpf: add bpf_skb_change_proto helper")
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Dongseok Yi <dseok.yi@samsung.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/bpf/CANP3RGfjLikQ6dg=YpBU0OeHvyv7JOki7CyOUS9modaXAi-9vQ@mail.gmail.com
-Link: https://lore.kernel.org/bpf/20210617000953.2787453-2-zenczykowski@gmail.com
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/e675820a46cd9930d8d576c6cae61d41c1a8416f.1623354574.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/clk/actions/owl-s500.c | 44 ++++++++++++++++++++++------------
+ 1 file changed, 29 insertions(+), 15 deletions(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 65ab4e21c087..6541358a770b 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -3263,8 +3263,6 @@ static int bpf_skb_proto_4_to_6(struct sk_buff *skb)
- 			shinfo->gso_type |=  SKB_GSO_TCPV6;
- 		}
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 42abdf964044..42d6899755e6 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -140,9 +140,16 @@ static struct clk_factor_table sd_factor_table[] = {
+ 	{ 0, 0, 0 },
+ };
  
--		/* Due to IPv6 header, MSS needs to be downgraded. */
--		skb_decrease_gso_size(shinfo, len_diff);
- 		/* Header must be checked, and gso_segs recomputed. */
- 		shinfo->gso_type |= SKB_GSO_DODGY;
- 		shinfo->gso_segs = 0;
-@@ -3304,8 +3302,6 @@ static int bpf_skb_proto_6_to_4(struct sk_buff *skb)
- 			shinfo->gso_type |=  SKB_GSO_TCPV4;
- 		}
+-static struct clk_factor_table bisp_factor_table[] = {
+-	{ 0, 1, 1 }, { 1, 1, 2 }, { 2, 1, 3 }, { 3, 1, 4 },
+-	{ 4, 1, 5 }, { 5, 1, 6 }, { 6, 1, 7 }, { 7, 1, 8 },
++static struct clk_factor_table de_factor_table[] = {
++	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
++	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
++	{ 8, 1, 12 },
++	{ 0, 0, 0 },
++};
++
++static struct clk_factor_table hde_factor_table[] = {
++	{ 0, 1, 1 }, { 1, 2, 3 }, { 2, 1, 2 }, { 3, 2, 5 },
++	{ 4, 1, 3 }, { 5, 1, 4 }, { 6, 1, 6 }, { 7, 1, 8 },
+ 	{ 0, 0, 0 },
+ };
  
--		/* Due to IPv4 header, MSS can be upgraded. */
--		skb_increase_gso_size(shinfo, len_diff);
- 		/* Header must be checked, and gso_segs recomputed. */
- 		shinfo->gso_type |= SKB_GSO_DODGY;
- 		shinfo->gso_segs = 0;
+@@ -156,6 +163,13 @@ static struct clk_div_table rmii_ref_div_table[] = {
+ 	{ 0, 0 },
+ };
+ 
++static struct clk_div_table std12rate_div_table[] = {
++	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
++	{ 4, 5 }, { 5, 6 }, { 6, 7 }, { 7, 8 },
++	{ 8, 9 }, { 9, 10 }, { 10, 11 }, { 11, 12 },
++	{ 0, 0 },
++};
++
+ static struct clk_div_table i2s_div_table[] = {
+ 	{ 0, 1 }, { 1, 2 }, { 2, 3 }, { 3, 4 },
+ 	{ 4, 6 }, { 5, 8 }, { 6, 12 }, { 7, 16 },
+@@ -191,39 +205,39 @@ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNE
+ 
+ /* factor clocks */
+ static OWL_FACTOR(ahb_clk, "ahb_clk", "h_clk", CMU_BUSCLK1, 2, 2, ahb_factor_table, 0, 0);
+-static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 3, bisp_factor_table, 0, 0);
+-static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 3, bisp_factor_table, 0, 0);
++static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 4, de_factor_table, 0, 0);
++static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 4, de_factor_table, 0, 0);
+ 
+ /* composite clocks */
+ static OWL_COMP_FACTOR(vce_clk, "vce_clk", hde_clk_mux_p,
+ 			OWL_MUX_HW(CMU_VCECLK, 4, 2),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 26, 0),
+-			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, bisp_factor_table),
++			OWL_FACTOR_HW(CMU_VCECLK, 0, 3, 0, hde_factor_table),
+ 			0);
+ 
+ static OWL_COMP_FACTOR(vde_clk, "vde_clk", hde_clk_mux_p,
+ 			OWL_MUX_HW(CMU_VDECLK, 4, 2),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 25, 0),
+-			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, bisp_factor_table),
++			OWL_FACTOR_HW(CMU_VDECLK, 0, 3, 0, hde_factor_table),
+ 			0);
+ 
+-static OWL_COMP_FACTOR(bisp_clk, "bisp_clk", bisp_clk_mux_p,
++static OWL_COMP_DIV(bisp_clk, "bisp_clk", bisp_clk_mux_p,
+ 			OWL_MUX_HW(CMU_BISPCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_BISPCLK, 0, 3, 0, bisp_factor_table),
++			OWL_DIVIDER_HW(CMU_BISPCLK, 0, 4, 0, std12rate_div_table),
+ 			0);
+ 
+-static OWL_COMP_FACTOR(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
++static OWL_COMP_DIV(sensor0_clk, "sensor0_clk", sensor_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_SENSORCLK, 0, 3, 0, bisp_factor_table),
+-			CLK_IGNORE_UNUSED);
++			OWL_DIVIDER_HW(CMU_SENSORCLK, 0, 4, 0, std12rate_div_table),
++			0);
+ 
+-static OWL_COMP_FACTOR(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
++static OWL_COMP_DIV(sensor1_clk, "sensor1_clk", sensor_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SENSORCLK, 4, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 14, 0),
+-			OWL_FACTOR_HW(CMU_SENSORCLK, 8, 3, 0, bisp_factor_table),
+-			CLK_IGNORE_UNUSED);
++			OWL_DIVIDER_HW(CMU_SENSORCLK, 8, 4, 0, std12rate_div_table),
++			0);
+ 
+ static OWL_COMP_FACTOR(sd0_clk, "sd0_clk", sd_clk_mux_p,
+ 			OWL_MUX_HW(CMU_SD0CLK, 9, 1),
 -- 
 2.30.2
 
