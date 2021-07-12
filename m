@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCAC3C5252
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DEF83C5254
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345255AbhGLHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
+        id S1345863AbhGLHpc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349516AbhGLHmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:42:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4F92601FE;
-        Mon, 12 Jul 2021 07:39:58 +0000 (UTC)
+        id S233721AbhGLHm4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F4761132;
+        Mon, 12 Jul 2021 07:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075599;
-        bh=nQzECD12SbSXSO/QoQaLi2QiMJtbw7y0eR33txf8RfA=;
+        s=korg; t=1626075604;
+        bh=rLva9fMDKvriGK2gKoaPkMiCSro8/+SWf590MWO1T18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4Qk3vUpNe7c+KDIKwm+Pus75k0amf4ObbRfwozbTi80MoFsUjzCVl9XkmZAraDuv
-         gzlQWGBrifI7fjUHq6a70VRwsfB4/5aAma0gkyr5KdO9FCU6GaEDN3LPZpv4cMiV4v
-         GhsKCzVPFaO3YrRf40sXQwcI6XK8TuvZK4K1Pp8M=
+        b=vHYfwfrS48lAgsiAmdxwrvXXzfTkLvAUnv6Z7xpY1m68xobI5Uti5p+oLmRpJMq/P
+         MMm3AJ4xFgLV2JZrgUg6wnPqdkr4PBrzCjWNHG64BNlGiuPwEY1+SJx5X0Y7MDJKZ6
+         Fps1OsXVgjf5Uuqq2gJDhURe8evfMhVulrgfEYw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 282/800] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
-Date:   Mon, 12 Jul 2021 08:05:05 +0200
-Message-Id: <20210712060954.631534680@linuxfoundation.org>
+        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 283/800] evm: fix writing <securityfs>/evm overflow
+Date:   Mon, 12 Jul 2021 08:05:06 +0200
+Message-Id: <20210712060954.789488989@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -39,43 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Mimi Zohar <zohar@linux.ibm.com>
 
-[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
+[ Upstream commit 49219d9b8785ba712575c40e48ce0f7461254626 ]
 
-Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
-has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
-parameter being non-NULL if the polling mode is selected.  Let's only set
-the pointer to the driver's IRQ handler if platform_get_irq() returns a
-valid IRQ # -- this should avoid the unnecessary WARN_ON()...
+EVM_SETUP_COMPLETE is defined as 0x80000000, which is larger than INT_MAX.
+The "-fno-strict-overflow" compiler option properly prevents signaling
+EVM that the EVM policy setup is complete.  Define and read an unsigned
+int.
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f00d79750712 ("EVM: Allow userspace to signal an RSA key has been loaded")
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_octeon_cf.c | 5 +++--
+ security/integrity/evm/evm_secfs.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index bd87476ab481..b5a3f710d76d 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -898,10 +898,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					return -EINVAL;
- 				}
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index c175e2b659e4..5f0da41bccd0 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -66,12 +66,13 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
+ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
+ {
+-	int i, ret;
++	unsigned int i;
++	int ret;
  
--				irq_handler = octeon_cf_interrupt;
- 				i = platform_get_irq(dma_dev, 0);
--				if (i > 0)
-+				if (i > 0) {
- 					irq = i;
-+					irq_handler = octeon_cf_interrupt;
-+				}
- 			}
- 			of_node_put(dma_node);
- 		}
+ 	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_SETUP_COMPLETE))
+ 		return -EPERM;
+ 
+-	ret = kstrtoint_from_user(buf, count, 0, &i);
++	ret = kstrtouint_from_user(buf, count, 0, &i);
+ 
+ 	if (ret)
+ 		return ret;
 -- 
 2.30.2
 
