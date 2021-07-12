@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD1D3C525E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2423C4CD7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345973AbhGLHpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53604 "EHLO mail.kernel.org"
+        id S241894AbhGLHKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:10:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343960AbhGLHnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:43:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 079ED613CF;
-        Mon, 12 Jul 2021 07:40:44 +0000 (UTC)
+        id S242682AbhGLHGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AB1361186;
+        Mon, 12 Jul 2021 07:04:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075645;
-        bh=BlDMvOZUfrvRU1LGEpsj7FcuDDoEgz3/1UaWFB0IlHQ=;
+        s=korg; t=1626073446;
+        bh=NSZ0qclSoRs+zg//gBJCUM0nmJWNgeEyM0nSNdDwZm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDZwNd9Vnu5vCvpWCfeo7EIcqxhCMLqjaK3s8L++LKOoIq0iBqO/l+LZiDGKfLFFV
-         YAAtvlO4V5we1h1Y8Ba7Rb7sOJ96fiBr7NEUIQLmQ2HAUvKkH4oAOXkc1ZIp8rcyaW
-         kYH8rczsLtDYArj/CJENBZKY79Dpn9bcZ3cW9Oqo=
+        b=ZmqqOfZuoaILuM3JW5edQUti1DJoXc6Ho8YwlsrD5zXARzZF4f64w1lkkEhAvvK5I
+         5C9HUc08KvY8L8dV2sFcOjyrZN7/NMgwq0+tnlzTpQJU4QR7/mSvnU1WDE7HPK2wcS
+         OhPtRTyUvR192vS2pnEgpWHadb8O1T93o/B23XVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tejun Heo <tj@kernel.org>, Minchan Kim <minchan@google.com>,
+        jenhaochen@google.com, Martin Liu <liumartin@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 304/800] regulator: fan53555: Fix missing slew_reg/mask/shift settings for FAN53526
+Subject: [PATCH 5.12 244/700] kthread_worker: fix return value when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
 Date:   Mon, 12 Jul 2021 08:05:27 +0200
-Message-Id: <20210712060957.702607758@linuxfoundation.org>
+Message-Id: <20210712061001.480314446@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Petr Mladek <pmladek@suse.com>
 
-[ Upstream commit 30b38b805b36c03db3703ef62397111c783b5f3b ]
+[ Upstream commit d71ba1649fa3c464c51ec7163e4b817345bff2c7 ]
 
-The di->slew_reg/di->slew_mask/di->slew_shift was not set in current code,
-fix it.
+kthread_mod_delayed_work() might race with
+kthread_cancel_delayed_work_sync() or another kthread_mod_delayed_work()
+call.  The function lets the other operation win when it sees
+work->canceling counter set.  And it returns @false.
 
-Fixes: f2a9eb975ab2 ("regulator: fan53555: Add support for FAN53526")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210525124017.2550029-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+But it should return @true as it is done by the related workqueue API, see
+mod_delayed_work_on().
+
+The reason is that the return value might be used for reference counting.
+It has to distinguish the case when the number of queued works has changed
+or stayed the same.
+
+The change is safe.  kthread_mod_delayed_work() return value is not
+checked anywhere at the moment.
+
+Link: https://lore.kernel.org/r/20210521163526.GA17916@redhat.com
+Link: https://lkml.kernel.org/r/20210610133051.15337-4-pmladek@suse.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Reported-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Minchan Kim <minchan@google.com>
+Cc: <jenhaochen@google.com>
+Cc: Martin Liu <liumartin@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/fan53555.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/kthread.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/fan53555.c b/drivers/regulator/fan53555.c
-index 26f06f685b1b..b2ee38c5b573 100644
---- a/drivers/regulator/fan53555.c
-+++ b/drivers/regulator/fan53555.c
-@@ -293,6 +293,9 @@ static int fan53526_voltages_setup_fairchild(struct fan53555_device_info *di)
- 		return -EINVAL;
- 	}
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index e8da89c714f5..44f89a602b00 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -1161,14 +1161,14 @@ static bool __kthread_cancel_work(struct kthread_work *work)
+  * modify @dwork's timer so that it expires after @delay. If @delay is zero,
+  * @work is guaranteed to be queued immediately.
+  *
+- * Return: %true if @dwork was pending and its timer was modified,
+- * %false otherwise.
++ * Return: %false if @dwork was idle and queued, %true otherwise.
+  *
+  * A special case is when the work is being canceled in parallel.
+  * It might be caused either by the real kthread_cancel_delayed_work_sync()
+  * or yet another kthread_mod_delayed_work() call. We let the other command
+- * win and return %false here. The caller is supposed to synchronize these
+- * operations a reasonable way.
++ * win and return %true here. The return value can be used for reference
++ * counting and the number of queued works stays the same. Anyway, the caller
++ * is supposed to synchronize these operations a reasonable way.
+  *
+  * This function is safe to call from any context including IRQ handler.
+  * See __kthread_cancel_work() and kthread_delayed_work_timer_fn()
+@@ -1180,13 +1180,15 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
+ {
+ 	struct kthread_work *work = &dwork->work;
+ 	unsigned long flags;
+-	int ret = false;
++	int ret;
  
-+	di->slew_reg = FAN53555_CONTROL;
-+	di->slew_mask = CTL_SLEW_MASK;
-+	di->slew_shift = CTL_SLEW_SHIFT;
- 	di->vsel_count = FAN53526_NVOLTAGES;
+ 	raw_spin_lock_irqsave(&worker->lock, flags);
  
- 	return 0;
+ 	/* Do not bother with canceling when never queued. */
+-	if (!work->worker)
++	if (!work->worker) {
++		ret = false;
+ 		goto fast_queue;
++	}
+ 
+ 	/* Work must not be used with >1 worker, see kthread_queue_work() */
+ 	WARN_ON_ONCE(work->worker != worker);
+@@ -1204,8 +1206,11 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
+ 	 * be used for reference counting.
+ 	 */
+ 	kthread_cancel_delayed_work_timer(work, &flags);
+-	if (work->canceling)
++	if (work->canceling) {
++		/* The number of works in the queue does not change. */
++		ret = true;
+ 		goto out;
++	}
+ 	ret = __kthread_cancel_work(work);
+ 
+ fast_queue:
 -- 
 2.30.2
 
