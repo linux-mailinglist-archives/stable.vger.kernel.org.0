@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB183C554B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F5D3C4FAF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355510AbhGLIJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
+        id S245457AbhGLH1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:27:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353408AbhGLICI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6350B61C9C;
-        Mon, 12 Jul 2021 07:55:05 +0000 (UTC)
+        id S1345320AbhGLHZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:25:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A60EA613C7;
+        Mon, 12 Jul 2021 07:22:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076505;
-        bh=e33QCnnL0z5RpCbJkLykSisptElZJRtiiKx0O3dBusw=;
+        s=korg; t=1626074541;
+        bh=p8MZCwApEeJkSMpx58w+IZ/YfyUklulrNMrzGhhLz0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S1vCQje9x7ihZU/zmI932f/EHKVlvHUT2byJZyxYnqKgGt7YLFIoXwZjx/b4Pkv/L
-         x4JTLlZKBiHP2WTP9JdbqEoKsYJlDRl3HYCE1T0tW7atNM8B7Z3t3vgDEbHvkl9SVR
-         YRg2rqFCs3XUZK9gBHcd8nj2iNojevKPDyalTY0E=
+        b=MNvHs52GXSvTjUQ2Ows2F9mBcGclvE7AuR1yEySq944+drikRGI36bz8qZF1GfRZs
+         nNdSDGG8VOffI/bLNidw61MfR52HjocCNlRU1MD9YyvCvOdZXKStUhwRGXCv/gsm3y
+         SdBpNL3DV6KtTRJ4JdtqNxl2R8FSgIOZelT3YDXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 673/800] fsi: occ: Dont accept response from un-initialized OCC
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 613/700] iio: adc: at91-sama5d2: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:36 +0200
-Message-Id: <20210712061038.541790081@linuxfoundation.org>
+Message-Id: <20210712061041.131606093@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 8a4659be08576141f47d47d94130eb148cb5f0df ]
+[ Upstream commit 8f884758966259fa8c50c137ac6d4ce9bb7859db ]
 
-If the OCC is not initialized and responds as such, the driver
-should continue waiting for a valid response until the timeout
-expires.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
-Fixes: 7ed98dddb764 ("fsi: Add On-Chip Controller (OCC) driver")
-Link: https://lore.kernel.org/r/20210209171235.20624-2-eajames@linux.ibm.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Found during an audit of all calls of this function.
+
+Fixes: 5e1a1da0f8c9 ("iio: adc: at91-sama5d2_adc: add hw trigger and buffer support")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Eugen Hristev <eugen.hristev@microchip.com>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-2-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-occ.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/adc/at91-sama5d2_adc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
-index 10ca2e290655..cb05b6dacc9d 100644
---- a/drivers/fsi/fsi-occ.c
-+++ b/drivers/fsi/fsi-occ.c
-@@ -495,6 +495,7 @@ int fsi_occ_submit(struct device *dev, const void *request, size_t req_len,
- 			goto done;
- 
- 		if (resp->return_status == OCC_RESP_CMD_IN_PRG ||
-+		    resp->return_status == OCC_RESP_CRIT_INIT ||
- 		    resp->seq_no != seq_no) {
- 			rc = -ETIMEDOUT;
- 
+diff --git a/drivers/iio/adc/at91-sama5d2_adc.c b/drivers/iio/adc/at91-sama5d2_adc.c
+index a7826f097b95..d356b515df09 100644
+--- a/drivers/iio/adc/at91-sama5d2_adc.c
++++ b/drivers/iio/adc/at91-sama5d2_adc.c
+@@ -403,7 +403,8 @@ struct at91_adc_state {
+ 	struct at91_adc_dma		dma_st;
+ 	struct at91_adc_touch		touch_st;
+ 	struct iio_dev			*indio_dev;
+-	u16				buffer[AT91_BUFFER_MAX_HWORDS];
++	/* Ensure naturally aligned timestamp */
++	u16				buffer[AT91_BUFFER_MAX_HWORDS] __aligned(8);
+ 	/*
+ 	 * lock to prevent concurrent 'single conversion' requests through
+ 	 * sysfs.
 -- 
 2.30.2
 
