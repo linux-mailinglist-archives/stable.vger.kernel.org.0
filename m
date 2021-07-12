@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A05CE3C44ED
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A59B93C44F0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234154AbhGLGW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39792 "EHLO mail.kernel.org"
+        id S234388AbhGLGW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234066AbhGLGVV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:21:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA2C61152;
-        Mon, 12 Jul 2021 06:18:27 +0000 (UTC)
+        id S233893AbhGLGVX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:21:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2866D61153;
+        Mon, 12 Jul 2021 06:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070708;
-        bh=d91l8YOMkXlStC5R05sJlbRKTozf270BCQBHcP2Iu4A=;
+        s=korg; t=1626070710;
+        bh=yxV1JSp0byzG2cM2gN6t7X7YxV+FNspdBcRPK549JUU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14+RrYRXG1lxgmDI0G3Jj0ZlofPH5bSk3o2fj5ASXP03vtQ8Uwgv9MdlqtO1ylOvW
-         XQRan1apzBtWWKGcXdEZM674Vhh4A4J++bCsfCCaf7ckMDCvKJWQWWwZVMqQPqxFw4
-         XhtXdr0T50eZy+dfQzdBH0HJs04W1WJab3CjT2Bo=
+        b=GGIcSksnnQI4gzCLs0xvnvEEaOLe7ILCZWwjX+1f4tDUyB1lsJNMgL5EFBkjWZ4wp
+         8D3ElxHRVvDX4vKl/0PEII4RbQZOyiTTtvvTm5lCOqapQF28TjVuDmxJSjvq3xw0UV
+         tDygmcfnLlIcmJxcSlcKqxM7zzGJ6dYEK68/boDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/348] btrfs: disable build on platforms having page size 256K
-Date:   Mon, 12 Jul 2021 08:08:09 +0200
-Message-Id: <20210712060715.527581065@linuxfoundation.org>
+Subject: [PATCH 5.4 106/348] locking/lockdep: Fix the dep path printing for backwards BFS
+Date:   Mon, 12 Jul 2021 08:08:10 +0200
+Message-Id: <20210712060715.647697458@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,52 +41,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
+[ Upstream commit 69c7a5fb2482636f525f016c8333fdb9111ecb9d ]
 
-With a config having PAGE_SIZE set to 256K, BTRFS build fails
-with the following message
+We use the same code to print backwards lock dependency path as the
+forwards lock dependency path, and this could result into incorrect
+printing because for a backwards lock_list ->trace is not the call trace
+where the lock of ->class is acquired.
 
-  include/linux/compiler_types.h:326:38: error: call to
-  '__compiletime_assert_791' declared with attribute error:
-  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
+Fix this by introducing a separate function on printing the backwards
+dependency path. Also add a few comments about the printing while we are
+at it.
 
-BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
-256K pages at the time being.
-
-There are two platforms that can select 256K pages:
- - hexagon
- - powerpc
-
-Disable BTRFS when 256K page size is selected. Supporting this would
-require changes to the subpage mode that's currently being developed.
-Given that 256K is many times larger than page sizes commonly used and
-for what the algorithms and structures have been tuned, it's out of
-scope and disabling build is a reasonable option.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20210618170110.3699115-2-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/locking/lockdep.c | 108 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 106 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
-index 38651fae7f21..0aa1bee24d80 100644
---- a/fs/btrfs/Kconfig
-+++ b/fs/btrfs/Kconfig
-@@ -14,6 +14,8 @@ config BTRFS_FS
- 	select RAID6_PQ
- 	select XOR_BLOCKS
- 	select SRCU
-+	depends on !PPC_256K_PAGES	# powerpc
-+	depends on !PAGE_SIZE_256KB	# hexagon
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 7429f1571755..df43bf53e7c5 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -1941,7 +1941,56 @@ static void print_lock_class_header(struct lock_class *class, int depth)
+ }
  
- 	help
- 	  Btrfs is a general purpose copy-on-write filesystem with extents,
+ /*
+- * printk the shortest lock dependencies from @start to @end in reverse order:
++ * Dependency path printing:
++ *
++ * After BFS we get a lock dependency path (linked via ->parent of lock_list),
++ * printing out each lock in the dependency path will help on understanding how
++ * the deadlock could happen. Here are some details about dependency path
++ * printing:
++ *
++ * 1)	A lock_list can be either forwards or backwards for a lock dependency,
++ * 	for a lock dependency A -> B, there are two lock_lists:
++ *
++ * 	a)	lock_list in the ->locks_after list of A, whose ->class is B and
++ * 		->links_to is A. In this case, we can say the lock_list is
++ * 		"A -> B" (forwards case).
++ *
++ * 	b)	lock_list in the ->locks_before list of B, whose ->class is A
++ * 		and ->links_to is B. In this case, we can say the lock_list is
++ * 		"B <- A" (bacwards case).
++ *
++ * 	The ->trace of both a) and b) point to the call trace where B was
++ * 	acquired with A held.
++ *
++ * 2)	A "helper" lock_list is introduced during BFS, this lock_list doesn't
++ * 	represent a certain lock dependency, it only provides an initial entry
++ * 	for BFS. For example, BFS may introduce a "helper" lock_list whose
++ * 	->class is A, as a result BFS will search all dependencies starting with
++ * 	A, e.g. A -> B or A -> C.
++ *
++ * 	The notation of a forwards helper lock_list is like "-> A", which means
++ * 	we should search the forwards dependencies starting with "A", e.g A -> B
++ * 	or A -> C.
++ *
++ * 	The notation of a bacwards helper lock_list is like "<- B", which means
++ * 	we should search the backwards dependencies ending with "B", e.g.
++ * 	B <- A or B <- C.
++ */
++
++/*
++ * printk the shortest lock dependencies from @root to @leaf in reverse order.
++ *
++ * We have a lock dependency path as follow:
++ *
++ *    @root                                                                 @leaf
++ *      |                                                                     |
++ *      V                                                                     V
++ *	          ->parent                                   ->parent
++ * | lock_list | <--------- | lock_list | ... | lock_list  | <--------- | lock_list |
++ * |    -> L1  |            | L1 -> L2  | ... |Ln-2 -> Ln-1|            | Ln-1 -> Ln|
++ *
++ * , so it's natural that we start from @leaf and print every ->class and
++ * ->trace until we reach the @root.
+  */
+ static void __used
+ print_shortest_lock_dependencies(struct lock_list *leaf,
+@@ -1969,6 +2018,61 @@ print_shortest_lock_dependencies(struct lock_list *leaf,
+ 	} while (entry && (depth >= 0));
+ }
+ 
++/*
++ * printk the shortest lock dependencies from @leaf to @root.
++ *
++ * We have a lock dependency path (from a backwards search) as follow:
++ *
++ *    @leaf                                                                 @root
++ *      |                                                                     |
++ *      V                                                                     V
++ *	          ->parent                                   ->parent
++ * | lock_list | ---------> | lock_list | ... | lock_list  | ---------> | lock_list |
++ * | L2 <- L1  |            | L3 <- L2  | ... | Ln <- Ln-1 |            |    <- Ln  |
++ *
++ * , so when we iterate from @leaf to @root, we actually print the lock
++ * dependency path L1 -> L2 -> .. -> Ln in the non-reverse order.
++ *
++ * Another thing to notice here is that ->class of L2 <- L1 is L1, while the
++ * ->trace of L2 <- L1 is the call trace of L2, in fact we don't have the call
++ * trace of L1 in the dependency path, which is alright, because most of the
++ * time we can figure out where L1 is held from the call trace of L2.
++ */
++static void __used
++print_shortest_lock_dependencies_backwards(struct lock_list *leaf,
++					   struct lock_list *root)
++{
++	struct lock_list *entry = leaf;
++	const struct lock_trace *trace = NULL;
++	int depth;
++
++	/*compute depth from generated tree by BFS*/
++	depth = get_lock_depth(leaf);
++
++	do {
++		print_lock_class_header(entry->class, depth);
++		if (trace) {
++			printk("%*s ... acquired at:\n", depth, "");
++			print_lock_trace(trace, 2);
++			printk("\n");
++		}
++
++		/*
++		 * Record the pointer to the trace for the next lock_list
++		 * entry, see the comments for the function.
++		 */
++		trace = entry->trace;
++
++		if (depth == 0 && (entry != root)) {
++			printk("lockdep:%s bad path found in chain graph\n", __func__);
++			break;
++		}
++
++		entry = get_lock_parent(entry);
++		depth--;
++	} while (entry && (depth >= 0));
++}
++
+ static void
+ print_irq_lock_scenario(struct lock_list *safe_entry,
+ 			struct lock_list *unsafe_entry,
+@@ -2086,7 +2190,7 @@ print_bad_irq_dependency(struct task_struct *curr,
+ 	prev_root->trace = save_trace();
+ 	if (!prev_root->trace)
+ 		return;
+-	print_shortest_lock_dependencies(backwards_entry, prev_root);
++	print_shortest_lock_dependencies_backwards(backwards_entry, prev_root);
+ 
+ 	pr_warn("\nthe dependencies between the lock to be acquired");
+ 	pr_warn(" and %s-irq-unsafe lock:\n", irqclass);
 -- 
 2.30.2
 
