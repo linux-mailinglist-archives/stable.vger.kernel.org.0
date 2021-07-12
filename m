@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD22B3C5250
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B683C4CBF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345582AbhGLHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51472 "EHLO mail.kernel.org"
+        id S242814AbhGLHHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:07:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242432AbhGLHmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:42:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 927A561153;
-        Mon, 12 Jul 2021 07:39:56 +0000 (UTC)
+        id S241932AbhGLHGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13D6361221;
+        Mon, 12 Jul 2021 07:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075597;
-        bh=ZHwbTKAGDlUr80ZGjl7vKH9WE2jw66phHJ2I0Sgvrh4=;
+        s=korg; t=1626073377;
+        bh=Uh8Cx8R6eJK7PKWsCYdNNZ/zeqIELNIHsJ1mw2YVby4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/FLo91dIBSzJYj2XGQSG3UEVy1eWQJ2+Zl3bmB5PyVgvC5mH5x/jKE/B3v5PStaV
-         e5U2DzX5nXkQ9x+byVPn32M6Ta/ozKE67o7klPTwPqoD+LiT1wO4npvvpRMUbKz4Ze
-         HJ2ZgrmtCO0pZep5nyUwhMpcAJZftAs4Xv6ZeADw=
+        b=UPs12ilQj8Ogpt6PdOhQa+C2P3fZHHVLsOPD+ozkFQutKsxgEKQwVBjxeG3VQO7sL
+         OQWcNJrtSvSBSdAMQF3B3JbgdoMLZfuXwe2C0+n/PMCS9tq1DuzVrBAgFCttETHRf9
+         h0NNgO0f0Y/ipW2MGMGdp/1bB8ylcWDo7IWbQVq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 281/800] kbuild: Fix objtool dependency for OBJECT_FILES_NON_STANDARD_<obj> := n
-Date:   Mon, 12 Jul 2021 08:05:04 +0200
-Message-Id: <20210712060954.476705525@linuxfoundation.org>
+Subject: [PATCH 5.12 222/700] platform/x86: asus-nb-wmi: Revert "Drop duplicate DMI quirk structures"
+Date:   Mon, 12 Jul 2021 08:05:05 +0200
+Message-Id: <20210712060958.234646543@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Luke D. Jones <luke@ljones.dev>
 
-[ Upstream commit 8852c552402979508fdc395ae07aa8761aa46045 ]
+[ Upstream commit 98c0c85b1040db24f0d04d3e1d315c6c7b05cc07 ]
 
-"OBJECT_FILES_NON_STANDARD_vma.o := n" has a dependency bug.  When
-objtool source is updated, the affected object doesn't get re-analyzed
-by objtool.
+This is a preparation revert for reverting the "add support for ASUS ROG
+Zephyrus G14 and G15" change. This reverts
+commit 67186653c903 ("platform/x86: asus-nb-wmi: Drop duplicate DMI quirk
+structures")
 
-Peter's new variable-sized jump label feature relies on objtool
-rewriting the object file.  Otherwise the system can fail to boot.  That
-effectively upgrades this minor dependency issue to a major bug.
-
-The problem is that variables in prerequisites are expanded early,
-during the read-in phase.  The '$(objtool_dep)' variable indirectly uses
-'$@', which isn't yet available when the target prerequisites are
-evaluated.
-
-Use '.SECONDEXPANSION:' which causes '$(objtool_dep)' to be expanded in
-a later phase, after the target-specific '$@' variable has been defined.
-
-Fixes: b9ab5ebb14ec ("objtool: Add CONFIG_STACK_VALIDATION option")
-Fixes: ab3257042c26 ("jump_label, x86: Allow short NOPs")
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Link: https://lore.kernel.org/r/20210419074915.393433-2-luke@ljones.dev
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Makefile.build | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/scripts/Makefile.build b/scripts/Makefile.build
-index 949f723efe53..34d257653fb4 100644
---- a/scripts/Makefile.build
-+++ b/scripts/Makefile.build
-@@ -268,7 +268,8 @@ define rule_as_o_S
- endef
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index d41d7ad14be0..b07b1288346e 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -110,7 +110,12 @@ static struct quirk_entry quirk_asus_forceals = {
+ 	.wmi_force_als_set = true,
+ };
  
- # Built-in and composite module parts
--$(obj)/%.o: $(src)/%.c $(recordmcount_source) $(objtool_dep) FORCE
-+.SECONDEXPANSION:
-+$(obj)/%.o: $(src)/%.c $(recordmcount_source) $$(objtool_dep) FORCE
- 	$(call if_changed_rule,cc_o_c)
- 	$(call cmd,force_checksrc)
- 
-@@ -349,7 +350,7 @@ cmd_modversions_S =								\
- 	fi
- endif
- 
--$(obj)/%.o: $(src)/%.S $(objtool_dep) FORCE
-+$(obj)/%.o: $(src)/%.S $$(objtool_dep) FORCE
- 	$(call if_changed_rule,as_o_S)
- 
- targets += $(filter-out $(subdir-builtin), $(real-obj-y))
+-static struct quirk_entry quirk_asus_vendor_backlight = {
++static struct quirk_entry quirk_asus_ga401i = {
++	.wmi_backlight_power = true,
++	.wmi_backlight_set_devstate = true,
++};
++
++static struct quirk_entry quirk_asus_ga502i = {
+ 	.wmi_backlight_power = true,
+ 	.wmi_backlight_set_devstate = true,
+ };
+@@ -432,7 +437,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IH"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -441,7 +446,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401II"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -450,7 +455,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IU"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -459,7 +464,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IV"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -468,7 +473,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IVC"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga401i,
+ 	},
+ 		{
+ 		.callback = dmi_matched,
+@@ -477,7 +482,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502II"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -486,7 +491,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IU"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
+@@ -495,7 +500,7 @@ static const struct dmi_system_id asus_quirks[] = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IV"),
+ 		},
+-		.driver_data = &quirk_asus_vendor_backlight,
++		.driver_data = &quirk_asus_ga502i,
+ 	},
+ 	{
+ 		.callback = dmi_matched,
 -- 
 2.30.2
 
