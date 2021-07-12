@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 327963C5428
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2F4A3C4A16
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347545AbhGLH5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41746 "EHLO mail.kernel.org"
+        id S236792AbhGLGsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244612AbhGLHxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE313610D1;
-        Mon, 12 Jul 2021 07:50:13 +0000 (UTC)
+        id S236402AbhGLGri (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:47:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16FB36113E;
+        Mon, 12 Jul 2021 06:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076214;
-        bh=dUnfEYdCnzav6JuAymT1HVAkcNz9jqlKCpblGKHx1hA=;
+        s=korg; t=1626072210;
+        bh=WrZsSpaFiBY9/eprwTe61RysgO3gvGO2TwS3954gMUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxY2oBi2Baanep3MVewVRK34Olc7fNMG1jGHnmZXGa2wN3ijpeQirBi5niu0Gt2/l
-         qChF7PqKT1u2nEZw8andHsP7+CCqsw5jYdZWGg98MNIaWlF451KkLVJCiSSiY90Uz+
-         QEdbtHEuvrReNZVcFUDY74ZVyQKdwUda97qUjhHw=
+        b=tbelxE0ZmXCBJmgqLU5kzZE4As3l3IWncrYHyhZKHQ07eyMtMxSXffHPRSAITggXM
+         fiWUg3FRl6eEXx95bzQbSCML+WeHHp1I8wjncPFUYmnMnTFJQdx+lZeuMudHALXU5Q
+         8CMLIzEaxshlsK4AJd2DMdO2jvIr2mn1HN1FFgj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
+        stable@vger.kernel.org, Vignesh Raghavendra <vigneshr@ti.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 520/800] selftests: tls: fix chacha+bidir tests
-Date:   Mon, 12 Jul 2021 08:09:03 +0200
-Message-Id: <20210712061022.563116245@linuxfoundation.org>
+Subject: [PATCH 5.10 384/593] net: ti: am65-cpsw-nuss: Fix crash when changing number of TX queues
+Date:   Mon, 12 Jul 2021 08:09:04 +0200
+Message-Id: <20210712060929.290923265@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,145 +40,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Vignesh Raghavendra <vigneshr@ti.com>
 
-[ Upstream commit 291c53e4dacd3a2cc3152d8af37f07f8496c594a ]
+[ Upstream commit ce8eb4c728ef40b554b4f3d8963f11ed44502e00 ]
 
-ChaCha support did not adjust the bidirectional test.
-We need to set up KTLS in reverse direction correctly,
-otherwise these two cases will fail:
+When changing number of TX queues using ethtool:
 
-  tls.12_chacha.bidir
-  tls.13_chacha.bidir
+	# ethtool -L eth0 tx 1
+	[  135.301047] Unable to handle kernel paging request at virtual address 00000000af5d0000
+	[...]
+	[  135.525128] Call trace:
+	[  135.525142]  dma_release_from_dev_coherent+0x2c/0xb0
+	[  135.525148]  dma_free_attrs+0x54/0xe0
+	[  135.525156]  k3_cppi_desc_pool_destroy+0x50/0xa0
+	[  135.525164]  am65_cpsw_nuss_remove_tx_chns+0x88/0xdc
+	[  135.525171]  am65_cpsw_set_channels+0x3c/0x70
+	[...]
 
-Fixes: 4f336e88a870 ("selftests/tls: add CHACHA20-POLY1305 to tls selftests")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
+This is because k3_cppi_desc_pool_destroy() which is called after
+k3_udma_glue_release_tx_chn() in am65_cpsw_nuss_remove_tx_chns()
+references struct device that is unregistered at the end of
+k3_udma_glue_release_tx_chn()
+
+Therefore the right order is to call k3_cppi_desc_pool_destroy() and
+destroy desc pool before calling k3_udma_glue_release_tx_chn().
+Fix this throughout the driver.
+
+Fixes: 93a76530316a ("net: ethernet: ti: introduce am65x/j721e gigabit eth subsystem driver")
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/tls.c | 67 ++++++++++++++++++-------------
- 1 file changed, 39 insertions(+), 28 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/tools/testing/selftests/net/tls.c b/tools/testing/selftests/net/tls.c
-index 58fea6eb588d..112d41d01b12 100644
---- a/tools/testing/selftests/net/tls.c
-+++ b/tools/testing/selftests/net/tls.c
-@@ -25,6 +25,35 @@
- #define TLS_PAYLOAD_MAX_LEN 16384
- #define SOL_TLS 282
+diff --git a/drivers/net/ethernet/ti/am65-cpsw-nuss.c b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+index 501d676fd88b..0805edef5625 100644
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -1433,12 +1433,12 @@ static void am65_cpsw_nuss_free_tx_chns(void *data)
+ 	for (i = 0; i < common->tx_ch_num; i++) {
+ 		struct am65_cpsw_tx_chn *tx_chn = &common->tx_chns[i];
  
-+struct tls_crypto_info_keys {
-+	union {
-+		struct tls12_crypto_info_aes_gcm_128 aes128;
-+		struct tls12_crypto_info_chacha20_poly1305 chacha20;
-+	};
-+	size_t len;
-+};
+-		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
+-			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
+-
+ 		if (!IS_ERR_OR_NULL(tx_chn->desc_pool))
+ 			k3_cppi_desc_pool_destroy(tx_chn->desc_pool);
+ 
++		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
++			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
 +
-+static void tls_crypto_info_init(uint16_t tls_version, uint16_t cipher_type,
-+				 struct tls_crypto_info_keys *tls12)
-+{
-+	memset(tls12, 0, sizeof(*tls12));
+ 		memset(tx_chn, 0, sizeof(*tx_chn));
+ 	}
+ }
+@@ -1458,12 +1458,12 @@ void am65_cpsw_nuss_remove_tx_chns(struct am65_cpsw_common *common)
+ 
+ 		netif_napi_del(&tx_chn->napi_tx);
+ 
+-		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
+-			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
+-
+ 		if (!IS_ERR_OR_NULL(tx_chn->desc_pool))
+ 			k3_cppi_desc_pool_destroy(tx_chn->desc_pool);
+ 
++		if (!IS_ERR_OR_NULL(tx_chn->tx_chn))
++			k3_udma_glue_release_tx_chn(tx_chn->tx_chn);
 +
-+	switch (cipher_type) {
-+	case TLS_CIPHER_CHACHA20_POLY1305:
-+		tls12->len = sizeof(struct tls12_crypto_info_chacha20_poly1305);
-+		tls12->chacha20.info.version = tls_version;
-+		tls12->chacha20.info.cipher_type = cipher_type;
-+		break;
-+	case TLS_CIPHER_AES_GCM_128:
-+		tls12->len = sizeof(struct tls12_crypto_info_aes_gcm_128);
-+		tls12->aes128.info.version = tls_version;
-+		tls12->aes128.info.cipher_type = cipher_type;
-+		break;
-+	default:
-+		break;
-+	}
-+}
+ 		memset(tx_chn, 0, sizeof(*tx_chn));
+ 	}
+ }
+@@ -1550,11 +1550,11 @@ static void am65_cpsw_nuss_free_rx_chns(void *data)
+ 
+ 	rx_chn = &common->rx_chns;
+ 
+-	if (!IS_ERR_OR_NULL(rx_chn->rx_chn))
+-		k3_udma_glue_release_rx_chn(rx_chn->rx_chn);
+-
+ 	if (!IS_ERR_OR_NULL(rx_chn->desc_pool))
+ 		k3_cppi_desc_pool_destroy(rx_chn->desc_pool);
 +
- static void memrnd(void *s, size_t n)
- {
- 	int *dword = s;
-@@ -145,33 +174,16 @@ FIXTURE_VARIANT_ADD(tls, 13_chacha)
++	if (!IS_ERR_OR_NULL(rx_chn->rx_chn))
++		k3_udma_glue_release_rx_chn(rx_chn->rx_chn);
+ }
  
- FIXTURE_SETUP(tls)
- {
--	union {
--		struct tls12_crypto_info_aes_gcm_128 aes128;
--		struct tls12_crypto_info_chacha20_poly1305 chacha20;
--	} tls12;
-+	struct tls_crypto_info_keys tls12;
- 	struct sockaddr_in addr;
- 	socklen_t len;
- 	int sfd, ret;
--	size_t tls12_sz;
- 
- 	self->notls = false;
- 	len = sizeof(addr);
- 
--	memset(&tls12, 0, sizeof(tls12));
--	switch (variant->cipher_type) {
--	case TLS_CIPHER_CHACHA20_POLY1305:
--		tls12_sz = sizeof(struct tls12_crypto_info_chacha20_poly1305);
--		tls12.chacha20.info.version = variant->tls_version;
--		tls12.chacha20.info.cipher_type = variant->cipher_type;
--		break;
--	case TLS_CIPHER_AES_GCM_128:
--		tls12_sz = sizeof(struct tls12_crypto_info_aes_gcm_128);
--		tls12.aes128.info.version = variant->tls_version;
--		tls12.aes128.info.cipher_type = variant->cipher_type;
--		break;
--	default:
--		tls12_sz = 0;
--	}
-+	tls_crypto_info_init(variant->tls_version, variant->cipher_type,
-+			     &tls12);
- 
- 	addr.sin_family = AF_INET;
- 	addr.sin_addr.s_addr = htonl(INADDR_ANY);
-@@ -199,7 +211,7 @@ FIXTURE_SETUP(tls)
- 
- 	if (!self->notls) {
- 		ret = setsockopt(self->fd, SOL_TLS, TLS_TX, &tls12,
--				 tls12_sz);
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
- 
-@@ -212,7 +224,7 @@ FIXTURE_SETUP(tls)
- 		ASSERT_EQ(ret, 0);
- 
- 		ret = setsockopt(self->cfd, SOL_TLS, TLS_RX, &tls12,
--				 tls12_sz);
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
- 
-@@ -854,18 +866,17 @@ TEST_F(tls, bidir)
- 	int ret;
- 
- 	if (!self->notls) {
--		struct tls12_crypto_info_aes_gcm_128 tls12;
-+		struct tls_crypto_info_keys tls12;
- 
--		memset(&tls12, 0, sizeof(tls12));
--		tls12.info.version = variant->tls_version;
--		tls12.info.cipher_type = TLS_CIPHER_AES_GCM_128;
-+		tls_crypto_info_init(variant->tls_version, variant->cipher_type,
-+				     &tls12);
- 
- 		ret = setsockopt(self->fd, SOL_TLS, TLS_RX, &tls12,
--				 sizeof(tls12));
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 
- 		ret = setsockopt(self->cfd, SOL_TLS, TLS_TX, &tls12,
--				 sizeof(tls12));
-+				 tls12.len);
- 		ASSERT_EQ(ret, 0);
- 	}
- 
+ static int am65_cpsw_nuss_init_rx_chns(struct am65_cpsw_common *common)
 -- 
 2.30.2
 
