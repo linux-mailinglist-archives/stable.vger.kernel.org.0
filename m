@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602493C4720
+	by mail.lfdr.de (Postfix) with ESMTP id 15E9F3C471F
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235315AbhGLGb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235345AbhGLGb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235321AbhGLG2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:28:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D73961185;
-        Mon, 12 Jul 2021 06:25:11 +0000 (UTC)
+        id S235589AbhGLG3Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:29:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCCD611C0;
+        Mon, 12 Jul 2021 06:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071112;
-        bh=Q+2LZT1Bcn55z2F0p8tlrUYi85vixn6XUe+WHNy1wws=;
+        s=korg; t=1626071114;
+        bh=T17mdl8fyISICwO8xxKysf1uESl0cwNNSzP+n+riO5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlppsT4PtqD9UauOnJWRRLTeqhEytQ4ZmfMuzbU+fPgYLosRlQu6ixvOlGzTdp5Hw
-         DVLNrd39g4EqflUjv7MoM7MKlvoGoJrXtccYITWd+5VbYc5VVF0abgnX5wyIYhi/za
-         zKroHxKz27yMVyOvNaXSuIlh6lusPhrNRMg+GRPY=
+        b=visb7aacc2zQXSqT+K5hi7/lrsNOtWITjEmHz01IezTQcgVLpBUpjn/x/yZ29PXp7
+         4wBJA1Gpu2resi9q19zQ+Juowv+Vm02hVHsfXejRjKB+jfN4Fdh0OV2wuzJdPRg43v
+         vYvinQkkoYP1803XR0qZSos6+ftPzgEvPYKGxjqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 279/348] iio: light: tcs3472: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:11:03 +0200
-Message-Id: <20210712060740.679100501@linuxfoundation.org>
+Subject: [PATCH 5.4 280/348] iio: cros_ec_sensors: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:11:04 +0200
+Message-Id: <20210712060740.805764585@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,57 +42,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit df2f37cffd6ed486d613e7ee22aadc8e49ae2dd3 ]
+[ Upstream commit 8dea228b174ac9637b567e5ef54f4c40db4b3c41 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+The samples buffer is passed to iio_push_to_buffers_with_timestamp()
+which requires a buffer aligned to 8 bytes as it is assumed that
+the timestamp will be naturally aligned if present.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp().
+Fixes tag is inaccurate but prior to that likely manual backporting needed
+(for anything before 4.18) Earlier than that the include file to fix is
+drivers/iio/common/cros_ec_sensors/cros_ec_sensors_core.h:
+commit 974e6f02e27 ("iio: cros_ec_sensors_core: Add common functions
+for the ChromeOS EC Sensor Hub.") present since kernel stable 4.10.
+(Thanks to Gwendal for tracking this down)
 
-Fixes tag is not strictly accurate as prior to that patch there was
-potentially an unaligned write.  However, any backport past there will
-need to be done manually.
-
-Fixes: 0624bf847dd0 ("iio:tcs3472: Use iio_push_to_buffers_with_timestamp()")
+Fixes: 5a0b8cb46624c ("iio: cros_ec: Move cros_ec_sensors_core.h in /include")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-20-jic23@kernel.org
+Reviewed-by: Gwendal Grignou <gwendal@chromium.org
+Link: https://lore.kernel.org/r/20210501171352.512953-7-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/tcs3472.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ include/linux/iio/common/cros_ec_sensors_core.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/light/tcs3472.c b/drivers/iio/light/tcs3472.c
-index a30ad151653f..9ea543c5cf5e 100644
---- a/drivers/iio/light/tcs3472.c
-+++ b/drivers/iio/light/tcs3472.c
-@@ -64,7 +64,11 @@ struct tcs3472_data {
- 	u8 control;
- 	u8 atime;
- 	u8 apers;
--	u16 buffer[8]; /* 4 16-bit channels + 64-bit timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u16 chans[4];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
+diff --git a/include/linux/iio/common/cros_ec_sensors_core.h b/include/linux/iio/common/cros_ec_sensors_core.h
+index bb331e6356a9..a321531539dd 100644
+--- a/include/linux/iio/common/cros_ec_sensors_core.h
++++ b/include/linux/iio/common/cros_ec_sensors_core.h
+@@ -68,7 +68,7 @@ struct cros_ec_sensors_core_state {
+ 		u16 scale;
+ 	} calib[CROS_EC_SENSOR_MAX_AXIS];
+ 	s8 sign[CROS_EC_SENSOR_MAX_AXIS];
+-	u8 samples[CROS_EC_SAMPLE_SIZE];
++	u8 samples[CROS_EC_SAMPLE_SIZE] __aligned(8);
  
- static const struct iio_event_spec tcs3472_events[] = {
-@@ -386,10 +390,10 @@ static irqreturn_t tcs3472_trigger_handler(int irq, void *p)
- 		if (ret < 0)
- 			goto done;
- 
--		data->buffer[j++] = ret;
-+		data->scan.chans[j++] = ret;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
- 
- done:
+ 	int (*read_ec_sensors_data)(struct iio_dev *indio_dev,
+ 				    unsigned long scan_mask, s16 *data);
 -- 
 2.30.2
 
