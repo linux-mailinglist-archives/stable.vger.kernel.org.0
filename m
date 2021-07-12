@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 425443C537B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CCEE3C4DAB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352466AbhGLHyw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
+        id S239723AbhGLHNx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350446AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B02561883;
-        Mon, 12 Jul 2021 07:45:29 +0000 (UTC)
+        id S240099AbhGLHMn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:12:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EC7E610FA;
+        Mon, 12 Jul 2021 07:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075929;
-        bh=wyMWFanJk4V0p8E7UCLTYW9/FtAYpGWdH2tr4Hp7hEM=;
+        s=korg; t=1626073794;
+        bh=7ZGpz8llyWui7Z9BbsoSQs+FUFVD67qfNy5qg8f+6q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaNOq0OgrnR4df2ZG7G7SdLEa+TzoENsrcuOkwT952p8MYu+Vrl3+ln5vPRT8jGOC
-         P+B8/H5Slwp7trHd3S9u/39k2Nb0P3unEEcSvyHuX+TUxn9GOZDi9fwiVEbglx1Zyz
-         TJLWqzSuAl5OtSOijGy23wLSENuRZUFqt1ZJZPq0=
+        b=ghHzkSQaqfqcCmTSHy7K6eUsW2V42GO1gFO83kzAt/JTdbVjZnIjRoQ0zOoN02KMz
+         BExhr4EQbVi0nBv6OjdoXYAf190vP2C350NFsVEFqD6OA88cjhv/Cuo4jGTFe/ktSu
+         qY2T1CKnqOB/27hyORx26zUjjtZeSzJ6glCAemYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Yixian Liu <liuyixian@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 423/800] drm/rockchip: cdn-dp: fix sign extension on an int multiply for a u64 result
+Subject: [PATCH 5.12 363/700] RDMA/hns: Remove the condition of light load for posting DWQE
 Date:   Mon, 12 Jul 2021 08:07:26 +0200
-Message-Id: <20210712061012.162101376@linuxfoundation.org>
+Message-Id: <20210712061014.994788047@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yixian Liu <liuyixian@huawei.com>
 
-[ Upstream commit ce0cb93a5adb283f577cd4661f511047b5e39028 ]
+[ Upstream commit 591f762b2750c628df9412d1c795b56e83a34b3e ]
 
-The variable bit_per_pix is a u8 and is promoted in the multiplication
-to an int type and then sign extended to a u64. If the result of the
-int multiplication is greater than 0x7fffffff then the upper 32 bits will
-be set to 1 as a result of the sign extension. Avoid this by casting
-tu_size_reg to u64 to avoid sign extension and also a potential overflow.
+Even in the case of heavy load, direct WQE can still be posted. The
+hardware will decide whether to drop the DWQE or not. Thus, the limit
+needs to be removed.
 
-Fixes: 1a0f7ed3abe2 ("drm/rockchip: cdn-dp: add cdn DP support for rk3399")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200915162049.36434-1-colin.king@canonical.com
+Fixes: 01584a5edcc4 ("RDMA/hns: Add support of direct wqe")
+Link: https://lore.kernel.org/r/1619593950-29414-1-git-send-email-liweihang@huawei.com
+Signed-off-by: Yixian Liu <liuyixian@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/cdn-dp-reg.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/cdn-dp-reg.c b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
-index 9d2163ef4d6e..33fb4d05c506 100644
---- a/drivers/gpu/drm/rockchip/cdn-dp-reg.c
-+++ b/drivers/gpu/drm/rockchip/cdn-dp-reg.c
-@@ -658,7 +658,7 @@ int cdn_dp_config_video(struct cdn_dp_device *dp)
- 	 */
- 	do {
- 		tu_size_reg += 2;
--		symbol = tu_size_reg * mode->clock * bit_per_pix;
-+		symbol = (u64)tu_size_reg * mode->clock * bit_per_pix;
- 		do_div(symbol, dp->max_lanes * link_rate * 8);
- 		rem = do_div(symbol, 1000);
- 		if (tu_size_reg > 64) {
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index ad3cee54140e..3344b80ecf04 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -750,8 +750,7 @@ out:
+ 		qp->sq.head += nreq;
+ 		qp->next_sge = sge_idx;
+ 
+-		if (nreq == 1 && qp->sq.head == qp->sq.tail + 1 &&
+-		    (qp->en_flags & HNS_ROCE_QP_CAP_DIRECT_WQE))
++		if (nreq == 1 && (qp->en_flags & HNS_ROCE_QP_CAP_DIRECT_WQE))
+ 			write_dwqe(hr_dev, qp, wqe);
+ 		else
+ 			update_sq_db(hr_dev, qp);
 -- 
 2.30.2
 
