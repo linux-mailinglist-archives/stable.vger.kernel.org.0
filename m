@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 505623C499D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 047763C4E48
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbhGLGpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
+        id S237074AbhGLHRq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239044AbhGLGoi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60E6261182;
-        Mon, 12 Jul 2021 06:40:34 +0000 (UTC)
+        id S241689AbhGLHRE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54C4D61447;
+        Mon, 12 Jul 2021 07:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072034;
-        bh=mY0ucfCFJ25AT2f3/nTpanw8SZFT4PkGQR3qlWZ9iFE=;
+        s=korg; t=1626074042;
+        bh=z8sR5TYSANk89jvS8OEPzj3aw9pG3htfJnr50LS1+nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHeXflrQZ6/zQ00ZgwfO5LKtNoF/YUzYtPi21m0jhuXj5QSpGLRwHKyplUS5dOy/5
-         Nnct4PftBguWMZWzXUwotjV0UMK+AyeTBCmWOXXo/6Dz4zJ7rF3jjo7Y3QN01ePOGn
-         5YTeRa3ddnROygaTJ9CSdgtZuZJJpFoAV8YpmXCs=
+        b=Nzc0XOdnf6uIOqVvEMnkvJiScQPcz49NdaLH8kG6tOEWxzkZCB4bqpD9lbktG/5Kr
+         GQRWDQxcnw5AzPpkicavU21EAgejS6dnpDR3Mxiv0s2lhhRJiTFkWX9+UbqGyasDbM
+         HOLAUm6mlQyhg1d1Cbmkm9EwCeOEVslmtb8zGrW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 325/593] RDMA/rtrs-srv: Fix memory leak when having multiple sessions
+Subject: [PATCH 5.12 402/700] ath10k: add missing error return code in ath10k_pci_probe()
 Date:   Mon, 12 Jul 2021 08:08:05 +0200
-Message-Id: <20210712060921.436712770@linuxfoundation.org>
+Message-Id: <20210712061019.135346471@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,86 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Wang <jinpu.wang@cloud.ionos.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 6bb97a2c1aa5278a30d49abb6186d50c34c207e2 ]
+[ Upstream commit e2783e2f39ba99178dedfc1646d5cc0979d1bab3 ]
 
-Gioh notice memory leak below
-unreferenced object 0xffff8880acda2000 (size 2048):
-  comm "kworker/4:1", pid 77, jiffies 4295062871 (age 1270.730s)
-  hex dump (first 32 bytes):
-    00 20 da ac 80 88 ff ff 00 20 da ac 80 88 ff ff  . ....... ......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000e85d85b5>] rtrs_srv_rdma_cm_handler+0x8e5/0xa90 [rtrs_server]
-    [<00000000e31a988a>] cma_ib_req_handler+0xdc5/0x2b50 [rdma_cm]
-    [<000000000eb02c5b>] cm_process_work+0x2d/0x100 [ib_cm]
-    [<00000000e1650ca9>] cm_req_handler+0x11bc/0x1c40 [ib_cm]
-    [<000000009c28818b>] cm_work_handler+0xe65/0x3cf2 [ib_cm]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
-unreferenced object 0xffff88806d595d90 (size 8):
-  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
-  hex dump (first 8 bytes):
-    62 6c 61 00 6b 6b 6b a5                          bla.kkk.
-  backtrace:
-    [<000000004447d253>] kstrdup+0x2e/0x60
-    [<0000000047259793>] kobject_set_name_vargs+0x2f/0xb0
-    [<00000000c2ee3bc8>] dev_set_name+0xab/0xe0
-    [<000000002b6bdfb1>] rtrs_srv_create_sess_files+0x260/0x290 [rtrs_server]
-    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
-    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
-    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
-unreferenced object 0xffff88806d6bb100 (size 256):
-  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 00 59 4d 86 ff ff ff ff  .........YM.....
-  backtrace:
-    [<00000000a18a11e4>] device_add+0x74d/0xa00
-    [<00000000a915b95f>] rtrs_srv_create_sess_files.cold+0x49/0x1fe [rtrs_server]
-    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
-    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
-    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
-    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
-    [<00000000da3499fb>] worker_thread+0x78/0x5c0
-    [<00000000167127a4>] kthread+0x191/0x1e0
-    [<0000000060802104>] ret_from_fork+0x3a/0x50
+When chip_id is not supported, the resources will be freed
+on path err_unsupported, these resources will also be freed
+when calling ath10k_pci_remove(), it will cause double free,
+so return -ENODEV when it doesn't support the device with wrong
+chip_id.
 
-The problem is we increase device refcount by get_device in process_info_req
-for each path, but only does put_deice for last path, which lead to
-memory leak.
-
-To fix it, it also calls put_device when dev_ref is not 0.
-
-Fixes: e2853c49477d1 ("RDMA/rtrs-srv-sysfs: fix missing put_device")
-Link: https://lore.kernel.org/r/20210528113018.52290-19-jinpu.wang@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c0c378f9907c ("ath10k: remove target soc ps code")
+Fixes: 7505f7c3ec1d ("ath10k: create a chip revision whitelist")
+Fixes: f8914a14623a ("ath10k: restore QCA9880-AR1A (v1) detection")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210522105822.1091848-3-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/ath/ath10k/pci.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-index 39708ab4f26e..7c75e1459017 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
-@@ -214,6 +214,7 @@ rtrs_srv_destroy_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
- 		device_del(&srv->dev);
- 		put_device(&srv->dev);
- 	} else {
-+		put_device(&srv->dev);
- 		mutex_unlock(&srv->paths_mutex);
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 463cf3f8f8a5..71878ab35b93 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3685,8 +3685,10 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+ 		if (bus_params.chip_id != 0xffffffff) {
+ 			if (!ath10k_pci_chip_is_supported(pdev->device,
+-							  bus_params.chip_id))
++							  bus_params.chip_id)) {
++				ret = -ENODEV;
+ 				goto err_unsupported;
++			}
+ 		}
  	}
- }
+ 
+@@ -3697,11 +3699,15 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 	}
+ 
+ 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+-	if (bus_params.chip_id == 0xffffffff)
++	if (bus_params.chip_id == 0xffffffff) {
++		ret = -ENODEV;
+ 		goto err_unsupported;
++	}
+ 
+-	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
++	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
++		ret = -ENODEV;
+ 		goto err_unsupported;
++	}
+ 
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
 -- 
 2.30.2
 
