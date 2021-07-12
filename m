@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 637813C4ADA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB0563C4F7F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240424AbhGLGx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49904 "EHLO mail.kernel.org"
+        id S243672AbhGLH0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239993AbhGLGuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:50:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF4560241;
-        Mon, 12 Jul 2021 06:47:20 +0000 (UTC)
+        id S244617AbhGLHXR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:23:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 841DD61006;
+        Mon, 12 Jul 2021 07:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072441;
-        bh=gzhXpDsp0afo7XKHsTFQbbp4JDYZz4RlN1QSALguuyA=;
+        s=korg; t=1626074429;
+        bh=dkebn8beVt2hG4JsRPfs3GMgsno86/jY+cJ4qjOL/mM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSiWnr1QpJLvnQT3YrqYDqB6EUceEJ+stfHsm0Hp9UxkFdJKH/fTUPfwnY1AQB9JH
-         ywtGpdlZ4HJwat/evpZ3ESWHjHj6eynpQvFUg3AdrcwUmq55YGSnV2eEGDaVrBQZl9
-         FHK8iiM7DXYH/Dymk+qZEGzL/7rindNyNFTwJ1Uk=
+        b=PXC+7YTMUIJSyV610VV/go5tNUKx8zZdmsTMsle8QFBypMM5hu0P/bq1cGbiWxnO5
+         matmp4G5eywgaglS0o+PL0JXogxt1FgOHRwLHv00aQJAKefWEDLiVBTTHeBqi+x2D8
+         beQ7xBOB8lxsu+yyyNC0s3ZYy7UsZ/4TXNczlVZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 498/593] s390: appldata depends on PROC_SYSCTL
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 575/700] leds: lp50xx: Put fwnode in error case during ->probe()
 Date:   Mon, 12 Jul 2021 08:10:58 +0200
-Message-Id: <20210712060946.273745483@linuxfoundation.org>
+Message-Id: <20210712061037.228502903@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
+[ Upstream commit f1e1d532da7e6ef355528a22fb97d9a8fbf76c4e ]
 
-APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
-Building with PROC_FS but not PROC_SYSCTL causes a build error,
-since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
+fwnode_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
-appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
+OTOH, the successful iteration will drop reference count under the hood, no need
+to do it twice.
 
-Fixes: c185b783b099 ("[S390] Remove config options.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 242b81170fb8 ("leds: lp50xx: Add the LP50XX family of the RGB LED driver")
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Kconfig | 2 +-
+ drivers/leds/leds-lp50xx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 7105d44a335b..896b68e541b2 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -858,7 +858,7 @@ config CMM_IUCV
- config APPLDATA_BASE
- 	def_bool n
- 	prompt "Linux - VM Monitor Stream, base infrastructure"
--	depends on PROC_FS
-+	depends on PROC_SYSCTL
- 	help
- 	  This provides a kernel interface for creating and updating z/VM APPLDATA
- 	  monitor records. The monitor records are updated at certain time
+diff --git a/drivers/leds/leds-lp50xx.c b/drivers/leds/leds-lp50xx.c
+index 06230614fdc5..401df1e2e05d 100644
+--- a/drivers/leds/leds-lp50xx.c
++++ b/drivers/leds/leds-lp50xx.c
+@@ -490,6 +490,7 @@ static int lp50xx_probe_dt(struct lp50xx *priv)
+ 			ret = fwnode_property_read_u32(led_node, "color",
+ 						       &color_id);
+ 			if (ret) {
++				fwnode_handle_put(led_node);
+ 				dev_err(priv->dev, "Cannot read color\n");
+ 				goto child_out;
+ 			}
+@@ -512,7 +513,6 @@ static int lp50xx_probe_dt(struct lp50xx *priv)
+ 			goto child_out;
+ 		}
+ 		i++;
+-		fwnode_handle_put(child);
+ 	}
+ 
+ 	return 0;
 -- 
 2.30.2
 
