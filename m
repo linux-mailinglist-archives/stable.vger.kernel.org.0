@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99F213C4CC0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C33E3C5259
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242874AbhGLHHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S242236AbhGLHpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241937AbhGLHGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:06:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6FB26124C;
-        Mon, 12 Jul 2021 07:03:05 +0000 (UTC)
+        id S1344298AbhGLHnD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:43:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BFB961208;
+        Mon, 12 Jul 2021 07:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073386;
-        bh=mmdAldEcnqi6sXxjo3oondyAT2E/9YNScMhIXaq+oTo=;
+        s=korg; t=1626075611;
+        bh=LzbG7fXZjrsaRA8HcC06b775tF3WKW6YxniWQfninkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExoXlsE3+ADLyNtoh6l0wzlBCChXdxYMJVTxv/94UQW+syXeoq6oxq9GfEhB0eW+3
-         3EKOixJoxtHuqigy/PVTWLRicD1Rx7Vhvmd1yfZtnaz95oz2eeHMFWdcHY7Tq7J4EX
-         HiGif0b72er8E4RoBXC+JjTlu+itOhpydlN+Mu5Q=
+        b=BQO0NCssbatKFj8qrRPi5V45x0bM0LCibeLCgUa5A3Q7rGyRPDJtds5vc79Gl/BCv
+         nlI8v99z0CjLzi+OYTgHkD8HEO6o1jQvd3yqY8pYSpZ0LF0MVG1iHvbjDmDv2ubPTz
+         1xFUTWmQZ+a+26S9ga8Ngpq8NRl2McZafUrJgVGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, JK Kim <jongkang.kim2@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 225/700] nvme-pci: fix var. type for increasing cq_head
-Date:   Mon, 12 Jul 2021 08:05:08 +0200
-Message-Id: <20210712060958.637091885@linuxfoundation.org>
+        stable@vger.kernel.org, Joe Richey <joerichey@google.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 286/800] x86/elf: Use _BITUL() macro in UAPI headers
+Date:   Mon, 12 Jul 2021 08:05:09 +0200
+Message-Id: <20210712060955.225706519@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: JK Kim <jongkang.kim2@gmail.com>
+From: Joe Richey <joerichey@google.com>
 
-[ Upstream commit a0aac973a26d1ac814b9e131e209eb39472a67ce ]
+[ Upstream commit d06aca989c243dd9e5d3e20aa4e5c2ecfdd07050 ]
 
-nvmeq->cq_head is compared with nvmeq->q_depth and changed the value
-and cq_phase for handling the next cq db.
+Replace BIT() in x86's UAPI header with _BITUL(). BIT() is not defined
+in the UAPI headers and its usage may cause userspace build errors.
 
-but, nvmeq->q_depth's type is u32 and max. value is 0x10000 when
-CQP.MSQE is 0xffff and io_queue_depth is 0x10000.
-
-current temp. variable for comparing with nvmeq->q_depth is overflowed
-when previous nvmeq->cq_head is 0xffff.
-
-in this case, nvmeq->cq_phase is not updated.
-so, fix data type for temp. variable to u32.
-
-Signed-off-by: JK Kim <jongkang.kim2@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: 742c45c3ecc9 ("x86/elf: Enumerate kernel FSGSBASE capability in AT_HWCAP2")
+Signed-off-by: Joe Richey <joerichey@google.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210521085849.37676-2-joerichey94@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/uapi/asm/hwcap2.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index c92a15c3fbc5..4555e9202851 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1027,7 +1027,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
+diff --git a/arch/x86/include/uapi/asm/hwcap2.h b/arch/x86/include/uapi/asm/hwcap2.h
+index 5fdfcb47000f..054604aba9f0 100644
+--- a/arch/x86/include/uapi/asm/hwcap2.h
++++ b/arch/x86/include/uapi/asm/hwcap2.h
+@@ -2,10 +2,12 @@
+ #ifndef _ASM_X86_HWCAP2_H
+ #define _ASM_X86_HWCAP2_H
  
- static inline void nvme_update_cq_head(struct nvme_queue *nvmeq)
- {
--	u16 tmp = nvmeq->cq_head + 1;
-+	u32 tmp = nvmeq->cq_head + 1;
++#include <linux/const.h>
++
+ /* MONITOR/MWAIT enabled in Ring 3 */
+-#define HWCAP2_RING3MWAIT		(1 << 0)
++#define HWCAP2_RING3MWAIT		_BITUL(0)
  
- 	if (tmp == nvmeq->q_depth) {
- 		nvmeq->cq_head = 0;
+ /* Kernel allows FSGSBASE instructions available in Ring 3 */
+-#define HWCAP2_FSGSBASE			BIT(1)
++#define HWCAP2_FSGSBASE			_BITUL(1)
+ 
+ #endif
 -- 
 2.30.2
 
