@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4993C4466
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C1A13C4469
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233007AbhGLGTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37000 "EHLO mail.kernel.org"
+        id S233637AbhGLGTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:19:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233621AbhGLGSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 349C961042;
-        Mon, 12 Jul 2021 06:15:55 +0000 (UTC)
+        id S233625AbhGLGSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 810AD610A7;
+        Mon, 12 Jul 2021 06:15:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070555;
-        bh=pQzWCx0DN6ZorgGc0vmMHHZUsc4LtNkMtinNUGb6xMM=;
+        s=korg; t=1626070558;
+        bh=sGmguXc+Zx0QcAO3CULx4eTskHjo3DNXaodOoz40A7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHLXWtLrm1gyl+hmwtt8bveTGR4EwpnCHgAugAhTFC2iy1kpgVHkFXleOWuovzrKH
-         RQ0ZRzdnqOv9ywkIAz6t9BfN62vmXz34ozR9W3LU5bTg60NcQg+Mms9xT1uNdMQxMc
-         3oWiiAjAXoCe771w8EMqOGJprZcz5u7j0k9yGKo4=
+        b=F+VLZLkc603lUHfb8MVfm6W/xJ2ypDPfFA1kQpdL17I3ZcUwoYFt+RMcfF1v4Xi5n
+         0WO66BAW+wl2mwTROwKQY3aqdKcT7qmjneK2MrmvOjG8ubrU+tmIk+PfgEy7wT9+ke
+         VGv/f8+wKRNtFPOSVKiAvhOlxDL8Hv85E5JDLLA4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.4 041/348] s390/cio: dont call css_wait_for_slow_path() inside a lock
-Date:   Mon, 12 Jul 2021 08:07:05 +0200
-Message-Id: <20210712060706.524731234@linuxfoundation.org>
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.4 042/348] rtc: stm32: Fix unbalanced clk_disable_unprepare() on probe error path
+Date:   Mon, 12 Jul 2021 08:07:06 +0200
+Message-Id: <20210712060706.673751363@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,67 +41,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit c749d8c018daf5fba6dfac7b6c5c78b27efd7d65 upstream.
+commit 950ac33dbe6ff656a623d862022f0762ec061ba7 upstream.
 
-Currently css_wait_for_slow_path() gets called inside the chp->lock.
-The path-verification-loop of slowpath inside this lock could lead to
-deadlock as reported by the lockdep validator.
+The STM32MP1 RTC may have 2 clocks, the pclk and the rtc_ck.
 
-The ccw_device_get_chp_desc() during the instance of a device-set-online
-would try to acquire the same 'chp->lock' to read the chp->desc.
-The instance of this function can get called from multiple scenario,
-like probing or setting-device online manually. This could, in some
-corner-cases lead to the deadlock.
+If clk_prepare_enable() fails for the second clock (rtc_ck) we must only
+call clk_disable_unprepare() for the first clock (pclk) but currently we
+call it on both leading to a WARN:
 
-lockdep validator reported this as,
+[   15.629568] WARNING: CPU: 0 PID: 146 at drivers/clk/clk.c:958 clk_core_disable+0xb0/0xc8
+[   15.637620] ck_rtc already disabled
+[   15.663322] CPU: 0 PID: 146 Comm: systemd-udevd Not tainted 5.4.77-pknbsp-svn5759-atag-v5.4.77-204-gea4235203137-dirty #2413
+[   15.674510] Hardware name: STM32 (Device Tree Support)
+[   15.679658] [<c0111148>] (unwind_backtrace) from [<c010c0b8>] (show_stack+0x10/0x14)
+[   15.687371] [<c010c0b8>] (show_stack) from [<c0ab3d28>] (dump_stack+0xc0/0xe0)
+[   15.694574] [<c0ab3d28>] (dump_stack) from [<c012360c>] (__warn+0xc8/0xf0)
+[   15.701428] [<c012360c>] (__warn) from [<c0123694>] (warn_slowpath_fmt+0x60/0x94)
+[   15.708894] [<c0123694>] (warn_slowpath_fmt) from [<c053b518>] (clk_core_disable+0xb0/0xc8)
+[   15.717230] [<c053b518>] (clk_core_disable) from [<c053c190>] (clk_core_disable_lock+0x18/0x24)
+[   15.725924] [<c053c190>] (clk_core_disable_lock) from [<bf0adc44>] (stm32_rtc_probe+0x124/0x5e4 [rtc_stm32])
+[   15.735739] [<bf0adc44>] (stm32_rtc_probe [rtc_stm32]) from [<c05f7d4c>] (platform_drv_probe+0x48/0x98)
+[   15.745095] [<c05f7d4c>] (platform_drv_probe) from [<c05f5cec>] (really_probe+0x1f0/0x458)
+[   15.753338] [<c05f5cec>] (really_probe) from [<c05f61c4>] (driver_probe_device+0x70/0x1c4)
+[   15.761584] [<c05f61c4>] (driver_probe_device) from [<c05f6580>] (device_driver_attach+0x58/0x60)
+[   15.770439] [<c05f6580>] (device_driver_attach) from [<c05f6654>] (__driver_attach+0xcc/0x170)
+[   15.779032] [<c05f6654>] (__driver_attach) from [<c05f40d8>] (bus_for_each_dev+0x58/0x7c)
+[   15.787191] [<c05f40d8>] (bus_for_each_dev) from [<c05f4ffc>] (bus_add_driver+0xdc/0x1f8)
+[   15.795352] [<c05f4ffc>] (bus_add_driver) from [<c05f6ed8>] (driver_register+0x7c/0x110)
+[   15.803425] [<c05f6ed8>] (driver_register) from [<c01027bc>] (do_one_initcall+0x70/0x1b8)
+[   15.811588] [<c01027bc>] (do_one_initcall) from [<c01a1094>] (do_init_module+0x58/0x1f8)
+[   15.819660] [<c01a1094>] (do_init_module) from [<c01a0074>] (load_module+0x1e58/0x23c8)
+[   15.827646] [<c01a0074>] (load_module) from [<c01a0860>] (sys_finit_module+0xa0/0xd4)
+[   15.835459] [<c01a0860>] (sys_finit_module) from [<c01011e0>] (__sys_trace_return+0x0/0x20)
 
-        CPU0                    CPU1
-        ----                    ----
-   lock(&chp->lock);
-                                lock(kn->active#43);
-                                lock(&chp->lock);
-   lock((wq_completion)cio);
-
-The chp->lock was introduced to serialize the access of struct
-channel_path. This lock is not needed for the css_wait_for_slow_path()
-function, so invoke the slow-path function outside this lock.
-
-Fixes: b730f3a93395 ("[S390] cio: add lock to struct channel_path")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
-Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
+Cc: stable@vger.kernel.org
+Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/1623087421-19722-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/cio/chp.c  |    3 +++
- drivers/s390/cio/chsc.c |    2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-stm32.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/cio/chp.c
-+++ b/drivers/s390/cio/chp.c
-@@ -255,6 +255,9 @@ static ssize_t chp_status_write(struct d
- 	if (!num_args)
- 		return count;
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -756,7 +756,7 @@ static int stm32_rtc_probe(struct platfo
  
-+	/* Wait until previous actions have settled. */
-+	css_wait_for_slow_path();
+ 	ret = clk_prepare_enable(rtc->rtc_ck);
+ 	if (ret)
+-		goto err;
++		goto err_no_rtc_ck;
+ 
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg,
+@@ -832,10 +832,12 @@ static int stm32_rtc_probe(struct platfo
+ 	}
+ 
+ 	return 0;
 +
- 	if (!strncasecmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
- 		mutex_lock(&cp->lock);
- 		error = s390_vary_chpid(cp->chpid, 1);
---- a/drivers/s390/cio/chsc.c
-+++ b/drivers/s390/cio/chsc.c
-@@ -753,8 +753,6 @@ int chsc_chp_vary(struct chp_id chpid, i
- {
- 	struct channel_path *chp = chpid_to_chp(chpid);
+ err:
++	clk_disable_unprepare(rtc->rtc_ck);
++err_no_rtc_ck:
+ 	if (rtc->data->has_pclk)
+ 		clk_disable_unprepare(rtc->pclk);
+-	clk_disable_unprepare(rtc->rtc_ck);
  
--	/* Wait until previous actions have settled. */
--	css_wait_for_slow_path();
- 	/*
- 	 * Redo PathVerification on the devices the chpid connects to
- 	 */
+ 	if (rtc->data->need_dbp)
+ 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
 
 
