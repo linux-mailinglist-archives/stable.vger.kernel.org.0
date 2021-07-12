@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 052133C534D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8833C48D4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352268AbhGLHy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S236258AbhGLGlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349860AbhGLHuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A616147E;
-        Mon, 12 Jul 2021 07:43:34 +0000 (UTC)
+        id S238388AbhGLGkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F93610D1;
+        Mon, 12 Jul 2021 06:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075815;
-        bh=qXNh1/Rl1JTG2UeSz/CwiwVyGA9YZ8IA4pSLYJBgW8Q=;
+        s=korg; t=1626071832;
+        bh=Ch82OYIDsRo81Cuja4H7oydcuVXT7gxqIowUZ+MzaI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCHDSdBAry7gPMNIe+QtV76Vs3RxtZPCYmMXkuej9o0nwkEfE50FjIkm26OXoii05
-         lRQLiEUM9LFk6tnyC4QoWmeLQU2MHOpm8CcfeoXZrSjbi3b/RSOme4al9ToKm1H8at
-         1Ag5zonkExUwMSoxlw6l39gRXVgzpzqMk+Gi3mZw=
+        b=qSn+NRsE7m/VShbxiExcaTpZ41XJQjG3G5fLN6BGcI0c57GJVOjEbX95jSf86Vb8K
+         F+Q0TL62tBgW8zLrURK1u7Tfr7XYjzZwbKCmFCZv8sJZkRf+9LpBydmyJD3pUx1DQT
+         qMcLCGrq/5RpsFaXM0jfcvHcCtZKlhD/sv7Z8C7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 374/800] block, bfq: reset waker pointer with shared queues
-Date:   Mon, 12 Jul 2021 08:06:37 +0200
-Message-Id: <20210712061006.872749843@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 238/593] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
+Date:   Mon, 12 Jul 2021 08:06:38 +0200
+Message-Id: <20210712060909.072554786@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit 9a2ac41b13c573703d6689f51f3e27dd658324be ]
+[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
 
-Commit 85686d0dc194 ("block, bfq: keep shared queues out of the waker
-mechanism") leaves shared bfq_queues out of the waker-detection
-mechanism. It attains this goal by not updating the pointer
-last_completed_rq_bfqq, if the last request completed belongs to a
-shared bfq_queue (so that the pointer will not point to the shared
-bfq_queue).
+Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
+its msg_data array from 4 to 5 elements. Notice that at some point
+the 5th element of msg_data is being accessed in function
+smscore_load_firmware_family2():
 
-Yet this has a side effect: the pointer last_completed_rq_bfqq keeps
-pointing, deceptively, to a bfq_queue that actually is not the last
-one to have had a request completed. As a consequence, such a
-bfq_queue may deceptively be considered as a waker of some bfq_queue,
-even of some shared bfq_queue.
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
 
-To address this issue, reset last_completed_rq_bfqq if the last
-request completed belongs to a shared queue.
+Also, there is no need for the object _trigger_msg_ of type struct
+sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
+in struct sms_msg_data is a one-element array, which causes multiple
+out-of-bounds warnings when accessing beyond its first element
+in function smscore_load_firmware_family2():
 
-Fixes: 85686d0dc194 ("block, bfq: keep shared queues out of the waker mechanism")
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Link: https://lore.kernel.org/r/20210619140948.98712-8-paolo.valente@linaro.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+ 994
+ 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 996                 SMS_INIT_MSG(&msg->x_msg_header,
+ 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+ 998                                 sizeof(struct sms_msg_hdr) +
+ 999                                 sizeof(u32) * 5);
+1000
+1001                 trigger_msg->msg_data[0] = firmware->start_address;
+1002                                         /* Entry point */
+1003                 trigger_msg->msg_data[1] = 6; /* Priority */
+1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
+1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
+
+even when enough dynamic memory is allocated for _msg_:
+
+ 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
+ 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
+
+but as _msg_ is casted to (struct sms_msg_data *):
+
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+
+the out-of-bounds warnings are actually valid and should be addressed.
+
+Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
+which contains a 5-elements array, instead of just 4. And use
+_msg_ directly, instead of creating object trigger_msg.
+
+This helps with the ongoing efforts to enable -Warray-bounds by fixing
+the following warnings:
+
+  CC [M]  drivers/media/common/siano/smscoreapi.o
+drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
+drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+
+Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
+Co-developed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
+ drivers/media/common/siano/smscoreapi.h |  4 ++--
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7c62bf093199..2a2e6e4ff0b4 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -6143,11 +6143,13 @@ static void bfq_completed_request(struct bfq_queue *bfqq, struct bfq_data *bfqd)
- 	 * of other queues. But a false waker will unjustly steal
- 	 * bandwidth to its supposedly woken queue. So considering
- 	 * also shared queues in the waking mechanism may cause more
--	 * control troubles than throughput benefits. Then do not set
--	 * last_completed_rq_bfqq to bfqq if bfqq is a shared queue.
-+	 * control troubles than throughput benefits. Then reset
-+	 * last_completed_rq_bfqq if bfqq is a shared queue.
- 	 */
- 	if (!bfq_bfqq_coop(bfqq))
- 		bfqd->last_completed_rq_bfqq = bfqq;
-+	else
-+		bfqd->last_completed_rq_bfqq = NULL;
+diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
+index c1511094fdc7..b735e2370137 100644
+--- a/drivers/media/common/siano/smscoreapi.c
++++ b/drivers/media/common/siano/smscoreapi.c
+@@ -908,7 +908,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 					 void *buffer, size_t size)
+ {
+ 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
+-	struct sms_msg_data4 *msg;
++	struct sms_msg_data5 *msg;
+ 	u32 mem_address,  calc_checksum = 0;
+ 	u32 i, *ptr;
+ 	u8 *payload = firmware->payload;
+@@ -989,24 +989,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 		goto exit_fw_download;
  
- 	/*
- 	 * If we are waiting to discover whether the request pattern
+ 	if (coredev->mode == DEVICE_MODE_NONE) {
+-		struct sms_msg_data *trigger_msg =
+-			(struct sms_msg_data *) msg;
+-
+ 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 		SMS_INIT_MSG(&msg->x_msg_header,
+ 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+-				sizeof(struct sms_msg_hdr) +
+-				sizeof(u32) * 5);
++				sizeof(*msg));
+ 
+-		trigger_msg->msg_data[0] = firmware->start_address;
++		msg->msg_data[0] = firmware->start_address;
+ 					/* Entry point */
+-		trigger_msg->msg_data[1] = 6; /* Priority */
+-		trigger_msg->msg_data[2] = 0x200; /* Stack size */
+-		trigger_msg->msg_data[3] = 0; /* Parameter */
+-		trigger_msg->msg_data[4] = 4; /* Task ID */
++		msg->msg_data[1] = 6; /* Priority */
++		msg->msg_data[2] = 0x200; /* Stack size */
++		msg->msg_data[3] = 0; /* Parameter */
++		msg->msg_data[4] = 4; /* Task ID */
+ 
+-		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
+-					trigger_msg->x_msg_header.msg_length,
++		rc = smscore_sendrequest_and_wait(coredev, msg,
++					msg->x_msg_header.msg_length,
+ 					&coredev->trigger_done);
+ 	} else {
+ 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
+diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
+index b3b793b5caf3..16c45afabc53 100644
+--- a/drivers/media/common/siano/smscoreapi.h
++++ b/drivers/media/common/siano/smscoreapi.h
+@@ -629,9 +629,9 @@ struct sms_msg_data2 {
+ 	u32 msg_data[2];
+ };
+ 
+-struct sms_msg_data4 {
++struct sms_msg_data5 {
+ 	struct sms_msg_hdr x_msg_header;
+-	u32 msg_data[4];
++	u32 msg_data[5];
+ };
+ 
+ struct sms_data_download {
 -- 
 2.30.2
 
