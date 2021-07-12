@@ -2,73 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 806733C55FB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E07693C4F00
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351084AbhGLIM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S244285AbhGLHWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:44 -0400
+Received: from mga03.intel.com ([134.134.136.65]:27677 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354134AbhGLIDf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 981766128C;
-        Mon, 12 Jul 2021 08:00:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076818;
-        bh=qrBYZQlbCN9ZVL6IR+5q/TQIt4gvOKBBQDwVqwLzC6E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUFSZBKGGWPpw4iCLjO6WuvQpppSA5j+U08ZduqtXXsFUtRzY2I4w+UnIo4SOuSZC
-         GBcFwk2DNTh4323fynDlyAWBrLUnSysSy5MempRJ43qV1sIZbW5PGhkj0paBq7BFsr
-         LCPuvm4VMaPqmIM0a6zRaD4qSsRMmSIPEO5D3Abk=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Quat Le <quat.le@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.13 800/800] scsi: core: Retry I/O for Notify (Enable Spinup) Required error
-Date:   Mon, 12 Jul 2021 08:13:43 +0200
-Message-Id: <20210712061051.699070725@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S244466AbhGLHSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:18:24 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10042"; a="209976150"
+X-IronPort-AV: E=Sophos;i="5.84,232,1620716400"; 
+   d="scan'208";a="209976150"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jul 2021 00:15:22 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.84,232,1620716400"; 
+   d="scan'208";a="491923307"
+Received: from allen-box.sh.intel.com ([10.239.159.118])
+  by FMSMGA003.fm.intel.com with ESMTP; 12 Jul 2021 00:15:20 -0700
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     Sanjay Kumar <sanjay.k.kumar@intel.com>,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>
+Subject: [PATCH 1/1] iommu/vt-d: Global devTLB flush when present context entry changed
+Date:   Mon, 12 Jul 2021 15:13:15 +0800
+Message-Id: <20210712071315.3416543-1-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quat Le <quat.le@oracle.com>
+From: Sanjay Kumar <sanjay.k.kumar@intel.com>
 
-commit 104739aca4488909175e9e31d5cd7d75b82a2046 upstream.
+This fixes a bug in context cache clear operation. The code was not
+following the correct invalidation flow. A global device TLB invalidation
+should be added after the IOTLB invalidation. At the same time, it
+uses the domain ID from the context entry. But in scalable mode, the
+domain ID is in PASID table entry, not context entry.
 
-If the device is power-cycled, it takes time for the initiator to transmit
-the periodic NOTIFY (ENABLE SPINUP) SAS primitive, and for the device to
-respond to the primitive to become ACTIVE. Retry the I/O request to allow
-the device time to become ACTIVE.
-
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210629155826.48441-1-quat.le@oracle.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Quat Le <quat.le@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
 ---
- drivers/scsi/scsi_lib.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/iommu/intel/iommu.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -728,6 +728,7 @@ static void scsi_io_completion_action(st
- 				case 0x07: /* operation in progress */
- 				case 0x08: /* Long write in progress */
- 				case 0x09: /* self test in progress */
-+				case 0x11: /* notify (enable spinup) required */
- 				case 0x14: /* space allocation in progress */
- 				case 0x1a: /* start stop unit in progress */
- 				case 0x1b: /* sanitize in progress */
-
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index a6a07d985709..57270290d62b 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2429,10 +2429,11 @@ __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
+ 	return 0;
+ }
+ 
+-static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn)
++static void domain_context_clear_one(struct device_domain_info *info, u8 bus, u8 devfn)
+ {
+-	unsigned long flags;
++	struct intel_iommu *iommu = info->iommu;
+ 	struct context_entry *context;
++	unsigned long flags;
+ 	u16 did_old;
+ 
+ 	if (!iommu)
+@@ -2444,7 +2445,16 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
+ 		spin_unlock_irqrestore(&iommu->lock, flags);
+ 		return;
+ 	}
+-	did_old = context_domain_id(context);
++
++	if (sm_supported(iommu)) {
++		if (hw_pass_through && domain_type_is_si(info->domain))
++			did_old = FLPT_DEFAULT_DID;
++		else
++			did_old = info->domain->iommu_did[iommu->seq_id];
++	} else {
++		did_old = context_domain_id(context);
++	}
++
+ 	context_clear_entry(context);
+ 	__iommu_flush_cache(iommu, context, sizeof(*context));
+ 	spin_unlock_irqrestore(&iommu->lock, flags);
+@@ -2462,6 +2472,8 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
+ 				 0,
+ 				 0,
+ 				 DMA_TLB_DSI_FLUSH);
++
++	__iommu_flush_dev_iotlb(info, 0, MAX_AGAW_PFN_WIDTH);
+ }
+ 
+ static inline void unlink_domain_info(struct device_domain_info *info)
+@@ -4425,9 +4437,9 @@ int __init intel_iommu_init(void)
+ 
+ static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *opaque)
+ {
+-	struct intel_iommu *iommu = opaque;
++	struct device_domain_info *info = opaque;
+ 
+-	domain_context_clear_one(iommu, PCI_BUS_NUM(alias), alias & 0xff);
++	domain_context_clear_one(info, PCI_BUS_NUM(alias), alias & 0xff);
+ 	return 0;
+ }
+ 
+@@ -4437,12 +4449,13 @@ static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *op
+  * devices, unbinding the driver from any one of them will possibly leave
+  * the others unable to operate.
+  */
+-static void domain_context_clear(struct intel_iommu *iommu, struct device *dev)
++static void domain_context_clear(struct device_domain_info *info)
+ {
+-	if (!iommu || !dev || !dev_is_pci(dev))
++	if (!info->iommu || !info->dev || !dev_is_pci(info->dev))
+ 		return;
+ 
+-	pci_for_each_dma_alias(to_pci_dev(dev), &domain_context_clear_one_cb, iommu);
++	pci_for_each_dma_alias(to_pci_dev(info->dev),
++			       &domain_context_clear_one_cb, info);
+ }
+ 
+ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+@@ -4466,7 +4479,7 @@ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+ 
+ 		iommu_disable_dev_iotlb(info);
+ 		if (!dev_is_real_dma_subdevice(info->dev))
+-			domain_context_clear(iommu, info->dev);
++			domain_context_clear(info);
+ 		intel_pasid_free_table(info->dev);
+ 	}
+ 
+-- 
+2.25.1
 
