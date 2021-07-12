@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F8B03C4C49
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D963D3C520C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238737AbhGLHDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34608 "EHLO mail.kernel.org"
+        id S1349736AbhGLHof (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242408AbhGLHAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:00:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B62AF611C1;
-        Mon, 12 Jul 2021 06:57:18 +0000 (UTC)
+        id S1346551AbhGLHjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA48D601FE;
+        Mon, 12 Jul 2021 07:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073039;
-        bh=Gjqxoy6zuCsX3PmidEoy9VJ+NjivXFTAkQdGcmPjcR0=;
+        s=korg; t=1626075274;
+        bh=RMOrC1frwt1UylxJ7TKcgEozTKZQbIES9glVwdgUp2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qL9Qc8IsY793H67k3vPtG0o3ztZp47YOraP7EWEyN2afHaNmWin28bcuQzq5wmxJ
-         OWRMqqkcoozk7EUmPQegGrakd3dF1SGcJlD5fuf7Fge1gDW6p2mCoKpcoVQe7vIaSi
-         JR6EciwhdTteLGcSvvc22M+F3J8f+yWf65pVfYwI=
+        b=YdmbJKNVE/DPj/ULriFwjmy9JDwtgeErieivFtm8HHEmkQyb9FN8UFnPvH4Qal+s0
+         3Xuqb8kHJLvXqYTB1Ez3e4CTMMyrulQyA7NTLF9eFfaK9FFaYPrUB9pg71T8O3cQ7L
+         FdMACBOZNF5+9NinlAC3dSADffoKPuJchbuB2o2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 105/700] powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 165/800] media: bt878: do not schedule tasklet when it is not setup
 Date:   Mon, 12 Jul 2021 08:03:08 +0200
-Message-Id: <20210712060939.672046740@linuxfoundation.org>
+Message-Id: <20210712060936.195415144@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,96 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit 7c6986ade69e3c81bac831645bc72109cd798a80 upstream.
+[ Upstream commit a3a54bf4bddaecda8b5767209cfc703f0be2841d ]
 
-In raise_backtrace_ipi() we iterate through the cpumask of CPUs, sending
-each an IPI asking them to do a backtrace, but we don't wait for the
-backtrace to happen.
+There is a problem with the tasklet in bt878. bt->tasklet is set by
+dvb-bt8xx.ko, and bt878.ko can be loaded independently.
+In this case if interrupt comes it may cause null-ptr-dereference.
+To solve this issue, we check if the tasklet is actually set before
+calling tasklet_schedule.
 
-We then iterate through the CPU mask again, and if any CPU hasn't done
-the backtrace and cleared itself from the mask, we print a trace on its
-behalf, noting that the trace may be "stale".
+[    1.750438] bt878(0): irq FDSR FBUS risc_pc=
+[    1.750728] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[    1.752969] RIP: 0010:0x0
+[    1.757526] Call Trace:
+[    1.757659]  <IRQ>
+[    1.757770]  tasklet_action_common.isra.0+0x107/0x110
+[    1.758041]  tasklet_action+0x22/0x30
+[    1.758237]  __do_softirq+0xe0/0x29b
+[    1.758430]  irq_exit_rcu+0xa4/0xb0
+[    1.758618]  common_interrupt+0x8d/0xa0
+[    1.758824]  </IRQ>
 
-This works well enough when a CPU is not responding, because in that
-case it doesn't receive the IPI and the sending CPU is left to print the
-trace. But when all CPUs are responding we are left with a race between
-the sending and receiving CPUs, if the sending CPU wins the race then it
-will erroneously print a trace.
-
-This leads to spurious "stale" traces from the sending CPU, which can
-then be interleaved messily with the receiving CPU, note the CPU
-numbers, eg:
-
-  [ 1658.929157][    C7] rcu: Stack dump where RCU GP kthread last ran:
-  [ 1658.929223][    C7] Sending NMI from CPU 7 to CPUs 1:
-  [ 1658.929303][    C1] NMI backtrace for cpu 1
-  [ 1658.929303][    C7] CPU 1 didn't respond to backtrace IPI, inspecting paca.
-  [ 1658.929362][    C1] CPU: 1 PID: 325 Comm: kworker/1:1H Tainted: G        W   E     5.13.0-rc2+ #46
-  [ 1658.929405][    C7] irq_soft_mask: 0x01 in_mce: 0 in_nmi: 0 current: 325 (kworker/1:1H)
-  [ 1658.929465][    C1] Workqueue: events_highpri test_work_fn [test_lockup]
-  [ 1658.929549][    C7] Back trace of paca->saved_r1 (0xc0000000057fb400) (possibly stale):
-  [ 1658.929592][    C1] NIP:  c00000000002cf50 LR: c008000000820178 CTR: c00000000002cfa0
-
-To fix it, change the logic so that the sending CPU waits 5s for the
-receiving CPU to print its trace. If the receiving CPU prints its trace
-successfully then the sending CPU just continues, avoiding any spurious
-"stale" trace.
-
-This has the added benefit of allowing all CPUs to print their traces in
-order and avoids any interleaving of their output.
-
-Fixes: 5cc05910f26e ("powerpc/64s: Wire up arch_trigger_cpumask_backtrace()")
-Cc: stable@vger.kernel.org # v4.18+
-Reported-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210625140408.3351173-1-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/stacktrace.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/media/pci/bt8xx/bt878.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/stacktrace.c
-+++ b/arch/powerpc/kernel/stacktrace.c
-@@ -230,17 +230,31 @@ static void handle_backtrace_ipi(struct
- 
- static void raise_backtrace_ipi(cpumask_t *mask)
- {
-+	struct paca_struct *p;
- 	unsigned int cpu;
-+	u64 delay_us;
- 
- 	for_each_cpu(cpu, mask) {
--		if (cpu == smp_processor_id())
-+		if (cpu == smp_processor_id()) {
- 			handle_backtrace_ipi(NULL);
--		else
--			smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, 5 * USEC_PER_SEC);
--	}
-+			continue;
-+		}
- 
--	for_each_cpu(cpu, mask) {
--		struct paca_struct *p = paca_ptrs[cpu];
-+		delay_us = 5 * USEC_PER_SEC;
-+
-+		if (smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, delay_us)) {
-+			// Now wait up to 5s for the other CPU to do its backtrace
-+			while (cpumask_test_cpu(cpu, mask) && delay_us) {
-+				udelay(1);
-+				delay_us--;
-+			}
-+
-+			// Other CPU cleared itself from the mask
-+			if (delay_us)
-+				continue;
-+		}
-+
-+		p = paca_ptrs[cpu];
- 
- 		cpumask_clear_cpu(cpu, mask);
- 
+diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
+index 78dd35c9b65d..7ca309121fb5 100644
+--- a/drivers/media/pci/bt8xx/bt878.c
++++ b/drivers/media/pci/bt8xx/bt878.c
+@@ -300,7 +300,8 @@ static irqreturn_t bt878_irq(int irq, void *dev_id)
+ 		}
+ 		if (astat & BT878_ARISCI) {
+ 			bt->finished_block = (stat & BT878_ARISCS) >> 28;
+-			tasklet_schedule(&bt->tasklet);
++			if (bt->tasklet.callback)
++				tasklet_schedule(&bt->tasklet);
+ 			break;
+ 		}
+ 		count++;
+-- 
+2.30.2
+
 
 
