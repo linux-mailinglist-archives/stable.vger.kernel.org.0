@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E92A3C4510
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2BA53C44B1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbhGLGXY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:23:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S234302AbhGLGUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234122AbhGLGWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:22:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 319B161130;
-        Mon, 12 Jul 2021 06:19:05 +0000 (UTC)
+        id S233879AbhGLGUJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:20:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9477610A6;
+        Mon, 12 Jul 2021 06:17:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070745;
-        bh=oqXXELPSZ+EWrXn9i3R3Ms/gMlU6dKWMz5mClD4XVT4=;
+        s=korg; t=1626070641;
+        bh=7PguaisvxdrZQywZUlvU+TnVhd4y7yn0JqM/QfeK710=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0lDaagR+m29ieiNvVug0lZoqY7ScB/LIDMxlQnokYMN8IbEfhnbn0rOKuYbqWFwzj
-         i+E1vqhqbWvgHpZrCrxEVAjB0FPtGG3XSoTyMrdGfScHU0RWC2B8HiUmx/Lqq5VpSs
-         cTWrLYjUY7W5zHzgKz3Ado4Mw1jUCQfl3pJgzhC8=
+        b=arTlKRK8VY76BTmGYu+fmdxmImio6nuONFKyGkA/bqXO2rEMkp8cCz8hUOiuFZRTv
+         5VeShHfDmjAjq/URILrTmsE5TO9ecuJ/bMTNTe0ubsNyp/UKq6B0+AjW97Bm8egUb7
+         UQb81l7MCQKPPGLSjgPAJJhUcFzDXLmJxUuOy7VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 069/348] media: s5p-jpeg: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:07:33 +0200
-Message-Id: <20210712060711.157399394@linuxfoundation.org>
+Subject: [PATCH 5.4 070/348] media: sti/bdisp: fix pm_runtime_get_sync() usage count
+Date:   Mon, 12 Jul 2021 08:07:34 +0200
+Message-Id: <20210712060711.278283758@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -45,45 +43,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 10343de268d10cf07b092b8b525e12ad558ead77 ]
+[ Upstream commit c44eac5b72e23c31eefc0e10a71d9650036b8341 ]
 
 The pm_runtime_get_sync() internally increments the
 dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
+
+The bdisp_start_streaming() doesn't take it into account, which
+would unbalance PM usage counter at bdisp_stop_streaming().
+
+The logic at bdisp_probe() is correct, but the best is to use
+the same call along the driver.
+
+So, replace it by the new pm_runtime_resume_and_get(), introduced by:
 commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
 in order to properly decrement the usage counter, avoiding
 a potential PM usage counter leak.
 
-As a plus, pm_runtime_resume_and_get() doesn't return
-positive numbers, so the return code validation can
-be removed.
-
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Acked-by: Andrzej Pietrasiewicz <andrzejtp2010@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/s5p-jpeg/jpeg-core.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/platform/sti/bdisp/bdisp-v4l2.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/s5p-jpeg/jpeg-core.c b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-index 8dbbd5f2a40a..06e17946bbb6 100644
---- a/drivers/media/platform/s5p-jpeg/jpeg-core.c
-+++ b/drivers/media/platform/s5p-jpeg/jpeg-core.c
-@@ -2579,11 +2579,8 @@ static void s5p_jpeg_buf_queue(struct vb2_buffer *vb)
- static int s5p_jpeg_start_streaming(struct vb2_queue *q, unsigned int count)
+diff --git a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+index a55ddf8d185d..16a097f93b42 100644
+--- a/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
++++ b/drivers/media/platform/sti/bdisp/bdisp-v4l2.c
+@@ -499,7 +499,7 @@ static int bdisp_start_streaming(struct vb2_queue *q, unsigned int count)
  {
- 	struct s5p_jpeg_ctx *ctx = vb2_get_drv_priv(q);
--	int ret;
--
--	ret = pm_runtime_get_sync(ctx->jpeg->dev);
+ 	struct bdisp_ctx *ctx = q->drv_priv;
+ 	struct vb2_v4l2_buffer *buf;
+-	int ret = pm_runtime_get_sync(ctx->bdisp_dev->dev);
++	int ret = pm_runtime_resume_and_get(ctx->bdisp_dev->dev);
  
--	return ret > 0 ? 0 : ret;
-+	return pm_runtime_resume_and_get(ctx->jpeg->dev);
- }
+ 	if (ret < 0) {
+ 		dev_err(ctx->bdisp_dev->dev, "failed to set runtime PM\n");
+@@ -1364,10 +1364,10 @@ static int bdisp_probe(struct platform_device *pdev)
  
- static void s5p_jpeg_stop_streaming(struct vb2_queue *q)
+ 	/* Power management */
+ 	pm_runtime_enable(dev);
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to set PM\n");
+-		goto err_pm;
++		goto err_remove;
+ 	}
+ 
+ 	/* Filters */
+@@ -1395,6 +1395,7 @@ err_filter:
+ 	bdisp_hw_free_filters(bdisp->dev);
+ err_pm:
+ 	pm_runtime_put(dev);
++err_remove:
+ 	bdisp_debugfs_remove(bdisp);
+ err_v4l2:
+ 	v4l2_device_unregister(&bdisp->v4l2_dev);
 -- 
 2.30.2
 
