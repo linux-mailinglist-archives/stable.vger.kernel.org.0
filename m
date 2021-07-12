@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3B4E3C4EE6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 635AC3C4A6B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242418AbhGLHWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
+        id S237218AbhGLGwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344791AbhGLHUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E84D0613D2;
-        Mon, 12 Jul 2021 07:18:03 +0000 (UTC)
+        id S238924AbhGLGtV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D0026121E;
+        Mon, 12 Jul 2021 06:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074284;
-        bh=QFMxR+186mchFWrSXA9thaaBEdEdiezx6en5O1R/D9Y=;
+        s=korg; t=1626072323;
+        bh=bGvSRzuuP7sYaANfuvBJajzDaCwYoyxCmgraZru8dyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8IdplxPuz0c29EtS/aQ52QCjxqidMFBp6r9iJDegagoNFhyA4ZqCE79TVtWQASYR
-         XeBsW1wmSGNVCF/uqTpAibnGc/SFMR644U3jH/0/CLgjDiWa7SyENQr7F3xBYW49Wm
-         Av7vZmbdJPxCUepDQAGkp0kDF3IeRVWVtLDZIFKM=
+        b=wd04eDgJgUqqz9cC8tyd42v5VEFLZS5IruTNUPM+yV+l2oIHQ8saOyVftpSuUvAxK
+         cL46A1vW9UImcPWJeAN4IH+vGnkTeEZ5nXyfqTB1355iBStPza/TUsbRnqSI78z+7y
+         KgpmTNreY8ADJreSfhl19AfV4jzyLCmJ8188iKg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 526/700] tty: nozomi: Fix a resource leak in an error handling function
+Subject: [PATCH 5.10 449/593] iio: accel: mxc4005: Fix overread of data and alignment issue.
 Date:   Mon, 12 Jul 2021 08:10:09 +0200
-Message-Id: <20210712061032.389563013@linuxfoundation.org>
+Message-Id: <20210712060938.594284901@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 31a9a318255960d32ae183e95d0999daf2418608 ]
+[ Upstream commit f65802284a3a337510d7f8f916c97d66c74f2e71 ]
 
-A 'request_irq()' call is not balanced by a corresponding 'free_irq()' in
-the error handling path, as already done in the remove function.
+The bulk read size is based on the size of an array that also has
+space for the timestamp alongside the channels.
+Fix that and also fix alignment of the buffer passed
+to iio_push_to_buffers_with_timestamp.
 
-Add it.
+Found during an audit of all calls to this function.
 
-Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4f0d2b3038e82f081d370ccb0cade3ad88463fe7.1620580838.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1ce0eda0f757 ("iio: mxc4005: add triggered buffer mode for mxc4005")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-6-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/nozomi.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/mxc4005.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
-index 861e95043191..0b10c2da4364 100644
---- a/drivers/tty/nozomi.c
-+++ b/drivers/tty/nozomi.c
-@@ -1433,6 +1433,7 @@ err_free_tty:
- 		tty_unregister_device(ntty_driver, dc->index_start + i);
- 		tty_port_destroy(&dc->port[i].port);
- 	}
-+	free_irq(pdev->irq, dc);
- err_free_kfifo:
- 	for (i = 0; i < MAX_PORT; i++)
- 		kfifo_free(&dc->port[i].fifo_ul);
+diff --git a/drivers/iio/accel/mxc4005.c b/drivers/iio/accel/mxc4005.c
+index f877263dc6ef..5a2b0ffbb145 100644
+--- a/drivers/iio/accel/mxc4005.c
++++ b/drivers/iio/accel/mxc4005.c
+@@ -56,7 +56,11 @@ struct mxc4005_data {
+ 	struct mutex mutex;
+ 	struct regmap *regmap;
+ 	struct iio_trigger *dready_trig;
+-	__be16 buffer[8];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		__be16 chans[3];
++		s64 timestamp __aligned(8);
++	} scan;
+ 	bool trigger_enabled;
+ };
+ 
+@@ -135,7 +139,7 @@ static int mxc4005_read_xyz(struct mxc4005_data *data)
+ 	int ret;
+ 
+ 	ret = regmap_bulk_read(data->regmap, MXC4005_REG_XOUT_UPPER,
+-			       data->buffer, sizeof(data->buffer));
++			       data->scan.chans, sizeof(data->scan.chans));
+ 	if (ret < 0) {
+ 		dev_err(data->dev, "failed to read axes\n");
+ 		return ret;
+@@ -301,7 +305,7 @@ static irqreturn_t mxc4005_trigger_handler(int irq, void *private)
+ 	if (ret < 0)
+ 		goto err;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
+ 
+ err:
 -- 
 2.30.2
 
