@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F233C53E0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F713C4E0B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348875AbhGLH4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
+        id S242897AbhGLHQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350738AbhGLHvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E50A061995;
-        Mon, 12 Jul 2021 07:48:00 +0000 (UTC)
+        id S243482AbhGLHPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:15:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9010B61409;
+        Mon, 12 Jul 2021 07:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076081;
-        bh=FjBcx9eWxOcGtvH4L/LqhAqcDpaOezm7zlaJ5HaWvE8=;
+        s=korg; t=1626073945;
+        bh=2GSrmxk/D5DTqfdx5V5PejTHTpKTn6TNsAo3GA9JEds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W/RxM85gbqQqrplhjq4+9no31QMPYHwZhdHYdOpviVE2HWLAEMTsrFuVprFhzTkQp
-         vtmu1NfG1lrOt89hC1ctESdtwJGDF2xlhmlw0/ifDhzxOxy9wBRibMrB+L80eP4FFn
-         QxMRi3LUlodgXDpqVSTa3GFCruaRHGmEVubpB/F8=
+        b=CsrHtYttJc4tPvYAT9Rsa4gxKDUSD+7LuSzZxqRT1+PXrCWdy1rJoqHWrBiOoAS00
+         d6dEUSrmDQ9zoh+UDOYB6JGz9xiK9bTXph0yd16vRWtwvi8x5MvnZkBalTEQgF0E8y
+         JLPQCNGFi25DbHPI+15LW+wTfnqQylker9bML+/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hang Zhang <zh.nvgt@gmail.com>,
+        Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 473/800] RDMA/mlx5: Dont add slave port to unaffiliated list
+Subject: [PATCH 5.12 413/700] cw1200: Revert unnecessary patches that fix unreal use-after-free bugs
 Date:   Mon, 12 Jul 2021 08:08:16 +0200
-Message-Id: <20210712061017.509789580@linuxfoundation.org>
+Message-Id: <20210712061020.324296012@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +41,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Hang Zhang <zh.nvgt@gmail.com>
 
-[ Upstream commit 7ce6095e3bff8e20ce018b050960b527e298f7df ]
+[ Upstream commit 3f60f4685699aa6006e58e424637e8e413e0a94d ]
 
-The mlx5_ib_bind_slave_port() doesn't remove multiport device from the
-unaffiliated list, but mlx5_ib_unbind_slave_port() did it. This unbalanced
-flow caused to the situation where mlx5_ib_unaffiliated_port_list was
-changed during iteration.
+A previous commit 4f68ef64cd7f ("cw1200: Fix concurrency
+use-after-free bugs in cw1200_hw_scan()") tried to fix a seemingly
+use-after-free bug between cw1200_bss_info_changed() and
+cw1200_hw_scan(), where the former frees a sk_buff pointed
+to by frame.skb, and the latter accesses the sk_buff
+pointed to by frame.skb. However, this issue should be a
+false alarm because:
 
-Fixes: 32f69e4be269 ("{net, IB}/mlx5: Manage port association for multiport RoCE")
-Link: https://lore.kernel.org/r/2726e6603b1e6ecfe76aa5a12a063af72173bcf7.1622477058.git.leonro@nvidia.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+(1) "frame.skb" is not a shared variable between the above
+two functions, because "frame" is a local function variable,
+each of the two functions has its own local "frame" - they
+just happen to have the same variable name.
+
+(2) the sk_buff(s) pointed to by these two "frame.skb" are
+also two different object instances, they are individually
+allocated by different dev_alloc_skb() within the two above
+functions. To free one object instance will not invalidate
+the access of another different one.
+
+Based on these facts, the previous commit should be unnecessary.
+Moreover, it also introduced a missing unlock which was
+addressed in a subsequent commit 51c8d24101c7 ("cw1200: fix missing
+unlock on error in cw1200_hw_scan()"). Now that the
+original use-after-free is unreal, these two commits should
+be reverted. This patch performs the reversion.
+
+Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
+Fixes: 51c8d24101c7 ("cw1200: fix missing unlock on error in cw1200_hw_scan()")
+Signed-off-by: Hang Zhang <zh.nvgt@gmail.com>
+Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210521223238.25020-1-zh.nvgt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/st/cw1200/scan.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 644d5d0ac544..3f347515a38d 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -3178,8 +3178,6 @@ static void mlx5_ib_unbind_slave_port(struct mlx5_ib_dev *ibdev,
+diff --git a/drivers/net/wireless/st/cw1200/scan.c b/drivers/net/wireless/st/cw1200/scan.c
+index 988581cc134b..1f856fbbc0ea 100644
+--- a/drivers/net/wireless/st/cw1200/scan.c
++++ b/drivers/net/wireless/st/cw1200/scan.c
+@@ -75,30 +75,27 @@ int cw1200_hw_scan(struct ieee80211_hw *hw,
+ 	if (req->n_ssids > WSM_SCAN_MAX_NUM_OF_SSIDS)
+ 		return -EINVAL;
  
- 	port->mp.mpi = NULL;
- 
--	list_add_tail(&mpi->list, &mlx5_ib_unaffiliated_port_list);
+-	/* will be unlocked in cw1200_scan_work() */
+-	down(&priv->scan.lock);
+-	mutex_lock(&priv->conf_mutex);
 -
- 	spin_unlock(&port->mp.mpi_lock);
+ 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
+ 		req->ie_len);
+-	if (!frame.skb) {
+-		mutex_unlock(&priv->conf_mutex);
+-		up(&priv->scan.lock);
++	if (!frame.skb)
+ 		return -ENOMEM;
+-	}
  
- 	err = mlx5_nic_vport_unaffiliate_multiport(mpi->mdev);
-@@ -3328,6 +3326,8 @@ static void mlx5_ib_cleanup_multiport_master(struct mlx5_ib_dev *dev)
- 				mlx5_ib_dbg(dev, "unbinding port_num: %u\n",
- 					    i + 1);
- 				mlx5_ib_unbind_slave_port(dev, dev->port[i].mp.mpi);
-+				list_add_tail(&dev->port[i].mp.mpi->list,
-+					      &mlx5_ib_unaffiliated_port_list);
- 			}
- 		}
+ 	if (req->ie_len)
+ 		skb_put_data(frame.skb, req->ie, req->ie_len);
+ 
++	/* will be unlocked in cw1200_scan_work() */
++	down(&priv->scan.lock);
++	mutex_lock(&priv->conf_mutex);
++
+ 	ret = wsm_set_template_frame(priv, &frame);
+ 	if (!ret) {
+ 		/* Host want to be the probe responder. */
+ 		ret = wsm_set_probe_responder(priv, true);
  	}
+ 	if (ret) {
+-		dev_kfree_skb(frame.skb);
+ 		mutex_unlock(&priv->conf_mutex);
+ 		up(&priv->scan.lock);
++		dev_kfree_skb(frame.skb);
+ 		return ret;
+ 	}
+ 
+@@ -120,8 +117,8 @@ int cw1200_hw_scan(struct ieee80211_hw *hw,
+ 		++priv->scan.n_ssids;
+ 	}
+ 
+-	dev_kfree_skb(frame.skb);
+ 	mutex_unlock(&priv->conf_mutex);
++	dev_kfree_skb(frame.skb);
+ 	queue_work(priv->workqueue, &priv->scan.work);
+ 	return 0;
+ }
 -- 
 2.30.2
 
