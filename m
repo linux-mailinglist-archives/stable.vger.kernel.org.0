@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 472153C5545
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A89C3C4FA3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355477AbhGLIJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S244086AbhGLH0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353386AbhGLICE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8CB5611F1;
-        Mon, 12 Jul 2021 07:54:46 +0000 (UTC)
+        id S1345205AbhGLHZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:25:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1B2661245;
+        Mon, 12 Jul 2021 07:21:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076487;
-        bh=n14p7IUm5Egr2TzVg7yBQaQ13//UEkzLmkVdiE2I9WA=;
+        s=korg; t=1626074516;
+        bh=wHqzEHGEirLtBzagTjinR1rv41bG1DQXSnDCRSWVFwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owXiTnrB82oc/5ZesaNjWYZQDMNGmAY6/h/xC9mfci3Cac7RL4S3cXkm+YcE+vMeD
-         9bvFNDURkzW7dAywbxGlABVWXNtJWvJqFzrTeDDuWDbbIp8X5vajgrrOpXb5uoy4NL
-         GCxInry+bXK/a32TYExUc//oPORtaVzKRvMhKvTE=
+        b=KtWNm71tUC+e33MO5QcKseBk9hrAamec5yX4+EonRjZhEz0PbuaAlv3HGS3VLt6Ts
+         gOP0+qBHAWA+1i+YpCjW+1W9IRfMLKAyQcPmJzlJiC0M2CVCuSSVTKrlKXEoR9wclm
+         KKns/pUpDMJACTgk2Eb0LzuwECYEOFdfbhNqA9gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>,
+        Eugeniu Rosca <erosca@de.adit-jv.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 665/800] scsi: iscsi: Rel ref after iscsi_lookup_endpoint()
-Date:   Mon, 12 Jul 2021 08:11:28 +0200
-Message-Id: <20210712061037.690326779@linuxfoundation.org>
+Subject: [PATCH 5.12 606/700] usb: gadget: f_fs: Fix setting of device and driver data cross-references
+Date:   Mon, 12 Jul 2021 08:11:29 +0200
+Message-Id: <20210712061040.405399911@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,335 +42,569 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Andrew Gabbasov <andrew_gabbasov@mentor.com>
 
-[ Upstream commit 9e5fe1700896c85040943fdc0d3fee0dd3e0d36f ]
+[ Upstream commit ecfbd7b9054bddb12cea07fda41bb3a79a7b0149 ]
 
-Subsequent commits allow the kernel to do ep_disconnect. In that case we
-will have to get a proper refcount on the ep so one thread does not delete
-it from under another.
+FunctionFS device structure 'struct ffs_dev' and driver data structure
+'struct ffs_data' are bound to each other with cross-reference pointers
+'ffs_data->private_data' and 'ffs_dev->ffs_data'. While the first one
+is supposed to be valid through the whole life of 'struct ffs_data'
+(and while 'struct ffs_dev' exists non-freed), the second one is cleared
+in 'ffs_closed()' (called from 'ffs_data_reset()' or the last
+'ffs_data_put()'). This can be called several times, alternating in
+different order with 'ffs_free_inst()', that, if possible, clears
+the other cross-reference.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-7-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+As a result, different cases of these calls order may leave stale
+cross-reference pointers, used when the pointed structure is already
+freed. Even if it occasionally doesn't cause kernel crash, this error
+is reported by KASAN-enabled kernel configuration.
+
+For example, the case [last 'ffs_data_put()' - 'ffs_free_inst()'] was
+fixed by commit cdafb6d8b8da ("usb: gadget: f_fs: Fix use-after-free in
+ffs_free_inst").
+
+The other case ['ffs_data_reset()' - 'ffs_free_inst()' - 'ffs_data_put()']
+now causes KASAN reported error [1], when 'ffs_data_reset()' clears
+'ffs_dev->ffs_data', then 'ffs_free_inst()' frees the 'struct ffs_dev',
+but can't clear 'ffs_data->private_data', which is then accessed
+in 'ffs_closed()' called from 'ffs_data_put()'. This happens since
+'ffs_dev->ffs_data' reference is cleared too early.
+
+Moreover, one more use case, when 'ffs_free_inst()' is called immediately
+after mounting FunctionFS device (that is before the descriptors are
+written and 'ffs_ready()' is called), and then 'ffs_data_reset()'
+or 'ffs_data_put()' is called from accessing "ep0" file or unmounting
+the device. This causes KASAN error report like [2], since
+'ffs_dev->ffs_data' is not yet set when 'ffs_free_inst()' can't properly
+clear 'ffs_data->private_data', that is later accessed to freed structure.
+
+Fix these (and may be other) cases of stale pointers access by moving
+setting and clearing of the mentioned cross-references to the single
+places, setting both of them when 'struct ffs_data' is created and
+bound to 'struct ffs_dev', and clearing both of them when one of the
+structures is destroyed. It seems convenient to make this pointer
+initialization and structures binding in 'ffs_acquire_dev()' and
+make pointers clearing in 'ffs_release_dev()'. This required some
+changes in these functions parameters and return types.
+
+Also, 'ffs_release_dev()' calling requires some cleanup, fixing minor
+issues, like (1) 'ffs_release_dev()' is not called if 'ffs_free_inst()'
+is called without unmounting the device, and "release_dev" callback
+is not called at all, or (2) "release_dev" callback is called before
+"ffs_closed" callback on unmounting, which seems to be not correctly
+nested with "acquire_dev" and "ffs_ready" callbacks.
+Make this cleanup togther with other mentioned 'ffs_release_dev()' changes.
+
+[1]
+==================================================================
+root@rcar-gen3:~# mkdir /dev/cfs
+root@rcar-gen3:~# mkdir /dev/ffs
+root@rcar-gen3:~# modprobe libcomposite
+root@rcar-gen3:~# mount -t configfs none /dev/cfs
+root@rcar-gen3:~# mkdir /dev/cfs/usb_gadget/g1
+root@rcar-gen3:~# mkdir /dev/cfs/usb_gadget/g1/functions/ffs.ffs
+[   64.340664] file system registered
+root@rcar-gen3:~# mount -t functionfs ffs /dev/ffs
+root@rcar-gen3:~# cd /dev/ffs
+root@rcar-gen3:/dev/ffs# /home/root/ffs-test
+ffs-test: info: ep0: writing descriptors (in v2 format)
+[   83.181442] read descriptors
+[   83.186085] read strings
+ffs-test: info: ep0: writing strings
+ffs-test: dbg:  ep1: starting
+ffs-test: dbg:  ep2: starting
+ffs-test: info: ep1: starts
+ffs-test: info: ep2: starts
+ffs-test: info: ep0: starts
+
+^C
+root@rcar-gen3:/dev/ffs# cd /home/root/
+root@rcar-gen3:~# rmdir /dev/cfs/usb_gadget/g1/functions/ffs.ffs
+[   98.935061] unloading
+root@rcar-gen3:~# umount /dev/ffs
+[  102.734301] ==================================================================
+[  102.742059] BUG: KASAN: use-after-free in ffs_release_dev+0x64/0xa8 [usb_f_fs]
+[  102.749683] Write of size 1 at addr ffff0004d46ff549 by task umount/2997
+[  102.756709]
+[  102.758311] CPU: 0 PID: 2997 Comm: umount Not tainted 5.13.0-rc4+ #8
+[  102.764971] Hardware name: Renesas Salvator-X board based on r8a77951 (DT)
+[  102.772179] Call trace:
+[  102.774779]  dump_backtrace+0x0/0x330
+[  102.778653]  show_stack+0x20/0x2c
+[  102.782152]  dump_stack+0x11c/0x1ac
+[  102.785833]  print_address_description.constprop.0+0x30/0x274
+[  102.791862]  kasan_report+0x14c/0x1c8
+[  102.795719]  __asan_report_store1_noabort+0x34/0x58
+[  102.800840]  ffs_release_dev+0x64/0xa8 [usb_f_fs]
+[  102.805801]  ffs_fs_kill_sb+0x50/0x84 [usb_f_fs]
+[  102.810663]  deactivate_locked_super+0xa0/0xf0
+[  102.815339]  deactivate_super+0x98/0xac
+[  102.819378]  cleanup_mnt+0xd0/0x1b0
+[  102.823057]  __cleanup_mnt+0x1c/0x28
+[  102.826823]  task_work_run+0x104/0x180
+[  102.830774]  do_notify_resume+0x458/0x14e0
+[  102.835083]  work_pending+0xc/0x5f8
+[  102.838762]
+[  102.840357] Allocated by task 2988:
+[  102.844032]  kasan_save_stack+0x28/0x58
+[  102.848071]  kasan_set_track+0x28/0x3c
+[  102.852016]  ____kasan_kmalloc+0x84/0x9c
+[  102.856142]  __kasan_kmalloc+0x10/0x1c
+[  102.860088]  __kmalloc+0x214/0x2f8
+[  102.863678]  kzalloc.constprop.0+0x14/0x20 [usb_f_fs]
+[  102.868990]  ffs_alloc_inst+0x8c/0x208 [usb_f_fs]
+[  102.873942]  try_get_usb_function_instance+0xf0/0x164 [libcomposite]
+[  102.880629]  usb_get_function_instance+0x64/0x68 [libcomposite]
+[  102.886858]  function_make+0x128/0x1ec [libcomposite]
+[  102.892185]  configfs_mkdir+0x330/0x590 [configfs]
+[  102.897245]  vfs_mkdir+0x12c/0x1bc
+[  102.900835]  do_mkdirat+0x180/0x1d0
+[  102.904513]  __arm64_sys_mkdirat+0x80/0x94
+[  102.908822]  invoke_syscall+0xf8/0x25c
+[  102.912772]  el0_svc_common.constprop.0+0x150/0x1a0
+[  102.917891]  do_el0_svc+0xa0/0xd4
+[  102.921386]  el0_svc+0x24/0x34
+[  102.924613]  el0_sync_handler+0xcc/0x154
+[  102.928743]  el0_sync+0x198/0x1c0
+[  102.932238]
+[  102.933832] Freed by task 2996:
+[  102.937144]  kasan_save_stack+0x28/0x58
+[  102.941181]  kasan_set_track+0x28/0x3c
+[  102.945128]  kasan_set_free_info+0x28/0x4c
+[  102.949435]  ____kasan_slab_free+0x104/0x118
+[  102.953921]  __kasan_slab_free+0x18/0x24
+[  102.958047]  slab_free_freelist_hook+0x148/0x1f0
+[  102.962897]  kfree+0x318/0x440
+[  102.966123]  ffs_free_inst+0x164/0x2d8 [usb_f_fs]
+[  102.971075]  usb_put_function_instance+0x84/0xa4 [libcomposite]
+[  102.977302]  ffs_attr_release+0x18/0x24 [usb_f_fs]
+[  102.982344]  config_item_put+0x140/0x1a4 [configfs]
+[  102.987486]  configfs_rmdir+0x3fc/0x518 [configfs]
+[  102.992535]  vfs_rmdir+0x114/0x234
+[  102.996122]  do_rmdir+0x274/0x2b0
+[  102.999617]  __arm64_sys_unlinkat+0x94/0xc8
+[  103.004015]  invoke_syscall+0xf8/0x25c
+[  103.007961]  el0_svc_common.constprop.0+0x150/0x1a0
+[  103.013080]  do_el0_svc+0xa0/0xd4
+[  103.016575]  el0_svc+0x24/0x34
+[  103.019801]  el0_sync_handler+0xcc/0x154
+[  103.023930]  el0_sync+0x198/0x1c0
+[  103.027426]
+[  103.029020] The buggy address belongs to the object at ffff0004d46ff500
+[  103.029020]  which belongs to the cache kmalloc-128 of size 128
+[  103.042079] The buggy address is located 73 bytes inside of
+[  103.042079]  128-byte region [ffff0004d46ff500, ffff0004d46ff580)
+[  103.054236] The buggy address belongs to the page:
+[  103.059262] page:0000000021aa849b refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff0004d46fee00 pfn:0x5146fe
+[  103.070437] head:0000000021aa849b order:1 compound_mapcount:0
+[  103.076456] flags: 0x8000000000010200(slab|head|zone=2)
+[  103.081948] raw: 8000000000010200 fffffc0013521a80 0000000d0000000d ffff0004c0002300
+[  103.090052] raw: ffff0004d46fee00 000000008020001e 00000001ffffffff 0000000000000000
+[  103.098150] page dumped because: kasan: bad access detected
+[  103.103985]
+[  103.105578] Memory state around the buggy address:
+[  103.110602]  ffff0004d46ff400: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  103.118161]  ffff0004d46ff480: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  103.125726] >ffff0004d46ff500: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  103.133284]                                               ^
+[  103.139120]  ffff0004d46ff580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  103.146679]  ffff0004d46ff600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  103.154238] ==================================================================
+[  103.161792] Disabling lock debugging due to kernel taint
+[  103.167319] Unable to handle kernel paging request at virtual address 0037801d6000018e
+[  103.175406] Mem abort info:
+[  103.178457]   ESR = 0x96000004
+[  103.181609]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  103.187020]   SET = 0, FnV = 0
+[  103.190185]   EA = 0, S1PTW = 0
+[  103.193417] Data abort info:
+[  103.196385]   ISV = 0, ISS = 0x00000004
+[  103.200315]   CM = 0, WnR = 0
+[  103.203366] [0037801d6000018e] address between user and kernel address ranges
+[  103.210611] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[  103.216231] Modules linked in: usb_f_fs libcomposite configfs ath9k_htc led_class mac80211 libarc4 ath9k_common ath9k_hw ath cfg80211 aes_ce_blk sata_rc4
+[  103.259233] CPU: 0 PID: 2997 Comm: umount Tainted: G    B             5.13.0-rc4+ #8
+[  103.267031] Hardware name: Renesas Salvator-X board based on r8a77951 (DT)
+[  103.273951] pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
+[  103.280001] pc : ffs_data_clear+0x138/0x370 [usb_f_fs]
+[  103.285197] lr : ffs_data_clear+0x124/0x370 [usb_f_fs]
+[  103.290385] sp : ffff800014777a80
+[  103.293725] x29: ffff800014777a80 x28: ffff0004d7649c80 x27: 0000000000000000
+[  103.300931] x26: ffff800014777fb0 x25: ffff60009aec9394 x24: ffff0004d7649ca4
+[  103.308136] x23: 1fffe0009a3d063a x22: dfff800000000000 x21: ffff0004d1e831d0
+[  103.315340] x20: e1c000eb00000bb4 x19: ffff0004d1e83000 x18: 0000000000000000
+[  103.322545] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[  103.329748] x14: 0720072007200720 x13: 0720072007200720 x12: 1ffff000012ef658
+[  103.336952] x11: ffff7000012ef658 x10: 0720072007200720 x9 : ffff800011322648
+[  103.344157] x8 : ffff800014777818 x7 : ffff80000977b2c7 x6 : 0000000000000000
+[  103.351359] x5 : 0000000000000001 x4 : ffff7000012ef659 x3 : 0000000000000001
+[  103.358562] x2 : 0000000000000000 x1 : 1c38001d6000018e x0 : e1c000eb00000c70
+[  103.365766] Call trace:
+[  103.368235]  ffs_data_clear+0x138/0x370 [usb_f_fs]
+[  103.373076]  ffs_data_reset+0x20/0x304 [usb_f_fs]
+[  103.377829]  ffs_data_closed+0x1ec/0x244 [usb_f_fs]
+[  103.382755]  ffs_fs_kill_sb+0x70/0x84 [usb_f_fs]
+[  103.387420]  deactivate_locked_super+0xa0/0xf0
+[  103.391905]  deactivate_super+0x98/0xac
+[  103.395776]  cleanup_mnt+0xd0/0x1b0
+[  103.399299]  __cleanup_mnt+0x1c/0x28
+[  103.402906]  task_work_run+0x104/0x180
+[  103.406691]  do_notify_resume+0x458/0x14e0
+[  103.410823]  work_pending+0xc/0x5f8
+[  103.414351] Code: b4000a54 9102f280 12000802 d343fc01 (38f66821)
+[  103.420490] ---[ end trace 57b43a50e8244f57 ]---
+Segmentation fault
+root@rcar-gen3:~#
+==================================================================
+
+[2]
+==================================================================
+root@rcar-gen3:~# mkdir /dev/ffs
+root@rcar-gen3:~# modprobe libcomposite
+root@rcar-gen3:~#
+root@rcar-gen3:~# mount -t configfs none /dev/cfs
+root@rcar-gen3:~# mkdir /dev/cfs/usb_gadget/g1
+root@rcar-gen3:~# mkdir /dev/cfs/usb_gadget/g1/functions/ffs.ffs
+[   54.766480] file system registered
+root@rcar-gen3:~# mount -t functionfs ffs /dev/ffs
+root@rcar-gen3:~# rmdir /dev/cfs/usb_gadget/g1/functions/ffs.ffs
+[   63.197597] unloading
+root@rcar-gen3:~# cat /dev/ffs/ep0
+cat: read error:[   67.213506] ==================================================================
+[   67.222095] BUG: KASAN: use-after-free in ffs_data_clear+0x70/0x370 [usb_f_fs]
+[   67.229699] Write of size 1 at addr ffff0004c26e974a by task cat/2994
+[   67.236446]
+[   67.238045] CPU: 0 PID: 2994 Comm: cat Not tainted 5.13.0-rc4+ #8
+[   67.244431] Hardware name: Renesas Salvator-X board based on r8a77951 (DT)
+[   67.251624] Call trace:
+[   67.254212]  dump_backtrace+0x0/0x330
+[   67.258081]  show_stack+0x20/0x2c
+[   67.261579]  dump_stack+0x11c/0x1ac
+[   67.265260]  print_address_description.constprop.0+0x30/0x274
+[   67.271286]  kasan_report+0x14c/0x1c8
+[   67.275143]  __asan_report_store1_noabort+0x34/0x58
+[   67.280265]  ffs_data_clear+0x70/0x370 [usb_f_fs]
+[   67.285220]  ffs_data_reset+0x20/0x304 [usb_f_fs]
+[   67.290172]  ffs_data_closed+0x240/0x244 [usb_f_fs]
+[   67.295305]  ffs_ep0_release+0x40/0x54 [usb_f_fs]
+[   67.300256]  __fput+0x304/0x580
+[   67.303576]  ____fput+0x18/0x24
+[   67.306893]  task_work_run+0x104/0x180
+[   67.310846]  do_notify_resume+0x458/0x14e0
+[   67.315154]  work_pending+0xc/0x5f8
+[   67.318834]
+[   67.320429] Allocated by task 2988:
+[   67.324105]  kasan_save_stack+0x28/0x58
+[   67.328144]  kasan_set_track+0x28/0x3c
+[   67.332090]  ____kasan_kmalloc+0x84/0x9c
+[   67.336217]  __kasan_kmalloc+0x10/0x1c
+[   67.340163]  __kmalloc+0x214/0x2f8
+[   67.343754]  kzalloc.constprop.0+0x14/0x20 [usb_f_fs]
+[   67.349066]  ffs_alloc_inst+0x8c/0x208 [usb_f_fs]
+[   67.354017]  try_get_usb_function_instance+0xf0/0x164 [libcomposite]
+[   67.360705]  usb_get_function_instance+0x64/0x68 [libcomposite]
+[   67.366934]  function_make+0x128/0x1ec [libcomposite]
+[   67.372260]  configfs_mkdir+0x330/0x590 [configfs]
+[   67.377320]  vfs_mkdir+0x12c/0x1bc
+[   67.380911]  do_mkdirat+0x180/0x1d0
+[   67.384589]  __arm64_sys_mkdirat+0x80/0x94
+[   67.388899]  invoke_syscall+0xf8/0x25c
+[   67.392850]  el0_svc_common.constprop.0+0x150/0x1a0
+[   67.397969]  do_el0_svc+0xa0/0xd4
+[   67.401464]  el0_svc+0x24/0x34
+[   67.404691]  el0_sync_handler+0xcc/0x154
+[   67.408819]  el0_sync+0x198/0x1c0
+[   67.412315]
+[   67.413909] Freed by task 2993:
+[   67.417220]  kasan_save_stack+0x28/0x58
+[   67.421257]  kasan_set_track+0x28/0x3c
+[   67.425204]  kasan_set_free_info+0x28/0x4c
+[   67.429513]  ____kasan_slab_free+0x104/0x118
+[   67.434001]  __kasan_slab_free+0x18/0x24
+[   67.438128]  slab_free_freelist_hook+0x148/0x1f0
+[   67.442978]  kfree+0x318/0x440
+[   67.446205]  ffs_free_inst+0x164/0x2d8 [usb_f_fs]
+[   67.451156]  usb_put_function_instance+0x84/0xa4 [libcomposite]
+[   67.457385]  ffs_attr_release+0x18/0x24 [usb_f_fs]
+[   67.462428]  config_item_put+0x140/0x1a4 [configfs]
+[   67.467570]  configfs_rmdir+0x3fc/0x518 [configfs]
+[   67.472626]  vfs_rmdir+0x114/0x234
+[   67.476215]  do_rmdir+0x274/0x2b0
+[   67.479710]  __arm64_sys_unlinkat+0x94/0xc8
+[   67.484108]  invoke_syscall+0xf8/0x25c
+[   67.488055]  el0_svc_common.constprop.0+0x150/0x1a0
+[   67.493175]  do_el0_svc+0xa0/0xd4
+[   67.496671]  el0_svc+0x24/0x34
+[   67.499896]  el0_sync_handler+0xcc/0x154
+[   67.504024]  el0_sync+0x198/0x1c0
+[   67.507520]
+[   67.509114] The buggy address belongs to the object at ffff0004c26e9700
+[   67.509114]  which belongs to the cache kmalloc-128 of size 128
+[   67.522171] The buggy address is located 74 bytes inside of
+[   67.522171]  128-byte region [ffff0004c26e9700, ffff0004c26e9780)
+[   67.534328] The buggy address belongs to the page:
+[   67.539355] page:000000003177a217 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x5026e8
+[   67.549175] head:000000003177a217 order:1 compound_mapcount:0
+[   67.555195] flags: 0x8000000000010200(slab|head|zone=2)
+[   67.560687] raw: 8000000000010200 fffffc0013037100 0000000c00000002 ffff0004c0002300
+[   67.568791] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+[   67.576890] page dumped because: kasan: bad access detected
+[   67.582725]
+[   67.584318] Memory state around the buggy address:
+[   67.589343]  ffff0004c26e9600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[   67.596903]  ffff0004c26e9680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   67.604463] >ffff0004c26e9700: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[   67.612022]                                               ^
+[   67.617860]  ffff0004c26e9780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[   67.625421]  ffff0004c26e9800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   67.632981] ==================================================================
+[   67.640535] Disabling lock debugging due to kernel taint
+ File descriptor[   67.646100] Unable to handle kernel paging request at virtual address fabb801d4000018d
+ in bad state
+[   67.655456] Mem abort info:
+[   67.659619]   ESR = 0x96000004
+[   67.662801]   EC = 0x25: DABT (current EL), IL = 32 bits
+[   67.668225]   SET = 0, FnV = 0
+[   67.671375]   EA = 0, S1PTW = 0
+[   67.674613] Data abort info:
+[   67.677587]   ISV = 0, ISS = 0x00000004
+[   67.681522]   CM = 0, WnR = 0
+[   67.684588] [fabb801d4000018d] address between user and kernel address ranges
+[   67.691849] Internal error: Oops: 96000004 [#1] PREEMPT SMP
+[   67.697470] Modules linked in: usb_f_fs libcomposite configfs ath9k_htc led_class mac80211 libarc4 ath9k_common ath9k_hw ath cfg80211 aes_ce_blk crypto_simd cryptd aes_ce_cipher ghash_ce gf128mul sha2_ce sha1_ce evdev sata_rcar libata xhci_plat_hcd scsi_mod xhci_hcd rene4
+[   67.740467] CPU: 0 PID: 2994 Comm: cat Tainted: G    B             5.13.0-rc4+ #8
+[   67.748005] Hardware name: Renesas Salvator-X board based on r8a77951 (DT)
+[   67.754924] pstate: 00000005 (nzcv daif -PAN -UAO -TCO BTYPE=--)
+[   67.760974] pc : ffs_data_clear+0x138/0x370 [usb_f_fs]
+[   67.766178] lr : ffs_data_clear+0x124/0x370 [usb_f_fs]
+[   67.771365] sp : ffff800014767ad0
+[   67.774706] x29: ffff800014767ad0 x28: ffff800009cf91c0 x27: ffff0004c54861a0
+[   67.781913] x26: ffff0004dc90b288 x25: 1fffe00099ec10f5 x24: 00000000000a801d
+[   67.789118] x23: 1fffe00099f6953a x22: dfff800000000000 x21: ffff0004cfb4a9d0
+[   67.796322] x20: d5e000ea00000bb1 x19: ffff0004cfb4a800 x18: 0000000000000000
+[   67.803526] x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+[   67.810730] x14: 0720072007200720 x13: 0720072007200720 x12: 1ffff000028ecefa
+[   67.817934] x11: ffff7000028ecefa x10: 0720072007200720 x9 : ffff80001132c014
+[   67.825137] x8 : ffff8000147677d8 x7 : ffff8000147677d7 x6 : 0000000000000000
+[   67.832341] x5 : 0000000000000001 x4 : ffff7000028ecefb x3 : 0000000000000001
+[   67.839544] x2 : 0000000000000005 x1 : 1abc001d4000018d x0 : d5e000ea00000c6d
+[   67.846748] Call trace:
+[   67.849218]  ffs_data_clear+0x138/0x370 [usb_f_fs]
+[   67.854058]  ffs_data_reset+0x20/0x304 [usb_f_fs]
+[   67.858810]  ffs_data_closed+0x240/0x244 [usb_f_fs]
+[   67.863736]  ffs_ep0_release+0x40/0x54 [usb_f_fs]
+[   67.868488]  __fput+0x304/0x580
+[   67.871665]  ____fput+0x18/0x24
+[   67.874837]  task_work_run+0x104/0x180
+[   67.878622]  do_notify_resume+0x458/0x14e0
+[   67.882754]  work_pending+0xc/0x5f8
+[   67.886282] Code: b4000a54 9102f280 12000802 d343fc01 (38f66821)
+[   67.892422] ---[ end trace 6d7cedf53d7abbea ]---
+Segmentation fault
+root@rcar-gen3:~#
+==================================================================
+
+Fixes: 4b187fceec3c ("usb: gadget: FunctionFS: add devices management code")
+Fixes: 3262ad824307 ("usb: gadget: f_fs: Stop ffs_closed NULL pointer dereference")
+Fixes: cdafb6d8b8da ("usb: gadget: f_fs: Fix use-after-free in ffs_free_inst")
+Reported-by: Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>
+Tested-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Reviewed-by: Eugeniu Rosca <erosca@de.adit-jv.com>
+Signed-off-by: Andrew Gabbasov <andrew_gabbasov@mentor.com>
+Link: https://lore.kernel.org/r/20210603171507.22514-1-andrew_gabbasov@mentor.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iscsi_iser.c |  1 +
- drivers/scsi/be2iscsi/be_iscsi.c         | 19 ++++++++++++------
- drivers/scsi/bnx2i/bnx2i_iscsi.c         | 23 +++++++++++++++-------
- drivers/scsi/cxgbi/libcxgbi.c            | 12 ++++++++----
- drivers/scsi/qedi/qedi_iscsi.c           | 25 +++++++++++++++++-------
- drivers/scsi/qla4xxx/ql4_os.c            |  1 +
- drivers/scsi/scsi_transport_iscsi.c      | 25 ++++++++++++++++--------
- include/scsi/scsi_transport_iscsi.h      |  1 +
- 8 files changed, 75 insertions(+), 32 deletions(-)
+ drivers/usb/gadget/function/f_fs.c | 65 +++++++++++++++---------------
+ 1 file changed, 32 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.c b/drivers/infiniband/ulp/iser/iscsi_iser.c
-index 6baebcb6d14d..776e46ee95da 100644
---- a/drivers/infiniband/ulp/iser/iscsi_iser.c
-+++ b/drivers/infiniband/ulp/iser/iscsi_iser.c
-@@ -506,6 +506,7 @@ iscsi_iser_conn_bind(struct iscsi_cls_session *cls_session,
- 	iser_conn->iscsi_conn = conn;
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index f29abc7867d5..366509e89b98 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -250,8 +250,8 @@ EXPORT_SYMBOL_GPL(ffs_lock);
+ static struct ffs_dev *_ffs_find_dev(const char *name);
+ static struct ffs_dev *_ffs_alloc_dev(void);
+ static void _ffs_free_dev(struct ffs_dev *dev);
+-static void *ffs_acquire_dev(const char *dev_name);
+-static void ffs_release_dev(struct ffs_data *ffs_data);
++static int ffs_acquire_dev(const char *dev_name, struct ffs_data *ffs_data);
++static void ffs_release_dev(struct ffs_dev *ffs_dev);
+ static int ffs_ready(struct ffs_data *ffs);
+ static void ffs_closed(struct ffs_data *ffs);
  
- out:
-+	iscsi_put_endpoint(ep);
- 	mutex_unlock(&iser_conn->state_mutex);
- 	return error;
- }
-diff --git a/drivers/scsi/be2iscsi/be_iscsi.c b/drivers/scsi/be2iscsi/be_iscsi.c
-index 0e935c49b57b..dd419e295184 100644
---- a/drivers/scsi/be2iscsi/be_iscsi.c
-+++ b/drivers/scsi/be2iscsi/be_iscsi.c
-@@ -182,6 +182,7 @@ int beiscsi_conn_bind(struct iscsi_cls_session *cls_session,
- 	struct beiscsi_endpoint *beiscsi_ep;
- 	struct iscsi_endpoint *ep;
- 	uint16_t cri_index;
-+	int rc = 0;
- 
- 	ep = iscsi_lookup_endpoint(transport_fd);
- 	if (!ep)
-@@ -189,15 +190,17 @@ int beiscsi_conn_bind(struct iscsi_cls_session *cls_session,
- 
- 	beiscsi_ep = ep->dd_data;
- 
--	if (iscsi_conn_bind(cls_session, cls_conn, is_leading))
--		return -EINVAL;
-+	if (iscsi_conn_bind(cls_session, cls_conn, is_leading)) {
-+		rc = -EINVAL;
-+		goto put_ep;
-+	}
- 
- 	if (beiscsi_ep->phba != phba) {
- 		beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_CONFIG,
- 			    "BS_%d : beiscsi_ep->hba=%p not equal to phba=%p\n",
- 			    beiscsi_ep->phba, phba);
--
--		return -EEXIST;
-+		rc = -EEXIST;
-+		goto put_ep;
- 	}
- 	cri_index = BE_GET_CRI_FROM_CID(beiscsi_ep->ep_cid);
- 	if (phba->conn_table[cri_index]) {
-@@ -209,7 +212,8 @@ int beiscsi_conn_bind(struct iscsi_cls_session *cls_session,
- 				      beiscsi_ep->ep_cid,
- 				      beiscsi_conn,
- 				      phba->conn_table[cri_index]);
--			return -EINVAL;
-+			rc = -EINVAL;
-+			goto put_ep;
- 		}
- 	}
- 
-@@ -226,7 +230,10 @@ int beiscsi_conn_bind(struct iscsi_cls_session *cls_session,
- 		    "BS_%d : cid %d phba->conn_table[%u]=%p\n",
- 		    beiscsi_ep->ep_cid, cri_index, beiscsi_conn);
- 	phba->conn_table[cri_index] = beiscsi_conn;
--	return 0;
-+
-+put_ep:
-+	iscsi_put_endpoint(ep);
-+	return rc;
- }
- 
- static int beiscsi_iface_create_ipv4(struct beiscsi_hba *phba)
-diff --git a/drivers/scsi/bnx2i/bnx2i_iscsi.c b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-index b6c1da46d582..2ad85c6b99fd 100644
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -1420,17 +1420,23 @@ static int bnx2i_conn_bind(struct iscsi_cls_session *cls_session,
- 	 * Forcefully terminate all in progress connection recovery at the
- 	 * earliest, either in bind(), send_pdu(LOGIN), or conn_start()
- 	 */
--	if (bnx2i_adapter_ready(hba))
--		return -EIO;
-+	if (bnx2i_adapter_ready(hba)) {
-+		ret_code = -EIO;
-+		goto put_ep;
-+	}
- 
- 	bnx2i_ep = ep->dd_data;
- 	if ((bnx2i_ep->state == EP_STATE_TCP_FIN_RCVD) ||
--	    (bnx2i_ep->state == EP_STATE_TCP_RST_RCVD))
-+	    (bnx2i_ep->state == EP_STATE_TCP_RST_RCVD)) {
- 		/* Peer disconnect via' FIN or RST */
--		return -EINVAL;
-+		ret_code = -EINVAL;
-+		goto put_ep;
-+	}
- 
--	if (iscsi_conn_bind(cls_session, cls_conn, is_leading))
--		return -EINVAL;
-+	if (iscsi_conn_bind(cls_session, cls_conn, is_leading)) {
-+		ret_code = -EINVAL;
-+		goto put_ep;
-+	}
- 
- 	if (bnx2i_ep->hba != hba) {
- 		/* Error - TCP connection does not belong to this device
-@@ -1441,7 +1447,8 @@ static int bnx2i_conn_bind(struct iscsi_cls_session *cls_session,
- 		iscsi_conn_printk(KERN_ALERT, cls_conn->dd_data,
- 				  "belong to hba (%s)\n",
- 				  hba->netdev->name);
--		return -EEXIST;
-+		ret_code = -EEXIST;
-+		goto put_ep;
- 	}
- 	bnx2i_ep->conn = bnx2i_conn;
- 	bnx2i_conn->ep = bnx2i_ep;
-@@ -1458,6 +1465,8 @@ static int bnx2i_conn_bind(struct iscsi_cls_session *cls_session,
- 		bnx2i_put_rq_buf(bnx2i_conn, 0);
- 
- 	bnx2i_arm_cq_event_coalescing(bnx2i_conn->ep, CNIC_ARM_CQE);
-+put_ep:
-+	iscsi_put_endpoint(ep);
- 	return ret_code;
- }
- 
-diff --git a/drivers/scsi/cxgbi/libcxgbi.c b/drivers/scsi/cxgbi/libcxgbi.c
-index f078b3c4e083..f6bcae829c29 100644
---- a/drivers/scsi/cxgbi/libcxgbi.c
-+++ b/drivers/scsi/cxgbi/libcxgbi.c
-@@ -2690,11 +2690,13 @@ int cxgbi_bind_conn(struct iscsi_cls_session *cls_session,
- 	err = csk->cdev->csk_ddp_setup_pgidx(csk, csk->tid,
- 					     ppm->tformat.pgsz_idx_dflt);
- 	if (err < 0)
--		return err;
-+		goto put_ep;
- 
- 	err = iscsi_conn_bind(cls_session, cls_conn, is_leading);
--	if (err)
--		return -EINVAL;
-+	if (err) {
-+		err = -EINVAL;
-+		goto put_ep;
-+	}
- 
- 	/*  calculate the tag idx bits needed for this conn based on cmds_max */
- 	cconn->task_idx_bits = (__ilog2_u32(conn->session->cmds_max - 1)) + 1;
-@@ -2715,7 +2717,9 @@ int cxgbi_bind_conn(struct iscsi_cls_session *cls_session,
- 	/*  init recv engine */
- 	iscsi_tcp_hdr_recv_prep(tcp_conn);
- 
--	return 0;
-+put_ep:
-+	iscsi_put_endpoint(ep);
-+	return err;
- }
- EXPORT_SYMBOL_GPL(cxgbi_bind_conn);
- 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index ef16537c523c..087c7ff28cd5 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -377,6 +377,7 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
- 	struct qedi_ctx *qedi = iscsi_host_priv(shost);
- 	struct qedi_endpoint *qedi_ep;
- 	struct iscsi_endpoint *ep;
-+	int rc = 0;
- 
- 	ep = iscsi_lookup_endpoint(transport_fd);
- 	if (!ep)
-@@ -384,11 +385,16 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
- 
- 	qedi_ep = ep->dd_data;
- 	if ((qedi_ep->state == EP_STATE_TCP_FIN_RCVD) ||
--	    (qedi_ep->state == EP_STATE_TCP_RST_RCVD))
--		return -EINVAL;
-+	    (qedi_ep->state == EP_STATE_TCP_RST_RCVD)) {
-+		rc = -EINVAL;
-+		goto put_ep;
-+	}
-+
-+	if (iscsi_conn_bind(cls_session, cls_conn, is_leading)) {
-+		rc = -EINVAL;
-+		goto put_ep;
-+	}
- 
--	if (iscsi_conn_bind(cls_session, cls_conn, is_leading))
--		return -EINVAL;
- 
- 	qedi_ep->conn = qedi_conn;
- 	qedi_conn->ep = qedi_ep;
-@@ -398,13 +404,18 @@ static int qedi_conn_bind(struct iscsi_cls_session *cls_session,
- 	qedi_conn->cmd_cleanup_req = 0;
- 	qedi_conn->cmd_cleanup_cmpl = 0;
- 
--	if (qedi_bind_conn_to_iscsi_cid(qedi, qedi_conn))
--		return -EINVAL;
-+	if (qedi_bind_conn_to_iscsi_cid(qedi, qedi_conn)) {
-+		rc = -EINVAL;
-+		goto put_ep;
-+	}
-+
- 
- 	spin_lock_init(&qedi_conn->tmf_work_lock);
- 	INIT_LIST_HEAD(&qedi_conn->tmf_work_list);
- 	init_waitqueue_head(&qedi_conn->wait_queue);
--	return 0;
-+put_ep:
-+	iscsi_put_endpoint(ep);
-+	return rc;
- }
- 
- static int qedi_iscsi_update_conn(struct qedi_ctx *qedi,
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index 74d0d1bc208d..0e7a7e82e028 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -3235,6 +3235,7 @@ static int qla4xxx_conn_bind(struct iscsi_cls_session *cls_session,
- 	conn = cls_conn->dd_data;
- 	qla_conn = conn->dd_data;
- 	qla_conn->qla_ep = ep->dd_data;
-+	iscsi_put_endpoint(ep);
- 	return 0;
- }
- 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 2eb77f69fe0c..bab6654d8ee9 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -266,9 +266,20 @@ void iscsi_destroy_endpoint(struct iscsi_endpoint *ep)
- }
- EXPORT_SYMBOL_GPL(iscsi_destroy_endpoint);
- 
-+void iscsi_put_endpoint(struct iscsi_endpoint *ep)
-+{
-+	put_device(&ep->dev);
-+}
-+EXPORT_SYMBOL_GPL(iscsi_put_endpoint);
-+
-+/**
-+ * iscsi_lookup_endpoint - get ep from handle
-+ * @handle: endpoint handle
-+ *
-+ * Caller must do a iscsi_put_endpoint.
-+ */
- struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle)
+@@ -1554,8 +1554,8 @@ unmapped_value:
+ static int ffs_fs_get_tree(struct fs_context *fc)
  {
--	struct iscsi_endpoint *ep;
- 	struct device *dev;
+ 	struct ffs_sb_fill_data *ctx = fc->fs_private;
+-	void *ffs_dev;
+ 	struct ffs_data	*ffs;
++	int ret;
  
- 	dev = class_find_device(&iscsi_endpoint_class, NULL, &handle,
-@@ -276,13 +287,7 @@ struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle)
- 	if (!dev)
- 		return NULL;
+ 	ENTER();
  
--	ep = iscsi_dev_to_endpoint(dev);
--	/*
--	 * we can drop this now because the interface will prevent
--	 * removals and lookups from racing.
--	 */
--	put_device(dev);
--	return ep;
-+	return iscsi_dev_to_endpoint(dev);
- }
- EXPORT_SYMBOL_GPL(iscsi_lookup_endpoint);
- 
-@@ -2990,6 +2995,7 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
+@@ -1574,13 +1574,12 @@ static int ffs_fs_get_tree(struct fs_context *fc)
+ 		return -ENOMEM;
  	}
  
- 	transport->ep_disconnect(ep);
-+	iscsi_put_endpoint(ep);
- 	return 0;
+-	ffs_dev = ffs_acquire_dev(ffs->dev_name);
+-	if (IS_ERR(ffs_dev)) {
++	ret = ffs_acquire_dev(ffs->dev_name, ffs);
++	if (ret) {
+ 		ffs_data_put(ffs);
+-		return PTR_ERR(ffs_dev);
++		return ret;
+ 	}
+ 
+-	ffs->private_data = ffs_dev;
+ 	ctx->ffs_data = ffs;
+ 	return get_tree_nodev(fc, ffs_sb_fill);
+ }
+@@ -1591,7 +1590,6 @@ static void ffs_fs_free_fc(struct fs_context *fc)
+ 
+ 	if (ctx) {
+ 		if (ctx->ffs_data) {
+-			ffs_release_dev(ctx->ffs_data);
+ 			ffs_data_put(ctx->ffs_data);
+ 		}
+ 
+@@ -1630,10 +1628,8 @@ ffs_fs_kill_sb(struct super_block *sb)
+ 	ENTER();
+ 
+ 	kill_litter_super(sb);
+-	if (sb->s_fs_info) {
+-		ffs_release_dev(sb->s_fs_info);
++	if (sb->s_fs_info)
+ 		ffs_data_closed(sb->s_fs_info);
+-	}
  }
  
-@@ -3015,6 +3021,7 @@ iscsi_if_transport_ep(struct iscsi_transport *transport,
+ static struct file_system_type ffs_fs_type = {
+@@ -1703,6 +1699,7 @@ static void ffs_data_put(struct ffs_data *ffs)
+ 	if (refcount_dec_and_test(&ffs->ref)) {
+ 		pr_info("%s(): freeing\n", __func__);
+ 		ffs_data_clear(ffs);
++		ffs_release_dev(ffs->private_data);
+ 		BUG_ON(waitqueue_active(&ffs->ev.waitq) ||
+ 		       swait_active(&ffs->ep0req_completion.wait) ||
+ 		       waitqueue_active(&ffs->wait));
+@@ -3032,6 +3029,7 @@ static inline struct f_fs_opts *ffs_do_functionfs_bind(struct usb_function *f,
+ 	struct ffs_function *func = ffs_func_from_usb(f);
+ 	struct f_fs_opts *ffs_opts =
+ 		container_of(f->fi, struct f_fs_opts, func_inst);
++	struct ffs_data *ffs_data;
+ 	int ret;
  
- 		ev->r.retcode = transport->ep_poll(ep,
- 						   ev->u.ep_poll.timeout_ms);
-+		iscsi_put_endpoint(ep);
- 		break;
- 	case ISCSI_UEVENT_TRANSPORT_EP_DISCONNECT:
- 		rc = iscsi_if_ep_disconnect(transport,
-@@ -3698,6 +3705,7 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 					ev->u.c_bound_session.initial_cmdsn,
- 					ev->u.c_bound_session.cmds_max,
- 					ev->u.c_bound_session.queue_depth);
-+		iscsi_put_endpoint(ep);
- 		break;
- 	case ISCSI_UEVENT_DESTROY_SESSION:
- 		session = iscsi_session_lookup(ev->u.d_session.sid);
-@@ -3769,6 +3777,7 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 			mutex_lock(&conn->ep_mutex);
- 			conn->ep = ep;
- 			mutex_unlock(&conn->ep_mutex);
-+			iscsi_put_endpoint(ep);
- 		} else
- 			iscsi_cls_conn_printk(KERN_ERR, conn,
- 					      "Could not set ep conn "
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index 8874016b3c9a..d36a72cf049f 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -442,6 +442,7 @@ extern int iscsi_scan_finished(struct Scsi_Host *shost, unsigned long time);
- extern struct iscsi_endpoint *iscsi_create_endpoint(int dd_size);
- extern void iscsi_destroy_endpoint(struct iscsi_endpoint *ep);
- extern struct iscsi_endpoint *iscsi_lookup_endpoint(u64 handle);
-+extern void iscsi_put_endpoint(struct iscsi_endpoint *ep);
- extern int iscsi_block_scsi_eh(struct scsi_cmnd *cmd);
- extern struct iscsi_iface *iscsi_create_iface(struct Scsi_Host *shost,
- 					      struct iscsi_transport *t,
+ 	ENTER();
+@@ -3046,12 +3044,13 @@ static inline struct f_fs_opts *ffs_do_functionfs_bind(struct usb_function *f,
+ 	if (!ffs_opts->no_configfs)
+ 		ffs_dev_lock();
+ 	ret = ffs_opts->dev->desc_ready ? 0 : -ENODEV;
+-	func->ffs = ffs_opts->dev->ffs_data;
++	ffs_data = ffs_opts->dev->ffs_data;
+ 	if (!ffs_opts->no_configfs)
+ 		ffs_dev_unlock();
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
++	func->ffs = ffs_data;
+ 	func->conf = c;
+ 	func->gadget = c->cdev->gadget;
+ 
+@@ -3506,6 +3505,7 @@ static void ffs_free_inst(struct usb_function_instance *f)
+ 	struct f_fs_opts *opts;
+ 
+ 	opts = to_f_fs_opts(f);
++	ffs_release_dev(opts->dev);
+ 	ffs_dev_lock();
+ 	_ffs_free_dev(opts->dev);
+ 	ffs_dev_unlock();
+@@ -3693,47 +3693,48 @@ static void _ffs_free_dev(struct ffs_dev *dev)
+ {
+ 	list_del(&dev->entry);
+ 
+-	/* Clear the private_data pointer to stop incorrect dev access */
+-	if (dev->ffs_data)
+-		dev->ffs_data->private_data = NULL;
+-
+ 	kfree(dev);
+ 	if (list_empty(&ffs_devices))
+ 		functionfs_cleanup();
+ }
+ 
+-static void *ffs_acquire_dev(const char *dev_name)
++static int ffs_acquire_dev(const char *dev_name, struct ffs_data *ffs_data)
+ {
++	int ret = 0;
+ 	struct ffs_dev *ffs_dev;
+ 
+ 	ENTER();
+ 	ffs_dev_lock();
+ 
+ 	ffs_dev = _ffs_find_dev(dev_name);
+-	if (!ffs_dev)
+-		ffs_dev = ERR_PTR(-ENOENT);
+-	else if (ffs_dev->mounted)
+-		ffs_dev = ERR_PTR(-EBUSY);
+-	else if (ffs_dev->ffs_acquire_dev_callback &&
+-	    ffs_dev->ffs_acquire_dev_callback(ffs_dev))
+-		ffs_dev = ERR_PTR(-ENOENT);
+-	else
++	if (!ffs_dev) {
++		ret = -ENOENT;
++	} else if (ffs_dev->mounted) {
++		ret = -EBUSY;
++	} else if (ffs_dev->ffs_acquire_dev_callback &&
++		   ffs_dev->ffs_acquire_dev_callback(ffs_dev)) {
++		ret = -ENOENT;
++	} else {
+ 		ffs_dev->mounted = true;
++		ffs_dev->ffs_data = ffs_data;
++		ffs_data->private_data = ffs_dev;
++	}
+ 
+ 	ffs_dev_unlock();
+-	return ffs_dev;
++	return ret;
+ }
+ 
+-static void ffs_release_dev(struct ffs_data *ffs_data)
++static void ffs_release_dev(struct ffs_dev *ffs_dev)
+ {
+-	struct ffs_dev *ffs_dev;
+-
+ 	ENTER();
+ 	ffs_dev_lock();
+ 
+-	ffs_dev = ffs_data->private_data;
+-	if (ffs_dev) {
++	if (ffs_dev && ffs_dev->mounted) {
+ 		ffs_dev->mounted = false;
++		if (ffs_dev->ffs_data) {
++			ffs_dev->ffs_data->private_data = NULL;
++			ffs_dev->ffs_data = NULL;
++		}
+ 
+ 		if (ffs_dev->ffs_release_dev_callback)
+ 			ffs_dev->ffs_release_dev_callback(ffs_dev);
+@@ -3761,7 +3762,6 @@ static int ffs_ready(struct ffs_data *ffs)
+ 	}
+ 
+ 	ffs_obj->desc_ready = true;
+-	ffs_obj->ffs_data = ffs;
+ 
+ 	if (ffs_obj->ffs_ready_callback) {
+ 		ret = ffs_obj->ffs_ready_callback(ffs);
+@@ -3789,7 +3789,6 @@ static void ffs_closed(struct ffs_data *ffs)
+ 		goto done;
+ 
+ 	ffs_obj->desc_ready = false;
+-	ffs_obj->ffs_data = NULL;
+ 
+ 	if (test_and_clear_bit(FFS_FL_CALL_CLOSED_CALLBACK, &ffs->flags) &&
+ 	    ffs_obj->ffs_closed_callback)
 -- 
 2.30.2
 
