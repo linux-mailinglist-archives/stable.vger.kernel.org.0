@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA083C4D93
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 626953C4D94
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241461AbhGLHNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46542 "EHLO mail.kernel.org"
+        id S241219AbhGLHNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241350AbhGLHMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:12:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58D2360FF0;
-        Mon, 12 Jul 2021 07:09:07 +0000 (UTC)
+        id S242315AbhGLHMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:12:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B67610CA;
+        Mon, 12 Jul 2021 07:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073747;
-        bh=y1dDtowXYmNngW7QfUiJrbLSrm7VBAyFVm3SWaHKEDA=;
+        s=korg; t=1626073750;
+        bh=pGyUPq/CcyxUrsdxtO71INuUHWTfk5AWyYSFZDYFbDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGbU8ZR9s7/zgKGrIX3i8wKS6Lakiw7QgPLU+n/oCY4beowCIRWvqL/+HuNNQnzfQ
-         yRpA6lrVhMPwF0s+b5agIl8XPjVyieihpSE2pmooNA6StV7hmrcfobHMac4q6GHOOc
-         BOujCcX1K9TwQSqI2cbcOUXgLSIICnJ3O/H5WlTE=
+        b=b4FVxSJn0oHsyw0Gi1JwVK2Sp+E0majz5Pslq37gsluMCo8RewwJiYqoYonfoRT72
+         CvMjiE/qgX06/ZTNiwS+u8ScsCMYgrbnwJTxJ/JCqEFL6gVXv9wYhhTFiJDyYXkXK5
+         4ihXylrzvMhMiX1IS7puzz3gNDakxr7POyDXqpgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
+        stable@vger.kernel.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 344/700] dax: fix ENOMEM handling in grab_mapping_entry()
-Date:   Mon, 12 Jul 2021 08:07:07 +0200
-Message-Id: <20210712061012.882703827@linuxfoundation.org>
+Subject: [PATCH 5.12 345/700] mm/debug_vm_pgtable: ensure THP availability via has_transparent_hugepage()
+Date:   Mon, 12 Jul 2021 08:07:08 +0200
+Message-Id: <20210712061012.973374545@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -44,61 +44,236 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
+[ Upstream commit 65ac1a60a57e2c55f2ac37f27095f6b012295e81 ]
 
-grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
-we have a PMD entry at index i which we are downgrading to a PTE entry.
-grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
-the entry in xarray, and decrement mapping->nrpages.  The it will call:
+On certain platforms, THP support could not just be validated via the
+build option CONFIG_TRANSPARENT_HUGEPAGE.  Instead
+has_transparent_hugepage() also needs to be called upon to verify THP
+runtime support.  Otherwise the debug test will just run into unusable THP
+helpers like in the case of a 4K hash config on powerpc platform [1].
+This just moves all pfn_pmd() and pfn_pud() after THP runtime validation
+with has_transparent_hugepage() which prevents the mentioned problem.
 
-	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
-	dax_lock_entry(xas, entry);
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=213069
 
-which inserts new PTE entry into xarray.  However this may fail allocating
-the new node.  We handle this by:
-
-	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
-		goto retry;
-
-however pmd_downgrade stays set to true even though 'entry' returned from
-get_unlocked_entry() will be NULL now.  And we will go again through the
-downgrade branch.  This is mostly harmless except that mapping->nrpages is
-decremented again and we temporarily have an invalid entry stored in
-xarray.  Fix the problem by setting pmd_downgrade to false each time we
-lookup the entry we work with so that it matches the entry we found.
-
-Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
-Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Link: https://lkml.kernel.org/r/1621397588-19211-1-git-send-email-anshuman.khandual@arm.com
+Fixes: 787d563b8642 ("mm/debug_vm_pgtable: fix kernel crash by checking for THP support")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ mm/debug_vm_pgtable.c | 63 ++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 51 insertions(+), 12 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index df5485b4bddf..d5d7b9393bca 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -488,10 +488,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 		struct address_space *mapping, unsigned int order)
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index 726fd2030f64..12ebc97e8b43 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -146,13 +146,14 @@ static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+ static void __init pmd_basic_tests(unsigned long pfn, int idx)
  {
- 	unsigned long index = xas->xa_index;
--	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
-+	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
- 	void *entry;
+ 	pgprot_t prot = protection_map[idx];
+-	pmd_t pmd = pfn_pmd(pfn, prot);
+ 	unsigned long val = idx, *ptr = &val;
++	pmd_t pmd;
  
- retry:
-+	pmd_downgrade = false;
- 	xas_lock_irq(xas);
- 	entry = get_unlocked_entry(xas, order);
+ 	if (!has_transparent_hugepage())
+ 		return;
  
+ 	pr_debug("Validating PMD basic (%pGv)\n", ptr);
++	pmd = pfn_pmd(pfn, prot);
+ 
+ 	/*
+ 	 * This test needs to be executed after the given page table entry
+@@ -185,7 +186,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
+ 				      unsigned long pfn, unsigned long vaddr,
+ 				      pgprot_t prot, pgtable_t pgtable)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
+ 
+ 	if (!has_transparent_hugepage())
+ 		return;
+@@ -232,9 +233,14 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
+ 
+ static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
++
++	if (!has_transparent_hugepage())
++		return;
+ 
+ 	pr_debug("Validating PMD leaf\n");
++	pmd = pfn_pmd(pfn, prot);
++
+ 	/*
+ 	 * PMD based THP is a leaf entry.
+ 	 */
+@@ -267,12 +273,16 @@ static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
+ 
+ static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
+ 
+ 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
+ 		return;
+ 
++	if (!has_transparent_hugepage())
++		return;
++
+ 	pr_debug("Validating PMD saved write\n");
++	pmd = pfn_pmd(pfn, prot);
+ 	WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
+ 	WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
+ }
+@@ -281,13 +291,14 @@ static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
+ static void __init pud_basic_tests(struct mm_struct *mm, unsigned long pfn, int idx)
+ {
+ 	pgprot_t prot = protection_map[idx];
+-	pud_t pud = pfn_pud(pfn, prot);
+ 	unsigned long val = idx, *ptr = &val;
++	pud_t pud;
+ 
+ 	if (!has_transparent_hugepage())
+ 		return;
+ 
+ 	pr_debug("Validating PUD basic (%pGv)\n", ptr);
++	pud = pfn_pud(pfn, prot);
+ 
+ 	/*
+ 	 * This test needs to be executed after the given page table entry
+@@ -323,7 +334,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
+ 				      unsigned long pfn, unsigned long vaddr,
+ 				      pgprot_t prot)
+ {
+-	pud_t pud = pfn_pud(pfn, prot);
++	pud_t pud;
+ 
+ 	if (!has_transparent_hugepage())
+ 		return;
+@@ -332,6 +343,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
+ 	/* Align the address wrt HPAGE_PUD_SIZE */
+ 	vaddr &= HPAGE_PUD_MASK;
+ 
++	pud = pfn_pud(pfn, prot);
+ 	set_pud_at(mm, vaddr, pudp, pud);
+ 	pudp_set_wrprotect(mm, vaddr, pudp);
+ 	pud = READ_ONCE(*pudp);
+@@ -370,9 +382,13 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
+ 
+ static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pud_t pud = pfn_pud(pfn, prot);
++	pud_t pud;
++
++	if (!has_transparent_hugepage())
++		return;
+ 
+ 	pr_debug("Validating PUD leaf\n");
++	pud = pfn_pud(pfn, prot);
+ 	/*
+ 	 * PUD based THP is a leaf entry.
+ 	 */
+@@ -654,12 +670,16 @@ static void __init pte_protnone_tests(unsigned long pfn, pgprot_t prot)
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
++	pmd_t pmd;
+ 
+ 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
+ 		return;
+ 
++	if (!has_transparent_hugepage())
++		return;
++
+ 	pr_debug("Validating PMD protnone\n");
++	pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
+ 	WARN_ON(!pmd_protnone(pmd));
+ 	WARN_ON(!pmd_present(pmd));
+ }
+@@ -679,18 +699,26 @@ static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot)
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
++
++	if (!has_transparent_hugepage())
++		return;
+ 
+ 	pr_debug("Validating PMD devmap\n");
++	pmd = pfn_pmd(pfn, prot);
+ 	WARN_ON(!pmd_devmap(pmd_mkdevmap(pmd)));
+ }
+ 
+ #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
+ static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pud_t pud = pfn_pud(pfn, prot);
++	pud_t pud;
++
++	if (!has_transparent_hugepage())
++		return;
+ 
+ 	pr_debug("Validating PUD devmap\n");
++	pud = pfn_pud(pfn, prot);
+ 	WARN_ON(!pud_devmap(pud_mkdevmap(pud)));
+ }
+ #else  /* !CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
+@@ -733,25 +761,33 @@ static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+ static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
+ 
+ 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
+ 		return;
+ 
++	if (!has_transparent_hugepage())
++		return;
++
+ 	pr_debug("Validating PMD soft dirty\n");
++	pmd = pfn_pmd(pfn, prot);
+ 	WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
+ 	WARN_ON(pmd_soft_dirty(pmd_clear_soft_dirty(pmd)));
+ }
+ 
+ static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
+ {
+-	pmd_t pmd = pfn_pmd(pfn, prot);
++	pmd_t pmd;
+ 
+ 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) ||
+ 		!IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
+ 		return;
+ 
++	if (!has_transparent_hugepage())
++		return;
++
+ 	pr_debug("Validating PMD swap soft dirty\n");
++	pmd = pfn_pmd(pfn, prot);
+ 	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
+ 	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
+ }
+@@ -780,6 +816,9 @@ static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
+ 	swp_entry_t swp;
+ 	pmd_t pmd;
+ 
++	if (!has_transparent_hugepage())
++		return;
++
+ 	pr_debug("Validating PMD swap\n");
+ 	pmd = pfn_pmd(pfn, prot);
+ 	swp = __pmd_to_swp_entry(pmd);
 -- 
 2.30.2
 
