@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 815473C5109
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E608A3C4B7F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345120AbhGLHgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57120 "EHLO mail.kernel.org"
+        id S240023AbhGLG5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243388AbhGLHdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:33:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DAE1613EF;
-        Mon, 12 Jul 2021 07:30:52 +0000 (UTC)
+        id S240472AbhGLG4m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A377610CA;
+        Mon, 12 Jul 2021 06:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075052;
-        bh=cCaHq6CVgc2+qPYkCFeNf+SGf9cFkSQ4IsxZvgXUYTY=;
+        s=korg; t=1626072832;
+        bh=dkk2hkuKJVLp9raJFudPOx4Ud+CkTAUzUHHfNrf1VEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K1s3lT1zRCGhdkD8WW/4DyKWFJordcbw/KRnha5IZtFDU9BuzQiC8iJFSk327mIhN
-         aC17wkVvoMP/L5F6106AtLTyZkshkMFPVaZbLdN36beeQmusnlcdTcw/uU8AlZeJye
-         Fp+kkfiPc2QgXsEofTWvCJJ+v6/I0zWWm8rZRVco=
+        b=pdZJ3DnXlyntioAeSxZIGndLh9NY2XtNL9rxna5SICTtJKl5+z2atwe4DG7whIXDx
+         e5TXDdxi7MLTThyDgEb+wSlmWBIK5cUx+i+uT0dKdPlm+y7/BknPiKFsenhmBifpJ3
+         bsxqMD8hfC/ca7ibqPi+q+OvoZeThix0f38IAMy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.13 089/800] clk: agilex/stratix10: add support for the 2nd bypass
+        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
+        Boris Petkov <bp@alien8.de>,
+        Robert Shteynfeld <robert.shteynfeld@gmail.com>,
+        Baoquan He <bhe@redhat.com>, Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 029/700] mm/page_alloc: fix memory map initialization for descending nodes
 Date:   Mon, 12 Jul 2021 08:01:52 +0200
-Message-Id: <20210712060925.564180537@linuxfoundation.org>
+Message-Id: <20210712060928.775806759@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,214 +44,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-commit c2c9c5661a48bf2e67dcb4e989003144304acd6a upstream.
+commit 122e093c1734361dedb64f65c99b93e28e4624f4 upstream.
 
-The EMAC clocks on Stratix10/Agilex/N5X have an additional bypass that
-was not being accounted for. The bypass selects between
-emaca_clk/emacb_clk and boot_clk.
+On systems with memory nodes sorted in descending order, for instance Dell
+Precision WorkStation T5500, the struct pages for higher PFNs and
+respectively lower nodes, could be overwritten by the initialization of
+struct pages corresponding to the holes in the memory sections.
 
-Because the bypass register offset is different between Stratix10 and
-Agilex/N5X, it's best to create a new function to calculate the bypass.
+For example for the below memory layout
 
-Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210611025201.118799-3-dinguyen@kernel.org
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+[    0.245624] Early memory node ranges
+[    0.248496]   node   1: [mem 0x0000000000001000-0x0000000000090fff]
+[    0.251376]   node   1: [mem 0x0000000000100000-0x00000000dbdf8fff]
+[    0.254256]   node   1: [mem 0x0000000100000000-0x0000001423ffffff]
+[    0.257144]   node   0: [mem 0x0000001424000000-0x0000002023ffffff]
+
+the range 0x1424000000 - 0x1428000000 in the beginning of node 0 starts in
+the middle of a section and will be considered as a hole during the
+initialization of the last section in node 1.
+
+The wrong initialization of the memory map causes panic on boot when
+CONFIG_DEBUG_VM is enabled.
+
+Reorder loop order of the memory map initialization so that the outer loop
+will always iterate over populated memory regions in the ascending order
+and the inner loop will select the zone corresponding to the PFN range.
+
+This way initialization of the struct pages for the memory holes will be
+always done for the ranges that are actually not populated.
+
+[akpm@linux-foundation.org: coding style fixes]
+
+Link: https://lkml.kernel.org/r/YNXlMqBbL+tBG7yq@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213073
+Link: https://lkml.kernel.org/r/20210624062305.10940-1-rppt@kernel.org
+Fixes: 0740a50b9baa ("mm/page_alloc.c: refactor initialization of struct page for holes in memory layout")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Boris Petkov <bp@alien8.de>
+Cc: Robert Shteynfeld <robert.shteynfeld@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/socfpga/clk-agilex.c    |    4 -
- drivers/clk/socfpga/clk-gate-s10.c  |  119 +++++++++++++++++++++++++++++++++++-
- drivers/clk/socfpga/stratix10-clk.h |    2 
- 3 files changed, 123 insertions(+), 2 deletions(-)
+ include/linux/mm.h |    1 
+ mm/page_alloc.c    |   96 ++++++++++++++++++++++++++++++++---------------------
+ 2 files changed, 59 insertions(+), 38 deletions(-)
 
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -177,6 +177,8 @@ static const struct clk_parent_data emac
- 	  .name = "emaca_free_clk", },
- 	{ .fw_name = "emacb_free_clk",
- 	  .name = "emacb_free_clk", },
-+	{ .fw_name = "boot_clk",
-+	  .name = "boot_clk", },
- };
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2435,7 +2435,6 @@ extern void set_dma_reserve(unsigned lon
+ extern void memmap_init_range(unsigned long, int, unsigned long,
+ 		unsigned long, unsigned long, enum meminit_context,
+ 		struct vmem_altmap *, int migratetype);
+-extern void memmap_init_zone(struct zone *zone);
+ extern void setup_per_zone_wmarks(void);
+ extern int __meminit init_per_zone_wmark_min(void);
+ extern void mem_init(void);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6207,7 +6207,7 @@ void __ref memmap_init_zone_device(struc
+ 		return;
  
- static const struct clk_parent_data noc_mux[] = {
-@@ -399,7 +401,7 @@ static int agilex_clk_register_gate(cons
- 	int i;
- 
- 	for (i = 0; i < nums; i++) {
--		hw_clk = s10_register_gate(&clks[i], base);
-+		hw_clk = agilex_register_gate(&clks[i], base);
- 		if (IS_ERR(hw_clk)) {
- 			pr_err("%s: failed to register clock %s\n",
- 			       __func__, clks[i].name);
---- a/drivers/clk/socfpga/clk-gate-s10.c
-+++ b/drivers/clk/socfpga/clk-gate-s10.c
-@@ -11,6 +11,13 @@
- #define SOCFPGA_CS_PDBG_CLK	"cs_pdbg_clk"
- #define to_socfpga_gate_clk(p) container_of(p, struct socfpga_gate_clk, hw.hw)
- 
-+#define SOCFPGA_EMAC0_CLK		"emac0_clk"
-+#define SOCFPGA_EMAC1_CLK		"emac1_clk"
-+#define SOCFPGA_EMAC2_CLK		"emac2_clk"
-+#define AGILEX_BYPASS_OFFSET		0xC
-+#define STRATIX10_BYPASS_OFFSET		0x2C
-+#define BOOTCLK_BYPASS			2
-+
- static unsigned long socfpga_gate_clk_recalc_rate(struct clk_hw *hwclk,
- 						  unsigned long parent_rate)
+ 	/*
+-	 * The call to memmap_init_zone should have already taken care
++	 * The call to memmap_init should have already taken care
+ 	 * of the pages reserved for the memmap, so we can just jump to
+ 	 * the end of that region and start processing the device pages.
+ 	 */
+@@ -6272,7 +6272,7 @@ static void __meminit zone_init_free_lis
+ /*
+  * Only struct pages that correspond to ranges defined by memblock.memory
+  * are zeroed and initialized by going through __init_single_page() during
+- * memmap_init_zone().
++ * memmap_init_zone_range().
+  *
+  * But, there could be struct pages that correspond to holes in
+  * memblock.memory. This can happen because of the following reasons:
+@@ -6291,9 +6291,9 @@ static void __meminit zone_init_free_lis
+  *   zone/node above the hole except for the trailing pages in the last
+  *   section that will be appended to the zone/node below.
+  */
+-static u64 __meminit init_unavailable_range(unsigned long spfn,
+-					    unsigned long epfn,
+-					    int zone, int node)
++static void __init init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
  {
-@@ -44,14 +51,61 @@ static unsigned long socfpga_dbg_clk_rec
- static u8 socfpga_gate_get_parent(struct clk_hw *hwclk)
+ 	unsigned long pfn;
+ 	u64 pgcnt = 0;
+@@ -6309,56 +6309,77 @@ static u64 __meminit init_unavailable_ra
+ 		pgcnt++;
+ 	}
+ 
+-	return pgcnt;
++	if (pgcnt)
++		pr_info("On node %d, zone %s: %lld pages in unavailable ranges",
++			node, zone_names[zone], pgcnt);
+ }
+ #else
+-static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+-					 int zone, int node)
++static inline void init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
  {
- 	struct socfpga_gate_clk *socfpgaclk = to_socfpga_gate_clk(hwclk);
--	u32 mask;
-+	u32 mask, second_bypass;
-+	u8 parent = 0;
-+	const char *name = clk_hw_get_name(hwclk);
+-	return 0;
+ }
+ #endif
+ 
+-void __meminit __weak memmap_init_zone(struct zone *zone)
++static void __init memmap_init_zone_range(struct zone *zone,
++					  unsigned long start_pfn,
++					  unsigned long end_pfn,
++					  unsigned long *hole_pfn)
+ {
+ 	unsigned long zone_start_pfn = zone->zone_start_pfn;
+ 	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
+-	int i, nid = zone_to_nid(zone), zone_id = zone_idx(zone);
+-	static unsigned long hole_pfn;
++	int nid = zone_to_nid(zone), zone_id = zone_idx(zone);
 +
-+	if (socfpgaclk->bypass_reg) {
-+		mask = (0x1 << socfpgaclk->bypass_shift);
-+		parent = ((readl(socfpgaclk->bypass_reg) & mask) >>
-+			  socfpgaclk->bypass_shift);
-+	}
++	start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
++	end_pfn = clamp(end_pfn, zone_start_pfn, zone_end_pfn);
 +
-+	if (streq(name, SOCFPGA_EMAC0_CLK) ||
-+	    streq(name, SOCFPGA_EMAC1_CLK) ||
-+	    streq(name, SOCFPGA_EMAC2_CLK)) {
-+		second_bypass = readl(socfpgaclk->bypass_reg -
-+				      STRATIX10_BYPASS_OFFSET);
-+		/* EMACA bypass to bootclk @0xB0 offset */
-+		if (second_bypass & 0x1)
-+			if (parent == 0) /* only applicable if parent is maca */
-+				parent = BOOTCLK_BYPASS;
++	if (start_pfn >= end_pfn)
++		return;
 +
-+		if (second_bypass & 0x2)
-+			if (parent == 1) /* only applicable if parent is macb */
-+				parent = BOOTCLK_BYPASS;
-+	}
-+	return parent;
++	memmap_init_range(end_pfn - start_pfn, nid, zone_id, start_pfn,
++			  zone_end_pfn, MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
++
++	if (*hole_pfn < start_pfn)
++		init_unavailable_range(*hole_pfn, start_pfn, zone_id, nid);
++
++	*hole_pfn = end_pfn;
 +}
 +
-+static u8 socfpga_agilex_gate_get_parent(struct clk_hw *hwclk)
++static void __init memmap_init(void)
 +{
-+	struct socfpga_gate_clk *socfpgaclk = to_socfpga_gate_clk(hwclk);
-+	u32 mask, second_bypass;
- 	u8 parent = 0;
-+	const char *name = clk_hw_get_name(hwclk);
+ 	unsigned long start_pfn, end_pfn;
+-	u64 pgcnt = 0;
++	unsigned long hole_pfn = 0;
++	int i, j, zone_id, nid;
  
- 	if (socfpgaclk->bypass_reg) {
- 		mask = (0x1 << socfpgaclk->bypass_shift);
- 		parent = ((readl(socfpgaclk->bypass_reg) & mask) >>
- 			  socfpgaclk->bypass_shift);
+-	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+-		start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
+-		end_pfn = clamp(end_pfn, zone_start_pfn, zone_end_pfn);
++	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, &nid) {
++		struct pglist_data *node = NODE_DATA(nid);
++
++		for (j = 0; j < MAX_NR_ZONES; j++) {
++			struct zone *zone = node->node_zones + j;
++
++			if (!populated_zone(zone))
++				continue;
+ 
+-		if (end_pfn > start_pfn)
+-			memmap_init_range(end_pfn - start_pfn, nid,
+-					zone_id, start_pfn, zone_end_pfn,
+-					MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+-
+-		if (hole_pfn < start_pfn)
+-			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+-							zone_id, nid);
+-		hole_pfn = end_pfn;
++			memmap_init_zone_range(zone, start_pfn, end_pfn,
++					       &hole_pfn);
++			zone_id = j;
++		}
  	}
-+
-+	if (streq(name, SOCFPGA_EMAC0_CLK) ||
-+	    streq(name, SOCFPGA_EMAC1_CLK) ||
-+	    streq(name, SOCFPGA_EMAC2_CLK)) {
-+		second_bypass = readl(socfpgaclk->bypass_reg -
-+				      AGILEX_BYPASS_OFFSET);
-+		/* EMACA bypass to bootclk @0x88 offset */
-+		if (second_bypass & 0x1)
-+			if (parent == 0) /* only applicable if parent is maca */
-+				parent = BOOTCLK_BYPASS;
-+
-+		if (second_bypass & 0x2)
-+			if (parent == 1) /* only applicable if parent is macb */
-+				parent = BOOTCLK_BYPASS;
-+	}
-+
- 	return parent;
+ 
+ #ifdef CONFIG_SPARSEMEM
+ 	/*
+-	 * Initialize the hole in the range [zone_end_pfn, section_end].
+-	 * If zone boundary falls in the middle of a section, this hole
+-	 * will be re-initialized during the call to this function for the
+-	 * higher zone.
++	 * Initialize the memory map for hole in the range [memory_end,
++	 * section_end].
++	 * Append the pages in this hole to the highest zone in the last
++	 * node.
++	 * The call to init_unavailable_range() is outside the ifdef to
++	 * silence the compiler warining about zone_id set but not used;
++	 * for FLATMEM it is a nop anyway
+ 	 */
+-	end_pfn = round_up(zone_end_pfn, PAGES_PER_SECTION);
++	end_pfn = round_up(end_pfn, PAGES_PER_SECTION);
+ 	if (hole_pfn < end_pfn)
+-		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
+-						zone_id, nid);
+ #endif
+-
+-	if (pgcnt)
+-		pr_info("  %s zone: %llu pages in unavailable ranges\n",
+-			zone->name, pgcnt);
++		init_unavailable_range(hole_pfn, end_pfn, zone_id, nid);
  }
  
-@@ -60,6 +114,11 @@ static struct clk_ops gateclk_ops = {
- 	.get_parent = socfpga_gate_get_parent,
- };
+ static int zone_batchsize(struct zone *zone)
+@@ -7061,7 +7082,6 @@ static void __init free_area_init_core(s
+ 		set_pageblock_order();
+ 		setup_usemap(zone);
+ 		init_currently_empty_zone(zone, zone->zone_start_pfn, size);
+-		memmap_init_zone(zone);
+ 	}
+ }
  
-+static const struct clk_ops agilex_gateclk_ops = {
-+	.recalc_rate = socfpga_gate_clk_recalc_rate,
-+	.get_parent = socfpga_agilex_gate_get_parent,
-+};
+@@ -7587,6 +7607,8 @@ void __init free_area_init(unsigned long
+ 			node_set_state(nid, N_MEMORY);
+ 		check_for_memory(pgdat, nid);
+ 	}
 +
- static const struct clk_ops dbgclk_ops = {
- 	.recalc_rate = socfpga_dbg_clk_recalc_rate,
- 	.get_parent = socfpga_gate_get_parent,
-@@ -106,6 +165,64 @@ struct clk_hw *s10_register_gate(const s
++	memmap_init();
+ }
  
- 	init.name = clks->name;
- 	init.flags = clks->flags;
-+
-+	init.num_parents = clks->num_parents;
-+	init.parent_names = parent_name ? &parent_name : NULL;
-+	if (init.parent_names == NULL)
-+		init.parent_data = clks->parent_data;
-+	socfpga_clk->hw.hw.init = &init;
-+
-+	hw_clk = &socfpga_clk->hw.hw;
-+
-+	ret = clk_hw_register(NULL, &socfpga_clk->hw.hw);
-+	if (ret) {
-+		kfree(socfpga_clk);
-+		return ERR_PTR(ret);
-+	}
-+	return hw_clk;
-+}
-+
-+struct clk_hw *agilex_register_gate(const struct stratix10_gate_clock *clks, void __iomem *regbase)
-+{
-+	struct clk_hw *hw_clk;
-+	struct socfpga_gate_clk *socfpga_clk;
-+	struct clk_init_data init;
-+	const char *parent_name = clks->parent_name;
-+	int ret;
-+
-+	socfpga_clk = kzalloc(sizeof(*socfpga_clk), GFP_KERNEL);
-+	if (!socfpga_clk)
-+		return NULL;
-+
-+	socfpga_clk->hw.reg = regbase + clks->gate_reg;
-+	socfpga_clk->hw.bit_idx = clks->gate_idx;
-+
-+	gateclk_ops.enable = clk_gate_ops.enable;
-+	gateclk_ops.disable = clk_gate_ops.disable;
-+
-+	socfpga_clk->fixed_div = clks->fixed_div;
-+
-+	if (clks->div_reg)
-+		socfpga_clk->div_reg = regbase + clks->div_reg;
-+	else
-+		socfpga_clk->div_reg = NULL;
-+
-+	socfpga_clk->width = clks->div_width;
-+	socfpga_clk->shift = clks->div_offset;
-+
-+	if (clks->bypass_reg)
-+		socfpga_clk->bypass_reg = regbase + clks->bypass_reg;
-+	else
-+		socfpga_clk->bypass_reg = NULL;
-+	socfpga_clk->bypass_shift = clks->bypass_shift;
-+
-+	if (streq(clks->name, "cs_pdbg_clk"))
-+		init.ops = &dbgclk_ops;
-+	else
-+		init.ops = &agilex_gateclk_ops;
-+
-+	init.name = clks->name;
-+	init.flags = clks->flags;
- 
- 	init.num_parents = clks->num_parents;
- 	init.parent_names = parent_name ? &parent_name : NULL;
---- a/drivers/clk/socfpga/stratix10-clk.h
-+++ b/drivers/clk/socfpga/stratix10-clk.h
-@@ -85,4 +85,6 @@ struct clk_hw *s10_register_cnt_periph(c
- 				    void __iomem *reg);
- struct clk_hw *s10_register_gate(const struct stratix10_gate_clock *clks,
- 			      void __iomem *reg);
-+struct clk_hw *agilex_register_gate(const struct stratix10_gate_clock *clks,
-+			      void __iomem *reg);
- #endif	/* __STRATIX10_CLK_H */
+ static int __init cmdline_parse_core(char *p, unsigned long *core,
 
 
