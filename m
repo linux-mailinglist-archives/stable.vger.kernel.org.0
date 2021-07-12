@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97D1B3C4C46
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C981A3C51B9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240996AbhGLHCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37816 "EHLO mail.kernel.org"
+        id S1343729AbhGLHnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240999AbhGLHCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:02:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63A1760FED;
-        Mon, 12 Jul 2021 06:59:29 +0000 (UTC)
+        id S1347704AbhGLHkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A3A261480;
+        Mon, 12 Jul 2021 07:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073169;
-        bh=IaLWchXqtwge6yNl+R9qPP2VlfBnURJKq1vPQED7chQ=;
+        s=korg; t=1626075331;
+        bh=wDNvjMGxrpeAQg0xXJVXW97Rx7+AUJ9+PX7Q1PWNhRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jiMsp5MxInZxQWFHkICj5Ne7mGOAq6J01hStpPYtFOLa7uDtp/2VbF0/zZXbB9LGT
-         9nocFN54b0mesXaZeIeKynrOVguOQaUbmw7ZQKTYE3H9fTmIr9HaCouMkZ0cDORfiq
-         uysU+hrqvOyrx6H8xve0B/8fuLl4aH0zghkPqRmo=
+        b=VxeKW4Z5kVocM3Jfj07vWopCgR4wcre/Q3eUMJ9AviwKL/FIYmh2ERLuMo0Ft0PJt
+         EhsLUw5MTOmywZp25M9rpz6RVuW5HXDY54SVfcLGD5YeblmRzrxDKzdFeRreH/T9JI
+         XaUkuHDO6JPlVpnrnkCphy8OYHL4OYtQpNaI2jEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 123/700] media: marvel-ccic: fix some issues when getting pm_runtime
+Subject: [PATCH 5.13 183/800] crypto: shash - avoid comparing pointers to exported functions under CFI
 Date:   Mon, 12 Jul 2021 08:03:26 +0200
-Message-Id: <20210712060942.331186977@linuxfoundation.org>
+Message-Id: <20210712060938.784238066@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit e7c617cab7a522fba5b20f9033ee98565b6f3546 ]
+[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
 
-Calling pm_runtime_get_sync() is bad, since even when it
-returns an error, pm_runtime_put*() should be called.
-So, use instead pm_runtime_resume_and_get().
+crypto_shash_alg_has_setkey() is implemented by testing whether the
+.setkey() member of a struct shash_alg points to the default version,
+called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
+inline, this requires shash_no_setkey() to be exported to modules.
 
-While here, ensure that the error condition will be checked
-during clock enable an media open() calls.
+Unfortunately, when building with CFI, function pointers are routed
+via CFI stubs which are private to each module (or to the kernel proper)
+and so this function pointer comparison may fail spuriously.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
+line function.
+
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/marvell-ccic/mcam-core.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ crypto/shash.c                 | 18 +++++++++++++++---
+ include/crypto/internal/hash.h |  8 +-------
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/platform/marvell-ccic/mcam-core.c b/drivers/media/platform/marvell-ccic/mcam-core.c
-index 141bf5d97a04..ea87110d9073 100644
---- a/drivers/media/platform/marvell-ccic/mcam-core.c
-+++ b/drivers/media/platform/marvell-ccic/mcam-core.c
-@@ -918,6 +918,7 @@ static int mclk_enable(struct clk_hw *hw)
- 	struct mcam_camera *cam = container_of(hw, struct mcam_camera, mclk_hw);
- 	int mclk_src;
- 	int mclk_div;
-+	int ret;
+diff --git a/crypto/shash.c b/crypto/shash.c
+index 2e3433ad9762..0a0a50cb694f 100644
+--- a/crypto/shash.c
++++ b/crypto/shash.c
+@@ -20,12 +20,24 @@
  
- 	/*
- 	 * Clock the sensor appropriately.  Controller clock should
-@@ -931,7 +932,9 @@ static int mclk_enable(struct clk_hw *hw)
- 		mclk_div = 2;
- 	}
+ static const struct crypto_type crypto_shash_type;
  
--	pm_runtime_get_sync(cam->dev);
-+	ret = pm_runtime_resume_and_get(cam->dev);
-+	if (ret < 0)
-+		return ret;
- 	clk_enable(cam->clk[0]);
- 	mcam_reg_write(cam, REG_CLKCTRL, (mclk_src << 29) | mclk_div);
- 	mcam_ctlr_power_up(cam);
-@@ -1611,7 +1614,9 @@ static int mcam_v4l_open(struct file *filp)
- 		ret = sensor_call(cam, core, s_power, 1);
- 		if (ret)
- 			goto out;
--		pm_runtime_get_sync(cam->dev);
-+		ret = pm_runtime_resume_and_get(cam->dev);
-+		if (ret < 0)
-+			goto out;
- 		__mcam_cam_reset(cam);
- 		mcam_set_config_needed(cam, 1);
- 	}
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen)
++static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
++			   unsigned int keylen)
+ {
+ 	return -ENOSYS;
+ }
+-EXPORT_SYMBOL_GPL(shash_no_setkey);
++
++/*
++ * Check whether an shash algorithm has a setkey function.
++ *
++ * For CFI compatibility, this must not be an inline function.  This is because
++ * when CFI is enabled, modules won't get the same address for shash_no_setkey
++ * (if it were exported, which inlining would require) as the core kernel will.
++ */
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
++{
++	return alg->setkey != shash_no_setkey;
++}
++EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
+ 
+ static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
+ 				  unsigned int keylen)
+diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
+index 0a288dddcf5b..25806141db59 100644
+--- a/include/crypto/internal/hash.h
++++ b/include/crypto/internal/hash.h
+@@ -75,13 +75,7 @@ void crypto_unregister_ahashes(struct ahash_alg *algs, int count);
+ int ahash_register_instance(struct crypto_template *tmpl,
+ 			    struct ahash_instance *inst);
+ 
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen);
+-
+-static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+-{
+-	return alg->setkey != shash_no_setkey;
+-}
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
+ 
+ static inline bool crypto_shash_alg_needs_key(struct shash_alg *alg)
+ {
 -- 
 2.30.2
 
