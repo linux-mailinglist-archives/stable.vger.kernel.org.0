@@ -2,49 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B93703C49AA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C8C3C53CD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237066AbhGLGqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37048 "EHLO mail.kernel.org"
+        id S245327AbhGLH4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239147AbhGLGot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBB8861166;
-        Mon, 12 Jul 2021 06:40:45 +0000 (UTC)
+        id S1350679AbhGLHvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7E6661441;
+        Mon, 12 Jul 2021 07:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072046;
-        bh=Tjspu3mv9SqLExVfSLZzUuxAF1pscHT6bLPzziyAcjI=;
+        s=korg; t=1626076046;
+        bh=+5yZD5bHifFtWKUN45E3iPuhZn/F1rMLBTNOirYQ0bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hj4N/EOVYdRrFRRp0SkERyqKiLndQI4epsFxeHoOfxOH2SkJ7IDUUqZMdPMVxHGP1
-         dCUSIbS8bLMffta+6IgZu0TY0UwcmEffoGsCWRiwnRS2pcPqv5BsSvnERfEGVcbSRP
-         tpq75uPHcACHM8Zdt0LQdK4wc6iYez83eLUw3ScE=
+        b=r8cCmcYyq5vg6I1cFS9qI1qnx1dz95rTTbPjko1P/NsOVKoRd7tcskmmODia+DV1H
+         lLT/tpG+QxtsnTp9uXVZ49PeQ4aJi5AtQUNFA4puObF/HsEFQhdFVHQDASDraN4vBR
+         j/+lRzBvQ47sBACtJdVq4PevnvKyGk2j0WFRZ57c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "Huang, Ying" <ying.huang@intel.com>, Alex Shi <alexs@kernel.org>,
-        David Hildenbrand <david@redhat.com>,
-        Dennis Zhou <dennis@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Minchan Kim <minchan@kernel.org>,
-        Tim Chen <tim.c.chen@linux.intel.com>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Yang Shi <shy828301@gmail.com>, Yu Zhao <yuzhao@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 294/593] swap: fix do_swap_page() race with swapoff
-Date:   Mon, 12 Jul 2021 08:07:34 +0200
-Message-Id: <20210712060916.859590415@linuxfoundation.org>
+Subject: [PATCH 5.13 432/800] RDMA/rtrs-srv: Fix memory leak when having multiple sessions
+Date:   Mon, 12 Jul 2021 08:07:35 +0200
+Message-Id: <20210712061013.042168892@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,128 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 2799e77529c2a25492a4395db93996e3dacd762d ]
+[ Upstream commit 6bb97a2c1aa5278a30d49abb6186d50c34c207e2 ]
 
-When I was investigating the swap code, I found the below possible race
-window:
+Gioh notice memory leak below
+unreferenced object 0xffff8880acda2000 (size 2048):
+  comm "kworker/4:1", pid 77, jiffies 4295062871 (age 1270.730s)
+  hex dump (first 32 bytes):
+    00 20 da ac 80 88 ff ff 00 20 da ac 80 88 ff ff  . ....... ......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000e85d85b5>] rtrs_srv_rdma_cm_handler+0x8e5/0xa90 [rtrs_server]
+    [<00000000e31a988a>] cma_ib_req_handler+0xdc5/0x2b50 [rdma_cm]
+    [<000000000eb02c5b>] cm_process_work+0x2d/0x100 [ib_cm]
+    [<00000000e1650ca9>] cm_req_handler+0x11bc/0x1c40 [ib_cm]
+    [<000000009c28818b>] cm_work_handler+0xe65/0x3cf2 [ib_cm]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
+unreferenced object 0xffff88806d595d90 (size 8):
+  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
+  hex dump (first 8 bytes):
+    62 6c 61 00 6b 6b 6b a5                          bla.kkk.
+  backtrace:
+    [<000000004447d253>] kstrdup+0x2e/0x60
+    [<0000000047259793>] kobject_set_name_vargs+0x2f/0xb0
+    [<00000000c2ee3bc8>] dev_set_name+0xab/0xe0
+    [<000000002b6bdfb1>] rtrs_srv_create_sess_files+0x260/0x290 [rtrs_server]
+    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
+    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
+    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
+unreferenced object 0xffff88806d6bb100 (size 256):
+  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff 00 59 4d 86 ff ff ff ff  .........YM.....
+  backtrace:
+    [<00000000a18a11e4>] device_add+0x74d/0xa00
+    [<00000000a915b95f>] rtrs_srv_create_sess_files.cold+0x49/0x1fe [rtrs_server]
+    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
+    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
+    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
 
-CPU 1                                   	CPU 2
------                                   	-----
-do_swap_page
-  if (data_race(si->flags & SWP_SYNCHRONOUS_IO)
-  swap_readpage
-    if (data_race(sis->flags & SWP_FS_OPS)) {
-                                        	swapoff
-					  	  ..
-					  	  p->swap_file = NULL;
-					  	  ..
-    struct file *swap_file = sis->swap_file;
-    struct address_space *mapping = swap_file->f_mapping;[oops!]
+The problem is we increase device refcount by get_device in process_info_req
+for each path, but only does put_deice for last path, which lead to
+memory leak.
 
-Note that for the pages that are swapped in through swap cache, this isn't
-an issue. Because the page is locked, and the swap entry will be marked
-with SWAP_HAS_CACHE, so swapoff() can not proceed until the page has been
-unlocked.
+To fix it, it also calls put_device when dev_ref is not 0.
 
-Fix this race by using get/put_swap_device() to guard against concurrent
-swapoff.
-
-Link: https://lkml.kernel.org/r/20210426123316.806267-3-linmiaohe@huawei.com
-Fixes: 0bcac06f27d7 ("mm,swap: skip swapcache for swapin of synchronous device")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Alex Shi <alexs@kernel.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Dennis Zhou <dennis@kernel.org>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Tim Chen <tim.c.chen@linux.intel.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: Yu Zhao <yuzhao@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e2853c49477d1 ("RDMA/rtrs-srv-sysfs: fix missing put_device")
+Link: https://lore.kernel.org/r/20210528113018.52290-19-jinpu.wang@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/swap.h |  9 +++++++++
- mm/memory.c          | 11 +++++++++--
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/swap.h b/include/linux/swap.h
-index fbc6805358da..dfabf4660a67 100644
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -503,6 +503,15 @@ static inline struct swap_info_struct *swp_swap_info(swp_entry_t entry)
- 	return NULL;
- }
- 
-+static inline struct swap_info_struct *get_swap_device(swp_entry_t entry)
-+{
-+	return NULL;
-+}
-+
-+static inline void put_swap_device(struct swap_info_struct *si)
-+{
-+}
-+
- #define swap_address_space(entry)		(NULL)
- #define get_nr_swap_pages()			0L
- #define total_swap_pages			0L
-diff --git a/mm/memory.c b/mm/memory.c
-index eb31b3e4ef93..0a905e0a7e67 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3302,6 +3302,7 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct page *page = NULL, *swapcache;
-+	struct swap_info_struct *si = NULL;
- 	swp_entry_t entry;
- 	pte_t pte;
- 	int locked;
-@@ -3329,14 +3330,16 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
- 		goto out;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+index a9288175fbb5..20efd44297fb 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+@@ -208,6 +208,7 @@ rtrs_srv_destroy_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
+ 		device_del(&srv->dev);
+ 		put_device(&srv->dev);
+ 	} else {
++		put_device(&srv->dev);
+ 		mutex_unlock(&srv->paths_mutex);
  	}
- 
-+	/* Prevent swapoff from happening to us. */
-+	si = get_swap_device(entry);
-+	if (unlikely(!si))
-+		goto out;
- 
- 	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
- 	page = lookup_swap_cache(entry, vma, vmf->address);
- 	swapcache = page;
- 
- 	if (!page) {
--		struct swap_info_struct *si = swp_swap_info(entry);
--
- 		if (data_race(si->flags & SWP_SYNCHRONOUS_IO) &&
- 		    __swap_count(entry) == 1) {
- 			/* skip swapcache */
-@@ -3507,6 +3510,8 @@ vm_fault_t do_swap_page(struct vm_fault *vmf)
- unlock:
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
- out:
-+	if (si)
-+		put_swap_device(si);
- 	return ret;
- out_nomap:
- 	pte_unmap_unlock(vmf->pte, vmf->ptl);
-@@ -3518,6 +3523,8 @@ out_release:
- 		unlock_page(swapcache);
- 		put_page(swapcache);
- 	}
-+	if (si)
-+		put_swap_device(si);
- 	return ret;
  }
- 
 -- 
 2.30.2
 
