@@ -2,41 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A301A3C447F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B5A93C4483
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233782AbhGLGTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:19:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
+        id S233885AbhGLGTp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:19:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233866AbhGLGTQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:19:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 894B5610A6;
-        Mon, 12 Jul 2021 06:16:27 +0000 (UTC)
+        id S233894AbhGLGTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:19:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7173610E5;
+        Mon, 12 Jul 2021 06:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070588;
-        bh=VxsMsNEiiHntLXbNFK2z5oizrRdubsB1rGTW5mKr68U=;
+        s=korg; t=1626070590;
+        bh=vDq6yiay4lE6TNYLW/y91rayOzaK91lQc3MSeRw+sSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=reTxpHpLee6X09XlLuLSGiBcrJsdt6lIC65TE1PFB090UL6tLn4lHnmUKoWMSDV6s
-         O/mofUtq6kzp426EXeMQEc2DQ2ZBjVlp5/IU+Rgz+MKuZN2a4FEeS1hJHVmBMOhHmZ
-         3iBwsYF8KG0TYsGS2+WMEnl/ZuA5uOsO+gg6Ue8M=
+        b=wjFJAXscpFxC9PibE2Ds0mpB/FKtZ8aiJSpWfnVF1JEtLcjVwHDgOf5t6R9QbfedM
+         6haxIU5APXCB5IexqOuVM/tY6E9awwCGv3X9Y4t5nCyqUkvaSMfTy5d5sKknJtYc9w
+         JjokE4sHEM6WGgFZa7Fu6VAZgM7J5leGr0IIQpGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
-        Angus Ainslie <angus@akkea.ca>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Karun Eagalapati <karun256@gmail.com>,
-        Martin Kepplinger <martink@posteo.de>,
-        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
-        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
-        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
-Subject: [PATCH 5.4 053/348] rsi: Assign beacon rate settings to the correct rate_info descriptor field
-Date:   Mon, 12 Jul 2021 08:07:17 +0200
-Message-Id: <20210712060708.712035417@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Martin Fuzzey <martin.fuzzey@flowbird.group>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.4 054/348] rsi: fix AP mode with WPA failure due to encrypted EAPOL
+Date:   Mon, 12 Jul 2021 08:07:18 +0200
+Message-Id: <20210712060708.881634140@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -48,51 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Martin Fuzzey <martin.fuzzey@flowbird.group>
 
-commit b1c3a24897bd528f2f4fda9fea7da08a84ae25b6 upstream.
+commit 314538041b5632ffaf64798faaeabaf2793fe029 upstream.
 
-The RSI_RATE_x bits must be assigned to struct rsi_data_desc rate_info
-field. The rest of the driver does it correctly, except this one place,
-so fix it. This is also aligned with the RSI downstream vendor driver.
-Without this patch, an AP operating at 5 GHz does not transmit any
-beacons at all, this patch fixes that.
+In AP mode WPA2-PSK connections were not established.
 
-Fixes: d26a9559403c ("rsi: add beacon changes for AP mode")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
-Cc: Angus Ainslie <angus@akkea.ca>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Karun Eagalapati <karun256@gmail.com>
-Cc: Martin Kepplinger <martink@posteo.de>
-Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
-Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
-Cc: Siva Rebbagondla <siva8118@gmail.com>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
+The reason was that the AP was sending the first message
+of the 4 way handshake encrypted, even though no pairwise
+key had (correctly) yet been set.
+
+Encryption was enabled if the "security_enable" driver flag
+was set and encryption was not explicitly disabled by
+IEEE80211_TX_INTFL_DONT_ENCRYPT.
+
+However security_enable was set when *any* key, including
+the AP GTK key, had been set which was causing unwanted
+encryption even if no key was avaialble for the unicast
+packet to be sent.
+
+Fix this by adding a check that we have a key and drop
+the old security_enable driver flag which is insufficient
+and redundant.
+
+The Redpine downstream out of tree driver does it this way too.
+
+Regarding the Fixes tag the actual code being modified was
+introduced earlier, with the original driver submission, in
+dad0d04fa7ba ("rsi: Add RS9113 wireless driver"), however
+at that time AP mode was not yet supported so there was
+no bug at that point.
+
+So I have tagged the introduction of AP support instead
+which was part of the patch set "rsi: support for AP mode" [1]
+
+It is not clear whether AP WPA has ever worked, I can see nothing
+on the kernel side that broke it afterwards yet the AP support
+patch series says "Tests are performed to confirm aggregation,
+connections in WEP and WPA/WPA2 security."
+
+One possibility is that the initial tests were done with a modified
+userspace (hostapd).
+
+[1] https://www.spinics.net/lists/linux-wireless/msg165302.html
+
+Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
+Fixes: 38ef62353acb ("rsi: security enhancements for AP mode")
+CC: stable@vger.kernel.org
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210507213105.140138-1-marex@denx.de
+Link: https://lore.kernel.org/r/1622564459-24430-1-git-send-email-martin.fuzzey@flowbird.group
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/rsi/rsi_91x_hal.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c      |    2 +-
+ drivers/net/wireless/rsi/rsi_91x_mac80211.c |    3 ---
+ drivers/net/wireless/rsi/rsi_91x_mgmt.c     |    3 +--
+ drivers/net/wireless/rsi/rsi_main.h         |    1 -
+ 4 files changed, 2 insertions(+), 7 deletions(-)
 
 --- a/drivers/net/wireless/rsi/rsi_91x_hal.c
 +++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-@@ -470,9 +470,9 @@ int rsi_prepare_beacon(struct rsi_common
- 	}
+@@ -203,7 +203,7 @@ int rsi_prepare_data_desc(struct rsi_com
+ 		wh->frame_control |= cpu_to_le16(RSI_SET_PS_ENABLE);
  
- 	if (common->band == NL80211_BAND_2GHZ)
--		bcn_frm->bbp_info |= cpu_to_le16(RSI_RATE_1);
-+		bcn_frm->rate_info |= cpu_to_le16(RSI_RATE_1);
- 	else
--		bcn_frm->bbp_info |= cpu_to_le16(RSI_RATE_6);
-+		bcn_frm->rate_info |= cpu_to_le16(RSI_RATE_6);
+ 	if ((!(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) &&
+-	    (common->secinfo.security_enable)) {
++	    info->control.hw_key) {
+ 		if (rsi_is_cipher_wep(common))
+ 			ieee80211_size += 4;
+ 		else
+--- a/drivers/net/wireless/rsi/rsi_91x_mac80211.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
+@@ -1027,7 +1027,6 @@ static int rsi_mac80211_set_key(struct i
+ 	mutex_lock(&common->mutex);
+ 	switch (cmd) {
+ 	case SET_KEY:
+-		secinfo->security_enable = true;
+ 		status = rsi_hal_key_config(hw, vif, key, sta);
+ 		if (status) {
+ 			mutex_unlock(&common->mutex);
+@@ -1046,8 +1045,6 @@ static int rsi_mac80211_set_key(struct i
+ 		break;
  
- 	if (mac_bcn->data[tim_offset + 2] == 0)
- 		bcn_frm->frame_info |= cpu_to_le16(RSI_DATA_DESC_DTIM_BEACON);
+ 	case DISABLE_KEY:
+-		if (vif->type == NL80211_IFTYPE_STATION)
+-			secinfo->security_enable = false;
+ 		rsi_dbg(ERR_ZONE, "%s: RSI del key\n", __func__);
+ 		memset(key, 0, sizeof(struct ieee80211_key_conf));
+ 		status = rsi_hal_key_config(hw, vif, key, sta);
+--- a/drivers/net/wireless/rsi/rsi_91x_mgmt.c
++++ b/drivers/net/wireless/rsi/rsi_91x_mgmt.c
+@@ -1788,8 +1788,7 @@ int rsi_send_wowlan_request(struct rsi_c
+ 			RSI_WIFI_MGMT_Q);
+ 	cmd_frame->desc.desc_dword0.frame_type = WOWLAN_CONFIG_PARAMS;
+ 	cmd_frame->host_sleep_status = sleep_status;
+-	if (common->secinfo.security_enable &&
+-	    common->secinfo.gtk_cipher)
++	if (common->secinfo.gtk_cipher)
+ 		flags |= RSI_WOW_GTK_REKEY;
+ 	if (sleep_status)
+ 		cmd_frame->wow_flags = flags;
+--- a/drivers/net/wireless/rsi/rsi_main.h
++++ b/drivers/net/wireless/rsi/rsi_main.h
+@@ -151,7 +151,6 @@ enum edca_queue {
+ };
+ 
+ struct security_info {
+-	bool security_enable;
+ 	u32 ptk_cipher;
+ 	u32 gtk_cipher;
+ };
 
 
