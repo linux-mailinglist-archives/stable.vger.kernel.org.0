@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2FB3C511E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882003C5136
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245544AbhGLHhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:37:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57416 "EHLO mail.kernel.org"
+        id S1345533AbhGLHiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347385AbhGLHew (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347396AbhGLHew (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 03:34:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09AE7613DC;
-        Mon, 12 Jul 2021 07:31:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B15261374;
+        Mon, 12 Jul 2021 07:31:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075115;
-        bh=ffohr7r7TW2u0sht6TcVONoWRx9beho3oR0OPlHN9h0=;
+        s=korg; t=1626075118;
+        bh=8qQ6qGA/QeSI5z46ugM3pWQKkpdjnfOFwEB1w20UUGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UZQgfPYQ3QEVWGRVnjKRr1HI3o82ud/oj9ykJwCEe5Y+Wsb9Sf6OZXcEFjkGAGw4W
-         fXrbifp/iz2aYo1DqFIydQGYTvTHGCEPflxu5hre7a+xhGYl+Ie/BVMrCTsH6T9cvZ
-         tA815NAIRj4tYvq7Iy1LjI1JrGJIX7vAX4pyllak=
+        b=Dm1FNBJ2WoCAxzGOBPVDsVsJk34z3uwMgX6hfpuv5N72q6+xD9pzqEtMmGW2AN6Rb
+         3YES6go5jk5hfy4wlCLr50yWFJEARtzHlrEfXZ5HVHYTEvv2o7kn6XbESJqv13e7x0
+         wIe2UsPBO2pryxQqKWvfOIijY5J7U/E03ZR0XvZ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Tom Zanussi <zanussi@kernel.org>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+721aa903751db87aa244@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 109/800] tracing/histograms: Fix parsing of "sym-offset" modifier
-Date:   Mon, 12 Jul 2021 08:02:12 +0200
-Message-Id: <20210712060928.339875545@linuxfoundation.org>
+Subject: [PATCH 5.13 110/800] tracepoint: Add tracepoint_probe_register_may_exist() for BPF tracing
+Date:   Mon, 12 Jul 2021 08:02:13 +0200
+Message-Id: <20210712060928.466193284@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -46,50 +43,141 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 26c563731056c3ee66f91106c3078a8c36bb7a9e upstream.
+commit 9913d5745bd720c4266805c8d29952a3702e4eca upstream.
 
-With the addition of simple mathematical operations (plus and minus), the
-parsing of the "sym-offset" modifier broke, as it took the '-' part of the
-"sym-offset" as a minus, and tried to break it up into a mathematical
-operation of "field.sym - offset", in which case it failed to parse
-(unless the event had a field called "offset").
+All internal use cases for tracepoint_probe_register() is set to not ever
+be called with the same function and data. If it is, it is considered a
+bug, as that means the accounting of handling tracepoints is corrupted.
+If the function and data for a tracepoint is already registered when
+tracepoint_probe_register() is called, it will call WARN_ON_ONCE() and
+return with EEXISTS.
 
-Both .sym and .sym-offset modifiers should not be entered into
-mathematical calculations anyway. If ".sym-offset" is found in the
-modifier, then simply make it not an operation that can be calculated on.
+The BPF system call can end up calling tracepoint_probe_register() with
+the same data, which now means that this can trigger the warning because
+of a user space process. As WARN_ON_ONCE() should not be called because
+user space called a system call with bad data, there needs to be a way to
+register a tracepoint without triggering a warning.
 
-Link: https://lkml.kernel.org/r/20210707110821.188ae255@oasis.local.home
+Enter tracepoint_probe_register_may_exist(), which can be called, but will
+not cause a WARN_ON() if the probe already exists. It will still error out
+with EEXIST, which will then be sent to the user space that performed the
+BPF system call.
 
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+This keeps the previous testing for issues with other users of the
+tracepoint code, while letting BPF call it with duplicated data and not
+warn about it.
+
+Link: https://lore.kernel.org/lkml/20210626135845.4080-1-penguin-kernel@I-love.SAKURA.ne.jp/
+Link: https://syzkaller.appspot.com/bug?id=41f4318cf01762389f4d1c1c459da4f542fe5153
+
 Cc: stable@vger.kernel.org
-Fixes: 100719dcef447 ("tracing: Add simple expression support to hist triggers")
-Reviewed-by: Tom Zanussi <zanussi@kernel.org>
+Fixes: c4f6699dfcb85 ("bpf: introduce BPF_RAW_TRACEPOINT")
+Reported-by: syzbot <syzbot+721aa903751db87aa244@syzkaller.appspotmail.com>
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot+721aa903751db87aa244@syzkaller.appspotmail.com
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events_hist.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ include/linux/tracepoint.h |   10 ++++++++++
+ kernel/trace/bpf_trace.c   |    3 ++-
+ kernel/tracepoint.c        |   33 ++++++++++++++++++++++++++++++---
+ 3 files changed, 42 insertions(+), 4 deletions(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -1555,6 +1555,13 @@ static int contains_operator(char *str)
+--- a/include/linux/tracepoint.h
++++ b/include/linux/tracepoint.h
+@@ -41,7 +41,17 @@ extern int
+ tracepoint_probe_register_prio(struct tracepoint *tp, void *probe, void *data,
+ 			       int prio);
+ extern int
++tracepoint_probe_register_prio_may_exist(struct tracepoint *tp, void *probe, void *data,
++					 int prio);
++extern int
+ tracepoint_probe_unregister(struct tracepoint *tp, void *probe, void *data);
++static inline int
++tracepoint_probe_register_may_exist(struct tracepoint *tp, void *probe,
++				    void *data)
++{
++	return tracepoint_probe_register_prio_may_exist(tp, probe, data,
++							TRACEPOINT_DEFAULT_PRIO);
++}
+ extern void
+ for_each_kernel_tracepoint(void (*fct)(struct tracepoint *tp, void *priv),
+ 		void *priv);
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -1840,7 +1840,8 @@ static int __bpf_probe_register(struct b
+ 	if (prog->aux->max_tp_access > btp->writable_size)
+ 		return -EINVAL;
  
- 	switch (*op) {
- 	case '-':
-+		/*
-+		 * Unfortunately, the modifier ".sym-offset"
-+		 * can confuse things.
-+		 */
-+		if (op - str >= 4 && !strncmp(op - 4, ".sym-offset", 11))
-+			return FIELD_OP_NONE;
+-	return tracepoint_probe_register(tp, (void *)btp->bpf_func, prog);
++	return tracepoint_probe_register_may_exist(tp, (void *)btp->bpf_func,
++						   prog);
+ }
+ 
+ int bpf_probe_register(struct bpf_raw_event_map *btp, struct bpf_prog *prog)
+--- a/kernel/tracepoint.c
++++ b/kernel/tracepoint.c
+@@ -273,7 +273,8 @@ static void tracepoint_update_call(struc
+  * Add the probe function to a tracepoint.
+  */
+ static int tracepoint_add_func(struct tracepoint *tp,
+-			       struct tracepoint_func *func, int prio)
++			       struct tracepoint_func *func, int prio,
++			       bool warn)
+ {
+ 	struct tracepoint_func *old, *tp_funcs;
+ 	int ret;
+@@ -288,7 +289,7 @@ static int tracepoint_add_func(struct tr
+ 			lockdep_is_held(&tracepoints_mutex));
+ 	old = func_add(&tp_funcs, func, prio);
+ 	if (IS_ERR(old)) {
+-		WARN_ON_ONCE(PTR_ERR(old) != -ENOMEM);
++		WARN_ON_ONCE(warn && PTR_ERR(old) != -ENOMEM);
+ 		return PTR_ERR(old);
+ 	}
+ 
+@@ -344,6 +345,32 @@ static int tracepoint_remove_func(struct
+ }
+ 
+ /**
++ * tracepoint_probe_register_prio_may_exist -  Connect a probe to a tracepoint with priority
++ * @tp: tracepoint
++ * @probe: probe handler
++ * @data: tracepoint data
++ * @prio: priority of this function over other registered functions
++ *
++ * Same as tracepoint_probe_register_prio() except that it will not warn
++ * if the tracepoint is already registered.
++ */
++int tracepoint_probe_register_prio_may_exist(struct tracepoint *tp, void *probe,
++					     void *data, int prio)
++{
++	struct tracepoint_func tp_func;
++	int ret;
 +
- 		if (*str == '-')
- 			field_op = FIELD_OP_UNARY_MINUS;
- 		else
++	mutex_lock(&tracepoints_mutex);
++	tp_func.func = probe;
++	tp_func.data = data;
++	tp_func.prio = prio;
++	ret = tracepoint_add_func(tp, &tp_func, prio, false);
++	mutex_unlock(&tracepoints_mutex);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(tracepoint_probe_register_prio_may_exist);
++
++/**
+  * tracepoint_probe_register_prio -  Connect a probe to a tracepoint with priority
+  * @tp: tracepoint
+  * @probe: probe handler
+@@ -366,7 +393,7 @@ int tracepoint_probe_register_prio(struc
+ 	tp_func.func = probe;
+ 	tp_func.data = data;
+ 	tp_func.prio = prio;
+-	ret = tracepoint_add_func(tp, &tp_func, prio);
++	ret = tracepoint_add_func(tp, &tp_func, prio, true);
+ 	mutex_unlock(&tracepoints_mutex);
+ 	return ret;
+ }
 
 
