@@ -2,129 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 519683C5C0A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 14:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 339633C5C2F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 14:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229644AbhGLMY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 08:24:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55534 "EHLO
+        id S231976AbhGLMdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 08:33:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229558AbhGLMYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 08:24:55 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C470EC0613DD
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:22:06 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id 7-20020a9d0d070000b0290439abcef697so18640921oti.2
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:22:06 -0700 (PDT)
+        with ESMTP id S230503AbhGLMdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 08:33:16 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8427FC0613DD
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:30:27 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id v7so18069784pgl.2
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 05:30:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=I/gZ2fUbn7t9xYKR9dZLDy2ZzC/5pFr4YyA2ECocRro=;
-        b=q/c4kmMeNUJ4UJVpgs277eyJ67KR/RXiTs5rhy5iuJbhZ26ho24MnzGQJIwZTuD+cp
-         cCxMUPlJD6Ov4Q8hm+kc5kigiR4M1SEwP1fL3ScjwglyMVAB8B6NCLViQAGhOLku+kL2
-         3VzxLJqoAmQyKux+5QotFS7I1u54mkxHaH7ctebIs0DjLo+V1vscv8K61BASkYyXkzjE
-         SdGSxK7XWWqsCRXiYwQXQ5ayy9I6ne51BnMCj5BNXlTGH/LIFYcBRXZnob3SzifaSR9V
-         LkD5NyIckOCmu+fs9PFy8ojHC2F4dktocKUQzL2Dv4pPAW4UeZUFZzPZeV/uOyegZTrD
-         zF/g==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ly2ZYkzzwf2rWpO6Oz7TFJkt1xtlGK7GLWP0wfemC+g=;
+        b=LVrMTNRFTXg/ANBw2f8XHbkwJEJO2NG68ysOQLpBUFzFxoeLiwhjMGvoHBNJOM+a62
+         Z7GOMdukVWXU1ubSGuYdLT/wXf7V0TgoC/CeTZ5z1XWCLcnciDnzDkA3cgxJt5b+eaH2
+         6NLvfSfLGlNr3AuU54g40EXYHP1hBr55Prii00huUMVC3/cVPHIhNhpwFKwnrb85wOcr
+         dvYQ9GAoo41QU0Ca6uXWTUi4yX/oXSwAu76xkSD/bCH7Jz1qxwi+LVWyTKULXVlDG/C0
+         IJhtc7D+prXMCMm6vOgPweCJRyDVE1ibkc+KxT0AsW8ONNvQrQQf9crGi/piQ1KFLsxh
+         2aqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=I/gZ2fUbn7t9xYKR9dZLDy2ZzC/5pFr4YyA2ECocRro=;
-        b=dBPBrZa0gQc8fLkWm3FeU/AesBOitE+4II6unaOTzJvBhXz/FP6Y0XcXCcCCVqQeeY
-         1VIz8VPVem+JqHq/YnwveWqtPkOglnkpGgQl0tSxEiNSuQZbInfhLhV75MYoBWevfZoh
-         04mxM77DbtWp/bSvr/bPYYYGoGSGEeFrauxg2i3uZM/1SzvDb0x8Khm3YvPaap0AcBis
-         v0woPTCvMo8DEv2ZjN+tGJ0UoI28wJf7jFLRrDMHoS2/bTsaEz3TVpBIpXef6RYNxbgk
-         Dp/StX+orDFeo9n+yIrWTNIFMat+PgK0AZ4jXT1VSPNevLMO2ZuFfXP/Zh7zbHUlM2b0
-         J59w==
-X-Gm-Message-State: AOAM530/Kyuid3fclVDfz+SAk5sfgFQoVAi8sa22MDZfM5On1kDsl90A
-        KsZBtOxMAbcm0lgl9tyWhHKq+ua4IHjX1WDk7KIzEQ==
-X-Google-Smtp-Source: ABdhPJy7wrbsGVIJqq5cMY18TfWKud3VMsSDkmPO8RnG788kNXP3X5+c5WbOZwOe7MypM6lKqOCHJP46ctNq8wc2HtQ=
-X-Received: by 2002:a05:6830:242f:: with SMTP id k15mr47595ots.72.1626092525463;
- Mon, 12 Jul 2021 05:22:05 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ly2ZYkzzwf2rWpO6Oz7TFJkt1xtlGK7GLWP0wfemC+g=;
+        b=QVs1wKnwaKaNVCzfjBjPRkITXJqyW+N5eOtm10zkutmgju/onRuu1BbuyYT3gglWDh
+         /Vh8NOLyOmCBmWIeNXrkKmPNFWEpxDpfMJbhAkvbJBi840uhh3aNOBr+315KklPxYh5D
+         AwQ7IYCUaX3kEB2/je8sDOltXHZmCl65p88afiQxsIG72CnJY7F0ObCvBdAn8dpvPI9A
+         F6jL0bKDBbI7BfWto3Ico3AkcjMNYA7KG5vQWDw3+rqKynUjLQhRjjrOGSGNAlNOJouH
+         G6czijnDj54Bca8E718YSMCc9yewRWXhX/4K8WSZqOcBW3g8/Lf7b/iVJW7AY9SJXdoL
+         w8sQ==
+X-Gm-Message-State: AOAM530SqH1ej8pyhM9zP0jSJMhRCLWyQaCtjEm+7cQhY1t8zJFSOna3
+        +5BGIMBnDEG+eHHBN55xpDWy1pgQDL0yBecu
+X-Google-Smtp-Source: ABdhPJyV+8xrtk/gMJEeeFezSyusneEJdo21JX8dVikRDu76GkjjBBM5xybp/7rjqLGVWsBREz7Ytg==
+X-Received: by 2002:a63:1e1a:: with SMTP id e26mr10629909pge.20.1626093026819;
+        Mon, 12 Jul 2021 05:30:26 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y8sm16336443pfe.162.2021.07.12.05.30.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jul 2021 05:30:26 -0700 (PDT)
+Message-ID: <60ec35e2.1c69fb81.9ca86.eae5@mx.google.com>
+Date:   Mon, 12 Jul 2021 05:30:26 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210712060843.180606720@linuxfoundation.org>
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 12 Jul 2021 17:51:53 +0530
-Message-ID: <CA+G9fYtdYvUse1Osfrux6DVU_DiLAKveQqnEZ36eoG-fThJBqw@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/593] 5.10.50-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Nathan Lynch <nathanl@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.49-592-ge2899f499d8c
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 165 runs,
+ 3 regressions (v5.10.49-592-ge2899f499d8c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 12 Jul 2021 at 11:59, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.50 release.
-> There are 593 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.50-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable-rc/queue/5.10 baseline: 165 runs, 3 regressions (v5.10.49-592-ge2899=
+f499d8c)
 
-Results from Linaro=E2=80=99s test farm.
-Regression detected on powerpc,
+Regressions Summary
+-------------------
 
-Regressions found on powerpc:
- - build/gcc-10-cell_defconfig
- - build/gcc-10-maple_defconfig
- - build/gcc-10-defconfig
- - build/gcc-8-defconfig
- - build/gcc-9-defconfig
- - build/gcc-9-maple_defconfig
- - build/gcc-8-maple_defconfig
- - build/gcc-8-cell_defconfig
- - build/gcc-9-cell_defconfig
+platform           | arch  | lab           | compiler | defconfig          =
+ | regressions
+-------------------+-------+---------------+----------+--------------------=
+-+------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+ | 1          =
 
-The following patch caused build warnings / errors on powerpc.
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+ | 1          =
 
-> Michael Ellerman <mpe@ellerman.id.au>
->     powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ip=
-i()
+imx7ulp-evk        | arm   | lab-nxp       | gcc-8    | imx_v6_v7_defconfig=
+ | 1          =
 
-Build error:
---------------
-arch/powerpc/kernel/stacktrace.c: In function 'raise_backtrace_ipi':
-arch/powerpc/kernel/stacktrace.c:248:5: error: implicit declaration of
-function 'udelay' [-Werror=3Dimplicit-function-declaration]
-  248 |     udelay(1);
-      |     ^~~~~~
-cc1: all warnings being treated as errors
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.49-592-ge2899f499d8c/plan/baseline/
 
-link to build log:
-https://builds.tuxbuild.com/1vCh34NozLpcdYwjDS72K2fkiM3/
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.49-592-ge2899f499d8c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e2899f499d8c1007b495d87443e449b25ac0a683 =
 
---
-Linaro LKFT
-https://lkft.linaro.org
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+ | regressions
+-------------------+-------+---------------+----------+--------------------=
+-+------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ebd5032508a83a01117984
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
+-rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
+-rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ebd5032508a83a01117=
+985
+        new failure (last pass: v5.10.49-593-g1d9b6799b02d7) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+ | regressions
+-------------------+-------+---------------+----------+--------------------=
+-+------------
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ebddffa4ba2deaa8117982
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ebddffa4ba2deaa8117=
+983
+        failing since 10 days (last pass: v5.10.46-100-gce5b41f85637, first=
+ fail: v5.10.46-100-g3b96099161c8b) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+ | regressions
+-------------------+-------+---------------+----------+--------------------=
+-+------------
+imx7ulp-evk        | arm   | lab-nxp       | gcc-8    | imx_v6_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ebd9bf5bda71ad3f117aa1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx7ulp-ev=
+k.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
+592-ge2899f499d8c/arm/imx_v6_v7_defconfig/gcc-8/lab-nxp/baseline-imx7ulp-ev=
+k.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ebd9bf5bda71ad3f117=
+aa2
+        new failure (last pass: v5.10.49-593-g1d9b6799b02d7) =
+
+ =20
