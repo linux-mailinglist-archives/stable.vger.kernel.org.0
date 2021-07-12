@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604803C4CA5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9173F3C48D2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242237AbhGLHG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
+        id S238565AbhGLGlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242955AbhGLHET (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24450610FA;
-        Mon, 12 Jul 2021 07:01:29 +0000 (UTC)
+        id S236830AbhGLGhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:37:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C7CA61152;
+        Mon, 12 Jul 2021 06:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073290;
-        bh=2Wi38nQN3VKnV4ahUhGFIElpkM/7DNUZ3EbizulaLTc=;
+        s=korg; t=1626071642;
+        bh=uu4IOEsZsfgAPk2eecSoxen6XKp6DK3pLY4HKZJa1Ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEphu6tmxBE0yvCZRKAxQv5SVVXGa8BOPaw1klMlr47ZjLHWs32Pu8fxTQxxx2yXh
-         ayaZeJJ2sC4rfdBFEPpHC1Tm5V4mQeuBkGkCAbKnoSA+Lx3X2eHyz+Dh+eBGCSYfND
-         K2TDb8/ih04ruin0mpOEdWP/T55rgTXH0n7/KHug=
+        b=oGOs9Gp0KMzhQIzmAebKBvN2cnxeCrCBkqZ8oMnj0Jnk1vsUJ9XbyfUXM5dvLMpzg
+         A5MqAFrSEH+v1Iz22Ex75Sv2OaOFAJ7O6TjtPllPqb3pjAXugyotIvQpFLfCePwLUs
+         dRZMPCY7KSPz/0aLAvKWifJMmOYtWipp8wFmDz/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org, Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 191/700] KVM: s390: get rid of register asm usage
+Subject: [PATCH 5.10 114/593] spi: spi-loopback-test: Fix tx_buf might be rx_buf
 Date:   Mon, 12 Jul 2021 08:04:34 +0200
-Message-Id: <20210712060953.823500083@linuxfoundation.org>
+Message-Id: <20210712060855.718306975@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,76 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit 4fa3b91bdee1b08348c82660668ca0ca34e271ad ]
+[ Upstream commit 9e37a3ab0627011fb63875e9a93094b6fc8ddf48 ]
 
-Using register asm statements has been proven to be very error prone,
-especially when using code instrumentation where gcc may add function
-calls, which clobbers register contents in an unexpected way.
+In function 'spi_test_run_iter': Value 'tx_buf' might be 'rx_buf'.
 
-Therefore get rid of register asm statements in kvm code, even though
-there is currently nothing wrong with them. This way we know for sure
-that this bug class won't be introduced here.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210621140356.1210771-1-hca@linux.ibm.com
-[borntraeger@de.ibm.com: checkpatch strict fix]
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/1620629903-15493-5-git-send-email-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/spi/spi-loopback-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 24ad447e648c..dd7136b3ed9a 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -323,31 +323,31 @@ static void allow_cpu_feat(unsigned long nr)
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index df981e55c24c..89b91cdfb2a5 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -874,7 +874,7 @@ static int spi_test_run_iter(struct spi_device *spi,
+ 		test.transfers[i].len = len;
+ 		if (test.transfers[i].tx_buf)
+ 			test.transfers[i].tx_buf += tx_off;
+-		if (test.transfers[i].tx_buf)
++		if (test.transfers[i].rx_buf)
+ 			test.transfers[i].rx_buf += rx_off;
+ 	}
  
- static inline int plo_test_bit(unsigned char nr)
- {
--	register unsigned long r0 asm("0") = (unsigned long) nr | 0x100;
-+	unsigned long function = (unsigned long)nr | 0x100;
- 	int cc;
- 
- 	asm volatile(
-+		"	lgr	0,%[function]\n"
- 		/* Parameter registers are ignored for "test bit" */
- 		"	plo	0,0,0,0(0)\n"
- 		"	ipm	%0\n"
- 		"	srl	%0,28\n"
- 		: "=d" (cc)
--		: "d" (r0)
--		: "cc");
-+		: [function] "d" (function)
-+		: "cc", "0");
- 	return cc == 0;
- }
- 
- static __always_inline void __insn32_query(unsigned int opcode, u8 *query)
- {
--	register unsigned long r0 asm("0") = 0;	/* query function */
--	register unsigned long r1 asm("1") = (unsigned long) query;
--
- 	asm volatile(
--		/* Parameter regs are ignored */
-+		"	lghi	0,0\n"
-+		"	lgr	1,%[query]\n"
-+		/* Parameter registers are ignored */
- 		"	.insn	rrf,%[opc] << 16,2,4,6,0\n"
- 		:
--		: "d" (r0), "a" (r1), [opc] "i" (opcode)
--		: "cc", "memory");
-+		: [query] "d" ((unsigned long)query), [opc] "i" (opcode)
-+		: "cc", "memory", "0", "1");
- }
- 
- #define INSN_SORTL 0xb938
 -- 
 2.30.2
 
