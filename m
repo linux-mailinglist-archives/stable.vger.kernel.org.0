@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4010B3C4809
+	by mail.lfdr.de (Postfix) with ESMTP id 882D43C480A
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235972AbhGLGfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237083AbhGLGfo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236804AbhGLGeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236730AbhGLGeI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:34:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2BB361151;
-        Mon, 12 Jul 2021 06:30:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B250610A7;
+        Mon, 12 Jul 2021 06:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071413;
-        bh=UtCAsljQ+Djj+UjaXl/mUqLAIRtUYcla61Rch2fxNTg=;
+        s=korg; t=1626071415;
+        bh=6rehgkk6c0Q/VSE3KGmObeul32/8wNq14hF6Au8PopE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9UlE2t0OV/soZ5OU3XQupDxH6BQLUq1U67UWRDvYSj33pTQ33fAA84542Hq+mN15
-         qdODOU4B0DUpGjEMJPgHXE3wPjFZ3H7Ra81yrnOkbu82fpYNukhgZodvtLZa+pdmsM
-         wr+DaQs0LFReWu35TSL/DQGMfxfgQu8eWAUKkh+c=
+        b=Rt7ZgOz4GpgnSXUmTjJBHy2BoZRgrnceifAdqZARk6WPsqWGwAguOqDd4zBIreBHB
+         nKfEuhUsWdd+7Yw/x/DOYh1hClh8c86EWcf2CURyvD6dQekinF+Cl0+ereJgs3VyVE
+         Xwpm8zgGaAmb4dvGKhvVQjwJrdejrImN00cFDJw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baochen Qiang <bqiang@codeaurora.org>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.10 058/593] bus: mhi: Wait for M2 state during system resume
-Date:   Mon, 12 Jul 2021 08:03:38 +0200
-Message-Id: <20210712060849.494682847@linuxfoundation.org>
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 059/593] mm/gup: fix try_grab_compound_head() race with split_huge_page()
+Date:   Mon, 12 Jul 2021 08:03:39 +0200
+Message-Id: <20210712060849.625402990@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,71 +44,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <bqiang@codeaurora.org>
+From: Jann Horn <jannh@google.com>
 
-commit 02b49cd1174527e611768fc2ce0f75a74dfec7ae upstream.
+commit c24d37322548a6ec3caec67100d28b9c1f89f60a upstream.
 
-During system resume, MHI host triggers M3->M0 transition and then waits
-for target device to enter M0 state. Once done, the device queues a state
-change event into ctrl event ring and notifies MHI host by raising an
-interrupt, where a tasklet is scheduled to process this event. In most
-cases, the tasklet is served timely and wait operation succeeds.
+try_grab_compound_head() is used to grab a reference to a page from
+get_user_pages_fast(), which is only protected against concurrent freeing
+of page tables (via local_irq_save()), but not against concurrent TLB
+flushes, freeing of data pages, or splitting of compound pages.
 
-However, there are cases where CPU is busy and cannot serve this tasklet
-for some time. Once delay goes long enough, the device moves itself to M1
-state and also interrupts MHI host after inserting a new state change
-event to ctrl ring. Later when CPU finally has time to process the ring,
-there will be two events:
+Because no reference is held to the page when try_grab_compound_head() is
+called, the page may have been freed and reallocated by the time its
+refcount has been elevated; therefore, once we're holding a stable
+reference to the page, the caller re-checks whether the PTE still points
+to the same page (with the same access rights).
 
-1. For M3->M0 event, which is the first event to be processed queued first.
-   The tasklet handler serves the event, updates device state to M0 and
-   wakes up the task.
+The problem is that try_grab_compound_head() has to grab a reference on
+the head page; but between the time we look up what the head page is and
+the time we actually grab a reference on the head page, the compound page
+may have been split up (either explicitly through split_huge_page() or by
+freeing the compound page to the buddy allocator and then allocating its
+individual order-0 pages).  If that happens, get_user_pages_fast() may end
+up returning the right page but lifting the refcount on a now-unrelated
+page, leading to use-after-free of pages.
 
-2. For M0->M1 event, which is processed later, the tasklet handler
-   triggers M1->M2 transition and updates device state to M2 directly,
-   then wakes up the MHI host (if it is still sleeping on this wait queue).
+To fix it: Re-check whether the pages still belong together after lifting
+the refcount on the head page.  Move anything else that checks
+compound_head(page) below the refcount increment.
 
-Note that although MHI host has been woken up while processing the first
-event, it may still has no chance to run before the second event is
-processed. In other words, MHI host has to keep waiting till timeout
-causing the M0 state to be missed.
+This can't actually happen on bare-metal x86 (because there, disabling
+IRQs locks out remote TLB flushes), but it can happen on virtualized x86
+(e.g.  under KVM) and probably also on arm64.  The race window is pretty
+narrow, and constantly allocating and shattering hugepages isn't exactly
+fast; for now I've only managed to reproduce this in an x86 KVM guest with
+an artificially widened timing window (by adding a loop that repeatedly
+calls `inl(0x3f8 + 5)` in `try_get_compound_head()` to force VM exits, so
+that PV TLB flushes are used instead of IPIs).
 
-kernel log here:
-...
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.911251] mhi 0000:06:00.0: Entered with PM state: M3, MHI state: M3
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917762] mhi 0000:06:00.0: State change event to state: M0
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917767] mhi 0000:06:00.0: State change event to state: M1
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4338.788231] mhi 0000:06:00.0: Did not enter M0 state, MHI state: M2, PM state: M2
-...
+As requested on the list, also replace the existing VM_BUG_ON_PAGE() with
+a warning and bailout.  Since the existing code only performed the BUG_ON
+check on DEBUG_VM kernels, ensure that the new code also only performs the
+check under that configuration - I don't want to mix two logically
+separate changes together too much.  The macro VM_WARN_ON_ONCE_PAGE()
+doesn't return a value on !DEBUG_VM, so wrap the whole check in an #ifdef
+block.  An alternative would be to change the VM_WARN_ON_ONCE_PAGE()
+definition for !DEBUG_VM such that it always returns false, but since that
+would differ from the behavior of the normal WARN macros, it might be too
+confusing for readers.
 
-Fix this issue by simply adding M2 as a valid state for resume.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Cc: stable@vger.kernel.org
-Fixes: 0c6b20a1d720 ("bus: mhi: core: Add support for MHI suspend and resume")
-Signed-off-by: Baochen Qiang <bqiang@codeaurora.org>
-Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210524040312.14409-1-bqiang@codeaurora.org
-[mani: slightly massaged the commit message]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210621161616.77524-4-manivannan.sadhasivam@linaro.org
+Link: https://lkml.kernel.org/r/20210615012014.1100672-1-jannh@google.com
+Fixes: 7aef4172c795 ("mm: handle PTE-mapped tail pages in gerneric fast gup implementaiton")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/bus/mhi/core/pm.c |    1 +
- 1 file changed, 1 insertion(+)
+ mm/gup.c |   58 +++++++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 43 insertions(+), 15 deletions(-)
 
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -809,6 +809,7 @@ int mhi_pm_resume(struct mhi_controller
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -44,6 +44,23 @@ static void hpage_pincount_sub(struct pa
+ 	atomic_sub(refs, compound_pincount_ptr(page));
+ }
  
- 	ret = wait_event_timeout(mhi_cntrl->state_event,
- 				 mhi_cntrl->dev_state == MHI_STATE_M0 ||
-+				 mhi_cntrl->dev_state == MHI_STATE_M2 ||
- 				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
- 				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
++/* Equivalent to calling put_page() @refs times. */
++static void put_page_refs(struct page *page, int refs)
++{
++#ifdef CONFIG_DEBUG_VM
++	if (VM_WARN_ON_ONCE_PAGE(page_ref_count(page) < refs, page))
++		return;
++#endif
++
++	/*
++	 * Calling put_page() for each ref is unnecessarily slow. Only the last
++	 * ref needs a put_page().
++	 */
++	if (refs > 1)
++		page_ref_sub(page, refs - 1);
++	put_page(page);
++}
++
+ /*
+  * Return the compound head page with ref appropriately incremented,
+  * or NULL if that failed.
+@@ -56,6 +73,21 @@ static inline struct page *try_get_compo
+ 		return NULL;
+ 	if (unlikely(!page_cache_add_speculative(head, refs)))
+ 		return NULL;
++
++	/*
++	 * At this point we have a stable reference to the head page; but it
++	 * could be that between the compound_head() lookup and the refcount
++	 * increment, the compound page was split, in which case we'd end up
++	 * holding a reference on a page that has nothing to do with the page
++	 * we were given anymore.
++	 * So now that the head page is stable, recheck that the pages still
++	 * belong together.
++	 */
++	if (unlikely(compound_head(page) != head)) {
++		put_page_refs(head, refs);
++		return NULL;
++	}
++
+ 	return head;
+ }
  
+@@ -96,6 +128,14 @@ static __maybe_unused struct page *try_g
+ 			return NULL;
+ 
+ 		/*
++		 * CAUTION: Don't use compound_head() on the page before this
++		 * point, the result won't be stable.
++		 */
++		page = try_get_compound_head(page, refs);
++		if (!page)
++			return NULL;
++
++		/*
+ 		 * When pinning a compound page of order > 1 (which is what
+ 		 * hpage_pincount_available() checks for), use an exact count to
+ 		 * track it, via hpage_pincount_add/_sub().
+@@ -103,15 +143,10 @@ static __maybe_unused struct page *try_g
+ 		 * However, be sure to *also* increment the normal page refcount
+ 		 * field at least once, so that the page really is pinned.
+ 		 */
+-		if (!hpage_pincount_available(page))
+-			refs *= GUP_PIN_COUNTING_BIAS;
+-
+-		page = try_get_compound_head(page, refs);
+-		if (!page)
+-			return NULL;
+-
+ 		if (hpage_pincount_available(page))
+ 			hpage_pincount_add(page, refs);
++		else
++			page_ref_add(page, refs * (GUP_PIN_COUNTING_BIAS - 1));
+ 
+ 		mod_node_page_state(page_pgdat(page), NR_FOLL_PIN_ACQUIRED,
+ 				    orig_refs);
+@@ -135,14 +170,7 @@ static void put_compound_head(struct pag
+ 			refs *= GUP_PIN_COUNTING_BIAS;
+ 	}
+ 
+-	VM_BUG_ON_PAGE(page_ref_count(page) < refs, page);
+-	/*
+-	 * Calling put_page() for each ref is unnecessarily slow. Only the last
+-	 * ref needs a put_page().
+-	 */
+-	if (refs > 1)
+-		page_ref_sub(page, refs - 1);
+-	put_page(page);
++	put_page_refs(page, refs);
+ }
+ 
+ /**
 
 
