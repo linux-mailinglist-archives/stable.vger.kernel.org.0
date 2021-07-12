@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC5D3C49C0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A2A3C4E2C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237809AbhGLGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S243774AbhGLHRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236777AbhGLGpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:45:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E635610CD;
-        Mon, 12 Jul 2021 06:41:25 +0000 (UTC)
+        id S242898AbhGLHQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:16:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A266613F4;
+        Mon, 12 Jul 2021 07:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072085;
-        bh=3Ame5mAbHVT7+zjKqVsURnRRLE/UlmfH3QxEbGObC9c=;
+        s=korg; t=1626073989;
+        bh=8+rRPFj3Ox44Tpgb+toN5X1rm9q9dgE8IUckF0MXjaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jT0duqcOQKhpKLaH08Lt1E2z1ozDJ00dCarVORsVncNHd9P7I97h/k8EQc9ipBE9u
-         WTlf3p5AdijFyfP199CRKUx9OqLfwf87/KmaKYZwrKHmdp+m+01OX22j3k6VQHj35E
-         RO6ffSo3Af5gw+WJqnIyfvEh5A6WOe7Nxm4XC0lU=
+        b=VRVtJ8WPT3bahsXqb/B3M81+pMU2Wt+Z/BWATnRkytRXwZdfGr0Pl7sVsB/Sn3HqR
+         KKKshq0FeQBF5Xmvw/tX5SyZmOXCLpbEqGFrrToxgBtYFakxSgknqG/a/fasjeQrFi
+         OYzSzSGqlLKbWf5VUtd8e5ooKEvEqxqD1F7IGYqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 349/593] brcmfmac: Fix a double-free in brcmf_sdio_bus_reset
+Subject: [PATCH 5.12 426/700] xsk: Fix broken Tx ring validation
 Date:   Mon, 12 Jul 2021 08:08:29 +0200
-Message-Id: <20210712060924.584376808@linuxfoundation.org>
+Message-Id: <20210712061021.724473680@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 7ea7a1e05c7ff5ffc9f9ec1f0849f6ceb7fcd57c ]
+[ Upstream commit f654fae47e83e56b454fbbfd0af0a4f232e356d6 ]
 
-brcmf_sdiod_remove has been called inside brcmf_sdiod_probe when fails,
-so there's no need to call another one. Otherwise, sdiodev->freezer
-would be double freed.
+Fix broken Tx ring validation for AF_XDP. The commit under the Fixes
+tag, fixed an off-by-one error in the validation but introduced
+another error. Descriptors are now let through even if they straddle a
+chunk boundary which they are not allowed to do in aligned mode. Worse
+is that they are let through even if they straddle the end of the umem
+itself, tricking the kernel to read data outside the allowed umem
+region which might or might not be mapped at all.
 
-Fixes: 7836102a750a ("brcmfmac: reset SDIO bus on a firmware crash")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210601100128.69561-1-tongtiangen@huawei.com
+Fix this by reintroducing the old code, but subtract the length by one
+to fix the off-by-one error that the original patch was
+addressing. The test chunk != chunk_end makes sure packets do not
+straddle chunk boundraries. Note that packets of zero length are
+allowed in the interface, therefore the test if the length is
+non-zero.
+
+Fixes: ac31565c2193 ("xsk: Fix for xp_aligned_validate_desc() when len == chunk_size")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Björn Töpel <bjorn@kernel.org>
+Link: https://lore.kernel.org/bpf/20210618075805.14412-1-magnus.karlsson@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/xdp/xsk_queue.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index 59c2b2b6027d..6d5d5c39c635 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -4157,7 +4157,6 @@ static int brcmf_sdio_bus_reset(struct device *dev)
- 	if (ret) {
- 		brcmf_err("Failed to probe after sdio device reset: ret %d\n",
- 			  ret);
--		brcmf_sdiod_remove(sdiodev);
- 	}
+diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
+index 40f359bf2044..35938dfa784d 100644
+--- a/net/xdp/xsk_queue.h
++++ b/net/xdp/xsk_queue.h
+@@ -128,12 +128,15 @@ static inline bool xskq_cons_read_addr_unchecked(struct xsk_queue *q, u64 *addr)
+ static inline bool xp_aligned_validate_desc(struct xsk_buff_pool *pool,
+ 					    struct xdp_desc *desc)
+ {
+-	u64 chunk;
+-
+-	if (desc->len > pool->chunk_size)
+-		return false;
++	u64 chunk, chunk_end;
  
- 	return ret;
+ 	chunk = xp_aligned_extract_addr(pool, desc->addr);
++	if (likely(desc->len)) {
++		chunk_end = xp_aligned_extract_addr(pool, desc->addr + desc->len - 1);
++		if (chunk != chunk_end)
++			return false;
++	}
++
+ 	if (chunk >= pool->addrs_cnt)
+ 		return false;
+ 
 -- 
 2.30.2
 
