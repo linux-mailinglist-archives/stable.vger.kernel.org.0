@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 783F23C5403
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F083C49DA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349399AbhGLH4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
+        id S238240AbhGLGrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351595AbhGLHv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A30A1610D1;
-        Mon, 12 Jul 2021 07:49:08 +0000 (UTC)
+        id S237645AbhGLGq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B64A76101E;
+        Mon, 12 Jul 2021 06:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076149;
-        bh=mQ4+fheoM0Olwq6EwJAOwQacsIEvyANKyJn0i60K3FU=;
+        s=korg; t=1626072128;
+        bh=/vJfQf0KqnpTvcZfTUjXJKbG+jsTGoegs3278QZjCmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGKG1LiGJgKmIE+M73S97fxVx+yQ5MPLdahfrf16T4VffUBDlH+ZFx2eCuzFl3grS
-         d1eEwGcjBNagxxNloskdMlfan5hoBEqLh7A4gvfQF1it8Jlf9nbydXUvuL5IhvSDA3
-         iM1yCEIr4WrOsLqOeI9bjCZCPgQr9aabi3nNJERg=
+        b=yWyJLnfPaM6TClpOooGPv0fq92Ni/PW64AykxomT3bcPfyoXBlWRj7ozLe/NRnlqc
+         cetI6eWhFy2mEFMFTSgCj38+UGPRsXuvN15EKUS7Utr0zJStS3s2fFl4zwCyxzQST7
+         zwITqo93gN1kNq7jx0j3C5LLz9H3Gx7/3PO+4puM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Quentin Monnet <quentin@isovalent.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 476/800] netfilter: nft_tproxy: restrict support to TCP and UDP transport protocols
+Subject: [PATCH 5.10 339/593] tools/bpftool: Fix error return code in do_batch()
 Date:   Mon, 12 Jul 2021 08:08:19 +0200
-Message-Id: <20210712061017.825739626@linuxfoundation.org>
+Message-Id: <20210712060923.290188504@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 52f0f4e178c757b3d356087376aad8bd77271828 ]
+[ Upstream commit ca16b429f39b4ce013bfa7e197f25681e65a2a42 ]
 
-Add unfront check for TCP and UDP packets before performing further
-processing.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 668da745af3c2 ("tools: bpftool: add support for quotations ...")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Reviewed-by: Quentin Monnet <quentin@isovalent.com>
+Link: https://lore.kernel.org/bpf/20210609115916.2186872-1-chengzhihao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_tproxy.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ tools/bpf/bpftool/main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_tproxy.c b/net/netfilter/nft_tproxy.c
-index accef672088c..5cb4d575d47f 100644
---- a/net/netfilter/nft_tproxy.c
-+++ b/net/netfilter/nft_tproxy.c
-@@ -30,6 +30,12 @@ static void nft_tproxy_eval_v4(const struct nft_expr *expr,
- 	__be16 tport = 0;
- 	struct sock *sk;
+diff --git a/tools/bpf/bpftool/main.c b/tools/bpf/bpftool/main.c
+index 33068d6ed5d6..c58a135dc355 100644
+--- a/tools/bpf/bpftool/main.c
++++ b/tools/bpf/bpftool/main.c
+@@ -338,8 +338,10 @@ static int do_batch(int argc, char **argv)
+ 		n_argc = make_args(buf, n_argv, BATCH_ARG_NB_MAX, lines);
+ 		if (!n_argc)
+ 			continue;
+-		if (n_argc < 0)
++		if (n_argc < 0) {
++			err = n_argc;
+ 			goto err_close;
++		}
  
-+	if (pkt->tprot != IPPROTO_TCP &&
-+	    pkt->tprot != IPPROTO_UDP) {
-+		regs->verdict.code = NFT_BREAK;
-+		return;
-+	}
-+
- 	hp = skb_header_pointer(skb, ip_hdrlen(skb), sizeof(_hdr), &_hdr);
- 	if (!hp) {
- 		regs->verdict.code = NFT_BREAK;
-@@ -91,7 +97,8 @@ static void nft_tproxy_eval_v6(const struct nft_expr *expr,
- 
- 	memset(&taddr, 0, sizeof(taddr));
- 
--	if (!pkt->tprot_set) {
-+	if (pkt->tprot != IPPROTO_TCP &&
-+	    pkt->tprot != IPPROTO_UDP) {
- 		regs->verdict.code = NFT_BREAK;
- 		return;
- 	}
+ 		if (json_output) {
+ 			jsonw_start_object(json_wtr);
 -- 
 2.30.2
 
