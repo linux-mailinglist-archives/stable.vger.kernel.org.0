@@ -2,50 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8483C4715
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EE13C4726
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234645AbhGLGbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:31:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52730 "EHLO mail.kernel.org"
+        id S235395AbhGLGbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236884AbhGLGa1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:30:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B8160238;
-        Mon, 12 Jul 2021 06:27:37 +0000 (UTC)
+        id S236951AbhGLGa3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:30:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6968560234;
+        Mon, 12 Jul 2021 06:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071258;
-        bh=r9rqWIfKeAJHTT195H5cZemXLxSuOIhMnoNetkkxI88=;
+        s=korg; t=1626071260;
+        bh=q/WSWvDxY9O4dTACy3WW7pDQ7RvU77ls+OLvBCZx1Qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lzo0Qzt1h4rhSgFOR5ioNxhe1KZTgG7CySZKP8i5x/d3Rz/MZaIS5UuqfNbbnrohI
-         H2gDHTnLC/ojRgvqzJTZZ4agnD5aVASCbvEqexvCAQVZckSuIvBHcGJvC1hLncZ7mS
-         p41cMNK2WzaNOPMnHC6p1DzcNrtx/k/9zJRt7IhY=
+        b=KYVPYSC3TOHOG8JYr0QZV2xUUPIU8QdDW9tXs/8ikyMGYEcCR5AqNoNE1cPcdIknV
+         TuFbFxEWikKXA78jnyJoV6FOZEpbqY3KNBk4nlUCstTSSyKdZVP3Xl4MofpAYhYXg7
+         uMkR6iVetvbd+MrtfqYCimm558gUap2naDpzh/hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Rik van Riel <riel@surriel.com>,
-        Song Liu <songliubraving@fb.com>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Vitaly Wool <vitaly.wool@konsulko.com>,
+        Hillf Danton <hdanton@sina.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 340/348] mm/huge_memory.c: dont discard hugepage if other processes are mapping it
-Date:   Mon, 12 Jul 2021 08:12:04 +0200
-Message-Id: <20210712060749.204853687@linuxfoundation.org>
+Subject: [PATCH 5.4 341/348] mm/z3fold: fix potential memory leak in z3fold_destroy_pool()
+Date:   Mon, 12 Jul 2021 08:12:05 +0200
+Message-Id: <20210712060749.333088031@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -59,53 +45,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit babbbdd08af98a59089334eb3effbed5a7a0cf7f ]
+[ Upstream commit dac0d1cfda56472378d330b1b76b9973557a7b1d ]
 
-If other processes are mapping any other subpages of the hugepage, i.e.
-in pte-mapped thp case, page_mapcount() will return 1 incorrectly.  Then
-we would discard the page while other processes are still mapping it.  Fix
-it by using total_mapcount() which can tell whether other processes are
-still mapping it.
+There is a memory leak in z3fold_destroy_pool() as it forgets to
+free_percpu pool->unbuddied.  Call free_percpu for pool->unbuddied to fix
+this issue.
 
-Link: https://lkml.kernel.org/r/20210511134857.1581273-6-linmiaohe@huawei.com
-Fixes: b8d3c4c3009d ("mm/huge_memory.c: don't split THP page when MADV_FREE syscall is called")
-Reviewed-by: Yang Shi <shy828301@gmail.com>
+Link: https://lkml.kernel.org/r/20210619093151.1492174-6-linmiaohe@huawei.com
+Fixes: d30561c56f41 ("z3fold: use per-cpu unbuddied lists")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Vitaly Wool <vitaly.wool@konsulko.com>
+Cc: Hillf Danton <hdanton@sina.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/huge_memory.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/z3fold.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 87a07aa61be0..e50799d7002e 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1723,7 +1723,7 @@ bool madvise_free_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 	 * If other processes are mapping this page, we couldn't discard
- 	 * the page unless they all do MADV_FREE so let's skip the page.
- 	 */
--	if (page_mapcount(page) != 1)
-+	if (total_mapcount(page) != 1)
- 		goto out;
+diff --git a/mm/z3fold.c b/mm/z3fold.c
+index 6d3d3f698ebb..e97143713021 100644
+--- a/mm/z3fold.c
++++ b/mm/z3fold.c
+@@ -839,6 +839,7 @@ static void z3fold_destroy_pool(struct z3fold_pool *pool)
+ 	destroy_workqueue(pool->compact_wq);
+ 	destroy_workqueue(pool->release_wq);
+ 	z3fold_unregister_migration(pool);
++	free_percpu(pool->unbuddied);
+ 	kfree(pool);
+ }
  
- 	if (!trylock_page(page))
 -- 
 2.30.2
 
