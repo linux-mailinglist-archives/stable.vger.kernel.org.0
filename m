@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D4C03C5237
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BBEF3C4C98
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349962AbhGLHpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49730 "EHLO mail.kernel.org"
+        id S242165AbhGLHGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349245AbhGLHls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:41:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AFFC601FE;
-        Mon, 12 Jul 2021 07:38:58 +0000 (UTC)
+        id S243219AbhGLHEo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:04:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6E661108;
+        Mon, 12 Jul 2021 07:01:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075539;
-        bh=FYBXNPI5000GtCRWi1TdV8XyZSAiQkkynRDwbj0rBQc=;
+        s=korg; t=1626073316;
+        bh=VaX9lN0hsxUsIJHoRHXAYV7CYJiXUDPXIo9wT4xVa7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lUFrEURdJEc2swqrlDBCHd8Af8bvpZNa4OsXTn3ni80HkMCGd1AT58iAiNadIx3x/
-         uzHCr4BPujYOzPLZIiyiLZvdsiBGDDNBdefPeXN8UuAzg88evwqc1bQP6VhLNcMfz3
-         NyGOU+G6ZPmV9WSlElCGFTeK+drBsgU71kushILY=
+        b=KjsbDP/JhpUjuxf8Nwi0OAXoiSMCyqmuxv1EGuzBi15rDn8cNIvD2IbihgQHdRdlp
+         Rb0SM+IvxFItJQt6W0JbzsRIbUkWy/1/94Uj434JWs1bmLDPeDChjefuuqoHepx/Bb
+         Dc3fQVUqRB1iYY/nJwCs4gVvvWtI2581PM4i9Lcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 258/800] cifs: fix missing spinlock around update to ses->status
-Date:   Mon, 12 Jul 2021 08:04:41 +0200
-Message-Id: <20210712060950.673704786@linuxfoundation.org>
+Subject: [PATCH 5.12 199/700] ACPI: processor idle: Fix up C-state latency if not ordered
+Date:   Mon, 12 Jul 2021 08:04:42 +0200
+Message-Id: <20210712060955.012762694@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,61 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 0060a4f28a9ef45ae8163c0805e944a2b1546762 ]
+[ Upstream commit 65ea8f2c6e230bdf71fed0137cf9e9d1b307db32 ]
 
-In the other places where we update ses->status we protect the
-updates via GlobalMid_Lock. So to be consistent add the same
-locking around it in cifs_put_smb_ses where it was missing.
+Generally, the C-state latency is provided by the _CST method or
+FADT, but some OEM platforms using AMD Picasso, Renoir, Van Gogh,
+and Cezanne set the C2 latency greater than C3's which causes the
+C2 state to be skipped.
 
-Addresses-Coverity: 1268904 ("Data race condition")
-Signed-off-by: Steve French <stfrench@microsoft.com>
+That will block the core entering PC6, which prevents S0ix working
+properly on Linux systems.
+
+In other operating systems, the latency values are not validated and
+this does not cause problems by skipping states.
+
+To avoid this issue on Linux, detect when latencies are not an
+arithmetic progression and sort them.
+
+Link: https://gitlab.freedesktop.org/agd5f/linux/-/commit/026d186e4592c1ee9c1cb44295912d0294508725
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1230#note_712174
+Suggested-by: Prike Liang <Prike.Liang@amd.com>
+Suggested-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifsglob.h | 3 ++-
- fs/cifs/connect.c  | 5 ++++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/acpi/processor_idle.c | 40 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 8488d7024462..706a2aeba1de 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -896,7 +896,7 @@ struct cifs_ses {
- 	struct mutex session_mutex;
- 	struct TCP_Server_Info *server;	/* pointer to server info */
- 	int ses_count;		/* reference counter */
--	enum statusEnum status;
-+	enum statusEnum status;  /* updates protected by GlobalMid_Lock */
- 	unsigned overrideSecFlg;  /* if non-zero override global sec flags */
- 	char *serverOS;		/* name of operating system underlying server */
- 	char *serverNOS;	/* name of network operating system of server */
-@@ -1795,6 +1795,7 @@ require use of the stronger protocol */
-  *	list operations on pending_mid_q and oplockQ
-  *      updates to XID counters, multiplex id  and SMB sequence numbers
-  *      list operations on global DnotifyReqList
-+ *      updates to ses->status
-  *  tcp_ses_lock protects:
-  *	list operations on tcp and SMB session lists
-  *  tcon->open_file_lock protects the list of open files hanging off the tcon
-diff --git a/fs/cifs/connect.c b/fs/cifs/connect.c
-index 495c395f9def..eb6c10fa6741 100644
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -1617,9 +1617,12 @@ void cifs_put_smb_ses(struct cifs_ses *ses)
- 		spin_unlock(&cifs_tcp_ses_lock);
- 		return;
- 	}
-+	spin_unlock(&cifs_tcp_ses_lock);
+diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
+index 4e2d76b8b697..6790df5a2462 100644
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -16,6 +16,7 @@
+ #include <linux/acpi.h>
+ #include <linux/dmi.h>
+ #include <linux/sched.h>       /* need_resched() */
++#include <linux/sort.h>
+ #include <linux/tick.h>
+ #include <linux/cpuidle.h>
+ #include <linux/cpu.h>
+@@ -388,10 +389,37 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
+ 	return;
+ }
+ 
++static int acpi_cst_latency_cmp(const void *a, const void *b)
++{
++	const struct acpi_processor_cx *x = a, *y = b;
 +
-+	spin_lock(&GlobalMid_Lock);
- 	if (ses->status == CifsGood)
- 		ses->status = CifsExiting;
--	spin_unlock(&cifs_tcp_ses_lock);
-+	spin_unlock(&GlobalMid_Lock);
++	if (!(x->valid && y->valid))
++		return 0;
++	if (x->latency > y->latency)
++		return 1;
++	if (x->latency < y->latency)
++		return -1;
++	return 0;
++}
++static void acpi_cst_latency_swap(void *a, void *b, int n)
++{
++	struct acpi_processor_cx *x = a, *y = b;
++	u32 tmp;
++
++	if (!(x->valid && y->valid))
++		return;
++	tmp = x->latency;
++	x->latency = y->latency;
++	y->latency = tmp;
++}
++
+ static int acpi_processor_power_verify(struct acpi_processor *pr)
+ {
+ 	unsigned int i;
+ 	unsigned int working = 0;
++	unsigned int last_latency = 0;
++	unsigned int last_type = 0;
++	bool buggy_latency = false;
  
- 	cifs_free_ipc(ses);
+ 	pr->power.timer_broadcast_on_state = INT_MAX;
  
+@@ -415,12 +443,24 @@ static int acpi_processor_power_verify(struct acpi_processor *pr)
+ 		}
+ 		if (!cx->valid)
+ 			continue;
++		if (cx->type >= last_type && cx->latency < last_latency)
++			buggy_latency = true;
++		last_latency = cx->latency;
++		last_type = cx->type;
+ 
+ 		lapic_timer_check_state(i, pr, cx);
+ 		tsc_check_state(cx->type);
+ 		working++;
+ 	}
+ 
++	if (buggy_latency) {
++		pr_notice("FW issue: working around C-state latencies out of order\n");
++		sort(&pr->power.states[1], max_cstate,
++		     sizeof(struct acpi_processor_cx),
++		     acpi_cst_latency_cmp,
++		     acpi_cst_latency_swap);
++	}
++
+ 	lapic_timer_propagate_broadcast(pr);
+ 
+ 	return (working);
 -- 
 2.30.2
 
