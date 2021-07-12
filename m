@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2AC3C4CA6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4B83C51EE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242297AbhGLHG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
+        id S1349566AbhGLHoN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243088AbhGLHEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B930E61152;
-        Mon, 12 Jul 2021 07:01:38 +0000 (UTC)
+        id S1349154AbhGLHlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B46601FE;
+        Mon, 12 Jul 2021 07:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073299;
-        bh=xX8VyNOodZXaJbZ6Zo8s39DpvovzD6FKkh4MDY9d7wE=;
+        s=korg; t=1626075532;
+        bh=761t1zXnjurAJ1ZBS0hQIuMAU+ku6cdTBBfoofqupX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VuiQ0FgpLrQ50P6kOaP06xEpxDnilSnkTvWNlJlQK6Y58cln1oqXScy+VQkQOMJLn
-         JPWEIyiwv10VmKuYEGjV6mfQDQFE5+eoLpHeukZkFjojENmHI8BsDYoTDbzCjFkV79
-         WqahMvKp+RCylsXYDzW0AN46BsgtUP3+nsFlpI8I=
+        b=atEwyMAGsXifV+ah6fpb32zGLHgGkQlnoOXOXc1BWsF1LrA1b72fMXlH/dvHQO/rm
+         XEPtgKp/uiiOiSW8TatgWzsrKbx7xUC/Cy82qYnXMbLX4OuSeOvmi4Ualax8pi4/L5
+         V0Ug48+EQJ6pZkHzttzM00nezljXbdis/3mxDrJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 194/700] media: Fix Media Controller API config checks
-Date:   Mon, 12 Jul 2021 08:04:37 +0200
-Message-Id: <20210712060954.302733879@linuxfoundation.org>
+Subject: [PATCH 5.13 255/800] ACPI: tables: Add custom DSDT file as makefile prerequisite
+Date:   Mon, 12 Jul 2021 08:04:38 +0200
+Message-Id: <20210712060950.042569034@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 50e7a31d30e8221632675abed3be306382324ca2 ]
+[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
 
-Smatch static checker warns that "mdev" can be null:
+A custom DSDT file is mostly used during development or debugging,
+and in that case it is quite likely to want to rebuild the kernel
+after changing ONLY the content of the DSDT.
 
-sound/usb/media.c:287 snd_media_device_create()
-    warn: 'mdev' can also be NULL
+This patch adds the custom DSDT as a prerequisite to tables.o
+to ensure a rebuild if the DSDT file is updated. Make will merge
+the prerequisites from multiple rules for the same target.
 
-If CONFIG_MEDIA_CONTROLLER is disabled, this file should not be included
-in the build.
-
-The below conditions in the sound/usb/Makefile are in place to ensure that
-media.c isn't included in the build.
-
-sound/usb/Makefile:
-snd-usb-audio-$(CONFIG_SND_USB_AUDIO_USE_MEDIA_CONTROLLER) += media.o
-
-select SND_USB_AUDIO_USE_MEDIA_CONTROLLER if MEDIA_CONTROLLER &&
-       (MEDIA_SUPPORT=y || MEDIA_SUPPORT=SND_USB_AUDIO)
-
-The following config check in include/media/media-dev-allocator.h is
-in place to enable the API only when CONFIG_MEDIA_CONTROLLER and
-CONFIG_USB are enabled.
-
- #if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-
-This check doesn't work as intended when CONFIG_USB=m. When CONFIG_USB=m,
-CONFIG_USB_MODULE is defined and CONFIG_USB is not. The above config check
-doesn't catch that CONFIG_USB is defined as a module and disables the API.
-This results in sound/usb enabling Media Controller specific ALSA driver
-code, while Media disables the Media Controller API.
-
-Fix the problem requires two changes:
-
-1. Change the check to use IS_ENABLED to detect when CONFIG_USB is enabled
-   as a module or static. Since CONFIG_MEDIA_CONTROLLER is a bool, leave
-   the check unchanged to be consistent with drivers/media/Makefile.
-
-2. Change the drivers/media/mc/Makefile to include mc-dev-allocator.o
-   in mc-objs when CONFIG_USB is enabled.
-
-Link: https://lore.kernel.org/alsa-devel/YLeAvT+R22FQ%2FEyw@mwanda/
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/mc/Makefile           | 2 +-
- include/media/media-dev-allocator.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/mc/Makefile b/drivers/media/mc/Makefile
-index 119037f0e686..2b7af42ba59c 100644
---- a/drivers/media/mc/Makefile
-+++ b/drivers/media/mc/Makefile
-@@ -3,7 +3,7 @@
- mc-objs	:= mc-device.o mc-devnode.o mc-entity.o \
- 	   mc-request.o
+diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+index 700b41adf2db..9aa82d527272 100644
+--- a/drivers/acpi/Makefile
++++ b/drivers/acpi/Makefile
+@@ -8,6 +8,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
+ #
+ # ACPI Boot-Time Table Parsing
+ #
++ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
++tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
++
++endif
++
+ obj-$(CONFIG_ACPI)		+= tables.o
+ obj-$(CONFIG_X86)		+= blacklist.o
  
--ifeq ($(CONFIG_USB),y)
-+ifneq ($(CONFIG_USB),)
- 	mc-objs += mc-dev-allocator.o
- endif
- 
-diff --git a/include/media/media-dev-allocator.h b/include/media/media-dev-allocator.h
-index b35ea6062596..2ab54d426c64 100644
---- a/include/media/media-dev-allocator.h
-+++ b/include/media/media-dev-allocator.h
-@@ -19,7 +19,7 @@
- 
- struct usb_device;
- 
--#if defined(CONFIG_MEDIA_CONTROLLER) && defined(CONFIG_USB)
-+#if defined(CONFIG_MEDIA_CONTROLLER) && IS_ENABLED(CONFIG_USB)
- /**
-  * media_device_usb_allocate() - Allocate and return struct &media device
-  *
 -- 
 2.30.2
 
