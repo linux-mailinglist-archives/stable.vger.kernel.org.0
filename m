@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 160693C4D18
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C1193C532A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242386AbhGLHL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42966 "EHLO mail.kernel.org"
+        id S1347774AbhGLHxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:53:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244134AbhGLHK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B497610CD;
-        Mon, 12 Jul 2021 07:06:22 +0000 (UTC)
+        id S243093AbhGLHrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1796144C;
+        Mon, 12 Jul 2021 07:42:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073583;
-        bh=meGSFOMCtdiAnXguur9WjgDTfZSBr3cYmsBkn61VCDE=;
+        s=korg; t=1626075754;
+        bh=QEU95OBl1wa7Ix8cCNHen/j2cLQYlv1H8ToXGIkwAFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImTuFIHCqfYL6REZZNqX1rj5GqevUrayxgqIzLaqDyiznxcYI/w75C8hB4LAO+o7G
-         /ajGey74R8oDWfkirSZDsvao+lWGD6zr3uVLcrdsP0HgtA6kpuGQ8eOWBLbeqz/P83
-         p8sgxqjJxfbTR2BPa8SHGqCfpjscuEHg7UXS4U+I=
+        b=s4ToszOVaVjDCMAS0NcNOQ2yBi38LzF0Skoz8PrBtJnj7C8IvBiBneGTcgByJeXJC
+         tpJBTwAtJCItDCA8pWHWMUEfkogyxJC6beIVSOh/dxjwfAyuK3ZlJ8Bdq8N08Dfx5u
+         ahitutrMXmAXPvqMT7PoKXN0BzPk7L4yqGt3JsBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 290/700] media: subdev: remove VIDIOC_DQEVENT_TIME32 handling
-Date:   Mon, 12 Jul 2021 08:06:13 +0200
-Message-Id: <20210712061007.077175053@linuxfoundation.org>
+Subject: [PATCH 5.13 351/800] KVM: selftests: Remove errant asm/barrier.h include to fix arm64 build
+Date:   Mon, 12 Jul 2021 08:06:14 +0200
+Message-Id: <20210712061004.409286299@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 765ba251d2522e2a0daa2f0793fd0f0ce34816ec ]
+[ Upstream commit ecc3a92c6f4953c134a9590c762755e6593f507c ]
 
-Converting the VIDIOC_DQEVENT_TIME32/VIDIOC_DQEVENT32/
-VIDIOC_DQEVENT32_TIME32 arguments to the canonical form is done in common
-code, but for some reason I ended up adding another conversion helper to
-subdev_do_ioctl() as well. I must have concluded that this does not go
-through the common conversion, but it has done that since the ioctl
-handler was first added.
+Drop an unnecessary include of asm/barrier.h from dirty_log_test.c to
+allow the test to build on arm64.  arm64, s390, and x86 all build cleanly
+without the include (PPC and MIPS aren't supported in KVM's selftests).
 
-I assume this one is harmless as there should be no way to arrive here
-from user space if CONFIG_COMPAT_32BIT_TIME is set, but since it is dead
-code, it should just get removed.
+arm64's barrier.h includes linux/kasan-checks.h, which is not copied
+into tools/.
 
-On a 64-bit architecture, as well as a 32-bit architecture without
-CONFIG_COMPAT_32BIT_TIME, handling this command is a mistake,
-and the kernel should return an error.
+  In file included from ../../../../tools/include/asm/barrier.h:8,
+                   from dirty_log_test.c:19:
+     .../arm64/include/asm/barrier.h:12:10: fatal error: linux/kasan-checks.h: No such file or directory
+     12 | #include <linux/kasan-checks.h>
+        |          ^~~~~~~~~~~~~~~~~~~~~~
+  compilation terminated.
 
-Fixes: 1a6c0b36dd19 ("media: v4l2-core: fix VIDIOC_DQEVENT for time64 ABI")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 84292e565951 ("KVM: selftests: Add dirty ring buffer test")
+Cc: Peter Xu <peterx@redhat.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622200529.3650424-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-subdev.c | 24 ------------------------
- 1 file changed, 24 deletions(-)
+ tools/testing/selftests/kvm/dirty_log_test.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-subdev.c b/drivers/media/v4l2-core/v4l2-subdev.c
-index 956dafab43d4..bf3aa9252458 100644
---- a/drivers/media/v4l2-core/v4l2-subdev.c
-+++ b/drivers/media/v4l2-core/v4l2-subdev.c
-@@ -428,30 +428,6 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
+diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
+index 81edbd23d371..b4d24f50aca6 100644
+--- a/tools/testing/selftests/kvm/dirty_log_test.c
++++ b/tools/testing/selftests/kvm/dirty_log_test.c
+@@ -16,7 +16,6 @@
+ #include <errno.h>
+ #include <linux/bitmap.h>
+ #include <linux/bitops.h>
+-#include <asm/barrier.h>
+ #include <linux/atomic.h>
  
- 		return v4l2_event_dequeue(vfh, arg, file->f_flags & O_NONBLOCK);
- 
--	case VIDIOC_DQEVENT_TIME32: {
--		struct v4l2_event_time32 *ev32 = arg;
--		struct v4l2_event ev = { };
--
--		if (!(sd->flags & V4L2_SUBDEV_FL_HAS_EVENTS))
--			return -ENOIOCTLCMD;
--
--		rval = v4l2_event_dequeue(vfh, &ev, file->f_flags & O_NONBLOCK);
--
--		*ev32 = (struct v4l2_event_time32) {
--			.type		= ev.type,
--			.pending	= ev.pending,
--			.sequence	= ev.sequence,
--			.timestamp.tv_sec  = ev.timestamp.tv_sec,
--			.timestamp.tv_nsec = ev.timestamp.tv_nsec,
--			.id		= ev.id,
--		};
--
--		memcpy(&ev32->u, &ev.u, sizeof(ev.u));
--		memcpy(&ev32->reserved, &ev.reserved, sizeof(ev.reserved));
--
--		return rval;
--	}
--
- 	case VIDIOC_SUBSCRIBE_EVENT:
- 		return v4l2_subdev_call(sd, core, subscribe_event, vfh, arg);
- 
+ #include "kvm_util.h"
 -- 
 2.30.2
 
