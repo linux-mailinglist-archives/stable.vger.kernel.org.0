@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DC093C4DB3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED3C3C53A2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240440AbhGLHOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48306 "EHLO mail.kernel.org"
+        id S1348269AbhGLHza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240291AbhGLHM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:12:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 232AC610CD;
-        Mon, 12 Jul 2021 07:10:05 +0000 (UTC)
+        id S1350554AbhGLHvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45EC561A46;
+        Mon, 12 Jul 2021 07:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073806;
-        bh=YxuJHu+DmvdMebJsd2BH0llh0R7tGbB80j9lSoI8sY8=;
+        s=korg; t=1626075973;
+        bh=Ci28GTuQaGNWOQyEUaKdjuh/8/brGs9MOauW9RUo9B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKWKFth+jEc9wQMh9rce/EQhpQecoVe5OrQa+u6fYb+aZhfFZcFy3dao+i4k1s3Zo
-         WeKow76Sly6KVghFHxuHzj9v8gaqUswiUMgxuwLQLQ+J0ejzxuOZ7YVgQCc1LZRuob
-         9qg+VD9Rjj8iWeHkDG/9BBeQZmjTzRVFg53Phba4=
+        b=hTM7+iTVHv6PNC9YG1pDXfllSLnkJ54yfzc5pK/6kI8AKOVXhqBeTYe9WuYme8LiE
+         +avZDEYt5bs/WCWEFQj/2PYPcQ0b7FP5qffmDG2//6K1M6+9EeH9QYiWNb55s/2mQ8
+         pOlYO8MtvoNwJPlg9e5FgNSg1FiGWeHhFInNWvqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Xi Wang <wangxi11@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 367/700] clk: meson: g12a: fix gp0 and hifi ranges
+Subject: [PATCH 5.13 427/800] RDMA/hns: Fix wrong timer context buffer page size
 Date:   Mon, 12 Jul 2021 08:07:30 +0200
-Message-Id: <20210712061015.434875897@linuxfoundation.org>
+Message-Id: <20210712061012.550086354@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Xi Wang <wangxi11@huawei.com>
 
-[ Upstream commit bc794f8c56abddf709f1f84fcb2a3c9e7d9cc9b4 ]
+[ Upstream commit 5e6370d7cc75134b0eb5b15916aab40b628db9e1 ]
 
-While some SoC samples are able to lock with a PLL factor of 55, others
-samples can't. ATM, a minimum of 60 appears to work on all the samples
-I have tried.
+The HEM page size for QPC timer and CQC timer is always 4K and there's no
+need to calculate a different size by the hns driver, otherwise the ROCEE
+may access an invalid address.
 
-Even with 60, it sometimes takes a long time for the PLL to eventually
-lock. The documentation says that the minimum rate of these PLLs DCO
-should be 3GHz, a factor of 125. Let's use that to be on the safe side.
-
-With factor range changed, the PLL seems to lock quickly (enough) so far.
-It is still unclear if the range was the only reason for the delay.
-
-Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210429090325.60970-1-jbrunet@baylibre.com
+Fixes: 719d13415f59 ("RDMA/hns: Remove duplicated hem page size config code")
+Link: https://lore.kernel.org/r/1621589395-2435-4-git-send-email-liweihang@huawei.com
+Signed-off-by: Xi Wang <wangxi11@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/meson/g12a.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/drivers/clk/meson/g12a.c b/drivers/clk/meson/g12a.c
-index b080359b4645..a805bac93c11 100644
---- a/drivers/clk/meson/g12a.c
-+++ b/drivers/clk/meson/g12a.c
-@@ -1603,7 +1603,7 @@ static struct clk_regmap g12b_cpub_clk_trace = {
- };
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index 49bb4f51466c..d7289b6587f1 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -2092,12 +2092,6 @@ static void set_hem_page_size(struct hns_roce_dev *hr_dev)
+ 	calc_pg_sz(caps->max_cqes, caps->cqe_sz, caps->cqe_hop_num,
+ 		   1, &caps->cqe_buf_pg_sz, &caps->cqe_ba_pg_sz, HEM_TYPE_CQE);
  
- static const struct pll_mult_range g12a_gp0_pll_mult_range = {
--	.min = 55,
-+	.min = 125,
- 	.max = 255,
- };
- 
+-	if (caps->cqc_timer_entry_sz)
+-		calc_pg_sz(caps->num_cqc_timer, caps->cqc_timer_entry_sz,
+-			   caps->cqc_timer_hop_num, caps->cqc_timer_bt_num,
+-			   &caps->cqc_timer_buf_pg_sz,
+-			   &caps->cqc_timer_ba_pg_sz, HEM_TYPE_CQC_TIMER);
+-
+ 	/* SRQ */
+ 	if (caps->flags & HNS_ROCE_CAP_FLAG_SRQ) {
+ 		calc_pg_sz(caps->num_srqs, caps->srqc_entry_sz,
 -- 
 2.30.2
 
