@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA95C3C48E5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22F783C5284
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238616AbhGLGlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
+        id S1344537AbhGLHqv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:46:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237240AbhGLGjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D8E661185;
-        Mon, 12 Jul 2021 06:34:53 +0000 (UTC)
+        id S1349818AbhGLHos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:44:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 232716120D;
+        Mon, 12 Jul 2021 07:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071694;
-        bh=1gAzKclJqXIFGVlkDDdMp+ulq/FMKN39+IusWIkZcZ0=;
+        s=korg; t=1626075677;
+        bh=kWOfd1N3ui5svEipl7oe2E1XKOu/gCzc/HLJLKwaHe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziNiMWCYrc/f0JM6dvkN1XSzYA0DdXygnfLkmgDpFxCZE9zO0wmoKNkMA21GWU/V7
-         QvcQBuGDODxpyZLyz3cnI90jUShoVnmJeOvaXv+nqlryZUjjvX0uHyD5widk4bMViW
-         47snd+o6gUWDxMqhss77FvVE2Gkzsol+BicqJpwc=
+        b=Nofj9urh8wC9EefU3BQWXkQjfX4vt32zU64bfvRCYnl/YbO4oTylW9iWFxynH52tT
+         AupRSwBS65z/l4/zGulktM/EY+ev1j/uZvtcSiDSG/hX6WXproaQyOeQWinmiKeZ0H
+         7BMuoeuywP/6M6gpvFC1CrHmo5dE863hraOqo2NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        David Jeffery <djeffery@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 179/593] blk-mq: clear stale request in tags->rq[] before freeing one request pool
-Date:   Mon, 12 Jul 2021 08:05:39 +0200
-Message-Id: <20210712060902.726273702@linuxfoundation.org>
+Subject: [PATCH 5.13 317/800] media: s5p-g2d: Fix a memory leak on ctx->fh.m2m_ctx
+Date:   Mon, 12 Jul 2021 08:05:40 +0200
+Message-Id: <20210712060959.509537737@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,159 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit bd63141d585bef14f4caf111f6d0e27fe2300ec6 ]
+[ Upstream commit 5d11e6aad1811ea293ee2996cec9124f7fccb661 ]
 
-refcount_inc_not_zero() in bt_tags_iter() still may read one freed
-request.
+The m2m_ctx resources was allocated by v4l2_m2m_ctx_init() in g2d_open()
+should be freed from g2d_release() when it's not used.
 
-Fix the issue by the following approach:
+Fix it
 
-1) hold a per-tags spinlock when reading ->rqs[tag] and calling
-refcount_inc_not_zero in bt_tags_iter()
-
-2) clearing stale request referred via ->rqs[tag] before freeing
-request pool, the per-tags spinlock is held for clearing stale
-->rq[tag]
-
-So after we cleared stale requests, bt_tags_iter() won't observe
-freed request any more, also the clearing will wait for pending
-request reference.
-
-The idea of clearing ->rqs[] is borrowed from John Garry's previous
-patch and one recent David's patch.
-
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: David Jeffery <djeffery@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210511152236.763464-4-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-tag.c |  9 +++++++--
- block/blk-mq-tag.h |  6 ++++++
- block/blk-mq.c     | 46 +++++++++++++++++++++++++++++++++++++++++-----
- 3 files changed, 54 insertions(+), 7 deletions(-)
+ drivers/media/platform/s5p-g2d/g2d.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index 6772c3728865..c4f2f6c123ae 100644
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -202,10 +202,14 @@ struct bt_iter_data {
- static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
- 		unsigned int bitnr)
- {
--	struct request *rq = tags->rqs[bitnr];
-+	struct request *rq;
-+	unsigned long flags;
+diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
+index 15bcb7f6e113..1cb5eaabf340 100644
+--- a/drivers/media/platform/s5p-g2d/g2d.c
++++ b/drivers/media/platform/s5p-g2d/g2d.c
+@@ -276,6 +276,9 @@ static int g2d_release(struct file *file)
+ 	struct g2d_dev *dev = video_drvdata(file);
+ 	struct g2d_ctx *ctx = fh2ctx(file->private_data);
  
-+	spin_lock_irqsave(&tags->lock, flags);
-+	rq = tags->rqs[bitnr];
- 	if (!rq || !refcount_inc_not_zero(&rq->ref))
--		return NULL;
-+		rq = NULL;
-+	spin_unlock_irqrestore(&tags->lock, flags);
- 	return rq;
- }
- 
-@@ -538,6 +542,7 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
- 
- 	tags->nr_tags = total_tags;
- 	tags->nr_reserved_tags = reserved_tags;
-+	spin_lock_init(&tags->lock);
- 
- 	if (flags & BLK_MQ_F_TAG_HCTX_SHARED)
- 		return tags;
-diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
-index 7d3e6b333a4a..f887988e5ef6 100644
---- a/block/blk-mq-tag.h
-+++ b/block/blk-mq-tag.h
-@@ -20,6 +20,12 @@ struct blk_mq_tags {
- 	struct request **rqs;
- 	struct request **static_rqs;
- 	struct list_head page_list;
-+
-+	/*
-+	 * used to clear request reference in rqs[] before freeing one
-+	 * request pool
-+	 */
-+	spinlock_t lock;
- };
- 
- extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags,
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 50d3527a5d97..00d6ed2fe812 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2276,6 +2276,45 @@ queue_exit:
- 	return BLK_QC_T_NONE;
- }
- 
-+static size_t order_to_size(unsigned int order)
-+{
-+	return (size_t)PAGE_SIZE << order;
-+}
-+
-+/* called before freeing request pool in @tags */
-+static void blk_mq_clear_rq_mapping(struct blk_mq_tag_set *set,
-+		struct blk_mq_tags *tags, unsigned int hctx_idx)
-+{
-+	struct blk_mq_tags *drv_tags = set->tags[hctx_idx];
-+	struct page *page;
-+	unsigned long flags;
-+
-+	list_for_each_entry(page, &tags->page_list, lru) {
-+		unsigned long start = (unsigned long)page_address(page);
-+		unsigned long end = start + order_to_size(page->private);
-+		int i;
-+
-+		for (i = 0; i < set->queue_depth; i++) {
-+			struct request *rq = drv_tags->rqs[i];
-+			unsigned long rq_addr = (unsigned long)rq;
-+
-+			if (rq_addr >= start && rq_addr < end) {
-+				WARN_ON_ONCE(refcount_read(&rq->ref) != 0);
-+				cmpxchg(&drv_tags->rqs[i], rq, NULL);
-+			}
-+		}
-+	}
-+
-+	/*
-+	 * Wait until all pending iteration is done.
-+	 *
-+	 * Request reference is cleared and it is guaranteed to be observed
-+	 * after the ->lock is released.
-+	 */
-+	spin_lock_irqsave(&drv_tags->lock, flags);
-+	spin_unlock_irqrestore(&drv_tags->lock, flags);
-+}
-+
- void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
- 		     unsigned int hctx_idx)
- {
-@@ -2294,6 +2333,8 @@ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
- 		}
- 	}
- 
-+	blk_mq_clear_rq_mapping(set, tags, hctx_idx);
-+
- 	while (!list_empty(&tags->page_list)) {
- 		page = list_first_entry(&tags->page_list, struct page, lru);
- 		list_del_init(&page->lru);
-@@ -2353,11 +2394,6 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
- 	return tags;
- }
- 
--static size_t order_to_size(unsigned int order)
--{
--	return (size_t)PAGE_SIZE << order;
--}
--
- static int blk_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
- 			       unsigned int hctx_idx, int node)
- {
++	mutex_lock(&dev->mutex);
++	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
++	mutex_unlock(&dev->mutex);
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_handler);
+ 	v4l2_fh_del(&ctx->fh);
+ 	v4l2_fh_exit(&ctx->fh);
 -- 
 2.30.2
 
