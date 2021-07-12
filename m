@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F5B53C47FA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FA943C47DB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236179AbhGLGff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
+        id S234424AbhGLGfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237187AbhGLGeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE7D61154;
-        Mon, 12 Jul 2021 06:30:35 +0000 (UTC)
+        id S237629AbhGLGem (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 923FA610A6;
+        Mon, 12 Jul 2021 06:31:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071436;
-        bh=FwvHdrc6KzsB9nAhO8QNsJhwALdGKlCJsHAIlxwtP+U=;
+        s=korg; t=1626071462;
+        bh=/TVaHVcHZcvaaIlw/BKSTFLWJXxQwafAJaqeoYu64xY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqCNzZgc/JK9KADMr0u1mKDXUmt8Rbduwn1qZumtDvuFAcBRddbIalnomm9h3xy2V
-         Ve5gxoMRFaXg5hlCLX85ltIEGnbHLlUSHWrPDGWfmxc0VETbRVulVllCUPSorXGhH2
-         RYskqoRo0lubnGFINM+edI8+eeKwc8n17Hj3YjnU=
+        b=pPlYMJ6tQ6pAC0vJzAnccXSKienSO9B9fW1JC5tuHCpfCk+wKDICa5H6GiJLo9tJ1
+         f+1BZSL1ppmUGqRZl2y5Q7N9ZpdcNA/K0fCTu7GiSRVemzssN1DtomRMqavH1069iK
+         gsoIcKTygC/d+MhzSzQU34wKwcuXhbS8j3f3Z1kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 062/593] KVM: PPC: Book3S HV: Workaround high stack usage with clang
-Date:   Mon, 12 Jul 2021 08:03:42 +0200
-Message-Id: <20210712060849.990495750@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 063/593] KVM: x86/mmu: Treat NX as used (not reserved) for all !TDP shadow MMUs
+Date:   Mon, 12 Jul 2021 08:03:43 +0200
+Message-Id: <20210712060850.113581613@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,57 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 51696f39cbee5bb684e7959c0c98b5f54548aa34 upstream.
+commit 112022bdb5bc372e00e6e43cb88ee38ea67b97bd upstream.
 
-LLVM does not emit optimal byteswap assembly, which results in high
-stack usage in kvmhv_enter_nested_guest() due to the inlining of
-byteswap_pt_regs(). With LLVM 12.0.0:
+Mark NX as being used for all non-nested shadow MMUs, as KVM will set the
+NX bit for huge SPTEs if the iTLB mutli-hit mitigation is enabled.
+Checking the mitigation itself is not sufficient as it can be toggled on
+at any time and KVM doesn't reset MMU contexts when that happens.  KVM
+could reset the contexts, but that would require purging all SPTEs in all
+MMUs, for no real benefit.  And, KVM already forces EFER.NX=1 when TDP is
+disabled (for WP=0, SMEP=1, NX=0), so technically NX is never reserved
+for shadow MMUs.
 
-arch/powerpc/kvm/book3s_hv_nested.c:289:6: error: stack frame size of
-2512 bytes in function 'kvmhv_enter_nested_guest' [-Werror,-Wframe-larger-than=]
-long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
-     ^
-1 error generated.
-
-While this gets fixed in LLVM, mark byteswap_pt_regs() as
-noinline_for_stack so that it does not get inlined and break the build
-due to -Werror by default in arch/powerpc/. Not inlining saves
-approximately 800 bytes with LLVM 12.0.0:
-
-arch/powerpc/kvm/book3s_hv_nested.c:290:6: warning: stack frame size of
-1728 bytes in function 'kvmhv_enter_nested_guest' [-Wframe-larger-than=]
-long kvmhv_enter_nested_guest(struct kvm_vcpu *vcpu)
-     ^
-1 warning generated.
-
-Cc: stable@vger.kernel.org # v4.20+
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1292
-Link: https://bugs.llvm.org/show_bug.cgi?id=49610
-Link: https://lore.kernel.org/r/202104031853.vDT0Qjqj-lkp@intel.com/
-Link: https://gist.github.com/ba710e3703bf45043a31e2806c843ffd
-Link: https://lore.kernel.org/r/20210621182440.990242-1-nathan@kernel.org
+Fixes: b8e8c8303ff2 ("kvm: mmu: ITLB_MULTIHIT mitigation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_hv_nested.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -51,7 +51,8 @@ void kvmhv_save_hv_regs(struct kvm_vcpu
- 	hr->ppr = vcpu->arch.ppr;
- }
- 
--static void byteswap_pt_regs(struct pt_regs *regs)
-+/* Use noinline_for_stack due to https://bugs.llvm.org/show_bug.cgi?id=49610 */
-+static noinline_for_stack void byteswap_pt_regs(struct pt_regs *regs)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4133,7 +4133,15 @@ static void reset_rsvds_bits_mask_ept(st
+ void
+ reset_shadow_zero_bits_mask(struct kvm_vcpu *vcpu, struct kvm_mmu *context)
  {
- 	unsigned long *addr = (unsigned long *) regs;
- 
+-	bool uses_nx = context->nx ||
++	/*
++	 * KVM uses NX when TDP is disabled to handle a variety of scenarios,
++	 * notably for huge SPTEs if iTLB multi-hit mitigation is enabled and
++	 * to generate correct permissions for CR0.WP=0/CR4.SMEP=1/EFER.NX=0.
++	 * The iTLB multi-hit workaround can be toggled at any time, so assume
++	 * NX can be used by any non-nested shadow MMU to avoid having to reset
++	 * MMU contexts.  Note, KVM forces EFER.NX=1 when TDP is disabled.
++	 */
++	bool uses_nx = context->nx || !tdp_enabled ||
+ 		context->mmu_role.base.smep_andnot_wp;
+ 	struct rsvd_bits_validate *shadow_zero_check;
+ 	int i;
 
 
