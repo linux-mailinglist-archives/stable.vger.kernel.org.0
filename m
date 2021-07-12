@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC10A3C4C29
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E20AF3C5128
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240833AbhGLHB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56844 "EHLO mail.kernel.org"
+        id S1344866AbhGLHiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240804AbhGLG6y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68552613EE;
-        Mon, 12 Jul 2021 06:56:05 +0000 (UTC)
+        id S243784AbhGLHgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:36:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E5DB26143D;
+        Mon, 12 Jul 2021 07:32:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072966;
-        bh=q29eO9xaPvOhKMBtvwHVHi2Na9hq7HJD6NGYxtzWhw8=;
+        s=korg; t=1626075145;
+        bh=djf3Icg0VkaFiw6WSDLjg4Y1oep/F+kgFurtpUa3+3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQF1aqoKx8/kksAc+BbDsy/H1lVhHPf2tjP5tFHVeLJ1M71JZ4x3c7P6pAhy3vmgI
-         JacpXevnrhpyA/yYFiRosBWzf649siG+YSfpNV8Ry3+cIkJrKWk10/XEuiFVvfFnZ8
-         9/gveeLmKL+NfKxDOGzlHwSBsSrMLk3EhhrRlFOk=
+        b=X8FszuO8UJA6VIdII4ez4T0R4jNQpRPil2jWYZWnPb6Ad2tO7obXsO2rY+cW4DmyK
+         i69gm0ZKCBeRG5sQbstnSUyddOV+fjr6UBv5jWKngewvPUdc0XlBZA4wkRYyIYlLC8
+         MavJHdzcehQBwbyFdufgZ0Rr4d4cQTNRKA4Uz6Ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jiantao Zhang <water.zhangjiantao@huawei.com>,
-        Tao Xue <xuetao09@huawei.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.12 028/700] xhci: solve a double free problem while doing s4
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.13 088/800] clk: agilex/stratix10: fix bypass representation
 Date:   Mon, 12 Jul 2021 08:01:51 +0200
-Message-Id: <20210712060928.644060730@linuxfoundation.org>
+Message-Id: <20210712060925.433714194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhangjiantao (Kirin, nanjing) <water.zhangjiantao@huawei.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit b31d9d6d7abbf6483b871b6370bc31c930d53f54 upstream.
+commit 6855ee839699bdabb4b16cf942557fd763bcb1fa upstream.
 
-when system is doing s4, the process of xhci_resume may be as below:
-1、xhci_mem_cleanup
-2、xhci_init->xhci_mem_init->xhci_mem_cleanup(when memory is not enough).
-xhci_mem_cleanup will be executed twice when system is out of memory.
-xhci->port_caps is freed in xhci_mem_cleanup,but it isn't set to NULL.
-It will be freed twice when xhci_mem_cleanup is called the second time.
+Each of these clocks(s2f_usr0/1, sdmmc_clk, gpio_db, emac_ptp,
+emac0/1/2) have a bypass setting that can use the boot_clk. The
+previous representation was not correct.
 
-We got following bug when system resumes from s4:
+Fix the representation.
 
-kernel BUG at mm/slub.c:309!
-Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-CPU: 0 PID: 5929 Tainted: G S   W   5.4.96-arm64-desktop #1
-pc : __slab_free+0x5c/0x424
-lr : kfree+0x30c/0x32c
-
-Call trace:
- __slab_free+0x5c/0x424
- kfree+0x30c/0x32c
- xhci_mem_cleanup+0x394/0x3cc
- xhci_mem_init+0x9ac/0x1070
- xhci_init+0x8c/0x1d0
- xhci_resume+0x1cc/0x5fc
- xhci_plat_resume+0x64/0x70
- platform_pm_thaw+0x28/0x60
- dpm_run_callback+0x54/0x24c
- device_resume+0xd0/0x200
- async_resume+0x24/0x60
- async_run_entry_fn+0x44/0x110
- process_one_work+0x1f0/0x490
- worker_thread+0x5c/0x450
- kthread+0x158/0x160
- ret_from_fork+0x10/0x24
-
-Original patch that caused this issue was backported to 4.4 stable,
-so this should be backported to 4.4 stabe as well.
-
-Fixes: cf0ee7c60c89 ("xhci: Fix memory leak when caching protocol extended capability PSI tables - take 2")
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Jiantao Zhang <water.zhangjiantao@huawei.com>
-Signed-off-by: Tao Xue <xuetao09@huawei.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210617150354.1512157-5-mathias.nyman@linux.intel.com
+Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
+Cc: stable@vger.kernel.org
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Link: https://lore.kernel.org/r/20210611025201.118799-2-dinguyen@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-mem.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/socfpga/clk-agilex.c |   57 +++++++++++++++++++++++++++++++--------
+ drivers/clk/socfpga/clk-s10.c    |   55 ++++++++++++++++++++++++++++++-------
+ 2 files changed, 91 insertions(+), 21 deletions(-)
 
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1924,6 +1924,7 @@ no_bw:
- 	xhci->hw_ports = NULL;
- 	xhci->rh_bw = NULL;
- 	xhci->ext_caps = NULL;
-+	xhci->port_caps = NULL;
+--- a/drivers/clk/socfpga/clk-agilex.c
++++ b/drivers/clk/socfpga/clk-agilex.c
+@@ -186,6 +186,41 @@ static const struct clk_parent_data noc_
+ 	  .name = "boot_clk", },
+ };
  
- 	xhci->page_size = 0;
- 	xhci->page_shift = 0;
++static const struct clk_parent_data sdmmc_mux[] = {
++	{ .fw_name = "sdmmc_free_clk",
++	  .name = "sdmmc_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data s2f_user1_mux[] = {
++	{ .fw_name = "s2f_user1_free_clk",
++	  .name = "s2f_user1_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data psi_mux[] = {
++	{ .fw_name = "psi_ref_free_clk",
++	  .name = "psi_ref_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data gpio_db_mux[] = {
++	{ .fw_name = "gpio_db_free_clk",
++	  .name = "gpio_db_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data emac_ptp_mux[] = {
++	{ .fw_name = "emac_ptp_free_clk",
++	  .name = "emac_ptp_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
+ /* clocks in AO (always on) controller */
+ static const struct stratix10_pll_clock agilex_pll_clks[] = {
+ 	{ AGILEX_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
+@@ -234,7 +269,7 @@ static const struct stratix10_perip_cnt_
+ 	{ AGILEX_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
+ 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0xE0, 0, 0x88, 3},
+ 	{ AGILEX_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
+-	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0x88, 4},
++	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0, 0},
+ 	{ AGILEX_S2F_USER0_FREE_CLK, "s2f_user0_free_clk", NULL, s2f_usr0_free_mux,
+ 	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0, 0},
+ 	{ AGILEX_S2F_USER1_FREE_CLK, "s2f_user1_free_clk", NULL, s2f_usr1_free_mux,
+@@ -276,16 +311,16 @@ static const struct stratix10_gate_clock
+ 	  1, 0, 0, 0, 0x94, 27, 0},
+ 	{ AGILEX_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
+ 	  2, 0, 0, 0, 0x94, 28, 0},
+-	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0x7C,
+-	  3, 0, 0, 0, 0, 0, 0},
+-	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0x7C,
+-	  4, 0x98, 0, 16, 0, 0, 0},
+-	{ AGILEX_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0x7C,
+-	  5, 0, 0, 0, 0, 0, 4},
+-	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0x7C,
+-	  6, 0, 0, 0, 0, 0, 0},
+-	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0x7C,
+-	  7, 0, 0, 0, 0, 0, 0},
++	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0x7C,
++	  3, 0, 0, 0, 0x88, 2, 0},
++	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0x7C,
++	  4, 0x98, 0, 16, 0x88, 3, 0},
++	{ AGILEX_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0x7C,
++	  5, 0, 0, 0, 0x88, 4, 4},
++	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0x7C,
++	  6, 0, 0, 0, 0x88, 5, 0},
++	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0x7C,
++	  7, 0, 0, 0, 0x88, 6, 0},
+ 	{ AGILEX_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
+ 	  8, 0, 0, 0, 0, 0, 0},
+ 	{ AGILEX_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
+--- a/drivers/clk/socfpga/clk-s10.c
++++ b/drivers/clk/socfpga/clk-s10.c
+@@ -144,6 +144,41 @@ static const struct clk_parent_data mpu_
+ 	  .name = "f2s-free-clk", },
+ };
+ 
++static const struct clk_parent_data sdmmc_mux[] = {
++	{ .fw_name = "sdmmc_free_clk",
++	  .name = "sdmmc_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data s2f_user1_mux[] = {
++	{ .fw_name = "s2f_user1_free_clk",
++	  .name = "s2f_user1_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data psi_mux[] = {
++	{ .fw_name = "psi_ref_free_clk",
++	  .name = "psi_ref_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data gpio_db_mux[] = {
++	{ .fw_name = "gpio_db_free_clk",
++	  .name = "gpio_db_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data emac_ptp_mux[] = {
++	{ .fw_name = "emac_ptp_free_clk",
++	  .name = "emac_ptp_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
+ /* clocks in AO (always on) controller */
+ static const struct stratix10_pll_clock s10_pll_clks[] = {
+ 	{ STRATIX10_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
+@@ -247,16 +282,16 @@ static const struct stratix10_gate_clock
+ 	  1, 0, 0, 0, 0xDC, 27, 0},
+ 	{ STRATIX10_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0xA4,
+ 	  2, 0, 0, 0, 0xDC, 28, 0},
+-	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0xA4,
+-	  3, 0, 0, 0, 0, 0, 0},
+-	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0xA4,
+-	  4, 0xE0, 0, 16, 0, 0, 0},
+-	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0xA4,
+-	  5, 0, 0, 0, 0, 0, 4},
+-	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0xA4,
+-	  6, 0, 0, 0, 0, 0, 0},
+-	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0xA4,
+-	  7, 0, 0, 0, 0, 0, 0},
++	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0xA4,
++	  3, 0, 0, 0, 0xB0, 2, 0},
++	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0xA4,
++	  4, 0xE0, 0, 16, 0xB0, 3, 0},
++	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0xA4,
++	  5, 0, 0, 0, 0xB0, 4, 4},
++	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0xA4,
++	  6, 0, 0, 0, 0xB0, 5, 0},
++	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0xA4,
++	  7, 0, 0, 0, 0xB0, 6, 0},
+ 	{ STRATIX10_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
+ 	  8, 0, 0, 0, 0, 0, 0},
+ 	{ STRATIX10_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
 
 
