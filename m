@@ -2,38 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA4B13C55D2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE5A3C55D3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346721AbhGLIMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S1346834AbhGLIMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353956AbhGLIDU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51A7461D1E;
-        Mon, 12 Jul 2021 07:59:01 +0000 (UTC)
+        id S1353960AbhGLIDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ABA0611AC;
+        Mon, 12 Jul 2021 07:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076741;
-        bh=fob3s5mDsTJVZqnRf2jvmECc0ABXF+X68QEkJbejXo4=;
+        s=korg; t=1626076744;
+        bh=BKSmCAPJJnJ6CPF5gE5xkJss2QAFBPNPP4U/ycNb9sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmQ4WBzZMxyJ9OP+MysmxhW7tz81bR0c2jrnW1pYBiCej/moZ03Crbew/Quj7y2jc
-         iW+mck0WyIzGZ6fkfJLe2HtxhsX4SvG93WTA8TNMjldBenGAgaB+LA7mc3pO1BoQqW
-         Dp8Cm3/oBVmHgZHn1xeB2JWVtdxMUjoGxATw9yRo=
+        b=1vQ6I0brB50pKCHpl+qhgaAOMwlNFcrobdAedVsG4fvo960f+QIQ1jWG+mG19m05i
+         CNr192LGfy5dTt2SYgqiPjakMPuk0+lbtB8LWrNuxJ8UgGRDG2VVIgcdaNZTdtwNWy
+         pKhN60r6QmzC8QeW4rJbChUu3W6/EiwD7PqixNIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Trent Piepho <tpiepho@gmail.com>,
-        Yiyuan Guo <yguoaz@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Oskar Schirmer <oskar@scara.com>,
-        Daniel Latypov <dlatypov@google.com>,
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Ram Pai <linuxram@us.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Shuah Khan <shuah@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 774/800] lib/math/rational.c: fix divide by zero
-Date:   Mon, 12 Jul 2021 08:13:17 +0200
-Message-Id: <20210712061049.199457444@linuxfoundation.org>
+Subject: [PATCH 5.13 775/800] selftests/vm/pkeys: fix alloc_random_pkey() to make it really, really random
+Date:   Mon, 12 Jul 2021 08:13:18 +0200
+Message-Id: <20210712061049.316910958@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -45,76 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trent Piepho <tpiepho@gmail.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit 65a0d3c14685663ba111038a35db70f559e39336 ]
+[ Upstream commit f36ef407628835a7d7fb3d235b1f1aac7022d9a3 ]
 
-If the input is out of the range of the allowed values, either larger than
-the largest value or closer to zero than the smallest non-zero allowed
-value, then a division by zero would occur.
+Patch series "selftests/vm/pkeys: Bug fixes and a new test".
 
-In the case of input too large, the division by zero will occur on the
-first iteration.  The best result (largest allowed value) will be found by
-always choosing the semi-convergent and excluding the denominator based
-limit when finding it.
+There has been a lot of activity on the x86 front around the XSAVE
+architecture which is used to context-switch processor state (among other
+things).  In addition, AMD has recently joined the protection keys club by
+adding processor support for PKU.
 
-In the case of the input too small, the division by zero will occur on the
-second iteration.  The numerator based semi-convergent should not be
-calculated to avoid the division by zero.  But the semi-convergent vs
-previous convergent test is still needed, which effectively chooses
-between 0 (the previous convergent) vs the smallest allowed fraction (best
-semi-convergent) as the result.
+The AMD implementation helped uncover a kernel bug around the PKRU "init
+state", which actually applied to Intel's implementation but was just
+harder to hit.  This series adds a test which is expected to help find
+this class of bug both on AMD and Intel.  All the work around pkeys on x86
+also uncovered a few bugs in the selftest.
 
-Link: https://lkml.kernel.org/r/20210525144250.214670-1-tpiepho@gmail.com
-Fixes: 323dd2c3ed0 ("lib/math/rational.c: fix possible incorrect result from rational fractions helper")
-Signed-off-by: Trent Piepho <tpiepho@gmail.com>
-Reported-by: Yiyuan Guo <yguoaz@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Oskar Schirmer <oskar@scara.com>
-Cc: Daniel Latypov <dlatypov@google.com>
+This patch (of 4):
+
+The "random" pkey allocation code currently does the good old:
+
+	srand((unsigned int)time(NULL));
+
+*But*, it unfortunately does this on every random pkey allocation.
+
+There may be thousands of these a second.  time() has a one second
+resolution.  So, each time alloc_random_pkey() is called, the PRNG is
+*RESET* to time().  This is nasty.  Normally, if you do:
+
+	srand(<ANYTHING>);
+	foo = rand();
+	bar = rand();
+
+You'll be quite guaranteed that 'foo' and 'bar' are different.  But, if
+you do:
+
+	srand(1);
+	foo = rand();
+	srand(1);
+	bar = rand();
+
+You are quite guaranteed that 'foo' and 'bar' are the *SAME*.  The recent
+"fix" effectively forced the test case to use the same "random" pkey for
+the whole test, unless the test run crossed a second boundary.
+
+Only run srand() once at program startup.
+
+This explains some very odd and persistent test failures I've been seeing.
+
+Link: https://lkml.kernel.org/r/20210611164153.91B76FB8@viggo.jf.intel.com
+Link: https://lkml.kernel.org/r/20210611164155.192D00FF@viggo.jf.intel.com
+Fixes: 6e373263ce07 ("selftests/vm/pkeys: fix alloc_random_pkey() to make it really random")
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Ram Pai <linuxram@us.ibm.com>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/math/rational.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ tools/testing/selftests/vm/protection_keys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/math/rational.c b/lib/math/rational.c
-index 9781d521963d..c0ab51d8fbb9 100644
---- a/lib/math/rational.c
-+++ b/lib/math/rational.c
-@@ -12,6 +12,7 @@
- #include <linux/compiler.h>
- #include <linux/export.h>
- #include <linux/minmax.h>
-+#include <linux/limits.h>
+diff --git a/tools/testing/selftests/vm/protection_keys.c b/tools/testing/selftests/vm/protection_keys.c
+index fdbb602ecf32..9ee0ae5d3e06 100644
+--- a/tools/testing/selftests/vm/protection_keys.c
++++ b/tools/testing/selftests/vm/protection_keys.c
+@@ -561,7 +561,6 @@ int alloc_random_pkey(void)
+ 	int nr_alloced = 0;
+ 	int random_index;
+ 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
+-	srand((unsigned int)time(NULL));
  
- /*
-  * calculate best rational approximation for a given fraction
-@@ -78,13 +79,18 @@ void rational_best_approximation(
- 		 * found below as 't'.
- 		 */
- 		if ((n2 > max_numerator) || (d2 > max_denominator)) {
--			unsigned long t = min((max_numerator - n0) / n1,
--					      (max_denominator - d0) / d1);
-+			unsigned long t = ULONG_MAX;
+ 	/* allocate every possible key and make a note of which ones we got */
+ 	max_nr_pkey_allocs = NR_PKEYS;
+@@ -1552,6 +1551,8 @@ int main(void)
+ 	int nr_iterations = 22;
+ 	int pkeys_supported = is_pkeys_supported();
  
--			/* This tests if the semi-convergent is closer
--			 * than the previous convergent.
-+			if (d1)
-+				t = (max_denominator - d0) / d1;
-+			if (n1)
-+				t = min(t, (max_numerator - n0) / n1);
++	srand((unsigned int)time(NULL));
 +
-+			/* This tests if the semi-convergent is closer than the previous
-+			 * convergent.  If d1 is zero there is no previous convergent as this
-+			 * is the 1st iteration, so always choose the semi-convergent.
- 			 */
--			if (2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
-+			if (!d1 || 2u * t > a || (2u * t == a && d0 * dp > d1 * d)) {
- 				n1 = n0 + t * n1;
- 				d1 = d0 + t * d1;
- 			}
+ 	setup_handlers();
+ 
+ 	printf("has pkeys: %d\n", pkeys_supported);
 -- 
 2.30.2
 
