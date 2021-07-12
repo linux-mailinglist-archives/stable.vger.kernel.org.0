@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B47173C4D12
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD3D3C5600
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242211AbhGLHLt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:11:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S1343708AbhGLINC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:13:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243941AbhGLHKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0E8A6128C;
-        Mon, 12 Jul 2021 07:05:29 +0000 (UTC)
+        id S1355684AbhGLIKN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:10:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 762E8613DB;
+        Mon, 12 Jul 2021 08:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073530;
-        bh=Q6uplDChbEBqte+TK32Zhd+p4+vSYHTt4Dj9koKMMvc=;
+        s=korg; t=1626077243;
+        bh=xcVBS5NR2/kTAx0CnPSNv/gVAuYNRhkMw/yRU9TTFh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=04U05or+PJOubIlmUfeCkpfISQrUviSPpFGw3jDEzxN6zKH+f1L8zgTaIhHr2GXxN
-         MVzXpFMWOE1LQpyLiSVZAgj99sqZBUT8Cv963l7WB8JjLwcGqbKKapQzUpRiwCRag3
-         BgSpamvjS35yEcHWx68bQzpfBlmD8bC23+CpyQo4=
+        b=YevUDwTKkU+tE+dX/0R/5TGREOMUC+rXYjhrwrrJKDpxMIeDfjUlrjeD6/JM8yAZR
+         P4UZNots4JzHxstPn2eKVnNy2elDR5xRLf93M0WT/edv1AYzR7PyY8VYc2GaDqXP8l
+         LVANxSy/rKuhAUuuDADxH0ZwfOQA5qKS/kTsXBUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Adrian Ratiu <adrian.ratiu@collabora.com>,
-        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 274/700] media: rkvdec: Fix .buf_prepare
+        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, Chen <leo881003@gmail.com>
+Subject: [PATCH 5.10 197/593] ACPI: EC: trust DSDT GPE for certain HP laptop
 Date:   Mon, 12 Jul 2021 08:05:57 +0200
-Message-Id: <20210712061005.413101068@linuxfoundation.org>
+Message-Id: <20210712060904.683308055@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit ba1ed4ae760a81caf39f54232e089d95157a0dba ]
+[ Upstream commit 4370cbf350dbaca984dbda9f9ce3fac45d6949d5 ]
 
-The driver should only set the payload on .buf_prepare if the
-buffer is CAPTURE type. If an OUTPUT buffer has a zero bytesused
-set by userspace then v4l2-core will set it to buffer length.
+On HP Pavilion Gaming Laptop 15-cx0xxx, the ECDT EC and DSDT EC share
+the same port addresses but different GPEs. And the DSDT GPE is the
+right one to use.
 
-If we overwrite bytesused for OUTPUT buffers, too, then
-vb2_get_plane_payload() will return incorrect value which might be then
-written to hw registers by the driver in rkvdec-h264.c.
+The current code duplicates DSDT EC with ECDT EC if the port addresses
+are the same, and uses ECDT GPE as a result, which breaks this machine.
 
-[Changed the comment and used V4L2_TYPE_IS_CAPTURE macro]
+Introduce a new quirk for the HP laptop to trust the DSDT GPE,
+and avoid duplicating even if the port addresses are the same.
 
-Fixes: cd33c830448ba ("media: rkvdec: Add the rkvdec driver")
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Adrian Ratiu <adrian.ratiu@collabora.com>
-Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209989
+Reported-and-tested-by: Shao Fu, Chen <leo881003@gmail.com>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rkvdec/rkvdec.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/acpi/ec.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/rkvdec/rkvdec.c b/drivers/staging/media/rkvdec/rkvdec.c
-index 8c17615f3a7a..7131156c1f2c 100644
---- a/drivers/staging/media/rkvdec/rkvdec.c
-+++ b/drivers/staging/media/rkvdec/rkvdec.c
-@@ -481,7 +481,15 @@ static int rkvdec_buf_prepare(struct vb2_buffer *vb)
- 		if (vb2_plane_size(vb, i) < sizeimage)
- 			return -EINVAL;
- 	}
--	vb2_set_plane_payload(vb, 0, f->fmt.pix_mp.plane_fmt[0].sizeimage);
-+
-+	/*
-+	 * Buffer's bytesused must be written by driver for CAPTURE buffers.
-+	 * (for OUTPUT buffers, if userspace passes 0 bytesused, v4l2-core sets
-+	 * it to buffer length).
-+	 */
-+	if (V4L2_TYPE_IS_CAPTURE(vq->type))
-+		vb2_set_plane_payload(vb, 0, f->fmt.pix_mp.plane_fmt[0].sizeimage);
-+
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 32f3b6d268f5..be3e0921a6c0 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -183,6 +183,7 @@ static struct workqueue_struct *ec_query_wq;
+ 
+ static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
+ static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
++static int EC_FLAGS_TRUST_DSDT_GPE; /* Needs DSDT GPE as correction setting */
+ static int EC_FLAGS_CLEAR_ON_RESUME; /* Needs acpi_ec_clear() on boot/resume */
+ 
+ /* --------------------------------------------------------------------------
+@@ -1606,7 +1607,8 @@ static int acpi_ec_add(struct acpi_device *device)
+ 		}
+ 
+ 		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
+-		    ec->data_addr == boot_ec->data_addr) {
++		    ec->data_addr == boot_ec->data_addr &&
++		    !EC_FLAGS_TRUST_DSDT_GPE) {
+ 			/*
+ 			 * Trust PNP0C09 namespace location rather than
+ 			 * ECDT ID. But trust ECDT GPE rather than _GPE
+@@ -1829,6 +1831,18 @@ static int ec_correct_ecdt(const struct dmi_system_id *id)
  	return 0;
  }
  
++/*
++ * Some ECDTs contain wrong GPE setting, but they share the same port addresses
++ * with DSDT EC, don't duplicate the DSDT EC with ECDT EC in this case.
++ * https://bugzilla.kernel.org/show_bug.cgi?id=209989
++ */
++static int ec_honor_dsdt_gpe(const struct dmi_system_id *id)
++{
++	pr_debug("Detected system needing DSDT GPE setting.\n");
++	EC_FLAGS_TRUST_DSDT_GPE = 1;
++	return 0;
++}
++
+ /*
+  * Some DSDTs contain wrong GPE setting.
+  * Asus FX502VD/VE, GL702VMK, X550VXK, X580VD
+@@ -1883,6 +1897,11 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
+ 	{
++	/* https://bugzilla.kernel.org/show_bug.cgi?id=209989 */
++	ec_honor_dsdt_gpe, "HP Pavilion Gaming Laptop 15-cx0xxx", {
++	DMI_MATCH(DMI_SYS_VENDOR, "HP"),
++	DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Gaming Laptop 15-cx0xxx"),}, NULL},
++	{
+ 	ec_clear_on_resume, "Samsung hardware", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD.")}, NULL},
+ 	{},
 -- 
 2.30.2
 
