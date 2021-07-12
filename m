@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A38393C4979
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31213C53A1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235720AbhGLGpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S1348262AbhGLHz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238698AbhGLGoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 060FA61167;
-        Mon, 12 Jul 2021 06:39:49 +0000 (UTC)
+        id S1350558AbhGLHvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93C1E61205;
+        Mon, 12 Jul 2021 07:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071990;
-        bh=WY3j4zPH4EvFy69lTbR4+3oOXjut5FoITQSQbze3jXc=;
+        s=korg; t=1626075976;
+        bh=JaEEkSWd8TPseL/G8wxu4i/rEARwjJTc5tQFmUBi95Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGOEeLGfpJyuysGRuLfcUP4Bzan9CWFmrB/Xi1cOusG6/xlslMLRgDa6N9848Plz2
-         plsZbfmV3s/wwXTAhGK6CBF0zPjUZa5QmQUAZtU4lXtZzhq7A8ggddiCQRq544UwDo
-         brCi1pFhMn/CGiCKbp0d7H2a6MF0tNN9VUjuq81w=
+        b=Vr6cJ+Rsv3eMoq/OMyDxuyOVcBBqnEJPl53eNjOyyHOT19BT3qJcqfw30YU1WLlZd
+         Li2Jt9vxJ/Ovv6hkIityoZbd53Sgnl7LIXgHqPQ6oMpJ7Jvn3fyw2n6JKLje5NvSS+
+         1F+mpZH5jgpnuxJvH7g8sprYexZQlAJIYSgCgKRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Kamal Heib <kamalheib1@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/593] pinctrl: renesas: r8a77990: JTAG pins do not have pull-down capabilities
+Subject: [PATCH 5.13 445/800] RDMA/rxe: Fix failure during driver load
 Date:   Mon, 12 Jul 2021 08:07:48 +0200
-Message-Id: <20210712060919.020175222@linuxfoundation.org>
+Message-Id: <20210712061014.467472154@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Kamal Heib <kamalheib1@gmail.com>
 
-[ Upstream commit 702a5fa2fe4d7e7f28fed92a170b540acfff9d34 ]
+[ Upstream commit 32a25f2ea690dfaace19f7a3a916f5d7e1ddafe8 ]
 
-Hence remove the SH_PFC_PIN_CFG_PULL_DOWN flags from their pin
-descriptions.
+To avoid the following failure when trying to load the rdma_rxe module
+while IPv6 is disabled, add a check for EAFNOSUPPORT and ignore the
+failure, also delete the needless debug print from rxe_setup_udp_tunnel().
 
-Fixes: 83f6941a42a5e773 ("pinctrl: sh-pfc: r8a77990: Add bias pinconf support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/da4b2d69955840a506412f1e8099607a0da97ecc.1619785375.git.geert+renesas@glider.be
+$ modprobe rdma_rxe
+modprobe: ERROR: could not insert 'rdma_rxe': Operation not permitted
+
+Fixes: dfdd6158ca2c ("IB/rxe: Fix kernel panic in udp_setup_tunnel")
+Link: https://lore.kernel.org/r/20210603090112.36341-1-kamalheib1@gmail.com
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/renesas/pfc-r8a77990.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_net.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/renesas/pfc-r8a77990.c b/drivers/pinctrl/renesas/pfc-r8a77990.c
-index aed04a4c6116..240aadc4611f 100644
---- a/drivers/pinctrl/renesas/pfc-r8a77990.c
-+++ b/drivers/pinctrl/renesas/pfc-r8a77990.c
-@@ -54,10 +54,10 @@
- 	PIN_NOGP_CFG(FSCLKST_N, "FSCLKST_N", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(MLB_REF, "MLB_REF", fn, CFG_FLAGS),		\
- 	PIN_NOGP_CFG(PRESETOUT_N, "PRESETOUT_N", fn, CFG_FLAGS),	\
--	PIN_NOGP_CFG(TCK, "TCK", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TDI, "TDI", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TMS, "TMS", fn, CFG_FLAGS),			\
--	PIN_NOGP_CFG(TRST_N, "TRST_N", fn, CFG_FLAGS)
-+	PIN_NOGP_CFG(TCK, "TCK", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TDI, "TDI", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TMS, "TMS", fn, SH_PFC_PIN_CFG_PULL_UP),		\
-+	PIN_NOGP_CFG(TRST_N, "TRST_N", fn, SH_PFC_PIN_CFG_PULL_UP)
+diff --git a/drivers/infiniband/sw/rxe/rxe_net.c b/drivers/infiniband/sw/rxe/rxe_net.c
+index 01662727dca0..fc1ba4904279 100644
+--- a/drivers/infiniband/sw/rxe/rxe_net.c
++++ b/drivers/infiniband/sw/rxe/rxe_net.c
+@@ -207,10 +207,8 @@ static struct socket *rxe_setup_udp_tunnel(struct net *net, __be16 port,
  
- /*
-  * F_() : just information
+ 	/* Create UDP socket */
+ 	err = udp_sock_create(net, &udp_cfg, &sock);
+-	if (err < 0) {
+-		pr_err("failed to create udp socket. err = %d\n", err);
++	if (err < 0)
+ 		return ERR_PTR(err);
+-	}
+ 
+ 	tnl_cfg.encap_type = 1;
+ 	tnl_cfg.encap_rcv = rxe_udp_encap_recv;
+@@ -619,6 +617,12 @@ static int rxe_net_ipv6_init(void)
+ 
+ 	recv_sockets.sk6 = rxe_setup_udp_tunnel(&init_net,
+ 						htons(ROCE_V2_UDP_DPORT), true);
++	if (PTR_ERR(recv_sockets.sk6) == -EAFNOSUPPORT) {
++		recv_sockets.sk6 = NULL;
++		pr_warn("IPv6 is not supported, can not create a UDPv6 socket\n");
++		return 0;
++	}
++
+ 	if (IS_ERR(recv_sockets.sk6)) {
+ 		recv_sockets.sk6 = NULL;
+ 		pr_err("Failed to create IPv6 UDP tunnel\n");
 -- 
 2.30.2
 
