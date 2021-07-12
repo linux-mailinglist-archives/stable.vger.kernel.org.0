@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F3443C4EDF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D9FB3C4A2E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241646AbhGLHWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58190 "EHLO mail.kernel.org"
+        id S238651AbhGLGtG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:49:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344028AbhGLHUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31ECA61153;
-        Mon, 12 Jul 2021 07:17:28 +0000 (UTC)
+        id S238026AbhGLGsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FE15611BF;
+        Mon, 12 Jul 2021 06:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074248;
-        bh=BOru9AiWn+0ME6jxHDAxPejTyvnmWSBQAPjI/4Aazv0=;
+        s=korg; t=1626072234;
+        bh=qqMAMaqcH6jEQvAeHnqpoXh+2VO3CcBbepX3VWXZwLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V28BSsBhAT7yc1KR3Ad177C+oQ4lPEEhqkfJTQzhNxrgMJrfzCIuCwXBXIUvKwG3P
-         rGfMfS/2WEhnff035OCAXpYb5PMhLsYdwvdbR7AxTJuQlKqThO0vVuwXL5Y6zIVhTN
-         F//sf0TWkkk/oD2mzW6TZ/mHkmU5qzYt8uD6K0WA=
+        b=OJrnVy5S+ILAmRgMYUwJnJxNYMmiTl/m7QORqa0f1Ebsmrljp28dw6tN58Z16n6ch
+         jzvZY+ferzJT7pT9TNATMuAab7fB1mcljA6UK5hTScZs1HcHf6M+tYSaOgU4dSzkgy
+         +uSYJFKgj3frISDrPuiqDD208P05AcMFmzK3L58U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
+        stable@vger.kernel.org, Bailey Forrest <bcf@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 488/700] net: macsec: fix the length used to copy the key for offloading
+Subject: [PATCH 5.10 411/593] gve: Fix swapped vars when fetching max queues
 Date:   Mon, 12 Jul 2021 08:09:31 +0200
-Message-Id: <20210712061028.474021589@linuxfoundation.org>
+Message-Id: <20210712060933.129271340@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Bailey Forrest <bcf@google.com>
 
-[ Upstream commit 1f7fe5121127e037b86592ba42ce36515ea0e3f7 ]
+[ Upstream commit 1db1a862a08f85edc36aad091236ac9b818e949e ]
 
-The key length used when offloading macsec to Ethernet or PHY drivers
-was set to MACSEC_KEYID_LEN (16), which is an issue as:
-- This was never meant to be the key length.
-- The key length can be > 16.
-
-Fix this by using MACSEC_MAX_KEY_LEN to store the key (the max length
-accepted in uAPI) and secy->key_len to copy it.
-
-Fixes: 3cf3227a21d1 ("net: macsec: hardware offloading infrastructure")
-Reported-by: Lior Nahmanson <liorna@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
+Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
+Signed-off-by: Bailey Forrest <bcf@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 4 ++--
- include/net/macsec.h | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/google/gve/gve_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 92425e1fd70c..93dc48b9b4f2 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -1819,7 +1819,7 @@ static int macsec_add_rxsa(struct sk_buff *skb, struct genl_info *info)
- 		ctx.sa.rx_sa = rx_sa;
- 		ctx.secy = secy;
- 		memcpy(ctx.sa.key, nla_data(tb_sa[MACSEC_SA_ATTR_KEY]),
--		       MACSEC_KEYID_LEN);
-+		       secy->key_len);
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index d6e35421d8f7..3a74e4645ce6 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -1286,8 +1286,8 @@ static int gve_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
  
- 		err = macsec_offload(ops->mdo_add_rxsa, &ctx);
- 		if (err)
-@@ -2061,7 +2061,7 @@ static int macsec_add_txsa(struct sk_buff *skb, struct genl_info *info)
- 		ctx.sa.tx_sa = tx_sa;
- 		ctx.secy = secy;
- 		memcpy(ctx.sa.key, nla_data(tb_sa[MACSEC_SA_ATTR_KEY]),
--		       MACSEC_KEYID_LEN);
-+		       secy->key_len);
- 
- 		err = macsec_offload(ops->mdo_add_txsa, &ctx);
- 		if (err)
-diff --git a/include/net/macsec.h b/include/net/macsec.h
-index 52874cdfe226..d6fa6b97f6ef 100644
---- a/include/net/macsec.h
-+++ b/include/net/macsec.h
-@@ -241,7 +241,7 @@ struct macsec_context {
- 	struct macsec_rx_sc *rx_sc;
- 	struct {
- 		unsigned char assoc_num;
--		u8 key[MACSEC_KEYID_LEN];
-+		u8 key[MACSEC_MAX_KEY_LEN];
- 		union {
- 			struct macsec_rx_sa *rx_sa;
- 			struct macsec_tx_sa *tx_sa;
+ 	gve_write_version(&reg_bar->driver_version);
+ 	/* Get max queues to alloc etherdev */
+-	max_rx_queues = ioread32be(&reg_bar->max_tx_queues);
+-	max_tx_queues = ioread32be(&reg_bar->max_rx_queues);
++	max_tx_queues = ioread32be(&reg_bar->max_tx_queues);
++	max_rx_queues = ioread32be(&reg_bar->max_rx_queues);
+ 	/* Alloc and setup the netdev and priv */
+ 	dev = alloc_etherdev_mqs(sizeof(*priv), max_tx_queues, max_rx_queues);
+ 	if (!dev) {
 -- 
 2.30.2
 
