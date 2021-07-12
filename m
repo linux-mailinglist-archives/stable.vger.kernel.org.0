@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4453C49FC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E0983C4E61
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236673AbhGLGry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41756 "EHLO mail.kernel.org"
+        id S244510AbhGLHS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238097AbhGLGqy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61FCE61008;
-        Mon, 12 Jul 2021 06:42:45 +0000 (UTC)
+        id S244151AbhGLHRW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3818E61249;
+        Mon, 12 Jul 2021 07:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072165;
-        bh=wySFE/b2u4Ooz/c1KJZr/qBXHgyIUCCtsZjxFt144gY=;
+        s=korg; t=1626074074;
+        bh=Nj8u04/u0OXXjp3ROqZYvnvteg8p192JBZOb0beQ41c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s2z/a4pKRwOXGSC63P0TKU9iTKgcResWAejyM2B8XsQO1rKf3Un4ERktuFwgCWEzQ
-         Oo5yDawTozeCqQQo6UbRu2qLNifa8OrW2t+imPZkVZrzHYhZJ9WbuLhveTnbWGJ96O
-         2sYl3iBrgITEHiNRACsYoaXfU9YHuG/58f2XNUAI=
+        b=Uj1F0sPUFFK4fLdPzAp/8K3skgWoE9cFHI/xzhJZvCRJZCoCixj1AnP5tG+LQrLw0
+         mrU5Sg+KEBi7ob5k8a7B70F7ZlZ81FHajd84W5+5wVxut9Ah/pO+7i45/H20pNShDC
+         ePxsK6UPrvI7qu620tQ3ewAhfFmCPu0HUQLre15M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 380/593] rtw88: 8822c: fix lc calibration timing
+Subject: [PATCH 5.12 457/700] rtw88: 8822c: fix lc calibration timing
 Date:   Mon, 12 Jul 2021 08:09:00 +0200
-Message-Id: <20210712060928.733843209@linuxfoundation.org>
+Message-Id: <20210712061025.163489019@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822c.c b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-index b718f5d810be..79ad6232dce8 100644
+index 448922cb2e63..10bb3b5a8c22 100644
 --- a/drivers/net/wireless/realtek/rtw88/rtw8822c.c
 +++ b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-@@ -3510,26 +3510,28 @@ static void rtw8822c_pwrtrack_set(struct rtw_dev *rtwdev, u8 rf_path)
+@@ -3529,26 +3529,28 @@ static void rtw8822c_pwrtrack_set(struct rtw_dev *rtwdev, u8 rf_path)
  	}
  }
  
@@ -100,7 +100,7 @@ index b718f5d810be..79ad6232dce8 100644
  	rtw8822c_pwrtrack_set(rtwdev, path);
  }
  
-@@ -3540,12 +3542,12 @@ static void __rtw8822c_pwr_track(struct rtw_dev *rtwdev)
+@@ -3559,12 +3561,12 @@ static void __rtw8822c_pwr_track(struct rtw_dev *rtwdev)
  
  	rtw_phy_config_swing_table(rtwdev, &swing_table);
  
