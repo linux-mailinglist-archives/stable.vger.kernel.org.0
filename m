@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EE503C538A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B881E3C498D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347996AbhGLHzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
+        id S236332AbhGLGpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350465AbhGLHvB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F90261A0F;
-        Mon, 12 Jul 2021 07:45:40 +0000 (UTC)
+        id S236234AbhGLGm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:42:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 568A361152;
+        Mon, 12 Jul 2021 06:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075941;
-        bh=YhaXgfj0Yswh4IlY67IKXW1Q7ahkkEc1SL5DqEXsZU8=;
+        s=korg; t=1626071957;
+        bh=7/pLmnF+YKhsWzr6da5C8DpZEqIIGHYTU3pVCkbcCSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emylzIDWz9OH7Di8jNuOgrw9l+8NiEtr8se4K54q5A551Zmw/UTNLnkBea0fEfVLw
-         WVKDkODHfdKTRTewnQNnd7mNI5O5lmWoLGLmmUfcVlZoxV8MuUl7kIqphZ4w8XxALg
-         sf3flvEQx7WuvrJllAhByYO+Z9J5EQovmgnj3xb4=
+        b=lrdSp4TwaSP4Y1HVgTJoMBdeQlCZ7K9zY61twBKYj0LDSzTHg4ddtpalQ0Fpbngss
+         e/EhCCZU8Khuwcb7RdHlEGUWoc26yYE7zF3SGBD5QxZ7wgK5EfS7vb8qT87qdCOToq
+         zVn6IiPEqPrvX1KHgvXo9JdSeZNvZ7+x/3vpb3A4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, Baoquan He <bhe@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        linux-hwmon@vger.kernel.org, Rob Herring <robh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 387/800] mm/page_alloc: fix counting of managed_pages
+Subject: [PATCH 5.10 250/593] hwmon: (lm70) Use device_get_match_data()
 Date:   Mon, 12 Jul 2021 08:06:50 +0200
-Message-Id: <20210712061008.399882550@linuxfoundation.org>
+Message-Id: <20210712060910.433390433@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit f7ec104458e00d27a190348ac3a513f3df3699a4 ]
+[ Upstream commit 6e09d75513d2670b7ab91ab3584fc5bcf2675a75 ]
 
-commit f63661566fad ("mm/page_alloc.c: clear out zone->lowmem_reserve[] if
-the zone is empty") clears out zone->lowmem_reserve[] if zone is empty.
-But when zone is not empty and sysctl_lowmem_reserve_ratio[i] is set to
-zero, zone_managed_pages(zone) is not counted in the managed_pages either.
-This is inconsistent with the description of lowmem_reserve, so fix it.
+Use the more modern API to get the match data out of the of match table.
+This saves some code, lines, and nicely avoids referencing the match
+table when it is undefined with configurations where CONFIG_OF=n.
 
-Link: https://lkml.kernel.org/r/20210527125707.3760259-1-liushixin2@huawei.com
-Fixes: f63661566fad ("mm/page_alloc.c: clear out zone->lowmem_reserve[] if the zone is empty")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Reported-by: yangerkun <yangerkun@huawei.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: <linux-hwmon@vger.kernel.org>
+[robh: rework to use device_get_match_data()]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hwmon/lm70.c | 20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 2bf03c76504b..fc5beebf6988 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8087,14 +8087,14 @@ static void setup_per_zone_lowmem_reserve(void)
- 			unsigned long managed_pages = 0;
+diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
+index ae2b84263a44..40eab3349904 100644
+--- a/drivers/hwmon/lm70.c
++++ b/drivers/hwmon/lm70.c
+@@ -22,9 +22,9 @@
+ #include <linux/hwmon.h>
+ #include <linux/mutex.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/property.h>
+ #include <linux/spi/spi.h>
+ #include <linux/slab.h>
+-#include <linux/of_device.h>
+ #include <linux/acpi.h>
  
- 			for (j = i + 1; j < MAX_NR_ZONES; j++) {
--				if (clear) {
--					zone->lowmem_reserve[j] = 0;
--				} else {
--					struct zone *upper_zone = &pgdat->node_zones[j];
-+				struct zone *upper_zone = &pgdat->node_zones[j];
-+
-+				managed_pages += zone_managed_pages(upper_zone);
+ #define DRVNAME		"lm70"
+@@ -173,25 +173,15 @@ MODULE_DEVICE_TABLE(acpi, lm70_acpi_ids);
  
--					managed_pages += zone_managed_pages(upper_zone);
-+				if (clear)
-+					zone->lowmem_reserve[j] = 0;
-+				else
- 					zone->lowmem_reserve[j] = managed_pages / ratio;
--				}
- 			}
- 		}
- 	}
+ static int lm70_probe(struct spi_device *spi)
+ {
+-	const struct of_device_id *of_match;
+ 	struct device *hwmon_dev;
+ 	struct lm70 *p_lm70;
+ 	int chip;
+ 
+-	of_match = of_match_device(lm70_of_ids, &spi->dev);
+-	if (of_match)
+-		chip = (int)(uintptr_t)of_match->data;
+-	else {
+-#ifdef CONFIG_ACPI
+-		const struct acpi_device_id *acpi_match;
++	if (dev_fwnode(&spi->dev))
++		chip = (int)(uintptr_t)device_get_match_data(&spi->dev);
++	else
++		chip = spi_get_device_id(spi)->driver_data;
+ 
+-		acpi_match = acpi_match_device(lm70_acpi_ids, &spi->dev);
+-		if (acpi_match)
+-			chip = (int)(uintptr_t)acpi_match->driver_data;
+-		else
+-#endif
+-			chip = spi_get_device_id(spi)->driver_data;
+-	}
+ 
+ 	/* signaling is SPI_MODE_0 */
+ 	if (spi->mode & (SPI_CPOL | SPI_CPHA))
 -- 
 2.30.2
 
