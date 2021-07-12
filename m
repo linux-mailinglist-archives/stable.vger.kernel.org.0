@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C763C51EF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C971B3C4CB2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349569AbhGLHoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:44:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46858 "EHLO mail.kernel.org"
+        id S242691AbhGLHGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348106AbhGLHkl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C532460724;
-        Mon, 12 Jul 2021 07:37:51 +0000 (UTC)
+        id S243898AbhGLHGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 349D761152;
+        Mon, 12 Jul 2021 07:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075472;
-        bh=gg5h5lXBXeF2yN98tkTNtp6fmsB1jEPgZngd+iNITuY=;
+        s=korg; t=1626073357;
+        bh=wDNvjMGxrpeAQg0xXJVXW97Rx7+AUJ9+PX7Q1PWNhRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IfHQprXjLfIGO2Ju5zAvKCw511d29qQEjPoKqngxFXfn/EBDB5+e3FDJhc9NsxC2f
-         drFKRbVf5ZHNU0tccw/OiwwxDKkGn3knL9B0a8ZBaQC7WlgEWzENUh1fYvR1gkbXxU
-         jZBvpd2U30oYWO0HGLl5LsquxMO33BtV0QVQfC4U=
+        b=G7nNZCMQrSJ4+DpOBdNIwWpL1OBU536eiWkhgblKBQi//dipYSmzkWND50eXvdM2J
+         u7cdL1TyLXs0DiGWyv5obBFOSws9vh2Sy1zvrZftSnxU7DP5J/lxaMCcaieTuV9uf6
+         J42/KqzgKFHf4H4SRRGNg4Da9hqtvRtpTaTLOHU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 231/800] ACPICA: Fix memory leak caused by _CID repair function
-Date:   Mon, 12 Jul 2021 08:04:14 +0200
-Message-Id: <20210712060946.299334471@linuxfoundation.org>
+Subject: [PATCH 5.12 172/700] crypto: shash - avoid comparing pointers to exported functions under CFI
+Date:   Mon, 12 Jul 2021 08:04:15 +0200
+Message-Id: <20210712060950.489526727@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit c27bac0314131b11bccd735f7e8415ac6444b667 ]
+[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
 
-ACPICA commit 180cb53963aa876c782a6f52cc155d951b26051a
+crypto_shash_alg_has_setkey() is implemented by testing whether the
+.setkey() member of a struct shash_alg points to the default version,
+called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
+inline, this requires shash_no_setkey() to be exported to modules.
 
-According to the ACPI spec, _CID returns a package containing
-hardware ID's. Each element of an ASL package contains a reference
-count from the parent package as well as the element itself.
+Unfortunately, when building with CFI, function pointers are routed
+via CFI stubs which are private to each module (or to the kernel proper)
+and so this function pointer comparison may fail spuriously.
 
-Name (TEST, Package() {
-    "String object" // this package element has a reference count of 2
-})
+Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
+line function.
 
-A memory leak was caused in the _CID repair function because it did
-not decrement the reference count created by the package. Fix the
-memory leak by calling acpi_ut_remove_reference on _CID package elements
-that represent a hardware ID (_HID).
-
-Link: https://github.com/acpica/acpica/commit/180cb539
-Tested-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/nsrepair2.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ crypto/shash.c                 | 18 +++++++++++++++---
+ include/crypto/internal/hash.h |  8 +-------
+ 2 files changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/acpi/acpica/nsrepair2.c b/drivers/acpi/acpica/nsrepair2.c
-index 14b71b41e845..38e10ab976e6 100644
---- a/drivers/acpi/acpica/nsrepair2.c
-+++ b/drivers/acpi/acpica/nsrepair2.c
-@@ -379,6 +379,13 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
+diff --git a/crypto/shash.c b/crypto/shash.c
+index 2e3433ad9762..0a0a50cb694f 100644
+--- a/crypto/shash.c
++++ b/crypto/shash.c
+@@ -20,12 +20,24 @@
  
- 			(*element_ptr)->common.reference_count =
- 			    original_ref_count;
+ static const struct crypto_type crypto_shash_type;
+ 
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen)
++static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
++			   unsigned int keylen)
+ {
+ 	return -ENOSYS;
+ }
+-EXPORT_SYMBOL_GPL(shash_no_setkey);
 +
-+			/*
-+			 * The original_element holds a reference from the package object
-+			 * that represents _HID. Since a new element was created by _HID,
-+			 * remove the reference from the _CID package.
-+			 */
-+			acpi_ut_remove_reference(original_element);
- 		}
++/*
++ * Check whether an shash algorithm has a setkey function.
++ *
++ * For CFI compatibility, this must not be an inline function.  This is because
++ * when CFI is enabled, modules won't get the same address for shash_no_setkey
++ * (if it were exported, which inlining would require) as the core kernel will.
++ */
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
++{
++	return alg->setkey != shash_no_setkey;
++}
++EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
  
- 		element_ptr++;
+ static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
+ 				  unsigned int keylen)
+diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
+index 0a288dddcf5b..25806141db59 100644
+--- a/include/crypto/internal/hash.h
++++ b/include/crypto/internal/hash.h
+@@ -75,13 +75,7 @@ void crypto_unregister_ahashes(struct ahash_alg *algs, int count);
+ int ahash_register_instance(struct crypto_template *tmpl,
+ 			    struct ahash_instance *inst);
+ 
+-int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
+-		    unsigned int keylen);
+-
+-static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
+-{
+-	return alg->setkey != shash_no_setkey;
+-}
++bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
+ 
+ static inline bool crypto_shash_alg_needs_key(struct shash_alg *alg)
+ {
 -- 
 2.30.2
 
