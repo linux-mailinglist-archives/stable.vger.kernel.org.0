@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E80C3C48A5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA0E3C48A6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235488AbhGLGka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235411AbhGLGka (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:40:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34334 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236532AbhGLGjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95E5B610FB;
-        Mon, 12 Jul 2021 06:34:39 +0000 (UTC)
+        id S237223AbhGLGjT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E0D461184;
+        Mon, 12 Jul 2021 06:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071680;
-        bh=eM8hCoUT7pQxHAolavTM2YgZVGuSIS2E+h8/fmFb1wM=;
+        s=korg; t=1626071691;
+        bh=+GLCrOlqm+ecTRN01ebH+RNaYpzSgm+wgO5kZtnb/hY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jh2HA0Fa9qTeTOdHjhszltIlOCNdpLr1187n7v20SfN5me+ITY2T/iFuED9kBPm93
-         E4HhRMBV78KYiSP6Sba1YyepOe6eWNRbSylAZrZkLUBz4SrPVcG3yZnWLZnrSLd2Tr
-         TnltYBgLFYhYGW2tudZdVMN8Mpcibjr4b/LHWaiU=
+        b=cFtSpdcLnethd2WRByppd+XKZGyCb1uTm52lnmjcZJMLiklz4TrzsWEjylqHVqQn+
+         H+NnEaNIyV0GlASn0nykHHnUWM533bCSHhYSKHBlLDKwZ7sxuqGRLCxSsTsJoJFX7T
+         5v9Xi6a4N2A815dpyJccrC5ieTVkXHuYdFqqA5gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 173/593] Input: goodix - platform/x86: touchscreen_dmi - Move upside down quirks to touchscreen_dmi.c
-Date:   Mon, 12 Jul 2021 08:05:33 +0200
-Message-Id: <20210712060902.063396459@linuxfoundation.org>
+Subject: [PATCH 5.10 178/593] blk-mq: grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter
+Date:   Mon, 12 Jul 2021 08:05:38 +0200
+Message-Id: <20210712060902.600525746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,189 +42,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 5a6f0dbe621a5c20dc912ac474debf9f11129e03 ]
+[ Upstream commit 2e315dc07df009c3e29d6926871f62a30cfae394 ]
 
-Move the DMI quirks for upside-down mounted Goodix touchscreens from
-drivers/input/touchscreen/goodix.c to
-drivers/platform/x86/touchscreen_dmi.c,
-where all the other x86 touchscreen quirks live.
+Grab rq->refcount before calling ->fn in blk_mq_tagset_busy_iter(), and
+this way will prevent the request from being re-used when ->fn is
+running. The approach is same as what we do during handling timeout.
 
-Note the touchscreen_dmi.c code attaches standard touchscreen
-device-properties to an i2c-client device based on a combination of a
-DMI match + a device-name match. I've verified that the: Teclast X98 Pro,
-WinBook TW100 and WinBook TW700 uses an ACPI devicename of "GDIX1001:00"
-based on acpidumps and/or dmesg output available on the web.
+Fix request use-after-free(UAF) related with completion race or queue
+releasing:
 
-This patch was tested on a Teclast X89 tablet.
+- If one rq is referred before rq->q is frozen, then queue won't be
+frozen before the request is released during iteration.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-2-hdegoede@redhat.com
+- If one rq is referred after rq->q is frozen, refcount_inc_not_zero()
+will return false, and we won't iterate over this request.
+
+However, still one request UAF not covered: refcount_inc_not_zero() may
+read one freed request, and it will be handled in next patch.
+
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210511152236.763464-3-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c     | 52 ------------------------
- drivers/platform/x86/touchscreen_dmi.c | 56 ++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+), 52 deletions(-)
+ block/blk-mq-tag.c | 44 +++++++++++++++++++++++++++++++++-----------
+ block/blk-mq.c     | 14 +++++++++-----
+ block/blk-mq.h     |  1 +
+ 3 files changed, 43 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 45113767db96..a06385c55af2 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -178,51 +178,6 @@ static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_LEVEL_HIGH,
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 9c92053e704d..6772c3728865 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -199,6 +199,16 @@ struct bt_iter_data {
+ 	bool reserved;
  };
  
--/*
-- * Those tablets have their coordinates origin at the bottom right
-- * of the tablet, as if rotated 180 degrees
-- */
--static const struct dmi_system_id rotated_screen[] = {
--#if defined(CONFIG_DMI) && defined(CONFIG_X86)
--	{
--		.ident = "Teclast X89",
--		.matches = {
--			/* tPAD is too generic, also match on bios date */
--			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
--			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
--			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
--		},
--	},
--	{
--		.ident = "Teclast X98 Pro",
--		.matches = {
--			/*
--			 * Only match BIOS date, because the manufacturers
--			 * BIOS does not report the board name at all
--			 * (sometimes)...
--			 */
--			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
--			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
--		},
--	},
--	{
--		.ident = "WinBook TW100",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
--		}
--	},
--	{
--		.ident = "WinBook TW700",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
--		},
--	},
--#endif
--	{}
--};
++static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
++		unsigned int bitnr)
++{
++	struct request *rq = tags->rqs[bitnr];
++
++	if (!rq || !refcount_inc_not_zero(&rq->ref))
++		return NULL;
++	return rq;
++}
++
+ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ {
+ 	struct bt_iter_data *iter_data = data;
+@@ -206,18 +216,22 @@ static bool bt_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	struct blk_mq_tags *tags = hctx->tags;
+ 	bool reserved = iter_data->reserved;
+ 	struct request *rq;
++	bool ret = true;
+ 
+ 	if (!reserved)
+ 		bitnr += tags->nr_reserved_tags;
+-	rq = tags->rqs[bitnr];
 -
- static const struct dmi_system_id nine_bytes_report[] = {
- #if defined(CONFIG_DMI) && defined(CONFIG_X86)
- 	{
-@@ -1121,13 +1076,6 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 				  ABS_MT_POSITION_Y, ts->prop.max_y);
- 	}
+ 	/*
+ 	 * We can hit rq == NULL here, because the tagging functions
+ 	 * test and set the bit before assigning ->rqs[].
+ 	 */
+-	if (rq && rq->q == hctx->queue && rq->mq_hctx == hctx)
+-		return iter_data->fn(hctx, rq, iter_data->data, reserved);
+-	return true;
++	rq = blk_mq_find_and_get_req(tags, bitnr);
++	if (!rq)
++		return true;
++
++	if (rq->q == hctx->queue && rq->mq_hctx == hctx)
++		ret = iter_data->fn(hctx, rq, iter_data->data, reserved);
++	blk_mq_put_rq_ref(rq);
++	return ret;
+ }
  
--	if (dmi_check_system(rotated_screen)) {
--		ts->prop.invert_x = true;
--		ts->prop.invert_y = true;
--		dev_dbg(&ts->client->dev,
--			"Applying '180 degrees rotated screen' quirk\n");
--	}
+ /**
+@@ -264,6 +278,8 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	struct blk_mq_tags *tags = iter_data->tags;
+ 	bool reserved = iter_data->flags & BT_TAG_ITER_RESERVED;
+ 	struct request *rq;
++	bool ret = true;
++	bool iter_static_rqs = !!(iter_data->flags & BT_TAG_ITER_STATIC_RQS);
+ 
+ 	if (!reserved)
+ 		bitnr += tags->nr_reserved_tags;
+@@ -272,16 +288,19 @@ static bool bt_tags_iter(struct sbitmap *bitmap, unsigned int bitnr, void *data)
+ 	 * We can hit rq == NULL here, because the tagging functions
+ 	 * test and set the bit before assigning ->rqs[].
+ 	 */
+-	if (iter_data->flags & BT_TAG_ITER_STATIC_RQS)
++	if (iter_static_rqs)
+ 		rq = tags->static_rqs[bitnr];
+ 	else
+-		rq = tags->rqs[bitnr];
++		rq = blk_mq_find_and_get_req(tags, bitnr);
+ 	if (!rq)
+ 		return true;
+-	if ((iter_data->flags & BT_TAG_ITER_STARTED) &&
+-	    !blk_mq_request_started(rq))
+-		return true;
+-	return iter_data->fn(rq, iter_data->data, reserved);
++
++	if (!(iter_data->flags & BT_TAG_ITER_STARTED) ||
++	    blk_mq_request_started(rq))
++		ret = iter_data->fn(rq, iter_data->data, reserved);
++	if (!iter_static_rqs)
++		blk_mq_put_rq_ref(rq);
++	return ret;
+ }
+ 
+ /**
+@@ -348,6 +367,9 @@ void blk_mq_all_tag_iter(struct blk_mq_tags *tags, busy_tag_iter_fn *fn,
+  *		indicates whether or not @rq is a reserved request. Return
+  *		true to continue iterating tags, false to stop.
+  * @priv:	Will be passed as second argument to @fn.
++ *
++ * We grab one request reference before calling @fn and release it after
++ * @fn returns.
+  */
+ void blk_mq_tagset_busy_iter(struct blk_mq_tag_set *tagset,
+ 		busy_tag_iter_fn *fn, void *priv)
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 4bf9449b4586..50d3527a5d97 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -927,6 +927,14 @@ static bool blk_mq_req_expired(struct request *rq, unsigned long *next)
+ 	return false;
+ }
+ 
++void blk_mq_put_rq_ref(struct request *rq)
++{
++	if (is_flush_rq(rq, rq->mq_hctx))
++		rq->end_io(rq, 0);
++	else if (refcount_dec_and_test(&rq->ref))
++		__blk_mq_free_request(rq);
++}
++
+ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
+ 		struct request *rq, void *priv, bool reserved)
+ {
+@@ -960,11 +968,7 @@ static bool blk_mq_check_expired(struct blk_mq_hw_ctx *hctx,
+ 	if (blk_mq_req_expired(rq, next))
+ 		blk_mq_rq_timed_out(rq, reserved);
+ 
+-	if (is_flush_rq(rq, hctx))
+-		rq->end_io(rq, 0);
+-	else if (refcount_dec_and_test(&rq->ref))
+-		__blk_mq_free_request(rq);
 -
- 	if (dmi_check_system(nine_bytes_report)) {
- 		ts->contact_size = 9;
++	blk_mq_put_rq_ref(rq);
+ 	return true;
+ }
  
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 3743d895399e..e52ff09b81de 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -299,6 +299,23 @@ static const struct ts_dmi_data estar_beauty_hd_data = {
- 	.properties	= estar_beauty_hd_props,
- };
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index d2359f7cfd5f..f792a0920ebb 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -47,6 +47,7 @@ void blk_mq_add_to_requeue_list(struct request *rq, bool at_head,
+ void blk_mq_flush_busy_ctxs(struct blk_mq_hw_ctx *hctx, struct list_head *list);
+ struct request *blk_mq_dequeue_from_ctx(struct blk_mq_hw_ctx *hctx,
+ 					struct blk_mq_ctx *start);
++void blk_mq_put_rq_ref(struct request *rq);
  
-+/* Generic props + data for upside-down mounted GDIX1001 touchscreens */
-+static const struct property_entry gdix1001_upside_down_props[] = {
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data gdix1001_00_upside_down_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= gdix1001_upside_down_props,
-+};
-+
-+static const struct ts_dmi_data gdix1001_01_upside_down_data = {
-+	.acpi_name	= "GDIX1001:01",
-+	.properties	= gdix1001_upside_down_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -1268,6 +1285,16 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
- 		},
- 	},
-+	{
-+		/* Teclast X89 (Windows version / BIOS) */
-+		.driver_data = (void *)&gdix1001_01_upside_down_data,
-+		.matches = {
-+			/* tPAD is too generic, also match on bios date */
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
-+			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
-+		},
-+	},
- 	{
- 		/* Teclast X98 Plus II */
- 		.driver_data = (void *)&teclast_x98plus2_data,
-@@ -1276,6 +1303,19 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
- 		},
- 	},
-+	{
-+		/* Teclast X98 Pro */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			/*
-+			 * Only match BIOS date, because the manufacturers
-+			 * BIOS does not report the board name at all
-+			 * (sometimes)...
-+			 */
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
-+		},
-+	},
- 	{
- 		/* Trekstor Primebook C11 */
- 		.driver_data = (void *)&trekstor_primebook_c11_data,
-@@ -1351,6 +1391,22 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "VINGA Twizzle J116"),
- 		},
- 	},
-+	{
-+		/* "WinBook TW100" */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		}
-+	},
-+	{
-+		/* WinBook TW700 */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
-+		},
-+	},
- 	{
- 		/* Yours Y8W81, same case and touchscreen as Chuwi Vi8 */
- 		.driver_data = (void *)&chuwi_vi8_data,
+ /*
+  * Internal helpers for allocating/freeing the request map
 -- 
 2.30.2
 
