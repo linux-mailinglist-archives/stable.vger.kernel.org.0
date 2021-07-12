@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3606C3C4B4D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F2903C4F84
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233279AbhGLG4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49190 "EHLO mail.kernel.org"
+        id S239669AbhGLH0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239083AbhGLGt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79DD16113E;
-        Mon, 12 Jul 2021 06:45:51 +0000 (UTC)
+        id S240071AbhGLHX3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:23:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C3E6113B;
+        Mon, 12 Jul 2021 07:20:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072352;
-        bh=QhLqPz30Jed7704xOqGcEOG4hquarFR0I1hnTVeHNLw=;
+        s=korg; t=1626074441;
+        bh=uLfCrMqsvIrxqcCzs2c8dhu0bVbzvqwRuC0fGYazn7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r1GkAs+v60MeC3k5i3LylwrbNru1FbSP4ktyiLpWUgzmgZepbMo2aJStcX84pl5KC
-         ffMfxcZCOZdXlOwROJCJJr+gLqTmKFW3rUSUlqij68u6Co750gdfBRJqlYKlq6TCq2
-         m9hXeJnXjcP2/zTl6WqWQ4X/35EfYJTn6ZrZKlNE=
+        b=jlrXVSv7Q2XS3Zq8n2B3iWV9ufaLsEihKGZwHFtrCnaaZJEDAvzrYuMSGtVc+WUmT
+         5iIy3exb2khjg+0yzhP12VZOqgNJTJsj3/sxMuFSS/+QvmT2gV3IysHETrZW3mz4/w
+         GlROq1Q92c1bnckkhAAtm2L/onPz2HY8thfcldqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 460/593] iio: magn: bmc150: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:10:20 +0200
-Message-Id: <20210712060940.126414883@linuxfoundation.org>
+Subject: [PATCH 5.12 538/700] iio: accel: stk8ba50: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:21 +0200
+Message-Id: <20210712061033.638762368@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,66 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 7692088f72865c41b6b531fd09486ee99a5da930 ]
+[ Upstream commit 334883894bc1e145a1e0f5de1b0d1b6a1133f0e6 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp()
+Found during an audit of all calls of this function.
 
-Fixes: c91746a2361d ("iio: magn: Add support for BMC150 magnetometer")
+Fixes: db6a19b8251f ("iio: accel: Add trigger support for STK8BA50")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Stephan Gerhold <stephan@gerhold.net>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-17-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/bmc150_magn.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/iio/accel/stk8ba50.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/bmc150_magn.c b/drivers/iio/magnetometer/bmc150_magn.c
-index fc6840f9c1fa..8042175275d0 100644
---- a/drivers/iio/magnetometer/bmc150_magn.c
-+++ b/drivers/iio/magnetometer/bmc150_magn.c
-@@ -136,8 +136,11 @@ struct bmc150_magn_data {
- 	struct mutex mutex;
- 	struct regmap *regmap;
- 	struct iio_mount_matrix orientation;
--	/* 4 x 32 bits for x, y z, 4 bytes align, 64 bits timestamp */
--	s32 buffer[6];
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		s32 chans[3];
-+		s64 timestamp __aligned(8);
-+	} scan;
+diff --git a/drivers/iio/accel/stk8ba50.c b/drivers/iio/accel/stk8ba50.c
+index 3ead378b02c9..e8087d7ee49f 100644
+--- a/drivers/iio/accel/stk8ba50.c
++++ b/drivers/iio/accel/stk8ba50.c
+@@ -91,12 +91,11 @@ struct stk8ba50_data {
+ 	u8 sample_rate_idx;
  	struct iio_trigger *dready_trig;
  	bool dready_trigger_on;
- 	int max_odr;
-@@ -673,11 +676,11 @@ static irqreturn_t bmc150_magn_trigger_handler(int irq, void *p)
- 	int ret;
+-	/*
+-	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
+-	 * 1 x 16 padding +
+-	 * 4 x 16 64-bit timestamp
+-	 */
+-	s16 buffer[8];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s16 chans[3];
++		s64 timetamp __aligned(8);
++	} scan;
+ };
  
- 	mutex_lock(&data->mutex);
--	ret = bmc150_magn_read_xyz(data, data->buffer);
-+	ret = bmc150_magn_read_xyz(data, data->scan.chans);
- 	if (ret < 0)
- 		goto err;
+ #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
+@@ -324,7 +323,7 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8BA50_REG_XOUT,
+ 						    STK8BA50_ALL_CHANNEL_SIZE,
+-						    (u8 *)data->buffer);
++						    (u8 *)data->scan.chans);
+ 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			goto err;
+@@ -337,10 +336,10 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 			if (ret < 0)
+ 				goto err;
  
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
 -	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
 +	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
  					   pf->timestamp);
- 
  err:
+ 	mutex_unlock(&data->lock);
 -- 
 2.30.2
 
