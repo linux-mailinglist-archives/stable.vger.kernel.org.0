@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B97D3C4E56
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E463C49F2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244197AbhGLHSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:18:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
+        id S236412AbhGLGri (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:47:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243832AbhGLHRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9BCD613F4;
-        Mon, 12 Jul 2021 07:14:22 +0000 (UTC)
+        id S238084AbhGLGqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F41CF6128E;
+        Mon, 12 Jul 2021 06:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074063;
-        bh=67IgrYKsPM4pJdxDsR3ya5XSVJ181K/E4pVXKzE66uE=;
+        s=korg; t=1626072156;
+        bh=5RBP4naidKyQUpt3TyGxsn7mo6o5fz5Qv0pQJM67Sd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDdHc+PWs+B9jhyv/RECZSFWFKgnk7TQDM96NNX4w8vnNi3isNvpK7Pcfsr5NfsZf
-         PBDniiaj/9j48nBHSUFrzU/TaV797aiQfLMj5zZko03QambrbhF68gyjPguVaz3FN+
-         wS/qE6s2dBaJagA7dqlDHFYWJTTxZ3UEvCqr3COo=
+        b=oq8si7rWkX6p9V6T9KVjBoMa3YccL5t5h0snui7L/XCMWj0B/6vZKyqHSA/jqiiEa
+         M/2H20DyCVoqAJA/ct9hqRblHNcFtACl/S/Fldl/iGkSOXbCSycI3nBjKCoCdo1dWG
+         n3HKrbRyZgiS6zOULptYK3Z3ZPlicxNqsp3jH9oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 453/700] netfilter: nf_tables: skip netlink portID validation if zero
+Subject: [PATCH 5.10 376/593] netfilter: nf_tables_offload: check FLOW_DISSECTOR_KEY_BASIC in VLAN transfer logic
 Date:   Mon, 12 Jul 2021 08:08:56 +0200
-Message-Id: <20210712061024.760339457@linuxfoundation.org>
+Message-Id: <20210712060928.209744794@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 534799097a777e82910f77a4f9d289c815a9a64e ]
+[ Upstream commit ea45fdf82cc90430bb7c280e5e53821e833782c5 ]
 
-nft_table_lookup() allows us to obtain the table object by the name and
-the family. The netlink portID validation needs to be skipped for the
-dump path, since the ownership only applies to commands to update the
-given table. Skip validation if the specified netlink PortID is zero
-when calling nft_table_lookup().
+The VLAN transfer logic should actually check for
+FLOW_DISSECTOR_KEY_BASIC, not FLOW_DISSECTOR_KEY_CONTROL. Moreover, do
+not fallback to case 2) .n_proto is set to 802.1q or 802.1ad, if
+FLOW_DISSECTOR_KEY_BASIC is unset.
 
-Fixes: 6001a930ce03 ("netfilter: nftables: introduce table ownership")
+Fixes: 783003f3bb8a ("netfilter: nftables_offload: special ethertype handling for VLAN")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_tables_offload.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 9d5ea2352965..3705086d43f5 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -521,7 +521,7 @@ static struct nft_table *nft_table_lookup(const struct net *net,
- 		    table->family == family &&
- 		    nft_active_genmask(table, genmask)) {
- 			if (nft_table_has_owner(table) &&
--			    table->nlpid != nlpid)
-+			    nlpid && table->nlpid != nlpid)
- 				return ERR_PTR(-EPERM);
+diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
+index 2b00f7f47693..9ce776175214 100644
+--- a/net/netfilter/nf_tables_offload.c
++++ b/net/netfilter/nf_tables_offload.c
+@@ -54,15 +54,10 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 					struct nft_flow_rule *flow)
+ {
+ 	struct nft_flow_match *match = &flow->match;
+-	struct nft_offload_ethertype ethertype;
+-
+-	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
+-	    match->key.basic.n_proto != htons(ETH_P_8021AD))
+-		return;
+-
+-	ethertype.value = match->key.basic.n_proto;
+-	ethertype.mask = match->mask.basic.n_proto;
++	struct nft_offload_ethertype ethertype = {
++		.value	= match->key.basic.n_proto,
++		.mask	= match->mask.basic.n_proto,
++	};
  
- 			return table;
+ 	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
+ 	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
+@@ -76,7 +71,9 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
+ 		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
+ 			offsetof(struct nft_flow_key, cvlan);
+ 		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
+-	} else {
++	} else if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_BASIC) &&
++		   (match->key.basic.n_proto == htons(ETH_P_8021Q) ||
++		    match->key.basic.n_proto == htons(ETH_P_8021AD))) {
+ 		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
+ 		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
+ 		match->key.vlan.vlan_tpid = ethertype.value;
 -- 
 2.30.2
 
