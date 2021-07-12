@@ -2,163 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA4AA3C5D82
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 15:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C786E3C5D91
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 15:44:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234464AbhGLNna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 09:43:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33421 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234216AbhGLNn3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 09:43:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626097241;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=CxEBUBhY9L+AtYdeHpYkNAkWfDNcEYoqR3VuaL3uooQ=;
-        b=gvYtbx9roCsP7Lgwokx913J7uViUQdpx2s1Gi0vSHBpFk/gt3ALxl+IFeDdnyaLvkCDOyY
-        n96mwo/M9DZfNX+/rqDSSxEmOoX35FxmRc+P2ZgWRZAu7TAvFQUhuHehJnT1UXztqibbnt
-        DD3NqBgaRFy1mRvT1yLpaGjMrJj68gc=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-123-HYPr8KnJNp2JwXw0ZCavIQ-1; Mon, 12 Jul 2021 09:40:39 -0400
-X-MC-Unique: HYPr8KnJNp2JwXw0ZCavIQ-1
-Received: by mail-lj1-f197.google.com with SMTP id y10-20020a05651c154ab02901337d2c58f3so7042327ljp.9
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 06:40:39 -0700 (PDT)
+        id S234216AbhGLNre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 09:47:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46236 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhGLNre (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 09:47:34 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04209C0613DD;
+        Mon, 12 Jul 2021 06:44:46 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id 75-20020a9d08510000b02904acfe6bcccaso18860803oty.12;
+        Mon, 12 Jul 2021 06:44:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=JDiXV3i3rqyi++006FiTx4duGk4ywrBq3HXjBhSboQ4=;
+        b=PYueBqCpoOt/mdHGyjusUbfdIJwqsO2X2VfGBUlExTVIJh0Zd/bS54K/n7poIOW7kz
+         f/aSQt8bDlFtjfu7r2BPqOJHma0b9d57yRD2IUe61FnHLMOhugbFtX7e/bWb9FyddAne
+         mqGPyCcBOW8M29thZ8C9Hl+/6u0Rfq1j8Hsl23PxdyG5owe4LvvJAmA2+emfvLAOpn+C
+         bvyWvI4Mf1LrNvi09dm66bc8AjqJcC/8XIr6Bq3PBnZxuBjiPjVMHBmdWPBXJ9JQbu9k
+         BSsw5xCmupARKl2PO3yyp0t6Cp4dN5yJ017jiWrZMUiFoT8acJYjXpyyXxHPsJSL/eS4
+         EcXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=CxEBUBhY9L+AtYdeHpYkNAkWfDNcEYoqR3VuaL3uooQ=;
-        b=i7W5WQ4HX9yJEtJ1GplOuYBoAK5FdI2RQ8VTMpcySgehAj3uzpYqNvTqooxgEkCCTo
-         MiW2huPlY1h0Uhjf8D4Yw4ag66PY0U1lnpfXu9gf+GkjpLdGEEuXtPibQ824NKy59311
-         5/R1GetAhS6wGAYvPP4SDWe+l0QeH2TUiBADp3xS+dNECgLmZWZTgoUxQa4e4lODLfaD
-         /8JIr6WMMh4kjxYVYYz/mbchncBSiZ4+A15Ej53MQwZwhCvXJclOGNF7syzABXfTfqt1
-         InzfrO+/366IqcG3ygRSexy5mBmOnq/y0kGR2WyWfoQM8/2bL+PbBiobB5Wgz6HVrGJe
-         q6Ug==
-X-Gm-Message-State: AOAM531W4qFfXwQBZtSFcJXFhNDYKMTa3iDHsxxaEq8ATZssQTFv6QNs
-        2FZoYAkrfpZzVJ30ieOrtk/0zZGHP4eHGFC2i5Vt2zU/TXsZ6C5xtXbS1IIYr2ADm2mK4pCyVhl
-        uTXobTxGigB40OO0XPW6qnuTJ6VgC2zaV
-X-Received: by 2002:a05:651c:111b:: with SMTP id d27mr41608685ljo.387.1626097238052;
-        Mon, 12 Jul 2021 06:40:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJytLlMFzH8YeWxE2GjkFp2A2nbwxCCe+NWk46Ht8XPvBSzx0liyRDRQQL6GiNPkJQOFSpcvRaoIUxlNW6ALjAE=
-X-Received: by 2002:a05:651c:111b:: with SMTP id d27mr41608670ljo.387.1626097237851;
- Mon, 12 Jul 2021 06:40:37 -0700 (PDT)
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=JDiXV3i3rqyi++006FiTx4duGk4ywrBq3HXjBhSboQ4=;
+        b=glPfhqbB3mwlBmQWO3oow+buVjJtxLCET/TrGk1T4O8sK/H1Kh9+3Aw/TRnPCCAton
+         iwSlyVegzLTapeSf/iUEfBnDvZDJsswzV8UVQ7hbCxThEiYXDHQ7b51kWvE1lNVURZpP
+         opjm5Jiy4jFEQhlLOvRFnClKaBcg8cIMDWkAS6pFjxalccKlUiYOuCRcaO7WwkyIQ6bT
+         cpqYY6G/3TzrwszGoWFAsa3oow1revNo+6Qez1rVgAaHKR+jTkwds6s6I4MpcKrbOyao
+         XEEFIWX3FMV9bDWt4P0q3L2/Xpod+xGR94R13G32/97PVHdn4lbFaDOg2kAgtojZzecZ
+         QVRg==
+X-Gm-Message-State: AOAM532AfQPfpAaPuaGhA8UNUCzPzSQ1yvCuNbxXjNNOupI5r8aLC1Jp
+        j5eDlZriJyYYJIu1+ofFZVelQEvcP3o=
+X-Google-Smtp-Source: ABdhPJwP67e+bpOuiQ9Bh+LPaiqtH3djt/TdWug7UpC50CgXUm83jWsPL4nerj+zzWVQXPjTF6DeZA==
+X-Received: by 2002:a9d:7457:: with SMTP id p23mr36834448otk.85.1626097485173;
+        Mon, 12 Jul 2021 06:44:45 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id n26sm2515960oos.14.2021.07.12.06.44.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 12 Jul 2021 06:44:44 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 5.4 000/348] 5.4.132-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20210712060659.886176320@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <806c2ec9-9e2e-f151-9873-6c53e20cd509@roeck-us.net>
+Date:   Mon, 12 Jul 2021 06:44:41 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <cki.4B06E639A0.ME3EXCXRTW@redhat.com>
-In-Reply-To: <cki.4B06E639A0.ME3EXCXRTW@redhat.com>
-From:   Veronika Kabatova <vkabatov@redhat.com>
-Date:   Mon, 12 Jul 2021 15:40:01 +0200
-Message-ID: <CA+tGwnkjpwHE6=5MxFRnHSZ6=LYN_uiJQhTOP1oTr2rqhSiTyg@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_FAIL=3A_Test_report_for_kernel_5=2E12=2E16_=28stable?=
-        =?UTF-8?Q?=2Dqueue=2C_e2aabcec=29?=
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 3:37 PM CKI Project <cki-project@redhat.com> wrote:
->
->
-> Hello,
->
-> We ran automated tests on a recent commit from this kernel tree:
->
->        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stabl=
-e/linux-stable-rc.git
->             Commit: e2aabcece18e - powerpc/preempt: Don't touch the idle =
-task's preempt_count during hotplug
->
-> The results of these automated tests are provided below.
->
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: FAILED
->
-> All kernel binaries, config files, and logs are available for download he=
-re:
->
->   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?p=
-refix=3Ddatawarehouse-public/2021/07/12/335283844
->
-> We attempted to compile the kernel for multiple architectures, but the co=
-mpile
-> failed on one or more architectures:
->
->             x86_64: FAILED (see build-x86_64.log.xz attachment)
+On 7/11/21 11:06 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.132 release.
+> There are 348 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
+> Anything received after that time might be too late.
+> 
 
-00:07:45 sound/soc/intel/boards/sof_sdw.c:200:41: error: implicit
-declaration of function =E2=80=98SOF_BT_OFFLOAD_SSP=E2=80=99
-[-Werror=3Dimplicit-function-declaration]
-00:07:45   200 |                                         SOF_BT_OFFLOAD_SSP=
-(2) |
-00:07:45       |                                         ^~~~~~~~~~~~~~~~~~
-00:07:45 sound/soc/intel/boards/sof_sdw.c:201:41: error:
-=E2=80=98SOF_SSP_BT_OFFLOAD_PRESENT=E2=80=99 undeclared here (not in a func=
-tion)
-00:07:45   201 |
-SOF_SSP_BT_OFFLOAD_PRESENT),
-00:07:45       |
-^~~~~~~~~~~~~~~~~~~~~~~~~~
-00:07:45 cc1: some warnings being treated as errors
-00:07:45 make[6]: *** [scripts/Makefile.build:272:
-sound/soc/intel/boards/sof_sdw.o] Error 1
-00:07:45 make[5]: *** [scripts/Makefile.build:515:
-sound/soc/intel/boards] Error 2
-00:07:45 make[4]: *** [scripts/Makefile.build:515: sound/soc/intel] Error 2
-00:07:45 make[3]: *** [scripts/Makefile.build:515: sound/soc] Error 2
-00:07:45 make[2]: *** [Makefile:1859: sound] Error 2
+Build results:
+	total: 157 pass: 153 fail: 4
+Failed builds:
+	powerpc:defconfig
+	powerpc:allmodconfig
+	powerpc:cell_defconfig
+	powerpc:maple_defconfig
+Qemu test results:
+	total: 428 pass: 404 fail: 24
+Failed tests:
+	<almost all ppc64 tests>
 
+Error log:
+arch/powerpc/kernel/stacktrace.c: In function 'raise_backtrace_ipi':
+arch/powerpc/kernel/stacktrace.c:248:33: error: implicit declaration of function 'udelay'
 
-Hi, this looks to be introduced by
-
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/=
-commit/?h=3Dqueue/5.12&id=3D514524d8977c5eca653e739fa580862f027e2b37
-
-
-Veronika
-
->
-> We hope that these logs can help you find the problem quickly. For the fu=
-ll
-> detail on our testing procedures, please scroll to the bottom of this mes=
-sage.
->
-> Please reply to this email if you have any questions about the tests that=
- we
-> ran or if you have any suggestions on how to make future tests more effec=
-tive.
->
->         ,-.   ,-.
->        ( C ) ( K )  Continuous
->         `-',-.`-'   Kernel
->           ( I )     Integration
->            `-'
-> _________________________________________________________________________=
-_____
->
-> Compile testing
-> ---------------
->
-> We compiled the kernel for 4 architectures:
->
->     aarch64:
->       make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
->
->     ppc64le:
->       make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
->
->     s390x:
->       make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
->
->     x86_64:
->       make options: make -j24 INSTALL_MOD_STRIP=3D1 targz-pkg
->
->
-
+Guenter
