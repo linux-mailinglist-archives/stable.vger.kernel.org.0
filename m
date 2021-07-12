@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61C4B3C5200
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B3E13C4BF4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349680AbhGLHo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:44:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
+        id S239150AbhGLHA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345468AbhGLHiY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:38:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 185C861606;
-        Mon, 12 Jul 2021 07:33:41 +0000 (UTC)
+        id S241611AbhGLG7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:59:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A4256102A;
+        Mon, 12 Jul 2021 06:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075222;
-        bh=L84IKwINJa6zxkGcFITCnz9nOjuWJ1IN5joGhHT235s=;
+        s=korg; t=1626072975;
+        bh=DUfuHFIan7YikCK757QFEnJSWizcpjwTGGA6kphbrOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9XmCVZRr58QKSqpt6CU81xwuxJw0j80F/wy6rzLNn0HqOu1hDXanEnh4U/6yMQJN
-         6nYGeARH9EyVK3OJ7lZvhww9sGfBBGRlLgEJXdVL7EWHZtlfYTaOPW6yviyV/Z+PqW
-         sDIHwxGIiMsym/Diky3XO8xhKpNdrtHzxUsW+B38=
+        b=w3PoXPWJ5YENvHBnUDgoSDq+ttK53n8mbXgrYDh6uG2YlNgas5+RQsLNi/+kNnL+K
+         RSFVjN143GyiwBrrdCiC35DGaPHD+y3/fs1YXKSTzS1aZrKxgntd9kFkbpB2ihz/nj
+         oukCZzckwFDc5qDABa1Wdhv5N6bKfMZfcdoJhcA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 145/800] regulator: uniphier: Add missing MODULE_DEVICE_TABLE
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.12 085/700] iio: frequency: adf4350: disable reg and clk on error in adf4350_probe()
 Date:   Mon, 12 Jul 2021 08:02:48 +0200
-Message-Id: <20210712060933.419197550@linuxfoundation.org>
+Message-Id: <20210712060936.705272543@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit d019f38a1af3c6015cde6a47951a3ec43beeed80 ]
+commit c8cc4cf60b000fb9f4b29bed131fb6cf1fe42d67 upstream.
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Disable reg and clk when devm_gpiod_get_optional() fails in adf4350_probe().
 
+Fixes:4a89d2f47ccd ("iio: adf4350: Convert to use GPIO descriptor")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1620705198-104566-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210601142605.3613605-1-yangyingliang@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/regulator/uniphier-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/frequency/adf4350.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/uniphier-regulator.c b/drivers/regulator/uniphier-regulator.c
-index 2e02e26b516c..e75b0973e325 100644
---- a/drivers/regulator/uniphier-regulator.c
-+++ b/drivers/regulator/uniphier-regulator.c
-@@ -201,6 +201,7 @@ static const struct of_device_id uniphier_regulator_match[] = {
- 	},
- 	{ /* Sentinel */ },
- };
-+MODULE_DEVICE_TABLE(of, uniphier_regulator_match);
+--- a/drivers/iio/frequency/adf4350.c
++++ b/drivers/iio/frequency/adf4350.c
+@@ -563,8 +563,10 @@ static int adf4350_probe(struct spi_devi
  
- static struct platform_driver uniphier_regulator_driver = {
- 	.probe = uniphier_regulator_probe,
--- 
-2.30.2
-
+ 	st->lock_detect_gpiod = devm_gpiod_get_optional(&spi->dev, NULL,
+ 							GPIOD_IN);
+-	if (IS_ERR(st->lock_detect_gpiod))
+-		return PTR_ERR(st->lock_detect_gpiod);
++	if (IS_ERR(st->lock_detect_gpiod)) {
++		ret = PTR_ERR(st->lock_detect_gpiod);
++		goto error_disable_reg;
++	}
+ 
+ 	if (pdata->power_up_frequency) {
+ 		ret = adf4350_set_freq(st, pdata->power_up_frequency);
 
 
