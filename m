@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8AD3C53F6
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6923C53F7
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348037AbhGLH4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349142AbhGLH4b (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 03:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39284 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351228AbhGLHve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B25960241;
-        Mon, 12 Jul 2021 07:48:45 +0000 (UTC)
+        id S1351271AbhGLHvg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A30661152;
+        Mon, 12 Jul 2021 07:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076125;
-        bh=h6Di41b9GA4zFirPJoXGeizNZ7C6m27vN/RfcFp+FFU=;
+        s=korg; t=1626076128;
+        bh=fWvKp9VGq6LKIxOtIqwGBuRaqkWpKiGSVQ9HLQyhkqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaKuEuizTSnD1Gm+OyFqUUD2etc2CK09yapiT4L7Y0keKk2zf3jtxatks7cIwSdoD
-         RI2BHYWJBSPDc3S9owAIHCM8qvxD+HmsHderqV13cQFfsgKGsh+hHE0zrVcSZfDGpm
-         Ok5/HPxVNxf0AytCkFAoC4FZaDIFbWHPMc/dD7S8=
+        b=j6XKT7dnlitkj6go9UWUVmHibnpvV+QhxSS1G/N46TQdYeBuUNzvbvBqjlWkmUVtF
+         wnDq3QqyiJyRQENxci84mw5WwWDQtjurDFcpUv5Np03DlA8sUJfEGTLgGszBQ1Ql/p
+         nxesmmFo+pSPcQnc8nwiUwdyRaMGS+lqkViRaj8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YN Chen <YN.Chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 508/800] mt76: mt7921: fix the coredump is being truncated
-Date:   Mon, 12 Jul 2021 08:08:51 +0200
-Message-Id: <20210712061021.247427276@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 509/800] net: ethernet: aeroflex: fix UAF in greth_of_remove
+Date:   Mon, 12 Jul 2021 08:08:52 +0200
+Message-Id: <20210712061021.352591029@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,68 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 723885a6750102e5d807429b3d06aa6b0d29cc66 ]
+[ Upstream commit e3a5de6d81d8b2199935c7eb3f7d17a50a7075b7 ]
 
-Fix the maximum size of the coredump generated with current mt7921
-firmware. Otherwise, a truncated coredump would be reported to userland
-via dev_coredumpv.
+static int greth_of_remove(struct platform_device *of_dev)
+{
+...
+	struct greth_private *greth = netdev_priv(ndev);
+...
+	unregister_netdev(ndev);
+	free_netdev(ndev);
 
-Also, there is an additional error handling enhanced in the patch to avoid
-the possible invalid buffer access when the system failed to create the
-buffer to hold the coredump.
+	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+...
+}
 
-Fixes: 0da3c795d07b ("mt76: mt7921: add coredump support")
-Co-developed-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+greth is netdev private data, but it is used
+after free_netdev(). It can cause use-after-free when accessing greth
+pointer. So, fix it by moving free_netdev() after of_iounmap()
+call.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac.h | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c  | 9 ++++++---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/aeroflex/greth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac.h b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-index 63c1d1a68a70..c26cfef425ed 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-@@ -12,7 +12,7 @@
- #define MT76_CONNAC_MAX_SCAN_MATCH		16
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index d77fafbc1530..c560ad06f0be 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -1539,10 +1539,11 @@ static int greth_of_remove(struct platform_device *of_dev)
+ 	mdiobus_unregister(greth->mdio);
  
- #define MT76_CONNAC_COREDUMP_TIMEOUT		(HZ / 20)
--#define MT76_CONNAC_COREDUMP_SZ			(128 * 1024)
-+#define MT76_CONNAC_COREDUMP_SZ			(1300 * 1024)
+ 	unregister_netdev(ndev);
+-	free_netdev(ndev);
  
- enum {
- 	CMD_CBW_20MHZ = IEEE80211_STA_RX_BW_20,
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 853db0a52181..493c2aba2f79 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -1504,7 +1504,7 @@ void mt7921_coredump_work(struct work_struct *work)
- 			break;
+ 	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
  
- 		skb_pull(skb, sizeof(struct mt7921_mcu_rxd));
--		if (data + skb->len - dump > MT76_CONNAC_COREDUMP_SZ) {
-+		if (!dump || data + skb->len - dump > MT76_CONNAC_COREDUMP_SZ) {
- 			dev_kfree_skb(skb);
- 			continue;
- 		}
-@@ -1514,7 +1514,10 @@ void mt7921_coredump_work(struct work_struct *work)
- 
- 		dev_kfree_skb(skb);
- 	}
--	dev_coredumpv(dev->mt76.dev, dump, MT76_CONNAC_COREDUMP_SZ,
--		      GFP_KERNEL);
++	free_netdev(ndev);
 +
-+	if (dump)
-+		dev_coredumpv(dev->mt76.dev, dump, MT76_CONNAC_COREDUMP_SZ,
-+			      GFP_KERNEL);
-+
- 	mt7921_reset(&dev->mt76);
+ 	return 0;
  }
+ 
 -- 
 2.30.2
 
