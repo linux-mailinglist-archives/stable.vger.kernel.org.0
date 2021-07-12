@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBD33C49D7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6686A3C53E8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236769AbhGLGq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41760 "EHLO mail.kernel.org"
+        id S1348693AbhGLH4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237321AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BFBA610A6;
-        Mon, 12 Jul 2021 06:41:53 +0000 (UTC)
+        id S1350771AbhGLHvS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96ABE610D1;
+        Mon, 12 Jul 2021 07:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072114;
-        bh=6ffR9pWe5ZhUI/fbXsRaNlGSmTXT1y3+3FtlNi8qfp0=;
+        s=korg; t=1626076099;
+        bh=x0cdFLM6btp/DkvpniaMVFk7KhpZaD8zo7VU4um/eF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMinQAlYL6+dqhmGycMjKe3Cs5NcQ4J7bfLa/la7d0oNvXIzLsR5VvMmuKQ82o5i9
-         f93VnwxPeX66CNgizCNojjIppfqhL1OJNQX38YVQx0iHpxfatCFRdLMVkuPJMsp10/
-         Y45HTjbUujTPKxJuwgwVq9d5KoohU+66J7mE9bTY=
+        b=Zay5wGYZBy83h/bsd4bWSeg2oMWa6SwAD780ibkH3ucaI2aVGElvM3NpU54Oj+Kqr
+         iDpNCMpqBn+wGIMpzKzWTWhtB8ontWvUEm2y0P2FtlLCvb6cS5PNMlScr+0Ds+OSNW
+         R0sD3mV/OyAbxAyhWfbJY1/WbEWlX2O8paMgwCeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <zyjzyj2000@gmail.com>,
-        Bob Pearson <rpearsonhpe@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 360/593] RDMA/rxe: Fix qp reference counting for atomic ops
-Date:   Mon, 12 Jul 2021 08:08:40 +0200
-Message-Id: <20210712060926.061006511@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Deren Wu <deren.wu@mediatek.com>,
+        YN Chen <yn.chen@mediatek.com>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 498/800] mt76: mt7921: fix OMAC idx usage
+Date:   Mon, 12 Jul 2021 08:08:41 +0200
+Message-Id: <20210712061020.168465648@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,58 +42,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Pearson <rpearsonhpe@gmail.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 15ae1375ea91ae2dee6f12d71a79d8c0a10a30bf ]
+[ Upstream commit 213f87289ea01514acdbfeed9f65bcb5f12aef70 ]
 
-Currently the rdma_rxe driver attempts to protect atomic responder
-resources by taking a reference to the qp which is only freed when the
-resource is recycled for a new read or atomic operation. This means that
-in normal circumstances there is almost always an extra qp reference once
-an atomic operation has been executed which prevents cleaning up the qp
-and associated pd and cqs when the qp is destroyed.
+OMAC idx have to be same with BSS idx according to firmware usage.
 
-This patch removes the call to rxe_add_ref() in send_atomic_ack() and the
-call to rxe_drop_ref() in free_rd_atomic_resource(). If the qp is
-destroyed while a peer is retrying an atomic op it will cause the
-operation to fail which is acceptable.
-
-Link: https://lore.kernel.org/r/20210604230558.4812-1-rpearsonhpe@gmail.com
-Reported-by: Zhu Yanjun <zyjzyj2000@gmail.com>
-Fixes: 86af61764151 ("IB/rxe: remove unnecessary skb_clone")
-Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: e0f9fdda81bd ("mt76: mt7921: add ieee80211_ops")
+Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Deren Wu <deren.wu@mediatek.com>
+Signed-off-by: YN Chen <yn.chen@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c   | 1 -
- drivers/infiniband/sw/rxe/rxe_resp.c | 2 --
- 2 files changed, 3 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7921/main.c  | 55 +------------------
+ 1 file changed, 1 insertion(+), 54 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 1e716fe7014c..a1b79015e6f2 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -125,7 +125,6 @@ static void free_rd_atomic_resources(struct rxe_qp *qp)
- void free_rd_atomic_resource(struct rxe_qp *qp, struct resp_res *res)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 97a0ef331ac3..bd77a04a15fb 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -223,54 +223,6 @@ static void mt7921_stop(struct ieee80211_hw *hw)
+ 	mt7921_mutex_release(dev);
+ }
+ 
+-static inline int get_free_idx(u32 mask, u8 start, u8 end)
+-{
+-	return ffs(~mask & GENMASK(end, start));
+-}
+-
+-static int get_omac_idx(enum nl80211_iftype type, u64 mask)
+-{
+-	int i;
+-
+-	switch (type) {
+-	case NL80211_IFTYPE_STATION:
+-		/* prefer hw bssid slot 1-3 */
+-		i = get_free_idx(mask, HW_BSSID_1, HW_BSSID_3);
+-		if (i)
+-			return i - 1;
+-
+-		/* next, try to find a free repeater entry for the sta */
+-		i = get_free_idx(mask >> REPEATER_BSSID_START, 0,
+-				 REPEATER_BSSID_MAX - REPEATER_BSSID_START);
+-		if (i)
+-			return i + 32 - 1;
+-
+-		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
+-		if (i)
+-			return i - 1;
+-
+-		if (~mask & BIT(HW_BSSID_0))
+-			return HW_BSSID_0;
+-
+-		break;
+-	case NL80211_IFTYPE_MONITOR:
+-		/* ap uses hw bssid 0 and ext bssid */
+-		if (~mask & BIT(HW_BSSID_0))
+-			return HW_BSSID_0;
+-
+-		i = get_free_idx(mask, EXT_BSSID_1, EXT_BSSID_MAX);
+-		if (i)
+-			return i - 1;
+-
+-		break;
+-	default:
+-		WARN_ON(1);
+-		break;
+-	}
+-
+-	return -1;
+-}
+-
+ static int mt7921_add_interface(struct ieee80211_hw *hw,
+ 				struct ieee80211_vif *vif)
  {
- 	if (res->type == RXE_ATOMIC_MASK) {
--		rxe_drop_ref(qp);
- 		kfree_skb(res->atomic.skb);
- 	} else if (res->type == RXE_READ_MASK) {
- 		if (res->read.mr)
-diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
-index c7e3b6a4af38..83c03212099a 100644
---- a/drivers/infiniband/sw/rxe/rxe_resp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_resp.c
-@@ -966,8 +966,6 @@ static int send_atomic_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
+@@ -292,12 +244,7 @@ static int mt7921_add_interface(struct ieee80211_hw *hw,
  		goto out;
  	}
  
--	rxe_add_ref(qp);
--
- 	res = &qp->resp.resources[qp->resp.res_head];
- 	free_rd_atomic_resource(qp, res);
- 	rxe_advance_resp_resource(qp);
+-	idx = get_omac_idx(vif->type, phy->omac_mask);
+-	if (idx < 0) {
+-		ret = -ENOSPC;
+-		goto out;
+-	}
+-	mvif->mt76.omac_idx = idx;
++	mvif->mt76.omac_idx = mvif->mt76.idx;
+ 	mvif->phy = phy;
+ 	mvif->mt76.band_idx = 0;
+ 	mvif->mt76.wmm_idx = mvif->mt76.idx % MT7921_MAX_WMM_SETS;
 -- 
 2.30.2
 
