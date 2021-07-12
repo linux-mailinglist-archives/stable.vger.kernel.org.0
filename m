@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CE43C4A9A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 723EE3C4F19
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239785AbhGLGxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49190 "EHLO mail.kernel.org"
+        id S240271AbhGLHXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238679AbhGLGtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B62FD611AF;
-        Mon, 12 Jul 2021 06:45:01 +0000 (UTC)
+        id S1344270AbhGLHU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEC80610A6;
+        Mon, 12 Jul 2021 07:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072302;
-        bh=+BaG+O+HH2eqv/ZDX0AipjN2/iaq3ltAmZrXeJnTILw=;
+        s=korg; t=1626074259;
+        bh=6KoDN7G1nIItr6t1KXF5CpdF2gvXacduNVQy/nLheB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mxqp2PZnf4yiQTLGXJ+28Y7d/6K56Ip//72cbKL/GaPe2g10oih9yxNOOuOgFlChh
-         v0zbiZKVdeTYiFBsJaremGMuKGH6ls8MVzy4FRkuNVfsRb/t1ol98ArpTiYsaGlFyE
-         boVaHEvKe37ogxSRjm7V6PDWZ9yyYKz7sQ5aia1g=
+        b=yeo4NPXKrMidV3+YEZScS+W3HnsfUIlwgrdaSEksQbF83uGmdqx0ijU3uKHqL3LZ5
+         jQSMNXpz1nuKm3ZmiSKugW9Se676xwJ4aANTI+SDgEdka8MecM2Kgfhtq4+gTGStM0
+         6FoQZonUWrrv1qWTjYKH+zXa9FffE3aWirzJIbGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 441/593] mwifiex: re-fix for unaligned accesses
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 518/700] MIPS: Fix PKMAP with 32-bit MIPS huge page support
 Date:   Mon, 12 Jul 2021 08:10:01 +0200
-Message-Id: <20210712060937.372889464@linuxfoundation.org>
+Message-Id: <20210712061031.591792545@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Wei Li <liwei391@huawei.com>
 
-[ Upstream commit 8f4e3d48bb50765ab27ae5bebed2595b20de80a1 ]
+[ Upstream commit cf02ce742f09188272bcc8b0e62d789eb671fc4c ]
 
-A patch from 2017 changed some accesses to DMA memory to use
-get_unaligned_le32() and similar interfaces, to avoid problems
-with doing unaligned accesson uncached memory.
+When 32-bit MIPS huge page support is enabled, we halve the number of
+pointers a PTE page holds, making its last half go to waste.
+Correspondingly, we should halve the number of kmap entries, as we just
+initialized only a single pte table for that in pagetable_init().
 
-However, the change in the mwifiex_pcie_alloc_sleep_cookie_buf()
-function ended up changing the size of the access instead,
-as it operates on a pointer to u8.
-
-Change this function back to actually access the entire 32 bits.
-Note that the pointer is aligned by definition because it came
-from dma_alloc_coherent().
-
-Fixes: 92c70a958b0b ("mwifiex: fix for unaligned reads")
-Acked-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 35476311e529 ("MIPS: Add partial 32-bit huge page support")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ arch/mips/include/asm/highmem.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index 33cf952cc01d..b2de8d03c5fa 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -1232,7 +1232,7 @@ static int mwifiex_pcie_delete_cmdrsp_buf(struct mwifiex_adapter *adapter)
- static int mwifiex_pcie_alloc_sleep_cookie_buf(struct mwifiex_adapter *adapter)
- {
- 	struct pcie_service_card *card = adapter->card;
--	u32 tmp;
-+	u32 *cookie;
- 
- 	card->sleep_cookie_vbase = dma_alloc_coherent(&card->dev->dev,
- 						      sizeof(u32),
-@@ -1243,13 +1243,11 @@ static int mwifiex_pcie_alloc_sleep_cookie_buf(struct mwifiex_adapter *adapter)
- 			    "dma_alloc_coherent failed!\n");
- 		return -ENOMEM;
- 	}
-+	cookie = (u32 *)card->sleep_cookie_vbase;
- 	/* Init val of Sleep Cookie */
--	tmp = FW_AWAKE_COOKIE;
--	put_unaligned(tmp, card->sleep_cookie_vbase);
-+	*cookie = FW_AWAKE_COOKIE;
- 
--	mwifiex_dbg(adapter, INFO,
--		    "alloc_scook: sleep cookie=0x%x\n",
--		    get_unaligned(card->sleep_cookie_vbase));
-+	mwifiex_dbg(adapter, INFO, "alloc_scook: sleep cookie=0x%x\n", *cookie);
- 
- 	return 0;
- }
+diff --git a/arch/mips/include/asm/highmem.h b/arch/mips/include/asm/highmem.h
+index 292d0425717f..92a380210017 100644
+--- a/arch/mips/include/asm/highmem.h
++++ b/arch/mips/include/asm/highmem.h
+@@ -36,7 +36,7 @@ extern pte_t *pkmap_page_table;
+  * easily, subsequent pte tables have to be allocated in one physical
+  * chunk of RAM.
+  */
+-#ifdef CONFIG_PHYS_ADDR_T_64BIT
++#if defined(CONFIG_PHYS_ADDR_T_64BIT) || defined(CONFIG_MIPS_HUGE_TLB_SUPPORT)
+ #define LAST_PKMAP 512
+ #else
+ #define LAST_PKMAP 1024
 -- 
 2.30.2
 
