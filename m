@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FE23C4762
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3746E3C4763
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbhGLGcb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234205AbhGLGcb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:32:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235441AbhGLGbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:31:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46439610A6;
-        Mon, 12 Jul 2021 06:28:41 +0000 (UTC)
+        id S235390AbhGLGbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A81D860238;
+        Mon, 12 Jul 2021 06:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071321;
-        bh=7S2R/mPOR7X11lPHouHIe3CG5rgsNHe2WGFykLnsfxs=;
+        s=korg; t=1626071324;
+        bh=Q8zIC4DfpuE/tW58KNmdszUNwi+Rm06OJ2mo6EUUuN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/NjvRB/8AJIt27hKaVPxIBQgeR9wHut5N0fbAFXYEzqmBhH8Ubce1TMYOs4oU5Pk
-         VSCd90i1shUTTR8/dzDYBSXLXSznH2/Rd8uBrV+VBz+0YJnifquJ8m5swGi/ThXa4Q
-         6zWtZOjbHy+8/Pt1Rrl0ikT1t1ih2kOG1vHailBA=
+        b=MTjnr+eF1Ysgwto7S+Z1bHAsYMUgmIg/ZKcg8hkffJ3avXo9FRSXhNrNUJLFyIUHG
+         tRu2kpBqFM3SH7+wcF0UTryuqDjJd6UX2CtpuhkAGzX3GVFR8h7m9ec1n1gnNQMlyq
+         DMD8oWtXYUBvNubLB6z7gH2g1P9mKkW1fWucEA8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Szymon Janc <szymon.janc@codecoup.pl>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.10 003/593] Bluetooth: Remove spurious error message
-Date:   Mon, 12 Jul 2021 08:02:43 +0200
-Message-Id: <20210712060843.549129271@linuxfoundation.org>
+        stable@vger.kernel.org, Daehwan Jung <dh10.jung@samsung.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 004/593] ALSA: usb-audio: fix rate on Ozone Z90 USB headset
+Date:   Mon, 12 Jul 2021 08:02:44 +0200
+Message-Id: <20210712060843.651504096@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,91 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Janc <szymon.janc@codecoup.pl>
+From: Daehwan Jung <dh10.jung@samsung.com>
 
-commit 1c58e933aba23f68c0d3f192f7cc6eed8fabd694 upstream.
+commit aecc19ec404bdc745c781058ac97a373731c3089 upstream.
 
-Even with rate limited reporting this is very spammy and since
-it is remote device that is providing bogus data there is no
-need to report this as error.
+It mislabels its 96 kHz altsetting and that's why it causes some noise
 
-Since real_len variable was used only to allow conditional error
-message it is now also removed.
-
-[72454.143336] bt_err_ratelimited: 10 callbacks suppressed
-[72454.143337] Bluetooth: hci0: advertising data len corrected
-[72454.296314] Bluetooth: hci0: advertising data len corrected
-[72454.892329] Bluetooth: hci0: advertising data len corrected
-[72455.051319] Bluetooth: hci0: advertising data len corrected
-[72455.357326] Bluetooth: hci0: advertising data len corrected
-[72455.663295] Bluetooth: hci0: advertising data len corrected
-[72455.787278] Bluetooth: hci0: advertising data len corrected
-[72455.942278] Bluetooth: hci0: advertising data len corrected
-[72456.094276] Bluetooth: hci0: advertising data len corrected
-[72456.249137] Bluetooth: hci0: advertising data len corrected
-[72459.416333] bt_err_ratelimited: 13 callbacks suppressed
-[72459.416334] Bluetooth: hci0: advertising data len corrected
-[72459.721334] Bluetooth: hci0: advertising data len corrected
-[72460.011317] Bluetooth: hci0: advertising data len corrected
-[72460.327171] Bluetooth: hci0: advertising data len corrected
-[72460.638294] Bluetooth: hci0: advertising data len corrected
-[72460.946350] Bluetooth: hci0: advertising data len corrected
-[72461.225320] Bluetooth: hci0: advertising data len corrected
-[72461.690322] Bluetooth: hci0: advertising data len corrected
-[72462.118318] Bluetooth: hci0: advertising data len corrected
-[72462.427319] Bluetooth: hci0: advertising data len corrected
-[72464.546319] bt_err_ratelimited: 7 callbacks suppressed
-[72464.546319] Bluetooth: hci0: advertising data len corrected
-[72464.857318] Bluetooth: hci0: advertising data len corrected
-[72465.163332] Bluetooth: hci0: advertising data len corrected
-[72465.278331] Bluetooth: hci0: advertising data len corrected
-[72465.432323] Bluetooth: hci0: advertising data len corrected
-[72465.891334] Bluetooth: hci0: advertising data len corrected
-[72466.045334] Bluetooth: hci0: advertising data len corrected
-[72466.197321] Bluetooth: hci0: advertising data len corrected
-[72466.340318] Bluetooth: hci0: advertising data len corrected
-[72466.498335] Bluetooth: hci0: advertising data len corrected
-[72469.803299] bt_err_ratelimited: 10 callbacks suppressed
-
-Signed-off-by: Szymon Janc <szymon.janc@codecoup.pl>
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=203753
-Cc: stable@vger.kernel.org
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1623836097-61918-1-git-send-email-dh10.jung@samsung.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/bluetooth/hci_event.c |   14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ sound/usb/format.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5401,7 +5401,7 @@ static void process_adv_report(struct hc
- 	struct hci_conn *conn;
- 	bool match;
- 	u32 flags;
--	u8 *ptr, real_len;
-+	u8 *ptr;
- 
- 	switch (type) {
- 	case LE_ADV_IND:
-@@ -5432,14 +5432,10 @@ static void process_adv_report(struct hc
- 			break;
- 	}
- 
--	real_len = ptr - data;
--
--	/* Adjust for actual length */
--	if (len != real_len) {
--		bt_dev_err_ratelimited(hdev, "advertising data len corrected %u -> %u",
--				       len, real_len);
--		len = real_len;
--	}
-+	/* Adjust for actual length. This handles the case when remote
-+	 * device is advertising with incorrect data length.
-+	 */
-+	len = ptr - data;
- 
- 	/* If the direct address is present, then this report is from
- 	 * a LE Direct Advertising Report event. In that case it is
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -208,9 +208,11 @@ static int parse_audio_format_rates_v1(s
+ 				continue;
+ 			/* C-Media CM6501 mislabels its 96 kHz altsetting */
+ 			/* Terratec Aureon 7.1 USB C-Media 6206, too */
++			/* Ozone Z90 USB C-Media, too */
+ 			if (rate == 48000 && nr_rates == 1 &&
+ 			    (chip->usb_id == USB_ID(0x0d8c, 0x0201) ||
+ 			     chip->usb_id == USB_ID(0x0d8c, 0x0102) ||
++			     chip->usb_id == USB_ID(0x0d8c, 0x0078) ||
+ 			     chip->usb_id == USB_ID(0x0ccd, 0x00b1)) &&
+ 			    fp->altsetting == 5 && fp->maxpacksize == 392)
+ 				rate = 96000;
 
 
