@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B926B3C4F8F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D89D3C5535
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243726AbhGLH0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34180 "EHLO mail.kernel.org"
+        id S1355404AbhGLIJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343577AbhGLHYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:24:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C57AA613FC;
-        Mon, 12 Jul 2021 07:21:07 +0000 (UTC)
+        id S1353292AbhGLIBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D239A61C60;
+        Mon, 12 Jul 2021 07:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074468;
-        bh=jBd8K/LtS279RBWv70A3r2yW/e/MMspYC7ufWmjs2oI=;
+        s=korg; t=1626076464;
+        bh=kuRrX1MUViblMIKwP9n3Eom3QwTmuiW3slBjQxbYPpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJkP+BPdgzr9/ggfrhOG5o6GVIaNED2kSF+NZabeVNGw5rQPWETtMKOpBSOOaoLNs
-         CrYYFUwy4a5Bew5GUZrkGxUwNRS6eeBmNucSfFklnLrsNieV8XSPWpK+EUDl4objYi
-         wENZa3kKgOWzLxaQSOa0Dk/DCQUCqtEDhT03zkb0=
+        b=kOy1M9/A/YBhJT5OPjEmZAcDChqmE2KtOMpLgfUp6aX8zziD88T1Itr0vRsRde9fi
+         Q9knHOf+El2pKXxVAg+4QFdx7XOCVdbb2r8V6yfH7uNOG9Q6c+XmzNEApZzMinUUUu
+         86wHrBRjAb1wv4OiWRMvQig8KwiRU/Z4Cm3phTg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Monakov <amonakov@ispras.ru>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Joerg Roedel <jroedel@suse.de>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        iommu@lists.linux-foundation.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 591/700] iommu/amd: Fix extended features logging
-Date:   Mon, 12 Jul 2021 08:11:14 +0200
-Message-Id: <20210712061038.853801729@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 652/800] firmware: stratix10-svc: Fix a resource leak in an error handling path
+Date:   Mon, 12 Jul 2021 08:11:15 +0200
+Message-Id: <20210712061036.361057727@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Monakov <amonakov@ispras.ru>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 4b21a503adf597773e4b37db05db0e9b16a81d53 ]
+[ Upstream commit d99247f9b542533ddbf87a3481a05473b8e48194 ]
 
-print_iommu_info prints the EFR register and then the decoded list of
-features on a separate line:
+If an error occurs after a successful 'kfifo_alloc()' call, it must be
+undone by a corresponding 'kfifo_free()' call, as already done in the
+remove function.
 
-pci 0000:00:00.2: AMD-Vi: Extended features (0x206d73ef22254ade):
- PPR X2APIC NX GT IA GA PC GA_vAPIC
+While at it, move the 'platform_device_put()' call to this new error
+handling path and explicitly return 0 in the success path.
 
-The second line is emitted via 'pr_cont', which causes it to have a
-different ('warn') loglevel compared to the previous line ('info').
-
-Commit 9a295ff0ffc9 attempted to rectify this by removing the newline
-from the pci_info format string, but this doesn't work, as pci_info
-calls implicitly append a newline anyway.
-
-Printing the decoded features on the same line would make it quite long.
-Instead, change pci_info() to pr_info() to omit PCI bus location info,
-which is also shown in the preceding message. This results in:
-
-pci 0000:00:00.2: AMD-Vi: Found IOMMU cap 0x40
-AMD-Vi: Extended features (0x206d73ef22254ade): PPR X2APIC NX GT IA GA PC GA_vAPIC
-AMD-Vi: Interrupt remapping enabled
-
-Fixes: 9a295ff0ffc9 ("iommu/amd: Print extended features in one line to fix divergent log levels")
-Link: https://lore.kernel.org/lkml/alpine.LNX.2.20.13.2104112326460.11104@monopod.intra.ispras.ru
-Signed-off-by: Alexander Monakov <amonakov@ispras.ru>
-Cc: Paul Menzel <pmenzel@molgen.mpg.de>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: iommu@lists.linux-foundation.org
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Link: https://lore.kernel.org/r/20210504102220.1793-1-amonakov@ispras.ru
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: b5dc75c915cd ("firmware: stratix10-svc: extend svc to support new RSU features")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0ca3f3ab139c53e846804455a1e7599ee8ae896a.1621621271.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/init.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/stratix10-svc.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index df7b19ff0a9e..ecc7308130ba 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -1911,8 +1911,8 @@ static void print_iommu_info(void)
- 		pci_info(pdev, "Found IOMMU cap 0x%x\n", iommu->cap_ptr);
+diff --git a/drivers/firmware/stratix10-svc.c b/drivers/firmware/stratix10-svc.c
+index 3aa489dba30a..2a7687911c09 100644
+--- a/drivers/firmware/stratix10-svc.c
++++ b/drivers/firmware/stratix10-svc.c
+@@ -1034,24 +1034,32 @@ static int stratix10_svc_drv_probe(struct platform_device *pdev)
  
- 		if (iommu->cap & (1 << IOMMU_CAP_EFR)) {
--			pci_info(pdev, "Extended features (%#llx):",
--				 iommu->features);
-+			pr_info("Extended features (%#llx):", iommu->features);
+ 	/* add svc client device(s) */
+ 	svc = devm_kzalloc(dev, sizeof(*svc), GFP_KERNEL);
+-	if (!svc)
+-		return -ENOMEM;
++	if (!svc) {
++		ret = -ENOMEM;
++		goto err_free_kfifo;
++	}
+ 
+ 	svc->stratix10_svc_rsu = platform_device_alloc(STRATIX10_RSU, 0);
+ 	if (!svc->stratix10_svc_rsu) {
+ 		dev_err(dev, "failed to allocate %s device\n", STRATIX10_RSU);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto err_free_kfifo;
+ 	}
+ 
+ 	ret = platform_device_add(svc->stratix10_svc_rsu);
+-	if (ret) {
+-		platform_device_put(svc->stratix10_svc_rsu);
+-		return ret;
+-	}
++	if (ret)
++		goto err_put_device;
 +
- 			for (i = 0; i < ARRAY_SIZE(feat_str); ++i) {
- 				if (iommu_feature(iommu, (1ULL << i)))
- 					pr_cont(" %s", feat_str[i]);
+ 	dev_set_drvdata(dev, svc);
+ 
+ 	pr_info("Intel Service Layer Driver Initialized\n");
+ 
++	return 0;
++
++err_put_device:
++	platform_device_put(svc->stratix10_svc_rsu);
++err_free_kfifo:
++	kfifo_free(&controller->svc_fifo);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
