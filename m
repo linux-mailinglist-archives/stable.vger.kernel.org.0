@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE3B53C5529
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E32A3C4A88
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355365AbhGLIJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56498 "EHLO mail.kernel.org"
+        id S239337AbhGLGws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353047AbhGLIBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:01:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03512611AD;
-        Mon, 12 Jul 2021 07:54:01 +0000 (UTC)
+        id S240074AbhGLGup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:50:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9818F610CD;
+        Mon, 12 Jul 2021 06:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076442;
-        bh=IWatYX+5/7/gwbWNAuRr/xhUqO9mNszWrBIhwu17ff0=;
+        s=korg; t=1626072471;
+        bh=CTyWB9QGIlHAP5vMGcvJDJzBqgMb6VV7ylxgstjsmxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxmwSAONIymSi7oCgjIaXirsXcxSaEeOXV5HaTQhjrHSaW0VBrs7+nAq5sTUCkodJ
-         LZlbfAfvUtq9p1CwBzIMaPZ8rRBpPrzSFTjKdtqsMR7aFralHmaOAbA/WpzSf85Mkj
-         hJ3084g2BbCbZaan+vdnQgQ+UdIcExF2+QOz3SQU=
+        b=bvm8CbnC45PqT11M84lR6QTPBbAhGVU9a/VgMBjMj9VngUr1WHIy7SpzipLuDEyQw
+         AQCrFUY7Poj850iw7o9t5bjkSRWncHZXNLQUqpz4xXImqJUc1TYJkxHT/mkYM/ZDuh
+         WibgBMOOL1yoQqJw7my75rq3WTkJjMZgOv4qpbZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Shuming Fan <shumingf@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 644/800] perf scripting python: Fix tuple_set_u64()
+Subject: [PATCH 5.10 507/593] ASoC: rt5682: fix getting the wrong device id when the suspend_stress_test
 Date:   Mon, 12 Jul 2021 08:11:07 +0200
-Message-Id: <20210712061035.584217169@linuxfoundation.org>
+Message-Id: <20210712060947.566638948@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,279 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Shuming Fan <shumingf@realtek.com>
 
-[ Upstream commit d04c1ff0b3ddd5c0fbbe640996c8eaad279ed1c5 ]
+[ Upstream commit 867f8d18df4f5ccd6c2daf4441a6adeca0b9725b ]
 
-tuple_set_u64() produces a signed value instead of an unsigned value.
-That works for database export but not other cases. Rename to
-tuple_set_d64() for database export and fix tuple_set_u64().
+This patch will be the workaround to fix getting the wrong device ID on the rare chance.
+It seems like something unstable when the system resumes. e.g. the bus clock
+This patch tries to read the device ID to check several times.
+After the test, the driver will get the correct device ID the second time.
 
-Fixes: df919b400ad3f ("perf scripting python: Extend interface to export data in a database-friendly way")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Link: https://lore.kernel.org/r/20210525095112.1399-2-adrian.hunter@intel.com
+Signed-off-by: Shuming Fan <shumingf@realtek.com>
+Link: https://lore.kernel.org/r/20210111092740.9128-1-shumingf@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../scripting-engines/trace-event-python.c    | 146 ++++++++++--------
- 1 file changed, 81 insertions(+), 65 deletions(-)
+ sound/soc/codecs/rt5682-sdw.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/tools/perf/util/scripting-engines/trace-event-python.c b/tools/perf/util/scripting-engines/trace-event-python.c
-index 4e4aa4c97ac5..3dfc543327af 100644
---- a/tools/perf/util/scripting-engines/trace-event-python.c
-+++ b/tools/perf/util/scripting-engines/trace-event-python.c
-@@ -934,7 +934,7 @@ static PyObject *tuple_new(unsigned int sz)
- 	return t;
- }
- 
--static int tuple_set_u64(PyObject *t, unsigned int pos, u64 val)
-+static int tuple_set_s64(PyObject *t, unsigned int pos, s64 val)
+diff --git a/sound/soc/codecs/rt5682-sdw.c b/sound/soc/codecs/rt5682-sdw.c
+index 848b79b5a130..5f8867e00923 100644
+--- a/sound/soc/codecs/rt5682-sdw.c
++++ b/sound/soc/codecs/rt5682-sdw.c
+@@ -375,18 +375,12 @@ static int rt5682_sdw_init(struct device *dev, struct regmap *regmap,
+ static int rt5682_io_init(struct device *dev, struct sdw_slave *slave)
  {
- #if BITS_PER_LONG == 64
- 	return PyTuple_SetItem(t, pos, _PyLong_FromLong(val));
-@@ -944,6 +944,22 @@ static int tuple_set_u64(PyObject *t, unsigned int pos, u64 val)
- #endif
- }
+ 	struct rt5682_priv *rt5682 = dev_get_drvdata(dev);
+-	int ret = 0;
++	int ret = 0, loop = 10;
+ 	unsigned int val;
  
-+/*
-+ * Databases support only signed 64-bit numbers, so even though we are
-+ * exporting a u64, it must be as s64.
-+ */
-+#define tuple_set_d64 tuple_set_s64
+ 	if (rt5682->hw_init)
+ 		return 0;
+ 
+-	regmap_read(rt5682->regmap, RT5682_DEVICE_ID, &val);
+-	if (val != DEVICE_ID) {
+-		dev_err(dev, "Device with ID register %x is not rt5682\n", val);
+-		return -ENODEV;
+-	}
+-
+ 	/*
+ 	 * PM runtime is only enabled when a Slave reports as Attached
+ 	 */
+@@ -406,6 +400,19 @@ static int rt5682_io_init(struct device *dev, struct sdw_slave *slave)
+ 
+ 	pm_runtime_get_noresume(&slave->dev);
+ 
++	while (loop > 0) {
++		regmap_read(rt5682->regmap, RT5682_DEVICE_ID, &val);
++		if (val == DEVICE_ID)
++			break;
++		dev_warn(dev, "Device with ID register %x is not rt5682\n", val);
++		usleep_range(30000, 30005);
++		loop--;
++	}
++	if (val != DEVICE_ID) {
++		dev_err(dev, "Device with ID register %x is not rt5682\n", val);
++		return -ENODEV;
++	}
 +
-+static int tuple_set_u64(PyObject *t, unsigned int pos, u64 val)
-+{
-+#if BITS_PER_LONG == 64
-+	return PyTuple_SetItem(t, pos, PyLong_FromUnsignedLong(val));
-+#endif
-+#if BITS_PER_LONG == 32
-+	return PyTuple_SetItem(t, pos, PyLong_FromUnsignedLongLong(val));
-+#endif
-+}
-+
- static int tuple_set_s32(PyObject *t, unsigned int pos, s32 val)
- {
- 	return PyTuple_SetItem(t, pos, _PyLong_FromLong(val));
-@@ -967,7 +983,7 @@ static int python_export_evsel(struct db_export *dbe, struct evsel *evsel)
- 
- 	t = tuple_new(2);
- 
--	tuple_set_u64(t, 0, evsel->db_id);
-+	tuple_set_d64(t, 0, evsel->db_id);
- 	tuple_set_string(t, 1, evsel__name(evsel));
- 
- 	call_object(tables->evsel_handler, t, "evsel_table");
-@@ -985,7 +1001,7 @@ static int python_export_machine(struct db_export *dbe,
- 
- 	t = tuple_new(3);
- 
--	tuple_set_u64(t, 0, machine->db_id);
-+	tuple_set_d64(t, 0, machine->db_id);
- 	tuple_set_s32(t, 1, machine->pid);
- 	tuple_set_string(t, 2, machine->root_dir ? machine->root_dir : "");
- 
-@@ -1004,9 +1020,9 @@ static int python_export_thread(struct db_export *dbe, struct thread *thread,
- 
- 	t = tuple_new(5);
- 
--	tuple_set_u64(t, 0, thread->db_id);
--	tuple_set_u64(t, 1, machine->db_id);
--	tuple_set_u64(t, 2, main_thread_db_id);
-+	tuple_set_d64(t, 0, thread->db_id);
-+	tuple_set_d64(t, 1, machine->db_id);
-+	tuple_set_d64(t, 2, main_thread_db_id);
- 	tuple_set_s32(t, 3, thread->pid_);
- 	tuple_set_s32(t, 4, thread->tid);
- 
-@@ -1025,10 +1041,10 @@ static int python_export_comm(struct db_export *dbe, struct comm *comm,
- 
- 	t = tuple_new(5);
- 
--	tuple_set_u64(t, 0, comm->db_id);
-+	tuple_set_d64(t, 0, comm->db_id);
- 	tuple_set_string(t, 1, comm__str(comm));
--	tuple_set_u64(t, 2, thread->db_id);
--	tuple_set_u64(t, 3, comm->start);
-+	tuple_set_d64(t, 2, thread->db_id);
-+	tuple_set_d64(t, 3, comm->start);
- 	tuple_set_s32(t, 4, comm->exec);
- 
- 	call_object(tables->comm_handler, t, "comm_table");
-@@ -1046,9 +1062,9 @@ static int python_export_comm_thread(struct db_export *dbe, u64 db_id,
- 
- 	t = tuple_new(3);
- 
--	tuple_set_u64(t, 0, db_id);
--	tuple_set_u64(t, 1, comm->db_id);
--	tuple_set_u64(t, 2, thread->db_id);
-+	tuple_set_d64(t, 0, db_id);
-+	tuple_set_d64(t, 1, comm->db_id);
-+	tuple_set_d64(t, 2, thread->db_id);
- 
- 	call_object(tables->comm_thread_handler, t, "comm_thread_table");
- 
-@@ -1068,8 +1084,8 @@ static int python_export_dso(struct db_export *dbe, struct dso *dso,
- 
- 	t = tuple_new(5);
- 
--	tuple_set_u64(t, 0, dso->db_id);
--	tuple_set_u64(t, 1, machine->db_id);
-+	tuple_set_d64(t, 0, dso->db_id);
-+	tuple_set_d64(t, 1, machine->db_id);
- 	tuple_set_string(t, 2, dso->short_name);
- 	tuple_set_string(t, 3, dso->long_name);
- 	tuple_set_string(t, 4, sbuild_id);
-@@ -1090,10 +1106,10 @@ static int python_export_symbol(struct db_export *dbe, struct symbol *sym,
- 
- 	t = tuple_new(6);
- 
--	tuple_set_u64(t, 0, *sym_db_id);
--	tuple_set_u64(t, 1, dso->db_id);
--	tuple_set_u64(t, 2, sym->start);
--	tuple_set_u64(t, 3, sym->end);
-+	tuple_set_d64(t, 0, *sym_db_id);
-+	tuple_set_d64(t, 1, dso->db_id);
-+	tuple_set_d64(t, 2, sym->start);
-+	tuple_set_d64(t, 3, sym->end);
- 	tuple_set_s32(t, 4, sym->binding);
- 	tuple_set_string(t, 5, sym->name);
- 
-@@ -1130,30 +1146,30 @@ static void python_export_sample_table(struct db_export *dbe,
- 
- 	t = tuple_new(24);
- 
--	tuple_set_u64(t, 0, es->db_id);
--	tuple_set_u64(t, 1, es->evsel->db_id);
--	tuple_set_u64(t, 2, es->al->maps->machine->db_id);
--	tuple_set_u64(t, 3, es->al->thread->db_id);
--	tuple_set_u64(t, 4, es->comm_db_id);
--	tuple_set_u64(t, 5, es->dso_db_id);
--	tuple_set_u64(t, 6, es->sym_db_id);
--	tuple_set_u64(t, 7, es->offset);
--	tuple_set_u64(t, 8, es->sample->ip);
--	tuple_set_u64(t, 9, es->sample->time);
-+	tuple_set_d64(t, 0, es->db_id);
-+	tuple_set_d64(t, 1, es->evsel->db_id);
-+	tuple_set_d64(t, 2, es->al->maps->machine->db_id);
-+	tuple_set_d64(t, 3, es->al->thread->db_id);
-+	tuple_set_d64(t, 4, es->comm_db_id);
-+	tuple_set_d64(t, 5, es->dso_db_id);
-+	tuple_set_d64(t, 6, es->sym_db_id);
-+	tuple_set_d64(t, 7, es->offset);
-+	tuple_set_d64(t, 8, es->sample->ip);
-+	tuple_set_d64(t, 9, es->sample->time);
- 	tuple_set_s32(t, 10, es->sample->cpu);
--	tuple_set_u64(t, 11, es->addr_dso_db_id);
--	tuple_set_u64(t, 12, es->addr_sym_db_id);
--	tuple_set_u64(t, 13, es->addr_offset);
--	tuple_set_u64(t, 14, es->sample->addr);
--	tuple_set_u64(t, 15, es->sample->period);
--	tuple_set_u64(t, 16, es->sample->weight);
--	tuple_set_u64(t, 17, es->sample->transaction);
--	tuple_set_u64(t, 18, es->sample->data_src);
-+	tuple_set_d64(t, 11, es->addr_dso_db_id);
-+	tuple_set_d64(t, 12, es->addr_sym_db_id);
-+	tuple_set_d64(t, 13, es->addr_offset);
-+	tuple_set_d64(t, 14, es->sample->addr);
-+	tuple_set_d64(t, 15, es->sample->period);
-+	tuple_set_d64(t, 16, es->sample->weight);
-+	tuple_set_d64(t, 17, es->sample->transaction);
-+	tuple_set_d64(t, 18, es->sample->data_src);
- 	tuple_set_s32(t, 19, es->sample->flags & PERF_BRANCH_MASK);
- 	tuple_set_s32(t, 20, !!(es->sample->flags & PERF_IP_FLAG_IN_TX));
--	tuple_set_u64(t, 21, es->call_path_id);
--	tuple_set_u64(t, 22, es->sample->insn_cnt);
--	tuple_set_u64(t, 23, es->sample->cyc_cnt);
-+	tuple_set_d64(t, 21, es->call_path_id);
-+	tuple_set_d64(t, 22, es->sample->insn_cnt);
-+	tuple_set_d64(t, 23, es->sample->cyc_cnt);
- 
- 	call_object(tables->sample_handler, t, "sample_table");
- 
-@@ -1167,8 +1183,8 @@ static void python_export_synth(struct db_export *dbe, struct export_sample *es)
- 
- 	t = tuple_new(3);
- 
--	tuple_set_u64(t, 0, es->db_id);
--	tuple_set_u64(t, 1, es->evsel->core.attr.config);
-+	tuple_set_d64(t, 0, es->db_id);
-+	tuple_set_d64(t, 1, es->evsel->core.attr.config);
- 	tuple_set_bytes(t, 2, es->sample->raw_data, es->sample->raw_size);
- 
- 	call_object(tables->synth_handler, t, "synth_data");
-@@ -1200,10 +1216,10 @@ static int python_export_call_path(struct db_export *dbe, struct call_path *cp)
- 
- 	t = tuple_new(4);
- 
--	tuple_set_u64(t, 0, cp->db_id);
--	tuple_set_u64(t, 1, parent_db_id);
--	tuple_set_u64(t, 2, sym_db_id);
--	tuple_set_u64(t, 3, cp->ip);
-+	tuple_set_d64(t, 0, cp->db_id);
-+	tuple_set_d64(t, 1, parent_db_id);
-+	tuple_set_d64(t, 2, sym_db_id);
-+	tuple_set_d64(t, 3, cp->ip);
- 
- 	call_object(tables->call_path_handler, t, "call_path_table");
- 
-@@ -1221,20 +1237,20 @@ static int python_export_call_return(struct db_export *dbe,
- 
- 	t = tuple_new(14);
- 
--	tuple_set_u64(t, 0, cr->db_id);
--	tuple_set_u64(t, 1, cr->thread->db_id);
--	tuple_set_u64(t, 2, comm_db_id);
--	tuple_set_u64(t, 3, cr->cp->db_id);
--	tuple_set_u64(t, 4, cr->call_time);
--	tuple_set_u64(t, 5, cr->return_time);
--	tuple_set_u64(t, 6, cr->branch_count);
--	tuple_set_u64(t, 7, cr->call_ref);
--	tuple_set_u64(t, 8, cr->return_ref);
--	tuple_set_u64(t, 9, cr->cp->parent->db_id);
-+	tuple_set_d64(t, 0, cr->db_id);
-+	tuple_set_d64(t, 1, cr->thread->db_id);
-+	tuple_set_d64(t, 2, comm_db_id);
-+	tuple_set_d64(t, 3, cr->cp->db_id);
-+	tuple_set_d64(t, 4, cr->call_time);
-+	tuple_set_d64(t, 5, cr->return_time);
-+	tuple_set_d64(t, 6, cr->branch_count);
-+	tuple_set_d64(t, 7, cr->call_ref);
-+	tuple_set_d64(t, 8, cr->return_ref);
-+	tuple_set_d64(t, 9, cr->cp->parent->db_id);
- 	tuple_set_s32(t, 10, cr->flags);
--	tuple_set_u64(t, 11, cr->parent_db_id);
--	tuple_set_u64(t, 12, cr->insn_count);
--	tuple_set_u64(t, 13, cr->cyc_count);
-+	tuple_set_d64(t, 11, cr->parent_db_id);
-+	tuple_set_d64(t, 12, cr->insn_count);
-+	tuple_set_d64(t, 13, cr->cyc_count);
- 
- 	call_object(tables->call_return_handler, t, "call_return_table");
- 
-@@ -1254,14 +1270,14 @@ static int python_export_context_switch(struct db_export *dbe, u64 db_id,
- 
- 	t = tuple_new(9);
- 
--	tuple_set_u64(t, 0, db_id);
--	tuple_set_u64(t, 1, machine->db_id);
--	tuple_set_u64(t, 2, sample->time);
-+	tuple_set_d64(t, 0, db_id);
-+	tuple_set_d64(t, 1, machine->db_id);
-+	tuple_set_d64(t, 2, sample->time);
- 	tuple_set_s32(t, 3, sample->cpu);
--	tuple_set_u64(t, 4, th_out_id);
--	tuple_set_u64(t, 5, comm_out_id);
--	tuple_set_u64(t, 6, th_in_id);
--	tuple_set_u64(t, 7, comm_in_id);
-+	tuple_set_d64(t, 4, th_out_id);
-+	tuple_set_d64(t, 5, comm_out_id);
-+	tuple_set_d64(t, 6, th_in_id);
-+	tuple_set_d64(t, 7, comm_in_id);
- 	tuple_set_s32(t, 8, flags);
- 
- 	call_object(tables->context_switch_handler, t, "context_switch");
+ 	if (rt5682->first_hw_init) {
+ 		regcache_cache_only(rt5682->regmap, false);
+ 		regcache_cache_bypass(rt5682->regmap, true);
 -- 
 2.30.2
 
