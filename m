@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4974C3C4995
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E73583C53A5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236072AbhGLGp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36944 "EHLO mail.kernel.org"
+        id S1348354AbhGLHzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238733AbhGLGoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC445611AF;
-        Mon, 12 Jul 2021 06:39:56 +0000 (UTC)
+        id S1350572AbhGLHvK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4388D611AC;
+        Mon, 12 Jul 2021 07:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071997;
-        bh=zyfh1XtR0ONsG//v+CK6t5EH1+y76L+PvkwBHzOQGGY=;
+        s=korg; t=1626075980;
+        bh=Teb3dnRvIWvnA7vSgfo+/9Y4c4Ws69bBcwaleKYUrnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GFiBxvghssPPNr0yiqAchJx7sMTNtL2SouTEO1leY4VurCbJserJmOHXVGOPWoNhT
-         jkb8x9hATz1o0xJxTSZekDnxUVQ06rcfzm9F7mgVamebk8v81FCfEMxLbPeymA3xk1
-         6uJTCgMxs7pjLQa40vGlaBXqffn6Ihy8yuFYMlHI=
+        b=bJfW6O3ri2TaDbEBiEL85kTjRMFxtLUV+UTFX2JI2+BfJlHZ/lKuQvhPijenZ2fGv
+         wrxtjJ/W0F548vv6dkpu1ftPILNr7fIGYXz5L0h6tYG879ZsdqY3lXj/lR33nTFSZZ
+         OaNKaO875PDxxi4yIBWLoYNMnU0ImR2BiH3cUrds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        Charmaine Lee <charmainel@vmware.com>,
-        Roland Scheidegger <sroland@vmware.com>,
-        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 310/593] drm/vmwgfx: Fix cpu updates of coherent multisample surfaces
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 447/800] drm/vc4: hdmi: Fix error path of hpd-gpios
 Date:   Mon, 12 Jul 2021 08:07:50 +0200
-Message-Id: <20210712060919.316415192@linuxfoundation.org>
+Message-Id: <20210712061014.678270063@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,107 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 88509f698c4e38e287e016e86a0445547824135c ]
+[ Upstream commit e075a7811977ff51c917a65ed1896e08231d2615 ]
 
-In cases where the dirty linear memory range spans multiple sample sheets
-in a surface, the dirty surface region is incorrectly computed.
-To do this correctly and in an optimized fashion  we would have to compute
-the dirty region of each sample sheet and compute the union of those
-regions.
+If the of_get_named_gpio_flags call fails in vc4_hdmi_bind, we jump to
+the err_unprepare_hsm label. That label will then call
+pm_runtime_disable and put_device on the DDC device.
 
-But assuming that cpu writing to a multisample surface is rather a corner
-case than a common case, just set the dirty region to the full surface.
+We just retrieved the DDC device, so the latter is definitely justified.
+However at that point we still haven't called pm_runtime_enable, so the
+call to pm_runtime_disable is not supposed to be there.
 
-This fixes OpenGL piglit errors with SVGA_FORCE_COHERENT=1
-and the piglit test:
-
-fbo-depthstencil blit default_fb -samples=2 -auto
-
-Fixes: 9ca7d19ff8ba ("drm/vmwgfx: Add surface dirty-tracking callbacks")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Charmaine Lee <charmainel@vmware.com>
-Reviewed-by: Roland Scheidegger <sroland@vmware.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210505035740.286923-4-zackr@vmware.com
+Fixes: 10ee275cb12f ("drm/vc4: prepare for CEC support")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210524131852.263883-1-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/vmwgfx/device_include/svga3d_surfacedefs.h  |  8 ++++++--
- drivers/gpu/drm/vmwgfx/vmwgfx_surface.c             | 13 +++++++++++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
-index 4db25bd9fa22..127eaf0a0a58 100644
---- a/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
-+++ b/drivers/gpu/drm/vmwgfx/device_include/svga3d_surfacedefs.h
-@@ -1467,6 +1467,7 @@ struct svga3dsurface_cache {
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 8106b5634fe1..e94730beb15b 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -2000,7 +2000,7 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
+ 							     &hpd_gpio_flags);
+ 		if (vc4_hdmi->hpd_gpio < 0) {
+ 			ret = vc4_hdmi->hpd_gpio;
+-			goto err_unprepare_hsm;
++			goto err_put_ddc;
+ 		}
  
- /**
-  * struct svga3dsurface_loc - Surface location
-+ * @sheet: The multisample sheet.
-  * @sub_resource: Surface subresource. Defined as layer * num_mip_levels +
-  * mip_level.
-  * @x: X coordinate.
-@@ -1474,6 +1475,7 @@ struct svga3dsurface_cache {
-  * @z: Z coordinate.
-  */
- struct svga3dsurface_loc {
-+	u32 sheet;
- 	u32 sub_resource;
- 	u32 x, y, z;
- };
-@@ -1566,8 +1568,8 @@ svga3dsurface_get_loc(const struct svga3dsurface_cache *cache,
- 	u32 layer;
- 	int i;
+ 		vc4_hdmi->hpd_active_low = hpd_gpio_flags & OF_GPIO_ACTIVE_LOW;
+@@ -2041,8 +2041,8 @@ err_destroy_conn:
+ 	vc4_hdmi_connector_destroy(&vc4_hdmi->connector);
+ err_destroy_encoder:
+ 	drm_encoder_cleanup(encoder);
+-err_unprepare_hsm:
+ 	pm_runtime_disable(dev);
++err_put_ddc:
+ 	put_device(&vc4_hdmi->ddc->dev);
  
--	if (offset >= cache->sheet_bytes)
--		offset %= cache->sheet_bytes;
-+	loc->sheet = offset / cache->sheet_bytes;
-+	offset -= loc->sheet * cache->sheet_bytes;
- 
- 	layer = offset / cache->mip_chain_bytes;
- 	offset -= layer * cache->mip_chain_bytes;
-@@ -1631,6 +1633,7 @@ svga3dsurface_min_loc(const struct svga3dsurface_cache *cache,
- 		      u32 sub_resource,
- 		      struct svga3dsurface_loc *loc)
- {
-+	loc->sheet = 0;
- 	loc->sub_resource = sub_resource;
- 	loc->x = loc->y = loc->z = 0;
- }
-@@ -1652,6 +1655,7 @@ svga3dsurface_max_loc(const struct svga3dsurface_cache *cache,
- 	const struct drm_vmw_size *size;
- 	u32 mip;
- 
-+	loc->sheet = 0;
- 	loc->sub_resource = sub_resource + 1;
- 	mip = sub_resource % cache->num_mip_levels;
- 	size = &cache->mip[mip].size;
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-index 3914bfee0533..f493b20c7a38 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-@@ -1802,6 +1802,19 @@ static void vmw_surface_tex_dirty_range_add(struct vmw_resource *res,
- 	svga3dsurface_get_loc(cache, &loc2, end - 1);
- 	svga3dsurface_inc_loc(cache, &loc2);
- 
-+	if (loc1.sheet != loc2.sheet) {
-+		u32 sub_res;
-+
-+		/*
-+		 * Multiple multisample sheets. To do this in an optimized
-+		 * fashion, compute the dirty region for each sheet and the
-+		 * resulting union. Since this is not a common case, just dirty
-+		 * the whole surface.
-+		 */
-+		for (sub_res = 0; sub_res < dirty->num_subres; ++sub_res)
-+			vmw_subres_dirty_full(dirty, sub_res);
-+		return;
-+	}
- 	if (loc1.sub_resource + 1 == loc2.sub_resource) {
- 		/* Dirty range covers a single sub-resource */
- 		vmw_subres_dirty_add(dirty, &loc1, &loc2);
+ 	return ret;
 -- 
 2.30.2
 
