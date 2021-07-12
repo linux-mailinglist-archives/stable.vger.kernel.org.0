@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A79AE3C4999
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225B73C53B4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236679AbhGLGpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
+        id S1348456AbhGLHzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238861AbhGLGoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE46D61106;
-        Mon, 12 Jul 2021 06:40:17 +0000 (UTC)
+        id S1350596AbhGLHvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A757061A36;
+        Mon, 12 Jul 2021 07:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072018;
-        bh=YA1aqqi/Kf4K8twhWf8nItqHqjxb6lc5h4VNdssRFZQ=;
+        s=korg; t=1626076004;
+        bh=kJB5SbpgO7mGIgmNq8fsmv/cceyl73T7F2dO1zqfyws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjvjNyau4VkdWxvBLxskpM43cl8XWTCCCGHefBVF39tiBYNbF1AzJjFbtVIx7BnQf
-         Jzvguw1fswAcFTZjR3ZvtX1Gu1tChmp6AD3YxcpmY81yhVDgeHK10hIBiBld282Cd8
-         4SrPD44lOEr43VOGykSfpLRwga+5BH1X6RpMaVZk=
+        b=npCX4K4EkdsnlFfcX1WLzCZ8R7JPoYvbtAcEsIeyJx48lYoWFyh60yp71sToj54Zf
+         /h8V+aEknQAsr/AtBR8gwXwQjL8eWGpEK4H6rChY9hN8BCZP4wC6pRRG4SM/FLMnFd
+         YpQCq1kEK1U+0fxLER3plCh70NkK2VdoSmTYGYe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Jianguo Wu <wujianguo@chinatelecom.cn>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Dongliang Mu <mudongliangabcd@gmail.com>,
+        Alexander Aring <aahringo@redhat.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 319/593] mptcp: fix pr_debug in mptcp_token_new_connect
+Subject: [PATCH 5.13 456/800] ieee802154: hwsim: Fix possible memory leak in hwsim_subscribe_all_others
 Date:   Mon, 12 Jul 2021 08:07:59 +0200
-Message-Id: <20210712060920.647424120@linuxfoundation.org>
+Message-Id: <20210712061015.691283083@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianguo Wu <wujianguo@chinatelecom.cn>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 2f1af441fd5dd5caf0807bb19ce9bbf9325ce534 ]
+[ Upstream commit ab372c2293f5d0b279f31c8d768566ea37602dc9 ]
 
-After commit 2c5ebd001d4f ("mptcp: refactor token container"),
-pr_debug() is called before mptcp_crypto_key_gen_sha() in
-mptcp_token_new_connect(), so the output local_key, token and
-idsn are 0, like:
+In hwsim_subscribe_all_others, the error handling code performs
+incorrectly if the second hwsim_alloc_edge fails. When this issue occurs,
+it goes to sub_fail, without cleaning the edges allocated before.
 
-  MPTCP: ssk=00000000f6b3c4a2, local_key=0, token=0, idsn=0
-
-Move pr_debug() after mptcp_crypto_key_gen_sha().
-
-Fixes: 2c5ebd001d4f ("mptcp: refactor token container")
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Jianguo Wu <wujianguo@chinatelecom.cn>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Acked-by: Alexander Aring <aahringo@redhat.com>
+Link: https://lore.kernel.org/r/20210611015812.1626999-1-mudongliangabcd@gmail.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/token.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ieee802154/mac802154_hwsim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/mptcp/token.c b/net/mptcp/token.c
-index feb4b9ffd462..0691a4883f3a 100644
---- a/net/mptcp/token.c
-+++ b/net/mptcp/token.c
-@@ -156,9 +156,6 @@ int mptcp_token_new_connect(struct sock *sk)
- 	int retries = TOKEN_MAX_RETRIES;
- 	struct token_bucket *bucket;
+diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
+index da9135231c07..366eaae3550a 100644
+--- a/drivers/net/ieee802154/mac802154_hwsim.c
++++ b/drivers/net/ieee802154/mac802154_hwsim.c
+@@ -715,6 +715,8 @@ static int hwsim_subscribe_all_others(struct hwsim_phy *phy)
  
--	pr_debug("ssk=%p, local_key=%llu, token=%u, idsn=%llu\n",
--		 sk, subflow->local_key, subflow->token, subflow->idsn);
--
- again:
- 	mptcp_crypto_key_gen_sha(&subflow->local_key, &subflow->token,
- 				 &subflow->idsn);
-@@ -172,6 +169,9 @@ again:
- 		goto again;
+ 	return 0;
+ 
++sub_fail:
++	hwsim_edge_unsubscribe_me(phy);
+ me_fail:
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(e, &phy->edges, list) {
+@@ -722,8 +724,6 @@ me_fail:
+ 		hwsim_free_edge(e);
  	}
+ 	rcu_read_unlock();
+-sub_fail:
+-	hwsim_edge_unsubscribe_me(phy);
+ 	return -ENOMEM;
+ }
  
-+	pr_debug("ssk=%p, local_key=%llu, token=%u, idsn=%llu\n",
-+		 sk, subflow->local_key, subflow->token, subflow->idsn);
-+
- 	WRITE_ONCE(msk->token, subflow->token);
- 	__sk_nulls_add_node_rcu((struct sock *)msk, &bucket->msk_chain);
- 	bucket->chain_len++;
 -- 
 2.30.2
 
