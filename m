@@ -2,122 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E45B33C590A
+	by mail.lfdr.de (Postfix) with ESMTP id 071133C5908
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 13:01:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356134AbhGLIzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:55:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381257AbhGLIw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 04:52:26 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7486AC03D33A
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 01:47:04 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id u14so17511142pga.11
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 01:47:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IQV7rXDeJ1wfaPJqlTvj96HlOfKqxm8L9qbZ+FuQ5QU=;
-        b=BBd9G0NGaG7xJ0vNYxgAmeogyr4jtAhES7ysBxy+MBCjW9I/OsqBvxuxBgWFZ+Jz5O
-         +LVRQz6tUzUktoIuAYQDuxx7+UwdFdDO4xJH6YZTTlYNOdnkzWV4325HOkQdL8dw6pCO
-         eNUpHq0zuv9IhQRi4JAPORJnNwdqeIxYmZwvV2n3bgpw3YsjqBvMVM0cwuJVrZsQ4Bpk
-         uLmFcgJZQGDowAxn3lcg/mv51MgvVJzP29U6gTVIElKlo6O15FBo3vKpd5hjsrEQTEJG
-         km7zDpNL54kav9PJ+p7m29eHWBYP5jVLqaWq3GgaiPgv7XIugR+7oxtFgiBt0xmDqL/b
-         gT8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IQV7rXDeJ1wfaPJqlTvj96HlOfKqxm8L9qbZ+FuQ5QU=;
-        b=AIvN2mz8U4uPcDDMetfYBPz6iNuc/K72/UE0cgOm92sOds5vS8TszrTo331Fr3iBJt
-         KObYTx7HTKEaRK2Mtmuyuoupt3y7SfqwwyIFDgC3iXWz/Jt2gwvcSqwlGh/GW0VI1/2Y
-         7wL2BprL0dI0AAO30fZFN273X6SV31ZF6EYb646ETRy4yMnSx8R6S6nlTXIvq0/1A+2L
-         U9ld06tmleTlapEwFMXi8vv4sOhUbNkaV48PbtKo2GKt+gbt+JLiEQK5t+xHuKI7WPZZ
-         nRCzdZD4MsPuyGWH6HniQm5ZIe56vB7BJuNCkcPQdrPOCk+lXwvvzIh1jI09IDr1lJcf
-         68vw==
-X-Gm-Message-State: AOAM531UWu860dWbOr9TZ9yr2vLZKaOtUoBaF+GSoSJUB5jk7/FltIHY
-        8lgQSeO/Fs/LHJYLv3paNvZxENJjRu6PJIFh
-X-Google-Smtp-Source: ABdhPJyIDFRRVrOd7ZevvmoW5mpS51vt4A59Jou9gTTPKwN/LH9NNDABDriqa+DzHOlE7DFNX+l8qg==
-X-Received: by 2002:a65:41c6:: with SMTP id b6mr53001559pgq.206.1626079623824;
-        Mon, 12 Jul 2021 01:47:03 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 133sm15753594pfx.39.2021.07.12.01.47.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 01:47:03 -0700 (PDT)
-Message-ID: <60ec0187.1c69fb81.3979c.d6d5@mx.google.com>
-Date:   Mon, 12 Jul 2021 01:47:03 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1356123AbhGLIzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:55:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36184 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1379685AbhGLIux (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:50:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF8D66101D;
+        Mon, 12 Jul 2021 08:48:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626079685;
+        bh=Gep8n4gDRouIseZEw8skFrrXdqP5Ql3CwPXbwW7pO7o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EofYjnJDGfNnJ6gpYFP/13naWKLaghUhEwRmu4tpCNDp4T4nYNJ+6o47J0npRiC4K
+         8jLwyx9aW02hV15DhjV9osaWg0D9g8qhhd3IMgQWZFRUCoXfxVwKnvLQS1rszPUH8p
+         21PYygnwrvgTnO7ZmlueX43YSycQdKoKla1UrZvceBb5xX3vtQfe/zBrw9T0yqsejr
+         4U4fbo3MPZ5hTPf6VXKVzRw15zxFm+Gx/DWGWHiB1YO3hl5+3V4CmoqR1c4aeHDNR4
+         zb9Lum+6sY0g+2hirL/sGV5Dj0YVEl1SsPwDwciLiUtCrcbi5EcbDPcoknh9zwC3si
+         Ovyf05DIcr5RA==
+Received: by pali.im (Postfix)
+        id 92CDB820; Mon, 12 Jul 2021 10:48:02 +0200 (CEST)
+Date:   Mon, 12 Jul 2021 10:48:02 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] serial: mvebu-uart: fix calculation of
+ clock divisor" failed to apply to 4.19-stable tree
+Message-ID: <20210712084802.xhggfwia3l4vaeel@pali>
+References: <16260085611907@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.14.239-158-ge648d16e66dd6
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 126 runs,
- 1 regressions (v4.14.239-158-ge648d16e66dd6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16260085611907@kroah.com>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 126 runs, 1 regressions (v4.14.239-158-ge648=
-d16e66dd6)
+On Sunday 11 July 2021 15:02:41 gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
 
-Regressions Summary
--------------------
+Hello Greg!
 
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+I have tested this it and it applies cleanly. I have just called
+following commands on top of linux-4.19.y branch without any manual
+backporting and there were no issues.
 
+git cherry-pick 0e4cf69ede87
+git cherry-pick 9078204ca5c3
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.239-158-ge648d16e66dd6/plan/baseline/
+Could you look at it, why it is failing for you?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.239-158-ge648d16e66dd6
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e648d16e66dd6a427f5a6f868d909fd0a41244a4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform       | arch  | lab          | compiler | defconfig | regressions
----------------+-------+--------------+----------+-----------+------------
-meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ebd1ff21c9f796f5117978
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.239=
--158-ge648d16e66dd6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q=
-200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.239=
--158-ge648d16e66dd6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q=
-200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ebd1ff21c9f796f5117=
-979
-        failing since 132 days (last pass: v4.14.222-11-g13b8482a0f700, fir=
-st fail: v4.14.222-120-gdc8887cba23e) =
-
- =20
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> ------------------ original commit in Linus's tree ------------------
+> 
+> From 9078204ca5c33ba20443a8623a41a68a9995a70d Mon Sep 17 00:00:00 2001
+> From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
+> Date: Fri, 25 Jun 2021 00:49:00 +0200
+> Subject: [PATCH] serial: mvebu-uart: fix calculation of clock divisor
+> MIME-Version: 1.0
+> Content-Type: text/plain; charset=UTF-8
+> Content-Transfer-Encoding: 8bit
+> 
+> The clock divisor should be rounded to the closest value.
+> 
+> Signed-off-by: Pali Rohár <pali@kernel.org>
+> Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
+> Cc: stable@vger.kernel.org # 0e4cf69ede87 ("serial: mvebu-uart: clarify the baud rate derivation")
+> Link: https://lore.kernel.org/r/20210624224909.6350-2-pali@kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
+> index 04c41689d81c..f3ecbcf495ee 100644
+> --- a/drivers/tty/serial/mvebu-uart.c
+> +++ b/drivers/tty/serial/mvebu-uart.c
+> @@ -463,7 +463,7 @@ static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+>  	 * makes use of D to configure the desired baudrate.
+>  	 */
+>  	m_divisor = OSAMP_DEFAULT_DIVISOR;
+> -	d_divisor = DIV_ROUND_UP(port->uartclk, baud * m_divisor);
+> +	d_divisor = DIV_ROUND_CLOSEST(port->uartclk, baud * m_divisor);
+>  
+>  	brdv = readl(port->membase + UART_BRDV);
+>  	brdv &= ~BRDV_BAUD_MASK;
+> 
