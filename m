@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C403C5127
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C9323C4B3D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344696AbhGLHiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:38:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55812 "EHLO mail.kernel.org"
+        id S240726AbhGLG4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243809AbhGLHgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:36:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB1B86144A;
-        Mon, 12 Jul 2021 07:32:27 +0000 (UTC)
+        id S239919AbhGLGzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:55:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFF4A61242;
+        Mon, 12 Jul 2021 06:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075148;
-        bh=iCupDYR1VQc1hw+soXLyxVpeELTUIczXD5VxJ6o5XXg=;
+        s=korg; t=1626072779;
+        bh=A29uD9TBdOrxuQCtmEDMiw/lcIFpE7XKAb7R6qb5EG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SM67x9DiZy+apQFXnuLHXPjNWVSLnSoNyW1SnLngggco6STRRvaN27CsQKPdbnKRE
-         0A9ROxlXXcd+/Ed1hCrKdhnFHIH/Xw6L5VwEAkWZ9/OtLdq3CzUG/R5uoMx7RfWmGX
-         NgvUQyyfRD1thiCDei1aPvxc5z/gdyKMc4hl0Qgg=
+        b=vqH3jckTTe0wGHkelQ05ZjNAAOV07q6oB3GgQ3v96Jx0HK151M0vEkC4V/q1tM/jQ
+         ns0TZgi8X26/mvubkCKWge3dg1ZkWuTgGeegrNHau6Fc1qjwCK/1GfTW/ZJTP+sW07
+         DzXCPKFuVm/E0izdEKE/3Flik1p4uqx9ZQ7yqvPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.13 079/800] KVM: x86: Properly reset MMU context at vCPU RESET/INIT
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.12 019/700] Input: usbtouchscreen - fix control-request directions
 Date:   Mon, 12 Jul 2021 08:01:42 +0200
-Message-Id: <20210712060924.247022280@linuxfoundation.org>
+Message-Id: <20210712060927.457438284@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,82 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 0aa1837533e5f4be8cc21bbc06314c23ba2c5447 upstream.
+commit 41e81022a04a0294c55cfa7e366bc14b9634c66e upstream.
 
-Reset the MMU context at vCPU INIT (and RESET for good measure) if CR0.PG
-was set prior to INIT.  Simply re-initializing the current MMU is not
-sufficient as the current root HPA may not be usable in the new context.
-E.g. if TDP is disabled and INIT arrives while the vCPU is in long mode,
-KVM will fail to switch to the 32-bit pae_root and bomb on the next
-VM-Enter due to running with a 64-bit CR3 in 32-bit mode.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-This bug was papered over in both VMX and SVM, but still managed to rear
-its head in the MMU role on VMX.  Because EFER.LMA=1 requires CR0.PG=1,
-kvm_calc_shadow_mmu_root_page_role() checks for EFER.LMA without first
-checking CR0.PG.  VMX's RESET/INIT flow writes CR0 before EFER, and so
-an INIT with the vCPU in 64-bit mode will cause the hack-a-fix to
-generate the wrong MMU role.
+Fix the four control requests which erroneously used usb_rcvctrlpipe().
 
-In VMX, the INIT issue is specific to running without unrestricted guest
-since unrestricted guest is available if and only if EPT is enabled.
-Commit 8668a3c468ed ("KVM: VMX: Reset mmu context when entering real
-mode") resolved the issue by forcing a reset when entering emulated real
-mode.
-
-In SVM, commit ebae871a509d ("kvm: svm: reset mmu on VCPU reset") forced
-a MMU reset on every INIT to workaround the flaw in common x86.  Note, at
-the time the bug was fixed, the SVM problem was exacerbated by a complete
-lack of a CR4 update.
-
-The vendor resets will be reverted in future patches, primarily to aid
-bisection in case there are non-INIT flows that rely on the existing VMX
-logic.
-
-Because CR0.PG is unconditionally cleared on INIT, and because CR0.WP and
-all CR4/EFER paging bits are ignored if CR0.PG=0, simply checking that
-CR0.PG was '1' prior to INIT/RESET is sufficient to detect a required MMU
-context reset.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622175739.3610207-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
+Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
+Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org      # 2.6.17
+Link: https://lore.kernel.org/r/20210524092048.4443-1-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/x86.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/touchscreen/usbtouchscreen.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10454,6 +10454,8 @@ void kvm_arch_vcpu_destroy(struct kvm_vc
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -251,7 +251,7 @@ static int e2i_init(struct usbtouch_usb
+ 	int ret;
+ 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
- void kvm_vcpu_reset(struct kvm_vcpu *vcpu, bool init_event)
- {
-+	unsigned long old_cr0 = kvm_read_cr0(vcpu);
-+
- 	kvm_lapic_reset(vcpu, init_event);
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      0x01, 0x02, 0x0000, 0x0081,
+ 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
  
- 	vcpu->arch.hflags = 0;
-@@ -10522,6 +10524,17 @@ void kvm_vcpu_reset(struct kvm_vcpu *vcp
- 	vcpu->arch.ia32_xss = 0;
+@@ -531,7 +531,7 @@ static int mtouch_init(struct usbtouch_u
+ 	if (ret)
+ 		return ret;
  
- 	static_call(kvm_x86_vcpu_reset)(vcpu, init_event);
-+
-+	/*
-+	 * Reset the MMU context if paging was enabled prior to INIT (which is
-+	 * implied if CR0.PG=1 as CR0 will be '0' prior to RESET).  Unlike the
-+	 * standard CR0/CR4/EFER modification paths, only CR0.PG needs to be
-+	 * checked because it is unconditionally cleared on INIT and all other
-+	 * paging related bits are ignored if paging is disabled, i.e. CR0.WP,
-+	 * CR4, and EFER changes are all irrelevant if CR0.PG was '0'.
-+	 */
-+	if (old_cr0 & X86_CR0_PG)
-+		kvm_mmu_reset_context(vcpu);
- }
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      MTOUCHUSB_RESET,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -543,7 +543,7 @@ static int mtouch_init(struct usbtouch_u
+ 	msleep(150);
  
- void kvm_vcpu_deliver_sipi_vector(struct kvm_vcpu *vcpu, u8 vector)
+ 	for (i = 0; i < 3; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      MTOUCHUSB_ASYNC_REPORT,
+ 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -722,7 +722,7 @@ static int dmc_tsc10_init(struct usbtouc
+ 	}
+ 
+ 	/* start sending data */
+-	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 	                      TSC10_CMD_DATA1,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
 
 
