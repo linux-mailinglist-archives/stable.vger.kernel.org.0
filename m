@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E2F3C4F95
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEECD3C553E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243765AbhGLH01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34614 "EHLO mail.kernel.org"
+        id S1355454AbhGLIJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343885AbhGLHYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:24:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C65C5613EB;
-        Mon, 12 Jul 2021 07:21:22 +0000 (UTC)
+        id S1353366AbhGLIB7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94390619F1;
+        Mon, 12 Jul 2021 07:54:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074483;
-        bh=pjgfzuIKSAXErgEX1VxWWkwHk0mgV0KIJDJUBjsg+lQ=;
+        s=korg; t=1626076485;
+        bh=A9YYYw0H9xPLC/H3DkCaENEa7EaxL2v4LLQ6xKibDjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sY0RBjOrQTpJTWzmyaO1jlQGeREbKRkKYJ0GJt2aI530M/ziL5lUlQwaAdf9YVGXE
-         2hYbU54KTrnVlo3KdjP0OwXh/E6Xa11CiKJ5wOzJVV+swiaLtjrXUaO+6DHcIKiLA3
-         F8wRqpBt6kpvQtXSaZ1S+eNwARhmRRXwgBfpjnIc=
+        b=slyl3hTztxwIy4hcfo/nq5icqlWPzsEbBTnPoBWoH3zOA5P7cok7lYMCuf8YhZ8hs
+         Tt+3P7b5gwYQoOM4zOVjgSWJjeB/zK4+fWb39WBWLfPUzn3oX/q9KYeQDvLPyD24aV
+         VgunW6D2CGIzbhMkC9iyzaEsvj2C32uYYNI/cvAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 596/700] ASoC: max98373-sdw: add missing memory allocation check
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 656/800] leds: lm3532: select regmap I2C API
 Date:   Mon, 12 Jul 2021 08:11:19 +0200
-Message-Id: <20210712061039.359226556@linuxfoundation.org>
+Message-Id: <20210712061036.771018008@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 468a272ca49cc4e2f58f3c360643c3f6d313c146 ]
+[ Upstream commit 99be74f61cb0292b518f5e6d7e5c6611555c2ec7 ]
 
-We forgot to test that devm_kcalloc doesn't return NULL.
+Regmap APIs should be selected, otherwise link can fail
 
-Fixes: 349dd23931d1 ('ASoC: max98373: don't access volatile registers in bias level off')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-2-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ERROR: modpost: "__devm_regmap_init_i2c" [drivers/leds/leds-lm3532.ko] undefined!
+
+Fixes: bc1b8492c764 ("leds: lm3532: Introduce the lm3532 LED driver")
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98373-sdw.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/leds/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
-index f3a12205cd48..c7a3506046db 100644
---- a/sound/soc/codecs/max98373-sdw.c
-+++ b/sound/soc/codecs/max98373-sdw.c
-@@ -787,6 +787,8 @@ static int max98373_init(struct sdw_slave *slave, struct regmap *regmap)
- 	max98373->cache = devm_kcalloc(dev, max98373->cache_num,
- 				       sizeof(*max98373->cache),
- 				       GFP_KERNEL);
-+	if (!max98373->cache)
-+		return -ENOMEM;
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index 49d99cb084db..c81b1e60953c 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -199,6 +199,7 @@ config LEDS_LM3530
  
- 	for (i = 0; i < max98373->cache_num; i++)
- 		max98373->cache[i].reg = max98373_sdw_cache_reg[i];
+ config LEDS_LM3532
+ 	tristate "LCD Backlight driver for LM3532"
++	select REGMAP_I2C
+ 	depends on LEDS_CLASS
+ 	depends on I2C
+ 	help
 -- 
 2.30.2
 
