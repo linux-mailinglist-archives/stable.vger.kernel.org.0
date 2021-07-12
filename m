@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A00603C5114
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C6FE3C4B82
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243470AbhGLHgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55630 "EHLO mail.kernel.org"
+        id S239522AbhGLG5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347190AbhGLHeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79F89613C5;
-        Mon, 12 Jul 2021 07:31:23 +0000 (UTC)
+        id S240457AbhGLG4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F994611C2;
+        Mon, 12 Jul 2021 06:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075083;
-        bh=6u9DI9kMcHPBWsG7wZLUnyMSZGK0XrtUX5+DjXLmixo=;
+        s=korg; t=1626072839;
+        bh=JkviBHPqCi8QAxRlbSP20AkebSw87cZ6oAY39ZKDxRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XzXM5gdJq652xvWiYTVJ3iVsZ9CLm0y+YZo/LfZtSwrx7WFxJp8vwUdkDNzeAPn+R
-         d6FrK6CqTXK5cbjaUBX/o5IbseKMgWs08eH1kMWRVNdEJcuSJZfyb8h87LsUWjx1NU
-         crJx/SEI4v1B0X/PDMM6lDVHv/MU2bVc4skP8MJc=
+        b=kQpcbLcau/vMJ5M8Txh2b7BIaM1vWMFReh31chLb6eNbbC8ta2E77oJHtFZDKT9pi
+         q5EahjIAH1KqDNku7cdBI3qw6uU6vV76MEWRrydoZxkzGQZ0voo4ndPMwcz1t5+RBF
+         1XmawktyEILeolL0UjR7vwT3osiTfgfkk8l4nagA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Cline <jeremy@jcline.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.13 099/800] iio: accel: bmc150: Dont make the remove function of the second accelerometer unregister itself
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.12 039/700] crypto: ccp - Annotate SEV Firmware file names
 Date:   Mon, 12 Jul 2021 08:02:02 +0200
-Message-Id: <20210712060926.975483543@linuxfoundation.org>
+Message-Id: <20210712060930.179408595@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit f407e2dca0f559621114eeaf657880d83f237fbd upstream.
+commit c8671c7dc7d51125ab9f651697866bf4a9132277 upstream.
 
-On machines with dual accelerometers described in a single ACPI fwnode,
-the bmc150_accel_probe() instantiates a second i2c-client for the second
-accelerometer.
+Annotate the firmware files CCP might need using MODULE_FIRMWARE().
+This will get them included into an initrd when CCP is also included
+there. Otherwise the CCP module will not find its firmware when loaded
+before the root-fs is mounted.
+This can cause problems when the pre-loaded SEV firmware is too old to
+support current SEV and SEV-ES virtualization features.
 
-A pointer to this manually instantiated second i2c-client is stored
-inside the iio_dev's private-data through bmc150_set_second_device(),
-so that the i2c-client can be unregistered from bmc150_accel_remove().
-
-Before this commit bmc150_set_second_device() took only 1 argument so it
-would store the pointer in private-data of the iio_dev belonging to the
-manually instantiated i2c-client, leading to the bmc150_accel_remove()
-call for the second_dev trying to unregister *itself* while it was
-being removed, leading to a deadlock and rmmod hanging.
-
-Change bmc150_set_second_device() to take 2 arguments: 1. The i2c-client
-which is instantiating the second i2c-client for the 2nd accelerometer and
-2. The second-device pointer itself (which also is an i2c-client).
-
-This will store the second_device pointer in the private data of the
-iio_dev belonging to the (ACPI instantiated) i2c-client for the first
-accelerometer and will make bmc150_accel_remove() unregister the
-second_device i2c-client when called for the first client,
-avoiding the deadlock.
-
-Fixes: 5bfb3a4bd8f6 ("iio: accel: bmc150: Check for a second ACPI device for BOSC0200")
-Cc: Jeremy Cline <jeremy@jcline.org>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: e93720606efd ("crypto: ccp - Allow SEV firmware to be chosen based on Family and Model")
+Cc: stable@vger.kernel.org # v4.20+
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/accel/bmc150-accel-core.c |    4 ++--
- drivers/iio/accel/bmc150-accel-i2c.c  |    2 +-
- drivers/iio/accel/bmc150-accel.h      |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/sev-dev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -1816,11 +1816,11 @@ struct i2c_client *bmc150_get_second_dev
- }
- EXPORT_SYMBOL_GPL(bmc150_get_second_device);
+--- a/drivers/crypto/ccp/sev-dev.c
++++ b/drivers/crypto/ccp/sev-dev.c
+@@ -42,6 +42,10 @@ static int psp_probe_timeout = 5;
+ module_param(psp_probe_timeout, int, 0644);
+ MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during PSP device probe");
  
--void bmc150_set_second_device(struct i2c_client *client)
-+void bmc150_set_second_device(struct i2c_client *client, struct i2c_client *second_dev)
- {
- 	struct bmc150_accel_data *data = iio_priv(i2c_get_clientdata(client));
- 
--	data->second_device = client;
-+	data->second_device = second_dev;
- }
- EXPORT_SYMBOL_GPL(bmc150_set_second_device);
- 
---- a/drivers/iio/accel/bmc150-accel-i2c.c
-+++ b/drivers/iio/accel/bmc150-accel-i2c.c
-@@ -70,7 +70,7 @@ static int bmc150_accel_probe(struct i2c
- 
- 		second_dev = i2c_acpi_new_device(&client->dev, 1, &board_info);
- 		if (!IS_ERR(second_dev))
--			bmc150_set_second_device(second_dev);
-+			bmc150_set_second_device(client, second_dev);
- 	}
- #endif
- 
---- a/drivers/iio/accel/bmc150-accel.h
-+++ b/drivers/iio/accel/bmc150-accel.h
-@@ -18,7 +18,7 @@ int bmc150_accel_core_probe(struct devic
- 			    const char *name, bool block_supported);
- int bmc150_accel_core_remove(struct device *dev);
- struct i2c_client *bmc150_get_second_device(struct i2c_client *second_device);
--void bmc150_set_second_device(struct i2c_client *second_device);
-+void bmc150_set_second_device(struct i2c_client *client, struct i2c_client *second_dev);
- extern const struct dev_pm_ops bmc150_accel_pm_ops;
- extern const struct regmap_config bmc150_regmap_conf;
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model0xh.sbin"); /* 1st gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model3xh.sbin"); /* 2nd gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam19h_model0xh.sbin"); /* 3rd gen EPYC */
++
+ static bool psp_dead;
+ static int psp_timeout;
  
 
 
