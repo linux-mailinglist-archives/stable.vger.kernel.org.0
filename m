@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A72F3C546C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1D13C4A6C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351991AbhGLH6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
+        id S238217AbhGLGwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348939AbhGLH4T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:56:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB2E7613D0;
-        Mon, 12 Jul 2021 07:52:14 +0000 (UTC)
+        id S239050AbhGLGt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC576115C;
+        Mon, 12 Jul 2021 06:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076335;
-        bh=3Y0QP3KYBMGMf6USSziGgefJmVVJt6vJoXSSViJr2us=;
+        s=korg; t=1626072354;
+        bh=q0kgSQ+nvfk1kPn0gHqgc8Mtyw07CI6RK73Q2udLmDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUAzjUn/LgxVG4LScv+f3DB1C54SnWFvLdSF5/HBVuf/g5xrykEj+QRnhm+JFJGu3
-         jiOw5uDOGdSANUfyBvnC7vR91oSdSRsirhg5EZmO7CWd+9G7nmiTE4xpbkRm4IeWMh
-         mfT3tooPFQ51y5qFaAzolbBwkpDBPbNHTcDjoF04=
+        b=DdvPEGLCCTXQsSOEsGiejavN7D8UDgXE6cm2V7UdvVMa600iVxVLbzpz8V5mkoK8K
+         IBMSiPcN1He7cqq49QfnwtS56WBTjaGO5grIEuh/zPCu0cIy9tZtw7PuFxzKWiR69/
+         thGKYQlfR1pr1Kr0VXHwhEQfpgoj+Ad+ghjWnS+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
-        Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 598/800] net: tipc: fix FB_MTU eat two pages
+Subject: [PATCH 5.10 461/593] iio: light: isl29125: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:21 +0200
-Message-Id: <20210712061030.956517135@linuxfoundation.org>
+Message-Id: <20210712060940.284462185@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,116 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 0c6de0c943dbb42831bf7502eb5c007f71e752d2 ]
+[ Upstream commit 3d4725194de6935dba2ad7c9cc075c885008f747 ]
 
-FB_MTU is used in 'tipc_msg_build()' to alloc smaller skb when memory
-allocation fails, which can avoid unnecessary sending failures.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-The value of FB_MTU now is 3744, and the data size will be:
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-  (3744 + SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) + \
-    SKB_DATA_ALIGN(BUF_HEADROOM + BUF_TAILROOM + 3))
-
-which is larger than one page(4096), and two pages will be allocated.
-
-To avoid it, replace '3744' with a calculation:
-
-  (PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) - \
-    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
-
-What's more, alloc_skb_fclone() will call SKB_DATA_ALIGN for data size,
-and it's not necessary to make alignment for buf_size in
-tipc_buf_acquire(). So, just remove it.
-
-Fixes: 4c94cc2d3d57 ("tipc: fall back to smaller MTU if allocation of local send skb fails")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6c25539cbc46 ("iio: Add Intersil isl29125 digital color light sensor driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-18-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bcast.c |  2 +-
- net/tipc/msg.c   | 17 ++++++++---------
- net/tipc/msg.h   |  3 ++-
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/iio/light/isl29125.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/tipc/bcast.c b/net/tipc/bcast.c
-index d4beca895992..593846d25214 100644
---- a/net/tipc/bcast.c
-+++ b/net/tipc/bcast.c
-@@ -699,7 +699,7 @@ int tipc_bcast_init(struct net *net)
- 	spin_lock_init(&tipc_net(net)->bclock);
+diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
+index b93b85dbc3a6..ba53b50d711a 100644
+--- a/drivers/iio/light/isl29125.c
++++ b/drivers/iio/light/isl29125.c
+@@ -51,7 +51,11 @@
+ struct isl29125_data {
+ 	struct i2c_client *client;
+ 	u8 conf1;
+-	u16 buffer[8]; /* 3x 16-bit, padding, 8 bytes timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u16 chans[3];
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
- 	if (!tipc_link_bc_create(net, 0, 0, NULL,
--				 FB_MTU,
-+				 one_page_mtu,
- 				 BCLINK_WIN_DEFAULT,
- 				 BCLINK_WIN_DEFAULT,
- 				 0,
-diff --git a/net/tipc/msg.c b/net/tipc/msg.c
-index ce6ab54822d8..7053c22e393e 100644
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -44,12 +44,15 @@
- #define MAX_FORWARD_SIZE 1024
- #ifdef CONFIG_TIPC_CRYPTO
- #define BUF_HEADROOM ALIGN(((LL_MAX_HEADER + 48) + EHDR_MAX_SIZE), 16)
--#define BUF_TAILROOM (TIPC_AES_GCM_TAG_SIZE)
-+#define BUF_OVERHEAD (BUF_HEADROOM + TIPC_AES_GCM_TAG_SIZE)
- #else
- #define BUF_HEADROOM (LL_MAX_HEADER + 48)
--#define BUF_TAILROOM 16
-+#define BUF_OVERHEAD BUF_HEADROOM
- #endif
+ #define ISL29125_CHANNEL(_color, _si) { \
+@@ -184,10 +188,10 @@ static irqreturn_t isl29125_trigger_handler(int irq, void *p)
+ 		if (ret < 0)
+ 			goto done;
  
-+const int one_page_mtu = PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) -
-+			 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+
- static unsigned int align(unsigned int i)
- {
- 	return (i + 3) & ~3u;
-@@ -69,13 +72,8 @@ static unsigned int align(unsigned int i)
- struct sk_buff *tipc_buf_acquire(u32 size, gfp_t gfp)
- {
- 	struct sk_buff *skb;
--#ifdef CONFIG_TIPC_CRYPTO
--	unsigned int buf_size = (BUF_HEADROOM + size + BUF_TAILROOM + 3) & ~3u;
--#else
--	unsigned int buf_size = (BUF_HEADROOM + size + 3) & ~3u;
--#endif
+-		data->buffer[j++] = ret;
++		data->scan.chans[j++] = ret;
+ 	}
  
--	skb = alloc_skb_fclone(buf_size, gfp);
-+	skb = alloc_skb_fclone(BUF_OVERHEAD + size, gfp);
- 	if (skb) {
- 		skb_reserve(skb, BUF_HEADROOM);
- 		skb_put(skb, size);
-@@ -395,7 +393,8 @@ int tipc_msg_build(struct tipc_msg *mhdr, struct msghdr *m, int offset,
- 		if (unlikely(!skb)) {
- 			if (pktmax != MAX_MSG_SIZE)
- 				return -ENOMEM;
--			rc = tipc_msg_build(mhdr, m, offset, dsz, FB_MTU, list);
-+			rc = tipc_msg_build(mhdr, m, offset, dsz,
-+					    one_page_mtu, list);
- 			if (rc != dsz)
- 				return rc;
- 			if (tipc_msg_assemble(list))
-diff --git a/net/tipc/msg.h b/net/tipc/msg.h
-index 5d64596ba987..64ae4c4c44f8 100644
---- a/net/tipc/msg.h
-+++ b/net/tipc/msg.h
-@@ -99,9 +99,10 @@ struct plist;
- #define MAX_H_SIZE                60	/* Largest possible TIPC header size */
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 		iio_get_time_ns(indio_dev));
  
- #define MAX_MSG_SIZE (MAX_H_SIZE + TIPC_MAX_USER_MSG_SIZE)
--#define FB_MTU                  3744
- #define TIPC_MEDIA_INFO_OFFSET	5
- 
-+extern const int one_page_mtu;
-+
- struct tipc_skb_cb {
- 	union {
- 		struct {
+ done:
 -- 
 2.30.2
 
