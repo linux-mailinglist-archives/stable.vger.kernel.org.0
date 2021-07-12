@@ -2,98 +2,238 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 344B33C5DAA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 15:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 130493C5E55
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 16:28:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234435AbhGLNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 09:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbhGLNva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 09:51:30 -0400
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com [IPv6:2607:f8b0:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71EC4C0613DD;
-        Mon, 12 Jul 2021 06:48:40 -0700 (PDT)
-Received: by mail-oi1-x234.google.com with SMTP id s23so9687643oij.0;
-        Mon, 12 Jul 2021 06:48:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=34VJOkAIsK76d6i1p/hMWZkvES6TvGjNy8eVswPlFJc=;
-        b=B5OeUgYS8ekKIc41fYUulPnudLvdTW2OxW+9CeApnBImBHhTZRc33hVkht1VAniq3T
-         mltgdW74/pHYJ/vc5eebqiyP5HV+mSlJc2tTPi9PNRj/4GptyekeQEkA1pylO7soULlm
-         yQaks/BkHmdvIVB+KiMeomwVyTUnMMETIqSQEt+R07qRJBEQN00g4ED6kMaTjsQjANDJ
-         vEdW4EquYr873Y3LtKhVqDuuY2b+Lbp7Dh5Y0lPc8PgEkEY24JIgwBF/B7JU/SPZl1Rh
-         XV6wofn8fp38nXNAGe4ok7j02mXeHfFIIcNrf6IUQGXj2wZO7zINUYUBZ8NhQdZRxLcQ
-         H8Sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=34VJOkAIsK76d6i1p/hMWZkvES6TvGjNy8eVswPlFJc=;
-        b=OMpMLtRsJivmnTwTHAHJdA1KH2n7zqIQBQg/yJgmRjzXPOKqVzNopkV32wDvjHHTQ9
-         7sDzxq76a9Zr9T2w2d/f3yDVootCTlQHEYX+85orLZnk0+BhNNNkp7Tw0kRJGld1mMwZ
-         1oysrAjgDZaohDS1h565Y5ERaeS7XKODykNJRLMWO7GPWO8LTBXSl7+2t9OWYQKKZexM
-         eWz7SugDHrsnrL/eZ5yM+JXOCiuNm1ie0ge6I4PojNPiwziqRF44vhDN98xaIhvKxBD1
-         0r5izd1ADdixU8iRHJJDbqDranoHrKoZymRd4w/fug+Qzs0nlps95+JeB9aYkt3Vvknn
-         RAag==
-X-Gm-Message-State: AOAM530QiZt7f5yOGk1ARaS+RkN/hU7Spso1sCPHHMD3e2qjvTPpvWNn
-        8vzh6XFjaF2IQ8EpBBgYIS88c5xkniY=
-X-Google-Smtp-Source: ABdhPJzJhemnkyKbA0EWjcVVb6hfqVduUICpI1AjYRt+xvBI/3STj/shRT2ffYofmmmeRrR6qa08Yw==
-X-Received: by 2002:aca:1b09:: with SMTP id b9mr38636744oib.22.1626097719585;
-        Mon, 12 Jul 2021 06:48:39 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q9sm3069131otk.18.2021.07.12.06.48.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 12 Jul 2021 06:48:38 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Subject: Re: [PATCH 5.12 000/700] 5.12.17-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20210712060924.797321836@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <6c0d205c-6f8a-fc16-1083-76ea36358c65@roeck-us.net>
-Date:   Mon, 12 Jul 2021 06:48:34 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S233480AbhGLOas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 10:30:48 -0400
+Received: from foss.arm.com ([217.140.110.172]:56390 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231154AbhGLOas (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 10:30:48 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 5645F1FB;
+        Mon, 12 Jul 2021 07:27:59 -0700 (PDT)
+Received: from e110467-lin.cambridge.arm.com (e110467-lin.cambridge.arm.com [10.1.196.41])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 3A4CE3F774;
+        Mon, 12 Jul 2021 07:27:58 -0700 (PDT)
+From:   Robin Murphy <robin.murphy@arm.com>
+To:     will@kernel.org, catalin.marinas@arm.com
+Cc:     linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chen Huang <chenhuang5@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH] arm64: Avoid premature usercopy failure
+Date:   Mon, 12 Jul 2021 15:27:46 +0100
+Message-Id: <dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com>
+X-Mailer: git-send-email 2.21.0.dirty
 MIME-Version: 1.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/11/21 11:01 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.12.17 release.
-> There are 700 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
-> Anything received after that time might be too late.
-> 
+Al reminds us that the usercopy API must only return complete failure
+if absolutely nothing could be copied. Currently, if userspace does
+something silly like giving us an unaligned pointer to Device memory,
+or a size which overruns MTE tag bounds, we may fail to honour that
+requirement when faulting on a multi-byte access even though a smaller
+access could have succeeded.
 
+Add a mitigation to the fixup routines to fall back to a single-byte
+copy if we faulted on a larger access before anything has been written
+to the destination, to guarantee making *some* forward progress. We
+needn't be too concerned about the overall performance since this should
+only occur when callers are doing something a bit dodgy in the first
+place. Particularly broken userspace might still be able to trick
+generic_perform_write() into an infinite loop by targeting write() at
+an mmap() of some read-only device register where the fault-in load
+succeeds but any store synchronously aborts such that copy_to_user() is
+genuinely unable to make progress, but, well, don't do that...
 
-Build results:
-	total: 154 pass: 153 fail: 1
-Failed builds:
-	riscv32:allmodconfig
-Qemu test results:
-	total: 462 pass: 462 fail: 0
+CC: stable@vger.kernel.org
+Reported-by: Chen Huang <chenhuang5@huawei.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+---
 
-riscv32 build failure as before, inherited from mainline.
+I've started trying the "replay" approach for figuring out more precise
+remainders in general, but that quickly got more complicated with
+rebasing the fault address passing stuff, so I'm resending this now as
+a point fix and will continue to explore that as an improvement on top.
 
-Error log:
-cc1: error: '10208' is not a valid offset in '-mstack-protector-guard-offset='
+Robin.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+ arch/arm64/lib/copy_from_user.S | 13 ++++++++++---
+ arch/arm64/lib/copy_in_user.S   | 21 ++++++++++++++-------
+ arch/arm64/lib/copy_to_user.S   | 14 +++++++++++---
+ 3 files changed, 35 insertions(+), 13 deletions(-)
 
-Guenter
+diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
+index 95cd62d67371..2cf999e41d30 100644
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
+@@ -29,7 +29,7 @@
+ 	.endm
+ 
+ 	.macro ldrh1 reg, ptr, val
+-	user_ldst 9998f, ldtrh, \reg, \ptr, \val
++	user_ldst 9997f, ldtrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+@@ -37,7 +37,7 @@
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+-	user_ldst 9998f, ldtr, \reg, \ptr, \val
++	user_ldst 9997f, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+@@ -45,7 +45,7 @@
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	user_ldp 9998f, \reg1, \reg2, \ptr, \val
++	user_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+@@ -53,8 +53,10 @@
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_from_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0				// Nothing to copy
+ 	ret
+@@ -63,6 +65,11 @@ EXPORT_SYMBOL(__arch_copy_from_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++	strb	tmp1w, [dst], #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
+index 1f61cd0df062..dbea3799c3ef 100644
+--- a/arch/arm64/lib/copy_in_user.S
++++ b/arch/arm64/lib/copy_in_user.S
+@@ -30,33 +30,34 @@
+ 	.endm
+ 
+ 	.macro ldrh1 reg, ptr, val
+-	user_ldst 9998f, ldtrh, \reg, \ptr, \val
++	user_ldst 9997f, ldtrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	user_ldst 9998f, sttrh, \reg, \ptr, \val
++	user_ldst 9997f, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+-	user_ldst 9998f, ldtr, \reg, \ptr, \val
++	user_ldst 9997f, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	user_ldst 9998f, sttr, \reg, \ptr, \val
++	user_ldst 9997f, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	user_ldp 9998f, \reg1, \reg2, \ptr, \val
++	user_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	user_stp 9998f, \reg1, \reg2, \ptr, \val
++	user_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
+-
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_in_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -65,6 +66,12 @@ EXPORT_SYMBOL(__arch_copy_in_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
+index 043da90f5dd7..9f380eecf653 100644
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -32,7 +32,7 @@
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	user_ldst 9998f, sttrh, \reg, \ptr, \val
++	user_ldst 9997f, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+@@ -40,7 +40,7 @@
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	user_ldst 9998f, sttr, \reg, \ptr, \val
++	user_ldst 9997f, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+@@ -48,12 +48,14 @@
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	user_stp 9998f, \reg1, \reg2, \ptr, \val
++	user_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_to_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -62,6 +64,12 @@ EXPORT_SYMBOL(__arch_copy_to_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++	ldrb	tmp1w, [srcin]
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+-- 
+2.21.0.dirty
+
