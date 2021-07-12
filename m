@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D9513C4924
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E2A73C4D92
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238071AbhGLGmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S242603AbhGLHNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238139AbhGLGlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:41:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 658D960238;
-        Mon, 12 Jul 2021 06:38:12 +0000 (UTC)
+        id S242309AbhGLHLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:11:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 797B1610E5;
+        Mon, 12 Jul 2021 07:09:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071892;
-        bh=SPN59HIJNOyjHANCkHfWxpytUSmZiT81wmVpkJm97Ik=;
+        s=korg; t=1626073745;
+        bh=UoMWSaHmsiLkyCS3/3rlh/pcsEnwbkaIGYNpP5zEEzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nr2Yhtj9MinroCbm1XIh/2s0S35TK9xqbfnGipDftGHQ9JfxVlg0dPCaiN3pPnldp
-         YdWboUm2UELhRor8zQaOfzKYqjJImW+GduHVFk0dXbh+9vwUEuMC4njrrKBVCOyDIQ
-         wDZjzYD2Jgekm8iNuGN/yzAaikAJoCQZqVQM927w=
+        b=QB3QkrqF9BCvYAzPZcR6dJ7l2OGOr/v7bYoAQwiCwPuWsJiNXIXRlN3eklP1Pr6Oa
+         Rgxw1tLnUoioaUbU/3HRb0U1KX411fSeo9QgQZSuP+dyUcqEKl02Z+UdnnwEWO429R
+         kh00cketvgtN2Mst3jXw0/0iN9Xx9B1Ur/bvpkk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 265/593] sched/rt: Fix Deadline utilization tracking during policy change
-Date:   Mon, 12 Jul 2021 08:07:05 +0200
-Message-Id: <20210712060912.548240526@linuxfoundation.org>
+Subject: [PATCH 5.12 343/700] ocfs2: fix snprintf() checking
+Date:   Mon, 12 Jul 2021 08:07:06 +0200
+Message-Id: <20210712061012.774585938@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +47,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit d7d607096ae6d378b4e92d49946d22739c047d4c ]
+[ Upstream commit 54e948c60cc843b6e84dc44496edc91f51d2a28e ]
 
-DL keeps track of the utilization on a per-rq basis with the structure
-avg_dl. This utilization is updated during task_tick_dl(),
-put_prev_task_dl() and set_next_task_dl(). However, when the current
-running task changes its policy, set_next_task_dl() which would usually
-take care of updating the utilization when the rq starts running DL
-tasks, will not see a such change, leaving the avg_dl structure outdated.
-When that very same task will be dequeued later, put_prev_task_dl() will
-then update the utilization, based on a wrong last_update_time, leading to
-a huge spike in the DL utilization signal.
+The snprintf() function returns the number of bytes which would have been
+printed if the buffer was large enough.  In other words it can return ">=
+remain" but this code assumes it returns "== remain".
 
-The signal would eventually recover from this issue after few ms. Even
-if no DL tasks are run, avg_dl is also updated in
-__update_blocked_others(). But as the CPU capacity depends partly on the
-avg_dl, this issue has nonetheless a significant impact on the scheduler.
+The run time impact of this bug is not very severe.  The next iteration
+through the loop would trigger a WARN() when we pass a negative limit to
+snprintf().  We would then return success instead of -E2BIG.
 
-Fix this issue by ensuring a load update when a running task changes
-its policy to DL.
+The kernel implementation of snprintf() will never return negatives so
+there is no need to check and I have deleted that dead code.
 
-Fixes: 3727e0e ("sched/dl: Add dl_rq utilization tracking")
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/1624271872-211872-3-git-send-email-vincent.donnefort@arm.com
+Link: https://lkml.kernel.org/r/20210511135350.GV1955@kadam
+Fixes: a860f6eb4c6a ("ocfs2: sysfile interfaces for online file check")
+Fixes: 74ae4e104dfc ("ocfs2: Create stack glue sysfs files.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/deadline.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ocfs2/filecheck.c | 6 +-----
+ fs/ocfs2/stackglue.c | 8 ++------
+ 2 files changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/sched/deadline.c b/kernel/sched/deadline.c
-index 8d06d1f4e2f7..6b98c1fe6e7f 100644
---- a/kernel/sched/deadline.c
-+++ b/kernel/sched/deadline.c
-@@ -2470,6 +2470,8 @@ static void switched_to_dl(struct rq *rq, struct task_struct *p)
- 			check_preempt_curr_dl(rq, p, 0);
- 		else
- 			resched_curr(rq);
-+	} else {
-+		update_dl_rq_load_avg(rq_clock_pelt(rq), rq, 0);
+diff --git a/fs/ocfs2/filecheck.c b/fs/ocfs2/filecheck.c
+index 50f11bfdc8c2..82a3edc4aea4 100644
+--- a/fs/ocfs2/filecheck.c
++++ b/fs/ocfs2/filecheck.c
+@@ -328,11 +328,7 @@ static ssize_t ocfs2_filecheck_attr_show(struct kobject *kobj,
+ 		ret = snprintf(buf + total, remain, "%lu\t\t%u\t%s\n",
+ 			       p->fe_ino, p->fe_done,
+ 			       ocfs2_filecheck_error(p->fe_status));
+-		if (ret < 0) {
+-			total = ret;
+-			break;
+-		}
+-		if (ret == remain) {
++		if (ret >= remain) {
+ 			/* snprintf() didn't fit */
+ 			total = -E2BIG;
+ 			break;
+diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
+index a191094694c6..03eacb249f37 100644
+--- a/fs/ocfs2/stackglue.c
++++ b/fs/ocfs2/stackglue.c
+@@ -502,11 +502,7 @@ static ssize_t ocfs2_loaded_cluster_plugins_show(struct kobject *kobj,
+ 	list_for_each_entry(p, &ocfs2_stack_list, sp_list) {
+ 		ret = snprintf(buf, remain, "%s\n",
+ 			       p->sp_name);
+-		if (ret < 0) {
+-			total = ret;
+-			break;
+-		}
+-		if (ret == remain) {
++		if (ret >= remain) {
+ 			/* snprintf() didn't fit */
+ 			total = -E2BIG;
+ 			break;
+@@ -533,7 +529,7 @@ static ssize_t ocfs2_active_cluster_plugin_show(struct kobject *kobj,
+ 	if (active_stack) {
+ 		ret = snprintf(buf, PAGE_SIZE, "%s\n",
+ 			       active_stack->sp_name);
+-		if (ret == PAGE_SIZE)
++		if (ret >= PAGE_SIZE)
+ 			ret = -E2BIG;
  	}
- }
- 
+ 	spin_unlock(&ocfs2_stack_lock);
 -- 
 2.30.2
 
