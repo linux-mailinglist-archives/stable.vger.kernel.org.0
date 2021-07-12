@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55F633C491A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F743C5362
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237696AbhGLGlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34598 "EHLO mail.kernel.org"
+        id S1352354AbhGLHyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233279AbhGLGkt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A3E6115A;
-        Mon, 12 Jul 2021 06:37:58 +0000 (UTC)
+        id S1350308AbhGLHut (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E14A6198B;
+        Mon, 12 Jul 2021 07:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071879;
-        bh=+T3T32pRV5cdKCPUZQOH1EjPZLywNUXkjRyqIJN4Nx0=;
+        s=korg; t=1626075861;
+        bh=/7Aazw9y9rIjsnZ1DU2aSYlJczfHRqMOr7MkK05i3xk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fFyifuJhtl1vsBvZ9vYyKrfDMpTrgwjSJBy7BcTpOpKsDlMwuLGhsrASBkIVUh3Sj
-         WAw6QuSUPp7b5i6U6yWIbJBrUeJv5nBkA2GKiGg85cVbeFixGw9EgP6xP4TQa9/th4
-         ZGBSEOHEyyGwTiO0RM7tmEcXsFjCW6dnN6n/EIEY=
+        b=G+qofZr2za9dcRWU/76pLgzSJjM8yuc5egMrGMpsYRNqSZGsR9N6RPv9yw7wJtuUY
+         93Snv32n4DU3LV3rRXVeAAxetHRZ8rSrqUWDphaU068HHxgIo5GZ5Y89aIonvS2r1M
+         hNpiQJaMFtZyf6HJA9bKEOYTNdHWKLfbQVOtXIec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 260/593] regulator: hi655x: Fix pass wrong pointer to config.driver_data
+Subject: [PATCH 5.13 397/800] drm/imx: ipuv3-plane: fix PRG modifiers after drm managed resource conversion
 Date:   Mon, 12 Jul 2021 08:07:00 +0200
-Message-Id: <20210712060911.828641052@linuxfoundation.org>
+Message-Id: <20210712061009.399934792@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 61eb1b24f9e4f4e0725aa5f8164a932c933f3339 ]
+[ Upstream commit 17b9a94656fe19aef3647c4f93d93be51697ceb1 ]
 
-Current code sets config.driver_data to a zero initialized regulator
-which is obviously wrong. Fix it.
+The conversion to drm managed resources introduced two bugs: the plane is now
+always initialized with the linear-only list, while the list with the Vivante
+GPU modifiers should have been used when the PRG/PRE engines are present. This
+masked another issue, as ipu_plane_format_mod_supported() is now called before
+the private plane data is set up, so if a non-linear modifier is supplied in
+the plane modifier list, we run into a NULL pointer dereference checking for
+the PRG presence. To fix this just remove the check from this function, as we
+know that it will only be called with a non-linear modifier, if the plane init
+code has already determined that the PRG/PRE is present.
 
-Fixes: 4618119b9be5 ("regulator: hi655x: enable regulator for hi655x PMIC")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210620132715.60215-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 699e7e543f1a ("drm/imx: ipuv3-plane: use drm managed resources")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Link: https://lore.kernel.org/r/20210510145927.988661-1-l.stach@pengutronix.de
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/hi655x-regulator.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/imx/ipuv3-plane.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/hi655x-regulator.c b/drivers/regulator/hi655x-regulator.c
-index ac2ee2030211..b44f492a2b83 100644
---- a/drivers/regulator/hi655x-regulator.c
-+++ b/drivers/regulator/hi655x-regulator.c
-@@ -72,7 +72,7 @@ enum hi655x_regulator_id {
- static int hi655x_is_enabled(struct regulator_dev *rdev)
- {
- 	unsigned int value = 0;
--	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
-+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index fc8f4834ed7b..233310712deb 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -345,10 +345,11 @@ static bool ipu_plane_format_mod_supported(struct drm_plane *plane,
+ 	if (modifier == DRM_FORMAT_MOD_LINEAR)
+ 		return true;
  
- 	regmap_read(rdev->regmap, regulator->status_reg, &value);
- 	return (value & rdev->desc->enable_mask);
-@@ -80,7 +80,7 @@ static int hi655x_is_enabled(struct regulator_dev *rdev)
+-	/* without a PRG there are no supported modifiers */
+-	if (!ipu_prg_present(ipu))
+-		return false;
+-
++	/*
++	 * Without a PRG the possible modifiers list only includes the linear
++	 * modifier, so we always take the early return from this function and
++	 * only end up here if the PRG is present.
++	 */
+ 	return ipu_prg_format_supported(ipu, format, modifier);
+ }
  
- static int hi655x_disable(struct regulator_dev *rdev)
- {
--	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
-+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
- 
- 	return regmap_write(rdev->regmap, regulator->disable_reg,
- 			    rdev->desc->enable_mask);
-@@ -169,7 +169,6 @@ static const struct hi655x_regulator regulators[] = {
- static int hi655x_regulator_probe(struct platform_device *pdev)
- {
- 	unsigned int i;
--	struct hi655x_regulator *regulator;
- 	struct hi655x_pmic *pmic;
- 	struct regulator_config config = { };
- 	struct regulator_dev *rdev;
-@@ -180,22 +179,17 @@ static int hi655x_regulator_probe(struct platform_device *pdev)
- 		return -ENODEV;
+@@ -869,6 +870,10 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
+ 		formats = ipu_plane_rgb_formats;
+ 		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
  	}
- 
--	regulator = devm_kzalloc(&pdev->dev, sizeof(*regulator), GFP_KERNEL);
--	if (!regulator)
--		return -ENOMEM;
--
--	platform_set_drvdata(pdev, regulator);
--
- 	config.dev = pdev->dev.parent;
- 	config.regmap = pmic->regmap;
--	config.driver_data = regulator;
- 	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
-+		config.driver_data = (void *) &regulators[i];
 +
- 		rdev = devm_regulator_register(&pdev->dev,
- 					       &regulators[i].rdesc,
- 					       &config);
- 		if (IS_ERR(rdev)) {
- 			dev_err(&pdev->dev, "failed to register regulator %s\n",
--				regulator->rdesc.name);
-+				regulators[i].rdesc.name);
- 			return PTR_ERR(rdev);
- 		}
- 	}
++	if (ipu_prg_present(ipu))
++		modifiers = pre_format_modifiers;
++
+ 	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
+ 					       possible_crtcs, &ipu_plane_funcs,
+ 					       formats, format_count, modifiers,
+@@ -883,9 +888,6 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
+ 	ipu_plane->dma = dma;
+ 	ipu_plane->dp_flow = dp;
+ 
+-	if (ipu_prg_present(ipu))
+-		modifiers = pre_format_modifiers;
+-
+ 	drm_plane_helper_add(&ipu_plane->base, &ipu_plane_helper_funcs);
+ 
+ 	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG)
 -- 
 2.30.2
 
