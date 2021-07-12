@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE5B3C5439
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882DD3C4F21
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343909AbhGLH5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
+        id S239950AbhGLHXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346637AbhGLHxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CFEE6117A;
-        Mon, 12 Jul 2021 07:50:43 +0000 (UTC)
+        id S245140AbhGLHTZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DDE660FF1;
+        Mon, 12 Jul 2021 07:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076244;
-        bh=+w6zZEWtnix7IzEd5I6z6tOpqtGVzuDHeP+9F32X4SE=;
+        s=korg; t=1626074197;
+        bh=6I2T8XFbIhEBcVIl9KYv5WDOP3d9fa/YF363DrriMpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GI17vxVK5fjxaeKIZCFDPsLQPBAYLvd0vvtL73qhT0PvyAVSUNk1g8692UuxefaVD
-         6rc3n9rEoAfnmnUapCtAHyGAR29a4n0GtMnBo8qlU2jPmZIxC06uIjf1d8hAAlzmb4
-         kiCZzPj/13K/aQf88sL4pshM8pd828dOHXE7bRO8=
+        b=YZ2PX4LWtnTlLTUGfWM2c67lm3iVhEKjozHPTSgVVv03H9ZAm8z8EUCWr69Z5rw2h
+         Z9glEpnjmGCmTiGwVk97vNXoJnBz231Jb53xfr/eTkXMCrfZcDjIef0YOYOeQtFbT9
+         3gyyo3jId5+2H5tE6FWbYpTvYH7X6Hy+ZBJc6HWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
-        Karen Sornek <karen.sornek@intel.com>,
-        Dawid Lukwinski <dawid.lukwinski@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 558/800] i40e: Fix autoneg disabling for non-10GBaseT links
+Subject: [PATCH 5.12 498/700] Bluetooth: mgmt: Fix slab-out-of-bounds in tlv_data_is_valid
 Date:   Mon, 12 Jul 2021 08:09:41 +0200
-Message-Id: <20210712061026.776818473@linuxfoundation.org>
+Message-Id: <20210712061029.472362450@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 9262793e59f0423437166a879a73d056b1fe6f9a ]
+[ Upstream commit 799acb9347915bfe4eac0ff2345b468f0a1ca207 ]
 
-Disabling autonegotiation was allowed only for 10GBaseT PHY.
-The condition was changed to check if link media type is BaseT.
+This fixes parsing of LTV entries when the length is 0.
 
-Fixes: 3ce12ee9d8f9 ("i40e: Fix order of checks when enabling/disabling autoneg in ethtool")
-Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
-Reviewed-by: Karen Sornek <karen.sornek@intel.com>
-Signed-off-by: Dawid Lukwinski <dawid.lukwinski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Found with:
+
+tools/mgmt-tester -s "Add Advertising - Success (ScRsp only)"
+
+Add Advertising - Success (ScRsp only) - run
+  Sending Add Advertising (0x003e)
+  Test condition added, total 1
+[   11.004577] ==================================================================
+[   11.005292] BUG: KASAN: slab-out-of-bounds in tlv_data_is_valid+0x87/0xe0
+[   11.005984] Read of size 1 at addr ffff888002c695b0 by task mgmt-tester/87
+[   11.006711]
+[   11.007176]
+[   11.007429] Allocated by task 87:
+[   11.008151]
+[   11.008438] The buggy address belongs to the object at ffff888002c69580
+[   11.008438]  which belongs to the cache kmalloc-64 of size 64
+[   11.010526] The buggy address is located 48 bytes inside of
+[   11.010526]  64-byte region [ffff888002c69580, ffff888002c695c0)
+[   11.012423] The buggy address belongs to the page:
+[   11.013291]
+[   11.013544] Memory state around the buggy address:
+[   11.014359]  ffff888002c69480: fa fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.015453]  ffff888002c69500: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.016232] >ffff888002c69580: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
+[   11.017010]                                      ^
+[   11.017547]  ffff888002c69600: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
+[   11.018296]  ffff888002c69680: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.019116] ==================================================================
+
+Fixes: 2bb36870e8cb2 ("Bluetooth: Unify advertising instance flags check")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/bluetooth/mgmt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-index ccd5b9486ea9..3e822bad4851 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
-@@ -1262,8 +1262,7 @@ static int i40e_set_link_ksettings(struct net_device *netdev,
- 			if (ethtool_link_ksettings_test_link_mode(&safe_ks,
- 								  supported,
- 								  Autoneg) &&
--			    hw->phy.link_info.phy_type !=
--			    I40E_PHY_TYPE_10GBASE_T) {
-+			    hw->phy.media_type != I40E_MEDIA_TYPE_BASET) {
- 				netdev_info(netdev, "Autoneg cannot be disabled on this phy\n");
- 				err = -EINVAL;
- 				goto done;
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 939c6f77fecc..71de147f5558 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7579,6 +7579,9 @@ static bool tlv_data_is_valid(struct hci_dev *hdev, u32 adv_flags, u8 *data,
+ 	for (i = 0, cur_len = 0; i < len; i += (cur_len + 1)) {
+ 		cur_len = data[i];
+ 
++		if (!cur_len)
++			continue;
++
+ 		if (data[i + 1] == EIR_FLAGS &&
+ 		    (!is_adv_data || flags_managed(adv_flags)))
+ 			return false;
 -- 
 2.30.2
 
