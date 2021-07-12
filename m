@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB8E03C4538
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BEE43C454C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235300AbhGLGYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37526 "EHLO mail.kernel.org"
+        id S235410AbhGLGZB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234750AbhGLGXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 098F56113C;
-        Mon, 12 Jul 2021 06:20:21 +0000 (UTC)
+        id S234439AbhGLGYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:24:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3FE261158;
+        Mon, 12 Jul 2021 06:20:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070822;
-        bh=Kfq4+vFQ/+PIcxjEuUir11AQzB6rvxUK1mBV1FAM6gw=;
+        s=korg; t=1626070827;
+        bh=zLF8kdhC88xF/0xeiYo4eqhyTH8GkUmWJAYOwLEiL8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcC8/5UHLKTsFpnzwtu4PAUYFRaZtBnpRVWqiYe/vwyf80nm0Evsu9nUjBpYoj7ng
-         Ud3k8f/7vvZFKwUaQYB4WdB6bEt7Nl2A0VcTmCu9raRxCxVRIJ6cw5J07UQ7bG3HNK
-         xx0J23k1vTnu3mFFlEv0rdEiMPLO5/Hoa8/aeJGU=
+        b=eJatkjuoIQNEJliP5RCHT3nV5TtIqWpKqdaSC7i7Taedw28hEfZjbzP8PMXtb+u2T
+         6itvOuJQaem12sBYLJIeyv/Yg2Kn625vNaUzqrR38rr7/P5FIJ35uywUIsCGTb323G
+         cUjafAuP95B1wo8svzVXCrzfyIScdcnKSXu8hNtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 154/348] media: au0828: fix a NULL vs IS_ERR() check
-Date:   Mon, 12 Jul 2021 08:08:58 +0200
-Message-Id: <20210712060721.502432533@linuxfoundation.org>
+Subject: [PATCH 5.4 155/348] media: tc358743: Fix error return code in tc358743_probe_of()
+Date:   Mon, 12 Jul 2021 08:08:59 +0200
+Message-Id: <20210712060721.624829705@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,38 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 8f2e452730d2bcd59fe05246f0e19a4c52e0012d ]
+[ Upstream commit a6b1e7093f0a099571fc8836ab4a589633f956a8 ]
 
-The media_device_usb_allocate() function returns error pointers when
-it's enabled and something goes wrong.  It can return NULL as well, but
-only if CONFIG_MEDIA_CONTROLLER is disabled so that doesn't apply here.
+When the CSI bps per lane is not in the valid range, an appropriate error
+code -EINVAL should be returned. However, we currently do not explicitly
+assign this error code to 'ret'. As a result, 0 was incorrectly returned.
 
-Fixes: 812658d88d26 ("media: change au0828 to use Media Device Allocator API")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 256148246852 ("[media] tc358743: support probe from device tree")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/au0828/au0828-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/i2c/tc358743.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/au0828/au0828-core.c b/drivers/media/usb/au0828/au0828-core.c
-index a8a72d5fbd12..caefac07af92 100644
---- a/drivers/media/usb/au0828/au0828-core.c
-+++ b/drivers/media/usb/au0828/au0828-core.c
-@@ -199,8 +199,8 @@ static int au0828_media_device_init(struct au0828_dev *dev,
- 	struct media_device *mdev;
+diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
+index 114c084c4aec..76c443067ec2 100644
+--- a/drivers/media/i2c/tc358743.c
++++ b/drivers/media/i2c/tc358743.c
+@@ -1973,6 +1973,7 @@ static int tc358743_probe_of(struct tc358743_state *state)
+ 	bps_pr_lane = 2 * endpoint.link_frequencies[0];
+ 	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
+ 		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
++		ret = -EINVAL;
+ 		goto disable_clk;
+ 	}
  
- 	mdev = media_device_usb_allocate(udev, KBUILD_MODNAME, THIS_MODULE);
--	if (!mdev)
--		return -ENOMEM;
-+	if (IS_ERR(mdev))
-+		return PTR_ERR(mdev);
- 
- 	dev->media_dev = mdev;
- #endif
 -- 
 2.30.2
 
