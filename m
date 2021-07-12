@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5413C55F5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8393C509D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350852AbhGLIMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56498 "EHLO mail.kernel.org"
+        id S243903AbhGLHdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354104AbhGLID3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 409C76121F;
-        Mon, 12 Jul 2021 07:59:56 +0000 (UTC)
+        id S1345409AbhGLH3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B82BF61624;
+        Mon, 12 Jul 2021 07:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076796;
-        bh=IGDrdWNMGFL6/Ea3KjF9TUrKERhVsI3YCU4AasiDGHA=;
+        s=korg; t=1626074781;
+        bh=7H3AfD7/a7L0KSYQtxm6avVs+H9jxgWGFAmTGPx1LBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj5X16KG3S/hASAs83vOBMQNn+bpbv05/zyW9/BCpSUaZL2xocNX1cuxbnnRRgVUf
-         VXFYKd3IbT3q48C1CqH4fK4RCn4oUGhVPFBVoPs+nBPCrp3+M9CioLANZeS9WGjxdS
-         hGun77PFPUJo22BAuC/MtjBBTlM4Cr7ZgKwlmEGw=
+        b=oupmAuHVZOcm5w89ynnLG0foM3yXJdIWIfvaP3HwUQ5s3bY382d33peFYjkFp00Pr
+         xB0X7IQmsZY7IqHsfoCDXBklajn5JEXw8bRSmg3afDklj0hdsKcXDaOTH/kK5Te79h
+         uehHPP2IZqSQIRam0TRC6vfM/fS94na2D0Ma88rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 755/800] powerpc/papr_scm: Make perf_stats invisible if perf-stats unavailable
+        stable@vger.kernel.org, Dmitry Kadashev <dkadashev@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.12 695/700] io_uring: add IOPOLL and reserved field checks to IORING_OP_RENAMEAT
 Date:   Mon, 12 Jul 2021 08:12:58 +0200
-Message-Id: <20210712061047.134189250@linuxfoundation.org>
+Message-Id: <20210712061049.881445152@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,143 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit ed78f56e1271f108e8af61baeba383dcd77adbec ]
+commit ed7eb2592286ead7d3bfdf8adf65e65392167cc4 upstream.
 
-In case performance stats for an nvdimm are not available, reading the
-'perf_stats' sysfs file returns an -ENOENT error. A better approach is
-to make the 'perf_stats' file entirely invisible to indicate that
-performance stats for an nvdimm are unavailable.
+We can't support IOPOLL with non-pollable request types, and we should
+check for unused/reserved fields like we do for other request types.
 
-So this patch updates 'papr_nd_attribute_group' to add a 'is_visible'
-callback implemented as newly introduced 'papr_nd_attribute_visible()'
-that returns an appropriate mode in case performance stats aren't
-supported in a given nvdimm.
+Fixes: 80a261fd0032 ("io_uring: add support for IORING_OP_RENAMEAT")
+Cc: stable@vger.kernel.org
+Reported-by: Dmitry Kadashev <dkadashev@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Also the initialization of 'papr_scm_priv.stat_buffer_len' is moved
-from papr_scm_nvdimm_init() to papr_scm_probe() so that it value is
-available when 'papr_nd_attribute_visible()' is called during nvdimm
-initialization.
-
-Even though 'perf_stats' attribute is available since v5.9, there are
-no known user-space tools/scripts that are dependent on presence of its
-sysfs file. Hence I dont expect any user-space breakage with this
-patch.
-
-Fixes: 2d02bf835e57 ("powerpc/papr_scm: Fetch nvdimm performance stats from PHYP")
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210513092349.285021-1-vaibhav@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-bus-papr-pmem |  8 +++--
- arch/powerpc/platforms/pseries/papr_scm.c     | 35 +++++++++++++------
- 2 files changed, 29 insertions(+), 14 deletions(-)
+ fs/io_uring.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-papr-pmem b/Documentation/ABI/testing/sysfs-bus-papr-pmem
-index 92e2db0e2d3d..95254cec92bf 100644
---- a/Documentation/ABI/testing/sysfs-bus-papr-pmem
-+++ b/Documentation/ABI/testing/sysfs-bus-papr-pmem
-@@ -39,9 +39,11 @@ KernelVersion:	v5.9
- Contact:	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, nvdimm@lists.linux.dev,
- Description:
- 		(RO) Report various performance stats related to papr-scm NVDIMM
--		device.  Each stat is reported on a new line with each line
--		composed of a stat-identifier followed by it value. Below are
--		currently known dimm performance stats which are reported:
-+		device. This attribute is only available for NVDIMM devices
-+		that support reporting NVDIMM performance stats. Each stat is
-+		reported on a new line with each line composed of a
-+		stat-identifier followed by it value. Below are currently known
-+		dimm performance stats which are reported:
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -3497,6 +3497,10 @@ static int io_renameat_prep(struct io_ki
+ 	struct io_rename *ren = &req->rename;
+ 	const char __user *oldf, *newf;
  
- 		* "CtlResCt" : Controller Reset Count
- 		* "CtlResTm" : Controller Reset Elapsed Time
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index 8335e13836db..d34e6eb4be0d 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -901,6 +901,20 @@ static ssize_t flags_show(struct device *dev,
- }
- DEVICE_ATTR_RO(flags);
++	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
++		return -EINVAL;
++	if (sqe->ioprio || sqe->buf_index)
++		return -EINVAL;
+ 	if (unlikely(req->flags & REQ_F_FIXED_FILE))
+ 		return -EBADF;
  
-+static umode_t papr_nd_attribute_visible(struct kobject *kobj,
-+					 struct attribute *attr, int n)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct nvdimm *nvdimm = to_nvdimm(dev);
-+	struct papr_scm_priv *p = nvdimm_provider_data(nvdimm);
-+
-+	/* For if perf-stats not available remove perf_stats sysfs */
-+	if (attr == &dev_attr_perf_stats.attr && p->stat_buffer_len == 0)
-+		return 0;
-+
-+	return attr->mode;
-+}
-+
- /* papr_scm specific dimm attributes */
- static struct attribute *papr_nd_attributes[] = {
- 	&dev_attr_flags.attr,
-@@ -910,6 +924,7 @@ static struct attribute *papr_nd_attributes[] = {
- 
- static struct attribute_group papr_nd_attribute_group = {
- 	.name = "papr",
-+	.is_visible = papr_nd_attribute_visible,
- 	.attrs = papr_nd_attributes,
- };
- 
-@@ -925,7 +940,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
- 	struct nd_region_desc ndr_desc;
- 	unsigned long dimm_flags;
- 	int target_nid, online_nid;
--	ssize_t stat_size;
- 
- 	p->bus_desc.ndctl = papr_scm_ndctl;
- 	p->bus_desc.module = THIS_MODULE;
-@@ -1010,16 +1024,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
- 	list_add_tail(&p->region_list, &papr_nd_regions);
- 	mutex_unlock(&papr_ndr_lock);
- 
--	/* Try retriving the stat buffer and see if its supported */
--	stat_size = drc_pmem_query_stats(p, NULL, 0);
--	if (stat_size > 0) {
--		p->stat_buffer_len = stat_size;
--		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
--			p->stat_buffer_len);
--	} else {
--		dev_info(&p->pdev->dev, "Dimm performance stats unavailable\n");
--	}
--
- 	return 0;
- 
- err:	nvdimm_bus_unregister(p->bus);
-@@ -1097,6 +1101,7 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	struct papr_scm_priv *p;
- 	u8 uuid_raw[UUID_SIZE];
- 	const char *uuid_str;
-+	ssize_t stat_size;
- 	uuid_t uuid;
- 	int rc;
- 
-@@ -1181,6 +1186,14 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	p->res.name  = pdev->name;
- 	p->res.flags = IORESOURCE_MEM;
- 
-+	/* Try retrieving the stat buffer and see if its supported */
-+	stat_size = drc_pmem_query_stats(p, NULL, 0);
-+	if (stat_size > 0) {
-+		p->stat_buffer_len = stat_size;
-+		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
-+			p->stat_buffer_len);
-+	}
-+
- 	rc = papr_scm_nvdimm_init(p);
- 	if (rc)
- 		goto err2;
--- 
-2.30.2
-
 
 
