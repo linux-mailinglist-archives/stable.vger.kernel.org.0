@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4423C49B5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C743C4E15
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237558AbhGLGqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41250 "EHLO mail.kernel.org"
+        id S243543AbhGLHQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:16:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239153AbhGLGot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05611611CD;
-        Mon, 12 Jul 2021 06:40:52 +0000 (UTC)
+        id S243450AbhGLHPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:15:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4994961106;
+        Mon, 12 Jul 2021 07:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072053;
-        bh=rKR/EJcxu+a1sOuNFRnuRlLYwjjS1UyUgNprgK+cSYo=;
+        s=korg; t=1626073932;
+        bh=yEFcNEXpnicFUGlpyGK9hl4vpdiXNqemBYdU9G+Xx14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyf5hS/x93KKGWgr/ry/U1lyMgkcMT/cije9nqlTxQPoipSY2aVtb42kRdid+Kajg
-         5LItkdAVAL22PcNZpmZZFjTHQc/S2z5s8IaAkmBUqBiym2HkSTOsLLgkUfsqcJcOlX
-         6R539z+dxbE8sStjbp++goYIQb/MyeYsGAoQdov4=
+        b=U+mechaR1U5CJf7YBWBr2snzMhETEQZAUEz1C4vGvXS+TF+HxgFNeV85ik8bvsskr
+         xdvQVsUvfMRMVuQAElCUoemuzlA59NJ9asIGeNeZ128WUIFInuLDFCJtv9HSDsqtYD
+         f+ZyohH7MMp1Cs95DLYTAp4AuxOuXV8+b92vzLxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 332/593] RDMA/core: Sanitize WQ state received from the userspace
+Subject: [PATCH 5.12 409/700] brcmfmac: correctly report average RSSI in station info
 Date:   Mon, 12 Jul 2021 08:08:12 +0200
-Message-Id: <20210712060922.351549430@linuxfoundation.org>
+Message-Id: <20210712061019.915507092@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,102 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Alvin Šipraga <ALSI@bang-olufsen.dk>
 
-[ Upstream commit f97442887275d11c88c2899e720fe945c1f61488 ]
+[ Upstream commit 9a1590934d9a02e570636432b93052c0c035f31f ]
 
-The mlx4 and mlx5 implemented differently the WQ input checks.  Instead of
-duplicating mlx4 logic in the mlx5, let's prepare the input in the central
-place.
+The rx_lastpkt_rssi field provided by the firmware is suitable for
+NL80211_STA_INFO_{SIGNAL,CHAIN_SIGNAL}, while the rssi field is an
+average. Fix up the assignments and set the correct STA_INFO bits. This
+lets userspace know that the average RSSI is part of the station info.
 
-The mlx5 implementation didn't check for validity of state input.  It is
-not real bug because our FW checked that, but still worth to fix.
-
-Fixes: f213c0527210 ("IB/uverbs: Add WQ support")
-Link: https://lore.kernel.org/r/ac41ad6a81b095b1a8ad453dcf62cf8d3c5da779.1621413310.git.leonro@nvidia.com
-Reported-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: cae355dc90db ("brcmfmac: Add RSSI information to get_station.")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210506132010.3964484-2-alsi@bang-olufsen.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/uverbs_cmd.c | 21 +++++++++++++++++++--
- drivers/infiniband/hw/mlx4/qp.c      |  9 ++-------
- drivers/infiniband/hw/mlx5/qp.c      |  6 ++----
- 3 files changed, 23 insertions(+), 13 deletions(-)
+ .../broadcom/brcm80211/brcmfmac/cfg80211.c    | 36 ++++++++++---------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
-index 418d133a8fb0..466026825dd7 100644
---- a/drivers/infiniband/core/uverbs_cmd.c
-+++ b/drivers/infiniband/core/uverbs_cmd.c
-@@ -3000,12 +3000,29 @@ static int ib_uverbs_ex_modify_wq(struct uverbs_attr_bundle *attrs)
- 	if (!wq)
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index afa75cb83221..d8822a01d277 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -2767,8 +2767,9 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 	struct brcmf_sta_info_le sta_info_le;
+ 	u32 sta_flags;
+ 	u32 is_tdls_peer;
+-	s32 total_rssi;
+-	s32 count_rssi;
++	s32 total_rssi_avg = 0;
++	s32 total_rssi = 0;
++	s32 count_rssi = 0;
+ 	int rssi;
+ 	u32 i;
  
--	wq_attr.curr_wq_state = cmd.curr_wq_state;
--	wq_attr.wq_state = cmd.wq_state;
- 	if (cmd.attr_mask & IB_WQ_FLAGS) {
- 		wq_attr.flags = cmd.flags;
- 		wq_attr.flags_mask = cmd.flags_mask;
- 	}
-+
-+	if (cmd.attr_mask & IB_WQ_CUR_STATE) {
-+		if (cmd.curr_wq_state > IB_WQS_ERR)
-+			return -EINVAL;
-+
-+		wq_attr.curr_wq_state = cmd.curr_wq_state;
-+	} else {
-+		wq_attr.curr_wq_state = wq->state;
-+	}
-+
-+	if (cmd.attr_mask & IB_WQ_STATE) {
-+		if (cmd.wq_state > IB_WQS_ERR)
-+			return -EINVAL;
-+
-+		wq_attr.wq_state = cmd.wq_state;
-+	} else {
-+		wq_attr.wq_state = wq_attr.curr_wq_state;
-+	}
-+
- 	ret = wq->device->ops.modify_wq(wq, &wq_attr, cmd.attr_mask,
- 					&attrs->driver_udata);
- 	rdma_lookup_put_uobject(&wq->uobject->uevent.uobject,
-diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
-index 5cb8e602294c..6bc0818f4b2c 100644
---- a/drivers/infiniband/hw/mlx4/qp.c
-+++ b/drivers/infiniband/hw/mlx4/qp.c
-@@ -4244,13 +4244,8 @@ int mlx4_ib_modify_wq(struct ib_wq *ibwq, struct ib_wq_attr *wq_attr,
- 	if (wq_attr_mask & IB_WQ_FLAGS)
- 		return -EOPNOTSUPP;
- 
--	cur_state = wq_attr_mask & IB_WQ_CUR_STATE ? wq_attr->curr_wq_state :
--						     ibwq->state;
--	new_state = wq_attr_mask & IB_WQ_STATE ? wq_attr->wq_state : cur_state;
--
--	if (cur_state  < IB_WQS_RESET || cur_state  > IB_WQS_ERR ||
--	    new_state < IB_WQS_RESET || new_state > IB_WQS_ERR)
--		return -EINVAL;
-+	cur_state = wq_attr->curr_wq_state;
-+	new_state = wq_attr->wq_state;
- 
- 	if ((new_state == IB_WQS_RDY) && (cur_state == IB_WQS_ERR))
- 		return -EINVAL;
-diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
-index 6d2715f65d78..8beba002e5dd 100644
---- a/drivers/infiniband/hw/mlx5/qp.c
-+++ b/drivers/infiniband/hw/mlx5/qp.c
-@@ -5236,10 +5236,8 @@ int mlx5_ib_modify_wq(struct ib_wq *wq, struct ib_wq_attr *wq_attr,
- 
- 	rqc = MLX5_ADDR_OF(modify_rq_in, in, ctx);
- 
--	curr_wq_state = (wq_attr_mask & IB_WQ_CUR_STATE) ?
--		wq_attr->curr_wq_state : wq->state;
--	wq_state = (wq_attr_mask & IB_WQ_STATE) ?
--		wq_attr->wq_state : curr_wq_state;
-+	curr_wq_state = wq_attr->curr_wq_state;
-+	wq_state = wq_attr->wq_state;
- 	if (curr_wq_state == IB_WQS_ERR)
- 		curr_wq_state = MLX5_RQC_STATE_ERR;
- 	if (wq_state == IB_WQS_ERR)
+@@ -2834,24 +2835,27 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_RX_BYTES);
+ 			sinfo->rx_bytes = le64_to_cpu(sta_info_le.rx_tot_bytes);
+ 		}
+-		total_rssi = 0;
+-		count_rssi = 0;
+ 		for (i = 0; i < BRCMF_ANT_MAX; i++) {
+-			if (sta_info_le.rssi[i]) {
+-				sinfo->chains |= BIT(count_rssi);
+-				sinfo->chain_signal_avg[count_rssi] =
+-					sta_info_le.rssi[i];
+-				sinfo->chain_signal[count_rssi] =
+-					sta_info_le.rssi[i];
+-				total_rssi += sta_info_le.rssi[i];
+-				count_rssi++;
+-			}
++			if (sta_info_le.rssi[i] == 0 ||
++			    sta_info_le.rx_lastpkt_rssi[i] == 0)
++				continue;
++			sinfo->chains |= BIT(count_rssi);
++			sinfo->chain_signal[count_rssi] =
++				sta_info_le.rx_lastpkt_rssi[i];
++			sinfo->chain_signal_avg[count_rssi] =
++				sta_info_le.rssi[i];
++			total_rssi += sta_info_le.rx_lastpkt_rssi[i];
++			total_rssi_avg += sta_info_le.rssi[i];
++			count_rssi++;
+ 		}
+ 		if (count_rssi) {
+-			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL);
+-			total_rssi /= count_rssi;
+-			sinfo->signal = total_rssi;
++			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
++			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
++			sinfo->filled |=
++				BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL_AVG);
++			sinfo->signal = total_rssi / count_rssi;
++			sinfo->signal_avg = total_rssi_avg / count_rssi;
+ 		} else if (test_bit(BRCMF_VIF_STATUS_CONNECTED,
+ 			&ifp->vif->sme_state)) {
+ 			memset(&scb_val, 0, sizeof(scb_val));
 -- 
 2.30.2
 
