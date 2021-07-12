@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D1D3C5339
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 142253C4D20
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352132AbhGLHyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35480 "EHLO mail.kernel.org"
+        id S245351AbhGLHMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344959AbhGLHsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:48:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F26861975;
-        Mon, 12 Jul 2021 07:42:57 +0000 (UTC)
+        id S244177AbhGLHK3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20E526128B;
+        Mon, 12 Jul 2021 07:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075777;
-        bh=uXS9VuRrjIykIw6Xek2w7z/h9x5jPoTVQzARPSr4ze8=;
+        s=korg; t=1626073618;
+        bh=Vukdih6YeFJpGYbLKGkpz+X+d2pUhS0Q7sR1yftwxeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ckkA4Zci/kTH9df9NbO7GNVTmHEwZvon2UkipP87afcxhYep+W4LCeCWHiT9aCZJ4
-         +cdEP6Xcmm1rqLzZxSou5ni8fVHvzw45GSYTnt0ag3881F9Ir1dcb6yh3B7mRGr8d+
-         GBSdU2KixTM3uVWNYKwP9OwnXIvd3o5FUYChRZYE=
+        b=Nze9KMOPLYRyJo+EHHKgwmilkPJebU3zocpF5bTDVfnlR7Yci/lFUrx+1jtC7S0Jn
+         t0j0fDRfkUjpkLZe6TzhosYZMbJxxdGXGoGrXmipEzTZuSedvvsVTN24W1ZRzUrcnS
+         fcgkHJvfUHRleqnteVVBxSidjaaanXL2xEGQyXFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liang Prike <Prike.Liang@amd.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "David E. Box" <david.e.box@linux.intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 360/800] nvme-pci: look for StorageD3Enable on companion ACPI device instead
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Kai Huang <kai.huang@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 300/700] KVM: x86/mmu: Fix return value in tdp_mmu_map_handle_target_level()
 Date:   Mon, 12 Jul 2021 08:06:23 +0200
-Message-Id: <20210712061005.392727896@linuxfoundation.org>
+Message-Id: <20210712061008.294755797@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Kai Huang <kai.huang@intel.com>
 
-[ Upstream commit e21e0243e7b0f1c2a21d21f4d115f7b37175772a ]
+[ Upstream commit 57a3e96d6d17ae5ac9861ef34af024a627f1c3bb ]
 
-The documentation around the StorageD3Enable property hints that it
-should be made on the PCI device.  This is where newer AMD systems set
-the property and it's required for S0i3 support.
+Currently tdp_mmu_map_handle_target_level() returns 0, which is
+RET_PF_RETRY, when page fault is actually fixed.  This makes
+kvm_tdp_mmu_map() also return RET_PF_RETRY in this case, instead of
+RET_PF_FIXED.  Fix by initializing ret to RET_PF_FIXED.
 
-So rather than look for nodes of the root port only present on Intel
-systems, switch to the companion ACPI device for all systems.
-David Box from Intel indicated this should work on Intel as well.
+Note that kvm_mmu_page_fault() resumes guest on both RET_PF_RETRY and
+RET_PF_FIXED, which means in practice returning the two won't make
+difference, so this fix alone won't be necessary for stable tree.
 
-Link: https://lore.kernel.org/linux-nvme/YK6gmAWqaRmvpJXb@google.com/T/#m900552229fa455867ee29c33b854845fce80ba70
-Link: https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/power-management-for-storage-hardware-devices-intro
-Fixes: df4f9bc4fb9c ("nvme-pci: add support for ACPI StorageD3Enable property")
-Suggested-by: Liang Prike <Prike.Liang@amd.com>
-Acked-by: Raul E Rangel <rrangel@chromium.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: David E. Box <david.e.box@linux.intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: bb18842e2111 ("kvm: x86/mmu: Add TDP MMU PF handler")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Signed-off-by: Kai Huang <kai.huang@intel.com>
+Message-Id: <f9e8956223a586cd28c090879a8ff40f5eb6d609.1623717884.git.kai.huang@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 24 +-----------------------
- 1 file changed, 1 insertion(+), 23 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index 2995e87ce776..42ad75ff1348 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2831,10 +2831,7 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
- #ifdef CONFIG_ACPI
- static bool nvme_acpi_storage_d3(struct pci_dev *dev)
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index 018d82e73e31..0aca7dcbcbf9 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -745,7 +745,7 @@ static int tdp_mmu_map_handle_target_level(struct kvm_vcpu *vcpu, int write,
+ 					  kvm_pfn_t pfn, bool prefault)
  {
--	struct acpi_device *adev;
--	struct pci_dev *root;
--	acpi_handle handle;
--	acpi_status status;
-+	struct acpi_device *adev = ACPI_COMPANION(&dev->dev);
- 	u8 val;
+ 	u64 new_spte;
+-	int ret = 0;
++	int ret = RET_PF_FIXED;
+ 	int make_spte_ret = 0;
  
- 	/*
-@@ -2842,28 +2839,9 @@ static bool nvme_acpi_storage_d3(struct pci_dev *dev)
- 	 * must use D3 to support deep platform power savings during
- 	 * suspend-to-idle.
- 	 */
--	root = pcie_find_root_port(dev);
--	if (!root)
--		return false;
- 
--	adev = ACPI_COMPANION(&root->dev);
- 	if (!adev)
- 		return false;
--
--	/*
--	 * The property is defined in the PXSX device for South complex ports
--	 * and in the PEGP device for North complex ports.
--	 */
--	status = acpi_get_handle(adev->handle, "PXSX", &handle);
--	if (ACPI_FAILURE(status)) {
--		status = acpi_get_handle(adev->handle, "PEGP", &handle);
--		if (ACPI_FAILURE(status))
--			return false;
--	}
--
--	if (acpi_bus_get_device(handle, &adev))
--		return false;
--
- 	if (fwnode_property_read_u8(acpi_fwnode_handle(adev), "StorageD3Enable",
- 			&val))
- 		return false;
+ 	if (unlikely(is_noslot_pfn(pfn)))
 -- 
 2.30.2
 
