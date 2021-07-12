@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDF033C5033
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A26183C4B18
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240615AbhGLHbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36898 "EHLO mail.kernel.org"
+        id S239737AbhGLGze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343756AbhGLH2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:28:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C75961166;
-        Mon, 12 Jul 2021 07:24:34 +0000 (UTC)
+        id S240973AbhGLGyX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6367611B0;
+        Mon, 12 Jul 2021 06:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074675;
-        bh=J0yhbvdUKMr+Yfgzy+EhEC+S0VN0f6BTmz0TGKluGmE=;
+        s=korg; t=1626072688;
+        bh=VrPXUm0PKzWrgMxxobE5j99PE4NAJHQyapS/YeWsxBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GY8N4h32kT8vQBWPGjTMwcn97r/6j17sPbJ9ezt4u2JsdPh23jdhJMXRnTwUfCeil
-         xErdYXp119DO0mtAmbd2Vq4UZIC/HQ2U93nYkicj+v8M3HYbRqeBeLwa1lKvJz1ieo
-         ewYYUvSX/evODWRNoo3Nn6irnUn/oK5orapWoJVU=
+        b=NtBIOc23Z4byUamIv2j+DVSRwkXEVm9vo44q6/3epHGq5vKj0Hwjl5P6K9AEXaYlX
+         Fnj16znaD1qh2xCtoHiM9WIE/v2GTYAGnnMnABNGTuUh8BTp3QAWoTtmWpuPyQcOis
+         6+W1FNMd9aHgLVB0q/GlnJXU8AsSEkaQThxCrW4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 658/700] powerpc: Fix is_kvm_guest() / kvm_para_available()
-Date:   Mon, 12 Jul 2021 08:12:21 +0200
-Message-Id: <20210712061045.887919415@linuxfoundation.org>
+        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 582/593] scsi: target: cxgbit: Unmap DMA buffer before calling target_execute_cmd()
+Date:   Mon, 12 Jul 2021 08:12:22 +0200
+Message-Id: <20210712060959.242606314@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,108 +39,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Varun Prakash <varun@chelsio.com>
 
-[ Upstream commit 95839225639ba7c3d8d7231b542728dcf222bf2d ]
+commit 6ecdafaec79d4b3388a5b017245f23a0ff9d852d upstream.
 
-Commit a21d1becaa3f ("powerpc: Reintroduce is_kvm_guest() as a fast-path
-check") added is_kvm_guest() and changed kvm_para_available() to use it.
+Instead of calling dma_unmap_sg() after completing WRITE I/O, call
+dma_unmap_sg() before calling target_execute_cmd() to sync the DMA buffer.
 
-is_kvm_guest() checks a static key, kvm_guest, and that static key is
-set in check_kvm_guest().
+Link: https://lore.kernel.org/r/1618403949-3443-1-git-send-email-varun@chelsio.com
+Cc: <stable@vger.kernel.org> # 5.4+
+Signed-off-by: Varun Prakash <varun@chelsio.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The problem is check_kvm_guest() is only called on pseries, and even
-then only in some configurations. That means is_kvm_guest() always
-returns false on all non-pseries and some pseries depending on
-configuration. That's a bug.
-
-For PR KVM guests this is noticable because they no longer do live
-patching of themselves, which can be detected by the omission of a
-message in dmesg such as:
-
-  KVM: Live patching for a fast VM worked
-
-To fix it make check_kvm_guest() an initcall, to ensure it's always
-called at boot. It needs to be core so that it runs before
-kvm_guest_init() which is postcore. To be an initcall it needs to return
-int, where 0 means success, so update that.
-
-We still call it manually in pSeries_smp_probe(), because that runs
-before init calls are run.
-
-Fixes: a21d1becaa3f ("powerpc: Reintroduce is_kvm_guest() as a fast-path check")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210623130514.2543232-1-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/kvm_guest.h |  4 ++--
- arch/powerpc/kernel/firmware.c       | 10 ++++++----
- arch/powerpc/platforms/pseries/smp.c |  4 +++-
- 3 files changed, 11 insertions(+), 7 deletions(-)
+ drivers/target/iscsi/cxgbit/cxgbit_ddp.c    |   19 ++++++++++---------
+ drivers/target/iscsi/cxgbit/cxgbit_target.c |   21 ++++++++++++++++++---
+ 2 files changed, 28 insertions(+), 12 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/kvm_guest.h b/arch/powerpc/include/asm/kvm_guest.h
-index 2fca299f7e19..c63105d2c9e7 100644
---- a/arch/powerpc/include/asm/kvm_guest.h
-+++ b/arch/powerpc/include/asm/kvm_guest.h
-@@ -16,10 +16,10 @@ static inline bool is_kvm_guest(void)
- 	return static_branch_unlikely(&kvm_guest);
+--- a/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
++++ b/drivers/target/iscsi/cxgbit/cxgbit_ddp.c
+@@ -265,12 +265,13 @@ void cxgbit_unmap_cmd(struct iscsi_conn
+ 	struct cxgbit_cmd *ccmd = iscsit_priv_cmd(cmd);
+ 
+ 	if (ccmd->release) {
+-		struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
+-
+-		if (ttinfo->sgl) {
++		if (cmd->se_cmd.se_cmd_flags & SCF_PASSTHROUGH_SG_TO_MEM_NOALLOC) {
++			put_page(sg_page(&ccmd->sg));
++		} else {
+ 			struct cxgbit_sock *csk = conn->context;
+ 			struct cxgbit_device *cdev = csk->com.cdev;
+ 			struct cxgbi_ppm *ppm = cdev2ppm(cdev);
++			struct cxgbi_task_tag_info *ttinfo = &ccmd->ttinfo;
+ 
+ 			/* Abort the TCP conn if DDP is not complete to
+ 			 * avoid any possibility of DDP after freeing
+@@ -280,14 +281,14 @@ void cxgbit_unmap_cmd(struct iscsi_conn
+ 				     cmd->se_cmd.data_length))
+ 				cxgbit_abort_conn(csk);
+ 
++			if (unlikely(ttinfo->sgl)) {
++				dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
++					     ttinfo->nents, DMA_FROM_DEVICE);
++				ttinfo->nents = 0;
++				ttinfo->sgl = NULL;
++			}
+ 			cxgbi_ppm_ppod_release(ppm, ttinfo->idx);
+-
+-			dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl,
+-				     ttinfo->nents, DMA_FROM_DEVICE);
+-		} else {
+-			put_page(sg_page(&ccmd->sg));
+ 		}
+-
+ 		ccmd->release = false;
+ 	}
  }
+--- a/drivers/target/iscsi/cxgbit/cxgbit_target.c
++++ b/drivers/target/iscsi/cxgbit/cxgbit_target.c
+@@ -997,17 +997,18 @@ static int cxgbit_handle_iscsi_dataout(s
+ 	struct scatterlist *sg_start;
+ 	struct iscsi_conn *conn = csk->conn;
+ 	struct iscsi_cmd *cmd = NULL;
++	struct cxgbit_cmd *ccmd;
++	struct cxgbi_task_tag_info *ttinfo;
+ 	struct cxgbit_lro_pdu_cb *pdu_cb = cxgbit_rx_pdu_cb(csk->skb);
+ 	struct iscsi_data *hdr = (struct iscsi_data *)pdu_cb->hdr;
+ 	u32 data_offset = be32_to_cpu(hdr->offset);
+-	u32 data_len = pdu_cb->dlen;
++	u32 data_len = ntoh24(hdr->dlength);
+ 	int rc, sg_nents, sg_off;
+ 	bool dcrc_err = false;
  
--bool check_kvm_guest(void);
-+int check_kvm_guest(void);
- #else
- static inline bool is_kvm_guest(void) { return false; }
--static inline bool check_kvm_guest(void) { return false; }
-+static inline int check_kvm_guest(void) { return 0; }
- #endif
+ 	if (pdu_cb->flags & PDUCBF_RX_DDP_CMP) {
+ 		u32 offset = be32_to_cpu(hdr->offset);
+ 		u32 ddp_data_len;
+-		u32 payload_length = ntoh24(hdr->dlength);
+ 		bool success = false;
  
- #endif /* _ASM_POWERPC_KVM_GUEST_H_ */
-diff --git a/arch/powerpc/kernel/firmware.c b/arch/powerpc/kernel/firmware.c
-index c9e2819b095a..c7022c41cc31 100644
---- a/arch/powerpc/kernel/firmware.c
-+++ b/arch/powerpc/kernel/firmware.c
-@@ -23,18 +23,20 @@ EXPORT_SYMBOL_GPL(powerpc_firmware_features);
+ 		cmd = iscsit_find_cmd_from_itt_or_dump(conn, hdr->itt, 0);
+@@ -1022,7 +1023,7 @@ static int cxgbit_handle_iscsi_dataout(s
+ 		cmd->data_sn = be32_to_cpu(hdr->datasn);
  
- #if defined(CONFIG_PPC_PSERIES) || defined(CONFIG_KVM_GUEST)
- DEFINE_STATIC_KEY_FALSE(kvm_guest);
--bool check_kvm_guest(void)
-+int __init check_kvm_guest(void)
- {
- 	struct device_node *hyper_node;
+ 		rc = __iscsit_check_dataout_hdr(conn, (unsigned char *)hdr,
+-						cmd, payload_length, &success);
++						cmd, data_len, &success);
+ 		if (rc < 0)
+ 			return rc;
+ 		else if (!success)
+@@ -1060,6 +1061,20 @@ static int cxgbit_handle_iscsi_dataout(s
+ 		cxgbit_skb_copy_to_sg(csk->skb, sg_start, sg_nents, skip);
+ 	}
  
- 	hyper_node = of_find_node_by_path("/hypervisor");
- 	if (!hyper_node)
--		return false;
-+		return 0;
- 
- 	if (!of_device_is_compatible(hyper_node, "linux,kvm"))
--		return false;
-+		return 0;
- 
- 	static_branch_enable(&kvm_guest);
--	return true;
++	ccmd = iscsit_priv_cmd(cmd);
++	ttinfo = &ccmd->ttinfo;
 +
-+	return 0;
- }
-+core_initcall(check_kvm_guest); // before kvm_guest_init()
- #endif
-diff --git a/arch/powerpc/platforms/pseries/smp.c b/arch/powerpc/platforms/pseries/smp.c
-index c70b4be9f0a5..096629f54576 100644
---- a/arch/powerpc/platforms/pseries/smp.c
-+++ b/arch/powerpc/platforms/pseries/smp.c
-@@ -211,7 +211,9 @@ static __init void pSeries_smp_probe(void)
- 	if (!cpu_has_feature(CPU_FTR_SMT))
- 		return;
- 
--	if (check_kvm_guest()) {
-+	check_kvm_guest();
++	if (ccmd->release && ttinfo->sgl &&
++	    (cmd->se_cmd.data_length ==	(cmd->write_data_done + data_len))) {
++		struct cxgbit_device *cdev = csk->com.cdev;
++		struct cxgbi_ppm *ppm = cdev2ppm(cdev);
 +
-+	if (is_kvm_guest()) {
- 		/*
- 		 * KVM emulates doorbells by disabling FSCR[MSGP] so msgsndp
- 		 * faults to the hypervisor which then reads the instruction
--- 
-2.30.2
-
++		dma_unmap_sg(&ppm->pdev->dev, ttinfo->sgl, ttinfo->nents,
++			     DMA_FROM_DEVICE);
++		ttinfo->nents = 0;
++		ttinfo->sgl = NULL;
++	}
++
+ check_payload:
+ 
+ 	rc = iscsit_check_dataout_payload(cmd, hdr, dcrc_err);
 
 
