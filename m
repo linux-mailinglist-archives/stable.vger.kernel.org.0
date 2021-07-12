@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A47F3C5595
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 326273C4B2B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231795AbhGLILG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56556 "EHLO mail.kernel.org"
+        id S240133AbhGLGzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353749AbhGLICu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0272F61D09;
-        Mon, 12 Jul 2021 07:57:19 +0000 (UTC)
+        id S240990AbhGLGyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 729AE60FD8;
+        Mon, 12 Jul 2021 06:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076640;
-        bh=/B1RIRLSt4RjsDEo3xrgyfXm9+IGRlzknx9Yfryjoyo=;
+        s=korg; t=1626072697;
+        bh=VlX7Iqr2YAqQBDc+i+FUT5d7YmQ3Lx0WLXTqyk7gdro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNxgnsfNiYUd3uj4Fcmiok0EqxieodPtYXR3eJbTuZsoLDBlwWC/qTv4fX6SNfAge
-         coSzNUmqUNMqDzuh9LKIVPuwXFdWmZ5MPH3DoqWmT6nYlm3c5WGkwOQwTFKE9pc8Oz
-         s/OA50QYQsZSyC4+tGd+7Qdlo8A/KkmQTmfZyqVQ=
+        b=QFKlHzULmFd6HDjANJF98WRralvWrMUbAPnhbkOiHJryjQRX2cDZgD9ROJz10vNNa
+         F4rGuFWIEhhD19pCt3NtFifPGj2iPCr3pQS1bJAU9yNxG35ruU8OKdJx739T1hvJ3C
+         9Vzr82sXIQKOOYdV+F9iKgvxO/wQxceAGJ+qS2jE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Pratyush Yadav <p.yadav@ti.com>,
+        stable@vger.kernel.org, Yanfei Xu <yanfei.xu@windriver.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 703/800] mtd: spi-nor: otp: fix access to security registers in 4 byte mode
-Date:   Mon, 12 Jul 2021 08:12:06 +0200
-Message-Id: <20210712061041.571554128@linuxfoundation.org>
+Subject: [PATCH 5.10 567/593] mm/hugetlb: remove redundant check in preparing and destroying gigantic page
+Date:   Mon, 12 Jul 2021 08:12:07 +0200
+Message-Id: <20210712060957.183774562@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Yanfei Xu <yanfei.xu@windriver.com>
 
-[ Upstream commit b97b1a769849beb6b40b740817b06f1a50e1c589 ]
+[ Upstream commit 5291c09b3edb657f23c1939750c702ba2d74932f ]
 
-The security registers either take a 3 byte or a 4 byte address offset,
-depending on the address mode of the flash. Thus just leave the
-nor->addr_width as is.
+Gigantic page is a compound page and its order is more than 1.  Thus it
+must be available for hpage_pincount.  Let's remove the redundant check
+for gigantic page.
 
-Fixes: cad3193fe9d1 ("mtd: spi-nor: implement OTP support for Winbond and similar flashes")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Pratyush Yadav <p.yadav@ti.com>
+Link: https://lkml.kernel.org/r/20210202112002.73170-1-yanfei.xu@windriver.com
+Signed-off-by: Yanfei Xu <yanfei.xu@windriver.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/spi-nor/otp.c | 2 --
- 1 file changed, 2 deletions(-)
+ mm/hugetlb.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/spi-nor/otp.c b/drivers/mtd/spi-nor/otp.c
-index fcf38d260345..5c51a2c9be61 100644
---- a/drivers/mtd/spi-nor/otp.c
-+++ b/drivers/mtd/spi-nor/otp.c
-@@ -40,7 +40,6 @@ int spi_nor_otp_read_secr(struct spi_nor *nor, loff_t addr, size_t len, u8 *buf)
- 	rdesc = nor->dirmap.rdesc;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 991b5cd40267..f90dd909d017 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1252,8 +1252,7 @@ static void destroy_compound_gigantic_page(struct page *page,
+ 	struct page *p = page + 1;
  
- 	nor->read_opcode = SPINOR_OP_RSECR;
--	nor->addr_width = 3;
- 	nor->read_dummy = 8;
- 	nor->read_proto = SNOR_PROTO_1_1_1;
- 	nor->dirmap.rdesc = NULL;
-@@ -84,7 +83,6 @@ int spi_nor_otp_write_secr(struct spi_nor *nor, loff_t addr, size_t len,
- 	wdesc = nor->dirmap.wdesc;
+ 	atomic_set(compound_mapcount_ptr(page), 0);
+-	if (hpage_pincount_available(page))
+-		atomic_set(compound_pincount_ptr(page), 0);
++	atomic_set(compound_pincount_ptr(page), 0);
  
- 	nor->program_opcode = SPINOR_OP_PSECR;
--	nor->addr_width = 3;
- 	nor->write_proto = SNOR_PROTO_1_1_1;
- 	nor->dirmap.wdesc = NULL;
+ 	for (i = 1; i < nr_pages; i++, p = mem_map_next(p, page, i)) {
+ 		clear_compound_head(p);
+@@ -1583,9 +1582,7 @@ static void prep_compound_gigantic_page(struct page *page, unsigned int order)
+ 		set_compound_head(p, page);
+ 	}
+ 	atomic_set(compound_mapcount_ptr(page), -1);
+-
+-	if (hpage_pincount_available(page))
+-		atomic_set(compound_pincount_ptr(page), 0);
++	atomic_set(compound_pincount_ptr(page), 0);
+ }
  
+ /*
 -- 
 2.30.2
 
