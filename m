@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A956D3C52BB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C3063C48F0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243817AbhGLHs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
+        id S237163AbhGLGl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346564AbhGLHqk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:46:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D252E61403;
-        Mon, 12 Jul 2021 07:41:56 +0000 (UTC)
+        id S237881AbhGLGjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D4061159;
+        Mon, 12 Jul 2021 06:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075717;
-        bh=rr5XXnFqzW5OUVVX3XvCcLkpgYkdGzIUdUIQrU+I9d0=;
+        s=korg; t=1626071736;
+        bh=GUW79aP2PvGnzJTv2//4THrimRDUW5SMUdWtG7K274E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xdOCa44QU5l6xmiaqAup1Jw+6XRGv5Kup+SHYnd6mqkqFolEQhvpc8OuhK8TwYMtt
-         VnsxMtp+FVLZZz2tNBkVVb01K5PioaDAMSHFtIXgeLM7KIrUp6Tsb6iDE+NbwMoovH
-         7O+D7kKLNc/iTTgqNdlktHRJ9uF9pHAGok/pU838=
+        b=FfYXId5Ru0MwPromg8plS3vFzS81l6jVd4E5/9hl9wNPylH/1RUXwsRfigrsX8ykQ
+         Dezs3NeOqgM/VKczZbBkv1Nsr7IjxF/5ApB1qVccjeFn0EH7n9/rTnQgn9jKiwRoX4
+         z39BYw9+BIMXDCEt1Lqzlq2FgD5wb18IHeSpkv8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 332/800] regulator: hi655x: Fix pass wrong pointer to config.driver_data
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
+Subject: [PATCH 5.10 195/593] PCI: hv: Add check for hyperv_initialized in init_hv_pci_drv()
 Date:   Mon, 12 Jul 2021 08:05:55 +0200
-Message-Id: <20210712061001.821270008@linuxfoundation.org>
+Message-Id: <20210712060904.463599567@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-[ Upstream commit 61eb1b24f9e4f4e0725aa5f8164a932c933f3339 ]
+[ Upstream commit 7d815f4afa87f2032b650ae1bba7534b550a6b8b ]
 
-Current code sets config.driver_data to a zero initialized regulator
-which is obviously wrong. Fix it.
+Add check for hv_is_hyperv_initialized() at the top of
+init_hv_pci_drv(), so if the pci-hyperv driver is force-loaded on non
+Hyper-V platforms, the init_hv_pci_drv() will exit immediately, without
+any side effects, like assignments to hvpci_block_ops, etc.
 
-Fixes: 4618119b9be5 ("regulator: hi655x: enable regulator for hi655x PMIC")
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210620132715.60215-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reported-and-tested-by: Mohammad Alqayeem <mohammad.alqyeem@nutanix.com>
+Reviewed-by: Wei Liu <wei.liu@kernel.org>
+Link: https://lore.kernel.org/r/1621984653-1210-1-git-send-email-haiyangz@microsoft.com
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/hi655x-regulator.c | 16 +++++-----------
- 1 file changed, 5 insertions(+), 11 deletions(-)
+ drivers/pci/controller/pci-hyperv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/regulator/hi655x-regulator.c b/drivers/regulator/hi655x-regulator.c
-index 68cdb173196d..556bb73f3329 100644
---- a/drivers/regulator/hi655x-regulator.c
-+++ b/drivers/regulator/hi655x-regulator.c
-@@ -72,7 +72,7 @@ enum hi655x_regulator_id {
- static int hi655x_is_enabled(struct regulator_dev *rdev)
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index 03ed5cb1c4b2..d57c538bbb2d 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -3480,6 +3480,9 @@ static void __exit exit_hv_pci_drv(void)
+ 
+ static int __init init_hv_pci_drv(void)
  {
- 	unsigned int value = 0;
--	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
-+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
- 
- 	regmap_read(rdev->regmap, regulator->status_reg, &value);
- 	return (value & rdev->desc->enable_mask);
-@@ -80,7 +80,7 @@ static int hi655x_is_enabled(struct regulator_dev *rdev)
- 
- static int hi655x_disable(struct regulator_dev *rdev)
- {
--	struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
-+	const struct hi655x_regulator *regulator = rdev_get_drvdata(rdev);
- 
- 	return regmap_write(rdev->regmap, regulator->disable_reg,
- 			    rdev->desc->enable_mask);
-@@ -169,7 +169,6 @@ static const struct hi655x_regulator regulators[] = {
- static int hi655x_regulator_probe(struct platform_device *pdev)
- {
- 	unsigned int i;
--	struct hi655x_regulator *regulator;
- 	struct hi655x_pmic *pmic;
- 	struct regulator_config config = { };
- 	struct regulator_dev *rdev;
-@@ -180,22 +179,17 @@ static int hi655x_regulator_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	regulator = devm_kzalloc(&pdev->dev, sizeof(*regulator), GFP_KERNEL);
--	if (!regulator)
--		return -ENOMEM;
--
--	platform_set_drvdata(pdev, regulator);
--
- 	config.dev = pdev->dev.parent;
- 	config.regmap = pmic->regmap;
--	config.driver_data = regulator;
- 	for (i = 0; i < ARRAY_SIZE(regulators); i++) {
-+		config.driver_data = (void *) &regulators[i];
++	if (!hv_is_hyperv_initialized())
++		return -ENODEV;
 +
- 		rdev = devm_regulator_register(&pdev->dev,
- 					       &regulators[i].rdesc,
- 					       &config);
- 		if (IS_ERR(rdev)) {
- 			dev_err(&pdev->dev, "failed to register regulator %s\n",
--				regulator->rdesc.name);
-+				regulators[i].rdesc.name);
- 			return PTR_ERR(rdev);
- 		}
- 	}
+ 	/* Set the invalid domain number's bit, so it will not be used */
+ 	set_bit(HVPCI_DOM_INVALID, hvpci_dom_map);
+ 
 -- 
 2.30.2
 
