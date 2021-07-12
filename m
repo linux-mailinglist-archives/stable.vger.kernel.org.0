@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 067363C456F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 856313C4574
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235452AbhGLGZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
+        id S234732AbhGLGZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235261AbhGLGYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235264AbhGLGYi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C142D6113C;
-        Mon, 12 Jul 2021 06:21:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F17861108;
+        Mon, 12 Jul 2021 06:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070908;
-        bh=0OGOPHnm1JGsTNmevIKpd2GMPvY1mtN+xsHLLGOJhtg=;
+        s=korg; t=1626070910;
+        bh=SbF4yzBq7y62F6u4/XMHKjDwk6LqH31EWHoz1G38F7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rplnor7KZzxm9gIN6JERCXYp3hNMB5QwUJbzrOItYICi6sKa8zvtF++NvvYKjB+H6
-         N+L5dLtNZfNv+CRdg5Ahu+JMhIKFo1SLKliw746CvM6FKPWXgzodR64tS9ahBzZtdr
-         n7hIF1y6ShN6RaRJ30A6WYYMNhgRcwl/d+vk5Qlc=
+        b=UIZcI+ZsH4AOAUXiup3+hzOCYHI0kf4l5SKCeZkH7OhKsf5wfJe5h2wr/WtVLMV8/
+         ibeAcM75lVTMGpwibb8hxG6qhlBafKvQlZo/4fgDQMaF/es7v7QU+SGd84IDQqT/7p
+         w/hD3xhirRf7nbD1znauvy68DPzidqZmADFN6KSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 191/348] net: ftgmac100: add missing error return code in ftgmac100_probe()
-Date:   Mon, 12 Jul 2021 08:09:35 +0200
-Message-Id: <20210712060726.398649426@linuxfoundation.org>
+Subject: [PATCH 5.4 192/348] drm/rockchip: cdn-dp-core: add missing clk_disable_unprepare() on error in cdn_dp_grf_write()
+Date:   Mon, 12 Jul 2021 08:09:36 +0200
+Message-Id: <20210712060726.522114754@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,52 +43,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 52af13a41489d7bbc1932d17583eff6e5fffc820 ]
+[ Upstream commit ae41d925c75b53798f289c69ee8d9f7d36432f6d ]
 
-The variables will be free on path err_phy_connect, it should
-return error code, or it will cause double free when calling
-ftgmac100_remove().
+After calling clk_prepare_enable(), clk_disable_unprepare() need
+be called when calling regmap_write() failed.
 
-Fixes: bd466c3fb5a4 ("net/faraday: Support NCSI mode")
-Fixes: 39bfab8844a0 ("net: ftgmac100: Add support for DT phy-handle property")
+Fixes: 1a0f7ed3abe2 ("drm/rockchip: cdn-dp: add cdn DP support for rk3399")
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210519134928.2696617-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rockchip/cdn-dp-core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index 4050f81f788c..2c06cdcd3e75 100644
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1821,14 +1821,17 @@ static int ftgmac100_probe(struct platform_device *pdev)
- 	if (np && of_get_property(np, "use-ncsi", NULL)) {
- 		if (!IS_ENABLED(CONFIG_NET_NCSI)) {
- 			dev_err(&pdev->dev, "NCSI stack not enabled\n");
-+			err = -EINVAL;
- 			goto err_ncsi_dev;
- 		}
- 
- 		dev_info(&pdev->dev, "Using NCSI interface\n");
- 		priv->use_ncsi = true;
- 		priv->ndev = ncsi_register_dev(netdev, ftgmac100_ncsi_handler);
--		if (!priv->ndev)
-+		if (!priv->ndev) {
-+			err = -EINVAL;
- 			goto err_ncsi_dev;
-+		}
- 	} else if (np && of_get_property(np, "phy-handle", NULL)) {
- 		struct phy_device *phy;
- 
-@@ -1836,6 +1839,7 @@ static int ftgmac100_probe(struct platform_device *pdev)
- 					     &ftgmac100_adjust_link);
- 		if (!phy) {
- 			dev_err(&pdev->dev, "Failed to connect to phy\n");
-+			err = -EINVAL;
- 			goto err_setup_mdio;
- 		}
+diff --git a/drivers/gpu/drm/rockchip/cdn-dp-core.c b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+index d505ea7d5384..8f299d76b69b 100644
+--- a/drivers/gpu/drm/rockchip/cdn-dp-core.c
++++ b/drivers/gpu/drm/rockchip/cdn-dp-core.c
+@@ -72,6 +72,7 @@ static int cdn_dp_grf_write(struct cdn_dp_device *dp,
+ 	ret = regmap_write(dp->grf, reg, val);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dp->dev, "Could not write to GRF: %d\n", ret);
++		clk_disable_unprepare(dp->grf_clk);
+ 		return ret;
+ 	}
  
 -- 
 2.30.2
