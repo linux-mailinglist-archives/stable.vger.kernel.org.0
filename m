@@ -2,44 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C21C3C4546
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F35A3C4531
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233861AbhGLGYx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:24:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39640 "EHLO mail.kernel.org"
+        id S233699AbhGLGYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:24:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234043AbhGLGXY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234537AbhGLGXY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:23:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3B2F610E5;
-        Mon, 12 Jul 2021 06:19:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21CDD6112D;
+        Mon, 12 Jul 2021 06:19:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070794;
-        bh=VU5GYC3qBd4kMmwyuG2R0Hj5NiHLEU6MIq4i72qEJRQ=;
+        s=korg; t=1626070796;
+        bh=j/7tVsymMq9QVi58iXBZ24Din+me3PdZx8eKDcEVJXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHK/hG5JZnuqVRftpRjZnZ/vV0CeIjH36KwlrdWnV9xiA7XposvJYlNn7mFmrRZrX
-         0f5V0m59+wB+3G++2Nhh0bDkUeXtqhyC/U4HJOhOgI48iX0mAMSI/2YFt7+UOcs1ZB
-         EYEUm6pQF5MEmaMD2Mr5fQwTsn00hYR2tVJq0Fbc=
+        b=Ioblv9G7oOvL+RCjaCG3Pnny0qX4qtgc/yFuIOLmib0VyCqXJEXNCZkgRPRdWssp/
+         Mol2Lp7rnbTp8e0oE82Zn0e2hHWi9j4NQKAqNIqyO2uHnA4wpHYlXMYBk4WDyBeLZA
+         q0XCqGKTsd8cChlmg7hYCsfPK3FP0ZKm65Z1tPb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        linux-arm-kernel@lists.infradead.org (moderated for non-subscribers),
-        Andrzej Hajda <a.hajda@samsung.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Sangwook Lee <sangwook.lee@linaro.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 143/348] media: I2C: change RST to "RSET" to fix multiple build errors
-Date:   Mon, 12 Jul 2021 08:08:47 +0200
-Message-Id: <20210712060720.092802245@linuxfoundation.org>
+Subject: [PATCH 5.4 144/348] sched/uclamp: Fix wrong implementation of cpu.uclamp.min
+Date:   Mon, 12 Jul 2021 08:08:48 +0200
+Message-Id: <20210712060720.215542426@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -51,242 +40,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit 8edcb5049ac29aa3c8acc5ef15dd4036543d747e ]
+[ Upstream commit 0c18f2ecfcc274a4bcc1d122f79ebd4001c3b445 ]
 
-The use of an enum named 'RST' conflicts with a #define macro
-named 'RST' in arch/mips/include/asm/mach-rc32434/rb.h.
+cpu.uclamp.min is a protection as described in cgroup-v2 Resource
+Distribution Model
 
-The MIPS use of RST was there first (AFAICT), so change the
-media/i2c/ uses of RST to be named 'RSET'.
-'git grep -w RSET' does not report any naming conflicts with the
-new name.
+	Documentation/admin-guide/cgroup-v2.rst
 
-This fixes multiple build errors:
+which means we try our best to preserve the minimum performance point of
+tasks in this group. See full description of cpu.uclamp.min in the
+cgroup-v2.rst.
 
-arch/mips/include/asm/mach-rc32434/rb.h:15:14: error: expected identifier before '(' token
-   15 | #define RST  (1 << 15)
-      |              ^
-drivers/media/i2c/s5c73m3/s5c73m3.h:356:2: note: in expansion of macro 'RST'
-  356 |  RST,
-      |  ^~~
+But the current implementation makes it a limit, which is not what was
+intended.
 
-../arch/mips/include/asm/mach-rc32434/rb.h:15:14: error: expected identifier before '(' token
-   15 | #define RST  (1 << 15)
-      |              ^
-../drivers/media/i2c/s5k6aa.c:180:2: note: in expansion of macro 'RST'
-  180 |  RST,
-      |  ^~~
+For example:
 
-../arch/mips/include/asm/mach-rc32434/rb.h:15:14: error: expected identifier before '(' token
-   15 | #define RST  (1 << 15)
-      |              ^
-../drivers/media/i2c/s5k5baf.c:238:2: note: in expansion of macro 'RST'
-  238 |  RST,
-      |  ^~~
+	tg->cpu.uclamp.min = 20%
 
-and some others that I have trimmed.
+	p0->uclamp[UCLAMP_MIN] = 0
+	p1->uclamp[UCLAMP_MIN] = 50%
 
-Fixes: cac47f1822fc ("[media] V4L: Add S5C73M3 camera driver")
-Fixes: 8b99312b7214 ("[media] Add v4l2 subdev driver for S5K4ECGX sensor")
-Fixes: 7d459937dc09 ("[media] Add driver for Samsung S5K5BAF camera sensor")
-Fixes: bfa8dd3a0524 ("[media] v4l: Add v4l2 subdev driver for S5K6AAFX sensor")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Cc: Sangwook Lee <sangwook.lee@linaro.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+	Previous Behavior (limit):
+
+		p0->effective_uclamp = 0
+		p1->effective_uclamp = 20%
+
+	New Behavior (Protection):
+
+		p0->effective_uclamp = 20%
+		p1->effective_uclamp = 50%
+
+Which is inline with how protections should work.
+
+With this change the cgroup and per-task behaviors are the same, as
+expected.
+
+Additionally, we remove the confusing relationship between cgroup and
+!user_defined flag.
+
+We don't want for example RT tasks that are boosted by default to max to
+change their boost value when they attach to a cgroup. If a cgroup wants
+to limit the max performance point of tasks attached to it, then
+cpu.uclamp.max must be set accordingly.
+
+Or if they want to set different boost value based on cgroup, then
+sysctl_sched_util_clamp_min_rt_default must be used to NOT boost to max
+and set the right cpu.uclamp.min for each group to let the RT tasks
+obtain the desired boost value when attached to that group.
+
+As it stands the dependency on !user_defined flag adds an extra layer of
+complexity that is not required now cpu.uclamp.min behaves properly as
+a protection.
+
+The propagation model of effective cpu.uclamp.min in child cgroups as
+implemented by cpu_util_update_eff() is still correct. The parent
+protection sets an upper limit of what the child cgroups will
+effectively get.
+
+Fixes: 3eac870a3247 (sched/uclamp: Use TG's clamps to restrict TASK's clamps)
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210510145032.1934078-2-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/s5c73m3/s5c73m3-core.c |  6 +++---
- drivers/media/i2c/s5c73m3/s5c73m3.h      |  2 +-
- drivers/media/i2c/s5k4ecgx.c             | 10 +++++-----
- drivers/media/i2c/s5k5baf.c              |  6 +++---
- drivers/media/i2c/s5k6aa.c               | 10 +++++-----
- 5 files changed, 17 insertions(+), 17 deletions(-)
+ kernel/sched/core.c | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/i2c/s5c73m3/s5c73m3-core.c b/drivers/media/i2c/s5c73m3/s5c73m3-core.c
-index 5b4c4a3547c9..71804a70bc6d 100644
---- a/drivers/media/i2c/s5c73m3/s5c73m3-core.c
-+++ b/drivers/media/i2c/s5c73m3/s5c73m3-core.c
-@@ -1386,7 +1386,7 @@ static int __s5c73m3_power_on(struct s5c73m3 *state)
- 	s5c73m3_gpio_deassert(state, STBY);
- 	usleep_range(100, 200);
- 
--	s5c73m3_gpio_deassert(state, RST);
-+	s5c73m3_gpio_deassert(state, RSET);
- 	usleep_range(50, 100);
- 
- 	return 0;
-@@ -1401,7 +1401,7 @@ static int __s5c73m3_power_off(struct s5c73m3 *state)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index a3e95d7779e1..9a01e51b25f4 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -896,7 +896,6 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
  {
- 	int i, ret;
+ 	struct uclamp_se uc_req = p->uclamp_req[clamp_id];
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
+-	struct uclamp_se uc_max;
  
--	if (s5c73m3_gpio_assert(state, RST))
-+	if (s5c73m3_gpio_assert(state, RSET))
- 		usleep_range(10, 50);
+ 	/*
+ 	 * Tasks in autogroups or root task group will be
+@@ -907,9 +906,23 @@ uclamp_tg_restrict(struct task_struct *p, enum uclamp_id clamp_id)
+ 	if (task_group(p) == &root_task_group)
+ 		return uc_req;
  
- 	if (s5c73m3_gpio_assert(state, STBY))
-@@ -1606,7 +1606,7 @@ static int s5c73m3_get_platform_data(struct s5c73m3 *state)
+-	uc_max = task_group(p)->uclamp[clamp_id];
+-	if (uc_req.value > uc_max.value || !uc_req.user_defined)
+-		return uc_max;
++	switch (clamp_id) {
++	case UCLAMP_MIN: {
++		struct uclamp_se uc_min = task_group(p)->uclamp[clamp_id];
++		if (uc_req.value < uc_min.value)
++			return uc_min;
++		break;
++	}
++	case UCLAMP_MAX: {
++		struct uclamp_se uc_max = task_group(p)->uclamp[clamp_id];
++		if (uc_req.value > uc_max.value)
++			return uc_max;
++		break;
++	}
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
+ #endif
  
- 		state->mclk_frequency = pdata->mclk_frequency;
- 		state->gpio[STBY] = pdata->gpio_stby;
--		state->gpio[RST] = pdata->gpio_reset;
-+		state->gpio[RSET] = pdata->gpio_reset;
- 		return 0;
- 	}
- 
-diff --git a/drivers/media/i2c/s5c73m3/s5c73m3.h b/drivers/media/i2c/s5c73m3/s5c73m3.h
-index ef7e85b34263..c3fcfdd3ea66 100644
---- a/drivers/media/i2c/s5c73m3/s5c73m3.h
-+++ b/drivers/media/i2c/s5c73m3/s5c73m3.h
-@@ -353,7 +353,7 @@ struct s5c73m3_ctrls {
- 
- enum s5c73m3_gpio_id {
- 	STBY,
--	RST,
-+	RSET,
- 	GPIO_NUM,
- };
- 
-diff --git a/drivers/media/i2c/s5k4ecgx.c b/drivers/media/i2c/s5k4ecgx.c
-index b2d53417badf..4e97309a67f4 100644
---- a/drivers/media/i2c/s5k4ecgx.c
-+++ b/drivers/media/i2c/s5k4ecgx.c
-@@ -173,7 +173,7 @@ static const char * const s5k4ecgx_supply_names[] = {
- 
- enum s5k4ecgx_gpio_id {
- 	STBY,
--	RST,
-+	RSET,
- 	GPIO_NUM,
- };
- 
-@@ -476,7 +476,7 @@ static int __s5k4ecgx_power_on(struct s5k4ecgx *priv)
- 	if (s5k4ecgx_gpio_set_value(priv, STBY, priv->gpio[STBY].level))
- 		usleep_range(30, 50);
- 
--	if (s5k4ecgx_gpio_set_value(priv, RST, priv->gpio[RST].level))
-+	if (s5k4ecgx_gpio_set_value(priv, RSET, priv->gpio[RSET].level))
- 		usleep_range(30, 50);
- 
- 	return 0;
-@@ -484,7 +484,7 @@ static int __s5k4ecgx_power_on(struct s5k4ecgx *priv)
- 
- static int __s5k4ecgx_power_off(struct s5k4ecgx *priv)
- {
--	if (s5k4ecgx_gpio_set_value(priv, RST, !priv->gpio[RST].level))
-+	if (s5k4ecgx_gpio_set_value(priv, RSET, !priv->gpio[RSET].level))
- 		usleep_range(30, 50);
- 
- 	if (s5k4ecgx_gpio_set_value(priv, STBY, !priv->gpio[STBY].level))
-@@ -872,7 +872,7 @@ static int s5k4ecgx_config_gpios(struct s5k4ecgx *priv,
- 	int ret;
- 
- 	priv->gpio[STBY].gpio = -EINVAL;
--	priv->gpio[RST].gpio  = -EINVAL;
-+	priv->gpio[RSET].gpio  = -EINVAL;
- 
- 	ret = s5k4ecgx_config_gpio(gpio->gpio, gpio->level, "S5K4ECGX_STBY");
- 
-@@ -891,7 +891,7 @@ static int s5k4ecgx_config_gpios(struct s5k4ecgx *priv,
- 		s5k4ecgx_free_gpios(priv);
- 		return ret;
- 	}
--	priv->gpio[RST] = *gpio;
-+	priv->gpio[RSET] = *gpio;
- 	if (gpio_is_valid(gpio->gpio))
- 		gpio_set_value(gpio->gpio, 0);
- 
-diff --git a/drivers/media/i2c/s5k5baf.c b/drivers/media/i2c/s5k5baf.c
-index cdfe008ba39f..ac5ab3392073 100644
---- a/drivers/media/i2c/s5k5baf.c
-+++ b/drivers/media/i2c/s5k5baf.c
-@@ -235,7 +235,7 @@ struct s5k5baf_gpio {
- 
- enum s5k5baf_gpio_id {
- 	STBY,
--	RST,
-+	RSET,
- 	NUM_GPIOS,
- };
- 
-@@ -970,7 +970,7 @@ static int s5k5baf_power_on(struct s5k5baf *state)
- 
- 	s5k5baf_gpio_deassert(state, STBY);
- 	usleep_range(50, 100);
--	s5k5baf_gpio_deassert(state, RST);
-+	s5k5baf_gpio_deassert(state, RSET);
- 	return 0;
- 
- err_reg_dis:
-@@ -988,7 +988,7 @@ static int s5k5baf_power_off(struct s5k5baf *state)
- 	state->apply_cfg = 0;
- 	state->apply_crop = 0;
- 
--	s5k5baf_gpio_assert(state, RST);
-+	s5k5baf_gpio_assert(state, RSET);
- 	s5k5baf_gpio_assert(state, STBY);
- 
- 	if (!IS_ERR(state->clock))
-diff --git a/drivers/media/i2c/s5k6aa.c b/drivers/media/i2c/s5k6aa.c
-index 72439fae7968..6516e205e9a3 100644
---- a/drivers/media/i2c/s5k6aa.c
-+++ b/drivers/media/i2c/s5k6aa.c
-@@ -177,7 +177,7 @@ static const char * const s5k6aa_supply_names[] = {
- 
- enum s5k6aa_gpio_id {
- 	STBY,
--	RST,
-+	RSET,
- 	GPIO_NUM,
- };
- 
-@@ -841,7 +841,7 @@ static int __s5k6aa_power_on(struct s5k6aa *s5k6aa)
- 		ret = s5k6aa->s_power(1);
- 	usleep_range(4000, 5000);
- 
--	if (s5k6aa_gpio_deassert(s5k6aa, RST))
-+	if (s5k6aa_gpio_deassert(s5k6aa, RSET))
- 		msleep(20);
- 
- 	return ret;
-@@ -851,7 +851,7 @@ static int __s5k6aa_power_off(struct s5k6aa *s5k6aa)
- {
- 	int ret;
- 
--	if (s5k6aa_gpio_assert(s5k6aa, RST))
-+	if (s5k6aa_gpio_assert(s5k6aa, RSET))
- 		usleep_range(100, 150);
- 
- 	if (s5k6aa->s_power) {
-@@ -1510,7 +1510,7 @@ static int s5k6aa_configure_gpios(struct s5k6aa *s5k6aa,
- 	int ret;
- 
- 	s5k6aa->gpio[STBY].gpio = -EINVAL;
--	s5k6aa->gpio[RST].gpio  = -EINVAL;
-+	s5k6aa->gpio[RSET].gpio  = -EINVAL;
- 
- 	gpio = &pdata->gpio_stby;
- 	if (gpio_is_valid(gpio->gpio)) {
-@@ -1533,7 +1533,7 @@ static int s5k6aa_configure_gpios(struct s5k6aa *s5k6aa,
- 		if (ret < 0)
- 			return ret;
- 
--		s5k6aa->gpio[RST] = *gpio;
-+		s5k6aa->gpio[RSET] = *gpio;
- 	}
- 
- 	return 0;
+ 	return uc_req;
 -- 
 2.30.2
 
