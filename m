@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABFF03C4E75
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C543C4A93
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242318AbhGLHTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55716 "EHLO mail.kernel.org"
+        id S239416AbhGLGw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243879AbhGLHRx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD22F6144A;
-        Mon, 12 Jul 2021 07:15:03 +0000 (UTC)
+        id S238050AbhGLGtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D643D61186;
+        Mon, 12 Jul 2021 06:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074104;
-        bh=IidLABSP/cvQqAYnVF1bmFpl/Ddrb1rDg7hFz5bvJJE=;
+        s=korg; t=1626072283;
+        bh=Fgcqlh07d0WQ60Zn9ogwcPJ8AZBY3gyRBXAYr2Ty8Ag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMVPSSF00TgH1Bjv0opbR03FZwPCmzxhtXEvmWEGoBU18xu/yEfNCJDZBvcTiL2Hv
-         Uf6fEnFCQSA+IBPmDA7dLD2T1NylYxC4HQc3viVEsM93GqR8SfibY8xNmSd+e8nmOw
-         8jj8t6SG8KUWtI3YVRNRmbc7cq2tieJOjl8Ib0Tw=
+        b=ICiEGmlU4RwBXGOYbDOwqEnY8SsSYuW2vkp9D0ZpSVwCrlIQM5BhEWCWii0+j5BEr
+         N0uCccLPkbnWf0IGuyuyGWaDvH7/Gqfln1UaHqCIgbDmjOwRe44VK5e2/COO6Z2hvA
+         R4peX5Zri81EOBn8QfEbiEmFgtMBbofqmNfVStpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
-        Weihang Li <liweihang@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 466/700] RDMA/hns: Fix uninitialized variable
+Subject: [PATCH 5.10 389/593] drm/msm: Fix error return code in msm_drm_init()
 Date:   Mon, 12 Jul 2021 08:09:09 +0200
-Message-Id: <20210712061026.167312548@linuxfoundation.org>
+Message-Id: <20210712060929.992228424@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixing Liu <liuyixing1@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 2a38c0f10e6d7d28e06ff1eb1f350804c4850275 ]
+[ Upstream commit a1c9b1e3bdd6d8dc43c18699772fb6cf4497d45a ]
 
-A random value will be returned if the condition below is not met, so it
-needs to be initialized.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Fixes: 9ea9a53ea93b ("RDMA/hns: Add mapped page count checking for MTR")
-Link: https://lore.kernel.org/r/1624011020-16992-3-git-send-email-liweihang@huawei.com
-Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
-Signed-off-by: Weihang Li <liweihang@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 7f9743abaa79 ("drm/msm: validate display and event threads")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508022836.1777-1-thunder.leizhen@huawei.com
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_mr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/msm/msm_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_mr.c b/drivers/infiniband/hw/hns/hns_roce_mr.c
-index 79b3c3023fe7..b8454dcb0318 100644
---- a/drivers/infiniband/hw/hns/hns_roce_mr.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_mr.c
-@@ -776,7 +776,7 @@ int hns_roce_mtr_map(struct hns_roce_dev *hr_dev, struct hns_roce_mtr *mtr,
- 	struct ib_device *ibdev = &hr_dev->ib_dev;
- 	struct hns_roce_buf_region *r;
- 	unsigned int i, mapped_cnt;
--	int ret;
-+	int ret = 0;
- 
- 	/*
- 	 * Only use the first page address as root ba when hopnum is 0, this
+diff --git a/drivers/gpu/drm/msm/msm_drv.c b/drivers/gpu/drm/msm/msm_drv.c
+index 0aacc43faefa..edee4c2a76ce 100644
+--- a/drivers/gpu/drm/msm/msm_drv.c
++++ b/drivers/gpu/drm/msm/msm_drv.c
+@@ -505,6 +505,7 @@ static int msm_drm_init(struct device *dev, struct drm_driver *drv)
+ 		priv->event_thread[i].worker = kthread_create_worker(0,
+ 			"crtc_event:%d", priv->event_thread[i].crtc_id);
+ 		if (IS_ERR(priv->event_thread[i].worker)) {
++			ret = PTR_ERR(priv->event_thread[i].worker);
+ 			DRM_DEV_ERROR(dev, "failed to create crtc_event kthread\n");
+ 			goto err_msm_uninit;
+ 		}
 -- 
 2.30.2
 
