@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFDF43C4B5D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6EEC3C50F9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241532AbhGLG4t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57302 "EHLO mail.kernel.org"
+        id S1343958AbhGLHfy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240129AbhGLGzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CD31610CA;
-        Mon, 12 Jul 2021 06:53:04 +0000 (UTC)
+        id S245390AbhGLHdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:33:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 169D661436;
+        Mon, 12 Jul 2021 07:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072784;
-        bh=t8CF6AnxG7tUuWlwhPOj6Ne/EDnYrz8D0efICY2thcM=;
+        s=korg; t=1626075050;
+        bh=/2BtdF8/XA6MOb8mLNBXedhNMM9rq+4hL5hTGmF9pFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcW6AyLwxTnhXnfPiNj5QdT5Wdl7ggebeLmLWWK+IZ4pWs+jxh6qhP9uWmM2208/D
-         KqpPUNYvjgHn7wuS7Imdi7QgHXyApdx01lF0S7CA2bdKcDHwY3IrZrAglkCUv/12Kv
-         5MhEVgFOyRk29/pms/Gx5Csmompl6RPZKf0ZQYKU=
+        b=AVUuOJ9ElHWIPvTr6/jTXBRePK34NTWtnipLzi8Yf9o4PaLYRsEEcsN96Bjbnxe/O
+         7Qs1hDx77b6XQLJMO4lOgb18VlAh/A9gd39CP3Z/qknmEi7nCqBoA1qO/AJCt1LgyQ
+         GwgeRmI1es+GCW9Q72c+C4Aeqg59JKK9+Id7KW+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.12 020/700] net: can: ems_usb: fix use-after-free in ems_usb_disconnect()
+        stable@vger.kernel.org, Yu Zhang <yu.c.zhang@linux.intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.13 080/800] KVM: x86: Force all MMUs to reinitialize if guest CPUID is modified
 Date:   Mon, 12 Jul 2021 08:01:43 +0200
-Message-Id: <20210712060927.597103549@linuxfoundation.org>
+Message-Id: <20210712060924.396778441@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,68 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit ab4a0b8fcb9a95c02909b62049811bd2e586aaa4 upstream.
+commit 49c6f8756cdffeb9af1fbcb86bacacced26465d7 upstream.
 
-In ems_usb_disconnect() dev pointer, which is netdev private data, is
-used after free_candev() call:
-| 	if (dev) {
-| 		unregister_netdev(dev->netdev);
-| 		free_candev(dev->netdev);
-|
-| 		unlink_all_urbs(dev);
-|
-| 		usb_free_urb(dev->intr_urb);
-|
-| 		kfree(dev->intr_in_buffer);
-| 		kfree(dev->tx_msg_buffer);
-| 	}
+Invalidate all MMUs' roles after a CPUID update to force reinitizliation
+of the MMU context/helpers.  Despite the efforts of commit de3ccd26fafc
+("KVM: MMU: record maximum physical address width in kvm_mmu_extended_role"),
+there are still a handful of CPUID-based properties that affect MMU
+behavior but are not incorporated into mmu_role.  E.g. 1gb hugepage
+support, AMD vs. Intel handling of bit 8, and SEV's C-Bit location all
+factor into the guest's reserved PTE bits.
 
-Fix it by simply moving free_candev() at the end of the block.
+The obvious alternative would be to add all such properties to mmu_role,
+but doing so provides no benefit over simply forcing a reinitialization
+on every CPUID update, as setting guest CPUID is a rare operation.
 
-Fail log:
-| BUG: KASAN: use-after-free in ems_usb_disconnect
-| Read of size 8 at addr ffff88804e041008 by task kworker/1:2/2895
-|
-| CPU: 1 PID: 2895 Comm: kworker/1:2 Not tainted 5.13.0-rc5+ #164
-| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.4
-| Workqueue: usb_hub_wq hub_event
-| Call Trace:
-|     dump_stack (lib/dump_stack.c:122)
-|     print_address_description.constprop.0.cold (mm/kasan/report.c:234)
-|     kasan_report.cold (mm/kasan/report.c:420 mm/kasan/report.c:436)
-|     ems_usb_disconnect (drivers/net/can/usb/ems_usb.c:683 drivers/net/can/usb/ems_usb.c:1058)
+Note, reinitializing all MMUs after a CPUID update does not fix all of
+KVM's woes.  Specifically, kvm_mmu_page_role doesn't track the CPUID
+properties, which means that a vCPU can reuse shadow pages that should
+not exist for the new vCPU model, e.g. that map GPAs that are now illegal
+(due to MAXPHYADDR changes) or that set bits that are now reserved
+(PAGE_SIZE for 1gb pages), etc...
 
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/r/20210617185130.5834-1-paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tracking the relevant CPUID properties in kvm_mmu_page_role would address
+the majority of problems, but fully tracking that much state in the
+shadow page role comes with an unpalatable cost as it would require a
+non-trivial increase in KVM's memory footprint.  The GBPAGES case is even
+worse, as neither Intel nor AMD provides a way to disable 1gb hugepage
+support in the hardware page walker, i.e. it's a virtualization hole that
+can't be closed when using TDP.
+
+In other words, resetting the MMU after a CPUID update is largely a
+superficial fix.  But, it will allow reverting the tracking of MAXPHYADDR
+in the mmu_role, and that case in particular needs to mostly work because
+KVM's shadow_root_level depends on guest MAXPHYADDR when 5-level paging
+is supported.  For cases where KVM botches guest behavior, the damage is
+limited to that guest.  But for the shadow_root_level, a misconfigured
+MMU can cause KVM to incorrectly access memory, e.g. due to walking off
+the end of its shadow page tables.
+
+Fixes: 7dcd57552008 ("x86/kvm/mmu: check if tdp/shadow MMU reconfiguration is needed")
+Cc: Yu Zhang <yu.c.zhang@linux.intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210622175739.3610207-7-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/usb/ems_usb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/cpuid.c            |    6 +++---
+ arch/x86/kvm/mmu/mmu.c          |   12 ++++++++++++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -1053,7 +1053,6 @@ static void ems_usb_disconnect(struct us
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1464,6 +1464,7 @@ int kvm_mmu_create(struct kvm_vcpu *vcpu
+ void kvm_mmu_init_vm(struct kvm *kvm);
+ void kvm_mmu_uninit_vm(struct kvm *kvm);
  
- 	if (dev) {
- 		unregister_netdev(dev->netdev);
--		free_candev(dev->netdev);
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu);
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu);
+ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
+ 				      struct kvm_memory_slot *memslot,
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -202,10 +202,10 @@ static void kvm_vcpu_after_set_cpuid(str
+ 	static_call(kvm_x86_vcpu_after_set_cpuid)(vcpu);
  
- 		unlink_all_urbs(dev);
- 
-@@ -1061,6 +1060,8 @@ static void ems_usb_disconnect(struct us
- 
- 		kfree(dev->intr_in_buffer);
- 		kfree(dev->tx_msg_buffer);
-+
-+		free_candev(dev->netdev);
- 	}
+ 	/*
+-	 * Except for the MMU, which needs to be reset after any vendor
+-	 * specific adjustments to the reserved GPA bits.
++	 * Except for the MMU, which needs to do its thing any vendor specific
++	 * adjustments to the reserved GPA bits.
+ 	 */
+-	kvm_mmu_reset_context(vcpu);
++	kvm_mmu_after_set_cpuid(vcpu);
  }
  
+ static int is_efer_nx(void)
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -4859,6 +4859,18 @@ kvm_mmu_calc_root_page_role(struct kvm_v
+ 	return role.base;
+ }
+ 
++void kvm_mmu_after_set_cpuid(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * Invalidate all MMU roles to force them to reinitialize as CPUID
++	 * information is factored into reserved bit calculations.
++	 */
++	vcpu->arch.root_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.guest_mmu.mmu_role.ext.valid = 0;
++	vcpu->arch.nested_mmu.mmu_role.ext.valid = 0;
++	kvm_mmu_reset_context(vcpu);
++}
++
+ void kvm_mmu_reset_context(struct kvm_vcpu *vcpu)
+ {
+ 	kvm_mmu_unload(vcpu);
 
 
