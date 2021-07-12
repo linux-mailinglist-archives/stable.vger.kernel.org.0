@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9D83C4719
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAAFB3C47A9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbhGLGbR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:31:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S236819AbhGLGeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:34:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235157AbhGLG2Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:28:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3299561004;
-        Mon, 12 Jul 2021 06:24:36 +0000 (UTC)
+        id S234091AbhGLG21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:28:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE9961179;
+        Mon, 12 Jul 2021 06:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071076;
-        bh=iOCJ63eUXxFDlQ8FN5hBdPSYIDOOypkaYhYrxvoP5e8=;
+        s=korg; t=1626071079;
+        bh=3TjHv2nHFSfpcKUmfc90JCPU/RbQAJTOAjnfrnCLJb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1i+zkRd4Cx4+0IVXlFODJP4Bvqsyfk4Jb5Pa/zI4yjvPTdpXeITcZtMDIXKT7SX08
-         FYAa2CCUgEUH4WdEbvnE6gxlUSt6tbRSHiMZKURAK1xLJ4ftshz9w3gbXLlAF/RsQG
-         jPy1TrlC2AexUNatHssYxF9ZDQt9jpWtw1A1C1Fw=
+        b=IkKOQvxq431gp4IIZNeCn9wZU+NP45nnGV47otRBXr2Cw1OkFhVRyRZGBppfNL52V
+         TAIaS0wzTetD7ykM3a+nUpYVP4qf87ut+Uqv3mou43qBInI3z/Bbkk4gtWyKriVhoX
+         eyE6/Ap7rR0Y6ML9KVYntS3V53fweFTlqOln1uSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 265/348] iio: accel: mxc4005: Fix overread of data and alignment issue.
-Date:   Mon, 12 Jul 2021 08:10:49 +0200
-Message-Id: <20210712060738.532620700@linuxfoundation.org>
+Subject: [PATCH 5.4 266/348] iio: accel: stk8312: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:50 +0200
+Message-Id: <20210712060738.711081009@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,59 +43,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit f65802284a3a337510d7f8f916c97d66c74f2e71 ]
+[ Upstream commit f40a71ffec808e7e51848f63f0c0d3c32d65081b ]
 
-The bulk read size is based on the size of an array that also has
-space for the timestamp alongside the channels.
-Fix that and also fix alignment of the buffer passed
-to iio_push_to_buffers_with_timestamp.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Found during an audit of all calls to this function.
+Found during an audit of all calls of this function.
 
-Fixes: 1ce0eda0f757 ("iio: mxc4005: add triggered buffer mode for mxc4005")
+Fixes: 95c12bba51c3 ("iio: accel: Add buffer mode for Sensortek STK8312")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-6-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-7-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mxc4005.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/iio/accel/stk8312.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/mxc4005.c b/drivers/iio/accel/mxc4005.c
-index 9d07642c0de1..d81b02642a0b 100644
---- a/drivers/iio/accel/mxc4005.c
-+++ b/drivers/iio/accel/mxc4005.c
-@@ -56,7 +56,11 @@ struct mxc4005_data {
- 	struct mutex mutex;
- 	struct regmap *regmap;
+diff --git a/drivers/iio/accel/stk8312.c b/drivers/iio/accel/stk8312.c
+index 58c160ccdee7..be66b8523977 100644
+--- a/drivers/iio/accel/stk8312.c
++++ b/drivers/iio/accel/stk8312.c
+@@ -103,7 +103,11 @@ struct stk8312_data {
+ 	u8 mode;
  	struct iio_trigger *dready_trig;
--	__be16 buffer[8];
+ 	bool dready_trigger_on;
+-	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 64-bit timestamp */
 +	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		__be16 chans[3];
++		s8 chans[3];
 +		s64 timestamp __aligned(8);
 +	} scan;
- 	bool trigger_enabled;
  };
  
-@@ -135,7 +139,7 @@ static int mxc4005_read_xyz(struct mxc4005_data *data)
- 	int ret;
- 
- 	ret = regmap_bulk_read(data->regmap, MXC4005_REG_XOUT_UPPER,
--			       data->buffer, sizeof(data->buffer));
-+			       data->scan.chans, sizeof(data->scan.chans));
- 	if (ret < 0) {
- 		dev_err(data->dev, "failed to read axes\n");
- 		return ret;
-@@ -301,7 +305,7 @@ static irqreturn_t mxc4005_trigger_handler(int irq, void *private)
- 	if (ret < 0)
- 		goto err;
+ static IIO_CONST_ATTR(in_accel_scale_available, STK8312_SCALE_AVAIL);
+@@ -438,7 +442,7 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8312_REG_XOUT,
+ 						    STK8312_ALL_CHANNEL_SIZE,
+-						    data->buffer);
++						    data->scan.chans);
+ 		if (ret < STK8312_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			mutex_unlock(&data->lock);
+@@ -452,12 +456,12 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 				mutex_unlock(&data->lock);
+ 				goto err;
+ 			}
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
+ 	mutex_unlock(&data->lock);
  
 -	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
 +	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
  					   pf->timestamp);
- 
  err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
 
