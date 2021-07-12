@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D073C5211
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E933C4BF2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349759AbhGLHok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:44:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S242904AbhGLHAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347569AbhGLHju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:39:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1C486127C;
-        Mon, 12 Jul 2021 07:35:02 +0000 (UTC)
+        id S239044AbhGLHAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0822B60233;
+        Mon, 12 Jul 2021 06:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075303;
-        bh=JPd5FDLaEWTxgxF4MNIHo12004q4BKHkaAGRwWU5Nng=;
+        s=korg; t=1626073068;
+        bh=or+btZn9+aTZ/4lEwHOGcgaG5cjaF5ouSCshgtB6UeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0vvC+iC8yjA9NRCJgWRj5BCiWmjcNo9j2UE7F7B3FsdgNCI7L5kZImYJcNM2ns4B
-         YUa8mT3wFEqZgcF68uiGneaPSi2Bgy7S0DBgIPD1sFn1L2eC7+RIJeQtOQA5nb8Rfp
-         pn301mgrtYuoix/CZZx27LV8gBD5LDQJ4Uoxh/bc=
+        b=IW1IAqemiQm00QTs84wLEqiaF8e6yVBQvI3e9/HzEBCcTN9fU6MZQmPaWAtLYFdoz
+         Lzzmk9LSw8GQQ4hTg80fiQMjJ8PDCEdJLLZKcco4rdY78XCv8M5JfPACmV//6mMgDu
+         FXUjoCTOncYqCeno8a1emThXkM9G9inqKeyiinx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 174/800] Makefile: fix GDB warning with CONFIG_RELR
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        Max Reitz <mreitz@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.12 114/700] fuse: Fix infinite loop in sget_fc()
 Date:   Mon, 12 Jul 2021 08:03:17 +0200
-Message-Id: <20210712060937.430170588@linuxfoundation.org>
+Message-Id: <20210712060941.019322442@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Greg Kurz <groug@kaod.org>
 
-[ Upstream commit 27f2a4db76e8d8a8b601fc1c6a7a17f88bd907ab ]
+commit e4a9ccdd1c03b3dc58214874399d24331ea0a3ab upstream.
 
-GDB produces the following warning when debugging kernels built with
-CONFIG_RELR:
+We don't set the SB_BORN flag on submounts. This is wrong as these
+superblocks are then considered as partially constructed or dying
+in the rest of the code and can break some assumptions.
 
-BFD: /android0/linux-next/vmlinux: unknown type [0x13] section `.relr.dyn'
+One such case is when you have a virtiofs filesystem with submounts
+and you try to mount it again : virtio_fs_get_tree() tries to obtain
+a superblock with sget_fc(). The logic in sget_fc() is to loop until
+it has either found an existing matching superblock with SB_BORN set
+or to create a brand new one. It is assumed that a superblock without
+SB_BORN is transient and the loop is restarted. Forgetting to set
+SB_BORN on submounts hence causes sget_fc() to retry forever.
 
-when loading a kernel built with CONFIG_RELR into GDB. It can also
-prevent debugging symbols using such relocations.
+Setting SB_BORN requires special care, i.e. a write barrier for
+super_cache_count() which can check SB_BORN without taking any lock.
+We should call vfs_get_tree() to deal with that but this requires
+to have a proper ->get_tree() implementation for submounts, which
+is a bigger piece of work. Go for a simple bug fix in the meatime.
 
-Peter sugguests:
-  [That flag] means that lld will use dynamic tags and section type
-  numbers in the OS-specific range rather than the generic range. The
-  kernel itself doesn't care about these numbers; it determines the
-  location of the RELR section using symbols defined by a linker script.
+Fixes: bf109c64040f ("fuse: implement crossmounts")
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Max Reitz <mreitz@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1057
-Suggested-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20210522012626.2811297-1-ndesaulniers@google.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile                      | 2 +-
- scripts/tools-support-relr.sh | 3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ fs/fuse/dir.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/Makefile b/Makefile
-index 069607cfe283..bc039bb78f30 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1039,7 +1039,7 @@ LDFLAGS_vmlinux	+= $(call ld-option, -X,)
- endif
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -352,6 +352,17 @@ static struct vfsmount *fuse_dentry_auto
  
- ifeq ($(CONFIG_RELR),y)
--LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr
-+LDFLAGS_vmlinux	+= --pack-dyn-relocs=relr --use-android-relr-tags
- endif
+ 	sb->s_flags |= SB_ACTIVE;
+ 	fsc->root = dget(sb->s_root);
++
++	/*
++	 * FIXME: setting SB_BORN requires a write barrier for
++	 *        super_cache_count(). We should actually come
++	 *        up with a proper ->get_tree() implementation
++	 *        for submounts and call vfs_get_tree() to take
++	 *        care of the write barrier.
++	 */
++	smp_wmb();
++	sb->s_flags |= SB_BORN;
++
+ 	/* We are done configuring the superblock, so unlock it */
+ 	up_write(&sb->s_umount);
  
- # We never want expected sections to be placed heuristically by the
-diff --git a/scripts/tools-support-relr.sh b/scripts/tools-support-relr.sh
-index 45e8aa360b45..cb55878bd5b8 100755
---- a/scripts/tools-support-relr.sh
-+++ b/scripts/tools-support-relr.sh
-@@ -7,7 +7,8 @@ trap "rm -f $tmp_file.o $tmp_file $tmp_file.bin" EXIT
- cat << "END" | $CC -c -x c - -o $tmp_file.o >/dev/null 2>&1
- void *p = &p;
- END
--$LD $tmp_file.o -shared -Bsymbolic --pack-dyn-relocs=relr -o $tmp_file
-+$LD $tmp_file.o -shared -Bsymbolic --pack-dyn-relocs=relr \
-+  --use-android-relr-tags -o $tmp_file
- 
- # Despite printing an error message, GNU nm still exits with exit code 0 if it
- # sees a relr section. So we need to check that nothing is printed to stderr.
--- 
-2.30.2
-
 
 
