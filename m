@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F25613C4F13
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB9AB3C4F20
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244842AbhGLHXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58040 "EHLO mail.kernel.org"
+        id S244561AbhGLHXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343730AbhGLHUC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 115A8610A6;
-        Mon, 12 Jul 2021 07:17:13 +0000 (UTC)
+        id S1343820AbhGLHUG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:20:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24E9560FF1;
+        Mon, 12 Jul 2021 07:17:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074234;
-        bh=wmT3ghuA3heAMB5MQWTYOkchAIJ2Ua+6fwqtLY6D6jM=;
+        s=korg; t=1626074237;
+        bh=W6uaE6vxPrWtGg+NtqdHifByku4uvN/UnoZ1wx5msu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgX4RM0ffI3bHi9JzmthwrtgjKiJ6jU9igOiwsMKxQbbKsqof6zIVPtkNXPQ0pYL0
-         dooXjqinmfq6/LHcU8ofTa6zThHDTSJn0d9gUkWZI3P6uZkfGvqSBZjG7TUDPd5IgX
-         IrtKszrRTYLZVZVvWIlH5t1kDboloNEuNi7WjkGY=
+        b=OjG4yET1Q80zy8Km8Ff47lNPc8z5nGqgQuuoMU86XW7r5OWc3ChRxeATFfbwQObiS
+         RxwUVBDYbCHub6nXpjTwjXw59gJTo8I+6M3TRB5mBujEMhB7VLvbLTMCADK5fIGSv1
+         9i6Gfiauf4XXK8jaSMw+R1+2F6tqVvEydh7NveCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 510/700] clk: si5341: Update initialization magic
-Date:   Mon, 12 Jul 2021 08:09:53 +0200
-Message-Id: <20210712061030.782761219@linuxfoundation.org>
+Subject: [PATCH 5.12 511/700] bpf, x86: Fix extable offset calculation
+Date:   Mon, 12 Jul 2021 08:09:54 +0200
+Message-Id: <20210712061030.898396985@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -40,46 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-[ Upstream commit 3c9b49b0031aefb81adfdba5ab0ddf3ca3a2cdc9 ]
+[ Upstream commit 328aac5ecd119ede3633f7d17969b1ff34ccc784 ]
 
-Update the default register settings to include the VCO_RESET_CALCODE
-settings (set by the SiLabs ClockBuilder software but not described in
-the datasheet). Also update part of the initialization sequence to match
-ClockBuilder and the datasheet.
+Commit 4c5de127598e1 ("bpf: Emit explicit NULL pointer checks for PROBE_LDX
+instructions.") is emitting a couple of instructions before the actual load.
+Consider those additional instructions while calculating extable offset.
 
-Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20210325192643.2190069-6-robert.hancock@calian.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 4c5de127598e1 ("bpf: Emit explicit NULL pointer checks for PROBE_LDX instructions.")
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210622110026.1157847-1-ravi.bangoria@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/net/bpf_jit_comp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index da40b90c2aa8..eb22f4fdbc6b 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -350,6 +350,8 @@ static const struct si5341_reg_default si5341_reg_defaults[] = {
- 	{ 0x094A, 0x00 }, /* INx_TO_PFD_EN (disabled) */
- 	{ 0x0A02, 0x00 }, /* Not in datasheet */
- 	{ 0x0B44, 0x0F }, /* PDIV_ENB (datasheet does not mention what it is) */
-+	{ 0x0B57, 0x10 }, /* VCO_RESET_CALCODE (not described in datasheet) */
-+	{ 0x0B58, 0x05 }, /* VCO_RESET_CALCODE (not described in datasheet) */
- };
+diff --git a/arch/x86/net/bpf_jit_comp.c b/arch/x86/net/bpf_jit_comp.c
+index 7f1b3a862e14..1fb0c37e48cb 100644
+--- a/arch/x86/net/bpf_jit_comp.c
++++ b/arch/x86/net/bpf_jit_comp.c
+@@ -1297,7 +1297,7 @@ st:			if (is_imm8(insn->off))
+ 			emit_ldx(&prog, BPF_SIZE(insn->code), dst_reg, src_reg, insn->off);
+ 			if (BPF_MODE(insn->code) == BPF_PROBE_MEM) {
+ 				struct exception_table_entry *ex;
+-				u8 *_insn = image + proglen;
++				u8 *_insn = image + proglen + (start_of_ldx - temp);
+ 				s64 delta;
  
- /* Read and interpret a 44-bit followed by a 32-bit value in the regmap */
-@@ -1104,7 +1106,7 @@ static const struct si5341_reg_default si5341_preamble[] = {
- 	{ 0x0B25, 0x00 },
- 	{ 0x0502, 0x01 },
- 	{ 0x0505, 0x03 },
--	{ 0x0957, 0x1F },
-+	{ 0x0957, 0x17 },
- 	{ 0x0B4E, 0x1A },
- };
- 
+ 				/* populate jmp_offset for JMP above */
 -- 
 2.30.2
 
