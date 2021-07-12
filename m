@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EC33C512F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBEB3C5131
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345321AbhGLHiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:38:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S1345356AbhGLHiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347501AbhGLHfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347506AbhGLHfD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 03:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C09761132;
-        Mon, 12 Jul 2021 07:32:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EEA06101D;
+        Mon, 12 Jul 2021 07:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075121;
-        bh=WLRr2AH/ukP99VXx1bgtGviXADj4uW/c0+gMLB3GQNM=;
+        s=korg; t=1626075124;
+        bh=mvhK1fojrpELnQrfWx36AMFgRV2kCm7Yn+UAzkpOdK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AgOo7nrE/CeZIOsdffmGleJeB7uGGzJKCnA1QVy5UxwgtAzIKWIA/KMwSMAAVZ5gf
-         yjjErlSUjWOk5ScRHnM3oScL9h9Sgo7KBiNOf/kbq93r7a7mX1ujpvs/ha1rSjJZr5
-         lPea39KEiAQd5O9ENjx1hTMyDp4kRiMEYJmqPxgA=
+        b=ZEgEhz0bruEyOX1YCODGV4quJg3RyQEzw8pCEP02OXzO9hhI539Jxq3Rbplcjm/jr
+         ftuL7Is8uTzMTjRldtC18arWjVCZG+rSIrY9AuGujMxQJnLP+Dgqlzg7w1lIpA3z3g
+         1KiMFVsSvUwqNw/pcYUGvYRBFLa2b/0GMIC0IGyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.13 111/800] seq_buf: Make trace_seq_putmem_hex() support data longer than 8
-Date:   Mon, 12 Jul 2021 08:02:14 +0200
-Message-Id: <20210712060928.607821884@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.13 112/800] powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()
+Date:   Mon, 12 Jul 2021 08:02:15 +0200
+Message-Id: <20210712060928.738522392@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -39,45 +39,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yun Zhou <yun.zhou@windriver.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 6a2cbc58d6c9d90cd74288cc497c2b45815bc064 upstream.
+commit 7c6986ade69e3c81bac831645bc72109cd798a80 upstream.
 
-Since the raw memory 'data' does not go forward, it will dump repeated
-data if the data length is more than 8. If we want to dump longer data
-blocks, we need to repeatedly call macro SEQ_PUT_HEX_FIELD. I think it
-is a bit redundant, and multiple function calls also affect the performance.
+In raise_backtrace_ipi() we iterate through the cpumask of CPUs, sending
+each an IPI asking them to do a backtrace, but we don't wait for the
+backtrace to happen.
 
-Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
-Link: https://lkml.kernel.org/r/20210626032156.47889-2-yun.zhou@windriver.com
+We then iterate through the CPU mask again, and if any CPU hasn't done
+the backtrace and cleared itself from the mask, we print a trace on its
+behalf, noting that the trace may be "stale".
 
-Cc: stable@vger.kernel.org
-Fixes: 6d2289f3faa7 ("tracing: Make trace_seq_putmem_hex() more robust")
-Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+This works well enough when a CPU is not responding, because in that
+case it doesn't receive the IPI and the sending CPU is left to print the
+trace. But when all CPUs are responding we are left with a race between
+the sending and receiving CPUs, if the sending CPU wins the race then it
+will erroneously print a trace.
+
+This leads to spurious "stale" traces from the sending CPU, which can
+then be interleaved messily with the receiving CPU, note the CPU
+numbers, eg:
+
+  [ 1658.929157][    C7] rcu: Stack dump where RCU GP kthread last ran:
+  [ 1658.929223][    C7] Sending NMI from CPU 7 to CPUs 1:
+  [ 1658.929303][    C1] NMI backtrace for cpu 1
+  [ 1658.929303][    C7] CPU 1 didn't respond to backtrace IPI, inspecting paca.
+  [ 1658.929362][    C1] CPU: 1 PID: 325 Comm: kworker/1:1H Tainted: G        W   E     5.13.0-rc2+ #46
+  [ 1658.929405][    C7] irq_soft_mask: 0x01 in_mce: 0 in_nmi: 0 current: 325 (kworker/1:1H)
+  [ 1658.929465][    C1] Workqueue: events_highpri test_work_fn [test_lockup]
+  [ 1658.929549][    C7] Back trace of paca->saved_r1 (0xc0000000057fb400) (possibly stale):
+  [ 1658.929592][    C1] NIP:  c00000000002cf50 LR: c008000000820178 CTR: c00000000002cfa0
+
+To fix it, change the logic so that the sending CPU waits 5s for the
+receiving CPU to print its trace. If the receiving CPU prints its trace
+successfully then the sending CPU just continues, avoiding any spurious
+"stale" trace.
+
+This has the added benefit of allowing all CPUs to print their traces in
+order and avoids any interleaving of their output.
+
+Fixes: 5cc05910f26e ("powerpc/64s: Wire up arch_trigger_cpumask_backtrace()")
+Cc: stable@vger.kernel.org # v4.18+
+Reported-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210625140408.3351173-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- lib/seq_buf.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/stacktrace.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/lib/seq_buf.c
-+++ b/lib/seq_buf.c
-@@ -243,12 +243,14 @@ int seq_buf_putmem_hex(struct seq_buf *s
- 			break;
+--- a/arch/powerpc/kernel/stacktrace.c
++++ b/arch/powerpc/kernel/stacktrace.c
+@@ -172,17 +172,31 @@ static void handle_backtrace_ipi(struct
  
- 		/* j increments twice per loop */
--		len -= j / 2;
- 		hex[j++] = ' ';
+ static void raise_backtrace_ipi(cpumask_t *mask)
+ {
++	struct paca_struct *p;
+ 	unsigned int cpu;
++	u64 delay_us;
  
- 		seq_buf_putmem(s, hex, j);
- 		if (seq_buf_has_overflowed(s))
- 			return -1;
+ 	for_each_cpu(cpu, mask) {
+-		if (cpu == smp_processor_id())
++		if (cpu == smp_processor_id()) {
+ 			handle_backtrace_ipi(NULL);
+-		else
+-			smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, 5 * USEC_PER_SEC);
+-	}
++			continue;
++		}
+ 
+-	for_each_cpu(cpu, mask) {
+-		struct paca_struct *p = paca_ptrs[cpu];
++		delay_us = 5 * USEC_PER_SEC;
 +
-+		len -= start_len;
-+		data += start_len;
- 	}
- 	return 0;
- }
++		if (smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, delay_us)) {
++			// Now wait up to 5s for the other CPU to do its backtrace
++			while (cpumask_test_cpu(cpu, mask) && delay_us) {
++				udelay(1);
++				delay_us--;
++			}
++
++			// Other CPU cleared itself from the mask
++			if (delay_us)
++				continue;
++		}
++
++		p = paca_ptrs[cpu];
+ 
+ 		cpumask_clear_cpu(cpu, mask);
+ 
 
 
