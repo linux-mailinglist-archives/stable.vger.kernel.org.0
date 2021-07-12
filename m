@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8F43C473B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3649B3C473C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236086AbhGLGbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:31:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53468 "EHLO mail.kernel.org"
+        id S236142AbhGLGbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234587AbhGLGbP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234434AbhGLGbP (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:31:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0850F610A7;
-        Mon, 12 Jul 2021 06:28:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B3A56101E;
+        Mon, 12 Jul 2021 06:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071305;
-        bh=9eg694XLKpvRDaXwvpcVUzljX/dmzemI9GuS2cW6vdI=;
+        s=korg; t=1626071307;
+        bh=XKQ7PddeWqOUTtxv6hvVS3NyeUSWTYVdVkn/LXHTfLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TltF7BiTKXuxFyPbxwJnQtcOrRiRWB20j4dSVAEhUU1bZ21A1gsm+L3BxLluhaRv7
-         VfEwPEHbWZH/SfYE2P5z5jecUlnF0ueqKU3CrBwG2xWLonR7htFUIAb0m6Z7xzPhR+
-         4a0I7AcBIKaQ93h9t3+AYa1j5tjTJEs493qcnSQo=
+        b=xXV5TVvsUwGQlLme7MsqWxiKCWD7DjRcHF/GUTe0fxgNYnuaqLQ60oGyh1XsfrGSu
+         flqY929CQlHzyaw2eIAyqo71BimPAnQOQ5/Xy0ZQmGUSW4iumZjoMGZ9Vnu2PCfSfm
+         H3EE2vAh+D3rj3lEotUPOVJyyTGuRyntc7++s7Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 014/593] ALSA: hda/realtek: Improve fixup for HP Spectre x360 15-df0xxx
-Date:   Mon, 12 Jul 2021 08:02:54 +0200
-Message-Id: <20210712060844.749129297@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 015/593] ALSA: hda/realtek: Fix bass speaker DAC mapping for Asus UM431D
+Date:   Mon, 12 Jul 2021 08:02:55 +0200
+Message-Id: <20210712060844.860662221@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,74 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elia Devito <eliadevito@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 434591b2a77def0e78abfa38e5d7c4bca954e68a upstream.
+commit f8fbcdfb0665de60997d9746809e1704ed782bbc upstream.
 
-On HP Spectre x360 15-df0xxx, after system boot with plugged headset, the
-headset mic are not detected.
-Moving pincfg and DAC's config to single fixup function fix this.
+Asus Zenbook 14 UM431D has two speaker pins and a headphone pin, and
+the auto-parser ends up assigning the bass to the third DAC 0x06.
+Although the tone comes out, it's inconvenient because this DAC has no
+volume control unlike two other DACs.
 
-[ The actual bug in the original code was that it used a chain to
-  ALC286_FIXUP_SPEAKER2_TO_DAC1, and it contains not only the DAC1
-  route fix but also another chain to ALC269_FIXUP_THINKPAD_ACPI.
-  I thought the latter one is harmless for non-Thinkpad, but it
-  doesn't seem so; it contains again yet another chain to
-  ALC269_FIXUP_SKI_IGNORE, and this might be bad for some machines,
-  including this HP machine.  -- tiwai ]
+For obtaining the volume control for the bass speaker, this patch
+enforces the mapping to let both front and bass speaker pins sharing
+the same DAC.  It's not ideal but a little bit of improvement.
 
-Signed-off-by: Elia Devito <eliadevito@gmail.com>
+Since we've already applied the same workaround for another ASUS
+machine, we just need to hook the chain to the existing quirk.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212547
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210619204105.5682-1-eliadevito@gmail.com
+Link: https://lore.kernel.org/r/20210620065952.18948-1-tiwai@suse.de
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |   27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
 --- a/sound/pci/hda/patch_realtek.c
 +++ b/sound/pci/hda/patch_realtek.c
-@@ -6347,6 +6347,24 @@ static void alc_fixup_no_int_mic(struct
- 	}
- }
- 
-+static void alc285_fixup_hp_spectre_x360(struct hda_codec *codec,
-+					  const struct hda_fixup *fix, int action)
-+{
-+	static const hda_nid_t conn[] = { 0x02 };
-+	static const struct hda_pintbl pincfgs[] = {
-+		{ 0x14, 0x90170110 },  /* rear speaker */
-+		{ }
-+	};
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		snd_hda_apply_pincfgs(codec, pincfgs);
-+		/* force front speaker to DAC1 */
-+		snd_hda_override_conn_list(codec, 0x17, ARRAY_SIZE(conn), conn);
-+		break;
-+	}
-+}
-+
- /* for hda_fixup_thinkpad_acpi() */
- #include "thinkpad_helper.c"
- 
-@@ -8124,13 +8142,8 @@ static const struct hda_fixup alc269_fix
- 		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
+@@ -7831,6 +7831,8 @@ static const struct hda_fixup alc269_fix
+ 			{ 0x20, AC_VERB_SET_PROC_COEF, 0x4e4b },
+ 			{ }
+ 		},
++		.chained = true,
++		.chain_id = ALC289_FIXUP_ASUS_GA401,
  	},
- 	[ALC285_FIXUP_HP_SPECTRE_X360] = {
--		.type = HDA_FIXUP_PINS,
--		.v.pins = (const struct hda_pintbl[]) {
--			{ 0x14, 0x90170110 }, /* enable top speaker */
--			{}
--		},
--		.chained = true,
--		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1,
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc285_fixup_hp_spectre_x360,
- 	},
- 	[ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP] = {
+ 	[ALC285_FIXUP_HP_GPIO_LED] = {
  		.type = HDA_FIXUP_FUNC,
 
 
