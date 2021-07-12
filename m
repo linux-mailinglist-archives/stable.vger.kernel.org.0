@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613633C4A96
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 302F83C5446
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239668AbhGLGw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44976 "EHLO mail.kernel.org"
+        id S1348270AbhGLH5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238016AbhGLGtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F4FB6113A;
-        Mon, 12 Jul 2021 06:44:40 +0000 (UTC)
+        id S1350545AbhGLHxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:53:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CFF06142F;
+        Mon, 12 Jul 2021 07:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072281;
-        bh=z/cZfwFobVX5sgeFNOF8dPZq4WLBEUxl/99zBSEx6qU=;
+        s=korg; t=1626076265;
+        bh=uaZ0FqznXkgtH9TsE5H5Mtjlkk2oHewTm7iMVEhkEos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdGvcACYHE13eRTF9a8qca2qxFiAB/kyg+EgIrXA9LL5t53zs12dCIerd2z7bTFFr
-         axHD3s+eQ7Fix71kXecZ5JihnQZZ25bgbLRnPUepI9sBDbSYVCcf8fOOPHQBwg45vd
-         EN03GPzsPqfozI0q8+aE07foBNSx+Z0yn1nmbjRs=
+        b=sfp/j1IwGykk2kb2BZosFX2WfkINwAzm2Egqi70gmlpeElU6fYXka8/KghyzmHNC9
+         1YTsayZh01xmecs9N3/r88xQZBsDgFLpF4v1BpKqr1Jg/kaoU/NVjvvvhocrZt36wo
+         e5c0jXZWdwtDbu8B9BosAylxt46Sy+FNvXBkvy/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Dexuan Cui <decui@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 388/593] bpf: Fix null ptr deref with mixed tail calls and subprogs
-Date:   Mon, 12 Jul 2021 08:09:08 +0200
-Message-Id: <20210712060929.834755732@linuxfoundation.org>
+Subject: [PATCH 5.13 526/800] net: mana: Fix a memory leak in an error handling path in mana_create_txq()
+Date:   Mon, 12 Jul 2021 08:09:09 +0200
+Message-Id: <20210712061023.250756630@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,126 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Fastabend <john.fastabend@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 7506d211b932870155bcb39e3dd9e39fab45a7c7 ]
+[ Upstream commit b90788459cd6d140171b046f0b37fad341ade0a3 ]
 
-The sub-programs prog->aux->poke_tab[] is populated in jit_subprogs() and
-then used when emitting 'BPF_JMP|BPF_TAIL_CALL' insn->code from the
-individual JITs. The poke_tab[] to use is stored in the insn->imm by
-the code adding it to that array slot. The JIT then uses imm to find the
-right entry for an individual instruction. In the x86 bpf_jit_comp.c
-this is done by calling emit_bpf_tail_call_direct with the poke_tab[]
-of the imm value.
+If this test fails we must free some resources as in all the other error
+handling paths of this function.
 
-However, we observed the below null-ptr-deref when mixing tail call
-programs with subprog programs. For this to happen we just need to
-mix bpf-2-bpf calls and tailcalls with some extra calls or instructions
-that would be patched later by one of the fixup routines. So whats
-happening?
-
-Before the fixup_call_args() -- where the jit op is done -- various
-code patching is done by do_misc_fixups(). This may increase the
-insn count, for example when we patch map_lookup_up using map_gen_lookup
-hook. This does two things. First, it means the instruction index,
-insn_idx field, of a tail call instruction will move by a 'delta'.
-
-In verifier code,
-
- struct bpf_jit_poke_descriptor desc = {
-  .reason = BPF_POKE_REASON_TAIL_CALL,
-  .tail_call.map = BPF_MAP_PTR(aux->map_ptr_state),
-  .tail_call.key = bpf_map_key_immediate(aux),
-  .insn_idx = i + delta,
- };
-
-Then subprog start values subprog_info[i].start will be updated
-with the delta and any poke descriptor index will also be updated
-with the delta in adjust_poke_desc(). If we look at the adjust
-subprog starts though we see its only adjusted when the delta
-occurs before the new instructions,
-
-        /* NOTE: fake 'exit' subprog should be updated as well. */
-        for (i = 0; i <= env->subprog_cnt; i++) {
-                if (env->subprog_info[i].start <= off)
-                        continue;
-
-Earlier subprograms are not changed because their start values
-are not moved. But, adjust_poke_desc() does the offset + delta
-indiscriminately. The result is poke descriptors are potentially
-corrupted.
-
-Then in jit_subprogs() we only populate the poke_tab[]
-when the above insn_idx is less than the next subprogram start. From
-above we corrupted our insn_idx so we might incorrectly assume a
-poke descriptor is not used in a subprogram omitting it from the
-subprogram. And finally when the jit runs it does the deref of poke_tab
-when emitting the instruction and crashes with below. Because earlier
-step omitted the poke descriptor.
-
-The fix is straight forward with above context. Simply move same logic
-from adjust_subprog_starts() into adjust_poke_descs() and only adjust
-insn_idx when needed.
-
-[   82.396354] bpf_testmod: version magic '5.12.0-rc2alu+ SMP preempt mod_unload ' should be '5.12.0+ SMP preempt mod_unload '
-[   82.623001] loop10: detected capacity change from 0 to 8
-[   88.487424] ==================================================================
-[   88.487438] BUG: KASAN: null-ptr-deref in do_jit+0x184a/0x3290
-[   88.487455] Write of size 8 at addr 0000000000000008 by task test_progs/5295
-[   88.487471] CPU: 7 PID: 5295 Comm: test_progs Tainted: G          I       5.12.0+ #386
-[   88.487483] Hardware name: Dell Inc. Precision 5820 Tower/002KVM, BIOS 1.9.2 01/24/2019
-[   88.487490] Call Trace:
-[   88.487498]  dump_stack+0x93/0xc2
-[   88.487515]  kasan_report.cold+0x5f/0xd8
-[   88.487530]  ? do_jit+0x184a/0x3290
-[   88.487542]  do_jit+0x184a/0x3290
- ...
-[   88.487709]  bpf_int_jit_compile+0x248/0x810
- ...
-[   88.487765]  bpf_check+0x3718/0x5140
- ...
-[   88.487920]  bpf_prog_load+0xa22/0xf10
-
-Fixes: a748c6975dea3 ("bpf: propagate poke descriptors to subprograms")
-Reported-by: Jussi Maki <joamaki@gmail.com>
-Signed-off-by: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 6 ++++--
+ drivers/net/ethernet/microsoft/mana/mana_en.c | 6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index e97724e36dfb..bf6798fb2331 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -10532,7 +10532,7 @@ static void adjust_subprog_starts(struct bpf_verifier_env *env, u32 off, u32 len
- 	}
- }
+diff --git a/drivers/net/ethernet/microsoft/mana/mana_en.c b/drivers/net/ethernet/microsoft/mana/mana_en.c
+index 04d067243457..1ed25e48f616 100644
+--- a/drivers/net/ethernet/microsoft/mana/mana_en.c
++++ b/drivers/net/ethernet/microsoft/mana/mana_en.c
+@@ -1230,8 +1230,10 @@ static int mana_create_txq(struct mana_port_context *apc,
  
--static void adjust_poke_descs(struct bpf_prog *prog, u32 len)
-+static void adjust_poke_descs(struct bpf_prog *prog, u32 off, u32 len)
- {
- 	struct bpf_jit_poke_descriptor *tab = prog->aux->poke_tab;
- 	int i, sz = prog->aux->size_poke_tab;
-@@ -10540,6 +10540,8 @@ static void adjust_poke_descs(struct bpf_prog *prog, u32 len)
+ 		cq->gdma_id = cq->gdma_cq->id;
  
- 	for (i = 0; i < sz; i++) {
- 		desc = &tab[i];
-+		if (desc->insn_idx <= off)
-+			continue;
- 		desc->insn_idx += len - 1;
- 	}
- }
-@@ -10560,7 +10562,7 @@ static struct bpf_prog *bpf_patch_insn_data(struct bpf_verifier_env *env, u32 of
- 	if (adjust_insn_aux_data(env, new_prog, off, len))
- 		return NULL;
- 	adjust_subprog_starts(env, off, len);
--	adjust_poke_descs(new_prog, len);
-+	adjust_poke_descs(new_prog, off, len);
- 	return new_prog;
- }
+-		if (WARN_ON(cq->gdma_id >= gc->max_num_cqs))
+-			return -EINVAL;
++		if (WARN_ON(cq->gdma_id >= gc->max_num_cqs)) {
++			err = -EINVAL;
++			goto out;
++		}
+ 
+ 		gc->cq_table[cq->gdma_id] = cq->gdma_cq;
  
 -- 
 2.30.2
