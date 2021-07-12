@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8893C4ADD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDED3C5040
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240559AbhGLGyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:54:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52956 "EHLO mail.kernel.org"
+        id S1344412AbhGLHbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239411AbhGLGwy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 896D660233;
-        Mon, 12 Jul 2021 06:50:04 +0000 (UTC)
+        id S1344416AbhGLH3c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02DF36145F;
+        Mon, 12 Jul 2021 07:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072605;
-        bh=/ZRmFy01HHtJoHDURx0VJGOB/SWfUK+HH2AVAniL8+o=;
+        s=korg; t=1626074713;
+        bh=S3Sx+v1OSpD+g9scBubEcoo7+TYplDZ0tvOS1aO0bQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zxLcXgPzQKlqCIpln4bSQdQO2snbuCiXITGyo66b9Vv/zrDDRZpgdVIBUpm2fCJUX
-         AsaSjwBCw93XARGzWp7G8PtNnj4mO9QDwCiNGXV9nFo6eisjB3OBVVyEo96KdHxLxE
-         OfTuYQm6mHGiRuS+oYrnZyxgHz2S4U1EcZEdjrsw=
+        b=nI3e9/rnly3Ztd4iMQ7nJ3H6qYcd5Wn1luCf5Flm3Vnl7IhELON+HyNtecbS0Kl22
+         iRhOnEnbX7fUDou3zVws6czDXkM0mjhAVxf09DhfTSno8o6FHbYzr4EyYX59L8SLxB
+         GKzloBlZYZ0uTSkhImGAguQkwRddFMxVkg2BDOS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Parthiban Nallathambi <pn@denx.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 552/593] serial: 8250: 8250_omap: Fix possible interrupt storm on K3 SoCs
+Subject: [PATCH 5.12 629/700] iio: light: vcnl4035: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:52 +0200
-Message-Id: <20210712060955.115377110@linuxfoundation.org>
+Message-Id: <20210712061042.771365324@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh Raghavendra <vigneshr@ti.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit b67e830d38fa9335d927fe67e812e3ed81b4689c ]
+[ Upstream commit ec90b52c07c0403a6db60d752484ec08d605ead0 ]
 
-On K3 family of SoCs (which includes AM654 SoC), it is observed that RX
-TIMEOUT is signalled after RX FIFO has been drained, in which case a
-dummy read of RX FIFO is required to clear RX TIMEOUT condition.
-Otherwise, this would lead to an interrupt storm.
+Add __aligned(8) to ensure the buffer passed to
+iio_push_to_buffers_with_timestamp() is suitable for the naturally
+aligned timestamp that will be inserted.
 
-Fix this by introducing UART_RX_TIMEOUT_QUIRK flag and doing a dummy
-read in IRQ handler when RX TIMEOUT is reported with no data in RX FIFO.
+Here an explicit structure is not used, because the holes would
+necessitate the addition of an explict memset(), to avoid a potential
+kernel data leak, making for a less minimal fix.
 
-Fixes: be70874498f3 ("serial: 8250_omap: Add support for AM654 UART controller")
-Reported-by: Jan Kiszka <jan.kiszka@siemens.com>
-Tested-by: Jan Kiszka <jan.kiszka@siemens.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20210622145704.11168-1-vigneshr@ti.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 55707294c4eb ("iio: light: Add support for vishay vcnl4035")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Parthiban Nallathambi <pn@denx.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_omap.c | 20 +++++++++++++++++++-
- 1 file changed, 19 insertions(+), 1 deletion(-)
+ drivers/iio/light/vcnl4035.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/8250/8250_omap.c b/drivers/tty/serial/8250/8250_omap.c
-index a9cfe1c57642..95e2d6de4f21 100644
---- a/drivers/tty/serial/8250/8250_omap.c
-+++ b/drivers/tty/serial/8250/8250_omap.c
-@@ -43,6 +43,7 @@
- #define UART_ERRATA_CLOCK_DISABLE	(1 << 3)
- #define	UART_HAS_EFR2			BIT(4)
- #define UART_HAS_RHR_IT_DIS		BIT(5)
-+#define UART_RX_TIMEOUT_QUIRK		BIT(6)
- 
- #define OMAP_UART_FCR_RX_TRIG		6
- #define OMAP_UART_FCR_TX_TRIG		4
-@@ -104,6 +105,9 @@
- #define UART_OMAP_EFR2			0x23
- #define UART_OMAP_EFR2_TIMEOUT_BEHAVE	BIT(6)
- 
-+/* RX FIFO occupancy indicator */
-+#define UART_OMAP_RX_LVL		0x64
-+
- struct omap8250_priv {
- 	int line;
- 	u8 habit;
-@@ -598,6 +602,7 @@ static int omap_8250_dma_handle_irq(struct uart_port *port);
- static irqreturn_t omap8250_irq(int irq, void *dev_id)
- {
- 	struct uart_port *port = dev_id;
-+	struct omap8250_priv *priv = port->private_data;
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	unsigned int iir;
+diff --git a/drivers/iio/light/vcnl4035.c b/drivers/iio/light/vcnl4035.c
+index 73a28e30dddc..1342bbe111ed 100644
+--- a/drivers/iio/light/vcnl4035.c
++++ b/drivers/iio/light/vcnl4035.c
+@@ -102,7 +102,8 @@ static irqreturn_t vcnl4035_trigger_consumer_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct vcnl4035_data *data = iio_priv(indio_dev);
+-	u8 buffer[ALIGN(sizeof(u16), sizeof(s64)) + sizeof(s64)];
++	/* Ensure naturally aligned timestamp */
++	u8 buffer[ALIGN(sizeof(u16), sizeof(s64)) + sizeof(s64)]  __aligned(8);
  	int ret;
-@@ -612,6 +617,18 @@ static irqreturn_t omap8250_irq(int irq, void *dev_id)
- 	serial8250_rpm_get(up);
- 	iir = serial_port_in(port, UART_IIR);
- 	ret = serial8250_handle_irq(port, iir);
-+
-+	/*
-+	 * On K3 SoCs, it is observed that RX TIMEOUT is signalled after
-+	 * FIFO has been drained, in which case a dummy read of RX FIFO
-+	 * is required to clear RX TIMEOUT condition.
-+	 */
-+	if (priv->habit & UART_RX_TIMEOUT_QUIRK &&
-+	    (iir & UART_IIR_RX_TIMEOUT) == UART_IIR_RX_TIMEOUT &&
-+	    serial_port_in(port, UART_OMAP_RX_LVL) == 0) {
-+		serial_port_in(port, UART_RX);
-+	}
-+
- 	serial8250_rpm_put(up);
  
- 	return IRQ_RETVAL(ret);
-@@ -1210,7 +1227,8 @@ static struct omap8250_dma_params am33xx_dma = {
- 
- static struct omap8250_platdata am654_platdata = {
- 	.dma_params	= &am654_dma,
--	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS,
-+	.habit		= UART_HAS_EFR2 | UART_HAS_RHR_IT_DIS |
-+			  UART_RX_TIMEOUT_QUIRK,
- };
- 
- static struct omap8250_platdata am33xx_platdata = {
+ 	ret = regmap_read(data->regmap, VCNL4035_ALS_DATA, (int *)buffer);
 -- 
 2.30.2
 
