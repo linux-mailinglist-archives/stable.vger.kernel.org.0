@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9942D3C4AAD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C1403C554C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240003AbhGLGxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S1355515AbhGLIJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240734AbhGLGwD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48DDE60233;
-        Mon, 12 Jul 2021 06:49:14 +0000 (UTC)
+        id S1353417AbhGLICI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B239261CA4;
+        Mon, 12 Jul 2021 07:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072555;
-        bh=KlMGQ3e8uTVoH70/r1i913wVeQy3pNxxandWLFVh+yw=;
+        s=korg; t=1626076508;
+        bh=jsTkd2JjJ9CYwmy06dpRp8yB6q7ul0/a4TE2LckToqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ib84j1i8B6fGNhpqrUe0sbby4dgySMGoCI276JeBwFokXerLcwRaYkRCsfLt3y0Vs
-         fMFD2ktiQn3e3V/1K4ZXRdnWthwUIca8WW3/+ikOnp2KA1ta6dIglylflIfMFky/um
-         R7mxF7tt6wvGi644M+zyrWeJ1x+AnhxK4gXQimEw=
+        b=YSVo2gmmV0nxA0GVL7nsyVFfMi/OsVAoRe8+O7asOxOfP/MaUv6EGKpU2MrB6nyj2
+         MmGEYbjQCsA10fu/NFCrCFPG4szcnriM0Hvuc/CAdQSpL/1m7gitUrc4qlgiZb7BZp
+         q55qd6fccz+dENEu7FQMpeVoJAQi7q1Tf9p50m0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 537/593] phy: uniphier-pcie: Fix updating phy parameters
+        stable@vger.kernel.org, Joachim Fenkes <FENKES@de.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 674/800] fsi/sbefifo: Clean up correct FIFO when receiving reset request from SBE
 Date:   Mon, 12 Jul 2021 08:11:37 +0200
-Message-Id: <20210712060952.862581547@linuxfoundation.org>
+Message-Id: <20210712061038.635471732@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Joachim Fenkes <FENKES@de.ibm.com>
 
-[ Upstream commit 4a90bbb478dbf18ecdec9dcf8eb708e319d24264 ]
+[ Upstream commit 95152433e46fdb36652ebdbea442356a16ae1fa6 ]
 
-The current driver uses a value from register TEST_O as the original
-value for register TEST_I, though, the value is overwritten by "param",
-so there is a bug that the original value isn't no longer used.
+When the SBE requests a reset via the down FIFO, that is also the
+FIFO we should go and reset ;)
 
-The value of TEST_O[7:0] should be masked with "mask", replaced with
-"param", and placed in the bitfield TESTI_DAT_MASK as new TEST_I value.
-
-Fixes: c6d9b1324159 ("phy: socionext: add PCIe PHY driver support")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1623037842-19363-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 9f4a8a2d7f9d ("fsi/sbefifo: Add driver for the SBE FIFO")
+Signed-off-by: Joachim Fenkes <FENKES@de.ibm.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Link: https://lore.kernel.org/r/20200724071518.430515-2-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/socionext/phy-uniphier-pcie.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/fsi/fsi-sbefifo.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/socionext/phy-uniphier-pcie.c b/drivers/phy/socionext/phy-uniphier-pcie.c
-index e4adab375c73..6bdbd1f214dd 100644
---- a/drivers/phy/socionext/phy-uniphier-pcie.c
-+++ b/drivers/phy/socionext/phy-uniphier-pcie.c
-@@ -24,11 +24,13 @@
- #define PORT_SEL_1		FIELD_PREP(PORT_SEL_MASK, 1)
- 
- #define PCL_PHY_TEST_I		0x2000
--#define PCL_PHY_TEST_O		0x2004
- #define TESTI_DAT_MASK		GENMASK(13, 6)
- #define TESTI_ADR_MASK		GENMASK(5, 1)
- #define TESTI_WR_EN		BIT(0)
- 
-+#define PCL_PHY_TEST_O		0x2004
-+#define TESTO_DAT_MASK		GENMASK(7, 0)
-+
- #define PCL_PHY_RESET		0x200c
- #define PCL_PHY_RESET_N_MNMODE	BIT(8)	/* =1:manual */
- #define PCL_PHY_RESET_N		BIT(0)	/* =1:deasssert */
-@@ -77,11 +79,12 @@ static void uniphier_pciephy_set_param(struct uniphier_pciephy_priv *priv,
- 	val  = FIELD_PREP(TESTI_DAT_MASK, 1);
- 	val |= FIELD_PREP(TESTI_ADR_MASK, reg);
- 	uniphier_pciephy_testio_write(priv, val);
--	val = readl(priv->base + PCL_PHY_TEST_O);
-+	val = readl(priv->base + PCL_PHY_TEST_O) & TESTO_DAT_MASK;
- 
- 	/* update value */
--	val &= ~FIELD_PREP(TESTI_DAT_MASK, mask);
--	val  = FIELD_PREP(TESTI_DAT_MASK, mask & param);
-+	val &= ~mask;
-+	val |= mask & param;
-+	val = FIELD_PREP(TESTI_DAT_MASK, val);
- 	val |= FIELD_PREP(TESTI_ADR_MASK, reg);
- 	uniphier_pciephy_testio_write(priv, val);
- 	uniphier_pciephy_testio_write(priv, val | TESTI_WR_EN);
+diff --git a/drivers/fsi/fsi-sbefifo.c b/drivers/fsi/fsi-sbefifo.c
+index bfd5e5da8020..de27c435d706 100644
+--- a/drivers/fsi/fsi-sbefifo.c
++++ b/drivers/fsi/fsi-sbefifo.c
+@@ -400,7 +400,7 @@ static int sbefifo_cleanup_hw(struct sbefifo *sbefifo)
+ 	/* The FIFO already contains a reset request from the SBE ? */
+ 	if (down_status & SBEFIFO_STS_RESET_REQ) {
+ 		dev_info(dev, "Cleanup: FIFO reset request set, resetting\n");
+-		rc = sbefifo_regw(sbefifo, SBEFIFO_UP, SBEFIFO_PERFORM_RESET);
++		rc = sbefifo_regw(sbefifo, SBEFIFO_DOWN, SBEFIFO_PERFORM_RESET);
+ 		if (rc) {
+ 			sbefifo->broken = true;
+ 			dev_err(dev, "Cleanup: Reset reg write failed, rc=%d\n", rc);
 -- 
 2.30.2
 
