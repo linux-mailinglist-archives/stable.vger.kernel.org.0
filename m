@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 486B03C4E77
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 273D83C4B60
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244884AbhGLHTD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55872 "EHLO mail.kernel.org"
+        id S240741AbhGLG4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244684AbhGLHSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B393761433;
-        Mon, 12 Jul 2021 07:15:09 +0000 (UTC)
+        id S238108AbhGLGtG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 915426113B;
+        Mon, 12 Jul 2021 06:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074110;
-        bh=1hlQG+jWl0mQzPrId8VWRY23XFOQ6d+gmUGGadabMRg=;
+        s=korg; t=1626072288;
+        bh=JrU/w6ibrI5CvIB8ew/Z264rC8h12/zrkK4QVi/N/5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mVad1HEztdg9WNQcoXHs6hCwCch41qzjxVVXPQ+oAMEM2OADhNiUXda5gOKWm0naJ
-         6JeMWVyhzyNZSy3RoMV1YxL2Y/pEf+rg7bpEPQZcu0C0N5L5jsP0uJd0WC1JEhF4WY
-         0H0m4SUb+jSWSWHeCBEXNsVcQWgH8mrL8mMqzBd8=
+        b=j/f9EVpx5+YDhWMTUQf/wGWS1QdKfgS0qEUDDxWeyeFofKsIENbuY+gdt5bO6iLFe
+         SXC3A4BnBjnK35lx5Vtv9fsV9KYUiw5M+IYl4l/2qCplfWclX+s4Cxc9hbdnPRn0tM
+         qI9LI7Ul2vAO5vjBmEwFlEr49u2pFlBE0qKrUn0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Alexander Aring <aahringo@redhat.com>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 468/700] ieee802154: hwsim: avoid possible crash in hwsim_del_edge_nl()
+Subject: [PATCH 5.10 391/593] mac80211: remove iwlwifi specific workaround NDPs of null_response
 Date:   Mon, 12 Jul 2021 08:09:11 +0200
-Message-Id: <20210712061026.380836678@linuxfoundation.org>
+Message-Id: <20210712060930.275027949@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 0303b30375dff5351a79cc2c3c87dfa4fda29bed ]
+[ Upstream commit 744757e46bf13ec3a7b3507d17ab3faab9516d43 ]
 
-Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE
-must be present to avoid a crash.
+Remove the remaining workaround that is not removed by the
+commit e41eb3e408de ("mac80211: remove iwlwifi specific workaround
+that broke sta NDP tx")
 
-Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Alexander Aring <alex.aring@gmail.com>
-Cc: Stefan Schmidt <stefan@datenfreihafen.org>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210621180244.882076-1-eric.dumazet@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://lore.kernel.org/r/20210623134826.10318-1-pkshih@realtek.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/sta_info.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 6d479df2d9e5..626e1ce817fc 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -480,7 +480,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
- 	struct hwsim_edge *e;
- 	u32 v0, v1;
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index f2fb69da9b6e..13250cadb420 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -1398,11 +1398,6 @@ static void ieee80211_send_null_response(struct sta_info *sta, int tid,
+ 	struct ieee80211_tx_info *info;
+ 	struct ieee80211_chanctx_conf *chanctx_conf;
  
--	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
-+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
- 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
- 		return -EINVAL;
- 
+-	/* Don't send NDPs when STA is connected HE */
+-	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
+-	    !(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
+-		return;
+-
+ 	if (qos) {
+ 		fc = cpu_to_le16(IEEE80211_FTYPE_DATA |
+ 				 IEEE80211_STYPE_QOS_NULLFUNC |
 -- 
 2.30.2
 
