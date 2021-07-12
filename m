@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2F13C53FF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDBE3C4E58
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349395AbhGLH4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
+        id S244286AbhGLHSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351483AbhGLHvv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A228C61152;
-        Mon, 12 Jul 2021 07:49:01 +0000 (UTC)
+        id S243890AbhGLHRO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F20613C7;
+        Mon, 12 Jul 2021 07:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076142;
-        bh=vadZ6gUXTYIuU7UT1zYTcy7tACJLaraZF8s0C4ypvD4=;
+        s=korg; t=1626074066;
+        bh=XaQZ0XQD2eP1yxK53Olecp/BSIHLA/SIbHYYmo0iXsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X/+ie9w0YlEVFh5MlGMcFvXhnGKyKd/y4nmi1VpgvXU/OvnWNTPRzrkI5/8I3xzDJ
-         V6QFer5QciqU1qRbbaREHKnqcRUFIj6qnSQzZQHix+AfLXr34XfB9etN1fLsE9gaBy
-         3UjCVUrjta3E/GWGNoSMAP1pA/6FS2LD23tQkQro=
+        b=ymIVjhtpjDPSxmqgAYEa4OZ2MDEJDX8nMzC3cI77q2tZNDVamq28zhLRC/+8IAXj7
+         H04Td26bGf9/Mtq7xk08C1HyuqMzNqxAB4FN3SpnXucbvLslyP+YrLD/VSda8srDZJ
+         W1IVCLp75pT5HQTV0KwA3/jX2nq05DDj8TfIHYNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiang Wang <jiang.wang@bytedance.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 514/800] skmsg: Clear skb redirect pointer before dropping it
+Subject: [PATCH 5.12 454/700] netfilter: nf_tables: do not allow to delete table with owner by handle
 Date:   Mon, 12 Jul 2021 08:08:57 +0200
-Message-Id: <20210712061021.906071469@linuxfoundation.org>
+Message-Id: <20210712061024.851491677@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 30b9c54a707db4155735cf71f4600241c1b7b6ff ]
+[ Upstream commit e31f072ffab0397a328b31a9589dcf9733dc9c72 ]
 
-When we drop skb inside sk_psock_skb_redirect(), we have to clear
-its skb->_sk_redir pointer too, otherwise kfree_skb() would
-misinterpret it as a valid skb->_skb_refdst and dst_release()
-would eventually complain.
+nft_table_lookup_byhandle() also needs to validate the netlink PortID
+owner when deleting a table by handle.
 
-Fixes: e3526bb92a20 ("skmsg: Move sk_redir from TCP_SKB_CB to skb")
-Reported-by: Jiang Wang <jiang.wang@bytedance.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20210615021342.7416-5-xiyou.wangcong@gmail.com
+Fixes: 6001a930ce03 ("netfilter: nftables: introduce table ownership")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skmsg.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/nf_tables_api.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/skmsg.c b/net/core/skmsg.c
-index 43ce17a6a585..df545748cd6a 100644
---- a/net/core/skmsg.c
-+++ b/net/core/skmsg.c
-@@ -866,12 +866,14 @@ static void sk_psock_skb_redirect(struct sk_buff *skb)
- 	 * a socket that is in this state so we drop the skb.
- 	 */
- 	if (!psock_other || sock_flag(sk_other, SOCK_DEAD)) {
-+		skb_bpf_redirect_clear(skb);
- 		kfree_skb(skb);
- 		return;
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 3705086d43f5..6b79fa357bfe 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -533,14 +533,19 @@ static struct nft_table *nft_table_lookup(const struct net *net,
+ 
+ static struct nft_table *nft_table_lookup_byhandle(const struct net *net,
+ 						   const struct nlattr *nla,
+-						   u8 genmask)
++						   u8 genmask, u32 nlpid)
+ {
+ 	struct nft_table *table;
+ 
+ 	list_for_each_entry(table, &net->nft.tables, list) {
+ 		if (be64_to_cpu(nla_get_be64(nla)) == table->handle &&
+-		    nft_active_genmask(table, genmask))
++		    nft_active_genmask(table, genmask)) {
++			if (nft_table_has_owner(table) &&
++			    nlpid && table->nlpid != nlpid)
++				return ERR_PTR(-EPERM);
++
+ 			return table;
++		}
  	}
- 	spin_lock_bh(&psock_other->ingress_lock);
- 	if (!sk_psock_test_state(psock_other, SK_PSOCK_TX_ENABLED)) {
- 		spin_unlock_bh(&psock_other->ingress_lock);
-+		skb_bpf_redirect_clear(skb);
- 		kfree_skb(skb);
- 		return;
- 	}
+ 
+ 	return ERR_PTR(-ENOENT);
+@@ -1213,7 +1218,8 @@ static int nf_tables_deltable(struct net *net, struct sock *nlsk,
+ 
+ 	if (nla[NFTA_TABLE_HANDLE]) {
+ 		attr = nla[NFTA_TABLE_HANDLE];
+-		table = nft_table_lookup_byhandle(net, attr, genmask);
++		table = nft_table_lookup_byhandle(net, attr, genmask,
++						  NETLINK_CB(skb).portid);
+ 	} else {
+ 		attr = nla[NFTA_TABLE_NAME];
+ 		table = nft_table_lookup(net, attr, family, genmask,
 -- 
 2.30.2
 
