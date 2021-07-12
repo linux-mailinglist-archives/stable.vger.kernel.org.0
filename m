@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 214243C44D4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9113C44D7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234427AbhGLGVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:21:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37526 "EHLO mail.kernel.org"
+        id S234464AbhGLGVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234300AbhGLGUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:20:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A68661130;
-        Mon, 12 Jul 2021 06:18:02 +0000 (UTC)
+        id S233958AbhGLGUx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:20:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6BA46101E;
+        Mon, 12 Jul 2021 06:18:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070682;
-        bh=sMjbLYU/bh5cw4879zwAqhzgjFFvkuGu4p0mGhCb4Kg=;
+        s=korg; t=1626070685;
+        bh=3er3/ZhZpIG+wIuMrxSwUwa2s/X04w9Ud+G1v3rj9Mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6ocBvkFfAEdSSYUDLESOYs+mJxwstZ7XaiqXa2V07PAybhs2awohWfr3GFJeDNbS
-         XWZIYOn+VoV7VLx+jsCv6hAJWpUWZmKOV43wW+oZfVUulIsHvUonuxJ+pq97ygQ4QP
-         TRUBsEJTPrgqpEN1Fj2MocAjlEHsOxNZbJ6X36r0=
+        b=ye7aYzkjoDSYeN8D/ur09fs1D5yaP2y2OUqKr0Za7djIAJ4YEl3t5JoApvQRlZPet
+         5nb6GKkzRtrousBYnmg+UzmreLaAYGvt99XIdOvpxziz2aXwGWL30TjXyvspFxkz0D
+         M31BTe9ATJVRbsrK9ZjXYw/mcFZ7HndlRnsd/GYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 095/348] crypto: shash - avoid comparing pointers to exported functions under CFI
-Date:   Mon, 12 Jul 2021 08:07:59 +0200
-Message-Id: <20210712060714.328396298@linuxfoundation.org>
+Subject: [PATCH 5.4 096/348] media: dvb_net: avoid speculation from net slot
+Date:   Mon, 12 Jul 2021 08:08:00 +0200
+Message-Id: <20210712060714.440301756@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,85 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
+[ Upstream commit abc0226df64dc137b48b911c1fe4319aec5891bb ]
 
-crypto_shash_alg_has_setkey() is implemented by testing whether the
-.setkey() member of a struct shash_alg points to the default version,
-called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
-inline, this requires shash_no_setkey() to be exported to modules.
+The risk of especulation is actually almost-non-existing here,
+as there are very few users of TCP/IP using the DVB stack,
+as, this is mainly used with DVB-S/S2 cards, and only by people
+that receives TCP/IP from satellite connections, which limits
+a lot the number of users of such feature(*).
 
-Unfortunately, when building with CFI, function pointers are routed
-via CFI stubs which are private to each module (or to the kernel proper)
-and so this function pointer comparison may fail spuriously.
+(*) In thesis, DVB-C cards could also benefit from it, but I'm
+yet to see a hardware that supports it.
 
-Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
-line function.
+Yet, fixing it is trivial.
 
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/shash.c                 | 18 +++++++++++++++---
- include/crypto/internal/hash.h |  8 +-------
- 2 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/media/dvb-core/dvb_net.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/crypto/shash.c b/crypto/shash.c
-index e83c5124f6eb..9c4cdfd8550e 100644
---- a/crypto/shash.c
-+++ b/crypto/shash.c
-@@ -20,12 +20,24 @@
+diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
+index 630509ecee20..9fed06ba88ef 100644
+--- a/drivers/media/dvb-core/dvb_net.c
++++ b/drivers/media/dvb-core/dvb_net.c
+@@ -45,6 +45,7 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
++#include <linux/nospec.h>
+ #include <linux/etherdevice.h>
+ #include <linux/dvb/net.h>
+ #include <linux/uio.h>
+@@ -1462,14 +1463,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct dvb_net_if *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
  
- static const struct crypto_type crypto_shash_type;
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (if_num >= DVB_NET_DEVICES_MAX) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
  
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen)
-+static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
-+			   unsigned int keylen)
- {
- 	return -ENOSYS;
- }
--EXPORT_SYMBOL_GPL(shash_no_setkey);
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		if (!dvbnet->state[if_num]) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
 +
-+/*
-+ * Check whether an shash algorithm has a setkey function.
-+ *
-+ * For CFI compatibility, this must not be an inline function.  This is because
-+ * when CFI is enabled, modules won't get the same address for shash_no_setkey
-+ * (if it were exported, which inlining would require) as the core kernel will.
-+ */
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
-+{
-+	return alg->setkey != shash_no_setkey;
-+}
-+EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
++		netdev = dvbnet->device[if_num];
  
- static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
- 				  unsigned int keylen)
-diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
-index bfc9db7b100d..9cc7f1c02d27 100644
---- a/include/crypto/internal/hash.h
-+++ b/include/crypto/internal/hash.h
-@@ -77,13 +77,7 @@ int ahash_register_instance(struct crypto_template *tmpl,
- 			    struct ahash_instance *inst);
- void ahash_free_instance(struct crypto_instance *inst);
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
+@@ -1522,14 +1529,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct __dvb_net_if_old *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
++
++		if (if_num >= DVB_NET_DEVICES_MAX) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
  
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen);
--
--static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
--{
--	return alg->setkey != shash_no_setkey;
--}
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (!dvbnet->state[if_num]) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
  
- bool crypto_hash_alg_has_setkey(struct hash_alg_common *halg);
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		netdev = dvbnet->device[if_num];
  
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
 -- 
 2.30.2
 
