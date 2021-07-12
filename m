@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E0A3C55DA
+	by mail.lfdr.de (Postfix) with ESMTP id 731523C55D9
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349490AbhGLIMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349100AbhGLIMR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 04:12:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354009AbhGLIDX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1354010AbhGLIDX (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 04:03:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05B35619B0;
-        Mon, 12 Jul 2021 07:59:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5917B611AD;
+        Mon, 12 Jul 2021 07:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076759;
-        bh=MO3L9GUWQ4SPW8CtGB+ziSv713OE+wGyQWzffo4TqsU=;
+        s=korg; t=1626076761;
+        bh=N+Qg+MafAsA7CmFrByQcZzXIAgDBszJvf2L/2bYoSSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSEdrlpUTFkJgcs0P54H82swinoE1l9WW59n9quqtgoMt0JUpkTtUJyVMW5M9v+o4
-         WMkUD+FHQ88CJdwMV4rhfaMIObtVZ9LW+wmeN3et46pfTrDhLPnMG511W7gla2Q96D
-         EOvrPISLy+hviDWAlTIxt6O+o0sd5K3KUJLVGXos=
+        b=d6okJRo2UuSbveX8QK2KL1T6WA5eaQVVnWeQUoGMx1uXEdNjKR8evQIpYHSOJFpBU
+         Mi5cLWlDpOyf84n0dZsOPT6Ymz9wsZDg76dYbFslWG/K2zodx7AnwhOyJzNJOnGxfm
+         MQLofGdSbjWfK/nBJSpfrkaysKFu1lv+jqpIKyWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Cramer <flrncrmr@gmail.com>,
-        Sungjong Seo <sj1557.seo@samsung.com>,
-        Chris Down <chris@chrisdown.name>,
-        Namjae Jeon <namjae.jeon@samsung.com>
-Subject: [PATCH 5.13 781/800] exfat: handle wrong stream entry size in exfat_readdir()
-Date:   Mon, 12 Jul 2021 08:13:24 +0200
-Message-Id: <20210712061049.935138869@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+        Sumit Saxena <sumit.saxena@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.13 782/800] scsi: megaraid_sas: Send all non-RW I/Os for TYPE_ENCLOSURE device through firmware
+Date:   Mon, 12 Jul 2021 08:13:25 +0200
+Message-Id: <20210712061050.054065045@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -41,69 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <namjae.jeon@samsung.com>
+From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
 
-commit 1e5654de0f51890f88abd409ebf4867782431e81 upstream.
+commit 79db830162b733f5f3ee80f0673eeeb0245fe38b upstream.
 
-The compatibility issue between linux exfat and exfat of some camera
-company was reported from Florian. In their exfat, if the number of files
-exceeds any limit, the DataLength in stream entry of the directory is
-no longer updated. So some files created from camera does not show in
-linux exfat. because linux exfat doesn't allow that cpos becomes larger
-than DataLength of stream entry. This patch check DataLength in stream
-entry only if the type is ALLOC_NO_FAT_CHAIN and add the check ensure
-that dentry offset does not exceed max dentries size(256 MB) to avoid
-the circular FAT chain issue.
+The driver issues all non-ReadWrite I/Os for TYPE_ENCLOSURE devices through
+the fast path with invalid dev handle. Fast path in turn directs all the
+I/Os to the firmware. As firmware stopped handling those I/Os from SAS3.5
+generation of controllers (Ventura generation and onwards) this will lead
+to I/O failures.
 
-Fixes: ca06197382bd ("exfat: add directory operations")
-Cc: stable@vger.kernel.org # v5.9
-Reported-by: Florian Cramer <flrncrmr@gmail.com>
-Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
-Tested-by: Chris Down <chris@chrisdown.name>
-Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Switch the driver to issue all the non-ReadWrite I/Os for TYPE_ENCLOSURE
+devices directly to firmware for SAS3.5 generation of controllers and
+later.
+
+Link: https://lore.kernel.org/r/20210528131307.25683-2-chandrakanth.patil@broadcom.com
+Cc: <stable@vger.kernel.org> # v5.11+
+Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/exfat/dir.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_fusion.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/fs/exfat/dir.c
-+++ b/fs/exfat/dir.c
-@@ -63,7 +63,7 @@ static void exfat_get_uniname_from_ext_e
- static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_entry *dir_entry)
+--- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
+@@ -3203,6 +3203,8 @@ megasas_build_io_fusion(struct megasas_i
  {
- 	int i, dentries_per_clu, dentries_per_clu_bits = 0, num_ext;
--	unsigned int type, clu_offset;
-+	unsigned int type, clu_offset, max_dentries;
- 	sector_t sector;
- 	struct exfat_chain dir, clu;
- 	struct exfat_uni_name uni_name;
-@@ -86,6 +86,8 @@ static int exfat_readdir(struct inode *i
- 
- 	dentries_per_clu = sbi->dentries_per_clu;
- 	dentries_per_clu_bits = ilog2(dentries_per_clu);
-+	max_dentries = (unsigned int)min_t(u64, MAX_EXFAT_DENTRIES,
-+					   (u64)sbi->num_clusters << dentries_per_clu_bits);
- 
- 	clu_offset = dentry >> dentries_per_clu_bits;
- 	exfat_chain_dup(&clu, &dir);
-@@ -109,7 +111,7 @@ static int exfat_readdir(struct inode *i
- 		}
- 	}
- 
--	while (clu.dir != EXFAT_EOF_CLUSTER) {
-+	while (clu.dir != EXFAT_EOF_CLUSTER && dentry < max_dentries) {
- 		i = dentry & (dentries_per_clu - 1);
- 
- 		for ( ; i < dentries_per_clu; i++, dentry++) {
-@@ -245,7 +247,7 @@ static int exfat_iterate(struct file *fi
- 	if (err)
- 		goto unlock;
- get_new:
--	if (cpos >= i_size_read(inode))
-+	if (ei->flags == ALLOC_NO_FAT_CHAIN && cpos >= i_size_read(inode))
- 		goto end_of_dir;
- 
- 	err = exfat_readdir(inode, &cpos, &de);
+ 	int sge_count;
+ 	u8  cmd_type;
++	u16 pd_index = 0;
++	u8 drive_type = 0;
+ 	struct MPI2_RAID_SCSI_IO_REQUEST *io_request = cmd->io_request;
+ 	struct MR_PRIV_DEVICE *mr_device_priv_data;
+ 	mr_device_priv_data = scp->device->hostdata;
+@@ -3237,8 +3239,12 @@ megasas_build_io_fusion(struct megasas_i
+ 		megasas_build_syspd_fusion(instance, scp, cmd, true);
+ 		break;
+ 	case NON_READ_WRITE_SYSPDIO:
+-		if (instance->secure_jbod_support ||
+-		    mr_device_priv_data->is_tm_capable)
++		pd_index = MEGASAS_PD_INDEX(scp);
++		drive_type = instance->pd_list[pd_index].driveType;
++		if ((instance->secure_jbod_support ||
++		     mr_device_priv_data->is_tm_capable) ||
++		     (instance->adapter_type >= VENTURA_SERIES &&
++		     drive_type == TYPE_ENCLOSURE))
+ 			megasas_build_syspd_fusion(instance, scp, cmd, false);
+ 		else
+ 			megasas_build_syspd_fusion(instance, scp, cmd, true);
 
 
