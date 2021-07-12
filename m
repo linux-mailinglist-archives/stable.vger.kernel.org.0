@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E853C47F5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCF63C47D6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236211AbhGLGfa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55054 "EHLO mail.kernel.org"
+        id S235369AbhGLGfO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237582AbhGLGej (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5D5B61181;
-        Mon, 12 Jul 2021 06:30:49 +0000 (UTC)
+        id S237590AbhGLGek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F20661176;
+        Mon, 12 Jul 2021 06:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071450;
-        bh=Y7MBsejTqP5jbUJzRJcT4hEOWtadSAMUvNkusXB/BjA=;
+        s=korg; t=1626071452;
+        bh=HtTGf5KnrovaUHmzR0sqHT16Xs/f/f2D5nlTR5SEGmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Ny8yWHxCojIff0iCmW8rOF5SmRrvksC8GwQ4MFe0n0kMSmIXH1+9GcMW7hq1Y+au
-         hvAl9PHatbM5tea/Re9Zfe5qAA/EAtLyX8qLaLE2oPMX0lRknEN17QqFhDLKVVFW//
-         dp2EG/LZ0JcJyIS2uBS1xGURAQkl6BwnWRho+i7I=
+        b=U2ZdgJIUhYVr8nM1LPaa63kfJr18vNf2mjnbaf+w7Lckrqsr6yGWM3DXk3B0LZAKA
+         B+saUT3J2lI0i6wb9m1/1TsIjg2wYC7sid4T1NLJ1P4ibQSYZpdeps/WzQq9eA1CkY
+         3y8/9i8RkJ7ZcRgvP+acRE4Bpile0MHl1WTGnyTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 5.10 076/593] iio: ltr501: ltr501_read_ps(): add missing endianness conversion
-Date:   Mon, 12 Jul 2021 08:03:56 +0200
-Message-Id: <20210712060851.501088191@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 077/593] iio: accel: bma180: Fix BMA25x bandwidth register values
+Date:   Mon, 12 Jul 2021 08:03:57 +0200
+Message-Id: <20210712060851.612797456@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -43,51 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-commit 71b33f6f93ef9462c84560e2236ed22209d26a58 upstream.
+commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream.
 
-The PS ADC Channel data is spread over 2 registers in little-endian
-form. This patch adds the missing endianness conversion.
+According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
+bandwidth value for BMA25x should be set as 01xxx:
 
-Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-4-mkl@pengutronix.de
+  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
+   It is recommended [...] to use the range from ´01000b´ to ´01111b´
+   only in order to be compatible with future products."
+
+However, at the moment the drivers sets bandwidth values from 0 to 6,
+which is not recommended and always results into 7.81 Hz bandwidth
+according to the datasheet.
+
+Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
+so the additional bit is always set for BMA25x.
+
+[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
+[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+
+Cc: Peter Meerwald <pmeerw@pmeerw.net>
+Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/ltr501.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/accel/bma180.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -409,18 +409,19 @@ static int ltr501_read_als(const struct
+--- a/drivers/iio/accel/bma180.c
++++ b/drivers/iio/accel/bma180.c
+@@ -55,7 +55,7 @@ struct bma180_part_info {
  
- static int ltr501_read_ps(const struct ltr501_data *data)
- {
--	int ret, status;
-+	__le16 status;
-+	int ret;
+ 	u8 int_reset_reg, int_reset_mask;
+ 	u8 sleep_reg, sleep_mask;
+-	u8 bw_reg, bw_mask;
++	u8 bw_reg, bw_mask, bw_offset;
+ 	u8 scale_reg, scale_mask;
+ 	u8 power_reg, power_mask, lowpower_val;
+ 	u8 int_enable_reg, int_enable_mask;
+@@ -127,6 +127,7 @@ struct bma180_part_info {
  
- 	ret = ltr501_drdy(data, LTR501_STATUS_PS_RDY);
- 	if (ret < 0)
- 		return ret;
+ #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
+ #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
++#define BMA250_BW_OFFSET	8
+ #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
+ #define BMA250_LOWPOWER_MASK	BIT(6)
+ #define BMA250_DATA_INTEN_MASK	BIT(4)
+@@ -143,6 +144,7 @@ struct bma180_part_info {
  
- 	ret = regmap_bulk_read(data->regmap, LTR501_PS_DATA,
--			       &status, 2);
-+			       &status, sizeof(status));
- 	if (ret < 0)
- 		return ret;
- 
--	return status;
-+	return le16_to_cpu(status);
- }
- 
- static int ltr501_read_intr_prst(const struct ltr501_data *data,
+ #define BMA254_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
+ #define BMA254_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
++#define BMA254_BW_OFFSET	8
+ #define BMA254_SUSPEND_MASK	BIT(7) /* chip will sleep */
+ #define BMA254_LOWPOWER_MASK	BIT(6)
+ #define BMA254_DATA_INTEN_MASK	BIT(4)
+@@ -283,7 +285,8 @@ static int bma180_set_bw(struct bma180_d
+ 	for (i = 0; i < data->part_info->num_bw; ++i) {
+ 		if (data->part_info->bw_table[i] == val) {
+ 			ret = bma180_set_bits(data, data->part_info->bw_reg,
+-				data->part_info->bw_mask, i);
++				data->part_info->bw_mask,
++				i + data->part_info->bw_offset);
+ 			if (ret) {
+ 				dev_err(&data->client->dev,
+ 					"failed to set bandwidth\n");
+@@ -876,6 +879,7 @@ static const struct bma180_part_info bma
+ 		.sleep_mask = BMA250_SUSPEND_MASK,
+ 		.bw_reg = BMA250_BW_REG,
+ 		.bw_mask = BMA250_BW_MASK,
++		.bw_offset = BMA250_BW_OFFSET,
+ 		.scale_reg = BMA250_RANGE_REG,
+ 		.scale_mask = BMA250_RANGE_MASK,
+ 		.power_reg = BMA250_POWER_REG,
+@@ -905,6 +909,7 @@ static const struct bma180_part_info bma
+ 		.sleep_mask = BMA254_SUSPEND_MASK,
+ 		.bw_reg = BMA254_BW_REG,
+ 		.bw_mask = BMA254_BW_MASK,
++		.bw_offset = BMA254_BW_OFFSET,
+ 		.scale_reg = BMA254_RANGE_REG,
+ 		.scale_mask = BMA254_RANGE_MASK,
+ 		.power_reg = BMA254_POWER_REG,
 
 
