@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 261D03C5416
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0B83C4A18
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345147AbhGLH46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40586 "EHLO mail.kernel.org"
+        id S238296AbhGLGsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1352116AbhGLHwa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:52:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 379CF6054E;
-        Mon, 12 Jul 2021 07:49:41 +0000 (UTC)
+        id S234434AbhGLGrh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:47:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A381E60FD8;
+        Mon, 12 Jul 2021 06:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076181;
-        bh=eGzSN00GiFfqTy3Ki4+llqfOX5fkH5UApbsovZH9q50=;
+        s=korg; t=1626072201;
+        bh=Zo2SC+5Tg+B8mdzN8PtzRgas9TX29Y8shY2nFICaqfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcvLHy1J3BGrYnCBLwBKswdzb0xoH0boCIJgvgG9FLpr/YC+ZW6EiR87//K0WkUoH
-         qhKZe5wcJqV/cVOHWRW1rtoNnUU18ECliT7k59DM4z3bPth3ZqsTfKbl3RJn9Zbmkf
-         XPb+YHJXVj8fNDmWjzOvhNuCf6C/kkZEMf0pAx7g=
+        b=yOpi0iSCJE2G2i64DaFWNz/il5qq7/ki6MQ3Ey7KSYr8585KBwBWMvSuRaRL1JCpX
+         Zj5dKSZGpKhhsoD1t2j9LmTnvGRlc2TlxEAdQd3yVzSfe8KBo1CrAW3+z4DuYsX6i9
+         dtHbRnJEdQAXNTf165YDDs0GtDgnvL8efLSyAymI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hao Huang <phhuang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jan Sokolowski <jan.sokolowski@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 534/800] rtw88: 8822c: fix lc calibration timing
-Date:   Mon, 12 Jul 2021 08:09:17 +0200
-Message-Id: <20210712061024.149471871@linuxfoundation.org>
+Subject: [PATCH 5.10 398/593] i40e: Fix missing rtnl locking when setting up pf switch
+Date:   Mon, 12 Jul 2021 08:09:18 +0200
+Message-Id: <20210712060931.309956982@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hao Huang <phhuang@realtek.com>
+From: Jan Sokolowski <jan.sokolowski@intel.com>
 
-[ Upstream commit 05684fd583e1acc34dddea283838fbfbed4904a0 ]
+[ Upstream commit 956e759d5f8e0859e86b951a8779c60af633aafd ]
 
-Before this patch, we use value from 2 seconds ago to decide
-whether we should do lc calibration.
-Although this don't happen frequently, fix flow to the way it should be.
+A recent change that made i40e use new udp_tunnel infrastructure
+uses a method that expects to be called under rtnl lock.
 
-Fixes: 7ae7784ec2a8 ("rtw88: 8822c: add LC calibration for RTL8822C")
-Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210426013252.5665-3-pkshih@realtek.com
+However, not all codepaths do the lock prior to calling
+i40e_setup_pf_switch.
+
+Fix that by adding additional rtnl locking and unlocking.
+
+Fixes: 40a98cb6f01f ("i40e: convert to new udp_tunnel infrastructure")
+Signed-off-by: Jan Sokolowski <jan.sokolowski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8822c.c | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822c.c b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-index 6cb593cc33c2..6d06f26a4894 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
-@@ -4371,26 +4371,28 @@ static void rtw8822c_pwrtrack_set(struct rtw_dev *rtwdev, u8 rf_path)
- 	}
- }
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index f2ba8ad9b6aa..52e31f712a54 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -31,7 +31,7 @@ static void i40e_vsi_reinit_locked(struct i40e_vsi *vsi);
+ static void i40e_handle_reset_warning(struct i40e_pf *pf, bool lock_acquired);
+ static int i40e_add_vsi(struct i40e_vsi *vsi);
+ static int i40e_add_veb(struct i40e_veb *veb, struct i40e_vsi *vsi);
+-static int i40e_setup_pf_switch(struct i40e_pf *pf, bool reinit);
++static int i40e_setup_pf_switch(struct i40e_pf *pf, bool reinit, bool lock_acquired);
+ static int i40e_setup_misc_vector(struct i40e_pf *pf);
+ static void i40e_determine_queue_usage(struct i40e_pf *pf);
+ static int i40e_setup_pf_filter_control(struct i40e_pf *pf);
+@@ -10114,7 +10114,7 @@ static void i40e_rebuild(struct i40e_pf *pf, bool reinit, bool lock_acquired)
+ 	/* do basic switch setup */
+ 	if (!lock_acquired)
+ 		rtnl_lock();
+-	ret = i40e_setup_pf_switch(pf, reinit);
++	ret = i40e_setup_pf_switch(pf, reinit, true);
+ 	if (ret)
+ 		goto end_unlock;
  
--static void rtw8822c_pwr_track_path(struct rtw_dev *rtwdev,
--				    struct rtw_swing_table *swing_table,
--				    u8 path)
-+static void rtw8822c_pwr_track_stats(struct rtw_dev *rtwdev, u8 path)
+@@ -14169,10 +14169,11 @@ int i40e_fetch_switch_configuration(struct i40e_pf *pf, bool printconfig)
+  * i40e_setup_pf_switch - Setup the HW switch on startup or after reset
+  * @pf: board private structure
+  * @reinit: if the Main VSI needs to re-initialized.
++ * @lock_acquired: indicates whether or not the lock has been acquired
+  *
+  * Returns 0 on success, negative value on failure
+  **/
+-static int i40e_setup_pf_switch(struct i40e_pf *pf, bool reinit)
++static int i40e_setup_pf_switch(struct i40e_pf *pf, bool reinit, bool lock_acquired)
  {
--	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
--	u8 thermal_value, delta;
-+	u8 thermal_value;
+ 	u16 flags = 0;
+ 	int ret;
+@@ -14274,9 +14275,15 @@ static int i40e_setup_pf_switch(struct i40e_pf *pf, bool reinit)
  
- 	if (rtwdev->efuse.thermal_meter[path] == 0xff)
- 		return;
+ 	i40e_ptp_init(pf);
  
- 	thermal_value = rtw_read_rf(rtwdev, path, RF_T_METER, 0x7e);
--
- 	rtw_phy_pwrtrack_avg(rtwdev, thermal_value, path);
-+}
++	if (!lock_acquired)
++		rtnl_lock();
++
+ 	/* repopulate tunnel port filters */
+ 	udp_tunnel_nic_reset_ntf(pf->vsi[pf->lan_vsi]->netdev);
  
--	delta = rtw_phy_pwrtrack_get_delta(rtwdev, path);
-+static void rtw8822c_pwr_track_path(struct rtw_dev *rtwdev,
-+				    struct rtw_swing_table *swing_table,
-+				    u8 path)
-+{
-+	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
-+	u8 delta;
- 
-+	delta = rtw_phy_pwrtrack_get_delta(rtwdev, path);
- 	dm_info->delta_power_index[path] =
- 		rtw_phy_pwrtrack_get_pwridx(rtwdev, swing_table, path, path,
- 					    delta);
--
- 	rtw8822c_pwrtrack_set(rtwdev, path);
++	if (!lock_acquired)
++		rtnl_unlock();
++
+ 	return ret;
  }
  
-@@ -4401,12 +4403,12 @@ static void __rtw8822c_pwr_track(struct rtw_dev *rtwdev)
- 
- 	rtw_phy_config_swing_table(rtwdev, &swing_table);
- 
-+	for (i = 0; i < rtwdev->hal.rf_path_num; i++)
-+		rtw8822c_pwr_track_stats(rtwdev, i);
- 	if (rtw_phy_pwrtrack_need_lck(rtwdev))
- 		rtw8822c_do_lck(rtwdev);
--
- 	for (i = 0; i < rtwdev->hal.rf_path_num; i++)
- 		rtw8822c_pwr_track_path(rtwdev, &swing_table, i);
--
- }
- 
- static void rtw8822c_pwr_track(struct rtw_dev *rtwdev)
+@@ -15048,7 +15055,7 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 			pf->flags |= I40E_FLAG_VEB_MODE_ENABLED;
+ 	}
+ #endif
+-	err = i40e_setup_pf_switch(pf, false);
++	err = i40e_setup_pf_switch(pf, false, false);
+ 	if (err) {
+ 		dev_info(&pdev->dev, "setup_pf_switch failed: %d\n", err);
+ 		goto err_vsis;
 -- 
 2.30.2
 
