@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 044AA3C4D3E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083EB3C491B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241469AbhGLHMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45756 "EHLO mail.kernel.org"
+        id S233922AbhGLGl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245255AbhGLHLc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:11:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3663C6052B;
-        Mon, 12 Jul 2021 07:08:44 +0000 (UTC)
+        id S236463AbhGLGkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF8961179;
+        Mon, 12 Jul 2021 06:38:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073724;
-        bh=mhfIjdyyEKu1F94mOcMqOS9kKuWphU9Cs+1XKnA2PeE=;
+        s=korg; t=1626071881;
+        bh=T8fUfAkdFqSrkqYjPwrk9Jg41wYzmdXkxx8O38AWlcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDo0peE1XEOyL891sncoF7DrMWJxzIc50H++5ZxQK8S32zeO/e7LjpxUGZKK1RIJh
-         ytt9Bbfl46p2ThR77m28Dm4B2WCd30pF48vF76k5qTK2C06LY8i+PPh8VyXONqgzSn
-         oQJypkY6yRCsrikGVoHr2iLSwjoHp/pmEEuG3hFI=
+        b=zst5fzDH1ZoRDDGpKEOf4NgijVUQEFbPvweG9sHmkirxDh/5zF3A7QBg00+Egmy2A
+         aYQzP34zR559UX23+2aKzBoSf1XBH4/7ErxNjPMXOA75EjX/8YChrn4Y/Vu2MwAloH
+         0iqQFuW5Nmf+BQCoTvR/gCKR+iGYqe7oJWxd1IhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 337/700] blk-wbt: make sure throttle is enabled properly
-Date:   Mon, 12 Jul 2021 08:07:00 +0200
-Message-Id: <20210712061012.185636822@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 261/593] btrfs: clear log tree recovering status if starting transaction fails
+Date:   Mon, 12 Jul 2021 08:07:01 +0200
+Message-Id: <20210712060911.986387356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 76a8040817b4b9c69b53f9b326987fa891b4082a ]
+[ Upstream commit 1aeb6b563aea18cd55c73cf666d1d3245a00f08c ]
 
-After commit a79050434b45 ("blk-rq-qos: refactor out common elements of
-blk-wbt"), if throttle was disabled by wbt_disable_default(), we could
-not enable again, fix this by set enable_state back to
-WBT_STATE_ON_DEFAULT.
+When a log recovery is in progress, lots of operations have to take that
+into account, so we keep this status per tree during the operation. Long
+time ago error handling revamp patch 79787eaab461 ("btrfs: replace many
+BUG_ONs with proper error handling") removed clearing of the status in
+an error branch. Add it back as was intended in e02119d5a7b4 ("Btrfs:
+Add a write ahead tree log to optimize synchronous operations").
 
-Fixes: a79050434b45 ("blk-rq-qos: refactor out common elements of blk-wbt")
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Link: https://lore.kernel.org/r/20210619093700.920393-3-yi.zhang@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+There are probably no visible effects, log replay is done only during
+mount and if it fails all structures are cleared so the stale status
+won't be kept.
+
+Fixes: 79787eaab461 ("btrfs: replace many BUG_ONs with proper error handling")
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-wbt.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/block/blk-wbt.c b/block/blk-wbt.c
-index b098ac6a84f0..f5e5ac915bf7 100644
---- a/block/blk-wbt.c
-+++ b/block/blk-wbt.c
-@@ -637,9 +637,13 @@ void wbt_set_write_cache(struct request_queue *q, bool write_cache_on)
- void wbt_enable_default(struct request_queue *q)
- {
- 	struct rq_qos *rqos = wbt_rq_qos(q);
-+
- 	/* Throttling already enabled? */
--	if (rqos)
-+	if (rqos) {
-+		if (RQWB(rqos)->enable_state == WBT_STATE_OFF_DEFAULT)
-+			RQWB(rqos)->enable_state = WBT_STATE_ON_DEFAULT;
- 		return;
-+	}
- 
- 	/* Queue not registered? Maybe shutting down... */
- 	if (!blk_queue_registered(q))
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 300951088a11..4b913de2f24f 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -6348,6 +6348,7 @@ next:
+ error:
+ 	if (wc.trans)
+ 		btrfs_end_transaction(wc.trans);
++	clear_bit(BTRFS_FS_LOG_RECOVERING, &fs_info->flags);
+ 	btrfs_free_path(path);
+ 	return ret;
+ }
 -- 
 2.30.2
 
