@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D9BB3C4B7B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 915B23C50EB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239490AbhGLG5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:57:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58366 "EHLO mail.kernel.org"
+        id S242460AbhGLHfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240593AbhGLG4e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:56:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD1016124B;
-        Mon, 12 Jul 2021 06:53:45 +0000 (UTC)
+        id S242184AbhGLHc5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:32:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE93A61165;
+        Mon, 12 Jul 2021 07:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072826;
-        bh=i/l8hnjPXjzTgBIgw422ut4SJGuTieAQh2X3SPAM6bg=;
+        s=korg; t=1626075004;
+        bh=GSD77wzJQT0u4ZwbGznBKDk4qcAEN/Y7q59TZSWcBy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjY7ItXGvkgTKCejhFvMz6CboUVWcX7DIbACITiEe5IUVw/f3MWP78jvoFN2K/F+1
-         gGHh4YoUlPWkefyMXVUom6N9kujDOG5uoevbjpI4oiCBQtaVavwmlxul95pG7n9GuJ
-         zYxKUavXhvAa4aF58K2GJSdjZYQG0OTAdtAdBYVo=
+        b=ntX/rVY+BYQMwSOXWSeONVUSIMRbRxZeQhtHzkVoPFJUR2jUHJxd/NKOy5jWhb4n3
+         Moo27R48YxTvywCJzk6xSjSkYf9++NhH/K/b8x74eX8hzUKafN4De2je1OnY9ri0Kj
+         X33t418b/jVDFHWDmxxvQ6KpoZTYdNY1kAJlHe7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Chi <andy.chi@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 009/700] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 450 G8
-Date:   Mon, 12 Jul 2021 08:01:32 +0200
-Message-Id: <20210712060926.056996611@linuxfoundation.org>
+        stable@vger.kernel.org, Baochen Qiang <bqiang@codeaurora.org>,
+        Hemant Kumar <hemantk@codeaurora.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.13 070/800] bus: mhi: Wait for M2 state during system resume
+Date:   Mon, 12 Jul 2021 08:01:33 +0200
+Message-Id: <20210712060923.078043789@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,33 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chi <andy.chi@canonical.com>
+From: Baochen Qiang <bqiang@codeaurora.org>
 
-commit 2b70b264d34d398c77a5936e317336f00cf5badb upstream.
+commit 02b49cd1174527e611768fc2ce0f75a74dfec7ae upstream.
 
-The HP ProBook 450 G8 using ALC236 codec which using 0x02 to
-control mute LED and 0x01 to control micmute LED.
-Therefore, add a quirk to make it works.
+During system resume, MHI host triggers M3->M0 transition and then waits
+for target device to enter M0 state. Once done, the device queues a state
+change event into ctrl event ring and notifies MHI host by raising an
+interrupt, where a tasklet is scheduled to process this event. In most
+cases, the tasklet is served timely and wait operation succeeds.
 
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210701091417.9696-1-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+However, there are cases where CPU is busy and cannot serve this tasklet
+for some time. Once delay goes long enough, the device moves itself to M1
+state and also interrupts MHI host after inserting a new state change
+event to ctrl ring. Later when CPU finally has time to process the ring,
+there will be two events:
+
+1. For M3->M0 event, which is the first event to be processed queued first.
+   The tasklet handler serves the event, updates device state to M0 and
+   wakes up the task.
+
+2. For M0->M1 event, which is processed later, the tasklet handler
+   triggers M1->M2 transition and updates device state to M2 directly,
+   then wakes up the MHI host (if it is still sleeping on this wait queue).
+
+Note that although MHI host has been woken up while processing the first
+event, it may still has no chance to run before the second event is
+processed. In other words, MHI host has to keep waiting till timeout
+causing the M0 state to be missed.
+
+kernel log here:
+...
+Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.911251] mhi 0000:06:00.0: Entered with PM state: M3, MHI state: M3
+Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917762] mhi 0000:06:00.0: State change event to state: M0
+Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917767] mhi 0000:06:00.0: State change event to state: M1
+Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4338.788231] mhi 0000:06:00.0: Did not enter M0 state, MHI state: M2, PM state: M2
+...
+
+Fix this issue by simply adding M2 as a valid state for resume.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Cc: stable@vger.kernel.org
+Fixes: 0c6b20a1d720 ("bus: mhi: core: Add support for MHI suspend and resume")
+Signed-off-by: Baochen Qiang <bqiang@codeaurora.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210524040312.14409-1-bqiang@codeaurora.org
+[mani: slightly massaged the commit message]
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210621161616.77524-4-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
-
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8322,6 +8322,7 @@ static const struct snd_pci_quirk alc269
- 		      ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x87c8, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87e5, "HP ProBook 440 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x87e7, "HP ProBook 450 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f2, "HP ProBook 640 G8 Notebook PC", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
+diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
+index 704a5e225097..bbf6cd04861e 100644
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -926,6 +926,7 @@ int mhi_pm_resume(struct mhi_controller *mhi_cntrl)
+ 
+ 	ret = wait_event_timeout(mhi_cntrl->state_event,
+ 				 mhi_cntrl->dev_state == MHI_STATE_M0 ||
++				 mhi_cntrl->dev_state == MHI_STATE_M2 ||
+ 				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
+ 				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
+ 
 
 
