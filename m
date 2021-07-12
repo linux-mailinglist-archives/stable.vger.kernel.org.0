@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D982B3C5601
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461DB3C52AA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351106AbhGLIND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35692 "EHLO mail.kernel.org"
+        id S1345022AbhGLHsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:48:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1355721AbhGLIKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:10:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AD58613D6;
-        Mon, 12 Jul 2021 08:07:27 +0000 (UTC)
+        id S1346518AbhGLHqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:46:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30E7361154;
+        Mon, 12 Jul 2021 07:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626077248;
-        bh=rHMgeEThFU7Asacvj0hdBeeV4VGoqioVnetuaFcfwyo=;
+        s=korg; t=1626075719;
+        bh=y5VGwTrzuQwT2plzHSrl2/5rCfn4r0bcXrI0UDrKkDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V98Qweob9sZq6JgESB5EfxjOuYuuicqzLw3UWZQl2RVY+MZEq25MeIWBYv2mAXvDr
-         m1mbuiE2txdtDRyIRmmZLJAk6giPMelx9fJ2ao6f8EZ/Fjv7msMx6NvjwOeD/rRV/O
-         M1TV8vDSylQZehzjQFKfWmBLFpnjTvf4UFlte7Ig=
+        b=v4kaWNcqIqAIIn1MbU486dWnuSmFNrHznbka0BRYcgn/tYx1npOGL4DC8R7/BIifY
+         dMTxIRfxHv2FvVwN5aLPSCujmZNkqM6STVNVLAbRcYPYcX+Upz4jIbD51UlRGP8xPG
+         lwy9LzggQ9c5e7corwsMZpacW2myVsde82pXFVms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, Chen <leo881003@gmail.com>
-Subject: [PATCH 5.12 233/700] ACPI: EC: trust DSDT GPE for certain HP laptop
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 293/800] pata_ep93xx: fix deferred probing
 Date:   Mon, 12 Jul 2021 08:05:16 +0200
-Message-Id: <20210712060959.833218364@linuxfoundation.org>
+Message-Id: <20210712060956.243896857@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 4370cbf350dbaca984dbda9f9ce3fac45d6949d5 ]
+[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
 
-On HP Pavilion Gaming Laptop 15-cx0xxx, the ECDT EC and DSDT EC share
-the same port addresses but different GPEs. And the DSDT GPE is the
-right one to use.
+The driver overrides the error codes returned by platform_get_irq() to
+-ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
+permanently instead of the deferred probing.  Propagate the error code
+upstream, as it should have been done from the start...
 
-The current code duplicates DSDT EC with ECDT EC if the port addresses
-are the same, and uses ECDT GPE as a result, which breaks this machine.
-
-Introduce a new quirk for the HP laptop to trust the DSDT GPE,
-and avoid duplicating even if the port addresses are the same.
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=209989
-Reported-and-tested-by: Shao Fu, Chen <leo881003@gmail.com>
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/ata/pata_ep93xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index e8c5da2b964a..87c3b4a099b9 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -183,6 +183,7 @@ static struct workqueue_struct *ec_query_wq;
+diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
+index badab6708893..46208ececbb6 100644
+--- a/drivers/ata/pata_ep93xx.c
++++ b/drivers/ata/pata_ep93xx.c
+@@ -928,7 +928,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
+ 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+-		err = -ENXIO;
++		err = irq;
+ 		goto err_rel_gpio;
+ 	}
  
- static int EC_FLAGS_CORRECT_ECDT; /* Needs ECDT port address correction */
- static int EC_FLAGS_IGNORE_DSDT_GPE; /* Needs ECDT GPE as correction setting */
-+static int EC_FLAGS_TRUST_DSDT_GPE; /* Needs DSDT GPE as correction setting */
- static int EC_FLAGS_CLEAR_ON_RESUME; /* Needs acpi_ec_clear() on boot/resume */
- 
- /* --------------------------------------------------------------------------
-@@ -1593,7 +1594,8 @@ static int acpi_ec_add(struct acpi_device *device)
- 		}
- 
- 		if (boot_ec && ec->command_addr == boot_ec->command_addr &&
--		    ec->data_addr == boot_ec->data_addr) {
-+		    ec->data_addr == boot_ec->data_addr &&
-+		    !EC_FLAGS_TRUST_DSDT_GPE) {
- 			/*
- 			 * Trust PNP0C09 namespace location rather than
- 			 * ECDT ID. But trust ECDT GPE rather than _GPE
-@@ -1816,6 +1818,18 @@ static int ec_correct_ecdt(const struct dmi_system_id *id)
- 	return 0;
- }
- 
-+/*
-+ * Some ECDTs contain wrong GPE setting, but they share the same port addresses
-+ * with DSDT EC, don't duplicate the DSDT EC with ECDT EC in this case.
-+ * https://bugzilla.kernel.org/show_bug.cgi?id=209989
-+ */
-+static int ec_honor_dsdt_gpe(const struct dmi_system_id *id)
-+{
-+	pr_debug("Detected system needing DSDT GPE setting.\n");
-+	EC_FLAGS_TRUST_DSDT_GPE = 1;
-+	return 0;
-+}
-+
- /*
-  * Some DSDTs contain wrong GPE setting.
-  * Asus FX502VD/VE, GL702VMK, X550VXK, X580VD
-@@ -1870,6 +1884,11 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
- 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 	DMI_MATCH(DMI_PRODUCT_NAME, "X580VD"),}, NULL},
- 	{
-+	/* https://bugzilla.kernel.org/show_bug.cgi?id=209989 */
-+	ec_honor_dsdt_gpe, "HP Pavilion Gaming Laptop 15-cx0xxx", {
-+	DMI_MATCH(DMI_SYS_VENDOR, "HP"),
-+	DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Gaming Laptop 15-cx0xxx"),}, NULL},
-+	{
- 	ec_clear_on_resume, "Samsung hardware", {
- 	DMI_MATCH(DMI_SYS_VENDOR, "SAMSUNG ELECTRONICS CO., LTD.")}, NULL},
- 	{},
 -- 
 2.30.2
 
