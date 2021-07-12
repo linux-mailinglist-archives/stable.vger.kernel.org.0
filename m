@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853C43C4BB5
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48DFA3C5138
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240696AbhGLG64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
+        id S1345565AbhGLHi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239720AbhGLG6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39C4F61221;
-        Mon, 12 Jul 2021 06:55:22 +0000 (UTC)
+        id S244737AbhGLHgu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:36:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 341796188B;
+        Mon, 12 Jul 2021 07:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072923;
-        bh=J0nygtlwOBdS5jsxPSDFu4f3APcnLSibPSpRauofCA8=;
+        s=korg; t=1626075160;
+        bh=VAUDQmWqKl03XyulJnYkcoecICMM98H8Np4J3dOx6jQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GISSykWTkK5hzQXck3PTymiQ/JLBZt7RF0HpA34mNKuSxMiiqLjjbZvejzuvR1Q0j
-         vXJuxdd7KQcPd7xm+sHwyFikRH5eJ3iZ2wkDroBrlk96IzqKXJIXXMghKURn5SAKyt
-         m6BVQW3SLuM5ZT84HZcficcoM3bV4Tah/Oi+9A3E=
+        b=GaA8rRbn228PyxaxwTbslMN05El/TyJHm9KNWgLc9lHTb+z6uBgd0N6ISaawPbjdm
+         qcZdWbHjAEorRYqWptEwRjQ0/fnWXFAqpOWInhoMqO1jmUWJ53DcgAvaVPVCBywBvs
+         rzBHyH/eu/8Z6XOasb5bpW43SP0V7aJEITd8wJMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baochen Qiang <bqiang@codeaurora.org>,
-        Hemant Kumar <hemantk@codeaurora.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.12 066/700] bus: mhi: Wait for M2 state during system resume
+        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 126/800] thermal/cpufreq_cooling: Update offline CPUs per-cpu thermal_pressure
 Date:   Mon, 12 Jul 2021 08:02:29 +0200
-Message-Id: <20210712060934.044256474@linuxfoundation.org>
+Message-Id: <20210712060930.713374590@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baochen Qiang <bqiang@codeaurora.org>
+From: Lukasz Luba <lukasz.luba@arm.com>
 
-commit 02b49cd1174527e611768fc2ce0f75a74dfec7ae upstream.
+[ Upstream commit 2ad8ccc17d1e4270cf65a3f2a07a7534aa23e3fb ]
 
-During system resume, MHI host triggers M3->M0 transition and then waits
-for target device to enter M0 state. Once done, the device queues a state
-change event into ctrl event ring and notifies MHI host by raising an
-interrupt, where a tasklet is scheduled to process this event. In most
-cases, the tasklet is served timely and wait operation succeeds.
+The thermal pressure signal gives information to the scheduler about
+reduced CPU capacity due to thermal. It is based on a value stored in
+a per-cpu 'thermal_pressure' variable. The online CPUs will get the
+new value there, while the offline won't. Unfortunately, when the CPU
+is back online, the value read from per-cpu variable might be wrong
+(stale data).  This might affect the scheduler decisions, since it
+sees the CPU capacity differently than what is actually available.
 
-However, there are cases where CPU is busy and cannot serve this tasklet
-for some time. Once delay goes long enough, the device moves itself to M1
-state and also interrupts MHI host after inserting a new state change
-event to ctrl ring. Later when CPU finally has time to process the ring,
-there will be two events:
+Fix it by making sure that all online+offline CPUs would get the
+proper value in their per-cpu variable when thermal framework sets
+capping.
 
-1. For M3->M0 event, which is the first event to be processed queued first.
-   The tasklet handler serves the event, updates device state to M0 and
-   wakes up the task.
-
-2. For M0->M1 event, which is processed later, the tasklet handler
-   triggers M1->M2 transition and updates device state to M2 directly,
-   then wakes up the MHI host (if it is still sleeping on this wait queue).
-
-Note that although MHI host has been woken up while processing the first
-event, it may still has no chance to run before the second event is
-processed. In other words, MHI host has to keep waiting till timeout
-causing the M0 state to be missed.
-
-kernel log here:
-...
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.911251] mhi 0000:06:00.0: Entered with PM state: M3, MHI state: M3
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917762] mhi 0000:06:00.0: State change event to state: M0
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4247.917767] mhi 0000:06:00.0: State change event to state: M1
-Apr 15 01:45:14 test-NUC8i7HVK kernel: [ 4338.788231] mhi 0000:06:00.0: Did not enter M0 state, MHI state: M2, PM state: M2
-...
-
-Fix this issue by simply adding M2 as a valid state for resume.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Cc: stable@vger.kernel.org
-Fixes: 0c6b20a1d720 ("bus: mhi: core: Add support for MHI suspend and resume")
-Signed-off-by: Baochen Qiang <bqiang@codeaurora.org>
-Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210524040312.14409-1-bqiang@codeaurora.org
-[mani: slightly massaged the commit message]
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210621161616.77524-4-manivannan.sadhasivam@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f12e4f66ab6a3 ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
+Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Link: https://lore.kernel.org/r/20210614191030.22241-1-lukasz.luba@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/core/pm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/cpufreq_cooling.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -911,6 +911,7 @@ int mhi_pm_resume(struct mhi_controller
- 
- 	ret = wait_event_timeout(mhi_cntrl->state_event,
- 				 mhi_cntrl->dev_state == MHI_STATE_M0 ||
-+				 mhi_cntrl->dev_state == MHI_STATE_M2 ||
- 				 MHI_PM_IN_ERROR_STATE(mhi_cntrl->pm_state),
- 				 msecs_to_jiffies(mhi_cntrl->timeout_ms));
- 
+diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
+index eeb4e4b76c0b..43b1ae8a7789 100644
+--- a/drivers/thermal/cpufreq_cooling.c
++++ b/drivers/thermal/cpufreq_cooling.c
+@@ -478,7 +478,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
+ 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
+ 	if (ret >= 0) {
+ 		cpufreq_cdev->cpufreq_state = state;
+-		cpus = cpufreq_cdev->policy->cpus;
++		cpus = cpufreq_cdev->policy->related_cpus;
+ 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
+ 		capacity = frequency * max_capacity;
+ 		capacity /= cpufreq_cdev->policy->cpuinfo.max_freq;
+-- 
+2.30.2
+
 
 
