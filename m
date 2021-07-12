@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2DD53C496D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7CF3C535A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235178AbhGLGo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41506 "EHLO mail.kernel.org"
+        id S1352319AbhGLHyf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237560AbhGLGnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:43:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53BC1610E6;
-        Mon, 12 Jul 2021 06:39:24 +0000 (UTC)
+        id S1350207AbhGLHup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9989A6194C;
+        Mon, 12 Jul 2021 07:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071964;
-        bh=sUDcBnWAoNpaVZalSL2yTvcf7M8ILQVPIhuBIBrn36w=;
+        s=korg; t=1626075847;
+        bh=8c2iwcLox+yRX+nWX8MOd7zU7G7Qd/nNkT3n2ovEeQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYnKajeFEvAnWnSLQoQRz/NxDbO2sfT/aMldW9bYtONma3NlOS81EAevupQklumkg
-         BIjrqLP7eF5nv0NTS3FmUAqA2ML4SFFkDZgb1pKL6ueO8J3fGkMAzN++uBphyCXTum
-         C8MKB0JmLEdmV6FvMaZ5kZ2vWDG4UDMHwd6Sb4Qs=
+        b=iutkQcXPRKjIvz5qFaZ25j3nru98NUtw5VvVIB5UZgXYOO83pnALeutFttvgIDV7O
+         RV73W2TrcmbKqpJDGhxHkjKPusmULcqAQ2L9DOPcFKMh7RmGRiD6TDyAHg2y5Z3m2l
+         K+o2IjYqHHE4u85MY93mC4OGC1szbklWe3/e/4Rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
-        =?UTF-8?q?V=C3=A1clav=20Kubern=C3=A1t?= <kubernat@cesnet.cz>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Yingjie Wang <wangyingjie55@126.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 253/593] hwmon: (max31790) Fix fan speed reporting for fan7..12
-Date:   Mon, 12 Jul 2021 08:06:53 +0200
-Message-Id: <20210712060910.803341382@linuxfoundation.org>
+Subject: [PATCH 5.13 391/800] drm/amd/dc: Fix a missing check bug in dm_dp_mst_detect()
+Date:   Mon, 12 Jul 2021 08:06:54 +0200
+Message-Id: <20210712061008.803368167@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Yingjie Wang <wangyingjie55@126.com>
 
-[ Upstream commit cbbf244f0515af3472084f22b6213121b4a63835 ]
+[ Upstream commit 655c0ed19772d92c9665ed08bdc5202acc096dda ]
 
-Fans 7..12 do not have their own set of configuration registers.
-So far the code ignored that and read beyond the end of the configuration
-register range to get the tachometer period. This resulted in more or less
-random fan speed values for those fans.
+In dm_dp_mst_detect(), We should check whether or not @connector
+has been unregistered from userspace. If the connector is unregistered,
+we should return disconnected status.
 
-The datasheet is quite vague when it comes to defining the tachometer
-period for fans 7..12. Experiments confirm that the period is the same
-for both fans associated with a given set of configuration registers.
-
-Fixes: 54187ff9d766 ("hwmon: (max31790) Convert to use new hwmon registration API")
-Fixes: 195a4b4298a7 ("hwmon: Driver for Maxim MAX31790")
-Cc: Jan Kundrát <jan.kundrat@cesnet.cz>
-Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
-Cc: Václav Kubernát <kubernat@cesnet.cz>
-Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210526154022.3223012-2-linux@roeck-us.net
+Fixes: 4562236b3bc0 ("drm/amd/dc: Add dc display driver (v2)")
+Signed-off-by: Yingjie Wang <wangyingjie55@126.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/max31790.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwmon/max31790.c b/drivers/hwmon/max31790.c
-index 76aa96f5b984..67677c437768 100644
---- a/drivers/hwmon/max31790.c
-+++ b/drivers/hwmon/max31790.c
-@@ -171,7 +171,7 @@ static int max31790_read_fan(struct device *dev, u32 attr, int channel,
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+index 9b221db526dc..d62460b69d95 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_mst_types.c
+@@ -278,6 +278,9 @@ dm_dp_mst_detect(struct drm_connector *connector,
+ 	struct amdgpu_dm_connector *aconnector = to_amdgpu_dm_connector(connector);
+ 	struct amdgpu_dm_connector *master = aconnector->mst_port;
  
- 	switch (attr) {
- 	case hwmon_fan_input:
--		sr = get_tach_period(data->fan_dynamics[channel]);
-+		sr = get_tach_period(data->fan_dynamics[channel % NR_CHANNEL]);
- 		rpm = RPM_FROM_REG(data->tach[channel], sr);
- 		*val = rpm;
- 		return 0;
++	if (drm_connector_is_unregistered(connector))
++		return connector_status_disconnected;
++
+ 	return drm_dp_mst_detect_port(connector, ctx, &master->mst_mgr,
+ 				      aconnector->port);
+ }
 -- 
 2.30.2
 
