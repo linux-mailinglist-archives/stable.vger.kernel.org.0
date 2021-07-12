@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E72333C49C3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD423C4E27
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237850AbhGLGqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38480 "EHLO mail.kernel.org"
+        id S243717AbhGLHRF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236670AbhGLGpe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:45:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F115611CE;
-        Mon, 12 Jul 2021 06:41:22 +0000 (UTC)
+        id S240905AbhGLHQd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:16:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 288E4613D6;
+        Mon, 12 Jul 2021 07:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072083;
-        bh=I4Dj7defyCQxWAbupuplkhYKOyB8PIu3grMwGd6peSY=;
+        s=korg; t=1626073986;
+        bh=8mzXLg0yDhF0iUgrxIe37YacjcJwVN75C/cMHvDwuOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ku6zxp19gptssEWMpP2Q/fUilduXb343uQ0kpe8d/Amvnzr+H76F2fMhHh9P2wrAA
-         92mB/i0g0ANrch4+xdf4ZWgNxOJkMAr4bp61pbB0ZuYzA50Pkciu1QQo/jWqGuprgj
-         RsoBsnBc+2bWWVUp54SVGiP2s132QwCfqxv5mrCA=
+        b=zvdLPPP0Lh8YmlzovnyZVWsJ4IJ/8RrCv0XtT2MT2NTTQGfgmuibektzR8cAe0Q87
+         evjBA0KbGk5oAQy3kglD4reF6skHP4zlUvOlI1dRtv/PbG5Qx9FWG4RY2XH5er1WkD
+         MlfkCKGpMu20MBkbZ66F2J7EmQPmFEDT2aby5RFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 348/593] brcmfmac: correctly report average RSSI in station info
+Subject: [PATCH 5.12 425/700] xsk: Fix missing validation for skb and unaligned mode
 Date:   Mon, 12 Jul 2021 08:08:28 +0200
-Message-Id: <20210712060924.465136034@linuxfoundation.org>
+Message-Id: <20210712061021.599461484@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alvin Šipraga <ALSI@bang-olufsen.dk>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 9a1590934d9a02e570636432b93052c0c035f31f ]
+[ Upstream commit 2f99619820c2269534eb2c0cde44870313c6d353 ]
 
-The rx_lastpkt_rssi field provided by the firmware is suitable for
-NL80211_STA_INFO_{SIGNAL,CHAIN_SIGNAL}, while the rssi field is an
-average. Fix up the assignments and set the correct STA_INFO bits. This
-lets userspace know that the average RSSI is part of the station info.
+Fix a missing validation of a Tx descriptor when executing in skb mode
+and the umem is in unaligned mode. A descriptor could point to a
+buffer straddling the end of the umem, thus effectively tricking the
+kernel to read outside the allowed umem region. This could lead to a
+kernel crash if that part of memory is not mapped.
 
-Fixes: cae355dc90db ("brcmfmac: Add RSSI information to get_station.")
-Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210506132010.3964484-2-alsi@bang-olufsen.dk
+In zero-copy mode, the descriptor validation code rejects such
+descriptors by checking a bit in the DMA address that tells us if the
+next page is physically contiguous or not. For the last page in the
+umem, this bit is not set, therefore any descriptor pointing to a
+packet straddling this last page boundary will be rejected. However,
+the skb path does not use this bit since it copies out data and can do
+so to two different pages. (It also does not have the array of DMA
+address, so it cannot even store this bit.) The code just returned
+that the packet is always physically contiguous. But this is
+unfortunately also returned for the last page in the umem, which means
+that packets that cross the end of the umem are being allowed, which
+they should not be.
+
+Fix this by introducing a check for this in the SKB path only, not
+penalizing the zero-copy path.
+
+Fixes: 2b43470add8c ("xsk: Introduce AF_XDP buffer allocation API")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Björn Töpel <bjorn@kernel.org>
+Link: https://lore.kernel.org/bpf/20210617092255.3487-1-magnus.karlsson@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../broadcom/brcm80211/brcmfmac/cfg80211.c    | 36 ++++++++++---------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ include/net/xsk_buff_pool.h | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index 8c3c7755e949..c2b6e5c966d0 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-@@ -2767,8 +2767,9 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
- 	struct brcmf_sta_info_le sta_info_le;
- 	u32 sta_flags;
- 	u32 is_tdls_peer;
--	s32 total_rssi;
--	s32 count_rssi;
-+	s32 total_rssi_avg = 0;
-+	s32 total_rssi = 0;
-+	s32 count_rssi = 0;
- 	int rssi;
- 	u32 i;
+diff --git a/include/net/xsk_buff_pool.h b/include/net/xsk_buff_pool.h
+index eaa8386dbc63..7a9a23e7a604 100644
+--- a/include/net/xsk_buff_pool.h
++++ b/include/net/xsk_buff_pool.h
+@@ -147,11 +147,16 @@ static inline bool xp_desc_crosses_non_contig_pg(struct xsk_buff_pool *pool,
+ {
+ 	bool cross_pg = (addr & (PAGE_SIZE - 1)) + len > PAGE_SIZE;
  
-@@ -2834,24 +2835,27 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
- 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_RX_BYTES);
- 			sinfo->rx_bytes = le64_to_cpu(sta_info_le.rx_tot_bytes);
- 		}
--		total_rssi = 0;
--		count_rssi = 0;
- 		for (i = 0; i < BRCMF_ANT_MAX; i++) {
--			if (sta_info_le.rssi[i]) {
--				sinfo->chains |= BIT(count_rssi);
--				sinfo->chain_signal_avg[count_rssi] =
--					sta_info_le.rssi[i];
--				sinfo->chain_signal[count_rssi] =
--					sta_info_le.rssi[i];
--				total_rssi += sta_info_le.rssi[i];
--				count_rssi++;
--			}
-+			if (sta_info_le.rssi[i] == 0 ||
-+			    sta_info_le.rx_lastpkt_rssi[i] == 0)
-+				continue;
-+			sinfo->chains |= BIT(count_rssi);
-+			sinfo->chain_signal[count_rssi] =
-+				sta_info_le.rx_lastpkt_rssi[i];
-+			sinfo->chain_signal_avg[count_rssi] =
-+				sta_info_le.rssi[i];
-+			total_rssi += sta_info_le.rx_lastpkt_rssi[i];
-+			total_rssi_avg += sta_info_le.rssi[i];
-+			count_rssi++;
- 		}
- 		if (count_rssi) {
--			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
- 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL);
--			total_rssi /= count_rssi;
--			sinfo->signal = total_rssi;
-+			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL_AVG);
-+			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
-+			sinfo->filled |=
-+				BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL_AVG);
-+			sinfo->signal = total_rssi / count_rssi;
-+			sinfo->signal_avg = total_rssi_avg / count_rssi;
- 		} else if (test_bit(BRCMF_VIF_STATUS_CONNECTED,
- 			&ifp->vif->sme_state)) {
- 			memset(&scb_val, 0, sizeof(scb_val));
+-	if (pool->dma_pages_cnt && cross_pg) {
++	if (likely(!cross_pg))
++		return false;
++
++	if (pool->dma_pages_cnt) {
+ 		return !(pool->dma_pages[addr >> PAGE_SHIFT] &
+ 			 XSK_NEXT_PG_CONTIG_MASK);
+ 	}
+-	return false;
++
++	/* skb path */
++	return addr + len > pool->addrs_cnt;
+ }
+ 
+ static inline u64 xp_aligned_extract_addr(struct xsk_buff_pool *pool, u64 addr)
 -- 
 2.30.2
 
