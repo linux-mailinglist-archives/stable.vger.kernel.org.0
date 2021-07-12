@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B79573C4A64
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700D43C5444
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240775AbhGLGwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
+        id S1348250AbhGLH5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238623AbhGLGs5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ABFE6102A;
-        Mon, 12 Jul 2021 06:44:38 +0000 (UTC)
+        id S1347802AbhGLHxv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:53:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B81D561221;
+        Mon, 12 Jul 2021 07:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072278;
-        bh=1hlQG+jWl0mQzPrId8VWRY23XFOQ6d+gmUGGadabMRg=;
+        s=korg; t=1626076263;
+        bh=E/26E4Xx5Ka6U8+AwjqgekxQQ5GZ7ET6+IFZaskNq6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVFClCRFywNXh8QNTnHhc0VezalUfXV21LsT4d2/JfZwiZf8DIKkpcTaKqUN+EJaI
-         z2gxjFMJV0y2RROegsp5mCZJxwGWfV9QY1PGUAVz6Q1/+dj7mCiP4NIMV4BWgbiSJt
-         DZIPy54cKtgQ6WeJRwpe4WpQKEoda8n/KBxU7+CM=
+        b=wQRzs3ql5wcemeLkawQiGExsucPP3ZRFS7gRzBT12sFwjczifR8sf8AASEptY2CHI
+         2KhhEC1nF8DaKrRaUpGVZv1ZKqZ4WHE3zoKsN/4jCU9Z6G2FVmfAI9eKFixFklCncj
+         AtBc+CanXEyiSgxd18I3CXD0/nCUdH90Z5hMoPFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Alexander Aring <alex.aring@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Alexander Aring <aahringo@redhat.com>,
+        stable@vger.kernel.org,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 387/593] ieee802154: hwsim: avoid possible crash in hwsim_del_edge_nl()
-Date:   Mon, 12 Jul 2021 08:09:07 +0200
-Message-Id: <20210712060929.706036196@linuxfoundation.org>
+Subject: [PATCH 5.13 525/800] mptcp: fix 32 bit DSN expansion
+Date:   Mon, 12 Jul 2021 08:09:08 +0200
+Message-Id: <20210712061023.119091696@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 0303b30375dff5351a79cc2c3c87dfa4fda29bed ]
+[ Upstream commit 5957a8901db44c03540505ccedd95031c21ef2f2 ]
 
-Both MAC802154_HWSIM_ATTR_RADIO_ID and MAC802154_HWSIM_ATTR_RADIO_EDGE
-must be present to avoid a crash.
+The current implementation of 32 bit DSN expansion is buggy.
+After the previous patch, we can simply reuse the newly
+introduced helper to do the expansion safely.
 
-Fixes: f25da51fdc38 ("ieee802154: hwsim: add replacement for fakelb")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Alexander Aring <alex.aring@gmail.com>
-Cc: Stefan Schmidt <stefan@datenfreihafen.org>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210621180244.882076-1-eric.dumazet@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/120
+Fixes: 648ef4b88673 ("mptcp: Implement MPTCP receive path")
+Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ieee802154/mac802154_hwsim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mptcp/subflow.c | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/net/ieee802154/mac802154_hwsim.c b/drivers/net/ieee802154/mac802154_hwsim.c
-index 6d479df2d9e5..626e1ce817fc 100644
---- a/drivers/net/ieee802154/mac802154_hwsim.c
-+++ b/drivers/net/ieee802154/mac802154_hwsim.c
-@@ -480,7 +480,7 @@ static int hwsim_del_edge_nl(struct sk_buff *msg, struct genl_info *info)
- 	struct hwsim_edge *e;
- 	u32 v0, v1;
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 3a396451d628..f5bb3a0e9975 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -775,15 +775,6 @@ enum mapping_status {
+ 	MAPPING_DUMMY
+ };
  
--	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] &&
-+	if (!info->attrs[MAC802154_HWSIM_ATTR_RADIO_ID] ||
- 	    !info->attrs[MAC802154_HWSIM_ATTR_RADIO_EDGE])
- 		return -EINVAL;
+-static u64 expand_seq(u64 old_seq, u16 old_data_len, u64 seq)
+-{
+-	if ((u32)seq == (u32)old_seq)
+-		return old_seq;
+-
+-	/* Assume map covers data not mapped yet. */
+-	return seq | ((old_seq + old_data_len + 1) & GENMASK_ULL(63, 32));
+-}
+-
+ static void dbg_bad_map(struct mptcp_subflow_context *subflow, u32 ssn)
+ {
+ 	pr_debug("Bad mapping: ssn=%d map_seq=%d map_data_len=%d",
+@@ -907,13 +898,7 @@ static enum mapping_status get_mapping_status(struct sock *ssk,
+ 		data_len--;
+ 	}
  
+-	if (!mpext->dsn64) {
+-		map_seq = expand_seq(subflow->map_seq, subflow->map_data_len,
+-				     mpext->data_seq);
+-		pr_debug("expanded seq=%llu", subflow->map_seq);
+-	} else {
+-		map_seq = mpext->data_seq;
+-	}
++	map_seq = mptcp_expand_seq(READ_ONCE(msk->ack_seq), mpext->data_seq, mpext->dsn64);
+ 	WRITE_ONCE(mptcp_sk(subflow->conn)->use_64bit_ack, !!mpext->dsn64);
+ 
+ 	if (subflow->map_valid) {
 -- 
 2.30.2
 
