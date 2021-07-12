@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF19E3C51B4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97D1B3C4C46
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244771AbhGLHm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46858 "EHLO mail.kernel.org"
+        id S240996AbhGLHCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347679AbhGLHkA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E71261457;
-        Mon, 12 Jul 2021 07:35:28 +0000 (UTC)
+        id S240999AbhGLHCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63A1760FED;
+        Mon, 12 Jul 2021 06:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075328;
-        bh=raElE/LTi6RdTWtu6Qz0VjOIA0GIV9i4FphLeAtxHu8=;
+        s=korg; t=1626073169;
+        bh=IaLWchXqtwge6yNl+R9qPP2VlfBnURJKq1vPQED7chQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVYU8COEA6CdTh6koAPrsi05QEDnVNADP+0xx9ZLVWH6xE3Yuwl1tNrzkH0vMJlz6
-         bR8HTCv1H8BY95xdOmfg3aFHEhBrNDYGkTij4eON+/1r4qyrrYdhuZADow+OXLwBkC
-         dlBKR+PAo5khdavnkKqpujYN7cwLPLWAIBJfvOz0=
+        b=jiMsp5MxInZxQWFHkICj5Ne7mGOAq6J01hStpPYtFOLa7uDtp/2VbF0/zZXbB9LGT
+         9nocFN54b0mesXaZeIeKynrOVguOQaUbmw7ZQKTYE3H9fTmIr9HaCouMkZ0cDORfiq
+         uysU+hrqvOyrx6H8xve0B/8fuLl4aH0zghkPqRmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 182/800] regulator: mt6315: Fix checking return value of devm_regmap_init_spmi_ext
-Date:   Mon, 12 Jul 2021 08:03:25 +0200
-Message-Id: <20210712060938.647227929@linuxfoundation.org>
+Subject: [PATCH 5.12 123/700] media: marvel-ccic: fix some issues when getting pm_runtime
+Date:   Mon, 12 Jul 2021 08:03:26 +0200
+Message-Id: <20210712060942.331186977@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 70d654ea3de937d7754c107bb8eeb20e30262c89 ]
+[ Upstream commit e7c617cab7a522fba5b20f9033ee98565b6f3546 ]
 
-devm_regmap_init_spmi_ext() returns ERR_PTR() on error.
+Calling pm_runtime_get_sync() is bad, since even when it
+returns an error, pm_runtime_put*() should be called.
+So, use instead pm_runtime_resume_and_get().
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/20210615132934.3453965-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+While here, ensure that the error condition will be checked
+during clock enable an media open() calls.
+
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/mt6315-regulator.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/platform/marvell-ccic/mcam-core.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/mt6315-regulator.c b/drivers/regulator/mt6315-regulator.c
-index 6b8be52c3772..7514702f78cf 100644
---- a/drivers/regulator/mt6315-regulator.c
-+++ b/drivers/regulator/mt6315-regulator.c
-@@ -223,8 +223,8 @@ static int mt6315_regulator_probe(struct spmi_device *pdev)
- 	int i;
+diff --git a/drivers/media/platform/marvell-ccic/mcam-core.c b/drivers/media/platform/marvell-ccic/mcam-core.c
+index 141bf5d97a04..ea87110d9073 100644
+--- a/drivers/media/platform/marvell-ccic/mcam-core.c
++++ b/drivers/media/platform/marvell-ccic/mcam-core.c
+@@ -918,6 +918,7 @@ static int mclk_enable(struct clk_hw *hw)
+ 	struct mcam_camera *cam = container_of(hw, struct mcam_camera, mclk_hw);
+ 	int mclk_src;
+ 	int mclk_div;
++	int ret;
  
- 	regmap = devm_regmap_init_spmi_ext(pdev, &mt6315_regmap_config);
--	if (!regmap)
--		return -ENODEV;
-+	if (IS_ERR(regmap))
-+		return PTR_ERR(regmap);
+ 	/*
+ 	 * Clock the sensor appropriately.  Controller clock should
+@@ -931,7 +932,9 @@ static int mclk_enable(struct clk_hw *hw)
+ 		mclk_div = 2;
+ 	}
  
- 	chip = devm_kzalloc(dev, sizeof(struct mt6315_chip), GFP_KERNEL);
- 	if (!chip)
+-	pm_runtime_get_sync(cam->dev);
++	ret = pm_runtime_resume_and_get(cam->dev);
++	if (ret < 0)
++		return ret;
+ 	clk_enable(cam->clk[0]);
+ 	mcam_reg_write(cam, REG_CLKCTRL, (mclk_src << 29) | mclk_div);
+ 	mcam_ctlr_power_up(cam);
+@@ -1611,7 +1614,9 @@ static int mcam_v4l_open(struct file *filp)
+ 		ret = sensor_call(cam, core, s_power, 1);
+ 		if (ret)
+ 			goto out;
+-		pm_runtime_get_sync(cam->dev);
++		ret = pm_runtime_resume_and_get(cam->dev);
++		if (ret < 0)
++			goto out;
+ 		__mcam_cam_reset(cam);
+ 		mcam_set_config_needed(cam, 1);
+ 	}
 -- 
 2.30.2
 
