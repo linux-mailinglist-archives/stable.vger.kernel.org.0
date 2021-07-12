@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E9E3C49B6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 175923C53C3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237581AbhGLGqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
+        id S1348604AbhGLHzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239151AbhGLGot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:44:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44B6C611C2;
-        Mon, 12 Jul 2021 06:40:48 +0000 (UTC)
+        id S1350654AbhGLHvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1008A61C34;
+        Mon, 12 Jul 2021 07:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072048;
-        bh=T1wAeuWT7+y5rbqoxQHr4a1GsyCW465NMBfjnELrFLY=;
+        s=korg; t=1626076034;
+        bh=d2tuwCrxgQbdvyq1qFQqBsST9Y/jzHW45UtqE3lYI3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zjRveHJBD6dMXPsdbWSxmSewqkisn7tc65F3sEm6XCOsFPJkfkp8ph+pWHd/fLRXF
-         GysYLIP96vdvsNySRZh6One8I6snrq+ijSiMFPHrfb578wS//yVQlYRAL9jkvKtII4
-         N5OnFxlKw+JX/G1QMyI1MgzWy05E26ivATGnOn5E=
+        b=shyRx8OErc75hZPH/PwROxvgKWgpAnuer42dER2MEIkj4zNgenGUbRUUNOP0vGq0P
+         ATrWnGYCPMYJWMvWNtxf73fIrYwN/bKhZawoKMXI6epXRVYv0S1cDZ/diihNEtenXU
+         eHBO+GXgzHDoy/ZDyYbTparAq5QC0lzbCEuSe7Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 330/593] xfrm: remove the fragment check for ipv6 beet mode
-Date:   Mon, 12 Jul 2021 08:08:10 +0200
-Message-Id: <20210712060922.100797377@linuxfoundation.org>
+Subject: [PATCH 5.13 468/800] ath11k: Fix an error handling path in ath11k_core_fetch_board_data_api_n()
+Date:   Mon, 12 Jul 2021 08:08:11 +0200
+Message-Id: <20210712061016.958098688@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit eebd49a4ffb420a991c606e54aa3c9f02857a334 ]
+[ Upstream commit 515bda1d1e51c64edf2a384a58801f85a80a3f2d ]
 
-In commit 68dc022d04eb ("xfrm: BEET mode doesn't support fragments
-for inner packets"), it tried to fix the issue that in TX side the
-packet is fragmented before the ESP encapping while in the RX side
-the fragments always get reassembled before decapping with ESP.
+All error paths but this one 'goto err' in order to release some
+resources.
+Fix this.
 
-This is not true for IPv6. IPv6 is different, and it's using exthdr
-to save fragment info, as well as the ESP info. Exthdrs are added
-in TX and processed in RX both in order. So in the above case, the
-ESP decapping will be done earlier than the fragment reassembling
-in TX side.
-
-Here just remove the fragment check for the IPv6 inner packets to
-recover the fragments support for BEET mode.
-
-Fixes: 68dc022d04eb ("xfrm: BEET mode doesn't support fragments for inner packets")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/e959eb544f3cb04258507d8e25a6f12eab126bde.1621676864.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_output.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/net/wireless/ath/ath11k/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index e4cb0ff4dcf4..ac907b9d32d1 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -711,15 +711,8 @@ out:
- static int xfrm6_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- {
- #if IS_ENABLED(CONFIG_IPV6)
--	unsigned int ptr = 0;
- 	int err;
+diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
+index 77ce3347ab86..595e83fe0990 100644
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -488,7 +488,8 @@ static int ath11k_core_fetch_board_data_api_n(struct ath11k_base *ab,
+ 		if (len < ALIGN(ie_len, 4)) {
+ 			ath11k_err(ab, "invalid length for board ie_id %d ie_len %zu len %zu\n",
+ 				   ie_id, ie_len, len);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto err;
+ 		}
  
--	if (x->outer_mode.encap == XFRM_MODE_BEET &&
--	    ipv6_find_hdr(skb, &ptr, NEXTHDR_FRAGMENT, NULL, NULL) >= 0) {
--		net_warn_ratelimited("BEET mode doesn't support inner IPv6 fragments\n");
--		return -EAFNOSUPPORT;
--	}
--
- 	err = xfrm6_tunnel_check_size(skb);
- 	if (err)
- 		return err;
+ 		switch (ie_id) {
 -- 
 2.30.2
 
