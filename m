@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 225A93C4C61
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332653C51D9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237773AbhGLHDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38732 "EHLO mail.kernel.org"
+        id S1345095AbhGLHnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238713AbhGLHDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F8F061158;
-        Mon, 12 Jul 2021 07:00:19 +0000 (UTC)
+        id S1348012AbhGLHkb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F5D161153;
+        Mon, 12 Jul 2021 07:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073220;
-        bh=+0RmVVSDzLNt2nkptVlfGz2MqVzeDxn8hiCZHkPC86c=;
+        s=korg; t=1626075454;
+        bh=GsM7kTT8tLZRHnd8pH8qOql2SjIfQ9+HXrYJLfJFeGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQuvM9Rie+HwhNEvK1it+ceYSPhtAWMKgbNfShnGTesysBOFesSWxvlQWU6sqPIDD
-         YFqTX7kqDlCeXERshbMTWnKQSRmGuj8GEngSTSlxEfi9fPN58zpnWRvFHa4nAV64bl
-         1TQdK9eQQ4aAcofxNX3F5QdG2Na2Msr6fyZhjZ60=
+        b=XO96PGtXgk8pIq08JEcAl5B69R4ldRSXD9qdLezWkLZ/R8kXoJdUhhBizIsAC8JPf
+         LMMsR1e/eByQrkcjveZ5e89eoExLOTg+2JMiU5ymbjro0rne4bxvAN1EmbAuLbceGJ
+         b0w+dA7xYsrbFQYpqVt400CfU7660NPwG5Sokm7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 165/700] memstick: rtsx_usb_ms: fix UAF
-Date:   Mon, 12 Jul 2021 08:04:08 +0200
-Message-Id: <20210712060949.064569494@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 226/800] random32: Fix implicit truncation warning in prandom_seed_state()
+Date:   Mon, 12 Jul 2021 08:04:09 +0200
+Message-Id: <20210712060945.646455296@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 42933c8aa14be1caa9eda41f65cde8a3a95d3e39 ]
+[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
 
-This patch fixes the following issues:
-1. memstick_free_host() will free the host, so the use of ms_dev(host) after
-it will be a problem. To fix this, move memstick_free_host() after when we
-are done with ms_dev(host).
-2. In rtsx_usb_ms_drv_remove(), pm need to be disabled before we remove
-and free host otherwise memstick_check will be called and UAF will
-happen.
+sparse generates the following warning:
 
-[   11.351173] BUG: KASAN: use-after-free in rtsx_usb_ms_drv_remove+0x94/0x140 [rtsx_usb_ms]
-[   11.357077]  rtsx_usb_ms_drv_remove+0x94/0x140 [rtsx_usb_ms]
-[   11.357376]  platform_remove+0x2a/0x50
-[   11.367531] Freed by task 298:
-[   11.368537]  kfree+0xa4/0x2a0
-[   11.368711]  device_release+0x51/0xe0
-[   11.368905]  kobject_put+0xa2/0x120
-[   11.369090]  rtsx_usb_ms_drv_remove+0x8c/0x140 [rtsx_usb_ms]
-[   11.369386]  platform_remove+0x2a/0x50
+ include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
+ constant value
 
-[   12.038408] BUG: KASAN: use-after-free in __mutex_lock.isra.0+0x3ec/0x7c0
-[   12.045432]  mutex_lock+0xc9/0xd0
-[   12.046080]  memstick_check+0x6a/0x578 [memstick]
-[   12.046509]  process_one_work+0x46d/0x750
-[   12.052107] Freed by task 297:
-[   12.053115]  kfree+0xa4/0x2a0
-[   12.053272]  device_release+0x51/0xe0
-[   12.053463]  kobject_put+0xa2/0x120
-[   12.053647]  rtsx_usb_ms_drv_remove+0xc4/0x140 [rtsx_usb_ms]
-[   12.053939]  platform_remove+0x2a/0x50
+This is because the 64-bit seed value is manipulated and then placed in a
+u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
+prevent this warning, which is reasonable because a typecast doesn't prove
+that truncation was expected.
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Co-developed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20210511163944.1233295-1-ztong0001@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Logical-AND the value with 0xffffffff to make explicit that truncation to
+32-bit is intended.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memstick/host/rtsx_usb_ms.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ include/linux/prandom.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memstick/host/rtsx_usb_ms.c b/drivers/memstick/host/rtsx_usb_ms.c
-index 102dbb8080da..29271ad4728a 100644
---- a/drivers/memstick/host/rtsx_usb_ms.c
-+++ b/drivers/memstick/host/rtsx_usb_ms.c
-@@ -799,9 +799,9 @@ static int rtsx_usb_ms_drv_probe(struct platform_device *pdev)
+diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+index bbf4b4ad61df..056d31317e49 100644
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -111,7 +111,7 @@ static inline u32 __seed(u32 x, u32 m)
+  */
+ static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
+ {
+-	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
++	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
  
- 	return 0;
- err_out:
--	memstick_free_host(msh);
- 	pm_runtime_disable(ms_dev(host));
- 	pm_runtime_put_noidle(ms_dev(host));
-+	memstick_free_host(msh);
- 	return err;
- }
- 
-@@ -828,9 +828,6 @@ static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
- 	}
- 	mutex_unlock(&host->host_mutex);
- 
--	memstick_remove_host(msh);
--	memstick_free_host(msh);
--
- 	/* Balance possible unbalanced usage count
- 	 * e.g. unconditional module removal
- 	 */
-@@ -838,10 +835,11 @@ static int rtsx_usb_ms_drv_remove(struct platform_device *pdev)
- 		pm_runtime_put(ms_dev(host));
- 
- 	pm_runtime_disable(ms_dev(host));
--	platform_set_drvdata(pdev, NULL);
--
-+	memstick_remove_host(msh);
- 	dev_dbg(ms_dev(host),
- 		": Realtek USB Memstick controller has been removed\n");
-+	memstick_free_host(msh);
-+	platform_set_drvdata(pdev, NULL);
- 
- 	return 0;
- }
+ 	state->s1 = __seed(i,   2U);
+ 	state->s2 = __seed(i,   8U);
 -- 
 2.30.2
 
