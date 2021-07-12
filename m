@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50AD33C5537
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EFD3C4ABD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355415AbhGLIJl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S240482AbhGLGxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353302AbhGLIBt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:01:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A5C7611AB;
-        Mon, 12 Jul 2021 07:54:32 +0000 (UTC)
+        id S240399AbhGLGvv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:51:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 509786100C;
+        Mon, 12 Jul 2021 06:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076473;
-        bh=zwTDJUCRaaO70KfVw4yQixagA5gSHB7Xx4+fbRnnHUg=;
+        s=korg; t=1626072509;
+        bh=c3ahNNaxmnOffWKOAvZYaIt98Rj2XEPxARdHuPaEI20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcKJTVVVAUSs7uuYRXsp+RiNBfL2ZjnNdohXzrFfM6LK75VaYrymXOzcm6RGz4NKU
-         m/fvGFGar5Wi0QDFvwdlJ5skyd6uVOK4akJ0Rs75JvjL4RJPT6NNs4YwT5t8g5+eTB
-         YS00Ap0exkKtsmY0x44Qg0J3bHAPGNHHJPXuwDRc=
+        b=R04aFtNmuuf9n23FJuP/1MdenccU/JT2U+H2PJpRbaFw8UmfKB05yB0odC/oRcANb
+         +EBmiu5X8bG3cebhGbLymtxEfX1AcESQb3NoPsIurZ0gyRNJ8L+KzfAdLneZdxq/6M
+         KDZWV8dZV/idFVxYUIFoK7Lrsk5Ck0WUVCW8Tb7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Nuno Sa <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 615/800] iio: adis16475: do not return ints in irq handlers
+Subject: [PATCH 5.10 478/593] tty: nozomi: Fix the error handling path of nozomi_card_init()
 Date:   Mon, 12 Jul 2021 08:10:38 +0200
-Message-Id: <20210712061032.794885642@linuxfoundation.org>
+Message-Id: <20210712060943.029411126@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sa <nuno.sa@analog.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 00a72db718fa198da3946286dcad222399ccd4fb ]
+[ Upstream commit 6ae7d0f5a92b9619f6e3c307ce56b2cefff3f0e9 ]
 
-On an IRQ handler we should not return normal error codes as 'irqreturn_t'
-is expected.
+The error handling path is broken and we may un-register things that have
+never been registered.
 
-This is done by jumping to the 'check_burst32' label where we return
-'IRQ_HANDLED'. Note that it is fine to do the burst32 check in this
-error path. If we have proper settings to apply burst32, we might just
-do the setup now so that the next sample already uses it.
+Update the loops index accordingly.
 
-Fixes: fff7352bf7a3c ("iio: imu: Add support for adis16475")
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Signed-off-by: Nuno Sa <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210427085454.30616-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e28c2e92c7475da25b03d022ea2d6dcf1ba807a2.1621968629.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis16475.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/nozomi.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/imu/adis16475.c b/drivers/iio/imu/adis16475.c
-index 1de62fc79e0f..51b76444db0b 100644
---- a/drivers/iio/imu/adis16475.c
-+++ b/drivers/iio/imu/adis16475.c
-@@ -1068,7 +1068,7 @@ static irqreturn_t adis16475_trigger_handler(int irq, void *p)
+diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
+index 9a251a1b0d00..6890418a29a4 100644
+--- a/drivers/tty/nozomi.c
++++ b/drivers/tty/nozomi.c
+@@ -1394,7 +1394,7 @@ static int nozomi_card_init(struct pci_dev *pdev,
+ 			NOZOMI_NAME, dc);
+ 	if (unlikely(ret)) {
+ 		dev_err(&pdev->dev, "can't request irq %d\n", pdev->irq);
+-		goto err_free_kfifo;
++		goto err_free_all_kfifo;
+ 	}
  
- 	ret = spi_sync(adis->spi, &adis->msg);
- 	if (ret)
--		return ret;
-+		goto check_burst32;
+ 	DBG1("base_addr: %p", dc->base_addr);
+@@ -1432,13 +1432,15 @@ static int nozomi_card_init(struct pci_dev *pdev,
+ 	return 0;
  
- 	adis->spi->max_speed_hz = cached_spi_speed_hz;
- 	buffer = adis->buffer;
+ err_free_tty:
+-	for (i = 0; i < MAX_PORT; ++i) {
++	for (i--; i >= 0; i--) {
+ 		tty_unregister_device(ntty_driver, dc->index_start + i);
+ 		tty_port_destroy(&dc->port[i].port);
+ 	}
+ 	free_irq(pdev->irq, dc);
++err_free_all_kfifo:
++	i = MAX_PORT;
+ err_free_kfifo:
+-	for (i = 0; i < MAX_PORT; i++)
++	for (i--; i >= PORT_MDM; i--)
+ 		kfifo_free(&dc->port[i].fifo_ul);
+ err_free_sbuf:
+ 	kfree(dc->send_buf);
 -- 
 2.30.2
 
