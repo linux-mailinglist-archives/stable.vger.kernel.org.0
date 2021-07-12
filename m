@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBFEE3C51C3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32AC63C4C06
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346543AbhGLHnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46792 "EHLO mail.kernel.org"
+        id S240697AbhGLHBR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:01:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347798AbhGLHkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C29F6188B;
-        Mon, 12 Jul 2021 07:36:13 +0000 (UTC)
+        id S241986AbhGLG7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7091161004;
+        Mon, 12 Jul 2021 06:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075374;
-        bh=FzXwPdNNUN1+bbWVulgsQZBbjZaP73QD17PYhjK13DA=;
+        s=korg; t=1626073010;
+        bh=NB6E3KwBM6wGhIWrWqZ4+ALN3wc+8vsNTzk/9JDGrQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=juIRnqHt+8ea1A61oZIsdnzHB7HkOaY2MDR2FYzzdQai80vUJfvdfXuNYoNpbqKPa
-         syoiLUXxXXga63YFypgyf9iovInBlYDDLhiExkMNu2caxT5sOp8qy0ymhoN9jORK0b
-         lD2fU1iYyARYqPChqoNbAs+MdZevE9RZ7T+Ky79Q=
+        b=leEbJApBV3WJN3aJHu8Mf9cL7eplDdOhQRXlNVGF0c3H/hQW8t94GG21ku4v2HcrR
+         o9WHizv1VTUEcFuFHSF3lqd4+1thjXZQgzS0cdb5//7mwiKm+PTkfhB8+jMz4TZgkk
+         OO/SkSqiO0m5omCHgE4+F1N4iRT6ECTrk/mexLqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
-        Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 156/800] crypto: qat - check return code of qat_hal_rd_rel_reg()
+        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>
+Subject: [PATCH 5.12 096/700] serial_cs: Add Option International GSM-Ready 56K/ISDN modem
 Date:   Mon, 12 Jul 2021 08:02:59 +0200
-Message-Id: <20210712060934.923188997@linuxfoundation.org>
+Message-Id: <20210712060938.379050432@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +38,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Ondrej Zary <linux@zary.sk>
 
-[ Upstream commit 96b57229209490c8bca4335b01a426a96173dc56 ]
+commit d495dd743d5ecd47288156e25c4d9163294a0992 upstream.
 
-Check the return code of the function qat_hal_rd_rel_reg() and return it
-to the caller.
+Add support for Option International GSM-Ready 56K/ISDN PCMCIA modem
+card.
 
-This is to fix the following warning when compiling the driver with
-clang scan-build:
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210611201940.23898-2-linux@zary.sk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-    drivers/crypto/qat/qat_common/qat_hal.c:1436:2: warning: 6th function call argument is an uninitialized value
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_hal.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/serial_cs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_hal.c b/drivers/crypto/qat/qat_common/qat_hal.c
-index bd3028126cbe..069f51621f0e 100644
---- a/drivers/crypto/qat/qat_common/qat_hal.c
-+++ b/drivers/crypto/qat/qat_common/qat_hal.c
-@@ -1417,7 +1417,11 @@ static int qat_hal_put_rel_wr_xfer(struct icp_qat_fw_loader_handle *handle,
- 		pr_err("QAT: bad xfrAddr=0x%x\n", xfr_addr);
- 		return -EINVAL;
- 	}
--	qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
-+	status = qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
-+	if (status) {
-+		pr_err("QAT: failed to read register");
-+		return status;
-+	}
- 	gpr_addr = qat_hal_get_reg_addr(ICP_GPB_REL, gprnum);
- 	data16low = 0xffff & data;
- 	data16hi = 0xffff & (data >> 0x10);
--- 
-2.30.2
-
+--- a/drivers/tty/serial/8250/serial_cs.c
++++ b/drivers/tty/serial/8250/serial_cs.c
+@@ -777,6 +777,7 @@ static const struct pcmcia_device_id ser
+ 	PCMCIA_DEVICE_PROD_ID12("Multi-Tech", "MT2834LT", 0x5f73be51, 0x4cd7c09e),
+ 	PCMCIA_DEVICE_PROD_ID12("OEM      ", "C288MX     ", 0xb572d360, 0xd2385b7a),
+ 	PCMCIA_DEVICE_PROD_ID12("Option International", "V34bis GSM/PSTN Data/Fax Modem", 0x9d7cd6f5, 0x5cb8bf41),
++	PCMCIA_DEVICE_PROD_ID12("Option International", "GSM-Ready 56K/ISDN", 0x9d7cd6f5, 0xb23844aa),
+ 	PCMCIA_DEVICE_PROD_ID12("PCMCIA   ", "C336MX     ", 0x99bcafe9, 0xaa25bcab),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "PCMCIA Dual RS-232 Serial Port Card", 0xc4420b35, 0x92abc92f),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "Dual RS-232 Serial Port PC Card", 0xc4420b35, 0x031a380d),
 
 
