@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 184683C4C27
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A393C51E9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241171AbhGLHB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:01:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36278 "EHLO mail.kernel.org"
+        id S1349557AbhGLHoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242549AbhGLHBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:01:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AD03613CA;
-        Mon, 12 Jul 2021 06:58:47 +0000 (UTC)
+        id S1348948AbhGLHla (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22256601FE;
+        Mon, 12 Jul 2021 07:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073128;
-        bh=L84IKwINJa6zxkGcFITCnz9nOjuWJ1IN5joGhHT235s=;
+        s=korg; t=1626075522;
+        bh=2CIrVI1YzK3jp96DVafypQSQJSfLozbtdnN2bMEp3Dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfzsXoou+ZE2tIk1RKRT41gpNebnIR+EvBRXO1tSaR2zjMwcWtWwFi25TFvSW5nGf
-         BU2kJ5F48GX0S0CzuQ1ALI5m05LtpG9RQI/B2GgUk2oeVlRxErZw0mL1sqUSytyHdW
-         vM2Pv3D09SOa1YCjSnM1yc/E645xStqDIzj39YzE=
+        b=gUPFW57KvOuT/E3Z2XPLB84vhwJziguEA1CyTA/KHYTrzG1t6yHzBmwpdw2+J98Oi
+         2u6i2zuaaU7UOxcQipNasJqCyiOjzH5o/QyompXPV3cIQ5en9m5iahF5XQMHSi+BkC
+         mGqxuF7JpHt7/Huw0T0utlY3JK69KSRwY1SFnM+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 137/700] regulator: uniphier: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 5.13 197/800] btrfs: always abort the transaction if we abort a trans handle
 Date:   Mon, 12 Jul 2021 08:03:40 +0200
-Message-Id: <20210712060944.901256811@linuxfoundation.org>
+Message-Id: <20210712060940.872890186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit d019f38a1af3c6015cde6a47951a3ec43beeed80 ]
+[ Upstream commit 5963ffcaf383134985a5a2d8a4baa582d3999e0a ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+While stress testing our error handling I noticed that sometimes we
+would still commit the transaction even though we had aborted the
+transaction.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1620705198-104566-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Currently we track if a trans handle has dirtied any metadata, and if it
+hasn't we mark the filesystem as having an error (so no new transactions
+can be started), but we will allow the current transaction to complete
+as we do not mark the transaction itself as having been aborted.
+
+This sounds good in theory, but we were not properly tracking IO errors
+in btrfs_finish_ordered_io, and thus committing the transaction with
+bogus free space data.  This isn't necessarily a problem per-se with the
+free space cache, as the other guards in place would have kept us from
+accepting the free space cache as valid, but highlights a real world
+case where we had a bug and could have corrupted the filesystem because
+of it.
+
+This "skip abort on empty trans handle" is nice in theory, but assumes
+we have perfect error handling everywhere, which we clearly do not.
+Also we do not allow further transactions to be started, so all this
+does is save the last transaction that was happening, which doesn't
+necessarily gain us anything other than the potential for real
+corruption.
+
+Remove this particular bit of code, if we decide we need to abort the
+transaction then abort the current one and keep us from doing real harm
+to the file system, regardless of whether this specific trans handle
+dirtied anything or not.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/uniphier-regulator.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/ctree.c       |  5 +----
+ fs/btrfs/extent-tree.c |  1 -
+ fs/btrfs/super.c       | 11 -----------
+ fs/btrfs/transaction.c |  8 --------
+ fs/btrfs/transaction.h |  1 -
+ 5 files changed, 1 insertion(+), 25 deletions(-)
 
-diff --git a/drivers/regulator/uniphier-regulator.c b/drivers/regulator/uniphier-regulator.c
-index 2e02e26b516c..e75b0973e325 100644
---- a/drivers/regulator/uniphier-regulator.c
-+++ b/drivers/regulator/uniphier-regulator.c
-@@ -201,6 +201,7 @@ static const struct of_device_id uniphier_regulator_match[] = {
- 	},
- 	{ /* Sentinel */ },
- };
-+MODULE_DEVICE_TABLE(of, uniphier_regulator_match);
+diff --git a/fs/btrfs/ctree.c b/fs/btrfs/ctree.c
+index a484fb72a01f..4bc3ca2cbd7d 100644
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -596,7 +596,6 @@ noinline int btrfs_cow_block(struct btrfs_trans_handle *trans,
+ 		       trans->transid, fs_info->generation);
  
- static struct platform_driver uniphier_regulator_driver = {
- 	.probe = uniphier_regulator_probe,
+ 	if (!should_cow_block(trans, root, buf)) {
+-		trans->dirty = true;
+ 		*cow_ret = buf;
+ 		return 0;
+ 	}
+@@ -1788,10 +1787,8 @@ again:
+ 			 * then we don't want to set the path blocking,
+ 			 * so we test it here
+ 			 */
+-			if (!should_cow_block(trans, root, b)) {
+-				trans->dirty = true;
++			if (!should_cow_block(trans, root, b))
+ 				goto cow_done;
+-			}
+ 
+ 			/*
+ 			 * must have write locks on this node and the
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 3d5c35e4cb76..d2f39a122d89 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4784,7 +4784,6 @@ btrfs_init_new_buffer(struct btrfs_trans_handle *trans, struct btrfs_root *root,
+ 		set_extent_dirty(&trans->transaction->dirty_pages, buf->start,
+ 			 buf->start + buf->len - 1, GFP_NOFS);
+ 	}
+-	trans->dirty = true;
+ 	/* this returns a buffer locked for blocking */
+ 	return buf;
+ }
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 4a396c1147f1..bc613218c8c5 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -299,17 +299,6 @@ void __btrfs_abort_transaction(struct btrfs_trans_handle *trans,
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 
+ 	WRITE_ONCE(trans->aborted, errno);
+-	/* Nothing used. The other threads that have joined this
+-	 * transaction may be able to continue. */
+-	if (!trans->dirty && list_empty(&trans->new_bgs)) {
+-		const char *errstr;
+-
+-		errstr = btrfs_decode_error(errno);
+-		btrfs_warn(fs_info,
+-		           "%s:%d: Aborting unused transaction(%s).",
+-		           function, line, errstr);
+-		return;
+-	}
+ 	WRITE_ONCE(trans->transaction->aborted, errno);
+ 	/* Wake up anybody who may be waiting on this transaction */
+ 	wake_up(&fs_info->transaction_wait);
+diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+index b423d3b30173..37450c7644ca 100644
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -2076,14 +2076,6 @@ int btrfs_commit_transaction(struct btrfs_trans_handle *trans)
+ 
+ 	ASSERT(refcount_read(&trans->use_count) == 1);
+ 
+-	/*
+-	 * Some places just start a transaction to commit it.  We need to make
+-	 * sure that if this commit fails that the abort code actually marks the
+-	 * transaction as failed, so set trans->dirty to make the abort code do
+-	 * the right thing.
+-	 */
+-	trans->dirty = true;
+-
+ 	/* Stop the commit early if ->aborted is set */
+ 	if (TRANS_ABORTED(cur_trans)) {
+ 		ret = cur_trans->aborted;
+diff --git a/fs/btrfs/transaction.h b/fs/btrfs/transaction.h
+index 364cfbb4c5c5..c49e2266b28b 100644
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -143,7 +143,6 @@ struct btrfs_trans_handle {
+ 	bool allocating_chunk;
+ 	bool can_flush_pending_bgs;
+ 	bool reloc_reserved;
+-	bool dirty;
+ 	bool in_fsync;
+ 	struct btrfs_root *root;
+ 	struct btrfs_fs_info *fs_info;
 -- 
 2.30.2
 
