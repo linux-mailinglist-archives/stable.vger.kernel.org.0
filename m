@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45AA43C5383
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 383A33C4968
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346177AbhGLHzA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
+        id S234036AbhGLGox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350442AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C48E0619CE;
-        Mon, 12 Jul 2021 07:45:24 +0000 (UTC)
+        id S237484AbhGLGmY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:42:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D84961006;
+        Mon, 12 Jul 2021 06:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075925;
-        bh=5NTxDvKb2VWUSZrZE7MZDD9+AG0I9OzUGnP3AVsQbAg=;
+        s=korg; t=1626071944;
+        bh=ZSMwL+bzY3B6/x+1XnqUGIpvfDMQW32XI7PbcWmyhBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0rSkfQfMgCwAbAfjKBGbibDXD07NCUUtADvV+A/nEn5Tj1+SW0BwZWscFgAWdqGa
-         O7JTXnzUq3bjuB4gqRq4E33itlNCzkdpF5ePDfjNVIiW6JxzeHMdtED70uTg45kAE7
-         eO6isDT1xCl9r/M0QVtP1qPTNRKNY+2+16AQoTpA=
+        b=MKXtcYlusbic6ZHxDC3mrNigv4nazNnMhjdWjLwz46kW3wIJxIEI2xupY+82U9R0g
+         fzrgB+ZE+PYxSHsvlsc2bIE1T7UMbIl2d2UI3gMvhSecXCT6tYbWoOkFtfNOm8Y6hs
+         I4/OF1FqN0YnOkWuVEF9rryXCNOcvoEbYjJrE0Fs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Jonathan Liu <net147@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Dwaipayan Ray <dwaipayanray1@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 421/800] drm/rockchip: dsi: move all lane config except LCDC mux to bind()
-Date:   Mon, 12 Jul 2021 08:07:24 +0200
-Message-Id: <20210712061011.977040405@linuxfoundation.org>
+Subject: [PATCH 5.10 285/593] ACPI: Use DEVICE_ATTR_<RW|RO|WO> macros
+Date:   Mon, 12 Jul 2021 08:07:25 +0200
+Message-Id: <20210712060915.626904052@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,118 +40,454 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Dwaipayan Ray <dwaipayanray1@gmail.com>
 
-[ Upstream commit 43c2de1002d2b70fb5941fa14e97a34e3dc214d4 ]
+[ Upstream commit 0f39ee8324e75c9d370e84a61323ceb194641a18 ]
 
-When we first enable the DSI encoder, we currently program some per-chip
-configuration that we look up in rk3399_chip_data based on the device
-tree compatible we match. This data configures various parameters of the
-MIPI lanes, including on RK3399 whether DSI1 is slaved to DSI0 in a
-dual-mode configuration. It also selects which LCDC (i.e. VOP) to scan
-out from.
+Instead of open coding DEVICE_ATTR(), use the
+DEVICE_ATTR_RW(), DEVICE_ATTR_RO() and DEVICE_ATTR_WO()
+macros wherever possible.
 
-This causes a problem in RK3399 dual-mode configurations, though: panel
-prepare() callbacks run before the encoder gets enabled and expect to be
-able to write commands to the DSI bus, but the bus isn't fully
-functional until the lane and master/slave configuration have been
-programmed. As a result, dual-mode panels (and possibly others too) fail
-to turn on when the rockchipdrm driver is initially loaded.
+This required a few functions to be renamed but the
+functionality itself is unchanged.
 
-Because the LCDC mux is the only thing we don't know until enable time
-(and is the only thing that can ever change), we can actually move most
-of the initialization to bind() and get it out of the way early. That's
-what this change does. (Rockchip's 4.4 BSP kernel does it in mode_set(),
-which also avoids the issue, but bind() seems like the more correct
-place to me.)
-
-Tested on a Google Scarlet board (Acer Chromebook Tab 10), which has a
-Kingdisplay KD097D04 dual-mode panel. Prior to this change, the panel's
-backlight would turn on but no image would appear when initially loading
-rockchipdrm. If I kept rockchipdrm loaded and reloaded the panel driver,
-it would come on. With this change, the panel successfully turns on
-during initial rockchipdrm load as expected.
-
-Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Tested-by: Jonathan Liu <net147@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/55fe7f3454d8c91dc3837ba5aa741d4a0e67378f.1618797813.git.tommyhebb@gmail.com
+Signed-off-by: Dwaipayan Ray <dwaipayanray1@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/rockchip/dw-mipi-dsi-rockchip.c   | 36 ++++++++++++++-----
- 1 file changed, 28 insertions(+), 8 deletions(-)
+ drivers/acpi/acpi_pad.c     | 24 ++++++++------------
+ drivers/acpi/acpi_tad.c     | 14 ++++++------
+ drivers/acpi/bgrt.c         | 20 ++++++++---------
+ drivers/acpi/device_sysfs.c | 44 ++++++++++++++++++-------------------
+ drivers/acpi/dock.c         | 26 +++++++++++-----------
+ drivers/acpi/power.c        |  9 ++++----
+ 6 files changed, 66 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-index 24a71091759c..d8c47ee3cad3 100644
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -692,13 +692,8 @@ static const struct dw_mipi_dsi_phy_ops dw_mipi_dsi_rockchip_phy_ops = {
- 	.get_timing = dw_mipi_dsi_phy_get_timing,
- };
+diff --git a/drivers/acpi/acpi_pad.c b/drivers/acpi/acpi_pad.c
+index b8745ce48a47..b84ab722feb4 100644
+--- a/drivers/acpi/acpi_pad.c
++++ b/drivers/acpi/acpi_pad.c
+@@ -261,7 +261,7 @@ static uint32_t acpi_pad_idle_cpus_num(void)
+ 	return ps_tsk_num;
+ }
  
--static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi,
--					int mux)
-+static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi)
+-static ssize_t acpi_pad_rrtime_store(struct device *dev,
++static ssize_t rrtime_store(struct device *dev,
+ 	struct device_attribute *attr, const char *buf, size_t count)
  {
--	if (dsi->cdata->lcdsel_grf_reg)
--		regmap_write(dsi->grf_regmap, dsi->cdata->lcdsel_grf_reg,
--			mux ? dsi->cdata->lcdsel_lit : dsi->cdata->lcdsel_big);
--
- 	if (dsi->cdata->lanecfg1_grf_reg)
- 		regmap_write(dsi->grf_regmap, dsi->cdata->lanecfg1_grf_reg,
- 					      dsi->cdata->lanecfg1);
-@@ -712,6 +707,13 @@ static void dw_mipi_dsi_rockchip_config(struct dw_mipi_dsi_rockchip *dsi,
- 					      dsi->cdata->enable);
+ 	unsigned long num;
+@@ -275,16 +275,14 @@ static ssize_t acpi_pad_rrtime_store(struct device *dev,
+ 	return count;
  }
  
-+static void dw_mipi_dsi_rockchip_set_lcdsel(struct dw_mipi_dsi_rockchip *dsi,
-+					    int mux)
+-static ssize_t acpi_pad_rrtime_show(struct device *dev,
++static ssize_t rrtime_show(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n", round_robin_time);
+ }
+-static DEVICE_ATTR(rrtime, S_IRUGO|S_IWUSR,
+-	acpi_pad_rrtime_show,
+-	acpi_pad_rrtime_store);
++static DEVICE_ATTR_RW(rrtime);
+ 
+-static ssize_t acpi_pad_idlepct_store(struct device *dev,
++static ssize_t idlepct_store(struct device *dev,
+ 	struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	unsigned long num;
+@@ -298,16 +296,14 @@ static ssize_t acpi_pad_idlepct_store(struct device *dev,
+ 	return count;
+ }
+ 
+-static ssize_t acpi_pad_idlepct_show(struct device *dev,
++static ssize_t idlepct_show(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+ 	return scnprintf(buf, PAGE_SIZE, "%d\n", idle_pct);
+ }
+-static DEVICE_ATTR(idlepct, S_IRUGO|S_IWUSR,
+-	acpi_pad_idlepct_show,
+-	acpi_pad_idlepct_store);
++static DEVICE_ATTR_RW(idlepct);
+ 
+-static ssize_t acpi_pad_idlecpus_store(struct device *dev,
++static ssize_t idlecpus_store(struct device *dev,
+ 	struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	unsigned long num;
+@@ -319,16 +315,14 @@ static ssize_t acpi_pad_idlecpus_store(struct device *dev,
+ 	return count;
+ }
+ 
+-static ssize_t acpi_pad_idlecpus_show(struct device *dev,
++static ssize_t idlecpus_show(struct device *dev,
+ 	struct device_attribute *attr, char *buf)
+ {
+ 	return cpumap_print_to_pagebuf(false, buf,
+ 				       to_cpumask(pad_busy_cpus_bits));
+ }
+ 
+-static DEVICE_ATTR(idlecpus, S_IRUGO|S_IWUSR,
+-	acpi_pad_idlecpus_show,
+-	acpi_pad_idlecpus_store);
++static DEVICE_ATTR_RW(idlecpus);
+ 
+ static int acpi_pad_add_sysfs(struct acpi_device *device)
+ {
+diff --git a/drivers/acpi/acpi_tad.c b/drivers/acpi/acpi_tad.c
+index 7d45cce0c3c1..e9b8e8305e23 100644
+--- a/drivers/acpi/acpi_tad.c
++++ b/drivers/acpi/acpi_tad.c
+@@ -237,7 +237,7 @@ static ssize_t time_show(struct device *dev, struct device_attribute *attr,
+ 		       rt.tz, rt.daylight);
+ }
+ 
+-static DEVICE_ATTR(time, S_IRUSR | S_IWUSR, time_show, time_store);
++static DEVICE_ATTR_RW(time);
+ 
+ static struct attribute *acpi_tad_time_attrs[] = {
+ 	&dev_attr_time.attr,
+@@ -446,7 +446,7 @@ static ssize_t ac_alarm_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_alarm_read(dev, buf, ACPI_TAD_AC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(ac_alarm, S_IRUSR | S_IWUSR, ac_alarm_show, ac_alarm_store);
++static DEVICE_ATTR_RW(ac_alarm);
+ 
+ static ssize_t ac_policy_store(struct device *dev, struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+@@ -462,7 +462,7 @@ static ssize_t ac_policy_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_policy_read(dev, buf, ACPI_TAD_AC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(ac_policy, S_IRUSR | S_IWUSR, ac_policy_show, ac_policy_store);
++static DEVICE_ATTR_RW(ac_policy);
+ 
+ static ssize_t ac_status_store(struct device *dev, struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+@@ -478,7 +478,7 @@ static ssize_t ac_status_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_status_read(dev, buf, ACPI_TAD_AC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(ac_status, S_IRUSR | S_IWUSR, ac_status_show, ac_status_store);
++static DEVICE_ATTR_RW(ac_status);
+ 
+ static struct attribute *acpi_tad_attrs[] = {
+ 	&dev_attr_caps.attr,
+@@ -505,7 +505,7 @@ static ssize_t dc_alarm_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_alarm_read(dev, buf, ACPI_TAD_DC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(dc_alarm, S_IRUSR | S_IWUSR, dc_alarm_show, dc_alarm_store);
++static DEVICE_ATTR_RW(dc_alarm);
+ 
+ static ssize_t dc_policy_store(struct device *dev, struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+@@ -521,7 +521,7 @@ static ssize_t dc_policy_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_policy_read(dev, buf, ACPI_TAD_DC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(dc_policy, S_IRUSR | S_IWUSR, dc_policy_show, dc_policy_store);
++static DEVICE_ATTR_RW(dc_policy);
+ 
+ static ssize_t dc_status_store(struct device *dev, struct device_attribute *attr,
+ 			       const char *buf, size_t count)
+@@ -537,7 +537,7 @@ static ssize_t dc_status_show(struct device *dev, struct device_attribute *attr,
+ 	return acpi_tad_status_read(dev, buf, ACPI_TAD_DC_TIMER);
+ }
+ 
+-static DEVICE_ATTR(dc_status, S_IRUSR | S_IWUSR, dc_status_show, dc_status_store);
++static DEVICE_ATTR_RW(dc_status);
+ 
+ static struct attribute *acpi_tad_dc_attrs[] = {
+ 	&dev_attr_dc_alarm.attr,
+diff --git a/drivers/acpi/bgrt.c b/drivers/acpi/bgrt.c
+index 251f961c28cc..19bb7f870204 100644
+--- a/drivers/acpi/bgrt.c
++++ b/drivers/acpi/bgrt.c
+@@ -15,40 +15,40 @@
+ static void *bgrt_image;
+ static struct kobject *bgrt_kobj;
+ 
+-static ssize_t show_version(struct device *dev,
++static ssize_t version_show(struct device *dev,
+ 			    struct device_attribute *attr, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.version);
+ }
+-static DEVICE_ATTR(version, S_IRUGO, show_version, NULL);
++static DEVICE_ATTR_RO(version);
+ 
+-static ssize_t show_status(struct device *dev,
++static ssize_t status_show(struct device *dev,
+ 			   struct device_attribute *attr, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.status);
+ }
+-static DEVICE_ATTR(status, S_IRUGO, show_status, NULL);
++static DEVICE_ATTR_RO(status);
+ 
+-static ssize_t show_type(struct device *dev,
++static ssize_t type_show(struct device *dev,
+ 			 struct device_attribute *attr, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_type);
+ }
+-static DEVICE_ATTR(type, S_IRUGO, show_type, NULL);
++static DEVICE_ATTR_RO(type);
+ 
+-static ssize_t show_xoffset(struct device *dev,
++static ssize_t xoffset_show(struct device *dev,
+ 			    struct device_attribute *attr, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_x);
+ }
+-static DEVICE_ATTR(xoffset, S_IRUGO, show_xoffset, NULL);
++static DEVICE_ATTR_RO(xoffset);
+ 
+-static ssize_t show_yoffset(struct device *dev,
++static ssize_t yoffset_show(struct device *dev,
+ 			    struct device_attribute *attr, char *buf)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_y);
+ }
+-static DEVICE_ATTR(yoffset, S_IRUGO, show_yoffset, NULL);
++static DEVICE_ATTR_RO(yoffset);
+ 
+ static ssize_t image_read(struct file *file, struct kobject *kobj,
+ 	       struct bin_attribute *attr, char *buf, loff_t off, size_t count)
+diff --git a/drivers/acpi/device_sysfs.c b/drivers/acpi/device_sysfs.c
+index 75e412b2b660..fe8c7e79f472 100644
+--- a/drivers/acpi/device_sysfs.c
++++ b/drivers/acpi/device_sysfs.c
+@@ -325,11 +325,11 @@ int acpi_device_modalias(struct device *dev, char *buf, int size)
+ EXPORT_SYMBOL_GPL(acpi_device_modalias);
+ 
+ static ssize_t
+-acpi_device_modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
++modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	return __acpi_device_modalias(to_acpi_device(dev), buf, 1024);
+ }
+-static DEVICE_ATTR(modalias, 0444, acpi_device_modalias_show, NULL);
++static DEVICE_ATTR_RO(modalias);
+ 
+ static ssize_t real_power_state_show(struct device *dev,
+ 				     struct device_attribute *attr, char *buf)
+@@ -358,8 +358,8 @@ static ssize_t power_state_show(struct device *dev,
+ static DEVICE_ATTR_RO(power_state);
+ 
+ static ssize_t
+-acpi_eject_store(struct device *d, struct device_attribute *attr,
+-		const char *buf, size_t count)
++eject_store(struct device *d, struct device_attribute *attr,
++	    const char *buf, size_t count)
+ {
+ 	struct acpi_device *acpi_device = to_acpi_device(d);
+ 	acpi_object_type not_used;
+@@ -387,28 +387,28 @@ acpi_eject_store(struct device *d, struct device_attribute *attr,
+ 	return status == AE_NO_MEMORY ? -ENOMEM : -EAGAIN;
+ }
+ 
+-static DEVICE_ATTR(eject, 0200, NULL, acpi_eject_store);
++static DEVICE_ATTR_WO(eject);
+ 
+ static ssize_t
+-acpi_device_hid_show(struct device *dev, struct device_attribute *attr, char *buf)
++hid_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 
+ 	return sprintf(buf, "%s\n", acpi_device_hid(acpi_dev));
+ }
+-static DEVICE_ATTR(hid, 0444, acpi_device_hid_show, NULL);
++static DEVICE_ATTR_RO(hid);
+ 
+-static ssize_t acpi_device_uid_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
++static ssize_t uid_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
+ {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 
+ 	return sprintf(buf, "%s\n", acpi_dev->pnp.unique_id);
+ }
+-static DEVICE_ATTR(uid, 0444, acpi_device_uid_show, NULL);
++static DEVICE_ATTR_RO(uid);
+ 
+-static ssize_t acpi_device_adr_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
++static ssize_t adr_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
+ {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 
+@@ -417,16 +417,16 @@ static ssize_t acpi_device_adr_show(struct device *dev,
+ 	else
+ 		return sprintf(buf, "0x%08llx\n", acpi_dev->pnp.bus_address);
+ }
+-static DEVICE_ATTR(adr, 0444, acpi_device_adr_show, NULL);
++static DEVICE_ATTR_RO(adr);
+ 
+-static ssize_t acpi_device_path_show(struct device *dev,
+-				     struct device_attribute *attr, char *buf)
++static ssize_t path_show(struct device *dev,
++			 struct device_attribute *attr, char *buf)
+ {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 
+ 	return acpi_object_path(acpi_dev->handle, buf);
+ }
+-static DEVICE_ATTR(path, 0444, acpi_device_path_show, NULL);
++static DEVICE_ATTR_RO(path);
+ 
+ /* sysfs file that shows description text from the ACPI _STR method */
+ static ssize_t description_show(struct device *dev,
+@@ -455,8 +455,8 @@ static ssize_t description_show(struct device *dev,
+ static DEVICE_ATTR_RO(description);
+ 
+ static ssize_t
+-acpi_device_sun_show(struct device *dev, struct device_attribute *attr,
+-		     char *buf) {
++sun_show(struct device *dev, struct device_attribute *attr,
++	 char *buf) {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 	acpi_status status;
+ 	unsigned long long sun;
+@@ -467,11 +467,11 @@ acpi_device_sun_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	return sprintf(buf, "%llu\n", sun);
+ }
+-static DEVICE_ATTR(sun, 0444, acpi_device_sun_show, NULL);
++static DEVICE_ATTR_RO(sun);
+ 
+ static ssize_t
+-acpi_device_hrv_show(struct device *dev, struct device_attribute *attr,
+-		     char *buf) {
++hrv_show(struct device *dev, struct device_attribute *attr,
++	 char *buf) {
+ 	struct acpi_device *acpi_dev = to_acpi_device(dev);
+ 	acpi_status status;
+ 	unsigned long long hrv;
+@@ -482,7 +482,7 @@ acpi_device_hrv_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	return sprintf(buf, "%llu\n", hrv);
+ }
+-static DEVICE_ATTR(hrv, 0444, acpi_device_hrv_show, NULL);
++static DEVICE_ATTR_RO(hrv);
+ 
+ static ssize_t status_show(struct device *dev, struct device_attribute *attr,
+ 				char *buf) {
+diff --git a/drivers/acpi/dock.c b/drivers/acpi/dock.c
+index 24e076f44d23..0937ceab052e 100644
+--- a/drivers/acpi/dock.c
++++ b/drivers/acpi/dock.c
+@@ -484,7 +484,7 @@ int dock_notify(struct acpi_device *adev, u32 event)
+ /*
+  * show_docked - read method for "docked" file in sysfs
+  */
+-static ssize_t show_docked(struct device *dev,
++static ssize_t docked_show(struct device *dev,
+ 			   struct device_attribute *attr, char *buf)
+ {
+ 	struct dock_station *dock_station = dev->platform_data;
+@@ -493,25 +493,25 @@ static ssize_t show_docked(struct device *dev,
+ 	acpi_bus_get_device(dock_station->handle, &adev);
+ 	return snprintf(buf, PAGE_SIZE, "%u\n", acpi_device_enumerated(adev));
+ }
+-static DEVICE_ATTR(docked, S_IRUGO, show_docked, NULL);
++static DEVICE_ATTR_RO(docked);
+ 
+ /*
+  * show_flags - read method for flags file in sysfs
+  */
+-static ssize_t show_flags(struct device *dev,
++static ssize_t flags_show(struct device *dev,
+ 			  struct device_attribute *attr, char *buf)
+ {
+ 	struct dock_station *dock_station = dev->platform_data;
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", dock_station->flags);
+ 
+ }
+-static DEVICE_ATTR(flags, S_IRUGO, show_flags, NULL);
++static DEVICE_ATTR_RO(flags);
+ 
+ /*
+  * write_undock - write method for "undock" file in sysfs
+  */
+-static ssize_t write_undock(struct device *dev, struct device_attribute *attr,
+-			   const char *buf, size_t count)
++static ssize_t undock_store(struct device *dev, struct device_attribute *attr,
++			    const char *buf, size_t count)
+ {
+ 	int ret;
+ 	struct dock_station *dock_station = dev->platform_data;
+@@ -525,13 +525,13 @@ static ssize_t write_undock(struct device *dev, struct device_attribute *attr,
+ 	acpi_scan_lock_release();
+ 	return ret ? ret: count;
+ }
+-static DEVICE_ATTR(undock, S_IWUSR, NULL, write_undock);
++static DEVICE_ATTR_WO(undock);
+ 
+ /*
+  * show_dock_uid - read method for "uid" file in sysfs
+  */
+-static ssize_t show_dock_uid(struct device *dev,
+-			     struct device_attribute *attr, char *buf)
++static ssize_t uid_show(struct device *dev,
++			struct device_attribute *attr, char *buf)
+ {
+ 	unsigned long long lbuf;
+ 	struct dock_station *dock_station = dev->platform_data;
+@@ -542,10 +542,10 @@ static ssize_t show_dock_uid(struct device *dev,
+ 
+ 	return snprintf(buf, PAGE_SIZE, "%llx\n", lbuf);
+ }
+-static DEVICE_ATTR(uid, S_IRUGO, show_dock_uid, NULL);
++static DEVICE_ATTR_RO(uid);
+ 
+-static ssize_t show_dock_type(struct device *dev,
+-		struct device_attribute *attr, char *buf)
++static ssize_t type_show(struct device *dev,
++			 struct device_attribute *attr, char *buf)
+ {
+ 	struct dock_station *dock_station = dev->platform_data;
+ 	char *type;
+@@ -561,7 +561,7 @@ static ssize_t show_dock_type(struct device *dev,
+ 
+ 	return snprintf(buf, PAGE_SIZE, "%s\n", type);
+ }
+-static DEVICE_ATTR(type, S_IRUGO, show_dock_type, NULL);
++static DEVICE_ATTR_RO(type);
+ 
+ static struct attribute *dock_attributes[] = {
+ 	&dev_attr_docked.attr,
+diff --git a/drivers/acpi/power.c b/drivers/acpi/power.c
+index 8048da85b7e0..61115ed8b93f 100644
+--- a/drivers/acpi/power.c
++++ b/drivers/acpi/power.c
+@@ -886,15 +886,16 @@ static void acpi_release_power_resource(struct device *dev)
+ 	kfree(resource);
+ }
+ 
+-static ssize_t acpi_power_in_use_show(struct device *dev,
+-				      struct device_attribute *attr,
+-				      char *buf) {
++static ssize_t resource_in_use_show(struct device *dev,
++				    struct device_attribute *attr,
++				    char *buf)
 +{
-+	regmap_write(dsi->grf_regmap, dsi->cdata->lcdsel_grf_reg,
-+		mux ? dsi->cdata->lcdsel_lit : dsi->cdata->lcdsel_big);
-+}
-+
- static int
- dw_mipi_dsi_encoder_atomic_check(struct drm_encoder *encoder,
- 				 struct drm_crtc_state *crtc_state,
-@@ -767,9 +769,9 @@ static void dw_mipi_dsi_encoder_enable(struct drm_encoder *encoder)
- 		return;
- 	}
+ 	struct acpi_power_resource *resource;
  
--	dw_mipi_dsi_rockchip_config(dsi, mux);
-+	dw_mipi_dsi_rockchip_set_lcdsel(dsi, mux);
- 	if (dsi->slave)
--		dw_mipi_dsi_rockchip_config(dsi->slave, mux);
-+		dw_mipi_dsi_rockchip_set_lcdsel(dsi->slave, mux);
- 
- 	clk_disable_unprepare(dsi->grf_clk);
+ 	resource = to_power_resource(to_acpi_device(dev));
+ 	return sprintf(buf, "%u\n", !!resource->ref_count);
  }
-@@ -923,6 +925,24 @@ static int dw_mipi_dsi_rockchip_bind(struct device *dev,
- 		return ret;
- 	}
+-static DEVICE_ATTR(resource_in_use, 0444, acpi_power_in_use_show, NULL);
++static DEVICE_ATTR_RO(resource_in_use);
  
-+	/*
-+	 * With the GRF clock running, write lane and dual-mode configurations
-+	 * that won't change immediately. If we waited until enable() to do
-+	 * this, things like panel preparation would not be able to send
-+	 * commands over DSI.
-+	 */
-+	ret = clk_prepare_enable(dsi->grf_clk);
-+	if (ret) {
-+		DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
-+		return ret;
-+	}
-+
-+	dw_mipi_dsi_rockchip_config(dsi);
-+	if (dsi->slave)
-+		dw_mipi_dsi_rockchip_config(dsi->slave);
-+
-+	clk_disable_unprepare(dsi->grf_clk);
-+
- 	ret = rockchip_dsi_drm_create_encoder(dsi, drm_dev);
- 	if (ret) {
- 		DRM_DEV_ERROR(dev, "Failed to create drm encoder\n");
+ static void acpi_power_sysfs_remove(struct acpi_device *device)
+ {
 -- 
 2.30.2
 
