@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 549AE3C48B2
+	by mail.lfdr.de (Postfix) with ESMTP id 9CFFC3C48B3
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235722AbhGLGkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
+        id S235740AbhGLGkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237954AbhGLGjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1D20611BF;
-        Mon, 12 Jul 2021 06:35:48 +0000 (UTC)
+        id S237969AbhGLGjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 903BD611AF;
+        Mon, 12 Jul 2021 06:35:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071749;
-        bh=9brvtHm5P1xX4on/zdIiSZ+3b4pLzhJ4IaEBj2zRwds=;
+        s=korg; t=1626071754;
+        bh=AaVeBHJ+hq/UItHnqJAyBABInzgok6huWFHNOds8KoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqMxBbd4CBGB1IG2MoIMTrlWv/0xeum1Rhbhf4aibHEcDsjwKz+5dIGAuyU/P39e2
-         lE/ba8Z0hcnI1Gm3HYvnwm16M1OM2a4jThkkBBac9RAdtQCIUWT22GjwOoXTSrMzwH
-         9+JmMYG6StY6MP42OKcpsEw35hwnwTzF5ddyWtys=
+        b=sK3wCGFx0Rb6uyINBEPYRcrEmR2fdCTi61wbB4wWTrnW0n564p/N0Z5I3EpE1PoT8
+         Ba3lsLJ/gHdzjOugE+AyGDf0qF00DbXilNEbuzf2XFcw6uq+uhLf4CHp0047TH8AB1
+         EWdz5EFxRRbVowoSZPnPxjhybB9TZsxW8VBc4x7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 160/593] btrfs: disable build on platforms having page size 256K
-Date:   Mon, 12 Jul 2021 08:05:20 +0200
-Message-Id: <20210712060900.656471260@linuxfoundation.org>
+Subject: [PATCH 5.10 162/593] lockding/lockdep: Avoid to find wrong lock dep path in check_irq_usage()
+Date:   Mon, 12 Jul 2021 08:05:22 +0200
+Message-Id: <20210712060900.878110304@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,52 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
+[ Upstream commit 7b1f8c6179769af6ffa055e1169610b51d71edd5 ]
 
-With a config having PAGE_SIZE set to 256K, BTRFS build fails
-with the following message
+In the step #3 of check_irq_usage(), we seach backwards to find a lock
+whose usage conflicts the usage of @target_entry1 on safe/unsafe.
+However, we should only keep the irq-unsafe usage of @target_entry1 into
+consideration, because it could be a case where a lock is hardirq-unsafe
+but soft-safe, and in check_irq_usage() we find it because its
+hardirq-unsafe could result into a hardirq-safe-unsafe deadlock, but
+currently since we don't filter out the other usage bits, so we may find
+a lock dependency path softirq-unsafe -> softirq-safe, which in fact
+doesn't cause a deadlock. And this may cause misleading lockdep splats.
 
-  include/linux/compiler_types.h:326:38: error: call to
-  '__compiletime_assert_791' declared with attribute error:
-  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
+Fix this by only keeping LOCKF_ENABLED_IRQ_ALL bits when we try the
+backwards search.
 
-BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
-256K pages at the time being.
-
-There are two platforms that can select 256K pages:
- - hexagon
- - powerpc
-
-Disable BTRFS when 256K page size is selected. Supporting this would
-require changes to the subpage mode that's currently being developed.
-Given that 256K is many times larger than page sizes commonly used and
-for what the algorithms and structures have been tuned, it's out of
-scope and disabling build is a reasonable option.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20210618170110.3699115-4-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/locking/lockdep.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
-index 68b95ad82126..520a0f6a7d9e 100644
---- a/fs/btrfs/Kconfig
-+++ b/fs/btrfs/Kconfig
-@@ -18,6 +18,8 @@ config BTRFS_FS
- 	select RAID6_PQ
- 	select XOR_BLOCKS
- 	select SRCU
-+	depends on !PPC_256K_PAGES	# powerpc
-+	depends on !PAGE_SIZE_256KB	# hexagon
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 78b51b8ad4f6..788629c06ce9 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -2764,8 +2764,18 @@ static int check_irq_usage(struct task_struct *curr, struct held_lock *prev,
+ 	 * Step 3: we found a bad match! Now retrieve a lock from the backward
+ 	 * list whose usage mask matches the exclusive usage mask from the
+ 	 * lock found on the forward list.
++	 *
++	 * Note, we should only keep the LOCKF_ENABLED_IRQ_ALL bits, considering
++	 * the follow case:
++	 *
++	 * When trying to add A -> B to the graph, we find that there is a
++	 * hardirq-safe L, that L -> ... -> A, and another hardirq-unsafe M,
++	 * that B -> ... -> M. However M is **softirq-safe**, if we use exact
++	 * invert bits of M's usage_mask, we will find another lock N that is
++	 * **softirq-unsafe** and N -> ... -> A, however N -> .. -> M will not
++	 * cause a inversion deadlock.
+ 	 */
+-	backward_mask = original_mask(target_entry1->class->usage_mask);
++	backward_mask = original_mask(target_entry1->class->usage_mask & LOCKF_ENABLED_IRQ_ALL);
  
- 	help
- 	  Btrfs is a general purpose copy-on-write filesystem with extents,
+ 	ret = find_usage_backwards(&this, backward_mask, &target_entry);
+ 	if (bfs_error(ret)) {
 -- 
 2.30.2
 
