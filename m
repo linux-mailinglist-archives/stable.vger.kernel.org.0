@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 407913C4ABF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F833C553D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240503AbhGLGxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51166 "EHLO mail.kernel.org"
+        id S1355446AbhGLIJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240400AbhGLGvv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:51:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 743E8610CD;
-        Mon, 12 Jul 2021 06:48:35 +0000 (UTC)
+        id S1353350AbhGLIBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E921761206;
+        Mon, 12 Jul 2021 07:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072515;
-        bh=+bAoQ0SGH8BFAAnLNnw/Ccd3B/3xmnMR6i7uG05TdAY=;
+        s=korg; t=1626076480;
+        bh=ZPvWtGw0c4LvyKMWE4H3jIhWYHrzlmLduWpQWw2PlPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1D6xDvwLUCxZ2zbFhwdOVsTO9RxXQRrpuQXvpKV5BSBCODVF1V8Guh/gGAEQGG51
-         KxbjCYRqEisDP/CplSnbBJ0PuOm+MX9sxi384tLAvDWug3PqsWaCwCU5xzDvkr/b9c
-         1e/o7HzgoZbYKzrNRFUNsTDcgiV5f0Mw4I4WwIJU=
+        b=uj9CtqeNUS7Psqhcc1wUkEoUUpzTD0eN06pjw49vMiz+eW3d9/bAI4KNvPIXEOcJL
+         l6GcNpryvYrnFp4d3EXpNmycgM/aReavJYgq7Nz7CtRa7i0wwEDUR0LImmyqOeau7+
+         FFH+DhZGIAmOngw2EQrYyd5GABw9zsHstFWxB3Ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 480/593] leds: lm3532: select regmap I2C API
-Date:   Mon, 12 Jul 2021 08:10:40 +0200
-Message-Id: <20210712060943.432201180@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 618/800] iio: accel: hid: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 12 Jul 2021 08:10:41 +0200
+Message-Id: <20210712061033.065988828@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 99be74f61cb0292b518f5e6d7e5c6611555c2ec7 ]
+[ Upstream commit c6559bf796ccdb3a0c79db846af96c8f7046880b ]
 
-Regmap APIs should be selected, otherwise link can fail
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
+Note this matches what was done in all the other hid sensor drivers.
+This one was missed previously due to an extra level of indirection.
 
-ERROR: modpost: "__devm_regmap_init_i2c" [drivers/leds/leds-lm3532.ko] undefined!
+Found during an audit of all calls of this function.
 
-Fixes: bc1b8492c764 ("leds: lm3532: Introduce the lm3532 LED driver")
-Cc: Dan Murphy <dmurphy@ti.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-4-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/accel/hid-sensor-accel-3d.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 849d3c5f908e..56e8198e13d1 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -199,6 +199,7 @@ config LEDS_LM3530
+diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
+index 2f9465cb382f..27f47e1c251e 100644
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -28,8 +28,11 @@ struct accel_3d_state {
+ 	struct hid_sensor_hub_callbacks callbacks;
+ 	struct hid_sensor_common common_attributes;
+ 	struct hid_sensor_hub_attribute_info accel[ACCEL_3D_CHANNEL_MAX];
+-	/* Reserve for 3 channels + padding + timestamp */
+-	u32 accel_val[ACCEL_3D_CHANNEL_MAX + 3];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u32 accel_val[3];
++		s64 timestamp __aligned(8);
++	} scan;
+ 	int scale_pre_decml;
+ 	int scale_post_decml;
+ 	int scale_precision;
+@@ -245,8 +248,8 @@ static int accel_3d_proc_event(struct hid_sensor_hub_device *hsdev,
+ 			accel_state->timestamp = iio_get_time_ns(indio_dev);
  
- config LEDS_LM3532
- 	tristate "LCD Backlight driver for LM3532"
-+	select REGMAP_I2C
- 	depends on LEDS_CLASS
- 	depends on I2C
- 	help
+ 		hid_sensor_push_data(indio_dev,
+-				     accel_state->accel_val,
+-				     sizeof(accel_state->accel_val),
++				     &accel_state->scan,
++				     sizeof(accel_state->scan),
+ 				     accel_state->timestamp);
+ 
+ 		accel_state->timestamp = 0;
+@@ -271,7 +274,7 @@ static int accel_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
+ 	case HID_USAGE_SENSOR_ACCEL_Y_AXIS:
+ 	case HID_USAGE_SENSOR_ACCEL_Z_AXIS:
+ 		offset = usage_id - HID_USAGE_SENSOR_ACCEL_X_AXIS;
+-		accel_state->accel_val[CHANNEL_SCAN_INDEX_X + offset] =
++		accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =
+ 						*(u32 *)raw_data;
+ 		ret = 0;
+ 	break;
 -- 
 2.30.2
 
