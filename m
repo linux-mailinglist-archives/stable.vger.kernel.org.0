@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D133C47E1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E67A3C47C9
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236391AbhGLGfT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S235355AbhGLGfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233564AbhGLGcT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:32:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CB41610CC;
-        Mon, 12 Jul 2021 06:29:30 +0000 (UTC)
+        id S236300AbhGLGcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1271610D0;
+        Mon, 12 Jul 2021 06:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071371;
-        bh=Uafy6yI/KrnOmUrVF3V+DbgcJ8VbSGLH4NJww2oNCQs=;
+        s=korg; t=1626071373;
+        bh=VjnYI8xQUXJW6z2gqk3m3e5NP29u+x/ApUeMkI2A5sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDcf2kihFPhkvbHg4s9sRqipsiaaxZdnLdNrqL4TIyL1VARA31YxOAPMCsZ+xmEHf
-         jRMuH2e+fWEwHTjCKtXYb2E1wtoGKRQI/S1whOOe9VMkSnTWFvnmSzJFMoqgPwlum0
-         RaaWh67qZy2g0Ie22SPZ86rfz1FNB0fJHqXqDn14=
+        b=ocbygljvn6JXXZjT2JIs7Afn2jXB+yBIZ5pcfbPmBrFJH+ElAYV6y0GQ5x4YscS+2
+         Xrbvxbfqn6JeHfADMszGZgnkaR9XAVpA+2aN0YUiNEJ6BABAZl9nDqT7gzX9u8dknW
+         1IG1xeA+CkRXVz8RTvLrqwiESDn3+XNil681OCV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.10 041/593] btrfs: clear defrag status of a root if starting transaction fails
-Date:   Mon, 12 Jul 2021 08:03:21 +0200
-Message-Id: <20210712060847.700601407@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.10 042/593] ext4: cleanup in-core orphan list if ext4_truncate() failed to get a transaction handle
+Date:   Mon, 12 Jul 2021 08:03:22 +0200
+Message-Id: <20210712060847.797932241@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,41 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-commit 6819703f5a365c95488b07066a8744841bf14231 upstream.
+commit b9a037b7f3c401d3c63e0423e56aef606b1ffaaf upstream.
 
-The defrag loop processes leaves in batches and starting transaction for
-each. The whole defragmentation on a given root is protected by a bit
-but in case the transaction fails, the bit is not cleared
+In ext4_orphan_cleanup(), if ext4_truncate() failed to get a transaction
+handle, it didn't remove the inode from the in-core orphan list, which
+may probably trigger below error dump in ext4_destroy_inode() during the
+final iput() and could lead to memory corruption on the later orphan
+list changes.
 
-In case the transaction fails the bit would prevent starting
-defragmentation again, so make sure it's cleared.
+ EXT4-fs (sda): Inode 6291467 (00000000b8247c67): orphan list check failed!
+ 00000000b8247c67: 0001f30a 00000004 00000000 00000023  ............#...
+ 00000000e24cde71: 00000006 014082a3 00000000 00000000  ......@.........
+ 0000000072c6a5ee: 00000000 00000000 00000000 00000000  ................
+ ...
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This patch fix this by cleanup in-core orphan list manually if
+ext4_truncate() return error.
+
+Cc: stable@kernel.org
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210507071904.160808-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/transaction.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ext4/super.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1382,8 +1382,10 @@ int btrfs_defrag_root(struct btrfs_root
- 
- 	while (1) {
- 		trans = btrfs_start_transaction(root, 0);
--		if (IS_ERR(trans))
--			return PTR_ERR(trans);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+			break;
-+		}
- 
- 		ret = btrfs_defrag_leaves(trans, root);
- 
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -3099,8 +3099,15 @@ static void ext4_orphan_cleanup(struct s
+ 			inode_lock(inode);
+ 			truncate_inode_pages(inode->i_mapping, inode->i_size);
+ 			ret = ext4_truncate(inode);
+-			if (ret)
++			if (ret) {
++				/*
++				 * We need to clean up the in-core orphan list
++				 * manually if ext4_truncate() failed to get a
++				 * transaction handle.
++				 */
++				ext4_orphan_del(NULL, inode);
+ 				ext4_std_error(inode->i_sb, ret);
++			}
+ 			inode_unlock(inode);
+ 			nr_truncates++;
+ 		} else {
 
 
