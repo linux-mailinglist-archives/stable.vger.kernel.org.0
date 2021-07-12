@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B19473C5583
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9559F3C4B05
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbhGLIKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
+        id S239377AbhGLGzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353703AbhGLICr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9BD16142F;
-        Mon, 12 Jul 2021 07:56:42 +0000 (UTC)
+        id S240839AbhGLGyD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99B5760FDB;
+        Mon, 12 Jul 2021 06:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076603;
-        bh=6goBKYCxXDesPc88ecFa8J1E8KMZ+jhFDyRaPcWVJ18=;
+        s=korg; t=1626072676;
+        bh=0Mhtj2ALqFzzEzlMYegUNK373szXjXHWvZKnVqs60so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUjBxeedlzmoQGF88Lcwf7lszEzhluLitnFv6BsQRarpqmXlanmoilzVnoG7ZZEg9
-         l3fRCmavdhOt2Lh4a6OWDW5fCJNiL35sxp0ae3PRoKgKjy8k9PTfLwYeZGxK3Zb0fV
-         4mo5+1C8ma9a2IwlcwuCqH73Wf8vMNXL3zu0BHkY=
+        b=CLKKeQ2yxHty2ldd7ythW0aKH/gTuX1mIbyw1ZFjIXKf4LytwBpdBTRK4lHCGRk3A
+         v+uoKT/DRiELwHGXl80jiJB+JpdPuGKiACcjadtMi/NJqtBxbcjWPrk+VHLjE8o3K+
+         ALU9brEn45AfhhcKDGIg2oBFD81cd/FART6PR7bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 715/800] ASoC: fsl_spdif: Fix error handler with pm_runtime_enable
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guo Ren <guoren@kernel.org>, linux-csky@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 578/593] csky: fix syscache.c fallthrough warning
 Date:   Mon, 12 Jul 2021 08:12:18 +0200
-Message-Id: <20210712061042.823613200@linuxfoundation.org>
+Message-Id: <20210712060958.712874417@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 28108d71ee11a7232e1102effab3361049dcd3b8 ]
+[ Upstream commit 0679d29d3e2351a1c3049c26a63ce1959cad5447 ]
 
-There is error message when defer probe happens:
+This case of the switch statement falls through to the following case.
+This appears to be on purpose, so declare it as OK.
 
-fsl-spdif-dai 2dab0000.spdif: Unbalanced pm_runtime_enable!
+../arch/csky/mm/syscache.c: In function '__do_sys_cacheflush':
+../arch/csky/mm/syscache.c:17:3: warning: this statement may fall through [-Wimplicit-fallthrough=]
+   17 |   flush_icache_mm_range(current->mm,
+      |   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   18 |     (unsigned long)addr,
+      |     ~~~~~~~~~~~~~~~~~~~~
+   19 |     (unsigned long)addr + bytes);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+../arch/csky/mm/syscache.c:20:2: note: here
+   20 |  case DCACHE:
+      |  ^~~~
 
-Fix the error handler with pm_runtime_enable and add
-fsl_spdif_remove() for pm_runtime_disable.
-
-Fixes: 9cb2b3796e08 ("ASoC: fsl_spdif: Add pm runtime function")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Link: https://lore.kernel.org/r/1623392318-26304-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 997153b9a75c ("csky: Add flush_icache_mm to defer flush icache all")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Cc: linux-csky@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_spdif.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ arch/csky/mm/syscache.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
-index c631de325a6e..5636837eb511 100644
---- a/sound/soc/fsl/fsl_spdif.c
-+++ b/sound/soc/fsl/fsl_spdif.c
-@@ -1375,16 +1375,29 @@ static int fsl_spdif_probe(struct platform_device *pdev)
- 					      &spdif_priv->cpu_dai_drv, 1);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to register DAI: %d\n", ret);
--		return ret;
-+		goto err_pm_disable;
- 	}
- 
- 	ret = imx_pcm_dma_init(pdev, IMX_SPDIF_DMABUF_SIZE);
--	if (ret && ret != -EPROBE_DEFER)
--		dev_err(&pdev->dev, "imx_pcm_dma_init failed: %d\n", ret);
-+	if (ret) {
-+		dev_err_probe(&pdev->dev, ret, "imx_pcm_dma_init failed\n");
-+		goto err_pm_disable;
-+	}
-+
-+	return ret;
- 
-+err_pm_disable:
-+	pm_runtime_disable(&pdev->dev);
- 	return ret;
- }
- 
-+static int fsl_spdif_remove(struct platform_device *pdev)
-+{
-+	pm_runtime_disable(&pdev->dev);
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PM
- static int fsl_spdif_runtime_suspend(struct device *dev)
- {
-@@ -1487,6 +1500,7 @@ static struct platform_driver fsl_spdif_driver = {
- 		.pm = &fsl_spdif_pm,
- 	},
- 	.probe = fsl_spdif_probe,
-+	.remove = fsl_spdif_remove,
- };
- 
- module_platform_driver(fsl_spdif_driver);
+diff --git a/arch/csky/mm/syscache.c b/arch/csky/mm/syscache.c
+index ffade2f9a4c8..4e51d63850c4 100644
+--- a/arch/csky/mm/syscache.c
++++ b/arch/csky/mm/syscache.c
+@@ -17,6 +17,7 @@ SYSCALL_DEFINE3(cacheflush,
+ 		flush_icache_mm_range(current->mm,
+ 				(unsigned long)addr,
+ 				(unsigned long)addr + bytes);
++		fallthrough;
+ 	case DCACHE:
+ 		dcache_wb_range((unsigned long)addr,
+ 				(unsigned long)addr + bytes);
 -- 
 2.30.2
 
