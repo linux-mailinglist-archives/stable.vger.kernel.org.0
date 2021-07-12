@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE333C4E5A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 658D33C4E5E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244315AbhGLHSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54822 "EHLO mail.kernel.org"
+        id S244420AbhGLHSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243919AbhGLHRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB25C610A6;
-        Mon, 12 Jul 2021 07:14:28 +0000 (UTC)
+        id S244038AbhGLHRV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC94061166;
+        Mon, 12 Jul 2021 07:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074069;
-        bh=z7U3MY4f6Y0b6ZUutogu3Nyqjy1yxBByU/HVNEf9hLw=;
+        s=korg; t=1626074072;
+        bh=ITf2kOBFrHtibITov2rWIXDp69ztjP1YPqNT9WUSwPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iOj3E7BKcKYSi3Ud9tu8cRN6gjoUHUyqywu2XJa9zRXxGwZBdj5nSO0i4Ldf+3w5J
-         mux7ybwFs3PRJ+wvbc1E86NdZYfYT7h4sDDGUXwHeprX06UqwhppEmh6FG9yZWCwzp
-         4MvnibmJvPY2CDFCP+DGmYCMjUxVVjt2RyPH3iKk=
+        b=x49E+p6HlkKjo52N2rxN9zcqg+CwExodZoRkR3i+PuQhvE+cJwyL16h7seMLqRLPz
+         n7TDKQpgZC/SuGEg4YS8pKm8tYllMKj+SeBGYG/bTP9Nz2qalOuuKVGT0kP0hmeByu
+         btRuU78Sflg5Qbopftub/vEreoSm/g4WoH3YItOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 455/700] iwlwifi: increase PNVM load timeout
-Date:   Mon, 12 Jul 2021 08:08:58 +0200
-Message-Id: <20210712061024.983424025@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Lorenz Bauer <lmb@cloudflare.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@google.com>
+Subject: [PATCH 5.12 456/700] bpf: Fix regression on BPF_OBJ_GET with non-O_RDWR flags
+Date:   Mon, 12 Jul 2021 08:08:59 +0200
+Message-Id: <20210712061025.074814049@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,46 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit 5cc816ef9db1fe03f73e56e9d8f118add9c6efe4 ]
+[ Upstream commit 5dec6d96d12d33900ec315972c8e47a73bcc378d ]
 
-The FW has a watchdog of 200ms in the PNVM load flow, so the driver
-should have a slightly higher timeout.  Change the timeout from 100ms
-to 250ms.
+This reverts commit d37300ed1821 ("bpf: program: Refuse non-O_RDWR flags
+in BPF_OBJ_GET"). It breaks Android userspace which expects to be able to
+fetch programs with just read permissions.
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Fixes: 70d3ca86b025 ("iwlwifi: mvm: ring the doorbell and wait for PNVM load completion")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210612142637.ba22aec1e2be.I36bfadc28c480f4fc57266c075a79e8ea4a6934f@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+See: https://cs.android.com/android/platform/superproject/+/master:frameworks/libs/net/common/native/bpf_syscall_wrappers/include/BpfSyscallWrappers.h;drc=7005c764be23d31fa1d69e826b4a2f6689a8c81e;l=124
+
+Side-note: another option to fix it would be to extend bpf_prog_new_fd()
+and to pass in used file mode flags in the same way as we do for maps via
+bpf_map_new_fd(). Meaning, they'd end up in anon_inode_getfd() and thus
+would be retained for prog fd operations with bpf() syscall. Right now
+these flags are not checked with progs since they are immutable for their
+lifetime (as opposed to maps which can be updated from user space). In
+future this could potentially change with new features, but at that point
+it's still fine to do the bpf_prog_new_fd() extension when needed. For a
+simple stable fix, a revert is less churn.
+
+Fixes: d37300ed1821 ("bpf: program: Refuse non-O_RDWR flags in BPF_OBJ_GET")
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+[ Daniel: added side-note to commit message ]
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Lorenz Bauer <lmb@cloudflare.com>
+Acked-by: Greg Kroah-Hartman <gregkh@google.com>
+Link: https://lore.kernel.org/bpf/20210618105526.265003-1-zenczykowski@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/pnvm.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-index e4f91bce222d..61d3d4e0b7d9 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/pnvm.h
-@@ -1,7 +1,7 @@
- /* SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause */
- /******************************************************************************
-  *
-- * Copyright(c) 2020 Intel Corporation
-+ * Copyright(c) 2020-2021 Intel Corporation
-  *
-  *****************************************************************************/
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index d2de2abec35b..dc56237d6960 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -543,7 +543,7 @@ int bpf_obj_get_user(const char __user *pathname, int flags)
+ 		return PTR_ERR(raw);
  
-@@ -10,7 +10,7 @@
- 
- #include "fw/notif-wait.h"
- 
--#define MVM_UCODE_PNVM_TIMEOUT	(HZ / 10)
-+#define MVM_UCODE_PNVM_TIMEOUT	(HZ / 4)
- 
- int iwl_pnvm_load(struct iwl_trans *trans,
- 		  struct iwl_notif_wait_data *notif_wait);
+ 	if (type == BPF_TYPE_PROG)
+-		ret = (f_flags != O_RDWR) ? -EINVAL : bpf_prog_new_fd(raw);
++		ret = bpf_prog_new_fd(raw);
+ 	else if (type == BPF_TYPE_MAP)
+ 		ret = bpf_map_new_fd(raw, f_flags);
+ 	else if (type == BPF_TYPE_LINK)
 -- 
 2.30.2
 
