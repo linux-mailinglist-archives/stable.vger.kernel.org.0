@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 708CC3C4E49
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58EC13C49A0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241912AbhGLHRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
+        id S235774AbhGLGpn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243746AbhGLHRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 568B961453;
-        Mon, 12 Jul 2021 07:14:05 +0000 (UTC)
+        id S239094AbhGLGor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2DBC611BF;
+        Mon, 12 Jul 2021 06:40:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074045;
-        bh=/d4Hy8kizaJtXGR5xC0HJdptpyoelwRmcH753Jp9+Jg=;
+        s=korg; t=1626072037;
+        bh=k9lUOSx4JQUMb60WioD4GJSZHk0MB1CYijcXGbPthhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NTq+N5V2xk/rmktmnKyfeEkDZDz3Vdps6bb2g+rbFtiw+SbddAYa+o/HhYK+dqh3
-         NJB5rlN4DljaVYmaOPkKleHxpSzzygtMJaPmptVkYMTO7RcBH5YKfp23wQYkG3qtPb
-         YYA1dyD9IO/WJJLt9LsWGC/V7u1ykX/5pRg+VlAk=
+        b=AgApRY5bu6kERcrQVt7qIMZl8mYEsJ8QBDtt4XXoNkHjAeMU6VpQmGHsDzy82hAMt
+         SUCtQQOxQvlLBuQYIiaDFDU5Wv/hKygZeeCmNYPRNkREJUkotf6oYOoXlqJUhHxgRf
+         ZEfAYcTX4CbBUi7mEa6ShUp6BRDAIFOFR+X5cyiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Christian Lamparter <chunkeey@googlemail.com>,
-        linux-wireless@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Christian Lamparter <chunkeey@gmail.com>,
+        stable@vger.kernel.org, Md Haris Iqbal <haris.iqbal@ionos.com>,
+        Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 403/700] wireless: carl9170: fix LEDS build errors & warnings
+Subject: [PATCH 5.10 326/593] RDMA/rtrs-clt: Check if the queue_depth has changed during a reconnection
 Date:   Mon, 12 Jul 2021 08:08:06 +0200
-Message-Id: <20210712061019.221697974@linuxfoundation.org>
+Message-Id: <20210712060921.554639083@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
 
-[ Upstream commit 272fdc0c4542fad173b44965be02a16d6db95499 ]
+[ Upstream commit 5b73b799c25c68a4703cd6c5ac4518006d9865b8 ]
 
-kernel test robot reports over 200 build errors and warnings
-that are due to this Kconfig problem when CARL9170=m,
-MAC80211=y, and LEDS_CLASS=m.
+The queue_depth is a module parameter for rtrs_server. It is used on the
+client side to determing the queue_depth of the request queue for the RNBD
+virtual block device.
 
-WARNING: unmet direct dependencies detected for MAC80211_LEDS
-  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
-  Selected by [m]:
-  - CARL9170_LEDS [=y] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && CARL9170 [=m]
+During a reconnection event for an already mapped device, in case the
+rtrs_server module queue_depth has changed, fail the reconnect attempt.
 
-CARL9170_LEDS selects MAC80211_LEDS even though its kconfig
-dependencies are not met. This happens because 'select' does not follow
-any Kconfig dependency chains.
+Also stop further auto reconnection attempts. A manual reconnect via
+sysfs has to be triggerred.
 
-Fix this by making CARL9170_LEDS depend on MAC80211_LEDS, where
-the latter supplies any needed dependencies on LEDS_CLASS.
-
-Fixes: 1d7e1e6b1b8ed ("carl9170: Makefile, Kconfig files and MAINTAINERS")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Christian Lamparter <chunkeey@googlemail.com>
-Cc: linux-wireless@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Christian Lamparter <chunkeey@googlemail.com>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210530031134.23274-1-rdunlap@infradead.org
+Fixes: 6a98d71daea18 ("RDMA/rtrs: client: main functionality")
+Link: https://lore.kernel.org/r/20210528113018.52290-20-jinpu.wang@ionos.com
+Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/carl9170/Kconfig | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-clt.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/carl9170/Kconfig b/drivers/net/wireless/ath/carl9170/Kconfig
-index b2d760873992..ba9bea79381c 100644
---- a/drivers/net/wireless/ath/carl9170/Kconfig
-+++ b/drivers/net/wireless/ath/carl9170/Kconfig
-@@ -16,13 +16,11 @@ config CARL9170
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+index 7d7dcc0a0458..dc44a9bfcdaa 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
+@@ -1727,7 +1727,19 @@ static int rtrs_rdma_conn_established(struct rtrs_clt_con *con,
+ 				  queue_depth);
+ 			return -ECONNRESET;
+ 		}
+-		if (!sess->rbufs || sess->queue_depth < queue_depth) {
++		if (sess->queue_depth > 0 && queue_depth != sess->queue_depth) {
++			rtrs_err(clt, "Error: queue depth changed\n");
++
++			/*
++			 * Stop any more reconnection attempts
++			 */
++			sess->reconnect_attempts = -1;
++			rtrs_err(clt,
++				"Disabling auto-reconnect. Trigger a manual reconnect after issue is resolved\n");
++			return -ECONNRESET;
++		}
++
++		if (!sess->rbufs) {
+ 			kfree(sess->rbufs);
+ 			sess->rbufs = kcalloc(queue_depth, sizeof(*sess->rbufs),
+ 					      GFP_KERNEL);
+@@ -1741,7 +1753,7 @@ static int rtrs_rdma_conn_established(struct rtrs_clt_con *con,
+ 		sess->chunk_size = sess->max_io_size + sess->max_hdr_size;
  
- config CARL9170_LEDS
- 	bool "SoftLED Support"
--	depends on CARL9170
--	select MAC80211_LEDS
--	select LEDS_CLASS
--	select NEW_LEDS
- 	default y
-+	depends on CARL9170
-+	depends on MAC80211_LEDS
- 	help
--	  This option is necessary, if you want your device' LEDs to blink
-+	  This option is necessary, if you want your device's LEDs to blink.
- 
- 	  Say Y, unless you need the LEDs for firmware debugging.
- 
+ 		/*
+-		 * Global queue depth and IO size is always a minimum.
++		 * Global IO size is always a minimum.
+ 		 * If while a reconnection server sends us a value a bit
+ 		 * higher - client does not care and uses cached minimum.
+ 		 *
+@@ -1749,8 +1761,7 @@ static int rtrs_rdma_conn_established(struct rtrs_clt_con *con,
+ 		 * connections in parallel, use lock.
+ 		 */
+ 		mutex_lock(&clt->paths_mutex);
+-		clt->queue_depth = min_not_zero(sess->queue_depth,
+-						clt->queue_depth);
++		clt->queue_depth = sess->queue_depth;
+ 		clt->max_io_size = min_not_zero(sess->max_io_size,
+ 						clt->max_io_size);
+ 		mutex_unlock(&clt->paths_mutex);
 -- 
 2.30.2
 
