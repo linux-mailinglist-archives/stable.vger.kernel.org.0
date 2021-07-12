@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36E3A3C4A17
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF143C541A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238376AbhGLGsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:48:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S1345769AbhGLH5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236151AbhGLGri (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:47:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A96F610F7;
-        Mon, 12 Jul 2021 06:43:25 +0000 (UTC)
+        id S240770AbhGLHwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:52:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B65F6112D;
+        Mon, 12 Jul 2021 07:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072205;
-        bh=WJJL3Ul7RmUo+3DBvprBYGqS18+SvRU3ae3N1cIHDFE=;
+        s=korg; t=1626076191;
+        bh=EPQo4y4FBsZF11pglyr36rMy9zlzUYnKYJywUyH4blQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4qS3rvhr+XOpuejEGClwNQY4jbndE4SeQLxrZyY1+2+OFYSEVNSfsmqPl/4Dknw+
-         OL0YgOWQ0agqMNGWH7X/AVoGXwzaFE9TGTQ91d88Bik5AfwzK4LspFDSQk15jm0Y++
-         V7GZ6KCNeKpTv0Xvk8Q6/S8LoxePOucxpEujizJc=
+        b=roDNLliG1RJCKAUweZtRRZAzk+4SR+GtvIDlHqbv/a0nf9oC8QYNp+ZAPyHvimxzx
+         7ehNoE1WBXPew/o9tN299E3PcptOIEVv1QFuIlDYxRW3Gw9j1k8p8dn5cfQ3vLZyRn
+         CVYWwCbEkiGhOmEHbq4RmDtN+VaBI013D102Mmos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 400/593] ibmvnic: set ltb->buff to NULL after freeing
+Subject: [PATCH 5.13 537/800] mptcp: avoid race on msk state changes
 Date:   Mon, 12 Jul 2021 08:09:20 +0200
-Message-Id: <20210712060931.603422327@linuxfoundation.org>
+Message-Id: <20210712061024.488418029@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +41,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 552a33729f1a7cc5115d0752064fe9abd6e3e336 ]
+[ Upstream commit 490274b47468793e3e157c2df6b2da0e646cc4a9 ]
 
-free_long_term_buff() checks ltb->buff to decide whether we have a long
-term buffer to free. So set ltb->buff to NULL afer freeing. While here,
-also clear ->map_id, fix up some coding style and log an error.
+The msk socket state is currently updated in a few spots without
+owning the msk socket lock itself.
 
-Fixes: 9c4eaabd1bb39 ("Check CRQ command return codes")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Some of such operations are safe, as they happens before exposing
+the msk socket to user-space and can't race with other changes.
+
+A couple of them, at connect time, can actually race with close()
+or shutdown(), leaving breaking the socket state machine.
+
+This change addresses the issue moving such update under the msk
+socket lock with the usual:
+
+<acquire spinlock>
+<check sk lock onwers>
+<ev defer to release_cb>
+
+scheme.
+
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/56
+Fixes: 8fd738049ac3 ("mptcp: fallback in case of simultaneous connect")
+Fixes: c3c123d16c0e ("net: mptcp: don't hang in mptcp_sendmsg() after TCP fallback")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ net/mptcp/protocol.c |  5 +++++
+ net/mptcp/protocol.h |  2 ++
+ net/mptcp/subflow.c  | 30 ++++++++++++++++++++++--------
+ 3 files changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 765b38c8b252..458619aa84f4 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -212,12 +212,11 @@ static int alloc_long_term_buff(struct ibmvnic_adapter *adapter,
- 	mutex_lock(&adapter->fw_lock);
- 	adapter->fw_done_rc = 0;
- 	reinit_completion(&adapter->fw_done);
--	rc = send_request_map(adapter, ltb->addr,
--			      ltb->size, ltb->map_id);
-+
-+	rc = send_request_map(adapter, ltb->addr, ltb->size, ltb->map_id);
- 	if (rc) {
--		dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
--		mutex_unlock(&adapter->fw_lock);
--		return rc;
-+		dev_err(dev, "send_request_map failed, rc = %d\n", rc);
-+		goto out;
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 632350018fb6..8ead550df8b1 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2946,6 +2946,11 @@ static void mptcp_release_cb(struct sock *sk)
+ 		spin_lock_bh(&sk->sk_lock.slock);
  	}
  
- 	rc = ibmvnic_wait_for_completion(adapter, &adapter->fw_done, 10000);
-@@ -225,20 +224,23 @@ static int alloc_long_term_buff(struct ibmvnic_adapter *adapter,
- 		dev_err(dev,
- 			"Long term map request aborted or timed out,rc = %d\n",
- 			rc);
--		dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
--		mutex_unlock(&adapter->fw_lock);
--		return rc;
-+		goto out;
- 	}
++	/* be sure to set the current sk state before tacking actions
++	 * depending on sk_state
++	 */
++	if (test_and_clear_bit(MPTCP_CONNECTED, &mptcp_sk(sk)->flags))
++		__mptcp_set_connected(sk);
+ 	if (test_and_clear_bit(MPTCP_CLEAN_UNA, &mptcp_sk(sk)->flags))
+ 		__mptcp_clean_una_wakeup(sk);
+ 	if (test_and_clear_bit(MPTCP_ERROR_REPORT, &mptcp_sk(sk)->flags))
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 5d7c44028e47..7b634568f49c 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -109,6 +109,7 @@
+ #define MPTCP_ERROR_REPORT	8
+ #define MPTCP_RETRANSMIT	9
+ #define MPTCP_WORK_SYNC_SETSOCKOPT 10
++#define MPTCP_CONNECTED		11
  
- 	if (adapter->fw_done_rc) {
- 		dev_err(dev, "Couldn't map long term buffer,rc = %d\n",
- 			adapter->fw_done_rc);
-+		rc = -1;
-+		goto out;
+ static inline bool before64(__u64 seq1, __u64 seq2)
+ {
+@@ -579,6 +580,7 @@ void mptcp_get_options(const struct sk_buff *skb,
+ 		       struct mptcp_options_received *mp_opt);
+ 
+ void mptcp_finish_connect(struct sock *sk);
++void __mptcp_set_connected(struct sock *sk);
+ static inline bool mptcp_is_fully_established(struct sock *sk)
+ {
+ 	return inet_sk_state_load(sk) == TCP_ESTABLISHED &&
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index f5bb3a0e9975..cbc452d0901e 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -371,6 +371,24 @@ static bool subflow_use_different_dport(struct mptcp_sock *msk, const struct soc
+ 	return inet_sk(sk)->inet_dport != inet_sk((struct sock *)msk)->inet_dport;
+ }
+ 
++void __mptcp_set_connected(struct sock *sk)
++{
++	if (sk->sk_state == TCP_SYN_SENT) {
++		inet_sk_state_store(sk, TCP_ESTABLISHED);
++		sk->sk_state_change(sk);
 +	}
-+	rc = 0;
-+out:
-+	if (rc) {
- 		dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
--		mutex_unlock(&adapter->fw_lock);
--		return -1;
-+		ltb->buff = NULL;
++}
++
++static void mptcp_set_connected(struct sock *sk)
++{
++	mptcp_data_lock(sk);
++	if (!sock_owned_by_user(sk))
++		__mptcp_set_connected(sk);
++	else
++		set_bit(MPTCP_CONNECTED, &mptcp_sk(sk)->flags);
++	mptcp_data_unlock(sk);
++}
++
+ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
+ {
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(sk);
+@@ -379,10 +397,6 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
+ 
+ 	subflow->icsk_af_ops->sk_rx_dst_set(sk, skb);
+ 
+-	if (inet_sk_state_load(parent) == TCP_SYN_SENT) {
+-		inet_sk_state_store(parent, TCP_ESTABLISHED);
+-		parent->sk_state_change(parent);
+-	}
+ 
+ 	/* be sure no special action on any packet other than syn-ack */
+ 	if (subflow->conn_finished)
+@@ -411,6 +425,7 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
+ 			 subflow->remote_key);
+ 		MPTCP_INC_STATS(sock_net(sk), MPTCP_MIB_MPCAPABLEACTIVEACK);
+ 		mptcp_finish_connect(sk);
++		mptcp_set_connected(parent);
+ 	} else if (subflow->request_join) {
+ 		u8 hmac[SHA256_DIGEST_SIZE];
+ 
+@@ -451,6 +466,7 @@ static void subflow_finish_connect(struct sock *sk, const struct sk_buff *skb)
+ 	} else if (mptcp_check_fallback(sk)) {
+ fallback:
+ 		mptcp_rcv_space_init(mptcp_sk(parent), sk);
++		mptcp_set_connected(parent);
  	}
- 	mutex_unlock(&adapter->fw_lock);
--	return 0;
-+	return rc;
- }
+ 	return;
  
- static void free_long_term_buff(struct ibmvnic_adapter *adapter,
-@@ -258,6 +260,8 @@ static void free_long_term_buff(struct ibmvnic_adapter *adapter,
- 	    adapter->reset_reason != VNIC_RESET_TIMEOUT)
- 		send_request_unmap(adapter, ltb->map_id);
- 	dma_free_coherent(dev, ltb->size, ltb->buff, ltb->addr);
-+	ltb->buff = NULL;
-+	ltb->map_id = 0;
- }
+@@ -558,6 +574,7 @@ static void mptcp_sock_destruct(struct sock *sk)
  
- static int reset_long_term_buff(struct ibmvnic_adapter *adapter,
+ static void mptcp_force_close(struct sock *sk)
+ {
++	/* the msk is not yet exposed to user-space */
+ 	inet_sk_state_store(sk, TCP_CLOSE);
+ 	sk_common_release(sk);
+ }
+@@ -1474,10 +1491,7 @@ static void subflow_state_change(struct sock *sk)
+ 		mptcp_rcv_space_init(mptcp_sk(parent), sk);
+ 		pr_fallback(mptcp_sk(parent));
+ 		subflow->conn_finished = 1;
+-		if (inet_sk_state_load(parent) == TCP_SYN_SENT) {
+-			inet_sk_state_store(parent, TCP_ESTABLISHED);
+-			parent->sk_state_change(parent);
+-		}
++		mptcp_set_connected(parent);
+ 	}
+ 
+ 	/* as recvmsg() does not acquire the subflow socket for ssk selection
 -- 
 2.30.2
 
