@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540EE3C5240
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDAEE3C4C8D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242488AbhGLHpM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50970 "EHLO mail.kernel.org"
+        id S242018AbhGLHGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244599AbhGLHmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:42:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB518601FE;
-        Mon, 12 Jul 2021 07:39:35 +0000 (UTC)
+        id S241822AbhGLHEG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:04:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59724611C2;
+        Mon, 12 Jul 2021 07:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075576;
-        bh=PmdTRyrk2fYR1G6c8lKyKUpIjHZZ4kzHvUHxo91goiw=;
+        s=korg; t=1626073278;
+        bh=ntd7N4ODXfPVCqUQ2oiN/qWeyj26zTtzAKpfs5+tdR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxUejykLI1SPeXKbGHgtdrRfLuw5gONBqJ7uTFLAyq2YK753KOjjnVP6TOJXLh6xp
-         qW2oM87Zsu/9XhdaNJuqe7s4J+4x+iFR/vFJP4m8b/JxzM/8urflNiUFcS/w1z2dvs
-         2/oJhwrz07CuYwCkLrKiKHpCZnCmg/mN3jyUgbDA=
+        b=IQMaebmjUb1xlhW3EhVRLVmMovroRQs1E6AGzSfM/eGm/9oFGl1FTlIhGBuhd9jzT
+         uWmF4sNE9CeshVLPMJu+1/2hb0F18qxPr5VhExqhB9du5Hlyb2xfH+x8U7dBvbjUsQ
+         XF+aBde13RFL9u+NvcdeUE6XK+ZhjFUF7dcALPO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Aurelien Aptel <aaptel@suse.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 246/800] cifs: fix check of dfs interlinks
-Date:   Mon, 12 Jul 2021 08:04:29 +0200
-Message-Id: <20210712060948.387182958@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Anand Jain <anand.jain@oracle.com>
+Subject: [PATCH 5.12 187/700] btrfs: dont clear page extent mapped if were not invalidating the full page
+Date:   Mon, 12 Jul 2021 08:04:30 +0200
+Message-Id: <20210712060953.221916070@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 889c2a700799f3b6f82210925e1faf4a9b833c4a ]
+[ Upstream commit bcd77455d590eaa0422a5e84ae852007cfce574a ]
 
-Interlink is a special type of DFS link that resolves to a different
-DFS domain-based namespace.  To determine whether it is an interlink
-or not, check if ReferralServers and StorageServers bits are set to 1
-and 0 respectively in ReferralHeaderFlags, as specified in MS-DFSC
-3.1.5.4.5 Determining Whether a Referral Response is an Interlink.
+[BUG]
+With current btrfs subpage rw support, the following script can lead to
+fs hang:
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  $ mkfs.btrfs -f -s 4k $dev
+  $ mount $dev -o nospace_cache $mnt
+  $ fsstress -w -n 100 -p 1 -s 1608140256 -v -d $mnt
+
+The fs will hang at btrfs_start_ordered_extent().
+
+[CAUSE]
+In above test case, btrfs_invalidate() will be called with the following
+parameters:
+
+  offset = 0 length = 53248 page dirty = 1 subpage dirty bitmap = 0x2000
+
+Since @offset is 0, btrfs_invalidate() will try to invalidate the full
+page, and finally call clear_page_extent_mapped() which will detach
+subpage structure from the page.
+
+And since the page no longer has subpage structure, the subpage dirty
+bitmap will be cleared, preventing the dirty range from being written
+back, thus no way to wake up the ordered extent.
+
+[FIX]
+Just follow other filesystems, only to invalidate the page if the range
+covers the full page.
+
+There are cases like truncate_setsize() which can call
+btrfs_invalidatepage() with offset == 0 and length != 0 for the last
+page of an inode.
+
+Although the old code will still try to invalidate the full page, we are
+still safe to just wait for ordered extent to finish.
+So it shouldn't cause extra problems.
+
+Tested-by: Ritesh Harjani <riteshh@linux.ibm.com> # [ppc64]
+Tested-by: Anand Jain <anand.jain@oracle.com> # [aarch64]
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/dfs_cache.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/btrfs/inode.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
-index b1fa30fefe1f..8e16ee1e5fd1 100644
---- a/fs/cifs/dfs_cache.c
-+++ b/fs/cifs/dfs_cache.c
-@@ -25,8 +25,7 @@
- #define CACHE_HTABLE_SIZE 32
- #define CACHE_MAX_ENTRIES 64
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 3e7173c7660d..1b22ded1a799 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -8386,7 +8386,19 @@ static void btrfs_invalidatepage(struct page *page, unsigned int offset,
+ 	 */
+ 	wait_on_page_writeback(page);
  
--#define IS_INTERLINK_SET(v) ((v) & (DFSREF_REFERRAL_SERVER | \
--				    DFSREF_STORAGE_SERVER))
-+#define IS_DFS_INTERLINK(v) (((v) & DFSREF_REFERRAL_SERVER) && !((v) & DFSREF_STORAGE_SERVER))
- 
- struct cache_dfs_tgt {
- 	char *name;
-@@ -171,7 +170,7 @@ static int dfscache_proc_show(struct seq_file *m, void *v)
- 				   "cache entry: path=%s,type=%s,ttl=%d,etime=%ld,hdr_flags=0x%x,ref_flags=0x%x,interlink=%s,path_consumed=%d,expired=%s\n",
- 				   ce->path, ce->srvtype == DFS_TYPE_ROOT ? "root" : "link",
- 				   ce->ttl, ce->etime.tv_nsec, ce->ref_flags, ce->hdr_flags,
--				   IS_INTERLINK_SET(ce->hdr_flags) ? "yes" : "no",
-+				   IS_DFS_INTERLINK(ce->hdr_flags) ? "yes" : "no",
- 				   ce->path_consumed, cache_entry_expired(ce) ? "yes" : "no");
- 
- 			list_for_each_entry(t, &ce->tlist, list) {
-@@ -240,7 +239,7 @@ static inline void dump_ce(const struct cache_entry *ce)
- 		 ce->srvtype == DFS_TYPE_ROOT ? "root" : "link", ce->ttl,
- 		 ce->etime.tv_nsec,
- 		 ce->hdr_flags, ce->ref_flags,
--		 IS_INTERLINK_SET(ce->hdr_flags) ? "yes" : "no",
-+		 IS_DFS_INTERLINK(ce->hdr_flags) ? "yes" : "no",
- 		 ce->path_consumed,
- 		 cache_entry_expired(ce) ? "yes" : "no");
- 	dump_tgts(ce);
+-	if (offset) {
++	/*
++	 * For subpage case, we have call sites like
++	 * btrfs_punch_hole_lock_range() which passes range not aligned to
++	 * sectorsize.
++	 * If the range doesn't cover the full page, we don't need to and
++	 * shouldn't clear page extent mapped, as page->private can still
++	 * record subpage dirty bits for other part of the range.
++	 *
++	 * For cases that can invalidate the full even the range doesn't
++	 * cover the full page, like invalidating the last page, we're
++	 * still safe to wait for ordered extent to finish.
++	 */
++	if (!(offset == 0 && length == PAGE_SIZE)) {
+ 		btrfs_releasepage(page, GFP_NOFS);
+ 		return;
+ 	}
 -- 
 2.30.2
 
