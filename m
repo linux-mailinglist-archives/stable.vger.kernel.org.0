@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 077123C4C44
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E9473C51CB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239246AbhGLHCt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:02:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37620 "EHLO mail.kernel.org"
+        id S1343667AbhGLHne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238238AbhGLHCM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:02:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 734E061004;
-        Mon, 12 Jul 2021 06:59:23 +0000 (UTC)
+        id S1347863AbhGLHkR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F17F6191F;
+        Mon, 12 Jul 2021 07:36:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073164;
-        bh=FzXwPdNNUN1+bbWVulgsQZBbjZaP73QD17PYhjK13DA=;
+        s=korg; t=1626075397;
+        bh=AvVlSDNy0AAtQWk8lZb/vzYhrKvuJa3s3p+idilQiEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kNIIdotH/mkuqNfZEqGkUt5MWPflST7c7Bw7hzmtSJT4/ld033Xy4VxWGZx/Pomei
-         Rr9nLMVibIIRDnNvrOCEHN+okS98AOVAvRaIFvdwmYKc6vpUGkomZKkOoi78SHeMfR
-         ZFbitDkaZovs4KF7BPdjYAwrydmAEVWvNvQwCO04=
+        b=eaRx7X9mn7eBKBVOh6TiUH8+TgiNEOIV7cncqcb/Esm0/VhIJ26jCdg0RyNS4kJJX
+         FTck45hPI8d0W2BaLKkAAYwTpvlDFgH+/jDLCx5aRotKGvGiU+zxsnI2wtYcoeK2Bt
+         za4ywuBQrpncXEAaGP47a2uoPyxm8UZN3utNjxxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
-        Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 148/700] crypto: qat - check return code of qat_hal_rd_rel_reg()
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 208/800] HID: do not use down_interruptible() when unbinding devices
 Date:   Mon, 12 Jul 2021 08:03:51 +0200
-Message-Id: <20210712060946.465997641@linuxfoundation.org>
+Message-Id: <20210712060942.574914577@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 96b57229209490c8bca4335b01a426a96173dc56 ]
+[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
 
-Check the return code of the function qat_hal_rd_rel_reg() and return it
-to the caller.
+Action of unbinding driver from a device is not cancellable and should not
+fail, and driver core does not pay attention to the result of "remove"
+method, therefore using down_interruptible() in hid_device_remove() does
+not make sense.
 
-This is to fix the following warning when compiling the driver with
-clang scan-build:
-
-    drivers/crypto/qat/qat_common/qat_hal.c:1436:2: warning: 6th function call argument is an uninitialized value
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_hal.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_hal.c b/drivers/crypto/qat/qat_common/qat_hal.c
-index bd3028126cbe..069f51621f0e 100644
---- a/drivers/crypto/qat/qat_common/qat_hal.c
-+++ b/drivers/crypto/qat/qat_common/qat_hal.c
-@@ -1417,7 +1417,11 @@ static int qat_hal_put_rel_wr_xfer(struct icp_qat_fw_loader_handle *handle,
- 		pr_err("QAT: bad xfrAddr=0x%x\n", xfr_addr);
- 		return -EINVAL;
- 	}
--	qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
-+	status = qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
-+	if (status) {
-+		pr_err("QAT: failed to read register");
-+		return status;
-+	}
- 	gpr_addr = qat_hal_get_reg_addr(ICP_GPB_REL, gprnum);
- 	data16low = 0xffff & data;
- 	data16hi = 0xffff & (data >> 0x10);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0de2788b9814..7db332139f7d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2306,12 +2306,8 @@ static int hid_device_remove(struct device *dev)
+ {
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct hid_driver *hdrv;
+-	int ret = 0;
+ 
+-	if (down_interruptible(&hdev->driver_input_lock)) {
+-		ret = -EINTR;
+-		goto end;
+-	}
++	down(&hdev->driver_input_lock);
+ 	hdev->io_started = false;
+ 
+ 	hdrv = hdev->driver;
+@@ -2326,8 +2322,8 @@ static int hid_device_remove(struct device *dev)
+ 
+ 	if (!hdev->io_started)
+ 		up(&hdev->driver_input_lock);
+-end:
+-	return ret;
++
++	return 0;
+ }
+ 
+ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 -- 
 2.30.2
 
