@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F613C4EF0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A08B63C4EF3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242598AbhGLHW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59176 "EHLO mail.kernel.org"
+        id S241331AbhGLHW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239124AbhGLHVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:21:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD52961153;
-        Mon, 12 Jul 2021 07:18:21 +0000 (UTC)
+        id S239650AbhGLHVO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:21:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5EA461442;
+        Mon, 12 Jul 2021 07:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074302;
-        bh=6lGjeoekTz6ys6sJqsXFEGnZmJ/mgkagM0GBlo5Gag4=;
+        s=korg; t=1626074305;
+        bh=h+lgG8+4wcrAD5i1gON8eiuOg9ZmPnR9YhqQqe5PkRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Mlu+E9mnyZMYlvYOAD/+D1xmuXAKc5SWTxO7ys/xztt2Cfjxhh3JXcXMjrCU0eLE
-         BbD6MAkWZLEvx9s5Oc575vtSz38/UkpSy1lqy8wPT6+8KZQhiS7FvNKMUVsOQk353H
-         3ucYjcgED86ckxN+kYrQWzyFO4wGnfhtd8WfKt0I=
+        b=kQCjLj1yZryA613oNujA0GpuqUsxAWlmSVAomzKtjWWYk8hOCWyTa3pRdEjbj0KqJ
+         lDid434rgLt5Oh/DxJAt7EqkXF+j1fvrvEai32MTXr4/P2gBL2o3H6FQVjJ9/HnGJ9
+         3DHM0yNsH5O9Ble1GCyYDStMSEyzSKandVgkrgQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Tom Herbert <tom@herbertland.com>,
+        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
+        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 491/700] ipv6: fix out-of-bound access in ip6_parse_tlv()
-Date:   Mon, 12 Jul 2021 08:09:34 +0200
-Message-Id: <20210712061028.777846500@linuxfoundation.org>
+Subject: [PATCH 5.12 492/700] e1000e: Check the PCIm state
+Date:   Mon, 12 Jul 2021 08:09:35 +0200
+Message-Id: <20210712061028.878692831@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -42,87 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Sasha Neftin <sasha.neftin@intel.com>
 
-[ Upstream commit 624085a31c1ad6a80b1e53f686bf6ee92abbf6e8 ]
+[ Upstream commit 2e7256f12cdb16eaa2515b6231d665044a07c51a ]
 
-First problem is that optlen is fetched without checking
-there is more than one byte to parse.
+Complete to commit def4ec6dce393e ("e1000e: PCIm function state support")
+Check the PCIm state only on CSME systems. There is no point to do this
+check on non CSME systems.
+This patch fixes a generation a false-positive warning:
+"Error in exiting dmoff"
 
-Fix this by taking care of IPV6_TLV_PAD1 before
-fetching optlen (under appropriate sanity checks against len)
-
-Second problem is that IPV6_TLV_PADN checks of zero
-padding are performed before the check of remaining length.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Fixes: c1412fce7ecc ("net/ipv6/exthdrs.c: Strict PadN option checking")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: Tom Herbert <tom@herbertland.com>
+Fixes: def4ec6dce39 ("e1000e: PCIm function state support")
+Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/exthdrs.c | 27 +++++++++++++--------------
- 1 file changed, 13 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/intel/e1000e/netdev.c | 24 ++++++++++++----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index a9e1d7918d14..6ffa05298cc0 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -135,18 +135,23 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 	len -= 2;
+diff --git a/drivers/net/ethernet/intel/e1000e/netdev.c b/drivers/net/ethernet/intel/e1000e/netdev.c
+index a0948002ddf8..b3ad95ac3d85 100644
+--- a/drivers/net/ethernet/intel/e1000e/netdev.c
++++ b/drivers/net/ethernet/intel/e1000e/netdev.c
+@@ -5222,18 +5222,20 @@ static void e1000_watchdog_task(struct work_struct *work)
+ 			pm_runtime_resume(netdev->dev.parent);
  
- 	while (len > 0) {
--		int optlen = nh[off + 1] + 2;
--		int i;
-+		int optlen, i;
- 
--		switch (nh[off]) {
--		case IPV6_TLV_PAD1:
--			optlen = 1;
-+		if (nh[off] == IPV6_TLV_PAD1) {
- 			padlen++;
- 			if (padlen > 7)
- 				goto bad;
--			break;
-+			off++;
-+			len--;
-+			continue;
-+		}
-+		if (len < 2)
-+			goto bad;
-+		optlen = nh[off + 1] + 2;
-+		if (optlen > len)
-+			goto bad;
- 
--		case IPV6_TLV_PADN:
-+		if (nh[off] == IPV6_TLV_PADN) {
- 			/* RFC 2460 states that the purpose of PadN is
- 			 * to align the containing header to multiples
- 			 * of 8. 7 is therefore the highest valid value.
-@@ -163,12 +168,7 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				if (nh[off + i] != 0)
- 					goto bad;
+ 			/* Checking if MAC is in DMoff state*/
+-			pcim_state = er32(STATUS);
+-			while (pcim_state & E1000_STATUS_PCIM_STATE) {
+-				if (tries++ == dmoff_exit_timeout) {
+-					e_dbg("Error in exiting dmoff\n");
+-					break;
+-				}
+-				usleep_range(10000, 20000);
++			if (er32(FWSM) & E1000_ICH_FWSM_FW_VALID) {
+ 				pcim_state = er32(STATUS);
+-
+-				/* Checking if MAC exited DMoff state */
+-				if (!(pcim_state & E1000_STATUS_PCIM_STATE))
+-					e1000_phy_hw_reset(&adapter->hw);
++				while (pcim_state & E1000_STATUS_PCIM_STATE) {
++					if (tries++ == dmoff_exit_timeout) {
++						e_dbg("Error in exiting dmoff\n");
++						break;
++					}
++					usleep_range(10000, 20000);
++					pcim_state = er32(STATUS);
++
++					/* Checking if MAC exited DMoff state */
++					if (!(pcim_state & E1000_STATUS_PCIM_STATE))
++						e1000_phy_hw_reset(&adapter->hw);
++				}
  			}
--			break;
--
--		default: /* Other TLV code so scan list */
--			if (optlen > len)
--				goto bad;
--
-+		} else {
- 			tlv_count++;
- 			if (tlv_count > max_count)
- 				goto bad;
-@@ -188,7 +188,6 @@ static bool ip6_parse_tlv(const struct tlvtype_proc *procs,
- 				return false;
  
- 			padlen = 0;
--			break;
- 		}
- 		off += optlen;
- 		len -= optlen;
+ 			/* update snapshot of PHY registers on LSC */
 -- 
 2.30.2
 
