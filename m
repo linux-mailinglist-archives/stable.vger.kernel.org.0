@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D17A93C53DB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443B33C49CC
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348846AbhGLH4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
+        id S238081AbhGLGqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350743AbhGLHvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40F2761167;
-        Mon, 12 Jul 2021 07:48:03 +0000 (UTC)
+        id S237203AbhGLGqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4252E6100B;
+        Mon, 12 Jul 2021 06:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076083;
-        bh=adHwr12YBfm53L3ZqnccegRPdUy3fkX16ErK4OS7KSg=;
+        s=korg; t=1626072097;
+        bh=Hb0X96TtFC3R0pPPrAHar0xCDOv8khGvI88Qwm/fut4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMNXT5VKa8RfLz9pxx5W8N6tfhyZsOFNLxiHt7kZ0Ro99j44wMacyp1sUCMQa8vUx
-         d9EOf0JT+0pxiBXHbaHMXb1bcUyFs2dOlriY4Ba+pJZ4SyOSJnFdSCknbBrkCBAFgi
-         4INRSqfFXg1RKemsoeQbWsmNwwTmREiQHzCXe0W0=
+        b=Xkhn0cm1CTvJAksoFrlg782AaMjxF2DEe1c+WonqeFpytJkSjILrfCxwgm1DdZpQq
+         evFfn0m0iaOncoFmAVJROwzrP79UMFW6/GIfyJw4WqhgM4ACNUrqV1qjBn7UDqxbJW
+         shyVckPiUbxPxfcp9K/3NElwBv6EbGj3P0L25iIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 491/800] mt76: mt7921: fix mt7921_wfsys_reset sequence
+        stable@vger.kernel.org,
+        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
+        Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 354/593] ath11k: send beacon template after vdev_start/restart during csa
 Date:   Mon, 12 Jul 2021 08:08:34 +0200
-Message-Id: <20210712061019.399074628@linuxfoundation.org>
+Message-Id: <20210712060925.240233592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
 
-[ Upstream commit 20eb83c749609199443972cf80fb6004fc36afc6 ]
+[ Upstream commit 979ebc54cf13bd1e3eb6e21766d208d5de984fb8 ]
 
-WiFi subsytem reset should control MT_WFSYS_SW_RST_B and then poll the
-same register until the bit WFSYS_SW_INIT_DONE bit is set.
+Firmware has added assert if beacon template is received after
+vdev_down. Firmware expects beacon template after vdev_start
+and before vdev_up. This change is needed to support MBSSID EMA
+cases in firmware.
 
-Fixes: 0c1ce9884607 ("mt76: mt7921: add wifi reset support")
-Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Hence, Change the sequence in ath11k as expected from firmware.
+This new change is not causing any issues with older
+firmware.
+
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1.r3-00011-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1.r4-00008-QCAHKSWPL_SILICONZ-1
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+[sven@narfation.org: added tested-on/fixes information]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210525133028.2805615-1-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/dma.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/dma.c b/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
-index 71e664ee7652..bd9143dc865f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/dma.c
-@@ -313,9 +313,9 @@ static int mt7921_dma_reset(struct mt7921_dev *dev, bool force)
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 0738c784616f..cc0c30ceaa0d 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -5123,11 +5123,6 @@ ath11k_mac_update_vif_chan(struct ath11k *ar,
+ 		if (WARN_ON(!arvif->is_up))
+ 			continue;
  
- int mt7921_wfsys_reset(struct mt7921_dev *dev)
- {
--	mt76_set(dev, 0x70002600, BIT(0));
--	msleep(200);
--	mt76_clear(dev, 0x70002600, BIT(0));
-+	mt76_clear(dev, MT_WFSYS_SW_RST_B, WFSYS_SW_RST_B);
-+	msleep(50);
-+	mt76_set(dev, MT_WFSYS_SW_RST_B, WFSYS_SW_RST_B);
+-		ret = ath11k_mac_setup_bcn_tmpl(arvif);
+-		if (ret)
+-			ath11k_warn(ab, "failed to update bcn tmpl during csa: %d\n",
+-				    ret);
+-
+ 		ret = ath11k_mac_vdev_restart(arvif, &vifs[i].new_ctx->def);
+ 		if (ret) {
+ 			ath11k_warn(ab, "failed to restart vdev %d: %d\n",
+@@ -5135,6 +5130,11 @@ ath11k_mac_update_vif_chan(struct ath11k *ar,
+ 			continue;
+ 		}
  
- 	if (!__mt76_poll_msec(&dev->mt76, MT_WFSYS_SW_RST_B,
- 			      WFSYS_SW_INIT_DONE, WFSYS_SW_INIT_DONE, 500))
++		ret = ath11k_mac_setup_bcn_tmpl(arvif);
++		if (ret)
++			ath11k_warn(ab, "failed to update bcn tmpl during csa: %d\n",
++				    ret);
++
+ 		ret = ath11k_wmi_vdev_up(arvif->ar, arvif->vdev_id, arvif->aid,
+ 					 arvif->bssid);
+ 		if (ret) {
 -- 
 2.30.2
 
