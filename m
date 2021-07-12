@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E988A3C4818
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7F33C4816
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235918AbhGLGfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55814 "EHLO mail.kernel.org"
+        id S235888AbhGLGfv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237888AbhGLGe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237885AbhGLGe4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:34:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EB23610CA;
-        Mon, 12 Jul 2021 06:32:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B03D0601FC;
+        Mon, 12 Jul 2021 06:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071524;
-        bh=Lz+/JlLUf0y6vdpM5zzN5Pg+5vyv1ERRqgWrhzFUI5w=;
+        s=korg; t=1626071527;
+        bh=ciBwS34z1dq/lTAjlwP2hlPO44Gt0j7asqfs2Y6atOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ag0LdVq8fMlx1G9/oHXNnaJd1aciwTKHipISoT544OL8FKHmoPNohYWkiqs0u54Az
-         jN3Fn7EfkIHp3mRclLCJ/ef08xMS4C0PS/LzqbWiACNIqhAa32/5tIBLVq2i+skM7u
-         EGSoagVix94TVk4D5FFl+MDdaj4nXV3ekxlDL118=
+        b=nwJk1o+6j4x+mNeaID2VagqYNRJil43ph/qO2Vrq/mkgBHXxvAKSOj7+jsk/t8q2u
+         9FssWi9ajtq/zBanlZQBNTCBSHEGv4Ftle1+0VGqxm/AdMlGKdGLbdLxcG5H+rM7d3
+         ColunvmmATX99ighrsKGWE1jrxZyAGDOosgnYAJI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 105/593] media: s5p: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:04:25 +0200
-Message-Id: <20210712060854.770175643@linuxfoundation.org>
+Subject: [PATCH 5.10 106/593] media: am437x: fix pm_runtime_get_sync() usage count
+Date:   Mon, 12 Jul 2021 08:04:26 +0200
+Message-Id: <20210712060854.882264452@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -45,7 +43,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit fdc34e82c0f968ac4c157bd3d8c299ebc24c9c63 ]
+[ Upstream commit c41e02493334985cca1a22efd5ca962ce3abb061 ]
 
 The pm_runtime_get_sync() internally increments the
 dev->power.usage_count without decrementing it, even on errors.
@@ -54,36 +52,55 @@ commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with us
 in order to properly decrement the usage counter, avoiding
 a potential PM usage counter leak.
 
-While here, check if the PM runtime error was caught at
-s5p_cec_adap_enable().
+While here, ensure that the driver will check if PM runtime
+resumed at vpfe_initialize_device().
 
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/platform/s5p/s5p_cec.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/platform/am437x/am437x-vpfe.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
-index 2a3e7ffefe0a..2250c1cbc64e 100644
---- a/drivers/media/cec/platform/s5p/s5p_cec.c
-+++ b/drivers/media/cec/platform/s5p/s5p_cec.c
-@@ -35,10 +35,13 @@ MODULE_PARM_DESC(debug, "debug level (0-2)");
+diff --git a/drivers/media/platform/am437x/am437x-vpfe.c b/drivers/media/platform/am437x/am437x-vpfe.c
+index 0fb9f9ba1219..31cee69adbe1 100644
+--- a/drivers/media/platform/am437x/am437x-vpfe.c
++++ b/drivers/media/platform/am437x/am437x-vpfe.c
+@@ -1021,7 +1021,9 @@ static int vpfe_initialize_device(struct vpfe_device *vpfe)
+ 	if (ret)
+ 		return ret;
  
- static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
- {
-+	int ret;
- 	struct s5p_cec_dev *cec = cec_get_drvdata(adap);
+-	pm_runtime_get_sync(vpfe->pdev);
++	ret = pm_runtime_resume_and_get(vpfe->pdev);
++	if (ret < 0)
++		return ret;
  
- 	if (enable) {
--		pm_runtime_get_sync(cec->dev);
-+		ret = pm_runtime_resume_and_get(cec->dev);
-+		if (ret < 0)
-+			return ret;
+ 	vpfe_config_enable(&vpfe->ccdc, 1);
  
- 		s5p_cec_reset(cec);
+@@ -2443,7 +2445,11 @@ static int vpfe_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&pdev->dev);
+ 
+ 	/* for now just enable it here instead of waiting for the open */
+-	pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
++	if (ret < 0) {
++		vpfe_err(vpfe, "Unable to resume device.\n");
++		goto probe_out_v4l2_unregister;
++	}
+ 
+ 	vpfe_ccdc_config_defaults(ccdc);
+ 
+@@ -2530,6 +2536,11 @@ static int vpfe_suspend(struct device *dev)
+ 
+ 	/* only do full suspend if streaming has started */
+ 	if (vb2_start_streaming_called(&vpfe->buffer_queue)) {
++		/*
++		 * ignore RPM resume errors here, as it is already too late.
++		 * A check like that should happen earlier, either at
++		 * open() or just before start streaming.
++		 */
+ 		pm_runtime_get_sync(dev);
+ 		vpfe_config_enable(ccdc, 1);
  
 -- 
 2.30.2
