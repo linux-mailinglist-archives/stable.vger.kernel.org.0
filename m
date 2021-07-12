@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635AC3C4A6B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B62CD3C545C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237218AbhGLGwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
+        id S1348439AbhGLH5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238924AbhGLGtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D0026121E;
-        Mon, 12 Jul 2021 06:45:23 +0000 (UTC)
+        id S1348237AbhGLHzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:55:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A551561165;
+        Mon, 12 Jul 2021 07:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072323;
-        bh=bGvSRzuuP7sYaANfuvBJajzDaCwYoyxCmgraZru8dyk=;
+        s=korg; t=1626076305;
+        bh=osEe53rcdbRdc77matoHXJOjQFg4acVBYqv9Yb7VUY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wd04eDgJgUqqz9cC8tyd42v5VEFLZS5IruTNUPM+yV+l2oIHQ8saOyVftpSuUvAxK
-         cL46A1vW9UImcPWJeAN4IH+vGnkTeEZ5nXyfqTB1355iBStPza/TUsbRnqSI78z+7y
-         KgpmTNreY8ADJreSfhl19AfV4jzyLCmJ8188iKg4=
+        b=yQeDLe/g9v2t9evmO5VJCWsjsZ/jHrEgktqKxAIrKYmYgKHBst9GLLeXOPKC6rNHT
+         Sj1WbWhOw/ALl7kA01hsqAyaVfNlBks7XbwftJpp7DVxs/zwIskgMXDj3noORHGW9w
+         H4pHEvRdqL9ulSsl0wZ3VUMVBVbqULH8Wt2WGkOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 449/593] iio: accel: mxc4005: Fix overread of data and alignment issue.
+Subject: [PATCH 5.13 586/800] clk: actions: Fix SD clocks factor table on Owl S500 SoC
 Date:   Mon, 12 Jul 2021 08:10:09 +0200
-Message-Id: <20210712060938.594284901@linuxfoundation.org>
+Message-Id: <20210712061029.624342241@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit f65802284a3a337510d7f8f916c97d66c74f2e71 ]
+[ Upstream commit fe1f71e338d77814da3ef44e9f64d32981a6ccdf ]
 
-The bulk read size is based on the size of an array that also has
-space for the timestamp alongside the channels.
-Fix that and also fix alignment of the buffer passed
-to iio_push_to_buffers_with_timestamp.
+Drop the unsupported entries in the factor table used for the SD[0-2]
+clocks definitions on the Actions Semi Owl S500 SoC.
 
-Found during an audit of all calls to this function.
-
-Fixes: 1ce0eda0f757 ("iio: mxc4005: add triggered buffer mode for mxc4005")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-6-jic23@kernel.org
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/196c948d708a22b8198c95f064a0f6b6820f9980.1623354574.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mxc4005.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/clk/actions/owl-s500.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/mxc4005.c b/drivers/iio/accel/mxc4005.c
-index f877263dc6ef..5a2b0ffbb145 100644
---- a/drivers/iio/accel/mxc4005.c
-+++ b/drivers/iio/accel/mxc4005.c
-@@ -56,7 +56,11 @@ struct mxc4005_data {
- 	struct mutex mutex;
- 	struct regmap *regmap;
- 	struct iio_trigger *dready_trig;
--	__be16 buffer[8];
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		__be16 chans[3];
-+		s64 timestamp __aligned(8);
-+	} scan;
- 	bool trigger_enabled;
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 75b7186185b0..42abdf964044 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -127,8 +127,7 @@ static struct clk_factor_table sd_factor_table[] = {
+ 	{ 12, 1, 13 }, { 13, 1, 14 }, { 14, 1, 15 }, { 15, 1, 16 },
+ 	{ 16, 1, 17 }, { 17, 1, 18 }, { 18, 1, 19 }, { 19, 1, 20 },
+ 	{ 20, 1, 21 }, { 21, 1, 22 }, { 22, 1, 23 }, { 23, 1, 24 },
+-	{ 24, 1, 25 }, { 25, 1, 26 }, { 26, 1, 27 }, { 27, 1, 28 },
+-	{ 28, 1, 29 }, { 29, 1, 30 }, { 30, 1, 31 }, { 31, 1, 32 },
++	{ 24, 1, 25 },
+ 
+ 	/* bit8: /128 */
+ 	{ 256, 1, 1 * 128 }, { 257, 1, 2 * 128 }, { 258, 1, 3 * 128 }, { 259, 1, 4 * 128 },
+@@ -137,8 +136,7 @@ static struct clk_factor_table sd_factor_table[] = {
+ 	{ 268, 1, 13 * 128 }, { 269, 1, 14 * 128 }, { 270, 1, 15 * 128 }, { 271, 1, 16 * 128 },
+ 	{ 272, 1, 17 * 128 }, { 273, 1, 18 * 128 }, { 274, 1, 19 * 128 }, { 275, 1, 20 * 128 },
+ 	{ 276, 1, 21 * 128 }, { 277, 1, 22 * 128 }, { 278, 1, 23 * 128 }, { 279, 1, 24 * 128 },
+-	{ 280, 1, 25 * 128 }, { 281, 1, 26 * 128 }, { 282, 1, 27 * 128 }, { 283, 1, 28 * 128 },
+-	{ 284, 1, 29 * 128 }, { 285, 1, 30 * 128 }, { 286, 1, 31 * 128 }, { 287, 1, 32 * 128 },
++	{ 280, 1, 25 * 128 },
+ 	{ 0, 0, 0 },
  };
  
-@@ -135,7 +139,7 @@ static int mxc4005_read_xyz(struct mxc4005_data *data)
- 	int ret;
- 
- 	ret = regmap_bulk_read(data->regmap, MXC4005_REG_XOUT_UPPER,
--			       data->buffer, sizeof(data->buffer));
-+			       data->scan.chans, sizeof(data->scan.chans));
- 	if (ret < 0) {
- 		dev_err(data->dev, "failed to read axes\n");
- 		return ret;
-@@ -301,7 +305,7 @@ static irqreturn_t mxc4005_trigger_handler(int irq, void *private)
- 	if (ret < 0)
- 		goto err;
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   pf->timestamp);
- 
- err:
 -- 
 2.30.2
 
