@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3725D3C46FD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8871C3C478E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234959AbhGLGax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:30:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46566 "EHLO mail.kernel.org"
+        id S235784AbhGLGdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:33:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235692AbhGLG32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235677AbhGLG32 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93B726112D;
-        Mon, 12 Jul 2021 06:25:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E30C761209;
+        Mon, 12 Jul 2021 06:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071133;
-        bh=YLpnRZwbYrMs34c6jbdfXkIubDmJKgkXjrhsClIoAN0=;
+        s=korg; t=1626071135;
+        bh=qkTLuWn9v0Fw0lbpes4GetSeu3BfGQq21a0g5iaqhkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUsOtjF3jpr+z6SOX2jB17qwoi054kSHEiagSKUYN88MZdUTlv7b2ziKJzsSQAY5J
-         XjEZOnf1F72Gh8UMw6mCpOTuBhOTp5YZsWYwUdQw4OyOwRhN3eDd4mVNgXWzmSwhvS
-         qFSXrC6eUFLFU7zFXvQF8ZaaqoC4Moz6P9Nm3F/w=
+        b=tpmUzRCxiKVoN05+p0udW3P5ryCG4+AN+qlJ4Rds/cxOh79JJXmvjmxYJP6U8BuJn
+         /ey+f0fMcqGHj+jGmxa8Yu9CQrbjBId1Bej0HVGSZfE76qPsYmKeNE3aCDMHBbfwV3
+         Zo9NjB/X7L/PUX76IsE1Y3iPTAijTRts4XMFX0b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 287/348] mtd: partitions: redboot: seek fis-index-block in the right node
-Date:   Mon, 12 Jul 2021 08:11:11 +0200
-Message-Id: <20210712060741.727180395@linuxfoundation.org>
+Subject: [PATCH 5.4 288/348] char: pcmcia: error out if num_bytes_read is greater than 4 in set_protocol()
+Date:   Mon, 12 Jul 2021 08:11:12 +0200
+Message-Id: <20210712060741.857560193@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,49 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 237960880960863fb41888763d635b384cffb104 ]
+[ Upstream commit 37188559c610f1b7eec83c8e448936c361c578de ]
 
-fis-index-block is seeked in the master node and not in the partitions node.
-For following binding and current usage, the driver need to check the
-partitions subnode.
+Theoretically, it will cause index out of bounds error if
+'num_bytes_read' is greater than 4. As we expect it(and was tested)
+never to be greater than 4, error out if it happens.
 
-Fixes: c0e118c8a1a3 ("mtd: partitions: Add OF support to RedBoot partitions")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210520114851.1274609-1-clabbe@baylibre.com
+Fixes: c1986ee9bea3 ("[PATCH] New Omnikey Cardman 4000 driver")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Link: https://lore.kernel.org/r/20210521120617.138396-1-yukuai3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/parsers/redboot.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/char/pcmcia/cm4000_cs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mtd/parsers/redboot.c b/drivers/mtd/parsers/redboot.c
-index 91146bdc4713..3ccd6363ee8c 100644
---- a/drivers/mtd/parsers/redboot.c
-+++ b/drivers/mtd/parsers/redboot.c
-@@ -45,6 +45,7 @@ static inline int redboot_checksum(struct fis_image_desc *img)
- static void parse_redboot_of(struct mtd_info *master)
- {
- 	struct device_node *np;
-+	struct device_node *npart;
- 	u32 dirblock;
- 	int ret;
- 
-@@ -52,7 +53,11 @@ static void parse_redboot_of(struct mtd_info *master)
- 	if (!np)
- 		return;
- 
--	ret = of_property_read_u32(np, "fis-index-block", &dirblock);
-+	npart = of_get_child_by_name(np, "partitions");
-+	if (!npart)
-+		return;
-+
-+	ret = of_property_read_u32(npart, "fis-index-block", &dirblock);
- 	if (ret)
- 		return;
- 
+diff --git a/drivers/char/pcmcia/cm4000_cs.c b/drivers/char/pcmcia/cm4000_cs.c
+index 15bf585af5d3..44117169db91 100644
+--- a/drivers/char/pcmcia/cm4000_cs.c
++++ b/drivers/char/pcmcia/cm4000_cs.c
+@@ -544,6 +544,10 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
+ 		io_read_num_rec_bytes(iobase, &num_bytes_read);
+ 		if (num_bytes_read >= 4) {
+ 			DEBUGP(2, dev, "NumRecBytes = %i\n", num_bytes_read);
++			if (num_bytes_read > 4) {
++				rc = -EIO;
++				goto exit_setprotocol;
++			}
+ 			break;
+ 		}
+ 		usleep_range(10000, 11000);
 -- 
 2.30.2
 
