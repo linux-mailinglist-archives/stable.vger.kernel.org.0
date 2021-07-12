@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FDF83C534B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46093C4904
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352272AbhGLHy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
+        id S238644AbhGLGlj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349994AbhGLHuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1871161879;
-        Mon, 12 Jul 2021 07:43:36 +0000 (UTC)
+        id S238423AbhGLGkM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFEEE6112D;
+        Mon, 12 Jul 2021 06:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075817;
-        bh=rNG5DcWA9KDHMgAglAzkWJWc5snz95lOb8j/k4helOw=;
+        s=korg; t=1626071837;
+        bh=TYvHY0Nd+78uOboMF2XfNFz13DUaUYEErLtDj5rRiI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vA4+DHV4MNgN0jkM4r6dnE/IIaPYw2vseRj5QmPe03dbTnr0VhpmlDhGHNvW4aVqf
-         UIgpbfLBu24ST+x/0rqVkU24a5w4aCZnQVYIzxK+D1nxh4AqZBKZ0qdy7dVjtHCy1h
-         Mxg2WIHrwAlQK9mz/0f8eLvQKsm6ngoDHcVSHDSQ=
+        b=qx5LIvknVunR1frBCCGivC7NbXQND4vTUkso/YAM6isreolhesk0XJn3eeZbwu1jh
+         p7JOhaymhrezORJL6GprbQ4v3+/8Njtqh8QHRUMv4UT56c6qrvvoxIWANf39SJPBS7
+         3gyUExAaUEtdyp1CZ7ylSK0Hs1vcX+dqwtxsqHIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 375/800] ACPI: bgrt: Fix CFI violation
-Date:   Mon, 12 Jul 2021 08:06:38 +0200
-Message-Id: <20210712061006.967584970@linuxfoundation.org>
+Subject: [PATCH 5.10 239/593] regulator: fan53880: Fix vsel_mask setting for FAN53880_BUCK
+Date:   Mon, 12 Jul 2021 08:06:39 +0200
+Message-Id: <20210712060909.182577776@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,123 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit f37ccf8fce155d08ae2a4fb3db677911ced0c21a ]
+[ Upstream commit 2e11737a772b95c6587df73f216eec1762431432 ]
 
-clang's Control Flow Integrity requires that every indirect call has a
-valid target, which is based on the type of the function pointer. The
-*_show() functions in this file are written as if they will be called
-from dev_attr_show(); however, they will be called from
-sysfs_kf_seq_show() because the files were created by
-sysfs_create_group() and the sysfs ops are based on kobj_sysfs_ops
-because of kobject_add_and_create(). Because the *_show() functions do
-not match the type of the show() member in struct kobj_attribute, there
-is a CFI violation.
+According to the datasheet:
+REGISTER DETAILS − 0x02 BUCK, BUCK_OUT is BIT0 ~ BIT7.
 
-$ cat /sys/firmware/acpi/bgrt/{status,type,version,{x,y}offset}}
-1
-0
-1
-522
-307
+So vsel_mask for FAN53880_BUCK should be 0xFF.
 
-$ dmesg | grep "CFI failure"
-[  267.761825] CFI failure (target: type_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762246] CFI failure (target: xoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762584] CFI failure (target: status_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.762973] CFI failure (target: yoffset_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-[  267.763330] CFI failure (target: version_show.d5e1ad21498a5fd14edbc5c320906598.cfi_jt+0x0/0x8):
-
-Convert these functions to the type of the show() member in struct
-kobj_attribute so that there is no more CFI violation. Because these
-functions are all so similar, combine them into a macro.
-
-Fixes: d1ff4b1cdbab ("ACPI: Add support for exposing BGRT data")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1406
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e6dea51e2d41 ("regulator: fan53880: Add initial support")
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210607142907.1599905-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bgrt.c | 57 ++++++++++++++-------------------------------
- 1 file changed, 18 insertions(+), 39 deletions(-)
+ drivers/regulator/fan53880.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/bgrt.c b/drivers/acpi/bgrt.c
-index 19bb7f870204..e0d14017706e 100644
---- a/drivers/acpi/bgrt.c
-+++ b/drivers/acpi/bgrt.c
-@@ -15,40 +15,19 @@
- static void *bgrt_image;
- static struct kobject *bgrt_kobj;
- 
--static ssize_t version_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.version);
--}
--static DEVICE_ATTR_RO(version);
--
--static ssize_t status_show(struct device *dev,
--			   struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.status);
--}
--static DEVICE_ATTR_RO(status);
--
--static ssize_t type_show(struct device *dev,
--			 struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_type);
--}
--static DEVICE_ATTR_RO(type);
--
--static ssize_t xoffset_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_x);
--}
--static DEVICE_ATTR_RO(xoffset);
--
--static ssize_t yoffset_show(struct device *dev,
--			    struct device_attribute *attr, char *buf)
--{
--	return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab.image_offset_y);
--}
--static DEVICE_ATTR_RO(yoffset);
-+#define BGRT_SHOW(_name, _member) \
-+	static ssize_t _name##_show(struct kobject *kobj,			\
-+				    struct kobj_attribute *attr, char *buf)	\
-+	{									\
-+		return snprintf(buf, PAGE_SIZE, "%d\n", bgrt_tab._member);	\
-+	}									\
-+	struct kobj_attribute bgrt_attr_##_name = __ATTR_RO(_name)
-+
-+BGRT_SHOW(version, version);
-+BGRT_SHOW(status, status);
-+BGRT_SHOW(type, image_type);
-+BGRT_SHOW(xoffset, image_offset_x);
-+BGRT_SHOW(yoffset, image_offset_y);
- 
- static ssize_t image_read(struct file *file, struct kobject *kobj,
- 	       struct bin_attribute *attr, char *buf, loff_t off, size_t count)
-@@ -60,11 +39,11 @@ static ssize_t image_read(struct file *file, struct kobject *kobj,
- static BIN_ATTR_RO(image, 0);	/* size gets filled in later */
- 
- static struct attribute *bgrt_attributes[] = {
--	&dev_attr_version.attr,
--	&dev_attr_status.attr,
--	&dev_attr_type.attr,
--	&dev_attr_xoffset.attr,
--	&dev_attr_yoffset.attr,
-+	&bgrt_attr_version.attr,
-+	&bgrt_attr_status.attr,
-+	&bgrt_attr_type.attr,
-+	&bgrt_attr_xoffset.attr,
-+	&bgrt_attr_yoffset.attr,
- 	NULL,
- };
- 
+diff --git a/drivers/regulator/fan53880.c b/drivers/regulator/fan53880.c
+index 1684faf82ed2..94f02f3099dd 100644
+--- a/drivers/regulator/fan53880.c
++++ b/drivers/regulator/fan53880.c
+@@ -79,7 +79,7 @@ static const struct regulator_desc fan53880_regulators[] = {
+ 		.n_linear_ranges = 2,
+ 		.n_voltages =	   0xf8,
+ 		.vsel_reg =	   FAN53880_BUCKVOUT,
+-		.vsel_mask =	   0x7f,
++		.vsel_mask =	   0xff,
+ 		.enable_reg =	   FAN53880_ENABLE,
+ 		.enable_mask =	   0x10,
+ 		.enable_time =	   480,
 -- 
 2.30.2
 
