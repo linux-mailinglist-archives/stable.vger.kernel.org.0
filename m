@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38A353C5371
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555273C4943
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352406AbhGLHyp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36488 "EHLO mail.kernel.org"
+        id S237766AbhGLGnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34399 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350358AbhGLHu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 868876161F;
-        Mon, 12 Jul 2021 07:44:56 +0000 (UTC)
+        id S238646AbhGLGlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:41:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E8ED61222;
+        Mon, 12 Jul 2021 06:38:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075897;
-        bh=fNfMGwQJKU7xCENjJix6Hk1CGW1bNKsCjIkjIHa08ig=;
+        s=korg; t=1626071916;
+        bh=en3uzinHV0P8ELRKNb6rjvhp/kN19UWM9oVHuyPwvBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVxSh21cW5hLW7eouw51Gk48LkHpaom+X5Lu0WeXWM7hAEYEZSk9hO5h0HDPP6SaW
-         hlacvgug1AJ5UgY42OAUVbFKUB5MGwB20oRKtRCYIseq+N7optUfOorsv3XPGivMx5
-         hZSKOMcMtk02IP/0Cq7VsQ7H0UQVf1G0SNwpONTw=
+        b=bj6+WdMV2VQ9pf5f+0PFUd3fhiz8rTi+6rfpmA7Chkfki33qLUiYR38rdJgjN4c6N
+         QI8OYJOAeingANvixTOYpOz8e/YuzkUwvPg6satOQkv6A8OGsqlZeNgHC7jhMoFES8
+         lPnCL6F7XO1R1BO+ZyOcLScDhRvcpWjvHnPC+kU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
-        Roman Li <Roman.Li@amd.com>,
-        Qingqing Zhuo <Qingqing.Zhuo@amd.com>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 410/800] drm/amd/display: fix potential gpu reset deadlock
-Date:   Mon, 12 Jul 2021 08:07:13 +0200
-Message-Id: <20210712061010.780988832@linuxfoundation.org>
+Subject: [PATCH 5.10 274/593] PM / devfreq: Add missing error code in devfreq_add_device()
+Date:   Mon, 12 Jul 2021 08:07:14 +0200
+Message-Id: <20210712060913.970370095@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <Roman.Li@amd.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit cf8b92a75646735136053ce51107bfa8cfc23191 ]
+[ Upstream commit 18b380ed61f892ed06838d1f1a5124d966292ed3 ]
 
-[Why]
-In gpu reset dc_lock acquired in dm_suspend().
-Asynchronously handle_hpd_rx_irq can also be called
-through amdgpu_dm_irq_suspend->flush_work, which also
-tries to acquire dc_lock. That causes a deadlock.
+Set err code in the error path before jumping to the end of the function.
 
-[How]
-Check if amdgpu executing reset before acquiring dc_lock.
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Signed-off-by: Roman Li <Roman.Li@amd.com>
-Reviewed-by: Qingqing Zhuo <Qingqing.Zhuo@amd.com>
-Acked-by: Wayne Lin <Wayne.Lin@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4dc3bab8687f ("PM / devfreq: Add support delayed timer for polling mode")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/devfreq/devfreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 652cc1a0e450..875fd187463e 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2726,13 +2726,15 @@ static void handle_hpd_rx_irq(void *param)
- 		}
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 98f03a02d112..829128c0cc68 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -789,6 +789,7 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 	if (devfreq->profile->timer < 0
+ 		|| devfreq->profile->timer >= DEVFREQ_TIMER_NUM) {
+ 		mutex_unlock(&devfreq->lock);
++		err = -EINVAL;
+ 		goto err_dev;
  	}
  
--	mutex_lock(&adev->dm.dc_lock);
-+	if (!amdgpu_in_reset(adev))
-+		mutex_lock(&adev->dm.dc_lock);
- #ifdef CONFIG_DRM_AMD_DC_HDCP
- 	result = dc_link_handle_hpd_rx_irq(dc_link, &hpd_irq_data, NULL);
- #else
- 	result = dc_link_handle_hpd_rx_irq(dc_link, NULL, NULL);
- #endif
--	mutex_unlock(&adev->dm.dc_lock);
-+	if (!amdgpu_in_reset(adev))
-+		mutex_unlock(&adev->dm.dc_lock);
- 
- out:
- 	if (result && !is_mst_root_connector) {
 -- 
 2.30.2
 
