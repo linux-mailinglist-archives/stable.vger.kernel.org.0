@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1F03C525B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD893C5266
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242870AbhGLHpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
+        id S1346084AbhGLHpr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345183AbhGLHnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:43:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C06461152;
-        Mon, 12 Jul 2021 07:40:15 +0000 (UTC)
+        id S245601AbhGLHne (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:43:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9138661179;
+        Mon, 12 Jul 2021 07:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075615;
-        bh=x64vuByuN8kJItEe+sAuXAhoznJt8trCXN6NHO1poMU=;
+        s=korg; t=1626075618;
+        bh=U/Wk3xklJzSoSp+qrIP77EGaiACD/fE7Vvq6NiNz9cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2u7ZsqYcSxAodO2tqF0uXU/QT4DpvwNEiLXT0C6qVMCCT3MtZ4Cxusl07doSNsiZR
-         srti9xlLU/s8/NvF+bQCyKuaxrJNpQx9yG1W4oCKUj0yz3Ywh7hYueSU6nA9NkHnwn
-         I6oybvp6XlJqebOvnErTW6iD7TPE0eD0pPC1Jb3Q=
+        b=wRyfaVMX4NphlfwVgAAgmie0S+ua7FEgAYMfZTeuufT1ltWBjbCCCyeCTcUtaOYgz
+         rKKhMYB2gG8O69Op+sX5ziDbf2pjFg6PTWLOMu8ExMXWsUeK7mwH7lEE4Bp1ifFhVU
+         cP2jA/Iq9eaxesF3z9RbCZ8AqLeSG4ySeW4Ibltk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Samuel Cabrero <scabrero@suse.de>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 248/800] smb3: fix uninitialized value for port in witness protocol move
-Date:   Mon, 12 Jul 2021 08:04:31 +0200
-Message-Id: <20210712060948.658924727@linuxfoundation.org>
+Subject: [PATCH 5.13 249/800] cifs: fix SMB1 error path in cifs_get_file_info_unix
+Date:   Mon, 12 Jul 2021 08:04:32 +0200
+Message-Id: <20210712060948.826669782@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -44,57 +41,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit ff93b71a3eff25fe9d4364ef13b6e01d935600c6 ]
+[ Upstream commit e39df24169a2ceb0d359eb3a05ff982711f2eb32 ]
 
-Although in practice this can not occur (since IPv4 and IPv6 are the
-only two cases currently supported), it is cleaner to avoid uninitialized
-variable warnings.
+We were trying to fill in uninitialized file attributes in the error case.
 
-Addresses smatch warning:
-  fs/cifs/cifs_swn.c:468 cifs_swn_store_swn_addr() error: uninitialized symbol 'port'.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-CC: Samuel Cabrero <scabrero@suse.de>
+Addresses-Coverity: 139689 ("Uninitialized variables")
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_swn.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ fs/cifs/inode.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/cifs_swn.c b/fs/cifs/cifs_swn.c
-index d829b8bf833e..93b47818c6c2 100644
---- a/fs/cifs/cifs_swn.c
-+++ b/fs/cifs/cifs_swn.c
-@@ -447,15 +447,13 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 				   const struct sockaddr_storage *old,
- 				   struct sockaddr_storage *dst)
- {
--	__be16 port;
-+	__be16 port = cpu_to_be16(CIFS_PORT);
- 
- 	if (old->ss_family == AF_INET) {
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)old;
- 
- 		port = ipv4->sin_port;
+diff --git a/fs/cifs/inode.c b/fs/cifs/inode.c
+index 1dfa57982522..f60f068d33e8 100644
+--- a/fs/cifs/inode.c
++++ b/fs/cifs/inode.c
+@@ -367,9 +367,12 @@ cifs_get_file_info_unix(struct file *filp)
+ 	} else if (rc == -EREMOTE) {
+ 		cifs_create_dfs_fattr(&fattr, inode->i_sb);
+ 		rc = 0;
 -	}
--
--	if (old->ss_family == AF_INET6) {
-+	} else if (old->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)old;
++	} else
++		goto cifs_gfiunix_out;
  
- 		port = ipv6->sin6_port;
-@@ -465,9 +463,7 @@ static int cifs_swn_store_swn_addr(const struct sockaddr_storage *new,
- 		struct sockaddr_in *ipv4 = (struct sockaddr_in *)new;
- 
- 		ipv4->sin_port = port;
--	}
--
--	if (new->ss_family == AF_INET6) {
-+	} else if (new->ss_family == AF_INET6) {
- 		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)new;
- 
- 		ipv6->sin6_port = port;
+ 	rc = cifs_fattr_to_inode(inode, &fattr);
++
++cifs_gfiunix_out:
+ 	free_xid(xid);
+ 	return rc;
+ }
 -- 
 2.30.2
 
