@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D00083C55AB
+	by mail.lfdr.de (Postfix) with ESMTP id 83E153C55AA
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233100AbhGLILe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
+        id S233067AbhGLILd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:11:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353843AbhGLIDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1353844AbhGLIDC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 04:03:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27A42619A0;
-        Mon, 12 Jul 2021 07:58:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8423461D12;
+        Mon, 12 Jul 2021 07:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076684;
-        bh=eeuZgFZqXknJk8cKZAzKEHL+972qgorEnHz1+s2Cng8=;
+        s=korg; t=1626076687;
+        bh=/MvL68KaBzS2y7b5Z+JRjEKHXKNe8pDqfSazwZLNINs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyEWQW6HqMvlW3HFiWwPbXALQGv5bh/vZXsaYb87B2alpj1HclRN0uCXiQqwPLFWX
-         oMSyGVEtRHoFZrnCvB1COQSTP/6SW1GayLP+9u2oDBYIJRI8Xj9ISjwodrGPrPSKf2
-         b8+COvKXHp1PnFwEoRjdC/MJ7ckuif9jEB+rHXSc=
+        b=Z8bbfWLHL/cf//KvPpCGsfCvprX+Ll331f4wWFpemRxCeKY+U6Nmo3sY7DjOefPxv
+         kZCE30IbG+A2KQQPYDuP94dNonvT66hwmfEK5T4Hb72FKOgZzEO/d860nYzMjJraay
+         k46uShwV0Y2nZwDshtHWyjr+gMfSYRu2bydKcEI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YouChing Lin <ycllin@mxic.com.tw>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Marco Elver <elver@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 706/800] mtd: spinand: Fix double counting of ECC stats
-Date:   Mon, 12 Jul 2021 08:12:09 +0200
-Message-Id: <20210712061041.883346725@linuxfoundation.org>
+Subject: [PATCH 5.13 707/800] kunit: Fix result propagation for parameterised tests
+Date:   Mon, 12 Jul 2021 08:12:10 +0200
+Message-Id: <20210712061041.971503225@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,86 +42,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit c93081b265735db2417f0964718516044d06b1a2 ]
+[ Upstream commit 384426bd101cb3cd580b18de19d4891ec5ca5bf9 ]
 
-In the raw NAND world, ECC engines increment ecc_stats and the final
-caller is responsible for returning -EBADMSG if the verification
-failed.
+When one parameter of a parameterised test failed, its failure would be
+propagated to the overall test, but not to the suite result (unless it
+was the last parameter).
 
-In the SPI-NAND world it was a bit different until now because there was
-only one possible ECC engine: the on-die one. Indeed, the
-spinand_mtd_read() call was incrementing the ecc_stats counters
-depending on the outcome of spinand_check_ecc_status() directly.
+This is because test_case->success was being reset to the test->success
+result after each parameter was used, so a failing test's result would
+be overwritten by a non-failing result. The overall test result was
+handled in a third variable, test_result, but this was discarded after
+the status line was printed.
 
-So now let's split the logic like this:
-- spinand_check_ecc_status() is specific to the SPI-NAND on-die engine
-  and is kept very simple: it just returns the ECC status (bonus point:
-  the content of this helper can be overloaded).
-- spinand_ondie_ecc_finish_io_req() is the caller of
-  spinand_check_ecc_status() and will increment the counters and
-  eventually return -EBADMSG.
-- spinand_mtd_read() is not tied to the on-die ECC implementation and
-  should be able to handle results coming from other ECC engines: it has
-  the responsibility of returning the maximum number of bitflips which
-  happened during the entire operation as this is the only helper that
-  is aware that several pages may be read in a row.
+Instead, just propagate the result after each parameter run.
 
-Fixes: 945845b54c9c ("mtd: spinand: Instantiate a SPI-NAND on-die ECC engine")
-Reported-by: YouChing Lin <ycllin@mxic.com.tw>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Tested-by: YouChing Lin <ycllin@mxic.com.tw>
-Link: https://lore.kernel.org/linux-mtd/20210527084345.208215-1-miquel.raynal@bootlin.com
+Signed-off-by: David Gow <davidgow@google.com>
+Fixes: fadb08e7c750 ("kunit: Support for Parameterized Testing")
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/spi/core.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ lib/kunit/test.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/nand/spi/core.c b/drivers/mtd/nand/spi/core.c
-index 17f63f95f4a2..54ae540bc66b 100644
---- a/drivers/mtd/nand/spi/core.c
-+++ b/drivers/mtd/nand/spi/core.c
-@@ -290,6 +290,8 @@ static int spinand_ondie_ecc_finish_io_req(struct nand_device *nand,
- {
- 	struct spinand_ondie_ecc_conf *engine_conf = nand->ecc.ctx.priv;
- 	struct spinand_device *spinand = nand_to_spinand(nand);
-+	struct mtd_info *mtd = spinand_to_mtd(spinand);
-+	int ret;
+diff --git a/lib/kunit/test.c b/lib/kunit/test.c
+index 2f6cc0123232..17973a4a44c2 100644
+--- a/lib/kunit/test.c
++++ b/lib/kunit/test.c
+@@ -376,7 +376,7 @@ static void kunit_run_case_catch_errors(struct kunit_suite *suite,
+ 	context.test_case = test_case;
+ 	kunit_try_catch_run(try_catch, &context);
  
- 	if (req->mode == MTD_OPS_RAW)
- 		return 0;
-@@ -299,7 +301,13 @@ static int spinand_ondie_ecc_finish_io_req(struct nand_device *nand,
- 		return 0;
- 
- 	/* Finish a page write: check the status, report errors/bitflips */
--	return spinand_check_ecc_status(spinand, engine_conf->status);
-+	ret = spinand_check_ecc_status(spinand, engine_conf->status);
-+	if (ret == -EBADMSG)
-+		mtd->ecc_stats.failed++;
-+	else if (ret > 0)
-+		mtd->ecc_stats.corrected += ret;
-+
-+	return ret;
+-	test_case->success = test->success;
++	test_case->success &= test->success;
  }
  
- static struct nand_ecc_engine_ops spinand_ondie_ecc_engine_ops = {
-@@ -620,13 +628,10 @@ static int spinand_mtd_read(struct mtd_info *mtd, loff_t from,
- 		if (ret < 0 && ret != -EBADMSG)
- 			break;
+ int kunit_run_tests(struct kunit_suite *suite)
+@@ -388,7 +388,7 @@ int kunit_run_tests(struct kunit_suite *suite)
  
--		if (ret == -EBADMSG) {
-+		if (ret == -EBADMSG)
- 			ecc_failed = true;
--			mtd->ecc_stats.failed++;
--		} else {
--			mtd->ecc_stats.corrected += ret;
-+		else
- 			max_bitflips = max_t(unsigned int, max_bitflips, ret);
--		}
+ 	kunit_suite_for_each_test_case(suite, test_case) {
+ 		struct kunit test = { .param_value = NULL, .param_index = 0 };
+-		bool test_success = true;
++		test_case->success = true;
  
- 		ret = 0;
- 		ops->retlen += iter.req.datalen;
+ 		if (test_case->generate_params) {
+ 			/* Get initial param. */
+@@ -398,7 +398,6 @@ int kunit_run_tests(struct kunit_suite *suite)
+ 
+ 		do {
+ 			kunit_run_case_catch_errors(suite, test_case, &test);
+-			test_success &= test_case->success;
+ 
+ 			if (test_case->generate_params) {
+ 				if (param_desc[0] == '\0') {
+@@ -420,7 +419,7 @@ int kunit_run_tests(struct kunit_suite *suite)
+ 			}
+ 		} while (test.param_value);
+ 
+-		kunit_print_ok_not_ok(&test, true, test_success,
++		kunit_print_ok_not_ok(&test, true, test_case->success,
+ 				      kunit_test_case_num(suite, test_case),
+ 				      test_case->name);
+ 	}
 -- 
 2.30.2
 
