@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD7D3C4F2F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F0653C5508
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240098AbhGLHXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60126 "EHLO mail.kernel.org"
+        id S241614AbhGLIIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:08:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241841AbhGLHVy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:21:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 914766145A;
-        Mon, 12 Jul 2021 07:19:05 +0000 (UTC)
+        id S1351848AbhGLH6F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:58:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E3D361958;
+        Mon, 12 Jul 2021 07:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074346;
-        bh=4v+nseQdWKDdrAUHjCL5B0ijZTrXt6zOPA7+ThEi7D4=;
+        s=korg; t=1626076377;
+        bh=Oi3y2yBBGcFt18P/vBki8jMUCr2akmA3mbKlUS3X1l8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QS5BLVPBROgToewzc7hbOwRgjyf+SmHEcV24rOTFd49Y633xeTFfMb+NTRLwk+B97
-         Jdf6mYENxbXCUCl8XrFqyi8K2KF/ouumthRDmlf6gjPqyYb+W3sPQ6iV33HX+p0thM
-         7D+EmIfkwmgjPP5pb420kewZ/PSJEglgsoLxSMLc=
+        b=z0jDxmyWuq1QKrKcmSkV3VtFXNiNMsFvbXplk8LVNJNgrpjnuc743NlpgELOIVv9+
+         7KDopsi1AnQcqTKmHr2J6Ti+gCtjdTxYBHc057Mg1sYWbbL7nyq1zOm9V3ZVTbkAa4
+         we6Df7clbgOVzrtYM9MQbPfp4/08ysOuhuw1sztk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 550/700] iio: light: tcs3472: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.13 610/800] tty: nozomi: Fix a resource leak in an error handling function
 Date:   Mon, 12 Jul 2021 08:10:33 +0200
-Message-Id: <20210712061034.811835717@linuxfoundation.org>
+Message-Id: <20210712061032.148203729@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit df2f37cffd6ed486d613e7ee22aadc8e49ae2dd3 ]
+[ Upstream commit 31a9a318255960d32ae183e95d0999daf2418608 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+A 'request_irq()' call is not balanced by a corresponding 'free_irq()' in
+the error handling path, as already done in the remove function.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp().
+Add it.
 
-Fixes tag is not strictly accurate as prior to that patch there was
-potentially an unaligned write.  However, any backport past there will
-need to be done manually.
-
-Fixes: 0624bf847dd0 ("iio:tcs3472: Use iio_push_to_buffers_with_timestamp()")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-20-jic23@kernel.org
+Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/4f0d2b3038e82f081d370ccb0cade3ad88463fe7.1620580838.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/tcs3472.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/tty/nozomi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/light/tcs3472.c b/drivers/iio/light/tcs3472.c
-index b41068492338..371c6a39a165 100644
---- a/drivers/iio/light/tcs3472.c
-+++ b/drivers/iio/light/tcs3472.c
-@@ -64,7 +64,11 @@ struct tcs3472_data {
- 	u8 control;
- 	u8 atime;
- 	u8 apers;
--	u16 buffer[8]; /* 4 16-bit channels + 64-bit timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u16 chans[4];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
- 
- static const struct iio_event_spec tcs3472_events[] = {
-@@ -386,10 +390,10 @@ static irqreturn_t tcs3472_trigger_handler(int irq, void *p)
- 		if (ret < 0)
- 			goto done;
- 
--		data->buffer[j++] = ret;
-+		data->scan.chans[j++] = ret;
+diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
+index 9a2d78ace49b..b270e137ef9b 100644
+--- a/drivers/tty/nozomi.c
++++ b/drivers/tty/nozomi.c
+@@ -1420,6 +1420,7 @@ err_free_tty:
+ 		tty_unregister_device(ntty_driver, dc->index_start + i);
+ 		tty_port_destroy(&dc->port[i].port);
  	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
- 
- done:
++	free_irq(pdev->irq, dc);
+ err_free_kfifo:
+ 	for (i = 0; i < MAX_PORT; i++)
+ 		kfifo_free(&dc->port[i].fifo_ul);
 -- 
 2.30.2
 
