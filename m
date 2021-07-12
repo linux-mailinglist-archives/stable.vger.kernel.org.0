@@ -2,34 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 531DA3C4B92
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 227653C513E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239672AbhGLG6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
+        id S1345647AbhGLHif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238403AbhGLG5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:57:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E4B61361;
-        Mon, 12 Jul 2021 06:54:18 +0000 (UTC)
+        id S1347328AbhGLHer (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:34:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF57B6140E;
+        Mon, 12 Jul 2021 07:31:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072859;
-        bh=Vz/8nZG8zcT/Di9vwI6Q5i3RZv9Eig3ce4H3Fe2Gr2Y=;
+        s=korg; t=1626075104;
+        bh=VxsMsNEiiHntLXbNFK2z5oizrRdubsB1rGTW5mKr68U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NczqGdAvF5ldHovSiv1UKgD1gbUa+5AXYwGiH2O89SGyYU0cyjmXF7k/sifyRiOq
-         7pgWR4yBZ1Ilo+GJN7a3j8feRNs43wRencQ1qRuZqxIt9rzj4+8hMWVTWCIl8Qh30d
-         3U6GSkEtATF9YXuzJHelaRiH5loipQptYQcEZvnE=
+        b=g1vCap3UZjMvmpgQ+KDe7S0sOF5FWGETR+TeIlTzBFNzbe0JgB12p8iLXdiHuUvjA
+         lObQ87EWqJgaFeJT8OMoiPFFtV3COnT/QicAvBbuCHqlYwBZhwZeeKAM/gGDrQZJop
+         EwTRws2BoM8F8VqUi8WsPpFFFnVSZfFKvVIAl56I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 046/700] btrfs: compression: dont try to compress if we dont have enough pages
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Amitkumar Karwar <amit.karwar@redpinesignals.com>,
+        Angus Ainslie <angus@akkea.ca>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Karun Eagalapati <karun256@gmail.com>,
+        Martin Kepplinger <martink@posteo.de>,
+        Prameela Rani Garnepudi <prameela.j04cs@gmail.com>,
+        Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>,
+        Siva Rebbagondla <siva8118@gmail.com>, netdev@vger.kernel.org
+Subject: [PATCH 5.13 106/800] rsi: Assign beacon rate settings to the correct rate_info descriptor field
 Date:   Mon, 12 Jul 2021 08:02:09 +0200
-Message-Id: <20210712060931.196287208@linuxfoundation.org>
+Message-Id: <20210712060927.947850173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,38 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Marek Vasut <marex@denx.de>
 
-commit f2165627319ffd33a6217275e5690b1ab5c45763 upstream.
+commit b1c3a24897bd528f2f4fda9fea7da08a84ae25b6 upstream.
 
-The early check if we should attempt compression does not take into
-account the number of input pages. It can happen that there's only one
-page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
-have been processed, or an isolated page that won't be converted to an
-inline extent.
+The RSI_RATE_x bits must be assigned to struct rsi_data_desc rate_info
+field. The rest of the driver does it correctly, except this one place,
+so fix it. This is also aligned with the RSI downstream vendor driver.
+Without this patch, an AP operating at 5 GHz does not transmit any
+beacons at all, this patch fixes that.
 
-The single page would be compressed but a later check would drop it
-again because the result size must be at least one block shorter than
-the input. That can never work with just one page.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: d26a9559403c ("rsi: add beacon changes for AP mode")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Amitkumar Karwar <amit.karwar@redpinesignals.com>
+Cc: Angus Ainslie <angus@akkea.ca>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Karun Eagalapati <karun256@gmail.com>
+Cc: Martin Kepplinger <martink@posteo.de>
+Cc: Prameela Rani Garnepudi <prameela.j04cs@gmail.com>
+Cc: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Cc: Siva Rebbagondla <siva8118@gmail.com>
+Cc: netdev@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210507213105.140138-1-marex@denx.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/rsi/rsi_91x_hal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -598,7 +598,7 @@ again:
- 	 * inode has not been flagged as nocompress.  This flag can
- 	 * change at any time if we discover bad compression ratios.
- 	 */
--	if (inode_need_compress(BTRFS_I(inode), start, end)) {
-+	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
- 		WARN_ON(pages);
- 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
- 		if (!pages) {
+--- a/drivers/net/wireless/rsi/rsi_91x_hal.c
++++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
+@@ -470,9 +470,9 @@ int rsi_prepare_beacon(struct rsi_common
+ 	}
+ 
+ 	if (common->band == NL80211_BAND_2GHZ)
+-		bcn_frm->bbp_info |= cpu_to_le16(RSI_RATE_1);
++		bcn_frm->rate_info |= cpu_to_le16(RSI_RATE_1);
+ 	else
+-		bcn_frm->bbp_info |= cpu_to_le16(RSI_RATE_6);
++		bcn_frm->rate_info |= cpu_to_le16(RSI_RATE_6);
+ 
+ 	if (mac_bcn->data[tim_offset + 2] == 0)
+ 		bcn_frm->frame_info |= cpu_to_le16(RSI_DATA_DESC_DTIM_BEACON);
 
 
