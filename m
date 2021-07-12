@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95F03C4BDE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B1F63C50FA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240387AbhGLHAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33308 "EHLO mail.kernel.org"
+        id S243503AbhGLHf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239955AbhGLG6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:58:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 426C261380;
-        Mon, 12 Jul 2021 06:55:50 +0000 (UTC)
+        id S1346654AbhGLHeQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:34:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 370B9613E4;
+        Mon, 12 Jul 2021 07:31:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072951;
-        bh=RCjUG2JQ5Fn9D2AgnyWAr3vvbV9vOEIeYuaB+5de45g=;
+        s=korg; t=1626075063;
+        bh=oy3KLG7O4RGLwE+4QEYQG92pZCKMBsd6z1Ea1INhmY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFn3lwk1OxXYuvmi2+XFq3PpBSqzotW0Gaqm5p0g8dAv2jn3wYW9gveQkCmZTUl8x
-         Qt5v26WB3pNcmhk2LDcByUwO1ITwT4pt5SrXWQ/zRNLPpMs8rShsnsokgb0npFTM8G
-         HE1RPrIBrRyD5BVTjVDvKqgF9af6JjYGJdZMbMTM=
+        b=j6PbOYelbEIhLa6JtQxN/BiYI/JLI6/hrCHlvJ+Fpfdn5W6Jk32CdnN2BaNHn0KX/
+         0F68MD5AKAngr2i0s2XSiul7Pn0IGkIsbRVs2bIqOYvs5pmD8VUwt862sDW1aR0Cof
+         /0ZLelbmsbkv83/lrFtT80GhwhojJSwJWPbt7nVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Guillaume Tucker <guillaume.tucker@collabora.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.12 033/700] selftests/lkdtm: Avoid needing explicit sub-shell
+        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Nikita Travkin <nikita@trvn.ru>
+Subject: [PATCH 5.13 093/800] iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and PS_DATA as volatile, too
 Date:   Mon, 12 Jul 2021 08:01:56 +0200
-Message-Id: <20210712060929.311193615@linuxfoundation.org>
+Message-Id: <20210712060926.142405235@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 04831e892b41618914b2123ae3b4fa77252e8656 upstream.
+commit 2ac0b029a04b673ce83b5089368f467c5dca720c upstream.
 
-Some environments do not set $SHELL when running tests. There's no
-need to use $SHELL here anyway, since "cat" can be used to receive any
-delivered signals from the kernel. Additionally avoid using bash-isms
-in the command, and record stderr for posterity.
+The regmap is configured for 8 bit registers, uses a RB-Tree cache and
+marks several registers as volatile (i.e. do not cache).
 
-Fixes: 46d1a0f03d66 ("selftests/lkdtm: Add tests for LKDTM targets")
-Cc: stable@vger.kernel.org
-Suggested-by: Guillaume Tucker <guillaume.tucker@collabora.com>
-Suggested-by: David Laight <David.Laight@ACULAB.COM>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210623203936.3151093-2-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The ALS and PS data registers in the chip are 16 bit wide and spans
+two regmap registers. In the current driver only the base register is
+marked as volatile, resulting in the upper register only read once.
+
+Further the data sheet notes:
+
+| When the I2C read operation starts, all four ALS data registers are
+| locked until the I2C read operation of register 0x8B is completed.
+
+Which results in the registers never update after the 2nd read.
+
+This patch fixes the problem by marking the upper 8 bits of the ALS
+and PS registers as volatile, too.
+
+Fixes: 2f2c96338afc ("iio: ltr501: Add regmap support.")
+Reported-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-2-mkl@pengutronix.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/lkdtm/run.sh |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/iio/light/ltr501.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/tools/testing/selftests/lkdtm/run.sh
-+++ b/tools/testing/selftests/lkdtm/run.sh
-@@ -76,10 +76,14 @@ fi
- # Save existing dmesg so we can detect new content below
- dmesg > "$DMESG"
- 
--# Most shells yell about signals and we're expecting the "cat" process
--# to usually be killed by the kernel. So we have to run it in a sub-shell
--# and silence errors.
--($SHELL -c 'cat <(echo '"$test"') >'"$TRIGGER" 2>/dev/null) || true
-+# Since the kernel is likely killing the process writing to the trigger
-+# file, it must not be the script's shell itself. i.e. we cannot do:
-+#     echo "$test" >"$TRIGGER"
-+# Instead, use "cat" to take the signal. Since the shell will yell about
-+# the signal that killed the subprocess, we must ignore the failure and
-+# continue. However we don't silence stderr since there might be other
-+# useful details reported there in the case of other unexpected conditions.
-+echo "$test" | cat >"$TRIGGER" || true
- 
- # Record and dump the results
- dmesg | comm --nocheck-order -13 "$DMESG" - > "$LOG" || true
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -32,9 +32,12 @@
+ #define LTR501_PART_ID 0x86
+ #define LTR501_MANUFAC_ID 0x87
+ #define LTR501_ALS_DATA1 0x88 /* 16-bit, little endian */
++#define LTR501_ALS_DATA1_UPPER 0x89 /* upper 8 bits of LTR501_ALS_DATA1 */
+ #define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
++#define LTR501_ALS_DATA0_UPPER 0x8b /* upper 8 bits of LTR501_ALS_DATA0 */
+ #define LTR501_ALS_PS_STATUS 0x8c
+ #define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
++#define LTR501_PS_DATA_UPPER 0x8e /* upper 8 bits of LTR501_PS_DATA */
+ #define LTR501_INTR 0x8f /* output mode, polarity, mode */
+ #define LTR501_PS_THRESH_UP 0x90 /* 11 bit, ps upper threshold */
+ #define LTR501_PS_THRESH_LOW 0x92 /* 11 bit, ps lower threshold */
+@@ -1354,9 +1357,12 @@ static bool ltr501_is_volatile_reg(struc
+ {
+ 	switch (reg) {
+ 	case LTR501_ALS_DATA1:
++	case LTR501_ALS_DATA1_UPPER:
+ 	case LTR501_ALS_DATA0:
++	case LTR501_ALS_DATA0_UPPER:
+ 	case LTR501_ALS_PS_STATUS:
+ 	case LTR501_PS_DATA:
++	case LTR501_PS_DATA_UPPER:
+ 		return true;
+ 	default:
+ 		return false;
 
 
