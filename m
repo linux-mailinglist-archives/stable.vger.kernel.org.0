@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144E33C53ED
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D41363C49D6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348195AbhGLH40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35488 "EHLO mail.kernel.org"
+        id S235938AbhGLGq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350803AbhGLHvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E233161154;
-        Mon, 12 Jul 2021 07:48:28 +0000 (UTC)
+        id S237353AbhGLGqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:46:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F021A6052B;
+        Mon, 12 Jul 2021 06:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076109;
-        bh=aznMyr3mS6X4yI+zpXfb8ZngxkF9p7QTKDxJQVfmA38=;
+        s=korg; t=1626072123;
+        bh=ZdHYDiM4CBsddFR3O9SZ3RVMggxlOK7IXi8dyjDYJe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rYD/m6hEQl3LS4zVov9+2Uqf8DZJ0OzPbq4fUyJxkA2d2lE8B/9vRLgybs2mqXO1u
-         cy+4EaB9YiNZUh9bzhjhLowaURY7ds3Gw3ANnmPSKHnUvSzSfea2bsNhhuBSUHrIlZ
-         +yCciSjpm1eIjxexbhkLEjHZeRNbjv94xS0cMfKM=
+        b=vfEbmyZ6cW1b6UMfI/xZBaH56qB5zhaIH9T+2XW5/dbMyxfaJzipc4HbogNo2FKND
+         xEdlBup4txJ0QJtQCIYizqaNwScGAFz197WrxVGo328BCMPjsKjf+88kvM1Posp+xo
+         rH/T2mGrEB7qm5xh+a+Kk+WQuIAtTx4BrA5HdfCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 501/800] mt76: testmode: fix memory leak in mt76_testmode_alloc_skb
+        stable@vger.kernel.org, Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>, Frank Eigler <fche@redhat.com>,
+        Mark Wielaard <mark@klomp.org>, Jiri Olsa <jolsa@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 364/593] bpf: Fix libelf endian handling in resolv_btfids
 Date:   Mon, 12 Jul 2021 08:08:44 +0200
-Message-Id: <20210712061020.495407973@linuxfoundation.org>
+Message-Id: <20210712060926.573059514@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-[ Upstream commit fe2c3b1fc64ea0c7a5b2ca2f671b4572ff99baf8 ]
+[ Upstream commit 61e8aeda9398925f8c6fc290585bdd9727d154c4 ]
 
-Free all pending frames in case of failure in mt76_testmode_alloc_skb
-routine
+The vmlinux ".BTF_ids" ELF section is declared in btf_ids.h to hold a list
+of zero-filled BTF IDs, which is then patched at link-time with correct
+values by resolv_btfids. The section is flagged as "allocable" to preclude
+compression, but notably the section contents (BTF IDs) are untyped.
 
-Fixes: 2601dda8faa76 ("mt76: testmode: add support to send larger packet")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+When patching the BTF IDs, resolve_btfids writes in host-native endianness
+and relies on libelf for any required translation on reading and updating
+vmlinux. However, since the type of the .BTF_ids section content defaults
+to ELF_T_BYTE (i.e. unsigned char), no translation occurs. This results in
+incorrect patched values when cross-compiling to non-native endianness,
+and can manifest as kernel Oops and test failures which are difficult to
+troubleshoot [1].
+
+Explicitly set the type of patched data to ELF_T_WORD, the architecture-
+neutral ELF type corresponding to the u32 BTF IDs. This enables libelf to
+transparently perform any needed endian conversions.
+
+Fixes: fbbb68de80a4 ("bpf: Add resolve_btfids tool to resolve BTF IDs in ELF object")
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Cc: Frank Eigler <fche@redhat.com>
+Cc: Mark Wielaard <mark@klomp.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/CAPGftE_eY-Zdi3wBcgDfkz_iOr1KF10n=9mJHm1_a_PykcsoeA@mail.gmail.com [1]
+Link: https://lore.kernel.org/bpf/20210618061404.818569-1-Tony.Ambardar@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/testmode.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/bpf/resolve_btfids/main.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/testmode.c b/drivers/net/wireless/mediatek/mt76/testmode.c
-index 001d0ba5f73e..f40387a866ee 100644
---- a/drivers/net/wireless/mediatek/mt76/testmode.c
-+++ b/drivers/net/wireless/mediatek/mt76/testmode.c
-@@ -158,8 +158,11 @@ int mt76_testmode_alloc_skb(struct mt76_phy *phy, u32 len)
- 			frag_len = MT_TXP_MAX_LEN;
+diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+index d636643ddd35..f32c059fbfb4 100644
+--- a/tools/bpf/resolve_btfids/main.c
++++ b/tools/bpf/resolve_btfids/main.c
+@@ -649,6 +649,9 @@ static int symbols_patch(struct object *obj)
+ 	if (sets_patch(obj))
+ 		return -1;
  
- 		frag = alloc_skb(frag_len, GFP_KERNEL);
--		if (!frag)
-+		if (!frag) {
-+			mt76_testmode_free_skb(phy);
-+			dev_kfree_skb(head);
- 			return -ENOMEM;
-+		}
++	/* Set type to ensure endian translation occurs. */
++	obj->efile.idlist->d_type = ELF_T_WORD;
++
+ 	elf_flagdata(obj->efile.idlist, ELF_C_SET, ELF_F_DIRTY);
  
- 		__skb_put_zero(frag, frag_len);
- 		head->len += frag->len;
+ 	err = elf_update(obj->efile.elf, ELF_C_WRITE);
 -- 
 2.30.2
 
