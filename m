@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B227F3C48E3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956E43C4D40
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236284AbhGLGlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S242053AbhGLHM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236782AbhGLGjS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 432DD6117A;
-        Mon, 12 Jul 2021 06:34:44 +0000 (UTC)
+        id S242804AbhGLHHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:07:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 847876108B;
+        Mon, 12 Jul 2021 07:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071684;
-        bh=5YQzn5VTPGA3RcWIpzC4eQz/17IKiMjdivRT+lqiYjk=;
+        s=korg; t=1626073474;
+        bh=Pm43KLEJ9eqBgNsDtKpe91gbsGOS/dk4S1pFa3w48nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSewphT+HjmU6kQZNO6eOE6UTI9YIuBeB4HCFIV0iEqde0EsyT+x8bhVZD/61etED
-         uPhnKRUmG6R9++rZbjkXD53+AmKInYBWngO2fLgrFgJlD5ZdOzHmpUYdtIcV6v1Xcv
-         o+BZuklSimsvjtUp5GZGC2Kozr8+mbuNvYs5BCW8=
+        b=N/sPZdVMtNcuTLAZSjVgMBcyoPMGRYRYPe5XlAUWFFCsWpcHpPHiK880Aix6vWvP8
+         wCxk/O0sx0Bm+BCen4zyV+a4zCzo9fXdPMqQrqjiQS9WvQOek59YJVBBpOofTzE03n
+         Tr6XH+s61H1SzjaQiRPtG5zl49RFP+QIoMEaU2lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 175/593] platform/x86: touchscreen_dmi: Add info for the Goodix GT912 panel of TM800A550L tablets
+Subject: [PATCH 5.12 252/700] media: i2c: ccs-core: return the right error code at suspend
 Date:   Mon, 12 Jul 2021 08:05:35 +0200
-Message-Id: <20210712060902.264623669@linuxfoundation.org>
+Message-Id: <20210712061002.657287214@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit fcd8cf0e3e48f4c66af82c8e799c37cb0cccffe0 ]
+[ Upstream commit 6005a8e955e4e451e4bf6000affaab566d4cab5e ]
 
-The Bay Trail Glavey TM800A550L tablet, which ships with Android installed
-from the factory, uses a GT912 touchscreen controller which needs to have
-its firmware uploaded by the OS to work (this is a first for a x86 based
-device with a Goodix touchscreen controller).
+If pm_runtime resume logic fails, return the error code
+provided by it, instead of -EAGAIN, as, depending on what
+caused it to fail, it may not be something that would be
+recovered.
 
-Add a touchscreen_dmi entry for this which specifies the filenames
-to use for the firmware and config files needed for this.
-
-Note this matches on a GDIX1001 ACPI HID, while the original DSDT uses
-a HID of GODX0911. For the touchscreen to work on these devices a DSDT
-override is necessary to fix a missing IRQ and broken GPIO settings in
-the ACPI-resources for the touchscreen. This override also changes the
-HID to the standard GDIX1001 id typically used for Goodix touchscreens.
-The DSDT override is available here:
-https://fedorapeople.org/~jwrdegoede/glavey-tm800a550l-dsdt-override/
-
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-5-hdegoede@redhat.com
+Fixes: cbba45d43631 ("[media] smiapp: Use runtime PM")
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/media/i2c/ccs/ccs-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index ebae21b78327..99260915122c 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -316,6 +316,18 @@ static const struct ts_dmi_data gdix1001_01_upside_down_data = {
- 	.properties	= gdix1001_upside_down_props,
- };
+diff --git a/drivers/media/i2c/ccs/ccs-core.c b/drivers/media/i2c/ccs/ccs-core.c
+index 4505594996bd..fde0c51f0406 100644
+--- a/drivers/media/i2c/ccs/ccs-core.c
++++ b/drivers/media/i2c/ccs/ccs-core.c
+@@ -3093,7 +3093,7 @@ static int __maybe_unused ccs_suspend(struct device *dev)
+ 	if (rval < 0) {
+ 		pm_runtime_put_noidle(dev);
  
-+static const struct property_entry glavey_tm800a550l_props[] = {
-+	PROPERTY_ENTRY_STRING("firmware-name", "gt912-glavey-tm800a550l.fw"),
-+	PROPERTY_ENTRY_STRING("goodix,config-name", "gt912-glavey-tm800a550l.cfg"),
-+	PROPERTY_ENTRY_U32("goodix,main-clk", 54),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data glavey_tm800a550l_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= glavey_tm800a550l_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -1012,6 +1024,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
- 		},
- 	},
-+	{	/* Glavey TM800A550L */
-+		.driver_data = (void *)&glavey_tm800a550l_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS version */
-+			DMI_MATCH(DMI_BIOS_VERSION, "ZY-8-BI-PX4S70VTR400-X423B-005-D"),
-+		},
-+	},
- 	{
- 		/* GP-electronic T701 */
- 		.driver_data = (void *)&gp_electronic_t701_data,
+-		return -EAGAIN;
++		return rval;
+ 	}
+ 
+ 	if (sensor->streaming)
 -- 
 2.30.2
 
