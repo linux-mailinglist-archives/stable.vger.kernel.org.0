@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEECD3C553E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 657E33C4B31
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355454AbhGLIJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54124 "EHLO mail.kernel.org"
+        id S240257AbhGLGz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353366AbhGLIB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:01:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94390619F1;
-        Mon, 12 Jul 2021 07:54:44 +0000 (UTC)
+        id S240355AbhGLGxz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:53:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A0C861154;
+        Mon, 12 Jul 2021 06:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076485;
-        bh=A9YYYw0H9xPLC/H3DkCaENEa7EaxL2v4LLQ6xKibDjI=;
+        s=korg; t=1626072662;
+        bh=jRKv6eYizbrlcsTnp5IQn5e22UGVdEp1u8WKoEe1Yw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=slyl3hTztxwIy4hcfo/nq5icqlWPzsEbBTnPoBWoH3zOA5P7cok7lYMCuf8YhZ8hs
-         Tt+3P7b5gwYQoOM4zOVjgSWJjeB/zK4+fWb39WBWLfPUzn3oX/q9KYeQDvLPyD24aV
-         VgunW6D2CGIzbhMkC9iyzaEsvj2C32uYYNI/cvAE=
+        b=qILTHfp1ODNcB1abi3+LQg3gxOMYQSzh7uThpGlmJK/DJOneyump4s6cgzS5To/DX
+         3u9ADF1pTpeuaECRdfFTvVcT0ISQyBMJeq3LwDK7+EPaYOCUh4tWm5V1b7yxOcKGVb
+         Em5TDUvvlUxFHfxDc6dwnn2TZxA+F+BYJC8Q2ZAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 656/800] leds: lm3532: select regmap I2C API
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Song Qiang <songqiang1304521@gmail.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 519/593] iio: magn: rm3100: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:19 +0200
-Message-Id: <20210712061036.771018008@linuxfoundation.org>
+Message-Id: <20210712060949.537040391@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 99be74f61cb0292b518f5e6d7e5c6611555c2ec7 ]
+[ Upstream commit b8f939fd20690623cb24845a563e7bc1e4a21482 ]
 
-Regmap APIs should be selected, otherwise link can fail
+Add __aligned(8) to ensure the buffer passed to
+iio_push_to_buffers_with_timestamp() is suitable for the naturally
+aligned timestamp that will be inserted.
 
-ERROR: modpost: "__devm_regmap_init_i2c" [drivers/leds/leds-lm3532.ko] undefined!
+Here an explicit structure is not used, because this buffer is used in
+a non-trivial way for data repacking.
 
-Fixes: bc1b8492c764 ("leds: lm3532: Introduce the lm3532 LED driver")
-Cc: Dan Murphy <dmurphy@ti.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: 121354b2eceb ("iio: magnetometer: Add driver support for PNI RM3100")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Song Qiang <songqiang1304521@gmail.com>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-6-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/magnetometer/rm3100-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
-index 49d99cb084db..c81b1e60953c 100644
---- a/drivers/leds/Kconfig
-+++ b/drivers/leds/Kconfig
-@@ -199,6 +199,7 @@ config LEDS_LM3530
+diff --git a/drivers/iio/magnetometer/rm3100-core.c b/drivers/iio/magnetometer/rm3100-core.c
+index 7242897a05e9..720234a91db1 100644
+--- a/drivers/iio/magnetometer/rm3100-core.c
++++ b/drivers/iio/magnetometer/rm3100-core.c
+@@ -78,7 +78,8 @@ struct rm3100_data {
+ 	bool use_interrupt;
+ 	int conversion_time;
+ 	int scale;
+-	u8 buffer[RM3100_SCAN_BYTES];
++	/* Ensure naturally aligned timestamp */
++	u8 buffer[RM3100_SCAN_BYTES] __aligned(8);
+ 	struct iio_trigger *drdy_trig;
  
- config LEDS_LM3532
- 	tristate "LCD Backlight driver for LM3532"
-+	select REGMAP_I2C
- 	depends on LEDS_CLASS
- 	depends on I2C
- 	help
+ 	/*
 -- 
 2.30.2
 
