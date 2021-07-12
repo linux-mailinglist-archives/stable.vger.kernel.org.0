@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 676DB3C503D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36F623C5564
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243135AbhGLHbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S1355652AbhGLIKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:10:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344428AbhGLH3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 002EA6144C;
-        Mon, 12 Jul 2021 07:25:15 +0000 (UTC)
+        id S1353584AbhGLICg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81AFC61CDC;
+        Mon, 12 Jul 2021 07:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074716;
-        bh=GwE8RPq5pMt2EPWshQUKIzJE5UeMVqs9MYiF1KNprCw=;
+        s=korg; t=1626076550;
+        bh=YlYi8QaqvNICf8ZtZdRgwZCDmLC4RAYVU4qEmwgUXY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUJn+qLq/tHTKd7c+f4F9GZwcREm2qlt7Myo2tNl26kwNrXblh9KJ6GnngjdmwdR6
-         51r8/DynW6ZWHvHuBS+LYJZq16bN9gVJiFCbHMJAFYVivfKVJem+aGrV7f7HKv1X+d
-         NipngDg6S5bxqPdvd6C3vM3epwnrAjxfzusdGt3U=
+        b=suUInhcgE0yM7byioRcK6W0qZF6f514qKfIEogJFPf8kk0LmEQ9iZUyfYjEK2cdyj
+         ZFxSHV03Donbje9RBxE0q3M9cSM1knf3CHGBVzOmZx3a0vsQUM0XvL6u6TdFaY5rhE
+         WqrCHV52qLlODIJaGil2qc5e7SYDzhcNfv/6L+Yk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mathieu Othacehe <m.othacehe@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 630/700] iio: prox: isl29501: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.13 690/800] ASoC: rt711-sdw: use first_hw_init flag on resume
 Date:   Mon, 12 Jul 2021 08:11:53 +0200
-Message-Id: <20210712061042.879276504@linuxfoundation.org>
+Message-Id: <20210712061040.221559132@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 92babc9938ebbf4050f2fba774836f7edc16a570 ]
+[ Upstream commit a0897ebca669f09a2e02206a9c48a738af655329 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+The intent of the status check on resume was to verify if a SoundWire
+peripheral reported ATTACHED before waiting for the initialization to
+complete. This is required to avoid timeouts that will happen with
+'ghost' devices that are exposed in the platform firmware but are not
+populated in hardware.
 
-Here an explicit structure is not used, because the holes would
-necessitate the addition of an explict memset(), to avoid a kernel
-data leak, making for a less minimal fix.
+Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
+another error, the resume operation never timed out, but the volume
+settings were not properly restored.
 
-Fixes: 1c28799257bc ("iio: light: isl29501: Add support for the ISL29501 ToF sensor.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Mathieu Othacehe <m.othacehe@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-9-jic23@kernel.org
+BugLink: https://github.com/thesofproject/linux/issues/2908
+BugLink: https://github.com/thesofproject/linux/issues/2637
+Fixes: 320b8b0d13b81 ('ASoC: rt711: add rt711 codec driver')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20210607222239.582139-9-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/isl29501.c | 2 +-
+ sound/soc/codecs/rt711-sdw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/proximity/isl29501.c b/drivers/iio/proximity/isl29501.c
-index 90e76451c972..5b6ea783795d 100644
---- a/drivers/iio/proximity/isl29501.c
-+++ b/drivers/iio/proximity/isl29501.c
-@@ -938,7 +938,7 @@ static irqreturn_t isl29501_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct isl29501_private *isl29501 = iio_priv(indio_dev);
- 	const unsigned long *active_mask = indio_dev->active_scan_mask;
--	u32 buffer[4] = {}; /* 1x16-bit + ts */
-+	u32 buffer[4] __aligned(8) = {}; /* 1x16-bit + naturally aligned ts */
+diff --git a/sound/soc/codecs/rt711-sdw.c b/sound/soc/codecs/rt711-sdw.c
+index 8f5ebe92d407..15299084429f 100644
+--- a/sound/soc/codecs/rt711-sdw.c
++++ b/sound/soc/codecs/rt711-sdw.c
+@@ -501,7 +501,7 @@ static int __maybe_unused rt711_dev_resume(struct device *dev)
+ 	struct rt711_priv *rt711 = dev_get_drvdata(dev);
+ 	unsigned long time;
  
- 	if (test_bit(ISL29501_DISTANCE_SCAN_INDEX, active_mask))
- 		isl29501_register_read(isl29501, REG_DISTANCE, buffer);
+-	if (!rt711->hw_init)
++	if (!rt711->first_hw_init)
+ 		return 0;
+ 
+ 	if (!slave->unattach_request)
 -- 
 2.30.2
 
