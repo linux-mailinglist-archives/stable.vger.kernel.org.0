@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4452E3C46D3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21CB53C467E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234512AbhGLG3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:29:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45380 "EHLO mail.kernel.org"
+        id S235299AbhGLG03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:26:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235336AbhGLG1z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:27:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F3AB61178;
-        Mon, 12 Jul 2021 06:24:24 +0000 (UTC)
+        id S233862AbhGLGZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:25:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB1C361153;
+        Mon, 12 Jul 2021 06:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071065;
-        bh=y+y+Tz3rn+OBujU2ibT9TsyGjjxsuHdRA7l1t9cQZ1E=;
+        s=korg; t=1626070964;
+        bh=cEuxBL1nKmm8eBJ6DsyIy0Pp7EKXl7DCLnzWIrrEmC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6FA6lVJIvt9L4mDzKA3/DkbbgNl8Rd7IJlEWhaQvt1u5S3XkPwsyBujSv3q5ZsT6
-         lqH4+LEIM+OO1F1eA2wjUuf2FpNYLKJirDvuVuy85YVOSBVbLIr2U/nTSBXVRB6Fd5
-         r9zxeoWU2HCU86PWv8IgEfNZi8YMFg2MuWM1hcM4=
+        b=DoNHTq66Iw5s6uSIYYDOSvrqc7QvC/H7fCl23M/VnuabXVOvN+qNGe7flH3g/Tgnh
+         tGi1kvTXCqEySV7RyhlzADQdITggBD90PMtquXC5eEj1mwqJNffej0f/7hHDQv2ezT
+         5dVUFhMmbifFS+xFS14xfSN0xlyIn9t+CYcqMQxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Hai <wanghai38@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 216/348] samples/bpf: Fix the error return code of xdp_redirects main()
-Date:   Mon, 12 Jul 2021 08:10:00 +0200
-Message-Id: <20210712060730.240845384@linuxfoundation.org>
+Subject: [PATCH 5.4 217/348] net: ethernet: aeroflex: fix UAF in greth_of_remove
+Date:   Mon, 12 Jul 2021 08:10:01 +0200
+Message-Id: <20210712060730.371710601@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,35 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 7c6090ee2a7b3315410cfc83a94c3eb057407b25 ]
+[ Upstream commit e3a5de6d81d8b2199935c7eb3f7d17a50a7075b7 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+static int greth_of_remove(struct platform_device *of_dev)
+{
+...
+	struct greth_private *greth = netdev_priv(ndev);
+...
+	unregister_netdev(ndev);
+	free_netdev(ndev);
 
-If bpf_map_update_elem() failed, main() should return a negative error.
+	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+...
+}
 
-Fixes: 832622e6bd18 ("xdp: sample program for new bpf_redirect helper")
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210616042534.315097-1-wanghai38@huawei.com
+greth is netdev private data, but it is used
+after free_netdev(). It can cause use-after-free when accessing greth
+pointer. So, fix it by moving free_netdev() after of_iounmap()
+call.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_redirect_user.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/aeroflex/greth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/xdp_redirect_user.c b/samples/bpf/xdp_redirect_user.c
-index 5440cd620607..b7bc2a339d77 100644
---- a/samples/bpf/xdp_redirect_user.c
-+++ b/samples/bpf/xdp_redirect_user.c
-@@ -216,5 +216,5 @@ int main(int argc, char **argv)
- 	poll_stats(2, ifindex_out);
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index 2a9f8643629c..907904c0a288 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -1541,10 +1541,11 @@ static int greth_of_remove(struct platform_device *of_dev)
+ 	mdiobus_unregister(greth->mdio);
  
- out:
--	return 0;
-+	return ret;
+ 	unregister_netdev(ndev);
+-	free_netdev(ndev);
+ 
+ 	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+ 
++	free_netdev(ndev);
++
+ 	return 0;
  }
+ 
 -- 
 2.30.2
 
