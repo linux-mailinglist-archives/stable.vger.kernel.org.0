@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 874523C49BF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 518313C4E2A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237787AbhGLGqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
+        id S243768AbhGLHRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:17:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236743AbhGLGpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:45:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 217CD610D1;
-        Mon, 12 Jul 2021 06:41:29 +0000 (UTC)
+        id S242889AbhGLHQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:16:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B34A6141C;
+        Mon, 12 Jul 2021 07:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072090;
-        bh=2GSrmxk/D5DTqfdx5V5PejTHTpKTn6TNsAo3GA9JEds=;
+        s=korg; t=1626073995;
+        bh=XV6PDlgKph/ocTt5eYzob+8m1KMWg/nT21LBV63s7tQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0QoKYQ8Jqor42ys1SV06CWkZdJdhF18H6FrTH8jqrJvWy9HRhOSu8j2BtDmPmKX4
-         1iIwPCSozNb5U8kfxAcgzFh1Z+Xk7A0VWdPi5PKg5kPROHdR7P+s0OMgx+QDNFDp7O
-         hKcyNaA0F/xMRWmLbGmV0RBshesEOMXD0y/o2e88=
+        b=QVdfolHl9zgfKy8Xpne+hvLoLFimlYZTOlMJO/elPyqoR8f5lE3sU5fceZhMZOGhf
+         6NoaNvxjngdXvbE6zMGCf6Rv7cno7l0KgTPIil4+Zq4ZVg9Mobkw9huj5QNgnMjOU3
+         OEvV1ym0801I9DCEZt5hJZ+9FT0SIzLJAcQ1ojpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hang Zhang <zh.nvgt@gmail.com>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jack Wang <jinpu.wang@cloud.ionos.com>,
+        Md Haris Iqbal <haris.iqbal@cloud.ionos.com>,
+        Gioh Kim <gi-oh.kim@ionos.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 351/593] cw1200: Revert unnecessary patches that fix unreal use-after-free bugs
+Subject: [PATCH 5.12 428/700] RDMA/rtrs-srv: Set minimal max_send_wr and max_recv_wr
 Date:   Mon, 12 Jul 2021 08:08:31 +0200
-Message-Id: <20210712060924.825852059@linuxfoundation.org>
+Message-Id: <20210712061021.940788497@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,98 +43,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hang Zhang <zh.nvgt@gmail.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 3f60f4685699aa6006e58e424637e8e413e0a94d ]
+[ Upstream commit 5e91eabf66c854f16ca2e954e5c68939bc81601e ]
 
-A previous commit 4f68ef64cd7f ("cw1200: Fix concurrency
-use-after-free bugs in cw1200_hw_scan()") tried to fix a seemingly
-use-after-free bug between cw1200_bss_info_changed() and
-cw1200_hw_scan(), where the former frees a sk_buff pointed
-to by frame.skb, and the latter accesses the sk_buff
-pointed to by frame.skb. However, this issue should be a
-false alarm because:
+Currently rtrs when create_qp use a coarse numbers (bigger in general),
+which leads to hardware create more resources which only waste memory with
+no benefits.
 
-(1) "frame.skb" is not a shared variable between the above
-two functions, because "frame" is a local function variable,
-each of the two functions has its own local "frame" - they
-just happen to have the same variable name.
+For max_send_wr, we don't really need alway max_qp_wr size when creating
+qp, reduce it to cq_size.
 
-(2) the sk_buff(s) pointed to by these two "frame.skb" are
-also two different object instances, they are individually
-allocated by different dev_alloc_skb() within the two above
-functions. To free one object instance will not invalidate
-the access of another different one.
+For max_recv_wr,  cq_size is enough.
 
-Based on these facts, the previous commit should be unnecessary.
-Moreover, it also introduced a missing unlock which was
-addressed in a subsequent commit 51c8d24101c7 ("cw1200: fix missing
-unlock on error in cw1200_hw_scan()"). Now that the
-original use-after-free is unreal, these two commits should
-be reverted. This patch performs the reversion.
+With the patch when sess_queue_depth=128, per session (2 paths) memory
+consumption reduced from 188 MB to 65MB
 
-Fixes: 4f68ef64cd7f ("cw1200: Fix concurrency use-after-free bugs in cw1200_hw_scan()")
-Fixes: 51c8d24101c7 ("cw1200: fix missing unlock on error in cw1200_hw_scan()")
-Signed-off-by: Hang Zhang <zh.nvgt@gmail.com>
-Acked-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210521223238.25020-1-zh.nvgt@gmail.com
+When always_invalidate is enabled, we need send more wr, so treat it
+special.
+
+Fixes: 9cb837480424e ("RDMA/rtrs: server: main functionality")
+Link: https://lore.kernel.org/r/20210614090337.29557-2-jinpu.wang@ionos.com
+Signed-off-by: Jack Wang <jinpu.wang@cloud.ionos.com>
+Reviewed-by: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/scan.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/infiniband/ulp/rtrs/rtrs-srv.c | 38 +++++++++++++++++---------
+ 1 file changed, 25 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/scan.c b/drivers/net/wireless/st/cw1200/scan.c
-index 988581cc134b..1f856fbbc0ea 100644
---- a/drivers/net/wireless/st/cw1200/scan.c
-+++ b/drivers/net/wireless/st/cw1200/scan.c
-@@ -75,30 +75,27 @@ int cw1200_hw_scan(struct ieee80211_hw *hw,
- 	if (req->n_ssids > WSM_SCAN_MAX_NUM_OF_SSIDS)
- 		return -EINVAL;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv.c b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+index 8c0acfc48392..57a9d396ab75 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv.c
+@@ -1601,7 +1601,7 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 	struct rtrs_sess *s = &sess->s;
+ 	struct rtrs_srv_con *con;
  
--	/* will be unlocked in cw1200_scan_work() */
--	down(&priv->scan.lock);
--	mutex_lock(&priv->conf_mutex);
--
- 	frame.skb = ieee80211_probereq_get(hw, priv->vif->addr, NULL, 0,
- 		req->ie_len);
--	if (!frame.skb) {
--		mutex_unlock(&priv->conf_mutex);
--		up(&priv->scan.lock);
-+	if (!frame.skb)
- 		return -ENOMEM;
--	}
+-	u32 cq_size, wr_queue_size;
++	u32 cq_size, max_send_wr, max_recv_wr, wr_limit;
+ 	int err, cq_vector;
  
- 	if (req->ie_len)
- 		skb_put_data(frame.skb, req->ie, req->ie_len);
- 
-+	/* will be unlocked in cw1200_scan_work() */
-+	down(&priv->scan.lock);
-+	mutex_lock(&priv->conf_mutex);
+ 	con = kzalloc(sizeof(*con), GFP_KERNEL);
+@@ -1622,30 +1622,42 @@ static int create_con(struct rtrs_srv_sess *sess,
+ 		 * All receive and all send (each requiring invalidate)
+ 		 * + 2 for drain and heartbeat
+ 		 */
+-		wr_queue_size = SERVICE_CON_QUEUE_DEPTH * 3 + 2;
+-		cq_size = wr_queue_size;
++		max_send_wr = SERVICE_CON_QUEUE_DEPTH * 2 + 2;
++		max_recv_wr = SERVICE_CON_QUEUE_DEPTH + 2;
++		cq_size = max_send_wr + max_recv_wr;
+ 	} else {
+-		/*
+-		 * If we have all receive requests posted and
+-		 * all write requests posted and each read request
+-		 * requires an invalidate request + drain
+-		 * and qp gets into error state.
+-		 */
+-		cq_size = srv->queue_depth * 3 + 1;
+ 		/*
+ 		 * In theory we might have queue_depth * 32
+ 		 * outstanding requests if an unsafe global key is used
+ 		 * and we have queue_depth read requests each consisting
+ 		 * of 32 different addresses. div 3 for mlx5.
+ 		 */
+-		wr_queue_size = sess->s.dev->ib_dev->attrs.max_qp_wr / 3;
++		wr_limit = sess->s.dev->ib_dev->attrs.max_qp_wr / 3;
++		/* when always_invlaidate enalbed, we need linv+rinv+mr+imm */
++		if (always_invalidate)
++			max_send_wr =
++				min_t(int, wr_limit,
++				      srv->queue_depth * (1 + 4) + 1);
++		else
++			max_send_wr =
++				min_t(int, wr_limit,
++				      srv->queue_depth * (1 + 2) + 1);
 +
- 	ret = wsm_set_template_frame(priv, &frame);
- 	if (!ret) {
- 		/* Host want to be the probe responder. */
- 		ret = wsm_set_probe_responder(priv, true);
++		max_recv_wr = srv->queue_depth + 1;
++		/*
++		 * If we have all receive requests posted and
++		 * all write requests posted and each read request
++		 * requires an invalidate request + drain
++		 * and qp gets into error state.
++		 */
++		cq_size = max_send_wr + max_recv_wr;
  	}
- 	if (ret) {
--		dev_kfree_skb(frame.skb);
- 		mutex_unlock(&priv->conf_mutex);
- 		up(&priv->scan.lock);
-+		dev_kfree_skb(frame.skb);
- 		return ret;
- 	}
+-	atomic_set(&con->sq_wr_avail, wr_queue_size);
++	atomic_set(&con->sq_wr_avail, max_send_wr);
+ 	cq_vector = rtrs_srv_get_next_cq_vector(sess);
  
-@@ -120,8 +117,8 @@ int cw1200_hw_scan(struct ieee80211_hw *hw,
- 		++priv->scan.n_ssids;
- 	}
- 
--	dev_kfree_skb(frame.skb);
- 	mutex_unlock(&priv->conf_mutex);
-+	dev_kfree_skb(frame.skb);
- 	queue_work(priv->workqueue, &priv->scan.work);
- 	return 0;
- }
+ 	/* TODO: SOFTIRQ can be faster, but be careful with softirq context */
+ 	err = rtrs_cq_qp_create(&sess->s, &con->c, 1, cq_vector, cq_size,
+-				 wr_queue_size, wr_queue_size,
++				 max_send_wr, max_recv_wr,
+ 				 IB_POLL_WORKQUEUE);
+ 	if (err) {
+ 		rtrs_err(s, "rtrs_cq_qp_create(), err: %d\n", err);
 -- 
 2.30.2
 
