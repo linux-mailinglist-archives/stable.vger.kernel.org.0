@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B44DB3C48A0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BA593C48A1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234861AbhGLGk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34842 "EHLO mail.kernel.org"
+        id S235494AbhGLGk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237080AbhGLGiG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:38:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E4FC61176;
-        Mon, 12 Jul 2021 06:34:16 +0000 (UTC)
+        id S237053AbhGLGiT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:38:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A967D6052B;
+        Mon, 12 Jul 2021 06:34:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071656;
-        bh=Auz1i9Vu8ZGHbO+T/8MnQgeUUVcxEUmWz8KkWj4sn7s=;
+        s=korg; t=1626071666;
+        bh=rrd+/5m+XlZ0KDdlO/QC2mj8cTFCxMABq/dve2gKSus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W5UIVPG8mzVsPWKiRqCD2I3FhlBlBc8CW18eN6KpwKdk8rm5SNme91Q+vbhnzMic0
-         tEiHrKmbXeFacf8uO+XTTBdx39GUSm7YRQXyJKrc1/DGVKKtDMv5xqAToq/yGeQZ8K
-         1V5fSlH8HdeZWb0DC7B0q0iKOZsY7pf35/UNd+2Y=
+        b=H1vDCl+3C4z72o3hDkT26sSiGiEgbD3fGZAK+oaV+O1NavkepZgZuaDKde53zY5zJ
+         NLRPLHhukHlZhAREvQmtTbPY6UHRMTdrNL6ijExNhjOdMPmiwa/XEBPlxAI+7K13eS
+         5A9T6YfvCZw6t+dk8tZqJO0eUDQvCcX9GJpzlhFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>,
-        Axel Lin <axel.lin@ingics.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 164/593] regulator: mt6358: Fix vdram2 .vsel_mask
-Date:   Mon, 12 Jul 2021 08:05:24 +0200
-Message-Id: <20210712060901.102432900@linuxfoundation.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 168/593] HID: do not use down_interruptible() when unbinding devices
+Date:   Mon, 12 Jul 2021 08:05:28 +0200
+Message-Id: <20210712060901.520477586@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -42,34 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 50c9462edcbf900f3d5097ca3ad60171346124de ]
+[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
 
-The valid vsel value are 0 and 12, so the .vsel_mask should be 0xf.
+Action of unbinding driver from a device is not cancellable and should not
+fail, and driver core does not pay attention to the result of "remove"
+method, therefore using down_interruptible() in hid_device_remove() does
+not make sense.
 
-Signed-off-by: Hsin-Hsiung Wang <hsin-hsiung.wang@mediatek.com>
-Reviewed-by: Axel Lin <axel.lin@ingics.com>
-Link: https://lore.kernel.org/r/1624424169-510-1-git-send-email-hsin-hsiung.wang@mediatek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/mt6358-regulator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/regulator/mt6358-regulator.c b/drivers/regulator/mt6358-regulator.c
-index 13cb6ac9a892..1d4eb5dc4fac 100644
---- a/drivers/regulator/mt6358-regulator.c
-+++ b/drivers/regulator/mt6358-regulator.c
-@@ -457,7 +457,7 @@ static struct mt6358_regulator_info mt6358_regulators[] = {
- 	MT6358_REG_FIXED("ldo_vaud28", VAUD28,
- 			 MT6358_LDO_VAUD28_CON0, 0, 2800000),
- 	MT6358_LDO("ldo_vdram2", VDRAM2, vdram2_voltages, vdram2_idx,
--		   MT6358_LDO_VDRAM2_CON0, 0, MT6358_LDO_VDRAM2_ELR0, 0x10, 0),
-+		   MT6358_LDO_VDRAM2_CON0, 0, MT6358_LDO_VDRAM2_ELR0, 0xf, 0),
- 	MT6358_LDO("ldo_vsim1", VSIM1, vsim_voltages, vsim_idx,
- 		   MT6358_LDO_VSIM1_CON0, 0, MT6358_VSIM1_ANA_CON0, 0xf00, 8),
- 	MT6358_LDO("ldo_vibr", VIBR, vibr_voltages, vibr_idx,
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 0f69f35f2957..5550c943f985 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2306,12 +2306,8 @@ static int hid_device_remove(struct device *dev)
+ {
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct hid_driver *hdrv;
+-	int ret = 0;
+ 
+-	if (down_interruptible(&hdev->driver_input_lock)) {
+-		ret = -EINTR;
+-		goto end;
+-	}
++	down(&hdev->driver_input_lock);
+ 	hdev->io_started = false;
+ 
+ 	hdrv = hdev->driver;
+@@ -2326,8 +2322,8 @@ static int hid_device_remove(struct device *dev)
+ 
+ 	if (!hdev->io_started)
+ 		up(&hdev->driver_input_lock);
+-end:
+-	return ret;
++
++	return 0;
+ }
+ 
+ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 -- 
 2.30.2
 
