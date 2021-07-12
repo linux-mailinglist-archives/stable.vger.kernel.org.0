@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7ED3C4930
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BA683C5373
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236846AbhGLGmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:42:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38480 "EHLO mail.kernel.org"
+        id S1352423AbhGLHyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238589AbhGLGlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:41:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8F661132;
-        Mon, 12 Jul 2021 06:38:19 +0000 (UTC)
+        id S1350376AbhGLHu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6EF614A7;
+        Mon, 12 Jul 2021 07:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071899;
-        bh=bLVYdb5/eot21zcHK8AcODvHKYW8MKXwYh3AJjMUh3A=;
+        s=korg; t=1626075885;
+        bh=7Yg+r15AMz/DCNPhSSl49mMUAuoRK2BGZGtJvKaYNvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIR2ICBInKK9Uprr6S5f9QIVGZFLOBsVVlxzTOSxolINWh31Mx7d+MQdK2nGWCbUw
-         upnNtfVPid80WGaMib/IRx1teYjEYlx+kH0swUdGn7a1NeW9vbDE59JJF/l8n5IjNI
-         BvmwKYC6Bvr3Xqw2dA57TXbRQkdgwZxtG1g7Vu3E=
+        b=w5YifSSWewOlXz8lKo5MtPPAG9HmJhMMiRACGvNkvoeA94XdJW1mBLVfbTC+3RxRb
+         xXicAErLvLzNzstUXS8D5pZd1ahp+dUuDGv2fgMGz2TcIvRGythG0Gj2cYoglTfDK1
+         3bA2XXZ7+4RpBkyUw6RzQF+/UiGWQVyupiC1sOdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 268/593] lockdep/selftests: Fix selftests vs PROVE_RAW_LOCK_NESTING
-Date:   Mon, 12 Jul 2021 08:07:08 +0200
-Message-Id: <20210712060912.977361466@linuxfoundation.org>
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 406/800] libbpf: Fix ELF symbol visibility update logic
+Date:   Mon, 12 Jul 2021 08:07:09 +0200
+Message-Id: <20210712061010.364789174@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit c0c2c0dad6a06e0c05e9a52d65f932bd54364c97 ]
+[ Upstream commit 247b8634e6446dbc8024685f803290501cba226f ]
 
-When PROVE_RAW_LOCK_NESTING=y many of the selftests FAILED because
-HARDIRQ context is out-of-bounds for spinlocks. Instead make the
-default hardware context the threaded hardirq context, which preserves
-the old locking rules.
+Fix silly bug in updating ELF symbol's visibility.
 
-The wait-type specific locking selftests will have a non-threaded
-HARDIRQ variant.
-
-Fixes: de8f5e4f2dc1 ("lockdep: Introduce wait-type checks")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20210617190313.322096283@infradead.org
+Fixes: a46349227cd8 ("libbpf: Add linker extern resolution support for functions and global variables")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210507054119.270888-6-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/locking-selftest.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/lib/bpf/linker.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/locking-selftest.c b/lib/locking-selftest.c
-index a899b3f0e2e5..76c52b0b76d3 100644
---- a/lib/locking-selftest.c
-+++ b/lib/locking-selftest.c
-@@ -186,6 +186,7 @@ static void init_shared_classes(void)
- #define HARDIRQ_ENTER()				\
- 	local_irq_disable();			\
- 	__irq_enter();				\
-+	lockdep_hardirq_threaded();		\
- 	WARN_ON(!in_irq());
+diff --git a/tools/lib/bpf/linker.c b/tools/lib/bpf/linker.c
+index 9de084b1c699..f44f8a37f780 100644
+--- a/tools/lib/bpf/linker.c
++++ b/tools/lib/bpf/linker.c
+@@ -1780,7 +1780,7 @@ static void sym_update_visibility(Elf64_Sym *sym, int sym_vis)
+ 	/* libelf doesn't provide setters for ST_VISIBILITY,
+ 	 * but it is stored in the lower 2 bits of st_other
+ 	 */
+-	sym->st_other &= 0x03;
++	sym->st_other &= ~0x03;
+ 	sym->st_other |= sym_vis;
+ }
  
- #define HARDIRQ_EXIT()				\
 -- 
 2.30.2
 
