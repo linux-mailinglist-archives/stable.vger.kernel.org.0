@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54B423C4CB6
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02E823C523C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242787AbhGLHG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
+        id S1349979AbhGLHpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243743AbhGLHFO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:05:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45EE6610E6;
-        Mon, 12 Jul 2021 07:02:25 +0000 (UTC)
+        id S243736AbhGLHmP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87CC360724;
+        Mon, 12 Jul 2021 07:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073345;
-        bh=/mlBgjLpCmir+GAFLdIA8jQhJAn39RGTZg9072fEMa8=;
+        s=korg; t=1626075567;
+        bh=F4fO1gXQFqpzLMvv+CXk9La6+PAEqNSl6OmHria2Jns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvOj90A8o+HJIjoRdOJHR1cxmuqyrmGFf57yeJDeacuDNHv4LOB5TcunslNQAZHwR
-         hPH3lBUiz1r7lXVqgOg9/VhYrZouDj1o3XLIGFALAGyY4oprxeNM6D5PkOihLcPZp/
-         crXoyM4FK4d+yEbX07PLtnp1DCbtvWD4UxSg/eqM=
+        b=EVgaomUx3IkA8JCjF5o4uzLSTg3Oue74to32OqoQ4vXqzPx8d1aN+Lfjqbm7Qs7vB
+         Z8HAvW8iItPthKtD933hIWTbD9qjyPXRMEzQJESpvpjtEdHVegk7Hl2X17rPK6zlTo
+         tyar7fdFE5iCOuRB5TArVpwHsyd5Yc3Ev6jucDao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        David Jeffery <djeffery@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 208/700] blk-mq: clear stale request in tags->rq[] before freeing one request pool
-Date:   Mon, 12 Jul 2021 08:04:51 +0200
-Message-Id: <20210712060956.285260426@linuxfoundation.org>
+Subject: [PATCH 5.13 269/800] media: venus: Rework error fail recover logic
+Date:   Mon, 12 Jul 2021 08:04:52 +0200
+Message-Id: <20210712060952.613839593@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,159 +41,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit bd63141d585bef14f4caf111f6d0e27fe2300ec6 ]
+[ Upstream commit 4cba5473c5ce0f1389d316c5dc6f83a0259df5eb ]
 
-refcount_inc_not_zero() in bt_tags_iter() still may read one freed
-request.
+The Venus code has a sort of watchdog that attempts to recover
+from IP errors, implemented as a delayed work job, which
+calls venus_sys_error_handler().
 
-Fix the issue by the following approach:
+Right now, it has several issues:
 
-1) hold a per-tags spinlock when reading ->rqs[tag] and calling
-refcount_inc_not_zero in bt_tags_iter()
+1. It assumes that PM runtime resume never fails
 
-2) clearing stale request referred via ->rqs[tag] before freeing
-request pool, the per-tags spinlock is held for clearing stale
-->rq[tag]
+2. It internally runs two while() loops that also assume that
+   PM runtime will never fail to go idle:
 
-So after we cleared stale requests, bt_tags_iter() won't observe
-freed request any more, also the clearing will wait for pending
-request reference.
+	while (pm_runtime_active(core->dev_dec) || pm_runtime_active(core->dev_enc))
+		msleep(10);
 
-The idea of clearing ->rqs[] is borrowed from John Garry's previous
-patch and one recent David's patch.
+...
 
-Tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: David Jeffery <djeffery@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210511152236.763464-4-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+	while (core->pmdomains[0] && pm_runtime_active(core->pmdomains[0]))
+		usleep_range(1000, 1500);
+
+3. It uses an OR to merge all return codes and then report to the user
+
+4. If the hardware never recovers, it keeps running on every 10ms,
+   flooding the syslog with 2 messages (so, up to 200 messages
+   per second).
+
+Rework the code, in order to prevent that, by:
+
+1. check the return code from PM runtime resume;
+2. don't let the while() loops run forever;
+3. store the failed event;
+4. use warn ratelimited when it fails to recover.
+
+Fixes: af2c3834c8ca ("[media] media: venus: adding core part and helper functions")
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq-tag.c |  9 +++++++--
- block/blk-mq-tag.h |  6 ++++++
- block/blk-mq.c     | 46 +++++++++++++++++++++++++++++++++++++++++-----
- 3 files changed, 54 insertions(+), 7 deletions(-)
+ drivers/media/platform/qcom/venus/core.c | 60 +++++++++++++++++++-----
+ 1 file changed, 47 insertions(+), 13 deletions(-)
 
-diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index 6772c3728865..c4f2f6c123ae 100644
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -202,10 +202,14 @@ struct bt_iter_data {
- static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
- 		unsigned int bitnr)
- {
--	struct request *rq = tags->rqs[bitnr];
-+	struct request *rq;
-+	unsigned long flags;
- 
-+	spin_lock_irqsave(&tags->lock, flags);
-+	rq = tags->rqs[bitnr];
- 	if (!rq || !refcount_inc_not_zero(&rq->ref))
--		return NULL;
-+		rq = NULL;
-+	spin_unlock_irqrestore(&tags->lock, flags);
- 	return rq;
- }
- 
-@@ -538,6 +542,7 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
- 
- 	tags->nr_tags = total_tags;
- 	tags->nr_reserved_tags = reserved_tags;
-+	spin_lock_init(&tags->lock);
- 
- 	if (flags & BLK_MQ_F_TAG_HCTX_SHARED)
- 		return tags;
-diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
-index 7d3e6b333a4a..f887988e5ef6 100644
---- a/block/blk-mq-tag.h
-+++ b/block/blk-mq-tag.h
-@@ -20,6 +20,12 @@ struct blk_mq_tags {
- 	struct request **rqs;
- 	struct request **static_rqs;
- 	struct list_head page_list;
-+
-+	/*
-+	 * used to clear request reference in rqs[] before freeing one
-+	 * request pool
-+	 */
-+	spinlock_t lock;
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index 54bac7ec14c5..91b15842c555 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -78,22 +78,32 @@ static const struct hfi_core_ops venus_core_ops = {
+ 	.event_notify = venus_event_notify,
  };
  
- extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags,
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index d5370ab2eb31..d06ff908f3d9 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2291,6 +2291,45 @@ queue_exit:
- 	return BLK_QC_T_NONE;
- }
++#define RPM_WAIT_FOR_IDLE_MAX_ATTEMPTS 10
++
+ static void venus_sys_error_handler(struct work_struct *work)
+ {
+ 	struct venus_core *core =
+ 			container_of(work, struct venus_core, work.work);
+-	int ret = 0;
+-
+-	pm_runtime_get_sync(core->dev);
++	int ret, i, max_attempts = RPM_WAIT_FOR_IDLE_MAX_ATTEMPTS;
++	const char *err_msg = "";
++	bool failed = false;
++
++	ret = pm_runtime_get_sync(core->dev);
++	if (ret < 0) {
++		err_msg = "resume runtime PM";
++		max_attempts = 0;
++		failed = true;
++	}
  
-+static size_t order_to_size(unsigned int order)
-+{
-+	return (size_t)PAGE_SIZE << order;
-+}
-+
-+/* called before freeing request pool in @tags */
-+static void blk_mq_clear_rq_mapping(struct blk_mq_tag_set *set,
-+		struct blk_mq_tags *tags, unsigned int hctx_idx)
-+{
-+	struct blk_mq_tags *drv_tags = set->tags[hctx_idx];
-+	struct page *page;
-+	unsigned long flags;
-+
-+	list_for_each_entry(page, &tags->page_list, lru) {
-+		unsigned long start = (unsigned long)page_address(page);
-+		unsigned long end = start + order_to_size(page->private);
-+		int i;
-+
-+		for (i = 0; i < set->queue_depth; i++) {
-+			struct request *rq = drv_tags->rqs[i];
-+			unsigned long rq_addr = (unsigned long)rq;
-+
-+			if (rq_addr >= start && rq_addr < end) {
-+				WARN_ON_ONCE(refcount_read(&rq->ref) != 0);
-+				cmpxchg(&drv_tags->rqs[i], rq, NULL);
-+			}
-+		}
+ 	hfi_core_deinit(core, true);
+ 
+-	dev_warn(core->dev, "system error has occurred, starting recovery!\n");
+-
+ 	mutex_lock(&core->lock);
+ 
+-	while (pm_runtime_active(core->dev_dec) || pm_runtime_active(core->dev_enc))
++	for (i = 0; i < max_attempts; i++) {
++		if (!pm_runtime_active(core->dev_dec) && !pm_runtime_active(core->dev_enc))
++			break;
+ 		msleep(10);
++	}
+ 
+ 	venus_shutdown(core);
+ 
+@@ -101,31 +111,55 @@ static void venus_sys_error_handler(struct work_struct *work)
+ 
+ 	pm_runtime_put_sync(core->dev);
+ 
+-	while (core->pmdomains[0] && pm_runtime_active(core->pmdomains[0]))
++	for (i = 0; i < max_attempts; i++) {
++		if (!core->pmdomains[0] || !pm_runtime_active(core->pmdomains[0]))
++			break;
+ 		usleep_range(1000, 1500);
++	}
+ 
+ 	hfi_reinit(core);
+ 
+-	pm_runtime_get_sync(core->dev);
++	ret = pm_runtime_get_sync(core->dev);
++	if (ret < 0) {
++		err_msg = "resume runtime PM";
++		failed = true;
++	}
+ 
+-	ret |= venus_boot(core);
+-	ret |= hfi_core_resume(core, true);
++	ret = venus_boot(core);
++	if (ret && !failed) {
++		err_msg = "boot Venus";
++		failed = true;
 +	}
 +
-+	/*
-+	 * Wait until all pending iteration is done.
-+	 *
-+	 * Request reference is cleared and it is guaranteed to be observed
-+	 * after the ->lock is released.
-+	 */
-+	spin_lock_irqsave(&drv_tags->lock, flags);
-+	spin_unlock_irqrestore(&drv_tags->lock, flags);
-+}
-+
- void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
- 		     unsigned int hctx_idx)
- {
-@@ -2309,6 +2348,8 @@ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
- 		}
++	ret = hfi_core_resume(core, true);
++	if (ret && !failed) {
++		err_msg = "resume HFI";
++		failed = true;
++	}
+ 
+ 	enable_irq(core->irq);
+ 
+ 	mutex_unlock(&core->lock);
+ 
+-	ret |= hfi_core_init(core);
++	ret = hfi_core_init(core);
++	if (ret && !failed) {
++		err_msg = "init HFI";
++		failed = true;
++	}
+ 
+ 	pm_runtime_put_sync(core->dev);
+ 
+-	if (ret) {
++	if (failed) {
+ 		disable_irq_nosync(core->irq);
+-		dev_warn(core->dev, "recovery failed (%d)\n", ret);
++		dev_warn_ratelimited(core->dev,
++				     "System error has occurred, recovery failed to %s\n",
++				     err_msg);
+ 		schedule_delayed_work(&core->work, msecs_to_jiffies(10));
+ 		return;
  	}
  
-+	blk_mq_clear_rq_mapping(set, tags, hctx_idx);
++	dev_warn(core->dev, "system error has occurred (recovered)\n");
 +
- 	while (!list_empty(&tags->page_list)) {
- 		page = list_first_entry(&tags->page_list, struct page, lru);
- 		list_del_init(&page->lru);
-@@ -2368,11 +2409,6 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
- 	return tags;
- }
- 
--static size_t order_to_size(unsigned int order)
--{
--	return (size_t)PAGE_SIZE << order;
--}
--
- static int blk_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
- 			       unsigned int hctx_idx, int node)
- {
+ 	mutex_lock(&core->lock);
+ 	core->sys_error = false;
+ 	mutex_unlock(&core->lock);
 -- 
 2.30.2
 
