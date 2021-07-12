@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5CBE3C4D06
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4563C48E2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238192AbhGLHLl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:11:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S236877AbhGLGlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34399 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241832AbhGLHHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:07:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9601260FE7;
-        Mon, 12 Jul 2021 07:04:36 +0000 (UTC)
+        id S236822AbhGLGjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F1F46112D;
+        Mon, 12 Jul 2021 06:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073477;
-        bh=KdCEJK8exetM24aIuhXoADNfokLieJ29Z173kFeZDko=;
+        s=korg; t=1626071687;
+        bh=dXXVnySI/CpXWxQ8VvGu2yX/iHzyHAWviakPv4O1TGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oF0uG2W4oWEIUotff82taez2yFIrPjGLQVEmqGE8b7PULgOFDD05biejuchZaylZn
-         Fa6ZYPjlkog8ZzLv7bWrZiF0kpOZOkFSN2zkG6NEnJ6ycMwgYof1Q3AFTsClx1fLDY
-         Aee1LPBuhy360BUiSwolReIdKB0fDdw1GU4CzwHw=
+        b=tO5HAkinAqlQp0ZDb0CeZp2QkgGueVAhuyl/B7dand1e/5/CXPjaeYUGnWQLFVRDJ
+         UwWYONm2Bqfb3JIQraKIqEmj0Amf0XmBs4BhIsG8r3vsNKvIsGdce4EeaoXFlIVmBa
+         nV1yRMkULdpR3nZkgBQ92GqZd9B2oj7h8HorJuuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        Jian-Hong Pan <jhp@endlessos.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 253/700] media: hantro: do a PM resume earlier
+Subject: [PATCH 5.10 176/593] ACPI: EC: Make more Asus laptops use ECDT _GPE
 Date:   Mon, 12 Jul 2021 08:05:36 +0200
-Message-Id: <20210712061002.806139065@linuxfoundation.org>
+Message-Id: <20210712060902.379634679@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,97 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-[ Upstream commit 892bb6ecead9b834ba7ad1d07513e9eba1baa3a4 ]
+[ Upstream commit 6306f0431914beaf220634ad36c08234006571d5 ]
 
-The device_run() first enables the clock and then
-tries to resume PM runtime, checking for errors.
+More ASUS laptops have the _GPE define in the DSDT table with a
+different value than the _GPE number in the ECDT.
 
-Well, if for some reason the pm_runtime can not resume,
-it would be better to detect it beforehand.
+This is causing media keys not working on ASUS X505BA/BP, X542BA/BP
 
-So, change the order inside device_run().
+Add model info to the quirks list.
 
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
-Fixes: 775fec69008d ("media: add Rockchip VPU JPEG encoder driver")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/hantro/hantro_drv.c | 33 +++++++++++++++--------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ drivers/acpi/ec.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/staging/media/hantro/hantro_drv.c b/drivers/staging/media/hantro/hantro_drv.c
-index e5f200e64993..2d6e0056be62 100644
---- a/drivers/staging/media/hantro/hantro_drv.c
-+++ b/drivers/staging/media/hantro/hantro_drv.c
-@@ -56,16 +56,12 @@ dma_addr_t hantro_get_ref(struct hantro_ctx *ctx, u64 ts)
- 	return hantro_get_dec_buf_addr(ctx, buf);
- }
- 
--static void hantro_job_finish(struct hantro_dev *vpu,
--			      struct hantro_ctx *ctx,
--			      enum vb2_buffer_state result)
-+static void hantro_job_finish_no_pm(struct hantro_dev *vpu,
-+				    struct hantro_ctx *ctx,
-+				    enum vb2_buffer_state result)
- {
- 	struct vb2_v4l2_buffer *src, *dst;
- 
--	pm_runtime_mark_last_busy(vpu->dev);
--	pm_runtime_put_autosuspend(vpu->dev);
--	clk_bulk_disable(vpu->variant->num_clocks, vpu->clocks);
--
- 	src = v4l2_m2m_next_src_buf(ctx->fh.m2m_ctx);
- 	dst = v4l2_m2m_next_dst_buf(ctx->fh.m2m_ctx);
- 
-@@ -81,6 +77,18 @@ static void hantro_job_finish(struct hantro_dev *vpu,
- 					 result);
- }
- 
-+static void hantro_job_finish(struct hantro_dev *vpu,
-+			      struct hantro_ctx *ctx,
-+			      enum vb2_buffer_state result)
-+{
-+	pm_runtime_mark_last_busy(vpu->dev);
-+	pm_runtime_put_autosuspend(vpu->dev);
-+
-+	clk_bulk_disable(vpu->variant->num_clocks, vpu->clocks);
-+
-+	hantro_job_finish_no_pm(vpu, ctx, result);
-+}
-+
- void hantro_irq_done(struct hantro_dev *vpu,
- 		     enum vb2_buffer_state result)
- {
-@@ -152,12 +160,15 @@ static void device_run(void *priv)
- 	src = hantro_get_src_buf(ctx);
- 	dst = hantro_get_dst_buf(ctx);
- 
-+	ret = pm_runtime_get_sync(ctx->dev->dev);
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(ctx->dev->dev);
-+		goto err_cancel_job;
-+	}
-+
- 	ret = clk_bulk_enable(ctx->dev->variant->num_clocks, ctx->dev->clocks);
- 	if (ret)
- 		goto err_cancel_job;
--	ret = pm_runtime_get_sync(ctx->dev->dev);
--	if (ret < 0)
--		goto err_cancel_job;
- 
- 	v4l2_m2m_buf_copy_metadata(src, dst, true);
- 
-@@ -165,7 +176,7 @@ static void device_run(void *priv)
- 	return;
- 
- err_cancel_job:
--	hantro_job_finish(ctx->dev, ctx, VB2_BUF_STATE_ERROR);
-+	hantro_job_finish_no_pm(ctx->dev, ctx, VB2_BUF_STATE_ERROR);
- }
- 
- static struct v4l2_m2m_ops vpu_m2m_ops = {
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index e0cb1bcfffb2..32f3b6d268f5 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1859,6 +1859,22 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
+ 	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
++	{
+ 	ec_honor_ecdt_gpe, "ASUS X550VXK", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
 -- 
 2.30.2
 
