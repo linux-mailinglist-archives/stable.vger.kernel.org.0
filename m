@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4BFB3C48D1
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B44F3C5285
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236205AbhGLGlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S242314AbhGLHqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:46:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236977AbhGLGiA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:38:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F7561153;
-        Mon, 12 Jul 2021 06:34:11 +0000 (UTC)
+        id S1349821AbhGLHos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:44:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E519613B2;
+        Mon, 12 Jul 2021 07:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071652;
-        bh=QiVwjBDQpS5h5yj0aobhQO95uHFRJAx89puXFYzrUko=;
+        s=korg; t=1626075679;
+        bh=8Y+8ynbx2OCSKfxB71y/b0xJs0zIgHjnEj/SFWeN/FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IX7+2Yjt1RBKmBvdkVV+OyiIjDIyLquacwDWpgiwUabfLP/v54+FRYrscCgcUxJNx
-         F3XN9vGg3YCFncpgks0YZn6pcfZYi5USPQpSF+Hoj9F3XEYtM7T336cJpKN1M3H7Fk
-         ltxc+ZanlG2qW/CsaQW1Sb1uDnjYsZnlkk6kauJ8=
+        b=u671Mm/aEondtJRQW8oG3iPewxVaQTPsI1auN68O0ccIm+bl2COhfIMIevjJ3ggvB
+         AFzP1TTm/Kj1uMkbNfPVZp+oX02rSjoEyLJVI541y4XDtQlpwKgTnpq0goeylvYeiC
+         iCfLxpyZn/96wULprfdQs5hBd+/MwTxFOTUm0CKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 154/593] drivers/perf: fix the missed ida_simple_remove() in ddr_perf_probe()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 291/800] media: rc: i2c: Fix an error message
 Date:   Mon, 12 Jul 2021 08:05:14 +0200
-Message-Id: <20210712060859.989772081@linuxfoundation.org>
+Message-Id: <20210712060955.947846459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xiangfeng <jingxiangfeng@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d96b1b8c9f79b6bb234a31c80972a6f422079376 ]
+[ Upstream commit 9c87ae1a0dbeb5794957421157fd266d38a869b4 ]
 
-ddr_perf_probe() misses to call ida_simple_remove() in an error path.
-Jump to cpuhp_state_err to fix it.
+'ret' is known to be 1 here. In fact 'i' is expected instead.
+Store the return value of 'i2c_master_recv()' in 'ret' so that the error
+message print the correct error code.
 
-Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
-Reviewed-by: Dong Aisheng <aisheng.dong@nxp.com>
-Link: https://lore.kernel.org/r/20210617122614.166823-1-jingxiangfeng@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: acaa34bf06e9 ("media: rc: implement zilog transmitter")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/fsl_imx8_ddr_perf.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ir-kbd-i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/perf/fsl_imx8_ddr_perf.c b/drivers/perf/fsl_imx8_ddr_perf.c
-index 397540a4b799..7f7bc0993670 100644
---- a/drivers/perf/fsl_imx8_ddr_perf.c
-+++ b/drivers/perf/fsl_imx8_ddr_perf.c
-@@ -623,8 +623,10 @@ static int ddr_perf_probe(struct platform_device *pdev)
+diff --git a/drivers/media/i2c/ir-kbd-i2c.c b/drivers/media/i2c/ir-kbd-i2c.c
+index e8119ad0bc71..92376592455e 100644
+--- a/drivers/media/i2c/ir-kbd-i2c.c
++++ b/drivers/media/i2c/ir-kbd-i2c.c
+@@ -678,8 +678,8 @@ static int zilog_tx(struct rc_dev *rcdev, unsigned int *txbuf,
+ 		goto out_unlock;
+ 	}
  
- 	name = devm_kasprintf(&pdev->dev, GFP_KERNEL, DDR_PERF_DEV_NAME "%d",
- 			      num);
--	if (!name)
--		return -ENOMEM;
-+	if (!name) {
-+		ret = -ENOMEM;
-+		goto cpuhp_state_err;
-+	}
- 
- 	pmu->devtype_data = of_device_get_match_data(&pdev->dev);
- 
+-	i = i2c_master_recv(ir->tx_c, buf, 1);
+-	if (i != 1) {
++	ret = i2c_master_recv(ir->tx_c, buf, 1);
++	if (ret != 1) {
+ 		dev_err(&ir->rc->dev, "i2c_master_recv failed with %d\n", ret);
+ 		ret = -EIO;
+ 		goto out_unlock;
 -- 
 2.30.2
 
