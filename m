@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D91C3C47D8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841C43C47EE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:28:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236449AbhGLGfO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54744 "EHLO mail.kernel.org"
+        id S236710AbhGLGf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237666AbhGLGep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AF1B60551;
-        Mon, 12 Jul 2021 06:31:22 +0000 (UTC)
+        id S237683AbhGLGeq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A751F60FD8;
+        Mon, 12 Jul 2021 06:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071482;
-        bh=Gjqxoy6zuCsX3PmidEoy9VJ+NjivXFTAkQdGcmPjcR0=;
+        s=korg; t=1626071485;
+        bh=ncFe/9efYb9vykiPBpuZ6xpCFkcgc1CsfK81nIWM6ko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BcGCLfkpPQG+1G0ONxytN1oUk6ZWFQX7TXdMd93fu2ThLPC85SbzBahjXaym2NZR8
-         nlVCCF2E8sdIZNpKgp8IXujoGfNGv76YDVGrlXpwD7BOzbFeKF9wr6cUnggifLkQ7C
-         fCqBcxcpCGGCen07/7lvggsJjoUCAkQLVlssynqs=
+        b=AB/DeL5hyYdFmSKj6au1Iv5v9agUyiFgSveRMDFQFElwa03lyUgNAcU3l9nlJpWJ9
+         OXYUJ5IOOUREA1RqKP/DofkRO0ZHR26zuHr0htJK8DC8J8KBF2A5NVuRcgCgUS3vWE
+         SJXverJsQykXjwehYLfUXUi24Ov3qLUOCSI0sPDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 089/593] powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()
-Date:   Mon, 12 Jul 2021 08:04:09 +0200
-Message-Id: <20210712060853.000563414@linuxfoundation.org>
+        stable@vger.kernel.org, Kristian Klausen <kristian@klausen.dk>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 090/593] loop: Fix missing discard support when using LOOP_CONFIGURE
+Date:   Mon, 12 Jul 2021 08:04:10 +0200
+Message-Id: <20210712060853.104528720@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,96 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Kristian Klausen <kristian@klausen.dk>
 
-commit 7c6986ade69e3c81bac831645bc72109cd798a80 upstream.
+commit 2b9ac22b12a266eb4fec246a07b504dd4983b16b upstream.
 
-In raise_backtrace_ipi() we iterate through the cpumask of CPUs, sending
-each an IPI asking them to do a backtrace, but we don't wait for the
-backtrace to happen.
+Without calling loop_config_discard() the discard flag and parameters
+aren't set/updated for the loop device and worst-case they could
+indicate discard support when it isn't the case (ex: if the
+LOOP_SET_STATUS ioctl was used with a different file prior to
+LOOP_CONFIGURE).
 
-We then iterate through the CPU mask again, and if any CPU hasn't done
-the backtrace and cleared itself from the mask, we print a trace on its
-behalf, noting that the trace may be "stale".
-
-This works well enough when a CPU is not responding, because in that
-case it doesn't receive the IPI and the sending CPU is left to print the
-trace. But when all CPUs are responding we are left with a race between
-the sending and receiving CPUs, if the sending CPU wins the race then it
-will erroneously print a trace.
-
-This leads to spurious "stale" traces from the sending CPU, which can
-then be interleaved messily with the receiving CPU, note the CPU
-numbers, eg:
-
-  [ 1658.929157][    C7] rcu: Stack dump where RCU GP kthread last ran:
-  [ 1658.929223][    C7] Sending NMI from CPU 7 to CPUs 1:
-  [ 1658.929303][    C1] NMI backtrace for cpu 1
-  [ 1658.929303][    C7] CPU 1 didn't respond to backtrace IPI, inspecting paca.
-  [ 1658.929362][    C1] CPU: 1 PID: 325 Comm: kworker/1:1H Tainted: G        W   E     5.13.0-rc2+ #46
-  [ 1658.929405][    C7] irq_soft_mask: 0x01 in_mce: 0 in_nmi: 0 current: 325 (kworker/1:1H)
-  [ 1658.929465][    C1] Workqueue: events_highpri test_work_fn [test_lockup]
-  [ 1658.929549][    C7] Back trace of paca->saved_r1 (0xc0000000057fb400) (possibly stale):
-  [ 1658.929592][    C1] NIP:  c00000000002cf50 LR: c008000000820178 CTR: c00000000002cfa0
-
-To fix it, change the logic so that the sending CPU waits 5s for the
-receiving CPU to print its trace. If the receiving CPU prints its trace
-successfully then the sending CPU just continues, avoiding any spurious
-"stale" trace.
-
-This has the added benefit of allowing all CPUs to print their traces in
-order and avoids any interleaving of their output.
-
-Fixes: 5cc05910f26e ("powerpc/64s: Wire up arch_trigger_cpumask_backtrace()")
-Cc: stable@vger.kernel.org # v4.18+
-Reported-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210625140408.3351173-1-mpe@ellerman.id.au
+Cc: <stable@vger.kernel.org> # 5.8.x-
+Fixes: 3448914e8cc5 ("loop: Add LOOP_CONFIGURE ioctl")
+Signed-off-by: Kristian Klausen <kristian@klausen.dk>
+Link: https://lore.kernel.org/r/20210618115157.31452-1-kristian@klausen.dk
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/stacktrace.c |   26 ++++++++++++++++++++------
- 1 file changed, 20 insertions(+), 6 deletions(-)
+ drivers/block/loop.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/kernel/stacktrace.c
-+++ b/arch/powerpc/kernel/stacktrace.c
-@@ -230,17 +230,31 @@ static void handle_backtrace_ipi(struct
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1161,6 +1161,7 @@ static int loop_configure(struct loop_de
+ 	blk_queue_physical_block_size(lo->lo_queue, bsize);
+ 	blk_queue_io_min(lo->lo_queue, bsize);
  
- static void raise_backtrace_ipi(cpumask_t *mask)
- {
-+	struct paca_struct *p;
- 	unsigned int cpu;
-+	u64 delay_us;
- 
- 	for_each_cpu(cpu, mask) {
--		if (cpu == smp_processor_id())
-+		if (cpu == smp_processor_id()) {
- 			handle_backtrace_ipi(NULL);
--		else
--			smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, 5 * USEC_PER_SEC);
--	}
-+			continue;
-+		}
- 
--	for_each_cpu(cpu, mask) {
--		struct paca_struct *p = paca_ptrs[cpu];
-+		delay_us = 5 * USEC_PER_SEC;
-+
-+		if (smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, delay_us)) {
-+			// Now wait up to 5s for the other CPU to do its backtrace
-+			while (cpumask_test_cpu(cpu, mask) && delay_us) {
-+				udelay(1);
-+				delay_us--;
-+			}
-+
-+			// Other CPU cleared itself from the mask
-+			if (delay_us)
-+				continue;
-+		}
-+
-+		p = paca_ptrs[cpu];
- 
- 		cpumask_clear_cpu(cpu, mask);
- 
++	loop_config_discard(lo);
+ 	loop_update_rotational(lo);
+ 	loop_update_dio(lo);
+ 	loop_sysfs_init(lo);
 
 
