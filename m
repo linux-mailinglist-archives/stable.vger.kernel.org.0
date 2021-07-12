@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72973C5399
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E8E93C498E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348191AbhGLHzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35410 "EHLO mail.kernel.org"
+        id S236339AbhGLGpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350516AbhGLHvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 944B661152;
-        Mon, 12 Jul 2021 07:45:54 +0000 (UTC)
+        id S237620AbhGLGnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:43:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA186112D;
+        Mon, 12 Jul 2021 06:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075955;
-        bh=T1wAeuWT7+y5rbqoxQHr4a1GsyCW465NMBfjnELrFLY=;
+        s=korg; t=1626071971;
+        bh=fs9g7JYrnZlnzidhysPAffg6ZQJRUvw+SgCjBP5HL5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zLDswTdHuUBSiyLK0z8NiVNaunIRwV+YwU8yjLZcebKx7zb6RTHf+jytKUrDP2n5g
-         tFPXChRrQpQMifk7xGHk6oXjPGkexbYmpmbBVfpCa2UhFF0NYeLUwsyl/ZSMs8Z8Me
-         LofL1NqZ+JkR1c/X14Q8HTnExs1+RWtGH9oJsnJ0=
+        b=IdfbDSu+k6wHqWR6EcjUTZ+u3IOjsEiJmX0fRN61HExRYsE/TKCee2e6eUV7qcm0L
+         CE+ALwMRw8o1e6+lDDHu8fjcPhyeiFf+AOJMa4df+bx7QB4p3eTkYa0ynBo5yUVCAj
+         +Uzg7kVHXHkmqEz6C+toUfW1qAJKBePT3C0hvbsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiumei Mu <xmu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Robert Foss <robert.foss@linaro.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 437/800] xfrm: remove the fragment check for ipv6 beet mode
+Subject: [PATCH 5.10 300/593] drm/bridge/sii8620: fix dependency on extcon
 Date:   Mon, 12 Jul 2021 08:07:40 +0200
-Message-Id: <20210712061013.558299360@linuxfoundation.org>
+Message-Id: <20210712060917.825000547@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Robert Foss <robert.foss@linaro.org>
 
-[ Upstream commit eebd49a4ffb420a991c606e54aa3c9f02857a334 ]
+[ Upstream commit 08319adbdde15ef7cee1970336f63461254baa2a ]
 
-In commit 68dc022d04eb ("xfrm: BEET mode doesn't support fragments
-for inner packets"), it tried to fix the issue that in TX side the
-packet is fragmented before the ESP encapping while in the RX side
-the fragments always get reassembled before decapping with ESP.
+The DRM_SIL_SII8620 kconfig has a weak `imply` dependency
+on EXTCON, which causes issues when sii8620 is built
+as a builtin and EXTCON is built as a module.
 
-This is not true for IPv6. IPv6 is different, and it's using exthdr
-to save fragment info, as well as the ESP info. Exthdrs are added
-in TX and processed in RX both in order. So in the above case, the
-ESP decapping will be done earlier than the fragment reassembling
-in TX side.
+The symptoms are 'undefined reference' errors caused
+by the symbols in EXTCON not being available
+to the sii8620 driver.
 
-Here just remove the fragment check for the IPv6 inner packets to
-recover the fragments support for BEET mode.
-
-Fixes: 68dc022d04eb ("xfrm: BEET mode doesn't support fragments for inner packets")
-Reported-by: Xiumei Mu <xmu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: 688838442147 ("drm/bridge/sii8620: use micro-USB cable detection logic to detect MHL")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Robert Foss <robert.foss@linaro.org>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210419090124.153560-1-robert.foss@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_output.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/gpu/drm/bridge/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index e4cb0ff4dcf4..ac907b9d32d1 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -711,15 +711,8 @@ out:
- static int xfrm6_extract_output(struct xfrm_state *x, struct sk_buff *skb)
- {
- #if IS_ENABLED(CONFIG_IPV6)
--	unsigned int ptr = 0;
- 	int err;
- 
--	if (x->outer_mode.encap == XFRM_MODE_BEET &&
--	    ipv6_find_hdr(skb, &ptr, NEXTHDR_FRAGMENT, NULL, NULL) >= 0) {
--		net_warn_ratelimited("BEET mode doesn't support inner IPv6 fragments\n");
--		return -EAFNOSUPPORT;
--	}
--
- 	err = xfrm6_tunnel_check_size(skb);
- 	if (err)
- 		return err;
+diff --git a/drivers/gpu/drm/bridge/Kconfig b/drivers/gpu/drm/bridge/Kconfig
+index e145cbb35bac..4e82647a621e 100644
+--- a/drivers/gpu/drm/bridge/Kconfig
++++ b/drivers/gpu/drm/bridge/Kconfig
+@@ -130,7 +130,7 @@ config DRM_SIL_SII8620
+ 	tristate "Silicon Image SII8620 HDMI/MHL bridge"
+ 	depends on OF
+ 	select DRM_KMS_HELPER
+-	imply EXTCON
++	select EXTCON
+ 	depends on RC_CORE || !RC_CORE
+ 	help
+ 	  Silicon Image SII8620 HDMI/MHL bridge chip driver.
 -- 
 2.30.2
 
