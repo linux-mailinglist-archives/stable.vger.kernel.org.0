@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C9F3C5436
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ABC63C4E6A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347969AbhGLH5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42406 "EHLO mail.kernel.org"
+        id S244456AbhGLHSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346044AbhGLHx3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D18B610D1;
-        Mon, 12 Jul 2021 07:50:39 +0000 (UTC)
+        id S240013AbhGLHRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A740613EE;
+        Mon, 12 Jul 2021 07:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076239;
-        bh=/z640fdBqXxJe4JlU9EgY4pp1lNDXbmylcXcbdX5eaY=;
+        s=korg; t=1626074089;
+        bh=ZNQmPDaypOBZQ7wR67fztU/ke2WJJ/OsEPsCEOsz240=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZ24yqSzMev1bBG2DCPyPcGBZUfMq7l0fP6t4F0WZBOtdYB7JU34gSrngb50yo4kh
-         DsIhrY5Idmr6/12nc/8deYxfxeUnjtopB5Lcl9HFjkNHX9o0ZInepb5VOVLq1/JJtw
-         Moj2WGdwAaQORwpovYIGhIfrUqiE63hdf9Zdo6w4=
+        b=Y7H/vz1AdBsCepmLanqBd4U7p0HmfdYcJSat31IjH3rXkXNFQ+FuMYMtO34u7XY1z
+         aelP9biMdFqeZBKkhnqHWwsAKkOw9kACOKaK6tIXay9OY7ELPU88cfdQW4zukCh4c5
+         IGj2r5UYtXY0u82DYb9+isoeaOHCu5KMslMjnDMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
-        Seth Forshee <seth.forshee@canonical.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miao Wang <shankerwangmiao@gmail.com>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 521/800] tls: prevent oversized sendfile() hangs by ignoring MSG_MORE
+Subject: [PATCH 5.12 461/700] net/ipv4: swap flow ports when validating source
 Date:   Mon, 12 Jul 2021 08:09:04 +0200
-Message-Id: <20210712061022.671726640@linuxfoundation.org>
+Message-Id: <20210712061025.627428520@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Miao Wang <shankerwangmiao@gmail.com>
 
-[ Upstream commit d452d48b9f8b1a7f8152d33ef52cfd7fe1735b0a ]
+[ Upstream commit c69f114d09891adfa3e301a35d9e872b8b7b5a50 ]
 
-We got multiple reports that multi_chunk_sendfile test
-case from tls selftest fails. This was sort of expected,
-as the original fix was never applied (see it in the first
-Link:). The test in question uses sendfile() with count
-larger than the size of the underlying file. This will
-make splice set MSG_MORE on all sendpage calls, meaning
-TLS will never close and flush the last partial record.
+When doing source address validation, the flowi4 struct used for
+fib_lookup should be in the reverse direction to the given skb.
+fl4_dport and fl4_sport returned by fib4_rules_early_flow_dissect
+should thus be swapped.
 
-Eric seem to have addressed a similar problem in
-commit 35f9c09fe9c7 ("tcp: tcp_sendpages() should call tcp_push() once")
-by introducing MSG_SENDPAGE_NOTLAST. Unlike MSG_MORE
-MSG_SENDPAGE_NOTLAST is not set on the last call
-of a "pipefull" of data (PIPE_DEF_BUFFERS == 16,
-so every 16 pages or whenever we run out of data).
-
-Having a break every 16 pages should be fine, TLS
-can pack exactly 4 pages into a record, so for
-aligned reads there should be no difference,
-unaligned may see one extra record per sendpage().
-
-Sticking to TCP semantics seems preferable to modifying
-splice, but we can revisit it if real life scenarios
-show a regression.
-
-Reported-by: Vadim Fedorenko <vfedorenko@novek.ru>
-Reported-by: Seth Forshee <seth.forshee@canonical.com>
-Link: https://lore.kernel.org/netdev/1591392508-14592-1-git-send-email-pooja.trivedi@stackpath.com/
-Fixes: 3c4d7559159b ("tls: kernel TLS support")
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Seth Forshee <seth.forshee@canonical.com>
+Fixes: 5a847a6e1477 ("net/ipv4: Initialize proto and ports in flow struct")
+Signed-off-by: Miao Wang <shankerwangmiao@gmail.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/fib_frontend.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 694de024d0ee..74e5701034aa 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -1153,7 +1153,7 @@ static int tls_sw_do_sendpage(struct sock *sk, struct page *page,
- 	int ret = 0;
- 	bool eor;
+diff --git a/net/ipv4/fib_frontend.c b/net/ipv4/fib_frontend.c
+index 84bb707bd88d..647bceab56c2 100644
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -371,6 +371,8 @@ static int __fib_validate_source(struct sk_buff *skb, __be32 src, __be32 dst,
+ 		fl4.flowi4_proto = 0;
+ 		fl4.fl4_sport = 0;
+ 		fl4.fl4_dport = 0;
++	} else {
++		swap(fl4.fl4_sport, fl4.fl4_dport);
+ 	}
  
--	eor = !(flags & (MSG_MORE | MSG_SENDPAGE_NOTLAST));
-+	eor = !(flags & MSG_SENDPAGE_NOTLAST);
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 
- 	/* Call the sk_stream functions to manage the sndbuf mem. */
+ 	if (fib_lookup(net, &fl4, &res, 0))
 -- 
 2.30.2
 
