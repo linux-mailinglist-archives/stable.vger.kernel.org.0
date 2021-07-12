@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 221173C4C9A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1ACB3C51F7
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242181AbhGLHGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40330 "EHLO mail.kernel.org"
+        id S1349610AbhGLHoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243467AbhGLHE6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D82DD610E6;
-        Mon, 12 Jul 2021 07:02:09 +0000 (UTC)
+        id S1349471AbhGLHmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 378A060FF3;
+        Mon, 12 Jul 2021 07:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073330;
-        bh=/zIf+I4JdXj6gXGuXn+Bgugw72VRZUQcxd3EkZMw6XQ=;
+        s=korg; t=1626075555;
+        bh=d1t6qlQFsNj9feQpwGEAoLiNV2nbZ8D1xq3GbYpYHCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h82SJhK56RLUPRcNnbkN8pt/IjgTBoCADmQ7UmnJsIFnmyU4p55ljQF/6VILH1Ljq
-         S69UQ+S9gn/IWQjMvTirxfuL7G+zwIeZT6sxWkT5EUYpYGilROvVWHLzmoMr5S24Hl
-         MNvH85cxbmDNxgSM8HCPKgzdJZ9RLKUfrjD4bi0E=
+        b=TxiHMEqOKedEQrNyb8GJzSkKKuhvkKPDAlNsoHGiowWvSc5k6cdO6pdn13uFd0HmX
+         Nw/NcsVktef1d3KEMQL9dmBYZyX3FOx+Q2DYIG/nUAWLrGvhfwjHx/T09JC2B8KyIo
+         PVVu0JfYYL1MVrA+xXAlxKEU50/HJF/biy2Q+XVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Jan Kara <jack@suse.com>, Jan Kara <jack@suse.cz>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Dave Chinner <dchinner@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 204/700] platform/x86: touchscreen_dmi: Add info for the Goodix GT912 panel of TM800A550L tablets
+Subject: [PATCH 5.13 264/800] writeback, cgroup: increment isw_nr_in_flight before grabbing an inode
 Date:   Mon, 12 Jul 2021 08:04:47 +0200
-Message-Id: <20210712060955.684076344@linuxfoundation.org>
+Message-Id: <20210712060951.822691015@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Roman Gushchin <guro@fb.com>
 
-[ Upstream commit fcd8cf0e3e48f4c66af82c8e799c37cb0cccffe0 ]
+[ Upstream commit 8826ee4fe75051f8cbfa5d4a9aa70565938e724c ]
 
-The Bay Trail Glavey TM800A550L tablet, which ships with Android installed
-from the factory, uses a GT912 touchscreen controller which needs to have
-its firmware uploaded by the OS to work (this is a first for a x86 based
-device with a Goodix touchscreen controller).
+isw_nr_in_flight is used to determine whether the inode switch queue
+should be flushed from the umount path.  Currently it's increased after
+grabbing an inode and even scheduling the switch work.  It means the
+umount path can walk past cleanup_offline_cgwb() with active inode
+references, which can result in a "Busy inodes after unmount." message and
+use-after-free issues (with inode->i_sb which gets freed).
 
-Add a touchscreen_dmi entry for this which specifies the filenames
-to use for the firmware and config files needed for this.
+Fix it by incrementing isw_nr_in_flight before doing anything with the
+inode and decrementing in the case when switching wasn't scheduled.
 
-Note this matches on a GDIX1001 ACPI HID, while the original DSDT uses
-a HID of GODX0911. For the touchscreen to work on these devices a DSDT
-override is necessary to fix a missing IRQ and broken GPIO settings in
-the ACPI-resources for the touchscreen. This override also changes the
-HID to the standard GDIX1001 id typically used for Goodix touchscreens.
-The DSDT override is available here:
-https://fedorapeople.org/~jwrdegoede/glavey-tm800a550l-dsdt-override/
+The problem hasn't yet been seen in the real life and was discovered by
+Jan Kara by looking into the code.
 
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-5-hdegoede@redhat.com
+Link: https://lkml.kernel.org/r/20210608230225.2078447-4-guro@fb.com
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Suggested-by: Jan Kara <jack@suse.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ fs/fs-writeback.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index bbd8d80230cd..b47f6821615e 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -316,6 +316,18 @@ static const struct ts_dmi_data gdix1001_01_upside_down_data = {
- 	.properties	= gdix1001_upside_down_props,
- };
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 7c46d1588a19..d684f541af48 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -505,6 +505,8 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	if (!isw)
+ 		return;
  
-+static const struct property_entry glavey_tm800a550l_props[] = {
-+	PROPERTY_ENTRY_STRING("firmware-name", "gt912-glavey-tm800a550l.fw"),
-+	PROPERTY_ENTRY_STRING("goodix,config-name", "gt912-glavey-tm800a550l.cfg"),
-+	PROPERTY_ENTRY_U32("goodix,main-clk", 54),
-+	{ }
-+};
++	atomic_inc(&isw_nr_in_flight);
 +
-+static const struct ts_dmi_data glavey_tm800a550l_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= glavey_tm800a550l_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -1029,6 +1041,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "eSTAR BEAUTY HD Intel Quad core"),
- 		},
- 	},
-+	{	/* Glavey TM800A550L */
-+		.driver_data = (void *)&glavey_tm800a550l_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
-+			/* Above strings are too generic, also match on BIOS version */
-+			DMI_MATCH(DMI_BIOS_VERSION, "ZY-8-BI-PX4S70VTR400-X423B-005-D"),
-+		},
-+	},
- 	{
- 		/* GP-electronic T701 */
- 		.driver_data = (void *)&gp_electronic_t701_data,
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+@@ -535,11 +537,10 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
+-
+-	atomic_inc(&isw_nr_in_flight);
+ 	return;
+ 
+ out_free:
++	atomic_dec(&isw_nr_in_flight);
+ 	if (isw->new_wb)
+ 		wb_put(isw->new_wb);
+ 	kfree(isw);
 -- 
 2.30.2
 
