@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8653C480B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2278E3C4803
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235952AbhGLGfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:35:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55424 "EHLO mail.kernel.org"
+        id S236030AbhGLGfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237852AbhGLGez (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:34:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01E316112D;
-        Mon, 12 Jul 2021 06:31:47 +0000 (UTC)
+        id S237832AbhGLGey (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:34:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5240461008;
+        Mon, 12 Jul 2021 06:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071508;
-        bh=bzbaR6zHyOg6xGHCETQ8JeXmpT3Bz2gN55FB7i7Rvsg=;
+        s=korg; t=1626071510;
+        bh=M4lXD5PdoEOae9tXQkmDAL0otB9pq6xK1O5bsCfdOwo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqVxmR4SVx6/KHa+6U1YqF2Cplkj4Fuc1BoxDD/LOxBhKcEUKGVmfdiyJm8MFk2fu
-         SbiXwjPJeSrPfVw574ZHQ0yegqv99yVKTLiITmZ84QkeKVieRl7H3OjvpofepRdHqe
-         AB0LfCNwwKifpG6iC8WCZ3P5OR4Mj6kmstiyp5X4=
+        b=Jif3f6kqHH8R0ioaRmVy0pv6E+bOi4Az+nux3iO1dURFkkpJjnPWoTSp+GSMf0sLT
+         mdwieC9VpoEzZmqtd6rXNlhuSxcjLDv5cn+LTFojVerYRp5ZHur+LaEO8v+QEXaIIa
+         PVOIUMqyGjy/g8jmSUKgo/iWq0xRa4P1m4aQI6RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/593] thermal/cpufreq_cooling: Update offline CPUs per-cpu thermal_pressure
-Date:   Mon, 12 Jul 2021 08:04:19 +0200
-Message-Id: <20210712060854.110003059@linuxfoundation.org>
+Subject: [PATCH 5.10 100/593] spi: Make of_register_spi_device also set the fwnode
+Date:   Mon, 12 Jul 2021 08:04:20 +0200
+Message-Id: <20210712060854.215385548@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,45 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit 2ad8ccc17d1e4270cf65a3f2a07a7534aa23e3fb ]
+[ Upstream commit 0e793ba77c18382f08e440260fe72bc6fce2a3cb ]
 
-The thermal pressure signal gives information to the scheduler about
-reduced CPU capacity due to thermal. It is based on a value stored in
-a per-cpu 'thermal_pressure' variable. The online CPUs will get the
-new value there, while the offline won't. Unfortunately, when the CPU
-is back online, the value read from per-cpu variable might be wrong
-(stale data).  This might affect the scheduler decisions, since it
-sees the CPU capacity differently than what is actually available.
+Currently, the SPI core doesn't set the struct device fwnode pointer
+when it creates a new SPI device. This means when the device is
+registered the fwnode is NULL and the check in device_add which sets
+the fwnode->dev pointer is skipped. This wasn't previously an issue,
+however these two patches:
 
-Fix it by making sure that all online+offline CPUs would get the
-proper value in their per-cpu variable when thermal framework sets
-capping.
+commit 4731210c09f5 ("gpiolib: Bind gpio_device to a driver to enable
+fw_devlink=on by default")
+commit ced2af419528 ("gpiolib: Don't probe gpio_device if it's not the
+primary device")
 
-Fixes: f12e4f66ab6a3 ("thermal/cpu-cooling: Update thermal pressure in case of a maximum frequency capping")
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Link: https://lore.kernel.org/r/20210614191030.22241-1-lukasz.luba@arm.com
+Added some code to the GPIO core which relies on using that
+fwnode->dev pointer to determine if a driver is bound to the fwnode
+and if not bind a stub GPIO driver. This means the GPIO providers
+behind SPI will get both the expected driver and this stub driver
+causing the stub driver to fail if it attempts to request any pin
+configuration. For example on my system:
+
+madera-pinctrl madera-pinctrl: pin gpio5 already requested by madera-pinctrl; cannot claim for gpiochip3
+madera-pinctrl madera-pinctrl: pin-4 (gpiochip3) status -22
+madera-pinctrl madera-pinctrl: could not request pin 4 (gpio5) from group aif1  on device madera-pinctrl
+gpio_stub_drv gpiochip3: Error applying setting, reverse things back
+gpio_stub_drv: probe of gpiochip3 failed with error -22
+
+The firmware node on the device created by the GPIO framework is set
+through the of_node pointer hence things generally actually work,
+however that fwnode->dev is never set, as the check was skipped at
+device_add time. This fix appears to match how the I2C subsystem
+handles the same situation.
+
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210421101402.8468-1-ckeepax@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/cpufreq_cooling.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/thermal/cpufreq_cooling.c b/drivers/thermal/cpufreq_cooling.c
-index 3f6a69ccc173..6e1d6a31ee4f 100644
---- a/drivers/thermal/cpufreq_cooling.c
-+++ b/drivers/thermal/cpufreq_cooling.c
-@@ -443,7 +443,7 @@ static int cpufreq_set_cur_state(struct thermal_cooling_device *cdev,
- 	ret = freq_qos_update_request(&cpufreq_cdev->qos_req, frequency);
- 	if (ret >= 0) {
- 		cpufreq_cdev->cpufreq_state = state;
--		cpus = cpufreq_cdev->policy->cpus;
-+		cpus = cpufreq_cdev->policy->related_cpus;
- 		max_capacity = arch_scale_cpu_capacity(cpumask_first(cpus));
- 		capacity = frequency * max_capacity;
- 		capacity /= cpufreq_cdev->policy->cpuinfo.max_freq;
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 0cf67de741e7..bd8b1f79dce2 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -2050,6 +2050,7 @@ of_register_spi_device(struct spi_controller *ctlr, struct device_node *nc)
+ 	/* Store a pointer to the node in the device structure */
+ 	of_node_get(nc);
+ 	spi->dev.of_node = nc;
++	spi->dev.fwnode = of_fwnode_handle(nc);
+ 
+ 	/* Register the new device */
+ 	rc = spi_add_device(spi);
 -- 
 2.30.2
 
