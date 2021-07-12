@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B6613C4B59
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305FA3C4F10
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238244AbhGLG4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
+        id S237539AbhGLHXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238907AbhGLGtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C08346120A;
-        Mon, 12 Jul 2021 06:45:18 +0000 (UTC)
+        id S1343556AbhGLHTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DCDD610A6;
+        Mon, 12 Jul 2021 07:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072319;
-        bh=GBApQ9FNkd1LmNmUHAUeubl9gFCTvtXBkBTgkAQtLKc=;
+        s=korg; t=1626074226;
+        bh=OCif2ZsNIOhHAWJltQSZzdH7Ucun+7oFwwXTFZNaHWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMyNKtrC+M66KoZJ9DM9MIoHWfoTgRmL+2a9NRT6oa51piGnsa3YUDTz0mPgQHOiM
-         gTQlso9BAmMfoLO1u4v4lRXiUOVqJOOWPw5UfoNiY8Kia4iPG5fdNeuV5QN8IygKJQ
-         HVS1QuvmBn301XRL6T2KYHZ6m0Oj/fI93w6+hWyY=
+        b=GqZ5oWCF0gYlQryIQvq1/ki7mYoRRXgOnkEcigV/Uh5um/5EfOclatOLhGzJF4vzj
+         eXJIvfjjRPGxmTrJI7aRBBVAr7dZQelHR+/gDo3WDKDQCUr2QVp41pEqrOL/AkU/g7
+         OAy9ZMOUeT/T3HYnzsx4cHpOx6c0l6ka+8iXr4CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Itay Aveksis <itayav@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 430/593] RDMA/mlx5: Dont access NULL-cleared mpi pointer
+Subject: [PATCH 5.12 507/700] clk: si5341: Wait for DEVICE_READY on startup
 Date:   Mon, 12 Jul 2021 08:09:50 +0200
-Message-Id: <20210712060935.784454410@linuxfoundation.org>
+Message-Id: <20210712061030.457795062@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,91 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 4a754d7637026b42b0c9ba5787ad5ee3bc2ff77f ]
+[ Upstream commit 6e7d2de1e000d36990923ed80d2e78dfcb545cee ]
 
-The "dev->port[i].mp.mpi" is set to NULL during mlx5_ib_unbind_slave_port()
-execution, however that field is needed to add device to unaffiliated list.
+The Si5341 datasheet warns that before accessing any other registers,
+including the PAGE register, we need to wait for the DEVICE_READY register
+to indicate the device is ready, or the process of the device loading its
+state from NVM can be corrupted. Wait for DEVICE_READY on startup before
+continuing initialization. This is done using a raw I2C register read
+prior to setting up regmap to avoid any potential unwanted automatic PAGE
+register accesses from regmap at this stage.
 
-Such flow causes to the following kernel panic while unloading mlx5_ib
-module in multi-port mode, hence the device should be added to the list
-prior to unbind call.
-
- RPC: Unregistered rdma transport module.
- RPC: Unregistered rdma backchannel transport module.
- BUG: kernel NULL pointer dereference, address: 0000000000000000
- #PF: supervisor write access in kernel mode
- #PF: error_code(0x0002) - not-present page
- PGD 0 P4D 0
- Oops: 0002 [#1] SMP NOPTI
- CPU: 4 PID: 1904 Comm: modprobe Not tainted 5.13.0-rc7_for_upstream_min_debug_2021_06_24_12_08 #1
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:mlx5_ib_cleanup_multiport_master+0x18b/0x2d0 [mlx5_ib]
- Code: 00 04 0f 85 c4 00 00 00 48 89 df e8 ef fa ff ff 48 8b 83 40 0d 00 00 48 8b 15 b9 e8 05 00 4a 8b 44 28 20 48 89 05 ad e8 05 00 <48> c7 00 d0 57 c5 a0 48 89 50 08 48 89 02 39 ab 88 0a 00 00 0f 86
- RSP: 0018:ffff888116ee3df8 EFLAGS: 00010296
- RAX: 0000000000000000 RBX: ffff8881154f6000 RCX: 0000000000000080
- RDX: ffffffffa0c557d0 RSI: ffff88810b69d200 RDI: 000000000002d8a0
- RBP: 0000000000000002 R08: ffff888110780408 R09: 0000000000000000
- R10: ffff88812452e1c0 R11: fffffffffff7e028 R12: 0000000000000000
- R13: 0000000000000080 R14: ffff888102c58000 R15: 0000000000000000
- FS:  00007f884393a740(0000) GS:ffff8882f5a00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 00000001249f6004 CR4: 0000000000370ea0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  mlx5_ib_stage_init_cleanup+0x16/0xd0 [mlx5_ib]
-  __mlx5_ib_remove+0x33/0x90 [mlx5_ib]
-  mlx5r_remove+0x22/0x30 [mlx5_ib]
-  auxiliary_bus_remove+0x18/0x30
-  __device_release_driver+0x177/0x220
-  driver_detach+0xc4/0x100
-  bus_remove_driver+0x58/0xd0
-  auxiliary_driver_unregister+0x12/0x20
-  mlx5_ib_cleanup+0x13/0x897 [mlx5_ib]
-  __x64_sys_delete_module+0x154/0x230
-  ? exit_to_user_mode_prepare+0x104/0x140
-  do_syscall_64+0x3f/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f8842e095c7
- Code: 73 01 c3 48 8b 0d d9 48 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a9 48 2c 00 f7 d8 64 89 01 48
- RSP: 002b:00007ffc68f6e758 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
- RAX: ffffffffffffffda RBX: 00005638207929c0 RCX: 00007f8842e095c7
- RDX: 0000000000000000 RSI: 0000000000000800 RDI: 0000563820792a28
- RBP: 00005638207929c0 R08: 00007ffc68f6d701 R09: 0000000000000000
- R10: 00007f8842e82880 R11: 0000000000000206 R12: 0000563820792a28
- R13: 0000000000000001 R14: 0000563820792a28 R15: 00007ffc68f6fb40
- Modules linked in: xt_MASQUERADE nf_conntrack_netlink nfnetlink iptable_nat xt_addrtype xt_conntrack nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter overlay rdma_ucm ib_iser libiscsi scsi_transport_iscsi rdma_cm iw_cm ib_ipoib ib_cm ib_umad mlx5_ib(-) mlx4_ib ib_uverbs ib_core mlx4_en mlx4_core mlx5_core ptp pps_core [last unloaded: rpcrdma]
- CR2: 0000000000000000
- ---[ end trace a0bb7e20804e9e9b ]---
-
-Fixes: 7ce6095e3bff ("RDMA/mlx5: Don't add slave port to unaffiliated list")
-Link: https://lore.kernel.org/r/899ac1b33a995be5ec0e16a4765c4e43c2b1ba5b.1624956444.git.leonro@nvidia.com
-Reviewed-by: Itay Aveksis <itayav@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20210325192643.2190069-3-robert.hancock@calian.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/clk-si5341.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index 60aceb3b47a5..eb69bec77e5d 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -3592,9 +3592,9 @@ static void mlx5_ib_cleanup_multiport_master(struct mlx5_ib_dev *dev)
- 				dev->port[i].mp.mpi = NULL;
- 			} else {
- 				mlx5_ib_dbg(dev, "unbinding port_num: %d\n", i + 1);
--				mlx5_ib_unbind_slave_port(dev, dev->port[i].mp.mpi);
- 				list_add_tail(&dev->port[i].mp.mpi->list,
- 					      &mlx5_ib_unaffiliated_port_list);
-+				mlx5_ib_unbind_slave_port(dev, dev->port[i].mp.mpi);
- 			}
- 		}
- 	}
+diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
+index e0446e66fa64..b8a960e927bc 100644
+--- a/drivers/clk/clk-si5341.c
++++ b/drivers/clk/clk-si5341.c
+@@ -94,6 +94,7 @@ struct clk_si5341_output_config {
+ #define SI5341_STATUS		0x000C
+ #define SI5341_SOFT_RST		0x001C
+ #define SI5341_IN_SEL		0x0021
++#define SI5341_DEVICE_READY	0x00FE
+ #define SI5341_XAXB_CFG		0x090E
+ #define SI5341_IN_EN		0x0949
+ #define SI5341_INX_TO_PFD_EN	0x094A
+@@ -1189,6 +1190,32 @@ static const struct regmap_range_cfg si5341_regmap_ranges[] = {
+ 	},
+ };
+ 
++static int si5341_wait_device_ready(struct i2c_client *client)
++{
++	int count;
++
++	/* Datasheet warns: Any attempt to read or write any register other
++	 * than DEVICE_READY before DEVICE_READY reads as 0x0F may corrupt the
++	 * NVM programming and may corrupt the register contents, as they are
++	 * read from NVM. Note that this includes accesses to the PAGE register.
++	 * Also: DEVICE_READY is available on every register page, so no page
++	 * change is needed to read it.
++	 * Do this outside regmap to avoid automatic PAGE register access.
++	 * May take up to 300ms to complete.
++	 */
++	for (count = 0; count < 15; ++count) {
++		s32 result = i2c_smbus_read_byte_data(client,
++						      SI5341_DEVICE_READY);
++		if (result < 0)
++			return result;
++		if (result == 0x0F)
++			return 0;
++		msleep(20);
++	}
++	dev_err(&client->dev, "timeout waiting for DEVICE_READY\n");
++	return -EIO;
++}
++
+ static const struct regmap_config si5341_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -1385,6 +1412,11 @@ static int si5341_probe(struct i2c_client *client,
+ 
+ 	data->i2c_client = client;
+ 
++	/* Must be done before otherwise touching hardware */
++	err = si5341_wait_device_ready(client);
++	if (err)
++		return err;
++
+ 	for (i = 0; i < SI5341_NUM_INPUTS; ++i) {
+ 		input = devm_clk_get(&client->dev, si5341_input_clock_names[i]);
+ 		if (IS_ERR(input)) {
 -- 
 2.30.2
 
