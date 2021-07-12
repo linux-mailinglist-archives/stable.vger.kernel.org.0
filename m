@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FB63C4ED8
+	by mail.lfdr.de (Postfix) with ESMTP id E14FA3C4EDA
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242006AbhGLHVz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:21:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57750 "EHLO mail.kernel.org"
+        id S241004AbhGLHV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245497AbhGLHTe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:19:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE53460FF1;
-        Mon, 12 Jul 2021 07:16:44 +0000 (UTC)
+        id S245549AbhGLHTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:19:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8873261153;
+        Mon, 12 Jul 2021 07:16:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074205;
-        bh=L54z9NXgGmai7tFpkSCXAK7zUvuUubwE7cZUUL2mOB8=;
+        s=korg; t=1626074208;
+        bh=mUdufkRP5E+hO8OzuCj/d6SoF7ztqQYiiolxwrrMVhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0SpVs5KIP9NUKFuBMKBW9r34kbuVOCnVajG8Ah5EGFQhTkEquGKi43/WN+hslhuqL
-         biyTWCyccq4hpCxF8KQ0d6h5uXrxocD1enoj0yFcMQdrbwRfH9v8kVi/FfSzZ8g1A4
-         HFiaxZFn/wMDp0koCA9o/0QQrd6pgNpma6eV80Eg=
+        b=BF95nKNvoiuWmPp5HzKpPwfvBuZPpF17sOL5z+xGR8TGL95yt/exPWfCy8MBdAO55
+         /fQu24Kh+vTnfdDHwTQWTUcLJLZnOB9JcWWYqTy2rI6zA2qiDOOoWlkNBTC0EtkU7G
+         ofoFxu8rbNXHRbKUxg0maQG2vqbVxe2C8mwImWtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taniya Das <tdas@codeaurora.org>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 501/700] clk: qcom: gcc: Add support for a new frequency for SC7280
-Date:   Mon, 12 Jul 2021 08:09:44 +0200
-Message-Id: <20210712061029.790496863@linuxfoundation.org>
+Subject: [PATCH 5.12 502/700] clk: actions: Fix UART clock dividers on Owl S500 SoC
+Date:   Mon, 12 Jul 2021 08:09:45 +0200
+Message-Id: <20210712061029.905029467@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -40,34 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taniya Das <tdas@codeaurora.org>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit ca1c667f4be935825fffb232a106c9d3f1c09b0b ]
+[ Upstream commit 2dca2a619a907579e3e65e7c1789230c2b912e88 ]
 
-There is a requirement to support 52MHz for qup clocks for bluetooth
-usecase, thus update the frequency table to support the frequency.
+Use correct divider registers for the Actions Semi Owl S500 SoC's UART
+clocks.
 
-Fixes: a3cc092196ef ("clk: qcom: Add Global Clock controller (GCC) driver for SC7280")
-Signed-off-by: Taniya Das <tdas@codeaurora.org>
-Link: https://lore.kernel.org/r/1624449471-9984-1-git-send-email-tdas@codeaurora.org
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/4714d05982b19ac5fec2ed74f54be42d8238e392.1623354574.git.cristian.ciocaltea@gmail.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/gcc-sc7280.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/actions/owl-s500.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/qcom/gcc-sc7280.c b/drivers/clk/qcom/gcc-sc7280.c
-index 22736c16ed16..2db1b07c7044 100644
---- a/drivers/clk/qcom/gcc-sc7280.c
-+++ b/drivers/clk/qcom/gcc-sc7280.c
-@@ -716,6 +716,7 @@ static const struct freq_tbl ftbl_gcc_qupv3_wrap0_s2_clk_src[] = {
- 	F(29491200, P_GCC_GPLL0_OUT_EVEN, 1, 1536, 15625),
- 	F(32000000, P_GCC_GPLL0_OUT_EVEN, 1, 8, 75),
- 	F(48000000, P_GCC_GPLL0_OUT_EVEN, 1, 4, 25),
-+	F(52174000, P_GCC_GPLL0_OUT_MAIN, 1, 2, 23),
- 	F(64000000, P_GCC_GPLL0_OUT_EVEN, 1, 16, 75),
- 	F(75000000, P_GCC_GPLL0_OUT_EVEN, 4, 0, 0),
- 	F(80000000, P_GCC_GPLL0_OUT_EVEN, 1, 4, 15),
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 61bb224f6330..75b7186185b0 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -305,7 +305,7 @@ static OWL_COMP_FIXED_FACTOR(i2c3_clk, "i2c3_clk", "ethernet_pll_clk",
+ static OWL_COMP_DIV(uart0_clk, "uart0_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART0CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 6, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART0CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart1_clk, "uart1_clk", uart_clk_mux_p,
+@@ -317,31 +317,31 @@ static OWL_COMP_DIV(uart1_clk, "uart1_clk", uart_clk_mux_p,
+ static OWL_COMP_DIV(uart2_clk, "uart2_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART2CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 8, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART2CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart3_clk, "uart3_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART3CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 19, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART3CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart4_clk, "uart4_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART4CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 20, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART4CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart5_clk, "uart5_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART5CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 21, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART5CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart6_clk, "uart6_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART6CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 18, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART6CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(i2srx_clk, "i2srx_clk", i2s_clk_mux_p,
 -- 
 2.30.2
 
