@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6E463C49F2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B2F13C53FF
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236412AbhGLGri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S1349395AbhGLH4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238084AbhGLGqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:46:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F41CF6128E;
-        Mon, 12 Jul 2021 06:42:35 +0000 (UTC)
+        id S1351483AbhGLHvv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A228C61152;
+        Mon, 12 Jul 2021 07:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072156;
-        bh=5RBP4naidKyQUpt3TyGxsn7mo6o5fz5Qv0pQJM67Sd8=;
+        s=korg; t=1626076142;
+        bh=vadZ6gUXTYIuU7UT1zYTcy7tACJLaraZF8s0C4ypvD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oq8si7rWkX6p9V6T9KVjBoMa3YccL5t5h0snui7L/XCMWj0B/6vZKyqHSA/jqiiEa
-         M/2H20DyCVoqAJA/ct9hqRblHNcFtACl/S/Fldl/iGkSOXbCSycI3nBjKCoCdo1dWG
-         n3HKrbRyZgiS6zOULptYK3Z3ZPlicxNqsp3jH9oY=
+        b=X/+ie9w0YlEVFh5MlGMcFvXhnGKyKd/y4nmi1VpgvXU/OvnWNTPRzrkI5/8I3xzDJ
+         V6QFer5QciqU1qRbbaREHKnqcRUFIj6qnSQzZQHix+AfLXr34XfB9etN1fLsE9gaBy
+         3UjCVUrjta3E/GWGNoSMAP1pA/6FS2LD23tQkQro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jiang Wang <jiang.wang@bytedance.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 376/593] netfilter: nf_tables_offload: check FLOW_DISSECTOR_KEY_BASIC in VLAN transfer logic
-Date:   Mon, 12 Jul 2021 08:08:56 +0200
-Message-Id: <20210712060928.209744794@linuxfoundation.org>
+Subject: [PATCH 5.13 514/800] skmsg: Clear skb redirect pointer before dropping it
+Date:   Mon, 12 Jul 2021 08:08:57 +0200
+Message-Id: <20210712061021.906071469@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit ea45fdf82cc90430bb7c280e5e53821e833782c5 ]
+[ Upstream commit 30b9c54a707db4155735cf71f4600241c1b7b6ff ]
 
-The VLAN transfer logic should actually check for
-FLOW_DISSECTOR_KEY_BASIC, not FLOW_DISSECTOR_KEY_CONTROL. Moreover, do
-not fallback to case 2) .n_proto is set to 802.1q or 802.1ad, if
-FLOW_DISSECTOR_KEY_BASIC is unset.
+When we drop skb inside sk_psock_skb_redirect(), we have to clear
+its skb->_sk_redir pointer too, otherwise kfree_skb() would
+misinterpret it as a valid skb->_skb_refdst and dst_release()
+would eventually complain.
 
-Fixes: 783003f3bb8a ("netfilter: nftables_offload: special ethertype handling for VLAN")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: e3526bb92a20 ("skmsg: Move sk_redir from TCP_SKB_CB to skb")
+Reported-by: Jiang Wang <jiang.wang@bytedance.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20210615021342.7416-5-xiyou.wangcong@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_offload.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ net/core/skmsg.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/netfilter/nf_tables_offload.c b/net/netfilter/nf_tables_offload.c
-index 2b00f7f47693..9ce776175214 100644
---- a/net/netfilter/nf_tables_offload.c
-+++ b/net/netfilter/nf_tables_offload.c
-@@ -54,15 +54,10 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
- 					struct nft_flow_rule *flow)
- {
- 	struct nft_flow_match *match = &flow->match;
--	struct nft_offload_ethertype ethertype;
--
--	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_CONTROL) &&
--	    match->key.basic.n_proto != htons(ETH_P_8021Q) &&
--	    match->key.basic.n_proto != htons(ETH_P_8021AD))
--		return;
--
--	ethertype.value = match->key.basic.n_proto;
--	ethertype.mask = match->mask.basic.n_proto;
-+	struct nft_offload_ethertype ethertype = {
-+		.value	= match->key.basic.n_proto,
-+		.mask	= match->mask.basic.n_proto,
-+	};
- 
- 	if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_VLAN) &&
- 	    (match->key.vlan.vlan_tpid == htons(ETH_P_8021Q) ||
-@@ -76,7 +71,9 @@ static void nft_flow_rule_transfer_vlan(struct nft_offload_ctx *ctx,
- 		match->dissector.offset[FLOW_DISSECTOR_KEY_CVLAN] =
- 			offsetof(struct nft_flow_key, cvlan);
- 		match->dissector.used_keys |= BIT(FLOW_DISSECTOR_KEY_CVLAN);
--	} else {
-+	} else if (match->dissector.used_keys & BIT(FLOW_DISSECTOR_KEY_BASIC) &&
-+		   (match->key.basic.n_proto == htons(ETH_P_8021Q) ||
-+		    match->key.basic.n_proto == htons(ETH_P_8021AD))) {
- 		match->key.basic.n_proto = match->key.vlan.vlan_tpid;
- 		match->mask.basic.n_proto = match->mask.vlan.vlan_tpid;
- 		match->key.vlan.vlan_tpid = ethertype.value;
+diff --git a/net/core/skmsg.c b/net/core/skmsg.c
+index 43ce17a6a585..df545748cd6a 100644
+--- a/net/core/skmsg.c
++++ b/net/core/skmsg.c
+@@ -866,12 +866,14 @@ static void sk_psock_skb_redirect(struct sk_buff *skb)
+ 	 * a socket that is in this state so we drop the skb.
+ 	 */
+ 	if (!psock_other || sock_flag(sk_other, SOCK_DEAD)) {
++		skb_bpf_redirect_clear(skb);
+ 		kfree_skb(skb);
+ 		return;
+ 	}
+ 	spin_lock_bh(&psock_other->ingress_lock);
+ 	if (!sk_psock_test_state(psock_other, SK_PSOCK_TX_ENABLED)) {
+ 		spin_unlock_bh(&psock_other->ingress_lock);
++		skb_bpf_redirect_clear(skb);
+ 		kfree_skb(skb);
+ 		return;
+ 	}
 -- 
 2.30.2
 
