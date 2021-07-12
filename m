@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E19D3C50E2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA323C4B74
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345000AbhGLHfe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:35:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S239347AbhGLG5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241869AbhGLHct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:32:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 356C360FF1;
-        Mon, 12 Jul 2021 07:29:45 +0000 (UTC)
+        id S236218AbhGLG4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D47F61132;
+        Mon, 12 Jul 2021 06:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074986;
-        bh=isnSSOi9t/7E3k0sfD83D9sSb2OIubB7DPFcAezP1fU=;
+        s=korg; t=1626072815;
+        bh=QS7eS08UPakzcf37yOb2N13yEuOcKNARoQMQfcdc2LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVnt4B2PuWGBCSfaecLPJLfYe3hXA4tUH170ouuik9635QfrhfwdskdfsLTyw5XDT
-         PL6dgl8mxjvMDthIeW0icNvvBhHy42W+DBJi3XZ5Sk1IP1VAAY7Ma05V2YUZAt3dx2
-         /UgX/789+s2jRovXmCK39jvMU1Om/AdXqMXnczoI=
+        b=bcOQceoq56ekSwA/PFn+SJO/RpzvTz1VCBlpsMDZV7hKapp3+vdfiwsa5Ctpbt8UE
+         IM6N9qdEDv0zxTPHGYd2s/iqGxoVZ0aDIISdZb8M4Su9oNR/LDwcD0JFBkA0icq/RS
+         pg4HDr6CEf4ZwvXM/zoMf4dWl9fg29nM/9ZG7B4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stephane Grosjean <s.grosjean@peak-system.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.13 064/800] can: peak_pciefd: pucan_handle_status(): fix a potential starvation issue in TX path
-Date:   Mon, 12 Jul 2021 08:01:27 +0200
-Message-Id: <20210712060922.311754736@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 005/700] ALSA: usb-audio: Fix OOB access at proc output
+Date:   Mon, 12 Jul 2021 08:01:28 +0200
+Message-Id: <20210712060925.539552879@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +38,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Grosjean <s.grosjean@peak-system.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit b17233d385d0b6b43ecf81d43008cb1bbb008166 upstream.
+commit 362372ceb6556f338e230f2d90af27b47f82365a upstream.
 
-Rather than just indicating that transmission can start, this patch
-requires the explicit flushing of the network TX queue when the driver
-is informed by the device that it can transmit, next to its
-configuration.
+At extending the available mixer values for 32bit types, we forgot to
+add the corresponding entries for the format dump in the proc output.
+This may result in OOB access.  Here adds the missing entries.
 
-In this way, if frames have already been written by the application,
-they will actually be transmitted.
-
-Fixes: ffd137f7043c ("can: peak/pcie_fd: remove useless code when interface starts")
-Link: https://lore.kernel.org/r/20210623142600.149904-1-s.grosjean@peak-system.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: bc18e31c3042 ("ALSA: usb-audio: Fix parameter block size for UAC2 control requests")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210622090647.14021-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/peak_canfd/peak_canfd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/mixer.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/peak_canfd/peak_canfd.c
-+++ b/drivers/net/can/peak_canfd/peak_canfd.c
-@@ -351,8 +351,8 @@ static int pucan_handle_status(struct pe
- 				return err;
- 		}
- 
--		/* start network queue (echo_skb array is empty) */
--		netif_start_queue(ndev);
-+		/* wake network queue up (echo_skb array is empty) */
-+		netif_wake_queue(ndev);
- 
- 		return 0;
- 	}
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -3279,8 +3279,9 @@ static void snd_usb_mixer_dump_cval(stru
+ 				    struct usb_mixer_elem_list *list)
+ {
+ 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+-	static const char * const val_types[] = {"BOOLEAN", "INV_BOOLEAN",
+-				    "S8", "U8", "S16", "U16"};
++	static const char * const val_types[] = {
++		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
++	};
+ 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
+ 			    "channels=%i, type=\"%s\"\n", cval->head.id,
+ 			    cval->control, cval->cmask, cval->channels,
 
 
