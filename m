@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5863C52B9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E993C490F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238626AbhGLHs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
+        id S238663AbhGLGls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346673AbhGLHql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43827611BF;
-        Mon, 12 Jul 2021 07:42:20 +0000 (UTC)
+        id S235645AbhGLGk0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97BB8610CA;
+        Mon, 12 Jul 2021 06:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075740;
-        bh=8Yp9lNsy+iOakIq3cbwUDGisQWV9MqX/9kzDmE0CePE=;
+        s=korg; t=1626071858;
+        bh=ciWyHrI8F7a80Uv5lQKOIXTB6COewZixlNvZJ/T0PrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dm6gblnrMf3LAzwHSkYjx3ybpVc5+vQKEMRolGwR0V4mnH7abgPhZBWop3p40Lvq0
-         SPsO8ucs5Nda+OhhFXLfcBXOmuDUEUvLaUyHoOZs62+ew6FBfE5K03uqKNs8kvbCKh
-         nw3Q7SU1VhuyKdJmKat/se15qgFMPe88LfzxKdd8=
+        b=H31CyL7Owdq0gychK+vH3TkF+LkRvZvAhjgjL7GeKcFHf7Wh12EkSMCANOb2U8VEO
+         7FWrN384Yb+GfrpIXQKKa39fSvJPzjIDuyAoDNo9DGXpZ1jUPiyznfx3xhE0lBY7K5
+         UtbADpnjUlZHcvzHtIRpIZNIxsB0Cki3AKvjT4Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mirko Vogt <mirko-dev|linux@nanl.de>,
-        Ralf Schlatterbeck <rsc@runtux.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Jan Kara <jack@suse.com>, Jan Kara <jack@suse.cz>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Dave Chinner <dchinner@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 345/800] spi: spi-sun6i: Fix chipselect/clock bug
+Subject: [PATCH 5.10 208/593] writeback, cgroup: increment isw_nr_in_flight before grabbing an inode
 Date:   Mon, 12 Jul 2021 08:06:08 +0200
-Message-Id: <20210712061003.695776270@linuxfoundation.org>
+Message-Id: <20210712060905.837847389@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mirko Vogt <mirko-dev|linux@nanl.de>
+From: Roman Gushchin <guro@fb.com>
 
-[ Upstream commit 0d7993b234c9fad8cb6bec6adfaa74694ba85ecb ]
+[ Upstream commit 8826ee4fe75051f8cbfa5d4a9aa70565938e724c ]
 
-The current sun6i SPI implementation initializes the transfer too early,
-resulting in SCK going high before the transfer. When using an additional
-(gpio) chipselect with sun6i, the chipselect is asserted at a time when
-clock is high, making the SPI transfer fail.
+isw_nr_in_flight is used to determine whether the inode switch queue
+should be flushed from the umount path.  Currently it's increased after
+grabbing an inode and even scheduling the switch work.  It means the
+umount path can walk past cleanup_offline_cgwb() with active inode
+references, which can result in a "Busy inodes after unmount." message and
+use-after-free issues (with inode->i_sb which gets freed).
 
-This is due to SUN6I_GBL_CTL_BUS_ENABLE being written into
-SUN6I_GBL_CTL_REG at an early stage. Moving that to the transfer
-function, hence, right before the transfer starts, mitigates that
-problem.
+Fix it by incrementing isw_nr_in_flight before doing anything with the
+inode and decrementing in the case when switching wasn't scheduled.
 
-Fixes: 3558fe900e8af (spi: sunxi: Add Allwinner A31 SPI controller driver)
-Signed-off-by: Mirko Vogt <mirko-dev|linux@nanl.de>
-Signed-off-by: Ralf Schlatterbeck <rsc@runtux.com>
-Link: https://lore.kernel.org/r/20210614144507.y3udezjfbko7eavv@runtux.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The problem hasn't yet been seen in the real life and was discovered by
+Jan Kara by looking into the code.
+
+Link: https://lkml.kernel.org/r/20210608230225.2078447-4-guro@fb.com
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Suggested-by: Jan Kara <jack@suse.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Dave Chinner <dchinner@redhat.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-sun6i.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/fs-writeback.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
-index cc8401980125..23ad052528db 100644
---- a/drivers/spi/spi-sun6i.c
-+++ b/drivers/spi/spi-sun6i.c
-@@ -379,6 +379,10 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
- 	}
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 0d0f014b09ec..afda7a7263b7 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -505,6 +505,8 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	if (!isw)
+ 		return;
  
- 	sun6i_spi_write(sspi, SUN6I_CLK_CTL_REG, reg);
-+	/* Finally enable the bus - doing so before might raise SCK to HIGH */
-+	reg = sun6i_spi_read(sspi, SUN6I_GBL_CTL_REG);
-+	reg |= SUN6I_GBL_CTL_BUS_ENABLE;
-+	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG, reg);
++	atomic_inc(&isw_nr_in_flight);
++
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+@@ -535,11 +537,10 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
+ 	 */
+ 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
+-
+-	atomic_inc(&isw_nr_in_flight);
+ 	return;
  
- 	/* Setup the transfer now... */
- 	if (sspi->tx_buf)
-@@ -504,7 +508,7 @@ static int sun6i_spi_runtime_resume(struct device *dev)
- 	}
- 
- 	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG,
--			SUN6I_GBL_CTL_BUS_ENABLE | SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
-+			SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
- 
- 	return 0;
- 
+ out_free:
++	atomic_dec(&isw_nr_in_flight);
+ 	if (isw->new_wb)
+ 		wb_put(isw->new_wb);
+ 	kfree(isw);
 -- 
 2.30.2
 
