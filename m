@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B54F23C4457
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2063C4458
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233686AbhGLGSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36758 "EHLO mail.kernel.org"
+        id S233013AbhGLGSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233483AbhGLGS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9154610CB;
-        Mon, 12 Jul 2021 06:15:38 +0000 (UTC)
+        id S233624AbhGLGS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CCBB61042;
+        Mon, 12 Jul 2021 06:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070539;
-        bh=ObtccxhA6maFkNuGS8SVMVX4ToKpiiF2Cefv679MDRw=;
+        s=korg; t=1626070541;
+        bh=m4Q9pA7YabADt4dj/JMgI5gVDZ0sFXd3Wvp1oXN9CaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWKLR706AkHf9oK6M9dPJqMicnpBCiZnblL0/Lbk5tIvT8cE5RRkBCf8FlEBhNyU/
-         YXXwq0s9vcUHzJsCStezprenZTgr9/j41gRrrBfRwERHIB4RRTmeQXtgq3TI+4ttkb
-         wtu4auP9CeKQ6iO0PzYXEfmB23rr5+xohCooW8B8=
+        b=bphBA1WLnZ2cxO62NoVEcB/s/jodGXJYW++/GGl4f93g4ByuEDOPJtWxtN5sHEH9q
+         P8dsgZjkmprdYdHk+kus5tEmkIGLI+/cZmj1TO5+GRPmDW4R30D7zmWXJP7WnZrSuG
+         aGk0/RYoHXsYkI6VjzvoDxT7IdCocKPe9GaAoOx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        syzbot+bdf710cfc41c186fdff3@syzkaller.appspotmail.com,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 034/348] can: j1939: j1939_sk_init(): set SOCK_RCU_FREE to call sk_destruct() after RCU is done
-Date:   Mon, 12 Jul 2021 08:06:58 +0200
-Message-Id: <20210712060705.526532175@linuxfoundation.org>
+Subject: [PATCH 5.4 035/348] can: peak_pciefd: pucan_handle_status(): fix a potential starvation issue in TX path
+Date:   Mon, 12 Jul 2021 08:06:59 +0200
+Message-Id: <20210712060705.696535915@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,52 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit 22c696fed25c63c7f67508309820358b94a96b6d upstream.
+commit b17233d385d0b6b43ecf81d43008cb1bbb008166 upstream.
 
-Set SOCK_RCU_FREE to let RCU to call sk_destruct() on completion.
-Without this patch, we will run in to j1939_can_recv() after priv was
-freed by j1939_sk_release()->j1939_sk_sock_destruct()
+Rather than just indicating that transmission can start, this patch
+requires the explicit flushing of the network TX queue when the driver
+is informed by the device that it can transmit, next to its
+configuration.
 
-Fixes: 25fe97cb7620 ("can: j1939: move j1939_priv_put() into sk_destruct callback")
-Link: https://lore.kernel.org/r/20210617130623.12705-1-o.rempel@pengutronix.de
+In this way, if frames have already been written by the application,
+they will actually be transmitted.
+
+Fixes: ffd137f7043c ("can: peak/pcie_fd: remove useless code when interface starts")
+Link: https://lore.kernel.org/r/20210623142600.149904-1-s.grosjean@peak-system.com
 Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Reported-by: syzbot+bdf710cfc41c186fdff3@syzkaller.appspotmail.com
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/can/j1939/main.c   |    4 ++++
- net/can/j1939/socket.c |    3 +++
- 2 files changed, 7 insertions(+)
+ drivers/net/can/peak_canfd/peak_canfd.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/can/j1939/main.c
-+++ b/net/can/j1939/main.c
-@@ -193,6 +193,10 @@ static void j1939_can_rx_unregister(stru
- 	can_rx_unregister(dev_net(ndev), ndev, J1939_CAN_ID, J1939_CAN_MASK,
- 			  j1939_can_recv, priv);
+--- a/drivers/net/can/peak_canfd/peak_canfd.c
++++ b/drivers/net/can/peak_canfd/peak_canfd.c
+@@ -338,8 +338,8 @@ static int pucan_handle_status(struct pe
+ 				return err;
+ 		}
  
-+	/* The last reference of priv is dropped by the RCU deferred
-+	 * j1939_sk_sock_destruct() of the last socket, so we can
-+	 * safely drop this reference here.
-+	 */
- 	j1939_priv_put(priv);
- }
+-		/* start network queue (echo_skb array is empty) */
+-		netif_start_queue(ndev);
++		/* wake network queue up (echo_skb array is empty) */
++		netif_wake_queue(ndev);
  
---- a/net/can/j1939/socket.c
-+++ b/net/can/j1939/socket.c
-@@ -398,6 +398,9 @@ static int j1939_sk_init(struct sock *sk
- 	atomic_set(&jsk->skb_pending, 0);
- 	spin_lock_init(&jsk->sk_session_queue_lock);
- 	INIT_LIST_HEAD(&jsk->sk_session_queue);
-+
-+	/* j1939_sk_sock_destruct() depends on SOCK_RCU_FREE flag */
-+	sock_set_flag(sk, SOCK_RCU_FREE);
- 	sk->sk_destruct = j1939_sk_sock_destruct;
- 	sk->sk_protocol = CAN_J1939;
- 
+ 		return 0;
+ 	}
 
 
