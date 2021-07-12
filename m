@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 898183C5433
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FAB3C4A56
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347828AbhGLH5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
+        id S237954AbhGLGwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345628AbhGLHxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7397C6113A;
-        Mon, 12 Jul 2021 07:50:32 +0000 (UTC)
+        id S236190AbhGLGsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EA6861108;
+        Mon, 12 Jul 2021 06:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076232;
-        bh=ZL5Q8pohPiQN2uC1e9praetNI+pdFRZsXuwFqo1dL90=;
+        s=korg; t=1626072250;
+        bh=mUdufkRP5E+hO8OzuCj/d6SoF7ztqQYiiolxwrrMVhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rS8SwalB+skctRGJW6UvgVtdkvB9isaJxE+AJCm7fJxybATUnNnwwEfRD312UVaQF
-         a3M26qiFXTvj61g4lgEKLQrUU0rTJFo1eOJtgXcX4gsPnP1BXzl6zv49BFjnX9DhfA
-         cYT8ITpsa3JX+jLmHXa7PhcnsZfJ7NOeuYC4RSyM=
+        b=IJyraNLTf8KgQ21aW3NPZT7SjjGnsAoGYAJ450x3y3uEPuRs2xw6vQifi0Z6pCmlI
+         5OfPf22LyEwdpUGcvJox/wwjeXADel4r3wbN88M6mwBsyS/c+NFsqO9T9XQHXXZN3w
+         MSzqJkpu8TlujIzvMFmb9luoaD35fji2L0fMGYR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Tom Herbert <tom@quantonium.net>,
-        Coco Li <lixiaoyan@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 554/800] ipv6: exthdrs: do not blindly use init_net
+Subject: [PATCH 5.10 417/593] clk: actions: Fix UART clock dividers on Owl S500 SoC
 Date:   Mon, 12 Jul 2021 08:09:37 +0200
-Message-Id: <20210712061026.323954153@linuxfoundation.org>
+Message-Id: <20210712060934.009647684@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit bcc3f2a829b9edbe3da5fb117ee5a63686d31834 ]
+[ Upstream commit 2dca2a619a907579e3e65e7c1789230c2b912e88 ]
 
-I see no reason why max_dst_opts_cnt and max_hbh_opts_cnt
-are fetched from the initial net namespace.
+Use correct divider registers for the Actions Semi Owl S500 SoC's UART
+clocks.
 
-The other sysctls (max_dst_opts_len & max_hbh_opts_len)
-are in fact already using the current ns.
-
-Note: it is not clear why ipv6_destopt_rcv() use two ways to
-get to the netns :
-
- 1) dev_net(dst->dev)
-    Originally used to increment IPSTATS_MIB_INHDRERRORS
-
- 2) dev_net(skb->dev)
-     Tom used this variant in his patch.
-
-Maybe this calls to use ipv6_skb_net() instead ?
-
-Fixes: 47d3d7ac656a ("ipv6: Implement limits on Hop-by-Hop and Destination options")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tom Herbert <tom@quantonium.net>
-Cc: Coco Li <lixiaoyan@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/4714d05982b19ac5fec2ed74f54be42d8238e392.1623354574.git.cristian.ciocaltea@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/exthdrs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/actions/owl-s500.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index 56e479d158b7..6f7da8f3e2e5 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -306,7 +306,7 @@ fail_and_free:
- #endif
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 61bb224f6330..75b7186185b0 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -305,7 +305,7 @@ static OWL_COMP_FIXED_FACTOR(i2c3_clk, "i2c3_clk", "ethernet_pll_clk",
+ static OWL_COMP_DIV(uart0_clk, "uart0_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART0CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 6, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART0CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
  
- 	if (ip6_parse_tlv(tlvprocdestopt_lst, skb,
--			  init_net.ipv6.sysctl.max_dst_opts_cnt)) {
-+			  net->ipv6.sysctl.max_dst_opts_cnt)) {
- 		skb->transport_header += extlen;
- 		opt = IP6CB(skb);
- #if IS_ENABLED(CONFIG_IPV6_MIP6)
-@@ -1037,7 +1037,7 @@ fail_and_free:
+ static OWL_COMP_DIV(uart1_clk, "uart1_clk", uart_clk_mux_p,
+@@ -317,31 +317,31 @@ static OWL_COMP_DIV(uart1_clk, "uart1_clk", uart_clk_mux_p,
+ static OWL_COMP_DIV(uart2_clk, "uart2_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART2CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 8, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART2CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
  
- 	opt->flags |= IP6SKB_HOPBYHOP;
- 	if (ip6_parse_tlv(tlvprochopopt_lst, skb,
--			  init_net.ipv6.sysctl.max_hbh_opts_cnt)) {
-+			  net->ipv6.sysctl.max_hbh_opts_cnt)) {
- 		skb->transport_header += extlen;
- 		opt = IP6CB(skb);
- 		opt->nhoff = sizeof(struct ipv6hdr);
+ static OWL_COMP_DIV(uart3_clk, "uart3_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART3CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 19, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART3CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart4_clk, "uart4_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART4CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 20, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART4CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart5_clk, "uart5_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART5CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 21, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART5CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(uart6_clk, "uart6_clk", uart_clk_mux_p,
+ 			OWL_MUX_HW(CMU_UART6CLK, 16, 1),
+ 			OWL_GATE_HW(CMU_DEVCLKEN1, 18, 0),
+-			OWL_DIVIDER_HW(CMU_UART1CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
++			OWL_DIVIDER_HW(CMU_UART6CLK, 0, 8, CLK_DIVIDER_ROUND_CLOSEST, NULL),
+ 			CLK_IGNORE_UNUSED);
+ 
+ static OWL_COMP_DIV(i2srx_clk, "i2srx_clk", i2s_clk_mux_p,
 -- 
 2.30.2
 
