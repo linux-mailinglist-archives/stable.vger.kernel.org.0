@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E95F73C5462
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC4D3C5461
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348431AbhGLH5v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1348466AbhGLH5v (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 03:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348430AbhGLHzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:55:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5228761222;
-        Mon, 12 Jul 2021 07:51:56 +0000 (UTC)
+        id S1348484AbhGLHzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:55:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7E061241;
+        Mon, 12 Jul 2021 07:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076316;
-        bh=MGEh1O1qKzCFtLhgi4S3slEZspl1zlmNDy1nhzEn1FY=;
+        s=korg; t=1626076319;
+        bh=G8YL6T1iBH1nBWOx2yCzGcu378wr6uJX+MtL00NrUdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ubgjxb47tGkqufdytPLBFjI/T0CKpwYdXkdxji0tr6s+6VxPzj+xhWtq+mVQ5D+yh
-         +CXnWm8/iOAac3LxGyzKUk3Gzr8RO+YkDGuu4tLEQM7Y8KmeOt+4M4EPq0pJadf7j1
-         MRYRjSKQLb4TGCUQbUuWAvLJIJ1U1EXOVsMq1mHE=
+        b=BnPxFDYMkDa8L3wmehjnjUcpc2q4XxkogNlKNCgB+xAtuf8gdlbzV2S+SDlFoDAyu
+         joz6Dk5QlEgUmisPsfzbmy9/35jG0DkUCv5C5XNtaHGVdmEqhd/mNh9xZDiMt01BYh
+         IOKeSJi2JIEa4at3v94K8BuFICbFMaSilBrQ1Us4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 591/800] clk: si5341: Avoid divide errors due to bogus register contents
-Date:   Mon, 12 Jul 2021 08:10:14 +0200
-Message-Id: <20210712061030.174563206@linuxfoundation.org>
+Subject: [PATCH 5.13 592/800] clk: si5341: Check for input clock presence and PLL lock on startup
+Date:   Mon, 12 Jul 2021 08:10:15 +0200
+Message-Id: <20210712061030.288381221@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -42,66 +42,78 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 78f6f406026d688868223d5dbeb197a4f7e9a9fd ]
+[ Upstream commit 71dcc4d1f7d2ad97ff7ab831281bc6893ff713a2 ]
 
-If the Si5341 is being initially programmed and has no stored NVM
-configuration, some of the register contents may contain unexpected
-values, such as zeros, which could cause divide by zero errors during
-driver initialization. Trap errors caused by zero registers or zero clock
-rates which could result in divide errors later in the code.
+After initializing the device, wait for it to report that the input
+clock is present and the PLL has locked before declaring success.
 
 Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20210325192643.2190069-4-robert.hancock@calian.com
+Link: https://lore.kernel.org/r/20210325192643.2190069-5-robert.hancock@calian.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/clk/clk-si5341.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index b8a960e927bc..ac1ccec2b681 100644
+index ac1ccec2b681..da40b90c2aa8 100644
 --- a/drivers/clk/clk-si5341.c
 +++ b/drivers/clk/clk-si5341.c
-@@ -624,6 +624,9 @@ static unsigned long si5341_synth_clk_recalc_rate(struct clk_hw *hw,
- 			SI5341_SYNTH_N_NUM(synth->index), &n_num, &n_den);
- 	if (err < 0)
- 		return err;
-+	/* Check for bogus/uninitialized settings */
-+	if (!n_num || !n_den)
-+		return 0;
+@@ -92,6 +92,9 @@ struct clk_si5341_output_config {
+ #define SI5341_PN_BASE		0x0002
+ #define SI5341_DEVICE_REV	0x0005
+ #define SI5341_STATUS		0x000C
++#define SI5341_LOS		0x000D
++#define SI5341_STATUS_STICKY	0x0011
++#define SI5341_LOS_STICKY	0x0012
+ #define SI5341_SOFT_RST		0x001C
+ #define SI5341_IN_SEL		0x0021
+ #define SI5341_DEVICE_READY	0x00FE
+@@ -99,6 +102,12 @@ struct clk_si5341_output_config {
+ #define SI5341_IN_EN		0x0949
+ #define SI5341_INX_TO_PFD_EN	0x094A
  
- 	/*
- 	 * n_num and n_den are shifted left as much as possible, so to prevent
-@@ -807,6 +810,9 @@ static long si5341_output_clk_round_rate(struct clk_hw *hw, unsigned long rate,
- {
- 	unsigned long r;
- 
-+	if (!rate)
-+		return 0;
++/* Status bits */
++#define SI5341_STATUS_SYSINCAL	BIT(0)
++#define SI5341_STATUS_LOSXAXB	BIT(1)
++#define SI5341_STATUS_LOSREF	BIT(2)
++#define SI5341_STATUS_LOL	BIT(3)
 +
- 	r = *parent_rate >> 1;
+ /* Input selection */
+ #define SI5341_IN_SEL_MASK	0x06
+ #define SI5341_IN_SEL_SHIFT	1
+@@ -1416,6 +1425,7 @@ static int si5341_probe(struct i2c_client *client,
+ 	unsigned int i;
+ 	struct clk_si5341_output_config config[SI5341_MAX_NUM_OUTPUTS];
+ 	bool initialization_required;
++	u32 status;
  
- 	/* If rate is an even divisor, no changes to parent required */
-@@ -835,11 +841,16 @@ static int si5341_output_clk_set_rate(struct clk_hw *hw, unsigned long rate,
- 		unsigned long parent_rate)
- {
- 	struct clk_si5341_output *output = to_clk_si5341_output(hw);
--	/* Frequency divider is (r_div + 1) * 2 */
--	u32 r_div = (parent_rate / rate) >> 1;
-+	u32 r_div;
- 	int err;
- 	u8 r[3];
+ 	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
+ 	if (!data)
+@@ -1583,6 +1593,22 @@ static int si5341_probe(struct i2c_client *client,
+ 			return err;
+ 	}
  
-+	if (!rate)
-+		return -EINVAL;
++	/* wait for device to report input clock present and PLL lock */
++	err = regmap_read_poll_timeout(data->regmap, SI5341_STATUS, status,
++		!(status & (SI5341_STATUS_LOSREF | SI5341_STATUS_LOL)),
++	       10000, 250000);
++	if (err) {
++		dev_err(&client->dev, "Error waiting for input clock or PLL lock\n");
++		return err;
++	}
 +
-+	/* Frequency divider is (r_div + 1) * 2 */
-+	r_div = (parent_rate / rate) >> 1;
++	/* clear sticky alarm bits from initialization */
++	err = regmap_write(data->regmap, SI5341_STATUS_STICKY, 0);
++	if (err) {
++		dev_err(&client->dev, "unable to clear sticky status\n");
++		return err;
++	}
 +
- 	if (r_div <= 1)
- 		r_div = 0;
- 	else if (r_div >= BIT(24))
+ 	/* Free the names, clk framework makes copies */
+ 	for (i = 0; i < data->num_synth; ++i)
+ 		 devm_kfree(&client->dev, (void *)synth_clock_names[i]);
 -- 
 2.30.2
 
