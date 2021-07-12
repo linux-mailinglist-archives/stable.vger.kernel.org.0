@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EEA3C4D30
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB4563C5283
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242861AbhGLHML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42458 "EHLO mail.kernel.org"
+        id S1346261AbhGLHqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244209AbhGLHKa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C560B613D8;
-        Mon, 12 Jul 2021 07:07:09 +0000 (UTC)
+        id S1349829AbhGLHos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:44:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4166B61208;
+        Mon, 12 Jul 2021 07:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073630;
-        bh=nQzECD12SbSXSO/QoQaLi2QiMJtbw7y0eR33txf8RfA=;
+        s=korg; t=1626075696;
+        bh=EmkJoLqBohe+PVaqyZeF2xK1fCFmH2jeoI8hDM/ba9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NbRml3gHS0hpA5BYIdYzLngchcD+rfLhzCVRhJETG3yrA3EJ2omh8L+cCFQ94G8gm
-         mN7E1rtTDiiMNSQXiYhrFxWPygM3cnC0EnJkpsOp7QA5ek0vh1i8Fz1XwNST6h8kfQ
-         Y4gVgSWKTtzrt2mSBlIPTu/hRJSW3VzD/cv/LC3U=
+        b=BzZ1YRK3fSFvuSNaXaGdL0MpUAn3EEK+u/a461XCmIqT92an5D2Z4V24H23iEKM2q
+         kbVR4CwojiUKxKm1V7YlVEILozczKS1+ysSwZWjdGnAq5mVwZdBYiMF+xcfY7EtKsi
+         nRWesF03jiBvBpOEJLV+VzXLBiCjrVJ1pNlHU3pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 263/700] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
-Date:   Mon, 12 Jul 2021 08:05:46 +0200
-Message-Id: <20210712061004.169644433@linuxfoundation.org>
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Oliver Upton <oupton@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 324/800] KVM: nVMX: Add a return code to vmx_complete_nested_posted_interrupt
+Date:   Mon, 12 Jul 2021 08:05:47 +0200
+Message-Id: <20210712061000.636816370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Jim Mattson <jmattson@google.com>
 
-[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
+[ Upstream commit 650293c3de6b042c4a2e87b2bc678efcff3843e8 ]
 
-Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
-has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
-parameter being non-NULL if the polling mode is selected.  Let's only set
-the pointer to the driver's IRQ handler if platform_get_irq() returns a
-valid IRQ # -- this should avoid the unnecessary WARN_ON()...
+No functional change intended.
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Message-Id: <20210604172611.281819-4-jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_octeon_cf.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/kvm/vmx/nested.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index bd87476ab481..b5a3f710d76d 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -898,10 +898,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					return -EINVAL;
- 				}
+diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
+index 4ceadec6aeb6..5677cef81642 100644
+--- a/arch/x86/kvm/vmx/nested.c
++++ b/arch/x86/kvm/vmx/nested.c
+@@ -3682,7 +3682,7 @@ void nested_mark_vmcs12_pages_dirty(struct kvm_vcpu *vcpu)
+ 	}
+ }
  
--				irq_handler = octeon_cf_interrupt;
- 				i = platform_get_irq(dma_dev, 0);
--				if (i > 0)
-+				if (i > 0) {
- 					irq = i;
-+					irq_handler = octeon_cf_interrupt;
-+				}
- 			}
- 			of_node_put(dma_node);
- 		}
+-static void vmx_complete_nested_posted_interrupt(struct kvm_vcpu *vcpu)
++static int vmx_complete_nested_posted_interrupt(struct kvm_vcpu *vcpu)
+ {
+ 	struct vcpu_vmx *vmx = to_vmx(vcpu);
+ 	int max_irr;
+@@ -3690,17 +3690,17 @@ static void vmx_complete_nested_posted_interrupt(struct kvm_vcpu *vcpu)
+ 	u16 status;
+ 
+ 	if (!vmx->nested.pi_desc || !vmx->nested.pi_pending)
+-		return;
++		return 0;
+ 
+ 	vmx->nested.pi_pending = false;
+ 	if (!pi_test_and_clear_on(vmx->nested.pi_desc))
+-		return;
++		return 0;
+ 
+ 	max_irr = find_last_bit((unsigned long *)vmx->nested.pi_desc->pir, 256);
+ 	if (max_irr != 256) {
+ 		vapic_page = vmx->nested.virtual_apic_map.hva;
+ 		if (!vapic_page)
+-			return;
++			return 0;
+ 
+ 		__kvm_apic_update_irr(vmx->nested.pi_desc->pir,
+ 			vapic_page, &max_irr);
+@@ -3713,6 +3713,7 @@ static void vmx_complete_nested_posted_interrupt(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ 	nested_mark_vmcs12_pages_dirty(vcpu);
++	return 0;
+ }
+ 
+ static void nested_vmx_inject_exception_vmexit(struct kvm_vcpu *vcpu,
+@@ -3887,8 +3888,7 @@ static int vmx_check_nested_events(struct kvm_vcpu *vcpu)
+ 	}
+ 
+ no_vmexit:
+-	vmx_complete_nested_posted_interrupt(vcpu);
+-	return 0;
++	return vmx_complete_nested_posted_interrupt(vcpu);
+ }
+ 
+ static u32 vmx_get_preemption_timer_value(struct kvm_vcpu *vcpu)
 -- 
 2.30.2
 
