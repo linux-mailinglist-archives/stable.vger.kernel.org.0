@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 948D83C4A91
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BF43C543D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239423AbhGLGwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45530 "EHLO mail.kernel.org"
+        id S1348175AbhGLH50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238416AbhGLGsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB3E360233;
-        Mon, 12 Jul 2021 06:44:28 +0000 (UTC)
+        id S1343605AbhGLHxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:53:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D40061158;
+        Mon, 12 Jul 2021 07:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072269;
-        bh=G8YL6T1iBH1nBWOx2yCzGcu378wr6uJX+MtL00NrUdo=;
+        s=korg; t=1626076251;
+        bh=qsJPlvZ9MLtgytJ4rUnAQPTxglVaOFgQEH9TxIzoVpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJAyepVaxpgyaDgoODqS2LcVi+K6I9iKPaNGPGGQ59413ggzJ5N889S9R8A57/bfg
-         BRVTKjO9YqpAr7ul3FQraUwWsvLOMDFalcuCyGxTqaveCw4gHrNeHyAiMBIfPqzv++
-         N4QOcRKttw3W+MvEK+9X0yQAa97+bHhlxKZFQ38U=
+        b=oLadKlHDROEHyCna8/Ov2LshsYUqjspFSBLMFbpA1Au50YzAaDHOevImSzsfUGhWm
+         x4H1hzqbf7/fAUu8Y1lTSw1cShcFRU1CpE1rVAmGfnEEqIJlstOdL54TRyUbvIi9ZT
+         Vn/bpfxW9/aW1gLLoMO4B+EuzXIYqaTX9Vdo0ZY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Weihang Li <liweihang@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 424/593] clk: si5341: Check for input clock presence and PLL lock on startup
+Subject: [PATCH 5.13 561/800] RDMA/hns: Add window selection field of congestion control
 Date:   Mon, 12 Jul 2021 08:09:44 +0200
-Message-Id: <20210712060934.964551890@linuxfoundation.org>
+Message-Id: <20210712061027.100738483@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-[ Upstream commit 71dcc4d1f7d2ad97ff7ab831281bc6893ff713a2 ]
+[ Upstream commit 7ae61c5f16671ecaf23526feb6892c8249d0c2d7 ]
 
-After initializing the device, wait for it to report that the input
-clock is present and the PLL has locked before declaring success.
+The window selection field is necessary for congestion control of HIP09,
+it is got from firmware and then filled into QPC. Some algorithms need it
+to decide whether to limit the number of windows.
 
-Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20210325192643.2190069-5-robert.hancock@calian.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: f91696f2f053 ("RDMA/hns: Support congestion control type selection according to the FW")
+Link: https://lore.kernel.org/r/1624364163-44185-1-git-send-email-liweihang@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Weihang Li <liweihang@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-si5341.c | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 12 ++++++++++++
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.h |  2 ++
+ 2 files changed, 14 insertions(+)
 
-diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
-index ac1ccec2b681..da40b90c2aa8 100644
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -92,6 +92,9 @@ struct clk_si5341_output_config {
- #define SI5341_PN_BASE		0x0002
- #define SI5341_DEVICE_REV	0x0005
- #define SI5341_STATUS		0x000C
-+#define SI5341_LOS		0x000D
-+#define SI5341_STATUS_STICKY	0x0011
-+#define SI5341_LOS_STICKY	0x0012
- #define SI5341_SOFT_RST		0x001C
- #define SI5341_IN_SEL		0x0021
- #define SI5341_DEVICE_READY	0x00FE
-@@ -99,6 +102,12 @@ struct clk_si5341_output_config {
- #define SI5341_IN_EN		0x0949
- #define SI5341_INX_TO_PFD_EN	0x094A
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index f074e2e5a5c8..dcbe5e28a4f7 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -4777,6 +4777,11 @@ enum {
+ 	DIP_VALID,
+ };
  
-+/* Status bits */
-+#define SI5341_STATUS_SYSINCAL	BIT(0)
-+#define SI5341_STATUS_LOSXAXB	BIT(1)
-+#define SI5341_STATUS_LOSREF	BIT(2)
-+#define SI5341_STATUS_LOL	BIT(3)
++enum {
++	WND_LIMIT,
++	WND_UNLIMIT,
++};
 +
- /* Input selection */
- #define SI5341_IN_SEL_MASK	0x06
- #define SI5341_IN_SEL_SHIFT	1
-@@ -1416,6 +1425,7 @@ static int si5341_probe(struct i2c_client *client,
- 	unsigned int i;
- 	struct clk_si5341_output_config config[SI5341_MAX_NUM_OUTPUTS];
- 	bool initialization_required;
-+	u32 status;
+ static int check_cong_type(struct ib_qp *ibqp,
+ 			   struct hns_roce_congestion_algorithm *cong_alg)
+ {
+@@ -4788,21 +4793,25 @@ static int check_cong_type(struct ib_qp *ibqp,
+ 		cong_alg->alg_sel = CONG_DCQCN;
+ 		cong_alg->alg_sub_sel = UNSUPPORT_CONG_LEVEL;
+ 		cong_alg->dip_vld = DIP_INVALID;
++		cong_alg->wnd_mode_sel = WND_LIMIT;
+ 		break;
+ 	case CONG_TYPE_LDCP:
+ 		cong_alg->alg_sel = CONG_WINDOW;
+ 		cong_alg->alg_sub_sel = CONG_LDCP;
+ 		cong_alg->dip_vld = DIP_INVALID;
++		cong_alg->wnd_mode_sel = WND_UNLIMIT;
+ 		break;
+ 	case CONG_TYPE_HC3:
+ 		cong_alg->alg_sel = CONG_WINDOW;
+ 		cong_alg->alg_sub_sel = CONG_HC3;
+ 		cong_alg->dip_vld = DIP_INVALID;
++		cong_alg->wnd_mode_sel = WND_LIMIT;
+ 		break;
+ 	case CONG_TYPE_DIP:
+ 		cong_alg->alg_sel = CONG_DCQCN;
+ 		cong_alg->alg_sub_sel = UNSUPPORT_CONG_LEVEL;
+ 		cong_alg->dip_vld = DIP_VALID;
++		cong_alg->wnd_mode_sel = WND_LIMIT;
+ 		break;
+ 	default:
+ 		ibdev_err(&hr_dev->ib_dev,
+@@ -4843,6 +4852,9 @@ static int fill_cong_field(struct ib_qp *ibqp, const struct ib_qp_attr *attr,
+ 	hr_reg_write(&qpc_mask->ext, QPCEX_CONG_ALG_SUB_SEL, 0);
+ 	hr_reg_write(&context->ext, QPCEX_DIP_CTX_IDX_VLD, cong_field.dip_vld);
+ 	hr_reg_write(&qpc_mask->ext, QPCEX_DIP_CTX_IDX_VLD, 0);
++	hr_reg_write(&context->ext, QPCEX_SQ_RQ_NOT_FORBID_EN,
++		     cong_field.wnd_mode_sel);
++	hr_reg_clear(&qpc_mask->ext, QPCEX_SQ_RQ_NOT_FORBID_EN);
  
- 	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
-@@ -1583,6 +1593,22 @@ static int si5341_probe(struct i2c_client *client,
- 			return err;
- 	}
+ 	/* if dip is disabled, there is no need to set dip idx */
+ 	if (cong_field.dip_vld == 0)
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+index 028bc41cb45c..23cf2f6bc7a5 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.h
+@@ -964,6 +964,7 @@ struct hns_roce_v2_qp_context {
+ #define QPCEX_CONG_ALG_SUB_SEL QPCEX_FIELD_LOC(1, 1)
+ #define QPCEX_DIP_CTX_IDX_VLD QPCEX_FIELD_LOC(2, 2)
+ #define QPCEX_DIP_CTX_IDX QPCEX_FIELD_LOC(22, 3)
++#define QPCEX_SQ_RQ_NOT_FORBID_EN QPCEX_FIELD_LOC(23, 23)
+ #define QPCEX_STASH QPCEX_FIELD_LOC(82, 82)
  
-+	/* wait for device to report input clock present and PLL lock */
-+	err = regmap_read_poll_timeout(data->regmap, SI5341_STATUS, status,
-+		!(status & (SI5341_STATUS_LOSREF | SI5341_STATUS_LOL)),
-+	       10000, 250000);
-+	if (err) {
-+		dev_err(&client->dev, "Error waiting for input clock or PLL lock\n");
-+		return err;
-+	}
-+
-+	/* clear sticky alarm bits from initialization */
-+	err = regmap_write(data->regmap, SI5341_STATUS_STICKY, 0);
-+	if (err) {
-+		dev_err(&client->dev, "unable to clear sticky status\n");
-+		return err;
-+	}
-+
- 	/* Free the names, clk framework makes copies */
- 	for (i = 0; i < data->num_synth; ++i)
- 		 devm_kfree(&client->dev, (void *)synth_clock_names[i]);
+ #define	V2_QP_RWE_S 1 /* rdma write enable */
+@@ -1643,6 +1644,7 @@ struct hns_roce_congestion_algorithm {
+ 	u8 alg_sel;
+ 	u8 alg_sub_sel;
+ 	u8 dip_vld;
++	u8 wnd_mode_sel;
+ };
+ 
+ #define V2_QUERY_PF_CAPS_D_CEQ_DEPTH_S 0
 -- 
 2.30.2
 
