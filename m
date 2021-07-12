@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2ACD3C493C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A766A3C4955
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237215AbhGLGnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
+        id S238408AbhGLGn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237724AbhGLGl2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:41:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50419610CA;
-        Mon, 12 Jul 2021 06:38:33 +0000 (UTC)
+        id S238072AbhGLGmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:42:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3555610F7;
+        Mon, 12 Jul 2021 06:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071913;
-        bh=5SoCWH5JaG4EXaEbh41gL2yVFEpy/H4SD+E5JGSjuCI=;
+        s=korg; t=1626071939;
+        bh=XYI3V6KnBMu+Z6wr9Y1e/kS+6vhpi7SEOLXD2SNfIhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ksmYqP1llZNJjUl784fVzw8RfrLTOM2qFUJDv8dkkcb01FoEEn+cL7GZA79WaHUJ7
-         0z/Bi4dwFYOzl8Wj5m0asnGwowClsSg84F4hfywNP3q2Dp4RZOfh7TQx1vh5+F1ECb
-         BcMKQgEXjJeLw6hPh0o+IQ7aGGcsOWYayGsniG8I=
+        b=qhBKA59b2Ho5C+U4RN8Dnz8p93WZferMGg+xdDRNbRddEyaal7XbpoLPwAr7ASHXB
+         MyNGqTuV2CY3GWOwmIzG+JpirdiNG5plu1BboCpqw0Cp9oxkL+erjc8agwA2Nfu9gF
+         7a/ZPNeu2W66mlM1or1+hPUf4vHA2FN8MIz0XxvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        James Morse <james.morse@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 247/593] arm64/mm: Fix ttbr0 values stored in struct thread_info for software-pan
-Date:   Mon, 12 Jul 2021 08:06:47 +0200
-Message-Id: <20210712060910.080337535@linuxfoundation.org>
+Subject: [PATCH 5.10 248/593] media: subdev: remove VIDIOC_DQEVENT_TIME32 handling
+Date:   Mon, 12 Jul 2021 08:06:48 +0200
+Message-Id: <20210712060910.194280741@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -44,67 +42,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 9163f01130304fab1f74683d7d44632da7bda637 ]
+[ Upstream commit 765ba251d2522e2a0daa2f0793fd0f0ce34816ec ]
 
-When using CONFIG_ARM64_SW_TTBR0_PAN, a task's thread_info::ttbr0 must be
-the TTBR0_EL1 value used to run userspace. With 52-bit PAs, the PA must be
-packed into the TTBR using phys_to_ttbr(), but we forget to do this in some
-of the SW PAN code. Thus, if the value is installed into TTBR0_EL1 (as may
-happen in the uaccess routines), this could result in UNPREDICTABLE
-behaviour.
+Converting the VIDIOC_DQEVENT_TIME32/VIDIOC_DQEVENT32/
+VIDIOC_DQEVENT32_TIME32 arguments to the canonical form is done in common
+code, but for some reason I ended up adding another conversion helper to
+subdev_do_ioctl() as well. I must have concluded that this does not go
+through the common conversion, but it has done that since the ioctl
+handler was first added.
 
-Since hardware with 52-bit PA support almost certainly has HW PAN, which
-will be used in preference, this shouldn't be a practical issue, but let's
-fix this for consistency.
+I assume this one is harmless as there should be no way to arrive here
+from user space if CONFIG_COMPAT_32BIT_TIME is set, but since it is dead
+code, it should just get removed.
 
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Fixes: 529c4b05a3cb ("arm64: handle 52-bit addresses in TTBR")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Link: https://lore.kernel.org/r/1623749578-11231-1-git-send-email-anshuman.khandual@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+On a 64-bit architecture, as well as a 32-bit architecture without
+CONFIG_COMPAT_32BIT_TIME, handling this command is a mistake,
+and the kernel should return an error.
+
+Fixes: 1a6c0b36dd19 ("media: v4l2-core: fix VIDIOC_DQEVENT for time64 ABI")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/mmu_context.h | 4 ++--
- arch/arm64/kernel/setup.c            | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/v4l2-core/v4l2-subdev.c | 24 ------------------------
+ 1 file changed, 24 deletions(-)
 
-diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
-index 68028de06d18..5a54a5ab5f92 100644
---- a/arch/arm64/include/asm/mmu_context.h
-+++ b/arch/arm64/include/asm/mmu_context.h
-@@ -192,9 +192,9 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
- 		return;
+diff --git a/drivers/media/v4l2-core/v4l2-subdev.c b/drivers/media/v4l2-core/v4l2-subdev.c
+index a7d508e74d6b..fbf0dcb313c8 100644
+--- a/drivers/media/v4l2-core/v4l2-subdev.c
++++ b/drivers/media/v4l2-core/v4l2-subdev.c
+@@ -428,30 +428,6 @@ static long subdev_do_ioctl(struct file *file, unsigned int cmd, void *arg)
  
- 	if (mm == &init_mm)
--		ttbr = __pa_symbol(reserved_pg_dir);
-+		ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
- 	else
--		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
-+		ttbr = phys_to_ttbr(virt_to_phys(mm->pgd)) | ASID(mm) << 48;
+ 		return v4l2_event_dequeue(vfh, arg, file->f_flags & O_NONBLOCK);
  
- 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
- }
-diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
-index c28a9ec76b11..eb4b24652c10 100644
---- a/arch/arm64/kernel/setup.c
-+++ b/arch/arm64/kernel/setup.c
-@@ -366,7 +366,7 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
- 	 * faults in case uaccess_enable() is inadvertently called by the init
- 	 * thread.
- 	 */
--	init_task.thread_info.ttbr0 = __pa_symbol(reserved_pg_dir);
-+	init_task.thread_info.ttbr0 = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
- #endif
+-	case VIDIOC_DQEVENT_TIME32: {
+-		struct v4l2_event_time32 *ev32 = arg;
+-		struct v4l2_event ev = { };
+-
+-		if (!(sd->flags & V4L2_SUBDEV_FL_HAS_EVENTS))
+-			return -ENOIOCTLCMD;
+-
+-		rval = v4l2_event_dequeue(vfh, &ev, file->f_flags & O_NONBLOCK);
+-
+-		*ev32 = (struct v4l2_event_time32) {
+-			.type		= ev.type,
+-			.pending	= ev.pending,
+-			.sequence	= ev.sequence,
+-			.timestamp.tv_sec  = ev.timestamp.tv_sec,
+-			.timestamp.tv_nsec = ev.timestamp.tv_nsec,
+-			.id		= ev.id,
+-		};
+-
+-		memcpy(&ev32->u, &ev.u, sizeof(ev.u));
+-		memcpy(&ev32->reserved, &ev.reserved, sizeof(ev.reserved));
+-
+-		return rval;
+-	}
+-
+ 	case VIDIOC_SUBSCRIBE_EVENT:
+ 		return v4l2_subdev_call(sd, core, subscribe_event, vfh, arg);
  
- 	if (boot_args[1] || boot_args[2] || boot_args[3]) {
 -- 
 2.30.2
 
