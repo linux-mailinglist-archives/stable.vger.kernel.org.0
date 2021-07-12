@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FB33C48B9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3613C48C2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235904AbhGLGkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S236457AbhGLGkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238156AbhGLGj7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E23A661205;
-        Mon, 12 Jul 2021 06:36:23 +0000 (UTC)
+        id S237997AbhGLGjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01243611F1;
+        Mon, 12 Jul 2021 06:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071784;
-        bh=fzRpnx2vPU6mQq96uyKWuxG9StcxCh97J7gGpygdDYE=;
+        s=korg; t=1626071763;
+        bh=CE/WAWc0p896qmORqkpfmtTh5+bSqWQBq/cJKattkkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HgqncR6NF4M+iozHjLwK61k2cTCGtUNZhtO6lecx9uDQz5wBI0ISoe7eLy6ADJWNN
-         kHEla00HQTUpG2gT9qIVSY/lnU8gnY9BLywUrAv4mLQyXGJyHKutjT/TJCaO0KG0hL
-         n0ERVbwan2Qnf/rr+2pzFw4dnIs2NX0bXWMrhcME=
+        b=hgAkUPa/eBxftNhVtO4u+LK+aOyDi5INChJoy14IVsecCrU13xX4Jr5G1BtA5nRYN
+         Lsw9QHtUhUb7Xj3T3i094Wca/9vNojSYeHQi/5oer9CtYfgzFBCLDYWyp1uXqbNbvz
+         DclZ9G35S8LXIB1S96+pFjOKdeGqG5nNWyToUwLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 201/593] ACPI: tables: Add custom DSDT file as makefile prerequisite
-Date:   Mon, 12 Jul 2021 08:06:01 +0200
-Message-Id: <20210712060905.141248014@linuxfoundation.org>
+Subject: [PATCH 5.10 210/593] spi: Avoid undefined behaviour when counting unused native CSs
+Date:   Mon, 12 Jul 2021 08:06:10 +0200
+Message-Id: <20210712060906.041255997@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
+[ Upstream commit f60d7270c8a3d2beb1c23ae0da42497afa3584c2 ]
 
-A custom DSDT file is mostly used during development or debugging,
-and in that case it is quite likely to want to rebuild the kernel
-after changing ONLY the content of the DSDT.
+ffz(), that has been used to count unused native CSs,
+might cause undefined behaviour when called against ~0U.
+To fix that, open code it with ffs(~value) - 1.
 
-This patch adds the custom DSDT as a prerequisite to tables.o
-to ensure a rebuild if the DSDT file is updated. Make will merge
-the prerequisites from multiple rules for the same target.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 7d93aecdb58d ("spi: Add generic support for unused native cs with cs-gpios")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210420164425.40287-2-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/spi/spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index 44e412506317..4466156474ee 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -8,6 +8,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
- #
- # ACPI Boot-Time Table Parsing
- #
-+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
-+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
-+
-+endif
-+
- obj-$(CONFIG_ACPI)		+= tables.o
- obj-$(CONFIG_X86)		+= blacklist.o
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index a1a85f0baf7c..8c261eac2cee 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -2614,7 +2614,7 @@ static int spi_get_gpio_descs(struct spi_controller *ctlr)
+ 		native_cs_mask |= BIT(i);
+ 	}
  
+-	ctlr->unused_native_cs = ffz(native_cs_mask);
++	ctlr->unused_native_cs = ffs(~native_cs_mask) - 1;
+ 
+ 	if ((ctlr->flags & SPI_MASTER_GPIO_SS) && num_cs_gpios &&
+ 	    ctlr->max_native_cs && ctlr->unused_native_cs >= ctlr->max_native_cs) {
 -- 
 2.30.2
 
