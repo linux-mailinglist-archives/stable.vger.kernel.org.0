@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDA83C4ECD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C44C3C5418
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239610AbhGLHVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
+        id S1351252AbhGLH5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244199AbhGLHS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:18:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA3261442;
-        Mon, 12 Jul 2021 07:15:33 +0000 (UTC)
+        id S234078AbhGLHwe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:52:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D434761151;
+        Mon, 12 Jul 2021 07:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074134;
-        bh=QPJpTckAorXEJTBysmv29wSwQfq/KTpv4uOFTC6J5HQ=;
+        s=korg; t=1626076186;
+        bh=enG2DySTu6vwZh44exzPR3f3UPPjmJkNOSXIn0v09QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbgepoHLZJ+7VCwHdVU0rWeyrnW/lhWRFGShAYMrcjHy/rwOMnXPWOOVtA5pyV1kX
-         QiwVrtZybxwyzd9x64+EWd9cE7DCYwZmqB+3a0cTMMrvXRbH/LUO6WL+Q9e39660LH
-         jhEhY5rU9jrJHM8rwZNWhKUWRwCEQuE0Hj+SvXsc=
+        b=dem6ZIMbShhh7w96ydyBJFc4UCzWYHZRiuKhEG1c52sqVqaKAvupxRDV5WJoG/gBs
+         GZoon78G2GTsz2WRbtA7KM9+CQwzhjWTaDmuKiOoVqpSAGY3W00xtoXw6Q5aydYB8Q
+         CUvqaWbL/p0cOCUMCjwMDAkb3KQonE741FM4NSWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Tom Herbert <tom@quantonium.net>,
-        Coco Li <lixiaoyan@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bui Quang Minh <minhquangbui99@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 475/700] ipv6: exthdrs: do not blindly use init_net
-Date:   Mon, 12 Jul 2021 08:09:18 +0200
-Message-Id: <20210712061027.128129802@linuxfoundation.org>
+Subject: [PATCH 5.13 536/800] bpf: Fix integer overflow in argument calculation for bpf_map_area_alloc
+Date:   Mon, 12 Jul 2021 08:09:19 +0200
+Message-Id: <20210712061024.370185928@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Bui Quang Minh <minhquangbui99@gmail.com>
 
-[ Upstream commit bcc3f2a829b9edbe3da5fb117ee5a63686d31834 ]
+[ Upstream commit 7dd5d437c258bbf4cc15b35229e5208b87b8b4e0 ]
 
-I see no reason why max_dst_opts_cnt and max_hbh_opts_cnt
-are fetched from the initial net namespace.
+In 32-bit architecture, the result of sizeof() is a 32-bit integer so
+the expression becomes the multiplication between 2 32-bit integer which
+can potentially leads to integer overflow. As a result,
+bpf_map_area_alloc() allocates less memory than needed.
 
-The other sysctls (max_dst_opts_len & max_hbh_opts_len)
-are in fact already using the current ns.
+Fix this by casting 1 operand to u64.
 
-Note: it is not clear why ipv6_destopt_rcv() use two ways to
-get to the netns :
-
- 1) dev_net(dst->dev)
-    Originally used to increment IPSTATS_MIB_INHDRERRORS
-
- 2) dev_net(skb->dev)
-     Tom used this variant in his patch.
-
-Maybe this calls to use ipv6_skb_net() instead ?
-
-Fixes: 47d3d7ac656a ("ipv6: Implement limits on Hop-by-Hop and Destination options")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Tom Herbert <tom@quantonium.net>
-Cc: Coco Li <lixiaoyan@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0d2c4f964050 ("bpf: Eliminate rlimit-based memory accounting for sockmap and sockhash maps")
+Fixes: 99c51064fb06 ("devmap: Use bpf_map_area_alloc() for allocating hash buckets")
+Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
+Signed-off-by: Bui Quang Minh <minhquangbui99@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210613143440.71975-1-minhquangbui99@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/exthdrs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/devmap.c | 4 ++--
+ net/core/sock_map.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
-index 6126f8bf94b3..a9e1d7918d14 100644
---- a/net/ipv6/exthdrs.c
-+++ b/net/ipv6/exthdrs.c
-@@ -306,7 +306,7 @@ fail_and_free:
- #endif
+diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
+index aa516472ce46..3b45c23286c0 100644
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -92,7 +92,7 @@ static struct hlist_head *dev_map_create_hash(unsigned int entries,
+ 	int i;
+ 	struct hlist_head *hash;
  
- 	if (ip6_parse_tlv(tlvprocdestopt_lst, skb,
--			  init_net.ipv6.sysctl.max_dst_opts_cnt)) {
-+			  net->ipv6.sysctl.max_dst_opts_cnt)) {
- 		skb->transport_header += extlen;
- 		opt = IP6CB(skb);
- #if IS_ENABLED(CONFIG_IPV6_MIP6)
-@@ -1036,7 +1036,7 @@ fail_and_free:
+-	hash = bpf_map_area_alloc(entries * sizeof(*hash), numa_node);
++	hash = bpf_map_area_alloc((u64) entries * sizeof(*hash), numa_node);
+ 	if (hash != NULL)
+ 		for (i = 0; i < entries; i++)
+ 			INIT_HLIST_HEAD(&hash[i]);
+@@ -143,7 +143,7 @@ static int dev_map_init_map(struct bpf_dtab *dtab, union bpf_attr *attr)
  
- 	opt->flags |= IP6SKB_HOPBYHOP;
- 	if (ip6_parse_tlv(tlvprochopopt_lst, skb,
--			  init_net.ipv6.sysctl.max_hbh_opts_cnt)) {
-+			  net->ipv6.sysctl.max_hbh_opts_cnt)) {
- 		skb->transport_header += extlen;
- 		opt = IP6CB(skb);
- 		opt->nhoff = sizeof(struct ipv6hdr);
+ 		spin_lock_init(&dtab->index_lock);
+ 	} else {
+-		dtab->netdev_map = bpf_map_area_alloc(dtab->map.max_entries *
++		dtab->netdev_map = bpf_map_area_alloc((u64) dtab->map.max_entries *
+ 						      sizeof(struct bpf_dtab_netdev *),
+ 						      dtab->map.numa_node);
+ 		if (!dtab->netdev_map)
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index 6f1b82b8ad49..60decd6420ca 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -48,7 +48,7 @@ static struct bpf_map *sock_map_alloc(union bpf_attr *attr)
+ 	bpf_map_init_from_attr(&stab->map, attr);
+ 	raw_spin_lock_init(&stab->lock);
+ 
+-	stab->sks = bpf_map_area_alloc(stab->map.max_entries *
++	stab->sks = bpf_map_area_alloc((u64) stab->map.max_entries *
+ 				       sizeof(struct sock *),
+ 				       stab->map.numa_node);
+ 	if (!stab->sks) {
 -- 
 2.30.2
 
