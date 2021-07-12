@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C6E33C53EE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 369333C49B8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347965AbhGLH42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
+        id S237604AbhGLGqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350802AbhGLHvT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89BE361158;
-        Mon, 12 Jul 2021 07:48:26 +0000 (UTC)
+        id S234675AbhGLGox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18D5E610FB;
+        Mon, 12 Jul 2021 06:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076107;
-        bh=1GtE4ZKpkeus+16F+eP9GUcpUAgKB2vZGTTwj9UUmR0=;
+        s=korg; t=1626072076;
+        bh=GmWuleWmnEVdyDSjHE84Yt1EExSaQa76bBs9DFd1Ki8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ey5DnqNuYRcdMHhcTdi6E95trQ/DXrijh1FwbxVi6MDj/i0WhBQ1LX8/OyhI3nQGY
-         0/tZpAFu8VzVD7rbH4fSB/2BbJf51NRlyUkysyx/ZiJuVll2uRqNjpJaXfRiVUgwou
-         aNLkPUtbsQFLl83RVC2yB6N19bd5PGKi4JCklO00=
+        b=f+EMXGa6dQZLLib8epcXFS9rXgs+idsMwQCU7ubMBILrvrSXY5tQ8dKGiQ9ua3hli
+         9HAdct1IMU+Lq2dv8q6yuY8bkgxB3hyE13BIUiLrQnqOarzwspzZcRk6B0voQBOIFw
+         KqnXROfPo6iEpS8L+pMM5bhsmZS6+jllZLEeKDao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Luca Ceresoli <luca@lucaceresoli.net>,
+        Adam Ford <aford173@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 474/800] netfilter: nft_exthdr: check for IPv6 packet before further processing
+Subject: [PATCH 5.10 337/593] clk: vc5: fix output disabling when enabling a FOD
 Date:   Mon, 12 Jul 2021 08:08:17 +0200
-Message-Id: <20210712061017.623471352@linuxfoundation.org>
+Message-Id: <20210712060923.029839423@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Luca Ceresoli <luca@lucaceresoli.net>
 
-[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
+[ Upstream commit fc336ae622df0ec114dbe5551a4d2760c535ecd0 ]
 
-ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
-sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
-is passed for parsing.
+On 5P49V6965, when an output is enabled we enable the corresponding
+FOD. When this happens for the first time, and specifically when writing
+register VC5_OUT_DIV_CONTROL in vc5_clk_out_prepare(), all other outputs
+are stopped for a short time and then restarted.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+According to Renesas support this is intended: "The reason for that is VC6E
+has synced up all output function".
+
+This behaviour can be disabled at least on VersaClock 6E devices, of which
+only the 5P49V6965 is currently implemented by this driver. This requires
+writing bit 7 (bypass_sync{1..4}) in register 0x20..0x50.  Those registers
+are named "Unused Factory Reserved Register", and the bits are documented
+as "Skip VDDO<N> verification", which does not clearly explain the relation
+to FOD sync. However according to Renesas support as well as my testing
+setting this bit does prevent disabling of all clock outputs when enabling
+a FOD.
+
+See "VersaClock ® 6E Family Register Descriptions and Programming Guide"
+(August 30, 2018), Table 116 "Power Up VDD check", page 58:
+https://www.renesas.com/us/en/document/mau/versaclock-6e-family-register-descriptions-and-programming-guide
+
+Signed-off-by: Luca Ceresoli <luca@lucaceresoli.net>
+Reviewed-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20210527211647.1520720-1-luca@lucaceresoli.net
+Fixes: 2bda748e6ad8 ("clk: vc5: Add support for IDT VersaClock 5P49V6965")
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_exthdr.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/clk-versaclock5.c | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index f64f0017e9a5..670dd146fb2b 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -42,6 +42,9 @@ static void nft_exthdr_ipv6_eval(const struct nft_expr *expr,
- 	unsigned int offset = 0;
- 	int err;
- 
-+	if (pkt->skb->protocol != htons(ETH_P_IPV6))
-+		goto err;
+diff --git a/drivers/clk/clk-versaclock5.c b/drivers/clk/clk-versaclock5.c
+index 43db67337bc0..4e741f94baf0 100644
+--- a/drivers/clk/clk-versaclock5.c
++++ b/drivers/clk/clk-versaclock5.c
+@@ -69,7 +69,10 @@
+ #define VC5_FEEDBACK_FRAC_DIV(n)		(0x19 + (n))
+ #define VC5_RC_CONTROL0				0x1e
+ #define VC5_RC_CONTROL1				0x1f
+-/* Register 0x20 is factory reserved */
 +
- 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
- 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
- 		nft_reg_store8(dest, err >= 0);
++/* These registers are named "Unused Factory Reserved Registers" */
++#define VC5_RESERVED_X0(idx)		(0x20 + ((idx) * 0x10))
++#define VC5_RESERVED_X0_BYPASS_SYNC	BIT(7) /* bypass_sync<idx> bit */
+ 
+ /* Output divider control for divider 1,2,3,4 */
+ #define VC5_OUT_DIV_CONTROL(idx)	(0x21 + ((idx) * 0x10))
+@@ -87,7 +90,6 @@
+ #define VC5_OUT_DIV_SKEW_INT(idx, n)	(0x2b + ((idx) * 0x10) + (n))
+ #define VC5_OUT_DIV_INT(idx, n)		(0x2d + ((idx) * 0x10) + (n))
+ #define VC5_OUT_DIV_SKEW_FRAC(idx)	(0x2f + ((idx) * 0x10))
+-/* Registers 0x30, 0x40, 0x50 are factory reserved */
+ 
+ /* Clock control register for clock 1,2 */
+ #define VC5_CLK_OUTPUT_CFG(idx, n)	(0x60 + ((idx) * 0x2) + (n))
+@@ -140,6 +142,8 @@
+ #define VC5_HAS_INTERNAL_XTAL	BIT(0)
+ /* chip has PFD requency doubler */
+ #define VC5_HAS_PFD_FREQ_DBL	BIT(1)
++/* chip has bits to disable FOD sync */
++#define VC5_HAS_BYPASS_SYNC_BIT	BIT(2)
+ 
+ /* Supported IDT VC5 models. */
+ enum vc5_model {
+@@ -581,6 +585,23 @@ static int vc5_clk_out_prepare(struct clk_hw *hw)
+ 	unsigned int src;
+ 	int ret;
+ 
++	/*
++	 * When enabling a FOD, all currently enabled FODs are briefly
++	 * stopped in order to synchronize all of them. This causes a clock
++	 * disruption to any unrelated chips that might be already using
++	 * other clock outputs. Bypass the sync feature to avoid the issue,
++	 * which is possible on the VersaClock 6E family via reserved
++	 * registers.
++	 */
++	if (vc5->chip_info->flags & VC5_HAS_BYPASS_SYNC_BIT) {
++		ret = regmap_update_bits(vc5->regmap,
++					 VC5_RESERVED_X0(hwdata->num),
++					 VC5_RESERVED_X0_BYPASS_SYNC,
++					 VC5_RESERVED_X0_BYPASS_SYNC);
++		if (ret)
++			return ret;
++	}
++
+ 	/*
+ 	 * If the input mux is disabled, enable it first and
+ 	 * select source from matching FOD.
+@@ -1102,7 +1123,7 @@ static const struct vc5_chip_info idt_5p49v6965_info = {
+ 	.model = IDT_VC6_5P49V6965,
+ 	.clk_fod_cnt = 4,
+ 	.clk_out_cnt = 5,
+-	.flags = 0,
++	.flags = VC5_HAS_BYPASS_SYNC_BIT,
+ };
+ 
+ static const struct i2c_device_id vc5_id[] = {
 -- 
 2.30.2
 
