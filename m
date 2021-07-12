@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1193C532A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0934E3C48F5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347774AbhGLHxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:53:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52144 "EHLO mail.kernel.org"
+        id S233517AbhGLGlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243093AbhGLHrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D1796144C;
-        Mon, 12 Jul 2021 07:42:34 +0000 (UTC)
+        id S238098AbhGLGjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F65561208;
+        Mon, 12 Jul 2021 06:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075754;
-        bh=QEU95OBl1wa7Ix8cCNHen/j2cLQYlv1H8ToXGIkwAFA=;
+        s=korg; t=1626071772;
+        bh=oWDGWpcZlo0ZT5WQINdATSnmYDZrT9SKwSaujHC9pbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4ToszOVaVjDCMAS0NcNOQ2yBi38LzF0Skoz8PrBtJnj7C8IvBiBneGTcgByJeXJC
-         tpJBTwAtJCItDCA8pWHWMUEfkogyxJC6beIVSOh/dxjwfAyuK3ZlJ8Bdq8N08Dfx5u
-         ahitutrMXmAXPvqMT7PoKXN0BzPk7L4yqGt3JsBI=
+        b=ddY4I62ma40PzkYtE9g95yp0q/U3BEQXN4MX6WXPWfrObTdcgYPx/m0T7ERLgZXHy
+         qFickylltfd9SpDFV/xtgaUO32BLgplwBTNHSA6hwpGTKqJkeysPAX07N00ZDRw9em
+         7omekshfiUFCTsXBjEhJehpXp/xyJrgEy76r1c8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 351/800] KVM: selftests: Remove errant asm/barrier.h include to fix arm64 build
+Subject: [PATCH 5.10 214/593] crypto: ixp4xx - dma_unmap the correct address
 Date:   Mon, 12 Jul 2021 08:06:14 +0200
-Message-Id: <20210712061004.409286299@linuxfoundation.org>
+Message-Id: <20210712060906.464228773@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit ecc3a92c6f4953c134a9590c762755e6593f507c ]
+[ Upstream commit 9395c58fdddd79cdd3882132cdd04e8ac7ad525f ]
 
-Drop an unnecessary include of asm/barrier.h from dirty_log_test.c to
-allow the test to build on arm64.  arm64, s390, and x86 all build cleanly
-without the include (PPC and MIPS aren't supported in KVM's selftests).
+Testing ixp4xx_crypto with CONFIG_DMA_API_DEBUG lead to the following error:
+DMA-API: platform ixp4xx_crypto.0: device driver tries to free DMA memory it has not allocated [device address=0x0000000000000000] [size=24 bytes]
 
-arm64's barrier.h includes linux/kasan-checks.h, which is not copied
-into tools/.
+This is due to dma_unmap using the wrong address.
 
-  In file included from ../../../../tools/include/asm/barrier.h:8,
-                   from dirty_log_test.c:19:
-     .../arm64/include/asm/barrier.h:12:10: fatal error: linux/kasan-checks.h: No such file or directory
-     12 | #include <linux/kasan-checks.h>
-        |          ^~~~~~~~~~~~~~~~~~~~~~
-  compilation terminated.
-
-Fixes: 84292e565951 ("KVM: selftests: Add dirty ring buffer test")
-Cc: Peter Xu <peterx@redhat.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210622200529.3650424-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 0d44dc59b2b4 ("crypto: ixp4xx - Fix handling of chained sg buffers")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/dirty_log_test.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/crypto/ixp4xx_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/kvm/dirty_log_test.c b/tools/testing/selftests/kvm/dirty_log_test.c
-index 81edbd23d371..b4d24f50aca6 100644
---- a/tools/testing/selftests/kvm/dirty_log_test.c
-+++ b/tools/testing/selftests/kvm/dirty_log_test.c
-@@ -16,7 +16,6 @@
- #include <errno.h>
- #include <linux/bitmap.h>
- #include <linux/bitops.h>
--#include <asm/barrier.h>
- #include <linux/atomic.h>
+diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
+index 276012e7c482..cbb1fda299a8 100644
+--- a/drivers/crypto/ixp4xx_crypto.c
++++ b/drivers/crypto/ixp4xx_crypto.c
+@@ -330,7 +330,7 @@ static void free_buf_chain(struct device *dev, struct buffer_desc *buf,
  
- #include "kvm_util.h"
+ 		buf1 = buf->next;
+ 		phys1 = buf->phys_next;
+-		dma_unmap_single(dev, buf->phys_next, buf->buf_len, buf->dir);
++		dma_unmap_single(dev, buf->phys_addr, buf->buf_len, buf->dir);
+ 		dma_pool_free(buffer_pool, buf, phys);
+ 		buf = buf1;
+ 		phys = phys1;
 -- 
 2.30.2
 
