@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3853C4C99
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE43C3C51F5
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242175AbhGLHGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40194 "EHLO mail.kernel.org"
+        id S1349586AbhGLHoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243335AbhGLHEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0879761167;
-        Mon, 12 Jul 2021 07:02:03 +0000 (UTC)
+        id S1349379AbhGLHl5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57EF660FF3;
+        Mon, 12 Jul 2021 07:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073324;
-        bh=B7DA+b3ltaaXrWpMhVn9fgrYsaiqobW8Rvmr22V+Zr0=;
+        s=korg; t=1626075548;
+        bh=BAFU7XVbOgmnXzHVElnLhdiGFbJEgWoDgMv0T85c/Ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VwVoeUNTyMpVKS/q3CL1EQY/M1W0vrpht646KA7TnkurBDWGhxQ/UidPcNmxG3GLP
-         4mAruMnDVn2Jt4Lv+NN1wiGUFgi33Zf1AhGo6YLiRi2cH4AC87Wn8q7RI5nRFsoxda
-         ihbVwnoquxsZM5hYCkBb+ACpK1Ri8PP00PTeb3nA=
+        b=Guzmoo1mUVEeHOaYirFqKQ4j3BOSLCsgrZG1O2pPICqjpzr4CP+HhcagCaFzzNaLh
+         3Dqlp866momXmrqvDulBwTLY2rJ+MUkHtpGU1cGQOQ9UxgdZ9x6FhSvJDXpHEYJeEn
+         3dx1Q0sa4Le7WT8M3xsd3F1gsUxbNCYW1t1Mh5jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tejun Heo <tj@kernel.org>, Minchan Kim <minchan@google.com>,
+        jenhaochen@google.com, Martin Liu <liumartin@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 202/700] Input: goodix - platform/x86: touchscreen_dmi - Move upside down quirks to touchscreen_dmi.c
+Subject: [PATCH 5.13 262/800] kthread_worker: fix return value when kthread_mod_delayed_work() races with kthread_cancel_delayed_work_sync()
 Date:   Mon, 12 Jul 2021 08:04:45 +0200
-Message-Id: <20210712060955.437211471@linuxfoundation.org>
+Message-Id: <20210712060951.429492452@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,189 +46,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Petr Mladek <pmladek@suse.com>
 
-[ Upstream commit 5a6f0dbe621a5c20dc912ac474debf9f11129e03 ]
+[ Upstream commit d71ba1649fa3c464c51ec7163e4b817345bff2c7 ]
 
-Move the DMI quirks for upside-down mounted Goodix touchscreens from
-drivers/input/touchscreen/goodix.c to
-drivers/platform/x86/touchscreen_dmi.c,
-where all the other x86 touchscreen quirks live.
+kthread_mod_delayed_work() might race with
+kthread_cancel_delayed_work_sync() or another kthread_mod_delayed_work()
+call.  The function lets the other operation win when it sees
+work->canceling counter set.  And it returns @false.
 
-Note the touchscreen_dmi.c code attaches standard touchscreen
-device-properties to an i2c-client device based on a combination of a
-DMI match + a device-name match. I've verified that the: Teclast X98 Pro,
-WinBook TW100 and WinBook TW700 uses an ACPI devicename of "GDIX1001:00"
-based on acpidumps and/or dmesg output available on the web.
+But it should return @true as it is done by the related workqueue API, see
+mod_delayed_work_on().
 
-This patch was tested on a Teclast X89 tablet.
+The reason is that the return value might be used for reference counting.
+It has to distinguish the case when the number of queued works has changed
+or stayed the same.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-2-hdegoede@redhat.com
+The change is safe.  kthread_mod_delayed_work() return value is not
+checked anywhere at the moment.
+
+Link: https://lore.kernel.org/r/20210521163526.GA17916@redhat.com
+Link: https://lkml.kernel.org/r/20210610133051.15337-4-pmladek@suse.com
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Reported-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Minchan Kim <minchan@google.com>
+Cc: <jenhaochen@google.com>
+Cc: Martin Liu <liumartin@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c     | 52 ------------------------
- drivers/platform/x86/touchscreen_dmi.c | 56 ++++++++++++++++++++++++++
- 2 files changed, 56 insertions(+), 52 deletions(-)
+ kernel/kthread.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index c682b028f0a2..4f53d3c57e69 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -178,51 +178,6 @@ static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_LEVEL_HIGH,
- };
+diff --git a/kernel/kthread.c b/kernel/kthread.c
+index 6e02094849d3..08931e525dd9 100644
+--- a/kernel/kthread.c
++++ b/kernel/kthread.c
+@@ -1162,14 +1162,14 @@ static bool __kthread_cancel_work(struct kthread_work *work)
+  * modify @dwork's timer so that it expires after @delay. If @delay is zero,
+  * @work is guaranteed to be queued immediately.
+  *
+- * Return: %true if @dwork was pending and its timer was modified,
+- * %false otherwise.
++ * Return: %false if @dwork was idle and queued, %true otherwise.
+  *
+  * A special case is when the work is being canceled in parallel.
+  * It might be caused either by the real kthread_cancel_delayed_work_sync()
+  * or yet another kthread_mod_delayed_work() call. We let the other command
+- * win and return %false here. The caller is supposed to synchronize these
+- * operations a reasonable way.
++ * win and return %true here. The return value can be used for reference
++ * counting and the number of queued works stays the same. Anyway, the caller
++ * is supposed to synchronize these operations a reasonable way.
+  *
+  * This function is safe to call from any context including IRQ handler.
+  * See __kthread_cancel_work() and kthread_delayed_work_timer_fn()
+@@ -1181,13 +1181,15 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
+ {
+ 	struct kthread_work *work = &dwork->work;
+ 	unsigned long flags;
+-	int ret = false;
++	int ret;
  
--/*
-- * Those tablets have their coordinates origin at the bottom right
-- * of the tablet, as if rotated 180 degrees
-- */
--static const struct dmi_system_id rotated_screen[] = {
--#if defined(CONFIG_DMI) && defined(CONFIG_X86)
--	{
--		.ident = "Teclast X89",
--		.matches = {
--			/* tPAD is too generic, also match on bios date */
--			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
--			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
--			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
--		},
--	},
--	{
--		.ident = "Teclast X98 Pro",
--		.matches = {
--			/*
--			 * Only match BIOS date, because the manufacturers
--			 * BIOS does not report the board name at all
--			 * (sometimes)...
--			 */
--			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
--			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
--		},
--	},
--	{
--		.ident = "WinBook TW100",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
--		}
--	},
--	{
--		.ident = "WinBook TW700",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
--		},
--	},
--#endif
--	{}
--};
--
- static const struct dmi_system_id nine_bytes_report[] = {
- #if defined(CONFIG_DMI) && defined(CONFIG_X86)
- 	{
-@@ -1123,13 +1078,6 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 				  ABS_MT_POSITION_Y, ts->prop.max_y);
- 	}
+ 	raw_spin_lock_irqsave(&worker->lock, flags);
  
--	if (dmi_check_system(rotated_screen)) {
--		ts->prop.invert_x = true;
--		ts->prop.invert_y = true;
--		dev_dbg(&ts->client->dev,
--			"Applying '180 degrees rotated screen' quirk\n");
--	}
--
- 	if (dmi_check_system(nine_bytes_report)) {
- 		ts->contact_size = 9;
+ 	/* Do not bother with canceling when never queued. */
+-	if (!work->worker)
++	if (!work->worker) {
++		ret = false;
+ 		goto fast_queue;
++	}
  
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 8618c44106c2..222f6c9f0b45 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -299,6 +299,23 @@ static const struct ts_dmi_data estar_beauty_hd_data = {
- 	.properties	= estar_beauty_hd_props,
- };
+ 	/* Work must not be used with >1 worker, see kthread_queue_work() */
+ 	WARN_ON_ONCE(work->worker != worker);
+@@ -1205,8 +1207,11 @@ bool kthread_mod_delayed_work(struct kthread_worker *worker,
+ 	 * be used for reference counting.
+ 	 */
+ 	kthread_cancel_delayed_work_timer(work, &flags);
+-	if (work->canceling)
++	if (work->canceling) {
++		/* The number of works in the queue does not change. */
++		ret = true;
+ 		goto out;
++	}
+ 	ret = __kthread_cancel_work(work);
  
-+/* Generic props + data for upside-down mounted GDIX1001 touchscreens */
-+static const struct property_entry gdix1001_upside_down_props[] = {
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
-+	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data gdix1001_00_upside_down_data = {
-+	.acpi_name	= "GDIX1001:00",
-+	.properties	= gdix1001_upside_down_props,
-+};
-+
-+static const struct ts_dmi_data gdix1001_01_upside_down_data = {
-+	.acpi_name	= "GDIX1001:01",
-+	.properties	= gdix1001_upside_down_props,
-+};
-+
- static const struct property_entry gp_electronic_t701_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
-@@ -1295,6 +1312,16 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
- 		},
- 	},
-+	{
-+		/* Teclast X89 (Windows version / BIOS) */
-+		.driver_data = (void *)&gdix1001_01_upside_down_data,
-+		.matches = {
-+			/* tPAD is too generic, also match on bios date */
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
-+			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
-+		},
-+	},
- 	{
- 		/* Teclast X98 Plus II */
- 		.driver_data = (void *)&teclast_x98plus2_data,
-@@ -1303,6 +1330,19 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
- 		},
- 	},
-+	{
-+		/* Teclast X98 Pro */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			/*
-+			 * Only match BIOS date, because the manufacturers
-+			 * BIOS does not report the board name at all
-+			 * (sometimes)...
-+			 */
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
-+			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
-+		},
-+	},
- 	{
- 		/* Trekstor Primebook C11 */
- 		.driver_data = (void *)&trekstor_primebook_c11_data,
-@@ -1378,6 +1418,22 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "VINGA Twizzle J116"),
- 		},
- 	},
-+	{
-+		/* "WinBook TW100" */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
-+		}
-+	},
-+	{
-+		/* WinBook TW700 */
-+		.driver_data = (void *)&gdix1001_00_upside_down_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
-+		},
-+	},
- 	{
- 		/* Yours Y8W81, same case and touchscreen as Chuwi Vi8 */
- 		.driver_data = (void *)&chuwi_vi8_data,
+ fast_queue:
 -- 
 2.30.2
 
