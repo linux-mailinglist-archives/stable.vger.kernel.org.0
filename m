@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 638283C48F4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A823C52B6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235042AbhGLGla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33550 "EHLO mail.kernel.org"
+        id S1347130AbhGLHs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:48:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238000AbhGLGjt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB369611ED;
-        Mon, 12 Jul 2021 06:36:00 +0000 (UTC)
+        id S241750AbhGLHqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:46:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98DE1611AF;
+        Mon, 12 Jul 2021 07:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071761;
-        bh=88rBcWl6sunatmsjmRtYYsUX0LPKpSxD9cgBG3cZC8o=;
+        s=korg; t=1626075743;
+        bh=jl+ad3IWHu5y9beWDWIxlhAtdfOYXOdzXGlC3+FatsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiCesqxPw/ZOc0I5+Jc++WBXv+3enfvGmnDFFG7F7EpdYKApOy/ztzE8x8MlOxT+o
-         mc7ddETjh9SJNJ6HViXc7MWoNhlKMG+qXVrKlfmG+gI5Mx8Ytk6N7WzAdA1qAK+Fgv
-         A4vFeI5gjTjzj6zuP6Pt/a6Tm3Wye/kvXOhFuSGc=
+        b=QF9JNXCMg/XyIvEqhFOPDNvapLZeGQwanKTZKJ6CrZap6lmvdO1NGal/Zmum/H8n4
+         2856F6nTkgZr+P8MoVRfMhLxE56TMhpOUkZZmbt2w5XCVQ4RXqx37gdIRMHrn9VWkz
+         UjiAyBHSCb4K0JfeqlrkmBqNsAs+O/PpV+a0j2d4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 209/593] spi: Allow to have all native CSs in use along with GPIOs
+Subject: [PATCH 5.13 346/800] perf: Fix task context PMU for Hetero
 Date:   Mon, 12 Jul 2021 08:06:09 +0200
-Message-Id: <20210712060905.936042667@linuxfoundation.org>
+Message-Id: <20210712061003.817282982@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit dbaca8e56ea3f23fa215f48c2d46dd03ede06e02 ]
+[ Upstream commit 012669c740e6e2afa8bdb95394d06676f933dd2d ]
 
-The commit 7d93aecdb58d ("spi: Add generic support for unused native cs
-with cs-gpios") excludes the valid case for the controllers that doesn't
-need to switch native CS in order to perform the transfer, i.e. when
+On HETEROGENEOUS hardware (ARM big.Little, Intel Alderlake etc.) each
+CPU might have a different hardware PMU. Since each such PMU is
+represented by a different struct pmu, but we only have a single HW
+task context.
 
-  0		native
-  ...		...
-  <n> - 1	native
-  <n>		GPIO
-  <n> + 1	GPIO
-  ...		...
+That means that the task context needs to switch PMU type when it
+switches CPUs.
 
-where <n> defines maximum of native CSs supported by the controller.
+Not doing this means that ctx->pmu calls (pmu_{dis,en}able(),
+{start,commit,cancel}_txn() etc.) are called against the wrong PMU and
+things will go wobbly.
 
-To allow this, bail out from spi_get_gpio_descs() conditionally for
-the controllers which explicitly marked with SPI_MASTER_GPIO_SS.
-
-Fixes: 7d93aecdb58d ("spi: Add generic support for unused native cs with cs-gpios")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210420164425.40287-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: f83d2f91d259 ("perf/x86/intel: Add Alder Lake Hybrid support")
+Reported-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Tested-by: Kan Liang <kan.liang@linux.intel.com>
+Link: https://lkml.kernel.org/r/YMsy7BuGT8nBTspT@hirez.programming.kicks-ass.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ kernel/events/core.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index bd8b1f79dce2..a1a85f0baf7c 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2615,8 +2615,9 @@ static int spi_get_gpio_descs(struct spi_controller *ctlr)
- 	}
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index fe88d6eea3c2..9ebac2a79467 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -3821,9 +3821,16 @@ static void perf_event_context_sched_in(struct perf_event_context *ctx,
+ 					struct task_struct *task)
+ {
+ 	struct perf_cpu_context *cpuctx;
+-	struct pmu *pmu = ctx->pmu;
++	struct pmu *pmu;
  
- 	ctlr->unused_native_cs = ffz(native_cs_mask);
--	if (num_cs_gpios && ctlr->max_native_cs &&
--	    ctlr->unused_native_cs >= ctlr->max_native_cs) {
+ 	cpuctx = __get_cpu_context(ctx);
 +
-+	if ((ctlr->flags & SPI_MASTER_GPIO_SS) && num_cs_gpios &&
-+	    ctlr->max_native_cs && ctlr->unused_native_cs >= ctlr->max_native_cs) {
- 		dev_err(dev, "No unused native chip select available\n");
- 		return -EINVAL;
- 	}
++	/*
++	 * HACK: for HETEROGENEOUS the task context might have switched to a
++	 * different PMU, force (re)set the context,
++	 */
++	pmu = ctx->pmu = cpuctx->ctx.pmu;
++
+ 	if (cpuctx->task_ctx == ctx) {
+ 		if (cpuctx->sched_cb_usage)
+ 			__perf_pmu_sched_task(cpuctx, true);
 -- 
 2.30.2
 
