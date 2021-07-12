@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C18DC3C475F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D63263C4743
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235363AbhGLGc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:32:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53342 "EHLO mail.kernel.org"
+        id S236447AbhGLGb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235381AbhGLGba (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235357AbhGLGba (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:31:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A76E61132;
-        Mon, 12 Jul 2021 06:28:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56B2A610FB;
+        Mon, 12 Jul 2021 06:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071312;
-        bh=NKi9if7MEdzqdqSUaIXGIG/+7gMqhQGY9or/8QqKbq4=;
+        s=korg; t=1626071314;
+        bh=D4EbMpgOIU0bxTAfxbzis8uGgXIaS9yw2L2Wt2HOaKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6gQt7ckPBC8d1EnAA7WqQUa7riawZEFIgDGrvRsjj9Fmsu2GNzz0a0vOXFCB3Oo6
-         xr+VUUMuNl+hxlEVG5HN9w2olEioZbejbeTEtn6+YQDIu5a3mcV0d7EXE2fjE+K73T
-         xGOXXxIMExWQWpzz0jthAsjrDHuqsbUotJK9b1xs=
+        b=EyjFWr+oc8ZPAQziJ8tJHxOjd6V7cbHgF5ULV70EFg3pmJzZH1krwK3FEgwB2BJh3
+         Yn6IAVibHPvIREtGXhDujWtSL0HTSGjsUbKtRJyJgVFj9Dyw1aEqsf0ZOqfKaX0atC
+         R2dvkYHxK0Ksz4vUQiYL1qw2Euz2WX6Guh5RAiug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Szu <jeremy.szu@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 017/593] ALSA: hda/realtek: fix mute/micmute LEDs for HP EliteBook 830 G8 Notebook PC
-Date:   Mon, 12 Jul 2021 08:02:57 +0200
-Message-Id: <20210712060845.086096452@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 018/593] media: dvb-usb: fix wrong definition
+Date:   Mon, 12 Jul 2021 08:02:58 +0200
+Message-Id: <20210712060845.192363100@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -39,33 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Szu <jeremy.szu@canonical.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit dfc2e8ae4066a95c7f9c2bb2dfa26651feaa6b83 upstream.
+commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
 
-The HP EliteBook 830 G8 Notebook PC using ALC285 codec which using 0x04 to
-control mute LED and 0x01 to control micmute LED.
-Therefore, add a quirk to make it works.
+syzbot reported WARNING in vmalloc. The problem
+was in zero size passed to vmalloc.
 
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210625133414.26760-1-jeremy.szu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The root case was in wrong cxusb_bluebird_lgz201_properties
+definition. adapter array has only 1 entry, but num_adapters was
+2.
+
+Call Trace:
+ __vmalloc_node mm/vmalloc.c:2963 [inline]
+ vmalloc+0x67/0x80 mm/vmalloc.c:2996
+ dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
+ dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
+ dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
+ dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+ dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+ cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+
+Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/dvb-usb/cxusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8355,6 +8355,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x87f4, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f5, "HP", ALC287_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x87f7, "HP Spectre x360 14", ALC245_FIXUP_HP_X360_AMP),
-+	SND_PCI_QUIRK(0x103c, 0x880d, "HP EliteBook 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8846, "HP EliteBook 850 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8847, "HP EliteBook x360 830 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -1947,7 +1947,7 @@ static struct dvb_usb_device_properties
+ 
+ 	.size_of_priv     = sizeof(struct cxusb_state),
+ 
+-	.num_adapters = 2,
++	.num_adapters = 1,
+ 	.adapter = {
+ 		{
+ 		.num_frontends = 1,
 
 
