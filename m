@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF37D3C53AD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E11333C499F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348409AbhGLHzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37842 "EHLO mail.kernel.org"
+        id S235845AbhGLGpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350619AbhGLHvL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5569461C30;
-        Mon, 12 Jul 2021 07:47:02 +0000 (UTC)
+        id S239106AbhGLGos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6363E611C1;
+        Mon, 12 Jul 2021 06:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076022;
-        bh=qC8BuRcM73CXyeA4KBinzP5v6wjTB3NpWGuOzKomHek=;
+        s=korg; t=1626072041;
+        bh=MCwjGlUhMs9fRJNOMQKclYgS0+8CWreKuf7GuCiuqT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/N3Ppz4uprMzh8HUleGuiCtq3D4qqj34HWLAjeKiUnmuAJ7pbI42co1IUkRoZEGa
-         2p2Ducqb1GsOccXqsRWWKwO5NW98JAbAPhuTJiFCVsmvHjy3HxM76f4Gt459EZEbHJ
-         1DkL4SkI8F49za3f2dMKuullw1NCq0wPUQ77OOmU=
+        b=t+QJmdhLov3aIxT8cp+ooDbHejE+DEtBTX4FT6orzyDehMhKNqwGSqNN56P9tsrcG
+         m3Q/6rIM/rPJDASaV1SyuLRiqibYAYC+nSo3Eges19lxQJOUvs2a1Nt/ZV3mqP3DJs
+         jU2N59V+rWPWfc/h5FM51b7psnsPF9qN0aimwXQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 464/800] brcmfmac: Fix a double-free in brcmf_sdio_bus_reset
-Date:   Mon, 12 Jul 2021 08:08:07 +0200
-Message-Id: <20210712061016.491016964@linuxfoundation.org>
+Subject: [PATCH 5.10 328/593] ehea: fix error return code in ehea_restart_qps()
+Date:   Mon, 12 Jul 2021 08:08:08 +0200
+Message-Id: <20210712060921.835284510@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Tiangen <tongtiangen@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 7ea7a1e05c7ff5ffc9f9ec1f0849f6ceb7fcd57c ]
+[ Upstream commit 015dbf5662fd689d581c0bc980711b073ca09a1a ]
 
-brcmf_sdiod_remove has been called inside brcmf_sdiod_probe when fails,
-so there's no need to call another one. Otherwise, sdiodev->freezer
-would be double freed.
+Fix to return -EFAULT from the error handling case instead of 0, as done
+elsewhere in this function.
 
-Fixes: 7836102a750a ("brcmfmac: reset SDIO bus on a firmware crash")
-Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
-Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210601100128.69561-1-tongtiangen@huawei.com
+By the way, when get_zeroed_page() fails, directly return -ENOMEM to
+simplify code.
+
+Fixes: 2c69448bbced ("ehea: DLPAR memory add fix")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210528085555.9390-1-thunder.leizhen@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/ibm/ehea/ehea_main.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-index 16ed325795a8..3a1c98a046f0 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/sdio.c
-@@ -4162,7 +4162,6 @@ static int brcmf_sdio_bus_reset(struct device *dev)
- 	if (ret) {
- 		brcmf_err("Failed to probe after sdio device reset: ret %d\n",
- 			  ret);
--		brcmf_sdiod_remove(sdiodev);
- 	}
+diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+index c2e740475786..f63066736425 100644
+--- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
++++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
+@@ -2617,10 +2617,8 @@ static int ehea_restart_qps(struct net_device *dev)
+ 	u16 dummy16 = 0;
  
- 	return ret;
+ 	cb0 = (void *)get_zeroed_page(GFP_KERNEL);
+-	if (!cb0) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	if (!cb0)
++		return -ENOMEM;
+ 
+ 	for (i = 0; i < (port->num_def_qps); i++) {
+ 		struct ehea_port_res *pr =  &port->port_res[i];
+@@ -2640,6 +2638,7 @@ static int ehea_restart_qps(struct net_device *dev)
+ 					    cb0);
+ 		if (hret != H_SUCCESS) {
+ 			netdev_err(dev, "query_ehea_qp failed (1)\n");
++			ret = -EFAULT;
+ 			goto out;
+ 		}
+ 
+@@ -2652,6 +2651,7 @@ static int ehea_restart_qps(struct net_device *dev)
+ 					     &dummy64, &dummy16, &dummy16);
+ 		if (hret != H_SUCCESS) {
+ 			netdev_err(dev, "modify_ehea_qp failed (1)\n");
++			ret = -EFAULT;
+ 			goto out;
+ 		}
+ 
+@@ -2660,6 +2660,7 @@ static int ehea_restart_qps(struct net_device *dev)
+ 					    cb0);
+ 		if (hret != H_SUCCESS) {
+ 			netdev_err(dev, "query_ehea_qp failed (2)\n");
++			ret = -EFAULT;
+ 			goto out;
+ 		}
+ 
 -- 
 2.30.2
 
