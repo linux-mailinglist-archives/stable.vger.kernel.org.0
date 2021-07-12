@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD6163C4DED
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7D4C3C53B3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243516AbhGLHPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:15:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S244940AbhGLHzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241516AbhGLHOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:14:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D42461361;
-        Mon, 12 Jul 2021 07:11:18 +0000 (UTC)
+        id S1350600AbhGLHvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE4DB61C27;
+        Mon, 12 Jul 2021 07:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073879;
-        bh=3Q03T6fAnRzEh1tXlxIKGBLf4oJzhCVQrPQqXO6N0/w=;
+        s=korg; t=1626075985;
+        bh=WBqR+ffR0R5GHptgZ3/zjCvkFUPazoiR9oqfXZyyTKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoyziXcMzhjGaqd7OgjRnNh+zrtZ9bBOaJPkzOdw8C4SGYnJ6JhCUEc3Qh/c68XK3
-         SHj+15rtbhhZsivG8e8OS/kWRwpg5GCbQOKVT5zJ3BYZYYeCCzX91I9U1Xrl2bhp9z
-         geJ3i6OKCTnQnBRL4UqyWPIg6Cv/kM9J9iKN4Sl8=
+        b=y/L0pjO5PalWyVNb5XNA1uqHzHOFEgVPY7uu87/eLLyO8pHx9cdKeFHXovmZdc+0P
+         U7KKIzHjQNppXmVw9W0NPit0s4mjaGmaBbrL0DK4hkgcCw/ECgyuTkY+Xgh3D67MkO
+         ecFE41Oh2jgTrTSzMhxtUzEELX+Z4+LzjHy651OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 388/700] RDMA/rtrs-clt: Fix memory leak of not-freed sess->stats and stats->pcpu_stats
-Date:   Mon, 12 Jul 2021 08:07:51 +0200
-Message-Id: <20210712061017.676800579@linuxfoundation.org>
+Subject: [PATCH 5.13 449/800] drm: qxl: ensure surf.data is ininitialized
+Date:   Mon, 12 Jul 2021 08:07:52 +0200
+Message-Id: <20210712061014.876665332@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 7ecd7e290bee0ab9cf75b79a367a4cc113cf8292 ]
+[ Upstream commit fbbf23ddb2a1cc0c12c9f78237d1561c24006f50 ]
 
-sess->stats and sess->stats->pcpu_stats objects are freed
-when sysfs entry is removed. If something wrong happens and
-session is closed before sysfs entry is created,
-sess->stats and sess->stats->pcpu_stats objects are not freed.
+The object surf is not fully initialized and the uninitialized
+field surf.data is being copied by the call to qxl_bo_create
+via the call to qxl_gem_object_create. Set surf.data to zero
+to ensure garbage data from the stack is not being copied.
 
-This patch adds freeing of them at three places:
-1. When client uses wrong address and session creation fails.
-2. When client fails to create a sysfs entry.
-3. When client adds wrong address via sysfs add_path.
-
-Fixes: 215378b838df0 ("RDMA/rtrs: client: sysfs interface functions")
-Link: https://lore.kernel.org/r/20210528113018.52290-21-jinpu.wang@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210608161313.161922-1-colin.king@canonical.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/qxl/qxl_dumb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index 1c581c4faacd..49d12dd4a503 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -2689,6 +2689,8 @@ struct rtrs_clt *rtrs_clt_open(struct rtrs_clt_ops *ops,
- 		if (err) {
- 			list_del_rcu(&sess->s.entry);
- 			rtrs_clt_close_conns(sess, true);
-+			free_percpu(sess->stats->pcpu_stats);
-+			kfree(sess->stats);
- 			free_sess(sess);
- 			goto close_all_sess;
- 		}
-@@ -2697,6 +2699,8 @@ struct rtrs_clt *rtrs_clt_open(struct rtrs_clt_ops *ops,
- 		if (err) {
- 			list_del_rcu(&sess->s.entry);
- 			rtrs_clt_close_conns(sess, true);
-+			free_percpu(sess->stats->pcpu_stats);
-+			kfree(sess->stats);
- 			free_sess(sess);
- 			goto close_all_sess;
- 		}
-@@ -2954,6 +2958,8 @@ int rtrs_clt_create_path_from_sysfs(struct rtrs_clt *clt,
- close_sess:
- 	rtrs_clt_remove_path_from_arr(sess);
- 	rtrs_clt_close_conns(sess, true);
-+	free_percpu(sess->stats->pcpu_stats);
-+	kfree(sess->stats);
- 	free_sess(sess);
- 
- 	return err;
+diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
+index 48a58ba1db96..686485b19d0f 100644
+--- a/drivers/gpu/drm/qxl/qxl_dumb.c
++++ b/drivers/gpu/drm/qxl/qxl_dumb.c
+@@ -58,6 +58,8 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
+ 	surf.height = args->height;
+ 	surf.stride = pitch;
+ 	surf.format = format;
++	surf.data = 0;
++
+ 	r = qxl_gem_object_create_with_handle(qdev, file_priv,
+ 					      QXL_GEM_DOMAIN_CPU,
+ 					      args->size, &surf, &qobj,
 -- 
 2.30.2
 
