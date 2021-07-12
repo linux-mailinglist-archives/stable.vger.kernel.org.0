@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 138913C5351
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCC2A3C48FE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352287AbhGLHyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35482 "EHLO mail.kernel.org"
+        id S235316AbhGLGlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350010AbhGLHuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC67A6191F;
-        Mon, 12 Jul 2021 07:43:48 +0000 (UTC)
+        id S238272AbhGLGkE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F0861008;
+        Mon, 12 Jul 2021 06:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075829;
-        bh=6ezuoxT00fRdGeP9r36ldoQatrPYM0A62H08Zf0PcTU=;
+        s=korg; t=1626071809;
+        bh=IH4lhPDpvxmWg2bAKUCN01/Ju1RnAolEGFYrWtFY018=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guK7sgxAYUaFfFf81075m3BA5J/Lv++ytGAxm8lVPm0gDe//Tt7Khthh3ZM4tvlgJ
-         klOsge3iXZLOdWaFBTSkEwPgCo5hmXdFnLnFXQR4gCybCYRXT9ZAnisFkMdN1bu0RV
-         NSd0DHttHLE1URTogSeGd5XZfrx5xe1dMkBV1LUc=
+        b=q3O65j943J0R5jYaWI3r88hk1oHF8wXYbDPKplx8eHURtOThsV2i0Q0R7V2w0/ddc
+         6MpCb3mjaeq0VrgOPZbgXHJS7fS9hJj4E4FYBdMrZ24TugRVMxDBWvZH+nuV/V2yHQ
+         CtGJa/VwZgfS5qc9KVPhTx9xu6jqpOBv5sbUcASE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Donnefort <vincent.donnefort@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 339/800] sched/rt: Fix RT utilization tracking during policy change
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 202/593] HID: wacom: Correct base usage for capacitive ExpressKey status bits
 Date:   Mon, 12 Jul 2021 08:06:02 +0200
-Message-Id: <20210712061002.830074836@linuxfoundation.org>
+Message-Id: <20210712060905.243514305@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Donnefort <vincent.donnefort@arm.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit fecfcbc288e9f4923f40fd23ca78a6acdc7fdf6c ]
+[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
 
-RT keeps track of the utilization on a per-rq basis with the structure
-avg_rt. This utilization is updated during task_tick_rt(),
-put_prev_task_rt() and set_next_task_rt(). However, when the current
-running task changes its policy, set_next_task_rt() which would usually
-take care of updating the utilization when the rq starts running RT tasks,
-will not see a such change, leaving the avg_rt structure outdated. When
-that very same task will be dequeued later, put_prev_task_rt() will then
-update the utilization, based on a wrong last_update_time, leading to a
-huge spike in the RT utilization signal.
+The capacitive status of ExpressKeys is reported with usages beginning
+at 0x940, not 0x950. Bring our driver into alignment with reality.
 
-The signal would eventually recover from this issue after few ms. Even if
-no RT tasks are run, avg_rt is also updated in __update_blocked_others().
-But as the CPU capacity depends partly on the avg_rt, this issue has
-nonetheless a significant impact on the scheduler.
-
-Fix this issue by ensuring a load update when a running task changes
-its policy to RT.
-
-Fixes: 371bf427 ("sched/rt: Add rt_rq utilization tracking")
-Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/1624271872-211872-2-git-send-email-vincent.donnefort@arm.com
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/hid/wacom_wac.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index c286e5ba3c94..3b1b8b025b74 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -2331,13 +2331,20 @@ void __init init_sched_rt_class(void)
- static void switched_to_rt(struct rq *rq, struct task_struct *p)
- {
- 	/*
--	 * If we are already running, then there's nothing
--	 * that needs to be done. But if we are not running
--	 * we may need to preempt the current running task.
--	 * If that current running task is also an RT task
-+	 * If we are running, update the avg_rt tracking, as the running time
-+	 * will now on be accounted into the latter.
-+	 */
-+	if (task_current(rq, p)) {
-+		update_rt_rq_load_avg(rq_clock_pelt(rq), rq, 0);
-+		return;
-+	}
-+
-+	/*
-+	 * If we are not running we may need to preempt the current
-+	 * running task. If that current running task is also an RT task
- 	 * then see if we can move to another run queue.
- 	 */
--	if (task_on_rq_queued(p) && rq->curr != p) {
-+	if (task_on_rq_queued(p)) {
- #ifdef CONFIG_SMP
- 		if (p->nr_cpus_allowed > 1 && rq->rt.overloaded)
- 			rt_queue_push_tasks(rq);
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 195910dd2154..e3835407e8d2 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -122,7 +122,7 @@
+ #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
+ #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+ #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
+-#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
++#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
+ #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
+ #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
+ #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
 -- 
 2.30.2
 
