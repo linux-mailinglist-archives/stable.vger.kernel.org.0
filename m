@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FEE3C5375
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435CE3C4D66
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352432AbhGLHyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
+        id S242899AbhGLHNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350380AbhGLHu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6356146E;
-        Mon, 12 Jul 2021 07:44:51 +0000 (UTC)
+        id S244385AbhGLHKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 488EC60FF0;
+        Mon, 12 Jul 2021 07:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075892;
-        bh=zVTyZcwSd7vA0lpZYi7rMFyWbCSA/mGFPsjWPV3idlI=;
+        s=korg; t=1626073676;
+        bh=e84PWtKvoCNX6p7L4TdyopFXQ0wsnRv0+CAu2wwhLbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aLdiuHDrLoPZJe3sPGuFQS64t6oCRiyD3ZWNJAJD0vuHgm0MxksYPpfiQTW5nxclR
-         4uUG/G4XAEp6yFcfgIDsirLKRgPM9qGkTv+ergj3gam85TZIxMBBzEBw69FgJUjIR8
-         N6WyET0HoHYzey1XgrolQ7EVgNN7qgH1h1JUTF0U=
+        b=u34ItzA8j3W9Jk+E8ra2bCarbGLaiuATLyYU48f1XxZF76I/e/RQjvryFHhp6hMJE
+         H0rpMbp4P1miLmpPdFdP72Z++BqWLSVujTdSUXCF3YSHuFJ0CygWvZOPeaN852yWuU
+         v48jpAKV3hVfU/eBeAzQgOWKaPM5Frw38LPH4oWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Borislav Petkov <bp@suse.de>, Andrew Jeffery <andrew@aj.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 382/800] mm/debug_vm_pgtable: ensure THP availability via has_transparent_hugepage()
+Subject: [PATCH 5.12 322/700] EDAC/aspeed: Use proper format string for printing resource
 Date:   Mon, 12 Jul 2021 08:06:45 +0200
-Message-Id: <20210712061007.804995816@linuxfoundation.org>
+Message-Id: <20210712061010.637439574@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,236 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 65ac1a60a57e2c55f2ac37f27095f6b012295e81 ]
+[ Upstream commit 2e2f16d5cdb33e5f6fc53b7ad66c9f456d5f2950 ]
 
-On certain platforms, THP support could not just be validated via the
-build option CONFIG_TRANSPARENT_HUGEPAGE.  Instead
-has_transparent_hugepage() also needs to be called upon to verify THP
-runtime support.  Otherwise the debug test will just run into unusable THP
-helpers like in the case of a 4K hash config on powerpc platform [1].
-This just moves all pfn_pmd() and pfn_pud() after THP runtime validation
-with has_transparent_hugepage() which prevents the mentioned problem.
+On ARMv7, resource_size_t can be 64-bit, which breaks printing
+it as %x:
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=213069
+  drivers/edac/aspeed_edac.c: In function 'init_csrows':
+  drivers/edac/aspeed_edac.c:257:28: error: format '%x' expects argument of \
+    type 'unsigned int', but argument 4 has type 'resource_size_t' {aka 'long \
+    long unsigned int'} [-Werror=format=]
+  257 |         dev_dbg(mci->pdev, "dt: /memory node resources: first page \
+    r.start=0x%x, resource_size=0x%x, PAGE_SHIFT macro=0x%x\n",
 
-Link: https://lkml.kernel.org/r/1621397588-19211-1-git-send-email-anshuman.khandual@arm.com
-Fixes: 787d563b8642 ("mm/debug_vm_pgtable: fix kernel crash by checking for THP support")
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Use the special %pR format string to pretty-print the entire resource
+instead.
+
+Fixes: edfc2d73ca45 ("EDAC/aspeed: Add support for AST2400 and AST2600")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lkml.kernel.org/r/20210421135500.3518661-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/debug_vm_pgtable.c | 63 ++++++++++++++++++++++++++++++++++---------
- 1 file changed, 51 insertions(+), 12 deletions(-)
+ drivers/edac/aspeed_edac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
-index 297d1b349c19..92bfc37300df 100644
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -146,13 +146,14 @@ static void __init pte_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- static void __init pmd_basic_tests(unsigned long pfn, int idx)
- {
- 	pgprot_t prot = protection_map[idx];
--	pmd_t pmd = pfn_pmd(pfn, prot);
- 	unsigned long val = idx, *ptr = &val;
-+	pmd_t pmd;
+diff --git a/drivers/edac/aspeed_edac.c b/drivers/edac/aspeed_edac.c
+index a46da56d6d54..6bd5f8815919 100644
+--- a/drivers/edac/aspeed_edac.c
++++ b/drivers/edac/aspeed_edac.c
+@@ -254,8 +254,8 @@ static int init_csrows(struct mem_ctl_info *mci)
+ 		return rc;
+ 	}
  
- 	if (!has_transparent_hugepage())
- 		return;
+-	dev_dbg(mci->pdev, "dt: /memory node resources: first page r.start=0x%x, resource_size=0x%x, PAGE_SHIFT macro=0x%x\n",
+-		r.start, resource_size(&r), PAGE_SHIFT);
++	dev_dbg(mci->pdev, "dt: /memory node resources: first page %pR, PAGE_SHIFT macro=0x%x\n",
++		&r, PAGE_SHIFT);
  
- 	pr_debug("Validating PMD basic (%pGv)\n", ptr);
-+	pmd = pfn_pmd(pfn, prot);
- 
- 	/*
- 	 * This test needs to be executed after the given page table entry
-@@ -185,7 +186,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 				      unsigned long pfn, unsigned long vaddr,
- 				      pgprot_t prot, pgtable_t pgtable)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!has_transparent_hugepage())
- 		return;
-@@ -232,9 +233,14 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
- 
- static void __init pmd_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PMD leaf\n");
-+	pmd = pfn_pmd(pfn, prot);
-+
- 	/*
- 	 * PMD based THP is a leaf entry.
- 	 */
-@@ -267,12 +273,16 @@ static void __init pmd_huge_tests(pmd_t *pmdp, unsigned long pfn, pgprot_t prot)
- 
- static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD saved write\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_savedwrite(pmd_mk_savedwrite(pmd_clear_savedwrite(pmd))));
- 	WARN_ON(pmd_savedwrite(pmd_clear_savedwrite(pmd_mk_savedwrite(pmd))));
- }
-@@ -281,13 +291,14 @@ static void __init pmd_savedwrite_tests(unsigned long pfn, pgprot_t prot)
- static void __init pud_basic_tests(struct mm_struct *mm, unsigned long pfn, int idx)
- {
- 	pgprot_t prot = protection_map[idx];
--	pud_t pud = pfn_pud(pfn, prot);
- 	unsigned long val = idx, *ptr = &val;
-+	pud_t pud;
- 
- 	if (!has_transparent_hugepage())
- 		return;
- 
- 	pr_debug("Validating PUD basic (%pGv)\n", ptr);
-+	pud = pfn_pud(pfn, prot);
- 
- 	/*
- 	 * This test needs to be executed after the given page table entry
-@@ -323,7 +334,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 				      unsigned long pfn, unsigned long vaddr,
- 				      pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
- 
- 	if (!has_transparent_hugepage())
- 		return;
-@@ -332,6 +343,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 	/* Align the address wrt HPAGE_PUD_SIZE */
- 	vaddr &= HPAGE_PUD_MASK;
- 
-+	pud = pfn_pud(pfn, prot);
- 	set_pud_at(mm, vaddr, pudp, pud);
- 	pudp_set_wrprotect(mm, vaddr, pudp);
- 	pud = READ_ONCE(*pudp);
-@@ -370,9 +382,13 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
- 
- static void __init pud_leaf_tests(unsigned long pfn, pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PUD leaf\n");
-+	pud = pfn_pud(pfn, prot);
- 	/*
- 	 * PUD based THP is a leaf entry.
- 	 */
-@@ -654,12 +670,16 @@ static void __init pte_protnone_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_protnone_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_NUMA_BALANCING))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD protnone\n");
-+	pmd = pmd_mkhuge(pfn_pmd(pfn, prot));
- 	WARN_ON(!pmd_protnone(pmd));
- 	WARN_ON(!pmd_present(pmd));
- }
-@@ -679,18 +699,26 @@ static void __init pte_devmap_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PMD devmap\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_devmap(pmd_mkdevmap(pmd)));
- }
- 
- #ifdef CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD
- static void __init pud_devmap_tests(unsigned long pfn, pgprot_t prot)
- {
--	pud_t pud = pfn_pud(pfn, prot);
-+	pud_t pud;
-+
-+	if (!has_transparent_hugepage())
-+		return;
- 
- 	pr_debug("Validating PUD devmap\n");
-+	pud = pfn_pud(pfn, prot);
- 	WARN_ON(!pud_devmap(pud_mkdevmap(pud)));
- }
- #else  /* !CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD */
-@@ -733,25 +761,33 @@ static void __init pte_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- #ifdef CONFIG_TRANSPARENT_HUGEPAGE
- static void __init pmd_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD soft dirty\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_soft_dirty(pmd_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_soft_dirty(pmd_clear_soft_dirty(pmd)));
- }
- 
- static void __init pmd_swap_soft_dirty_tests(unsigned long pfn, pgprot_t prot)
- {
--	pmd_t pmd = pfn_pmd(pfn, prot);
-+	pmd_t pmd;
- 
- 	if (!IS_ENABLED(CONFIG_MEM_SOFT_DIRTY) ||
- 		!IS_ENABLED(CONFIG_ARCH_ENABLE_THP_MIGRATION))
- 		return;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD swap soft dirty\n");
-+	pmd = pfn_pmd(pfn, prot);
- 	WARN_ON(!pmd_swp_soft_dirty(pmd_swp_mksoft_dirty(pmd)));
- 	WARN_ON(pmd_swp_soft_dirty(pmd_swp_clear_soft_dirty(pmd)));
- }
-@@ -780,6 +816,9 @@ static void __init pmd_swap_tests(unsigned long pfn, pgprot_t prot)
- 	swp_entry_t swp;
- 	pmd_t pmd;
- 
-+	if (!has_transparent_hugepage())
-+		return;
-+
- 	pr_debug("Validating PMD swap\n");
- 	pmd = pfn_pmd(pfn, prot);
- 	swp = __pmd_to_swp_entry(pmd);
+ 	csrow->first_page = r.start >> PAGE_SHIFT;
+ 	nr_pages = resource_size(&r) >> PAGE_SHIFT;
 -- 
 2.30.2
 
