@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F4B43C4B61
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F723C4F17
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240747AbhGLG4v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:56:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
+        id S239192AbhGLHXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237223AbhGLGtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A061261158;
-        Mon, 12 Jul 2021 06:44:54 +0000 (UTC)
+        id S1344185AbhGLHUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:20:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A5360FF1;
+        Mon, 12 Jul 2021 07:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072295;
-        bh=xZxb+JLYWPTPq9mxT4Q+78VR5QNQlMOF73PpEPQe5Zw=;
+        s=korg; t=1626074254;
+        bh=sM7eQRZn27UHEZzwyKj3rTlTA1Ru+YHZsNfb9zPlnEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EPksAAD0rsUnJNNljZsy8RgHizyrGA38KVFJ5xhXEEUTcx+3389XNBbQ09J3HvcTx
-         /Meg+qfu30LycwAaYFMMXYGUkvs2KHetARujf9ces04E4KrU5q8xpC7TrOa8o/wy+O
-         sCS7NFutahjTHJf7c33N6A7lvpT+Qp7e9bRmqxFg=
+        b=QWU5jrllsPfdTWSlrPt8z611orf2Qas5yEtXQChC/yzOuNA59E3iM3FTxeCbg6sBp
+         JIvkoIP5/w1JsE4daIW3CzVJ5vzhdgGMhJWIITq5pK68lFirZDYq2NaD86tt5/zS5m
+         Jud/imq5Pp8aJd82Sjzd8GcktS1bsBcej6jYnP3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        stable@vger.kernel.org, Itay Aveksis <itayav@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 438/593] serial: fsl_lpuart: remove RTSCTS handling from get_mctrl()
-Date:   Mon, 12 Jul 2021 08:09:58 +0200
-Message-Id: <20210712060936.920774316@linuxfoundation.org>
+Subject: [PATCH 5.12 516/700] RDMA/mlx5: Dont access NULL-cleared mpi pointer
+Date:   Mon, 12 Jul 2021 08:09:59 +0200
+Message-Id: <20210712061031.385030421@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +42,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit e60c2991f18bf221fa9908ff10cb24eaedaa9bae ]
+[ Upstream commit 4a754d7637026b42b0c9ba5787ad5ee3bc2ff77f ]
 
-The wrong code in set_mctrl() was already removed in commit 2b30efe2e88a
-("tty: serial: lpuart: Remove unnecessary code from set_mctrl"), but the
-code in get_mctrl() wasn't removed. It will not return the state of the
-RTS or CTS line but whether automatic flow control is enabled, which is
-wrong for the get_mctrl(). Thus remove it.
+The "dev->port[i].mp.mpi" is set to NULL during mlx5_ib_unbind_slave_port()
+execution, however that field is needed to add device to unaffiliated list.
 
-Fixes: 2b30efe2e88a ("tty: serial: lpuart: Remove unnecessary code from set_mctrl")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Link: https://lore.kernel.org/r/20210512141255.18277-7-michael@walle.cc
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Such flow causes to the following kernel panic while unloading mlx5_ib
+module in multi-port mode, hence the device should be added to the list
+prior to unbind call.
+
+ RPC: Unregistered rdma transport module.
+ RPC: Unregistered rdma backchannel transport module.
+ BUG: kernel NULL pointer dereference, address: 0000000000000000
+ #PF: supervisor write access in kernel mode
+ #PF: error_code(0x0002) - not-present page
+ PGD 0 P4D 0
+ Oops: 0002 [#1] SMP NOPTI
+ CPU: 4 PID: 1904 Comm: modprobe Not tainted 5.13.0-rc7_for_upstream_min_debug_2021_06_24_12_08 #1
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:mlx5_ib_cleanup_multiport_master+0x18b/0x2d0 [mlx5_ib]
+ Code: 00 04 0f 85 c4 00 00 00 48 89 df e8 ef fa ff ff 48 8b 83 40 0d 00 00 48 8b 15 b9 e8 05 00 4a 8b 44 28 20 48 89 05 ad e8 05 00 <48> c7 00 d0 57 c5 a0 48 89 50 08 48 89 02 39 ab 88 0a 00 00 0f 86
+ RSP: 0018:ffff888116ee3df8 EFLAGS: 00010296
+ RAX: 0000000000000000 RBX: ffff8881154f6000 RCX: 0000000000000080
+ RDX: ffffffffa0c557d0 RSI: ffff88810b69d200 RDI: 000000000002d8a0
+ RBP: 0000000000000002 R08: ffff888110780408 R09: 0000000000000000
+ R10: ffff88812452e1c0 R11: fffffffffff7e028 R12: 0000000000000000
+ R13: 0000000000000080 R14: ffff888102c58000 R15: 0000000000000000
+ FS:  00007f884393a740(0000) GS:ffff8882f5a00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000000000000 CR3: 00000001249f6004 CR4: 0000000000370ea0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  mlx5_ib_stage_init_cleanup+0x16/0xd0 [mlx5_ib]
+  __mlx5_ib_remove+0x33/0x90 [mlx5_ib]
+  mlx5r_remove+0x22/0x30 [mlx5_ib]
+  auxiliary_bus_remove+0x18/0x30
+  __device_release_driver+0x177/0x220
+  driver_detach+0xc4/0x100
+  bus_remove_driver+0x58/0xd0
+  auxiliary_driver_unregister+0x12/0x20
+  mlx5_ib_cleanup+0x13/0x897 [mlx5_ib]
+  __x64_sys_delete_module+0x154/0x230
+  ? exit_to_user_mode_prepare+0x104/0x140
+  do_syscall_64+0x3f/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f8842e095c7
+ Code: 73 01 c3 48 8b 0d d9 48 2c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d a9 48 2c 00 f7 d8 64 89 01 48
+ RSP: 002b:00007ffc68f6e758 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+ RAX: ffffffffffffffda RBX: 00005638207929c0 RCX: 00007f8842e095c7
+ RDX: 0000000000000000 RSI: 0000000000000800 RDI: 0000563820792a28
+ RBP: 00005638207929c0 R08: 00007ffc68f6d701 R09: 0000000000000000
+ R10: 00007f8842e82880 R11: 0000000000000206 R12: 0000563820792a28
+ R13: 0000000000000001 R14: 0000563820792a28 R15: 00007ffc68f6fb40
+ Modules linked in: xt_MASQUERADE nf_conntrack_netlink nfnetlink iptable_nat xt_addrtype xt_conntrack nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 br_netfilter overlay rdma_ucm ib_iser libiscsi scsi_transport_iscsi rdma_cm iw_cm ib_ipoib ib_cm ib_umad mlx5_ib(-) mlx4_ib ib_uverbs ib_core mlx4_en mlx4_core mlx5_core ptp pps_core [last unloaded: rpcrdma]
+ CR2: 0000000000000000
+ ---[ end trace a0bb7e20804e9e9b ]---
+
+Fixes: 7ce6095e3bff ("RDMA/mlx5: Don't add slave port to unaffiliated list")
+Link: https://lore.kernel.org/r/899ac1b33a995be5ec0e16a4765c4e43c2b1ba5b.1624956444.git.leonro@nvidia.com
+Reviewed-by: Itay Aveksis <itayav@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/infiniband/hw/mlx5/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 6b8e638c2389..de5ee4aad9f3 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1408,17 +1408,7 @@ static unsigned int lpuart_get_mctrl(struct uart_port *port)
- 
- static unsigned int lpuart32_get_mctrl(struct uart_port *port)
- {
--	unsigned int temp = 0;
--	unsigned long reg;
--
--	reg = lpuart32_read(port, UARTMODIR);
--	if (reg & UARTMODIR_TXCTSE)
--		temp |= TIOCM_CTS;
--
--	if (reg & UARTMODIR_RXRTSE)
--		temp |= TIOCM_RTS;
--
--	return temp;
-+	return 0;
- }
- 
- static void lpuart_set_mctrl(struct uart_port *port, unsigned int mctrl)
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 21b230096cc1..fc531a506912 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -3539,9 +3539,9 @@ static void mlx5_ib_cleanup_multiport_master(struct mlx5_ib_dev *dev)
+ 				dev->port[i].mp.mpi = NULL;
+ 			} else {
+ 				mlx5_ib_dbg(dev, "unbinding port_num: %d\n", i + 1);
+-				mlx5_ib_unbind_slave_port(dev, dev->port[i].mp.mpi);
+ 				list_add_tail(&dev->port[i].mp.mpi->list,
+ 					      &mlx5_ib_unaffiliated_port_list);
++				mlx5_ib_unbind_slave_port(dev, dev->port[i].mp.mpi);
+ 			}
+ 		}
+ 	}
 -- 
 2.30.2
 
