@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C981A3C51B9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F5423C4C53
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343729AbhGLHnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
+        id S240414AbhGLHDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:03:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347704AbhGLHkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A3A261480;
-        Mon, 12 Jul 2021 07:35:30 +0000 (UTC)
+        id S240872AbhGLHCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:02:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D19F61186;
+        Mon, 12 Jul 2021 07:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075331;
-        bh=wDNvjMGxrpeAQg0xXJVXW97Rx7+AUJ9+PX7Q1PWNhRI=;
+        s=korg; t=1626073202;
+        bh=/FSnNNOCk5OXokZXqDDrrMtWOMQjuygAvziNQZGw/TY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VxeKW4Z5kVocM3Jfj07vWopCgR4wcre/Q3eUMJ9AviwKL/FIYmh2ERLuMo0Ft0PJt
-         EhsLUw5MTOmywZp25M9rpz6RVuW5HXDY54SVfcLGD5YeblmRzrxDKzdFeRreH/T9JI
-         XaUkuHDO6JPlVpnrnkCphy8OYHL4OYtQpNaI2jEQ=
+        b=KU9Ysc+hV0OMVSHI5OEfphBl7tpcNAZRREbeJWkIJN+Bqjv5Xjw/ZaIFUermjaDnR
+         /Lr7lcDw23FdU9/40SYNe8K7hSS2+K6KvtddM24lKZpW60VRp4bOHmbtmLYvQeulJ9
+         hoV/l43kjrcuZlo+BQjyelVtI0qDJaEQcMnYLup4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 183/800] crypto: shash - avoid comparing pointers to exported functions under CFI
-Date:   Mon, 12 Jul 2021 08:03:26 +0200
-Message-Id: <20210712060938.784238066@linuxfoundation.org>
+Subject: [PATCH 5.12 124/700] media: mdk-mdp: fix pm_runtime_get_sync() usage count
+Date:   Mon, 12 Jul 2021 08:03:27 +0200
+Message-Id: <20210712060942.513070398@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,85 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
+[ Upstream commit d07bb9702cf5f5ccf3fb661e6cab54bbc33cd23f ]
 
-crypto_shash_alg_has_setkey() is implemented by testing whether the
-.setkey() member of a struct shash_alg points to the default version,
-called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
-inline, this requires shash_no_setkey() to be exported to modules.
+The pm_runtime_get_sync() internally increments the
+dev->power.usage_count without decrementing it, even on errors.
+Replace it by the new pm_runtime_resume_and_get(), introduced by:
+commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
+in order to properly decrement the usage counter, avoiding
+a potential PM usage counter leak.
 
-Unfortunately, when building with CFI, function pointers are routed
-via CFI stubs which are private to each module (or to the kernel proper)
-and so this function pointer comparison may fail spuriously.
+While here, fix the return contition of mtk_mdp_m2m_start_streaming(),
+as it doesn't make any sense to return 0 if the PM runtime failed
+to resume.
 
-Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
-line function.
-
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/shash.c                 | 18 +++++++++++++++---
- include/crypto/internal/hash.h |  8 +-------
- 2 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/crypto/shash.c b/crypto/shash.c
-index 2e3433ad9762..0a0a50cb694f 100644
---- a/crypto/shash.c
-+++ b/crypto/shash.c
-@@ -20,12 +20,24 @@
+diff --git a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
+index ace4528cdc5e..f14779e7596e 100644
+--- a/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
++++ b/drivers/media/platform/mtk-mdp/mtk_mdp_m2m.c
+@@ -391,12 +391,12 @@ static int mtk_mdp_m2m_start_streaming(struct vb2_queue *q, unsigned int count)
+ 	struct mtk_mdp_ctx *ctx = q->drv_priv;
+ 	int ret;
  
- static const struct crypto_type crypto_shash_type;
+-	ret = pm_runtime_get_sync(&ctx->mdp_dev->pdev->dev);
++	ret = pm_runtime_resume_and_get(&ctx->mdp_dev->pdev->dev);
+ 	if (ret < 0)
+-		mtk_mdp_dbg(1, "[%d] pm_runtime_get_sync failed:%d",
++		mtk_mdp_dbg(1, "[%d] pm_runtime_resume_and_get failed:%d",
+ 			    ctx->id, ret);
  
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen)
-+static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
-+			   unsigned int keylen)
- {
- 	return -ENOSYS;
+-	return 0;
++	return ret;
  }
--EXPORT_SYMBOL_GPL(shash_no_setkey);
-+
-+/*
-+ * Check whether an shash algorithm has a setkey function.
-+ *
-+ * For CFI compatibility, this must not be an inline function.  This is because
-+ * when CFI is enabled, modules won't get the same address for shash_no_setkey
-+ * (if it were exported, which inlining would require) as the core kernel will.
-+ */
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
-+{
-+	return alg->setkey != shash_no_setkey;
-+}
-+EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
  
- static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
- 				  unsigned int keylen)
-diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
-index 0a288dddcf5b..25806141db59 100644
---- a/include/crypto/internal/hash.h
-+++ b/include/crypto/internal/hash.h
-@@ -75,13 +75,7 @@ void crypto_unregister_ahashes(struct ahash_alg *algs, int count);
- int ahash_register_instance(struct crypto_template *tmpl,
- 			    struct ahash_instance *inst);
- 
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen);
--
--static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
--{
--	return alg->setkey != shash_no_setkey;
--}
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
- 
- static inline bool crypto_shash_alg_needs_key(struct shash_alg *alg)
- {
+ static void *mtk_mdp_m2m_buf_remove(struct mtk_mdp_ctx *ctx,
 -- 
 2.30.2
 
