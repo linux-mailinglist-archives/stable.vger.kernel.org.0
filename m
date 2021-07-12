@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7F83C4B0A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD35E3C5035
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239514AbhGLGz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53956 "EHLO mail.kernel.org"
+        id S241338AbhGLHbm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241025AbhGLGya (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:54:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8876C61004;
-        Mon, 12 Jul 2021 06:51:39 +0000 (UTC)
+        id S1344054AbhGLH3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52B6F61006;
+        Mon, 12 Jul 2021 07:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072700;
-        bh=JiV23D7s319bQuMgVN3/RSbx9xSUP3/IuO9DjcHrKo4=;
+        s=korg; t=1626074687;
+        bh=h+uCLY5WebMdysL7D+A/LBInEOS1C7l8yD+elfE7Fug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRtZSMaFmOYVkn2KmqEjS20RfN5XMFNTq3u/662Hfj7/7v5j8yCHpkMOv5ovWb8Sa
-         C4jEGuScB/37LmcPsO5c+hindQZ9r8WgDz37AKURjdxU/OLrkc5aS73hPUpp+730XY
-         /uU3DG4vAtY0Zvzl14PENpAc6VmNByswySXGTtlo=
+        b=rE2WWqim6T8lwvSikR8Y7T1Ytsp+bNYgauJExhNTxWhZRNVGZvcLXv5PCvNG6Qbsq
+         d+w5zldrqSl0qa4ceUhK3S8LiiQxiuGD5zLUnjeqjxpXaXOYojfp+TjggSDOu5An9R
+         Mki9pzMOAgSpQLzm5dcKh0QLqw1qqybeUPE06teQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.10 585/593] fscrypt: fix derivation of SipHash keys on big endian CPUs
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 662/700] arm64: dts: marvell: armada-37xx: Fix reg for standard variant of UART
 Date:   Mon, 12 Jul 2021 08:12:25 +0200
-Message-Id: <20210712060959.756747733@linuxfoundation.org>
+Message-Id: <20210712061046.334128186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,98 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 2fc2b430f559fdf32d5d1dd5ceaa40e12fb77bdf upstream.
+[ Upstream commit 2cbfdedef39fb5994b8f1e1df068eb8440165975 ]
 
-Typically, the cryptographic APIs that fscrypt uses take keys as byte
-arrays, which avoids endianness issues.  However, siphash_key_t is an
-exception.  It is defined as 'u64 key[2];', i.e. the 128-bit key is
-expected to be given directly as two 64-bit words in CPU endianness.
+UART1 (standard variant with DT node name 'uart0') has register space
+0x12000-0x12018 and not whole size 0x200. So fix also this in example.
 
-fscrypt_derive_dirhash_key() and fscrypt_setup_iv_ino_lblk_32_key()
-forgot to take this into account.  Therefore, the SipHash keys used to
-index encrypted+casefolded directories differ on big endian vs. little
-endian platforms, as do the SipHash keys used to hash inode numbers for
-IV_INO_LBLK_32-encrypted directories.  This makes such directories
-non-portable between these platforms.
-
-Fix this by always using the little endian order.  This is a breaking
-change for big endian platforms, but this should be fine in practice
-since these features (encrypt+casefold support, and the IV_INO_LBLK_32
-flag) aren't known to actually be used on any big endian platforms yet.
-
-Fixes: aa408f835d02 ("fscrypt: derive dirhash key for casefolded directories")
-Fixes: e3b1078bedd3 ("fscrypt: add support for IV_INO_LBLK_32 policies")
-Cc: <stable@vger.kernel.org> # v5.6+
-Link: https://lore.kernel.org/r/20210605075033.54424-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: c737abc193d1 ("arm64: dts: marvell: Fix A37xx UART0 register size")
+Link: https://lore.kernel.org/r/20210624224909.6350-6-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/keysetup.c |   40 ++++++++++++++++++++++++++++++++--------
- 1 file changed, 32 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/crypto/keysetup.c
-+++ b/fs/crypto/keysetup.c
-@@ -210,15 +210,40 @@ out_unlock:
- 	return err;
- }
+diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+index 456dcd4a7793..6ffbb099fcac 100644
+--- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
++++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
+@@ -134,7 +134,7 @@
  
-+/*
-+ * Derive a SipHash key from the given fscrypt master key and the given
-+ * application-specific information string.
-+ *
-+ * Note that the KDF produces a byte array, but the SipHash APIs expect the key
-+ * as a pair of 64-bit words.  Therefore, on big endian CPUs we have to do an
-+ * endianness swap in order to get the same results as on little endian CPUs.
-+ */
-+static int fscrypt_derive_siphash_key(const struct fscrypt_master_key *mk,
-+				      u8 context, const u8 *info,
-+				      unsigned int infolen, siphash_key_t *key)
-+{
-+	int err;
-+
-+	err = fscrypt_hkdf_expand(&mk->mk_secret.hkdf, context, info, infolen,
-+				  (u8 *)key, sizeof(*key));
-+	if (err)
-+		return err;
-+
-+	BUILD_BUG_ON(sizeof(*key) != 16);
-+	BUILD_BUG_ON(ARRAY_SIZE(key->key) != 2);
-+	le64_to_cpus(&key->key[0]);
-+	le64_to_cpus(&key->key[1]);
-+	return 0;
-+}
-+
- int fscrypt_derive_dirhash_key(struct fscrypt_info *ci,
- 			       const struct fscrypt_master_key *mk)
- {
- 	int err;
- 
--	err = fscrypt_hkdf_expand(&mk->mk_secret.hkdf, HKDF_CONTEXT_DIRHASH_KEY,
--				  ci->ci_nonce, FSCRYPT_FILE_NONCE_SIZE,
--				  (u8 *)&ci->ci_dirhash_key,
--				  sizeof(ci->ci_dirhash_key));
-+	err = fscrypt_derive_siphash_key(mk, HKDF_CONTEXT_DIRHASH_KEY,
-+					 ci->ci_nonce, FSCRYPT_FILE_NONCE_SIZE,
-+					 &ci->ci_dirhash_key);
- 	if (err)
- 		return err;
- 	ci->ci_dirhash_key_initialized = true;
-@@ -253,10 +278,9 @@ static int fscrypt_setup_iv_ino_lblk_32_
- 		if (mk->mk_ino_hash_key_initialized)
- 			goto unlock;
- 
--		err = fscrypt_hkdf_expand(&mk->mk_secret.hkdf,
--					  HKDF_CONTEXT_INODE_HASH_KEY, NULL, 0,
--					  (u8 *)&mk->mk_ino_hash_key,
--					  sizeof(mk->mk_ino_hash_key));
-+		err = fscrypt_derive_siphash_key(mk,
-+						 HKDF_CONTEXT_INODE_HASH_KEY,
-+						 NULL, 0, &mk->mk_ino_hash_key);
- 		if (err)
- 			goto unlock;
- 		/* pairs with smp_load_acquire() above */
+ 			uart0: serial@12000 {
+ 				compatible = "marvell,armada-3700-uart";
+-				reg = <0x12000 0x200>;
++				reg = <0x12000 0x18>;
+ 				clocks = <&xtalclk>;
+ 				interrupts =
+ 				<GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+-- 
+2.30.2
+
 
 
