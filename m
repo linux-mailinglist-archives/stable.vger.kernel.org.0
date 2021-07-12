@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5C5E3C4F8D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E743C5532
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242013AbhGLH0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34084 "EHLO mail.kernel.org"
+        id S1355396AbhGLIJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343517AbhGLHYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:24:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E15E861416;
-        Mon, 12 Jul 2021 07:21:01 +0000 (UTC)
+        id S1353133AbhGLIBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37C6E61C50;
+        Mon, 12 Jul 2021 07:54:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074462;
-        bh=1MIAf3d4QGmYMvT3UMfZo+tSyjLWakCaiTgLJlb/o8M=;
+        s=korg; t=1626076459;
+        bh=Q2FOvnjICuD6VGslWPL85LRcJm03rb1WO9PQ2VacMHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7JSYQnoXmUMuA+N7y7OaDqVV2qkSwUK9iHSt5d12j3PkGP24e6lROVOPjw0xbOIX
-         zixHuw9LDu7Xow6C6IW5XqCk2Pq3BYzqvgBtHYum0sJKS9UaUgYWkaNlse4eO/pKhE
-         sWfyW3eHEtWl+4EVxFjSLPfPsOru2RKqvgK9VN7Y=
+        b=BUq/zmCJJkTZCrwGiP+sQn+8mdaz2a6deBwjFAJaK+V/k9FMNZrSPBVQv+C0fRVWU
+         j39h4rFrSE87waIFtbZ0RZ02Bcq4y9OUGhb9REyMkbWnBaFqRiTkkmRDbO/WHpTnrL
+         z8VXaYsRDw8R0Jd55C5NlMfgZs85H8rxOC0ZTarg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joachim Fenkes <fenkes@de.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 589/700] fsi/sbefifo: Fix reset timeout
-Date:   Mon, 12 Jul 2021 08:11:12 +0200
-Message-Id: <20210712061038.656769066@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 650/800] misc/pvpanic-pci: Fix error handling in pvpanic_pci_probe()
+Date:   Mon, 12 Jul 2021 08:11:13 +0200
+Message-Id: <20210712061036.174665211@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joachim Fenkes <FENKES@de.ibm.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9ab1428dfe2c66b51e0b41337cd0164da0ab6080 ]
+[ Upstream commit 372dae89972594393b57f29ec44e351fa7eedbbe ]
 
-On BMCs with lower timer resolution than 1ms, msleep(1) will take
-way longer than 1ms, so looping 10k times won't wait for 10s but
-significantly longer.
+There is no error handling path in the probe function.
+Switch to managed resource so that errors in the probe are handled easily
+and simplify the remove function accordingly.
 
-Fix this by using jiffies like the rest of the code.
-
-Fixes: 9f4a8a2d7f9d ("fsi/sbefifo: Add driver for the SBE FIFO")
-Signed-off-by: Joachim Fenkes <fenkes@de.ibm.com>
-Link: https://lore.kernel.org/r/20200724071518.430515-3-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: db3a4f0abefd ("misc/pvpanic: add PCI driver")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/ab071b1f4ed6e1174f9199095fb16a58bb406090.1621665058.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-sbefifo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/misc/pvpanic/pvpanic-pci.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/fsi/fsi-sbefifo.c b/drivers/fsi/fsi-sbefifo.c
-index de27c435d706..84cb965bfed5 100644
---- a/drivers/fsi/fsi-sbefifo.c
-+++ b/drivers/fsi/fsi-sbefifo.c
-@@ -325,7 +325,8 @@ static int sbefifo_up_write(struct sbefifo *sbefifo, __be32 word)
- static int sbefifo_request_reset(struct sbefifo *sbefifo)
- {
- 	struct device *dev = &sbefifo->fsi_dev->dev;
--	u32 status, timeout;
-+	unsigned long end_time;
-+	u32 status;
- 	int rc;
+diff --git a/drivers/misc/pvpanic/pvpanic-pci.c b/drivers/misc/pvpanic/pvpanic-pci.c
+index 9ecc4e8559d5..046ce4ecc195 100644
+--- a/drivers/misc/pvpanic/pvpanic-pci.c
++++ b/drivers/misc/pvpanic/pvpanic-pci.c
+@@ -78,15 +78,15 @@ static int pvpanic_pci_probe(struct pci_dev *pdev,
+ 	void __iomem *base;
+ 	int ret;
  
- 	dev_dbg(dev, "Requesting FIFO reset\n");
-@@ -341,7 +342,8 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 	}
+-	ret = pci_enable_device(pdev);
++	ret = pcim_enable_device(pdev);
+ 	if (ret < 0)
+ 		return ret;
  
- 	/* Wait for it to complete */
--	for (timeout = 0; timeout < SBEFIFO_RESET_TIMEOUT; timeout++) {
-+	end_time = jiffies + msecs_to_jiffies(SBEFIFO_RESET_TIMEOUT);
-+	while (!time_after(jiffies, end_time)) {
- 		rc = sbefifo_regr(sbefifo, SBEFIFO_UP | SBEFIFO_STS, &status);
- 		if (rc) {
- 			dev_err(dev, "Failed to read UP fifo status during reset"
-@@ -355,7 +357,7 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 			return 0;
- 		}
+-	base = pci_iomap(pdev, 0, 0);
++	base = pcim_iomap(pdev, 0, 0);
+ 	if (!base)
+ 		return -ENOMEM;
  
--		msleep(1);
-+		cond_resched();
- 	}
- 	dev_err(dev, "FIFO reset timed out\n");
+-	pi = kmalloc(sizeof(*pi), GFP_ATOMIC);
++	pi = devm_kmalloc(&pdev->dev, sizeof(*pi), GFP_ATOMIC);
+ 	if (!pi)
+ 		return -ENOMEM;
  
+@@ -107,9 +107,6 @@ static void pvpanic_pci_remove(struct pci_dev *pdev)
+ 	struct pvpanic_instance *pi = dev_get_drvdata(&pdev->dev);
+ 
+ 	pvpanic_remove(pi);
+-	iounmap(pi->base);
+-	kfree(pi);
+-	pci_disable_device(pdev);
+ }
+ 
+ static struct pci_driver pvpanic_pci_driver = {
 -- 
 2.30.2
 
