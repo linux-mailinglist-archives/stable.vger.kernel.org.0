@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7593C3C4A2F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A04063C4A5A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238661AbhGLGtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:49:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48246 "EHLO mail.kernel.org"
+        id S238156AbhGLGwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235637AbhGLGsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235650AbhGLGsc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:48:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF3C61176;
-        Mon, 12 Jul 2021 06:44:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 011166100B;
+        Mon, 12 Jul 2021 06:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072241;
-        bh=K0Ba+b9ShYxOT22LwJI8dfzdCnivQUcC+kz5zXEwsTk=;
+        s=korg; t=1626072243;
+        bh=c5j3EHFQ1Uz2hO9RdP9Fr7Er0U4ZMMPMDvUCIvdSMgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV2whfzEwuqJWViUvQG5g/eokYGgZ72WBMaDZaVys5bPdM37AuOA0hps2v4rrxGz6
-         vwyjCPgw4daNYk01HFu4a7TFQfb9xLoXJ0DQd0vplu3r7HAyc4mWJbAGj4p736wFLH
-         eSduvbEnwn1rptpCrpmZxAhGu6X+vHWmXzeJ2GeA=
+        b=GOzrsBGcZ3bFdOVYESboEjagv8E8pYcR1jjobeF6Bxhw3gG6ceLM5W4r28s0ReExw
+         AjcO1KIKDP0U9ZjSizH+/XCVmDd19vw6Rm1fq0ZAXZa8WtxwjxyOK3o2N6x7F0GWAi
+         2wfdWU2LYRIf8Lp8VHfiy/L+RCm5F/DoV9WG5LWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 413/593] Bluetooth: mgmt: Fix slab-out-of-bounds in tlv_data_is_valid
-Date:   Mon, 12 Jul 2021 08:09:33 +0200
-Message-Id: <20210712060933.424344766@linuxfoundation.org>
+Subject: [PATCH 5.10 414/593] Bluetooth: Fix not sending Set Extended Scan Response
+Date:   Mon, 12 Jul 2021 08:09:34 +0200
+Message-Id: <20210712060933.575604580@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -43,61 +44,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 799acb9347915bfe4eac0ff2345b468f0a1ca207 ]
+[ Upstream commit a76a0d365077711594ce200a9553ed6d1ff40276 ]
 
-This fixes parsing of LTV entries when the length is 0.
+Current code is actually failing on the following tests of mgmt-tester
+because get_adv_instance_scan_rsp_len did not account for flags that
+cause scan response data to be included resulting in non-scannable
+instance when in fact it should be scannable.
 
-Found with:
-
-tools/mgmt-tester -s "Add Advertising - Success (ScRsp only)"
-
-Add Advertising - Success (ScRsp only) - run
-  Sending Add Advertising (0x003e)
-  Test condition added, total 1
-[   11.004577] ==================================================================
-[   11.005292] BUG: KASAN: slab-out-of-bounds in tlv_data_is_valid+0x87/0xe0
-[   11.005984] Read of size 1 at addr ffff888002c695b0 by task mgmt-tester/87
-[   11.006711]
-[   11.007176]
-[   11.007429] Allocated by task 87:
-[   11.008151]
-[   11.008438] The buggy address belongs to the object at ffff888002c69580
-[   11.008438]  which belongs to the cache kmalloc-64 of size 64
-[   11.010526] The buggy address is located 48 bytes inside of
-[   11.010526]  64-byte region [ffff888002c69580, ffff888002c695c0)
-[   11.012423] The buggy address belongs to the page:
-[   11.013291]
-[   11.013544] Memory state around the buggy address:
-[   11.014359]  ffff888002c69480: fa fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[   11.015453]  ffff888002c69500: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[   11.016232] >ffff888002c69580: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
-[   11.017010]                                      ^
-[   11.017547]  ffff888002c69600: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
-[   11.018296]  ffff888002c69680: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-[   11.019116] ==================================================================
-
-Fixes: 2bb36870e8cb2 ("Bluetooth: Unify advertising instance flags check")
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Johan Hedberg <johan.hedberg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bluetooth/hci_request.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 12d7b368b428..13520c7b4f2f 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -7350,6 +7350,9 @@ static bool tlv_data_is_valid(struct hci_dev *hdev, u32 adv_flags, u8 *data,
- 	for (i = 0, cur_len = 0; i < len; i += (cur_len + 1)) {
- 		cur_len = data[i];
+diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
+index 161ea93a5382..33dc78c24b73 100644
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -1060,9 +1060,10 @@ static u8 get_adv_instance_scan_rsp_len(struct hci_dev *hdev, u8 instance)
+ 	if (!adv_instance)
+ 		return 0;
  
-+		if (!cur_len)
-+			continue;
+-	/* TODO: Take into account the "appearance" and "local-name" flags here.
+-	 * These are currently being ignored as they are not supported.
+-	 */
++	if (adv_instance->flags & MGMT_ADV_FLAG_APPEARANCE ||
++	    adv_instance->flags & MGMT_ADV_FLAG_LOCAL_NAME)
++		return 1;
 +
- 		if (data[i + 1] == EIR_FLAGS &&
- 		    (!is_adv_data || flags_managed(adv_flags)))
- 			return false;
+ 	return adv_instance->scan_rsp_len;
+ }
+ 
+@@ -1599,14 +1600,11 @@ void __hci_req_update_scan_rsp_data(struct hci_request *req, u8 instance)
+ 
+ 		memset(&cp, 0, sizeof(cp));
+ 
+-		/* Extended scan response data doesn't allow a response to be
+-		 * set if the instance isn't scannable.
+-		 */
+-		if (get_adv_instance_scan_rsp_len(hdev, instance))
++		if (instance)
+ 			len = create_instance_scan_rsp_data(hdev, instance,
+ 							    cp.data);
+ 		else
+-			len = 0;
++			len = create_default_scan_rsp_data(hdev, cp.data);
+ 
+ 		if (hdev->scan_rsp_data_len == len &&
+ 		    !memcmp(cp.data, hdev->scan_rsp_data, len))
 -- 
 2.30.2
 
