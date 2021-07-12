@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62CFB3C523A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B423C4CB6
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349975AbhGLHpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50354 "EHLO mail.kernel.org"
+        id S242787AbhGLHG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241121AbhGLHmO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:42:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37489601FE;
-        Mon, 12 Jul 2021 07:39:24 +0000 (UTC)
+        id S243743AbhGLHFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45EE6610E6;
+        Mon, 12 Jul 2021 07:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075564;
-        bh=qTMTGeV9ciYP7Qn8FcEjRuogBwwuHoI6ciBk60nevYQ=;
+        s=korg; t=1626073345;
+        bh=/mlBgjLpCmir+GAFLdIA8jQhJAn39RGTZg9072fEMa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M309S8M0SMRocpJ2faZOiJnCvuFK+647jrcr19U4IHOIL6Tdsq2SlvA+a/WJy6Y7Y
-         4bo7jyy27Tm1oYkJWNh1mI81mnyp32lk4CrRoAIhiVhJoxzcD6oXd60+FGdXrG8Te2
-         yi/0D9Qex20P7jHiW68oiGDCFIdvgXQuY3ZI+O0o=
+        b=IvOj90A8o+HJIjoRdOJHR1cxmuqyrmGFf57yeJDeacuDNHv4LOB5TcunslNQAZHwR
+         hPH3lBUiz1r7lXVqgOg9/VhYrZouDj1o3XLIGFALAGyY4oprxeNM6D5PkOihLcPZp/
+         crXoyM4FK4d+yEbX07PLtnp1DCbtvWD4UxSg/eqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        David Jeffery <djeffery@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 268/800] spi: Avoid undefined behaviour when counting unused native CSs
+Subject: [PATCH 5.12 208/700] blk-mq: clear stale request in tags->rq[] before freeing one request pool
 Date:   Mon, 12 Jul 2021 08:04:51 +0200
-Message-Id: <20210712060952.435549469@linuxfoundation.org>
+Message-Id: <20210712060956.285260426@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit f60d7270c8a3d2beb1c23ae0da42497afa3584c2 ]
+[ Upstream commit bd63141d585bef14f4caf111f6d0e27fe2300ec6 ]
 
-ffz(), that has been used to count unused native CSs,
-might cause undefined behaviour when called against ~0U.
-To fix that, open code it with ffs(~value) - 1.
+refcount_inc_not_zero() in bt_tags_iter() still may read one freed
+request.
 
-Fixes: 7d93aecdb58d ("spi: Add generic support for unused native cs with cs-gpios")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210420164425.40287-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix the issue by the following approach:
+
+1) hold a per-tags spinlock when reading ->rqs[tag] and calling
+refcount_inc_not_zero in bt_tags_iter()
+
+2) clearing stale request referred via ->rqs[tag] before freeing
+request pool, the per-tags spinlock is held for clearing stale
+->rq[tag]
+
+So after we cleared stale requests, bt_tags_iter() won't observe
+freed request any more, also the clearing will wait for pending
+request reference.
+
+The idea of clearing ->rqs[] is borrowed from John Garry's previous
+patch and one recent David's patch.
+
+Tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: David Jeffery <djeffery@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210511152236.763464-4-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-mq-tag.c |  9 +++++++--
+ block/blk-mq-tag.h |  6 ++++++
+ block/blk-mq.c     | 46 +++++++++++++++++++++++++++++++++++++++++-----
+ 3 files changed, 54 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index ae04ae79e56a..56c173869d97 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2622,7 +2622,7 @@ static int spi_get_gpio_descs(struct spi_controller *ctlr)
- 		native_cs_mask |= BIT(i);
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index 6772c3728865..c4f2f6c123ae 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -202,10 +202,14 @@ struct bt_iter_data {
+ static struct request *blk_mq_find_and_get_req(struct blk_mq_tags *tags,
+ 		unsigned int bitnr)
+ {
+-	struct request *rq = tags->rqs[bitnr];
++	struct request *rq;
++	unsigned long flags;
+ 
++	spin_lock_irqsave(&tags->lock, flags);
++	rq = tags->rqs[bitnr];
+ 	if (!rq || !refcount_inc_not_zero(&rq->ref))
+-		return NULL;
++		rq = NULL;
++	spin_unlock_irqrestore(&tags->lock, flags);
+ 	return rq;
+ }
+ 
+@@ -538,6 +542,7 @@ struct blk_mq_tags *blk_mq_init_tags(unsigned int total_tags,
+ 
+ 	tags->nr_tags = total_tags;
+ 	tags->nr_reserved_tags = reserved_tags;
++	spin_lock_init(&tags->lock);
+ 
+ 	if (flags & BLK_MQ_F_TAG_HCTX_SHARED)
+ 		return tags;
+diff --git a/block/blk-mq-tag.h b/block/blk-mq-tag.h
+index 7d3e6b333a4a..f887988e5ef6 100644
+--- a/block/blk-mq-tag.h
++++ b/block/blk-mq-tag.h
+@@ -20,6 +20,12 @@ struct blk_mq_tags {
+ 	struct request **rqs;
+ 	struct request **static_rqs;
+ 	struct list_head page_list;
++
++	/*
++	 * used to clear request reference in rqs[] before freeing one
++	 * request pool
++	 */
++	spinlock_t lock;
+ };
+ 
+ extern struct blk_mq_tags *blk_mq_init_tags(unsigned int nr_tags,
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index d5370ab2eb31..d06ff908f3d9 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2291,6 +2291,45 @@ queue_exit:
+ 	return BLK_QC_T_NONE;
+ }
+ 
++static size_t order_to_size(unsigned int order)
++{
++	return (size_t)PAGE_SIZE << order;
++}
++
++/* called before freeing request pool in @tags */
++static void blk_mq_clear_rq_mapping(struct blk_mq_tag_set *set,
++		struct blk_mq_tags *tags, unsigned int hctx_idx)
++{
++	struct blk_mq_tags *drv_tags = set->tags[hctx_idx];
++	struct page *page;
++	unsigned long flags;
++
++	list_for_each_entry(page, &tags->page_list, lru) {
++		unsigned long start = (unsigned long)page_address(page);
++		unsigned long end = start + order_to_size(page->private);
++		int i;
++
++		for (i = 0; i < set->queue_depth; i++) {
++			struct request *rq = drv_tags->rqs[i];
++			unsigned long rq_addr = (unsigned long)rq;
++
++			if (rq_addr >= start && rq_addr < end) {
++				WARN_ON_ONCE(refcount_read(&rq->ref) != 0);
++				cmpxchg(&drv_tags->rqs[i], rq, NULL);
++			}
++		}
++	}
++
++	/*
++	 * Wait until all pending iteration is done.
++	 *
++	 * Request reference is cleared and it is guaranteed to be observed
++	 * after the ->lock is released.
++	 */
++	spin_lock_irqsave(&drv_tags->lock, flags);
++	spin_unlock_irqrestore(&drv_tags->lock, flags);
++}
++
+ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		     unsigned int hctx_idx)
+ {
+@@ -2309,6 +2348,8 @@ void blk_mq_free_rqs(struct blk_mq_tag_set *set, struct blk_mq_tags *tags,
+ 		}
  	}
  
--	ctlr->unused_native_cs = ffz(native_cs_mask);
-+	ctlr->unused_native_cs = ffs(~native_cs_mask) - 1;
++	blk_mq_clear_rq_mapping(set, tags, hctx_idx);
++
+ 	while (!list_empty(&tags->page_list)) {
+ 		page = list_first_entry(&tags->page_list, struct page, lru);
+ 		list_del_init(&page->lru);
+@@ -2368,11 +2409,6 @@ struct blk_mq_tags *blk_mq_alloc_rq_map(struct blk_mq_tag_set *set,
+ 	return tags;
+ }
  
- 	if ((ctlr->flags & SPI_MASTER_GPIO_SS) && num_cs_gpios &&
- 	    ctlr->max_native_cs && ctlr->unused_native_cs >= ctlr->max_native_cs) {
+-static size_t order_to_size(unsigned int order)
+-{
+-	return (size_t)PAGE_SIZE << order;
+-}
+-
+ static int blk_mq_init_request(struct blk_mq_tag_set *set, struct request *rq,
+ 			       unsigned int hctx_idx, int node)
+ {
 -- 
 2.30.2
 
