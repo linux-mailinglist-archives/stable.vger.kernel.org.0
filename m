@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E12A3C4CAB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEA503C523B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242396AbhGLHGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40494 "EHLO mail.kernel.org"
+        id S1349971AbhGLHpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243837AbhGLHFT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:05:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2845261152;
-        Mon, 12 Jul 2021 07:02:30 +0000 (UTC)
+        id S244140AbhGLHmS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC42861158;
+        Mon, 12 Jul 2021 07:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073351;
-        bh=+7mU4Z0yAsxln+wq4nJ1jQzGwlMOiI8KrVghTM5I2dg=;
+        s=korg; t=1626075569;
+        bh=U0O14NrXACBSK7rFxbwEOy4mIvgVCNB8sB5mzb6xcBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYrjHKAaAH3Lj5FVS8avD7fJ87PoWMizQyQCq1zp+cp1IxUUD8+MNP9PGNkPiqyb1
-         k3u8BPL3RFe+pHeNUPUnvZ2Pl3O337V9j6f7VQoMebNqkdS7ETnLBaVEzWQ8avqKWW
-         i+y98Vi1vYYWbiDxGAjHz6FEkHqU1Ti6UdXPVV6A=
+        b=jP2iZ26k5yPQmhGVq0NFi3Gvql3EspcTrYjaUS5fybOoqEiSsLkzUCm7A3MbWBcKZ
+         s4ahUSISY5zVZHLB3Pd/z0ypkOwAk303VFoza7cjWO2MjNyes2ZK0+Lmyd34QfIsP8
+         nNbg0xghBpvzK8AzZaki9a5V/yGi0pR1xcgIfNvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 210/700] fs: dlm: cancel work sync othercon
+Subject: [PATCH 5.13 270/800] media: s5p_cec: decrement usage count if disabled
 Date:   Mon, 12 Jul 2021 08:04:53 +0200
-Message-Id: <20210712060956.559252972@linuxfoundation.org>
+Message-Id: <20210712060952.814942309@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit c6aa00e3d20c2767ba3f57b64eb862572b9744b3 ]
+[ Upstream commit 747bad54a677d8633ec14b39dfbeb859c821d7f2 ]
 
-These rx tx flags arguments are for signaling close_connection() from
-which worker they are called. Obviously the receive worker cannot cancel
-itself and vice versa for swork. For the othercon the receive worker
-should only be used, however to avoid deadlocks we should pass the same
-flags as the original close_connection() was called.
+There's a bug at s5p_cec_adap_enable(): if called to
+disable the device, it should call pm_runtime_put()
+instead of pm_runtime_disable(), as the goal here is to
+decrement the usage_count and not to disable PM runtime.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Reported-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 1bcbf6f4b6b0 ("[media] cec: s5p-cec: Add s5p-cec driver")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 2 +-
+ drivers/media/cec/platform/s5p/s5p_cec.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 01b672cee783..7e6736c70e11 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -714,7 +714,7 @@ static void close_connection(struct connection *con, bool and_other,
- 
- 	if (con->othercon && and_other) {
- 		/* Will only re-enter once. */
--		close_connection(con->othercon, false, true, true);
-+		close_connection(con->othercon, false, tx, rx);
+diff --git a/drivers/media/cec/platform/s5p/s5p_cec.c b/drivers/media/cec/platform/s5p/s5p_cec.c
+index 2250c1cbc64e..028a09a7531e 100644
+--- a/drivers/media/cec/platform/s5p/s5p_cec.c
++++ b/drivers/media/cec/platform/s5p/s5p_cec.c
+@@ -54,7 +54,7 @@ static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
+ 	} else {
+ 		s5p_cec_mask_tx_interrupts(cec);
+ 		s5p_cec_mask_rx_interrupts(cec);
+-		pm_runtime_disable(cec->dev);
++		pm_runtime_put(cec->dev);
  	}
  
- 	con->rx_leftover = 0;
+ 	return 0;
 -- 
 2.30.2
 
