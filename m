@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A4033C5566
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3620B3C4B0F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355660AbhGLIKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
+        id S239634AbhGLGz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353613AbhGLICh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA1261CE6;
-        Mon, 12 Jul 2021 07:55:56 +0000 (UTC)
+        id S233379AbhGLGxF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:53:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DDF361283;
+        Mon, 12 Jul 2021 06:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076557;
-        bh=ehRpfKfH7BBIv3Z8i4w+1TvsMGvFDTXLdyXaaUQSr+k=;
+        s=korg; t=1626072617;
+        bh=YKAMSYzA1036o9x61Hxa0VrxHLMVvLdRs/KNHYKJQgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQALmorJ88y7MR0efC+Yzs6qZrtMr/bgnRThwXAUfV1E6bLd1lnJ036ZzkQ9Ohdy3
-         uGHIFlcwqmbCun4pXvzdJO5NUodgJBI48m4vuRiCCAe+ZWjOFozYLoak3zbFXPxL2j
-         DXQ2qnaACv73Q0uZaZQH7YIBzh8iP+2axF8lJtQA=
+        b=CslTnn1JDxCt3W9Dy3Di8Fyl0TwlCdrVV8gm7+VPkJZhOxOz9Yim0hBY5HNyeNLuv
+         +pPkbE/rX+4UPl0zkZy258CJlMS9x1vrJ2oYjRzv3BPbAMp/tm2rlR2nC03IGklDyO
+         fxJTS8BKC2iouOcPdMzPaxByVoBkRPeSIY/8YEwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Yu <jack.yu@realtek.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 693/800] ASoC: rt715-sdca: fix clock stop prepare timeout issue
+Subject: [PATCH 5.10 556/593] powerpc/papr_scm: Make perf_stats invisible if perf-stats unavailable
 Date:   Mon, 12 Jul 2021 08:11:56 +0200
-Message-Id: <20210712061040.564835763@linuxfoundation.org>
+Message-Id: <20210712060955.652625073@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,79 +41,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Yu <jack.yu@realtek.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit e343d34a9c912fc5c321e2a9fbc02e9dc9534ade ]
+[ Upstream commit ed78f56e1271f108e8af61baeba383dcd77adbec ]
 
-Fix clock stop prepare timeout issue (#2853).
-The trigger of internal circuit which belong to
-“SDCA preset stuffs” was not set correctly in previous driver,
-which could block clock_stop_preparation state.
-Add the correct register setting to fix it.
+In case performance stats for an nvdimm are not available, reading the
+'perf_stats' sysfs file returns an -ENOENT error. A better approach is
+to make the 'perf_stats' file entirely invisible to indicate that
+performance stats for an nvdimm are unavailable.
 
-Fixes: 20d17057f0a8c ('ASoC: rt715-sdca: Add RT715 sdca vendor-specific driver')
-Signed-off-by: Jack Yu <jack.yu@realtek.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-12-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So this patch updates 'papr_nd_attribute_group' to add a 'is_visible'
+callback implemented as newly introduced 'papr_nd_attribute_visible()'
+that returns an appropriate mode in case performance stats aren't
+supported in a given nvdimm.
+
+Also the initialization of 'papr_scm_priv.stat_buffer_len' is moved
+from papr_scm_nvdimm_init() to papr_scm_probe() so that it value is
+available when 'papr_nd_attribute_visible()' is called during nvdimm
+initialization.
+
+Even though 'perf_stats' attribute is available since v5.9, there are
+no known user-space tools/scripts that are dependent on presence of its
+sysfs file. Hence I dont expect any user-space breakage with this
+patch.
+
+Fixes: 2d02bf835e57 ("powerpc/papr_scm: Fetch nvdimm performance stats from PHYP")
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210513092349.285021-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt715-sdca-sdw.c | 1 +
- sound/soc/codecs/rt715-sdca-sdw.h | 1 +
- sound/soc/codecs/rt715-sdca.c     | 3 +++
- sound/soc/codecs/rt715-sdca.h     | 1 +
- 4 files changed, 6 insertions(+)
+ Documentation/ABI/testing/sysfs-bus-papr-pmem |  8 +++--
+ arch/powerpc/platforms/pseries/papr_scm.c     | 35 +++++++++++++------
+ 2 files changed, 29 insertions(+), 14 deletions(-)
 
-diff --git a/sound/soc/codecs/rt715-sdca-sdw.c b/sound/soc/codecs/rt715-sdca-sdw.c
-index 7646bbe739f1..a5c673f43d82 100644
---- a/sound/soc/codecs/rt715-sdca-sdw.c
-+++ b/sound/soc/codecs/rt715-sdca-sdw.c
-@@ -70,6 +70,7 @@ static bool rt715_sdca_mbq_readable_register(struct device *dev, unsigned int re
- 	case 0x2000036:
- 	case 0x2000037:
- 	case 0x2000039:
-+	case 0x2000044:
- 	case 0x6100000:
- 		return true;
- 	default:
-diff --git a/sound/soc/codecs/rt715-sdca-sdw.h b/sound/soc/codecs/rt715-sdca-sdw.h
-index cd365bb60747..0cbc14844f8c 100644
---- a/sound/soc/codecs/rt715-sdca-sdw.h
-+++ b/sound/soc/codecs/rt715-sdca-sdw.h
-@@ -113,6 +113,7 @@ static const struct reg_default rt715_mbq_reg_defaults_sdca[] = {
- 	{ 0x2000036, 0x0000 },
- 	{ 0x2000037, 0x0000 },
- 	{ 0x2000039, 0xaa81 },
-+	{ 0x2000044, 0x0202 },
- 	{ 0x6100000, 0x0100 },
- 	{ SDW_SDCA_CTL(FUN_MIC_ARRAY, RT715_SDCA_FU_ADC8_9_VOL,
- 		RT715_SDCA_FU_VOL_CTRL, CH_01), 0x00 },
-diff --git a/sound/soc/codecs/rt715-sdca.c b/sound/soc/codecs/rt715-sdca.c
-index d82166f1a378..66e166568c50 100644
---- a/sound/soc/codecs/rt715-sdca.c
-+++ b/sound/soc/codecs/rt715-sdca.c
-@@ -1054,6 +1054,9 @@ int rt715_sdca_io_init(struct device *dev, struct sdw_slave *slave)
- 		rt715_sdca_index_update_bits(rt715, RT715_VENDOR_REG,
- 			RT715_REV_1, 0x40, 0x40);
- 	}
-+	/* DFLL Calibration trigger */
-+	rt715_sdca_index_update_bits(rt715, RT715_VENDOR_REG,
-+			RT715_DFLL_VAD, 0x1, 0x1);
- 	/* trigger mode = VAD enable */
- 	regmap_write(rt715->regmap,
- 		SDW_SDCA_CTL(FUN_MIC_ARRAY, RT715_SDCA_SMPU_TRIG_ST_EN,
-diff --git a/sound/soc/codecs/rt715-sdca.h b/sound/soc/codecs/rt715-sdca.h
-index 0c1fdd5bc7ca..90881b455ece 100644
---- a/sound/soc/codecs/rt715-sdca.h
-+++ b/sound/soc/codecs/rt715-sdca.h
-@@ -81,6 +81,7 @@ struct rt715_sdca_kcontrol_private {
- #define RT715_AD_FUNC_EN				0x36
- #define RT715_REV_1					0x37
- #define RT715_SDW_INPUT_SEL				0x39
-+#define RT715_DFLL_VAD					0x44
- #define RT715_EXT_DMIC_CLK_CTRL2			0x54
+diff --git a/Documentation/ABI/testing/sysfs-bus-papr-pmem b/Documentation/ABI/testing/sysfs-bus-papr-pmem
+index 8316c33862a0..0aa02bf2bde5 100644
+--- a/Documentation/ABI/testing/sysfs-bus-papr-pmem
++++ b/Documentation/ABI/testing/sysfs-bus-papr-pmem
+@@ -39,9 +39,11 @@ KernelVersion:	v5.9
+ Contact:	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-nvdimm@lists.01.org,
+ Description:
+ 		(RO) Report various performance stats related to papr-scm NVDIMM
+-		device.  Each stat is reported on a new line with each line
+-		composed of a stat-identifier followed by it value. Below are
+-		currently known dimm performance stats which are reported:
++		device. This attribute is only available for NVDIMM devices
++		that support reporting NVDIMM performance stats. Each stat is
++		reported on a new line with each line composed of a
++		stat-identifier followed by it value. Below are currently known
++		dimm performance stats which are reported:
  
- /* Index (NID:61h) */
+ 		* "CtlResCt" : Controller Reset Count
+ 		* "CtlResTm" : Controller Reset Elapsed Time
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 0693bc8d70ac..057acbb9116d 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -868,6 +868,20 @@ static ssize_t flags_show(struct device *dev,
+ }
+ DEVICE_ATTR_RO(flags);
+ 
++static umode_t papr_nd_attribute_visible(struct kobject *kobj,
++					 struct attribute *attr, int n)
++{
++	struct device *dev = kobj_to_dev(kobj);
++	struct nvdimm *nvdimm = to_nvdimm(dev);
++	struct papr_scm_priv *p = nvdimm_provider_data(nvdimm);
++
++	/* For if perf-stats not available remove perf_stats sysfs */
++	if (attr == &dev_attr_perf_stats.attr && p->stat_buffer_len == 0)
++		return 0;
++
++	return attr->mode;
++}
++
+ /* papr_scm specific dimm attributes */
+ static struct attribute *papr_nd_attributes[] = {
+ 	&dev_attr_flags.attr,
+@@ -877,6 +891,7 @@ static struct attribute *papr_nd_attributes[] = {
+ 
+ static struct attribute_group papr_nd_attribute_group = {
+ 	.name = "papr",
++	.is_visible = papr_nd_attribute_visible,
+ 	.attrs = papr_nd_attributes,
+ };
+ 
+@@ -892,7 +907,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
+ 	struct nd_region_desc ndr_desc;
+ 	unsigned long dimm_flags;
+ 	int target_nid, online_nid;
+-	ssize_t stat_size;
+ 
+ 	p->bus_desc.ndctl = papr_scm_ndctl;
+ 	p->bus_desc.module = THIS_MODULE;
+@@ -963,16 +977,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
+ 	list_add_tail(&p->region_list, &papr_nd_regions);
+ 	mutex_unlock(&papr_ndr_lock);
+ 
+-	/* Try retriving the stat buffer and see if its supported */
+-	stat_size = drc_pmem_query_stats(p, NULL, 0);
+-	if (stat_size > 0) {
+-		p->stat_buffer_len = stat_size;
+-		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
+-			p->stat_buffer_len);
+-	} else {
+-		dev_info(&p->pdev->dev, "Dimm performance stats unavailable\n");
+-	}
+-
+ 	return 0;
+ 
+ err:	nvdimm_bus_unregister(p->bus);
+@@ -1050,6 +1054,7 @@ static int papr_scm_probe(struct platform_device *pdev)
+ 	struct papr_scm_priv *p;
+ 	u8 uuid_raw[UUID_SIZE];
+ 	const char *uuid_str;
++	ssize_t stat_size;
+ 	uuid_t uuid;
+ 	int rc;
+ 
+@@ -1133,6 +1138,14 @@ static int papr_scm_probe(struct platform_device *pdev)
+ 	p->res.name  = pdev->name;
+ 	p->res.flags = IORESOURCE_MEM;
+ 
++	/* Try retrieving the stat buffer and see if its supported */
++	stat_size = drc_pmem_query_stats(p, NULL, 0);
++	if (stat_size > 0) {
++		p->stat_buffer_len = stat_size;
++		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
++			p->stat_buffer_len);
++	}
++
+ 	rc = papr_scm_nvdimm_init(p);
+ 	if (rc)
+ 		goto err2;
 -- 
 2.30.2
 
