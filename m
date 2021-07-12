@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E91773C55CA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B18553C5098
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346063AbhGLIMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
+        id S1344719AbhGLHdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353920AbhGLIDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 299B461D1A;
-        Mon, 12 Jul 2021 07:58:41 +0000 (UTC)
+        id S1345178AbhGLH3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 107C061221;
+        Mon, 12 Jul 2021 07:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076721;
-        bh=lehlT4m/InziezWCU44sOcqIerWh2hOgXlby/PasnhM=;
+        s=korg; t=1626074758;
+        bh=sooO2MLxM7bLD2+xTCs+FYPJ7Y621Jb1smqCOhz/UK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcGEohqKXnVDbWMSH1FyPtKxFnfWMSBwPHhvBWU/4ca6WUcwY3MMCSLktu7llFlXC
-         xhSXFiLz9AWpDL5Kf3bU09/d+1mbXWv0T/OuNOc2GMTmGZCDtKFoAybstZRlAyKSf1
-         95zeSGrmMA/bdwAia8k7dnbQYszMyHJhaU5Z7vWI=
+        b=CFQLWW6KA/V4mtVplRosdhN1fqo5Cx6fbkaqQN835SM9XvC6lcbvJEFDJ5UrNpOb2
+         EFobUEeYKFGz61XJyESmYGAhNg63/x4Yy+a5M2GlNQIziU4ZcNYduCkxeGY1/S0fJa
+         HYILIOzkLhR3pPDfPohnaRdJWJqA7AIS6oCE6wuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 748/800] selftests/ftrace: fix event-no-pid on 1-core machine
+        stable@vger.kernel.org, Sibi Sankar <sibis@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Jassi Brar <jaswinder.singh@linaro.org>
+Subject: [PATCH 5.12 688/700] mailbox: qcom-ipcc: Fix IPCC mbox channel exhaustion
 Date:   Mon, 12 Jul 2021 08:12:51 +0200
-Message-Id: <20210712061046.388103874@linuxfoundation.org>
+Message-Id: <20210712061049.144299677@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Sibi Sankar <sibis@codeaurora.org>
 
-[ Upstream commit 07b60713b57a8f952d029a2b6849d003d9c16108 ]
+commit d6fbfdbc12745ce24bcd348dbf7e652353b3e59c upstream.
 
-When running event-no-pid test on small machines (e.g. cloud 1-core
-instance), other events might not happen:
+Fix IPCC (Inter-Processor Communication Controller) channel exhaustion by
+setting the channel private data to NULL on mbox shutdown.
 
-    + cat trace
-    + cnt=0
-    + [ 0 -eq 0 ]
-    + fail No other events were recorded
-    [15] event tracing - restricts events based on pid notrace filtering [FAIL]
+Err Logs:
+remoteproc: MBA booted without debug policy, loading mpss
+remoteproc: glink-edge: failed to acquire IPC channel
+remoteproc: failed to probe subdevices for remoteproc: -16
 
-Schedule a simple sleep task to be sure that some other process events
-get recorded.
+Fixes: fa74a0257f45 ("mailbox: Add support for Qualcomm IPCC")
+Signed-off-by: Sibi Sankar <sibis@codeaurora.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Jassi Brar <jaswinder.singh@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: ebed9628f5c2 ("selftests/ftrace: Add test to test new set_event_notrace_pid file")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/ftrace/test.d/event/event-no-pid.tc  | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/mailbox/qcom-ipcc.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc b/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-index e6eb78f0b954..9933ed24f901 100644
---- a/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-+++ b/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-@@ -57,6 +57,10 @@ enable_events() {
-     echo 1 > tracing_on
+--- a/drivers/mailbox/qcom-ipcc.c
++++ b/drivers/mailbox/qcom-ipcc.c
+@@ -155,6 +155,11 @@ static int qcom_ipcc_mbox_send_data(stru
+ 	return 0;
  }
  
-+other_task() {
-+    sleep .001 || usleep 1 || sleep 1
++static void qcom_ipcc_mbox_shutdown(struct mbox_chan *chan)
++{
++	chan->con_priv = NULL;
 +}
 +
- echo 0 > options/event-fork
+ static struct mbox_chan *qcom_ipcc_mbox_xlate(struct mbox_controller *mbox,
+ 					const struct of_phandle_args *ph)
+ {
+@@ -184,6 +189,7 @@ static struct mbox_chan *qcom_ipcc_mbox_
  
- do_reset
-@@ -94,6 +98,9 @@ child=$!
- echo "child = $child"
- wait $child
+ static const struct mbox_chan_ops ipcc_mbox_chan_ops = {
+ 	.send_data = qcom_ipcc_mbox_send_data,
++	.shutdown = qcom_ipcc_mbox_shutdown,
+ };
  
-+# Be sure some other events will happen for small systems (e.g. 1 core)
-+other_task
-+
- echo 0 > tracing_on
- 
- cnt=`count_pid $mypid`
--- 
-2.30.2
-
+ static int qcom_ipcc_setup_mbox(struct qcom_ipcc *ipcc)
 
 
