@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DBB3C5085
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D616F3C50D1
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245345AbhGLHd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
+        id S245590AbhGLHfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344508AbhGLHbx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:31:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D46960230;
-        Mon, 12 Jul 2021 07:29:04 +0000 (UTC)
+        id S1344638AbhGLHb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:31:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ED8460C40;
+        Mon, 12 Jul 2021 07:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074945;
-        bh=C+Mx7P+n/bxmE0qb2OQtdXRMvn26GyaxoTzKuq8q4RE=;
+        s=korg; t=1626074948;
+        bh=s0hSDXPGZNPiMQhMeECJGareszJcyKYanf7R9VEQUoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dF4UvK5NMuy192Q0VfoEdad/tRMrhzCDp70TNvS6zwVKGN2OFGqkZB4gW9zuVRE72
-         NTX89aHQceneP5bcgGIWp4OLQ7PBxPM4/cRchrNIoTB2oCTvdQfvHgiAV9jXz+z+eh
-         drqP+EddQw+RmmM7hQjKarijtuf0Mq1vGtYktW6U=
+        b=rqoJUJyyHM56gzzBH4wa40qglFVg9TT5w496GI35W1b11XZBdCpaTXqni4SHgbikT
+         W7q1lzvTvydsZAVVqAo4OkU+8jFWx+70IvqDqC843x+fnpa1BIqX9O3zlGUR3R4SAj
+         ewYkJhXTt3E/4I2niOpiWg8HLuPNlBYyftaM3hVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable@kernel.org,
-        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        syzbot+2dcfeaf8cb49b05e8f1a@syzkaller.appspotmail.com,
+        Anirudh Rayabharam <mail@anirudhrb.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.13 052/800] ext4: cleanup in-core orphan list if ext4_truncate() failed to get a transaction handle
-Date:   Mon, 12 Jul 2021 08:01:15 +0200
-Message-Id: <20210712060920.763551399@linuxfoundation.org>
+Subject: [PATCH 5.13 053/800] ext4: fix kernel infoleak via ext4_extent_header
+Date:   Mon, 12 Jul 2021 08:01:16 +0200
+Message-Id: <20210712060920.899159528@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -40,54 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit b9a037b7f3c401d3c63e0423e56aef606b1ffaaf upstream.
+commit ce3aba43599f0b50adbebff133df8d08a3d5fffe upstream.
 
-In ext4_orphan_cleanup(), if ext4_truncate() failed to get a transaction
-handle, it didn't remove the inode from the in-core orphan list, which
-may probably trigger below error dump in ext4_destroy_inode() during the
-final iput() and could lead to memory corruption on the later orphan
-list changes.
-
- EXT4-fs (sda): Inode 6291467 (00000000b8247c67): orphan list check failed!
- 00000000b8247c67: 0001f30a 00000004 00000000 00000023  ............#...
- 00000000e24cde71: 00000006 014082a3 00000000 00000000  ......@.........
- 0000000072c6a5ee: 00000000 00000000 00000000 00000000  ................
- ...
-
-This patch fix this by cleanup in-core orphan list manually if
-ext4_truncate() return error.
+Initialize eh_generation of struct ext4_extent_header to prevent leaking
+info to userspace. Fixes KMSAN kernel-infoleak bug reported by syzbot at:
+http://syzkaller.appspot.com/bug?id=78e9ad0e6952a3ca16e8234724b2fa92d041b9b8
 
 Cc: stable@kernel.org
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210507071904.160808-1-yi.zhang@huawei.com
+Reported-by: syzbot+2dcfeaf8cb49b05e8f1a@syzkaller.appspotmail.com
+Fixes: a86c61812637 ("[PATCH] ext3: add extent map support")
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210506185655.7118-1-mail@anirudhrb.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/super.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ fs/ext4/extents.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -3101,8 +3101,15 @@ static void ext4_orphan_cleanup(struct s
- 			inode_lock(inode);
- 			truncate_inode_pages(inode->i_mapping, inode->i_size);
- 			ret = ext4_truncate(inode);
--			if (ret)
-+			if (ret) {
-+				/*
-+				 * We need to clean up the in-core orphan list
-+				 * manually if ext4_truncate() failed to get a
-+				 * transaction handle.
-+				 */
-+				ext4_orphan_del(NULL, inode);
- 				ext4_std_error(inode->i_sb, ret);
-+			}
- 			inode_unlock(inode);
- 			nr_truncates++;
- 		} else {
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -825,6 +825,7 @@ void ext4_ext_tree_init(handle_t *handle
+ 	eh->eh_entries = 0;
+ 	eh->eh_magic = EXT4_EXT_MAGIC;
+ 	eh->eh_max = cpu_to_le16(ext4_ext_space_root(inode, 0));
++	eh->eh_generation = 0;
+ 	ext4_mark_inode_dirty(handle, inode);
+ }
+ 
+@@ -1090,6 +1091,7 @@ static int ext4_ext_split(handle_t *hand
+ 	neh->eh_max = cpu_to_le16(ext4_ext_space_block(inode, 0));
+ 	neh->eh_magic = EXT4_EXT_MAGIC;
+ 	neh->eh_depth = 0;
++	neh->eh_generation = 0;
+ 
+ 	/* move remainder of path[depth] to the new leaf */
+ 	if (unlikely(path[depth].p_hdr->eh_entries !=
+@@ -1167,6 +1169,7 @@ static int ext4_ext_split(handle_t *hand
+ 		neh->eh_magic = EXT4_EXT_MAGIC;
+ 		neh->eh_max = cpu_to_le16(ext4_ext_space_block_idx(inode, 0));
+ 		neh->eh_depth = cpu_to_le16(depth - i);
++		neh->eh_generation = 0;
+ 		fidx = EXT_FIRST_INDEX(neh);
+ 		fidx->ei_block = border;
+ 		ext4_idx_store_pblock(fidx, oldblock);
 
 
