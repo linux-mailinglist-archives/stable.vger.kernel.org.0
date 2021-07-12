@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36F333C4941
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A4B3C5382
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237642AbhGLGnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:43:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34412 "EHLO mail.kernel.org"
+        id S241377AbhGLHy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237217AbhGLGlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:41:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED56B6113B;
-        Mon, 12 Jul 2021 06:38:37 +0000 (UTC)
+        id S1350413AbhGLHvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 324AE6162D;
+        Mon, 12 Jul 2021 07:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071918;
-        bh=a9kzWLdK1Chrk08dQMjjiRJg44Lp5Bq/ezAfsZR5vj8=;
+        s=korg; t=1626075901;
+        bh=eEbmBHAcTpIUbvWMVOY/9WHwfbOWhuE7YFwe9aiRuek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+g1S+WInKpgYTi681BCuolMc/qymUCV+dJTtYmctxWjjEOGtPiDlGPO8BYS/wLFU
-         hUdPyu4V1lSbHtj3s4H349BEg7QjfieKCh7NMgaEIJ2aFV19y6tVN4wZo7aPMcdcFD
-         80GcAfyiMmIZh27N9I2XfumVK+P1rtaFwop3C6k8=
+        b=dflCa2M6aGbOAE52/U+hzh+ZApNwzyVNwTHtcKQjMa3bmITTikhHHeKJkOHsTZ0ij
+         aEDWYsg6SqzT5CnbgGyTO+JkR2arB2epz1+Vd9AejXjnOw4R0zv+K175NYcIS8kyXF
+         N4WqT+O+GH+2qUUUGf64gx0OsSqD/PXy5tJ7xWwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 275/593] ACPI: PM / fan: Put fan device IDs into separate header file
+Subject: [PATCH 5.13 412/800] drm/amd/display: take dc_lock in short pulse handler only
 Date:   Mon, 12 Jul 2021 08:07:15 +0200
-Message-Id: <20210712060914.137289652@linuxfoundation.org>
+Message-Id: <20210712061011.010398873@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,100 +42,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit b9370dceabb7841c5e65ce4ee4405b9db5231fc4 ]
+[ Upstream commit d2aa1356834d845ffdac0d8c01b58aa60d1bdc65 ]
 
-The ACPI fan device IDs are shared between the fan driver and the
-device power management code.  The former is modular, so it needs
-to include the table of device IDs for module autoloading and the
-latter needs that list to avoid attaching the generic ACPI PM domain
-to fan devices (which doesn't make sense) possibly before the fan
-driver module is loaded.
+[Why]
+Conditions that end up modifying the global dc state must be locked.
+However, during mst allocate payload sequence, lock is already taken.
+With StarTech 1.2 DP hub, we get an HPD RX interrupt for a reason other
+than to indicate down reply availability right after sending payload
+allocation. The handler again takes dc lock before calling the
+dc's HPD RX handler. Due to this contention, the DRM thread which waits
+for MST down reply never gets a chance to finish its waiting
+successfully and ends up timing out. Once the lock is released, the hpd
+rx handler fires and goes ahead to read from the MST HUB, but now its
+too late and the HUB doesnt lightup all displays since DRM lacks error
+handling when payload allocation fails.
 
-Unfortunately, that requires the list of fan device IDs to be
-updated in two places which is prone to mistakes, so put it into
-a symbol definition in a separate header file so there is only one
-copy of it in case it needs to be updated again in the future.
+[How]
+Take lock only if there is a change in link status or if automated test
+pattern bit is set. The latter fixes the null pointer dereference when
+running certain DP Link Layer Compliance test.
 
-Fixes: b9ea0bae260f ("ACPI: PM: Avoid attaching ACPI PM domain to certain devices")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: c8ea79a8a276 ("drm/amd/display: NULL pointer error during compliance test")
+
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/device_pm.c |  6 ++----
- drivers/acpi/fan.c       |  7 +++----
- drivers/acpi/fan.h       | 13 +++++++++++++
- 3 files changed, 18 insertions(+), 8 deletions(-)
- create mode 100644 drivers/acpi/fan.h
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 19 +++++++++++++++++--
+ .../gpu/drm/amd/display/dc/core/dc_link_dp.c  |  2 +-
+ .../gpu/drm/amd/display/dc/inc/dc_link_dp.h   |  4 ++++
+ 3 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
-index 48ff6821a83d..ecd2ddc2215f 100644
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -18,6 +18,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/suspend.h>
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index dcb4e585c270..2b2d7b9f26f1 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -28,6 +28,7 @@
  
-+#include "fan.h"
- #include "internal.h"
+ #include "dm_services_types.h"
+ #include "dc.h"
++#include "dc_link_dp.h"
+ #include "dc/inc/core_types.h"
+ #include "dal_asic_id.h"
+ #include "dmub/dmub_srv.h"
+@@ -2696,6 +2697,7 @@ static void handle_hpd_rx_irq(void *param)
+ 	enum dc_connection_type new_connection_type = dc_connection_none;
+ 	struct amdgpu_device *adev = drm_to_adev(dev);
+ 	union hpd_irq_data hpd_irq_data;
++	bool lock_flag = 0;
  
- #define _COMPONENT	ACPI_POWER_COMPONENT
-@@ -1298,10 +1299,7 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
- 	 * with the generic ACPI PM domain.
- 	 */
- 	static const struct acpi_device_id special_pm_ids[] = {
--		{"PNP0C0B", }, /* Generic ACPI fan */
--		{"INT3404", }, /* Fan */
--		{"INTC1044", }, /* Fan for Tiger Lake generation */
--		{"INTC1048", }, /* Fan for Alder Lake generation */
-+		ACPI_FAN_DEVICE_IDS,
- 		{}
- 	};
- 	struct acpi_device *adev = ACPI_COMPANION(dev);
-diff --git a/drivers/acpi/fan.c b/drivers/acpi/fan.c
-index 66c3983f0ccc..5cd0ceb50bc8 100644
---- a/drivers/acpi/fan.c
-+++ b/drivers/acpi/fan.c
-@@ -16,6 +16,8 @@
- #include <linux/platform_device.h>
- #include <linux/sort.h>
+ 	memset(&hpd_irq_data, 0, sizeof(hpd_irq_data));
  
-+#include "fan.h"
+@@ -2726,15 +2728,28 @@ static void handle_hpd_rx_irq(void *param)
+ 		}
+ 	}
+ 
+-	if (!amdgpu_in_reset(adev)) {
++	/*
++	 * TODO: We need the lock to avoid touching DC state while it's being
++	 * modified during automated compliance testing, or when link loss
++	 * happens. While this should be split into subhandlers and proper
++	 * interfaces to avoid having to conditionally lock like this in the
++	 * outer layer, we need this workaround temporarily to allow MST
++	 * lightup in some scenarios to avoid timeout.
++	 */
++	if (!amdgpu_in_reset(adev) &&
++	    (hpd_rx_irq_check_link_loss_status(dc_link, &hpd_irq_data) ||
++	     hpd_irq_data.bytes.device_service_irq.bits.AUTOMATED_TEST)) {
+ 		mutex_lock(&adev->dm.dc_lock);
++		lock_flag = 1;
++	}
 +
- MODULE_AUTHOR("Paul Diefenbaugh");
- MODULE_DESCRIPTION("ACPI Fan Driver");
- MODULE_LICENSE("GPL");
-@@ -24,10 +26,7 @@ static int acpi_fan_probe(struct platform_device *pdev);
- static int acpi_fan_remove(struct platform_device *pdev);
+ #ifdef CONFIG_DRM_AMD_DC_HDCP
+ 	result = dc_link_handle_hpd_rx_irq(dc_link, &hpd_irq_data, NULL);
+ #else
+ 	result = dc_link_handle_hpd_rx_irq(dc_link, NULL, NULL);
+ #endif
++	if (!amdgpu_in_reset(adev) && lock_flag)
+ 		mutex_unlock(&adev->dm.dc_lock);
+-	}
  
- static const struct acpi_device_id fan_device_ids[] = {
--	{"PNP0C0B", 0},
--	{"INT3404", 0},
--	{"INTC1044", 0},
--	{"INTC1048", 0},
-+	ACPI_FAN_DEVICE_IDS,
- 	{"", 0},
- };
- MODULE_DEVICE_TABLE(acpi, fan_device_ids);
-diff --git a/drivers/acpi/fan.h b/drivers/acpi/fan.h
-new file mode 100644
-index 000000000000..dc9a6efa514b
---- /dev/null
-+++ b/drivers/acpi/fan.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
+ out:
+ 	if (result && !is_mst_root_connector) {
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 3ff3d9e90983..72bd7bc681a8 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1976,7 +1976,7 @@ enum dc_status read_hpd_rx_irq_data(
+ 	return retval;
+ }
+ 
+-static bool hpd_rx_irq_check_link_loss_status(
++bool hpd_rx_irq_check_link_loss_status(
+ 	struct dc_link *link,
+ 	union hpd_irq_data *hpd_irq_dpcd_data)
+ {
+diff --git a/drivers/gpu/drm/amd/display/dc/inc/dc_link_dp.h b/drivers/gpu/drm/amd/display/dc/inc/dc_link_dp.h
+index 3ae05c96d557..a9c0c7f7a55d 100644
+--- a/drivers/gpu/drm/amd/display/dc/inc/dc_link_dp.h
++++ b/drivers/gpu/drm/amd/display/dc/inc/dc_link_dp.h
+@@ -67,6 +67,10 @@ bool perform_link_training_with_retries(
+ 	struct pipe_ctx *pipe_ctx,
+ 	enum signal_type signal);
+ 
++bool hpd_rx_irq_check_link_loss_status(
++	struct dc_link *link,
++	union hpd_irq_data *hpd_irq_dpcd_data);
 +
-+/*
-+ * ACPI fan device IDs are shared between the fan driver and the device power
-+ * management code.
-+ *
-+ * Add new device IDs before the generic ACPI fan one.
-+ */
-+#define ACPI_FAN_DEVICE_IDS	\
-+	{"INT3404", }, /* Fan */ \
-+	{"INTC1044", }, /* Fan for Tiger Lake generation */ \
-+	{"INTC1048", }, /* Fan for Alder Lake generation */ \
-+	{"PNP0C0B", } /* Generic ACPI fan */
+ bool is_mst_supported(struct dc_link *link);
+ 
+ bool detect_dp_sink_caps(struct dc_link *link);
 -- 
 2.30.2
 
