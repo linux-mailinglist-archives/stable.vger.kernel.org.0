@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B683C5447
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 768773C4E64
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348272AbhGLH5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
+        id S244630AbhGLHSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350579AbhGLHx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7462F61416;
-        Mon, 12 Jul 2021 07:51:07 +0000 (UTC)
+        id S244284AbhGLHR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5147B60FF1;
+        Mon, 12 Jul 2021 07:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076267;
-        bh=rfI+52oGyH+MxkOtpWQCuc5UUTKHzn989T1QQgrN6uw=;
+        s=korg; t=1626074077;
+        bh=qPRrfG24hPBmZCc9nBR426HAh1SjSbrJ3pbGfqxvprI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YkvdFv7vW4LOZ7nEtofEhjLGoDIJBJiPOwTj+FEwv+4UIt3aN4BXeGlgw1dhzQ30N
-         AXK8MumI+uZYa9PlTYn+qcI7IqZW3Um27LlD37tmCUxucBlVVPflo6s+FqZvU2trfy
-         ehkuw6+b0ok8u2CMlp4DrrmqcsDBafkqYpX18vKI=
+        b=nJs4Ni2fAcmzO9ewLTYlrKfoS+fOlnIu/XfaIq/q1N40ZxUhbLc3t0lhH7tlTZPs0
+         Xh/1ECEoqogMG0GZfk4bsJP4nGiWuxemlItYAak/f/oDv9rcWp55x6ayJAc7YBATBy
+         xhtc/lWqSUxUipDLoUlnyBOdcllT6ei/zEDCEbIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Suryaputra <ssuryaextr@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 517/800] vrf: do not push non-ND strict packets with a source LLA through packet taps again
-Date:   Mon, 12 Jul 2021 08:09:00 +0200
-Message-Id: <20210712061022.232854881@linuxfoundation.org>
+Subject: [PATCH 5.12 458/700] vxlan: add missing rcu_read_lock() in neigh_reduce()
+Date:   Mon, 12 Jul 2021 08:09:01 +0200
+Message-Id: <20210712061025.272679681@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 603113c514e95c3350598bc3cccbd03af7ea4ab2 ]
+[ Upstream commit 85e8b032d6ebb0f698a34dd22c2f13443d905888 ]
 
-Non-ND strict packets with a source LLA go through the packet taps
-again, while non-ND strict packets with other source addresses do not,
-and we can see a clone of those packets on the vrf interface (we should
-not). This is due to a series of changes:
+syzbot complained in neigh_reduce(), because rcu_read_lock_bh()
+is treated differently than rcu_read_lock()
 
-Commit 6f12fa775530[1] made non-ND strict packets not being pushed again
-in the packet taps. This changed with commit 205704c618af[2] for those
-packets having a source LLA, as they need a lookup with the orig_iif.
+WARNING: suspicious RCU usage
+5.13.0-rc6-syzkaller #0 Not tainted
+-----------------------------
+include/net/addrconf.h:313 suspicious rcu_dereference_check() usage!
 
-The issue now is those packets do not skip the 'vrf_ip6_rcv' function to
-the end (as the ones without a source LLA) and go through the check to
-call packet taps again. This check was changed by commit 6f12fa775530[1]
-and do not exclude non-strict packets anymore. Packets matching
-'need_strict && !is_ndisc && is_ll_src' are now being sent through the
-packet taps again. This can be seen by dumping packets on the vrf
-interface.
+other info that might help us debug this:
 
-Fix this by having the same code path for all non-ND strict packets and
-selectively lookup with the orig_iif for those with a source LLA. This
-has the effect to revert to the pre-205704c618af[2] condition, which
-should also be easier to maintain.
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by kworker/0:0/5:
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:617 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:644 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2247
+ #1: ffffc90000ca7da8 ((work_completion)(&port->wq)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2251
+ #2: ffffffff8bf795c0 (rcu_read_lock_bh){....}-{1:2}, at: __dev_queue_xmit+0x1da/0x3130 net/core/dev.c:4180
 
-[1] 6f12fa775530 ("vrf: mark skb for multicast or link-local as enslaved to VRF")
-[2] 205704c618af ("vrf: packets with lladdr src needs dst at input with orig_iif when needs strict")
+stack backtrace:
+CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.13.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events ipvlan_process_multicast
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ __in6_dev_get include/net/addrconf.h:313 [inline]
+ __in6_dev_get include/net/addrconf.h:311 [inline]
+ neigh_reduce drivers/net/vxlan.c:2167 [inline]
+ vxlan_xmit+0x34d5/0x4c30 drivers/net/vxlan.c:2919
+ __netdev_start_xmit include/linux/netdevice.h:4944 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4958 [inline]
+ xmit_one net/core/dev.c:3654 [inline]
+ dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3670
+ __dev_queue_xmit+0x2133/0x3130 net/core/dev.c:4246
+ ipvlan_process_multicast+0xa99/0xd70 drivers/net/ipvlan/ipvlan_core.c:287
+ process_one_work+0x98d/0x1600 kernel/workqueue.c:2276
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2422
+ kthread+0x3b1/0x4a0 kernel/kthread.c:313
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-Fixes: 205704c618af ("vrf: packets with lladdr src needs dst at input with orig_iif when needs strict")
-Cc: Stephen Suryaputra <ssuryaextr@gmail.com>
-Reported-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Reviewed-by: David Ahern <dsahern@kernel.org>
+Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vrf.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/vxlan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/vrf.c b/drivers/net/vrf.c
-index 28a6c4cfe9b8..414afcb0a23f 100644
---- a/drivers/net/vrf.c
-+++ b/drivers/net/vrf.c
-@@ -1366,22 +1366,22 @@ static struct sk_buff *vrf_ip6_rcv(struct net_device *vrf_dev,
- 	int orig_iif = skb->skb_iif;
- 	bool need_strict = rt6_need_strict(&ipv6_hdr(skb)->daddr);
- 	bool is_ndisc = ipv6_ndisc_frame(skb);
--	bool is_ll_src;
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 53dbc67e8a34..a3ec03ce3343 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -2164,6 +2164,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
+ 	struct neighbour *n;
+ 	struct nd_msg *msg;
  
- 	/* loopback, multicast & non-ND link-local traffic; do not push through
- 	 * packet taps again. Reset pkt_type for upper layers to process skb.
--	 * for packets with lladdr src, however, skip so that the dst can be
--	 * determine at input using original ifindex in the case that daddr
--	 * needs strict
-+	 * For strict packets with a source LLA, determine the dst using the
-+	 * original ifindex.
- 	 */
--	is_ll_src = ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL;
--	if (skb->pkt_type == PACKET_LOOPBACK ||
--	    (need_strict && !is_ndisc && !is_ll_src)) {
-+	if (skb->pkt_type == PACKET_LOOPBACK || (need_strict && !is_ndisc)) {
- 		skb->dev = vrf_dev;
- 		skb->skb_iif = vrf_dev->ifindex;
- 		IP6CB(skb)->flags |= IP6SKB_L3SLAVE;
-+
- 		if (skb->pkt_type == PACKET_LOOPBACK)
- 			skb->pkt_type = PACKET_HOST;
-+		else if (ipv6_addr_type(&ipv6_hdr(skb)->saddr) & IPV6_ADDR_LINKLOCAL)
-+			vrf_ip6_input_dst(skb, vrf_dev, orig_iif);
-+
++	rcu_read_lock();
+ 	in6_dev = __in6_dev_get(dev);
+ 	if (!in6_dev)
  		goto out;
+@@ -2215,6 +2216,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
  	}
  
+ out:
++	rcu_read_unlock();
+ 	consume_skb(skb);
+ 	return NETDEV_TX_OK;
+ }
 -- 
 2.30.2
 
