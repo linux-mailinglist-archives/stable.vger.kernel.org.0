@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC25C3C554E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A43A73C4FB3
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355520AbhGLIJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55668 "EHLO mail.kernel.org"
+        id S245511AbhGLH1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:27:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353470AbhGLICS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64B2161C1C;
-        Mon, 12 Jul 2021 07:55:12 +0000 (UTC)
+        id S1345341AbhGLHZU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:25:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC4A613CC;
+        Mon, 12 Jul 2021 07:22:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076512;
-        bh=1MIAf3d4QGmYMvT3UMfZo+tSyjLWakCaiTgLJlb/o8M=;
+        s=korg; t=1626074547;
+        bh=sENWkQ5uR0IMnAxF0xKSzpMQnClAuWfwxn0h+ba6SMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wciNWlFARPNcqpDXUrXnybOX1bsjE1t81SYyLrMlZEnVwfgaNgOsJ8RdORbmtZ5+J
-         kEsn5cFAQaGggwLzs9u2B2CMgiS0eyUSJZidS5TUmAT6DbyT/y2f+vPqqFvobw88uq
-         NKIousOyPb3bwYb0qqjZtc5M0o+E+89h6ZoPuc3Y=
+        b=vsLz/S+FmVuUc2yEEr7jEK/6f0SLK/cQUMWqezp+4Szas/K3w9T5djoOoynK0irug
+         o7HFA3Uhyhu5kyfvYri7sKCWTlTt7jslftyfZpQiORKnwXnJs8M6sw+ndrqZDEQq9X
+         z9SW/O2A1wuuwhmAGz/tuPEPj1zcAkzWH1jO6pgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joachim Fenkes <fenkes@de.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 675/800] fsi/sbefifo: Fix reset timeout
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andreas Klinger <ak@it-klinger.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 615/700] iio: adc: mxs-lradc: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:38 +0200
-Message-Id: <20210712061038.729054604@linuxfoundation.org>
+Message-Id: <20210712061041.314283145@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joachim Fenkes <FENKES@de.ibm.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 9ab1428dfe2c66b51e0b41337cd0164da0ab6080 ]
+[ Upstream commit 6a6be221b8bd561b053f0701ec752a5ed9007f69 ]
 
-On BMCs with lower timer resolution than 1ms, msleep(1) will take
-way longer than 1ms, so looping 10k times won't wait for 10s but
-significantly longer.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
+Add a comment on why the buffer is the size it is as not immediately
+obvious.
 
-Fix this by using jiffies like the rest of the code.
+Found during an audit of all calls of this function.
 
-Fixes: 9f4a8a2d7f9d ("fsi/sbefifo: Add driver for the SBE FIFO")
-Signed-off-by: Joachim Fenkes <fenkes@de.ibm.com>
-Link: https://lore.kernel.org/r/20200724071518.430515-3-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 6dd112b9f85e ("iio: adc: mxs-lradc: Add support for ADC driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Andreas Klinger <ak@it-klinger.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-4-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-sbefifo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/iio/adc/mxs-lradc-adc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/fsi/fsi-sbefifo.c b/drivers/fsi/fsi-sbefifo.c
-index de27c435d706..84cb965bfed5 100644
---- a/drivers/fsi/fsi-sbefifo.c
-+++ b/drivers/fsi/fsi-sbefifo.c
-@@ -325,7 +325,8 @@ static int sbefifo_up_write(struct sbefifo *sbefifo, __be32 word)
- static int sbefifo_request_reset(struct sbefifo *sbefifo)
- {
- 	struct device *dev = &sbefifo->fsi_dev->dev;
--	u32 status, timeout;
-+	unsigned long end_time;
-+	u32 status;
- 	int rc;
+diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
+index 30e29f44ebd2..c480cb489c1a 100644
+--- a/drivers/iio/adc/mxs-lradc-adc.c
++++ b/drivers/iio/adc/mxs-lradc-adc.c
+@@ -115,7 +115,8 @@ struct mxs_lradc_adc {
+ 	struct device		*dev;
  
- 	dev_dbg(dev, "Requesting FIFO reset\n");
-@@ -341,7 +342,8 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 	}
- 
- 	/* Wait for it to complete */
--	for (timeout = 0; timeout < SBEFIFO_RESET_TIMEOUT; timeout++) {
-+	end_time = jiffies + msecs_to_jiffies(SBEFIFO_RESET_TIMEOUT);
-+	while (!time_after(jiffies, end_time)) {
- 		rc = sbefifo_regr(sbefifo, SBEFIFO_UP | SBEFIFO_STS, &status);
- 		if (rc) {
- 			dev_err(dev, "Failed to read UP fifo status during reset"
-@@ -355,7 +357,7 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 			return 0;
- 		}
- 
--		msleep(1);
-+		cond_resched();
- 	}
- 	dev_err(dev, "FIFO reset timed out\n");
- 
+ 	void __iomem		*base;
+-	u32			buffer[10];
++	/* Maximum of 8 channels + 8 byte ts */
++	u32			buffer[10] __aligned(8);
+ 	struct iio_trigger	*trig;
+ 	struct completion	completion;
+ 	spinlock_t		lock;
 -- 
 2.30.2
 
