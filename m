@@ -2,85 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE143C65D7
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 00:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ECF73C65E3
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 00:03:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230156AbhGLWDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 18:03:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47552 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229503AbhGLWDL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 18:03:11 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A3AC0613DD;
-        Mon, 12 Jul 2021 15:00:22 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id w194so2946863oie.5;
-        Mon, 12 Jul 2021 15:00:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=XqmUpOeO2rRTNabMb2/cpreBORECk/VEQWTHy0JBlTo=;
-        b=WcwGtbD74M+ArS8MF0qhyLlc6NdJn0Qo1Wjxfmreq7xOcGHth4aYufZ52nxTDXZp8P
-         SSLJqB/jyKfcRxrRrZzY7X6xkCNyQozgVkU92BLk5mmcdtB3ww6rJP5ckgfExVgBxJWh
-         snA9dAF1n3o1KwlQ4J/O2y8vmjS58jLIhM/TuJCRyTNy/z6pDHPdA/2OJQM9vrX7Lao4
-         3j9z75XdzcxS2B6MPutmitVOdZl7yMQBHUazKEQ677OYWWtSE5RK/2D/RDxbxql8vn7o
-         PJbzc7I6TY7Utx36rLMny/aKQUWupipmIhdfqt4JK68SVvyCGAgGTPxJmtfw+acNzbyq
-         uWfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=XqmUpOeO2rRTNabMb2/cpreBORECk/VEQWTHy0JBlTo=;
-        b=IuZX/VyfSccKsusrDvga8/tUaV/xNHUrlzd60PetqOSz7xflFsoRZEAp1TcQ2g3cUs
-         XmlneFKdCRju0lDq7QkxHBXCAon93H3RF4PxgAF2lWlYXVbChKHcaGbYo8Mv35RIwdbu
-         zkY9l12hWj3qIu4l5jh7qb7fZ4CYqVS6U1uxZPqAvzYDJ6ox8ae4Bwjo9aDvpYfq8INM
-         vfE4fEYQ5QRdHeXjiCX+ojT+UuKnMf8q2dE1sujUzmvQajWCKQX4lPKr6IoJLtsePpF/
-         zQDGkoly/x0DMYkTAel7RLmzuf3OZphdVkiwLKwJRPNPd5H1p9osbqrV9DS3QRL9wiH8
-         6lmQ==
-X-Gm-Message-State: AOAM530FN/LF24ESTN5c6PZ2vGDlmLrzznspwNaF74HssG5Z/szdp20y
-        EhYrQeyGq/Xh+8oQEiuaQjY=
-X-Google-Smtp-Source: ABdhPJw2cyN3d1D/Y+YqzFEd4fkivP0+wYgkEHdUIeBvNDZ8gyK4ZmBWPiJDcUWRAAiSsTZ9xbEeqA==
-X-Received: by 2002:aca:4d0c:: with SMTP id a12mr11545571oib.159.1626127221795;
-        Mon, 12 Jul 2021 15:00:21 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v203sm3466571oib.37.2021.07.12.15.00.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 15:00:21 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Mon, 12 Jul 2021 15:00:20 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/598] 5.10.50-rc2 review
-Message-ID: <20210712220020.GB2210980@roeck-us.net>
-References: <20210712184832.376480168@linuxfoundation.org>
+        id S229910AbhGLWGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 18:06:34 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47198 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229503AbhGLWGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 18:06:33 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 97E481C0B7C; Tue, 13 Jul 2021 00:03:43 +0200 (CEST)
+Date:   Tue, 13 Jul 2021 00:03:43 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Tony Lindgren <tony@atomide.com>,
+        Carl Philipp Klemm <philipp@uvos.xyz>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.10 082/137] wlcore/wl12xx: Fix wl12xx get_mac
+ error if device is in ELP
+Message-ID: <20210712220343.GA9766@amd>
+References: <20210706112203.2062605-1-sashal@kernel.org>
+ <20210706112203.2062605-82-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-In-Reply-To: <20210712184832.376480168@linuxfoundation.org>
+In-Reply-To: <20210706112203.2062605-82-sashal@kernel.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 08:49:35PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.50 release.
-> There are 598 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 14 Jul 2021 18:45:43 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 455 pass: 455 fail: 0
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Hi!
 
-Guenter
+> From: Tony Lindgren <tony@atomide.com>
+>=20
+> [ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
+>=20
+> At least on wl12xx, reading the MAC after boot can fail with a warning
+> at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
+> The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
+> after request_firmware_work_func().
+
+> +++ b/drivers/net/wireless/ti/wl12xx/main.c
+> @@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
+>  	u32 mac1, mac2;
+>  	int ret;
+> =20
+> +	/* Device may be in ELP from the bootloader or kexec */
+> +	ret =3D wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VA=
+L);
+> +	if (ret < 0)
+> +		goto out;
+> +
+> +	usleep_range(500000, 700000);
+> +
+
+While this probably improves things.... I don't believe delaying boot
+by extra 200msec is good idea. This should simply be msleep(500),
+AFAICT.
+
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmDsvD8ACgkQMOfwapXb+vJPiwCgiYvjMnNc1w8GNzQG94q0TJtI
+QmEAmgNMcJxKnmRmIegdv7JldHsIwxpq
+=Uehq
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--
