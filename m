@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B643C538E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 711653C496C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348041AbhGLHzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36234 "EHLO mail.kernel.org"
+        id S235172AbhGLGo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:44:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350473AbhGLHvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42439619B7;
-        Mon, 12 Jul 2021 07:45:38 +0000 (UTC)
+        id S236432AbhGLGm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:42:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2427861156;
+        Mon, 12 Jul 2021 06:39:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075938;
-        bh=P9ppjSFsBICvCkz3u2clqd3OZkBGtmH3RXn3E8O3Fjo=;
+        s=korg; t=1626071955;
+        bh=kWOfd1N3ui5svEipl7oe2E1XKOu/gCzc/HLJLKwaHe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWGC16xNKlRpfniEZHZwh63wLYMGMdPSp7u1Ij4IaXUfIivlgC/lTg6HwErvc9MBV
-         RIrGPeLTUV7c5hXJzv35kELyjMdpO6jPjykU5yMISZ3wA1U40h24BtjCFaOkyGv8Xw
-         FKO+y9z7O+Odof2doZRA2qzixvkuJD3kX75jEh3w=
+        b=Pj4FMzN6YBmv71dASA0hC9aHMgXCCWX+m1bto/cpm68rdiI3Y7NnN9Up9EkElqzXR
+         VgloXemUsQVSR1sCYTo9vZ+yBQEJ+RQY+lTU4mUVAjzLu+hWhg42v9+XGlhhHtZx2W
+         oR8VJKg9xX3JdlW1JCeNzGQd0jp19hbtlsXW3T2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 386/800] mm: memcg/slab: properly set up gfp flags for objcg pointer array
+Subject: [PATCH 5.10 249/593] media: s5p-g2d: Fix a memory leak on ctx->fh.m2m_ctx
 Date:   Mon, 12 Jul 2021 08:06:49 +0200
-Message-Id: <20210712061008.292760109@linuxfoundation.org>
+Message-Id: <20210712060910.316402495@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,115 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit 41eb5df1cbc9b302fc263ad7c9f38cfc38b4df61 ]
+[ Upstream commit 5d11e6aad1811ea293ee2996cec9124f7fccb661 ]
 
-Patch series "mm: memcg/slab: Fix objcg pointer array handling problem", v4.
+The m2m_ctx resources was allocated by v4l2_m2m_ctx_init() in g2d_open()
+should be freed from g2d_release() when it's not used.
 
-Since the merging of the new slab memory controller in v5.9, the page
-structure stores a pointer to objcg pointer array for slab pages.  When
-the slab has no used objects, it can be freed in free_slab() which will
-call kfree() to free the objcg pointer array in
-memcg_alloc_page_obj_cgroups().  If it happens that the objcg pointer
-array is the last used object in its slab, that slab may then be freed
-which may caused kfree() to be called again.
+Fix it
 
-With the right workload, the slab cache may be set up in a way that allows
-the recursive kfree() calling loop to nest deep enough to cause a kernel
-stack overflow and panic the system.  In fact, we have a reproducer that
-can cause kernel stack overflow on a s390 system involving kmalloc-rcl-256
-and kmalloc-rcl-128 slabs with the following kfree() loop recursively
-called 74 times:
-
-  [ 285.520739] [<000000000ec432fc>] kfree+0x4bc/0x560 [ 285.520740]
-[<000000000ec43466>] __free_slab+0xc6/0x228 [ 285.520741]
-[<000000000ec41fc2>] __slab_free+0x3c2/0x3e0 [ 285.520742]
-[<000000000ec432fc>] kfree+0x4bc/0x560 : While investigating this issue, I
-also found an issue on the allocation side.  If the objcg pointer array
-happen to come from the same slab or a circular dependency linkage is
-formed with multiple slabs, those affected slabs can never be freed again.
-
-This patch series addresses these two issues by introducing a new set of
-kmalloc-cg-<n> caches split from kmalloc-<n> caches.  The new set will
-only contain non-reclaimable and non-dma objects that are accounted in
-memory cgroups whereas the old set are now for unaccounted objects only.
-By making this split, all the objcg pointer arrays will come from the
-kmalloc-<n> caches, but those caches will never hold any objcg pointer
-array.  As a result, deeply nested kfree() call and the unfreeable slab
-problems are now gone.
-
-This patch (of 4):
-
-Since the merging of the new slab memory controller in v5.9, the page
-structure may store a pointer to obj_cgroup pointer array for slab pages.
-Currently, only the __GFP_ACCOUNT bit is masked off.  However, the array
-is not readily reclaimable and doesn't need to come from the DMA buffer.
-So those GFP bits should be masked off as well.
-
-Do the flag bit clearing at memcg_alloc_page_obj_cgroups() to make sure
-that it is consistently applied no matter where it is called.
-
-Link: https://lkml.kernel.org/r/20210505200610.13943-1-longman@redhat.com
-Link: https://lkml.kernel.org/r/20210505200610.13943-2-longman@redhat.com
-Fixes: 286e04b8ed7a ("mm: memcg/slab: allocate obj_cgroups for non-root slab pages")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <guro@fb.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c | 8 ++++++++
- mm/slab.h       | 1 -
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ drivers/media/platform/s5p-g2d/g2d.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/mm/memcontrol.c b/mm/memcontrol.c
-index 64ada9e650a5..f4f2d05c8c7b 100644
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -2739,6 +2739,13 @@ retry:
- }
+diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
+index 15bcb7f6e113..1cb5eaabf340 100644
+--- a/drivers/media/platform/s5p-g2d/g2d.c
++++ b/drivers/media/platform/s5p-g2d/g2d.c
+@@ -276,6 +276,9 @@ static int g2d_release(struct file *file)
+ 	struct g2d_dev *dev = video_drvdata(file);
+ 	struct g2d_ctx *ctx = fh2ctx(file->private_data);
  
- #ifdef CONFIG_MEMCG_KMEM
-+/*
-+ * The allocated objcg pointers array is not accounted directly.
-+ * Moreover, it should not come from DMA buffer and is not readily
-+ * reclaimable. So those GFP bits should be masked off.
-+ */
-+#define OBJCGS_CLEAR_MASK	(__GFP_DMA | __GFP_RECLAIMABLE | __GFP_ACCOUNT)
-+
- int memcg_alloc_page_obj_cgroups(struct page *page, struct kmem_cache *s,
- 				 gfp_t gfp, bool new_page)
- {
-@@ -2746,6 +2753,7 @@ int memcg_alloc_page_obj_cgroups(struct page *page, struct kmem_cache *s,
- 	unsigned long memcg_data;
- 	void *vec;
- 
-+	gfp &= ~OBJCGS_CLEAR_MASK;
- 	vec = kcalloc_node(objects, sizeof(struct obj_cgroup *), gfp,
- 			   page_to_nid(page));
- 	if (!vec)
-diff --git a/mm/slab.h b/mm/slab.h
-index 18c1927cd196..b3294712a686 100644
---- a/mm/slab.h
-+++ b/mm/slab.h
-@@ -309,7 +309,6 @@ static inline void memcg_slab_post_alloc_hook(struct kmem_cache *s,
- 	if (!memcg_kmem_enabled() || !objcg)
- 		return;
- 
--	flags &= ~__GFP_ACCOUNT;
- 	for (i = 0; i < size; i++) {
- 		if (likely(p[i])) {
- 			page = virt_to_head_page(p[i]);
++	mutex_lock(&dev->mutex);
++	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
++	mutex_unlock(&dev->mutex);
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_handler);
+ 	v4l2_fh_del(&ctx->fh);
+ 	v4l2_fh_exit(&ctx->fh);
 -- 
 2.30.2
 
