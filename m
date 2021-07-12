@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F27443C4B6A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E6663C5121
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238389AbhGLG5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
+        id S1344257AbhGLHiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240609AbhGLG4J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:56:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3956613C2;
-        Mon, 12 Jul 2021 06:53:16 +0000 (UTC)
+        id S243317AbhGLHf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:35:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21153613DB;
+        Mon, 12 Jul 2021 07:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072797;
-        bh=itL04AeBuX2WMgoLulren7NArIq6YwfQrErwwYFUIpA=;
+        s=korg; t=1626075136;
+        bh=H7iqm+NQ4y2X2+Gx7MVopqODNNQ0ttsLJOZX2Qcms0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a9S4RplvNcYS692ssNK2gjch4v55HrYhlvW7ehCrZ6fdPHpC/3ogqBwnzjbHXcQAn
-         5FhhdpsAFjiZApLazPngxYEK1SpMVbJ70wGHS+Shc41D9x0ZraKFMZBQq932DDP83y
-         /4D1xDZl2SANO1D/xWfu5XW3QoeCvZo3oiu4si2I=
+        b=rR0IvJl5a2iEWAYST0Xb20eu7Lp7eRFwN6vxJdNhSFJtvSq5wHje9xuoJ6xux3di0
+         FjNfGMAWz8qQBoj683xOBhZxjIEeE4h+rxH19cSGAkdnE1if03q0A8eQpzq50KHahn
+         AlpCrrrqef8c9jzZwCYURaK+zn/dNc1fe9tuJ1Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Subject: [PATCH 5.12 024/700] usb: dwc3: Fix debugfs creation flow
-Date:   Mon, 12 Jul 2021 08:01:47 +0200
-Message-Id: <20210712060928.106582998@linuxfoundation.org>
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.13 085/800] clk: k210: Fix k210_clk_set_parent()
+Date:   Mon, 12 Jul 2021 08:01:48 +0200
+Message-Id: <20210712060925.032524822@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-commit 84524d1232ecca7cf8678e851b254f05cff4040a upstream.
+commit faa0e307948594b4379a86fff7fb2409067aed6f upstream.
 
-Creation EP's debugfs called earlier than debugfs folder for dwc3
-device created. As result EP's debugfs are created in '/sys/kernel/debug'
-instead of '/sys/kernel/debug/usb/dwc3.1.auto'.
+In k210_clk_set_parent(), add missing writel() call to update the mux
+register of a clock to change its parent. This also fixes a compilation
+warning with clang when compiling with W=1.
 
-Moved dwc3_debugfs_init() function call before calling
-dwc3_core_init_mode() to allow create dwc3 debugfs parent before
-creating EP's debugfs's.
-
-Fixes: 8d396bb0a5b6 ("usb: dwc3: debugfs: Add and remove endpoint dirs dynamically")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Jack Pham <jackp@codeaurora.org>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/01fafb5b2d8335e98e6eadbac61fc796bdf3ec1a.1623948457.git.Minas.Harutyunyan@synopsys.com
+Fixes: c6ca7616f7d5 ("clk: Add RISC-V Canaan Kendryte K210 clock driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Link: https://lore.kernel.org/r/20210622064502.14841-1-damien.lemoal@wdc.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/dwc3/core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/clk-k210.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1605,17 +1605,18 @@ static int dwc3_probe(struct platform_de
- 	}
- 
- 	dwc3_check_params(dwc);
-+	dwc3_debugfs_init(dwc);
- 
- 	ret = dwc3_core_init_mode(dwc);
- 	if (ret)
- 		goto err5;
- 
--	dwc3_debugfs_init(dwc);
- 	pm_runtime_put(dev);
+--- a/drivers/clk/clk-k210.c
++++ b/drivers/clk/clk-k210.c
+@@ -722,6 +722,7 @@ static int k210_clk_set_parent(struct cl
+ 		reg |= BIT(cfg->mux_bit);
+ 	else
+ 		reg &= ~BIT(cfg->mux_bit);
++	writel(reg, ksc->regs + cfg->mux_reg);
+ 	spin_unlock_irqrestore(&ksc->clk_lock, flags);
  
  	return 0;
- 
- err5:
-+	dwc3_debugfs_exit(dwc);
- 	dwc3_event_buffers_cleanup(dwc);
- 
- 	usb_phy_shutdown(dwc->usb2_phy);
 
 
