@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A268B3C4E4C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C043C53AC
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244628AbhGLHRr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:17:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
+        id S1348406AbhGLHzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243732AbhGLHRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03FA06140C;
-        Mon, 12 Jul 2021 07:14:07 +0000 (UTC)
+        id S1350611AbhGLHvL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AF726141A;
+        Mon, 12 Jul 2021 07:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074048;
-        bh=q+26ziyUGgj2kiHF3QL/5cJOVVtKYvVckwkSe3TtHQI=;
+        s=korg; t=1626075997;
+        bh=z8sR5TYSANk89jvS8OEPzj3aw9pG3htfJnr50LS1+nU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAVzqC1CyI43OsdSaPN4ZwUkqDsbMUUMlN8tpzGGy5VOLUxqX2aB10Gf+C0RyH1Sv
-         SSFfNLoD7C4xSQlPa0/eJi/Kt5oXVKP6hhqFSIAjdU3QHe4iAjtRpGgDhclf1qI9ZY
-         kWtvk8zi3530Y+p62zZmn6tMFfkYbQXa4dk72y68=
+        b=bI/iklFcnZiQ3haFStOVl8nLuEhUoTFH+Q3s0Mp5BBfSk55sH9cC2sJy7aCKluLKi
+         H9g0KjjvAlh1aZxqBYK0TWHdcnL6wQGF5RVedMQd0tmcRVnWdGZzrb9GG3qgbXi2hK
+         jn29re6EGCD7CrZZtJxkPCotOJb9AbcbJC6vp2sU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 394/700] drm/pl111: depend on CONFIG_VEXPRESS_CONFIG
+Subject: [PATCH 5.13 454/800] ath10k: add missing error return code in ath10k_pci_probe()
 Date:   Mon, 12 Jul 2021 08:07:57 +0200
-Message-Id: <20210712061018.308455666@linuxfoundation.org>
+Message-Id: <20210712061015.453057151@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 4dc7c97d04dcaa9f19482f70dcfdbeb52cc7193f ]
+[ Upstream commit e2783e2f39ba99178dedfc1646d5cc0979d1bab3 ]
 
-Avoid randconfig build failures by requiring VEXPRESS_CONFIG:
+When chip_id is not supported, the resources will be freed
+on path err_unsupported, these resources will also be freed
+when calling ath10k_pci_remove(), it will cause double free,
+so return -ENODEV when it doesn't support the device with wrong
+chip_id.
 
-aarch64-linux-gnu-ld: drivers/gpu/drm/pl111/pl111_versatile.o: in function `pl111_vexpress_clcd_init':
-pl111_versatile.c:(.text+0x220): undefined reference to `devm_regmap_init_vexpress_config'
-
-Fixes: 826fc86b5903 ("drm: pl111: Move VExpress setup into versatile init")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210602215252.695994-4-keescook@chromium.org
+Fixes: c0c378f9907c ("ath10k: remove target soc ps code")
+Fixes: 7505f7c3ec1d ("ath10k: create a chip revision whitelist")
+Fixes: f8914a14623a ("ath10k: restore QCA9880-AR1A (v1) detection")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210522105822.1091848-3-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/pl111/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/pci.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/pl111/Kconfig b/drivers/gpu/drm/pl111/Kconfig
-index 80f6748055e3..c5210a5bef1b 100644
---- a/drivers/gpu/drm/pl111/Kconfig
-+++ b/drivers/gpu/drm/pl111/Kconfig
-@@ -2,7 +2,7 @@
- config DRM_PL111
- 	tristate "DRM Support for PL111 CLCD Controller"
- 	depends on DRM
--	depends on ARM || ARM64 || COMPILE_TEST
-+	depends on VEXPRESS_CONFIG
- 	depends on COMMON_CLK
- 	select DRM_KMS_HELPER
- 	select DRM_KMS_CMA_HELPER
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 463cf3f8f8a5..71878ab35b93 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -3685,8 +3685,10 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 			ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+ 		if (bus_params.chip_id != 0xffffffff) {
+ 			if (!ath10k_pci_chip_is_supported(pdev->device,
+-							  bus_params.chip_id))
++							  bus_params.chip_id)) {
++				ret = -ENODEV;
+ 				goto err_unsupported;
++			}
+ 		}
+ 	}
+ 
+@@ -3697,11 +3699,15 @@ static int ath10k_pci_probe(struct pci_dev *pdev,
+ 	}
+ 
+ 	bus_params.chip_id = ath10k_pci_soc_read32(ar, SOC_CHIP_ID_ADDRESS);
+-	if (bus_params.chip_id == 0xffffffff)
++	if (bus_params.chip_id == 0xffffffff) {
++		ret = -ENODEV;
+ 		goto err_unsupported;
++	}
+ 
+-	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id))
++	if (!ath10k_pci_chip_is_supported(pdev->device, bus_params.chip_id)) {
++		ret = -ENODEV;
+ 		goto err_unsupported;
++	}
+ 
+ 	ret = ath10k_core_register(ar, &bus_params);
+ 	if (ret) {
 -- 
 2.30.2
 
