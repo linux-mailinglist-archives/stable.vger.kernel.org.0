@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25D803C53C0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 505623C499D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348565AbhGLHzu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35484 "EHLO mail.kernel.org"
+        id S234485AbhGLGpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350649AbhGLHvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7200661C28;
-        Mon, 12 Jul 2021 07:46:55 +0000 (UTC)
+        id S239044AbhGLGoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60E6261182;
+        Mon, 12 Jul 2021 06:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076015;
-        bh=HH/oR1MAak1gZXBUdVPQsHiHbw5NhvczZv1qs8GQY2E=;
+        s=korg; t=1626072034;
+        bh=mY0ucfCFJ25AT2f3/nTpanw8SZFT4PkGQR3qlWZ9iFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VVgwKIX1cKFUG/emqwFs/176f2DcVEAgws53lGYRZCjz57aebmW6o6ZrOgTqokwx5
-         dmKBToon9R6VGrJ2RVuD3oQUxo4r96ZdGYfu7G9Y+tSPYQBxVMCHPudeK0u4buyXhj
-         i4G0h+/5HE3Uqvl1TRLyl+WjRAlXDMZYE7/rfBj0=
+        b=eHeXflrQZ6/zQ00ZgwfO5LKtNoF/YUzYtPi21m0jhuXj5QSpGLRwHKyplUS5dOy/5
+         Nnct4PftBguWMZWzXUwotjV0UMK+AyeTBCmWOXXo/6Dz4zJ7rF3jjo7Y3QN01ePOGn
+         5YTeRa3ddnROygaTJ9CSdgtZuZJJpFoAV8YpmXCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 461/800] ssb: Fix error return code in ssb_bus_scan()
-Date:   Mon, 12 Jul 2021 08:08:04 +0200
-Message-Id: <20210712061016.197375381@linuxfoundation.org>
+Subject: [PATCH 5.10 325/593] RDMA/rtrs-srv: Fix memory leak when having multiple sessions
+Date:   Mon, 12 Jul 2021 08:08:05 +0200
+Message-Id: <20210712060921.436712770@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +41,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Jack Wang <jinpu.wang@cloud.ionos.com>
 
-[ Upstream commit 77a0989baa427dbd242c5784d05a53ca3d197d43 ]
+[ Upstream commit 6bb97a2c1aa5278a30d49abb6186d50c34c207e2 ]
 
-Fix to return -EINVAL from the error handling case instead of 0, as done
-elsewhere in this function.
+Gioh notice memory leak below
+unreferenced object 0xffff8880acda2000 (size 2048):
+  comm "kworker/4:1", pid 77, jiffies 4295062871 (age 1270.730s)
+  hex dump (first 32 bytes):
+    00 20 da ac 80 88 ff ff 00 20 da ac 80 88 ff ff  . ....... ......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000e85d85b5>] rtrs_srv_rdma_cm_handler+0x8e5/0xa90 [rtrs_server]
+    [<00000000e31a988a>] cma_ib_req_handler+0xdc5/0x2b50 [rdma_cm]
+    [<000000000eb02c5b>] cm_process_work+0x2d/0x100 [ib_cm]
+    [<00000000e1650ca9>] cm_req_handler+0x11bc/0x1c40 [ib_cm]
+    [<000000009c28818b>] cm_work_handler+0xe65/0x3cf2 [ib_cm]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
+unreferenced object 0xffff88806d595d90 (size 8):
+  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
+  hex dump (first 8 bytes):
+    62 6c 61 00 6b 6b 6b a5                          bla.kkk.
+  backtrace:
+    [<000000004447d253>] kstrdup+0x2e/0x60
+    [<0000000047259793>] kobject_set_name_vargs+0x2f/0xb0
+    [<00000000c2ee3bc8>] dev_set_name+0xab/0xe0
+    [<000000002b6bdfb1>] rtrs_srv_create_sess_files+0x260/0x290 [rtrs_server]
+    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
+    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
+    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
+unreferenced object 0xffff88806d6bb100 (size 256):
+  comm "kworker/4:1H", pid 131, jiffies 4295062972 (age 1269.720s)
+  hex dump (first 32 bytes):
+    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+    ff ff ff ff ff ff ff ff 00 59 4d 86 ff ff ff ff  .........YM.....
+  backtrace:
+    [<00000000a18a11e4>] device_add+0x74d/0xa00
+    [<00000000a915b95f>] rtrs_srv_create_sess_files.cold+0x49/0x1fe [rtrs_server]
+    [<0000000075d87bd7>] rtrs_srv_info_req_done+0x71b/0x960 [rtrs_server]
+    [<00000000ccdf1bb5>] __ib_process_cq+0x94/0x100 [ib_core]
+    [<00000000cbcb60cb>] ib_cq_poll_work+0x32/0xc0 [ib_core]
+    [<000000002b53eaa1>] process_one_work+0x4bc/0x980
+    [<00000000da3499fb>] worker_thread+0x78/0x5c0
+    [<00000000167127a4>] kthread+0x191/0x1e0
+    [<0000000060802104>] ret_from_fork+0x3a/0x50
 
-Fixes: 61e115a56d1a ("[SSB]: add Sonics Silicon Backplane bus support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-by: Michael Büsch <m@bues.ch>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210515072949.7151-1-thunder.leizhen@huawei.com
+The problem is we increase device refcount by get_device in process_info_req
+for each path, but only does put_deice for last path, which lead to
+memory leak.
+
+To fix it, it also calls put_device when dev_ref is not 0.
+
+Fixes: e2853c49477d1 ("RDMA/rtrs-srv-sysfs: fix missing put_device")
+Link: https://lore.kernel.org/r/20210528113018.52290-19-jinpu.wang@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ssb/scan.c | 1 +
+ drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ssb/scan.c b/drivers/ssb/scan.c
-index f49ab1aa2149..4161e5d1f276 100644
---- a/drivers/ssb/scan.c
-+++ b/drivers/ssb/scan.c
-@@ -325,6 +325,7 @@ int ssb_bus_scan(struct ssb_bus *bus,
- 	if (bus->nr_devices > ARRAY_SIZE(bus->devices)) {
- 		pr_err("More than %d ssb cores found (%d)\n",
- 		       SSB_MAX_NR_CORES, bus->nr_devices);
-+		err = -EINVAL;
- 		goto err_unmap;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+index 39708ab4f26e..7c75e1459017 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
++++ b/drivers/infiniband/ulp/rtrs/rtrs-srv-sysfs.c
+@@ -214,6 +214,7 @@ rtrs_srv_destroy_once_sysfs_root_folders(struct rtrs_srv_sess *sess)
+ 		device_del(&srv->dev);
+ 		put_device(&srv->dev);
+ 	} else {
++		put_device(&srv->dev);
+ 		mutex_unlock(&srv->paths_mutex);
  	}
- 	if (bus->bustype == SSB_BUSTYPE_SSB) {
+ }
 -- 
 2.30.2
 
