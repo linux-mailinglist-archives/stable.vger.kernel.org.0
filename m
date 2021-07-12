@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D391E3C4D9D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89C13C5368
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241013AbhGLHNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45838 "EHLO mail.kernel.org"
+        id S1352373AbhGLHym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245337AbhGLHLj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:11:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD61D6052B;
-        Mon, 12 Jul 2021 07:08:49 +0000 (UTC)
+        id S1350311AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 731DD6124C;
+        Mon, 12 Jul 2021 07:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073730;
-        bh=3AiVv/LfwI91vjTakuEn/rOtlxcUxuqn2PImj3a9zB8=;
+        s=korg; t=1626075868;
+        bh=EEImieGYEm3TJtvBV5uAN2OtJ+UZGPp52PzA1WPWR8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=necXCugzKcBblZwbus6wNWAxnrLqqhFI1nxrYN+d8H2+SYvaPRC/x53/w5k726jo2
-         c9Cp1q3yicvFI/S2y/pX7wSXHXqh6G9FmgmQWzMpNpkdztQyx5I8kA9/kcD0dgTxIu
-         czxw7kwPjIWICb8CzLmIvC7mhTgyvMSCDJ88pi/c=
+        b=AvYtbtMPsJB/KiyGWumNM+fUwZ85FyZ4W8BD3Tnbd6JJRNwiNSnnABloJ92AW4tZ1
+         Gi17T9DnNMvpLKn1M6o8zls40gt2UiBzLCHSn4+DsZUMc5+RYCYFvuNJTnESOBr5jm
+         xzFbHXhD93SN4KhauunFSKFGEdqU/v+hzCJw6AeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Marcin Wojtas <mw@semihalf.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 339/700] cpufreq: Make cpufreq_online() call driver->offline() on errors
+Subject: [PATCH 5.13 399/800] net: mvpp2: Put fwnode in error case during ->probe()
 Date:   Mon, 12 Jul 2021 08:07:02 +0200
-Message-Id: <20210712061012.378170982@linuxfoundation.org>
+Message-Id: <20210712061009.597483389@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 3b7180573c250eb6e2a7eec54ae91f27472332ea ]
+[ Upstream commit 71f0891c84dfdc448736082ab0a00acd29853896 ]
 
-In the CPU removal path the ->offline() callback provided by the
-driver is always invoked before ->exit(), but in the cpufreq_online()
-error path it is not, so ->exit() is expected to somehow know the
-context in which it has been called and act accordingly.
+In each iteration fwnode_for_each_available_child_node() bumps a reference
+counting of a loop variable followed by dropping in on a next iteration,
 
-That is less than straightforward, so make cpufreq_online() invoke
-the driver's ->offline() callback, if present, on errors before
-->exit() too.
+Since in error case the loop is broken, we have to drop a reference count
+by ourselves. Do it for port_fwnode in error case during ->probe().
 
-This only potentially affects intel_pstate.
-
-Fixes: 91a12e91dc39 ("cpufreq: Allow light-weight tear down and bring up of CPUs")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: 248122212f68 ("net: mvpp2: use device_*/fwnode_* APIs instead of of_*")
+Cc: Marcin Wojtas <mw@semihalf.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 1d1b563cea4b..1bc1293deae9 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1370,9 +1370,14 @@ static int cpufreq_online(unsigned int cpu)
- 			goto out_free_policy;
- 		}
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index d39c7639cdba..b3041fe6c0ae 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -7588,6 +7588,8 @@ static int mvpp2_probe(struct platform_device *pdev)
+ 	return 0;
  
-+		/*
-+		 * The initialization has succeeded and the policy is online.
-+		 * If there is a problem with its frequency table, take it
-+		 * offline and drop it.
-+		 */
- 		ret = cpufreq_table_validate_and_sort(policy);
- 		if (ret)
--			goto out_exit_policy;
-+			goto out_offline_policy;
- 
- 		/* related_cpus should at least include policy->cpus. */
- 		cpumask_copy(policy->related_cpus, policy->cpus);
-@@ -1518,6 +1523,10 @@ out_destroy_policy:
- 
- 	up_write(&policy->rwsem);
- 
-+out_offline_policy:
-+	if (cpufreq_driver->offline)
-+		cpufreq_driver->offline(policy);
+ err_port_probe:
++	fwnode_handle_put(port_fwnode);
 +
- out_exit_policy:
- 	if (cpufreq_driver->exit)
- 		cpufreq_driver->exit(policy);
+ 	i = 0;
+ 	fwnode_for_each_available_child_node(fwnode, port_fwnode) {
+ 		if (priv->port_list[i])
 -- 
 2.30.2
 
