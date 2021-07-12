@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C1A13C4469
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C2423C446B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233637AbhGLGTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:19:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37292 "EHLO mail.kernel.org"
+        id S233822AbhGLGTI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:19:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233625AbhGLGSp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 810AD610A7;
-        Mon, 12 Jul 2021 06:15:57 +0000 (UTC)
+        id S233650AbhGLGSu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C036610CB;
+        Mon, 12 Jul 2021 06:16:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070558;
-        bh=sGmguXc+Zx0QcAO3CULx4eTskHjo3DNXaodOoz40A7E=;
+        s=korg; t=1626070562;
+        bh=IEL2pDtsvMv082OK85dm2SOVhAI8LAmUFj/mNUeHC38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+VLZLkc603lUHfb8MVfm6W/xJ2ypDPfFA1kQpdL17I3ZcUwoYFt+RMcfF1v4Xi5n
-         0WO66BAW+wl2mwTROwKQY3aqdKcT7qmjneK2MrmvOjG8ubrU+tmIk+PfgEy7wT9+ke
-         VGv/f8+wKRNtFPOSVKiAvhOlxDL8Hv85E5JDLLA4=
+        b=Qz66FQomvzsURh1iTcPk/8vzfE7BKbGmX2nEbDX1/UR2kTC8kVhNDwKENFfKRAxR/
+         IzEX+TRb1Rv7R5oj4jSgHJ4+t31wHBXLNOsO9Q7ftdlzAWunfQ6e/VQ6/VeloUfZVU
+         w2W5BMqqIbV1hsq7LfE4aH7uvP/B8yExPBC1ZgUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.4 042/348] rtc: stm32: Fix unbalanced clk_disable_unprepare() on probe error path
-Date:   Mon, 12 Jul 2021 08:07:06 +0200
-Message-Id: <20210712060706.673751363@linuxfoundation.org>
+        stable@vger.kernel.org, frank zago <frank@zago.net>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 043/348] iio: light: tcs3472: do not free unallocated IRQ
+Date:   Mon, 12 Jul 2021 08:07:07 +0200
+Message-Id: <20210712060706.807254072@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,77 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: frank zago <frank@zago.net>
 
-commit 950ac33dbe6ff656a623d862022f0762ec061ba7 upstream.
+commit 7cd04c863f9e1655d607705455e7714f24451984 upstream.
 
-The STM32MP1 RTC may have 2 clocks, the pclk and the rtc_ck.
+Allocating an IRQ is conditional to the IRQ existence, but freeing it
+was not. If no IRQ was allocate, the driver would still try to free
+IRQ 0. Add the missing checks.
 
-If clk_prepare_enable() fails for the second clock (rtc_ck) we must only
-call clk_disable_unprepare() for the first clock (pclk) but currently we
-call it on both leading to a WARN:
+This fixes the following trace when the driver is removed:
 
-[   15.629568] WARNING: CPU: 0 PID: 146 at drivers/clk/clk.c:958 clk_core_disable+0xb0/0xc8
-[   15.637620] ck_rtc already disabled
-[   15.663322] CPU: 0 PID: 146 Comm: systemd-udevd Not tainted 5.4.77-pknbsp-svn5759-atag-v5.4.77-204-gea4235203137-dirty #2413
-[   15.674510] Hardware name: STM32 (Device Tree Support)
-[   15.679658] [<c0111148>] (unwind_backtrace) from [<c010c0b8>] (show_stack+0x10/0x14)
-[   15.687371] [<c010c0b8>] (show_stack) from [<c0ab3d28>] (dump_stack+0xc0/0xe0)
-[   15.694574] [<c0ab3d28>] (dump_stack) from [<c012360c>] (__warn+0xc8/0xf0)
-[   15.701428] [<c012360c>] (__warn) from [<c0123694>] (warn_slowpath_fmt+0x60/0x94)
-[   15.708894] [<c0123694>] (warn_slowpath_fmt) from [<c053b518>] (clk_core_disable+0xb0/0xc8)
-[   15.717230] [<c053b518>] (clk_core_disable) from [<c053c190>] (clk_core_disable_lock+0x18/0x24)
-[   15.725924] [<c053c190>] (clk_core_disable_lock) from [<bf0adc44>] (stm32_rtc_probe+0x124/0x5e4 [rtc_stm32])
-[   15.735739] [<bf0adc44>] (stm32_rtc_probe [rtc_stm32]) from [<c05f7d4c>] (platform_drv_probe+0x48/0x98)
-[   15.745095] [<c05f7d4c>] (platform_drv_probe) from [<c05f5cec>] (really_probe+0x1f0/0x458)
-[   15.753338] [<c05f5cec>] (really_probe) from [<c05f61c4>] (driver_probe_device+0x70/0x1c4)
-[   15.761584] [<c05f61c4>] (driver_probe_device) from [<c05f6580>] (device_driver_attach+0x58/0x60)
-[   15.770439] [<c05f6580>] (device_driver_attach) from [<c05f6654>] (__driver_attach+0xcc/0x170)
-[   15.779032] [<c05f6654>] (__driver_attach) from [<c05f40d8>] (bus_for_each_dev+0x58/0x7c)
-[   15.787191] [<c05f40d8>] (bus_for_each_dev) from [<c05f4ffc>] (bus_add_driver+0xdc/0x1f8)
-[   15.795352] [<c05f4ffc>] (bus_add_driver) from [<c05f6ed8>] (driver_register+0x7c/0x110)
-[   15.803425] [<c05f6ed8>] (driver_register) from [<c01027bc>] (do_one_initcall+0x70/0x1b8)
-[   15.811588] [<c01027bc>] (do_one_initcall) from [<c01a1094>] (do_init_module+0x58/0x1f8)
-[   15.819660] [<c01a1094>] (do_init_module) from [<c01a0074>] (load_module+0x1e58/0x23c8)
-[   15.827646] [<c01a0074>] (load_module) from [<c01a0860>] (sys_finit_module+0xa0/0xd4)
-[   15.835459] [<c01a0860>] (sys_finit_module) from [<c01011e0>] (__sys_trace_return+0x0/0x20)
+[  100.667788] Trying to free already-free IRQ 0
+[  100.667793] WARNING: CPU: 0 PID: 2315 at kernel/irq/manage.c:1826 free_irq+0x1fd/0x370
+...
+[  100.667914] Call Trace:
+[  100.667920]  tcs3472_remove+0x3a/0x90 [tcs3472]
+[  100.667927]  i2c_device_remove+0x2b/0xa0
 
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Fixes: 4e64350f42e2 ("rtc: add STM32 RTC driver")
-Cc: stable@vger.kernel.org
-Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/1623087421-19722-1-git-send-email-martin.fuzzey@flowbird.group
+Signed-off-by: frank zago <frank@zago.net>
+Link: https://lore.kernel.org/r/20210427022017.19314-2-frank@zago.net
+Fixes: 9d2f715d592e ("iio: light: tcs3472: support out-of-threshold events")
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/rtc/rtc-stm32.c |    6 ++++--
+ drivers/iio/light/tcs3472.c |    6 ++++--
  1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -756,7 +756,7 @@ static int stm32_rtc_probe(struct platfo
- 
- 	ret = clk_prepare_enable(rtc->rtc_ck);
- 	if (ret)
--		goto err;
-+		goto err_no_rtc_ck;
- 
- 	if (rtc->data->need_dbp)
- 		regmap_update_bits(rtc->dbp, rtc->dbp_reg,
-@@ -832,10 +832,12 @@ static int stm32_rtc_probe(struct platfo
- 	}
- 
+--- a/drivers/iio/light/tcs3472.c
++++ b/drivers/iio/light/tcs3472.c
+@@ -532,7 +532,8 @@ static int tcs3472_probe(struct i2c_clie
  	return 0;
-+
- err:
-+	clk_disable_unprepare(rtc->rtc_ck);
-+err_no_rtc_ck:
- 	if (rtc->data->has_pclk)
- 		clk_disable_unprepare(rtc->pclk);
--	clk_disable_unprepare(rtc->rtc_ck);
  
- 	if (rtc->data->need_dbp)
- 		regmap_update_bits(rtc->dbp, rtc->dbp_reg, rtc->dbp_mask, 0);
+ free_irq:
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ buffer_cleanup:
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	return ret;
+@@ -560,7 +561,8 @@ static int tcs3472_remove(struct i2c_cli
+ 	struct iio_dev *indio_dev = i2c_get_clientdata(client);
+ 
+ 	iio_device_unregister(indio_dev);
+-	free_irq(client->irq, indio_dev);
++	if (client->irq)
++		free_irq(client->irq, indio_dev);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+ 	tcs3472_powerdown(iio_priv(indio_dev));
+ 
 
 
