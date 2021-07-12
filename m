@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2044C3C5505
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F25613C4F13
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347094AbhGLIIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:08:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44252 "EHLO mail.kernel.org"
+        id S244842AbhGLHXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348540AbhGLH5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C62261879;
-        Mon, 12 Jul 2021 07:52:47 +0000 (UTC)
+        id S1343730AbhGLHUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:20:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 115A8610A6;
+        Mon, 12 Jul 2021 07:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076367;
-        bh=LJbD7DrUYPmRZAMlDFkz4WBP7lE88JkaDf4HFPrxDdw=;
+        s=korg; t=1626074234;
+        bh=wmT3ghuA3heAMB5MQWTYOkchAIJ2Ua+6fwqtLY6D6jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BanBOhyInTW1Y152MM/nXMaM8q2c0PpwTkNijmAJQXQ4WLoQBhguQyVONemo89NOX
-         C+XeCGySI0s9ELWAOS6adxxxd1uqU+UcQIvvYdUdKBvI7Rnvcuhnp0fv1iQZbkZylw
-         UwIEIL6Ll+9HTRmaQaHGk7Tva/dN2syvZoZRXKEg=
+        b=CgX4RM0ffI3bHi9JzmthwrtgjKiJ6jU9igOiwsMKxQbbKsqof6zIVPtkNXPQ0pYL0
+         dooXjqinmfq6/LHcU8ofTa6zThHDTSJn0d9gUkWZI3P6uZkfGvqSBZjG7TUDPd5IgX
+         IrtKszrRTYLZVZVvWIlH5t1kDboloNEuNi7WjkGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 570/800] net: phy: mscc: fix macsec key length
+Subject: [PATCH 5.12 510/700] clk: si5341: Update initialization magic
 Date:   Mon, 12 Jul 2021 08:09:53 +0200
-Message-Id: <20210712061028.046164014@linuxfoundation.org>
+Message-Id: <20210712061030.782761219@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit c309217f91f2d2097c2a0a832d9bff50b88c81dc ]
+[ Upstream commit 3c9b49b0031aefb81adfdba5ab0ddf3ca3a2cdc9 ]
 
-The key length used to store the macsec key was set to MACSEC_KEYID_LEN
-(16), which is an issue as:
-- This was never meant to be the key length.
-- The key length can be > 16.
+Update the default register settings to include the VCO_RESET_CALCODE
+settings (set by the SiLabs ClockBuilder software but not described in
+the datasheet). Also update part of the initialization sequence to match
+ClockBuilder and the datasheet.
 
-Fix this by using MACSEC_MAX_KEY_LEN instead (the max length accepted in
-uAPI).
-
-Fixes: 28c5107aa904 ("net: phy: mscc: macsec support")
-Reported-by: Lior Nahmanson <liorna@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3044a860fd ("clk: Add Si5341/Si5340 driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Link: https://lore.kernel.org/r/20210325192643.2190069-6-robert.hancock@calian.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mscc/mscc_macsec.c | 2 +-
- drivers/net/phy/mscc/mscc_macsec.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/clk-si5341.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/mscc/mscc_macsec.c b/drivers/net/phy/mscc/mscc_macsec.c
-index 10be266e48e8..b7b2521c73fb 100644
---- a/drivers/net/phy/mscc/mscc_macsec.c
-+++ b/drivers/net/phy/mscc/mscc_macsec.c
-@@ -501,7 +501,7 @@ static u32 vsc8584_macsec_flow_context_id(struct macsec_flow *flow)
- }
+diff --git a/drivers/clk/clk-si5341.c b/drivers/clk/clk-si5341.c
+index da40b90c2aa8..eb22f4fdbc6b 100644
+--- a/drivers/clk/clk-si5341.c
++++ b/drivers/clk/clk-si5341.c
+@@ -350,6 +350,8 @@ static const struct si5341_reg_default si5341_reg_defaults[] = {
+ 	{ 0x094A, 0x00 }, /* INx_TO_PFD_EN (disabled) */
+ 	{ 0x0A02, 0x00 }, /* Not in datasheet */
+ 	{ 0x0B44, 0x0F }, /* PDIV_ENB (datasheet does not mention what it is) */
++	{ 0x0B57, 0x10 }, /* VCO_RESET_CALCODE (not described in datasheet) */
++	{ 0x0B58, 0x05 }, /* VCO_RESET_CALCODE (not described in datasheet) */
+ };
  
- /* Derive the AES key to get a key for the hash autentication */
--static int vsc8584_macsec_derive_key(const u8 key[MACSEC_KEYID_LEN],
-+static int vsc8584_macsec_derive_key(const u8 key[MACSEC_MAX_KEY_LEN],
- 				     u16 key_len, u8 hkey[16])
- {
- 	const u8 input[AES_BLOCK_SIZE] = {0};
-diff --git a/drivers/net/phy/mscc/mscc_macsec.h b/drivers/net/phy/mscc/mscc_macsec.h
-index 9c6d25e36de2..453304bae778 100644
---- a/drivers/net/phy/mscc/mscc_macsec.h
-+++ b/drivers/net/phy/mscc/mscc_macsec.h
-@@ -81,7 +81,7 @@ struct macsec_flow {
- 	/* Highest takes precedence [0..15] */
- 	u8 priority;
+ /* Read and interpret a 44-bit followed by a 32-bit value in the regmap */
+@@ -1104,7 +1106,7 @@ static const struct si5341_reg_default si5341_preamble[] = {
+ 	{ 0x0B25, 0x00 },
+ 	{ 0x0502, 0x01 },
+ 	{ 0x0505, 0x03 },
+-	{ 0x0957, 0x1F },
++	{ 0x0957, 0x17 },
+ 	{ 0x0B4E, 0x1A },
+ };
  
--	u8 key[MACSEC_KEYID_LEN];
-+	u8 key[MACSEC_MAX_KEY_LEN];
- 
- 	union {
- 		struct macsec_rx_sa *rx_sa;
 -- 
 2.30.2
 
