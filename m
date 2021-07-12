@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F009B3C538F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E6B3C496B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348076AbhGLHzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:55:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
+        id S235010AbhGLGoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:44:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350475AbhGLHvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A2061A14;
-        Mon, 12 Jul 2021 07:45:42 +0000 (UTC)
+        id S237144AbhGLGnC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:43:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A13C761158;
+        Mon, 12 Jul 2021 06:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075943;
-        bh=CoN0J2MBEvya6ERUicUPdv/1mYF0XNCuj4gKEwDkavI=;
+        s=korg; t=1626071960;
+        bh=WF1o1BNDVfyRUhkdNwe1t1ceJv4yBBYYlDm+gtp63fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jhoyx3lIyr6f23W4VGGAwHEj8W2H6K8M71cglgRXt0+Lpgx3gb5H1VZHt35btQwdh
-         nnz6F2LtbPpq91Tk64AGFYmhFEc1rzvD5H5Nw0yjzNlcnDVuj4MqwATvzkqtcrym3h
-         1AFSFr++m0EZ2sXDBsooqCnhppJhTQzlmEmYJ33Q=
+        b=gCc+FwEJwsVrrXkqdaX07RS3rew+oOgV6/i4NYBSeyTSEkAB6uwO0GEl9Eg1jURnH
+         q2ebwZ/VDe7qbuCCEdmxFi0JpQ35wy9xYRiuSexql5oe80u1VikcP+jgx9hQH9S3qP
+         vSd3Tq7x/ihNmOPs31tdOODZjDEd2l8lplTvF+oA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianwen Ji <jiji@redhat.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Andrej Picej <andpicej@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 388/800] xfrm: xfrm_state_mtu should return at least 1280 for ipv6
+Subject: [PATCH 5.10 251/593] hwmon: (lm70) Revert "hwmon: (lm70) Add support for ACPI"
 Date:   Mon, 12 Jul 2021 08:06:51 +0200
-Message-Id: <20210712061008.512189505@linuxfoundation.org>
+Message-Id: <20210712060910.548319484@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,109 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit b515d2637276a3810d6595e10ab02c13bfd0b63a ]
+[ Upstream commit ac61c8aae446b9c0fe18981fe721d4a43e283ad6 ]
 
-Jianwen reported that IPv6 Interoperability tests are failing in an
-IPsec case where one of the links between the IPsec peers has an MTU
-of 1280. The peer generates a packet larger than this MTU, the router
-replies with a "Packet too big" message indicating an MTU of 1280.
-When the peer tries to send another large packet, xfrm_state_mtu
-returns 1280 - ipsec_overhead, which causes ip6_setup_cork to fail
-with EINVAL.
+This reverts commit b58bd4c6dfe709646ed9efcbba2a70643f9bc873.
 
-We can fix this by forcing xfrm_state_mtu to return IPV6_MIN_MTU when
-IPv6 is used. After going through IPsec, the packet will then be
-fragmented to obey the actual network's PMTU, just before leaving the
-host.
+None of the ACPI IDs introduced with the reverted patch is a valid ACPI
+device ID. Any ACPI users of this driver are advised to use PRP0001 and
+a devicetree-compatible device identification.
 
-Currently, TFC padding is capped to PMTU - overhead to avoid
-fragementation: after padding and encapsulation, we still fit within
-the PMTU. That behavior is preserved in this patch.
-
-Fixes: 91657eafb64b ("xfrm: take net hdr len into account for esp payload size calculation")
-Reported-by: Jianwen Ji <jiji@redhat.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: b58bd4c6dfe7 ("hwmon: (lm70) Add support for ACPI")
+Cc: Andrej Picej <andpicej@gmail.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h    |  1 +
- net/ipv4/esp4.c       |  2 +-
- net/ipv6/esp6.c       |  2 +-
- net/xfrm/xfrm_state.c | 14 ++++++++++++--
- 4 files changed, 15 insertions(+), 4 deletions(-)
+ drivers/hwmon/lm70.c | 26 +-------------------------
+ 1 file changed, 1 insertion(+), 25 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index c58a6d4eb610..6232a5f048bd 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1546,6 +1546,7 @@ void xfrm_sad_getinfo(struct net *net, struct xfrmk_sadinfo *si);
- void xfrm_spd_getinfo(struct net *net, struct xfrmk_spdinfo *si);
- u32 xfrm_replay_seqhi(struct xfrm_state *x, __be32 net_seq);
- int xfrm_init_replay(struct xfrm_state *x);
-+u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu);
- u32 xfrm_state_mtu(struct xfrm_state *x, int mtu);
- int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload);
- int xfrm_init_state(struct xfrm_state *x);
-diff --git a/net/ipv4/esp4.c b/net/ipv4/esp4.c
-index 35803ab7ac80..26171dec08c4 100644
---- a/net/ipv4/esp4.c
-+++ b/net/ipv4/esp4.c
-@@ -673,7 +673,7 @@ static int esp_output(struct xfrm_state *x, struct sk_buff *skb)
- 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
- 		u32 padto;
+diff --git a/drivers/hwmon/lm70.c b/drivers/hwmon/lm70.c
+index 40eab3349904..6b884ea00987 100644
+--- a/drivers/hwmon/lm70.c
++++ b/drivers/hwmon/lm70.c
+@@ -22,10 +22,10 @@
+ #include <linux/hwmon.h>
+ #include <linux/mutex.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/of.h>
+ #include <linux/property.h>
+ #include <linux/spi/spi.h>
+ #include <linux/slab.h>
+-#include <linux/acpi.h>
  
--		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
-+		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
- 		if (skb->len < padto)
- 			esp.tfclen = padto - skb->len;
- 	}
-diff --git a/net/ipv6/esp6.c b/net/ipv6/esp6.c
-index 393ae2b78e7d..1654e4ce094f 100644
---- a/net/ipv6/esp6.c
-+++ b/net/ipv6/esp6.c
-@@ -708,7 +708,7 @@ static int esp6_output(struct xfrm_state *x, struct sk_buff *skb)
- 		struct xfrm_dst *dst = (struct xfrm_dst *)skb_dst(skb);
- 		u32 padto;
+ #define DRVNAME		"lm70"
  
--		padto = min(x->tfcpad, xfrm_state_mtu(x, dst->child_mtu_cached));
-+		padto = min(x->tfcpad, __xfrm_state_mtu(x, dst->child_mtu_cached));
- 		if (skb->len < padto)
- 			esp.tfclen = padto - skb->len;
- 	}
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 4496f7efa220..c25586156c6a 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -2518,7 +2518,7 @@ void xfrm_state_delete_tunnel(struct xfrm_state *x)
- }
- EXPORT_SYMBOL(xfrm_state_delete_tunnel);
+@@ -148,29 +148,6 @@ static const struct of_device_id lm70_of_ids[] = {
+ MODULE_DEVICE_TABLE(of, lm70_of_ids);
+ #endif
  
--u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
-+u32 __xfrm_state_mtu(struct xfrm_state *x, int mtu)
+-#ifdef CONFIG_ACPI
+-static const struct acpi_device_id lm70_acpi_ids[] = {
+-	{
+-		.id = "LM000070",
+-		.driver_data = LM70_CHIP_LM70,
+-	},
+-	{
+-		.id = "TMP00121",
+-		.driver_data = LM70_CHIP_TMP121,
+-	},
+-	{
+-		.id = "LM000071",
+-		.driver_data = LM70_CHIP_LM71,
+-	},
+-	{
+-		.id = "LM000074",
+-		.driver_data = LM70_CHIP_LM74,
+-	},
+-	{},
+-};
+-MODULE_DEVICE_TABLE(acpi, lm70_acpi_ids);
+-#endif
+-
+ static int lm70_probe(struct spi_device *spi)
  {
- 	const struct xfrm_type *type = READ_ONCE(x->type);
- 	struct crypto_aead *aead;
-@@ -2549,7 +2549,17 @@ u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
- 	return ((mtu - x->props.header_len - crypto_aead_authsize(aead) -
- 		 net_adj) & ~(blksize - 1)) + net_adj - 2;
- }
--EXPORT_SYMBOL_GPL(xfrm_state_mtu);
-+EXPORT_SYMBOL_GPL(__xfrm_state_mtu);
-+
-+u32 xfrm_state_mtu(struct xfrm_state *x, int mtu)
-+{
-+	mtu = __xfrm_state_mtu(x, mtu);
-+
-+	if (x->props.family == AF_INET6 && mtu < IPV6_MIN_MTU)
-+		return IPV6_MIN_MTU;
-+
-+	return mtu;
-+}
- 
- int __xfrm_init_state(struct xfrm_state *x, bool init_replay, bool offload)
- {
+ 	struct device *hwmon_dev;
+@@ -217,7 +194,6 @@ static struct spi_driver lm70_driver = {
+ 	.driver = {
+ 		.name	= "lm70",
+ 		.of_match_table	= of_match_ptr(lm70_of_ids),
+-		.acpi_match_table = ACPI_PTR(lm70_acpi_ids),
+ 	},
+ 	.id_table = lm70_ids,
+ 	.probe	= lm70_probe,
 -- 
 2.30.2
 
