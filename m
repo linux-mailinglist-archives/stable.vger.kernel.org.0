@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A58EB3C4DC3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC6B3C49B0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242921AbhGLHOn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:14:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49268 "EHLO mail.kernel.org"
+        id S237433AbhGLGqL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:46:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239732AbhGLHNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:13:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5062B610D1;
-        Mon, 12 Jul 2021 07:10:33 +0000 (UTC)
+        id S239180AbhGLGox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C2DD61205;
+        Mon, 12 Jul 2021 06:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073833;
-        bh=kiDqqcUuVbI4FtfzcNZsh21VHyWzYeAUKV4DhKar0QQ=;
+        s=korg; t=1626072069;
+        bh=xxjlMFNO6wozrLBsxTPdLCjGEZmW8gE45enJkaXdPlI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFDd75SMPUOA5Br0pJ8WbLGo3f8BOHXNuu35q8rWtdJ6F38t9LV2ABlYtOzA3weuv
-         dy5xPCUSGADlusviFG0uFS9NFP4vQHbuvEsoNJItGyLIr4OT5p9aOdB2ZPMRk/S72+
-         SxtADsc45hJMjBR6xqap96sCMYujyqRGEO+idD2Y=
+        b=OjrxOXYLP85QLWa3K2sOwWG/7ZUjYPxxnjsN+Q6wBx3DN6TQ5IA15pODASetTpBWl
+         wWhpSgmoIzc71h7t90cUwECOVZhtEkU/MqRshOEYBEwjTNziV2aDyLW8DE6AC43Jh9
+         GB+PRD2Izw4YWNpdPbctJBnM5qjmaaGgPEfSY41U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Liu Shixin <liushixin2@huawei.com>,
+        yangerkun <yangerkun@huawei.com>, Baoquan He <bhe@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 375/700] drm: rockchip: set alpha_en to 0 if it is not used
+Subject: [PATCH 5.10 298/593] mm/page_alloc: fix counting of managed_pages
 Date:   Mon, 12 Jul 2021 08:07:38 +0200
-Message-Id: <20210712061016.251238257@linuxfoundation.org>
+Message-Id: <20210712060917.506389161@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 046e0db975695540c9d9898cdbf0b60533d28afb ]
+[ Upstream commit f7ec104458e00d27a190348ac3a513f3df3699a4 ]
 
-alpha_en should be set to 0 if it is not used, i.e. to disable alpha
-blending if it was enabled before and should be disabled now.
+commit f63661566fad ("mm/page_alloc.c: clear out zone->lowmem_reserve[] if
+the zone is empty") clears out zone->lowmem_reserve[] if zone is empty.
+But when zone is not empty and sysctl_lowmem_reserve_ratio[i] is set to
+zero, zone_managed_pages(zone) is not counted in the managed_pages either.
+This is inconsistent with the description of lowmem_reserve, so fix it.
 
-Fixes: 2aae8ed1f390 ("drm/rockchip: Add per-pixel alpha support for the PX30 VOP")
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210528130554.72191-6-knaerzche@gmail.com
+Link: https://lkml.kernel.org/r/20210527125707.3760259-1-liushixin2@huawei.com
+Fixes: f63661566fad ("mm/page_alloc.c: clear out zone->lowmem_reserve[] if the zone is empty")
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Reported-by: yangerkun <yangerkun@huawei.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/page_alloc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-index 8d15cabdcb02..2d10198044c2 100644
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -1013,6 +1013,7 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
- 		VOP_WIN_SET(vop, win, alpha_en, 1);
- 	} else {
- 		VOP_WIN_SET(vop, win, src_alpha_ctl, SRC_ALPHA_EN(0));
-+		VOP_WIN_SET(vop, win, alpha_en, 0);
- 	}
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index f955610fb552..e30d88efd7fb 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -7798,14 +7798,14 @@ static void setup_per_zone_lowmem_reserve(void)
+ 			unsigned long managed_pages = 0;
  
- 	VOP_WIN_SET(vop, win, enable, 1);
+ 			for (j = i + 1; j < MAX_NR_ZONES; j++) {
+-				if (clear) {
+-					zone->lowmem_reserve[j] = 0;
+-				} else {
+-					struct zone *upper_zone = &pgdat->node_zones[j];
++				struct zone *upper_zone = &pgdat->node_zones[j];
++
++				managed_pages += zone_managed_pages(upper_zone);
+ 
+-					managed_pages += zone_managed_pages(upper_zone);
++				if (clear)
++					zone->lowmem_reserve[j] = 0;
++				else
+ 					zone->lowmem_reserve[j] = managed_pages / ratio;
+-				}
+ 			}
+ 		}
+ 	}
 -- 
 2.30.2
 
