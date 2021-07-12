@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3879F3C5034
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64143C4B2D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241094AbhGLHbl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
+        id S237827AbhGLGzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343732AbhGLH2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:28:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD2761283;
-        Mon, 12 Jul 2021 07:24:31 +0000 (UTC)
+        id S240953AbhGLGyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F3DC61186;
+        Mon, 12 Jul 2021 06:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074672;
-        bh=YKAMSYzA1036o9x61Hxa0VrxHLMVvLdRs/KNHYKJQgc=;
+        s=korg; t=1626072682;
+        bh=7fbMYirB/mGtYtE6wJI6Dx6xC3KIBZASpqlwif7Pb+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQwaXofO24psKrQII5l+YWRCwcG0C5eeZWXsathJ3S3/KzFBB7wJ7OtIU1jourO4q
-         cVSw38TwWZWT2nnXCgZVy35+FAgqv09rtMs8CyK5kJVUIQAtNYG29XGFfpFMIbN1ei
-         BWb0R0E0lpFdWmUXfFTC/8p50GHk6NnDPf8xdNyQ=
+        b=htrK3vAbFvyvjV//xads+ySeQIryW5QMGYwEuFvxgC0OC4U5YCvYsRpTM78hcruyf
+         bnVS5/nB2XiGE/9nY7t5GS8iYQnALfD7rlv82ekLyGkQDXpaCEw6PXs0/6xiTDB1gQ
+         YR+TwJ9X0R2hoS9tF3MHSoB1gJQeKb7cTSNLR6+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 657/700] powerpc/papr_scm: Make perf_stats invisible if perf-stats unavailable
+        stable@vger.kernel.org, Florian Cramer <flrncrmr@gmail.com>,
+        Sungjong Seo <sj1557.seo@samsung.com>,
+        Chris Down <chris@chrisdown.name>,
+        Namjae Jeon <namjae.jeon@samsung.com>
+Subject: [PATCH 5.10 580/593] exfat: handle wrong stream entry size in exfat_readdir()
 Date:   Mon, 12 Jul 2021 08:12:20 +0200
-Message-Id: <20210712061045.771901555@linuxfoundation.org>
+Message-Id: <20210712060958.979038217@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,143 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vaibhav Jain <vaibhav@linux.ibm.com>
+From: Namjae Jeon <namjae.jeon@samsung.com>
 
-[ Upstream commit ed78f56e1271f108e8af61baeba383dcd77adbec ]
+commit 1e5654de0f51890f88abd409ebf4867782431e81 upstream.
 
-In case performance stats for an nvdimm are not available, reading the
-'perf_stats' sysfs file returns an -ENOENT error. A better approach is
-to make the 'perf_stats' file entirely invisible to indicate that
-performance stats for an nvdimm are unavailable.
+The compatibility issue between linux exfat and exfat of some camera
+company was reported from Florian. In their exfat, if the number of files
+exceeds any limit, the DataLength in stream entry of the directory is
+no longer updated. So some files created from camera does not show in
+linux exfat. because linux exfat doesn't allow that cpos becomes larger
+than DataLength of stream entry. This patch check DataLength in stream
+entry only if the type is ALLOC_NO_FAT_CHAIN and add the check ensure
+that dentry offset does not exceed max dentries size(256 MB) to avoid
+the circular FAT chain issue.
 
-So this patch updates 'papr_nd_attribute_group' to add a 'is_visible'
-callback implemented as newly introduced 'papr_nd_attribute_visible()'
-that returns an appropriate mode in case performance stats aren't
-supported in a given nvdimm.
+Fixes: ca06197382bd ("exfat: add directory operations")
+Cc: stable@vger.kernel.org # v5.9
+Reported-by: Florian Cramer <flrncrmr@gmail.com>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Tested-by: Chris Down <chris@chrisdown.name>
+Signed-off-by: Namjae Jeon <namjae.jeon@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Also the initialization of 'papr_scm_priv.stat_buffer_len' is moved
-from papr_scm_nvdimm_init() to papr_scm_probe() so that it value is
-available when 'papr_nd_attribute_visible()' is called during nvdimm
-initialization.
-
-Even though 'perf_stats' attribute is available since v5.9, there are
-no known user-space tools/scripts that are dependent on presence of its
-sysfs file. Hence I dont expect any user-space breakage with this
-patch.
-
-Fixes: 2d02bf835e57 ("powerpc/papr_scm: Fetch nvdimm performance stats from PHYP")
-Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210513092349.285021-1-vaibhav@linux.ibm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/ABI/testing/sysfs-bus-papr-pmem |  8 +++--
- arch/powerpc/platforms/pseries/papr_scm.c     | 35 +++++++++++++------
- 2 files changed, 29 insertions(+), 14 deletions(-)
+ fs/exfat/dir.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-bus-papr-pmem b/Documentation/ABI/testing/sysfs-bus-papr-pmem
-index 8316c33862a0..0aa02bf2bde5 100644
---- a/Documentation/ABI/testing/sysfs-bus-papr-pmem
-+++ b/Documentation/ABI/testing/sysfs-bus-papr-pmem
-@@ -39,9 +39,11 @@ KernelVersion:	v5.9
- Contact:	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-nvdimm@lists.01.org,
- Description:
- 		(RO) Report various performance stats related to papr-scm NVDIMM
--		device.  Each stat is reported on a new line with each line
--		composed of a stat-identifier followed by it value. Below are
--		currently known dimm performance stats which are reported:
-+		device. This attribute is only available for NVDIMM devices
-+		that support reporting NVDIMM performance stats. Each stat is
-+		reported on a new line with each line composed of a
-+		stat-identifier followed by it value. Below are currently known
-+		dimm performance stats which are reported:
+--- a/fs/exfat/dir.c
++++ b/fs/exfat/dir.c
+@@ -62,7 +62,7 @@ static void exfat_get_uniname_from_ext_e
+ static int exfat_readdir(struct inode *inode, loff_t *cpos, struct exfat_dir_entry *dir_entry)
+ {
+ 	int i, dentries_per_clu, dentries_per_clu_bits = 0, num_ext;
+-	unsigned int type, clu_offset;
++	unsigned int type, clu_offset, max_dentries;
+ 	sector_t sector;
+ 	struct exfat_chain dir, clu;
+ 	struct exfat_uni_name uni_name;
+@@ -85,6 +85,8 @@ static int exfat_readdir(struct inode *i
  
- 		* "CtlResCt" : Controller Reset Count
- 		* "CtlResTm" : Controller Reset Elapsed Time
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index 0693bc8d70ac..057acbb9116d 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -868,6 +868,20 @@ static ssize_t flags_show(struct device *dev,
- }
- DEVICE_ATTR_RO(flags);
+ 	dentries_per_clu = sbi->dentries_per_clu;
+ 	dentries_per_clu_bits = ilog2(dentries_per_clu);
++	max_dentries = (unsigned int)min_t(u64, MAX_EXFAT_DENTRIES,
++					   (u64)sbi->num_clusters << dentries_per_clu_bits);
  
-+static umode_t papr_nd_attribute_visible(struct kobject *kobj,
-+					 struct attribute *attr, int n)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct nvdimm *nvdimm = to_nvdimm(dev);
-+	struct papr_scm_priv *p = nvdimm_provider_data(nvdimm);
-+
-+	/* For if perf-stats not available remove perf_stats sysfs */
-+	if (attr == &dev_attr_perf_stats.attr && p->stat_buffer_len == 0)
-+		return 0;
-+
-+	return attr->mode;
-+}
-+
- /* papr_scm specific dimm attributes */
- static struct attribute *papr_nd_attributes[] = {
- 	&dev_attr_flags.attr,
-@@ -877,6 +891,7 @@ static struct attribute *papr_nd_attributes[] = {
+ 	clu_offset = dentry >> dentries_per_clu_bits;
+ 	exfat_chain_dup(&clu, &dir);
+@@ -108,7 +110,7 @@ static int exfat_readdir(struct inode *i
+ 		}
+ 	}
  
- static struct attribute_group papr_nd_attribute_group = {
- 	.name = "papr",
-+	.is_visible = papr_nd_attribute_visible,
- 	.attrs = papr_nd_attributes,
- };
+-	while (clu.dir != EXFAT_EOF_CLUSTER) {
++	while (clu.dir != EXFAT_EOF_CLUSTER && dentry < max_dentries) {
+ 		i = dentry & (dentries_per_clu - 1);
  
-@@ -892,7 +907,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
- 	struct nd_region_desc ndr_desc;
- 	unsigned long dimm_flags;
- 	int target_nid, online_nid;
--	ssize_t stat_size;
+ 		for ( ; i < dentries_per_clu; i++, dentry++) {
+@@ -244,7 +246,7 @@ static int exfat_iterate(struct file *fi
+ 	if (err)
+ 		goto unlock;
+ get_new:
+-	if (cpos >= i_size_read(inode))
++	if (ei->flags == ALLOC_NO_FAT_CHAIN && cpos >= i_size_read(inode))
+ 		goto end_of_dir;
  
- 	p->bus_desc.ndctl = papr_scm_ndctl;
- 	p->bus_desc.module = THIS_MODULE;
-@@ -963,16 +977,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
- 	list_add_tail(&p->region_list, &papr_nd_regions);
- 	mutex_unlock(&papr_ndr_lock);
- 
--	/* Try retriving the stat buffer and see if its supported */
--	stat_size = drc_pmem_query_stats(p, NULL, 0);
--	if (stat_size > 0) {
--		p->stat_buffer_len = stat_size;
--		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
--			p->stat_buffer_len);
--	} else {
--		dev_info(&p->pdev->dev, "Dimm performance stats unavailable\n");
--	}
--
- 	return 0;
- 
- err:	nvdimm_bus_unregister(p->bus);
-@@ -1050,6 +1054,7 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	struct papr_scm_priv *p;
- 	u8 uuid_raw[UUID_SIZE];
- 	const char *uuid_str;
-+	ssize_t stat_size;
- 	uuid_t uuid;
- 	int rc;
- 
-@@ -1133,6 +1138,14 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	p->res.name  = pdev->name;
- 	p->res.flags = IORESOURCE_MEM;
- 
-+	/* Try retrieving the stat buffer and see if its supported */
-+	stat_size = drc_pmem_query_stats(p, NULL, 0);
-+	if (stat_size > 0) {
-+		p->stat_buffer_len = stat_size;
-+		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
-+			p->stat_buffer_len);
-+	}
-+
- 	rc = papr_scm_nvdimm_init(p);
- 	if (rc)
- 		goto err2;
--- 
-2.30.2
-
+ 	err = exfat_readdir(inode, &cpos, &de);
 
 
