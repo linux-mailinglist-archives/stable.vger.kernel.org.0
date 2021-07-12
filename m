@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D573C536C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C033E3C4910
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352394AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
+        id S237473AbhGLGlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350316AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22E7561156;
-        Mon, 12 Jul 2021 07:44:25 +0000 (UTC)
+        id S235473AbhGLGka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D8E3610A7;
+        Mon, 12 Jul 2021 06:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075866;
-        bh=J8Lax/qMhCGjjnv9auOhYqqKP3CYUBLakkVskLSN72w=;
+        s=korg; t=1626071862;
+        bh=nJBxJgmRFblp5PtPkGY4cKuHKRQqMekKlQh+2VtKUzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3g8EN8hvHTcxMEUXoO+nOaZnyEMjOmB0Tkwyz4zcqsXFKSGXlSbvX1RNAe1NBXJW
-         Ql+WkuvrqRqQoMTvbLvmZ36gUg6otKxfRQpcfo8lqecTrJzAqWOHQF/1RpKWcKavwN
-         1ruxrdheTQBGJNFPD5wmzpmU5YZTwEDnrYz1Izjo=
+        b=E56ht7eepC2jtWkC3HhbXdPd8m1yVf0WhFKyS4abORAt0N5EttOGth08cKab40az2
+         32/wnMDik5sxHlp0dyBJMlnC9ZdehM3v5v3GPcfNqzA3kUyvPnBjXRMOeNp1MPnp59
+         IuW07prYMAIbzEFXv+PSfOf6lz6U+u9L0Zw8hnjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 381/800] dax: fix ENOMEM handling in grab_mapping_entry()
-Date:   Mon, 12 Jul 2021 08:06:44 +0200
-Message-Id: <20210712061007.685137743@linuxfoundation.org>
+Subject: [PATCH 5.10 245/593] mmc: usdhi6rol0: fix error return code in usdhi6_probe()
+Date:   Mon, 12 Jul 2021 08:06:45 +0200
+Message-Id: <20210712060909.843153519@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
+[ Upstream commit 2f9ae69e5267f53e89e296fccee291975a85f0eb ]
 
-grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
-we have a PMD entry at index i which we are downgrading to a PTE entry.
-grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
-the entry in xarray, and decrement mapping->nrpages.  The it will call:
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
-	dax_lock_entry(xas, entry);
-
-which inserts new PTE entry into xarray.  However this may fail allocating
-the new node.  We handle this by:
-
-	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
-		goto retry;
-
-however pmd_downgrade stays set to true even though 'entry' returned from
-get_unlocked_entry() will be NULL now.  And we will go again through the
-downgrade branch.  This is mostly harmless except that mapping->nrpages is
-decremented again and we temporarily have an invalid entry stored in
-xarray.  Fix the problem by setting pmd_downgrade to false each time we
-lookup the entry we work with so that it matches the entry we found.
-
-Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
-Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 75fa9ea6e3c0 ("mmc: add a driver for the Renesas usdhi6rol0 SD/SDIO host controller")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508020321.1677-1-thunder.leizhen@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mmc/host/usdhi6rol0.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index 62352cbcf0f4..da41f9363568 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -488,10 +488,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 		struct address_space *mapping, unsigned int order)
- {
- 	unsigned long index = xas->xa_index;
--	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
-+	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
- 	void *entry;
+diff --git a/drivers/mmc/host/usdhi6rol0.c b/drivers/mmc/host/usdhi6rol0.c
+index 615f3d008af1..b9b79b1089a0 100644
+--- a/drivers/mmc/host/usdhi6rol0.c
++++ b/drivers/mmc/host/usdhi6rol0.c
+@@ -1801,6 +1801,7 @@ static int usdhi6_probe(struct platform_device *pdev)
  
- retry:
-+	pmd_downgrade = false;
- 	xas_lock_irq(xas);
- 	entry = get_unlocked_entry(xas, order);
- 
+ 	version = usdhi6_read(host, USDHI6_VERSION);
+ 	if ((version & 0xfff) != 0xa0d) {
++		ret = -EPERM;
+ 		dev_err(dev, "Version not recognized %x\n", version);
+ 		goto e_clk_off;
+ 	}
 -- 
 2.30.2
 
