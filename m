@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ED4C3C513D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 531DA3C4B92
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345661AbhGLHif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:38:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56588 "EHLO mail.kernel.org"
+        id S239672AbhGLG6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347325AbhGLHer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42DC861242;
-        Mon, 12 Jul 2021 07:31:41 +0000 (UTC)
+        id S238403AbhGLG5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E4B61361;
+        Mon, 12 Jul 2021 06:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075101;
-        bh=WZZT5w4Bkeo+YwtsfIDG7WBHhky+Y/drB2kLyflO1ig=;
+        s=korg; t=1626072859;
+        bh=Vz/8nZG8zcT/Di9vwI6Q5i3RZv9Eig3ce4H3Fe2Gr2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1zvTdWGfsFWsvZqbotlyZg6wUVPAtDgYKKwUOhTw5oiHnUyhcntTgMk6lqzQi/6w
-         L/hOGO2qQjWLuHGB5PSGpLpYBCipUw/yWI9K+CnEF1mIcV5rRZ8A2mcnNCgHb6txWy
-         qf7lnHewskbhVnq1z88g2zul+CJwW21PEDjowsjk=
+        b=2NczqGdAvF5ldHovSiv1UKgD1gbUa+5AXYwGiH2O89SGyYU0cyjmXF7k/sifyRiOq
+         7pgWR4yBZ1Ilo+GJN7a3j8feRNs43wRencQ1qRuZqxIt9rzj4+8hMWVTWCIl8Qh30d
+         3U6GSkEtATF9YXuzJHelaRiH5loipQptYQcEZvnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.13 105/800] ssb: sdio: Dont overwrite const buffer if block_write fails
-Date:   Mon, 12 Jul 2021 08:02:08 +0200
-Message-Id: <20210712060927.817061258@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 046/700] btrfs: compression: dont try to compress if we dont have enough pages
+Date:   Mon, 12 Jul 2021 08:02:09 +0200
+Message-Id: <20210712060931.196287208@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +38,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Buesch <m@bues.ch>
+From: David Sterba <dsterba@suse.com>
 
-commit 47ec636f7a25aa2549e198c48ecb6b1c25d05456 upstream.
+commit f2165627319ffd33a6217275e5690b1ab5c45763 upstream.
 
-It doesn't make sense to clobber the const driver-side buffer, if a
-write-to-device attempt failed. All other SSB variants (PCI, PCMCIA and SoC)
-also don't corrupt the buffer on any failure in block_write.
-Therefore, remove this memset from the SDIO variant.
+The early check if we should attempt compression does not take into
+account the number of input pages. It can happen that there's only one
+page, eg. a tail page after some ranges of the BTRFS_MAX_UNCOMPRESSED
+have been processed, or an isolated page that won't be converted to an
+inline extent.
 
-Signed-off-by: Michael Büsch <m@bues.ch>
-Cc: stable@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210515210252.318be2ba@wiggum
+The single page would be compressed but a later check would drop it
+again because the result size must be at least one block shorter than
+the input. That can never work with just one page.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ssb/sdio.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ssb/sdio.c
-+++ b/drivers/ssb/sdio.c
-@@ -411,7 +411,6 @@ static void ssb_sdio_block_write(struct
- 	sdio_claim_host(bus->host_sdio);
- 	if (unlikely(ssb_sdio_switch_core(bus, dev))) {
- 		error = -EIO;
--		memset((void *)buffer, 0xff, count);
- 		goto err_out;
- 	}
- 	offset |= bus->sdio_sbaddr & 0xffff;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -598,7 +598,7 @@ again:
+ 	 * inode has not been flagged as nocompress.  This flag can
+ 	 * change at any time if we discover bad compression ratios.
+ 	 */
+-	if (inode_need_compress(BTRFS_I(inode), start, end)) {
++	if (nr_pages > 1 && inode_need_compress(BTRFS_I(inode), start, end)) {
+ 		WARN_ON(pages);
+ 		pages = kcalloc(nr_pages, sizeof(struct page *), GFP_NOFS);
+ 		if (!pages) {
 
 
