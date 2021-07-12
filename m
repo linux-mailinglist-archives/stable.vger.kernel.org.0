@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2863C4C3B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7D5A3C51ED
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239500AbhGLHCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        id S1349561AbhGLHoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241185AbhGLHB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8668E613C2;
-        Mon, 12 Jul 2021 06:59:05 +0000 (UTC)
+        id S1348687AbhGLHlS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:41:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC4360FF3;
+        Mon, 12 Jul 2021 07:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073146;
-        bh=SodTYBS+nkhTYIaTFCakuqhJ3rhlLOR54Z4vuce8TuA=;
+        s=korg; t=1626075510;
+        bh=q6vmNX2IUIhLdwUmkhoKLOs2c5YhP2jmDvOfWVKlIaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V30ug1F6Akoe8+nFMpYHIAn2yZS2m+WQrW6MMuObsy2JuzhaABcJ/p8cSoGepjkI0
-         la8fat042JvX2/rjPBMBusTSwhnkhMrC3bhdo/sZ0GZt8WRxjpQsMWwOxmnuDLCYqg
-         8sJhT7xlDVLpFIaSr4iolkNhfyOdz1lwgBj/GUro=
+        b=LWNOzu4xrDwYoy474DKqq57p41yr9Xisr4FAsi4EI9YnlknyJ9HDfx5O+VJLpZn+o
+         ccflJnXJtTRiMPLfUJ30/DvtuDMzYL3lodHdPpNkfPRZ0FPfOz87xYtT2xw7ZJLsDK
+         xb3kneu4Vc/C/mQG+zRZby3l9InZDZs+2t94ENnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Boqun Feng <boqun.feng@gmail.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 142/700] sched: Make the idle task quack like a per-CPU kthread
+Subject: [PATCH 5.13 202/800] lockding/lockdep: Avoid to find wrong lock dep path in check_irq_usage()
 Date:   Mon, 12 Jul 2021 08:03:45 +0200
-Message-Id: <20210712060945.607511725@linuxfoundation.org>
+Message-Id: <20210712060941.635914542@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,142 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Boqun Feng <boqun.feng@gmail.com>
 
-[ Upstream commit 00b89fe0197f0c55a045775c11553c0cdb7082fe ]
+[ Upstream commit 7b1f8c6179769af6ffa055e1169610b51d71edd5 ]
 
-For all intents and purposes, the idle task is a per-CPU kthread. It isn't
-created via the same route as other pcpu kthreads however, and as a result
-it is missing a few bells and whistles: it fails kthread_is_per_cpu() and
-it doesn't have PF_NO_SETAFFINITY set.
+In the step #3 of check_irq_usage(), we seach backwards to find a lock
+whose usage conflicts the usage of @target_entry1 on safe/unsafe.
+However, we should only keep the irq-unsafe usage of @target_entry1 into
+consideration, because it could be a case where a lock is hardirq-unsafe
+but soft-safe, and in check_irq_usage() we find it because its
+hardirq-unsafe could result into a hardirq-safe-unsafe deadlock, but
+currently since we don't filter out the other usage bits, so we may find
+a lock dependency path softirq-unsafe -> softirq-safe, which in fact
+doesn't cause a deadlock. And this may cause misleading lockdep splats.
 
-Fix the former by giving the idle task a kthread struct along with the
-KTHREAD_IS_PER_CPU flag. This requires some extra iffery as init_idle()
-call be called more than once on the same idle task.
+Fix this by only keeping LOCKF_ENABLED_IRQ_ALL bits when we try the
+backwards search.
 
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Boqun Feng <boqun.feng@gmail.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210510151024.2448573-2-valentin.schneider@arm.com
+Link: https://lore.kernel.org/r/20210618170110.3699115-4-boqun.feng@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kthread.h |  2 ++
- kernel/kthread.c        | 30 ++++++++++++++++++------------
- kernel/sched/core.c     | 21 +++++++++++++++------
- 3 files changed, 35 insertions(+), 18 deletions(-)
+ kernel/locking/lockdep.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-index 2484ed97e72f..d9133d6db308 100644
---- a/include/linux/kthread.h
-+++ b/include/linux/kthread.h
-@@ -33,6 +33,8 @@ struct task_struct *kthread_create_on_cpu(int (*threadfn)(void *data),
- 					  unsigned int cpu,
- 					  const char *namefmt);
- 
-+void set_kthread_struct(struct task_struct *p);
-+
- void kthread_set_per_cpu(struct task_struct *k, int cpu);
- bool kthread_is_per_cpu(struct task_struct *k);
- 
-diff --git a/kernel/kthread.c b/kernel/kthread.c
-index 4fdf2bd9b558..e8da89c714f5 100644
---- a/kernel/kthread.c
-+++ b/kernel/kthread.c
-@@ -68,16 +68,6 @@ enum KTHREAD_BITS {
- 	KTHREAD_SHOULD_PARK,
- };
- 
--static inline void set_kthread_struct(void *kthread)
--{
--	/*
--	 * We abuse ->set_child_tid to avoid the new member and because it
--	 * can't be wrongly copied by copy_process(). We also rely on fact
--	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
--	 */
--	current->set_child_tid = (__force void __user *)kthread;
--}
--
- static inline struct kthread *to_kthread(struct task_struct *k)
- {
- 	WARN_ON(!(k->flags & PF_KTHREAD));
-@@ -103,6 +93,22 @@ static inline struct kthread *__to_kthread(struct task_struct *p)
- 	return kthread;
- }
- 
-+void set_kthread_struct(struct task_struct *p)
-+{
-+	struct kthread *kthread;
-+
-+	if (__to_kthread(p))
-+		return;
-+
-+	kthread = kzalloc(sizeof(*kthread), GFP_KERNEL);
-+	/*
-+	 * We abuse ->set_child_tid to avoid the new member and because it
-+	 * can't be wrongly copied by copy_process(). We also rely on fact
-+	 * that the caller can't exec, so PF_KTHREAD can't be cleared.
-+	 */
-+	p->set_child_tid = (__force void __user *)kthread;
-+}
-+
- void free_kthread_struct(struct task_struct *k)
- {
- 	struct kthread *kthread;
-@@ -272,8 +278,8 @@ static int kthread(void *_create)
- 	struct kthread *self;
- 	int ret;
- 
--	self = kzalloc(sizeof(*self), GFP_KERNEL);
--	set_kthread_struct(self);
-+	set_kthread_struct(current);
-+	self = to_kthread(current);
- 
- 	/* If user was SIGKILLed, I release the structure. */
- 	done = xchg(&create->done, NULL);
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index e25b2d8ec18d..17f612045271 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7435,12 +7435,25 @@ void __init init_idle(struct task_struct *idle, int cpu)
- 
- 	__sched_fork(0, idle);
- 
-+	/*
-+	 * The idle task doesn't need the kthread struct to function, but it
-+	 * is dressed up as a per-CPU kthread and thus needs to play the part
-+	 * if we want to avoid special-casing it in code that deals with per-CPU
-+	 * kthreads.
-+	 */
-+	set_kthread_struct(idle);
-+
- 	raw_spin_lock_irqsave(&idle->pi_lock, flags);
- 	raw_spin_lock(&rq->lock);
- 
- 	idle->state = TASK_RUNNING;
- 	idle->se.exec_start = sched_clock();
--	idle->flags |= PF_IDLE;
-+	/*
-+	 * PF_KTHREAD should already be set at this point; regardless, make it
-+	 * look like a proper per-CPU kthread.
-+	 */
-+	idle->flags |= PF_IDLE | PF_KTHREAD | PF_NO_SETAFFINITY;
-+	kthread_set_per_cpu(idle, cpu);
- 
- 	scs_task_reset(idle);
- 	kasan_unpoison_task_stack(idle);
-@@ -7647,12 +7660,8 @@ static void balance_push(struct rq *rq)
- 	/*
- 	 * Both the cpu-hotplug and stop task are in this case and are
- 	 * required to complete the hotplug process.
--	 *
--	 * XXX: the idle task does not match kthread_is_per_cpu() due to
--	 * histerical raisins.
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index e51fa6575c39..39b6392b4826 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -2773,8 +2773,18 @@ static int check_irq_usage(struct task_struct *curr, struct held_lock *prev,
+ 	 * Step 3: we found a bad match! Now retrieve a lock from the backward
+ 	 * list whose usage mask matches the exclusive usage mask from the
+ 	 * lock found on the forward list.
++	 *
++	 * Note, we should only keep the LOCKF_ENABLED_IRQ_ALL bits, considering
++	 * the follow case:
++	 *
++	 * When trying to add A -> B to the graph, we find that there is a
++	 * hardirq-safe L, that L -> ... -> A, and another hardirq-unsafe M,
++	 * that B -> ... -> M. However M is **softirq-safe**, if we use exact
++	 * invert bits of M's usage_mask, we will find another lock N that is
++	 * **softirq-unsafe** and N -> ... -> A, however N -> .. -> M will not
++	 * cause a inversion deadlock.
  	 */
--	if (rq->idle == push_task ||
--	    kthread_is_per_cpu(push_task) ||
-+	if (kthread_is_per_cpu(push_task) ||
- 	    is_migration_disabled(push_task)) {
+-	backward_mask = original_mask(target_entry1->class->usage_mask);
++	backward_mask = original_mask(target_entry1->class->usage_mask & LOCKF_ENABLED_IRQ_ALL);
  
- 		/*
+ 	ret = find_usage_backwards(&this, backward_mask, &target_entry);
+ 	if (bfs_error(ret)) {
 -- 
 2.30.2
 
