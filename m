@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E77CC3C55A8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 694F63C5097
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232955AbhGLILa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55048 "EHLO mail.kernel.org"
+        id S1344677AbhGLHdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:33:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353845AbhGLIDC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 845D96197B;
-        Mon, 12 Jul 2021 07:57:59 +0000 (UTC)
+        id S1344820AbhGLH3k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC0261457;
+        Mon, 12 Jul 2021 07:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076680;
-        bh=9HLm1UMd4ET5mv916NAy10z2QUCLqQIwFit+BsH9Jyg=;
+        s=korg; t=1626074752;
+        bh=EYGa0PkifKMKbP5yFImhOHHpGqbUZ+0I7gUgSrrc6H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Th31q7oX+jpL4Z/RIKf5CcelKv2v/P0GPjbXCVdeTRSRJ9OdHRE0GSKZ6NCNtOlV9
-         TYjKtgs/Np+Y2/Usgld45g51Rdbl4VS/UzsqY30yFY1F46jqFyhfxNWrr935GHovBq
-         oZlERRrtJpD0hLaINPZaus7bnYUL/uPplvOJOavQ=
+        b=DCl4ffkC4N/2P1JpFcpqUhx2WVI389K70v+bnKQaq1BFtyQ5qgvg4hHgfHFn75Caw
+         wzI1NfkV+hZISwjAS1fC+CjpTlICSQ8OgY1s0vxyufkrt4b0CAs5XhLPx6BSKxFaK8
+         qPcSknB8dXsWQI4OPKHYneHJnDRT4Z28UDvZeWUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 745/800] ASoC: fsl_spdif: Fix unexpected interrupt after suspend
-Date:   Mon, 12 Jul 2021 08:12:48 +0200
-Message-Id: <20210712061046.052141841@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.12 686/700] scsi: lpfc: Fix Node recovery when driver is handling simultaneous PLOGIs
+Date:   Mon, 12 Jul 2021 08:12:49 +0200
+Message-Id: <20210712061048.923585489@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shengjiu Wang <shengjiu.wang@nxp.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit a7a0a2feb957e446b2bcf732f245ba04fc8b6314 ]
+commit 4012baeab6ca22b7f7beb121b6d0da0a62942fdd upstream.
 
-When system enter suspend, the machine driver suspend callback
-function will be called, then the cpu driver trigger callback
-(SNDRV_PCM_TRIGGER_SUSPEND) be called, it would disable the
-interrupt.
+When lpfc is handling a solicited and unsolicited PLOGI with another
+initiator, the remote initiator is never recovered. The node for the
+initiator is erroneouosly removed and all resources released.
 
-But the machine driver suspend and cpu dai driver suspend order
-maybe changed, the cpu dai driver's suspend callback is called before
-machine driver's suppend callback, then the interrupt is not cleared
-successfully in trigger callback.
+In lpfc_cmpl_els_plogi(), when lpfc_els_retry() returns a failure code, the
+driver is calling the state machine with a device remove event because the
+remote port is not currently registered with the SCSI or NVMe
+transports. The issue is that on a PLOGI "collision" the driver correctly
+aborts the solicited PLOGI and allows the unsolicited PLOGI to complete the
+process, but this process is interrupted with a device_rm event.
 
-So need to clear interrupts in cpu dai driver's suspend callback
-to avoid such issue.
+Introduce logic in the PLOGI completion to capture the PLOGI collision
+event and jump out of the routine.  This will avoid removal of the node.
+If there is no collision, the normal node removal will occur.
 
-Fixes: 9cb2b3796e08 ("ASoC: fsl_spdif: Add pm runtime function")
-Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Link: https://lore.kernel.org/r/1624365084-7934-1-git-send-email-shengjiu.wang@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 	52edb2caf675 ("scsi: lpfc: Remove ndlp when a PLOGI/ADISC/PRLI/REG_RPI ultimately fails")
+Cc: <stable@vger.kernel.org> # v5.11+
+Link: https://lore.kernel.org/r/20210514195559.119853-6-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/fsl/fsl_spdif.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/lpfc/lpfc_els.c |   21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
-index 5636837eb511..53499bc71fa9 100644
---- a/sound/soc/fsl/fsl_spdif.c
-+++ b/sound/soc/fsl/fsl_spdif.c
-@@ -1404,6 +1404,9 @@ static int fsl_spdif_runtime_suspend(struct device *dev)
- 	struct fsl_spdif_priv *spdif_priv = dev_get_drvdata(dev);
- 	int i;
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1985,9 +1985,20 @@ lpfc_cmpl_els_plogi(struct lpfc_hba *phb
+ 			lpfc_disc_state_machine(vport, ndlp, cmdiocb,
+ 						NLP_EVT_CMPL_PLOGI);
  
-+	/* Disable all the interrupts */
-+	regmap_update_bits(spdif_priv->regmap, REG_SPDIF_SIE, 0xffffff, 0);
+-		/* As long as this node is not registered with the scsi or nvme
+-		 * transport, it is no longer an active node.  Otherwise
+-		 * devloss handles the final cleanup.
++		/* If a PLOGI collision occurred, the node needs to continue
++		 * with the reglogin process.
++		 */
++		spin_lock_irq(&ndlp->lock);
++		if ((ndlp->nlp_flag & (NLP_ACC_REGLOGIN | NLP_RCV_PLOGI)) &&
++		    ndlp->nlp_state == NLP_STE_REG_LOGIN_ISSUE) {
++			spin_unlock_irq(&ndlp->lock);
++			goto out;
++		}
++		spin_unlock_irq(&ndlp->lock);
 +
- 	regmap_read(spdif_priv->regmap, REG_SPDIF_SRPC,
- 			&spdif_priv->regcache_srpc);
- 	regcache_cache_only(spdif_priv->regmap, true);
--- 
-2.30.2
-
++		/* No PLOGI collision and the node is not registered with the
++		 * scsi or nvme transport. It is no longer an active node. Just
++		 * start the device remove process.
+ 		 */
+ 		if (!(ndlp->fc4_xpt_flags & (SCSI_XPT_REGD | NVME_XPT_REGD))) {
+ 			spin_lock_irq(&ndlp->lock);
+@@ -4612,6 +4623,10 @@ out:
+ 	    (vport && vport->port_type == LPFC_NPIV_PORT) &&
+ 	    ndlp->nlp_flag & NLP_RELEASE_RPI) {
+ 		lpfc_sli4_free_rpi(phba, ndlp->nlp_rpi);
++		spin_lock_irq(&ndlp->lock);
++		ndlp->nlp_rpi = LPFC_RPI_ALLOC_ERROR;
++		ndlp->nlp_flag &= ~NLP_RELEASE_RPI;
++		spin_unlock_irq(&ndlp->lock);
+ 		lpfc_drop_node(vport, ndlp);
+ 	}
+ 
 
 
