@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B833C4C56
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 535BC3C51CD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240543AbhGLHDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38094 "EHLO mail.kernel.org"
+        id S1343871AbhGLHni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240582AbhGLHCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:02:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F0A610E6;
-        Mon, 12 Jul 2021 06:59:44 +0000 (UTC)
+        id S1347884AbhGLHkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2477B611F1;
+        Mon, 12 Jul 2021 07:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073184;
-        bh=kzLbysrn0WTVXqGNPCytiyLqvBomL/QjZ69Hv/nPQ3Y=;
+        s=korg; t=1626075418;
+        bh=+Klb3H2JXmu8TWZqMs7JTF0kUys4BvGnTeWBBCwIDCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uE7GjINwzfRXEPThMrwofqExV1YMLdirchbpvJ61XCpYlD4+OSCNd2d1sH8rf1gfS
-         aVhRYuWqH3dmT2Xbs37av/ul2PZc8zcE205mVyVlCmJeqxgAOyemL4D58YmeP7CmWq
-         Szl8Lr1Y/2Y5LJqbz9udQxFiQ6zc3XZx9+H0JnUE=
+        b=iirzKHSmjOPTUjnyV+nA1PT5ecIliVLUHe0y4NNP3iYwt+7VSnIEsKrblX0CNnvhd
+         +2lUdMCpg+8poBa41D3CZKSNduZRC+OfiEkxhhvoKgM+U4lwb2n3VPJyb7i9g7jYIe
+         eCoIfejiPCsJQOJW8Q03vClG3Jhn6sWC9biVHZoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 154/700] media: i2c: ov2659: Use clk_{prepare_enable,disable_unprepare}() to set xvclk on/off
-Date:   Mon, 12 Jul 2021 08:03:57 +0200
-Message-Id: <20210712060947.329519046@linuxfoundation.org>
+Subject: [PATCH 5.13 215/800] Input: goodix - platform/x86: touchscreen_dmi - Move upside down quirks to touchscreen_dmi.c
+Date:   Mon, 12 Jul 2021 08:03:58 +0200
+Message-Id: <20210712060943.891778237@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,103 +39,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 24786ccd9c80fdb05494aa4d90fcb8f34295c193 ]
+[ Upstream commit 5a6f0dbe621a5c20dc912ac474debf9f11129e03 ]
 
-On some platform(imx6q), xvclk might not switch on in advance,
-also for power save purpose, xvclk should not be always on.
-so, add clk_prepare_enable(), clk_disable_unprepare() in driver
-side to set xvclk on/off at proper stage.
+Move the DMI quirks for upside-down mounted Goodix touchscreens from
+drivers/input/touchscreen/goodix.c to
+drivers/platform/x86/touchscreen_dmi.c,
+where all the other x86 touchscreen quirks live.
 
-Add following changes:
-- add 'struct clk *clk;' in 'struct ov2659 {}'
-- enable xvclk in ov2659_power_on()
-- disable xvclk in ov2659_power_off()
+Note the touchscreen_dmi.c code attaches standard touchscreen
+device-properties to an i2c-client device based on a combination of a
+DMI match + a device-name match. I've verified that the: Teclast X98 Pro,
+WinBook TW100 and WinBook TW700 uses an ACPI devicename of "GDIX1001:00"
+based on acpidumps and/or dmesg output available on the web.
 
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Acked-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This patch was tested on a Teclast X89 tablet.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210504185746.175461-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov2659.c | 24 ++++++++++++++++++------
- 1 file changed, 18 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/goodix.c     | 52 ------------------------
+ drivers/platform/x86/touchscreen_dmi.c | 56 ++++++++++++++++++++++++++
+ 2 files changed, 56 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 42f64175a6df..fb78a1cedc03 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -204,6 +204,7 @@ struct ov2659 {
- 	struct i2c_client *client;
- 	struct v4l2_ctrl_handler ctrls;
- 	struct v4l2_ctrl *link_frequency;
-+	struct clk *clk;
- 	const struct ov2659_framesize *frame_size;
- 	struct sensor_register *format_ctrl_regs;
- 	struct ov2659_pll_ctrl pll;
-@@ -1270,6 +1271,8 @@ static int ov2659_power_off(struct device *dev)
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index c682b028f0a2..4f53d3c57e69 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -178,51 +178,6 @@ static const unsigned long goodix_irq_flags[] = {
+ 	IRQ_TYPE_LEVEL_HIGH,
+ };
  
- 	gpiod_set_value(ov2659->pwdn_gpio, 1);
+-/*
+- * Those tablets have their coordinates origin at the bottom right
+- * of the tablet, as if rotated 180 degrees
+- */
+-static const struct dmi_system_id rotated_screen[] = {
+-#if defined(CONFIG_DMI) && defined(CONFIG_X86)
+-	{
+-		.ident = "Teclast X89",
+-		.matches = {
+-			/* tPAD is too generic, also match on bios date */
+-			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
+-			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
+-			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
+-		},
+-	},
+-	{
+-		.ident = "Teclast X98 Pro",
+-		.matches = {
+-			/*
+-			 * Only match BIOS date, because the manufacturers
+-			 * BIOS does not report the board name at all
+-			 * (sometimes)...
+-			 */
+-			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
+-			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
+-		},
+-	},
+-	{
+-		.ident = "WinBook TW100",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
+-		}
+-	},
+-	{
+-		.ident = "WinBook TW700",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
+-		},
+-	},
+-#endif
+-	{}
+-};
+-
+ static const struct dmi_system_id nine_bytes_report[] = {
+ #if defined(CONFIG_DMI) && defined(CONFIG_X86)
+ 	{
+@@ -1123,13 +1078,6 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+ 				  ABS_MT_POSITION_Y, ts->prop.max_y);
+ 	}
  
-+	clk_disable_unprepare(ov2659->clk);
+-	if (dmi_check_system(rotated_screen)) {
+-		ts->prop.invert_x = true;
+-		ts->prop.invert_y = true;
+-		dev_dbg(&ts->client->dev,
+-			"Applying '180 degrees rotated screen' quirk\n");
+-	}
+-
+ 	if (dmi_check_system(nine_bytes_report)) {
+ 		ts->contact_size = 9;
+ 
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index bde740d6120e..b452865da2a1 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -299,6 +299,23 @@ static const struct ts_dmi_data estar_beauty_hd_data = {
+ 	.properties	= estar_beauty_hd_props,
+ };
+ 
++/* Generic props + data for upside-down mounted GDIX1001 touchscreens */
++static const struct property_entry gdix1001_upside_down_props[] = {
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-x"),
++	PROPERTY_ENTRY_BOOL("touchscreen-inverted-y"),
++	{ }
++};
 +
- 	return 0;
- }
- 
-@@ -1278,9 +1281,17 @@ static int ov2659_power_on(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct v4l2_subdev *sd = i2c_get_clientdata(client);
- 	struct ov2659 *ov2659 = to_ov2659(sd);
-+	int ret;
- 
- 	dev_dbg(&client->dev, "%s:\n", __func__);
- 
-+	ret = clk_prepare_enable(ov2659->clk);
-+	if (ret) {
-+		dev_err(&client->dev, "%s: failed to enable clock\n",
-+			__func__);
-+		return ret;
-+	}
++static const struct ts_dmi_data gdix1001_00_upside_down_data = {
++	.acpi_name	= "GDIX1001:00",
++	.properties	= gdix1001_upside_down_props,
++};
 +
- 	gpiod_set_value(ov2659->pwdn_gpio, 0);
- 
- 	if (ov2659->resetb_gpio) {
-@@ -1425,7 +1436,6 @@ static int ov2659_probe(struct i2c_client *client)
- 	const struct ov2659_platform_data *pdata = ov2659_get_pdata(client);
- 	struct v4l2_subdev *sd;
- 	struct ov2659 *ov2659;
--	struct clk *clk;
- 	int ret;
- 
- 	if (!pdata) {
-@@ -1440,11 +1450,11 @@ static int ov2659_probe(struct i2c_client *client)
- 	ov2659->pdata = pdata;
- 	ov2659->client = client;
- 
--	clk = devm_clk_get(&client->dev, "xvclk");
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
-+	ov2659->clk = devm_clk_get(&client->dev, "xvclk");
-+	if (IS_ERR(ov2659->clk))
-+		return PTR_ERR(ov2659->clk);
- 
--	ov2659->xvclk_frequency = clk_get_rate(clk);
-+	ov2659->xvclk_frequency = clk_get_rate(ov2659->clk);
- 	if (ov2659->xvclk_frequency < 6000000 ||
- 	    ov2659->xvclk_frequency > 27000000)
- 		return -EINVAL;
-@@ -1506,7 +1516,9 @@ static int ov2659_probe(struct i2c_client *client)
- 	ov2659->frame_size = &ov2659_framesizes[2];
- 	ov2659->format_ctrl_regs = ov2659_formats[0].format_ctrl_regs;
- 
--	ov2659_power_on(&client->dev);
-+	ret = ov2659_power_on(&client->dev);
-+	if (ret < 0)
-+		goto error;
- 
- 	ret = ov2659_detect(sd);
- 	if (ret < 0)
++static const struct ts_dmi_data gdix1001_01_upside_down_data = {
++	.acpi_name	= "GDIX1001:01",
++	.properties	= gdix1001_upside_down_props,
++};
++
+ static const struct property_entry gp_electronic_t701_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-size-x", 960),
+ 	PROPERTY_ENTRY_U32("touchscreen-size-y", 640),
+@@ -1330,6 +1347,16 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "X3 Plus"),
+ 		},
+ 	},
++	{
++		/* Teclast X89 (Windows version / BIOS) */
++		.driver_data = (void *)&gdix1001_01_upside_down_data,
++		.matches = {
++			/* tPAD is too generic, also match on bios date */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BOARD_NAME, "tPAD"),
++			DMI_MATCH(DMI_BIOS_DATE, "12/19/2014"),
++		},
++	},
+ 	{
+ 		/* Teclast X98 Plus II */
+ 		.driver_data = (void *)&teclast_x98plus2_data,
+@@ -1338,6 +1365,19 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "X98 Plus II"),
+ 		},
+ 	},
++	{
++		/* Teclast X98 Pro */
++		.driver_data = (void *)&gdix1001_00_upside_down_data,
++		.matches = {
++			/*
++			 * Only match BIOS date, because the manufacturers
++			 * BIOS does not report the board name at all
++			 * (sometimes)...
++			 */
++			DMI_MATCH(DMI_BOARD_VENDOR, "TECLAST"),
++			DMI_MATCH(DMI_BIOS_DATE, "10/28/2015"),
++		},
++	},
+ 	{
+ 		/* Trekstor Primebook C11 */
+ 		.driver_data = (void *)&trekstor_primebook_c11_data,
+@@ -1413,6 +1453,22 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "VINGA Twizzle J116"),
+ 		},
+ 	},
++	{
++		/* "WinBook TW100" */
++		.driver_data = (void *)&gdix1001_00_upside_down_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TW100")
++		}
++	},
++	{
++		/* WinBook TW700 */
++		.driver_data = (void *)&gdix1001_00_upside_down_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "WinBook"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TW700")
++		},
++	},
+ 	{
+ 		/* Yours Y8W81, same case and touchscreen as Chuwi Vi8 */
+ 		.driver_data = (void *)&chuwi_vi8_data,
 -- 
 2.30.2
 
