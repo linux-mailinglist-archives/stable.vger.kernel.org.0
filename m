@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDD53C4B2A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CA403C50ED
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240128AbhGLGzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56362 "EHLO mail.kernel.org"
+        id S1344131AbhGLHfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:35:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239280AbhGLGzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:55:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 379CF610CA;
-        Mon, 12 Jul 2021 06:52:31 +0000 (UTC)
+        id S242979AbhGLHdH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:33:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C78461107;
+        Mon, 12 Jul 2021 07:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072752;
-        bh=x+H7p/F2nENifOIBLvKbTz+s9NAHXuk54Ss9UCgFr5c=;
+        s=korg; t=1626075007;
+        bh=M2MwMFSREQdCLqwP2uvhvjsSBe5dcYxlMDQgCJUKADU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6+zmPBvTQZdHYeNQoRNcvKCvXDpsAGRwuDnb+C6j2I4piq10PtZDhTtQwCUDTd/z
-         yybADCcByTPZkMgmgLhg/oceS17sf7JEMJhXexRta7NaZj0IESPEMv/cjV6W1olp7j
-         BtRueLqSKJvPw62m2mAve+TAnGXpQMxOYQceziEQ=
+        b=Ltg9dnzYpc5xy+Ga6eGJn1K+9vukhQwMei7Gyfv6aoNRQCWv5OpX1obTNh1KnIkp9
+         Mj+SrUE8cqhmmWkYJI+kvDV+XqFnEFDlwuuDKX0mjuv/zVMMB7quTU45ojpohrb25u
+         vgZ58Zq8YFcoVXz4x0zavL0/mp8D2vDu2IYF7VVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Chi <andy.chi@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 010/700] ALSA: hda/realtek: fix mute/micmute LEDs for HP ProBook 445 G8
-Date:   Mon, 12 Jul 2021 08:01:33 +0200
-Message-Id: <20210712060926.212735281@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.13 071/800] bus: mhi: pci-generic: Add missing pci_disable_pcie_error_reporting() calls
+Date:   Mon, 12 Jul 2021 08:01:34 +0200
+Message-Id: <20210712060923.203223626@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chi <andy.chi@canonical.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit a3b7f9b8fa2967e1b3c2a402301715124c90306b upstream.
+commit a25d144fb883c73506ba384de476bbaff8220a95 upstream.
 
-The HP ProBook 445 G8 using ALC236 codec.
-COEF index 0x34 bit 5 is used to control the playback mute LED, but the
-microphone mute LED is controlled using pin VREF instead of a COEF index.
-Therefore, add a quirk to make it works.
+If an error occurs after a 'pci_enable_pcie_error_reporting()' call, it
+must be undone by a corresponding 'pci_disable_pcie_error_reporting()'
+call
 
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
+Add the missing call in the error handling path of the probe and in the
+remove function.
+
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210701091417.9696-2-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: b012ee6bfe2a ("mhi: pci_generic: Add PCI error handlers")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/f70c14701f4922d67e717633c91b6c481b59f298.1623445348.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20210621161616.77524-6-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bus/mhi/pci_generic.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8330,6 +8330,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8846, "HP EliteBook 850 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884b, "HP EliteBook 840 Aero G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x884c, "HP EliteBook 840 G8 Notebook PC", ALC285_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8862, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8863, "HP ProBook 445 G8 Notebook PC", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x886d, "HP ZBook Fury 17.3 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8870, "HP ZBook Fury 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
- 	SND_PCI_QUIRK(0x103c, 0x8873, "HP ZBook Studio 15.6 Inch G8 Mobile Workstation PC", ALC285_FIXUP_HP_GPIO_AMP_INIT),
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -665,7 +665,7 @@ static int mhi_pci_probe(struct pci_dev
+ 
+ 	err = mhi_register_controller(mhi_cntrl, mhi_cntrl_config);
+ 	if (err)
+-		return err;
++		goto err_disable_reporting;
+ 
+ 	/* MHI bus does not power up the controller by default */
+ 	err = mhi_prepare_for_power_up(mhi_cntrl);
+@@ -699,6 +699,8 @@ err_unprepare:
+ 	mhi_unprepare_after_power_down(mhi_cntrl);
+ err_unregister:
+ 	mhi_unregister_controller(mhi_cntrl);
++err_disable_reporting:
++	pci_disable_pcie_error_reporting(pdev);
+ 
+ 	return err;
+ }
+@@ -721,6 +723,7 @@ static void mhi_pci_remove(struct pci_de
+ 		pm_runtime_get_noresume(&pdev->dev);
+ 
+ 	mhi_unregister_controller(mhi_cntrl);
++	pci_disable_pcie_error_reporting(pdev);
+ }
+ 
+ static void mhi_pci_shutdown(struct pci_dev *pdev)
 
 
