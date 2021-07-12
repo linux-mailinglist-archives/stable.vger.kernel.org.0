@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35D83C5286
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5273C5280
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344527AbhGLHqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:46:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53510 "EHLO mail.kernel.org"
+        id S1346531AbhGLHqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349826AbhGLHos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:44:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96DB6613E0;
-        Mon, 12 Jul 2021 07:41:31 +0000 (UTC)
+        id S1349849AbhGLHot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:44:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E98C3613D9;
+        Mon, 12 Jul 2021 07:41:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075692;
-        bh=4ZFQWM60tEvQKLbT6TdHu5+XbApjP44VhT8H+V9pRf4=;
+        s=korg; t=1626075694;
+        bh=sUDcBnWAoNpaVZalSL2yTvcf7M8ILQVPIhuBIBrn36w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XB4ThPXjX9BTpDQ3K5BKzk0etopC4pjvcvVWiFS8LOc9LpVdp1wwkmLvBsI/f8UpB
-         ONggTfjlMm6BV4n2X5G2mHKTmrbMjgVwV7RPDg5mvb94x8jetfhbJpiIrrX9aS5Smj
-         /kCppk201bE9Xoxee/k3N1+aU0YIBskm9DXOg7nk=
+        b=XpUUaN+Z8Qci1G9VUfCijg2pLHsnyEYZjxBOyUNWZej8zZKRIjLiMjcuvpeoaqkAC
+         rG8SanTdXluV0e6y3oVujokEXjM2JZIWYUlikkxnyytZL8y8eQgGcrWhwBnoYmsubq
+         48x9bDI2vK7lRYMg45XBUo9gCop2RswFpvd0Equs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20Kundr=C3=A1t?= <jan.kundrat@cesnet.cz>,
+        =?UTF-8?q?V=C3=A1clav=20Kubern=C3=A1t?= <kubernat@cesnet.cz>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 322/800] hwmon: (max31722) Remove non-standard ACPI device IDs
-Date:   Mon, 12 Jul 2021 08:05:45 +0200
-Message-Id: <20210712061000.363077544@linuxfoundation.org>
+Subject: [PATCH 5.13 323/800] hwmon: (max31790) Fix fan speed reporting for fan7..12
+Date:   Mon, 12 Jul 2021 08:05:46 +0200
+Message-Id: <20210712061000.478574783@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
 References: <20210712060912.995381202@linuxfoundation.org>
@@ -41,54 +44,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 97387c2f06bcfd79d04a848d35517b32ee6dca7c ]
+[ Upstream commit cbbf244f0515af3472084f22b6213121b4a63835 ]
 
-Valid Maxim Integrated ACPI device IDs would start with MXIM,
-not with MAX1. On top of that, ACPI device IDs reflecting chip names
-are almost always invalid.
+Fans 7..12 do not have their own set of configuration registers.
+So far the code ignored that and read beyond the end of the configuration
+register range to get the tachometer period. This resulted in more or less
+random fan speed values for those fans.
 
-Remove the invalid ACPI IDs.
+The datasheet is quite vague when it comes to defining the tachometer
+period for fans 7..12. Experiments confirm that the period is the same
+for both fans associated with a given set of configuration registers.
 
-Fixes: 04e1e70afec6 ("hwmon: (max31722) Add support for MAX31722/MAX31723 temperature sensors")
+Fixes: 54187ff9d766 ("hwmon: (max31790) Convert to use new hwmon registration API")
+Fixes: 195a4b4298a7 ("hwmon: Driver for Maxim MAX31790")
+Cc: Jan Kundrát <jan.kundrat@cesnet.cz>
+Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
+Cc: Václav Kubernát <kubernat@cesnet.cz>
+Reviewed-by: Jan Kundrát <jan.kundrat@cesnet.cz>
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210526154022.3223012-2-linux@roeck-us.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/max31722.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/hwmon/max31790.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/max31722.c b/drivers/hwmon/max31722.c
-index 062eceb7be0d..613338cbcb17 100644
---- a/drivers/hwmon/max31722.c
-+++ b/drivers/hwmon/max31722.c
-@@ -6,7 +6,6 @@
-  * Copyright (c) 2016, Intel Corporation.
-  */
+diff --git a/drivers/hwmon/max31790.c b/drivers/hwmon/max31790.c
+index 76aa96f5b984..67677c437768 100644
+--- a/drivers/hwmon/max31790.c
++++ b/drivers/hwmon/max31790.c
+@@ -171,7 +171,7 @@ static int max31790_read_fan(struct device *dev, u32 attr, int channel,
  
--#include <linux/acpi.h>
- #include <linux/hwmon.h>
- #include <linux/hwmon-sysfs.h>
- #include <linux/kernel.h>
-@@ -133,20 +132,12 @@ static const struct spi_device_id max31722_spi_id[] = {
- 	{"max31723", 0},
- 	{}
- };
--
--static const struct acpi_device_id __maybe_unused max31722_acpi_id[] = {
--	{"MAX31722", 0},
--	{"MAX31723", 0},
--	{}
--};
--
- MODULE_DEVICE_TABLE(spi, max31722_spi_id);
- 
- static struct spi_driver max31722_driver = {
- 	.driver = {
- 		.name = "max31722",
- 		.pm = &max31722_pm_ops,
--		.acpi_match_table = ACPI_PTR(max31722_acpi_id),
- 	},
- 	.probe =            max31722_probe,
- 	.remove =           max31722_remove,
+ 	switch (attr) {
+ 	case hwmon_fan_input:
+-		sr = get_tach_period(data->fan_dynamics[channel]);
++		sr = get_tach_period(data->fan_dynamics[channel % NR_CHANNEL]);
+ 		rpm = RPM_FROM_REG(data->tach[channel], sr);
+ 		*val = rpm;
+ 		return 0;
 -- 
 2.30.2
 
