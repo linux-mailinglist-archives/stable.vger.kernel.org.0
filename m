@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36F623C5564
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D653C4ADC
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355652AbhGLIKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55108 "EHLO mail.kernel.org"
+        id S240672AbhGLGyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:54:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353584AbhGLICg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81AFC61CDC;
-        Mon, 12 Jul 2021 07:55:49 +0000 (UTC)
+        id S239603AbhGLGw4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EFC3610A6;
+        Mon, 12 Jul 2021 06:50:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076550;
-        bh=YlYi8QaqvNICf8ZtZdRgwZCDmLC4RAYVU4qEmwgUXY0=;
+        s=korg; t=1626072608;
+        bh=1hBnDIF+sduapjhfuvMGL5/eDR7r5UOLZyaaGtPZrs4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=suUInhcgE0yM7byioRcK6W0qZF6f514qKfIEogJFPf8kk0LmEQ9iZUyfYjEK2cdyj
-         ZFxSHV03Donbje9RBxE0q3M9cSM1knf3CHGBVzOmZx3a0vsQUM0XvL6u6TdFaY5rhE
-         WqrCHV52qLlODIJaGil2qc5e7SYDzhcNfv/6L+Yk=
+        b=H2PvCYC3bgX+ZMbC0mDKmYuymKd6RW2BGL+YtKX77E41LQTZ2wy5wyrylYF7p7DiP
+         60DxQsAYbL3PZ6HVDEhPSzJXK+FR8m4j2A/d3N5StOdqG2zmUMY0NjWgRq7lASYw46
+         2pNIm4qEza5sOHKr5Mf3xrb4NyiFwys7BLXBpQRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 690/800] ASoC: rt711-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.10 553/593] powerpc: Offline CPU in stop_this_cpu()
 Date:   Mon, 12 Jul 2021 08:11:53 +0200
-Message-Id: <20210712061040.221559132@linuxfoundation.org>
+Message-Id: <20210712060955.248665070@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit a0897ebca669f09a2e02206a9c48a738af655329 ]
+[ Upstream commit bab26238bbd44d5a4687c0a64fd2c7f2755ea937 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+printk_safe_flush_on_panic() has special lock breaking code for the case
+where we panic()ed with the console lock held. It relies on panic IPI
+causing other CPUs to mark themselves offline.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
+Do as most other architectures do.
 
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 320b8b0d13b81 ('ASoC: rt711: add rt711 codec driver')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-9-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This effectively reverts commit de6e5d38417e ("powerpc: smp_send_stop do
+not offline stopped CPUs"), unfortunately it may result in some false
+positive warnings, but the alternative is more situations where we can
+crash without getting messages out.
+
+Fixes: de6e5d38417e ("powerpc: smp_send_stop do not offline stopped CPUs")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210623041245.865134-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt711-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/smp.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/codecs/rt711-sdw.c b/sound/soc/codecs/rt711-sdw.c
-index 8f5ebe92d407..15299084429f 100644
---- a/sound/soc/codecs/rt711-sdw.c
-+++ b/sound/soc/codecs/rt711-sdw.c
-@@ -501,7 +501,7 @@ static int __maybe_unused rt711_dev_resume(struct device *dev)
- 	struct rt711_priv *rt711 = dev_get_drvdata(dev);
- 	unsigned long time;
- 
--	if (!rt711->hw_init)
-+	if (!rt711->first_hw_init)
- 		return 0;
- 
- 	if (!slave->unattach_request)
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 0760230be56f..26a028a9233a 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -600,6 +600,8 @@ static void nmi_stop_this_cpu(struct pt_regs *regs)
+ 	/*
+ 	 * IRQs are already hard disabled by the smp_handle_nmi_ipi.
+ 	 */
++	set_cpu_online(smp_processor_id(), false);
++
+ 	spin_begin();
+ 	while (1)
+ 		spin_cpu_relax();
+@@ -615,6 +617,15 @@ void smp_send_stop(void)
+ static void stop_this_cpu(void *dummy)
+ {
+ 	hard_irq_disable();
++
++	/*
++	 * Offlining CPUs in stop_this_cpu can result in scheduler warnings,
++	 * (see commit de6e5d38417e), but printk_safe_flush_on_panic() wants
++	 * to know other CPUs are offline before it breaks locks to flush
++	 * printk buffers, in case we panic()ed while holding the lock.
++	 */
++	set_cpu_online(smp_processor_id(), false);
++
+ 	spin_begin();
+ 	while (1)
+ 		spin_cpu_relax();
 -- 
 2.30.2
 
