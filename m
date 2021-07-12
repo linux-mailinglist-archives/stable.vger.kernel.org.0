@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B683C4CBF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCAC3C5252
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242814AbhGLHHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41108 "EHLO mail.kernel.org"
+        id S1345255AbhGLHpb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241932AbhGLHGI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:06:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13D6361221;
-        Mon, 12 Jul 2021 07:02:56 +0000 (UTC)
+        id S1349516AbhGLHmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4F92601FE;
+        Mon, 12 Jul 2021 07:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073377;
-        bh=Uh8Cx8R6eJK7PKWsCYdNNZ/zeqIELNIHsJ1mw2YVby4=;
+        s=korg; t=1626075599;
+        bh=nQzECD12SbSXSO/QoQaLi2QiMJtbw7y0eR33txf8RfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPs12ilQj8Ogpt6PdOhQa+C2P3fZHHVLsOPD+ozkFQutKsxgEKQwVBjxeG3VQO7sL
-         OQWcNJrtSvSBSdAMQF3B3JbgdoMLZfuXwe2C0+n/PMCS9tq1DuzVrBAgFCttETHRf9
-         h0NNgO0f0Y/ipW2MGMGdp/1bB8ylcWDo7IWbQVq8=
+        b=s4Qk3vUpNe7c+KDIKwm+Pus75k0amf4ObbRfwozbTi80MoFsUjzCVl9XkmZAraDuv
+         gzlQWGBrifI7fjUHq6a70VRwsfB4/5aAma0gkyr5KdO9FCU6GaEDN3LPZpv4cMiV4v
+         GhsKCzVPFaO3YrRf40sXQwcI6XK8TuvZK4K1Pp8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Luke D. Jones" <luke@ljones.dev>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 222/700] platform/x86: asus-nb-wmi: Revert "Drop duplicate DMI quirk structures"
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 282/800] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
 Date:   Mon, 12 Jul 2021 08:05:05 +0200
-Message-Id: <20210712060958.234646543@linuxfoundation.org>
+Message-Id: <20210712060954.631534680@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,113 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luke D. Jones <luke@ljones.dev>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 98c0c85b1040db24f0d04d3e1d315c6c7b05cc07 ]
+[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
 
-This is a preparation revert for reverting the "add support for ASUS ROG
-Zephyrus G14 and G15" change. This reverts
-commit 67186653c903 ("platform/x86: asus-nb-wmi: Drop duplicate DMI quirk
-structures")
+Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
+has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
+parameter being non-NULL if the polling mode is selected.  Let's only set
+the pointer to the driver's IRQ handler if platform_get_irq() returns a
+valid IRQ # -- this should avoid the unnecessary WARN_ON()...
 
-Signed-off-by: Luke D. Jones <luke@ljones.dev>
-Link: https://lore.kernel.org/r/20210419074915.393433-2-luke@ljones.dev
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-nb-wmi.c | 23 ++++++++++++++---------
- 1 file changed, 14 insertions(+), 9 deletions(-)
+ drivers/ata/pata_octeon_cf.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
-index d41d7ad14be0..b07b1288346e 100644
---- a/drivers/platform/x86/asus-nb-wmi.c
-+++ b/drivers/platform/x86/asus-nb-wmi.c
-@@ -110,7 +110,12 @@ static struct quirk_entry quirk_asus_forceals = {
- 	.wmi_force_als_set = true,
- };
+diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
+index bd87476ab481..b5a3f710d76d 100644
+--- a/drivers/ata/pata_octeon_cf.c
++++ b/drivers/ata/pata_octeon_cf.c
+@@ -898,10 +898,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
+ 					return -EINVAL;
+ 				}
  
--static struct quirk_entry quirk_asus_vendor_backlight = {
-+static struct quirk_entry quirk_asus_ga401i = {
-+	.wmi_backlight_power = true,
-+	.wmi_backlight_set_devstate = true,
-+};
-+
-+static struct quirk_entry quirk_asus_ga502i = {
- 	.wmi_backlight_power = true,
- 	.wmi_backlight_set_devstate = true,
- };
-@@ -432,7 +437,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IH"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga401i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -441,7 +446,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401II"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga401i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -450,7 +455,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IU"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga401i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -459,7 +464,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IV"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga401i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -468,7 +473,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA401IVC"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga401i,
- 	},
- 		{
- 		.callback = dmi_matched,
-@@ -477,7 +482,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502II"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga502i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -486,7 +491,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IU"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga502i,
- 	},
- 	{
- 		.callback = dmi_matched,
-@@ -495,7 +500,7 @@ static const struct dmi_system_id asus_quirks[] = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "GA502IV"),
- 		},
--		.driver_data = &quirk_asus_vendor_backlight,
-+		.driver_data = &quirk_asus_ga502i,
- 	},
- 	{
- 		.callback = dmi_matched,
+-				irq_handler = octeon_cf_interrupt;
+ 				i = platform_get_irq(dma_dev, 0);
+-				if (i > 0)
++				if (i > 0) {
+ 					irq = i;
++					irq_handler = octeon_cf_interrupt;
++				}
+ 			}
+ 			of_node_put(dma_node);
+ 		}
 -- 
 2.30.2
 
