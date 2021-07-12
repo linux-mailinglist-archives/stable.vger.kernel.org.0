@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A76863C44BB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42B1A3C44BE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbhGLGVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:21:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38866 "EHLO mail.kernel.org"
+        id S234152AbhGLGVS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:21:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234150AbhGLGUS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:20:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED853610CB;
-        Mon, 12 Jul 2021 06:17:29 +0000 (UTC)
+        id S234154AbhGLGUV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:20:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EC38610CC;
+        Mon, 12 Jul 2021 06:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070650;
-        bh=oM6rNDpqYweL1cftZv3xe5lFVrjsjChJGVwr3e8zkuk=;
+        s=korg; t=1626070652;
+        bh=IUWcRIbumaeOGzZ2g+o26vRu6Isub8Lp7+7o3bXSJgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgUpZ0V+RSiBi8m7pBSYFxMFbCDqcBUC9l/bIG5WvPKcyK/Gp6SdLwRlyW7YEdZm6
-         I9NXHljWeQ23BolgMzGPauwImPI1NOApfxY1bwYbNJn88j/ViFWlBDkOYBcs/R4aw1
-         iEqknj9FXjHHuEM/ao1XCXYAxKBDDtNPXPbWa1/M=
+        b=AL/BgPhkdhOquMVrC/35ZU2X7MqTjNTT1m7BfjQGjKX6ncvH8ZlXqgeXHqEtlN1Le
+         3MZDGOAJy+TbWvFkASxmv1UfLO+zYX7ZAJo1kIN5+NwhB/oQRf+qcN+zyy8JxZljE2
+         WYuZesGpsPUlLrUJ/HNAD61CM/eK2AZI2ytHxCcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Rui Miguel Silva <rmfrfs@gmail.com>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
+        Zhehui Xiang <zhehui.xiang@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 082/348] media: imx: imx7_mipi_csis: Fix logging of only error event counters
-Date:   Mon, 12 Jul 2021 08:07:46 +0200
-Message-Id: <20210712060712.708515816@linuxfoundation.org>
+Subject: [PATCH 5.4 083/348] crypto: qat - check return code of qat_hal_rd_rel_reg()
+Date:   Mon, 12 Jul 2021 08:07:47 +0200
+Message-Id: <20210712060712.835885942@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -43,46 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Jack Xu <jack.xu@intel.com>
 
-[ Upstream commit d2fcc9c2de1191ea80366e3658711753738dd10a ]
+[ Upstream commit 96b57229209490c8bca4335b01a426a96173dc56 ]
 
-The mipi_csis_events array ends with 6 non-error events, not 4. Update
-mipi_csis_log_counters() accordingly. While at it, log event counters in
-forward order, as there's no reason to log them backward.
+Check the return code of the function qat_hal_rd_rel_reg() and return it
+to the caller.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Acked-by: Rui Miguel Silva <rmfrfs@gmail.com>
-Reviewed-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This is to fix the following warning when compiling the driver with
+clang scan-build:
+
+    drivers/crypto/qat/qat_common/qat_hal.c:1436:2: warning: 6th function call argument is an uninitialized value
+
+Signed-off-by: Jack Xu <jack.xu@intel.com>
+Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/imx/imx7-mipi-csis.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/qat_hal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/imx/imx7-mipi-csis.c b/drivers/staging/media/imx/imx7-mipi-csis.c
-index 021bbd420390..63bc78e4cac8 100644
---- a/drivers/staging/media/imx/imx7-mipi-csis.c
-+++ b/drivers/staging/media/imx/imx7-mipi-csis.c
-@@ -528,13 +528,15 @@ static void mipi_csis_clear_counters(struct csi_state *state)
- 
- static void mipi_csis_log_counters(struct csi_state *state, bool non_errors)
- {
--	int i = non_errors ? MIPI_CSIS_NUM_EVENTS : MIPI_CSIS_NUM_EVENTS - 4;
-+	unsigned int num_events = non_errors ? MIPI_CSIS_NUM_EVENTS
-+				: MIPI_CSIS_NUM_EVENTS - 6;
- 	struct device *dev = &state->pdev->dev;
- 	unsigned long flags;
-+	unsigned int i;
- 
- 	spin_lock_irqsave(&state->slock, flags);
- 
--	for (i--; i >= 0; i--) {
-+	for (i = 0; i < num_events; ++i) {
- 		if (state->events[i].counter > 0 || state->debug)
- 			dev_info(dev, "%s events: %d\n", state->events[i].name,
- 				 state->events[i].counter);
+diff --git a/drivers/crypto/qat/qat_common/qat_hal.c b/drivers/crypto/qat/qat_common/qat_hal.c
+index dac130bb807a..eda692271f0c 100644
+--- a/drivers/crypto/qat/qat_common/qat_hal.c
++++ b/drivers/crypto/qat/qat_common/qat_hal.c
+@@ -1256,7 +1256,11 @@ static int qat_hal_put_rel_wr_xfer(struct icp_qat_fw_loader_handle *handle,
+ 		pr_err("QAT: bad xfrAddr=0x%x\n", xfr_addr);
+ 		return -EINVAL;
+ 	}
+-	qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
++	status = qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
++	if (status) {
++		pr_err("QAT: failed to read register");
++		return status;
++	}
+ 	gpr_addr = qat_hal_get_reg_addr(ICP_GPB_REL, gprnum);
+ 	data16low = 0xffff & data;
+ 	data16hi = 0xffff & (data >> 0x10);
 -- 
 2.30.2
 
