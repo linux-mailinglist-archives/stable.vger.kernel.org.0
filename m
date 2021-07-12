@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1283C55EE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 653F63C5073
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344904AbhGLIMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:12:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
+        id S242249AbhGLHc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354063AbhGLID1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:03:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9462A611CE;
-        Mon, 12 Jul 2021 07:59:51 +0000 (UTC)
+        id S1345239AbhGLH3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29CE161874;
+        Mon, 12 Jul 2021 07:26:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076792;
-        bh=AEqm8AS5P0KkNxUWVVv9nQbUkA1UYLugWvt+e1Oa/HI=;
+        s=korg; t=1626074775;
+        bh=edKrVGmtiLVtj8iw48kFwlqYYfAz+bZy2sTnQGqvPUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4iVApB/huQDKcvJYqHxiskiiEkE/6E6QQLrhJvJ2JJD4fd+51xwmVuQ5zHm/9y5w
-         X6y6w5d6Hx1eC+8rs1Gfv2gXMAuOBzuzPoJrPmpm+xqt41v5zFMN0VEwybeZDTGs8+
-         obG9uji/tlsXpeUfNuERui/K4bJSokoYyQ29lVuI=
+        b=vSqz9e8fo7WA5vR8ec+hACBMtZU5DEBtq2V2CUwYa3lk7xAFcK0EAGvCwGfqKs/px
+         wz5lp3WGVEsWfXGRxsuenybp5UGPukYLPjoYmQlgVsvdaN977jnA8P3Qz/krosHb6O
+         qdhbzsD9h2D89lZBO+xHzwK8zR7dqrRZxbHqfGWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 753/800] powerpc/papr_scm: Properly handle UUID types and API
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        Long Li <longli@microsoft.com>, Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 5.12 693/700] block: return the correct bvec when checking for gaps
 Date:   Mon, 12 Jul 2021 08:12:56 +0200
-Message-Id: <20210712061046.912978852@linuxfoundation.org>
+Message-Id: <20210712061049.664586571@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,82 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Long Li <longli@microsoft.com>
 
-[ Upstream commit 0e8554b5d7801b0aebc6c348a0a9f7706aa17b3b ]
+commit c9c9762d4d44dcb1b2ba90cfb4122dc11ceebf31 upstream.
 
-Parse to and export from UUID own type, before dereferencing.
-This also fixes wrong comment (Little Endian UUID is something else)
-and should eliminate the direct strict types assignments.
+After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
+have multiple pages. But bio_will_gap() still assumes one page bvec while
+checking for merging. If the pages in the bvec go across the
+seg_boundary_mask, this check for merging can potentially succeed if only
+the 1st page is tested, and can fail if all the pages are tested.
 
-Fixes: 43001c52b603 ("powerpc/papr_scm: Use ibm,unit-guid as the iset cookie")
-Fixes: 259a948c4ba1 ("powerpc/pseries/scm: Use a specific endian format for storing uuid from the device tree")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210616134303.58185-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Later, when SCSI builds the SG list the same check for merging is done in
+__blk_segment_map_sg_merge() with all the pages in the bvec tested. This
+time the check may fail if the pages in bvec go across the
+seg_boundary_mask (but tested okay in bio_will_gap() earlier, so those
+BIOs were merged). If this check fails, we end up with a broken SG list
+for drivers assuming the SG list not having offsets in intermediate pages.
+This results in incorrect pages written to the disk.
+
+Fix this by returning the multi-page bvec when testing gaps for merging.
+
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 07173c3ec276 ("block: enable multipage bvecs")
+Signed-off-by: Long Li <longli@microsoft.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/1623094445-22332-1-git-send-email-longli@linuxonhyperv.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/platforms/pseries/papr_scm.c | 27 +++++++++++++++--------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ include/linux/bio.h |   12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
-index ef26fe40efb0..8335e13836db 100644
---- a/arch/powerpc/platforms/pseries/papr_scm.c
-+++ b/arch/powerpc/platforms/pseries/papr_scm.c
-@@ -18,6 +18,7 @@
- #include <asm/plpar_wrappers.h>
- #include <asm/papr_pdsm.h>
- #include <asm/mce.h>
-+#include <asm/unaligned.h>
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -44,9 +44,6 @@ static inline unsigned int bio_max_segs(
+ #define bio_offset(bio)		bio_iter_offset((bio), (bio)->bi_iter)
+ #define bio_iovec(bio)		bio_iter_iovec((bio), (bio)->bi_iter)
  
- #define BIND_ANY_ADDR (~0ul)
+-#define bio_multiple_segments(bio)				\
+-	((bio)->bi_iter.bi_size != bio_iovec(bio).bv_len)
+-
+ #define bvec_iter_sectors(iter)	((iter).bi_size >> 9)
+ #define bvec_iter_end_sector(iter) ((iter).bi_sector + bvec_iter_sectors((iter)))
  
-@@ -1094,8 +1095,9 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	u32 drc_index, metadata_size;
- 	u64 blocks, block_size;
- 	struct papr_scm_priv *p;
-+	u8 uuid_raw[UUID_SIZE];
- 	const char *uuid_str;
--	u64 uuid[2];
-+	uuid_t uuid;
- 	int rc;
+@@ -271,7 +268,7 @@ static inline void bio_clear_flag(struct
  
- 	/* check we have all the required DT properties */
-@@ -1138,16 +1140,23 @@ static int papr_scm_probe(struct platform_device *pdev)
- 	p->hcall_flush_required = of_property_read_bool(dn, "ibm,hcall-flush-required");
+ static inline void bio_get_first_bvec(struct bio *bio, struct bio_vec *bv)
+ {
+-	*bv = bio_iovec(bio);
++	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+ }
  
- 	/* We just need to ensure that set cookies are unique across */
--	uuid_parse(uuid_str, (uuid_t *) uuid);
-+	uuid_parse(uuid_str, &uuid);
-+
- 	/*
--	 * cookie1 and cookie2 are not really little endian
--	 * we store a little endian representation of the
--	 * uuid str so that we can compare this with the label
--	 * area cookie irrespective of the endian config with which
--	 * the kernel is built.
-+	 * The cookie1 and cookie2 are not really little endian.
-+	 * We store a raw buffer representation of the
-+	 * uuid string so that we can compare this with the label
-+	 * area cookie irrespective of the endian configuration
-+	 * with which the kernel is built.
-+	 *
-+	 * Historically we stored the cookie in the below format.
-+	 * for a uuid string 72511b67-0b3b-42fd-8d1d-5be3cae8bcaa
-+	 *	cookie1 was 0xfd423b0b671b5172
-+	 *	cookie2 was 0xaabce8cae35b1d8d
- 	 */
--	p->nd_set.cookie1 = cpu_to_le64(uuid[0]);
--	p->nd_set.cookie2 = cpu_to_le64(uuid[1]);
-+	export_uuid(uuid_raw, &uuid);
-+	p->nd_set.cookie1 = get_unaligned_le64(&uuid_raw[0]);
-+	p->nd_set.cookie2 = get_unaligned_le64(&uuid_raw[8]);
+ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+@@ -279,10 +276,9 @@ static inline void bio_get_last_bvec(str
+ 	struct bvec_iter iter = bio->bi_iter;
+ 	int idx;
  
- 	/* might be zero */
- 	p->metadata_size = metadata_size;
--- 
-2.30.2
-
+-	if (unlikely(!bio_multiple_segments(bio))) {
+-		*bv = bio_iovec(bio);
+-		return;
+-	}
++	bio_get_first_bvec(bio, bv);
++	if (bv->bv_len == bio->bi_iter.bi_size)
++		return;		/* this bio only has a single bvec */
+ 
+ 	bio_advance_iter(bio, &iter, iter.bi_size);
+ 
 
 
