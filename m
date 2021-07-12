@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8881B3C4EEA
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAA23C545D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241384AbhGLHWT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
+        id S1348447AbhGLH5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344847AbhGLHU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F65613C7;
-        Mon, 12 Jul 2021 07:18:09 +0000 (UTC)
+        id S1348364AbhGLHzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:55:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5454C611F1;
+        Mon, 12 Jul 2021 07:51:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074290;
-        bh=hmRurIbqpU3suHtsvoRkZjjK8IEUMAk/gBQlJcPZB9o=;
+        s=korg; t=1626076309;
+        bh=ZivRLk3vTNtAwKZL3S42TJm2A9EcTEfHPTEK+8QwizA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL25UKn69HhMUdjbpGBgIRRlIeJ2h7mnj/5eeHIKROR23SUTXZsClBMDkS8qKo9UV
-         +REAxUqOdydkLV7Z2ekVAp+ev02eWwejkfHzqJbJUCpM961qnH0NlVANk64ey1My3i
-         IzJMDtoZ/uJiVz8+8vbLOPjlcrHNEl+MATb6XOgg=
+        b=grVzajdmJ5vMPt8My7+Z1WErs1iN1de9F2KzZYUUTKhyGXfykz/XpTazmzD5uFZHl
+         DbLC651TjumDyEycuypPW9Jw1lCLTIJrRPYCVYrHbZtxHeJ0OKbWCwa9gr1v59eXoR
+         spXl2k0WdkICTjor6MipeYAGVeEkzJHMIkPFqHMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 528/700] mwifiex: re-fix for unaligned accesses
+        stable@vger.kernel.org,
+        Cristian Ciocaltea <cristian.ciocaltea@gmail.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 588/800] clk: actions: Fix AHPPREDIV-H-AHB clock chain on Owl S500 SoC
 Date:   Mon, 12 Jul 2021 08:10:11 +0200
-Message-Id: <20210712061032.725217517@linuxfoundation.org>
+Message-Id: <20210712061029.850615709@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
 
-[ Upstream commit 8f4e3d48bb50765ab27ae5bebed2595b20de80a1 ]
+[ Upstream commit fd90b5b9045274360b12cea0f2ce50f3bcfb25cc ]
 
-A patch from 2017 changed some accesses to DMA memory to use
-get_unaligned_le32() and similar interfaces, to avoid problems
-with doing unaligned accesson uncached memory.
+There are a few issues with the setup of the Actions Semi Owl S500 SoC's
+clock chain involving AHPPREDIV, H and AHB clocks:
 
-However, the change in the mwifiex_pcie_alloc_sleep_cookie_buf()
-function ended up changing the size of the access instead,
-as it operates on a pointer to u8.
+* AHBPREDIV clock is defined as a muxer only, although it also acts as
+  a divider.
+* H clock is using a wrong divider register offset
+* AHB is defined as a multi-rate factor clock, but it is actually just
+  a fixed pass clock.
 
-Change this function back to actually access the entire 32 bits.
-Note that the pointer is aligned by definition because it came
-from dma_alloc_coherent().
+Let's provide the following fixes:
 
-Fixes: 92c70a958b0b ("mwifiex: fix for unaligned reads")
-Acked-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+* Change AHBPREDIV clock to an ungated OWL_COMP_DIV definition.
+* Use the correct register shift value in the OWL_DIVIDER definition
+  for H clock
+* Drop the unneeded 'ahb_factor_table[]' and change AHB clock to an
+  ungated OWL_COMP_FIXED_FACTOR definition.
+
+Fixes: ed6b4795ece4 ("clk: actions: Add clock driver for S500 SoC")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@gmail.com>
+Link: https://lore.kernel.org/r/21c1abd19a7089b65a34852ac6513961be88cbe1.1623354574.git.cristian.ciocaltea@gmail.com
+Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/pcie.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/clk/actions/owl-s500.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/pcie.c b/drivers/net/wireless/marvell/mwifiex/pcie.c
-index 94228b316df1..46517515ba72 100644
---- a/drivers/net/wireless/marvell/mwifiex/pcie.c
-+++ b/drivers/net/wireless/marvell/mwifiex/pcie.c
-@@ -1231,7 +1231,7 @@ static int mwifiex_pcie_delete_cmdrsp_buf(struct mwifiex_adapter *adapter)
- static int mwifiex_pcie_alloc_sleep_cookie_buf(struct mwifiex_adapter *adapter)
- {
- 	struct pcie_service_card *card = adapter->card;
--	u32 tmp;
-+	u32 *cookie;
+diff --git a/drivers/clk/actions/owl-s500.c b/drivers/clk/actions/owl-s500.c
+index 42d6899755e6..cbeb51c804eb 100644
+--- a/drivers/clk/actions/owl-s500.c
++++ b/drivers/clk/actions/owl-s500.c
+@@ -153,11 +153,6 @@ static struct clk_factor_table hde_factor_table[] = {
+ 	{ 0, 0, 0 },
+ };
  
- 	card->sleep_cookie_vbase = dma_alloc_coherent(&card->dev->dev,
- 						      sizeof(u32),
-@@ -1242,13 +1242,11 @@ static int mwifiex_pcie_alloc_sleep_cookie_buf(struct mwifiex_adapter *adapter)
- 			    "dma_alloc_coherent failed!\n");
- 		return -ENOMEM;
- 	}
-+	cookie = (u32 *)card->sleep_cookie_vbase;
- 	/* Init val of Sleep Cookie */
--	tmp = FW_AWAKE_COOKIE;
--	put_unaligned(tmp, card->sleep_cookie_vbase);
-+	*cookie = FW_AWAKE_COOKIE;
+-static struct clk_factor_table ahb_factor_table[] = {
+-	{ 1, 1, 2 }, { 2, 1, 3 },
+-	{ 0, 0, 0 },
+-};
+-
+ static struct clk_div_table rmii_ref_div_table[] = {
+ 	{ 0, 4 }, { 1, 10 },
+ 	{ 0, 0 },
+@@ -186,7 +181,6 @@ static struct clk_div_table nand_div_table[] = {
  
--	mwifiex_dbg(adapter, INFO,
--		    "alloc_scook: sleep cookie=0x%x\n",
--		    get_unaligned(card->sleep_cookie_vbase));
-+	mwifiex_dbg(adapter, INFO, "alloc_scook: sleep cookie=0x%x\n", *cookie);
+ /* mux clock */
+ static OWL_MUX(dev_clk, "dev_clk", dev_clk_mux_p, CMU_DEVPLL, 12, 1, CLK_SET_RATE_PARENT);
+-static OWL_MUX(ahbprediv_clk, "ahbprediv_clk", ahbprediv_clk_mux_p, CMU_BUSCLK1, 8, 3, CLK_SET_RATE_PARENT);
  
- 	return 0;
- }
+ /* gate clocks */
+ static OWL_GATE(gpio_clk, "gpio_clk", "apb_clk", CMU_DEVCLKEN0, 18, 0, 0);
+@@ -199,16 +193,25 @@ static OWL_GATE(timer_clk, "timer_clk", "hosc", CMU_DEVCLKEN1, 27, 0, 0);
+ static OWL_GATE(hdmi_clk, "hdmi_clk", "hosc", CMU_DEVCLKEN1, 3, 0, 0);
+ 
+ /* divider clocks */
+-static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 12, 2, NULL, 0, 0);
++static OWL_DIVIDER(h_clk, "h_clk", "ahbprediv_clk", CMU_BUSCLK1, 2, 2, NULL, 0, 0);
+ static OWL_DIVIDER(apb_clk, "apb_clk", "ahb_clk", CMU_BUSCLK1, 14, 2, NULL, 0, 0);
+ static OWL_DIVIDER(rmii_ref_clk, "rmii_ref_clk", "ethernet_pll_clk", CMU_ETHERNETPLL, 1, 1, rmii_ref_div_table, 0, 0);
+ 
+ /* factor clocks */
+-static OWL_FACTOR(ahb_clk, "ahb_clk", "h_clk", CMU_BUSCLK1, 2, 2, ahb_factor_table, 0, 0);
+ static OWL_FACTOR(de1_clk, "de_clk1", "de_clk", CMU_DECLK, 0, 4, de_factor_table, 0, 0);
+ static OWL_FACTOR(de2_clk, "de_clk2", "de_clk", CMU_DECLK, 4, 4, de_factor_table, 0, 0);
+ 
+ /* composite clocks */
++static OWL_COMP_DIV(ahbprediv_clk, "ahbprediv_clk", ahbprediv_clk_mux_p,
++			OWL_MUX_HW(CMU_BUSCLK1, 8, 3),
++			{ 0 },
++			OWL_DIVIDER_HW(CMU_BUSCLK1, 12, 2, 0, NULL),
++			CLK_SET_RATE_PARENT);
++
++static OWL_COMP_FIXED_FACTOR(ahb_clk, "ahb_clk", "h_clk",
++			{ 0 },
++			1, 1, 0);
++
+ static OWL_COMP_FACTOR(vce_clk, "vce_clk", hde_clk_mux_p,
+ 			OWL_MUX_HW(CMU_VCECLK, 4, 2),
+ 			OWL_GATE_HW(CMU_DEVCLKEN0, 26, 0),
 -- 
 2.30.2
 
