@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 735D33C50FB
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D86A3C4BE2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345013AbhGLHgA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52408 "EHLO mail.kernel.org"
+        id S241269AbhGLHAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346696AbhGLHeT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEE9C613E0;
-        Mon, 12 Jul 2021 07:31:11 +0000 (UTC)
+        id S240507AbhGLG6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:58:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56BFF613E8;
+        Mon, 12 Jul 2021 06:56:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075072;
-        bh=HtTGf5KnrovaUHmzR0sqHT16Xs/f/f2D5nlTR5SEGmI=;
+        s=korg; t=1626072962;
+        bh=mN06SF4VSjSXGXyu6dP0YwqQ3pJaEq3g/1y+qp+mK4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lza4jLrncArEccwAk+lfK01SjpTvWAvt1Ie0+q25Csl9Gf4oCBRaHug22iy/P1/19
-         MnJGed6MF747akovE2HuQfHRNOIxku1wdQ4in7FD5CKVIuIR78fX1aHmfXVaweG4u/
-         0Fc0+gjtdzo1MoWhZ2paLWomenMokQQdNUJYYQgI=
+        b=KEs3X2oiJ5YdnP+J+21A+N7QmxJ3XScbzCwPjVTzlU/y/tC/kY0JfBObsqoVshga9
+         WHh9GOActKILvCVZXA9g1opAJdH4l/qBMjQseqmtLZGcdL2WiF1TxoRs0RvP8jLMaG
+         lBrONd2o2WNA5hs/EFUxrOGmkA+CjuD2pAuMIsj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Meerwald <pmeerw@pmeerw.net>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.13 096/800] iio: accel: bma180: Fix BMA25x bandwidth register values
-Date:   Mon, 12 Jul 2021 08:01:59 +0200
-Message-Id: <20210712060926.557502902@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Murray McAllister <murray.mcallister@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Larkin <avlarkin82@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.12 037/700] Input: joydev - prevent use of not validated data in JSIOCSBTNMAP ioctl
+Date:   Mon, 12 Jul 2021 08:02:00 +0200
+Message-Id: <20210712060929.863410542@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Alexander Larkin <avlarkin82@gmail.com>
 
-commit 8090d67421ddab0ae932abab5a60200598bf0bbb upstream.
+commit f8f84af5da9ee04ef1d271528656dac42a090d00 upstream.
 
-According to the BMA253 datasheet [1] and BMA250 datasheet [2] the
-bandwidth value for BMA25x should be set as 01xxx:
+Even though we validate user-provided inputs we then traverse past
+validated data when applying the new map. The issue was originally
+discovered by Murray McAllister with this simple POC (if the following
+is executed by an unprivileged user it will instantly panic the system):
 
-  "Settings 00xxx result in a bandwidth of 7.81 Hz; [...]
-   It is recommended [...] to use the range from ´01000b´ to ´01111b´
-   only in order to be compatible with future products."
+int main(void) {
+	int fd, ret;
+	unsigned int buffer[10000];
 
-However, at the moment the drivers sets bandwidth values from 0 to 6,
-which is not recommended and always results into 7.81 Hz bandwidth
-according to the datasheet.
+	fd = open("/dev/input/js0", O_RDONLY);
+	if (fd == -1)
+		printf("Error opening file\n");
 
-Fix this by introducing a bw_offset = 8 = 01000b for BMA25x,
-so the additional bit is always set for BMA25x.
+	ret = ioctl(fd, JSIOCSBTNMAP & ~IOCSIZE_MASK, &buffer);
+	printf("%d\n", ret);
+}
 
-[1]: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bma253-ds000.pdf
-[2]: https://datasheet.octopart.com/BMA250-Bosch-datasheet-15540103.pdf
+The solution is to traverse internal buffer which is guaranteed to only
+contain valid date when constructing the map.
 
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Fixes: 2017cff24cc0 ("iio:bma180: Add BMA250 chip support")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20210526094408.34298-2-stephan@gerhold.net
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 182d679b2298 ("Input: joydev - prevent potential read overflow in ioctl")
+Fixes: 999b874f4aa3 ("Input: joydev - validate axis/button maps before clobbering current ones")
+Reported-by: Murray McAllister <murray.mcallister@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Alexander Larkin <avlarkin82@gmail.com>
+Link: https://lore.kernel.org/r/20210620120030.1513655-1-avlarkin82@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/accel/bma180.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/input/joydev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -55,7 +55,7 @@ struct bma180_part_info {
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -499,7 +499,7 @@ static int joydev_handle_JSIOCSBTNMAP(st
+ 	memcpy(joydev->keypam, keypam, len);
  
- 	u8 int_reset_reg, int_reset_mask;
- 	u8 sleep_reg, sleep_mask;
--	u8 bw_reg, bw_mask;
-+	u8 bw_reg, bw_mask, bw_offset;
- 	u8 scale_reg, scale_mask;
- 	u8 power_reg, power_mask, lowpower_val;
- 	u8 int_enable_reg, int_enable_mask;
-@@ -127,6 +127,7 @@ struct bma180_part_info {
+ 	for (i = 0; i < joydev->nkey; i++)
+-		joydev->keymap[keypam[i] - BTN_MISC] = i;
++		joydev->keymap[joydev->keypam[i] - BTN_MISC] = i;
  
- #define BMA250_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
- #define BMA250_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
-+#define BMA250_BW_OFFSET	8
- #define BMA250_SUSPEND_MASK	BIT(7) /* chip will sleep */
- #define BMA250_LOWPOWER_MASK	BIT(6)
- #define BMA250_DATA_INTEN_MASK	BIT(4)
-@@ -143,6 +144,7 @@ struct bma180_part_info {
- 
- #define BMA254_RANGE_MASK	GENMASK(3, 0) /* Range of accel values */
- #define BMA254_BW_MASK		GENMASK(4, 0) /* Accel bandwidth */
-+#define BMA254_BW_OFFSET	8
- #define BMA254_SUSPEND_MASK	BIT(7) /* chip will sleep */
- #define BMA254_LOWPOWER_MASK	BIT(6)
- #define BMA254_DATA_INTEN_MASK	BIT(4)
-@@ -283,7 +285,8 @@ static int bma180_set_bw(struct bma180_d
- 	for (i = 0; i < data->part_info->num_bw; ++i) {
- 		if (data->part_info->bw_table[i] == val) {
- 			ret = bma180_set_bits(data, data->part_info->bw_reg,
--				data->part_info->bw_mask, i);
-+				data->part_info->bw_mask,
-+				i + data->part_info->bw_offset);
- 			if (ret) {
- 				dev_err(&data->client->dev,
- 					"failed to set bandwidth\n");
-@@ -876,6 +879,7 @@ static const struct bma180_part_info bma
- 		.sleep_mask = BMA250_SUSPEND_MASK,
- 		.bw_reg = BMA250_BW_REG,
- 		.bw_mask = BMA250_BW_MASK,
-+		.bw_offset = BMA250_BW_OFFSET,
- 		.scale_reg = BMA250_RANGE_REG,
- 		.scale_mask = BMA250_RANGE_MASK,
- 		.power_reg = BMA250_POWER_REG,
-@@ -905,6 +909,7 @@ static const struct bma180_part_info bma
- 		.sleep_mask = BMA254_SUSPEND_MASK,
- 		.bw_reg = BMA254_BW_REG,
- 		.bw_mask = BMA254_BW_MASK,
-+		.bw_offset = BMA254_BW_OFFSET,
- 		.scale_reg = BMA254_RANGE_REG,
- 		.scale_mask = BMA254_RANGE_MASK,
- 		.power_reg = BMA254_POWER_REG,
+  out:
+ 	kfree(keypam);
 
 
