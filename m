@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7523C48AC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6D63C48B0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235641AbhGLGkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58304 "EHLO mail.kernel.org"
+        id S233870AbhGLGki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237499AbhGLGj3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6AB66113B;
-        Mon, 12 Jul 2021 06:35:16 +0000 (UTC)
+        id S237792AbhGLGjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1D226113E;
+        Mon, 12 Jul 2021 06:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071717;
-        bh=hEXybyKNzNQh9GIrfXSwiHb+N8bB+QE1nn7cGPVvTAw=;
+        s=korg; t=1626071726;
+        bh=P1wCF5MjMasoUsUhzJZ3trQHMHTl86FvkoaoOo0K928=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzKrZwa14UgzQ0BSVD6A20fsLRl6Ycn6SKIV0O19oaGIJtD/EGXSnKsUZY2ST6BjW
-         bapy7VKqQ6V+TVMa444qdgbXw5Z0fuPtOGQqvy1Fa3K92NQ+Gka2yGK4TtyoPRSNLc
-         IGbF+4oIqCkn3rhGlMDTNHEuMCFx7lizFVNKgPRE=
+        b=l0XEfV0NqBkXaoUjQBrG+AwoVhs0JZs/TszJwyfV9nxWs+eD0NwMSCi5WhWuL76yh
+         8v67lZmQh8OFkwsNJBgu1CHZQpt+TFhVGQLuW+6AyWh9pEnh44WGUSeUUAXvl2bSwL
+         kh+LBAC2j8aXUVgGilD15RVw7oU3MLzOEOVJeVlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/593] block: fix race between adding/removing rq qos and normal IO
-Date:   Mon, 12 Jul 2021 08:05:48 +0200
-Message-Id: <20210712060903.707501588@linuxfoundation.org>
+        stable@vger.kernel.org, JK Kim <jongkang.kim2@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 192/593] nvme-pci: fix var. type for increasing cq_head
+Date:   Mon, 12 Jul 2021 08:05:52 +0200
+Message-Id: <20210712060904.133790591@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,111 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: JK Kim <jongkang.kim2@gmail.com>
 
-[ Upstream commit 2cafe29a8d03f02a3d16193bdaae2f3e82a423f9 ]
+[ Upstream commit a0aac973a26d1ac814b9e131e209eb39472a67ce ]
 
-Yi reported several kernel panics on:
+nvmeq->cq_head is compared with nvmeq->q_depth and changed the value
+and cq_phase for handling the next cq db.
 
-[16687.001777] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-...
-[16687.163549] pc : __rq_qos_track+0x38/0x60
+but, nvmeq->q_depth's type is u32 and max. value is 0x10000 when
+CQP.MSQE is 0xffff and io_queue_depth is 0x10000.
 
-or
+current temp. variable for comparing with nvmeq->q_depth is overflowed
+when previous nvmeq->cq_head is 0xffff.
 
-[  997.690455] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-...
-[  997.850347] pc : __rq_qos_done+0x2c/0x50
+in this case, nvmeq->cq_phase is not updated.
+so, fix data type for temp. variable to u32.
 
-Turns out it is caused by race between adding rq qos(wbt) and normal IO
-because rq_qos_add can be run when IO is being submitted, fix this issue
-by freezing queue before adding/deleting rq qos to queue.
-
-rq_qos_exit() needn't to freeze queue because it is called after queue
-has been frozen.
-
-iolatency calls rq_qos_add() during allocating queue, so freezing won't
-add delay because queue usage refcount works at atomic mode at that
-time.
-
-iocost calls rq_qos_add() when writing cgroup attribute file, that is
-fine to freeze queue at that time since we usually freeze queue when
-storing to queue sysfs attribute, meantime iocost only exists on the
-root cgroup.
-
-wbt_init calls it in blk_register_queue() and queue sysfs attribute
-store(queue_wb_lat_store() when write it 1st time in case of !BLK_WBT_MQ),
-the following patch will speedup the queue freezing in wbt_init.
-
-Reported-by: Yi Zhang <yi.zhang@redhat.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Tested-by: Yi Zhang <yi.zhang@redhat.com>
-Link: https://lore.kernel.org/r/20210609015822.103433-2-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: JK Kim <jongkang.kim2@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-rq-qos.h | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/nvme/host/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
-index 2bc43e94f4c4..2bcb3495e376 100644
---- a/block/blk-rq-qos.h
-+++ b/block/blk-rq-qos.h
-@@ -7,6 +7,7 @@
- #include <linux/blk_types.h>
- #include <linux/atomic.h>
- #include <linux/wait.h>
-+#include <linux/blk-mq.h>
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index c1f3446216c5..56263214ea06 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1027,7 +1027,7 @@ static inline void nvme_handle_cqe(struct nvme_queue *nvmeq, u16 idx)
  
- #include "blk-mq-debugfs.h"
- 
-@@ -99,8 +100,21 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
- 
- static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
+ static inline void nvme_update_cq_head(struct nvme_queue *nvmeq)
  {
-+	/*
-+	 * No IO can be in-flight when adding rqos, so freeze queue, which
-+	 * is fine since we only support rq_qos for blk-mq queue.
-+	 *
-+	 * Reuse ->queue_lock for protecting against other concurrent
-+	 * rq_qos adding/deleting
-+	 */
-+	blk_mq_freeze_queue(q);
-+
-+	spin_lock_irq(&q->queue_lock);
- 	rqos->next = q->rq_qos;
- 	q->rq_qos = rqos;
-+	spin_unlock_irq(&q->queue_lock);
-+
-+	blk_mq_unfreeze_queue(q);
+-	u16 tmp = nvmeq->cq_head + 1;
++	u32 tmp = nvmeq->cq_head + 1;
  
- 	if (rqos->ops->debugfs_attrs)
- 		blk_mq_debugfs_register_rqos(rqos);
-@@ -110,12 +124,22 @@ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
- {
- 	struct rq_qos **cur;
- 
-+	/*
-+	 * See comment in rq_qos_add() about freezing queue & using
-+	 * ->queue_lock.
-+	 */
-+	blk_mq_freeze_queue(q);
-+
-+	spin_lock_irq(&q->queue_lock);
- 	for (cur = &q->rq_qos; *cur; cur = &(*cur)->next) {
- 		if (*cur == rqos) {
- 			*cur = rqos->next;
- 			break;
- 		}
- 	}
-+	spin_unlock_irq(&q->queue_lock);
-+
-+	blk_mq_unfreeze_queue(q);
- 
- 	blk_mq_debugfs_unregister_rqos(rqos);
- }
+ 	if (tmp == nvmeq->q_depth) {
+ 		nvmeq->cq_head = 0;
 -- 
 2.30.2
 
