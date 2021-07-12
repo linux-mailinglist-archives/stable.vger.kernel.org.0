@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 690193C558D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 249F53C5036
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230292AbhGLIKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55674 "EHLO mail.kernel.org"
+        id S241639AbhGLHbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353743AbhGLICt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 642A261D06;
-        Mon, 12 Jul 2021 07:57:15 +0000 (UTC)
+        id S1344381AbhGLH3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A00261464;
+        Mon, 12 Jul 2021 07:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076635;
-        bh=M5cELWOCOfWzIgwHaTKOHBHljuuaZ28F1EZg6kJGlic=;
+        s=korg; t=1626074707;
+        bh=s3PJxaMHIBmRPFEE4o7UlT57Mj7+CjcWNzOjSrYFoqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+dT2qVTg8mAZLBr53B/hbVE5cfc8IdGyv5T6rcZkffuKBi9AE/yk10OCBh8z5HZF
-         l1FG+LueD/N1HwjCKZeUh188KWepmKa2Wos8BvO9+FT4WiypbCTPlAsoPvCE62NMdp
-         XzkpriXWeFL+YWQy4aKSNB6cyxLSst8PEc/yslnY=
+        b=TrByzWcGcQx+YxQuq8RtJaCTAZyM6heMjxKXX5u/AtWcoltl8D8HnSm1t+dAbu/Vk
+         SadlqR78TjosgQgFWFmIZK7AUG8P8nN6JQQFI1aLl6RyrYyavQYenHKhwEgYht5Quu
+         HXsuBq1aQugD/TTM/6O8O455VAYIzxaxuFm3L92M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 728/800] of: Fix truncation of memory sizes on 32-bit platforms
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jan Kara <jack@suse.cz>, Jann Horn <jannh@google.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Youquan Song <youquan.song@intel.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 668/700] hugetlb: remove prep_compound_huge_page cleanup
 Date:   Mon, 12 Jul 2021 08:12:31 +0200
-Message-Id: <20210712061044.254165775@linuxfoundation.org>
+Message-Id: <20210712061046.961271745@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +49,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 2892d8a00d23d511a0591ac4b2ff3f050ae1f004 ]
+[ Upstream commit 48b8d744ea841b8adf8d07bfe7a2d55f22e4d179 ]
 
-Variable "size" has type "phys_addr_t", which can be either 32-bit or
-64-bit on 32-bit systems, while "unsigned long" is always 32-bit on
-32-bit systems.  Hence the cast in
+Patch series "Fix prep_compound_gigantic_page ref count adjustment".
 
-    (unsigned long)size / SZ_1M
+These patches address the possible race between
+prep_compound_gigantic_page and __page_cache_add_speculative as described
+by Jann Horn in [1].
 
-may truncate a 64-bit size to 32-bit, as casts have a higher operator
-precedence than divisions.
+The first patch simply removes the unnecessary/obsolete helper routine
+prep_compound_huge_page to make the actual fix a little simpler.
 
-Fix this by inverting the order of the cast and division, which should
-be safe for memory blocks smaller than 4 PiB.  Note that the division is
-actually a shift, as SZ_1M is a power-of-two constant, hence there is no
-need to use div_u64().
+The second patch is the actual fix and has a detailed explanation in the
+commit message.
 
-While at it, use "%lu" to format "unsigned long".
+This potential issue has existed for almost 10 years and I am unaware of
+anyone actually hitting the race.  I did not cc stable, but would be happy
+to squash the patches and send to stable if anyone thinks that is a good
+idea.
 
-Fixes: e8d9d1f5485b52ec ("drivers: of: add initialization code for static reserved memory")
-Fixes: 3f0c8206644836e4 ("drivers: of: add initialization code for dynamic reserved memory")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/4a1117e72d13d26126f57be034c20dac02f1e915.1623835273.git.geert+renesas@glider.be
-Signed-off-by: Rob Herring <robh@kernel.org>
+[1] https://lore.kernel.org/linux-mm/CAG48ez23q0Jy9cuVnwAe7t_fdhMk2S7N5Hdi-GLcCeq5bsfLxw@mail.gmail.com/
+
+This patch (of 2):
+
+I could not think of a reliable way to recreate the issue for testing.
+Rather, I 'simulated errors' to exercise all the error paths.
+
+The routine prep_compound_huge_page is a simple wrapper to call either
+prep_compound_gigantic_page or prep_compound_page.  However, it is only
+called from gather_bootmem_prealloc which only processes gigantic pages.
+Eliminate the routine and call prep_compound_gigantic_page directly.
+
+Link: https://lkml.kernel.org/r/20210622021423.154662-1-mike.kravetz@oracle.com
+Link: https://lkml.kernel.org/r/20210622021423.154662-2-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jann Horn <jannh@google.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Youquan Song <youquan.song@intel.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c             | 8 ++++----
- drivers/of/of_reserved_mem.c | 8 ++++----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ mm/hugetlb.c | 29 ++++++++++-------------------
+ 1 file changed, 10 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index ba17a80b8c79..cc71e0b3eed9 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -510,11 +510,11 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 7ba7d9b20494..dbf44b92651b 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1313,8 +1313,6 @@ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+ 	return alloc_contig_pages(nr_pages, gfp_mask, nid, nodemask);
+ }
  
- 		if (size &&
- 		    early_init_dt_reserve_memory_arch(base, size, nomap) == 0)
--			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %ld MiB\n",
--				uname, &base, (unsigned long)size / SZ_1M);
-+			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
-+				uname, &base, (unsigned long)(size / SZ_1M));
- 		else
--			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %ld MiB\n",
--				uname, &base, (unsigned long)size / SZ_1M);
-+			pr_info("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
-+				uname, &base, (unsigned long)(size / SZ_1M));
+-static void prep_new_huge_page(struct hstate *h, struct page *page, int nid);
+-static void prep_compound_gigantic_page(struct page *page, unsigned int order);
+ #else /* !CONFIG_CONTIG_ALLOC */
+ static struct page *alloc_gigantic_page(struct hstate *h, gfp_t gfp_mask,
+ 					int nid, nodemask_t *nodemask)
+@@ -2504,16 +2502,10 @@ found:
+ 	return 1;
+ }
  
- 		len -= t_len;
- 		if (first) {
-diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
-index 15e2417974d6..3502ba522c39 100644
---- a/drivers/of/of_reserved_mem.c
-+++ b/drivers/of/of_reserved_mem.c
-@@ -134,9 +134,9 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
- 			ret = early_init_dt_alloc_reserved_memory_arch(size,
- 					align, start, end, nomap, &base);
- 			if (ret == 0) {
--				pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
-+				pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
- 					uname, &base,
--					(unsigned long)size / SZ_1M);
-+					(unsigned long)(size / SZ_1M));
- 				break;
- 			}
- 			len -= t_len;
-@@ -146,8 +146,8 @@ static int __init __reserved_mem_alloc_size(unsigned long node,
- 		ret = early_init_dt_alloc_reserved_memory_arch(size, align,
- 							0, 0, nomap, &base);
- 		if (ret == 0)
--			pr_debug("allocated memory for '%s' node: base %pa, size %ld MiB\n",
--				uname, &base, (unsigned long)size / SZ_1M);
-+			pr_debug("allocated memory for '%s' node: base %pa, size %lu MiB\n",
-+				uname, &base, (unsigned long)(size / SZ_1M));
+-static void __init prep_compound_huge_page(struct page *page,
+-		unsigned int order)
+-{
+-	if (unlikely(order > (MAX_ORDER - 1)))
+-		prep_compound_gigantic_page(page, order);
+-	else
+-		prep_compound_page(page, order);
+-}
+-
+-/* Put bootmem huge pages into the standard lists after mem_map is up */
++/*
++ * Put bootmem huge pages into the standard lists after mem_map is up.
++ * Note: This only applies to gigantic (order > MAX_ORDER) pages.
++ */
+ static void __init gather_bootmem_prealloc(void)
+ {
+ 	struct huge_bootmem_page *m;
+@@ -2522,20 +2514,19 @@ static void __init gather_bootmem_prealloc(void)
+ 		struct page *page = virt_to_page(m);
+ 		struct hstate *h = m->hstate;
+ 
++		VM_BUG_ON(!hstate_is_gigantic(h));
+ 		WARN_ON(page_count(page) != 1);
+-		prep_compound_huge_page(page, huge_page_order(h));
++		prep_compound_gigantic_page(page, huge_page_order(h));
+ 		WARN_ON(PageReserved(page));
+ 		prep_new_huge_page(h, page, page_to_nid(page));
+ 		put_page(page); /* free it into the hugepage allocator */
+ 
+ 		/*
+-		 * If we had gigantic hugepages allocated at boot time, we need
+-		 * to restore the 'stolen' pages to totalram_pages in order to
+-		 * fix confusing memory reports from free(1) and another
+-		 * side-effects, like CommitLimit going negative.
++		 * We need to restore the 'stolen' pages to totalram_pages
++		 * in order to fix confusing memory reports from free(1) and
++		 * other side-effects, like CommitLimit going negative.
+ 		 */
+-		if (hstate_is_gigantic(h))
+-			adjust_managed_page_count(page, pages_per_huge_page(h));
++		adjust_managed_page_count(page, pages_per_huge_page(h));
+ 		cond_resched();
  	}
- 
- 	if (base == 0) {
+ }
 -- 
 2.30.2
 
