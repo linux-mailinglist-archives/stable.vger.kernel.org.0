@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6613C4CB3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6144D3C5227
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242704AbhGLHGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40652 "EHLO mail.kernel.org"
+        id S1349889AbhGLHo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243903AbhGLHF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4329B6120F;
-        Mon, 12 Jul 2021 07:02:48 +0000 (UTC)
+        id S1348017AbhGLHkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 20BB461164;
+        Mon, 12 Jul 2021 07:37:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073368;
-        bh=nYZjtovbTvEXUjXwCxT6in8QL3EZuWYSvKmgcDiqPfg=;
+        s=korg; t=1626075460;
+        bh=xrZQXGqRJvGdNcdItfEotkKMXNf9hOca8ma1npbSJYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v+lfl8ORydP/s+IeHFmm/zqic5A6XSNxcftRdBUi53XnRjdxxMTMu7uLTNafphYPz
-         WCyWvYkL1NACps1G39vbLwdg1l58g0R9OYrIAV9MShjllhjaAvuznhzaun8uLfh6/5
-         WZvCkZejUX/FZIqTPLDd4ksMx94JComuIxTCEMTw=
+        b=Im9dbkEi3gHL9d0jMphCzczUkZIyIt+nGSj9agkP2SbCP7B1fUryOXRx1M2g71Z4p
+         5jX+1p7MHAe81hW9AVAWuuVzFm0yoQaldSsCR8mR2kl2PJ6R3hoN6X0XmmoxH7A6w3
+         4HPT0mtw/rJmZwbwZ6V0uvuktW4/dfgsK64VBiOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org, Richard Guy Briggs <rgb@redhat.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 166/700] mmc: sdhci-sprd: use sdhci_sprd_writew
-Date:   Mon, 12 Jul 2021 08:04:09 +0200
-Message-Id: <20210712060949.236146413@linuxfoundation.org>
+Subject: [PATCH 5.13 227/800] open: dont silently ignore unknown O-flags in openat2()
+Date:   Mon, 12 Jul 2021 08:04:10 +0200
+Message-Id: <20210712060945.789484215@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-[ Upstream commit 961470820021e6f9d74db4837bd6831a1a30341b ]
+[ Upstream commit cfe80306a0dd6d363934913e47c3f30d71b721e5 ]
 
-The sdhci_sprd_writew() was defined by never used in sdhci_ops:
+The new openat2() syscall verifies that no unknown O-flag values are
+set and returns an error to userspace if they are while the older open
+syscalls like open() and openat() simply ignore unknown flag values:
 
-    drivers/mmc/host/sdhci-sprd.c:134:20: warning: unused function 'sdhci_sprd_writew'
+  #define O_FLAG_CURRENTLY_INVALID (1 << 31)
+  struct open_how how = {
+          .flags = O_RDONLY | O_FLAG_CURRENTLY_INVALID,
+          .resolve = 0,
+  };
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210601095403.236007-2-krzysztof.kozlowski@canonical.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+  /* fails */
+  fd = openat2(-EBADF, "/dev/null", &how, sizeof(how));
+
+  /* succeeds */
+  fd = openat(-EBADF, "/dev/null", O_RDONLY | O_FLAG_CURRENTLY_INVALID);
+
+However, openat2() silently truncates the upper 32 bits meaning:
+
+  #define O_FLAG_CURRENTLY_INVALID_LOWER32 (1 << 31)
+  #define O_FLAG_CURRENTLY_INVALID_UPPER32 (1 << 40)
+
+  struct open_how how_lowe32 = {
+          .flags = O_RDONLY | O_FLAG_CURRENTLY_INVALID_LOWER32,
+  };
+
+  struct open_how how_upper32 = {
+          .flags = O_RDONLY | O_FLAG_CURRENTLY_INVALID_UPPER32,
+  };
+
+  /* fails */
+  fd = openat2(-EBADF, "/dev/null", &how_lower32, sizeof(how_lower32));
+
+  /* succeeds */
+  fd = openat2(-EBADF, "/dev/null", &how_upper32, sizeof(how_upper32));
+
+Fix this by preventing the immediate truncation in build_open_flags().
+
+There's a snafu here though stripping FMODE_* directly from flags would
+cause the upper 32 bits to be truncated as well due to integer promotion
+rules since FMODE_* is unsigned int, O_* are signed ints (yuck).
+
+In addition, struct open_flags currently defines flags to be 32 bit
+which is reasonable. If we simply were to bump it to 64 bit we would
+need to change a lot of code preemptively which doesn't seem worth it.
+So simply add a compile-time check verifying that all currently known
+O_* flags are within the 32 bit range and fail to build if they aren't
+anymore.
+
+This change shouldn't regress old open syscalls since they silently
+truncate any unknown values anyway. It is a tiny semantic change for
+openat2() but it is very unlikely people pass ing > 32 bit unknown flags
+and the syscall is relatively new too.
+
+Link: https://lore.kernel.org/r/20210528092417.3942079-3-brauner@kernel.org
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Aleksa Sarai <cyphar@cyphar.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: linux-fsdevel@vger.kernel.org
+Reported-by: Richard Guy Briggs <rgb@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Aleksa Sarai <cyphar@cyphar.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-sprd.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/open.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-sprd.c b/drivers/mmc/host/sdhci-sprd.c
-index 5dc36efff47f..11e375579cfb 100644
---- a/drivers/mmc/host/sdhci-sprd.c
-+++ b/drivers/mmc/host/sdhci-sprd.c
-@@ -393,6 +393,7 @@ static void sdhci_sprd_request_done(struct sdhci_host *host,
- static struct sdhci_ops sdhci_sprd_ops = {
- 	.read_l = sdhci_sprd_readl,
- 	.write_l = sdhci_sprd_writel,
-+	.write_w = sdhci_sprd_writew,
- 	.write_b = sdhci_sprd_writeb,
- 	.set_clock = sdhci_sprd_set_clock,
- 	.get_max_clock = sdhci_sprd_get_max_clock,
+diff --git a/fs/open.c b/fs/open.c
+index e53af13b5835..53bc0573c0ec 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -1002,12 +1002,20 @@ inline struct open_how build_open_how(int flags, umode_t mode)
+ 
+ inline int build_open_flags(const struct open_how *how, struct open_flags *op)
+ {
+-	int flags = how->flags;
++	u64 flags = how->flags;
++	u64 strip = FMODE_NONOTIFY | O_CLOEXEC;
+ 	int lookup_flags = 0;
+ 	int acc_mode = ACC_MODE(flags);
+ 
+-	/* Must never be set by userspace */
+-	flags &= ~(FMODE_NONOTIFY | O_CLOEXEC);
++	BUILD_BUG_ON_MSG(upper_32_bits(VALID_OPEN_FLAGS),
++			 "struct open_flags doesn't yet handle flags > 32 bits");
++
++	/*
++	 * Strip flags that either shouldn't be set by userspace like
++	 * FMODE_NONOTIFY or that aren't relevant in determining struct
++	 * open_flags like O_CLOEXEC.
++	 */
++	flags &= ~strip;
+ 
+ 	/*
+ 	 * Older syscalls implicitly clear all of the invalid flags or argument
 -- 
 2.30.2
 
