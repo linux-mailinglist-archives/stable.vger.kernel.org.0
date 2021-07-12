@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F94B3C508E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4849A3C4B15
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245279AbhGLHdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44518 "EHLO mail.kernel.org"
+        id S239716AbhGLGzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343963AbhGLH3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0CE5613D8;
-        Mon, 12 Jul 2021 07:24:43 +0000 (UTC)
+        id S240984AbhGLGyY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:54:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F929611C2;
+        Mon, 12 Jul 2021 06:51:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074684;
-        bh=/4WK8nKUvEkJpigdG4z2qQ+j88Y6mH6qhSyZT5i4Rt0=;
+        s=korg; t=1626072694;
+        bh=RtWuVmcFlAjsPSFFHOaPn9GmQSPNvNq00+3sAYldAJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wS466X/8CPTqp8oIpmBfl2jx1vlhS582zCwzYj8jtL1Hr1m8oRMcZrXXcGt7U5/TA
-         tXBxRKZk1Jy1n1AaqQ2GQxGc8XrlLIrtCbN1yzJaHcmxttwPkTaCPfcjdVR+anSTQ8
-         5hopRB6ozQHto8WZnKh6huvtq5KR5Y00CXC6B0Hk=
+        b=oGbbJBzXiRzXiYmsBNZAAgeT9/iwWDPZbx+xd6cW+h1drNL3T5++w9HtcjF7VLM7R
+         WR7vXR+3KLd46oLgtasgvaJ8k0hm2gX19rM9TjLsDv4P6APHbIwVFw7oANUiWWv17K
+         hLGUEvbbxMTHtVB+JOjFYRVZC/w1EwtSi79KBovE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 661/700] serial: mvebu-uart: correctly calculate minimal possible baudrate
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.10 584/593] fscrypt: dont ignore minor_hash when hash is 0
 Date:   Mon, 12 Jul 2021 08:12:24 +0200
-Message-Id: <20210712061046.225539114@linuxfoundation.org>
+Message-Id: <20210712060959.572089895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +38,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit deeaf963569a0d9d1b08babb771f61bb501a5704 ]
+commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
 
-For default (x16) scheme which is currently used by mvebu-uart.c driver,
-maximal divisor of UART base clock is 1023*16. Therefore there is limit for
-minimal supported baudrate. This change calculate it correctly and prevents
-setting invalid divisor 0 into hardware registers.
+When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+minor_hash to 0 if the (major) hash is 0.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Link: https://lore.kernel.org/r/20210624224909.6350-4-pali@kernel.org
+This doesn't make sense because 0 is a valid hash code, so we shouldn't
+ignore the filesystem-provided minor_hash in that case.  Fix this by
+removing the special case for 'hash == 0'.
+
+This is an old bug that appears to have originated when the encryption
+code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+f2fs code passed the hash by pointer instead of by value.  So
+'if (hash)' actually made sense then, as it was checking whether a
+pointer was NULL.  But now the hashes are passed by value, and
+filesystems just pass 0 for any hashes they don't have.  There is no
+need to handle this any differently from the hashes actually being 0.
+
+It is difficult to reproduce this bug, as it only made a difference in
+the case where a filename's 32-bit major hash happened to be 0.
+However, it probably had the largest chance of causing problems on
+ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+a readdir cookie, and f2fs doesn't use minor_hash at all.
+
+Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+Cc: <stable@vger.kernel.org> # v4.6+
+Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/tty/serial/mvebu-uart.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/crypto/fname.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
-index 9638ae6aae79..1e26220c7852 100644
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -481,7 +481,7 @@ static void mvebu_uart_set_termios(struct uart_port *port,
- 				   struct ktermios *old)
- {
- 	unsigned long flags;
--	unsigned int baud;
-+	unsigned int baud, min_baud, max_baud;
+--- a/fs/crypto/fname.c
++++ b/fs/crypto/fname.c
+@@ -344,13 +344,9 @@ int fscrypt_fname_disk_to_usr(const stru
+ 		     offsetof(struct fscrypt_nokey_name, sha256));
+ 	BUILD_BUG_ON(BASE64_CHARS(FSCRYPT_NOKEY_NAME_MAX) > NAME_MAX);
  
- 	spin_lock_irqsave(&port->lock, flags);
- 
-@@ -500,16 +500,21 @@ static void mvebu_uart_set_termios(struct uart_port *port,
- 		port->ignore_status_mask |= STAT_RX_RDY(port) | STAT_BRK_ERR;
- 
- 	/*
-+	 * Maximal divisor is 1023 * 16 when using default (x16) scheme.
- 	 * Maximum achievable frequency with simple baudrate divisor is 230400.
- 	 * Since the error per bit frame would be of more than 15%, achieving
- 	 * higher frequencies would require to implement the fractional divisor
- 	 * feature.
- 	 */
--	baud = uart_get_baud_rate(port, termios, old, 0, 230400);
-+	min_baud = DIV_ROUND_UP(port->uartclk, 1023 * 16);
-+	max_baud = 230400;
+-	if (hash) {
+-		nokey_name.dirhash[0] = hash;
+-		nokey_name.dirhash[1] = minor_hash;
+-	} else {
+-		nokey_name.dirhash[0] = 0;
+-		nokey_name.dirhash[1] = 0;
+-	}
++	nokey_name.dirhash[0] = hash;
++	nokey_name.dirhash[1] = minor_hash;
 +
-+	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
- 	if (mvebu_uart_baud_rate_set(port, baud)) {
- 		/* No clock available, baudrate cannot be changed */
- 		if (old)
--			baud = uart_get_baud_rate(port, old, NULL, 0, 230400);
-+			baud = uart_get_baud_rate(port, old, NULL,
-+						  min_baud, max_baud);
- 	} else {
- 		tty_termios_encode_baud_rate(termios, baud, baud);
- 		uart_update_timeout(port, termios->c_cflag, baud);
--- 
-2.30.2
-
+ 	if (iname->len <= sizeof(nokey_name.bytes)) {
+ 		memcpy(nokey_name.bytes, iname->name, iname->len);
+ 		size = offsetof(struct fscrypt_nokey_name, bytes[iname->len]);
 
 
