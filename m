@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A2F3C5366
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA083C4D93
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352362AbhGLHyl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:54:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35520 "EHLO mail.kernel.org"
+        id S241461AbhGLHNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350309AbhGLHut (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:50:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 243D5610D1;
-        Mon, 12 Jul 2021 07:44:39 +0000 (UTC)
+        id S241350AbhGLHMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:12:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58D2360FF0;
+        Mon, 12 Jul 2021 07:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075880;
-        bh=0w42bEPFlwd3os7d1+1ip8tsGtaU20Wqpn0dgsynL+Y=;
+        s=korg; t=1626073747;
+        bh=y1dDtowXYmNngW7QfUiJrbLSrm7VBAyFVm3SWaHKEDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbAMdppxtjUMUFuSGOkrZNit4gyqdCam5RjmAJj2/EwMDRfiv/wj+9HDXxIWKdzFI
-         zH8GHgOyJbr/COmHeqbhmh2GVuHEa1j/vGi8lxDXCJ3DzBbbpsgwy4KTzliTvc/wET
-         O+NU+ASoX21BA8HNlh1PuJ5bsmK7iPb5rDOEFVC8=
+        b=gGbU8ZR9s7/zgKGrIX3i8wKS6Lakiw7QgPLU+n/oCY4beowCIRWvqL/+HuNNQnzfQ
+         yRpA6lrVhMPwF0s+b5agIl8XPjVyieihpSE2pmooNA6StV7hmrcfobHMac4q6GHOOc
+         BOujCcX1K9TwQSqI2cbcOUXgLSIICnJ3O/H5WlTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        Charmaine Lee <charmainel@vmware.com>,
-        Roland Scheidegger <sroland@vmware.com>,
-        Zack Rusin <zackr@vmware.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 404/800] drm/vmwgfx: Mark a surface gpu-dirty after the SVGA3dCmdDXGenMips command
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 344/700] dax: fix ENOMEM handling in grab_mapping_entry()
 Date:   Mon, 12 Jul 2021 08:07:07 +0200
-Message-Id: <20210712061010.153732931@linuxfoundation.org>
+Message-Id: <20210712061012.882703827@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 75156a887b6cea6e09d83ec19f4ebfd7c86265f0 ]
+[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
 
-The SVGA3dCmdDXGenMips command uses a shader-resource view to access
-the underlying surface. Normally accesses using that view-type are not
-dirtying the underlying surface, but that particular command is an
-exception.
-Mark the surface gpu-dirty after a SVGA3dCmdDXGenMips command has been
-submitted.
+grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
+we have a PMD entry at index i which we are downgrading to a PTE entry.
+grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
+the entry in xarray, and decrement mapping->nrpages.  The it will call:
 
-This fixes the piglit getteximage-formats test run with
-SVGA_FORCE_COHERENT=1
+	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
+	dax_lock_entry(xas, entry);
 
-Fixes: a9f58c456e9d ("drm/vmwgfx: Be more restrictive when dirtying resources")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Charmaine Lee <charmainel@vmware.com>
-Reviewed-by: Roland Scheidegger <sroland@vmware.com>
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210505035740.286923-3-zackr@vmware.com
+which inserts new PTE entry into xarray.  However this may fail allocating
+the new node.  We handle this by:
+
+	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
+		goto retry;
+
+however pmd_downgrade stays set to true even though 'entry' returned from
+get_unlocked_entry() will be NULL now.  And we will go again through the
+downgrade branch.  This is mostly harmless except that mapping->nrpages is
+decremented again and we temporarily have an invalid entry stored in
+xarray.  Fix the problem by setting pmd_downgrade to false each time we
+lookup the entry we work with so that it matches the entry we found.
+
+Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
+Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ fs/dax.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-index 7a24196f92c3..d6a6d8a3387a 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-@@ -2763,12 +2763,24 @@ static int vmw_cmd_dx_genmips(struct vmw_private *dev_priv,
+diff --git a/fs/dax.c b/fs/dax.c
+index df5485b4bddf..d5d7b9393bca 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -488,10 +488,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
+ 		struct address_space *mapping, unsigned int order)
  {
- 	VMW_DECLARE_CMD_VAR(*cmd, SVGA3dCmdDXGenMips) =
- 		container_of(header, typeof(*cmd), header);
--	struct vmw_resource *ret;
-+	struct vmw_resource *view;
-+	struct vmw_res_cache_entry *rcache;
+ 	unsigned long index = xas->xa_index;
+-	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
++	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
+ 	void *entry;
  
--	ret = vmw_view_id_val_add(sw_context, vmw_view_sr,
--				  cmd->body.shaderResourceViewId);
-+	view = vmw_view_id_val_add(sw_context, vmw_view_sr,
-+				   cmd->body.shaderResourceViewId);
-+	if (IS_ERR(view))
-+		return PTR_ERR(view);
+ retry:
++	pmd_downgrade = false;
+ 	xas_lock_irq(xas);
+ 	entry = get_unlocked_entry(xas, order);
  
--	return PTR_ERR_OR_ZERO(ret);
-+	/*
-+	 * Normally the shader-resource view is not gpu-dirtying, but for
-+	 * this particular command it is...
-+	 * So mark the last looked-up surface, which is the surface
-+	 * the view points to, gpu-dirty.
-+	 */
-+	rcache = &sw_context->res_cache[vmw_res_surface];
-+	vmw_validation_res_set_dirty(sw_context->ctx, rcache->private,
-+				     VMW_RES_DIRTY_SET);
-+	return 0;
- }
- 
- /**
 -- 
 2.30.2
 
