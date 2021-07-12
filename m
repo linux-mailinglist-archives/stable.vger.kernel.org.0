@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E78563C509E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904F33C504A
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343695AbhGLHdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:33:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36898 "EHLO mail.kernel.org"
+        id S1344612AbhGLHb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345430AbhGLH3p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5388361455;
-        Mon, 12 Jul 2021 07:26:35 +0000 (UTC)
+        id S1345417AbhGLH3n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:29:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C38261628;
+        Mon, 12 Jul 2021 07:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074795;
-        bh=h+I7+skoYNh9b5CWf93NHY89zT8w1nJCHaPOdKRfHH0=;
+        s=korg; t=1626074798;
+        bh=Rchk5GyKxNH7smr36g/33Ls+CccmzIVaKmdoI39vflE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBFIJvUrrQxe8qTX3WfK5DBqakGmlZXFJ7rNqnGPVroDpwie9k/ytDKELN/cu3enb
-         Oj7Ck+yf9es+DSGuEcJoSvyKoNw2KmH7mFg1mQBi3/sQqHfcp/+CsrQeEn0Atru8fw
-         fXqddCjFwXUVXoR0bLAn7GfYtIhQd5gZsECUi2ZU=
+        b=ZlxbtbJFEu+sNJtDxmG49nUqpAf5+/N6q4ZVPHvJ31Pw7m9EPxN6rpdNQXKAIWmz6
+         n11D3IK89qcAHEfqba6/kSWlVDV+o+/qEo+OA2BOQRik1k1cI2cnDzGu2Sk9JAI5dC
+         bpo/q/uurUpK15o4G5M9K9tAIEho2iIU6OQVLmpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 699/700] media: exynos4-is: remove a now unused integer
-Date:   Mon, 12 Jul 2021 08:13:02 +0200
-Message-Id: <20210712061050.281732353@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Quat Le <quat.le@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.12 700/700] scsi: core: Retry I/O for Notify (Enable Spinup) Required error
+Date:   Mon, 12 Jul 2021 08:13:03 +0200
+Message-Id: <20210712061050.379756644@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,31 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Quat Le <quat.le@oracle.com>
 
-commit 29dd19e3ac7b2a8671ebeac02859232ce0e34f58 upstream.
+commit 104739aca4488909175e9e31d5cd7d75b82a2046 upstream.
 
-The usage of pm_runtime_resume_and_get() removed the need of a
-temporary integer. So, drop it.
+If the device is power-cycled, it takes time for the initiator to transmit
+the periodic NOTIFY (ENABLE SPINUP) SAS primitive, and for the device to
+respond to the primitive to become ACTIVE. Retry the I/O request to allow
+the device time to become ACTIVE.
 
-Fixes: 59f96244af94 ("media: exynos4-is: fix pm_runtime_get_sync() usage count")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210629155826.48441-1-quat.le@oracle.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Quat Le <quat.le@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/exynos4-is/media-dev.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/scsi/scsi_lib.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/media/platform/exynos4-is/media-dev.c
-+++ b/drivers/media/platform/exynos4-is/media-dev.c
-@@ -1282,7 +1282,6 @@ static DEVICE_ATTR(subdev_conf_mode, S_I
- static int cam_clk_prepare(struct clk_hw *hw)
- {
- 	struct cam_clk *camclk = to_cam_clk(hw);
--	int ret;
- 
- 	if (camclk->fmd->pmf == NULL)
- 		return -ENODEV;
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -761,6 +761,7 @@ static void scsi_io_completion_action(st
+ 				case 0x07: /* operation in progress */
+ 				case 0x08: /* Long write in progress */
+ 				case 0x09: /* self test in progress */
++				case 0x11: /* notify (enable spinup) required */
+ 				case 0x14: /* space allocation in progress */
+ 				case 0x1a: /* start stop unit in progress */
+ 				case 0x1b: /* sanitize in progress */
 
 
