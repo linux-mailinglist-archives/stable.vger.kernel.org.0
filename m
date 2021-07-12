@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD3C93C4FD7
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CEF93C551F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343587AbhGLH2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:28:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34180 "EHLO mail.kernel.org"
+        id S1353354AbhGLIJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245326AbhGLH1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:27:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13DB960C40;
-        Mon, 12 Jul 2021 07:23:07 +0000 (UTC)
+        id S1352869AbhGLIAI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:00:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5507F61C28;
+        Mon, 12 Jul 2021 07:53:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074588;
-        bh=bcd4xVWcWxkB4ldeVQedVsew2GFj5aPRN9ZBWe5iixw=;
+        s=korg; t=1626076423;
+        bh=clL+tDJYbKO7141C4vwWEHJR2V9LUOIGvKOSYJMVTiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTq/GfeWLCJVgbDuIB60C1ab8maCALoTtxf/KrocHoi5dt//Kou6m5/VMhtwTYfVq
-         tTxUP2vCR86l/Q9AB2heFJbb5z4+CFplnXCmfwhcFQz74N7zl1769wEwzT5jXuU/JT
-         Xq0dWUd+kEptX8bnuCO6RDS90ugdx2cB6uKHIssw=
+        b=AQRVrC4LVBV6cmHPTXzW/47yzYGPsa2bRyyf9bVTNOmL5tAehne0pwsChNyDV7U91
+         iaDKXimWOIB2K2jtAypVDMN6g4AkzDPRi9+yubJP36CBxoGpV/0yGD6AiG1fs4ZjvG
+         +Z4DGOnyYcbXa98il5dt1QI2Cs9Av0+hgVhOTyNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 577/700] scsi: iscsi: Stop queueing during ep_disconnect
+Subject: [PATCH 5.13 637/800] iio: potentiostat: lmp91000: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:00 +0200
-Message-Id: <20210712061037.419520474@linuxfoundation.org>
+Message-Id: <20210712061034.887465335@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,293 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 891e2639deae721dc43764a44fa255890dc34313 ]
+[ Upstream commit 8979b67ec61abc232636400ee8c758a16a73c95f ]
 
-During ep_disconnect we have been doing iscsi_suspend_tx/queue to block new
-I/O but every driver except cxgbi and iscsi_tcp can still get I/O from
-__iscsi_conn_send_pdu() if we haven't called iscsi_conn_failure() before
-ep_disconnect. This could happen if we were terminating the session, and
-the logout timed out before it was even sent to libiscsi.
+Add __aligned(8) to ensure the buffer passed to
+iio_push_to_buffers_with_timestamp() is suitable for the naturally
+aligned timestamp that will be inserted.
 
-Fix the issue by adding a helper which reverses the bind_conn call that
-allows new I/O to be queued. Drivers implementing ep_disconnect can use this
-to make sure new I/O is not queued to them when handling the disconnect.
+Here structure is not used, because this buffer is also used
+elsewhere in the driver.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-3-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 67e17300dc1d ("iio: potentiostat: add LMP91000 support")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Matt Ranostay <matt.ranostay@konsulko.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Link: https://lore.kernel.org/r/20210501171352.512953-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iscsi_iser.c |  1 +
- drivers/scsi/be2iscsi/be_main.c          |  1 +
- drivers/scsi/bnx2i/bnx2i_iscsi.c         |  1 +
- drivers/scsi/cxgbi/cxgb3i/cxgb3i.c       |  1 +
- drivers/scsi/cxgbi/cxgb4i/cxgb4i.c       |  1 +
- drivers/scsi/libiscsi.c                  | 70 +++++++++++++++++++++---
- drivers/scsi/qedi/qedi_iscsi.c           |  1 +
- drivers/scsi/qla4xxx/ql4_os.c            |  1 +
- drivers/scsi/scsi_transport_iscsi.c      | 10 +++-
- include/scsi/libiscsi.h                  |  1 +
- include/scsi/scsi_transport_iscsi.h      |  1 +
- 11 files changed, 78 insertions(+), 11 deletions(-)
+ drivers/iio/potentiostat/lmp91000.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iscsi_iser.c b/drivers/infiniband/ulp/iser/iscsi_iser.c
-index 8fcaa1136f2c..6baebcb6d14d 100644
---- a/drivers/infiniband/ulp/iser/iscsi_iser.c
-+++ b/drivers/infiniband/ulp/iser/iscsi_iser.c
-@@ -1002,6 +1002,7 @@ static struct iscsi_transport iscsi_iser_transport = {
- 	/* connection management */
- 	.create_conn            = iscsi_iser_conn_create,
- 	.bind_conn              = iscsi_iser_conn_bind,
-+	.unbind_conn		= iscsi_conn_unbind,
- 	.destroy_conn           = iscsi_conn_teardown,
- 	.attr_is_visible	= iser_attr_is_visible,
- 	.set_param              = iscsi_iser_set_param,
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 90fcddb76f46..e9658a67d9da 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5809,6 +5809,7 @@ struct iscsi_transport beiscsi_iscsi_transport = {
- 	.destroy_session = beiscsi_session_destroy,
- 	.create_conn = beiscsi_conn_create,
- 	.bind_conn = beiscsi_conn_bind,
-+	.unbind_conn = iscsi_conn_unbind,
- 	.destroy_conn = iscsi_conn_teardown,
- 	.attr_is_visible = beiscsi_attr_is_visible,
- 	.set_iface_param = beiscsi_iface_set_param,
-diff --git a/drivers/scsi/bnx2i/bnx2i_iscsi.c b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-index 1e6d8f62ea3c..b6c1da46d582 100644
---- a/drivers/scsi/bnx2i/bnx2i_iscsi.c
-+++ b/drivers/scsi/bnx2i/bnx2i_iscsi.c
-@@ -2276,6 +2276,7 @@ struct iscsi_transport bnx2i_iscsi_transport = {
- 	.destroy_session	= bnx2i_session_destroy,
- 	.create_conn		= bnx2i_conn_create,
- 	.bind_conn		= bnx2i_conn_bind,
-+	.unbind_conn		= iscsi_conn_unbind,
- 	.destroy_conn		= bnx2i_conn_destroy,
- 	.attr_is_visible	= bnx2i_attr_is_visible,
- 	.set_param		= iscsi_set_param,
-diff --git a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-index 37d99357120f..edcd3fab6973 100644
---- a/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-+++ b/drivers/scsi/cxgbi/cxgb3i/cxgb3i.c
-@@ -117,6 +117,7 @@ static struct iscsi_transport cxgb3i_iscsi_transport = {
- 	/* connection management */
- 	.create_conn	= cxgbi_create_conn,
- 	.bind_conn	= cxgbi_bind_conn,
-+	.unbind_conn	= iscsi_conn_unbind,
- 	.destroy_conn	= iscsi_tcp_conn_teardown,
- 	.start_conn	= iscsi_conn_start,
- 	.stop_conn	= iscsi_conn_stop,
-diff --git a/drivers/scsi/cxgbi/cxgb4i/cxgb4i.c b/drivers/scsi/cxgbi/cxgb4i/cxgb4i.c
-index 2c3491528d42..efb3e2b3398e 100644
---- a/drivers/scsi/cxgbi/cxgb4i/cxgb4i.c
-+++ b/drivers/scsi/cxgbi/cxgb4i/cxgb4i.c
-@@ -134,6 +134,7 @@ static struct iscsi_transport cxgb4i_iscsi_transport = {
- 	/* connection management */
- 	.create_conn	= cxgbi_create_conn,
- 	.bind_conn		= cxgbi_bind_conn,
-+	.unbind_conn	= iscsi_conn_unbind,
- 	.destroy_conn	= iscsi_tcp_conn_teardown,
- 	.start_conn		= iscsi_conn_start,
- 	.stop_conn		= iscsi_conn_stop,
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 4834219497ee..2aaf83678654 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1387,23 +1387,32 @@ void iscsi_session_failure(struct iscsi_session *session,
- }
- EXPORT_SYMBOL_GPL(iscsi_session_failure);
+diff --git a/drivers/iio/potentiostat/lmp91000.c b/drivers/iio/potentiostat/lmp91000.c
+index 8a9c576616ee..ff39ba975da7 100644
+--- a/drivers/iio/potentiostat/lmp91000.c
++++ b/drivers/iio/potentiostat/lmp91000.c
+@@ -71,8 +71,8 @@ struct lmp91000_data {
  
--void iscsi_conn_failure(struct iscsi_conn *conn, enum iscsi_err err)
-+static bool iscsi_set_conn_failed(struct iscsi_conn *conn)
- {
- 	struct iscsi_session *session = conn->session;
+ 	struct completion completion;
+ 	u8 chan_select;
+-
+-	u32 buffer[4]; /* 64-bit data + 64-bit timestamp */
++	/* 64-bit data + 64-bit naturally aligned timestamp */
++	u32 buffer[4] __aligned(8);
+ };
  
--	spin_lock_bh(&session->frwd_lock);
--	if (session->state == ISCSI_STATE_FAILED) {
--		spin_unlock_bh(&session->frwd_lock);
--		return;
--	}
-+	if (session->state == ISCSI_STATE_FAILED)
-+		return false;
- 
- 	if (conn->stop_stage == 0)
- 		session->state = ISCSI_STATE_FAILED;
--	spin_unlock_bh(&session->frwd_lock);
- 
- 	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_tx);
- 	set_bit(ISCSI_SUSPEND_BIT, &conn->suspend_rx);
--	iscsi_conn_error_event(conn->cls_conn, err);
-+	return true;
-+}
-+
-+void iscsi_conn_failure(struct iscsi_conn *conn, enum iscsi_err err)
-+{
-+	struct iscsi_session *session = conn->session;
-+	bool needs_evt;
-+
-+	spin_lock_bh(&session->frwd_lock);
-+	needs_evt = iscsi_set_conn_failed(conn);
-+	spin_unlock_bh(&session->frwd_lock);
-+
-+	if (needs_evt)
-+		iscsi_conn_error_event(conn->cls_conn, err);
- }
- EXPORT_SYMBOL_GPL(iscsi_conn_failure);
- 
-@@ -2180,6 +2189,51 @@ done:
- 	spin_unlock(&session->frwd_lock);
- }
- 
-+/**
-+ * iscsi_conn_unbind - prevent queueing to conn.
-+ * @cls_conn: iscsi conn ep is bound to.
-+ * @is_active: is the conn in use for boot or is this for EH/termination
-+ *
-+ * This must be called by drivers implementing the ep_disconnect callout.
-+ * It disables queueing to the connection from libiscsi in preparation for
-+ * an ep_disconnect call.
-+ */
-+void iscsi_conn_unbind(struct iscsi_cls_conn *cls_conn, bool is_active)
-+{
-+	struct iscsi_session *session;
-+	struct iscsi_conn *conn;
-+
-+	if (!cls_conn)
-+		return;
-+
-+	conn = cls_conn->dd_data;
-+	session = conn->session;
-+	/*
-+	 * Wait for iscsi_eh calls to exit. We don't wait for the tmf to
-+	 * complete or timeout. The caller just wants to know what's running
-+	 * is everything that needs to be cleaned up, and no cmds will be
-+	 * queued.
-+	 */
-+	mutex_lock(&session->eh_mutex);
-+
-+	iscsi_suspend_queue(conn);
-+	iscsi_suspend_tx(conn);
-+
-+	spin_lock_bh(&session->frwd_lock);
-+	if (!is_active) {
-+		/*
-+		 * if logout timed out before userspace could even send a PDU
-+		 * the state might still be in ISCSI_STATE_LOGGED_IN and
-+		 * allowing new cmds and TMFs.
-+		 */
-+		if (session->state == ISCSI_STATE_LOGGED_IN)
-+			iscsi_set_conn_failed(conn);
-+	}
-+	spin_unlock_bh(&session->frwd_lock);
-+	mutex_unlock(&session->eh_mutex);
-+}
-+EXPORT_SYMBOL_GPL(iscsi_conn_unbind);
-+
- static void iscsi_prep_abort_task_pdu(struct iscsi_task *task,
- 				      struct iscsi_tm *hdr)
- {
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 08c05403cd72..ef16537c523c 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -1401,6 +1401,7 @@ struct iscsi_transport qedi_iscsi_transport = {
- 	.destroy_session = qedi_session_destroy,
- 	.create_conn = qedi_conn_create,
- 	.bind_conn = qedi_conn_bind,
-+	.unbind_conn = iscsi_conn_unbind,
- 	.start_conn = qedi_conn_start,
- 	.stop_conn = iscsi_conn_stop,
- 	.destroy_conn = qedi_conn_destroy,
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index 7bd9a4a04ad5..ff663cb330c2 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -259,6 +259,7 @@ static struct iscsi_transport qla4xxx_iscsi_transport = {
- 	.start_conn             = qla4xxx_conn_start,
- 	.create_conn            = qla4xxx_conn_create,
- 	.bind_conn              = qla4xxx_conn_bind,
-+	.unbind_conn		= iscsi_conn_unbind,
- 	.stop_conn              = iscsi_conn_stop,
- 	.destroy_conn           = qla4xxx_conn_destroy,
- 	.set_param              = iscsi_set_param,
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 441f0152193f..82491343e94a 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2964,7 +2964,7 @@ release_host:
- }
- 
- static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
--				  u64 ep_handle)
-+				  u64 ep_handle, bool is_active)
- {
- 	struct iscsi_cls_conn *conn;
- 	struct iscsi_endpoint *ep;
-@@ -2981,6 +2981,8 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
- 		conn->ep = NULL;
- 		mutex_unlock(&conn->ep_mutex);
- 		conn->state = ISCSI_CONN_FAILED;
-+
-+		transport->unbind_conn(conn, is_active);
- 	}
- 
- 	transport->ep_disconnect(ep);
-@@ -3012,7 +3014,8 @@ iscsi_if_transport_ep(struct iscsi_transport *transport,
- 		break;
- 	case ISCSI_UEVENT_TRANSPORT_EP_DISCONNECT:
- 		rc = iscsi_if_ep_disconnect(transport,
--					    ev->u.ep_disconnect.ep_handle);
-+					    ev->u.ep_disconnect.ep_handle,
-+					    false);
- 		break;
- 	}
- 	return rc;
-@@ -3737,7 +3740,7 @@ iscsi_if_recv_msg(struct sk_buff *skb, struct nlmsghdr *nlh, uint32_t *group)
- 		conn = iscsi_conn_lookup(ev->u.b_conn.sid, ev->u.b_conn.cid);
- 
- 		if (conn && conn->ep)
--			iscsi_if_ep_disconnect(transport, conn->ep->id);
-+			iscsi_if_ep_disconnect(transport, conn->ep->id, true);
- 
- 		if (!session || !conn) {
- 			err = -EINVAL;
-@@ -4656,6 +4659,7 @@ iscsi_register_transport(struct iscsi_transport *tt)
- 	int err;
- 
- 	BUG_ON(!tt);
-+	WARN_ON(tt->ep_disconnect && !tt->unbind_conn);
- 
- 	priv = iscsi_if_transport_lookup(tt);
- 	if (priv)
-diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
-index 02f966e9358f..091f284bd6e9 100644
---- a/include/scsi/libiscsi.h
-+++ b/include/scsi/libiscsi.h
-@@ -424,6 +424,7 @@ extern int iscsi_conn_start(struct iscsi_cls_conn *);
- extern void iscsi_conn_stop(struct iscsi_cls_conn *, int);
- extern int iscsi_conn_bind(struct iscsi_cls_session *, struct iscsi_cls_conn *,
- 			   int);
-+extern void iscsi_conn_unbind(struct iscsi_cls_conn *cls_conn, bool is_active);
- extern void iscsi_conn_failure(struct iscsi_conn *conn, enum iscsi_err err);
- extern void iscsi_session_failure(struct iscsi_session *session,
- 				  enum iscsi_err err);
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index fc5a39839b4b..8874016b3c9a 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -82,6 +82,7 @@ struct iscsi_transport {
- 	void (*destroy_session) (struct iscsi_cls_session *session);
- 	struct iscsi_cls_conn *(*create_conn) (struct iscsi_cls_session *sess,
- 				uint32_t cid);
-+	void (*unbind_conn) (struct iscsi_cls_conn *conn, bool is_active);
- 	int (*bind_conn) (struct iscsi_cls_session *session,
- 			  struct iscsi_cls_conn *cls_conn,
- 			  uint64_t transport_eph, int is_leading);
+ static const struct iio_chan_spec lmp91000_channels[] = {
 -- 
 2.30.2
 
