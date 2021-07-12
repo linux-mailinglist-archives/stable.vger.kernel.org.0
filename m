@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D8F13C4F90
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 254843C5534
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243733AbhGLH0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32988 "EHLO mail.kernel.org"
+        id S1355409AbhGLIJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55670 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343855AbhGLHYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:24:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D30D661404;
-        Mon, 12 Jul 2021 07:21:16 +0000 (UTC)
+        id S1353298AbhGLIBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 591BB60698;
+        Mon, 12 Jul 2021 07:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074477;
-        bh=DUgcB785XMcpeEq5Yt6WrbqQKAkHFMhqCwGsYbSv/5w=;
+        s=korg; t=1626076468;
+        bh=zzTE9mOH1poUGryq9U6dVffdBcfSimbZPtQfVJj3PdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpNaDoHxGVSTdPcnP1QZ9Xgj/BG/oGLNAwW1i5ID9Eg5u4RcpRVI/9r3zr0ldoJe9
-         6pGcOxDzaXACdV79bUqSw4iZsVmdmO75MzVRIuSRWKc1XhfYAqET8zihddcP51SepG
-         Zo9vbDmL5ZOVpHFIsc/ehxpAKJep4wN/8Lw9zoWQ=
+        b=qct3x//iFOVzLS1yaByZGj3Ll3Q+H7kO5FvP9whfQWARLSceCUAijo1lmx02H/slk
+         zOQ8QUGbhd7AyiPnGYH+e+gUsXIik4LHlihjTsPWpgvTPsxYeU6G6/8QgBBXgj1NuW
+         bgbCSXk7WUSKEZdOJ6CXpL+7qTaWYrvJUFCVL3bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Shuah Khan <shuah@kernel.org>,
-        linux-kselftest@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 594/700] selftests: splice: Adjust for handler fallback removal
+        stable@vger.kernel.org, Jean-Jacques Hiblot <jjhiblot@ti.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 654/800] leds: class: The -ENOTSUPP should never be seen by user space
 Date:   Mon, 12 Jul 2021 08:11:17 +0200
-Message-Id: <20210712061039.156072267@linuxfoundation.org>
+Message-Id: <20210712061036.573534936@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,186 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 6daf076b717d189f4d02a303d45edd5732341ec1 ]
+[ Upstream commit 0ac40af86077982a5346dbc9655172d2775d6b08 ]
 
-Some pseudo-filesystems do not have an explicit splice fops since adding
-commit 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops"),
-and now will reject attempts to use splice() in those filesystem paths.
+Drop the bogus error code and let of_led_get() to take care about absent
+of_node.
 
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Link: https://lore.kernel.org/lkml/202009181443.C2179FB@keescook/
-Fixes: 36e2c7421f02 ("fs: don't allow splice read/write without explicit ops")
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Shuah Khan <shuah@kernel.org>
-Cc: linux-kselftest@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Fixes: e389240ad992 ("leds: Add managed API to get a LED from a device driver")
+Cc: Jean-Jacques Hiblot <jjhiblot@ti.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/splice/short_splice_read.sh     | 119 ++++++++++++++----
- 1 file changed, 98 insertions(+), 21 deletions(-)
+ drivers/leds/led-class.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/tools/testing/selftests/splice/short_splice_read.sh b/tools/testing/selftests/splice/short_splice_read.sh
-index 7810d3589d9a..22b6c8910b18 100755
---- a/tools/testing/selftests/splice/short_splice_read.sh
-+++ b/tools/testing/selftests/splice/short_splice_read.sh
-@@ -1,21 +1,87 @@
- #!/bin/sh
- # SPDX-License-Identifier: GPL-2.0
-+#
-+# Test for mishandling of splice() on pseudofilesystems, which should catch
-+# bugs like 11990a5bd7e5 ("module: Correctly truncate sysfs sections output")
-+#
-+# Since splice fallback was removed as part of the set_fs() rework, many of these
-+# tests expect to fail now. See https://lore.kernel.org/lkml/202009181443.C2179FB@keescook/
- set -e
+diff --git a/drivers/leds/led-class.c b/drivers/leds/led-class.c
+index 2e495ff67856..fa3f5f504ff7 100644
+--- a/drivers/leds/led-class.c
++++ b/drivers/leds/led-class.c
+@@ -285,10 +285,6 @@ struct led_classdev *__must_check devm_of_led_get(struct device *dev,
+ 	if (!dev)
+ 		return ERR_PTR(-EINVAL);
  
-+DIR=$(dirname "$0")
-+
- ret=0
- 
-+expect_success()
-+{
-+	title="$1"
-+	shift
-+
-+	echo "" >&2
-+	echo "$title ..." >&2
-+
-+	set +e
-+	"$@"
-+	rc=$?
-+	set -e
-+
-+	case "$rc" in
-+	0)
-+		echo "ok: $title succeeded" >&2
-+		;;
-+	1)
-+		echo "FAIL: $title should work" >&2
-+		ret=$(( ret + 1 ))
-+		;;
-+	*)
-+		echo "FAIL: something else went wrong" >&2
-+		ret=$(( ret + 1 ))
-+		;;
-+	esac
-+}
-+
-+expect_failure()
-+{
-+	title="$1"
-+	shift
-+
-+	echo "" >&2
-+	echo "$title ..." >&2
-+
-+	set +e
-+	"$@"
-+	rc=$?
-+	set -e
-+
-+	case "$rc" in
-+	0)
-+		echo "FAIL: $title unexpectedly worked" >&2
-+		ret=$(( ret + 1 ))
-+		;;
-+	1)
-+		echo "ok: $title correctly failed" >&2
-+		;;
-+	*)
-+		echo "FAIL: something else went wrong" >&2
-+		ret=$(( ret + 1 ))
-+		;;
-+	esac
-+}
-+
- do_splice()
- {
- 	filename="$1"
- 	bytes="$2"
- 	expected="$3"
-+	report="$4"
- 
--	out=$(./splice_read "$filename" "$bytes" | cat)
-+	out=$("$DIR"/splice_read "$filename" "$bytes" | cat)
- 	if [ "$out" = "$expected" ] ; then
--		echo "ok: $filename $bytes"
-+		echo "      matched $report" >&2
-+		return 0
- 	else
--		echo "FAIL: $filename $bytes"
--		ret=1
-+		echo "      no match: '$out' vs $report" >&2
-+		return 1
- 	fi
- }
- 
-@@ -23,34 +89,45 @@ test_splice()
- {
- 	filename="$1"
- 
-+	echo "  checking $filename ..." >&2
-+
- 	full=$(cat "$filename")
-+	rc=$?
-+	if [ $rc -ne 0 ] ; then
-+		return 2
-+	fi
-+
- 	two=$(echo "$full" | grep -m1 . | cut -c-2)
- 
- 	# Make sure full splice has the same contents as a standard read.
--	do_splice "$filename" 4096 "$full"
-+	echo "    splicing 4096 bytes ..." >&2
-+	if ! do_splice "$filename" 4096 "$full" "full read" ; then
-+		return 1
-+	fi
- 
- 	# Make sure a partial splice see the first two characters.
--	do_splice "$filename" 2 "$two"
-+	echo "    splicing 2 bytes ..." >&2
-+	if ! do_splice "$filename" 2 "$two" "'$two'" ; then
-+		return 1
-+	fi
-+
-+	return 0
- }
- 
--# proc_single_open(), seq_read()
--test_splice /proc/$$/limits
--# special open, seq_read()
--test_splice /proc/$$/comm
-+### /proc/$pid/ has no splice interface; these should all fail.
-+expect_failure "proc_single_open(), seq_read() splice" test_splice /proc/$$/limits
-+expect_failure "special open(), seq_read() splice" test_splice /proc/$$/comm
- 
--# proc_handler, proc_dointvec_minmax
--test_splice /proc/sys/fs/nr_open
--# proc_handler, proc_dostring
--test_splice /proc/sys/kernel/modprobe
--# proc_handler, special read
--test_splice /proc/sys/kernel/version
-+### /proc/sys/ has a splice interface; these should all succeed.
-+expect_success "proc_handler: proc_dointvec_minmax() splice" test_splice /proc/sys/fs/nr_open
-+expect_success "proc_handler: proc_dostring() splice" test_splice /proc/sys/kernel/modprobe
-+expect_success "proc_handler: special read splice" test_splice /proc/sys/kernel/version
- 
-+### /sys/ has no splice interface; these should all fail.
- if ! [ -d /sys/module/test_module/sections ] ; then
--	modprobe test_module
-+	expect_success "test_module kernel module load" modprobe test_module
- fi
--# kernfs, attr
--test_splice /sys/module/test_module/coresize
--# kernfs, binattr
--test_splice /sys/module/test_module/sections/.init.text
-+expect_failure "kernfs attr splice" test_splice /sys/module/test_module/coresize
-+expect_failure "kernfs binattr splice" test_splice /sys/module/test_module/sections/.init.text
- 
- exit $ret
+-	/* Not using device tree? */
+-	if (!IS_ENABLED(CONFIG_OF) || !dev->of_node)
+-		return ERR_PTR(-ENOTSUPP);
+-
+ 	led = of_led_get(dev->of_node, index);
+ 	if (IS_ERR(led))
+ 		return led;
 -- 
 2.30.2
 
