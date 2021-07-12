@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F233C4E53
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 659683C53FD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244049AbhGLHSC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:18:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47058 "EHLO mail.kernel.org"
+        id S1349357AbhGLH4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243775AbhGLHRI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:17:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBDBF61481;
-        Mon, 12 Jul 2021 07:14:19 +0000 (UTC)
+        id S1351440AbhGLHvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E13960FF1;
+        Mon, 12 Jul 2021 07:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074060;
-        bh=o14vWb3+jRL2a3UchK2rerk2/7Px3pF4nwefLNn09nU=;
+        s=korg; t=1626076139;
+        bh=8hL99on/kGHd9SZ0FmxTqw28CrZ+V5Ar0rZUUs7ffcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6LAY2h2ZrCs/aNH59/GvA575Jd+9DMq7gFerjnjpeGutsn0AyypkEi276vzHnoyx
-         uWq0pOfXNq9JmJYxBBQ/GzJkySbxyv7DQPaodKKz2XaGrLEL62ad95eQsFZnzJoeyA
-         cVP2KHyCkAhJd2AQMuTcb+mym087FppHOqkyroT8=
+        b=XBkdgbpXIMSmWJuyI8V49MtkQoPdNHVNiMHbK50LCaRMhQWtMENncSLchyO6r5odt
+         VynkChzz/gtMetxSihF5estoDpCaoJXDQ8GioegpTnRfr2sCssLAvHZouIZV2PupQo
+         Ul9TmBh1Z7d+J4BP9ehb5WJRtIvZnbJIT0IWSmAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ayush Sawal <ayush.sawal@chelsio.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 452/700] xfrm: Fix xfrm offload fallback fail case
-Date:   Mon, 12 Jul 2021 08:08:55 +0200
-Message-Id: <20210712061024.660485666@linuxfoundation.org>
+Subject: [PATCH 5.13 513/800] udp: Fix a memory leak in udp_read_sock()
+Date:   Mon, 12 Jul 2021 08:08:56 +0200
+Message-Id: <20210712061021.794224665@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ayush Sawal <ayush.sawal@chelsio.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit dd72fadf2186fc8a6018f97fe72f4d5ca05df440 ]
+[ Upstream commit e00a5c331bf57f41fcfdc5da4f5caeafe5e54c1d ]
 
-In case of xfrm offload, if xdo_dev_state_add() of driver returns
--EOPNOTSUPP, xfrm offload fallback is failed.
-In xfrm state_add() both xso->dev and xso->real_dev are initialized to
-dev and when err(-EOPNOTSUPP) is returned only xso->dev is set to null.
+sk_psock_verdict_recv() clones the skb and uses the clone
+afterward, so udp_read_sock() should free the skb after using
+it, regardless of error or not.
 
-So in this scenario the condition in func validate_xmit_xfrm(),
-if ((x->xso.dev != dev) && (x->xso.real_dev == dev))
-                return skb;
-returns true, due to which skb is returned without calling esp_xmit()
-below which has fallback code. Hence the CRYPTO_FALLBACK is failing.
+This fixes a real kmemleak.
 
-So fixing this with by keeping x->xso.real_dev as NULL when err is
-returned in func xfrm_dev_state_add().
-
-Fixes: bdfd2d1fa79a ("bonding/xfrm: use real_dev instead of slave_dev")
-Signed-off-by: Ayush Sawal <ayush.sawal@chelsio.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: d7f571188ecf ("udp: Implement ->read_sock() for sockmap")
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
+Link: https://lore.kernel.org/bpf/20210615021342.7416-4-xiyou.wangcong@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/udp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/xfrm/xfrm_device.c b/net/xfrm/xfrm_device.c
-index 6d6917b68856..e843b0d9e2a6 100644
---- a/net/xfrm/xfrm_device.c
-+++ b/net/xfrm/xfrm_device.c
-@@ -268,6 +268,7 @@ int xfrm_dev_state_add(struct net *net, struct xfrm_state *x,
- 		xso->num_exthdrs = 0;
- 		xso->flags = 0;
- 		xso->dev = NULL;
-+		xso->real_dev = NULL;
- 		dev_put(dev);
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 1307ad0d3b9e..8091276cb85b 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1798,11 +1798,13 @@ int udp_read_sock(struct sock *sk, read_descriptor_t *desc,
+ 		if (used <= 0) {
+ 			if (!copied)
+ 				copied = used;
++			kfree_skb(skb);
+ 			break;
+ 		} else if (used <= skb->len) {
+ 			copied += used;
+ 		}
  
- 		if (err != -EOPNOTSUPP)
++		kfree_skb(skb);
+ 		if (!desc->count)
+ 			break;
+ 	}
 -- 
 2.30.2
 
