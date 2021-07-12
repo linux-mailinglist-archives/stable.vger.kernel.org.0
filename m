@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E6D43C5552
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F5F23C4FBB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355540AbhGLIJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S245633AbhGLH1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:27:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353477AbhGLICV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51D3861CAD;
-        Mon, 12 Jul 2021 07:55:19 +0000 (UTC)
+        id S1345404AbhGLHZa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:25:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F64D613D8;
+        Mon, 12 Jul 2021 07:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076519;
-        bh=AIOPfH24hhUJkgG8XEbKVrO6oMG2vKVXkiAziocDX9M=;
+        s=korg; t=1626074562;
+        bh=WQfvbECbqx2bn09rVMqIHrBWpHPocQUzygFRbshRf/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1yr5WXeoyAWMzHutrKhP/6xyDyDRhdHP//EcmqSXkr6g1o1mW6i6/RwKI7onkEiMA
-         tq977/vh6wcrD2YwhJgUE/1DdHCPZkH8nQzNykgUFj68sAHM3uwtfoIMiOTaz7c9hb
-         +qTWk2fMiz5oDPdFcVbJZNFVBO3YXjISa58AaCv0=
+        b=18nw/0d6hizjrPNeNkA6zAwM6odmKEf1fYSSIZxC0FWUs1f7Y8AJvxlJm0VIbaVUE
+         +96uv/Ba3VhJMs4+k1AuEhE7vLoeikprlx15kuYOaLhQOSSWxmrnU3XCIwxeJ4a5Xu
+         fngkQEABMUElAto+yQvEeTEaRhu7j82IIVJAjm74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 678/800] iommu/amd: Tidy up DMA ops init
-Date:   Mon, 12 Jul 2021 08:11:41 +0200
-Message-Id: <20210712061039.025767783@linuxfoundation.org>
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 619/700] ASoC: fsl_spdif: Fix error handler with pm_runtime_enable
+Date:   Mon, 12 Jul 2021 08:11:42 +0200
+Message-Id: <20210712061041.701885748@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,128 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit be227f8e99a663d097536e9f9bc935fb26bdbc41 ]
+[ Upstream commit 28108d71ee11a7232e1102effab3361049dcd3b8 ]
 
-Now that DMA ops are part of the core API via iommu-dma, fold the
-vestigial remains of the IOMMU_DMA_OPS init state into the IOMMU API
-phase, and clean up a few other leftovers. This should also close the
-race window wherein bus_set_iommu() effectively makes the DMA ops state
-visible before its nominal initialisation - it seems this was previously
-fairly benign, but since commit a250c23f15c2 ("iommu: remove
-DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE") it can now lead to the strict flush
-queue policy inadvertently being picked for default domains allocated
-during that window, with a corresponding unexpected perfomance impact.
+There is error message when defer probe happens:
 
-Reported-by: Jussi Maki <joamaki@gmail.com>
-Tested-by: Jussi Maki <joamaki@gmail.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Fixes: a250c23f15c2 ("iommu: remove DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE")
-Link: https://lore.kernel.org/r/665db61e23ff8d54ac5eb391bef520b3a803fcb9.1622727974.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+fsl-spdif-dai 2dab0000.spdif: Unbalanced pm_runtime_enable!
+
+Fix the error handler with pm_runtime_enable and add
+fsl_spdif_remove() for pm_runtime_disable.
+
+Fixes: 9cb2b3796e08 ("ASoC: fsl_spdif: Add pm runtime function")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1623392318-26304-1-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/amd_iommu.h |  2 --
- drivers/iommu/amd/init.c      |  5 -----
- drivers/iommu/amd/iommu.c     | 31 +++++++++++++------------------
- 3 files changed, 13 insertions(+), 25 deletions(-)
+ sound/soc/fsl/fsl_spdif.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/amd/amd_iommu.h b/drivers/iommu/amd/amd_iommu.h
-index 55dd38d814d9..416815a525d6 100644
---- a/drivers/iommu/amd/amd_iommu.h
-+++ b/drivers/iommu/amd/amd_iommu.h
-@@ -11,8 +11,6 @@
+diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
+index 174e558224d8..e5d366b2a6a4 100644
+--- a/sound/soc/fsl/fsl_spdif.c
++++ b/sound/soc/fsl/fsl_spdif.c
+@@ -1400,16 +1400,29 @@ static int fsl_spdif_probe(struct platform_device *pdev)
+ 					      &spdif_priv->cpu_dai_drv, 1);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register DAI: %d\n", ret);
+-		return ret;
++		goto err_pm_disable;
+ 	}
  
- #include "amd_iommu_types.h"
+ 	ret = imx_pcm_dma_init(pdev, IMX_SPDIF_DMABUF_SIZE);
+-	if (ret && ret != -EPROBE_DEFER)
+-		dev_err(&pdev->dev, "imx_pcm_dma_init failed: %d\n", ret);
++	if (ret) {
++		dev_err_probe(&pdev->dev, ret, "imx_pcm_dma_init failed\n");
++		goto err_pm_disable;
++	}
++
++	return ret;
  
--extern int amd_iommu_init_dma_ops(void);
--extern int amd_iommu_init_passthrough(void);
- extern irqreturn_t amd_iommu_int_thread(int irq, void *data);
- extern irqreturn_t amd_iommu_int_handler(int irq, void *data);
- extern void amd_iommu_apply_erratum_63(u16 devid);
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index 1ded8a69c246..5ff7e5364ef4 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -231,7 +231,6 @@ enum iommu_init_state {
- 	IOMMU_ENABLED,
- 	IOMMU_PCI_INIT,
- 	IOMMU_INTERRUPTS_EN,
--	IOMMU_DMA_OPS,
- 	IOMMU_INITIALIZED,
- 	IOMMU_NOT_FOUND,
- 	IOMMU_INIT_ERROR,
-@@ -2895,10 +2894,6 @@ static int __init state_next(void)
- 		init_state = ret ? IOMMU_INIT_ERROR : IOMMU_INTERRUPTS_EN;
- 		break;
- 	case IOMMU_INTERRUPTS_EN:
--		ret = amd_iommu_init_dma_ops();
--		init_state = ret ? IOMMU_INIT_ERROR : IOMMU_DMA_OPS;
--		break;
--	case IOMMU_DMA_OPS:
- 		init_state = IOMMU_INITIALIZED;
- 		break;
- 	case IOMMU_INITIALIZED:
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index 3ac42bbdefc6..c46dde88a132 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -30,7 +30,6 @@
- #include <linux/msi.h>
- #include <linux/irqdomain.h>
- #include <linux/percpu.h>
--#include <linux/iova.h>
- #include <linux/io-pgtable.h>
- #include <asm/irq_remapping.h>
- #include <asm/io_apic.h>
-@@ -1773,13 +1772,22 @@ void amd_iommu_domain_update(struct protection_domain *domain)
- 	amd_iommu_domain_flush_complete(domain);
++err_pm_disable:
++	pm_runtime_disable(&pdev->dev);
+ 	return ret;
  }
  
-+static void __init amd_iommu_init_dma_ops(void)
++static int fsl_spdif_remove(struct platform_device *pdev)
 +{
-+	swiotlb = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
++	pm_runtime_disable(&pdev->dev);
 +
-+	if (amd_iommu_unmap_flush)
-+		pr_info("IO/TLB flush on unmap enabled\n");
-+	else
-+		pr_info("Lazy IO/TLB flushing enabled\n");
-+	iommu_set_dma_strict(amd_iommu_unmap_flush);
++	return 0;
 +}
 +
- int __init amd_iommu_init_api(void)
+ #ifdef CONFIG_PM
+ static int fsl_spdif_runtime_suspend(struct device *dev)
  {
--	int ret, err = 0;
-+	int err = 0;
+@@ -1512,6 +1525,7 @@ static struct platform_driver fsl_spdif_driver = {
+ 		.pm = &fsl_spdif_pm,
+ 	},
+ 	.probe = fsl_spdif_probe,
++	.remove = fsl_spdif_remove,
+ };
  
--	ret = iova_cache_get();
--	if (ret)
--		return ret;
-+	amd_iommu_init_dma_ops();
- 
- 	err = bus_set_iommu(&pci_bus_type, &amd_iommu_ops);
- 	if (err)
-@@ -1796,19 +1804,6 @@ int __init amd_iommu_init_api(void)
- 	return 0;
- }
- 
--int __init amd_iommu_init_dma_ops(void)
--{
--	swiotlb        = (iommu_default_passthrough() || sme_me_mask) ? 1 : 0;
--
--	if (amd_iommu_unmap_flush)
--		pr_info("IO/TLB flush on unmap enabled\n");
--	else
--		pr_info("Lazy IO/TLB flushing enabled\n");
--	iommu_set_dma_strict(amd_iommu_unmap_flush);
--	return 0;
--
--}
--
- /*****************************************************************************
-  *
-  * The following functions belong to the exported interface of AMD IOMMU
+ module_platform_driver(fsl_spdif_driver);
 -- 
 2.30.2
 
