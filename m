@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 185CC3C557F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3879F3C5034
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230210AbhGLIKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S241094AbhGLHbl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:31:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353690AbhGLICq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9096138C;
-        Mon, 12 Jul 2021 07:56:47 +0000 (UTC)
+        id S1343732AbhGLH2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:28:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CD2761283;
+        Mon, 12 Jul 2021 07:24:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076608;
-        bh=SUyU+GE1uT4cL5sO7tDyoPTBA/b+FFqdbKYcxb7qfm4=;
+        s=korg; t=1626074672;
+        bh=YKAMSYzA1036o9x61Hxa0VrxHLMVvLdRs/KNHYKJQgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmQzUIxr4JkfDjG3pc5l1Sbc3pkaJ6NmV4S/sXK9N6GC22sU00rVWQALg5YAwuk6s
-         +uCH18OOfrFY3/iPHK4pwfApa4Tum9oChG9ZHCEDe/GWCMrC0UJzy99UI33PbQ8JJY
-         WBY/EcJmh0D391r7r5ElRuE8DxW3Kx5JBUMimkok=
+        b=uQwaXofO24psKrQII5l+YWRCwcG0C5eeZWXsathJ3S3/KzFBB7wJ7OtIU1jourO4q
+         cVSw38TwWZWT2nnXCgZVy35+FAgqv09rtMs8CyK5kJVUIQAtNYG29XGFfpFMIbN1ei
+         BWb0R0E0lpFdWmUXfFTC/8p50GHk6NnDPf8xdNyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 717/800] staging: gdm724x: check for overflow in gdm_lte_netif_rx()
+Subject: [PATCH 5.12 657/700] powerpc/papr_scm: Make perf_stats invisible if perf-stats unavailable
 Date:   Mon, 12 Jul 2021 08:12:20 +0200
-Message-Id: <20210712061043.036766312@linuxfoundation.org>
+Message-Id: <20210712061045.771901555@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +41,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit 7002b526f4ff1f6da34356e67085caafa6be383a ]
+[ Upstream commit ed78f56e1271f108e8af61baeba383dcd77adbec ]
 
-This code assumes that "len" is at least 62 bytes, but we need a check
-to prevent a read overflow.
+In case performance stats for an nvdimm are not available, reading the
+'perf_stats' sysfs file returns an -ENOENT error. A better approach is
+to make the 'perf_stats' file entirely invisible to indicate that
+performance stats for an nvdimm are unavailable.
 
-Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YMcoTPsCYlhh2TQo@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So this patch updates 'papr_nd_attribute_group' to add a 'is_visible'
+callback implemented as newly introduced 'papr_nd_attribute_visible()'
+that returns an appropriate mode in case performance stats aren't
+supported in a given nvdimm.
+
+Also the initialization of 'papr_scm_priv.stat_buffer_len' is moved
+from papr_scm_nvdimm_init() to papr_scm_probe() so that it value is
+available when 'papr_nd_attribute_visible()' is called during nvdimm
+initialization.
+
+Even though 'perf_stats' attribute is available since v5.9, there are
+no known user-space tools/scripts that are dependent on presence of its
+sysfs file. Hence I dont expect any user-space breakage with this
+patch.
+
+Fixes: 2d02bf835e57 ("powerpc/papr_scm: Fetch nvdimm performance stats from PHYP")
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210513092349.285021-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/gdm724x/gdm_lte.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ Documentation/ABI/testing/sysfs-bus-papr-pmem |  8 +++--
+ arch/powerpc/platforms/pseries/papr_scm.c     | 35 +++++++++++++------
+ 2 files changed, 29 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
-index a41af7aa74ec..bd5f87433404 100644
---- a/drivers/staging/gdm724x/gdm_lte.c
-+++ b/drivers/staging/gdm724x/gdm_lte.c
-@@ -611,10 +611,12 @@ static void gdm_lte_netif_rx(struct net_device *dev, char *buf,
- 						  * bytes (99,130,83,99 dec)
- 						  */
- 			} __packed;
--			void *addr = buf + sizeof(struct iphdr) +
--				sizeof(struct udphdr) +
--				offsetof(struct dhcp_packet, chaddr);
--			ether_addr_copy(nic->dest_mac_addr, addr);
-+			int offset = sizeof(struct iphdr) +
-+				     sizeof(struct udphdr) +
-+				     offsetof(struct dhcp_packet, chaddr);
-+			if (offset + ETH_ALEN > len)
-+				return;
-+			ether_addr_copy(nic->dest_mac_addr, buf + offset);
- 		}
- 	}
+diff --git a/Documentation/ABI/testing/sysfs-bus-papr-pmem b/Documentation/ABI/testing/sysfs-bus-papr-pmem
+index 8316c33862a0..0aa02bf2bde5 100644
+--- a/Documentation/ABI/testing/sysfs-bus-papr-pmem
++++ b/Documentation/ABI/testing/sysfs-bus-papr-pmem
+@@ -39,9 +39,11 @@ KernelVersion:	v5.9
+ Contact:	linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-nvdimm@lists.01.org,
+ Description:
+ 		(RO) Report various performance stats related to papr-scm NVDIMM
+-		device.  Each stat is reported on a new line with each line
+-		composed of a stat-identifier followed by it value. Below are
+-		currently known dimm performance stats which are reported:
++		device. This attribute is only available for NVDIMM devices
++		that support reporting NVDIMM performance stats. Each stat is
++		reported on a new line with each line composed of a
++		stat-identifier followed by it value. Below are currently known
++		dimm performance stats which are reported:
  
+ 		* "CtlResCt" : Controller Reset Count
+ 		* "CtlResTm" : Controller Reset Elapsed Time
+diff --git a/arch/powerpc/platforms/pseries/papr_scm.c b/arch/powerpc/platforms/pseries/papr_scm.c
+index 0693bc8d70ac..057acbb9116d 100644
+--- a/arch/powerpc/platforms/pseries/papr_scm.c
++++ b/arch/powerpc/platforms/pseries/papr_scm.c
+@@ -868,6 +868,20 @@ static ssize_t flags_show(struct device *dev,
+ }
+ DEVICE_ATTR_RO(flags);
+ 
++static umode_t papr_nd_attribute_visible(struct kobject *kobj,
++					 struct attribute *attr, int n)
++{
++	struct device *dev = kobj_to_dev(kobj);
++	struct nvdimm *nvdimm = to_nvdimm(dev);
++	struct papr_scm_priv *p = nvdimm_provider_data(nvdimm);
++
++	/* For if perf-stats not available remove perf_stats sysfs */
++	if (attr == &dev_attr_perf_stats.attr && p->stat_buffer_len == 0)
++		return 0;
++
++	return attr->mode;
++}
++
+ /* papr_scm specific dimm attributes */
+ static struct attribute *papr_nd_attributes[] = {
+ 	&dev_attr_flags.attr,
+@@ -877,6 +891,7 @@ static struct attribute *papr_nd_attributes[] = {
+ 
+ static struct attribute_group papr_nd_attribute_group = {
+ 	.name = "papr",
++	.is_visible = papr_nd_attribute_visible,
+ 	.attrs = papr_nd_attributes,
+ };
+ 
+@@ -892,7 +907,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
+ 	struct nd_region_desc ndr_desc;
+ 	unsigned long dimm_flags;
+ 	int target_nid, online_nid;
+-	ssize_t stat_size;
+ 
+ 	p->bus_desc.ndctl = papr_scm_ndctl;
+ 	p->bus_desc.module = THIS_MODULE;
+@@ -963,16 +977,6 @@ static int papr_scm_nvdimm_init(struct papr_scm_priv *p)
+ 	list_add_tail(&p->region_list, &papr_nd_regions);
+ 	mutex_unlock(&papr_ndr_lock);
+ 
+-	/* Try retriving the stat buffer and see if its supported */
+-	stat_size = drc_pmem_query_stats(p, NULL, 0);
+-	if (stat_size > 0) {
+-		p->stat_buffer_len = stat_size;
+-		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
+-			p->stat_buffer_len);
+-	} else {
+-		dev_info(&p->pdev->dev, "Dimm performance stats unavailable\n");
+-	}
+-
+ 	return 0;
+ 
+ err:	nvdimm_bus_unregister(p->bus);
+@@ -1050,6 +1054,7 @@ static int papr_scm_probe(struct platform_device *pdev)
+ 	struct papr_scm_priv *p;
+ 	u8 uuid_raw[UUID_SIZE];
+ 	const char *uuid_str;
++	ssize_t stat_size;
+ 	uuid_t uuid;
+ 	int rc;
+ 
+@@ -1133,6 +1138,14 @@ static int papr_scm_probe(struct platform_device *pdev)
+ 	p->res.name  = pdev->name;
+ 	p->res.flags = IORESOURCE_MEM;
+ 
++	/* Try retrieving the stat buffer and see if its supported */
++	stat_size = drc_pmem_query_stats(p, NULL, 0);
++	if (stat_size > 0) {
++		p->stat_buffer_len = stat_size;
++		dev_dbg(&p->pdev->dev, "Max perf-stat size %lu-bytes\n",
++			p->stat_buffer_len);
++	}
++
+ 	rc = papr_scm_nvdimm_init(p);
+ 	if (rc)
+ 		goto err2;
 -- 
 2.30.2
 
