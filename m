@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4601D3C513A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932BE3C4B90
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244145AbhGLHi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:38:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56450 "EHLO mail.kernel.org"
+        id S239597AbhGLG6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347334AbhGLHer (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E5A1611BF;
-        Mon, 12 Jul 2021 07:31:38 +0000 (UTC)
+        id S239833AbhGLG5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F40261369;
+        Mon, 12 Jul 2021 06:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075099;
-        bh=BlLGybJwJtJdXMALyLCmRMid26gZ1s5yYghXj1deuPs=;
+        s=korg; t=1626072856;
+        bh=n9NQNEswot1+OtOvwfwGuh3AXQ6ynqzP0lbpSJpb0eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uloXXeROcdDZFXvMnEXB0QB6aJnM8Jk3VZISXDq6IGrjn7hZmca0JU7K8+LwYlrA2
-         YWcwb/FtbkTRRiwtMFgje9GsB0W9/QVIjzxLWJUqM0uDXfimh9s+HqVwYwg97BluLt
-         dthVRBmyHmpqLHeJyDCNQKUDzxCwcEYfizvCnFBI=
+        b=pobSIlmtcFhogGC2CnJaSQBAbCFPuDVRwZXi1+H+WlZgU+uaI7tGu/71qi4BAZVN/
+         Q9jDIZTJ3FZqyMyUKEU7z0ZqtVNuVs9U3GcTrHg1mwwAYuQL8kWpr1erBC8b/RhMpr
+         rPIXEbdp6S7w+lAPlIju8kYhzYaB7goXVI6c1fqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.13 104/800] ath9k: Fix kernel NULL pointer dereference during ath_reset_internal()
-Date:   Mon, 12 Jul 2021 08:02:07 +0200
-Message-Id: <20210712060927.669999310@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 045/700] btrfs: send: fix invalid path for unlink operations after parent orphanization
+Date:   Mon, 12 Jul 2021 08:02:08 +0200
+Message-Id: <20210712060931.069705035@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,114 +39,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit fb312ac5ccb007e843f982b38d4d6886ba4b32f2 upstream.
+commit d8ac76cdd1755b21e8c008c28d0b7251c0b14986 upstream.
 
-I got this crash more times during debugging of PCIe controller and crash
-happens somehow at the time when PCIe kernel code started link retraining (as
-part of ASPM code) when at the same time PCIe link went down and ath9k probably
-executed hw reset procedure.
+During an incremental send operation, when processing the new references
+for the current inode, we might send an unlink operation for another inode
+that has a conflicting path and has more than one hard link. However this
+path was computed and cached before we processed previous new references
+for the current inode. We may have orphanized a directory of that path
+while processing a previous new reference, in which case the path will
+be invalid and cause the receiver process to fail.
 
-Currently I'm not able to reproduce this issue as it looks like to be
-some race condition between link training, ASPM, link down and reset
-path. And as always, race conditions which depends on more input
-parameters are hard to reproduce as it depends on precise timings.
+The following reproducer triggers the problem and explains how/why it
+happens in its comments:
 
-But it is clear that pointers are zero in this case and should be
-properly filled as same code pattern is used in ath9k_stop() function.
-Anyway I was able to reproduce this crash by manually triggering ath
-reset worker prior putting card up. I created simple patch to export
-reset functionality via debugfs and use it to "simulate" of triggering
-reset.    s proved that NULL-pointer dereference issue is there.
+  $ cat test-send-unlink.sh
+  #!/bin/bash
 
-Function ath9k_hw_reset() is dereferencing chan structure pointer, so it
-needs to be non-NULL pointer.
+  DEV=/dev/sdi
+  MNT=/mnt/sdi
 
-Function ath9k_stop() already contains code which sets ah->curchan to valid
-non-NULL pointer prior calling ath9k_hw_reset() function.
+  mkfs.btrfs -f $DEV >/dev/null
+  mount $DEV $MNT
 
-Add same code pattern also into ath_reset_internal() function to prevent
-kernel NULL pointer dereference in ath9k_hw_reset() function.
+  # Create our test files and directory. Inode 259 (file3) has two hard
+  # links.
+  touch $MNT/file1
+  touch $MNT/file2
+  touch $MNT/file3
 
-This change fixes kernel NULL pointer dereference in ath9k_hw_reset() which
-is caused by calling ath9k_hw_reset() from ath_reset_internal() with NULL
-chan structure.
+  mkdir $MNT/A
+  ln $MNT/file3 $MNT/A/hard_link
 
-    [   45.334305] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
-    [   45.344417] Mem abort info:
-    [   45.347301]   ESR = 0x96000005
-    [   45.350448]   EC = 0x25: DABT (current EL), IL = 32 bits
-    [   45.356166]   SET = 0, FnV = 0
-    [   45.359350]   EA = 0, S1PTW = 0
-    [   45.362596] Data abort info:
-    [   45.365756]   ISV = 0, ISS = 0x00000005
-    [   45.369735]   CM = 0, WnR = 0
-    [   45.372814] user pgtable: 4k pages, 39-bit VAs, pgdp=000000000685d000
-    [   45.379663] [0000000000000008] pgd=0000000000000000, p4d=0000000000000000, pud=0000000000000000
-    [   45.388856] Internal error: Oops: 96000005 [#1] SMP
-    [   45.393897] Modules linked in: ath9k ath9k_common ath9k_hw
-    [   45.399574] CPU: 1 PID: 309 Comm: kworker/u4:2 Not tainted 5.12.0-rc2-dirty #785
-    [   45.414746] Workqueue: phy0 ath_reset_work [ath9k]
-    [   45.419713] pstate: 40000005 (nZcv daif -PAN -UAO -TCO BTYPE=--)
-    [   45.425910] pc : ath9k_hw_reset+0xc4/0x1c48 [ath9k_hw]
-    [   45.431234] lr : ath9k_hw_reset+0xc0/0x1c48 [ath9k_hw]
-    [   45.436548] sp : ffffffc0118dbca0
-    [   45.439961] x29: ffffffc0118dbca0 x28: 0000000000000000
-    [   45.445442] x27: ffffff800dee4080 x26: 0000000000000000
-    [   45.450923] x25: ffffff800df9b9d8 x24: 0000000000000000
-    [   45.456404] x23: ffffffc0115f6000 x22: ffffffc008d0d408
-    [   45.461885] x21: ffffff800dee5080 x20: ffffff800df9b9d8
-    [   45.467366] x19: 0000000000000000 x18: 0000000000000000
-    [   45.472846] x17: 0000000000000000 x16: 0000000000000000
-    [   45.478326] x15: 0000000000000010 x14: ffffffffffffffff
-    [   45.483807] x13: ffffffc0918db94f x12: ffffffc011498720
-    [   45.489289] x11: 0000000000000003 x10: ffffffc0114806e0
-    [   45.494770] x9 : ffffffc01014b2ec x8 : 0000000000017fe8
-    [   45.500251] x7 : c0000000ffffefff x6 : 0000000000000001
-    [   45.505733] x5 : 0000000000000000 x4 : 0000000000000000
-    [   45.511213] x3 : 0000000000000000 x2 : ffffff801fece870
-    [   45.516693] x1 : ffffffc00eded000 x0 : 000000000000003f
-    [   45.522174] Call trace:
-    [   45.524695]  ath9k_hw_reset+0xc4/0x1c48 [ath9k_hw]
-    [   45.529653]  ath_reset_internal+0x1a8/0x2b8 [ath9k]
-    [   45.534696]  ath_reset_work+0x2c/0x40 [ath9k]
-    [   45.539198]  process_one_work+0x210/0x480
-    [   45.543339]  worker_thread+0x5c/0x510
-    [   45.547115]  kthread+0x12c/0x130
-    [   45.550445]  ret_from_fork+0x10/0x1c
-    [   45.554138] Code: 910922c2 9117e021 95ff0398 b4000294 (b9400a61)
-    [   45.560430] ---[ end trace 566410ba90b50e8b ]---
-    [   45.565193] Kernel panic - not syncing: Oops: Fatal exception in interrupt
-    [   45.572282] SMP: stopping secondary CPUs
-    [   45.576331] Kernel Offset: disabled
-    [   45.579924] CPU features: 0x00040002,0000200c
-    [   45.584416] Memory Limit: none
-    [   45.587564] Rebooting in 3 seconds..
+  # Filesystem looks like:
+  #
+  # .                                     (ino 256)
+  # |----- file1                          (ino 257)
+  # |----- file2                          (ino 258)
+  # |----- file3                          (ino 259)
+  # |----- A/                             (ino 260)
+  #        |---- hard_link                (ino 259)
+  #
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210402122653.24014-1-pali@kernel.org
+  # Now create the base snapshot, which is going to be the parent snapshot
+  # for a later incremental send.
+  btrfs subvolume snapshot -r $MNT $MNT/snap1
+  btrfs send -f /tmp/snap1.send $MNT/snap1
+
+  # Move inode 257 into directory inode 260. This results in computing the
+  # path for inode 260 as "/A" and caching it.
+  mv $MNT/file1 $MNT/A/file1
+
+  # Move inode 258 (file2) into directory inode 260, with a name of
+  # "hard_link", moving first inode 259 away since it currently has that
+  # location and name.
+  mv $MNT/A/hard_link $MNT/tmp
+  mv $MNT/file2 $MNT/A/hard_link
+
+  # Now rename inode 260 to something else (B for example) and then create
+  # a hard link for inode 258 that has the old name and location of inode
+  # 260 ("/A").
+  mv $MNT/A $MNT/B
+  ln $MNT/B/hard_link $MNT/A
+
+  # Filesystem now looks like:
+  #
+  # .                                     (ino 256)
+  # |----- tmp                            (ino 259)
+  # |----- file3                          (ino 259)
+  # |----- B/                             (ino 260)
+  # |      |---- file1                    (ino 257)
+  # |      |---- hard_link                (ino 258)
+  # |
+  # |----- A                              (ino 258)
+
+  # Create another snapshot of our subvolume and use it for an incremental
+  # send.
+  btrfs subvolume snapshot -r $MNT $MNT/snap2
+  btrfs send -f /tmp/snap2.send -p $MNT/snap1 $MNT/snap2
+
+  # Now unmount the filesystem, create a new one, mount it and try to
+  # apply both send streams to recreate both snapshots.
+  umount $DEV
+
+  mkfs.btrfs -f $DEV >/dev/null
+
+  mount $DEV $MNT
+
+  # First add the first snapshot to the new filesystem by applying the
+  # first send stream.
+  btrfs receive -f /tmp/snap1.send $MNT
+
+  # The incremental receive operation below used to fail with the
+  # following error:
+  #
+  #    ERROR: unlink A/hard_link failed: No such file or directory
+  #
+  # This is because when send is processing inode 257, it generates the
+  # path for inode 260 as "/A", since that inode is its parent in the send
+  # snapshot, and caches that path.
+  #
+  # Later when processing inode 258, it first processes its new reference
+  # that has the path of "/A", which results in orphanizing inode 260
+  # because there is a a path collision. This results in issuing a rename
+  # operation from "/A" to "/o260-6-0".
+  #
+  # Finally when processing the new reference "B/hard_link" for inode 258,
+  # it notices that it collides with inode 259 (not yet processed, because
+  # it has a higher inode number), since that inode has the name
+  # "hard_link" under the directory inode 260. It also checks that inode
+  # 259 has two hardlinks, so it decides to issue a unlink operation for
+  # the name "hard_link" for inode 259. However the path passed to the
+  # unlink operation is "/A/hard_link", which is incorrect since currently
+  # "/A" does not exists, due to the orphanization of inode 260 mentioned
+  # before. The path is incorrect because it was computed and cached
+  # before the orphanization. This results in the receiver to fail with
+  # the above error.
+  btrfs receive -f /tmp/snap2.send $MNT
+
+  umount $MNT
+
+When running the test, it fails like this:
+
+  $ ./test-send-unlink.sh
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap1'
+  At subvol /mnt/sdi/snap1
+  Create a readonly snapshot of '/mnt/sdi' in '/mnt/sdi/snap2'
+  At subvol /mnt/sdi/snap2
+  At subvol snap1
+  At snapshot snap2
+  ERROR: unlink A/hard_link failed: No such file or directory
+
+Fix this by recomputing a path before issuing an unlink operation when
+processing the new references for the current inode if we previously
+have orphanized a directory.
+
+A test case for fstests will follow soon.
+
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/ath/ath9k/main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/send.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -307,6 +307,11 @@ static int ath_reset_internal(struct ath
- 		hchan = ah->curchan;
- 	}
- 
-+	if (!hchan) {
-+		fastcc = false;
-+		hchan = ath9k_cmn_get_channel(sc->hw, ah, &sc->cur_chan->chandef);
-+	}
-+
- 	if (!ath_prepare_reset(sc))
- 		fastcc = false;
- 
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -4064,6 +4064,17 @@ static int process_recorded_refs(struct
+ 				if (ret < 0)
+ 					goto out;
+ 			} else {
++				/*
++				 * If we previously orphanized a directory that
++				 * collided with a new reference that we already
++				 * processed, recompute the current path because
++				 * that directory may be part of the path.
++				 */
++				if (orphanized_dir) {
++					ret = refresh_ref_path(sctx, cur);
++					if (ret < 0)
++						goto out;
++				}
+ 				ret = send_unlink(sctx, cur->full_path);
+ 				if (ret < 0)
+ 					goto out;
 
 
