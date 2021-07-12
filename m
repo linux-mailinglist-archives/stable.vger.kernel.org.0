@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92EA33C4C35
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF19E3C51B4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240313AbhGLHCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
+        id S244771AbhGLHm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:42:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241980AbhGLHBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:01:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6D8C61221;
-        Mon, 12 Jul 2021 06:58:56 +0000 (UTC)
+        id S1347679AbhGLHkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E71261457;
+        Mon, 12 Jul 2021 07:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073137;
-        bh=ht5TsiapjXMHML+LcVLYQqsFvSYjeNKVivTIumc8ekE=;
+        s=korg; t=1626075328;
+        bh=raElE/LTi6RdTWtu6Qz0VjOIA0GIV9i4FphLeAtxHu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtG9r2oWw77X+GRuDJBh/RxTuIh2q7QD79PUzF6l1SetXNJ53ibkb5OP+SOw+ACQ2
-         Xj+EGLDFNEI87pMRwKGL6zD4aTROKOiXipoiyOi/Jvl7UGKErRwbkTSVh+BRFAfxPI
-         eGGq2VYhc/Kf+CD8zg+wTCUqquvHmfvabaqDliBY=
+        b=eVYU8COEA6CdTh6koAPrsi05QEDnVNADP+0xx9ZLVWH6xE3Yuwl1tNrzkH0vMJlz6
+         bR8HTCv1H8BY95xdOmfg3aFHEhBrNDYGkTij4eON+/1r4qyrrYdhuZADow+OXLwBkC
+         dlBKR+PAo5khdavnkKqpujYN7cwLPLWAIBJfvOz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniele Alessandrelli <daniele.alessandrelli@intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 122/700] media: i2c: imx334: fix the pm runtime get logic
+Subject: [PATCH 5.13 182/800] regulator: mt6315: Fix checking return value of devm_regmap_init_spmi_ext
 Date:   Mon, 12 Jul 2021 08:03:25 +0200
-Message-Id: <20210712060942.162326576@linuxfoundation.org>
+Message-Id: <20210712060938.647227929@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,58 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 62c90446868b439929cb04395f04a709a64ae04b ]
+[ Upstream commit 70d654ea3de937d7754c107bb8eeb20e30262c89 ]
 
-The PM runtime get logic is currently broken, as it checks if
-ret is zero instead of checking if it is an error code,
-as reported by Dan Carpenter.
+devm_regmap_init_spmi_ext() returns ERR_PTR() on error.
 
-While here, use the pm_runtime_resume_and_get() as added by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-added pm_runtime_resume_and_get() in order to automatically handle
-dev->power.usage_count decrement on errors. As a bonus, such function
-always return zero on success.
-
-It should also be noticed that a fail of pm_runtime_get_sync() would
-potentially result in a spurious runtime_suspend(), instead of
-using pm_runtime_put_noidle().
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Daniele Alessandrelli <daniele.alessandrelli@intel.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210615132934.3453965-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/imx334.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/regulator/mt6315-regulator.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/imx334.c b/drivers/media/i2c/imx334.c
-index ad530f0d338a..02d22907c75c 100644
---- a/drivers/media/i2c/imx334.c
-+++ b/drivers/media/i2c/imx334.c
-@@ -717,9 +717,9 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
- 	}
+diff --git a/drivers/regulator/mt6315-regulator.c b/drivers/regulator/mt6315-regulator.c
+index 6b8be52c3772..7514702f78cf 100644
+--- a/drivers/regulator/mt6315-regulator.c
++++ b/drivers/regulator/mt6315-regulator.c
+@@ -223,8 +223,8 @@ static int mt6315_regulator_probe(struct spmi_device *pdev)
+ 	int i;
  
- 	if (enable) {
--		ret = pm_runtime_get_sync(imx334->dev);
--		if (ret)
--			goto error_power_off;
-+		ret = pm_runtime_resume_and_get(imx334->dev);
-+		if (ret < 0)
-+			goto error_unlock;
+ 	regmap = devm_regmap_init_spmi_ext(pdev, &mt6315_regmap_config);
+-	if (!regmap)
+-		return -ENODEV;
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
  
- 		ret = imx334_start_streaming(imx334);
- 		if (ret)
-@@ -737,6 +737,7 @@ static int imx334_set_stream(struct v4l2_subdev *sd, int enable)
- 
- error_power_off:
- 	pm_runtime_put(imx334->dev);
-+error_unlock:
- 	mutex_unlock(&imx334->mutex);
- 
- 	return ret;
+ 	chip = devm_kzalloc(dev, sizeof(struct mt6315_chip), GFP_KERNEL);
+ 	if (!chip)
 -- 
 2.30.2
 
