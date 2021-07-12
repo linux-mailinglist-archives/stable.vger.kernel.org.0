@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A26033C443F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864AB3C4441
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233438AbhGLGSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36224 "EHLO mail.kernel.org"
+        id S233442AbhGLGSD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:18:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233424AbhGLGR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:17:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66E3B610A6;
-        Mon, 12 Jul 2021 06:15:10 +0000 (UTC)
+        id S233383AbhGLGSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:18:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B75DF610E5;
+        Mon, 12 Jul 2021 06:15:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070510;
-        bh=rcMWKjnOz5x+MWZvUufn6ZR0qZGG4sgmNJRoQX0w/vA=;
+        s=korg; t=1626070513;
+        bh=BWVR+xJETWSEl+FsjZPjZSBxPN8XgpXiorwclrdADcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PARXo/NeFTBvI5wYJzPPJfvMtU+EinhCPkzAP1ONo1J9U1yLNh+oBYiPwtTrIdh0l
-         9luxfjhav6Va7vmCemDvhG8v7lzT3+nUCtn+9oETRfQT2zr3rJ8c7dmcy3QH+xoPt3
-         zyMg1UVwLV391PhdnfL/dZcBy+VsSLgMl1zjNMW8=
+        b=G9okog+l7iRgwFHxcTayPp3meh+LQrSHaYNMHOpiCf/LGVZYUo9kUzwldVjSIsxeh
+         1UOMnJk38akPmLXGeDNL6xZpDm1rNAGe+zxYx2gmQgim1GXqN45SUVxdQGkjIkLDA2
+         FrnqVRfX61j+WLbagLcuBtGR0po2Q3AIzl1NDNAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.4 021/348] arm_pmu: Fix write counter incorrect in ARMv7 big-endian mode
-Date:   Mon, 12 Jul 2021 08:06:45 +0200
-Message-Id: <20210712060703.061894981@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>
+Subject: [PATCH 5.4 022/348] ARM: dts: at91: sama5d4: fix pinctrl muxing
+Date:   Mon, 12 Jul 2021 08:06:46 +0200
+Message-Id: <20210712060703.169524917@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,73 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Jihong <yangjihong1@huawei.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
 
-commit fdbef8c4e68ad423416aa6cc93d1616d6f8ac5b3 upstream.
+commit 253adffb0e98eaf6da2e7cf73ae68695e21f2f3c upstream.
 
-Commit 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
-changes the input "value" type from 32-bit to 64-bit, which introduces the
-following problem: ARMv7 PMU counters is 32-bit width, in big-endian mode,
-write counter uses high 32-bit, which writes an incorrect value.
+Fix pinctrl muxing, PD28, PD29 and PD31 can be muxed to peripheral A. It
+allows to use SCK0, SCK1 and SPI0_NPCS2 signals.
 
-Before:
-
- Performance counter stats for 'ls':
-
-              2.22 msec task-clock                #    0.675 CPUs utilized
-                 0      context-switches          #    0.000 K/sec
-                 0      cpu-migrations            #    0.000 K/sec
-                49      page-faults               #    0.022 M/sec
-        2150476593      cycles                    #  966.663 GHz
-        2148588788      instructions              #    1.00  insn per cycle
-        2147745484      branches                  # 965435.074 M/sec
-        2147508540      branch-misses             #   99.99% of all branches
-
-None of the above hw event counters are correct.
-
-Solution:
-
-"value" forcibly converted to 32-bit type before being written to PMU register.
-
-After:
-
- Performance counter stats for 'ls':
-
-              2.09 msec task-clock                #    0.681 CPUs utilized
-                 0      context-switches          #    0.000 K/sec
-                 0      cpu-migrations            #    0.000 K/sec
-                46      page-faults               #    0.022 M/sec
-           2807301      cycles                    #    1.344 GHz
-           1060159      instructions              #    0.38  insn per cycle
-            250496      branches                  #  119.914 M/sec
-             23192      branch-misses             #    9.26% of all branches
-
-Fixes: 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Link: https://lore.kernel.org/r/20210430012659.232110-1-yangjihong1@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Fixes: 679f8d92bb01 ("ARM: at91/dt: sama5d4: add pioD pin mux mask and enable pioD")
+Cc: stable@vger.kernel.org # v4.4+
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20191025084210.14726-1-ludovic.desroches@microchip.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm/kernel/perf_event_v7.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/sama5d4.dtsi |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arm/kernel/perf_event_v7.c
-+++ b/arch/arm/kernel/perf_event_v7.c
-@@ -773,10 +773,10 @@ static inline void armv7pmu_write_counte
- 		pr_err("CPU%u writing wrong counter %d\n",
- 			smp_processor_id(), idx);
- 	} else if (idx == ARMV7_IDX_CYCLE_COUNTER) {
--		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" (value));
-+		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" ((u32)value));
- 	} else {
- 		armv7_pmnc_select_counter(idx);
--		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" (value));
-+		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" ((u32)value));
- 	}
- }
+--- a/arch/arm/boot/dts/sama5d4.dtsi
++++ b/arch/arm/boot/dts/sama5d4.dtsi
+@@ -914,7 +914,7 @@
+ 					0xffffffff 0x3ffcfe7c 0x1c010101	/* pioA */
+ 					0x7fffffff 0xfffccc3a 0x3f00cc3a	/* pioB */
+ 					0xffffffff 0x3ff83fff 0xff00ffff	/* pioC */
+-					0x0003ff00 0x8002a800 0x00000000	/* pioD */
++					0xb003ff00 0x8002a800 0x00000000	/* pioD */
+ 					0xffffffff 0x7fffffff 0x76fff1bf	/* pioE */
+ 					>;
  
 
 
