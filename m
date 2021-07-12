@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6E13C4AFB
+	by mail.lfdr.de (Postfix) with ESMTP id 5070A3C4AFA
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238550AbhGLGzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238467AbhGLGzR (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240056AbhGLGxV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:53:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91CE761004;
-        Mon, 12 Jul 2021 06:50:31 +0000 (UTC)
+        id S240112AbhGLGxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:53:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A429B61158;
+        Mon, 12 Jul 2021 06:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072632;
-        bh=pmtnz6MIjj39BetVLpShnJUpGwxTRKr+uZNaQ2FPXiM=;
+        s=korg; t=1626072635;
+        bh=o7s62n9HrCeFDDAWJbAoTNF7Qb5uKu2QhJh/lNQxKWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJFfcaFxUt+RIJADPvCtlZnLQ+XlXQXcJgIPoB8tCziHPY6idZQeFcyLHmQbSXOAI
-         3QLvaW+1S6lE05/FvOgmot9MvEL2Oli5bNWuA2LQBdDDM/D82rD2NuAddnw7WsAZTB
-         pW6kdgIXp08Rr37dNn/KmEB10K6o+XLPA8QcXRYo=
+        b=mcDr4pwJQAKuuvFa+j7pZRAYn97qHGrY/fTqqrzYWunQ9lim1se9BVBKsY4XZOyKq
+         UvTEOt1dmSuylsepM4T0eW9khl6Gvd2Kk30l0CuHly00syIxIb1bAgbsMetiZ8gWbh
+         v/KYDds7SULrnOrRWfpexBLOM/ihbNA2ojv1dluM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 560/593] arm64: dts: marvell: armada-37xx: Fix reg for standard variant of UART
-Date:   Mon, 12 Jul 2021 08:12:00 +0200
-Message-Id: <20210712060956.216333165@linuxfoundation.org>
+Subject: [PATCH 5.10 561/593] vfio/pci: Handle concurrent vma faults
+Date:   Mon, 12 Jul 2021 08:12:01 +0200
+Message-Id: <20210712060956.357991572@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,35 +40,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit 2cbfdedef39fb5994b8f1e1df068eb8440165975 ]
+[ Upstream commit 6a45ece4c9af473555f01f0f8b97eba56e3c7d0d ]
 
-UART1 (standard variant with DT node name 'uart0') has register space
-0x12000-0x12018 and not whole size 0x200. So fix also this in example.
+io_remap_pfn_range() will trigger a BUG_ON if it encounters a
+populated pte within the mapping range.  This can occur because we map
+the entire vma on fault and multiple faults can be blocked behind the
+vma_lock.  This leads to traces like the one reported below.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: c737abc193d1 ("arm64: dts: marvell: Fix A37xx UART0 register size")
-Link: https://lore.kernel.org/r/20210624224909.6350-6-pali@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can use our vma_list to test whether a given vma is mapped to avoid
+this issue.
+
+[ 1591.733256] kernel BUG at mm/memory.c:2177!
+[ 1591.739515] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[ 1591.747381] Modules linked in: vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
+[ 1591.760536] CPU: 2 PID: 227 Comm: lcore-worker-2 Tainted: G O 5.11.0-rc3+ #1
+[ 1591.770735] Hardware name:  , BIOS HixxxxFPGA 1P B600 V121-1
+[ 1591.778872] pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
+[ 1591.786134] pc : remap_pfn_range+0x214/0x340
+[ 1591.793564] lr : remap_pfn_range+0x1b8/0x340
+[ 1591.799117] sp : ffff80001068bbd0
+[ 1591.803476] x29: ffff80001068bbd0 x28: 0000042eff6f0000
+[ 1591.810404] x27: 0000001100910000 x26: 0000001300910000
+[ 1591.817457] x25: 0068000000000fd3 x24: ffffa92f1338e358
+[ 1591.825144] x23: 0000001140000000 x22: 0000000000000041
+[ 1591.832506] x21: 0000001300910000 x20: ffffa92f141a4000
+[ 1591.839520] x19: 0000001100a00000 x18: 0000000000000000
+[ 1591.846108] x17: 0000000000000000 x16: ffffa92f11844540
+[ 1591.853570] x15: 0000000000000000 x14: 0000000000000000
+[ 1591.860768] x13: fffffc0000000000 x12: 0000000000000880
+[ 1591.868053] x11: ffff0821bf3d01d0 x10: ffff5ef2abd89000
+[ 1591.875932] x9 : ffffa92f12ab0064 x8 : ffffa92f136471c0
+[ 1591.883208] x7 : 0000001140910000 x6 : 0000000200000000
+[ 1591.890177] x5 : 0000000000000001 x4 : 0000000000000001
+[ 1591.896656] x3 : 0000000000000000 x2 : 0168044000000fd3
+[ 1591.903215] x1 : ffff082126261880 x0 : fffffc2084989868
+[ 1591.910234] Call trace:
+[ 1591.914837]  remap_pfn_range+0x214/0x340
+[ 1591.921765]  vfio_pci_mmap_fault+0xac/0x130 [vfio_pci]
+[ 1591.931200]  __do_fault+0x44/0x12c
+[ 1591.937031]  handle_mm_fault+0xcc8/0x1230
+[ 1591.942475]  do_page_fault+0x16c/0x484
+[ 1591.948635]  do_translation_fault+0xbc/0xd8
+[ 1591.954171]  do_mem_abort+0x4c/0xc0
+[ 1591.960316]  el0_da+0x40/0x80
+[ 1591.965585]  el0_sync_handler+0x168/0x1b0
+[ 1591.971608]  el0_sync+0x174/0x180
+[ 1591.978312] Code: eb1b027f 540000c0 f9400022 b4fffe02 (d4210000)
+
+Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
+Reported-by: Zeng Tao <prime.zeng@hisilicon.com>
+Suggested-by: Zeng Tao <prime.zeng@hisilicon.com>
+Link: https://lore.kernel.org/r/162497742783.3883260.3282953006487785034.stgit@omen
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/armada-37xx.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/pci/vfio_pci.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-index a89e47d95eef..879115dfdf82 100644
---- a/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-+++ b/arch/arm64/boot/dts/marvell/armada-37xx.dtsi
-@@ -134,7 +134,7 @@
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index 48b048edf1ee..57ae8b46b836 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -1614,6 +1614,7 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct vfio_pci_device *vdev = vma->vm_private_data;
++	struct vfio_pci_mmap_vma *mmap_vma;
+ 	vm_fault_t ret = VM_FAULT_NOPAGE;
  
- 			uart0: serial@12000 {
- 				compatible = "marvell,armada-3700-uart";
--				reg = <0x12000 0x200>;
-+				reg = <0x12000 0x18>;
- 				clocks = <&xtalclk>;
- 				interrupts =
- 				<GIC_SPI 11 IRQ_TYPE_LEVEL_HIGH>,
+ 	mutex_lock(&vdev->vma_lock);
+@@ -1621,24 +1622,36 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
+ 
+ 	if (!__vfio_pci_memory_enabled(vdev)) {
+ 		ret = VM_FAULT_SIGBUS;
+-		mutex_unlock(&vdev->vma_lock);
+ 		goto up_out;
+ 	}
+ 
+-	if (__vfio_pci_add_vma(vdev, vma)) {
+-		ret = VM_FAULT_OOM;
+-		mutex_unlock(&vdev->vma_lock);
+-		goto up_out;
++	/*
++	 * We populate the whole vma on fault, so we need to test whether
++	 * the vma has already been mapped, such as for concurrent faults
++	 * to the same vma.  io_remap_pfn_range() will trigger a BUG_ON if
++	 * we ask it to fill the same range again.
++	 */
++	list_for_each_entry(mmap_vma, &vdev->vma_list, vma_next) {
++		if (mmap_vma->vma == vma)
++			goto up_out;
+ 	}
+ 
+-	mutex_unlock(&vdev->vma_lock);
+-
+ 	if (io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
+-			       vma->vm_end - vma->vm_start, vma->vm_page_prot))
++			       vma->vm_end - vma->vm_start,
++			       vma->vm_page_prot)) {
+ 		ret = VM_FAULT_SIGBUS;
++		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
++		goto up_out;
++	}
++
++	if (__vfio_pci_add_vma(vdev, vma)) {
++		ret = VM_FAULT_OOM;
++		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
++	}
+ 
+ up_out:
+ 	up_read(&vdev->memory_lock);
++	mutex_unlock(&vdev->vma_lock);
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
