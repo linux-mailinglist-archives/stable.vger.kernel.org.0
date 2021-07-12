@@ -2,125 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD0DA3C4EE8
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9DC3C4EEE
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240830AbhGLHWS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:18 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:56978 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344811AbhGLHUy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:54 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1m2qCa-003ihS-HQ; Mon, 12 Jul 2021 07:18:04 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Mon, 12 Jul 2021 07:16:31 +0000
-Subject: [git:media_stage/master] media: uvc: don't do DMA on stack
-To:     linuxtv-commits@linuxtv.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1m2qCa-003ihS-HQ@www.linuxtv.org>
+        id S236706AbhGLHWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:22:25 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52036 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1343696AbhGLHUB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 03:20:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626074233;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=jEQNuaft8PiLhWt6Cm320nOG2EJp568ZWWs6YU/oQ8I=;
+        b=D7hvVomCv86kw1QpDm9cQbrCTRDSzzJVXqKq3YAHA6xH5DHP6e0I8XoOz8CNg81ne6qBz8
+        I1Y+0nprIvMYgMUAZEijOrTALRsKaQLtZ+krpiAs2UT5ytH/X8WBRainx7yW1c9ge2ngER
+        Ju+KhSMIy/fA1M8XoB7zNTqB7oDEj8A=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-2-hzk6HRmtN8mR-7SG66n-tQ-1; Mon, 12 Jul 2021 03:17:12 -0400
+X-MC-Unique: hzk6HRmtN8mR-7SG66n-tQ-1
+Received: by mail-qv1-f69.google.com with SMTP id p12-20020a0cfacc0000b02902a1b4396bc4so13662784qvo.22
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 00:17:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jEQNuaft8PiLhWt6Cm320nOG2EJp568ZWWs6YU/oQ8I=;
+        b=EDbmU9Ijd7zZEqARuNN/6hgOt5/gbyC2krVYz+QZHgZMxKZ1hFfc/JfTa8LpZdRFn/
+         sGeuMPL97hqEoJZs/w71wmtO6pYhr6jlSJgIUyyadikvsRNPWjdZo2Tyq6gCDy/S49yq
+         aFI4eOePvcFazuIv4a9BY6jivCwYJm5/SKBv2PH/fLJ/gpiPKpgrnAxvVmFQ9iCfRFXw
+         eOyUg84jTY3YHhqWbck9QnRmSh3v5mYfpy0zSpZMh3XxRQpKdyDk2np0U68o/YgwPuFX
+         HoU9ebDA0N1uPyg3DkS487p286DjpI8GhgkJD+7pPrN6TQoaXngoZktpvaV7UizlAHR2
+         9UhQ==
+X-Gm-Message-State: AOAM530RM1o3+CE8GS/yJ68FsD0R0Ab8hV84cclX7ufyt1EcxFdCei46
+        zrzn1aDigH/WazigS4PoGDem1TZCF6MHAsftFEhpMQ5l1xLahqjlv+fpTJwql9kQ7DsUYI/q5Yd
+        QJdrduQBjs8l4ans/yfWTYLoZhM/rxN24
+X-Received: by 2002:a0c:a286:: with SMTP id g6mr5866863qva.16.1626074231631;
+        Mon, 12 Jul 2021 00:17:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxaAIb7Km8NeI2/Gm8NOAQGPrK8zvlJXvKpsAGwyyEmB6bVjdct2Fn4iur1NdzPvO81uJAG3b50KvSI6hSO1M8=
+X-Received: by 2002:a0c:a286:: with SMTP id g6mr5866842qva.16.1626074231328;
+ Mon, 12 Jul 2021 00:17:11 -0700 (PDT)
+MIME-Version: 1.0
+References: <1626009119113182@kroah.com>
+In-Reply-To: <1626009119113182@kroah.com>
+From:   Miklos Szeredi <mszeredi@redhat.com>
+Date:   Mon, 12 Jul 2021 09:17:00 +0200
+Message-ID: <CAOssrKeWW6P5d5-kk6GH_HV6QsinQpTDhXaCHzSFwtw4JXfvnw@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] fuse: reject internal errno" failed to
+ apply to 4.19-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     anatoly.trosinenko@gmail.com, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+Hi Greg,
 
-Subject: media: uvc: don't do DMA on stack
-Author:  Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:    Thu Jun 17 14:33:29 2021 +0200
+Please apply with --fuzz=3 (though I don't really see why this is
+needed, since there's just a single line of difference in the
+context).
 
-As warned by smatch:
-	drivers/media/usb/uvc/uvc_v4l2.c:911 uvc_ioctl_g_input() error: doing dma on the stack (&i)
-	drivers/media/usb/uvc/uvc_v4l2.c:943 uvc_ioctl_s_input() error: doing dma on the stack (&i)
+Should work for backports to all previous versions.
 
-those two functions call uvc_query_ctrl passing a pointer to
-a data at the DMA stack. those are used to send URBs via
-usb_control_msg(). Using DMA stack is not supported and should
-not work anymore on modern Linux versions.
+Thanks,
+Miklos
 
-So, use a kmalloc'ed buffer.
+On Sun, Jul 11, 2021 at 3:20 PM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
+>
+> greg k-h
+>
+> ------------------ original commit in Linus's tree ------------------
+>
+> From 49221cf86d18bb66fe95d3338cb33bd4b9880ca5 Mon Sep 17 00:00:00 2001
+> From: Miklos Szeredi <mszeredi@redhat.com>
+> Date: Tue, 22 Jun 2021 09:15:35 +0200
+> Subject: [PATCH] fuse: reject internal errno
+>
+> Don't allow userspace to report errors that could be kernel-internal.
+>
+> Reported-by: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+> Fixes: 334f485df85a ("[PATCH] FUSE - device functions")
+> Cc: <stable@vger.kernel.org> # v2.6.14
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+>
+> diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+> index 6e63bcba2a40..b8d58aa08206 100644
+> --- a/fs/fuse/dev.c
+> +++ b/fs/fuse/dev.c
+> @@ -1867,7 +1867,7 @@ static ssize_t fuse_dev_do_write(struct fuse_dev *fud,
+>         }
+>
+>         err = -EINVAL;
+> -       if (oh.error <= -1000 || oh.error > 0)
+> +       if (oh.error <= -512 || oh.error > 0)
+>                 goto copy_finish;
+>
+>         spin_lock(&fpq->lock);
+>
 
-Cc: stable@vger.kernel.org	# Kernel 4.9 and upper
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/usb/uvc/uvc_v4l2.c | 34 +++++++++++++++++++++++-----------
- 1 file changed, 23 insertions(+), 11 deletions(-)
-
----
-
-diff --git a/drivers/media/usb/uvc/uvc_v4l2.c b/drivers/media/usb/uvc/uvc_v4l2.c
-index 252136cc885c..6acb8013de08 100644
---- a/drivers/media/usb/uvc/uvc_v4l2.c
-+++ b/drivers/media/usb/uvc/uvc_v4l2.c
-@@ -899,8 +899,8 @@ static int uvc_ioctl_g_input(struct file *file, void *fh, unsigned int *input)
- {
- 	struct uvc_fh *handle = fh;
- 	struct uvc_video_chain *chain = handle->chain;
-+	u8 *buf;
- 	int ret;
--	u8 i;
- 
- 	if (chain->selector == NULL ||
- 	    (chain->dev->quirks & UVC_QUIRK_IGNORE_SELECTOR_UNIT)) {
-@@ -908,22 +908,27 @@ static int uvc_ioctl_g_input(struct file *file, void *fh, unsigned int *input)
- 		return 0;
- 	}
- 
-+	buf = kmalloc(1, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
- 	ret = uvc_query_ctrl(chain->dev, UVC_GET_CUR, chain->selector->id,
- 			     chain->dev->intfnum,  UVC_SU_INPUT_SELECT_CONTROL,
--			     &i, 1);
--	if (ret < 0)
--		return ret;
-+			     buf, 1);
-+	if (!ret)
-+		*input = *buf - 1;
- 
--	*input = i - 1;
--	return 0;
-+	kfree(buf);
-+
-+	return ret;
- }
- 
- static int uvc_ioctl_s_input(struct file *file, void *fh, unsigned int input)
- {
- 	struct uvc_fh *handle = fh;
- 	struct uvc_video_chain *chain = handle->chain;
-+	u8 *buf;
- 	int ret;
--	u32 i;
- 
- 	ret = uvc_acquire_privileges(handle);
- 	if (ret < 0)
-@@ -939,10 +944,17 @@ static int uvc_ioctl_s_input(struct file *file, void *fh, unsigned int input)
- 	if (input >= chain->selector->bNrInPins)
- 		return -EINVAL;
- 
--	i = input + 1;
--	return uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
--			      chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
--			      &i, 1);
-+	buf = kmalloc(1, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	*buf = input + 1;
-+	ret = uvc_query_ctrl(chain->dev, UVC_SET_CUR, chain->selector->id,
-+			     chain->dev->intfnum, UVC_SU_INPUT_SELECT_CONTROL,
-+			     buf, 1);
-+	kfree(buf);
-+
-+	return ret;
- }
- 
- static int uvc_ioctl_queryctrl(struct file *file, void *fh,
