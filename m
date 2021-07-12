@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E82893C4976
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D573C536C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:51:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235666AbhGLGpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:45:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
+        id S1352394AbhGLHyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:54:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237571AbhGLGnO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:43:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD3006100B;
-        Mon, 12 Jul 2021 06:39:26 +0000 (UTC)
+        id S1350316AbhGLHuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:50:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22E7561156;
+        Mon, 12 Jul 2021 07:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071967;
-        bh=lyu8th6dsieXuaidPYvsAExlMqh1296PAjIaPJrI9BI=;
+        s=korg; t=1626075866;
+        bh=J8Lax/qMhCGjjnv9auOhYqqKP3CYUBLakkVskLSN72w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3ynGIyO+Q2iYYSqmu0LkOMyzsGNg7coQchCf+fax1s9gbx+GxT7Wm3L+4X2ld7DT
-         lNaJIYB4b9PgYbN6K4YqdnoeWiiOIzc/SRh5blFLO/E7bA0OK6o8iunktOl8BYGRYP
-         qIEZfTV1co9nht1Wxa6ihGsUEUcV0cHzwfD7khpQ=
+        b=X3g8EN8hvHTcxMEUXoO+nOaZnyEMjOmB0Tkwyz4zcqsXFKSGXlSbvX1RNAe1NBXJW
+         Ql+WkuvrqRqQoMTvbLvmZ36gUg6otKxfRQpcfo8lqecTrJzAqWOHQF/1RpKWcKavwN
+         1ruxrdheTQBGJNFPD5wmzpmU5YZTwEDnrYz1Izjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hongbo Li <herberthbli@tencent.com>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 244/593] crypto: sm2 - fix a memory leak in sm2
+Subject: [PATCH 5.13 381/800] dax: fix ENOMEM handling in grab_mapping_entry()
 Date:   Mon, 12 Jul 2021 08:06:44 +0200
-Message-Id: <20210712060909.734018362@linuxfoundation.org>
+Message-Id: <20210712061007.685137743@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,84 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongbo Li <herberthbli@tencent.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 5cd259ca5d466f65ffd21e2e2fa00fb648a8c555 ]
+[ Upstream commit 1a14e3779dd58c16b30e56558146e5cc850ba8b0 ]
 
-SM2 module alloc ec->Q in sm2_set_pub_key(), when doing alg test in
-test_akcipher_one(), it will set public key for every test vector,
-and don't free ec->Q. This will cause a memory leak.
+grab_mapping_entry() has a bug in handling of ENOMEM condition.  Suppose
+we have a PMD entry at index i which we are downgrading to a PTE entry.
+grab_mapping_entry() will set pmd_downgrade to true, lock the entry, clear
+the entry in xarray, and decrement mapping->nrpages.  The it will call:
 
-This patch alloc ec->Q in sm2_ec_ctx_init().
+	entry = dax_make_entry(pfn_to_pfn_t(0), flags);
+	dax_lock_entry(xas, entry);
 
-Fixes: ea7ecb66440b ("crypto: sm2 - introduce OSCCA SM2 asymmetric cipher algorithm")
-Signed-off-by: Hongbo Li <herberthbli@tencent.com>
-Reviewed-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+which inserts new PTE entry into xarray.  However this may fail allocating
+the new node.  We handle this by:
+
+	if (xas_nomem(xas, mapping_gfp_mask(mapping) & ~__GFP_HIGHMEM))
+		goto retry;
+
+however pmd_downgrade stays set to true even though 'entry' returned from
+get_unlocked_entry() will be NULL now.  And we will go again through the
+downgrade branch.  This is mostly harmless except that mapping->nrpages is
+decremented again and we temporarily have an invalid entry stored in
+xarray.  Fix the problem by setting pmd_downgrade to false each time we
+lookup the entry we work with so that it matches the entry we found.
+
+Link: https://lkml.kernel.org/r/20210622160015.18004-1-jack@suse.cz
+Fixes: b15cd800682f ("dax: Convert page fault handlers to XArray")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/sm2.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+ fs/dax.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/sm2.c b/crypto/sm2.c
-index b21addc3ac06..db8a4a265669 100644
---- a/crypto/sm2.c
-+++ b/crypto/sm2.c
-@@ -79,10 +79,17 @@ static int sm2_ec_ctx_init(struct mpi_ec_ctx *ec)
- 		goto free;
+diff --git a/fs/dax.c b/fs/dax.c
+index 62352cbcf0f4..da41f9363568 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -488,10 +488,11 @@ static void *grab_mapping_entry(struct xa_state *xas,
+ 		struct address_space *mapping, unsigned int order)
+ {
+ 	unsigned long index = xas->xa_index;
+-	bool pmd_downgrade = false; /* splitting PMD entry into PTE entries? */
++	bool pmd_downgrade;	/* splitting PMD entry into PTE entries? */
+ 	void *entry;
  
- 	rc = -ENOMEM;
-+
-+	ec->Q = mpi_point_new(0);
-+	if (!ec->Q)
-+		goto free;
-+
- 	/* mpi_ec_setup_elliptic_curve */
- 	ec->G = mpi_point_new(0);
--	if (!ec->G)
-+	if (!ec->G) {
-+		mpi_point_release(ec->Q);
- 		goto free;
-+	}
- 
- 	mpi_set(ec->G->x, x);
- 	mpi_set(ec->G->y, y);
-@@ -91,6 +98,7 @@ static int sm2_ec_ctx_init(struct mpi_ec_ctx *ec)
- 	rc = -EINVAL;
- 	ec->n = mpi_scanval(ecp->n);
- 	if (!ec->n) {
-+		mpi_point_release(ec->Q);
- 		mpi_point_release(ec->G);
- 		goto free;
- 	}
-@@ -386,27 +394,15 @@ static int sm2_set_pub_key(struct crypto_akcipher *tfm,
- 	MPI a;
- 	int rc;
- 
--	ec->Q = mpi_point_new(0);
--	if (!ec->Q)
--		return -ENOMEM;
--
- 	/* include the uncompressed flag '0x04' */
--	rc = -ENOMEM;
- 	a = mpi_read_raw_data(key, keylen);
- 	if (!a)
--		goto error;
-+		return -ENOMEM;
- 
- 	mpi_normalize(a);
- 	rc = sm2_ecc_os2ec(ec->Q, a);
- 	mpi_free(a);
--	if (rc)
--		goto error;
--
--	return 0;
- 
--error:
--	mpi_point_release(ec->Q);
--	ec->Q = NULL;
- 	return rc;
- }
+ retry:
++	pmd_downgrade = false;
+ 	xas_lock_irq(xas);
+ 	entry = get_unlocked_entry(xas, order);
  
 -- 
 2.30.2
