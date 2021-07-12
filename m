@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5C03C4D34
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2ACD3C493C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245366AbhGLHMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:12:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42548 "EHLO mail.kernel.org"
+        id S237215AbhGLGnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244427AbhGLHKu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:10:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CA6C610A6;
-        Mon, 12 Jul 2021 07:08:02 +0000 (UTC)
+        id S237724AbhGLGl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:41:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50419610CA;
+        Mon, 12 Jul 2021 06:38:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073683;
-        bh=iB29kZfknqzhKLSLWe4r0bv0OZYuxoCvV+dI0hPjsv8=;
+        s=korg; t=1626071913;
+        bh=5SoCWH5JaG4EXaEbh41gL2yVFEpy/H4SD+E5JGSjuCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p78nXqKEPVBHYQ8m6zmQQoroxGkuoBlM03DYfD8w5f/PszOREXvgu5O9ALvLuJgZ/
-         /0Fm6F6oziIBimSI0b/lGZrlvvCL8ybCLek7Ob2QcelamI+o5/yPiTheFnvyvodR3w
-         +h2a6XJBDAPU7S9KaM//d9wRjMB4lnBCbJuZCGDo=
+        b=ksmYqP1llZNJjUl784fVzw8RfrLTOM2qFUJDv8dkkcb01FoEEn+cL7GZA79WaHUJ7
+         0z/Bi4dwFYOzl8Wj5m0asnGwowClsSg84F4hfywNP3q2Dp4RZOfh7TQx1vh5+F1ECb
+         BcMKQgEXjJeLw6hPh0o+IQ7aGGcsOWYayGsniG8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        James Morse <james.morse@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 324/700] ACPI: PM / fan: Put fan device IDs into separate header file
+Subject: [PATCH 5.10 247/593] arm64/mm: Fix ttbr0 values stored in struct thread_info for software-pan
 Date:   Mon, 12 Jul 2021 08:06:47 +0200
-Message-Id: <20210712061010.830496981@linuxfoundation.org>
+Message-Id: <20210712060910.080337535@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,100 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit b9370dceabb7841c5e65ce4ee4405b9db5231fc4 ]
+[ Upstream commit 9163f01130304fab1f74683d7d44632da7bda637 ]
 
-The ACPI fan device IDs are shared between the fan driver and the
-device power management code.  The former is modular, so it needs
-to include the table of device IDs for module autoloading and the
-latter needs that list to avoid attaching the generic ACPI PM domain
-to fan devices (which doesn't make sense) possibly before the fan
-driver module is loaded.
+When using CONFIG_ARM64_SW_TTBR0_PAN, a task's thread_info::ttbr0 must be
+the TTBR0_EL1 value used to run userspace. With 52-bit PAs, the PA must be
+packed into the TTBR using phys_to_ttbr(), but we forget to do this in some
+of the SW PAN code. Thus, if the value is installed into TTBR0_EL1 (as may
+happen in the uaccess routines), this could result in UNPREDICTABLE
+behaviour.
 
-Unfortunately, that requires the list of fan device IDs to be
-updated in two places which is prone to mistakes, so put it into
-a symbol definition in a separate header file so there is only one
-copy of it in case it needs to be updated again in the future.
+Since hardware with 52-bit PA support almost certainly has HW PAN, which
+will be used in preference, this shouldn't be a practical issue, but let's
+fix this for consistency.
 
-Fixes: b9ea0bae260f ("ACPI: PM: Avoid attaching ACPI PM domain to certain devices")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Fixes: 529c4b05a3cb ("arm64: handle 52-bit addresses in TTBR")
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lore.kernel.org/r/1623749578-11231-1-git-send-email-anshuman.khandual@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/device_pm.c |  6 ++----
- drivers/acpi/fan.c       |  7 +++----
- drivers/acpi/fan.h       | 13 +++++++++++++
- 3 files changed, 18 insertions(+), 8 deletions(-)
- create mode 100644 drivers/acpi/fan.h
+ arch/arm64/include/asm/mmu_context.h | 4 ++--
+ arch/arm64/kernel/setup.c            | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
-index 58876248b192..a63dd10d9aa9 100644
---- a/drivers/acpi/device_pm.c
-+++ b/drivers/acpi/device_pm.c
-@@ -20,6 +20,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/suspend.h>
+diff --git a/arch/arm64/include/asm/mmu_context.h b/arch/arm64/include/asm/mmu_context.h
+index 68028de06d18..5a54a5ab5f92 100644
+--- a/arch/arm64/include/asm/mmu_context.h
++++ b/arch/arm64/include/asm/mmu_context.h
+@@ -192,9 +192,9 @@ static inline void update_saved_ttbr0(struct task_struct *tsk,
+ 		return;
  
-+#include "fan.h"
- #include "internal.h"
+ 	if (mm == &init_mm)
+-		ttbr = __pa_symbol(reserved_pg_dir);
++		ttbr = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+ 	else
+-		ttbr = virt_to_phys(mm->pgd) | ASID(mm) << 48;
++		ttbr = phys_to_ttbr(virt_to_phys(mm->pgd)) | ASID(mm) << 48;
  
- /**
-@@ -1307,10 +1308,7 @@ int acpi_dev_pm_attach(struct device *dev, bool power_on)
- 	 * with the generic ACPI PM domain.
+ 	WRITE_ONCE(task_thread_info(tsk)->ttbr0, ttbr);
+ }
+diff --git a/arch/arm64/kernel/setup.c b/arch/arm64/kernel/setup.c
+index c28a9ec76b11..eb4b24652c10 100644
+--- a/arch/arm64/kernel/setup.c
++++ b/arch/arm64/kernel/setup.c
+@@ -366,7 +366,7 @@ void __init __no_sanitize_address setup_arch(char **cmdline_p)
+ 	 * faults in case uaccess_enable() is inadvertently called by the init
+ 	 * thread.
  	 */
- 	static const struct acpi_device_id special_pm_ids[] = {
--		{"PNP0C0B", }, /* Generic ACPI fan */
--		{"INT3404", }, /* Fan */
--		{"INTC1044", }, /* Fan for Tiger Lake generation */
--		{"INTC1048", }, /* Fan for Alder Lake generation */
-+		ACPI_FAN_DEVICE_IDS,
- 		{}
- 	};
- 	struct acpi_device *adev = ACPI_COMPANION(dev);
-diff --git a/drivers/acpi/fan.c b/drivers/acpi/fan.c
-index 66c3983f0ccc..5cd0ceb50bc8 100644
---- a/drivers/acpi/fan.c
-+++ b/drivers/acpi/fan.c
-@@ -16,6 +16,8 @@
- #include <linux/platform_device.h>
- #include <linux/sort.h>
+-	init_task.thread_info.ttbr0 = __pa_symbol(reserved_pg_dir);
++	init_task.thread_info.ttbr0 = phys_to_ttbr(__pa_symbol(reserved_pg_dir));
+ #endif
  
-+#include "fan.h"
-+
- MODULE_AUTHOR("Paul Diefenbaugh");
- MODULE_DESCRIPTION("ACPI Fan Driver");
- MODULE_LICENSE("GPL");
-@@ -24,10 +26,7 @@ static int acpi_fan_probe(struct platform_device *pdev);
- static int acpi_fan_remove(struct platform_device *pdev);
- 
- static const struct acpi_device_id fan_device_ids[] = {
--	{"PNP0C0B", 0},
--	{"INT3404", 0},
--	{"INTC1044", 0},
--	{"INTC1048", 0},
-+	ACPI_FAN_DEVICE_IDS,
- 	{"", 0},
- };
- MODULE_DEVICE_TABLE(acpi, fan_device_ids);
-diff --git a/drivers/acpi/fan.h b/drivers/acpi/fan.h
-new file mode 100644
-index 000000000000..dc9a6efa514b
---- /dev/null
-+++ b/drivers/acpi/fan.h
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+/*
-+ * ACPI fan device IDs are shared between the fan driver and the device power
-+ * management code.
-+ *
-+ * Add new device IDs before the generic ACPI fan one.
-+ */
-+#define ACPI_FAN_DEVICE_IDS	\
-+	{"INT3404", }, /* Fan */ \
-+	{"INTC1044", }, /* Fan for Tiger Lake generation */ \
-+	{"INTC1048", }, /* Fan for Alder Lake generation */ \
-+	{"PNP0C0B", } /* Generic ACPI fan */
+ 	if (boot_args[1] || boot_args[2] || boot_args[3]) {
 -- 
 2.30.2
 
