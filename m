@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ED353C51A2
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F1FE3C4B9D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346592AbhGLHme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:42:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S239484AbhGLG6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345926AbhGLHjN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:39:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56FCE6142C;
-        Mon, 12 Jul 2021 07:33:59 +0000 (UTC)
+        id S239837AbhGLG5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48EE3611C1;
+        Mon, 12 Jul 2021 06:55:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075239;
-        bh=qS50egKAp8vEr3qpIuMYt0weiZiMDCcr9XlfK1nfdTI=;
+        s=korg; t=1626072902;
+        bh=/rBBF4qMlCt4NrqwlKdNtuol+V1/VqI44xAxJt0pufk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqLhnxV3KGZ5GulKgVhId0H8gsuf92OjuJXQqiJF2kkpg++iK8e4REr3S05XAJ0AQ
-         4SJdMAkQAcQN9+eEIIEKCaY5NbzeN/K0ju3CEFRF9+SG6Y2PRqePs7L7aiLarW9v2A
-         v62kI0AS9T47goe6uqtMe+DG0dhs9K4P4qGHF5FM=
+        b=BNW/o59qKY+JylrEnYk9iklp40AltxYlMzkM/M5OOd7/fA+AUlqfvhSfsLWJi0upX
+         7Wktjw3reWXPfXubCLEm0X/MJ0JVlN4DB2sOD0QfpnR1mDokAaHX+Q9R8DqJamj1Tm
+         LYud8+UU4JDB1AbYdUYXBQ2qCGi6roOEniUjq8rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.13 118/800] evm: Execute evm_inode_init_security() only when an HMAC key is loaded
-Date:   Mon, 12 Jul 2021 08:02:21 +0200
-Message-Id: <20210712060929.545673932@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.12 059/700] can: isotp: isotp_release(): omit unintended hrtimer restart on socket release
+Date:   Mon, 12 Jul 2021 08:02:22 +0200
+Message-Id: <20210712060933.058631471@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-commit 9eea2904292c2d8fa98df141d3bf7c41ec9dc1b5 upstream.
+commit 14a4696bc3118ba49da28f79280e1d55603aa737 upstream.
 
-evm_inode_init_security() requires an HMAC key to calculate the HMAC on
-initial xattrs provided by LSMs. However, it checks generically whether a
-key has been loaded, including also public keys, which is not correct as
-public keys are not suitable to calculate the HMAC.
+When closing the isotp socket, the potentially running hrtimers are
+canceled before removing the subscription for CAN identifiers via
+can_rx_unregister().
 
-Originally, support for signature verification was introduced to verify a
-possibly immutable initial ram disk, when no new files are created, and to
-switch to HMAC for the root filesystem. By that time, an HMAC key should
-have been loaded and usable to calculate HMACs for new files.
+This may lead to an unintended (re)start of a hrtimer in
+isotp_rcv_cf() and isotp_rcv_fc() in the case that a CAN frame is
+received by isotp_rcv() while the subscription removal is processed.
 
-More recently support for requiring an HMAC key was removed from the
-kernel, so that signature verification can be used alone. Since this is a
-legitimate use case, evm_inode_init_security() should not return an error
-when no HMAC key has been loaded.
+However, isotp_rcv() is called under RCU protection, so after calling
+can_rx_unregister, we may call synchronize_rcu in order to wait for
+any RCU read-side critical sections to finish. This prevents the
+reception of CAN frames after hrtimer_cancel() and therefore the
+unintended (re)start of the hrtimers.
 
-This patch fixes this problem by replacing the evm_key_loaded() check with
-a check of the EVM_INIT_HMAC flag in evm_initialized.
-
-Fixes: 26ddabfe96b ("evm: enable EVM when X509 certificate is loaded")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: stable@vger.kernel.org # 4.5.x
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210618173713.2296-1-socketcan@hartkopp.net
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/evm/evm_main.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/can/isotp.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/security/integrity/evm/evm_main.c
-+++ b/security/integrity/evm/evm_main.c
-@@ -521,7 +521,7 @@ void evm_inode_post_setattr(struct dentr
- }
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1028,9 +1028,6 @@ static int isotp_release(struct socket *
  
- /*
-- * evm_inode_init_security - initializes security.evm
-+ * evm_inode_init_security - initializes security.evm HMAC value
-  */
- int evm_inode_init_security(struct inode *inode,
- 				 const struct xattr *lsm_xattr,
-@@ -530,7 +530,8 @@ int evm_inode_init_security(struct inode
- 	struct evm_xattr *xattr_data;
- 	int rc;
+ 	lock_sock(sk);
  
--	if (!evm_key_loaded() || !evm_protected_xattr(lsm_xattr->name))
-+	if (!(evm_initialized & EVM_INIT_HMAC) ||
-+	    !evm_protected_xattr(lsm_xattr->name))
- 		return 0;
+-	hrtimer_cancel(&so->txtimer);
+-	hrtimer_cancel(&so->rxtimer);
+-
+ 	/* remove current filters & unregister */
+ 	if (so->bound && (!(so->opt.flags & CAN_ISOTP_SF_BROADCAST))) {
+ 		if (so->ifindex) {
+@@ -1042,10 +1039,14 @@ static int isotp_release(struct socket *
+ 						  SINGLE_MASK(so->rxid),
+ 						  isotp_rcv, sk);
+ 				dev_put(dev);
++				synchronize_rcu();
+ 			}
+ 		}
+ 	}
  
- 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
++	hrtimer_cancel(&so->txtimer);
++	hrtimer_cancel(&so->rxtimer);
++
+ 	so->ifindex = 0;
+ 	so->bound = 0;
+ 
 
 
