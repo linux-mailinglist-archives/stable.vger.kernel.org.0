@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 796A43C473F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F5103C4710
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236745AbhGLGbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:31:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52438 "EHLO mail.kernel.org"
+        id S237429AbhGLGbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236499AbhGLGaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:30:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ABD660238;
-        Mon, 12 Jul 2021 06:27:26 +0000 (UTC)
+        id S236613AbhGLGaS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:30:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3A8860234;
+        Mon, 12 Jul 2021 06:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071247;
-        bh=kRSvwOmK8L4hio0WqBUE95hJQAaqeYtGvvHKoTP+QPY=;
+        s=korg; t=1626071249;
+        bh=Bhh2DQEhh1uBHyp1UCy1f5cTK7hXioqPzWhR7WtO+QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlOuddTsMC4Qc3PJJ49wcY2Yi5aP1rI4X5m6eWfKZ77rnRUCL8+Yno+b5+7sxaBl5
-         H1/Wg5zsalmFSLWResd+PHx3lk7D81J0R9YpF6afwrMNabTV02KesbGqNHpgFac/jV
-         eof5Yqn7hvIY+hIwftk+XmNh7PFalchitIp/XlBw=
+        b=uCUUiVnAdUlZjm1uSwDIpelpaaERyBHOeeTGApe2d5D6kJtivf/jDlrKENNa4Zqa2
+         jasvm6CT28Dx9bwawljx/vxtiouJCmdTtlCr0S8Npcfo6xgKDbjeYSynhZYCI5Kyxe
+         VkEz3lWaFUKc9r36egyv5wu6Zwik+woGZgp/ZfUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 336/348] serial: mvebu-uart: do not allow changing baudrate when uartclk is not available
-Date:   Mon, 12 Jul 2021 08:12:00 +0200
-Message-Id: <20210712060748.702397689@linuxfoundation.org>
+Subject: [PATCH 5.4 337/348] serial: mvebu-uart: correctly calculate minimal possible baudrate
+Date:   Mon, 12 Jul 2021 08:12:01 +0200
+Message-Id: <20210712060748.831903340@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,47 +42,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit ecd6b010d81f97b06b2f64d2d4f50ebf5acddaa9 ]
+[ Upstream commit deeaf963569a0d9d1b08babb771f61bb501a5704 ]
 
-Testing mvuart->clk for non-error is not enough as mvuart->clk may contain
-valid clk pointer but when clk_prepare_enable(mvuart->clk) failed then
-port->uartclk is zero.
-
-When mvuart->clk is not available then port->uartclk is zero too.
-
-Parent clock rate port->uartclk is needed to calculate UART clock divisor
-and without it is not possible to change baudrate.
-
-So fix test condition when it is possible to change baudrate.
+For default (x16) scheme which is currently used by mvebu-uart.c driver,
+maximal divisor of UART base clock is 1023*16. Therefore there is limit for
+minimal supported baudrate. This change calculate it correctly and prevents
+setting invalid divisor 0 into hardware registers.
 
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Link: https://lore.kernel.org/r/20210624224909.6350-3-pali@kernel.org
+Link: https://lore.kernel.org/r/20210624224909.6350-4-pali@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/mvebu-uart.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
-index fb42d5304a68..57929b54e46a 100644
+index 57929b54e46a..51b4d8d1dcac 100644
 --- a/drivers/tty/serial/mvebu-uart.c
 +++ b/drivers/tty/serial/mvebu-uart.c
-@@ -445,12 +445,11 @@ static void mvebu_uart_shutdown(struct uart_port *port)
- 
- static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+@@ -481,7 +481,7 @@ static void mvebu_uart_set_termios(struct uart_port *port,
+ 				   struct ktermios *old)
  {
--	struct mvebu_uart *mvuart = to_mvuart(port);
- 	unsigned int d_divisor, m_divisor;
- 	u32 brdv, osamp;
+ 	unsigned long flags;
+-	unsigned int baud;
++	unsigned int baud, min_baud, max_baud;
  
--	if (IS_ERR(mvuart->clk))
--		return -PTR_ERR(mvuart->clk);
-+	if (!port->uartclk)
-+		return -EOPNOTSUPP;
+ 	spin_lock_irqsave(&port->lock, flags);
+ 
+@@ -500,16 +500,21 @@ static void mvebu_uart_set_termios(struct uart_port *port,
+ 		port->ignore_status_mask |= STAT_RX_RDY(port) | STAT_BRK_ERR;
  
  	/*
- 	 * The baudrate is derived from the UART clock thanks to two divisors:
++	 * Maximal divisor is 1023 * 16 when using default (x16) scheme.
+ 	 * Maximum achievable frequency with simple baudrate divisor is 230400.
+ 	 * Since the error per bit frame would be of more than 15%, achieving
+ 	 * higher frequencies would require to implement the fractional divisor
+ 	 * feature.
+ 	 */
+-	baud = uart_get_baud_rate(port, termios, old, 0, 230400);
++	min_baud = DIV_ROUND_UP(port->uartclk, 1023 * 16);
++	max_baud = 230400;
++
++	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
+ 	if (mvebu_uart_baud_rate_set(port, baud)) {
+ 		/* No clock available, baudrate cannot be changed */
+ 		if (old)
+-			baud = uart_get_baud_rate(port, old, NULL, 0, 230400);
++			baud = uart_get_baud_rate(port, old, NULL,
++						  min_baud, max_baud);
+ 	} else {
+ 		tty_termios_encode_baud_rate(termios, baud, baud);
+ 		uart_update_timeout(port, termios->c_cflag, baud);
 -- 
 2.30.2
 
