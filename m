@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 192D83C4450
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 935973C4420
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233593AbhGLGSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36666 "EHLO mail.kernel.org"
+        id S232972AbhGLGRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232908AbhGLGSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:18:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A65161042;
-        Mon, 12 Jul 2021 06:15:29 +0000 (UTC)
+        id S231373AbhGLGRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:17:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0207061042;
+        Mon, 12 Jul 2021 06:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070529;
-        bh=ydy7+xysfvZ1qXCbIt/gjvZUlYRccPprm0xqIYsuhis=;
+        s=korg; t=1626070482;
+        bh=A29uD9TBdOrxuQCtmEDMiw/lcIFpE7XKAb7R6qb5EG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y1xqtiOealRlqXCafuNelmrGKV03TUXYMk9ROdCxJ1ufEjKLlJbWZj5dU0ITHb6et
-         pKbSC2pIu/YTjYkDxzw1EZ3EyqL1zRDTvQOv3hYocjqwqMDXC3ofYc1ID5LqkZeoTq
-         +V8FOKfd2RMWAOz5LJlZ+Y0sObTPOfnDYx6EI7kE=
+        b=H0tHLejdzLrCEXM+6DgX5pdkU5ktunuk61OBqAi7dtImc0ipcYk2+iOWrm9/3F6ws
+         M1Z6jqKmVlVGhMk+YMk+4p0Uzzvw2PkLvwdZgy4Wo4nrFatxXmuLPsuNsyzlULLNVr
+         Q2QkmBHFhCIxarq9bBgcASocVGGoLlHxDpblqWk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 009/348] media: dvb-usb: fix wrong definition
-Date:   Mon, 12 Jul 2021 08:06:33 +0200
-Message-Id: <20210712060701.344347339@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.4 010/348] Input: usbtouchscreen - fix control-request directions
+Date:   Mon, 12 Jul 2021 08:06:34 +0200
+Message-Id: <20210712060701.484996803@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,49 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
+commit 41e81022a04a0294c55cfa7e366bc14b9634c66e upstream.
 
-syzbot reported WARNING in vmalloc. The problem
-was in zero size passed to vmalloc.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-The root case was in wrong cxusb_bluebird_lgz201_properties
-definition. adapter array has only 1 entry, but num_adapters was
-2.
+Fix the four control requests which erroneously used usb_rcvctrlpipe().
 
-Call Trace:
- __vmalloc_node mm/vmalloc.c:2963 [inline]
- vmalloc+0x67/0x80 mm/vmalloc.c:2996
- dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
- dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
- dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
- dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
- dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
- cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
-
-Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
+Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
+Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org      # 2.6.17
+Link: https://lore.kernel.org/r/20210524092048.4443-1-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/dvb-usb/cxusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/usbtouchscreen.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/cxusb.c
-+++ b/drivers/media/usb/dvb-usb/cxusb.c
-@@ -1950,7 +1950,7 @@ static struct dvb_usb_device_properties
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -251,7 +251,7 @@ static int e2i_init(struct usbtouch_usb
+ 	int ret;
+ 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
- 	.size_of_priv     = sizeof(struct cxusb_state),
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      0x01, 0x02, 0x0000, 0x0081,
+ 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
  
--	.num_adapters = 2,
-+	.num_adapters = 1,
- 	.adapter = {
- 		{
- 		.num_frontends = 1,
+@@ -531,7 +531,7 @@ static int mtouch_init(struct usbtouch_u
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      MTOUCHUSB_RESET,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -543,7 +543,7 @@ static int mtouch_init(struct usbtouch_u
+ 	msleep(150);
+ 
+ 	for (i = 0; i < 3; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      MTOUCHUSB_ASYNC_REPORT,
+ 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -722,7 +722,7 @@ static int dmc_tsc10_init(struct usbtouc
+ 	}
+ 
+ 	/* start sending data */
+-	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 	                      TSC10_CMD_DATA1,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
 
 
