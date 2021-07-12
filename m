@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5995B3C4AAF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB183C554B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240081AbhGLGxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51274 "EHLO mail.kernel.org"
+        id S1355510AbhGLIJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240641AbhGLGv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:51:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D34F60FE3;
-        Mon, 12 Jul 2021 06:49:11 +0000 (UTC)
+        id S1353408AbhGLICI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6350B61C9C;
+        Mon, 12 Jul 2021 07:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072551;
-        bh=Ad2ectahd90H5iqxjE8PMFaHNMTUCCZS86ts+IwNhHk=;
+        s=korg; t=1626076505;
+        bh=e33QCnnL0z5RpCbJkLykSisptElZJRtiiKx0O3dBusw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B5bzymh0S6O5Qs+jWhorSqWK0T9euRoJK2kM1/9ibduJAePA8bnHOzgC8mJd6KtCa
-         XQQFlVNAjDtceQKVmn9Wzk6iz1kHa9oyBre2BxwwvEoZr6QuhCruCVLEmlAifFONuX
-         N6WVpRr3hjhdNoomqQf8zShULyOcnZXcN9MT1LA0=
+        b=S1vCQje9x7ihZU/zmI932f/EHKVlvHUT2byJZyxYnqKgGt7YLFIoXwZjx/b4Pkv/L
+         x4JTLlZKBiHP2WTP9JdbqEoKsYJlDRl3HYCE1T0tW7atNM8B7Z3t3vgDEbHvkl9SVR
+         YRg2rqFCs3XUZK9gBHcd8nj2iNojevKPDyalTY0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 536/593] soundwire: stream: Fix test for DP prepare complete
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 673/800] fsi: occ: Dont accept response from un-initialized OCC
 Date:   Mon, 12 Jul 2021 08:11:36 +0200
-Message-Id: <20210712060952.679702086@linuxfoundation.org>
+Message-Id: <20210712061038.541790081@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-[ Upstream commit 3d3e88e336338834086278236d42039f3cde50e1 ]
+[ Upstream commit 8a4659be08576141f47d47d94130eb148cb5f0df ]
 
-In sdw_prep_deprep_slave_ports(), after the wait_for_completion()
-the DP prepare status register is read. If this indicates that the
-port is now prepared, the code should continue with the port setup.
-It is irrelevant whether the wait_for_completion() timed out if the
-port is now ready.
+If the OCC is not initialized and responds as such, the driver
+should continue waiting for a valid response until the timeout
+expires.
 
-The previous implementation would always fail if the
-wait_for_completion() timed out, even if the port was reporting
-successful prepare.
-
-This patch also fixes a minor bug where the return from sdw_read()
-was not checked for error - any error code with LSBits clear could
-be misinterpreted as a successful port prepare.
-
-Fixes: 79df15b7d37c ("soundwire: Add helpers for ports operations")
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210618144745.30629-1-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Reviewed-by: Joel Stanley <joel@jms.id.au>
+Fixes: 7ed98dddb764 ("fsi: Add On-Chip Controller (OCC) driver")
+Link: https://lore.kernel.org/r/20210209171235.20624-2-eajames@linux.ibm.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/stream.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/fsi/fsi-occ.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/soundwire/stream.c b/drivers/soundwire/stream.c
-index a418c3c7001c..304ff2ee7d75 100644
---- a/drivers/soundwire/stream.c
-+++ b/drivers/soundwire/stream.c
-@@ -422,7 +422,6 @@ static int sdw_prep_deprep_slave_ports(struct sdw_bus *bus,
- 	struct completion *port_ready;
- 	struct sdw_dpn_prop *dpn_prop;
- 	struct sdw_prepare_ch prep_ch;
--	unsigned int time_left;
- 	bool intr = false;
- 	int ret = 0, val;
- 	u32 addr;
-@@ -479,15 +478,15 @@ static int sdw_prep_deprep_slave_ports(struct sdw_bus *bus,
+diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
+index 10ca2e290655..cb05b6dacc9d 100644
+--- a/drivers/fsi/fsi-occ.c
++++ b/drivers/fsi/fsi-occ.c
+@@ -495,6 +495,7 @@ int fsi_occ_submit(struct device *dev, const void *request, size_t req_len,
+ 			goto done;
  
- 		/* Wait for completion on port ready */
- 		port_ready = &s_rt->slave->port_ready[prep_ch.num];
--		time_left = wait_for_completion_timeout(port_ready,
--				msecs_to_jiffies(dpn_prop->ch_prep_timeout));
-+		wait_for_completion_timeout(port_ready,
-+			msecs_to_jiffies(dpn_prop->ch_prep_timeout));
- 
- 		val = sdw_read(s_rt->slave, SDW_DPN_PREPARESTATUS(p_rt->num));
--		val &= p_rt->ch_mask;
--		if (!time_left || val) {
-+		if ((val < 0) || (val & p_rt->ch_mask)) {
-+			ret = (val < 0) ? val : -ETIMEDOUT;
- 			dev_err(&s_rt->slave->dev,
--				"Chn prep failed for port:%d\n", prep_ch.num);
--			return -ETIMEDOUT;
-+				"Chn prep failed for port %d: %d\n", prep_ch.num, ret);
-+			return ret;
- 		}
- 	}
+ 		if (resp->return_status == OCC_RESP_CMD_IN_PRG ||
++		    resp->return_status == OCC_RESP_CRIT_INIT ||
+ 		    resp->seq_no != seq_no) {
+ 			rc = -ETIMEDOUT;
  
 -- 
 2.30.2
