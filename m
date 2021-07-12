@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34AE73C4EEF
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7593C3C4A2F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242294AbhGLHW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59036 "EHLO mail.kernel.org"
+        id S238661AbhGLGtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239033AbhGLHVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:21:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC13B61166;
-        Mon, 12 Jul 2021 07:18:18 +0000 (UTC)
+        id S235637AbhGLGsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CF3C61176;
+        Mon, 12 Jul 2021 06:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074299;
-        bh=jLLKyQbGcR94mhr7nkAhK74b0FMOP2YMi8Q6DFDCnio=;
+        s=korg; t=1626072241;
+        bh=K0Ba+b9ShYxOT22LwJI8dfzdCnivQUcC+kz5zXEwsTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDfVqiOFLQmPBIXwtp5pGjiOCNBlvxizMtgyot9os77nzAtQoCHwEBsEAdyXJLXRD
-         VTZXCTyQ89woVxfS/c1nwswkzv4xiU2TpMFFkeCVtyLym0Nj8I4Y1nU58hyzlnOAFd
-         Orlzmn03C8XaR0NnFcQrC6+wPsuooddg02bkedv4=
+        b=MV2whfzEwuqJWViUvQG5g/eokYGgZ72WBMaDZaVys5bPdM37AuOA0hps2v4rrxGz6
+         vwyjCPgw4daNYk01HFu4a7TFQfb9xLoXJ0DQd0vplu3r7HAyc4mWJbAGj4p736wFLH
+         eSduvbEnwn1rptpCrpmZxAhGu6X+vHWmXzeJ2GeA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lior Nahmanson <liorna@nvidia.com>,
-        Antoine Tenart <atenart@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 490/700] net: atlantic: fix the macsec key length
+Subject: [PATCH 5.10 413/593] Bluetooth: mgmt: Fix slab-out-of-bounds in tlv_data_is_valid
 Date:   Mon, 12 Jul 2021 08:09:33 +0200
-Message-Id: <20210712061028.679392635@linuxfoundation.org>
+Message-Id: <20210712060933.424344766@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit d67fb4772d9a6cfd10f1109f0e7b1e6eb58c8e16 ]
+[ Upstream commit 799acb9347915bfe4eac0ff2345b468f0a1ca207 ]
 
-The key length used to store the macsec key was set to MACSEC_KEYID_LEN
-(16), which is an issue as:
-- This was never meant to be the key length.
-- The key length can be > 16.
+This fixes parsing of LTV entries when the length is 0.
 
-Fix this by using MACSEC_MAX_KEY_LEN instead (the max length accepted in
-uAPI).
+Found with:
 
-Fixes: 27736563ce32 ("net: atlantic: MACSec egress offload implementation")
-Fixes: 9ff40a751a6f ("net: atlantic: MACSec ingress offload implementation")
-Reported-by: Lior Nahmanson <liorna@nvidia.com>
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+tools/mgmt-tester -s "Add Advertising - Success (ScRsp only)"
+
+Add Advertising - Success (ScRsp only) - run
+  Sending Add Advertising (0x003e)
+  Test condition added, total 1
+[   11.004577] ==================================================================
+[   11.005292] BUG: KASAN: slab-out-of-bounds in tlv_data_is_valid+0x87/0xe0
+[   11.005984] Read of size 1 at addr ffff888002c695b0 by task mgmt-tester/87
+[   11.006711]
+[   11.007176]
+[   11.007429] Allocated by task 87:
+[   11.008151]
+[   11.008438] The buggy address belongs to the object at ffff888002c69580
+[   11.008438]  which belongs to the cache kmalloc-64 of size 64
+[   11.010526] The buggy address is located 48 bytes inside of
+[   11.010526]  64-byte region [ffff888002c69580, ffff888002c695c0)
+[   11.012423] The buggy address belongs to the page:
+[   11.013291]
+[   11.013544] Memory state around the buggy address:
+[   11.014359]  ffff888002c69480: fa fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.015453]  ffff888002c69500: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.016232] >ffff888002c69580: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
+[   11.017010]                                      ^
+[   11.017547]  ffff888002c69600: 00 00 00 00 00 00 fc fc fc fc fc fc fc fc fc fc
+[   11.018296]  ffff888002c69680: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[   11.019116] ==================================================================
+
+Fixes: 2bb36870e8cb2 ("Bluetooth: Unify advertising instance flags check")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_macsec.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/mgmt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.h b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.h
-index f5fba8b8cdea..a47e2710487e 100644
---- a/drivers/net/ethernet/aquantia/atlantic/aq_macsec.h
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_macsec.h
-@@ -91,7 +91,7 @@ struct aq_macsec_txsc {
- 	u32 hw_sc_idx;
- 	unsigned long tx_sa_idx_busy;
- 	const struct macsec_secy *sw_secy;
--	u8 tx_sa_key[MACSEC_NUM_AN][MACSEC_KEYID_LEN];
-+	u8 tx_sa_key[MACSEC_NUM_AN][MACSEC_MAX_KEY_LEN];
- 	struct aq_macsec_tx_sc_stats stats;
- 	struct aq_macsec_tx_sa_stats tx_sa_stats[MACSEC_NUM_AN];
- };
-@@ -101,7 +101,7 @@ struct aq_macsec_rxsc {
- 	unsigned long rx_sa_idx_busy;
- 	const struct macsec_secy *sw_secy;
- 	const struct macsec_rx_sc *sw_rxsc;
--	u8 rx_sa_key[MACSEC_NUM_AN][MACSEC_KEYID_LEN];
-+	u8 rx_sa_key[MACSEC_NUM_AN][MACSEC_MAX_KEY_LEN];
- 	struct aq_macsec_rx_sa_stats rx_sa_stats[MACSEC_NUM_AN];
- };
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index 12d7b368b428..13520c7b4f2f 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7350,6 +7350,9 @@ static bool tlv_data_is_valid(struct hci_dev *hdev, u32 adv_flags, u8 *data,
+ 	for (i = 0, cur_len = 0; i < len; i += (cur_len + 1)) {
+ 		cur_len = data[i];
  
++		if (!cur_len)
++			continue;
++
+ 		if (data[i + 1] == EIR_FLAGS &&
+ 		    (!is_adv_data || flags_managed(adv_flags)))
+ 			return false;
 -- 
 2.30.2
 
