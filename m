@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A7F3C4C1F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 497B43C51C4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241985AbhGLHBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36642 "EHLO mail.kernel.org"
+        id S1347323AbhGLHn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:43:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241338AbhGLHBb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:01:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 19C7F6145A;
-        Mon, 12 Jul 2021 06:58:41 +0000 (UTC)
+        id S1347783AbhGLHkJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:40:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE076193F;
+        Mon, 12 Jul 2021 07:36:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073122;
-        bh=XfvWU0UloXk9czUVI1GErEJUmqIoEjk1o7MmrbHOmdw=;
+        s=korg; t=1626075371;
+        bh=s+FQXnMSp5R28L6o2VwwhnmnHan3x7+oy+lqwEb4Lhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfpCg88MKQXzu96Hs1/mRZI+BV2xSykjEVCSxKDc0wwulgfjqmZz11a/O8gcOJNBZ
-         OhKJFKzyNt9FNb4ST18vNCQeQhrjyOWxPhhFUx4z0eskZ7s/D3HIw/Mq22CG3UaMNE
-         80gy99oX/138WYJ6deSY926HI7JfVGvNuej5FBPk=
+        b=NI4lXqgsMygbiFpAR4dQ2DplRdDZLdzxT0XM9VYkBIzVWpswdH5pfNHR10sipX3Bg
+         ahys2RVMmEPehCaqZDp49doEnCVKdKE6SQ48NieQAellTmYfwVDgXXpmzeNHYM8LiB
+         /gGg2U222gvdNtJjvw7riqy9YuFxzF3M68vE+0SU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Fang <f.fangjian@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 135/700] spi: spi-topcliff-pch: Fix potential double free in pch_spi_process_messages()
-Date:   Mon, 12 Jul 2021 08:03:38 +0200
-Message-Id: <20210712060944.566160788@linuxfoundation.org>
+Subject: [PATCH 5.13 196/800] btrfs: abort transaction if we fail to update the delayed inode
+Date:   Mon, 12 Jul 2021 08:03:39 +0200
+Message-Id: <20210712060940.729497646@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Fang <f.fangjian@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 026a1dc1af52742c5897e64a3431445371a71871 ]
+[ Upstream commit 04587ad9bef6ce9d510325b4ba9852b6129eebdb ]
 
-pch_spi_set_tx() frees data->pkt_tx_buff on failure of kzalloc() for
-data->pkt_rx_buff, but its caller, pch_spi_process_messages(), will
-free data->pkt_tx_buff again. Set data->pkt_tx_buff to NULL after
-kfree() to avoid double free.
+If we fail to update the delayed inode we need to abort the transaction,
+because we could leave an inode with the improper counts or some other
+such corruption behind.
 
-Signed-off-by: Jay Fang <f.fangjian@huawei.com>
-Link: https://lore.kernel.org/r/1620284888-65215-1-git-send-email-f.fangjian@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-topcliff-pch.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/delayed-inode.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
-index b459e369079f..7fb020a1d66a 100644
---- a/drivers/spi/spi-topcliff-pch.c
-+++ b/drivers/spi/spi-topcliff-pch.c
-@@ -580,8 +580,10 @@ static void pch_spi_set_tx(struct pch_spi_data *data, int *bpw)
- 	data->pkt_tx_buff = kzalloc(size, GFP_KERNEL);
- 	if (data->pkt_tx_buff != NULL) {
- 		data->pkt_rx_buff = kzalloc(size, GFP_KERNEL);
--		if (!data->pkt_rx_buff)
-+		if (!data->pkt_rx_buff) {
- 			kfree(data->pkt_tx_buff);
-+			data->pkt_tx_buff = NULL;
-+		}
- 	}
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index 3091540fc22a..3bb8b919d2c1 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1050,6 +1050,14 @@ err_out:
+ 	btrfs_delayed_inode_release_metadata(fs_info, node, (ret < 0));
+ 	btrfs_release_delayed_inode(node);
  
- 	if (!data->pkt_rx_buff) {
++	/*
++	 * If we fail to update the delayed inode we need to abort the
++	 * transaction, because we could leave the inode with the improper
++	 * counts behind.
++	 */
++	if (ret && ret != -ENOENT)
++		btrfs_abort_transaction(trans, ret);
++
+ 	return ret;
+ 
+ search:
 -- 
 2.30.2
 
