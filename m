@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9CB3C4BE4
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3F1E3C5202
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241362AbhGLHAl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:00:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
+        id S1349685AbhGLHo3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:44:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241624AbhGLG7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A38261222;
-        Mon, 12 Jul 2021 06:56:22 +0000 (UTC)
+        id S1345748AbhGLHiw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:38:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9CA1613FC;
+        Mon, 12 Jul 2021 07:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072983;
-        bh=0vXiCCGKha8Szv4tzj3R5QQyQHxtYdN2ywsMQMebipY=;
+        s=korg; t=1626075231;
+        bh=vKftHj88RLYECuwHY64g8MmF5WQxGF4qF+Dprtnl6OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kL1dU+BZP6aNPgPxddtqgZavn9Ta3MHAT2juZc4TmybobIm/KwqrxZWTfusTNdjig
-         i9QgHzLC26uO749HUgdQXvxrjbe7fPyDRaKix84oxFNDEZR9sw34aQaHxmWOG6PNq5
-         Qd48iSC6Lu9hReU9bLKmfjv80owMkgdo6yXY3m/w=
+        b=s2OhhFIRXAyCA07rgzYMwUTrlMiaFePHlyW2dHWkbcDP3u/oIpbuEnk+YiQBiRXrw
+         neV4KMPD1Ga7iSk1b3i7HAhesUJw6MYRMFEtJnDniORezqElUM3n7Sc4PgkhrZkVuW
+         vtJj5tzPT5wEBqrS+SQUbqiVaIiNJ+IwIv40ugqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 5.12 088/700] iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 148/800] crypto: nx - add missing MODULE_DEVICE_TABLE
 Date:   Mon, 12 Jul 2021 08:02:51 +0200
-Message-Id: <20210712060937.160770257@linuxfoundation.org>
+Message-Id: <20210712060933.863716957@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-commit 421a26f3d7a7c3ca43f3a9dc0f3cb0f562d5bd95 upstream.
+[ Upstream commit 06676aa1f455c74e3ad1624cea3acb9ed2ef71ae ]
 
-The ltr559 chip uses only the lowest bit of the ALS_CONTR register to
-configure between active and stand-by mode. In the original driver
-BIT(1) is used, which does a software reset instead.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-This patch fixes the problem by using BIT(0) as als_mode_active for
-the ltr559 chip.
-
-Fixes: 8592a7eefa54 ("iio: ltr501: Add support for ltr559 chip")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-3-mkl@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/ltr501.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/nx/nx-842-pseries.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -1208,7 +1208,7 @@ static struct ltr501_chip_info ltr501_ch
- 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
- 		.ps_gain = ltr559_ps_gain_tbl,
- 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
--		.als_mode_active = BIT(1),
-+		.als_mode_active = BIT(0),
- 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
- 		.als_gain_shift = 2,
- 		.info = &ltr501_info,
+diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
+index cc8dd3072b8b..8ee547ee378e 100644
+--- a/drivers/crypto/nx/nx-842-pseries.c
++++ b/drivers/crypto/nx/nx-842-pseries.c
+@@ -1069,6 +1069,7 @@ static const struct vio_device_id nx842_vio_driver_ids[] = {
+ 	{"ibm,compression-v1", "ibm,compression"},
+ 	{"", ""},
+ };
++MODULE_DEVICE_TABLE(vio, nx842_vio_driver_ids);
+ 
+ static struct vio_driver nx842_vio_driver = {
+ 	.name = KBUILD_MODNAME,
+-- 
+2.30.2
+
 
 
