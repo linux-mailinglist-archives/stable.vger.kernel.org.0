@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D33243C4C68
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC2433C4C6B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241551AbhGLHDx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:03:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38908 "EHLO mail.kernel.org"
+        id S241655AbhGLHEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240092AbhGLHDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:03:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91F4861154;
-        Mon, 12 Jul 2021 07:00:28 +0000 (UTC)
+        id S240615AbhGLHDT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:03:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FDAA610CD;
+        Mon, 12 Jul 2021 07:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073229;
-        bh=9I4P98nw/TH7inHBdRHqWHOLI2uqRL4qTkQnABJ42dA=;
+        s=korg; t=1626073231;
+        bh=c5RGKMO/Iij/OF/EMGrK9bgD+2TCuXmHaKdi0NSsXx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvQJgtZ55h1vpGejCv1oj++Ipoi3sMTtizUCdWpXDM51kxSwL/A7VSUhNCHDuMVO+
-         RCVbU/mTNTMbtmzWCbtEv5BNdvkO2L+TjsCewryFZ+RqSWJh3dPsSkNECPfkddWQ8P
-         qUCMAIMEADKb38nlcejlgkQ3fWUkT0lpT6pYIEQg=
+        b=VJaeRqIKo6qU5c2HGjoZXQmIsITPm3Thgw8TQLSHpRRstf+ZUBHuinlkLYWBb7TQO
+         3vgD4ba7GglPQL4Udp4Fx5wMRW39yIMWzCUDUDmnBfMjWIp2IyfnmzeSVjz9Su/v3a
+         oznmEocmKFcH9RM0L3cgrY2ZewmSUnY1dM0hyDb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 127/700] media: sh_vou: fix pm_runtime_get_sync() usage count
-Date:   Mon, 12 Jul 2021 08:03:30 +0200
-Message-Id: <20210712060943.083389971@linuxfoundation.org>
+Subject: [PATCH 5.12 128/700] media: mtk-vcodec: fix PM runtime get logic
+Date:   Mon, 12 Jul 2021 08:03:31 +0200
+Message-Id: <20210712060943.295207083@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -43,41 +43,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 6e8b1526db164c9d4b9dacfb9bc48e365d7c4860 ]
+[ Upstream commit 908711f542c17fe61e5d653da1beb8e5ab5c7b50 ]
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
-Replace it by the new pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter, avoiding
-a potential PM usage counter leak.
+Currently, the driver just assumes that PM runtime logic
+succeded resuming the device.
 
-While here, check if the PM runtime error was caught at open time.
+That may not be the case, as pm_runtime_get_sync()
+can fail (but keeping the usage count incremented).
+
+Replace the code to use pm_runtime_resume_and_get(),
+and letting it return the error code.
+
+This way, if mtk_vcodec_dec_pw_on() fails, the logic
+under fops_vcodec_open() will do the right thing and
+return an error, instead of just assuming that the
+device is ready to be used.
 
 Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/sh_vou.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c | 4 +++-
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c  | 8 +++++---
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.h  | 2 +-
+ 3 files changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/platform/sh_vou.c b/drivers/media/platform/sh_vou.c
-index 4ac48441f22c..ca4310e26c49 100644
---- a/drivers/media/platform/sh_vou.c
-+++ b/drivers/media/platform/sh_vou.c
-@@ -1133,7 +1133,11 @@ static int sh_vou_open(struct file *file)
- 	if (v4l2_fh_is_singular_file(file) &&
- 	    vou_dev->status == SH_VOU_INITIALISING) {
- 		/* First open */
--		pm_runtime_get_sync(vou_dev->v4l2_dev.dev);
-+		err = pm_runtime_resume_and_get(vou_dev->v4l2_dev.dev);
-+		if (err < 0) {
-+			v4l2_fh_release(file);
-+			goto done_open;
-+		}
- 		err = sh_vou_hw_init(vou_dev);
- 		if (err < 0) {
- 			pm_runtime_put(vou_dev->v4l2_dev.dev);
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
+index 147dfef1638d..f87dc47d9e63 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_drv.c
+@@ -126,7 +126,9 @@ static int fops_vcodec_open(struct file *file)
+ 	mtk_vcodec_dec_set_default_params(ctx);
+ 
+ 	if (v4l2_fh_is_singular(&ctx->fh)) {
+-		mtk_vcodec_dec_pw_on(&dev->pm);
++		ret = mtk_vcodec_dec_pw_on(&dev->pm);
++		if (ret < 0)
++			goto err_load_fw;
+ 		/*
+ 		 * Does nothing if firmware was already loaded.
+ 		 */
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+index ddee7046ce42..6038db96f71c 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.c
+@@ -88,13 +88,15 @@ void mtk_vcodec_release_dec_pm(struct mtk_vcodec_dev *dev)
+ 	put_device(dev->pm.larbvdec);
+ }
+ 
+-void mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm)
++int mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm)
+ {
+ 	int ret;
+ 
+-	ret = pm_runtime_get_sync(pm->dev);
++	ret = pm_runtime_resume_and_get(pm->dev);
+ 	if (ret)
+-		mtk_v4l2_err("pm_runtime_get_sync fail %d", ret);
++		mtk_v4l2_err("pm_runtime_resume_and_get fail %d", ret);
++
++	return ret;
+ }
+ 
+ void mtk_vcodec_dec_pw_off(struct mtk_vcodec_pm *pm)
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.h b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.h
+index 872d8bf8cfaf..280aeaefdb65 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.h
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec_pm.h
+@@ -12,7 +12,7 @@
+ int mtk_vcodec_init_dec_pm(struct mtk_vcodec_dev *dev);
+ void mtk_vcodec_release_dec_pm(struct mtk_vcodec_dev *dev);
+ 
+-void mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm);
++int mtk_vcodec_dec_pw_on(struct mtk_vcodec_pm *pm);
+ void mtk_vcodec_dec_pw_off(struct mtk_vcodec_pm *pm);
+ void mtk_vcodec_dec_clock_on(struct mtk_vcodec_pm *pm);
+ void mtk_vcodec_dec_clock_off(struct mtk_vcodec_pm *pm);
 -- 
 2.30.2
 
