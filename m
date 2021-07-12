@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA0333C48A3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD983C48A4
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235677AbhGLGk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
+        id S234805AbhGLGk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236790AbhGLGiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:38:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A4746101E;
-        Mon, 12 Jul 2021 06:34:27 +0000 (UTC)
+        id S237150AbhGLGiY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:38:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A459061008;
+        Mon, 12 Jul 2021 06:34:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071668;
-        bh=SQQGPPye12kX22cjIWmNRAfoJrfFV/8baIFuMBw2IsY=;
+        s=korg; t=1626071673;
+        bh=7g9jhVIr9Cc13wM4e9OXLZCfqQy3d5sLELCLtpInqeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NAealszhnAs9y4HgEKmRdLdvAHR63D2IXmDkrjC3rEAkZ0oHroonTlMK4GilFSiA9
-         1H7fvTnm5K8e47b4qKGp1vVufUskSfGupGNdBRHa0jZG72fDACT41+HlNcxHB7SQc2
-         gRHTkUZXaIpjWJ8yd8Ytu4PyutykWzH/o4HM6c80=
+        b=SpE7RIUIz9vpj/VUxNkQ0bF/Tctf0gLarq8Xutt1fN6ww24istfAyxJ5eJuElpyi+
+         Y1Tw2D44jJeRYrNhU2eRRNHlb2PffZ8ieP4n+HNaQyzyh5FDfFqoMV1pg/yH+cXqAw
+         1+6qlv8a4+qbYdJpnM0Zqnu4arUbB35zCWwXbLfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Borislav Petkov <bp@suse.de>, Tero Kristo <kristo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 169/593] EDAC/ti: Add missing MODULE_DEVICE_TABLE
-Date:   Mon, 12 Jul 2021 08:05:29 +0200
-Message-Id: <20210712060901.633968966@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Wei Liu <wei.liu@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 171/593] hv_utils: Fix passing zero to PTR_ERR warning
+Date:   Mon, 12 Jul 2021 08:05:31 +0200
+Message-Id: <20210712060901.846037162@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,37 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 0a37f32ba5272b2d4ec8c8d0f6b212b81b578f7e ]
+[ Upstream commit c6a8625fa4c6b0a97860d053271660ccedc3d1b3 ]
 
-The module misses MODULE_DEVICE_TABLE() for of_device_id tables and thus
-never autoloads on ID matches.
+Sparse warn this:
 
-Add the missing declaration.
+drivers/hv/hv_util.c:753 hv_timesync_init() warn:
+ passing zero to 'PTR_ERR'
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Tero Kristo <kristo@kernel.org>
-Link: https://lkml.kernel.org/r/20210512033727.26701-1-cuibixuan@huawei.com
+Use PTR_ERR_OR_ZERO instead of PTR_ERR to fix this.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20210514070116.16800-1-yuehaibing@huawei.com
+[ wei: change %ld to %d ]
+Signed-off-by: Wei Liu <wei.liu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/ti_edac.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hv/hv_util.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
-index e7eae20f83d1..169f96e51c29 100644
---- a/drivers/edac/ti_edac.c
-+++ b/drivers/edac/ti_edac.c
-@@ -197,6 +197,7 @@ static const struct of_device_id ti_edac_of_match[] = {
- 	{ .compatible = "ti,emif-dra7xx", .data = (void *)EMIF_TYPE_DRA7 },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, ti_edac_of_match);
+diff --git a/drivers/hv/hv_util.c b/drivers/hv/hv_util.c
+index 05566ecdbe4b..1b914e418e41 100644
+--- a/drivers/hv/hv_util.c
++++ b/drivers/hv/hv_util.c
+@@ -696,8 +696,8 @@ static int hv_timesync_init(struct hv_util_service *srv)
+ 	 */
+ 	hv_ptp_clock = ptp_clock_register(&ptp_hyperv_info, NULL);
+ 	if (IS_ERR_OR_NULL(hv_ptp_clock)) {
+-		pr_err("cannot register PTP clock: %ld\n",
+-		       PTR_ERR(hv_ptp_clock));
++		pr_err("cannot register PTP clock: %d\n",
++		       PTR_ERR_OR_ZERO(hv_ptp_clock));
+ 		hv_ptp_clock = NULL;
+ 	}
  
- static int _emif_get_id(struct device_node *node)
- {
 -- 
 2.30.2
 
