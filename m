@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 937383C4F3E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B709F3C4B49
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243009AbhGLHXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33068 "EHLO mail.kernel.org"
+        id S239270AbhGLG4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242566AbhGLHWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:22:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D722D61004;
-        Mon, 12 Jul 2021 07:19:34 +0000 (UTC)
+        id S239192AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B677461008;
+        Mon, 12 Jul 2021 06:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074375;
-        bh=rQGy8cqcvQFQWXICBxVU7vxBghpZ8ulbRgzAOF6P3BY=;
+        s=korg; t=1626072402;
+        bh=HTJqpn40mcfBkEgWdKi/YdgVL0bQEle/cZVol9slRp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKYy5wvPpnQGgBVUbVzpfToKo6c0O3vxtdaQLv0VsUwJrpJ+QFJnXr38I/E3rJgUn
-         XkmExFiNbcfRZtF5eXaCUCPLD3mFIe3/Zqtmz5WlNTiPs/O12DEjS/oQsr7Zn01dAD
-         saSX7fBc5e/i+r204MFpEiSgL1Z7unWBok3Bwxjo=
+        b=Bykkd1lgF03Kaii8b0+QyC7utw6ik996gJRqQWwkQoYzGZXosDshg4Yr83yUGIYcv
+         5vjE6P8WW+AmHXfO4/fTJwrZQ0AHogCeVdS9YKiT6tfWueDfQmQDPrbZ2Xm4wnEHic
+         t538vBFtQ8qaUCyUjOtj6of1CpYPWcn4zGYsrAUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 559/700] Input: hil_kbd - fix error return code in hil_dev_connect()
-Date:   Mon, 12 Jul 2021 08:10:42 +0200
-Message-Id: <20210712061035.685792078@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 483/593] leds: lm3697: Dont spam logs when probe is deferred
+Date:   Mon, 12 Jul 2021 08:10:43 +0200
+Message-Id: <20210712060943.948208353@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit d9b576917a1d0efa293801a264150a1b37691617 ]
+[ Upstream commit 807553f8bf4afa673750e52905e0f9488179112f ]
 
-Return error code -EINVAL rather than '0' when the combo devices are not
-supported.
+When requesting GPIO line the probe can be deferred.
+In such case don't spam logs with an error message.
+This can be achieved by switching to dev_err_probe().
 
-Fixes: fa71c605c2bb ("Input: combine hil_kbd and hil_ptr drivers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210515030053.6824-1-thunder.leizhen@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 5c1d824cda9f ("leds: lm3697: Introduce the lm3697 driver")
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/keyboard/hil_kbd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/leds/leds-lm3697.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
-index bb29a7c9a1c0..54afb38601b9 100644
---- a/drivers/input/keyboard/hil_kbd.c
-+++ b/drivers/input/keyboard/hil_kbd.c
-@@ -512,6 +512,7 @@ static int hil_dev_connect(struct serio *serio, struct serio_driver *drv)
- 		    HIL_IDD_NUM_AXES_PER_SET(*idd)) {
- 			printk(KERN_INFO PREFIX
- 				"combo devices are not supported.\n");
-+			error = -EINVAL;
- 			goto bail1;
- 		}
+diff --git a/drivers/leds/leds-lm3697.c b/drivers/leds/leds-lm3697.c
+index 7d216cdb91a8..912e8bb22a99 100644
+--- a/drivers/leds/leds-lm3697.c
++++ b/drivers/leds/leds-lm3697.c
+@@ -203,11 +203,9 @@ static int lm3697_probe_dt(struct lm3697 *priv)
  
+ 	priv->enable_gpio = devm_gpiod_get_optional(dev, "enable",
+ 						    GPIOD_OUT_LOW);
+-	if (IS_ERR(priv->enable_gpio)) {
+-		ret = PTR_ERR(priv->enable_gpio);
+-		dev_err(dev, "Failed to get enable gpio: %d\n", ret);
+-		return ret;
+-	}
++	if (IS_ERR(priv->enable_gpio))
++		return dev_err_probe(dev, PTR_ERR(priv->enable_gpio),
++					  "Failed to get enable GPIO\n");
+ 
+ 	priv->regulator = devm_regulator_get(dev, "vled");
+ 	if (IS_ERR(priv->regulator))
 -- 
 2.30.2
 
