@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B98753C511A
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B2213C4B8F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243850AbhGLHgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56274 "EHLO mail.kernel.org"
+        id S239588AbhGLG6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:58:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347299AbhGLHep (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5036761107;
-        Mon, 12 Jul 2021 07:31:35 +0000 (UTC)
+        id S238239AbhGLG5B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:57:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E457561221;
+        Mon, 12 Jul 2021 06:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075095;
-        bh=DHtccH3ewspNl1D5JPSeZgPSD9xFMj9+CdsdE60Z/ps=;
+        s=korg; t=1626072853;
+        bh=pgI+/Df8121ZUDQT2I5B+VvmDU3J0R2g8tw16QXFORM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quVcJsmg1dKR9tSKf3knNjPNelXiWYGiC/1TC8rKT30HTXNM6cxhve8f0UfINndfo
-         ygrLOvFzMtZC9q4TQqde8YDV/Efad9ofue2lSuGtDqAVJZ+OHLvCFWZTIn/PJcZ66D
-         rZUE5E0l91KzvWaS5vIs9eQJC/Xwy6JVzzA2AZz4=
+        b=gs3GB8DzOUz0aJkBt/GEoKPjK+s4vjqrZ1QJ+mlApTl14KYnm4rx2ldhxnuQ3Ym+t
+         YRLh8SKm1vjklH/us8FCmZhO/4mUz/7MedAVs77xl3u3V3r1ZPw8VvYrcNlweKaNpv
+         uRVakwp7uQvuo65A6KExZGD87ak/FDoluoda+T9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>
-Subject: [PATCH 5.13 103/800] serial_cs: remove wrong GLOBETROTTER.cis entry
-Date:   Mon, 12 Jul 2021 08:02:06 +0200
-Message-Id: <20210712060927.542726349@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 044/700] btrfs: zoned: bail out if we cant read a reliable write pointer
+Date:   Mon, 12 Jul 2021 08:02:07 +0200
+Message-Id: <20210712060930.926012525@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,51 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit 11b1d881a90fc184cc7d06e9804eb288c24a2a0d upstream.
+commit 06e1e7f4223c98965fb721b4b1e12083cfbe777e upstream.
 
-The GLOBETROTTER.cis entry in serial_cs matches more devices than
-intended and breaks them. Remove it.
+If we can't read a reliable write pointer from a sequential zone fail
+creating the block group with an I/O error.
 
-Example: # pccardctl info
-PRODID_1="Option International
-"
-PRODID_2="GSM-Ready 56K/ISDN
-"
-PRODID_3="021
-"
-PRODID_4="A
-"
-MANFID=0013,0000
-FUNCID=0
+Also if the read write pointer is beyond the end of the respective zone,
+fail the creation of the block group on this zone with an I/O error.
 
-result:
-pcmcia 0.0: Direct firmware load for cis/GLOBETROTTER.cis failed with error -2
+While this could also happen in real world scenarios with misbehaving
+drives, this issue addresses a problem uncovered by fstests' test case
+generic/475.
 
-The GLOBETROTTER.cis is nowhere to be found. There's GLOBETROTTER.cis.ihex at
-https://netdev.vger.kernel.narkive.com/h4inqdxM/patch-axnet-cs-fix-phy-id-detection-for-bogus-asix-chip#post41
-It's from completely diffetent card:
-vers_1 4.1, "Option International", "GSM/GPRS GlobeTrotter", "001", "A"
-
-Signed-off-by: Ondrej Zary <linux@zary.sk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210611201940.23898-1-linux@zary.sk
+CC: stable@vger.kernel.org # 5.12+
+Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/8250/serial_cs.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/btrfs/zoned.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -805,7 +805,6 @@ static const struct pcmcia_device_id ser
- 	PCMCIA_DEVICE_CIS_PROD_ID12("ADVANTECH", "COMpad-32/85B-4", 0x96913a85, 0xcec8f102, "cis/COMpad4.cis"),
- 	PCMCIA_DEVICE_CIS_PROD_ID123("ADVANTECH", "COMpad-32/85", "1.0", 0x96913a85, 0x8fbe92ae, 0x0877b627, "cis/COMpad2.cis"),
- 	PCMCIA_DEVICE_CIS_PROD_ID2("RS-COM 2P", 0xad20b156, "cis/RS-COM-2P.cis"),
--	PCMCIA_DEVICE_CIS_MANF_CARD(0x0013, 0x0000, "cis/GLOBETROTTER.cis"),
- 	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.", "SERIAL CARD: SL100  1.00.", 0x19ca78af, 0xf964f42b),
- 	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.", "SERIAL CARD: SL100", 0x19ca78af, 0x71d98e83),
- 	PCMCIA_DEVICE_PROD_ID12("ELAN DIGITAL SYSTEMS LTD, c1997.", "SERIAL CARD: SL232  1.00.", 0x19ca78af, 0x69fb7490),
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -1204,6 +1204,13 @@ int btrfs_load_block_group_zone_info(str
+ 
+ 	switch (map->type & BTRFS_BLOCK_GROUP_PROFILE_MASK) {
+ 	case 0: /* single */
++		if (alloc_offsets[0] == WP_MISSING_DEV) {
++			btrfs_err(fs_info,
++			"zoned: cannot recover write pointer for zone %llu",
++				physical);
++			ret = -EIO;
++			goto out;
++		}
+ 		cache->alloc_offset = alloc_offsets[0];
+ 		break;
+ 	case BTRFS_BLOCK_GROUP_DUP:
+@@ -1221,6 +1228,13 @@ int btrfs_load_block_group_zone_info(str
+ 	}
+ 
+ out:
++	if (cache->alloc_offset > fs_info->zone_size) {
++		btrfs_err(fs_info,
++			"zoned: invalid write pointer %llu in block group %llu",
++			cache->alloc_offset, cache->start);
++		ret = -EIO;
++	}
++
+ 	/* An extent is allocated after the write pointer */
+ 	if (!ret && num_conventional && last_alloc > cache->alloc_offset) {
+ 		btrfs_err(fs_info,
 
 
