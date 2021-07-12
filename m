@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4947F3C4909
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:31:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9D13C4D2C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237230AbhGLGll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S242706AbhGLHMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238470AbhGLGkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DC060238;
-        Mon, 12 Jul 2021 06:37:26 +0000 (UTC)
+        id S244299AbhGLHKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 46419610E5;
+        Mon, 12 Jul 2021 07:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071846;
-        bh=z7k6hZxpghgA0HTAKvvdpq0jUkfYmU0Cp8/Xt6fw0Js=;
+        s=korg; t=1626073667;
+        bh=XoYj5fhINhNpIdEDgjtheWTTZEuJBpJiCzs98xY8jtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQqtKYl9HRrVwkm64D0rVXVFtTC/BN5UQu5Vj1NrtdOja4bwUxUIVlQxb1QrvWgKB
-         cmWWFQbHfz29iSrXLOzYT7vpPLpRLTAolsL/+KPrf/FO3zCAZ//eI11RPPjMfIvNNm
-         jym+R7LQZ0CS50FxAdIbq/0omXaE4tiAmb+rQCFk=
+        b=hm7uQQQFOHpEAc9BZv7F9dxeYmjOtMUYON2MWVI3MmikeevTa0usNZ8zMn5y4P2ro
+         tQlF+8C8UXgbmXAsympMO5sAc/0IzDqahK2NcGzhU5+60FLjlLaIM7XHEMRQ6woQFp
+         p8KxFgjlKJUKlKPpKjCSaN8pYLd6JYW0X0/Oyl4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 243/593] crypto: sm2 - remove unnecessary reset operations
+Subject: [PATCH 5.12 320/700] media: video-mux: Skip dangling endpoints
 Date:   Mon, 12 Jul 2021 08:06:43 +0200
-Message-Id: <20210712060909.626305937@linuxfoundation.org>
+Message-Id: <20210712061010.413514088@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,135 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 1bc608b4655b8b1491fb100f4cf4f15ae64a8698 ]
+[ Upstream commit 95778c2d0979618e3349b1d2324ec282a5a6adbf ]
 
-This is an algorithm optimization. The reset operation when
-setting the public key is repeated and redundant, so remove it.
-At the same time, `sm2_ecc_os2ec()` is optimized to make the
-function more simpler and more in line with the Linux code style.
+i.MX6 device tree include files contain dangling endpoints for the
+board device tree writers' convenience. These are still included in
+many existing device trees.
+Treat dangling endpoints as non-existent to support them.
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 612b385efb1e ("media: video-mux: Create media links in bound notifier")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/sm2.c | 75 ++++++++++++++++++++--------------------------------
- 1 file changed, 29 insertions(+), 46 deletions(-)
+ drivers/media/platform/video-mux.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/crypto/sm2.c b/crypto/sm2.c
-index 767e160333f6..b21addc3ac06 100644
---- a/crypto/sm2.c
-+++ b/crypto/sm2.c
-@@ -119,12 +119,6 @@ static void sm2_ec_ctx_deinit(struct mpi_ec_ctx *ec)
- 	memset(ec, 0, sizeof(*ec));
- }
+diff --git a/drivers/media/platform/video-mux.c b/drivers/media/platform/video-mux.c
+index 133122e38515..9bc0b4d8de09 100644
+--- a/drivers/media/platform/video-mux.c
++++ b/drivers/media/platform/video-mux.c
+@@ -362,7 +362,7 @@ static int video_mux_async_register(struct video_mux *vmux,
  
--static int sm2_ec_ctx_reset(struct mpi_ec_ctx *ec)
--{
--	sm2_ec_ctx_deinit(ec);
--	return sm2_ec_ctx_init(ec);
--}
--
- /* RESULT must have been initialized and is set on success to the
-  * point given by VALUE.
-  */
-@@ -132,55 +126,48 @@ static int sm2_ecc_os2ec(MPI_POINT result, MPI value)
- {
- 	int rc;
- 	size_t n;
--	const unsigned char *buf;
--	unsigned char *buf_memory;
-+	unsigned char *buf;
- 	MPI x, y;
+ 	for (i = 0; i < num_input_pads; i++) {
+ 		struct v4l2_async_subdev *asd;
+-		struct fwnode_handle *ep;
++		struct fwnode_handle *ep, *remote_ep;
  
--	n = (mpi_get_nbits(value)+7)/8;
--	buf_memory = kmalloc(n, GFP_KERNEL);
--	rc = mpi_print(GCRYMPI_FMT_USG, buf_memory, n, &n, value);
--	if (rc) {
--		kfree(buf_memory);
--		return rc;
--	}
--	buf = buf_memory;
-+	n = MPI_NBYTES(value);
-+	buf = kmalloc(n, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
+ 		ep = fwnode_graph_get_endpoint_by_id(
+ 			dev_fwnode(vmux->subdev.dev), i, 0,
+@@ -370,6 +370,14 @@ static int video_mux_async_register(struct video_mux *vmux,
+ 		if (!ep)
+ 			continue;
  
--	if (n < 1) {
--		kfree(buf_memory);
--		return -EINVAL;
--	}
--	if (*buf != 4) {
--		kfree(buf_memory);
--		return -EINVAL; /* No support for point compression.  */
--	}
--	if (((n-1)%2)) {
--		kfree(buf_memory);
--		return -EINVAL;
--	}
--	n = (n-1)/2;
-+	rc = mpi_print(GCRYMPI_FMT_USG, buf, n, &n, value);
-+	if (rc)
-+		goto err_freebuf;
++		/* Skip dangling endpoints for backwards compatibility */
++		remote_ep = fwnode_graph_get_remote_endpoint(ep);
++		if (!remote_ep) {
++			fwnode_handle_put(ep);
++			continue;
++		}
++		fwnode_handle_put(remote_ep);
 +
-+	rc = -EINVAL;
-+	if (n < 1 || ((n - 1) % 2))
-+		goto err_freebuf;
-+	/* No support for point compression */
-+	if (*buf != 0x4)
-+		goto err_freebuf;
-+
-+	rc = -ENOMEM;
-+	n = (n - 1) / 2;
- 	x = mpi_read_raw_data(buf + 1, n);
--	if (!x) {
--		kfree(buf_memory);
--		return -ENOMEM;
--	}
-+	if (!x)
-+		goto err_freebuf;
- 	y = mpi_read_raw_data(buf + 1 + n, n);
--	kfree(buf_memory);
--	if (!y) {
--		mpi_free(x);
--		return -ENOMEM;
--	}
-+	if (!y)
-+		goto err_freex;
+ 		asd = v4l2_async_notifier_add_fwnode_remote_subdev(
+ 			&vmux->notifier, ep, struct v4l2_async_subdev);
  
- 	mpi_normalize(x);
- 	mpi_normalize(y);
--
- 	mpi_set(result->x, x);
- 	mpi_set(result->y, y);
- 	mpi_set_ui(result->z, 1);
- 
--	mpi_free(x);
--	mpi_free(y);
-+	rc = 0;
- 
--	return 0;
-+	mpi_free(y);
-+err_freex:
-+	mpi_free(x);
-+err_freebuf:
-+	kfree(buf);
-+	return rc;
- }
- 
- struct sm2_signature_ctx {
-@@ -399,10 +386,6 @@ static int sm2_set_pub_key(struct crypto_akcipher *tfm,
- 	MPI a;
- 	int rc;
- 
--	rc = sm2_ec_ctx_reset(ec);
--	if (rc)
--		return rc;
--
- 	ec->Q = mpi_point_new(0);
- 	if (!ec->Q)
- 		return -ENOMEM;
 -- 
 2.30.2
 
