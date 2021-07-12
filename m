@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCF1A3C4AC3
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF813C4AAA
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240526AbhGLGxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50560 "EHLO mail.kernel.org"
+        id S239974AbhGLGxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240336AbhGLGvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240337AbhGLGvm (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:51:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F71060233;
-        Mon, 12 Jul 2021 06:48:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C8AB60FE3;
+        Mon, 12 Jul 2021 06:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072491;
-        bh=p8bNnxJwgHMycf5P+nl2Gg916UtFZkNQDNpHCCG8iMQ=;
+        s=korg; t=1626072494;
+        bh=2RKsoqzOpkwGZoidnAJECty77Z17DJBi4cGvckbFOcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/Swcqn+0/kWouyxENlu9VxztJKCxZQ8WLKrXXxDDu3apCwwYHsNVj6VA2yPfTmsg
-         L6KNJXv/zJ+Zwg6n0G/czz+kgbgcsMsOs/QdfK3g/GS1xgsr+oyMiCO3doGmoCKPQ/
-         RKv+jp/0bNwfQzKAF3DUs6s5J35zvgtBUI4RCQxA=
+        b=s5y5IGg5GoZcsPZ1uDjsRLMiOY75qXSBCvWVpix9CSwnWkyCeSUqH6gugntHwekL+
+         ESED+80+X8VI/M9sUxv928sZFxB/BHp2DSP8MXsehQSozqBT04AzDz1mbfiFCpZIA9
+         vq80UvAI6vIE1mS2w/lmUycYvXU9Vd3YOXd01Wx4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huy Duong <qhuyduong@hotmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 513/593] eeprom: idt_89hpesx: Restore printing the unsupported fwnode name
-Date:   Mon, 12 Jul 2021 08:11:13 +0200
-Message-Id: <20210712060948.446003753@linuxfoundation.org>
+Subject: [PATCH 5.10 514/593] thunderbolt: Bond lanes only when dual_link_port != NULL in alloc_dev_default()
+Date:   Mon, 12 Jul 2021 08:11:14 +0200
+Message-Id: <20210712060948.579824691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,44 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit e0db3deea73ba418bf5dc21f5a4e32ca87d16dde ]
+[ Upstream commit a0d36fa1065901f939b04587a09c65303a64ac88 ]
 
-When iterating over child firmware nodes restore printing the name of ones
-that are not supported.
+We should not dereference ->dual_link_port if it is NULL and lane bonding
+is requested. For this reason move lane bonding configuration happen
+inside the block where ->dual_link_port != NULL.
 
-While at it, refactor loop body to clearly show that we stop at the first match.
-
-Fixes: db15d73e5f0e ("eeprom: idt_89hpesx: Support both ACPI and OF probing")
-Cc: Huy Duong <qhuyduong@hotmail.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210607221757.81465-2-andy.shevchenko@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 54509f5005ca ("thunderbolt: Add KUnit tests for path walking")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Yehezkel Bernat <YehezkelShB@gmail.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/thunderbolt/test.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index 45a61a1f9e98..3e4a594c110b 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -1126,11 +1126,10 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
+diff --git a/drivers/thunderbolt/test.c b/drivers/thunderbolt/test.c
+index 464c2d37b992..e254f8c37cb7 100644
+--- a/drivers/thunderbolt/test.c
++++ b/drivers/thunderbolt/test.c
+@@ -259,14 +259,14 @@ static struct tb_switch *alloc_dev_default(struct kunit *test,
+ 	if (port->dual_link_port && upstream_port->dual_link_port) {
+ 		port->dual_link_port->remote = upstream_port->dual_link_port;
+ 		upstream_port->dual_link_port->remote = port->dual_link_port;
+-	}
  
- 	device_for_each_child_node(dev, fwnode) {
- 		ee_id = idt_ee_match_id(fwnode);
--		if (!ee_id) {
--			dev_warn(dev, "Skip unsupported EEPROM device");
--			continue;
--		} else
-+		if (ee_id)
- 			break;
-+
-+		dev_warn(dev, "Skip unsupported EEPROM device %pfw\n", fwnode);
+-	if (bonded) {
+-		/* Bonding is used */
+-		port->bonded = true;
+-		port->dual_link_port->bonded = true;
+-		upstream_port->bonded = true;
+-		upstream_port->dual_link_port->bonded = true;
++		if (bonded) {
++			/* Bonding is used */
++			port->bonded = true;
++			port->dual_link_port->bonded = true;
++			upstream_port->bonded = true;
++			upstream_port->dual_link_port->bonded = true;
++		}
  	}
  
- 	/* If there is no fwnode EEPROM device, then set zero size */
+ 	return sw;
 -- 
 2.30.2
 
