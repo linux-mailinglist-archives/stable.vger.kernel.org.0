@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2DA3C504E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81CB63C55F2
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344666AbhGLHb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:31:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
+        id S1350826AbhGLIMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:12:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345316AbhGLH3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:29:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E42C261448;
-        Mon, 12 Jul 2021 07:26:17 +0000 (UTC)
+        id S1354089AbhGLID2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:03:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E865161206;
+        Mon, 12 Jul 2021 07:59:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074778;
-        bh=IPeU1+DPfLeGp3jgG7TlWOA5Uz7mLiDuoDU1hAU1Yec=;
+        s=korg; t=1626076794;
+        bh=X0xY592CK8hmSdR4MPJG8U3Xd2vw57Z5QwLWDaFYgcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkWNY9J0s7j6hf871zuNWl4K9HRNc49FLYkyRWuOvt5Uni74UF0JuzkFt4KrdHWO5
-         TOcGVrjW2mdWimPXdYt7vDD/cI/LtMaermy+kviFjUc5ZdX/aarT+Otv7bF9jSUcCv
-         6tQ+UqAgQvxSd6NZQzk2kePsVQJ+9VIVR5yD7DaA=
+        b=lQjsBLUkW2j3fFEhjmfL2XN8E3smxCa0WfzXyNGPw302zbYB0Vb4sGVTTduGGIQ7k
+         TZYnOeEgDp89eGbneLed9ShgBqZoQyFob2dZThSG2xrMNMVUCMAlBrNTZZp/mfLkmP
+         qS/aNCNgN4Pna1UqgP/tZpwIZaFDtfrxToi0A8KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Birk Hirdman <lonjil@gmail.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.12 694/700] io_uring: fix blocking inline submission
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 754/800] powerpc/64s: Fix copy-paste data exposure into newly created tasks
 Date:   Mon, 12 Jul 2021 08:12:57 +0200
-Message-Id: <20210712061049.765644537@linuxfoundation.org>
+Message-Id: <20210712061047.018641697@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 976517f162a05f4315b2373fd11585c395506259 upstream.
+[ Upstream commit f35d2f249ef05b9671e7898f09ad89aa78f99122 ]
 
-There is a complaint against sys_io_uring_enter() blocking if it submits
-stdin reads. The problem is in __io_file_supports_async(), which
-sees that it's a cdev and allows it to be processed inline.
+copy-paste contains implicit "copy buffer" state that can contain
+arbitrary user data (if the user process executes a copy instruction).
+This could be snooped by another process if a context switch hits while
+the state is live. So cp_abort is executed on context switch to clear
+out possible sensitive data and prevent the leak.
 
-Punt char devices using generic rules of io_file_supports_async(),
-including checking for presence of *_iter() versions of rw callbacks.
-Apparently, it will affect most of cdevs with some exceptions like
-null and zero devices.
+cp_abort is done after the low level _switch(), which means it is never
+reached by newly created tasks, so they could snoop on this buffer
+between their first and second context switch.
 
-Cc: stable@vger.kernel.org
-Reported-by: Birk Hirdman <lonjil@gmail.com>
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/d60270856b8a4560a639ef5f76e55eb563633599.1623236455.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by doing the cp_abort before calling _switch. Add some
+comments which should make the issue harder to miss.
 
+Fixes: 07d2a628bc000 ("powerpc/64s: Avoid cpabort in context switch when possible")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210622053036.474678-1-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/process.c | 48 +++++++++++++++++++++++------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2683,7 +2683,7 @@ static bool io_file_supports_async(struc
- 			return true;
- 		return false;
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 89e34aa273e2..1138f035ce74 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -1213,6 +1213,19 @@ struct task_struct *__switch_to(struct task_struct *prev,
+ 			__flush_tlb_pending(batch);
+ 		batch->active = 0;
  	}
--	if (S_ISCHR(mode) || S_ISSOCK(mode))
-+	if (S_ISSOCK(mode))
- 		return true;
- 	if (S_ISREG(mode)) {
- 		if (IS_ENABLED(CONFIG_BLOCK) &&
++
++	/*
++	 * On POWER9 the copy-paste buffer can only paste into
++	 * foreign real addresses, so unprivileged processes can not
++	 * see the data or use it in any way unless they have
++	 * foreign real mappings. If the new process has the foreign
++	 * real address mappings, we must issue a cp_abort to clear
++	 * any state and prevent snooping, corruption or a covert
++	 * channel. ISA v3.1 supports paste into local memory.
++	 */
++	if (new->mm && (cpu_has_feature(CPU_FTR_ARCH_31) ||
++			atomic_read(&new->mm->context.vas_windows)))
++		asm volatile(PPC_CP_ABORT);
+ #endif /* CONFIG_PPC_BOOK3S_64 */
+ 
+ #ifdef CONFIG_PPC_ADV_DEBUG_REGS
+@@ -1261,30 +1274,33 @@ struct task_struct *__switch_to(struct task_struct *prev,
+ #endif
+ 	last = _switch(old_thread, new_thread);
+ 
++	/*
++	 * Nothing after _switch will be run for newly created tasks,
++	 * because they switch directly to ret_from_fork/ret_from_kernel_thread
++	 * etc. Code added here should have a comment explaining why that is
++	 * okay.
++	 */
++
+ #ifdef CONFIG_PPC_BOOK3S_64
++	/*
++	 * This applies to a process that was context switched while inside
++	 * arch_enter_lazy_mmu_mode(), to re-activate the batch that was
++	 * deactivated above, before _switch(). This will never be the case
++	 * for new tasks.
++	 */
+ 	if (current_thread_info()->local_flags & _TLF_LAZY_MMU) {
+ 		current_thread_info()->local_flags &= ~_TLF_LAZY_MMU;
+ 		batch = this_cpu_ptr(&ppc64_tlb_batch);
+ 		batch->active = 1;
+ 	}
+ 
+-	if (current->thread.regs) {
++	/*
++	 * Math facilities are masked out of the child MSR in copy_thread.
++	 * A new task does not need to restore_math because it will
++	 * demand fault them.
++	 */
++	if (current->thread.regs)
+ 		restore_math(current->thread.regs);
+-
+-		/*
+-		 * On POWER9 the copy-paste buffer can only paste into
+-		 * foreign real addresses, so unprivileged processes can not
+-		 * see the data or use it in any way unless they have
+-		 * foreign real mappings. If the new process has the foreign
+-		 * real address mappings, we must issue a cp_abort to clear
+-		 * any state and prevent snooping, corruption or a covert
+-		 * channel. ISA v3.1 supports paste into local memory.
+-		 */
+-		if (current->mm &&
+-			(cpu_has_feature(CPU_FTR_ARCH_31) ||
+-			atomic_read(&current->mm->context.vas_windows)))
+-			asm volatile(PPC_CP_ABORT);
+-	}
+ #endif /* CONFIG_PPC_BOOK3S_64 */
+ 
+ 	return last;
+-- 
+2.30.2
+
 
 
