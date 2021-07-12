@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 667983C5116
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 035243C4B86
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:37:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243942AbhGLHgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55932 "EHLO mail.kernel.org"
+        id S239859AbhGLG5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:57:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347194AbhGLHeg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:34:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58637613FC;
-        Mon, 12 Jul 2021 07:31:26 +0000 (UTC)
+        id S241535AbhGLG4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:56:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E9E06136D;
+        Mon, 12 Jul 2021 06:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075086;
-        bh=KuJU28+Nk0j1uhAYcQWyZwB8EM40lYnI9HZRqQErR6g=;
+        s=korg; t=1626072845;
+        bh=LE0ggWALqFHZTFF2fwQS3K77C4N1qrd6O5zo/TNfuH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZN/s/ZvFLgtDKGCNIS8EK7hm58hFL9OcYOUMrlf5LCVUbCsyvGBgavzIAj67IxE3V
-         v8E4a5uzCeSXOp4rDAWlE1K4zZMGN2Z4ESnw+rTlpuLrbiqspRfjlyIR67ScPPZ7SD
-         L/1V3GYYVpStxGshrs4C7vtyrxMQjEk2EruTdQEY=
+        b=td4qz//QASe7mCRVyhi14lVoc4oSZKGnGSAAakkQ9N/qnX+l1SWk/iyy96ctxrMmw
+         2ChP+yWFk6woa2BU6sF8fhNAYdcPy90o6GOrZzvymP0tkZsruTZUTr+fj5L/dNtOi8
+         WSRRaTSIG1bW4fx/ygUaRsy7QrBnPyYgJbDETdXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
-Subject: [PATCH 5.13 100/800] serial: mvebu-uart: fix calculation of clock divisor
-Date:   Mon, 12 Jul 2021 08:02:03 +0200
-Message-Id: <20210712060927.123003433@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Murphy <dmurphy@ti.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Olof Johansson <olof@lixom.net>
+Subject: [PATCH 5.12 041/700] ARM: dts: ux500: Fix LED probing
+Date:   Mon, 12 Jul 2021 08:02:04 +0200
+Message-Id: <20210712060930.472403181@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 9078204ca5c33ba20443a8623a41a68a9995a70d upstream.
+commit 7749510c459c10c431d746a4749e7c9cf2899156 upstream.
 
-The clock divisor should be rounded to the closest value.
+The Ux500 HREF LEDs have not been probing properly for a
+while as this was introduce:
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Cc: stable@vger.kernel.org # 0e4cf69ede87 ("serial: mvebu-uart: clarify the baud rate derivation")
-Link: https://lore.kernel.org/r/20210624224909.6350-2-pali@kernel.org
+     ret = of_property_read_u32(np, "color", &led_color);
+     if (ret)
+             return ret;
+
+Since the device tree did not define the new invented color
+attribute, probe was failing.
+
+Define color attributes for the LEDs so they work again.
+
+Link: https://lore.kernel.org/r/20210613123356.880933-1-linus.walleij@linaro.org
+Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+Cc: stable@vger.kernel.org
+Cc: Dan Murphy <dmurphy@ti.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/mvebu-uart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/ste-href.dtsi |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -463,7 +463,7 @@ static int mvebu_uart_baud_rate_set(stru
- 	 * makes use of D to configure the desired baudrate.
- 	 */
- 	m_divisor = OSAMP_DEFAULT_DIVISOR;
--	d_divisor = DIV_ROUND_UP(port->uartclk, baud * m_divisor);
-+	d_divisor = DIV_ROUND_CLOSEST(port->uartclk, baud * m_divisor);
+--- a/arch/arm/boot/dts/ste-href.dtsi
++++ b/arch/arm/boot/dts/ste-href.dtsi
+@@ -4,6 +4,7 @@
+  */
  
- 	brdv = readl(port->membase + UART_BRDV);
- 	brdv &= ~BRDV_BAUD_MASK;
+ #include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/leds/common.h>
+ #include "ste-href-family-pinctrl.dtsi"
+ 
+ / {
+@@ -64,17 +65,20 @@
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 					linux,default-trigger = "heartbeat";
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			lp5521@34 {
+@@ -88,16 +92,19 @@
+ 					reg = <0>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@1 {
+ 					reg = <1>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 				chan@2 {
+ 					reg = <2>;
+ 					led-cur = /bits/ 8 <0x2f>;
+ 					max-cur = /bits/ 8 <0x5f>;
++					color = <LED_COLOR_ID_BLUE>;
+ 				};
+ 			};
+ 			bh1780@29 {
 
 
