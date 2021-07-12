@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0983C4A89
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85DC33C5528
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239387AbhGLGws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50390 "EHLO mail.kernel.org"
+        id S1354479AbhGLIJc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240099AbhGLGuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:50:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62EE16101E;
-        Mon, 12 Jul 2021 06:47:41 +0000 (UTC)
+        id S1352933AbhGLIAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:00:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63BF961C44;
+        Mon, 12 Jul 2021 07:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072462;
-        bh=6PJc+rCbssuQL9ZqQ6ZYZJTWJLE4Ykjb5NIx73ZiVLo=;
+        s=korg; t=1626076437;
+        bh=krQEekz+xGXC4oBXdWpzNl12PyKLo+4Onj6x+/Cdqwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qiZhZ+6MOHTK2atAluWE09YhXjgz/8p3GDl+xJ0VAYt0NY3s/NuNfr0ChYRrBU5wS
-         +eC1gt0y/g8Dv1+IgNUm9cl6oOdmSOamv+3VrSIXaswCb4+yExE2CgNHG9Okg+wqvB
-         7OsGkoW3gFLHCuHmAcNiWGvqFc7DzMyAsPYSKkU0=
+        b=xmPrRFr1o+I6hIOYVIWiazEqlPKNCNDdnk/p6uRgEDAlhy7Pl4xOwXfgPZW2r9QTR
+         wiena/XlNcdN22gaNfqDL7RyjfscasEqIcHlLkVXdYHhpjHW5MO9VnWs5PTufZhEzg
+         9M9LIcr94uE0yU+C7bSII7vVI2r67zzhSm6QVtZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 504/593] ASoC: rt700-sdw: use first_hw_init flag on resume
-Date:   Mon, 12 Jul 2021 08:11:04 +0200
-Message-Id: <20210712060947.130720843@linuxfoundation.org>
+Subject: [PATCH 5.13 642/800] ASoC: rsnd: tidyup loop on rsnd_adg_clk_query()
+Date:   Mon, 12 Jul 2021 08:11:05 +0200
+Message-Id: <20210712061035.383158207@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit a9e54e5fbe396b546771cf77b43ce7c75e212278 ]
+[ Upstream commit cf9d5c6619fadfc41cf8f5154cb990cc38e3da85 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+commit 06e8f5c842f2d ("ASoC: rsnd: don't call clk_get_rate() under
+atomic context") used saved clk_rate, thus for_each_rsnd_clk()
+is no longer needed. This patch fixes it.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
-
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 7d2a5f9ae41e3 ('ASoC: rt700: add rt700 codec driver')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-7-pierre-louis.bossart@linux.intel.com
+Fixes: 06e8f5c842f2d ("ASoC: rsnd: don't call clk_get_rate() under atomic context")
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87v978oe2u.wl-kuninori.morimoto.gx@renesas.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt700-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sh/rcar/adg.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt700-sdw.c b/sound/soc/codecs/rt700-sdw.c
-index fb77e77a4ebd..3a1db79030d7 100644
---- a/sound/soc/codecs/rt700-sdw.c
-+++ b/sound/soc/codecs/rt700-sdw.c
-@@ -498,7 +498,7 @@ static int __maybe_unused rt700_dev_resume(struct device *dev)
- 	struct rt700_priv *rt700 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/sound/soc/sh/rcar/adg.c b/sound/soc/sh/rcar/adg.c
+index 0b8ae3eee148..93751099465d 100644
+--- a/sound/soc/sh/rcar/adg.c
++++ b/sound/soc/sh/rcar/adg.c
+@@ -290,7 +290,6 @@ static void rsnd_adg_set_ssi_clk(struct rsnd_mod *ssi_mod, u32 val)
+ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
+ {
+ 	struct rsnd_adg *adg = rsnd_priv_to_adg(priv);
+-	struct clk *clk;
+ 	int i;
+ 	int sel_table[] = {
+ 		[CLKA] = 0x1,
+@@ -303,10 +302,9 @@ int rsnd_adg_clk_query(struct rsnd_priv *priv, unsigned int rate)
+ 	 * find suitable clock from
+ 	 * AUDIO_CLKA/AUDIO_CLKB/AUDIO_CLKC/AUDIO_CLKI.
+ 	 */
+-	for_each_rsnd_clk(clk, adg, i) {
++	for (i = 0; i < CLKMAX; i++)
+ 		if (rate == adg->clk_rate[i])
+ 			return sel_table[i];
+-	}
  
--	if (!rt700->hw_init)
-+	if (!rt700->first_hw_init)
- 		return 0;
- 
- 	if (!slave->unattach_request)
+ 	/*
+ 	 * find divided clock from BRGA/BRGB
 -- 
 2.30.2
 
