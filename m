@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FAC3C4770
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5603B3C4703
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235704AbhGLGco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:32:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46882 "EHLO mail.kernel.org"
+        id S237390AbhGLGa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:30:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235973AbhGLG3k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:29:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60FA161221;
-        Mon, 12 Jul 2021 06:26:28 +0000 (UTC)
+        id S235991AbhGLG3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:29:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B346161241;
+        Mon, 12 Jul 2021 06:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071188;
-        bh=qjYi6dlzdwkeUyJMDizN4xGrxDGiQNChSWKqxAa0i80=;
+        s=korg; t=1626071191;
+        bh=k4r+SaivwDRN3JS50RFEndi6qNOiVF7An36wEHIZLlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FviBlwWilkgblpuO73Ag8W9nIKNFAUePycWs71CJ/KJR1oZ2CWJ/xQfQVNJ2oTWqC
-         hBzOPen2UMDl/JzGf78Ddno+cVXeE82THGEFSWPlT0bGt8So+dAcfxOHD4JARhRrJk
-         sEBemJAyxdzHb6BRNEmk81jl2+xEmYv7JIGbhulU=
+        b=m4FMrR84Wp8+cRBYAJYUj0pom0Zie0VIlSJZ/HDxaREfirO4pvivhsPVNp2FxlgR1
+         8qxVEQdkkVmYdPkH9zvJyDKqZbQwks6FfE/dgtNQeKiEsBvYZZWJotgrt1KCHZmIaT
+         83ePlErV8nhmLsSz9Wk2vOrpe4DQ9Y+l0lQt5w2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Song Qiang <songqiang1304521@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 313/348] iio: magn: rm3100: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:11:37 +0200
-Message-Id: <20210712060745.445343473@linuxfoundation.org>
+Subject: [PATCH 5.4 314/348] staging: gdm724x: check for buffer overflow in gdm_lte_multi_sdu_pkt()
+Date:   Mon, 12 Jul 2021 08:11:38 +0200
+Message-Id: <20210712060745.607325446@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -42,41 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b8f939fd20690623cb24845a563e7bc1e4a21482 ]
+[ Upstream commit 4a36e160856db8a8ddd6a3d2e5db5a850ab87f82 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+There needs to be a check to verify that we don't read beyond the end
+of "buf".  This function is called from do_rx().  The "buf" is the USB
+transfer_buffer and "len" is "urb->actual_length".
 
-Here an explicit structure is not used, because this buffer is used in
-a non-trivial way for data repacking.
-
-Fixes: 121354b2eceb ("iio: magnetometer: Add driver support for PNI RM3100")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Song Qiang <songqiang1304521@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-6-jic23@kernel.org
+Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YMcnl4zCwGWGDVMG@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/magnetometer/rm3100-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/gdm724x/gdm_lte.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/magnetometer/rm3100-core.c b/drivers/iio/magnetometer/rm3100-core.c
-index 7c20918d8108..f31ff225fe61 100644
---- a/drivers/iio/magnetometer/rm3100-core.c
-+++ b/drivers/iio/magnetometer/rm3100-core.c
-@@ -76,7 +76,8 @@ struct rm3100_data {
- 	bool use_interrupt;
- 	int conversion_time;
- 	int scale;
--	u8 buffer[RM3100_SCAN_BYTES];
-+	/* Ensure naturally aligned timestamp */
-+	u8 buffer[RM3100_SCAN_BYTES] __aligned(8);
- 	struct iio_trigger *drdy_trig;
+diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
+index db11498f6fc7..182a77de2d04 100644
+--- a/drivers/staging/gdm724x/gdm_lte.c
++++ b/drivers/staging/gdm724x/gdm_lte.c
+@@ -677,6 +677,7 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 	struct sdu *sdu = NULL;
+ 	u8 endian = phy_dev->get_endian(phy_dev->priv_dev);
+ 	u8 *data = (u8 *)multi_sdu->data;
++	int copied;
+ 	u16 i = 0;
+ 	u16 num_packet;
+ 	u16 hci_len;
+@@ -688,6 +689,12 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 	num_packet = gdm_dev16_to_cpu(endian, multi_sdu->num_packet);
  
- 	/*
+ 	for (i = 0; i < num_packet; i++) {
++		copied = data - multi_sdu->data;
++		if (len < copied + sizeof(*sdu)) {
++			pr_err("rx prevent buffer overflow");
++			return;
++		}
++
+ 		sdu = (struct sdu *)data;
+ 
+ 		cmd_evt  = gdm_dev16_to_cpu(endian, sdu->cmd_evt);
+@@ -698,7 +705,8 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 			pr_err("rx sdu wrong hci %04x\n", cmd_evt);
+ 			return;
+ 		}
+-		if (hci_len < 12) {
++		if (hci_len < 12 ||
++		    len < copied + sizeof(*sdu) + (hci_len - 12)) {
+ 			pr_err("rx sdu invalid len %d\n", hci_len);
+ 			return;
+ 		}
 -- 
 2.30.2
 
