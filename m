@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C6293C4A7F
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D903C4F44
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239235AbhGLGwn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44284 "EHLO mail.kernel.org"
+        id S245573AbhGLHXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239276AbhGLGth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:49:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C364F60233;
-        Mon, 12 Jul 2021 06:46:48 +0000 (UTC)
+        id S241456AbhGLHWh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:22:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2875261167;
+        Mon, 12 Jul 2021 07:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072409;
-        bh=bhJ+XzWt5t7FiSN0ldQi4tcQ6qcwYXp9t/NbSHH2QEc=;
+        s=korg; t=1626074389;
+        bh=sPibL6mmZB96dURXwzcDpgE9/GwXMbOuMLhYsqDbWvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sC2D12tICxpeJ3ky+xMKToRYagHDE+57945rH5yj/9Iumb8Wj8p+I7f8uTPx2Di1T
-         63uwC8FjB7VF6j0C9IQUgkigWnf/M5uVPdQVLBiHMvS9FZhRUAH0naSiU7tC7vPnVH
-         4BwQkA82jOCoOKeDZt4MZ5MyrmtKo05iGKvSRq30=
+        b=l3iaD0uMf/peE1ctimBiEhyiQYnNEuFwFokv8mMK5ExRcXSiWgHjs9wZ9FmFBYOSR
+         043kCtsaqPPKdYQYk6aVZvLO0ZyXHCEx0gn0U+rRLG3hrXSTovn2fpXEh6dn+oypmP
+         +WiyuwAEqBvdlHBc+COhcOrpq2ChDvBZ6WwZu0PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 486/593] scsi: iscsi: Flush block work before unblock
+Subject: [PATCH 5.12 563/700] mtd: rawnand: arasan: Ensure proper configuration for the asserted target
 Date:   Mon, 12 Jul 2021 08:10:46 +0200
-Message-Id: <20210712060944.513395231@linuxfoundation.org>
+Message-Id: <20210712061036.105983370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +39,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit 7ce9fc5ecde0d8bd64c29baee6c5e3ce7074ec9a ]
+[ Upstream commit b5437c7b682c9a505065b4ab4716cdc951dc3c7c ]
 
-We set the max_active iSCSI EH works to 1, so all work is going to execute
-in order by default. However, userspace can now override this in sysfs. If
-max_active > 1, we can end up with the block_work on CPU1 and
-iscsi_unblock_session running the unblock_work on CPU2 and the session and
-target/device state will end up out of sync with each other.
+The controller being always asserting one CS or the other, there is no
+need to actually select the right target before doing a page read/write.
+However, the anfc_select_target() helper actually also changes the
+timing configuration and clock in the case were two different NAND chips
+with different timing requirements would be used. In this situation, we
+must ensure proper configuration of the controller by calling it.
 
-This adds a flush of the block_work in iscsi_unblock_session.
+As a consequence of this change, the anfc_select_target() helper is
+being moved earlier in the driver.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-17-michael.christie@oracle.com
-Fixes: 1d726aa6ef57 ("scsi: iscsi: Optimize work queue flush use")
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 88ffef1b65cf ("mtd: rawnand: arasan: Support the hardware BCH ECC engine")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210526093242.183847-4-miquel.raynal@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mtd/nand/raw/arasan-nand-controller.c | 90 ++++++++++++-------
+ 1 file changed, 57 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index c53c3f9fa526..c520239082fc 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -1979,6 +1979,8 @@ static void __iscsi_unblock_session(struct work_struct *work)
-  */
- void iscsi_unblock_session(struct iscsi_cls_session *session)
- {
-+	flush_work(&session->block_work);
+diff --git a/drivers/mtd/nand/raw/arasan-nand-controller.c b/drivers/mtd/nand/raw/arasan-nand-controller.c
+index 549aac00228e..390f8d719c25 100644
+--- a/drivers/mtd/nand/raw/arasan-nand-controller.c
++++ b/drivers/mtd/nand/raw/arasan-nand-controller.c
+@@ -273,6 +273,37 @@ static int anfc_pkt_len_config(unsigned int len, unsigned int *steps,
+ 	return 0;
+ }
+ 
++static int anfc_select_target(struct nand_chip *chip, int target)
++{
++	struct anand *anand = to_anand(chip);
++	struct arasan_nfc *nfc = to_anfc(chip->controller);
++	int ret;
 +
- 	queue_work(iscsi_eh_timer_workq, &session->unblock_work);
- 	/*
- 	 * Blocking the session can be done from any context so we only
++	/* Update the controller timings and the potential ECC configuration */
++	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
++
++	/* Update clock frequency */
++	if (nfc->cur_clk != anand->clk) {
++		clk_disable_unprepare(nfc->controller_clk);
++		ret = clk_set_rate(nfc->controller_clk, anand->clk);
++		if (ret) {
++			dev_err(nfc->dev, "Failed to change clock rate\n");
++			return ret;
++		}
++
++		ret = clk_prepare_enable(nfc->controller_clk);
++		if (ret) {
++			dev_err(nfc->dev,
++				"Failed to re-enable the controller clock\n");
++			return ret;
++		}
++
++		nfc->cur_clk = anand->clk;
++	}
++
++	return 0;
++}
++
+ /*
+  * When using the embedded hardware ECC engine, the controller is in charge of
+  * feeding the engine with, first, the ECC residue present in the data array.
+@@ -401,6 +432,18 @@ static int anfc_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
+ 	return 0;
+ }
+ 
++static int anfc_sel_read_page_hw_ecc(struct nand_chip *chip, u8 *buf,
++				     int oob_required, int page)
++{
++	int ret;
++
++	ret = anfc_select_target(chip, chip->cur_cs);
++	if (ret)
++		return ret;
++
++	return anfc_read_page_hw_ecc(chip, buf, oob_required, page);
++};
++
+ static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
+ 				  int oob_required, int page)
+ {
+@@ -461,6 +504,18 @@ static int anfc_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
+ 	return ret;
+ }
+ 
++static int anfc_sel_write_page_hw_ecc(struct nand_chip *chip, const u8 *buf,
++				      int oob_required, int page)
++{
++	int ret;
++
++	ret = anfc_select_target(chip, chip->cur_cs);
++	if (ret)
++		return ret;
++
++	return anfc_write_page_hw_ecc(chip, buf, oob_required, page);
++};
++
+ /* NAND framework ->exec_op() hooks and related helpers */
+ static int anfc_parse_instructions(struct nand_chip *chip,
+ 				   const struct nand_subop *subop,
+@@ -753,37 +808,6 @@ static const struct nand_op_parser anfc_op_parser = NAND_OP_PARSER(
+ 		NAND_OP_PARSER_PAT_WAITRDY_ELEM(false)),
+ 	);
+ 
+-static int anfc_select_target(struct nand_chip *chip, int target)
+-{
+-	struct anand *anand = to_anand(chip);
+-	struct arasan_nfc *nfc = to_anfc(chip->controller);
+-	int ret;
+-
+-	/* Update the controller timings and the potential ECC configuration */
+-	writel_relaxed(anand->timings, nfc->base + DATA_INTERFACE_REG);
+-
+-	/* Update clock frequency */
+-	if (nfc->cur_clk != anand->clk) {
+-		clk_disable_unprepare(nfc->controller_clk);
+-		ret = clk_set_rate(nfc->controller_clk, anand->clk);
+-		if (ret) {
+-			dev_err(nfc->dev, "Failed to change clock rate\n");
+-			return ret;
+-		}
+-
+-		ret = clk_prepare_enable(nfc->controller_clk);
+-		if (ret) {
+-			dev_err(nfc->dev,
+-				"Failed to re-enable the controller clock\n");
+-			return ret;
+-		}
+-
+-		nfc->cur_clk = anand->clk;
+-	}
+-
+-	return 0;
+-}
+-
+ static int anfc_check_op(struct nand_chip *chip,
+ 			 const struct nand_operation *op)
+ {
+@@ -1007,8 +1031,8 @@ static int anfc_init_hw_ecc_controller(struct arasan_nfc *nfc,
+ 	if (!anand->bch)
+ 		return -EINVAL;
+ 
+-	ecc->read_page = anfc_read_page_hw_ecc;
+-	ecc->write_page = anfc_write_page_hw_ecc;
++	ecc->read_page = anfc_sel_read_page_hw_ecc;
++	ecc->write_page = anfc_sel_write_page_hw_ecc;
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
