@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE833C4E10
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EB5E3C5405
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238084AbhGLHQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49492 "EHLO mail.kernel.org"
+        id S1349420AbhGLH4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243406AbhGLHPy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:15:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4044D61411;
-        Mon, 12 Jul 2021 07:12:36 +0000 (UTC)
+        id S1351630AbhGLHv7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:51:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 020F460FF1;
+        Mon, 12 Jul 2021 07:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073956;
-        bh=gwUDdu/CE31szvQnPH4cwGXPPoZIgG5LwrLvDc1Q7I4=;
+        s=korg; t=1626076151;
+        bh=poVeK7EhLVcgvfNqEIIt69ZyXMeYgV+XWonfX+8FZEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEXrIaRNTJYoz7ttBj4Y0Wi0OH0WJsXFYWk0pt9YMbJJ9faGscjYXhHM9m6Nj/Npp
-         EjIL1z+R+w9xLqCiWDLoScYryqhG71z7a3oI8xuTZ01mNXaDRzuJAKoWtStB0DH1hA
-         KReTSviRHOll6XX/+i2620SLiOxCxUwZPpwh7zxc=
+        b=hvHkdB6EVM3p0Q1xRwPxD49CR0ZDfE6OTs2qHbd0k7beH261lUK05Im3255MK/KL2
+         8uEBEdFI8xMDH+sQFj0OM0PHa261hBbVXVnayF0QIJh/nSngyB6l/my2Xhs424crBp
+         h3SFPZUbR41+VRft3sBR8HaWGSWREVKL2LoQNSoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Seevalamuthu Mariappan <seevalam@codeaurora.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Zhu Yanjun <zyjzyj2000@gmail.com>,
+        Bob Pearson <rpearsonhpe@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 416/700] ath11k: send beacon template after vdev_start/restart during csa
-Date:   Mon, 12 Jul 2021 08:08:19 +0200
-Message-Id: <20210712061020.638482160@linuxfoundation.org>
+Subject: [PATCH 5.13 477/800] RDMA/rxe: Fix qp reference counting for atomic ops
+Date:   Mon, 12 Jul 2021 08:08:20 +0200
+Message-Id: <20210712061017.924060338@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +41,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seevalamuthu Mariappan <seevalam@codeaurora.org>
+From: Bob Pearson <rpearsonhpe@gmail.com>
 
-[ Upstream commit 979ebc54cf13bd1e3eb6e21766d208d5de984fb8 ]
+[ Upstream commit 15ae1375ea91ae2dee6f12d71a79d8c0a10a30bf ]
 
-Firmware has added assert if beacon template is received after
-vdev_down. Firmware expects beacon template after vdev_start
-and before vdev_up. This change is needed to support MBSSID EMA
-cases in firmware.
+Currently the rdma_rxe driver attempts to protect atomic responder
+resources by taking a reference to the qp which is only freed when the
+resource is recycled for a new read or atomic operation. This means that
+in normal circumstances there is almost always an extra qp reference once
+an atomic operation has been executed which prevents cleaning up the qp
+and associated pd and cqs when the qp is destroyed.
 
-Hence, Change the sequence in ath11k as expected from firmware.
-This new change is not causing any issues with older
-firmware.
+This patch removes the call to rxe_add_ref() in send_atomic_ack() and the
+call to rxe_drop_ref() in free_rd_atomic_resource(). If the qp is
+destroyed while a peer is retrying an atomic op it will cause the
+operation to fail which is acceptable.
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1.r3-00011-QCAHKSWPL_SILICONZ-1
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1.r4-00008-QCAHKSWPL_SILICONZ-1
-
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Seevalamuthu Mariappan <seevalam@codeaurora.org>
-[sven@narfation.org: added tested-on/fixes information]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210525133028.2805615-1-sven@narfation.org
+Link: https://lore.kernel.org/r/20210604230558.4812-1-rpearsonhpe@gmail.com
+Reported-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Fixes: 86af61764151 ("IB/rxe: remove unnecessary skb_clone")
+Signed-off-by: Bob Pearson <rpearsonhpe@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c   | 1 -
+ drivers/infiniband/sw/rxe/rxe_resp.c | 2 --
+ 2 files changed, 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 7ad0383affcb..a0e7bc6dd8c7 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -5311,11 +5311,6 @@ ath11k_mac_update_vif_chan(struct ath11k *ar,
- 		if (WARN_ON(!arvif->is_up))
- 			continue;
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index b0f350d674fd..93a41ebda1a8 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -136,7 +136,6 @@ static void free_rd_atomic_resources(struct rxe_qp *qp)
+ void free_rd_atomic_resource(struct rxe_qp *qp, struct resp_res *res)
+ {
+ 	if (res->type == RXE_ATOMIC_MASK) {
+-		rxe_drop_ref(qp);
+ 		kfree_skb(res->atomic.skb);
+ 	} else if (res->type == RXE_READ_MASK) {
+ 		if (res->read.mr)
+diff --git a/drivers/infiniband/sw/rxe/rxe_resp.c b/drivers/infiniband/sw/rxe/rxe_resp.c
+index 2b220659bddb..39dc39be586e 100644
+--- a/drivers/infiniband/sw/rxe/rxe_resp.c
++++ b/drivers/infiniband/sw/rxe/rxe_resp.c
+@@ -966,8 +966,6 @@ static int send_atomic_ack(struct rxe_qp *qp, struct rxe_pkt_info *pkt,
+ 		goto out;
+ 	}
  
--		ret = ath11k_mac_setup_bcn_tmpl(arvif);
--		if (ret)
--			ath11k_warn(ab, "failed to update bcn tmpl during csa: %d\n",
--				    ret);
+-	rxe_add_ref(qp);
 -
- 		ret = ath11k_mac_vdev_restart(arvif, &vifs[i].new_ctx->def);
- 		if (ret) {
- 			ath11k_warn(ab, "failed to restart vdev %d: %d\n",
-@@ -5323,6 +5318,11 @@ ath11k_mac_update_vif_chan(struct ath11k *ar,
- 			continue;
- 		}
- 
-+		ret = ath11k_mac_setup_bcn_tmpl(arvif);
-+		if (ret)
-+			ath11k_warn(ab, "failed to update bcn tmpl during csa: %d\n",
-+				    ret);
-+
- 		ret = ath11k_wmi_vdev_up(arvif->ar, arvif->vdev_id, arvif->aid,
- 					 arvif->bssid);
- 		if (ret) {
+ 	res = &qp->resp.resources[qp->resp.res_head];
+ 	free_rd_atomic_resource(qp, res);
+ 	rxe_advance_resp_resource(qp);
 -- 
 2.30.2
 
