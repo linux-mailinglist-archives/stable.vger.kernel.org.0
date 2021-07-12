@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B72E33C4F72
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 418403C5514
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242853AbhGLHZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34004 "EHLO mail.kernel.org"
+        id S1346837AbhGLIJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239366AbhGLHWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:22:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD8FB6052B;
-        Mon, 12 Jul 2021 07:20:01 +0000 (UTC)
+        id S1352509AbhGLH7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:59:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0147261455;
+        Mon, 12 Jul 2021 07:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074402;
-        bh=JtG1JLljfS8M88vlJnnVTirxk2SkKYS2fizuKzP7JAk=;
+        s=korg; t=1626076398;
+        bh=e/KKfcWa+CIdZ83CTH8/LMGfbSFDCGfD8TBqyrOQMtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KrCtB0AnT+AICPdTlgUJ2GpcVrETvYL3iCxnA/8/ciPgYXLHd86Gha5Qd4bAOcmoh
-         3124Ds/DWlbhYKVpnFlp80JOdkIxxurFuvqYr9TbtRaXWEQWGh9xbmfqNdlDgTXa/t
-         p/7UMcBfO+xUjkS2qFRF7ihkOLvbPbXND0jjU5Bg=
+        b=sm+uVFhlMMvs57FUUwWR4doeBVyelMiUqmQY9COIlenqc2MVBBZw9VDhRwa0EB1LS
+         3nBZsIgXYlPNoekqJq/nZpvTaqTRkFsI6BA4SURY50ucLlBpyok8LjfXisFnyPtqiy
+         VcROUvcVbRENYdJCTCcXKKeTKAEACV3T74jgstww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andreas Klinger <ak@it-klinger.de>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 567/700] tty: nozomi: Fix the error handling path of nozomi_card_init()
+Subject: [PATCH 5.13 627/800] iio: prox: srf08: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:10:50 +0200
-Message-Id: <20210712061036.463413432@linuxfoundation.org>
+Message-Id: <20210712061033.926108739@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 6ae7d0f5a92b9619f6e3c307ce56b2cefff3f0e9 ]
+[ Upstream commit 19f1a254fe4949fff1e67db386409f48cf438bd7 ]
 
-The error handling path is broken and we may un-register things that have
-never been registered.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Update the loops index accordingly.
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
-Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/e28c2e92c7475da25b03d022ea2d6dcf1ba807a2.1621968629.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 78f839029e1d ("iio: distance: srf08: add IIO driver for us ranger")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Andreas Klinger <ak@it-klinger.de>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-13-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/nozomi.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/iio/proximity/srf08.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
-index 0b10c2da4364..1076f884d9f9 100644
---- a/drivers/tty/nozomi.c
-+++ b/drivers/tty/nozomi.c
-@@ -1391,7 +1391,7 @@ static int nozomi_card_init(struct pci_dev *pdev,
- 			NOZOMI_NAME, dc);
- 	if (unlikely(ret)) {
- 		dev_err(&pdev->dev, "can't request irq %d\n", pdev->irq);
--		goto err_free_kfifo;
-+		goto err_free_all_kfifo;
- 	}
+diff --git a/drivers/iio/proximity/srf08.c b/drivers/iio/proximity/srf08.c
+index 70beac5c9c1d..9b0886760f76 100644
+--- a/drivers/iio/proximity/srf08.c
++++ b/drivers/iio/proximity/srf08.c
+@@ -63,11 +63,11 @@ struct srf08_data {
+ 	int			range_mm;
+ 	struct mutex		lock;
  
- 	DBG1("base_addr: %p", dc->base_addr);
-@@ -1429,13 +1429,15 @@ static int nozomi_card_init(struct pci_dev *pdev,
- 	return 0;
+-	/*
+-	 * triggered buffer
+-	 * 1x16-bit channel + 3x16 padding + 4x16 timestamp
+-	 */
+-	s16			buffer[8];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s16 chan;
++		s64 timestamp __aligned(8);
++	} scan;
  
- err_free_tty:
--	for (i = 0; i < MAX_PORT; ++i) {
-+	for (i--; i >= 0; i--) {
- 		tty_unregister_device(ntty_driver, dc->index_start + i);
- 		tty_port_destroy(&dc->port[i].port);
- 	}
- 	free_irq(pdev->irq, dc);
-+err_free_all_kfifo:
-+	i = MAX_PORT;
- err_free_kfifo:
--	for (i = 0; i < MAX_PORT; i++)
-+	for (i--; i >= PORT_MDM; i--)
- 		kfifo_free(&dc->port[i].fifo_ul);
- err_free_sbuf:
- 	kfree(dc->send_buf);
+ 	/* Sensor-Type */
+ 	enum srf08_sensor_type	sensor_type;
+@@ -190,9 +190,9 @@ static irqreturn_t srf08_trigger_handler(int irq, void *p)
+ 
+ 	mutex_lock(&data->lock);
+ 
+-	data->buffer[0] = sensor_data;
++	data->scan.chan = sensor_data;
+ 	iio_push_to_buffers_with_timestamp(indio_dev,
+-						data->buffer, pf->timestamp);
++					   &data->scan, pf->timestamp);
+ 
+ 	mutex_unlock(&data->lock);
+ err:
 -- 
 2.30.2
 
