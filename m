@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323233C4F1B
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09EFC3C5451
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240384AbhGLHXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58388 "EHLO mail.kernel.org"
+        id S1348321AbhGLH5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:57:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344421AbhGLHUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CA9C611ED;
-        Mon, 12 Jul 2021 07:17:44 +0000 (UTC)
+        id S1352187AbhGLHyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:54:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A50B61186;
+        Mon, 12 Jul 2021 07:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074265;
-        bh=4e+JVFy4guMVI0ZXAniUTbQQ+amjAC/XsZ6KqLr9Jh8=;
+        s=korg; t=1626076288;
+        bh=Wbd/qaS45WkBuHQ9fU4fspsYClrMDKhEBurmMrV78T4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eA9ENt2LHajsJjQaZhcGTKd9TxwaPvwaQbUgHj51BAUd73xY7WgEFa/EoBCJwL6Or
-         s7qozM5OQ3hZaEH/wsWPiRbL4yhKah/A5sfXJUtYFByjgPj7exNUJ5CZIZV+QB8g6C
-         J5iH4ECuVMlpXlyW9ip57gEtaHKys60+QTG7q/Kg=
+        b=qOQp7/6eBIa+2xNI1vqyOGw5HGR27UgOHA7NlxZ6thGit7WVbakaX2fXljmhFY/2n
+         JgQQPkX8mqNgjFaLZWH/XCyEBFji2sc6RfLYdpmqHzPZaQ/YFMoooiY8sBhMDSCCSv
+         8IlbdV1dxNDhaZwlnUW6AaLw9MNYPYOGoQdQ1hr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nishad Kamdar <nishadkamdar@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 520/700] staging: fbtft: Dont spam logs when probe is deferred
+Subject: [PATCH 5.13 580/800] Bluetooth: virtio_bt: add missing null pointer check on alloc_skb call return
 Date:   Mon, 12 Jul 2021 08:10:03 +0200
-Message-Id: <20210712061031.799311026@linuxfoundation.org>
+Message-Id: <20210712061029.038538404@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 37667f6e57712cef5652fa67f1cbd1299e204d94 ]
+[ Upstream commit 1cb027f2f803d0a7abe9c291f0625e6bccd25999 ]
 
-When requesting GPIO line the probe can be deferred.
-In such case don't spam logs with an error message.
-This can be achieved by switching to dev_err_probe().
+The call to alloc_skb with the GFP_KERNEL flag can return a null sk_buff
+pointer, so add a null check to avoid any null pointer deference issues.
 
-Fixes: c440eee1a7a1 ("Staging: fbtft: Switch to the gpio descriptor interface")
-Cc: Nishad Kamdar <nishadkamdar@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210503172114.27891-3-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Dereference null return value")
+Fixes: afd2daa26c7a ("Bluetooth: Add support for virtio transport driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/fbtft/fbtft-core.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
+ drivers/bluetooth/virtio_bt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/staging/fbtft/fbtft-core.c b/drivers/staging/fbtft/fbtft-core.c
-index 67c3b1975a4d..3723269890d5 100644
---- a/drivers/staging/fbtft/fbtft-core.c
-+++ b/drivers/staging/fbtft/fbtft-core.c
-@@ -75,20 +75,16 @@ static int fbtft_request_one_gpio(struct fbtft_par *par,
- 				  struct gpio_desc **gpiop)
- {
- 	struct device *dev = par->info->device;
--	int ret = 0;
+diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
+index c804db7e90f8..57908ce4fae8 100644
+--- a/drivers/bluetooth/virtio_bt.c
++++ b/drivers/bluetooth/virtio_bt.c
+@@ -34,6 +34,9 @@ static int virtbt_add_inbuf(struct virtio_bluetooth *vbt)
+ 	int err;
  
- 	*gpiop = devm_gpiod_get_index_optional(dev, name, index,
- 					       GPIOD_OUT_LOW);
--	if (IS_ERR(*gpiop)) {
--		ret = PTR_ERR(*gpiop);
--		dev_err(dev,
--			"Failed to request %s GPIO: %d\n", name, ret);
--		return ret;
--	}
-+	if (IS_ERR(*gpiop))
-+		return dev_err_probe(dev, PTR_ERR(*gpiop), "Failed to request %s GPIO\n", name);
+ 	skb = alloc_skb(1000, GFP_KERNEL);
++	if (!skb)
++		return -ENOMEM;
 +
- 	fbtft_par_dbg(DEBUG_REQUEST_GPIOS, par, "%s: '%s' GPIO\n",
- 		      __func__, name);
+ 	sg_init_one(sg, skb->data, 1000);
  
--	return ret;
-+	return 0;
- }
- 
- static int fbtft_request_gpios(struct fbtft_par *par)
+ 	err = virtqueue_add_inbuf(vq, sg, 1, skb, GFP_KERNEL);
 -- 
 2.30.2
 
