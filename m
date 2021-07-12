@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B3E3C4DEC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 928313C497F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:33:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243493AbhGLHPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:15:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
+        id S235956AbhGLGpK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:45:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241517AbhGLHOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:14:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5A17613E6;
-        Mon, 12 Jul 2021 07:11:21 +0000 (UTC)
+        id S238813AbhGLGoW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:44:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9474861175;
+        Mon, 12 Jul 2021 06:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073882;
-        bh=MCwjGlUhMs9fRJNOMQKclYgS0+8CWreKuf7GuCiuqT4=;
+        s=korg; t=1626072002;
+        bh=OTS2lewOHjvgY/3QhtBOY9+g6MnTZPv7LEmkyib9lPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYhUYgHUpBlYrDjxJUt4kcVZ8tP+i49eUdLj/ldgVJPT4enAN8Ctbkgmts59P9lrG
-         ntpoFDL3WUhOwmmlZG2PzGm2HkN1xuV2RvgogdJCS1y945Rq99jbOQ1g6n1lhMmD5l
-         kixD9+CjV0IIov2tZ08N0hqgsnCw2c+sHN/iog8s=
+        b=KXe4VwSkW8J4sScin30MtTdBQbpcWDs88JFYv7uQf6nsV7d6og7vLHICGAgwhrJ3a
+         n4ujUTqsR19JckJPgNf5U50zZWCEWaPsG+9mfQA98xMZXlEbeZb8U1W8XcZnTRvbE8
+         h6/nvQc2x/OUgr8fJegjEVhtwcG3bj+Q1lYDxygA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 389/700] ehea: fix error return code in ehea_restart_qps()
+Subject: [PATCH 5.10 312/593] clk: meson: g12a: fix gp0 and hifi ranges
 Date:   Mon, 12 Jul 2021 08:07:52 +0200
-Message-Id: <20210712061017.785496687@linuxfoundation.org>
+Message-Id: <20210712060919.622667843@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 015dbf5662fd689d581c0bc980711b073ca09a1a ]
+[ Upstream commit bc794f8c56abddf709f1f84fcb2a3c9e7d9cc9b4 ]
 
-Fix to return -EFAULT from the error handling case instead of 0, as done
-elsewhere in this function.
+While some SoC samples are able to lock with a PLL factor of 55, others
+samples can't. ATM, a minimum of 60 appears to work on all the samples
+I have tried.
 
-By the way, when get_zeroed_page() fails, directly return -ENOMEM to
-simplify code.
+Even with 60, it sometimes takes a long time for the PLL to eventually
+lock. The documentation says that the minimum rate of these PLLs DCO
+should be 3GHz, a factor of 125. Let's use that to be on the safe side.
 
-Fixes: 2c69448bbced ("ehea: DLPAR memory add fix")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210528085555.9390-1-thunder.leizhen@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+With factor range changed, the PLL seems to lock quickly (enough) so far.
+It is still unclear if the range was the only reason for the delay.
+
+Fixes: 085a4ea93d54 ("clk: meson: g12a: add peripheral clock controller")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210429090325.60970-1-jbrunet@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ehea/ehea_main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/clk/meson/g12a.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/ibm/ehea/ehea_main.c b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-index c2e740475786..f63066736425 100644
---- a/drivers/net/ethernet/ibm/ehea/ehea_main.c
-+++ b/drivers/net/ethernet/ibm/ehea/ehea_main.c
-@@ -2617,10 +2617,8 @@ static int ehea_restart_qps(struct net_device *dev)
- 	u16 dummy16 = 0;
+diff --git a/drivers/clk/meson/g12a.c b/drivers/clk/meson/g12a.c
+index b814d44917a5..2876bb83d9d0 100644
+--- a/drivers/clk/meson/g12a.c
++++ b/drivers/clk/meson/g12a.c
+@@ -1602,7 +1602,7 @@ static struct clk_regmap g12b_cpub_clk_trace = {
+ };
  
- 	cb0 = (void *)get_zeroed_page(GFP_KERNEL);
--	if (!cb0) {
--		ret = -ENOMEM;
--		goto out;
--	}
-+	if (!cb0)
-+		return -ENOMEM;
- 
- 	for (i = 0; i < (port->num_def_qps); i++) {
- 		struct ehea_port_res *pr =  &port->port_res[i];
-@@ -2640,6 +2638,7 @@ static int ehea_restart_qps(struct net_device *dev)
- 					    cb0);
- 		if (hret != H_SUCCESS) {
- 			netdev_err(dev, "query_ehea_qp failed (1)\n");
-+			ret = -EFAULT;
- 			goto out;
- 		}
- 
-@@ -2652,6 +2651,7 @@ static int ehea_restart_qps(struct net_device *dev)
- 					     &dummy64, &dummy16, &dummy16);
- 		if (hret != H_SUCCESS) {
- 			netdev_err(dev, "modify_ehea_qp failed (1)\n");
-+			ret = -EFAULT;
- 			goto out;
- 		}
- 
-@@ -2660,6 +2660,7 @@ static int ehea_restart_qps(struct net_device *dev)
- 					    cb0);
- 		if (hret != H_SUCCESS) {
- 			netdev_err(dev, "query_ehea_qp failed (2)\n");
-+			ret = -EFAULT;
- 			goto out;
- 		}
+ static const struct pll_mult_range g12a_gp0_pll_mult_range = {
+-	.min = 55,
++	.min = 125,
+ 	.max = 255,
+ };
  
 -- 
 2.30.2
