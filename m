@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0CC53C5448
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BE933C4A63
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348230AbhGLH5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:57:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44020 "EHLO mail.kernel.org"
+        id S240772AbhGLGwO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350629AbhGLHx7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:53:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4CAC613CF;
-        Mon, 12 Jul 2021 07:51:09 +0000 (UTC)
+        id S238622AbhGLGs5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:48:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCF5C60FE3;
+        Mon, 12 Jul 2021 06:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076270;
-        bh=A9ulKfd3LQ0ZGp6Gy15FHDLuLq4sOC7clxUAqlQItbE=;
+        s=korg; t=1626072276;
+        bh=x4JNba6xjjfVLQxm/JV0FfLpvnEaE+SAqmEXK4EIb5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uW7nijOYigz+4+kOJ8BNqW+S8MsiaG+c89XFcxpyEqtSxFKAlPeEOlnzS65FTA1p5
-         RfNK6zgfVyXwiyRKQVeztTMr5WwQo/c5KEdvbL7/hMxlScUNhS2Sv+R6lD/MhdctyB
-         6RZptDsV7Dq0Ce2/yAOHq6cf3vLX+QkNm+PL0XyU=
+        b=Vz8agWNXFRVVcPGc3iAMcx9PbdhBb+fNTiB4HbCZH5Z1qHLcDN1aoGmfCuj/+EzSV
+         fYfGBai9JPz/oF3MrgKBvKiVTCiJHXfuaoUNEkLLZdIA9JPzo3qpe1tJT2eRf7lgRh
+         S2c3/hS3I49EtZFSQm2k+03ke0kMfD7yy46WXg/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sukadev Bhattiprolu <sukadev@linux.ibm.com>,
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Vadim Fedorenko <vfedorenko@novek.ru>,
+        David Ahern <dsahern@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 564/800] ibmvnic: clean pending indirect buffs during reset
+Subject: [PATCH 5.10 427/593] net: lwtunnel: handle MTU calculation in forwading
 Date:   Mon, 12 Jul 2021 08:09:47 +0200
-Message-Id: <20210712061027.453060788@linuxfoundation.org>
+Message-Id: <20210712060935.386975841@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +42,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+From: Vadim Fedorenko <vfedorenko@novek.ru>
 
-[ Upstream commit 65d6470d139a6c1655fccb5cbacbeaba8e8ad2f8 ]
+[ Upstream commit fade56410c22cacafb1be9f911a0afd3701d8366 ]
 
-We batch subordinate command response queue (scrq) descriptors that we
-need to send to the VIOS using an "indirect" buffer. If after we queue
-one or more scrqs in the indirect buffer encounter an error (say fail
-to allocate an skb), we leave the queued scrq descriptors in the
-indirect buffer until the next call to ibmvnic_xmit().
+Commit 14972cbd34ff ("net: lwtunnel: Handle fragmentation") moved
+fragmentation logic away from lwtunnel by carry encap headroom and
+use it in output MTU calculation. But the forwarding part was not
+covered and created difference in MTU for output and forwarding and
+further to silent drops on ipv4 forwarding path. Fix it by taking
+into account lwtunnel encap headroom.
 
-On the next call to ibmvnic_xmit(), it is possible that the adapter is
-going through a reset and it is possible that the long term  buffers
-have been unmapped on the VIOS side. If we proceed to flush (send) the
-packets that are in the indirect buffer, we will end up using the old
-map ids and this can cause the VIOS to trigger an unnecessary FATAL
-error reset.
+The same commit also introduced difference in how to treat RTAX_MTU
+in IPv4 and IPv6 where latter explicitly removes lwtunnel encap
+headroom from route MTU. Make IPv4 version do the same.
 
-Instead of flushing packets remaining on the indirect_buff, discard
-(clean) them instead.
-
-Fixes: 0d973388185d4 ("ibmvnic: Introduce xmit_more support using batched subCRQ hcalls")
-Signed-off-by: Sukadev Bhattiprolu <sukadev@linux.ibm.com>
+Fixes: 14972cbd34ff ("net: lwtunnel: Handle fragmentation")
+Suggested-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ include/net/ip.h        | 12 ++++++++----
+ include/net/ip6_route.h | 16 ++++++++++++----
+ net/ipv4/route.c        |  3 ++-
+ 3 files changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 8b2f6eb8eb21..2d15b446ceb3 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -106,6 +106,8 @@ static void release_crq_queue(struct ibmvnic_adapter *);
- static int __ibmvnic_set_mac(struct net_device *, u8 *);
- static int init_crq_queue(struct ibmvnic_adapter *adapter);
- static int send_query_phys_parms(struct ibmvnic_adapter *adapter);
-+static void ibmvnic_tx_scrq_clean_buffer(struct ibmvnic_adapter *adapter,
-+					 struct ibmvnic_sub_crq_queue *tx_scrq);
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 2d6b985d11cc..5538e54d4620 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -31,6 +31,7 @@
+ #include <net/flow.h>
+ #include <net/flow_dissector.h>
+ #include <net/netns/hash.h>
++#include <net/lwtunnel.h>
  
- struct ibmvnic_stat {
- 	char name[ETH_GSTRING_LEN];
-@@ -668,6 +670,7 @@ static int reset_tx_pools(struct ibmvnic_adapter *adapter)
+ #define IPV4_MAX_PMTU		65535U		/* RFC 2675, Section 5.1 */
+ #define IPV4_MIN_MTU		68			/* RFC 791 */
+@@ -445,22 +446,25 @@ static inline unsigned int ip_dst_mtu_maybe_forward(const struct dst_entry *dst,
  
- 	tx_scrqs = adapter->num_active_tx_pools;
- 	for (i = 0; i < tx_scrqs; i++) {
-+		ibmvnic_tx_scrq_clean_buffer(adapter, adapter->tx_scrq[i]);
- 		rc = reset_one_tx_pool(adapter, &adapter->tso_pool[i]);
- 		if (rc)
- 			return rc;
-@@ -1618,7 +1621,8 @@ static void ibmvnic_tx_scrq_clean_buffer(struct ibmvnic_adapter *adapter,
- 	ind_bufp->index = 0;
- 	if (atomic_sub_return(entries, &tx_scrq->used) <=
- 	    (adapter->req_tx_entries_per_subcrq / 2) &&
--	    __netif_subqueue_stopped(adapter->netdev, queue_num)) {
-+	    __netif_subqueue_stopped(adapter->netdev, queue_num) &&
-+	    !test_bit(0, &adapter->resetting)) {
- 		netif_wake_subqueue(adapter->netdev, queue_num);
- 		netdev_dbg(adapter->netdev, "Started queue %d\n",
- 			   queue_num);
-@@ -1711,7 +1715,6 @@ static netdev_tx_t ibmvnic_xmit(struct sk_buff *skb, struct net_device *netdev)
- 		tx_send_failed++;
- 		tx_dropped++;
- 		ret = NETDEV_TX_OK;
--		ibmvnic_tx_scrq_flush(adapter, tx_scrq);
- 		goto out;
+ 	/* 'forwarding = true' case should always honour route mtu */
+ 	mtu = dst_metric_raw(dst, RTAX_MTU);
+-	if (mtu)
+-		return mtu;
++	if (!mtu)
++		mtu = min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
+ 
+-	return min(READ_ONCE(dst->dev->mtu), IP_MAX_MTU);
++	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+ }
+ 
+ static inline unsigned int ip_skb_dst_mtu(struct sock *sk,
+ 					  const struct sk_buff *skb)
+ {
++	unsigned int mtu;
++
+ 	if (!sk || !sk_fullsock(sk) || ip_sk_use_pmtu(sk)) {
+ 		bool forwarding = IPCB(skb)->flags & IPSKB_FORWARDED;
+ 
+ 		return ip_dst_mtu_maybe_forward(skb_dst(skb), forwarding);
  	}
  
-@@ -3175,6 +3178,7 @@ static void release_sub_crqs(struct ibmvnic_adapter *adapter, bool do_h_free)
+-	return min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
++	mtu = min(READ_ONCE(skb_dst(skb)->dev->mtu), IP_MAX_MTU);
++	return mtu - lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
+ }
  
- 			netdev_dbg(adapter->netdev, "Releasing tx_scrq[%d]\n",
- 				   i);
-+			ibmvnic_tx_scrq_clean_buffer(adapter, adapter->tx_scrq[i]);
- 			if (adapter->tx_scrq[i]->irq) {
- 				free_irq(adapter->tx_scrq[i]->irq,
- 					 adapter->tx_scrq[i]);
+ struct dst_metrics *ip_fib_metrics_init(struct net *net, struct nlattr *fc_mx,
+diff --git a/include/net/ip6_route.h b/include/net/ip6_route.h
+index 2a5277758379..37a7fb1969d6 100644
+--- a/include/net/ip6_route.h
++++ b/include/net/ip6_route.h
+@@ -264,11 +264,18 @@ int ip6_fragment(struct net *net, struct sock *sk, struct sk_buff *skb,
+ 
+ static inline int ip6_skb_dst_mtu(struct sk_buff *skb)
+ {
++	int mtu;
++
+ 	struct ipv6_pinfo *np = skb->sk && !dev_recursion_level() ?
+ 				inet6_sk(skb->sk) : NULL;
+ 
+-	return (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) ?
+-	       skb_dst(skb)->dev->mtu : dst_mtu(skb_dst(skb));
++	if (np && np->pmtudisc >= IPV6_PMTUDISC_PROBE) {
++		mtu = READ_ONCE(skb_dst(skb)->dev->mtu);
++		mtu -= lwtunnel_headroom(skb_dst(skb)->lwtstate, mtu);
++	} else
++		mtu = dst_mtu(skb_dst(skb));
++
++	return mtu;
+ }
+ 
+ static inline bool ip6_sk_accept_pmtu(const struct sock *sk)
+@@ -316,7 +323,7 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
+ 	if (dst_metric_locked(dst, RTAX_MTU)) {
+ 		mtu = dst_metric_raw(dst, RTAX_MTU);
+ 		if (mtu)
+-			return mtu;
++			goto out;
+ 	}
+ 
+ 	mtu = IPV6_MIN_MTU;
+@@ -326,7 +333,8 @@ static inline unsigned int ip6_dst_mtu_forward(const struct dst_entry *dst)
+ 		mtu = idev->cnf.mtu6;
+ 	rcu_read_unlock();
+ 
+-	return mtu;
++out:
++	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
+ }
+ 
+ u32 ip6_mtu_from_fib6(const struct fib6_result *res,
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index e968bb47d5bd..e15c1d8b7c8d 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1327,7 +1327,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
+ 		mtu = dst_metric_raw(dst, RTAX_MTU);
+ 
+ 	if (mtu)
+-		return mtu;
++		goto out;
+ 
+ 	mtu = READ_ONCE(dst->dev->mtu);
+ 
+@@ -1336,6 +1336,7 @@ static unsigned int ipv4_mtu(const struct dst_entry *dst)
+ 			mtu = 576;
+ 	}
+ 
++out:
+ 	mtu = min_t(unsigned int, mtu, IP_MAX_MTU);
+ 
+ 	return mtu - lwtunnel_headroom(dst->lwtstate, mtu);
 -- 
 2.30.2
 
