@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD62C3C4D79
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4DD3C4CAD
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:38:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241663AbhGLHNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S238612AbhGLHGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238414AbhGLHIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:08:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E308A611CB;
-        Mon, 12 Jul 2021 07:04:57 +0000 (UTC)
+        id S243900AbhGLHGC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:06:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 022056121E;
+        Mon, 12 Jul 2021 07:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073498;
-        bh=GGSDtAdxzjHSHDsf8YrTAWML9GL98TFyDuH7C4/yPtE=;
+        s=korg; t=1626073374;
+        bh=hEXybyKNzNQh9GIrfXSwiHb+N8bB+QE1nn7cGPVvTAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiaJH/tWxa4hqEEfq4v7VGSJCGiJwdRDfTKKVZ3zQ3hfaFMTP2KXuOOU0oimqthJ6
-         sIBdxAdPDg2NtlOTfNojvyXqQODs6CYPaCXCZAhk42U76IWzQ63wqlluTf9e2otj6Z
-         NbzGMG2515o/1a5aklsRpWOtBK8NKNWRiuxRJGjQ=
+        b=CgiuqLigTywWhPs2OMz7z0CRFfCJOuM2rjv5zUUNuGFDZ8abMo1eBYlD2EjEl9tjz
+         GxyngaX4MMa/ATeUGCZe4mJO/QjWzI+5bQV5nxEdkVA5NJUho/22S9ru2pdCkwuX2O
+         3/YMHOnJZKqWNMMY9vpAmO+IaCzxMfui52kofp/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Giard <pascal.giard@etsmtl.ca>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 220/700] HID: sony: fix freeze when inserting ghlive ps3/wii dongles
-Date:   Mon, 12 Jul 2021 08:05:03 +0200
-Message-Id: <20210712060957.966680817@linuxfoundation.org>
+        stable@vger.kernel.org, Yi Zhang <yi.zhang@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 221/700] block: fix race between adding/removing rq qos and normal IO
+Date:   Mon, 12 Jul 2021 08:05:04 +0200
+Message-Id: <20210712060958.092182049@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
 References: <20210712060924.797321836@linuxfoundation.org>
@@ -39,194 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Giard <pascal.giard@etsmtl.ca>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit fb1a79a6b6e1223ddb18f12aa35e36f832da2290 ]
+[ Upstream commit 2cafe29a8d03f02a3d16193bdaae2f3e82a423f9 ]
 
-This commit fixes a freeze on insertion of a Guitar Hero Live PS3/WiiU
-USB dongle. Indeed, with the current implementation, inserting one of
-those USB dongles will lead to a hard freeze. I apologize for not
-catching this earlier, it didn't occur on my old laptop.
+Yi reported several kernel panics on:
 
-While the issue was isolated to memory alloc/free, I could not figure
-out why it causes a freeze. So this patch fixes this issue by
-simplifying memory allocation and usage.
+[16687.001777] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008
+...
+[16687.163549] pc : __rq_qos_track+0x38/0x60
 
-We remind that for the dongle to work properly, a control URB needs to
-be sent periodically. We used to alloc/free the URB each time this URB
-needed to be sent.
+or
 
-With this patch, the memory for the URB is allocated on the probe, reused
-for as long as the dongle is plugged in, and freed once the dongle is
-unplugged.
+[  997.690455] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
+...
+[  997.850347] pc : __rq_qos_done+0x2c/0x50
 
-Signed-off-by: Pascal Giard <pascal.giard@etsmtl.ca>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Turns out it is caused by race between adding rq qos(wbt) and normal IO
+because rq_qos_add can be run when IO is being submitted, fix this issue
+by freezing queue before adding/deleting rq qos to queue.
+
+rq_qos_exit() needn't to freeze queue because it is called after queue
+has been frozen.
+
+iolatency calls rq_qos_add() during allocating queue, so freezing won't
+add delay because queue usage refcount works at atomic mode at that
+time.
+
+iocost calls rq_qos_add() when writing cgroup attribute file, that is
+fine to freeze queue at that time since we usually freeze queue when
+storing to queue sysfs attribute, meantime iocost only exists on the
+root cgroup.
+
+wbt_init calls it in blk_register_queue() and queue sysfs attribute
+store(queue_wb_lat_store() when write it 1st time in case of !BLK_WBT_MQ),
+the following patch will speedup the queue freezing in wbt_init.
+
+Reported-by: Yi Zhang <yi.zhang@redhat.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Tested-by: Yi Zhang <yi.zhang@redhat.com>
+Link: https://lore.kernel.org/r/20210609015822.103433-2-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sony.c | 98 +++++++++++++++++++++---------------------
- 1 file changed, 49 insertions(+), 49 deletions(-)
+ block/blk-rq-qos.h | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 8319b0ce385a..b3722c51ec78 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -597,9 +597,8 @@ struct sony_sc {
- 	/* DS4 calibration data */
- 	struct ds4_calibration_data ds4_calib_data[6];
- 	/* GH Live */
-+	struct urb *ghl_urb;
- 	struct timer_list ghl_poke_timer;
--	struct usb_ctrlrequest *ghl_cr;
--	u8 *ghl_databuf;
- };
+diff --git a/block/blk-rq-qos.h b/block/blk-rq-qos.h
+index 2bc43e94f4c4..2bcb3495e376 100644
+--- a/block/blk-rq-qos.h
++++ b/block/blk-rq-qos.h
+@@ -7,6 +7,7 @@
+ #include <linux/blk_types.h>
+ #include <linux/atomic.h>
+ #include <linux/wait.h>
++#include <linux/blk-mq.h>
  
- static void sony_set_leds(struct sony_sc *sc);
-@@ -625,66 +624,54 @@ static inline void sony_schedule_work(struct sony_sc *sc,
+ #include "blk-mq-debugfs.h"
  
- static void ghl_magic_poke_cb(struct urb *urb)
+@@ -99,8 +100,21 @@ static inline void rq_wait_init(struct rq_wait *rq_wait)
+ 
+ static inline void rq_qos_add(struct request_queue *q, struct rq_qos *rqos)
  {
--	if (urb) {
--		/* Free sc->ghl_cr and sc->ghl_databuf allocated in
--		 * ghl_magic_poke()
--		 */
--		kfree(urb->setup_packet);
--		kfree(urb->transfer_buffer);
--	}
-+	struct sony_sc *sc = urb->context;
++	/*
++	 * No IO can be in-flight when adding rqos, so freeze queue, which
++	 * is fine since we only support rq_qos for blk-mq queue.
++	 *
++	 * Reuse ->queue_lock for protecting against other concurrent
++	 * rq_qos adding/deleting
++	 */
++	blk_mq_freeze_queue(q);
 +
-+	if (urb->status < 0)
-+		hid_err(sc->hdev, "URB transfer failed : %d", urb->status);
++	spin_lock_irq(&q->queue_lock);
+ 	rqos->next = q->rq_qos;
+ 	q->rq_qos = rqos;
++	spin_unlock_irq(&q->queue_lock);
 +
-+	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
- }
++	blk_mq_unfreeze_queue(q);
  
- static void ghl_magic_poke(struct timer_list *t)
+ 	if (rqos->ops->debugfs_attrs)
+ 		blk_mq_debugfs_register_rqos(rqos);
+@@ -110,12 +124,22 @@ static inline void rq_qos_del(struct request_queue *q, struct rq_qos *rqos)
  {
-+	int ret;
- 	struct sony_sc *sc = from_timer(sc, t, ghl_poke_timer);
+ 	struct rq_qos **cur;
  
--	int ret;
-+	ret = usb_submit_urb(sc->ghl_urb, GFP_ATOMIC);
-+	if (ret < 0)
-+		hid_err(sc->hdev, "usb_submit_urb failed: %d", ret);
-+}
++	/*
++	 * See comment in rq_qos_add() about freezing queue & using
++	 * ->queue_lock.
++	 */
++	blk_mq_freeze_queue(q);
 +
-+static int ghl_init_urb(struct sony_sc *sc, struct usb_device *usbdev)
-+{
-+	struct usb_ctrlrequest *cr;
-+	u16 poke_size;
-+	u8 *databuf;
- 	unsigned int pipe;
--	struct urb *urb;
--	struct usb_device *usbdev = to_usb_device(sc->hdev->dev.parent->parent);
--	const u16 poke_size =
--		ARRAY_SIZE(ghl_ps3wiiu_magic_data);
- 
-+	poke_size = ARRAY_SIZE(ghl_ps3wiiu_magic_data);
- 	pipe = usb_sndctrlpipe(usbdev, 0);
- 
--	if (!sc->ghl_cr) {
--		sc->ghl_cr = kzalloc(sizeof(*sc->ghl_cr), GFP_ATOMIC);
--		if (!sc->ghl_cr)
--			goto resched;
--	}
--
--	if (!sc->ghl_databuf) {
--		sc->ghl_databuf = kzalloc(poke_size, GFP_ATOMIC);
--		if (!sc->ghl_databuf)
--			goto resched;
--	}
-+	cr = devm_kzalloc(&sc->hdev->dev, sizeof(*cr), GFP_ATOMIC);
-+	if (cr == NULL)
-+		return -ENOMEM;
- 
--	urb = usb_alloc_urb(0, GFP_ATOMIC);
--	if (!urb)
--		goto resched;
-+	databuf = devm_kzalloc(&sc->hdev->dev, poke_size, GFP_ATOMIC);
-+	if (databuf == NULL)
-+		return -ENOMEM;
- 
--	sc->ghl_cr->bRequestType =
-+	cr->bRequestType =
- 		USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_OUT;
--	sc->ghl_cr->bRequest = USB_REQ_SET_CONFIGURATION;
--	sc->ghl_cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
--	sc->ghl_cr->wIndex = 0;
--	sc->ghl_cr->wLength = cpu_to_le16(poke_size);
--	memcpy(sc->ghl_databuf, ghl_ps3wiiu_magic_data, poke_size);
--
-+	cr->bRequest = USB_REQ_SET_CONFIGURATION;
-+	cr->wValue = cpu_to_le16(ghl_ps3wiiu_magic_value);
-+	cr->wIndex = 0;
-+	cr->wLength = cpu_to_le16(poke_size);
-+	memcpy(databuf, ghl_ps3wiiu_magic_data, poke_size);
- 	usb_fill_control_urb(
--		urb, usbdev, pipe,
--		(unsigned char *) sc->ghl_cr, sc->ghl_databuf,
--		poke_size, ghl_magic_poke_cb, NULL);
--	ret = usb_submit_urb(urb, GFP_ATOMIC);
--	if (ret < 0) {
--		kfree(sc->ghl_databuf);
--		kfree(sc->ghl_cr);
--	}
--	usb_free_urb(urb);
--
--resched:
--	/* Reschedule for next time */
--	mod_timer(&sc->ghl_poke_timer, jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
-+		sc->ghl_urb, usbdev, pipe,
-+		(unsigned char *) cr, databuf, poke_size,
-+		ghl_magic_poke_cb, sc);
-+	return 0;
- }
- 
- static int guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
-@@ -2981,6 +2968,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	int ret;
- 	unsigned long quirks = id->driver_data;
- 	struct sony_sc *sc;
-+	struct usb_device *usbdev;
- 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
- 
- 	if (!strcmp(hdev->name, "FutureMax Dance Mat"))
-@@ -3000,6 +2988,7 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	sc->quirks = quirks;
- 	hid_set_drvdata(hdev, sc);
- 	sc->hdev = hdev;
-+	usbdev = to_usb_device(sc->hdev->dev.parent->parent);
- 
- 	ret = hid_parse(hdev);
- 	if (ret) {
-@@ -3042,6 +3031,15 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
++	spin_lock_irq(&q->queue_lock);
+ 	for (cur = &q->rq_qos; *cur; cur = &(*cur)->next) {
+ 		if (*cur == rqos) {
+ 			*cur = rqos->next;
+ 			break;
+ 		}
  	}
- 
- 	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
-+		sc->ghl_urb = usb_alloc_urb(0, GFP_ATOMIC);
-+		if (!sc->ghl_urb)
-+			return -ENOMEM;
-+		ret = ghl_init_urb(sc, usbdev);
-+		if (ret) {
-+			hid_err(hdev, "error preparing URB\n");
-+			return ret;
-+		}
++	spin_unlock_irq(&q->queue_lock);
 +
- 		timer_setup(&sc->ghl_poke_timer, ghl_magic_poke, 0);
- 		mod_timer(&sc->ghl_poke_timer,
- 			  jiffies + GHL_GUITAR_POKE_INTERVAL*HZ);
-@@ -3054,8 +3052,10 @@ static void sony_remove(struct hid_device *hdev)
- {
- 	struct sony_sc *sc = hid_get_drvdata(hdev);
++	blk_mq_unfreeze_queue(q);
  
--	if (sc->quirks & GHL_GUITAR_PS3WIIU)
-+	if (sc->quirks & GHL_GUITAR_PS3WIIU) {
- 		del_timer_sync(&sc->ghl_poke_timer);
-+		usb_free_urb(sc->ghl_urb);
-+	}
- 
- 	hid_hw_close(hdev);
- 
+ 	blk_mq_debugfs_unregister_rqos(rqos);
+ }
 -- 
 2.30.2
 
