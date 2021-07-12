@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EB73C52B0
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 988FD3C4D48
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344861AbhGLHsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53656 "EHLO mail.kernel.org"
+        id S242116AbhGLHMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:12:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346683AbhGLHql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:46:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97AF661183;
-        Mon, 12 Jul 2021 07:42:15 +0000 (UTC)
+        id S244027AbhGLHKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:10:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 888C7610FA;
+        Mon, 12 Jul 2021 07:05:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626075736;
-        bh=khWwxZN4Q9keLfsKl4AnOJt4up4F52KZlZIRb/onXjM=;
+        s=korg; t=1626073559;
+        bh=1v44+LIApq2oyfI9LKZYz2vKENrRgtxCD1cqJp4kcAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DI8RhYPCB5NA5xXUjOgnDnK/hOtJvFoyZXIoRDX/+zHx9YRIUi20fQkJznZIYc32F
-         998uJtaEfCyRq8happ4ekOMBYlOThfOSiVOnjB44OGAol90vcC7UQsb5IbIAhjekNB
-         joZPbVjNrENzXrVh/VXwl7aG8rf1cg+P5eJmCARw=
+        b=N9zD6d4rMbtmi+3TsoGvJURpX5YZdRY+amyLwpB2wubzMm6OfgkWb2E/K33jvoulJ
+         PYma06YmPmLaDvOGEcTveh6Hd4RYDlKqfeAxBotO4L6yiP8IDeIJ4OHLFeXN0TpGFq
+         JhUNHt9JpqAHfL7U7CePzHSaa+9/10CLLsjRCSXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 343/800] lockdep/selftests: Fix selftests vs PROVE_RAW_LOCK_NESTING
+        stable@vger.kernel.org, Tong Tiangen <tongtiangen@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 283/700] crypto: nitrox - fix unchecked variable in nitrox_register_interrupts
 Date:   Mon, 12 Jul 2021 08:06:06 +0200
-Message-Id: <20210712061003.385713224@linuxfoundation.org>
+Message-Id: <20210712061006.327847386@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Tong Tiangen <tongtiangen@huawei.com>
 
-[ Upstream commit c0c2c0dad6a06e0c05e9a52d65f932bd54364c97 ]
+[ Upstream commit 57c126661f50b884d3812e7db6e00f2e778eccfb ]
 
-When PROVE_RAW_LOCK_NESTING=y many of the selftests FAILED because
-HARDIRQ context is out-of-bounds for spinlocks. Instead make the
-default hardware context the threaded hardirq context, which preserves
-the old locking rules.
+Function nitrox_register_interrupts leaves variable 'nr_vecs' unchecked, which
+would be use as kcalloc parameter later.
 
-The wait-type specific locking selftests will have a non-threaded
-HARDIRQ variant.
-
-Fixes: de8f5e4f2dc1 ("lockdep: Introduce wait-type checks")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20210617190313.322096283@infradead.org
+Fixes: 5155e118dda9 ("crypto: cavium/nitrox - use pci_alloc_irq_vectors() while enabling MSI-X.")
+Signed-off-by: Tong Tiangen <tongtiangen@huawei.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/locking-selftest.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/cavium/nitrox/nitrox_isr.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/lib/locking-selftest.c b/lib/locking-selftest.c
-index 2d85abac1744..0f6b262e0964 100644
---- a/lib/locking-selftest.c
-+++ b/lib/locking-selftest.c
-@@ -194,6 +194,7 @@ static void init_shared_classes(void)
- #define HARDIRQ_ENTER()				\
- 	local_irq_disable();			\
- 	__irq_enter();				\
-+	lockdep_hardirq_threaded();		\
- 	WARN_ON(!in_irq());
+diff --git a/drivers/crypto/cavium/nitrox/nitrox_isr.c b/drivers/crypto/cavium/nitrox/nitrox_isr.c
+index 99b053094f5a..b16689b48f5a 100644
+--- a/drivers/crypto/cavium/nitrox/nitrox_isr.c
++++ b/drivers/crypto/cavium/nitrox/nitrox_isr.c
+@@ -307,6 +307,10 @@ int nitrox_register_interrupts(struct nitrox_device *ndev)
+ 	 * Entry 192: NPS_CORE_INT_ACTIVE
+ 	 */
+ 	nr_vecs = pci_msix_vec_count(pdev);
++	if (nr_vecs < 0) {
++		dev_err(DEV(ndev), "Error in getting vec count %d\n", nr_vecs);
++		return nr_vecs;
++	}
  
- #define HARDIRQ_EXIT()				\
+ 	/* Enable MSI-X */
+ 	ret = pci_alloc_irq_vectors(pdev, nr_vecs, nr_vecs, PCI_IRQ_MSIX);
 -- 
 2.30.2
 
