@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E2B3C556E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 075D43C4F9E
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355706AbhGLIKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S243859AbhGLH0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353645AbhGLICo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 069BE61CF8;
-        Mon, 12 Jul 2021 07:56:21 +0000 (UTC)
+        id S1345089AbhGLHYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:24:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF8076112D;
+        Mon, 12 Jul 2021 07:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076582;
-        bh=xQKtFhwk1WIY5bQOMEul0K5e0geDXLbfz/Sw8EAC1rM=;
+        s=korg; t=1626074510;
+        bh=FcoA/rpXFQqGVm2CKUVo4beaIA44KbbY/dfV7nSVcd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CMw5Fo00VRGugCUzl+31V6reDe9rftr4eNBnKe8paE2D2hYSNY6p4B74Whfcub5uo
-         /fpwaISWGoI0UMXIcF6bJ4QMyj/0IKsnb1HcTuMyMeOKav2hXK7MTMFmZnQaVju/hX
-         0nqMj2pQOqL5xQBz5WBgcs6oKYt6ko7R4q0PPU4Q=
+        b=ftwO5leWGWLQoR6ow9tuCKnyaz/dDsJixicq6FL5wbTMLGjlth2thx4ORazNM73pH
+         o0ItcNfWNW9CR7vXkfiaShQr0OMERutcBHy88aO2f8JiPaQmUyyz5kpq9haLh+UIs5
+         yHdVH06bP4AXA4sKSzRnH7IiWO7kqrZPeGExGIjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 663/800] scsi: iscsi: Force immediate failure during shutdown
-Date:   Mon, 12 Jul 2021 08:11:26 +0200
-Message-Id: <20210712061037.469164625@linuxfoundation.org>
+Subject: [PATCH 5.12 604/700] ASoC: rt5682-sdw: set regcache_cache_only false before reading RT5682_DEVICE_ID
+Date:   Mon, 12 Jul 2021 08:11:27 +0200
+Message-Id: <20210712061040.165551519@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 06c203a5566beecebb1f8838d026de8a61c8df71 ]
+[ Upstream commit c0372bc873dd29f325ee908351e0bd5b08d4d608 ]
 
-If the system is not up, we can just fail immediately since iscsid is not
-going to ever answer our netlink events. We are already setting the
-recovery_tmo to 0, but by passing stop_conn STOP_CONN_TERM we never will
-block the session and start the recovery timer, because for that flag
-userspace will do the unbind and destroy events which would remove the
-devices and wake up and kill the eh.
+RT5682_DEVICE_ID is a volatile register, we can not read it in cache
+only mode.
 
-Since the conn is dead and the system is going dowm this just has us use
-STOP_CONN_RECOVER with recovery_tmo=0 so we fail immediately. However, if
-the user has set the recovery_tmo=-1 we let the system hang like they
-requested since they might have used that setting for specific reasons
-(one known reason is for buggy cluster software).
-
-Link: https://lore.kernel.org/r/20210525181821.7617-5-michael.christie@oracle.com
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 03f6fc6de919 ("ASoC: rt5682: Add the soundwire support")
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210607222239.582139-14-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/scsi_transport_iscsi.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ sound/soc/codecs/rt5682-sdw.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 82491343e94a..d134156d67f0 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2513,11 +2513,17 @@ static void stop_conn_work_fn(struct work_struct *work)
- 		session = iscsi_session_lookup(sid);
- 		if (session) {
- 			if (system_state != SYSTEM_RUNNING) {
--				session->recovery_tmo = 0;
--				iscsi_if_stop_conn(conn, STOP_CONN_TERM);
--			} else {
--				iscsi_if_stop_conn(conn, STOP_CONN_RECOVER);
-+				/*
-+				 * If the user has set up for the session to
-+				 * never timeout then hang like they wanted.
-+				 * For all other cases fail right away since
-+				 * userspace is not going to relogin.
-+				 */
-+				if (session->recovery_tmo > 0)
-+					session->recovery_tmo = 0;
- 			}
-+
-+			iscsi_if_stop_conn(conn, STOP_CONN_RECOVER);
- 		}
+diff --git a/sound/soc/codecs/rt5682-sdw.c b/sound/soc/codecs/rt5682-sdw.c
+index 2b0f02e6c977..b4649b599eaa 100644
+--- a/sound/soc/codecs/rt5682-sdw.c
++++ b/sound/soc/codecs/rt5682-sdw.c
+@@ -400,6 +400,11 @@ static int rt5682_io_init(struct device *dev, struct sdw_slave *slave)
  
- 		list_del_init(&conn->conn_list_err);
+ 	pm_runtime_get_noresume(&slave->dev);
+ 
++	if (rt5682->first_hw_init) {
++		regcache_cache_only(rt5682->regmap, false);
++		regcache_cache_bypass(rt5682->regmap, true);
++	}
++
+ 	while (loop > 0) {
+ 		regmap_read(rt5682->regmap, RT5682_DEVICE_ID, &val);
+ 		if (val == DEVICE_ID)
+@@ -415,11 +420,6 @@ static int rt5682_io_init(struct device *dev, struct sdw_slave *slave)
+ 		goto err_nodev;
+ 	}
+ 
+-	if (rt5682->first_hw_init) {
+-		regcache_cache_only(rt5682->regmap, false);
+-		regcache_cache_bypass(rt5682->regmap, true);
+-	}
+-
+ 	rt5682_calibrate(rt5682);
+ 
+ 	if (rt5682->first_hw_init) {
 -- 
 2.30.2
 
