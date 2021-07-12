@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8811D3C48BE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB12A3C48B8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236119AbhGLGks (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34600 "EHLO mail.kernel.org"
+        id S235924AbhGLGkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238214AbhGLGkB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:40:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B16B8610D0;
-        Mon, 12 Jul 2021 06:36:30 +0000 (UTC)
+        id S238236AbhGLGkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:40:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A60DB6113C;
+        Mon, 12 Jul 2021 06:36:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071791;
-        bh=sNgqsupDBF6XI7+2oFx/KGIlFDXOTMzao2opdZquDLM=;
+        s=korg; t=1626071798;
+        bh=guxg2+eufG9UDUPphOeUcEP+twLiF/YRaELhSaqYqzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7HzcJIHjXivnIq2t9aAudv+OdNRpZ8W+KwvljylR604QutsPgC6qdqUjUCNPrXYt
-         ag0qOzitB2aMmrdzki9KaMvp0RUp31ujko1NI9Ngw+xcAVr/cFJ4vUY9CnKzjz5u2R
-         dX4Ql8XxCdBGhPdrClbhHqFKU7zlHeT3vAkqydcw=
+        b=n5qdKua/CEF0X0KEuXKAHVacE/3ZWeFy5dElTNQ6jDTvUnsPahn6/f8/iO6L+XYmQ
+         1FN20s8LX2zVVZW+vw8lvZOdvL9KJwhRKcoxP8DWbm5IkNT2SqM1S2m5FFlhgKKmrJ
+         86w71/C622gszWOQxYSSxSr3rRJEoBwnM/gqoEVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
-        Qais Yousef <qais.yousef@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 221/593] sched/uclamp: Fix locking around cpu_util_update_eff()
-Date:   Mon, 12 Jul 2021 08:06:21 +0200
-Message-Id: <20210712060907.236723407@linuxfoundation.org>
+Subject: [PATCH 5.10 224/593] evm: fix writing <securityfs>/evm overflow
+Date:   Mon, 12 Jul 2021 08:06:24 +0200
+Message-Id: <20210712060907.586591539@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,59 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qais.yousef@arm.com>
+From: Mimi Zohar <zohar@linux.ibm.com>
 
-[ Upstream commit 93b73858701fd01de26a4a874eb95f9b7156fd4b ]
+[ Upstream commit 49219d9b8785ba712575c40e48ce0f7461254626 ]
 
-cpu_cgroup_css_online() calls cpu_util_update_eff() without holding the
-uclamp_mutex or rcu_read_lock() like other call sites, which is
-a mistake.
+EVM_SETUP_COMPLETE is defined as 0x80000000, which is larger than INT_MAX.
+The "-fno-strict-overflow" compiler option properly prevents signaling
+EVM that the EVM policy setup is complete.  Define and read an unsigned
+int.
 
-The uclamp_mutex is required to protect against concurrent reads and
-writes that could update the cgroup hierarchy.
-
-The rcu_read_lock() is required to traverse the cgroup data structures
-in cpu_util_update_eff().
-
-Surround the caller with the required locks and add some asserts to
-better document the dependency in cpu_util_update_eff().
-
-Fixes: 7226017ad37a ("sched/uclamp: Fix a bug in propagating uclamp value in new cgroups")
-Reported-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210510145032.1934078-3-qais.yousef@arm.com
+Fixes: f00d79750712 ("EVM: Allow userspace to signal an RSA key has been loaded")
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ security/integrity/evm/evm_secfs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index c561c3b993b5..d4bbead59ad2 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -7620,7 +7620,11 @@ static int cpu_cgroup_css_online(struct cgroup_subsys_state *css)
+diff --git a/security/integrity/evm/evm_secfs.c b/security/integrity/evm/evm_secfs.c
+index a7042ae90b9e..bc10c945f3ed 100644
+--- a/security/integrity/evm/evm_secfs.c
++++ b/security/integrity/evm/evm_secfs.c
+@@ -66,12 +66,13 @@ static ssize_t evm_read_key(struct file *filp, char __user *buf,
+ static ssize_t evm_write_key(struct file *file, const char __user *buf,
+ 			     size_t count, loff_t *ppos)
+ {
+-	int i, ret;
++	unsigned int i;
++	int ret;
  
- #ifdef CONFIG_UCLAMP_TASK_GROUP
- 	/* Propagate the effective uclamp value for the new group */
-+	mutex_lock(&uclamp_mutex);
-+	rcu_read_lock();
- 	cpu_util_update_eff(css);
-+	rcu_read_unlock();
-+	mutex_unlock(&uclamp_mutex);
- #endif
+ 	if (!capable(CAP_SYS_ADMIN) || (evm_initialized & EVM_SETUP_COMPLETE))
+ 		return -EPERM;
  
- 	return 0;
-@@ -7710,6 +7714,9 @@ static void cpu_util_update_eff(struct cgroup_subsys_state *css)
- 	enum uclamp_id clamp_id;
- 	unsigned int clamps;
+-	ret = kstrtoint_from_user(buf, count, 0, &i);
++	ret = kstrtouint_from_user(buf, count, 0, &i);
  
-+	lockdep_assert_held(&uclamp_mutex);
-+	SCHED_WARN_ON(!rcu_read_lock_held());
-+
- 	css_for_each_descendant_pre(css, top_css) {
- 		uc_parent = css_tg(css)->parent
- 			? css_tg(css)->parent->uclamp : NULL;
+ 	if (ret)
+ 		return ret;
 -- 
 2.30.2
 
