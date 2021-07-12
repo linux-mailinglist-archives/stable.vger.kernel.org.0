@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C76F3C44A8
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB6B3C44A9
 	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:21:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233565AbhGLGUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233221AbhGLGUi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 12 Jul 2021 02:20:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234089AbhGLGT7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:19:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A353610CD;
-        Mon, 12 Jul 2021 06:17:11 +0000 (UTC)
+        id S232911AbhGLGUC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:20:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9F3B6112D;
+        Mon, 12 Jul 2021 06:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070632;
-        bh=IY2rngyphraxDeqp9Jdnyl3vQlKE/WaO6UG0Ub0Hu1g=;
+        s=korg; t=1626070634;
+        bh=HGVxpG2ereOq6wSEgejV16fHWTFXBqNPC0DH/gBNWFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0PuVq2vkDCXuxMsx2PG1R/Blz586Xp1JdmbpNjIFbCGsNPlS4IsIQTBeLPH7kDgQx
-         YuJbhE75PQUqnHdVqxdvV4Ru7SZj1TsoCvopeQYgjxcgWygoTjymVjlaus3tF+Y9nP
-         ky1DvOEapqP6zjUN1i5PqVjj8fGc/u3VSEKNd9DA=
+        b=FkQtIj3IX5tpSEBAyyvscqtXsNIUMX+EeDCnOKGroj1KfB7seNKExLt8A2lyH3H1P
+         H/v3xb2DZwCn/PP/3OJqU5QJcKmz5cNTgk7fsZ7L7eZHyRtzS/Wg1bkmTDgLSMn74y
+         pjPEYyzw8U4A+R+UGMKyk7Byrj2tGaFGO0wpQyyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Pan Dong <pandong.peter@bytedance.com>,
+        stable@vger.kernel.org,
+        Stephen Brennan <stephen.s.brennan@oracle.com>,
+        Lukas Czerner <lczerner@redhat.com>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
         Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.4 030/348] ext4: fix avefreec in find_group_orlov
-Date:   Mon, 12 Jul 2021 08:06:54 +0200
-Message-Id: <20210712060704.803628990@linuxfoundation.org>
+Subject: [PATCH 5.4 031/348] ext4: use ext4_grp_locked_error in mb_find_extent
+Date:   Mon, 12 Jul 2021 08:06:55 +0200
+Message-Id: <20210712060704.897335882@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,64 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Dong <pandong.peter@bytedance.com>
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
-commit c89849cc0259f3d33624cc3bd127685c3c0fa25d upstream.
+commit cd84bbbac12a173a381a64c6ec8b76a5277b87b5 upstream.
 
-The avefreec should be average free clusters instead
-of average free blocks, otherwize Orlov's allocator
-will not work properly when bigalloc enabled.
+Commit 5d1b1b3f492f ("ext4: fix BUG when calling ext4_error with locked
+block group") introduces ext4_grp_locked_error to handle unlocking a
+group in error cases. Otherwise, there is a possibility of a sleep while
+atomic. However, since 43c73221b3b1 ("ext4: replace BUG_ON with WARN_ON
+in mb_find_extent()"), mb_find_extent() has contained a ext4_error()
+call while a group spinlock is held. Replace this with
+ext4_grp_locked_error.
 
-Cc: stable@kernel.org
-Signed-off-by: Pan Dong <pandong.peter@bytedance.com>
-Link: https://lore.kernel.org/r/20210525073656.31594-1-pandong.peter@bytedance.com
+Fixes: 43c73221b3b1 ("ext4: replace BUG_ON with WARN_ON in mb_find_extent()")
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Reviewed-by: Junxiao Bi <junxiao.bi@oracle.com>
+Link: https://lore.kernel.org/r/20210623232114.34457-1-stephen.s.brennan@oracle.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/ext4/ialloc.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ fs/ext4/mballoc.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -394,7 +394,7 @@ static void get_orlov_stats(struct super
-  *
-  * We always try to spread first-level directories.
-  *
-- * If there are blockgroups with both free inodes and free blocks counts
-+ * If there are blockgroups with both free inodes and free clusters counts
-  * not worse than average we return one with smallest directory count.
-  * Otherwise we simply return a random group.
-  *
-@@ -403,7 +403,7 @@ static void get_orlov_stats(struct super
-  * It's OK to put directory into a group unless
-  * it has too many directories already (max_dirs) or
-  * it has too few free inodes left (min_inodes) or
-- * it has too few free blocks left (min_blocks) or
-+ * it has too few free clusters left (min_clusters) or
-  * Parent's group is preferred, if it doesn't satisfy these
-  * conditions we search cyclically through the rest. If none
-  * of the groups look good we just look for a group with more
-@@ -419,7 +419,7 @@ static int find_group_orlov(struct super
- 	ext4_group_t real_ngroups = ext4_get_groups_count(sb);
- 	int inodes_per_group = EXT4_INODES_PER_GROUP(sb);
- 	unsigned int freei, avefreei, grp_free;
--	ext4_fsblk_t freeb, avefreec;
-+	ext4_fsblk_t freec, avefreec;
- 	unsigned int ndirs;
- 	int max_dirs, min_inodes;
- 	ext4_grpblk_t min_clusters;
-@@ -438,9 +438,8 @@ static int find_group_orlov(struct super
- 
- 	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
- 	avefreei = freei / ngroups;
--	freeb = EXT4_C2B(sbi,
--		percpu_counter_read_positive(&sbi->s_freeclusters_counter));
--	avefreec = freeb;
-+	freec = percpu_counter_read_positive(&sbi->s_freeclusters_counter);
-+	avefreec = freec;
- 	do_div(avefreec, ngroups);
- 	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
- 
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -1542,10 +1542,11 @@ static int mb_find_extent(struct ext4_bu
+ 	if (ex->fe_start + ex->fe_len > EXT4_CLUSTERS_PER_GROUP(e4b->bd_sb)) {
+ 		/* Should never happen! (but apparently sometimes does?!?) */
+ 		WARN_ON(1);
+-		ext4_error(e4b->bd_sb, "corruption or bug in mb_find_extent "
+-			   "block=%d, order=%d needed=%d ex=%u/%d/%d@%u",
+-			   block, order, needed, ex->fe_group, ex->fe_start,
+-			   ex->fe_len, ex->fe_logical);
++		ext4_grp_locked_error(e4b->bd_sb, e4b->bd_group, 0, 0,
++			"corruption or bug in mb_find_extent "
++			"block=%d, order=%d needed=%d ex=%u/%d/%d@%u",
++			block, order, needed, ex->fe_group, ex->fe_start,
++			ex->fe_len, ex->fe_logical);
+ 		ex->fe_len = 0;
+ 		ex->fe_start = 0;
+ 		ex->fe_group = 0;
 
 
