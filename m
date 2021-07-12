@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD8A3C4D7E
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:40:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 615A73C524F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:49:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241218AbhGLHNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:13:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41984 "EHLO mail.kernel.org"
+        id S1345332AbhGLHpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243737AbhGLHIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:08:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE34F611BF;
-        Mon, 12 Jul 2021 07:04:54 +0000 (UTC)
+        id S1349515AbhGLHmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:42:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EA86610FB;
+        Mon, 12 Jul 2021 07:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073495;
-        bh=Y4dQMYFhm95GjcowETDtuXSFX9tZyDZ2F+uM++JTHrw=;
+        s=korg; t=1626075594;
+        bh=lhSUyfx1HIhRhgF9zHh20QkHHTRW5v1gVt8eWUHhGao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCcw5k9mj9RLBICQcLtZpXGtkaVt9NvHK57SbtZpxEfMGSsqpVzDWTngWalcCP1iR
-         EaGDF4r1jI3aKVpZkaALcadsWq38ct30XFwmpbnwdeOQNd8JE2P6LWqvkkzGDL8Gcz
-         QVj0p4X1MCNlD449Gx70sIEDiSpuXUO5ouGhRtn4=
+        b=DXar7hx4gyiF3eeA5M7LCeEkXoRtldB0O+ZQUBaxn9mU+m27abKho9/W4R8S0QMvK
+         5/u5hGSNb7V8GhWWPprD2cERatVvJTeu7PObDbpGLPmergTWf+aUUy94mDFmjm5+se
+         BUyjfhryUWMC9qX5R+gT6JABMp1MGbK5uWuNjHeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Zoltan Tamas Vajda <zoltan.tamas.vajda@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 219/700] HID: hid-input: add Surface Go battery quirk
-Date:   Mon, 12 Jul 2021 08:05:02 +0200
-Message-Id: <20210712060957.835277227@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Perret <qperret@google.com>,
+        Qais Yousef <qais.yousef@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 280/800] sched/uclamp: Fix locking around cpu_util_update_eff()
+Date:   Mon, 12 Jul 2021 08:05:03 +0200
+Message-Id: <20210712060954.334380689@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zoltan Tamas Vajda <zoltan.tamas.vajda@gmail.com>
+From: Qais Yousef <qais.yousef@arm.com>
 
-[ Upstream commit b5539722eb832441f309642fe5102cc3536f92b8 ]
+[ Upstream commit 93b73858701fd01de26a4a874eb95f9b7156fd4b ]
 
-The Elantech touchscreen/digitizer in the Surface Go mistakenly reports
-having a battery. This results in a low battery message every time you
-try to use the pen.
+cpu_cgroup_css_online() calls cpu_util_update_eff() without holding the
+uclamp_mutex or rcu_read_lock() like other call sites, which is
+a mistake.
 
-This patch adds a quirk to ignore the non-existent battery and
-gets rid of the false low battery messages.
+The uclamp_mutex is required to protect against concurrent reads and
+writes that could update the cgroup hierarchy.
 
-Signed-off-by: Zoltan Tamas Vajda <zoltan.tamas.vajda@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The rcu_read_lock() is required to traverse the cgroup data structures
+in cpu_util_update_eff().
+
+Surround the caller with the required locks and add some asserts to
+better document the dependency in cpu_util_update_eff().
+
+Fixes: 7226017ad37a ("sched/uclamp: Fix a bug in propagating uclamp value in new cgroups")
+Reported-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Qais Yousef <qais.yousef@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210510145032.1934078-3-qais.yousef@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+ kernel/sched/core.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 03978111d944..06168f485722 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -397,6 +397,7 @@
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
- #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
-+#define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 49b713da023d..94002cb551c4 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8702,7 +8702,11 @@ static int cpu_cgroup_css_online(struct cgroup_subsys_state *css)
  
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index e982d8173c9c..bf5e728258c1 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -326,6 +326,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+ #ifdef CONFIG_UCLAMP_TASK_GROUP
+ 	/* Propagate the effective uclamp value for the new group */
++	mutex_lock(&uclamp_mutex);
++	rcu_read_lock();
+ 	cpu_util_update_eff(css);
++	rcu_read_unlock();
++	mutex_unlock(&uclamp_mutex);
+ #endif
  
+ 	return 0;
+@@ -8792,6 +8796,9 @@ static void cpu_util_update_eff(struct cgroup_subsys_state *css)
+ 	enum uclamp_id clamp_id;
+ 	unsigned int clamps;
+ 
++	lockdep_assert_held(&uclamp_mutex);
++	SCHED_WARN_ON(!rcu_read_lock_held());
++
+ 	css_for_each_descendant_pre(css, top_css) {
+ 		uc_parent = css_tg(css)->parent
+ 			? css_tg(css)->parent->uclamp : NULL;
 -- 
 2.30.2
 
