@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDE43C457C
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 805B83C457D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233796AbhGLGZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S234470AbhGLGZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235365AbhGLGYu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234052AbhGLGYu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:24:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BA34610A6;
-        Mon, 12 Jul 2021 06:21:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BD8761179;
+        Mon, 12 Jul 2021 06:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070917;
-        bh=MgPnsPjdTfVyMkYWXex4q/jwfVh6KATbFtUfDlFpSsQ=;
+        s=korg; t=1626070919;
+        bh=Rn2aLCiYu42FhpI76z6qDscvRgs27PmEWK2Q/GQXRv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0FmotFVbNbKKxzVTDea0oNsyEvW1MJG1np3kxDZytmHZyLgi4wwpiXcZmRk/7Ks9
-         86Kneo/zNT2ENNK9EWZRQ+7t9FpxkpbR+uRlun/gPR+RxMTXPV3N69AuCp6X4pOniH
-         /Bm9BkUutE/+7JeGvcU4ssJntHxjXT1tip0XR92s=
+        b=Sz2Kh8w88V8p0tlQhKOlFK1zvaw3O7H/rpJkbdLJuAwG4KLvKfxqJgaOT+/IydDwR
+         MN2qrE7oivl9B6VGGXAN9+xAz2GxG5jnVhH5Ba0HS2pJdyNNAfFh0Q02JlGrdZ+hFG
+         dF2PyMJQZdmvgoweoUuTCDdjh64vf56EihLheivY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Boris Sukholitko <boris.sukholitko@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 195/348] net/sched: act_vlan: Fix modify to allow 0
-Date:   Mon, 12 Jul 2021 08:09:39 +0200
-Message-Id: <20210712060727.055709682@linuxfoundation.org>
+Subject: [PATCH 5.4 196/348] RDMA/core: Sanitize WQ state received from the userspace
+Date:   Mon, 12 Jul 2021 08:09:40 +0200
+Message-Id: <20210712060727.182663734@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,93 +42,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Sukholitko <boris.sukholitko@broadcom.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 9c5eee0afca09cbde6bd00f77876754aaa552970 ]
+[ Upstream commit f97442887275d11c88c2899e720fe945c1f61488 ]
 
-Currently vlan modification action checks existence of vlan priority by
-comparing it to 0. Therefore it is impossible to modify existing vlan
-tag to have priority 0.
+The mlx4 and mlx5 implemented differently the WQ input checks.  Instead of
+duplicating mlx4 logic in the mlx5, let's prepare the input in the central
+place.
 
-For example, the following tc command will change the vlan id but will
-not affect vlan priority:
+The mlx5 implementation didn't check for validity of state input.  It is
+not real bug because our FW checked that, but still worth to fix.
 
-tc filter add dev eth1 ingress matchall action vlan modify id 300 \
-        priority 0 pipe mirred egress redirect dev eth2
-
-The incoming packet on eth1:
-
-ethertype 802.1Q (0x8100), vlan 200, p 4, ethertype IPv4
-
-will be changed to:
-
-ethertype 802.1Q (0x8100), vlan 300, p 4, ethertype IPv4
-
-although the user has intended to have p == 0.
-
-The fix is to add tcfv_push_prio_exists flag to struct tcf_vlan_params
-and rely on it when deciding to set the priority.
-
-Fixes: 45a497f2d149a4a8061c (net/sched: act_vlan: Introduce TCA_VLAN_ACT_MODIFY vlan action)
-Signed-off-by: Boris Sukholitko <boris.sukholitko@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: f213c0527210 ("IB/uverbs: Add WQ support")
+Link: https://lore.kernel.org/r/ac41ad6a81b095b1a8ad453dcf62cf8d3c5da779.1621413310.git.leonro@nvidia.com
+Reported-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tc_act/tc_vlan.h | 1 +
- net/sched/act_vlan.c         | 7 +++++--
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/uverbs_cmd.c | 21 +++++++++++++++++++--
+ drivers/infiniband/hw/mlx4/qp.c      |  9 ++-------
+ drivers/infiniband/hw/mlx5/qp.c      |  6 ++----
+ 3 files changed, 23 insertions(+), 13 deletions(-)
 
-diff --git a/include/net/tc_act/tc_vlan.h b/include/net/tc_act/tc_vlan.h
-index 4e2502408c31..add6fb50dd33 100644
---- a/include/net/tc_act/tc_vlan.h
-+++ b/include/net/tc_act/tc_vlan.h
-@@ -14,6 +14,7 @@ struct tcf_vlan_params {
- 	u16               tcfv_push_vid;
- 	__be16            tcfv_push_proto;
- 	u8                tcfv_push_prio;
-+	bool              tcfv_push_prio_exists;
- 	struct rcu_head   rcu;
- };
+diff --git a/drivers/infiniband/core/uverbs_cmd.c b/drivers/infiniband/core/uverbs_cmd.c
+index c398d1a64614..d413dafb9211 100644
+--- a/drivers/infiniband/core/uverbs_cmd.c
++++ b/drivers/infiniband/core/uverbs_cmd.c
+@@ -3031,12 +3031,29 @@ static int ib_uverbs_ex_modify_wq(struct uverbs_attr_bundle *attrs)
+ 	if (!wq)
+ 		return -EINVAL;
  
-diff --git a/net/sched/act_vlan.c b/net/sched/act_vlan.c
-index 3c26042f4ea6..7dc76c68ec52 100644
---- a/net/sched/act_vlan.c
-+++ b/net/sched/act_vlan.c
-@@ -70,7 +70,7 @@ static int tcf_vlan_act(struct sk_buff *skb, const struct tc_action *a,
- 		/* replace the vid */
- 		tci = (tci & ~VLAN_VID_MASK) | p->tcfv_push_vid;
- 		/* replace prio bits, if tcfv_push_prio specified */
--		if (p->tcfv_push_prio) {
-+		if (p->tcfv_push_prio_exists) {
- 			tci &= ~VLAN_PRIO_MASK;
- 			tci |= p->tcfv_push_prio << VLAN_PRIO_SHIFT;
- 		}
-@@ -107,6 +107,7 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
- 	struct tc_action_net *tn = net_generic(net, vlan_net_id);
- 	struct nlattr *tb[TCA_VLAN_MAX + 1];
- 	struct tcf_chain *goto_ch = NULL;
-+	bool push_prio_exists = false;
- 	struct tcf_vlan_params *p;
- 	struct tc_vlan *parm;
- 	struct tcf_vlan *v;
-@@ -175,7 +176,8 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
- 			push_proto = htons(ETH_P_8021Q);
- 		}
+-	wq_attr.curr_wq_state = cmd.curr_wq_state;
+-	wq_attr.wq_state = cmd.wq_state;
+ 	if (cmd.attr_mask & IB_WQ_FLAGS) {
+ 		wq_attr.flags = cmd.flags;
+ 		wq_attr.flags_mask = cmd.flags_mask;
+ 	}
++
++	if (cmd.attr_mask & IB_WQ_CUR_STATE) {
++		if (cmd.curr_wq_state > IB_WQS_ERR)
++			return -EINVAL;
++
++		wq_attr.curr_wq_state = cmd.curr_wq_state;
++	} else {
++		wq_attr.curr_wq_state = wq->state;
++	}
++
++	if (cmd.attr_mask & IB_WQ_STATE) {
++		if (cmd.wq_state > IB_WQS_ERR)
++			return -EINVAL;
++
++		wq_attr.wq_state = cmd.wq_state;
++	} else {
++		wq_attr.wq_state = wq_attr.curr_wq_state;
++	}
++
+ 	ret = wq->device->ops.modify_wq(wq, &wq_attr, cmd.attr_mask,
+ 					&attrs->driver_udata);
+ 	uobj_put_obj_read(wq);
+diff --git a/drivers/infiniband/hw/mlx4/qp.c b/drivers/infiniband/hw/mlx4/qp.c
+index 6e2b3e2f83f1..17ce928e41bd 100644
+--- a/drivers/infiniband/hw/mlx4/qp.c
++++ b/drivers/infiniband/hw/mlx4/qp.c
+@@ -4294,13 +4294,8 @@ int mlx4_ib_modify_wq(struct ib_wq *ibwq, struct ib_wq_attr *wq_attr,
+ 	if (wq_attr_mask & IB_WQ_FLAGS)
+ 		return -EOPNOTSUPP;
  
--		if (tb[TCA_VLAN_PUSH_VLAN_PRIORITY])
-+		push_prio_exists = !!tb[TCA_VLAN_PUSH_VLAN_PRIORITY];
-+		if (push_prio_exists)
- 			push_prio = nla_get_u8(tb[TCA_VLAN_PUSH_VLAN_PRIORITY]);
- 		break;
- 	default:
-@@ -216,6 +218,7 @@ static int tcf_vlan_init(struct net *net, struct nlattr *nla,
- 	p->tcfv_action = action;
- 	p->tcfv_push_vid = push_vid;
- 	p->tcfv_push_prio = push_prio;
-+	p->tcfv_push_prio_exists = push_prio_exists || action == TCA_VLAN_ACT_PUSH;
- 	p->tcfv_push_proto = push_proto;
+-	cur_state = wq_attr_mask & IB_WQ_CUR_STATE ? wq_attr->curr_wq_state :
+-						     ibwq->state;
+-	new_state = wq_attr_mask & IB_WQ_STATE ? wq_attr->wq_state : cur_state;
+-
+-	if (cur_state  < IB_WQS_RESET || cur_state  > IB_WQS_ERR ||
+-	    new_state < IB_WQS_RESET || new_state > IB_WQS_ERR)
+-		return -EINVAL;
++	cur_state = wq_attr->curr_wq_state;
++	new_state = wq_attr->wq_state;
  
- 	spin_lock_bh(&v->tcf_lock);
+ 	if ((new_state == IB_WQS_RDY) && (cur_state == IB_WQS_ERR))
+ 		return -EINVAL;
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 09e29c6cb66d..4540835e05bd 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -6317,10 +6317,8 @@ int mlx5_ib_modify_wq(struct ib_wq *wq, struct ib_wq_attr *wq_attr,
+ 
+ 	rqc = MLX5_ADDR_OF(modify_rq_in, in, ctx);
+ 
+-	curr_wq_state = (wq_attr_mask & IB_WQ_CUR_STATE) ?
+-		wq_attr->curr_wq_state : wq->state;
+-	wq_state = (wq_attr_mask & IB_WQ_STATE) ?
+-		wq_attr->wq_state : curr_wq_state;
++	curr_wq_state = wq_attr->curr_wq_state;
++	wq_state = wq_attr->wq_state;
+ 	if (curr_wq_state == IB_WQS_ERR)
+ 		curr_wq_state = MLX5_RQC_STATE_ERR;
+ 	if (wq_state == IB_WQS_ERR)
 -- 
 2.30.2
 
