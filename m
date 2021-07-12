@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FEA03C4ACC
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491C13C5562
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240578AbhGLGxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:53:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52760 "EHLO mail.kernel.org"
+        id S1355637AbhGLIKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:10:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239327AbhGLGwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:52:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB8296052B;
-        Mon, 12 Jul 2021 06:49:58 +0000 (UTC)
+        id S1353582AbhGLICg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:02:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCE1561CD1;
+        Mon, 12 Jul 2021 07:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072599;
-        bh=lehlT4m/InziezWCU44sOcqIerWh2hOgXlby/PasnhM=;
+        s=korg; t=1626076545;
+        bh=41AxLvkOm9TRN3+yhjI16yCYcoCNm0OkB6tVeG+rG18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ioujfjyL2icU0iz3qowxc5Ne0yq5xl8VXCVCQoMtVkEDXcp+a7WqgyGmwkFdGUdK
-         2tO7BaT6UZ8jULI2xBz0e8qdb9JW23h0HU50MeCKhRqoS/zeXz7CZ2lX3XC6iMfSrX
-         oI/6jUjaPyiBTyzFOTquRLMaLAnsMYka1i60lktY=
+        b=x1zi6c3aihDLaCsS0ysa49Y7K5qhkUmC8b6tBD+4ACqAzvP38awpmBfLwhCBcx8u5
+         uY2o+eYuuw+Tlyw+EA7z2OS7qzDslOx1XYz8sQ7VxFivPJlVxUF5w4JpNIS4zBhYie
+         OhMnEDmKDT+IXk0TnSSvwYJxfRPolVhQHsoLkNBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+        Bard Liao <bard.liao@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 550/593] selftests/ftrace: fix event-no-pid on 1-core machine
-Date:   Mon, 12 Jul 2021 08:11:50 +0200
-Message-Id: <20210712060954.808789890@linuxfoundation.org>
+Subject: [PATCH 5.13 688/800] ASoC: rt700-sdw: use first_hw_init flag on resume
+Date:   Mon, 12 Jul 2021 08:11:51 +0200
+Message-Id: <20210712061040.020454955@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 07b60713b57a8f952d029a2b6849d003d9c16108 ]
+[ Upstream commit a9e54e5fbe396b546771cf77b43ce7c75e212278 ]
 
-When running event-no-pid test on small machines (e.g. cloud 1-core
-instance), other events might not happen:
+The intent of the status check on resume was to verify if a SoundWire
+peripheral reported ATTACHED before waiting for the initialization to
+complete. This is required to avoid timeouts that will happen with
+'ghost' devices that are exposed in the platform firmware but are not
+populated in hardware.
 
-    + cat trace
-    + cnt=0
-    + [ 0 -eq 0 ]
-    + fail No other events were recorded
-    [15] event tracing - restricts events based on pid notrace filtering [FAIL]
+Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
+another error, the resume operation never timed out, but the volume
+settings were not properly restored.
 
-Schedule a simple sleep task to be sure that some other process events
-get recorded.
-
-Fixes: ebed9628f5c2 ("selftests/ftrace: Add test to test new set_event_notrace_pid file")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+BugLink: https://github.com/thesofproject/linux/issues/2908
+BugLink: https://github.com/thesofproject/linux/issues/2637
+Fixes: 7d2a5f9ae41e3 ('ASoC: rt700: add rt700 codec driver')
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Link: https://lore.kernel.org/r/20210607222239.582139-7-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../testing/selftests/ftrace/test.d/event/event-no-pid.tc  | 7 +++++++
- 1 file changed, 7 insertions(+)
+ sound/soc/codecs/rt700-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc b/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-index e6eb78f0b954..9933ed24f901 100644
---- a/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-+++ b/tools/testing/selftests/ftrace/test.d/event/event-no-pid.tc
-@@ -57,6 +57,10 @@ enable_events() {
-     echo 1 > tracing_on
- }
+diff --git a/sound/soc/codecs/rt700-sdw.c b/sound/soc/codecs/rt700-sdw.c
+index ff9c081fd52a..d1d9c0f455b4 100644
+--- a/sound/soc/codecs/rt700-sdw.c
++++ b/sound/soc/codecs/rt700-sdw.c
+@@ -498,7 +498,7 @@ static int __maybe_unused rt700_dev_resume(struct device *dev)
+ 	struct rt700_priv *rt700 = dev_get_drvdata(dev);
+ 	unsigned long time;
  
-+other_task() {
-+    sleep .001 || usleep 1 || sleep 1
-+}
-+
- echo 0 > options/event-fork
+-	if (!rt700->hw_init)
++	if (!rt700->first_hw_init)
+ 		return 0;
  
- do_reset
-@@ -94,6 +98,9 @@ child=$!
- echo "child = $child"
- wait $child
- 
-+# Be sure some other events will happen for small systems (e.g. 1 core)
-+other_task
-+
- echo 0 > tracing_on
- 
- cnt=`count_pid $mypid`
+ 	if (!slave->unattach_request)
 -- 
 2.30.2
 
