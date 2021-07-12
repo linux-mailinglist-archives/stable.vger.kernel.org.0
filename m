@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE543C4741
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 796A43C473F
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236341AbhGLGby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:31:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52360 "EHLO mail.kernel.org"
+        id S236745AbhGLGbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:31:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236456AbhGLGaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:30:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BABA60234;
-        Mon, 12 Jul 2021 06:27:24 +0000 (UTC)
+        id S236499AbhGLGaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:30:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ABD660238;
+        Mon, 12 Jul 2021 06:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071244;
-        bh=pb/+uHrhCpg4Ze3Y2BbtY7us8v88mbrC5hq3KglQBUs=;
+        s=korg; t=1626071247;
+        bh=kRSvwOmK8L4hio0WqBUE95hJQAaqeYtGvvHKoTP+QPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arfLOGMkftz2nSVHaFWYNh3YlZ9PxLFFXu33Sr6R1VhdbzVDRKT3D81k7M7efL41N
-         5JOQkE4iQY4L8/ScLZ+mAW2cIToNuUuauarEVyZCWzm6GrdZPFUUavSjlPoe1ftPuq
-         tred2ozV7vbMBDLpzLjj+/EL7GCxEsdfaC3doksw=
+        b=AlOuddTsMC4Qc3PJJ49wcY2Yi5aP1rI4X5m6eWfKZ77rnRUCL8+Yno+b5+7sxaBl5
+         H1/Wg5zsalmFSLWResd+PHx3lk7D81J0R9YpF6afwrMNabTV02KesbGqNHpgFac/jV
+         eof5Yqn7hvIY+hIwftk+XmNh7PFalchitIp/XlBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 335/348] powerpc: Offline CPU in stop_this_cpu()
-Date:   Mon, 12 Jul 2021 08:11:59 +0200
-Message-Id: <20210712060748.574141528@linuxfoundation.org>
+Subject: [PATCH 5.4 336/348] serial: mvebu-uart: do not allow changing baudrate when uartclk is not available
+Date:   Mon, 12 Jul 2021 08:12:00 +0200
+Message-Id: <20210712060748.702397689@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -40,59 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit bab26238bbd44d5a4687c0a64fd2c7f2755ea937 ]
+[ Upstream commit ecd6b010d81f97b06b2f64d2d4f50ebf5acddaa9 ]
 
-printk_safe_flush_on_panic() has special lock breaking code for the case
-where we panic()ed with the console lock held. It relies on panic IPI
-causing other CPUs to mark themselves offline.
+Testing mvuart->clk for non-error is not enough as mvuart->clk may contain
+valid clk pointer but when clk_prepare_enable(mvuart->clk) failed then
+port->uartclk is zero.
 
-Do as most other architectures do.
+When mvuart->clk is not available then port->uartclk is zero too.
 
-This effectively reverts commit de6e5d38417e ("powerpc: smp_send_stop do
-not offline stopped CPUs"), unfortunately it may result in some false
-positive warnings, but the alternative is more situations where we can
-crash without getting messages out.
+Parent clock rate port->uartclk is needed to calculate UART clock divisor
+and without it is not possible to change baudrate.
 
-Fixes: de6e5d38417e ("powerpc: smp_send_stop do not offline stopped CPUs")
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210623041245.865134-1-npiggin@gmail.com
+So fix test condition when it is possible to change baudrate.
+
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
+Link: https://lore.kernel.org/r/20210624224909.6350-3-pali@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/tty/serial/mvebu-uart.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index b24d860bbab9..c06cac543f18 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -588,6 +588,8 @@ static void nmi_stop_this_cpu(struct pt_regs *regs)
- 	/*
- 	 * IRQs are already hard disabled by the smp_handle_nmi_ipi.
- 	 */
-+	set_cpu_online(smp_processor_id(), false);
-+
- 	spin_begin();
- 	while (1)
- 		spin_cpu_relax();
-@@ -603,6 +605,15 @@ void smp_send_stop(void)
- static void stop_this_cpu(void *dummy)
+diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
+index fb42d5304a68..57929b54e46a 100644
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -445,12 +445,11 @@ static void mvebu_uart_shutdown(struct uart_port *port)
+ 
+ static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
  {
- 	hard_irq_disable();
-+
-+	/*
-+	 * Offlining CPUs in stop_this_cpu can result in scheduler warnings,
-+	 * (see commit de6e5d38417e), but printk_safe_flush_on_panic() wants
-+	 * to know other CPUs are offline before it breaks locks to flush
-+	 * printk buffers, in case we panic()ed while holding the lock.
-+	 */
-+	set_cpu_online(smp_processor_id(), false);
-+
- 	spin_begin();
- 	while (1)
- 		spin_cpu_relax();
+-	struct mvebu_uart *mvuart = to_mvuart(port);
+ 	unsigned int d_divisor, m_divisor;
+ 	u32 brdv, osamp;
+ 
+-	if (IS_ERR(mvuart->clk))
+-		return -PTR_ERR(mvuart->clk);
++	if (!port->uartclk)
++		return -EOPNOTSUPP;
+ 
+ 	/*
+ 	 * The baudrate is derived from the UART clock thanks to two divisors:
 -- 
 2.30.2
 
