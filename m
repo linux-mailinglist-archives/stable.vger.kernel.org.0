@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 762083C4F34
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF413C5539
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244881AbhGLHXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60628 "EHLO mail.kernel.org"
+        id S1355418AbhGLIJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242207AbhGLHWI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:22:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A568B615A0;
-        Mon, 12 Jul 2021 07:19:17 +0000 (UTC)
+        id S1353300AbhGLIBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA97A613E8;
+        Mon, 12 Jul 2021 07:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074358;
-        bh=T4SOJDAGaGvBB1zOWOd+Gwxx6lJYSYyimlTfcsBfXXc=;
+        s=korg; t=1626076471;
+        bh=jYP6sDeYG6JsKKBw40HW2tKk3HSdwE11BKrWAIEyvto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ve1JxdbWQT5544tV8JRQgljZHfVO/MjGjr7bIr3yUw6afPURNHZHBk4gIC+/6FMS7
-         KLDWqAnQjfc420Vo99gD8qfh0XKDHlqt2D3RQUR1jgHJb04gKgRYO2Wnk4Fvxmz+ES
-         VqJnP2PWgTbApwqdol0Kl593jHrC4LZKfIrhM8fU=
+        b=w0IpUHakDb7z35G2Pe6ZCd7+BMTcOuWJe2TNjHoU25cRHzgxsnDj5AplfwWgSKWNl
+         xMjBkaij7QmLEyN8WgKZAgm31Xct7YbDRw9LBcRQqYPFQhPT/i8E6IJbM393v+hGjk
+         uEgHenwtTfx4vIk4MMvAubA6tPY8mnroFae0+GXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
+        Nuno Sa <nuno.sa@analog.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 553/700] iio: potentiostat: lmp91000: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 12 Jul 2021 08:10:36 +0200
-Message-Id: <20210712061035.098984029@linuxfoundation.org>
+Subject: [PATCH 5.13 614/800] iio: adis16400: do not return ints in irq handlers
+Date:   Mon, 12 Jul 2021 08:10:37 +0200
+Message-Id: <20210712061032.709414953@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Nuno Sa <nuno.sa@analog.com>
 
-[ Upstream commit 8979b67ec61abc232636400ee8c758a16a73c95f ]
+[ Upstream commit ab3df79782e7d8a27a58576c9b4e8c6c4879ad79 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+On an IRQ handler we should not return normal error codes as 'irqreturn_t'
+is expected.
 
-Here structure is not used, because this buffer is also used
-elsewhere in the driver.
+Not necessary to apply to stable as the original check cannot fail and
+as such the bug cannot actually occur.
 
-Fixes: 67e17300dc1d ("iio: potentiostat: add LMP91000 support")
+Fixes: 5eda3550a3cc1 ("staging:iio:adis16400: Preallocate transfer message")
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Signed-off-by: Nuno Sa <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210422101911.135630-3-nuno.sa@analog.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Matt Ranostay <matt.ranostay@konsulko.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Link: https://lore.kernel.org/r/20210501171352.512953-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/potentiostat/lmp91000.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/imu/adis16400.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/iio/potentiostat/lmp91000.c b/drivers/iio/potentiostat/lmp91000.c
-index f34ca769dc20..d7ff74a798ba 100644
---- a/drivers/iio/potentiostat/lmp91000.c
-+++ b/drivers/iio/potentiostat/lmp91000.c
-@@ -71,8 +71,8 @@ struct lmp91000_data {
+diff --git a/drivers/iio/imu/adis16400.c b/drivers/iio/imu/adis16400.c
+index 768aa493a1a6..b2f92b55b910 100644
+--- a/drivers/iio/imu/adis16400.c
++++ b/drivers/iio/imu/adis16400.c
+@@ -645,9 +645,6 @@ static irqreturn_t adis16400_trigger_handler(int irq, void *p)
+ 	void *buffer;
+ 	int ret;
  
- 	struct completion completion;
- 	u8 chan_select;
+-	if (!adis->buffer)
+-		return -ENOMEM;
 -
--	u32 buffer[4]; /* 64-bit data + 64-bit timestamp */
-+	/* 64-bit data + 64-bit naturally aligned timestamp */
-+	u32 buffer[4] __aligned(8);
- };
- 
- static const struct iio_chan_spec lmp91000_channels[] = {
+ 	if (!(st->variant->flags & ADIS16400_NO_BURST) &&
+ 		st->adis.spi->max_speed_hz > ADIS16400_SPI_BURST) {
+ 		st->adis.spi->max_speed_hz = ADIS16400_SPI_BURST;
 -- 
 2.30.2
 
