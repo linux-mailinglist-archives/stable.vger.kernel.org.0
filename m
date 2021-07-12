@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E765E3C4F15
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4B43C4B61
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:36:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242728AbhGLHXG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
+        id S240747AbhGLG4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:56:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344112AbhGLHUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:20:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2548610A6;
-        Mon, 12 Jul 2021 07:17:30 +0000 (UTC)
+        id S237223AbhGLGtH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A061261158;
+        Mon, 12 Jul 2021 06:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074251;
-        bh=yHX5871xvMpf6sTfEo3jmWZZ7ROJNaQ43WdKczIs6IE=;
+        s=korg; t=1626072295;
+        bh=xZxb+JLYWPTPq9mxT4Q+78VR5QNQlMOF73PpEPQe5Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pz1b9XPRPHf382mTR5+tcpFoaEC1wEo99Jh1MJTPYKuZebVTRfor7HDWyC/D8pet9
-         i3P2KhCc6elaTZt9Pu9Tj6wgMOWj7lrGSZxCRr+wlDBbNkUJE6aXMbwRm/mECI75N1
-         d9h+SVbBfAw13gLTyMcrbqBOGomL1trJUz2LQqO8=
+        b=EPksAAD0rsUnJNNljZsy8RgHizyrGA38KVFJ5xhXEEUTcx+3389XNBbQ09J3HvcTx
+         /Meg+qfu30LycwAaYFMMXYGUkvs2KHetARujf9ces04E4KrU5q8xpC7TrOa8o/wy+O
+         sCS7NFutahjTHJf7c33N6A7lvpT+Qp7e9bRmqxFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
-        Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 515/700] net: tipc: fix FB_MTU eat two pages
+Subject: [PATCH 5.10 438/593] serial: fsl_lpuart: remove RTSCTS handling from get_mctrl()
 Date:   Mon, 12 Jul 2021 08:09:58 +0200
-Message-Id: <20210712061031.302106538@linuxfoundation.org>
+Message-Id: <20210712060936.920774316@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,116 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Menglong Dong <dong.menglong@zte.com.cn>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 0c6de0c943dbb42831bf7502eb5c007f71e752d2 ]
+[ Upstream commit e60c2991f18bf221fa9908ff10cb24eaedaa9bae ]
 
-FB_MTU is used in 'tipc_msg_build()' to alloc smaller skb when memory
-allocation fails, which can avoid unnecessary sending failures.
+The wrong code in set_mctrl() was already removed in commit 2b30efe2e88a
+("tty: serial: lpuart: Remove unnecessary code from set_mctrl"), but the
+code in get_mctrl() wasn't removed. It will not return the state of the
+RTS or CTS line but whether automatic flow control is enabled, which is
+wrong for the get_mctrl(). Thus remove it.
 
-The value of FB_MTU now is 3744, and the data size will be:
-
-  (3744 + SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) + \
-    SKB_DATA_ALIGN(BUF_HEADROOM + BUF_TAILROOM + 3))
-
-which is larger than one page(4096), and two pages will be allocated.
-
-To avoid it, replace '3744' with a calculation:
-
-  (PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) - \
-    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
-
-What's more, alloc_skb_fclone() will call SKB_DATA_ALIGN for data size,
-and it's not necessary to make alignment for buf_size in
-tipc_buf_acquire(). So, just remove it.
-
-Fixes: 4c94cc2d3d57 ("tipc: fall back to smaller MTU if allocation of local send skb fails")
-Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2b30efe2e88a ("tty: serial: lpuart: Remove unnecessary code from set_mctrl")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Link: https://lore.kernel.org/r/20210512141255.18277-7-michael@walle.cc
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bcast.c |  2 +-
- net/tipc/msg.c   | 17 ++++++++---------
- net/tipc/msg.h   |  3 ++-
- 3 files changed, 11 insertions(+), 11 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/net/tipc/bcast.c b/net/tipc/bcast.c
-index d4beca895992..593846d25214 100644
---- a/net/tipc/bcast.c
-+++ b/net/tipc/bcast.c
-@@ -699,7 +699,7 @@ int tipc_bcast_init(struct net *net)
- 	spin_lock_init(&tipc_net(net)->bclock);
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 6b8e638c2389..de5ee4aad9f3 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -1408,17 +1408,7 @@ static unsigned int lpuart_get_mctrl(struct uart_port *port)
  
- 	if (!tipc_link_bc_create(net, 0, 0, NULL,
--				 FB_MTU,
-+				 one_page_mtu,
- 				 BCLINK_WIN_DEFAULT,
- 				 BCLINK_WIN_DEFAULT,
- 				 0,
-diff --git a/net/tipc/msg.c b/net/tipc/msg.c
-index d0fc5fadbc68..b7943da9d095 100644
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -44,12 +44,15 @@
- #define MAX_FORWARD_SIZE 1024
- #ifdef CONFIG_TIPC_CRYPTO
- #define BUF_HEADROOM ALIGN(((LL_MAX_HEADER + 48) + EHDR_MAX_SIZE), 16)
--#define BUF_TAILROOM (TIPC_AES_GCM_TAG_SIZE)
-+#define BUF_OVERHEAD (BUF_HEADROOM + TIPC_AES_GCM_TAG_SIZE)
- #else
- #define BUF_HEADROOM (LL_MAX_HEADER + 48)
--#define BUF_TAILROOM 16
-+#define BUF_OVERHEAD BUF_HEADROOM
- #endif
- 
-+const int one_page_mtu = PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) -
-+			 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-+
- static unsigned int align(unsigned int i)
+ static unsigned int lpuart32_get_mctrl(struct uart_port *port)
  {
- 	return (i + 3) & ~3u;
-@@ -69,13 +72,8 @@ static unsigned int align(unsigned int i)
- struct sk_buff *tipc_buf_acquire(u32 size, gfp_t gfp)
- {
- 	struct sk_buff *skb;
--#ifdef CONFIG_TIPC_CRYPTO
--	unsigned int buf_size = (BUF_HEADROOM + size + BUF_TAILROOM + 3) & ~3u;
--#else
--	unsigned int buf_size = (BUF_HEADROOM + size + 3) & ~3u;
--#endif
+-	unsigned int temp = 0;
+-	unsigned long reg;
+-
+-	reg = lpuart32_read(port, UARTMODIR);
+-	if (reg & UARTMODIR_TXCTSE)
+-		temp |= TIOCM_CTS;
+-
+-	if (reg & UARTMODIR_RXRTSE)
+-		temp |= TIOCM_RTS;
+-
+-	return temp;
++	return 0;
+ }
  
--	skb = alloc_skb_fclone(buf_size, gfp);
-+	skb = alloc_skb_fclone(BUF_OVERHEAD + size, gfp);
- 	if (skb) {
- 		skb_reserve(skb, BUF_HEADROOM);
- 		skb_put(skb, size);
-@@ -395,7 +393,8 @@ int tipc_msg_build(struct tipc_msg *mhdr, struct msghdr *m, int offset,
- 		if (unlikely(!skb)) {
- 			if (pktmax != MAX_MSG_SIZE)
- 				return -ENOMEM;
--			rc = tipc_msg_build(mhdr, m, offset, dsz, FB_MTU, list);
-+			rc = tipc_msg_build(mhdr, m, offset, dsz,
-+					    one_page_mtu, list);
- 			if (rc != dsz)
- 				return rc;
- 			if (tipc_msg_assemble(list))
-diff --git a/net/tipc/msg.h b/net/tipc/msg.h
-index 5d64596ba987..64ae4c4c44f8 100644
---- a/net/tipc/msg.h
-+++ b/net/tipc/msg.h
-@@ -99,9 +99,10 @@ struct plist;
- #define MAX_H_SIZE                60	/* Largest possible TIPC header size */
- 
- #define MAX_MSG_SIZE (MAX_H_SIZE + TIPC_MAX_USER_MSG_SIZE)
--#define FB_MTU                  3744
- #define TIPC_MEDIA_INFO_OFFSET	5
- 
-+extern const int one_page_mtu;
-+
- struct tipc_skb_cb {
- 	union {
- 		struct {
+ static void lpuart_set_mctrl(struct uart_port *port, unsigned int mctrl)
 -- 
 2.30.2
 
