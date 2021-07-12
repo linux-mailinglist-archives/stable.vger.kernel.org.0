@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 610123C5558
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:55:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C10B3C4AD0
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355596AbhGLIJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 04:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54816 "EHLO mail.kernel.org"
+        id S240346AbhGLGxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1353548AbhGLICc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 04:02:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3837761CC7;
-        Mon, 12 Jul 2021 07:55:33 +0000 (UTC)
+        id S239238AbhGLGwn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:52:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2624460FE3;
+        Mon, 12 Jul 2021 06:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076533;
-        bh=G8t99U+uzAYf/Sfi398Xo8OgCLovmaXK5Z4imgrLDRY=;
+        s=korg; t=1626072587;
+        bh=GEzXEb4iym0w8gcOkgV5/q9aP2vIib41XYLb0FYQru4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GMSMvz0f3UuYdM5SGicFNjCAmmcTCOOFVXhf3BNBSjT1HWmVKzM+JDStt8cEEXSmf
-         gDnzFZaUW8EjNAAZziXi76tttTDbbv98HfkfHyc7fbXoZePDanu5dNf8ktmfu81NUw
-         MJUjLC+gJJNiEak6/BLitXCeDEZQDW3p28HfFlrg=
+        b=J3IIDgsjahp4PHzr2Wni+T01/teofGw0Hjq37mwlONO0aUe0bAveRBJQnKZ4oAXgu
+         hoE6JYG/1SNzq58nVp5uwwxmPwepsPsFwbcdD8vx8B1RdHB2+VwzGB2c+EgnphVVFt
+         4G/n8oCUQYKhu7gCfmcnBL2MypzFY0x/D61Iw3rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 684/800] ASoC: max98373-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.10 547/593] ASoC: fsl_spdif: Fix unexpected interrupt after suspend
 Date:   Mon, 12 Jul 2021 08:11:47 +0200
-Message-Id: <20210712061039.609220837@linuxfoundation.org>
+Message-Id: <20210712060954.361606045@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit bf881170311ea74ff30c3be0be8fb097132ce696 ]
+[ Upstream commit a7a0a2feb957e446b2bcf732f245ba04fc8b6314 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+When system enter suspend, the machine driver suspend callback
+function will be called, then the cpu driver trigger callback
+(SNDRV_PCM_TRIGGER_SUSPEND) be called, it would disable the
+interrupt.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
+But the machine driver suspend and cpu dai driver suspend order
+maybe changed, the cpu dai driver's suspend callback is called before
+machine driver's suppend callback, then the interrupt is not cleared
+successfully in trigger callback.
 
-This patch renames the status flag to 'first_hw_init' for consistency
-with other drivers.
+So need to clear interrupts in cpu dai driver's suspend callback
+to avoid such issue.
 
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 56a5b7910e96 ('ASoC: codecs: max98373: add SoundWire support')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-3-pierre-louis.bossart@linux.intel.com
+Fixes: 9cb2b3796e08 ("ASoC: fsl_spdif: Add pm runtime function")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/1624365084-7934-1-git-send-email-shengjiu.wang@nxp.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98373-sdw.c | 12 ++++++------
- sound/soc/codecs/max98373.h     |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ sound/soc/fsl/fsl_spdif.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/max98373-sdw.c b/sound/soc/codecs/max98373-sdw.c
-index c7a3506046db..dc520effc61c 100644
---- a/sound/soc/codecs/max98373-sdw.c
-+++ b/sound/soc/codecs/max98373-sdw.c
-@@ -271,7 +271,7 @@ static __maybe_unused int max98373_resume(struct device *dev)
- 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/sound/soc/fsl/fsl_spdif.c b/sound/soc/fsl/fsl_spdif.c
+index 1fbc6d780700..15bcb0f38ec9 100644
+--- a/sound/soc/fsl/fsl_spdif.c
++++ b/sound/soc/fsl/fsl_spdif.c
+@@ -1387,6 +1387,9 @@ static int fsl_spdif_runtime_suspend(struct device *dev)
+ 	struct fsl_spdif_priv *spdif_priv = dev_get_drvdata(dev);
+ 	int i;
  
--	if (!max98373->hw_init)
-+	if (!max98373->first_hw_init)
- 		return 0;
- 
- 	if (!slave->unattach_request)
-@@ -362,7 +362,7 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	struct device *dev = &slave->dev;
- 	struct max98373_priv *max98373 = dev_get_drvdata(dev);
- 
--	if (max98373->pm_init_once) {
-+	if (max98373->first_hw_init) {
- 		regcache_cache_only(max98373->regmap, false);
- 		regcache_cache_bypass(max98373->regmap, true);
- 	}
-@@ -370,7 +370,7 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	/*
- 	 * PM runtime is only enabled when a Slave reports as Attached
- 	 */
--	if (!max98373->pm_init_once) {
-+	if (!max98373->first_hw_init) {
- 		/* set autosuspend parameters */
- 		pm_runtime_set_autosuspend_delay(dev, 3000);
- 		pm_runtime_use_autosuspend(dev);
-@@ -462,12 +462,12 @@ static int max98373_io_init(struct sdw_slave *slave)
- 	regmap_write(max98373->regmap, MAX98373_R20B5_BDE_EN, 1);
- 	regmap_write(max98373->regmap, MAX98373_R20E2_LIMITER_EN, 1);
- 
--	if (max98373->pm_init_once) {
-+	if (max98373->first_hw_init) {
- 		regcache_cache_bypass(max98373->regmap, false);
- 		regcache_mark_dirty(max98373->regmap);
- 	}
- 
--	max98373->pm_init_once = true;
-+	max98373->first_hw_init = true;
- 	max98373->hw_init = true;
- 
- 	pm_runtime_mark_last_busy(dev);
-@@ -797,7 +797,7 @@ static int max98373_init(struct sdw_slave *slave, struct regmap *regmap)
- 	max98373_slot_config(dev, max98373);
- 
- 	max98373->hw_init = false;
--	max98373->pm_init_once = false;
-+	max98373->first_hw_init = false;
- 
- 	/* codec registration  */
- 	ret = devm_snd_soc_register_component(dev, &soc_codec_dev_max98373_sdw,
-diff --git a/sound/soc/codecs/max98373.h b/sound/soc/codecs/max98373.h
-index 73a2cf69d84a..e1810b3b1620 100644
---- a/sound/soc/codecs/max98373.h
-+++ b/sound/soc/codecs/max98373.h
-@@ -226,7 +226,7 @@ struct max98373_priv {
- 	/* variables to support soundwire */
- 	struct sdw_slave *slave;
- 	bool hw_init;
--	bool pm_init_once;
-+	bool first_hw_init;
- 	int slot;
- 	unsigned int rx_mask;
- };
++	/* Disable all the interrupts */
++	regmap_update_bits(spdif_priv->regmap, REG_SPDIF_SIE, 0xffffff, 0);
++
+ 	regmap_read(spdif_priv->regmap, REG_SPDIF_SRPC,
+ 			&spdif_priv->regcache_srpc);
+ 	regcache_cache_only(spdif_priv->regmap, true);
 -- 
 2.30.2
 
