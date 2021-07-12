@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B543C4DFE
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 654E43C494B
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:32:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242171AbhGLHQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46544 "EHLO mail.kernel.org"
+        id S238088AbhGLGni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239477AbhGLHPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8EAA61400;
-        Mon, 12 Jul 2021 07:11:48 +0000 (UTC)
+        id S237516AbhGLGlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:41:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04BF56113E;
+        Mon, 12 Jul 2021 06:38:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626073909;
-        bh=y6z0+aKNZ1HSjDGs74IirbkHZSxxDP6hcwBliJXkb/Q=;
+        s=korg; t=1626071932;
+        bh=jLagBNkpwz2CdsX2bpqc1aEG1+0SE3pWJkgr5G3y5Pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPgjEuiU7bOfTc+fdsJEE0krlxqQkgZFsw7i8/xyi0TlMWuZTQAgWV57V67s2t92I
-         Yj/xfL9Mwg2jbgQMTCK2LbKg/k1VEwq1JMiDG9KOAuwTXudMoeBNfEFUfIdNT8jLbf
-         q5mSsg9dE0/r50TnN7vUofQ/6oWspjSc78fXgWl0=
+        b=lQREinMrwuzBvftVdQHJjdk5OS0g6dmyyRSfr/o0DOCvNh1p6nXinu0wrN7g/QN1m
+         b/Po7mGSLXuIuYVXRjyNXJjbsjUbdDai5TNdIDPLxpZo64Xuviy7HOke3aWKpghzPg
+         UWKozCGtkVUm0vueHQBkX2zw93DFzt83MgxG09aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org,
+        Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 357/700] drm/imx: ipuv3-plane: do not advertise YUV formats on planes without CSC
-Date:   Mon, 12 Jul 2021 08:07:20 +0200
-Message-Id: <20210712061014.322433964@linuxfoundation.org>
+Subject: [PATCH 5.10 281/593] extcon: extcon-max8997: Fix IRQ freeing at error path
+Date:   Mon, 12 Jul 2021 08:07:21 +0200
+Message-Id: <20210712060915.029735625@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,94 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
 
-[ Upstream commit 06841148c570832d4d247b0f6befc1922a84120b ]
+[ Upstream commit 610bdc04830a864115e6928fc944f1171dfff6f3 ]
 
-Only planes that are displayed via the Display Processor (DP) path
-support color space conversion. Limit formats on planes that are
-shown via the direct Display Controller (DC) path to RGB.
+If reading MAX8997_MUIC_REG_STATUS1 fails at probe the driver exits
+without freeing the requested IRQs.
 
-Reported-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Free the IRQs prior returning if reading the status fails.
+
+Fixes: 3e34c8198960 ("extcon: max8997: Avoid forcing UART path on drive probe")
+Signed-off-by: Matti Vaittinen <matti.vaittinen@fi.rohmeurope.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+Link: https://lore.kernel.org/r/27ee4a48ee775c3f8c9d90459c18b6f2b15edc76.1623146580.git.matti.vaittinen@fi.rohmeurope.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/ipuv3-plane.c | 41 ++++++++++++++++++++++++++++---
- 1 file changed, 37 insertions(+), 4 deletions(-)
+ drivers/extcon/extcon-max8997.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index 075508051b5f..c5ff966e2ceb 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -35,7 +35,7 @@ static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
- 	return container_of(p, struct ipu_plane, base);
- }
- 
--static const uint32_t ipu_plane_formats[] = {
-+static const uint32_t ipu_plane_all_formats[] = {
- 	DRM_FORMAT_ARGB1555,
- 	DRM_FORMAT_XRGB1555,
- 	DRM_FORMAT_ABGR1555,
-@@ -72,6 +72,31 @@ static const uint32_t ipu_plane_formats[] = {
- 	DRM_FORMAT_BGRX8888_A8,
- };
- 
-+static const uint32_t ipu_plane_rgb_formats[] = {
-+	DRM_FORMAT_ARGB1555,
-+	DRM_FORMAT_XRGB1555,
-+	DRM_FORMAT_ABGR1555,
-+	DRM_FORMAT_XBGR1555,
-+	DRM_FORMAT_RGBA5551,
-+	DRM_FORMAT_BGRA5551,
-+	DRM_FORMAT_ARGB4444,
-+	DRM_FORMAT_ARGB8888,
-+	DRM_FORMAT_XRGB8888,
-+	DRM_FORMAT_ABGR8888,
-+	DRM_FORMAT_XBGR8888,
-+	DRM_FORMAT_RGBA8888,
-+	DRM_FORMAT_RGBX8888,
-+	DRM_FORMAT_BGRA8888,
-+	DRM_FORMAT_BGRX8888,
-+	DRM_FORMAT_RGB565,
-+	DRM_FORMAT_RGB565_A8,
-+	DRM_FORMAT_BGR565_A8,
-+	DRM_FORMAT_RGB888_A8,
-+	DRM_FORMAT_BGR888_A8,
-+	DRM_FORMAT_RGBX8888_A8,
-+	DRM_FORMAT_BGRX8888_A8,
-+};
-+
- static const uint64_t ipu_format_modifiers[] = {
- 	DRM_FORMAT_MOD_LINEAR,
- 	DRM_FORMAT_MOD_INVALID
-@@ -822,16 +847,24 @@ struct ipu_plane *ipu_plane_init(struct drm_device *dev, struct ipu_soc *ipu,
- 	struct ipu_plane *ipu_plane;
- 	const uint64_t *modifiers = ipu_format_modifiers;
- 	unsigned int zpos = (type == DRM_PLANE_TYPE_PRIMARY) ? 0 : 1;
-+	unsigned int format_count;
-+	const uint32_t *formats;
- 	int ret;
- 
- 	DRM_DEBUG_KMS("channel %d, dp flow %d, possible_crtcs=0x%x\n",
- 		      dma, dp, possible_crtcs);
- 
-+	if (dp == IPU_DP_FLOW_SYNC_BG || dp == IPU_DP_FLOW_SYNC_FG) {
-+		formats = ipu_plane_all_formats;
-+		format_count = ARRAY_SIZE(ipu_plane_all_formats);
-+	} else {
-+		formats = ipu_plane_rgb_formats;
-+		format_count = ARRAY_SIZE(ipu_plane_rgb_formats);
-+	}
- 	ipu_plane = drmm_universal_plane_alloc(dev, struct ipu_plane, base,
- 					       possible_crtcs, &ipu_plane_funcs,
--					       ipu_plane_formats,
--					       ARRAY_SIZE(ipu_plane_formats),
--					       modifiers, type, NULL);
-+					       formats, format_count, modifiers,
-+					       type, NULL);
- 	if (IS_ERR(ipu_plane)) {
- 		DRM_ERROR("failed to allocate and initialize %s plane\n",
- 			  zpos ? "overlay" : "primary");
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index 337b0eea4e62..5c4f7746cbee 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -729,7 +729,7 @@ static int max8997_muic_probe(struct platform_device *pdev)
+ 				2, info->status);
+ 	if (ret) {
+ 		dev_err(info->dev, "failed to read MUIC register\n");
+-		return ret;
++		goto err_irq;
+ 	}
+ 	cable_type = max8997_muic_get_cable_type(info,
+ 					   MAX8997_CABLE_GROUP_ADC, &attached);
 -- 
 2.30.2
 
