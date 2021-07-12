@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DA63C48A9
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 006B33C48AB
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:30:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235125AbhGLGkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34844 "EHLO mail.kernel.org"
+        id S235582AbhGLGke (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:40:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237347AbhGLGjY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:39:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6935661183;
-        Mon, 12 Jul 2021 06:35:07 +0000 (UTC)
+        id S237459AbhGLGj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:39:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A5DB61132;
+        Mon, 12 Jul 2021 06:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071707;
-        bh=OIm63ihj85oBO1+j6fX/cBWdO9IRft/Qb4k7jt+4G1I=;
+        s=korg; t=1626071714;
+        bh=UbSqRmPUS/rnpfuTauuDPfRftV60XW2KR7pGLS8h1Bg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zChmchVtgeQXSCZqLY1qpQZ46QRU6m2JpyodQ4TSS5FbWh/6bSayP1iMrggvHrJVr
-         0+KPI6Elaux+579hkAiVHr2UWrlsZ4UzGM0tz/FmdAun/ROyeLoBcBf93dmkR/9sBD
-         ED+e0Hq7fRgBD9LEEJwe3VpjfMk5S3xDM28R4UHk=
+        b=I1Xkjhf7Eh2yNfa8pQ7faHRMLWQXTiqrTK4bDRUzTmRdcTweyQSgeIn9G7JbvXteG
+         jE147zaePDnR96uJdtz1PROC3HbC5wSawrpQJfQhp6lRtfhH1LDYnHLh6Nf1S5U6dY
+         cfImEf5Drlcnz/ugdiFIWLt7sjau/f1kCwBQk/iM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Manuel Krause <manuelkrause@netscape.net>,
+        Hui Wang <hui.wang@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 184/593] fs: dlm: fix memory leak when fenced
-Date:   Mon, 12 Jul 2021 08:05:44 +0200
-Message-Id: <20210712060903.256522723@linuxfoundation.org>
+Subject: [PATCH 5.10 187/593] ACPI: resources: Add checks for ACPI IRQ override
+Date:   Mon, 12 Jul 2021 08:05:47 +0200
+Message-Id: <20210712060903.591188609@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -40,83 +42,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
+[ Upstream commit 0ec4e55e9f571f08970ed115ec0addc691eda613 ]
 
-I got some kmemleak report when a node was fenced. The user space tool
-dlm_controld will therefore run some rmdir() in dlm configfs which was
-triggering some memleaks. This patch stores the sps and cms attributes
-which stores some handling for subdirectories of the configfs cluster
-entry and free them if they get released as the parent directory gets
-freed.
+The laptop keyboard doesn't work on many MEDION notebooks, but the
+keyboard works well under Windows and Unix.
 
-unreferenced object 0xffff88810d9e3e00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000db8b640b>] make_cluster+0x5d/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-unreferenced object 0xffff88810d9e3a00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+Through debugging, we found this log in the dmesg:
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+ ACPI: IRQ 1 override to edge, high
+ pnp 00:03: Plug and Play ACPI device, IDs PNP0303 (active)
+
+ And we checked the IRQ definition in the DSDT, it is:
+
+    IRQ (Level, ActiveLow, Exclusive, )
+        {1}
+
+So the BIOS defines the keyboard IRQ to Level_Low, but the Linux
+kernel override it to Edge_High. If the Linux kernel is modified
+to skip the IRQ override, the keyboard will work normally.
+
+>From the existing comment in acpi_dev_get_irqresource(), the override
+function only needs to be called when IRQ() or IRQNoFlags() is used
+to populate the resource descriptor, and according to Section 6.4.2.1
+of ACPI 6.4 [1], if IRQ() is empty or IRQNoFlags() is used, the IRQ
+is High true, edge sensitive and non-shareable. ACPICA also assumes
+that to be the case (see acpi_rs_set_irq[] in rsirq.c).
+
+In accordance with the above, check 3 additional conditions
+(EdgeSensitive, ActiveHigh and Exclusive) when deciding whether or
+not to treat an ACPI_RESOURCE_TYPE_IRQ resource as "legacy", in which
+case the IRQ override is applicable to it.
+
+Link: https://uefi.org/specs/ACPI/6.4/06_Device_Configuration/Device_Configuration.html#irq-descriptor # [1]
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=213031
+BugLink: http://bugs.launchpad.net/bugs/1909814
+Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Reported-by: Manuel Krause <manuelkrause@netscape.net>
+Tested-by: Manuel Krause <manuelkrause@netscape.net>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+[ rjw: Subject rewrite, changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/acpi/resource.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 73e6643903af..18a8ffcea0aa 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -79,6 +79,9 @@ struct dlm_cluster {
- 	unsigned int cl_new_rsb_count;
- 	unsigned int cl_recover_callbacks;
- 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
-+
-+	struct dlm_spaces *sps;
-+	struct dlm_comms *cms;
- };
- 
- static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
-@@ -379,6 +382,9 @@ static struct config_group *make_cluster(struct config_group *g,
- 	if (!cl || !sps || !cms)
- 		goto fail;
- 
-+	cl->sps = sps;
-+	cl->cms = cms;
-+
- 	config_group_init_type_name(&cl->group, name, &cluster_type);
- 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
- 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
-@@ -428,6 +434,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
- static void release_cluster(struct config_item *i)
- {
- 	struct dlm_cluster *cl = config_item_to_cluster(i);
-+
-+	kfree(cl->sps);
-+	kfree(cl->cms);
- 	kfree(cl);
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index f2f5f1dc7c61..9d82440a1d75 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -430,6 +430,13 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
+ 	}
  }
  
++static bool irq_is_legacy(struct acpi_resource_irq *irq)
++{
++	return irq->triggering == ACPI_EDGE_SENSITIVE &&
++		irq->polarity == ACPI_ACTIVE_HIGH &&
++		irq->shareable == ACPI_EXCLUSIVE;
++}
++
+ /**
+  * acpi_dev_resource_interrupt - Extract ACPI interrupt resource information.
+  * @ares: Input ACPI resource object.
+@@ -468,7 +475,7 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
+ 		}
+ 		acpi_dev_get_irqresource(res, irq->interrupts[index],
+ 					 irq->triggering, irq->polarity,
+-					 irq->shareable, true);
++					 irq->shareable, irq_is_legacy(irq));
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+ 		ext_irq = &ares->data.extended_irq;
 -- 
 2.30.2
 
