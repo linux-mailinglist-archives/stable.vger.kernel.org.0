@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 659683C53FD
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:52:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B97D3C4E56
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349357AbhGLH4k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:56:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39608 "EHLO mail.kernel.org"
+        id S244197AbhGLHSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:18:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351440AbhGLHvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:51:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E13960FF1;
-        Mon, 12 Jul 2021 07:48:59 +0000 (UTC)
+        id S243832AbhGLHRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:17:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9BCD613F4;
+        Mon, 12 Jul 2021 07:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626076139;
-        bh=8hL99on/kGHd9SZ0FmxTqw28CrZ+V5Ar0rZUUs7ffcU=;
+        s=korg; t=1626074063;
+        bh=67IgrYKsPM4pJdxDsR3ya5XSVJ181K/E4pVXKzE66uE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XBkdgbpXIMSmWJuyI8V49MtkQoPdNHVNiMHbK50LCaRMhQWtMENncSLchyO6r5odt
-         VynkChzz/gtMetxSihF5estoDpCaoJXDQ8GioegpTnRfr2sCssLAvHZouIZV2PupQo
-         Ul9TmBh1Z7d+J4BP9ehb5WJRtIvZnbJIT0IWSmAY=
+        b=pDdHc+PWs+B9jhyv/RECZSFWFKgnk7TQDM96NNX4w8vnNi3isNvpK7Pcfsr5NfsZf
+         PBDniiaj/9j48nBHSUFrzU/TaV797aiQfLMj5zZko03QambrbhF68gyjPguVaz3FN+
+         wS/qE6s2dBaJagA7dqlDHFYWJTTxZ3UEvCqr3COo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Jakub Sitnicki <jakub@cloudflare.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 513/800] udp: Fix a memory leak in udp_read_sock()
+Subject: [PATCH 5.12 453/700] netfilter: nf_tables: skip netlink portID validation if zero
 Date:   Mon, 12 Jul 2021 08:08:56 +0200
-Message-Id: <20210712061021.794224665@linuxfoundation.org>
+Message-Id: <20210712061024.760339457@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
-References: <20210712060912.995381202@linuxfoundation.org>
+In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
+References: <20210712060924.797321836@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,45 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit e00a5c331bf57f41fcfdc5da4f5caeafe5e54c1d ]
+[ Upstream commit 534799097a777e82910f77a4f9d289c815a9a64e ]
 
-sk_psock_verdict_recv() clones the skb and uses the clone
-afterward, so udp_read_sock() should free the skb after using
-it, regardless of error or not.
+nft_table_lookup() allows us to obtain the table object by the name and
+the family. The netlink portID validation needs to be skipped for the
+dump path, since the ownership only applies to commands to update the
+given table. Skip validation if the specified netlink PortID is zero
+when calling nft_table_lookup().
 
-This fixes a real kmemleak.
-
-Fixes: d7f571188ecf ("udp: Implement ->read_sock() for sockmap")
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Jakub Sitnicki <jakub@cloudflare.com>
-Link: https://lore.kernel.org/bpf/20210615021342.7416-4-xiyou.wangcong@gmail.com
+Fixes: 6001a930ce03 ("netfilter: nftables: introduce table ownership")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/nf_tables_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 1307ad0d3b9e..8091276cb85b 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1798,11 +1798,13 @@ int udp_read_sock(struct sock *sk, read_descriptor_t *desc,
- 		if (used <= 0) {
- 			if (!copied)
- 				copied = used;
-+			kfree_skb(skb);
- 			break;
- 		} else if (used <= skb->len) {
- 			copied += used;
- 		}
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 9d5ea2352965..3705086d43f5 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -521,7 +521,7 @@ static struct nft_table *nft_table_lookup(const struct net *net,
+ 		    table->family == family &&
+ 		    nft_active_genmask(table, genmask)) {
+ 			if (nft_table_has_owner(table) &&
+-			    table->nlpid != nlpid)
++			    nlpid && table->nlpid != nlpid)
+ 				return ERR_PTR(-EPERM);
  
-+		kfree_skb(skb);
- 		if (!desc->count)
- 			break;
- 	}
+ 			return table;
 -- 
 2.30.2
 
