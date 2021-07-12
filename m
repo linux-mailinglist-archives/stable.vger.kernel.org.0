@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A7E73C4A86
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A11F63C5525
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239332AbhGLGwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50380 "EHLO mail.kernel.org"
+        id S1353618AbhGLIJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 04:09:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240065AbhGLGuo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 02:50:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45AB56100B;
-        Mon, 12 Jul 2021 06:47:38 +0000 (UTC)
+        id S1352891AbhGLIAa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 04:00:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A521161A36;
+        Mon, 12 Jul 2021 07:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626072458;
-        bh=a3cwRwsd7wfCVL6L4m2vy/b4aDiG3E7zWwcOqrKeiNs=;
+        s=korg; t=1626076433;
+        bh=/XH8VHetpeGGKDyF4zoCyzPHBVjcwLilhPt4VCDmUkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOqZ/b2itbA2S1P6y0pdUiv0ehBdYWz+UKeCmPt+CrC916VXUPsvKZTzeoBErmixW
-         X8SD4Z4onsmQpf8H+/c5hA8MA8TZbsNWD7XqvOD5eoJX+X/YMWq1/ChpR50Q05+/AL
-         9v3OUVWcM2BH0EsmbwU1zn7vWLjndEbaUNfjXBIY=
+        b=rRGmWPcppoKfqJqjUCyFxS0V8SegdjEODLMhNz2oIvbiGmYpca0KQx3q3xFgGfRa7
+         mcSlu5G+E3jF6PKkO7lm8h+4jSDESAcTjV4/M3fddLZm2IWXvmubUhiiMp1c2EzA/z
+         JKTkIDkEfBxMxCMllucbrSv/jfBZXYuVn/N4Ucxs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
-        Bard Liao <bard.liao@intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Brian Masney <masneyb@onstation.org>,
+        Dan Murphy <dmurphy@ti.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 503/593] ASoC: rt5682-sdw: use first_hw_init flag on resume
+Subject: [PATCH 5.13 640/800] backlight: lm3630a_bl: Put fwnode in error case during ->probe()
 Date:   Mon, 12 Jul 2021 08:11:03 +0200
-Message-Id: <20210712060946.980074062@linuxfoundation.org>
+Message-Id: <20210712061035.192005277@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
-References: <20210712060843.180606720@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 5361a42114689f875a9748299cadb4b1adbee6f4 ]
+[ Upstream commit 6d1c32dbedd7d7e7372aa38033ec8782c39f6379 ]
 
-The intent of the status check on resume was to verify if a SoundWire
-peripheral reported ATTACHED before waiting for the initialization to
-complete. This is required to avoid timeouts that will happen with
-'ghost' devices that are exposed in the platform firmware but are not
-populated in hardware.
+device_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-Unfortunately we used 'hw_init' instead of 'first_hw_init'. Due to
-another error, the resume operation never timed out, but the volume
-settings were not properly restored.
-
-BugLink: https://github.com/thesofproject/linux/issues/2908
-BugLink: https://github.com/thesofproject/linux/issues/2637
-Fixes: 03f6fc6de9192 ('ASoC: rt5682: Add the soundwire support')
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Link: https://lore.kernel.org/r/20210607222239.582139-6-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Dan Murphy <dmurphy@ti.com>
+Fixes: 8fbce8efe15cd ("backlight: lm3630a: Add firmware node support")
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Brian Masney <masneyb@onstation.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/backlight/lm3630a_bl.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/rt5682-sdw.c b/sound/soc/codecs/rt5682-sdw.c
-index aa6c325faeab..848b79b5a130 100644
---- a/sound/soc/codecs/rt5682-sdw.c
-+++ b/sound/soc/codecs/rt5682-sdw.c
-@@ -734,7 +734,7 @@ static int __maybe_unused rt5682_dev_resume(struct device *dev)
- 	struct rt5682_priv *rt5682 = dev_get_drvdata(dev);
- 	unsigned long time;
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index e88a2b0e5904..662029d6a3dc 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -482,8 +482,10 @@ static int lm3630a_parse_node(struct lm3630a_chip *pchip,
  
--	if (!rt5682->hw_init)
-+	if (!rt5682->first_hw_init)
- 		return 0;
+ 	device_for_each_child_node(pchip->dev, node) {
+ 		ret = lm3630a_parse_bank(pdata, node, &seen_led_sources);
+-		if (ret)
++		if (ret) {
++			fwnode_handle_put(node);
+ 			return ret;
++		}
+ 	}
  
- 	if (!slave->unattach_request)
+ 	return ret;
 -- 
 2.30.2
 
