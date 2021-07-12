@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C5F3C4F93
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF843C4AB8
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243757AbhGLH00 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
+        id S240393AbhGLGxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:53:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343888AbhGLHYX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:24:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A78610D1;
-        Mon, 12 Jul 2021 07:21:19 +0000 (UTC)
+        id S240412AbhGLGvw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:51:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5569361004;
+        Mon, 12 Jul 2021 06:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074480;
-        bh=8aM6KP0ldeY/2jSHS0t+iROeuS+RTD3zgSOyxhturkc=;
+        s=korg; t=1626072506;
+        bh=vBbUJ1KOM+k1JuZjtSVaPmtW/lBhC0FJdTVBRm1SK3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qf1xTcVfCtzP6rarW+zdqb4tsUUn8UoOLQxtP3wH9oW4iBaXBV8KH+4wXuhsgq1io
-         eLW/s0ITVjKFxV/N0v3wmjAnUxta6QOZQ03FV28z06l5wupgN9sb8gOCMV4chqYoWo
-         pnz3MSmtlxIbRNCOGn432YOPJtPtqIA1EaiTGd4k=
+        b=jwbqdA5V0iz1qk5iTYUqmE/6bxjT1mJcbqG2LWD6GhVx+0WnUkh2Kmt5laUKqbYvL
+         ddG8LYBd6DYCH31hvjc1VyqLnsvPGgAmnIaJVE0JZubdVcQHMtG5BcWQ6Fy9lKbepZ
+         9krZsljewNeMYZvW+4diTWqLc7/ybdrXt+4xX03w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinath Mannam <srinath.mannam@broadcom.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sven Peter <sven@svenpeter.dev>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 595/700] iommu/dma: Fix IOVA reserve dma ranges
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 518/593] iio: adc: ti-ads8688: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 12 Jul 2021 08:11:18 +0200
-Message-Id: <20210712061039.257426729@linuxfoundation.org>
+Message-Id: <20210712060949.329946393@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,42 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinath Mannam <srinath.mannam@broadcom.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 571f316074a203e979ea90211d9acf423dfe5f46 ]
+[ Upstream commit 61fa5dfa5f52806f5ce37a0ba5712c271eb22f98 ]
 
-Fix IOVA reserve failure in the case when address of first memory region
-listed in dma-ranges is equal to 0x0.
+Add __aligned(8) to ensure the buffer passed to
+iio_push_to_buffers_with_timestamp() is suitable for the naturally
+aligned timestamp that will be inserted.
 
-Fixes: aadad097cd46f ("iommu/dma: Reserve IOVA for PCIe inaccessible DMA address")
-Signed-off-by: Srinath Mannam <srinath.mannam@broadcom.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Tested-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20200914072319.6091-1-srinath.mannam@broadcom.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: f214ff521fb1 ("iio: ti-ads8688: Update buffer allocation for timestamps")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-5-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/dma-iommu.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ti-ads8688.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index fdd095e1fa52..5f75ab0dfc73 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -252,9 +252,11 @@ resv_iova:
- 			lo = iova_pfn(iovad, start);
- 			hi = iova_pfn(iovad, end);
- 			reserve_iova(iovad, lo, hi);
--		} else {
-+		} else if (end < start) {
- 			/* dma_ranges list should be sorted */
--			dev_err(&dev->dev, "Failed to reserve IOVA\n");
-+			dev_err(&dev->dev,
-+				"Failed to reserve IOVA [%#010llx-%#010llx]\n",
-+				start, end);
- 			return -EINVAL;
- 		}
+diff --git a/drivers/iio/adc/ti-ads8688.c b/drivers/iio/adc/ti-ads8688.c
+index 16bcb37eebb7..79c803537dc4 100644
+--- a/drivers/iio/adc/ti-ads8688.c
++++ b/drivers/iio/adc/ti-ads8688.c
+@@ -383,7 +383,8 @@ static irqreturn_t ads8688_trigger_handler(int irq, void *p)
+ {
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+-	u16 buffer[ADS8688_MAX_CHANNELS + sizeof(s64)/sizeof(u16)];
++	/* Ensure naturally aligned timestamp */
++	u16 buffer[ADS8688_MAX_CHANNELS + sizeof(s64)/sizeof(u16)] __aligned(8);
+ 	int i, j = 0;
  
+ 	for (i = 0; i < indio_dev->masklength; i++) {
 -- 
 2.30.2
 
