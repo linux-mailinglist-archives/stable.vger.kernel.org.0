@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB093C4519
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4688E3C4517
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 08:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234565AbhGLGX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:23:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39960 "EHLO mail.kernel.org"
+        id S234375AbhGLGX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234559AbhGLGW3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234393AbhGLGW3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:22:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4E1661108;
-        Mon, 12 Jul 2021 06:19:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31CBA61154;
+        Mon, 12 Jul 2021 06:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626070764;
-        bh=tUscZYqNKtQK/14FPL202v1ysf+GerKJT/5b0/XDNiE=;
+        s=korg; t=1626070766;
+        bh=IH4lhPDpvxmWg2bAKUCN01/Ju1RnAolEGFYrWtFY018=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9PUSp06cDAIewZoWF/gfUx2z3uU65zmp22fT4WlnixYbSgd8FTIAVuDiDK9EFCNn
-         DfRCDL7jduv5yKe3VwXx+K0bSqls6sGgKUIBv74s+kZwzY8IEzH5FoIUdaVLL6mfWW
-         l76D8wA53Vm4YBdJtzwU6/rB8wyCwyLbRP+BazAE=
+        b=CTFSvcR0YvilXRN0Cntlg6hTfCKKxocya5HGNO6/kxRCyjNE/kJDyooPCUUS+OqxW
+         IriN9zMgJCQ+/ZhSEAJ1yVswU1TVtZ0fok+pzu5wLussxbG0rklA1TefDGvcvkRlur
+         7IY/V14KNoP09JP7Y0PYnyf5AsmWt/5Sijdln1Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 131/348] ACPI: tables: Add custom DSDT file as makefile prerequisite
-Date:   Mon, 12 Jul 2021 08:08:35 +0200
-Message-Id: <20210712060718.693761179@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 132/348] HID: wacom: Correct base usage for capacitive ExpressKey status bits
+Date:   Mon, 12 Jul 2021 08:08:36 +0200
+Message-Id: <20210712060718.801610241@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060659.886176320@linuxfoundation.org>
 References: <20210712060659.886176320@linuxfoundation.org>
@@ -41,41 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
+[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
 
-A custom DSDT file is mostly used during development or debugging,
-and in that case it is quite likely to want to rebuild the kernel
-after changing ONLY the content of the DSDT.
+The capacitive status of ExpressKeys is reported with usages beginning
+at 0x940, not 0x950. Bring our driver into alignment with reality.
 
-This patch adds the custom DSDT as a prerequisite to tables.o
-to ensure a rebuild if the DSDT file is updated. Make will merge
-the prerequisites from multiple rules for the same target.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/wacom_wac.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index ef1ac4d127da..1c81504046d4 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -8,6 +8,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
- #
- # ACPI Boot-Time Table Parsing
- #
-+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
-+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
-+
-+endif
-+
- obj-$(CONFIG_ACPI)		+= tables.o
- obj-$(CONFIG_X86)		+= blacklist.o
- 
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 195910dd2154..e3835407e8d2 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -122,7 +122,7 @@
+ #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
+ #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+ #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
+-#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
++#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
+ #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
+ #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
+ #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
 -- 
 2.30.2
 
