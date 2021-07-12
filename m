@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B40AC3C4826
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98E273C4823
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:29:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235531AbhGLGgX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 02:36:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54238 "EHLO mail.kernel.org"
+        id S234994AbhGLGgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:36:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236630AbhGLGfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235741AbhGLGfV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 12 Jul 2021 02:35:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0061B610CD;
-        Mon, 12 Jul 2021 06:32:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EE3061106;
+        Mon, 12 Jul 2021 06:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626071536;
-        bh=vzE+OBnD7NeBjzxA/wmC7jhzZnfZH8OmraS2hjnEYN4=;
+        s=korg; t=1626071538;
+        bh=5o7mChQOhAcXX0gJmZ5pdyx0Oi6xni6Jpc6iEBQqxGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/3ggcUNWqVKNAYT5911VOzHUlHpm2GmgHMhIpOcoGR3uyzoQkNDNJqsMldofdf5u
-         Suun7j/Yf3JLtwqcbbF+cSyN6Bd1G6IkNEkCh/asYbHyNrLmlcmhcTZXv+ZQ9691ig
-         i+TXK+MHtNqOLpxAiN7JEcP8ykl3KWEdDwB266v0=
+        b=cndqG3lTFGp7JGuZcUf8XKOWSdEqpeqbQlw3c5YaggJKQo+ANw+vk7vMH/u4ucuk3
+         2/xikWB8x6nDVmeU/Bc1oBOpgkuv39AV9q2ax3ajU697esVYNQVxSplf/NL50FNUgD
+         nKBzT+qgLyY45FnGRmGbmkAEqcMulBh7VVcLdMro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.10 069/593] clk: agilex/stratix10: remove noc_clk
-Date:   Mon, 12 Jul 2021 08:03:49 +0200
-Message-Id: <20210712060850.748945078@linuxfoundation.org>
+Subject: [PATCH 5.10 070/593] clk: agilex/stratix10: fix bypass representation
+Date:   Mon, 12 Jul 2021 08:03:50 +0200
+Message-Id: <20210712060850.863459956@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
 References: <20210712060843.180606720@linuxfoundation.org>
@@ -41,133 +41,176 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dinh Nguyen <dinguyen@kernel.org>
 
-commit efbe21df3e889c0f4bf682c2b7e2465d60b0127c upstream.
+commit 6855ee839699bdabb4b16cf942557fd763bcb1fa upstream.
 
-Early documentation had a noc_clk, but in reality, it's just the
-noc_free_clk. Remove the noc_clk clock and just use the noc_free_clk.
+Each of these clocks(s2f_usr0/1, sdmmc_clk, gpio_db, emac_ptp,
+emac0/1/2) have a bypass setting that can use the boot_clk. The
+previous representation was not correct.
+
+Fix the representation.
 
 Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
 Cc: stable@vger.kernel.org
 Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20210611025201.118799-1-dinguyen@kernel.org
+Link: https://lore.kernel.org/r/20210611025201.118799-2-dinguyen@kernel.org
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/socfpga/clk-agilex.c |   32 +++++++++++++++-----------------
- drivers/clk/socfpga/clk-s10.c    |   32 +++++++++++++++-----------------
- 2 files changed, 30 insertions(+), 34 deletions(-)
+ drivers/clk/socfpga/clk-agilex.c |   57 +++++++++++++++++++++++++++++++--------
+ drivers/clk/socfpga/clk-s10.c    |   55 ++++++++++++++++++++++++++++++-------
+ 2 files changed, 91 insertions(+), 21 deletions(-)
 
 --- a/drivers/clk/socfpga/clk-agilex.c
 +++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -211,11 +211,9 @@ static const struct stratix10_perip_cnt_
- 	{ AGILEX_MPU_FREE_CLK, "mpu_free_clk", NULL, mpu_free_mux, ARRAY_SIZE(mpu_free_mux),
- 	   0, 0x3C, 0, 0, 0},
- 	{ AGILEX_NOC_FREE_CLK, "noc_free_clk", NULL, noc_free_mux, ARRAY_SIZE(noc_free_mux),
--	  0, 0x40, 0, 0, 1},
--	{ AGILEX_L4_SYS_FREE_CLK, "l4_sys_free_clk", "noc_free_clk", NULL, 1, 0,
--	  0, 4, 0, 0},
--	{ AGILEX_NOC_CLK, "noc_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux),
--	  0, 0, 0, 0x30, 1},
-+	  0, 0x40, 0, 0, 0},
-+	{ AGILEX_L4_SYS_FREE_CLK, "l4_sys_free_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0,
-+	  0, 4, 0x30, 1},
- 	{ AGILEX_EMAC_A_FREE_CLK, "emaca_free_clk", NULL, emaca_free_mux, ARRAY_SIZE(emaca_free_mux),
- 	  0, 0xD4, 0, 0x88, 0},
- 	{ AGILEX_EMAC_B_FREE_CLK, "emacb_free_clk", NULL, emacb_free_mux, ARRAY_SIZE(emacb_free_mux),
-@@ -241,24 +239,24 @@ static const struct stratix10_gate_clock
- 	  0, 0, 0, 0, 0, 0, 4},
- 	{ AGILEX_MPU_CCU_CLK, "mpu_ccu_clk", "mpu_clk", NULL, 1, 0, 0x24,
- 	  0, 0, 0, 0, 0, 0, 2},
--	{ AGILEX_L4_MAIN_CLK, "l4_main_clk", "noc_clk", NULL, 1, 0, 0x24,
--	  1, 0x44, 0, 2, 0, 0, 0},
--	{ AGILEX_L4_MP_CLK, "l4_mp_clk", "noc_clk", NULL, 1, 0, 0x24,
--	  2, 0x44, 8, 2, 0, 0, 0},
-+	{ AGILEX_L4_MAIN_CLK, "l4_main_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
-+	  1, 0x44, 0, 2, 0x30, 1, 0},
-+	{ AGILEX_L4_MP_CLK, "l4_mp_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
-+	  2, 0x44, 8, 2, 0x30, 1, 0},
- 	/*
- 	 * The l4_sp_clk feeds a 100 MHz clock to various peripherals, one of them
- 	 * being the SP timers, thus cannot get gated.
- 	 */
--	{ AGILEX_L4_SP_CLK, "l4_sp_clk", "noc_clk", NULL, 1, CLK_IS_CRITICAL, 0x24,
--	  3, 0x44, 16, 2, 0, 0, 0},
--	{ AGILEX_CS_AT_CLK, "cs_at_clk", "noc_clk", NULL, 1, 0, 0x24,
--	  4, 0x44, 24, 2, 0, 0, 0},
--	{ AGILEX_CS_TRACE_CLK, "cs_trace_clk", "noc_clk", NULL, 1, 0, 0x24,
--	  4, 0x44, 26, 2, 0, 0, 0},
-+	{ AGILEX_L4_SP_CLK, "l4_sp_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), CLK_IS_CRITICAL, 0x24,
-+	  3, 0x44, 16, 2, 0x30, 1, 0},
-+	{ AGILEX_CS_AT_CLK, "cs_at_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
-+	  4, 0x44, 24, 2, 0x30, 1, 0},
-+	{ AGILEX_CS_TRACE_CLK, "cs_trace_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
-+	  4, 0x44, 26, 2, 0x30, 1, 0},
- 	{ AGILEX_CS_PDBG_CLK, "cs_pdbg_clk", "cs_at_clk", NULL, 1, 0, 0x24,
- 	  4, 0x44, 28, 1, 0, 0, 0},
--	{ AGILEX_CS_TIMER_CLK, "cs_timer_clk", "noc_clk", NULL, 1, 0, 0x24,
--	  5, 0, 0, 0, 0, 0, 0},
-+	{ AGILEX_CS_TIMER_CLK, "cs_timer_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x24,
-+	  5, 0, 0, 0, 0x30, 1, 0},
- 	{ AGILEX_S2F_USER0_CLK, "s2f_user0_clk", NULL, s2f_usr0_mux, ARRAY_SIZE(s2f_usr0_mux), 0, 0x24,
- 	  6, 0, 0, 0, 0, 0, 0},
- 	{ AGILEX_EMAC0_CLK, "emac0_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
+@@ -186,6 +186,41 @@ static const struct clk_parent_data noc_
+ 	  .name = "boot_clk", },
+ };
+ 
++static const struct clk_parent_data sdmmc_mux[] = {
++	{ .fw_name = "sdmmc_free_clk",
++	  .name = "sdmmc_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data s2f_user1_mux[] = {
++	{ .fw_name = "s2f_user1_free_clk",
++	  .name = "s2f_user1_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data psi_mux[] = {
++	{ .fw_name = "psi_ref_free_clk",
++	  .name = "psi_ref_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data gpio_db_mux[] = {
++	{ .fw_name = "gpio_db_free_clk",
++	  .name = "gpio_db_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data emac_ptp_mux[] = {
++	{ .fw_name = "emac_ptp_free_clk",
++	  .name = "emac_ptp_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
+ /* clocks in AO (always on) controller */
+ static const struct stratix10_pll_clock agilex_pll_clks[] = {
+ 	{ AGILEX_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
+@@ -223,7 +258,7 @@ static const struct stratix10_perip_cnt_
+ 	{ AGILEX_GPIO_DB_FREE_CLK, "gpio_db_free_clk", NULL, gpio_db_free_mux,
+ 	  ARRAY_SIZE(gpio_db_free_mux), 0, 0xE0, 0, 0x88, 3},
+ 	{ AGILEX_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
+-	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0x88, 4},
++	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0, 0},
+ 	{ AGILEX_S2F_USER0_FREE_CLK, "s2f_user0_free_clk", NULL, s2f_usr0_free_mux,
+ 	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0, 0},
+ 	{ AGILEX_S2F_USER1_FREE_CLK, "s2f_user1_free_clk", NULL, s2f_usr1_free_mux,
+@@ -265,16 +300,16 @@ static const struct stratix10_gate_clock
+ 	  1, 0, 0, 0, 0x94, 27, 0},
+ 	{ AGILEX_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0x7C,
+ 	  2, 0, 0, 0, 0x94, 28, 0},
+-	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0x7C,
+-	  3, 0, 0, 0, 0, 0, 0},
+-	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0x7C,
+-	  4, 0x98, 0, 16, 0, 0, 0},
+-	{ AGILEX_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0x7C,
+-	  5, 0, 0, 0, 0, 0, 4},
+-	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0x7C,
+-	  6, 0, 0, 0, 0, 0, 0},
+-	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0x7C,
+-	  7, 0, 0, 0, 0, 0, 0},
++	{ AGILEX_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0x7C,
++	  3, 0, 0, 0, 0x88, 2, 0},
++	{ AGILEX_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0x7C,
++	  4, 0x98, 0, 16, 0x88, 3, 0},
++	{ AGILEX_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0x7C,
++	  5, 0, 0, 0, 0x88, 4, 4},
++	{ AGILEX_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0x7C,
++	  6, 0, 0, 0, 0x88, 5, 0},
++	{ AGILEX_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0x7C,
++	  7, 0, 0, 0, 0x88, 6, 0},
+ 	{ AGILEX_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
+ 	  8, 0, 0, 0, 0, 0, 0},
+ 	{ AGILEX_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0x7C,
 --- a/drivers/clk/socfpga/clk-s10.c
 +++ b/drivers/clk/socfpga/clk-s10.c
-@@ -167,7 +167,7 @@ static const struct stratix10_perip_cnt_
- 	{ STRATIX10_MPU_FREE_CLK, "mpu_free_clk", NULL, mpu_free_mux, ARRAY_SIZE(mpu_free_mux),
- 	   0, 0x48, 0, 0, 0},
- 	{ STRATIX10_NOC_FREE_CLK, "noc_free_clk", NULL, noc_free_mux, ARRAY_SIZE(noc_free_mux),
--	  0, 0x4C, 0, 0, 0},
-+	  0, 0x4C, 0, 0x3C, 1},
- 	{ STRATIX10_MAIN_EMACA_CLK, "main_emaca_clk", "main_noc_base_clk", NULL, 1, 0,
- 	  0x50, 0, 0, 0},
- 	{ STRATIX10_MAIN_EMACB_CLK, "main_emacb_clk", "main_noc_base_clk", NULL, 1, 0,
-@@ -200,10 +200,8 @@ static const struct stratix10_perip_cnt_
- 	  0, 0xD4, 0, 0, 0},
- 	{ STRATIX10_PERI_PSI_REF_CLK, "peri_psi_ref_clk", "peri_noc_base_clk", NULL, 1, 0,
- 	  0xD8, 0, 0, 0},
--	{ STRATIX10_L4_SYS_FREE_CLK, "l4_sys_free_clk", "noc_free_clk", NULL, 1, 0,
--	  0, 4, 0, 0},
--	{ STRATIX10_NOC_CLK, "noc_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux),
--	  0, 0, 0, 0x3C, 1},
-+	{ STRATIX10_L4_SYS_FREE_CLK, "l4_sys_free_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0,
-+	  0, 4, 0x3C, 1},
- 	{ STRATIX10_EMAC_A_FREE_CLK, "emaca_free_clk", NULL, emaca_free_mux, ARRAY_SIZE(emaca_free_mux),
- 	  0, 0, 2, 0xB0, 0},
- 	{ STRATIX10_EMAC_B_FREE_CLK, "emacb_free_clk", NULL, emacb_free_mux, ARRAY_SIZE(emacb_free_mux),
-@@ -227,20 +225,20 @@ static const struct stratix10_gate_clock
- 	  0, 0, 0, 0, 0, 0, 4},
- 	{ STRATIX10_MPU_L2RAM_CLK, "mpu_l2ram_clk", "mpu_clk", NULL, 1, 0, 0x30,
- 	  0, 0, 0, 0, 0, 0, 2},
--	{ STRATIX10_L4_MAIN_CLK, "l4_main_clk", "noc_clk", NULL, 1, 0, 0x30,
--	  1, 0x70, 0, 2, 0, 0, 0},
--	{ STRATIX10_L4_MP_CLK, "l4_mp_clk", "noc_clk", NULL, 1, 0, 0x30,
--	  2, 0x70, 8, 2, 0, 0, 0},
--	{ STRATIX10_L4_SP_CLK, "l4_sp_clk", "noc_clk", NULL, 1, CLK_IS_CRITICAL, 0x30,
--	  3, 0x70, 16, 2, 0, 0, 0},
--	{ STRATIX10_CS_AT_CLK, "cs_at_clk", "noc_clk", NULL, 1, 0, 0x30,
--	  4, 0x70, 24, 2, 0, 0, 0},
--	{ STRATIX10_CS_TRACE_CLK, "cs_trace_clk", "noc_clk", NULL, 1, 0, 0x30,
--	  4, 0x70, 26, 2, 0, 0, 0},
-+	{ STRATIX10_L4_MAIN_CLK, "l4_main_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x30,
-+	  1, 0x70, 0, 2, 0x3C, 1, 0},
-+	{ STRATIX10_L4_MP_CLK, "l4_mp_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x30,
-+	  2, 0x70, 8, 2, 0x3C, 1, 0},
-+	{ STRATIX10_L4_SP_CLK, "l4_sp_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), CLK_IS_CRITICAL, 0x30,
-+	  3, 0x70, 16, 2, 0x3C, 1, 0},
-+	{ STRATIX10_CS_AT_CLK, "cs_at_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x30,
-+	  4, 0x70, 24, 2, 0x3C, 1, 0},
-+	{ STRATIX10_CS_TRACE_CLK, "cs_trace_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x30,
-+	  4, 0x70, 26, 2, 0x3C, 1, 0},
- 	{ STRATIX10_CS_PDBG_CLK, "cs_pdbg_clk", "cs_at_clk", NULL, 1, 0, 0x30,
- 	  4, 0x70, 28, 1, 0, 0, 0},
--	{ STRATIX10_CS_TIMER_CLK, "cs_timer_clk", "noc_clk", NULL, 1, 0, 0x30,
--	  5, 0, 0, 0, 0, 0, 0},
-+	{ STRATIX10_CS_TIMER_CLK, "cs_timer_clk", NULL, noc_mux, ARRAY_SIZE(noc_mux), 0, 0x30,
-+	  5, 0, 0, 0, 0x3C, 1, 0},
- 	{ STRATIX10_S2F_USER0_CLK, "s2f_user0_clk", NULL, s2f_usr0_mux, ARRAY_SIZE(s2f_usr0_mux), 0, 0x30,
- 	  6, 0, 0, 0, 0, 0, 0},
- 	{ STRATIX10_EMAC0_CLK, "emac0_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0xA4,
+@@ -144,6 +144,41 @@ static const struct clk_parent_data mpu_
+ 	  .name = "f2s-free-clk", },
+ };
+ 
++static const struct clk_parent_data sdmmc_mux[] = {
++	{ .fw_name = "sdmmc_free_clk",
++	  .name = "sdmmc_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data s2f_user1_mux[] = {
++	{ .fw_name = "s2f_user1_free_clk",
++	  .name = "s2f_user1_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data psi_mux[] = {
++	{ .fw_name = "psi_ref_free_clk",
++	  .name = "psi_ref_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data gpio_db_mux[] = {
++	{ .fw_name = "gpio_db_free_clk",
++	  .name = "gpio_db_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
++static const struct clk_parent_data emac_ptp_mux[] = {
++	{ .fw_name = "emac_ptp_free_clk",
++	  .name = "emac_ptp_free_clk", },
++	{ .fw_name = "boot_clk",
++	  .name = "boot_clk", },
++};
++
+ /* clocks in AO (always on) controller */
+ static const struct stratix10_pll_clock s10_pll_clks[] = {
+ 	{ STRATIX10_BOOT_CLK, "boot_clk", boot_mux, ARRAY_SIZE(boot_mux), 0,
+@@ -247,16 +282,16 @@ static const struct stratix10_gate_clock
+ 	  1, 0, 0, 0, 0xDC, 27, 0},
+ 	{ STRATIX10_EMAC2_CLK, "emac2_clk", NULL, emac_mux, ARRAY_SIZE(emac_mux), 0, 0xA4,
+ 	  2, 0, 0, 0, 0xDC, 28, 0},
+-	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", "emac_ptp_free_clk", NULL, 1, 0, 0xA4,
+-	  3, 0, 0, 0, 0, 0, 0},
+-	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", "gpio_db_free_clk", NULL, 1, 0, 0xA4,
+-	  4, 0xE0, 0, 16, 0, 0, 0},
+-	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", "sdmmc_free_clk", NULL, 1, 0, 0xA4,
+-	  5, 0, 0, 0, 0, 0, 4},
+-	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", "s2f_user1_free_clk", NULL, 1, 0, 0xA4,
+-	  6, 0, 0, 0, 0, 0, 0},
+-	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", "psi_ref_free_clk", NULL, 1, 0, 0xA4,
+-	  7, 0, 0, 0, 0, 0, 0},
++	{ STRATIX10_EMAC_PTP_CLK, "emac_ptp_clk", NULL, emac_ptp_mux, ARRAY_SIZE(emac_ptp_mux), 0, 0xA4,
++	  3, 0, 0, 0, 0xB0, 2, 0},
++	{ STRATIX10_GPIO_DB_CLK, "gpio_db_clk", NULL, gpio_db_mux, ARRAY_SIZE(gpio_db_mux), 0, 0xA4,
++	  4, 0xE0, 0, 16, 0xB0, 3, 0},
++	{ STRATIX10_SDMMC_CLK, "sdmmc_clk", NULL, sdmmc_mux, ARRAY_SIZE(sdmmc_mux), 0, 0xA4,
++	  5, 0, 0, 0, 0xB0, 4, 4},
++	{ STRATIX10_S2F_USER1_CLK, "s2f_user1_clk", NULL, s2f_user1_mux, ARRAY_SIZE(s2f_user1_mux), 0, 0xA4,
++	  6, 0, 0, 0, 0xB0, 5, 0},
++	{ STRATIX10_PSI_REF_CLK, "psi_ref_clk", NULL, psi_mux, ARRAY_SIZE(psi_mux), 0, 0xA4,
++	  7, 0, 0, 0, 0xB0, 6, 0},
+ 	{ STRATIX10_USB_CLK, "usb_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
+ 	  8, 0, 0, 0, 0, 0, 0},
+ 	{ STRATIX10_SPI_M_CLK, "spi_m_clk", "l4_mp_clk", NULL, 1, 0, 0xA4,
 
 
