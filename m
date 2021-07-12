@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF15A3C4F2D
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFCD23C4A7D
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:35:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242959AbhGLHX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:23:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59958 "EHLO mail.kernel.org"
+        id S239187AbhGLGwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 02:52:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241324AbhGLHVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:21:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FBEB60FF1;
-        Mon, 12 Jul 2021 07:18:59 +0000 (UTC)
+        id S239190AbhGLGta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 02:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FEAB60241;
+        Mon, 12 Jul 2021 06:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074340;
-        bh=q0kgSQ+nvfk1kPn0gHqgc8Mtyw07CI6RK73Q2udLmDI=;
+        s=korg; t=1626072380;
+        bh=rQGy8cqcvQFQWXICBxVU7vxBghpZ8ulbRgzAOF6P3BY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/qRzNiQi9AoYdq/z0mrMTLBejLkWEcY0ubWExFJ7zkzVRjmh0yKzYXsPy+/Gtsgj
-         Je4OkS6Bsost4x2T6IoHDpP5DZTthzG/TRgZRXs4pBNihUy1PfnjGLsZDub+eVp7Gi
-         JrTAJ2/PUbIGnrlsITMclyGTOgUq4foECiOnOamk=
+        b=Ek29nBaQXUGrJ3/kujW1AqehmwOI7Y5NDgZNZTpif1i75F1mGJREl6E0x1dIp+rLL
+         BDb2EA6jl4kA9kf0KRfyM9gEm8PW+zXjc+PnTXo7f/glk8U9VEPGJoGxgpn6Dn6lj1
+         oapJBA4lf2Ypbojhy5A22gwjhOB5qbWEIhkUi/rU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 548/700] iio: light: isl29125: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.10 471/593] Input: hil_kbd - fix error return code in hil_dev_connect()
 Date:   Mon, 12 Jul 2021 08:10:31 +0200
-Message-Id: <20210712061034.615065196@linuxfoundation.org>
+Message-Id: <20210712060941.845440927@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060843.180606720@linuxfoundation.org>
+References: <20210712060843.180606720@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 3d4725194de6935dba2ad7c9cc075c885008f747 ]
+[ Upstream commit d9b576917a1d0efa293801a264150a1b37691617 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+Return error code -EINVAL rather than '0' when the combo devices are not
+supported.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp()
-
-Fixes: 6c25539cbc46 ("iio: Add Intersil isl29125 digital color light sensor driver")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-18-jic23@kernel.org
+Fixes: fa71c605c2bb ("Input: combine hil_kbd and hil_ptr drivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210515030053.6824-1-thunder.leizhen@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/isl29125.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/hil_kbd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
-index b93b85dbc3a6..ba53b50d711a 100644
---- a/drivers/iio/light/isl29125.c
-+++ b/drivers/iio/light/isl29125.c
-@@ -51,7 +51,11 @@
- struct isl29125_data {
- 	struct i2c_client *client;
- 	u8 conf1;
--	u16 buffer[8]; /* 3x 16-bit, padding, 8 bytes timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u16 chans[3];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
+diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
+index bb29a7c9a1c0..54afb38601b9 100644
+--- a/drivers/input/keyboard/hil_kbd.c
++++ b/drivers/input/keyboard/hil_kbd.c
+@@ -512,6 +512,7 @@ static int hil_dev_connect(struct serio *serio, struct serio_driver *drv)
+ 		    HIL_IDD_NUM_AXES_PER_SET(*idd)) {
+ 			printk(KERN_INFO PREFIX
+ 				"combo devices are not supported.\n");
++			error = -EINVAL;
+ 			goto bail1;
+ 		}
  
- #define ISL29125_CHANNEL(_color, _si) { \
-@@ -184,10 +188,10 @@ static irqreturn_t isl29125_trigger_handler(int irq, void *p)
- 		if (ret < 0)
- 			goto done;
- 
--		data->buffer[j++] = ret;
-+		data->scan.chans[j++] = ret;
- 	}
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
- 
- done:
 -- 
 2.30.2
 
