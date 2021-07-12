@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F2903C4F84
-	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A72F3C546C
+	for <lists+stable@lfdr.de>; Mon, 12 Jul 2021 12:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239669AbhGLH0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 03:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35096 "EHLO mail.kernel.org"
+        id S1351991AbhGLH6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 03:58:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240071AbhGLHX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 12 Jul 2021 03:23:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C3E6113B;
-        Mon, 12 Jul 2021 07:20:40 +0000 (UTC)
+        id S1348939AbhGLH4T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 12 Jul 2021 03:56:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB2E7613D0;
+        Mon, 12 Jul 2021 07:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626074441;
-        bh=uLfCrMqsvIrxqcCzs2c8dhu0bVbzvqwRuC0fGYazn7U=;
+        s=korg; t=1626076335;
+        bh=3Y0QP3KYBMGMf6USSziGgefJmVVJt6vJoXSSViJr2us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlrXVSv7Q2XS3Zq8n2B3iWV9ufaLsEihKGZwHFtrCnaaZJEDAvzrYuMSGtVc+WUmT
-         5iIy3exb2khjg+0yzhP12VZOqgNJTJsj3/sxMuFSS/+QvmT2gV3IysHETrZW3mz4/w
-         GlROq1Q92c1bnckkhAAtm2L/onPz2HY8thfcldqw=
+        b=WUAzjUn/LgxVG4LScv+f3DB1C54SnWFvLdSF5/HBVuf/g5xrykEj+QRnhm+JFJGu3
+         jiOw5uDOGdSANUfyBvnC7vR91oSdSRsirhg5EZmO7CWd+9G7nmiTE4xpbkRm4IeWMh
+         mfT3tooPFQ51y5qFaAzolbBwkpDBPbNHTcDjoF04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Menglong Dong <dong.menglong@zte.com.cn>,
+        Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 538/700] iio: accel: stk8ba50: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 5.13 598/800] net: tipc: fix FB_MTU eat two pages
 Date:   Mon, 12 Jul 2021 08:10:21 +0200
-Message-Id: <20210712061033.638762368@linuxfoundation.org>
+Message-Id: <20210712061030.956517135@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210712060924.797321836@linuxfoundation.org>
-References: <20210712060924.797321836@linuxfoundation.org>
+In-Reply-To: <20210712060912.995381202@linuxfoundation.org>
+References: <20210712060912.995381202@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Menglong Dong <dong.menglong@zte.com.cn>
 
-[ Upstream commit 334883894bc1e145a1e0f5de1b0d1b6a1133f0e6 ]
+[ Upstream commit 0c6de0c943dbb42831bf7502eb5c007f71e752d2 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+FB_MTU is used in 'tipc_msg_build()' to alloc smaller skb when memory
+allocation fails, which can avoid unnecessary sending failures.
 
-Found during an audit of all calls of this function.
+The value of FB_MTU now is 3744, and the data size will be:
 
-Fixes: db6a19b8251f ("iio: accel: Add trigger support for STK8BA50")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-8-jic23@kernel.org
+  (3744 + SKB_DATA_ALIGN(sizeof(struct skb_shared_info)) + \
+    SKB_DATA_ALIGN(BUF_HEADROOM + BUF_TAILROOM + 3))
+
+which is larger than one page(4096), and two pages will be allocated.
+
+To avoid it, replace '3744' with a calculation:
+
+  (PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) - \
+    SKB_DATA_ALIGN(sizeof(struct skb_shared_info)))
+
+What's more, alloc_skb_fclone() will call SKB_DATA_ALIGN for data size,
+and it's not necessary to make alignment for buf_size in
+tipc_buf_acquire(). So, just remove it.
+
+Fixes: 4c94cc2d3d57 ("tipc: fall back to smaller MTU if allocation of local send skb fails")
+Signed-off-by: Menglong Dong <dong.menglong@zte.com.cn>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/stk8ba50.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ net/tipc/bcast.c |  2 +-
+ net/tipc/msg.c   | 17 ++++++++---------
+ net/tipc/msg.h   |  3 ++-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/iio/accel/stk8ba50.c b/drivers/iio/accel/stk8ba50.c
-index 3ead378b02c9..e8087d7ee49f 100644
---- a/drivers/iio/accel/stk8ba50.c
-+++ b/drivers/iio/accel/stk8ba50.c
-@@ -91,12 +91,11 @@ struct stk8ba50_data {
- 	u8 sample_rate_idx;
- 	struct iio_trigger *dready_trig;
- 	bool dready_trigger_on;
--	/*
--	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
--	 * 1 x 16 padding +
--	 * 4 x 16 64-bit timestamp
--	 */
--	s16 buffer[8];
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		s16 chans[3];
-+		s64 timetamp __aligned(8);
-+	} scan;
- };
+diff --git a/net/tipc/bcast.c b/net/tipc/bcast.c
+index d4beca895992..593846d25214 100644
+--- a/net/tipc/bcast.c
++++ b/net/tipc/bcast.c
+@@ -699,7 +699,7 @@ int tipc_bcast_init(struct net *net)
+ 	spin_lock_init(&tipc_net(net)->bclock);
  
- #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
-@@ -324,7 +323,7 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
- 		ret = i2c_smbus_read_i2c_block_data(data->client,
- 						    STK8BA50_REG_XOUT,
- 						    STK8BA50_ALL_CHANNEL_SIZE,
--						    (u8 *)data->buffer);
-+						    (u8 *)data->scan.chans);
- 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
- 			dev_err(&data->client->dev, "register read failed\n");
- 			goto err;
-@@ -337,10 +336,10 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
- 			if (ret < 0)
- 				goto err;
+ 	if (!tipc_link_bc_create(net, 0, 0, NULL,
+-				 FB_MTU,
++				 one_page_mtu,
+ 				 BCLINK_WIN_DEFAULT,
+ 				 BCLINK_WIN_DEFAULT,
+ 				 0,
+diff --git a/net/tipc/msg.c b/net/tipc/msg.c
+index ce6ab54822d8..7053c22e393e 100644
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -44,12 +44,15 @@
+ #define MAX_FORWARD_SIZE 1024
+ #ifdef CONFIG_TIPC_CRYPTO
+ #define BUF_HEADROOM ALIGN(((LL_MAX_HEADER + 48) + EHDR_MAX_SIZE), 16)
+-#define BUF_TAILROOM (TIPC_AES_GCM_TAG_SIZE)
++#define BUF_OVERHEAD (BUF_HEADROOM + TIPC_AES_GCM_TAG_SIZE)
+ #else
+ #define BUF_HEADROOM (LL_MAX_HEADER + 48)
+-#define BUF_TAILROOM 16
++#define BUF_OVERHEAD BUF_HEADROOM
+ #endif
  
--			data->buffer[i++] = ret;
-+			data->scan.chans[i++] = ret;
- 		}
- 	}
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   pf->timestamp);
- err:
- 	mutex_unlock(&data->lock);
++const int one_page_mtu = PAGE_SIZE - SKB_DATA_ALIGN(BUF_OVERHEAD) -
++			 SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
++
+ static unsigned int align(unsigned int i)
+ {
+ 	return (i + 3) & ~3u;
+@@ -69,13 +72,8 @@ static unsigned int align(unsigned int i)
+ struct sk_buff *tipc_buf_acquire(u32 size, gfp_t gfp)
+ {
+ 	struct sk_buff *skb;
+-#ifdef CONFIG_TIPC_CRYPTO
+-	unsigned int buf_size = (BUF_HEADROOM + size + BUF_TAILROOM + 3) & ~3u;
+-#else
+-	unsigned int buf_size = (BUF_HEADROOM + size + 3) & ~3u;
+-#endif
+ 
+-	skb = alloc_skb_fclone(buf_size, gfp);
++	skb = alloc_skb_fclone(BUF_OVERHEAD + size, gfp);
+ 	if (skb) {
+ 		skb_reserve(skb, BUF_HEADROOM);
+ 		skb_put(skb, size);
+@@ -395,7 +393,8 @@ int tipc_msg_build(struct tipc_msg *mhdr, struct msghdr *m, int offset,
+ 		if (unlikely(!skb)) {
+ 			if (pktmax != MAX_MSG_SIZE)
+ 				return -ENOMEM;
+-			rc = tipc_msg_build(mhdr, m, offset, dsz, FB_MTU, list);
++			rc = tipc_msg_build(mhdr, m, offset, dsz,
++					    one_page_mtu, list);
+ 			if (rc != dsz)
+ 				return rc;
+ 			if (tipc_msg_assemble(list))
+diff --git a/net/tipc/msg.h b/net/tipc/msg.h
+index 5d64596ba987..64ae4c4c44f8 100644
+--- a/net/tipc/msg.h
++++ b/net/tipc/msg.h
+@@ -99,9 +99,10 @@ struct plist;
+ #define MAX_H_SIZE                60	/* Largest possible TIPC header size */
+ 
+ #define MAX_MSG_SIZE (MAX_H_SIZE + TIPC_MAX_USER_MSG_SIZE)
+-#define FB_MTU                  3744
+ #define TIPC_MEDIA_INFO_OFFSET	5
+ 
++extern const int one_page_mtu;
++
+ struct tipc_skb_cb {
+ 	union {
+ 		struct {
 -- 
 2.30.2
 
