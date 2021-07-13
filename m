@@ -2,120 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15B73C6ADF
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 08:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3528F3C6B04
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 09:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234103AbhGMHCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 03:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57058 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232908AbhGMHCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 03:02:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A2ED600CD;
-        Tue, 13 Jul 2021 06:59:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626159597;
-        bh=6rBzLPz4Fdb3aNnNZxATbJcz5hKV232AVCf6INOntSA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=w0hm+dieFvVQIpmu3s3uem9rUlG6UaLq800KUP0bUgMGlJ3IjOQpK8f6oxnMXjyNs
-         8M7DX7kcT4YJ8vtfGT44VN9JeoH7QH3E9jijlB4gopqda5u3TTyneT28+aC+sRB0ur
-         RzwPIHCtEDXU9VrL/pUqHMhesjFURhOTEQvwXTyk=
-Date:   Tue, 13 Jul 2021 08:59:55 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Yongxin Liu <yongxin.liu@windriver.com>
-Cc:     tglx@linutronix.de, evgreen@chromium.org, rajatja@google.com,
-        bhelgaas@google.com, stable@vger.kernel.org,
-        linux-pci@vger.kernel.org, x86@kernel.org, maz@kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] x86/apic/msi: check interupt context before reporting
- warning
-Message-ID: <YO056/qui/vCvCcV@kroah.com>
-References: <20210713064609.25429-1-yongxin.liu@windriver.com>
+        id S234121AbhGMHNF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 13 Jul 2021 03:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234098AbhGMHND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 03:13:03 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 974BBC0613DD
+        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 00:10:13 -0700 (PDT)
+Received: from pty.hi.pengutronix.de ([2001:67c:670:100:1d::c5])
+        by metis.ext.pengutronix.de with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1m3CYS-0000bm-Qg; Tue, 13 Jul 2021 09:10:08 +0200
+Received: from ore by pty.hi.pengutronix.de with local (Exim 4.89)
+        (envelope-from <ore@pengutronix.de>)
+        id 1m3CYS-0005To-8o; Tue, 13 Jul 2021 09:10:08 +0200
+Date:   Tue, 13 Jul 2021 09:10:08 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Xiaochen Zou <xzou017@ucr.edu>
+Cc:     kernel@pengutronix.de, linux-can@vger.kernel.org,
+        netdev@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Use-after-free access in j1939_session_deactivate
+Message-ID: <20210713071008.ci6avvds74q4zdfu@pengutronix.de>
+References: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20210713064609.25429-1-yongxin.liu@windriver.com>
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-IRC:  #ptxdist @freenode
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+X-Uptime: 09:05:24 up 222 days, 21:11, 46 users,  load average: 0.13, 0.06,
+ 0.05
+User-Agent: NeoMutt/20170113 (1.7.2)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c5
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 02:46:09PM +0800, Yongxin Liu wrote:
-> Affinity change can happen in both interrupt context and non-interrupt
-> context. The paranoia check for interrupt target cpu is not always true
-> in non-interrupt context.
-> 
-> For example:
->   Set affinity for irq to CPU#7
->   $ echo 80 > /proc/irq/default_smp_affinity
-> 
->   Open serial port on different CPU.
->   $taskset -c 4 agetty -L 115200 ttyS1
-> 
-> Will triger the following warning.
-> 
->   WARNING: CPU: 4 PID: 765 at arch/x86/kernel/apic/msi.c:75 msi_set_affinity+0x16f/0x190
->   Call Trace:
->    irq_do_set_affinity+0x57/0x1b0
->    irq_setup_affinity+0x136/0x190
->    irq_startup+0xaf/0xf0
->    __setup_irq+0x745/0x7e0
->    ? kmem_cache_alloc_trace+0x2b5/0x450
->    request_threaded_irq+0x110/0x180
->    univ8250_setup_irq+0x1e2/0x220
->    serial8250_do_startup+0x481/0x760
->    serial8250_startup+0x1e/0x20
->    uart_startup.part.22+0xf8/0x260
->    uart_port_activate+0x41/0x60
->    tty_port_open+0x82/0xd0
->    ? _raw_spin_unlock+0x16/0x30
->    uart_open+0x1e/0x30
->    tty_open+0x100/0x4d0
->    ? cdev_purge+0x60/0x60
->    chrdev_open+0xa3/0x1c0
->    ? cdev_put.part.3+0x20/0x20
->    do_dentry_open+0x21f/0x380
->    vfs_open+0x2f/0x40
->    path_openat+0xd67/0xf60
->    ? page_add_file_rmap+0xad/0x140
->    ? do_set_pte+0xd7/0x210
->    do_filp_open+0xc5/0x140
->    do_sys_openat2+0x239/0x300
->    ? do_sys_openat2+0x239/0x300
->    do_sys_open+0x59/0x80
->    __x64_sys_openat+0x20/0x30
->    do_syscall_64+0x3f/0x90
->    entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> With this patch, the warning is only reported in interrupt context and when
-> the target CPU is not local CPU.
-> 
-> Signed-off-by: Yongxin Liu <yongxin.liu@windriver.com>
-> ---
->  arch/x86/kernel/apic/msi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/apic/msi.c b/arch/x86/kernel/apic/msi.c
-> index 44ebe25e7703..c4c73f227eeb 100644
-> --- a/arch/x86/kernel/apic/msi.c
-> +++ b/arch/x86/kernel/apic/msi.c
-> @@ -72,7 +72,7 @@ msi_set_affinity(struct irq_data *irqd, const struct cpumask *mask, bool force)
->  	 * Paranoia: Validate that the interrupt target is the local
->  	 * CPU.
->  	 */
-> -	if (WARN_ON_ONCE(cpu != smp_processor_id())) {
-> +	if (in_interrupt() && WARN_ON_ONCE(cpu != smp_processor_id())) {
->  		irq_msi_update_msg(irqd, cfg);
->  		return ret;
->  	}
-> -- 
-> 2.14.5
-> 
+Hi,
 
-<formletter>
+On Mon, Jul 12, 2021 at 03:40:46PM -0700, Xiaochen Zou wrote:
+> Hi,
+> It looks like there are multiple use-after-free accesses in
+> j1939_session_deactivate()
+> 
+> static bool j1939_session_deactivate(struct j1939_session *session)
+> {
+> bool active;
+> 
+> j1939_session_list_lock(session->priv);
+> active = j1939_session_deactivate_locked(session); //session can be freed inside
+> j1939_session_list_unlock(session->priv); // It causes UAF read and write
+> 
+> return active;
+> }
+> 
+> session can be freed by
+> j1939_session_deactivate_locked->j1939_session_put->__j1939_session_release->j1939_session_destroy->kfree.
+> Therefore it makes the unlock function perform UAF access.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Potentially I would agree, but this function takes "session" as
+property. Any function which provided session pointer should
+care about own ref counting. If described scenarios really happens, then
+there is problem on other place. Was you able to reproduce it?
 
-</formletter>
+Regards,
+Oleksij
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
