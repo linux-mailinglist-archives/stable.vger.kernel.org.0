@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8F793C6D72
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 11:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2EA3C6D76
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 11:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235238AbhGMJcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 05:32:47 -0400
-Received: from szxga03-in.huawei.com ([45.249.212.189]:11296 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235188AbhGMJcq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 05:32:46 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GPFbq2KSZz78ws;
-        Tue, 13 Jul 2021 17:25:27 +0800 (CST)
+        id S235263AbhGMJcx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 05:32:53 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:10477 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235256AbhGMJcv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 05:32:51 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GPFdH2w8Fzccyw;
+        Tue, 13 Jul 2021 17:26:43 +0800 (CST)
 Received: from dggpemm500002.china.huawei.com (7.185.36.229) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.1.2176.2; Tue, 13 Jul 2021 17:29:52 +0800
 Received: from linux-ibm.site (10.175.102.37) by
  dggpemm500002.china.huawei.com (7.185.36.229) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 13 Jul 2021 17:29:51 +0800
+ 15.1.2176.2; Tue, 13 Jul 2021 17:29:52 +0800
 From:   Hanjun Guo <guohanjun@huawei.com>
 To:     <stable@vger.kernel.org>
 CC:     <linux-kernel@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Matthew Wilcox <willy@infradead.org>,
-        yangerkun <yangerkun@huawei.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gulam Mohamed <gulam.mohamed@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Hanjun Guo <guohanjun@huawei.com>
-Subject: [Backport for 5.10.y PATCH 5/7] io_uring: convert io_buffer_idr to XArray
-Date:   Tue, 13 Jul 2021 17:18:35 +0800
-Message-ID: <1626167917-11972-6-git-send-email-guohanjun@huawei.com>
+Subject: [Backport for 5.10.y PATCH 6/7] scsi: iscsi: Fix race condition between login and sync thread
+Date:   Tue, 13 Jul 2021 17:18:36 +0800
+Message-ID: <1626167917-11972-7-git-send-email-guohanjun@huawei.com>
 X-Mailer: git-send-email 1.7.12.4
 In-Reply-To: <1626167917-11972-1-git-send-email-guohanjun@huawei.com>
 References: <1626167917-11972-1-git-send-email-guohanjun@huawei.com>
@@ -46,135 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Gulam Mohamed <gulam.mohamed@oracle.com>
 
-commit 9e15c3a0ced5a61f320b989072c24983cb1620c1 upstream.
+commit 9e67600ed6b8565da4b85698ec659b5879a6c1c6 upstream.
 
-Like we did for the personality idr, convert the IO buffer idr to use
-XArray. This avoids a use-after-free on removal of entries, since idr
-doesn't like doing so from inside an iterator, and it nicely reduces
-the amount of code we need to support this feature.
+A kernel panic was observed due to a timing issue between the sync thread
+and the initiator processing a login response from the target. The session
+reopen can be invoked both from the session sync thread when iscsid
+restarts and from iscsid through the error handler. Before the initiator
+receives the response to a login, another reopen request can be sent from
+the error handler/sync session. When the initial login response is
+subsequently processed, the connection has been closed and the socket has
+been released.
 
-Fixes: 5a2e745d4d43 ("io_uring: buffer registration infrastructure")
-Cc: stable@vger.kernel.org
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: yangerkun <yangerkun@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+To fix this a new connection state, ISCSI_CONN_BOUND, is added:
+
+ - Set the connection state value to ISCSI_CONN_DOWN upon
+   iscsi_if_ep_disconnect() and iscsi_if_stop_conn()
+
+ - Set the connection state to the newly created value ISCSI_CONN_BOUND
+   after bind connection (transport->bind_conn())
+
+ - In iscsi_set_param(), return -ENOTCONN if the connection state is not
+   either ISCSI_CONN_BOUND or ISCSI_CONN_UP
+
+Link: https://lore.kernel.org/r/20210325093248.284678-1-gulam.mohamed@oracle.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Gulam Mohamed <gulam.mohamed@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
 ---
- fs/io_uring.c | 43 +++++++++++++++----------------------------
- 1 file changed, 15 insertions(+), 28 deletions(-)
+ drivers/scsi/scsi_transport_iscsi.c | 14 +++++++++++++-
+ include/scsi/scsi_transport_iscsi.h |  1 +
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index cd93bf5..fb63cc8 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -344,7 +344,7 @@ struct io_ring_ctx {
- 	struct socket		*ring_sock;
- #endif
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index c520239..cb7b74a0 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2480,6 +2480,7 @@ static void iscsi_if_stop_conn(struct iscsi_cls_conn *conn, int flag)
+ 	 */
+ 	mutex_lock(&conn_mutex);
+ 	conn->transport->stop_conn(conn, flag);
++	conn->state = ISCSI_CONN_DOWN;
+ 	mutex_unlock(&conn_mutex);
  
--	struct idr		io_buffer_idr;
-+	struct xarray		io_buffers;
- 
- 	struct xarray		personalities;
- 	u32			pers_next;
-@@ -1212,7 +1212,7 @@ static struct io_ring_ctx *io_ring_ctx_alloc(struct io_uring_params *p)
- 	INIT_LIST_HEAD(&ctx->cq_overflow_list);
- 	init_completion(&ctx->ref_comp);
- 	init_completion(&ctx->sq_thread_comp);
--	idr_init(&ctx->io_buffer_idr);
-+	xa_init_flags(&ctx->io_buffers, XA_FLAGS_ALLOC1);
- 	xa_init_flags(&ctx->personalities, XA_FLAGS_ALLOC1);
- 	mutex_init(&ctx->uring_lock);
- 	init_waitqueue_head(&ctx->wait);
-@@ -2990,7 +2990,7 @@ static struct io_buffer *io_buffer_select(struct io_kiocb *req, size_t *len,
- 
- 	lockdep_assert_held(&req->ctx->uring_lock);
- 
--	head = idr_find(&req->ctx->io_buffer_idr, bgid);
-+	head = xa_load(&req->ctx->io_buffers, bgid);
- 	if (head) {
- 		if (!list_empty(&head->list)) {
- 			kbuf = list_last_entry(&head->list, struct io_buffer,
-@@ -2998,7 +2998,7 @@ static struct io_buffer *io_buffer_select(struct io_kiocb *req, size_t *len,
- 			list_del(&kbuf->list);
- 		} else {
- 			kbuf = head;
--			idr_remove(&req->ctx->io_buffer_idr, bgid);
-+			xa_erase(&req->ctx->io_buffers, bgid);
- 		}
- 		if (*len > kbuf->len)
- 			*len = kbuf->len;
-@@ -3960,7 +3960,7 @@ static int __io_remove_buffers(struct io_ring_ctx *ctx, struct io_buffer *buf,
+ }
+@@ -2906,6 +2907,13 @@ int iscsi_session_event(struct iscsi_cls_session *session,
+ 	default:
+ 		err = transport->set_param(conn, ev->u.set_param.param,
+ 					   data, ev->u.set_param.len);
++		if ((conn->state == ISCSI_CONN_BOUND) ||
++			(conn->state == ISCSI_CONN_UP)) {
++			err = transport->set_param(conn, ev->u.set_param.param,
++					data, ev->u.set_param.len);
++		} else {
++			return -ENOTCONN;
++		}
  	}
- 	i++;
- 	kfree(buf);
--	idr_remove(&ctx->io_buffer_idr, bgid);
-+	xa_erase(&ctx->io_buffers, bgid);
  
- 	return i;
- }
-@@ -3978,7 +3978,7 @@ static int io_remove_buffers(struct io_kiocb *req, bool force_nonblock,
- 	lockdep_assert_held(&ctx->uring_lock);
- 
- 	ret = -ENOENT;
--	head = idr_find(&ctx->io_buffer_idr, p->bgid);
-+	head = xa_load(&ctx->io_buffers, p->bgid);
- 	if (head)
- 		ret = __io_remove_buffers(ctx, head, p->bgid, p->nbufs);
- 	if (ret < 0)
-@@ -4069,21 +4069,14 @@ static int io_provide_buffers(struct io_kiocb *req, bool force_nonblock,
- 
- 	lockdep_assert_held(&ctx->uring_lock);
- 
--	list = head = idr_find(&ctx->io_buffer_idr, p->bgid);
-+	list = head = xa_load(&ctx->io_buffers, p->bgid);
- 
- 	ret = io_add_buffers(p, &head);
--	if (ret < 0)
--		goto out;
--
--	if (!list) {
--		ret = idr_alloc(&ctx->io_buffer_idr, head, p->bgid, p->bgid + 1,
--					GFP_KERNEL);
--		if (ret < 0) {
-+	if (ret >= 0 && !list) {
-+		ret = xa_insert(&ctx->io_buffers, p->bgid, head, GFP_KERNEL);
-+		if (ret < 0)
- 			__io_remove_buffers(ctx, head, p->bgid, -1U);
--			goto out;
--		}
+ 	return err;
+@@ -2965,6 +2973,7 @@ static int iscsi_if_ep_disconnect(struct iscsi_transport *transport,
+ 		mutex_lock(&conn->ep_mutex);
+ 		conn->ep = NULL;
+ 		mutex_unlock(&conn->ep_mutex);
++		conn->state = ISCSI_CONN_DOWN;
  	}
--out:
- 	if (ret < 0)
- 		req_set_fail_links(req);
  
-@@ -8411,19 +8404,13 @@ static int io_eventfd_unregister(struct io_ring_ctx *ctx)
- 	return -ENXIO;
- }
+ 	transport->ep_disconnect(ep);
+@@ -3732,6 +3741,8 @@ static int iscsi_logout_flashnode_sid(struct iscsi_transport *transport,
+ 		ev->r.retcode =	transport->bind_conn(session, conn,
+ 						ev->u.b_conn.transport_eph,
+ 						ev->u.b_conn.is_leading);
++		if (!ev->r.retcode)
++			conn->state = ISCSI_CONN_BOUND;
+ 		mutex_unlock(&conn_mutex);
  
--static int __io_destroy_buffers(int id, void *p, void *data)
--{
--	struct io_ring_ctx *ctx = data;
--	struct io_buffer *buf = p;
--
--	__io_remove_buffers(ctx, buf, id, -1U);
--	return 0;
--}
--
- static void io_destroy_buffers(struct io_ring_ctx *ctx)
- {
--	idr_for_each(&ctx->io_buffer_idr, __io_destroy_buffers, ctx);
--	idr_destroy(&ctx->io_buffer_idr);
-+	struct io_buffer *buf;
-+	unsigned long index;
-+
-+	xa_for_each(&ctx->io_buffers, index, buf)
-+		__io_remove_buffers(ctx, buf, index, -1U);
- }
+ 		if (ev->r.retcode || !transport->ep_connect)
+@@ -3971,7 +3982,8 @@ static ISCSI_CLASS_ATTR(conn, field, S_IRUGO, show_conn_param_##param,	\
+ static const char *const connection_state_names[] = {
+ 	[ISCSI_CONN_UP] = "up",
+ 	[ISCSI_CONN_DOWN] = "down",
+-	[ISCSI_CONN_FAILED] = "failed"
++	[ISCSI_CONN_FAILED] = "failed",
++	[ISCSI_CONN_BOUND] = "bound"
+ };
  
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ static ssize_t show_conn_state(struct device *dev,
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index 8a26a2f..fc5a398 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -193,6 +193,7 @@ enum iscsi_connection_state {
+ 	ISCSI_CONN_UP = 0,
+ 	ISCSI_CONN_DOWN,
+ 	ISCSI_CONN_FAILED,
++	ISCSI_CONN_BOUND,
+ };
+ 
+ struct iscsi_cls_conn {
 -- 
 1.7.12.4
 
