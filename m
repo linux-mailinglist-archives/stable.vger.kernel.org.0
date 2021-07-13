@@ -2,100 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BA13C76D5
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 21:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8B563C76D8
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 21:16:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234172AbhGMTSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 15:18:39 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:43035 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S234364AbhGMTSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 15:18:39 -0400
-Received: (qmail 359381 invoked by uid 1000); 13 Jul 2021 15:15:48 -0400
-Date:   Tue, 13 Jul 2021 15:15:48 -0400
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     Laurence Oberman <loberman@redhat.com>
-Cc:     linux-usb@vger.kernel.org, andriy.shevchenko@linux.intel.com,
-        stable@vger.kernel.org, emilne@redhat.com, djeffery@redhat.com,
-        apanagio@redhat.com, torez@redhat.com
-Subject: Re: [PATCH] usb: hcd: Revert
- 306c54d0edb6ba94d39877524dddebaad7770cf2: Try MSI interrupts on PCI devices
-Message-ID: <20210713191548.GD355405@rowland.harvard.edu>
-References: <1626202242-14984-1-git-send-email-loberman@redhat.com>
+        id S230376AbhGMTTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 15:19:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230145AbhGMTTj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 15:19:39 -0400
+Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002D0C0613DD;
+        Tue, 13 Jul 2021 12:16:48 -0700 (PDT)
+Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: marex@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id BC5FB829EF;
+        Tue, 13 Jul 2021 21:16:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1626203806;
+        bh=wbQJGQKfin37yNew9W/wu8wDSAmPvLDBx+xhp/1201o=;
+        h=From:To:Cc:Subject:Date:From;
+        b=M5MvE8Fh4HkmZpOE6WwFLQv7b81qOGPl9pmxes5mORrj2H6S0PVsmJcjIaG2+e89J
+         08Cuq/47ILUxiPOuY46+8VB9w/Xgf8vFQbq6rIXygQVjt2LRMwHuoqxjLHXRn4RY7M
+         HY/tyFOc2kWIuQUmZA71n6Doy67v5uKcXxeka2c5iMIG/JUIUitslBAWojvuqXh6Hl
+         tyiRTH5/m+6gVzNH2sllb5V4ImWoY12/BIJ+msdLoiO5/H0+toTFRiE7mQzWAc1Tgd
+         BYzU4BuH890nllvyB4oYIudGxB+EGxooX6HgbIifNwLotN6SDMLAo90iI1U77FDPrb
+         KARPb2MymKpSg==
+From:   Marek Vasut <marex@denx.de>
+To:     dri-devel@lists.freedesktop.org
+Cc:     linux-fbdev@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org,
+        Meghana Madhyastha <meghana.madhyastha@gmail.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH V2] video: backlight: Drop maximum brightness override for brightness zero
+Date:   Tue, 13 Jul 2021 21:16:33 +0200
+Message-Id: <20210713191633.121317-1-marex@denx.de>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1626202242-14984-1-git-send-email-loberman@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 02:50:42PM -0400, Laurence Oberman wrote:
-> Customers have been reporting that the I/O is radically being
-> slowed down to HPE virtual USB ILO served DVD images during installation.
-> 
-> Lots of investigation by the Red Hat lab has found that the issue is 
-> because MSI edge interrupts do not work properly for these 
-> ILO USB devices.
-> We start fast and then drop to polling mode and its unusable.
-> 
-> The issue exists currently upstream on 5.13 as tested by Red Hat, 
-> and reverting the mentioned patch corrects this upstream.
-> 
-> David Jeffery has this explanation:
-> 
-> The problem with the patch turning on MSI appears to be that the ehci 
-> driver (and possibly other usb controller types too) wasn't written to
-> support edge-triggered interrupts.
-> The ehci_irq routine appears to be written in such a way that it will 
-> be racy with multiple interrupt source bits.
-> With a level-triggered interrupt, it gets called another time and cleans 
-> up other interrupt sources.
-> But with MSI edge, the interrupt state staying high results in no 
-> new interrupt and ehci has to run based on polling.
-> 
-> static irqreturn_t ehci_irq (struct usb_hcd *hcd)
-> {
-> ...
->         status = ehci_readl(ehci, &ehci->regs->status);
-> 
->         /* e.g. cardbus physical eject */
->         if (status == ~(u32) 0) {
->                 ehci_dbg (ehci, "device removed\n");
->                 goto dead;
->         }
-> 
->         /*
->          * We don't use STS_FLR, but some controllers don't like it to
->          * remain on, so mask it out along with the other status bits.
->          */
->         masked_status = status & (INTR_MASK | STS_FLR);
-> 
->         /* Shared IRQ? */
->         if (!masked_status || unlikely(ehci->rh_state == EHCI_RH_HALTED)) {
->                 spin_unlock_irqrestore(&ehci->lock, flags);
->                 return IRQ_NONE;
->         }
-> 
->         /* clear (just) interrupts */
->         ehci_writel(ehci, masked_status, &ehci->regs->status);
-> ...
-> 
-> ehci_irq() reads the interrupt status register and then writes the active 
-> interrupt-related bits back out to ack the interrupt cause.
-> But with an edge interrupt, this is racy as another source of interrupt 
-> could be raised by ehci between the read and the write reaching the 
-> hardware. 
-> e.g.  If STS_IAA was set during the initial read, but some other bit like 
-> STS_INT gets raised by the hardware between the read and the write to the 
-> interrupt status register, the interrupt signal state won't drop.
-> The interrupt state says high, and since it is now edged triggered with 
-> MSI, no new invocation of the interrupt handler gets triggered.
+The note in c2adda27d202f ("video: backlight: Add of_find_backlight helper
+in backlight.c") says that gpio-backlight uses brightness as power state.
+This has been fixed since in ec665b756e6f7 ("backlight: gpio-backlight:
+Correct initial power state handling") and other backlight drivers do not
+require this workaround. Drop the workaround.
 
-Wouldn't it be better to change these other PCI drivers by adding 
-proper MSI support?  I don't know what would be involved, but 
-presumably it wouldn't be very hard.  (Just run the handler in a loop 
-until all the interrupt status bits are off?)
+This fixes the case where e.g. pwm-backlight can perfectly well be set to
+brightness 0 on boot in DT, which without this patch leads to the display
+brightness to be max instead of off.
 
-Alan Stern
+Fixes: c2adda27d202f ("video: backlight: Add of_find_backlight helper in backlight.c")
+Acked-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: <stable@vger.kernel.org> # 5.4+
+Cc: <stable@vger.kernel.org> # 4.19.x: ec665b756e6f7: backlight: gpio-backlight: Correct initial power state handling
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Meghana Madhyastha <meghana.madhyastha@gmail.com>
+Cc: Noralf Trønnes <noralf@tronnes.org>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Thierry Reding <treding@nvidia.com>
+---
+V2: Add AB/RB, CC stable
+---
+ drivers/video/backlight/backlight.c | 6 ------
+ 1 file changed, 6 deletions(-)
+
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 537fe1b376ad7..fc990e576340b 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -688,12 +688,6 @@ static struct backlight_device *of_find_backlight(struct device *dev)
+ 			of_node_put(np);
+ 			if (!bd)
+ 				return ERR_PTR(-EPROBE_DEFER);
+-			/*
+-			 * Note: gpio_backlight uses brightness as
+-			 * power state during probe
+-			 */
+-			if (!bd->props.brightness)
+-				bd->props.brightness = bd->props.max_brightness;
+ 		}
+ 	}
+ 
+-- 
+2.30.2
+
