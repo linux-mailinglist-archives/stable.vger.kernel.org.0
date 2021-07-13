@@ -2,152 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA243C6982
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BFF3C698D
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:58:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbhGMEq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 00:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229470AbhGMEq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 00:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E21161026;
-        Tue, 13 Jul 2021 04:44:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626151445;
-        bh=LhQ88MmfLPgOgVF9V7BGRh5TOT9dUVIs3HJWRwi/M/U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=BC3ljYCFeJX0g7nn9XG2d24A3mG2UG5gGN9eA6jn1Ejes2QpC/K/xiIwax5ccS1/p
-         pwXsa2WLUb4CPQtUrJpwp8GHxNddjlkse0poNTvo1+/FOkKHinyYSQHKcLUgXbtYs+
-         jMsDybxPtlivulap/rxVzSvjnu0sX2OwecK5nzoE=
-Date:   Tue, 13 Jul 2021 06:44:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Stefan Lippers-Hollmann <s.l-h@gmx.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>,
-        Yong Zhi <yong.zhi@intel.com>, Bard Liao <bard.liao@intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.13 743/800] ASoC: Intel: sof_sdw: add quirk support for
- Brya and BT-offload
-Message-ID: <YO0aEm/kWuu1UCow@kroah.com>
-References: <20210712060912.995381202@linuxfoundation.org>
- <20210712061045.833441566@linuxfoundation.org>
- <20210713054118.4e5abba3@mir>
+        id S229913AbhGMFBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 01:01:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55122 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229470AbhGMFBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 01:01:03 -0400
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A08C0613DD
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 21:58:14 -0700 (PDT)
+Received: by mail-pg1-x530.google.com with SMTP id w15so20534560pgk.13
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 21:58:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pFlJ0Cp+Q2cvPxYJQCUh5U0OZaa8LxCA1V3tctpsOrk=;
+        b=hgq10UVo33y/qGjKk0b51SfNxPuHD1f37QSxPzyN9NWSDAgaynJU4qCIpv2BSedYNE
+         ou6+CY1iym+4T0iQMi0/YklT47f9HFUD8y6FvfnTXp1OYIaKri9nDawUXGqYM9+yTzcU
+         LDBAWSZI2AX50oWaoImSWG0W3KF/zk5lMYSTqVnhoWt3fBq1Kj1Mg2zYnHdD4BecyBo9
+         e0ibJd0g/+zTj6BDH9NqCuTf24/EVaL0JwmDceUuhWUpqhL44MsV1MsLfiMlDj69rQTV
+         7CNpsXzbfTRCM3nJRdAPB7mJ4InS5eD5/tjuk6Cj2+UgQdNkJQoGHXbNE6V+hGskBgNV
+         8DoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pFlJ0Cp+Q2cvPxYJQCUh5U0OZaa8LxCA1V3tctpsOrk=;
+        b=RZL89+/8MkJfqs+pQeDarlTHWU+cxHYnnxW81xg76ceO6QGVYEtxQ+IPIXNtDOof+K
+         ByxFWorHQKTf+g4AJw4paRsVvVhqGPpEWisbCYs+WAhGtkApoSN3IOaWfmDannEbD++T
+         QHd/gJNPha/fPbgyMo+/ke2IhtQ+Vf7xqaqYdFRlFeRaHs4TQrkC/kR+NIxD9Zp8Sd07
+         YRsX1Uli6vMvWxBSjmGLr8TN1tq48fm5Ee4POtGMjJ4G84JoRXEYx7/GlE9OFU9Iy8sO
+         ld9Wl6GULQH1U4ER7Qgf6v9KAeiCiCHbe13mCVzGrEllfVRe/xCRCXzJAIj0SsurR9LF
+         Gyxg==
+X-Gm-Message-State: AOAM533qfXcRLBvTekqVdyqL6S9m1Sa7/4tNuumStaRdSGk1Hia5k/8d
+        F5pT6npPIwEdXgrek5ZO+dbQNp54uKXocjFV
+X-Google-Smtp-Source: ABdhPJx11E0+A/JeRZdTFMMycE+C/ACVgs91AA7UPYHy+ppcUCHjEM1UQZRG7OmdDJaf2NE7EpXzHg==
+X-Received: by 2002:a63:582:: with SMTP id 124mr2519242pgf.299.1626152293636;
+        Mon, 12 Jul 2021 21:58:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id z15sm19631304pgu.71.2021.07.12.21.58.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jul 2021 21:58:13 -0700 (PDT)
+Message-ID: <60ed1d65.1c69fb81.1cad6.c87a@mx.google.com>
+Date:   Mon, 12 Jul 2021 21:58:13 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210713054118.4e5abba3@mir>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.4.131-349-g6063b14ea179
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 189 runs,
+ 4 regressions (v5.4.131-349-g6063b14ea179)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 05:41:18AM +0200, Stefan Lippers-Hollmann wrote:
-> Hi
-> 
-> On 2021-07-12, Greg Kroah-Hartman wrote:
-> > From: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
-> >
-> > [ Upstream commit 03effde3a2ea1d82c4dd6b634fc6174545d2c34f ]
-> >
-> > Brya is another ADL-P product.
-> >
-> > AlderLake has support for Bluetooth audio offload capability.
-> > Enable the BT-offload quirk for ADL-P Brya and the Intel RVP.
-> [...]
-> 
-> This patch seems to introduce a build failure into v5.13.2-rc1 on x86_64:
-> 
->   CC [M]  sound/soc/intel/boards/sof_sdw.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt5682.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt700.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt711.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt711_sdca.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt715.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_rt715_sdca.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_dmic.o
->   CC [M]  sound/soc/intel/boards/sof_sdw_hdmi.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sof_rt5682.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-haswell.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-bxt-da7219_max98357a.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-bxt-rt298.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-sof-pcm512x.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-sof-wm8804.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-glk-rt5682_max98357a.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-broadwell.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-bdw-rt5650-mach.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-bytcr-rt5640.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-bytcr-rt5651.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-rt5672.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-rt5645.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-max98090_ti.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-nau8824.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-cx2072x.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-da7213.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-es8316.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-nocodec.o
->   LD [M]  sound/soc/intel/boards/snd-soc-cml_rt1011_rt5682.o
->   LD [M]  sound/soc/intel/boards/snd-soc-kbl_da7219_max98357a.o
->   LD [M]  sound/soc/intel/boards/snd-soc-kbl_da7219_max98927.o
->   CHK     kernel/kheaders_data.tar.xz
->   LD [M]  sound/soc/intel/boards/snd-soc-kbl_rt5663_max98927.o
->   LD [M]  sound/soc/intel/boards/snd-soc-kbl_rt5660.o
->   LD [M]  sound/soc/intel/boards/snd-soc-skl_rt286.o
->   LD [M]  sound/soc/intel/boards/snd-skl_nau88l25_max98357a.o
->   LD [M]  sound/soc/intel/boards/snd-soc-skl_nau88l25_ssm4567.o
->   LD [M]  sound/soc/intel/boards/snd-soc-skl_hda_dsp.o
->   LD [M]  sound/soc/intel/boards/snd-soc-sof_da7219_max98373.o
->   LD [M]  sound/soc/intel/boards/snd-soc-ehl-rt5660.o
->   LD [M]  sound/soc/snd-soc-acpi.o
-> /build/linux-aptosid-5.13/sound/soc/intel/boards/sof_sdw.c:200:6: error: implicit declaration of function 'SOF_BT_OFFLOAD_SSP' [-Werror=implicit-function-declaration]
->   200 |      SOF_BT_OFFLOAD_SSP(2) |
->       |      ^~~~~~~~~~~~~~~~~~
->   LD [M]  sound/soundcore.o
->   LD [M]  sound/soc/sof/xtensa/snd-sof-xtensa-dsp.o
-> /build/linux-aptosid-5.13/sound/soc/intel/boards/sof_sdw.c:201:6: error: 'SOF_SSP_BT_OFFLOAD_PRESENT' undeclared here (not in a function)
->   201 |      SOF_SSP_BT_OFFLOAD_PRESENT),
->       |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
->   LD [M]  sound/soc/sof/intel/snd-sof-acpi-intel-bdw.o
->   LD [M]  sound/soc/sof/intel/snd-sof-intel-hda.o
->   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-tng.o
->   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-apl.o
->   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-cnl.o
->   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-icl.o
->   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-tgl.o
-> cc1: some warnings being treated as errors
-> make[5]: *** [/build/linux-aptosid-5.13/scripts/Makefile.build:273: sound/soc/intel/boards/sof_sdw.o] Error 1
-> 
-> > diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-> > index dfad2ad129ab..35ad448902c7 100644
-> > --- a/sound/soc/intel/boards/sof_sdw.c
-> > +++ b/sound/soc/intel/boards/sof_sdw.c
-> > @@ -197,7 +197,21 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
-> >  		.driver_data = (void *)(SOF_RT711_JD_SRC_JD1 |
-> >  					SOF_SDW_TGL_HDMI |
-> >  					SOF_RT715_DAI_ID_FIX |
-> > -					SOF_SDW_PCH_DMIC),
-> > +					SOF_SDW_PCH_DMIC |
-> > +					SOF_BT_OFFLOAD_SSP(2) |
-> > +					SOF_SSP_BT_OFFLOAD_PRESENT),
-> > +	},
-> > +	{
-> > +		.callback = sof_sdw_quirk_cb,
-> > +		.matches = {
-> > +			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
-> > +			DMI_MATCH(DMI_PRODUCT_NAME, "Brya"),
-> > +		},
-> > +		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
-> > +					SOF_SDW_PCH_DMIC |
-> > +					SOF_SDW_FOUR_SPK |
-> > +					SOF_BT_OFFLOAD_SSP(2) |
-> > +					SOF_SSP_BT_OFFLOAD_PRESENT),
-> >  	},
-> >  	{}
-> >  };
-> 
+stable-rc/queue/5.4 baseline: 189 runs, 4 regressions (v5.4.131-349-g6063b1=
+4ea179)
 
-Already dropped, thanks!
+Regressions Summary
+-------------------
 
-greg k-h
+platform          | arch   | lab           | compiler | defconfig          =
+| regressions
+------------------+--------+---------------+----------+--------------------=
++------------
+d2500cc           | x86_64 | lab-clabbe    | gcc-8    | x86_64_defconfig   =
+| 1          =
+
+rk3288-veyron-jaq | arm    | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.131-349-g6063b14ea179/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.131-349-g6063b14ea179
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6063b14ea1792d78a25e5236a15b3d853e43b24e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch   | lab           | compiler | defconfig          =
+| regressions
+------------------+--------+---------------+----------+--------------------=
++------------
+d2500cc           | x86_64 | lab-clabbe    | gcc-8    | x86_64_defconfig   =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60eceaadbf0a3e602e11796b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g6063b14ea179/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g6063b14ea179/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60eceaadbf0a3e602e117=
+96c
+        failing since 1 day (last pass: v5.4.130-4-g2151dbfa7bb2, first fai=
+l: v5.4.131-344-g7da707277666) =
+
+ =
+
+
+
+platform          | arch   | lab           | compiler | defconfig          =
+| regressions
+------------------+--------+---------------+----------+--------------------=
++------------
+rk3288-veyron-jaq | arm    | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ed13013c33cd32a9117970
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g6063b14ea179/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g6063b14ea179/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60ed13013c33cd32a9117988
+        failing since 28 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-13T04:13:38.276708  /lava-4188147/1/../bin/lava-test-case
+    2021-07-13T04:13:38.294083  <8>[   15.660408] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-07-13T04:13:38.294349  /lava-4188147/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60ed13013c33cd32a911799e
+        failing since 28 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-13T04:13:36.851976  /lava-4188147/1/../bin/lava-test-case
+    2021-07-13T04:13:36.870061  <8>[   14.235189] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-07-13T04:13:36.870332  /lava-4188147/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60ed13013c33cd32a911799f
+        failing since 28 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-13T04:13:35.838818  /lava-4188147/1/../bin/lava-test-case<8>[  =
+ 13.215931] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
+d RESULT=3Dfail>
+    2021-07-13T04:13:35.839135     =
+
+ =20
