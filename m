@@ -2,148 +2,263 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA363C6840
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 03:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3DA3C684F
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 03:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233491AbhGMBxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 12 Jul 2021 21:53:22 -0400
-Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:30552 "EHLO
-        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230000AbhGMBxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 21:53:21 -0400
-Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16D1jkeT014421;
-        Tue, 13 Jul 2021 01:50:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=to : cc : subject :
- from : message-id : references : date : in-reply-to : content-type :
- mime-version; s=corp-2020-01-29;
- bh=tVAcnxTXNCZNnVkhECU+8yPkSy/ps36+Ji0lGDI9KVY=;
- b=plYRtn7G47+H9tSJkXlCLr2Qfg3nr4/ZCnd3ZEs9hlE039wb/zoHMWfma/31uOogumd/
- JfRHVKITwTgQG72MYrlu+9orzsJg8HbD3oLUgmfVUuhQq07PLhEUm8noahHs1EYjcw+e
- XvPInW8fZiVhxwHAYA5wHLkDQJylHgR9qrKJ3JK97GkT2j0zsqUz3cygd8qpVVpJJmbC
- BG3rnZ6bWfeBNPuZTFpLp072hD5TIPrDxTVM/8ZkSu/+8salvGZwo2f23evPxEl2Eur1
- VQXeZJFoArGzZm6p+4mdtc3uI+Rtjz8FBtCtI/W+nWBVle6JX7bJXWt4Hk7pxog1brOc KQ== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
-        by mx0b-00069f02.pphosted.com with ESMTP id 39rpd8seak-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Jul 2021 01:50:28 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
-        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 16D1kSgo122936;
-        Tue, 13 Jul 2021 01:50:27 GMT
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2169.outbound.protection.outlook.com [104.47.57.169])
-        by userp3030.oracle.com with ESMTP id 39q0p2bp3w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Jul 2021 01:50:27 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=T3CPfRQHpfnVyHRceZ6KlDZFaJQE25bm810Bcj6bOvzvs6tyNHwwC96ZSAe9+aiJ5CGZVV0dY/HTiQJmDspRd19Olo9yBA9qs8hofAZ6eOsZMXnMQ3y/B7kCH+aTlepA1prQCkjW/7MjwiCLJRiYeXHqlM7F8v1ffCYqSbDizv3U9jiYcOli131U0h+jupci2I2ONO5pVWYz5fkCF2OQVljejrpU7GlK6mSxrN+3Q5Nq/NGr3022j1Qmq0uwqf7CZESrhV9EUjtBGo38p9UsJoFj1GCl7FzMBrn2fJXkP7Ea8AbfrZ92hy9A9zKk+5XrqwBchGzThjurIqjamZXg+g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tVAcnxTXNCZNnVkhECU+8yPkSy/ps36+Ji0lGDI9KVY=;
- b=kIYtecNad/QwGspauB46pQ/GsZMAHGHpvHF+twnFsGfGyVcLRllnn2vxdNnpq7ne06ECKdMtlonLmns+q5+lLzlRBWe7skfSQVM4I8/znDspICqjLZIpQA1LOGBaE/W7E+5CYUPW1kIrBBYuNWdeZ+gE+yrPeMxdbwcrVfMbQFoH+YIvN+uZMRq1btKQPWyOS3KlXKen6NHE0tEz6QemupsICSRSBOSdV0kalecJTnrI8sSERLOm0hzH6ayYkm61fpDn6IkUlQgaGni/2K2lxTWq+YNKwi2QFkq9I7ohzQlznvJmxMMZyvY/XafqCkybsHm9Ypn6t3BGiuGAsGdydw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+        id S231894AbhGMCB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 12 Jul 2021 22:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44046 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230000AbhGMCB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 12 Jul 2021 22:01:56 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 308F2C0613DD
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 18:59:07 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id p36so8402651pfw.11
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 18:59:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tVAcnxTXNCZNnVkhECU+8yPkSy/ps36+Ji0lGDI9KVY=;
- b=bqVLPbmSNXc72QtAP9/Qmvw5TMrnwT62tvrS11Eb2HXvdEv/3KJxNktaRu8jxNZgcwzNLTZZcNmSvHH6WU8gvfPvRaPAlsM7l8sCg0fumxKCqrJOHD1+Zei9U8HL3fKP0upH/8AkGC09tW0rumDx0AK+2y8wH4lLF8cXBk83pQg=
-Authentication-Results: linux.ibm.com; dkim=none (message not signed)
- header.d=none;linux.ibm.com; dmarc=none action=none header.from=oracle.com;
-Received: from CO1PR10MB4754.namprd10.prod.outlook.com (2603:10b6:303:91::24)
- by MWHPR10MB1616.namprd10.prod.outlook.com (2603:10b6:301:9::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.23; Tue, 13 Jul
- 2021 01:50:25 +0000
-Received: from CO1PR10MB4754.namprd10.prod.outlook.com
- ([fe80::89c5:ded8:9c91:30d2]) by CO1PR10MB4754.namprd10.prod.outlook.com
- ([fe80::89c5:ded8:9c91:30d2%5]) with mapi id 15.20.4308.027; Tue, 13 Jul 2021
- 01:50:24 +0000
-To:     Tyrel Datwyler <tyreld@linux.ibm.com>
-Cc:     martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
-        ming.lei@redhat.com, james.bottomley@hansenpartnership.com,
-        brking@linux.ibm.com, stable@vger.kernel.org
-Subject: Re: [PATCH] scsi: core: fix bad pointer dereference when ehandler
- kthread is invalid
-From:   "Martin K. Petersen" <martin.petersen@oracle.com>
-Organization: Oracle Corporation
-Message-ID: <yq1sg0j56kc.fsf@ca-mkp.ca.oracle.com>
-References: <20210701195659.3185475-1-tyreld@linux.ibm.com>
-Date:   Mon, 12 Jul 2021 21:50:22 -0400
-In-Reply-To: <20210701195659.3185475-1-tyreld@linux.ibm.com> (Tyrel Datwyler's
-        message of "Thu, 1 Jul 2021 13:56:59 -0600")
-Content-Type: text/plain
-X-ClientProxiedBy: SJ0PR05CA0104.namprd05.prod.outlook.com
- (2603:10b6:a03:334::19) To CO1PR10MB4754.namprd10.prod.outlook.com
- (2603:10b6:303:91::24)
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=geg2AFR/r2sRGtz1XdCouvgy10jOdUCqhu3HQVYp6xM=;
+        b=arOo+Pg04VU1GSfQtpZwsPzxqu3MoD0jvQw1BmJo0XD5+2IpZIqutJyIf13hZ614VJ
+         TdNVYtxbQ4+yv+NVfiqdO18955fljqM8enm3HZAgXd9yLHAicH22zFyr+vbQsclKt+DL
+         4B20BesBU0WntDzrK0D9ZAbk+1C78koO9qg56FuXbP5VOC3TRz8sP5HWXXx2V+gF06Z+
+         +O+F17ZoXfrRrIvHocuX5kv91XI58DfwQPR1JX4Ullt/oZhMsykmWT9gGAmkTf0MQgC3
+         GdK7r2zUS4YJ13vu61D2h0eAFgUmDvXBs6gcS3TpbV2gQo0kzF8r1LNqdqvYnUUxybLV
+         yGyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=geg2AFR/r2sRGtz1XdCouvgy10jOdUCqhu3HQVYp6xM=;
+        b=MioX9k0YDbDFbCV9sDn5ZTwG29xbux+yIkoKWzCeu2GGasQECFGgZqSPomEtFkf0Kn
+         fYSIg1CTiuDzVNgVvsGjXkS6WKE/vHOcMm0FtocM5lS6Qt6uRvl7q7ghZM/u5kgK3giT
+         pF4818wm/NzQblGaorNAK01QSGZakFYaxUOhCDMfc8lrmKLE9MagAUl580NFqkXh+pTA
+         peOGpJj8EqEFhvmr4WjFjlkXpGZnXvnASOlQNNc50eq84iMIqVJ+ajSltRIHYtCb3AsE
+         6OlDR5fCvQq/x5tbxUc3SarNV5Bvgq8ZqRgBs0ML46AscAZ+Njiu5Hqrz+jC035XvNZx
+         lN7Q==
+X-Gm-Message-State: AOAM530Y6116sMU3uF0Ulq6d7wovnvHfYfeRheclpGZ3dgomm2F4QFM6
+        J9y0cyztK4MMdHx3Qog6c6Q5r9Nerv3fO0aZ
+X-Google-Smtp-Source: ABdhPJxsrVSp6F3GQ7PtQrkCiGbWIn/gldD2BCu979ol7vn1PPP96rfp/SZ8hrquL9y3QzP6smb0DA==
+X-Received: by 2002:a05:6a00:1692:b029:300:7193:f67 with SMTP id k18-20020a056a001692b029030071930f67mr2122770pfc.19.1626141546485;
+        Mon, 12 Jul 2021 18:59:06 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id iy13sm694975pjb.28.2021.07.12.18.59.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 12 Jul 2021 18:59:06 -0700 (PDT)
+Message-ID: <60ecf36a.1c69fb81.573d9.3e7c@mx.google.com>
+Date:   Mon, 12 Jul 2021 18:59:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from ca-mkp.ca.oracle.com (138.3.200.58) by SJ0PR05CA0104.namprd05.prod.outlook.com (2603:10b6:a03:334::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.11 via Frontend Transport; Tue, 13 Jul 2021 01:50:24 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 3977633b-436e-4555-2602-08d945a094fc
-X-MS-TrafficTypeDiagnostic: MWHPR10MB1616:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MWHPR10MB16168E683A30DC0E5D6F1D348E149@MWHPR10MB1616.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2449;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: pc7fvoI5r8m5uH3tqthgSV5D3OJ5BUe7qgHvAShmJs+elCohW+AvMhJ00lSU9sQM7IO6gnOPWVFQtZpojAN/Fps02FUuzM9Vdyap5mBwow/RrEHUcgrl9gw/uyu+TJnddvQA9VgcUc/UsZmsIWiu53UlSblwXxKCAwQljSuJcE/haySrHyo5Yi/LkgCbi3cNuOZxEC4k5ANZzSQhEMCtxlZno7HAveG+nwPZcZfZL9AhdvLoOYlo7ADEf9tf5V4e5EE3LaLvvU0ceOE9goAF6Jfe23KNbnKCwtGMXmaazTUUmAq1p5krhEtU1Yy9PhWqwy/ix+VBD6e3YzMlOlJvNPdvSypJgkWE9jLYS/SXkcnejuwSCxI8aI60kVbJU2c0E+jJcrnbX+zVoIGWppPKZU+rlXnegmdCY13XcdYTL06jhZ+T/PWPDFPOfqP/68EqlSVgPyDV70nw4CQJ4dqeScjQ7v/KoqS5kHRu3KNXsfc4Kn43k91lmebwIRe1faajYLEGvHYE7cLKT6UO0qpLENP/vJBlYcM5Okbxj3hUPn1gG2Wh/A5InThmn56bTCqnJx1IdAf3Mg4niIzI7897pXxIhJll6PEyu8i7X8DZ8L9Vfpc86NCwWBrmeJjCO3ahkqhadJalSl5NqiQh33zz8igysOogR6kwiPOhJCQ8E5pxw9NcBiS+Bu1oW0qpqN4nUmPNivfc6k42YsGUQGObuQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR10MB4754.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(396003)(346002)(376002)(366004)(39860400002)(26005)(186003)(4326008)(52116002)(5660300002)(36916002)(478600001)(6916009)(86362001)(7696005)(55016002)(316002)(8936002)(2906002)(8676002)(66946007)(38100700002)(38350700002)(66476007)(66556008)(956004)(558084003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?GQ7wU2sb+9v7dKEBMs/ulWhEOdQaLz0QDWTeCv3IzH6ymDijNtTKvwSgrCcb?=
- =?us-ascii?Q?mDAbHQcmBJ03+6i4d7UNZS4+JYsxwA2vqDB83SR7f4BnaYgj/f6TdAlbmu/K?=
- =?us-ascii?Q?zw1q/TwzpswaWBICqeV0EjYCx4qjnidkq9a+KUaVS0o3fmZ0MQdQZLJLIYEB?=
- =?us-ascii?Q?3rFiufxKldKDJ6GQoOLsJ2JUbCXbo4ZzHPhhpNKW4ICyQnTmJKdLDZwKd0zh?=
- =?us-ascii?Q?F5EZT0nn0lso/R3VQLQCdl7AZ2+hfJbptTnZe3/5ErVq/R6ZxbAqM1UfN7J7?=
- =?us-ascii?Q?3hTAWsvfBU55+v7U9PGIYSDxzFzvOKonj3R1dqBsB+t9MZJqUI194AqJ2myW?=
- =?us-ascii?Q?JGmcoLQSvyq5/Ux1rvNx1TJnNiZa58G3atq019kauMvSF5n9mgiRw4drIfq2?=
- =?us-ascii?Q?/kz6Iysf7wNQtxBgXpY9AlBSDACL6lhAtq5RnzUvMHPhxbAn3UyLJJlqk8Go?=
- =?us-ascii?Q?hrNFxTMQMJjBtOKcBVCew9dx3KhcKDdGDg/0bW7GCaB8hDr1sJWGO3z/ybbW?=
- =?us-ascii?Q?2nenZMIJML7nJ1NEh2UHdiuafZv8WFkitc9XRhZCliH3oJXGiKzzDLdrwrZh?=
- =?us-ascii?Q?ggmCYa8Iz1/JAxtpImaNJmrlnW7LI7PCfY1Ohy8HK47bdXtzpOth0GkyswjA?=
- =?us-ascii?Q?z9+bDF0tOTXsvcHe78EIJo/oqOB7HslmI3Q6F/MKZgSNEpCp1cB46htd1quv?=
- =?us-ascii?Q?88NwhoecdBF8QRvdiDQw6fg+jjA7RIq318RHd8mPn3Ii/IBnamvf8ehP2yq+?=
- =?us-ascii?Q?Ja7DzpAixoLgT7vkiBopJA8nB8u5QjZ/IFDbKYbhBeXGarJj/Vlll6+8E/Ff?=
- =?us-ascii?Q?in4h0c97BYiilG00w1szck2Tv4CIjcNKLBBUA74zG5Fa9+2bxLpigWLxtqEW?=
- =?us-ascii?Q?oeJbH1/Gtq3c1idcGxJ32+CZXGa7SUNzR9YDKzCzRufP8z959Wt01RmaHLUf?=
- =?us-ascii?Q?N33BmNaXH+JyTObVECGatzLh4zvCbfzkLXazarjTrb95IVjRsN9okOBJmc7+?=
- =?us-ascii?Q?zf7A+d6vlxSWfpY8BfOu0xL0HIGd4PkTYC3SOW4c9HR2Q3kYDcnlRTGU6iEI?=
- =?us-ascii?Q?MbEjyYWHj4k7XK+csKpav/EzfojCiM5ShRjvaSHJNYQ9DENTB/q8WvJzXiWh?=
- =?us-ascii?Q?B4xpcvnisyvFAVOteongxjsv+Jvn8Fmx36FVJc7Lm42qunqcU3UKG6s4laDm?=
- =?us-ascii?Q?r3XfFkNZtcB5BJ91gRXF4dt82Ouhc/p3CPahWAj3juoXRaS2YhLgbk3+fRBp?=
- =?us-ascii?Q?rRoQHVHu3cHAIiuGsNthObMiT4njeOn0JMFTjH+GH+sJy4SJ85HqN001eLAe?=
- =?us-ascii?Q?US9dXJQ561zW7yFRdgT5Cnfy?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3977633b-436e-4555-2602-08d945a094fc
-X-MS-Exchange-CrossTenant-AuthSource: CO1PR10MB4754.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2021 01:50:24.7666
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: SHFlpPHjeL3QMi2EcfS0/+hKTZTIIFx7JcmfSUoptjexXilHQvQn2Tb15czP+Oh+Dfp1w9P5sDKxnoSdZURNmNXbEVFSzJW6e6M4zEaOLCA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR10MB1616
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10043 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0
- phishscore=0 spamscore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107130009
-X-Proofpoint-GUID: y3D7vaofsnGlO5b0ONHRe7aVWQJoQptX
-X-Proofpoint-ORIG-GUID: y3D7vaofsnGlO5b0ONHRe7aVWQJoQptX
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.49-597-gf820b41f4b3e
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 141 runs,
+ 6 regressions (v5.10.49-597-gf820b41f4b3e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.10.y baseline: 141 runs, 6 regressions (v5.10.49-597-gf82=
+0b41f4b3e)
 
-Tyrel,
+Regressions Summary
+-------------------
 
-> Commit 66a834d ("scsi: core: Fix error handling of scsi_host_alloc()")
+platform           | arch   | lab             | compiler | defconfig       =
+             | regressions
+-------------------+--------+-----------------+----------+-----------------=
+-------------+------------
+d2500cc            | x86_64 | lab-clabbe      | gcc-8    | x86_64_defconfig=
+             | 1          =
 
-$ git config core.abbrev 12
+d2500cc            | x86_64 | lab-clabbe      | gcc-8    | x86_64_defcon...=
+6-chromebook | 1          =
 
-Applied to 5.14/scsi-fixes, thanks!
+imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
+fig          | 1          =
 
--- 
-Martin K. Petersen	Oracle Linux Engineering
+rk3288-veyron-jaq  | arm    | lab-collabora   | gcc-8    | multi_v7_defconf=
+ig           | 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.49-597-gf820b41f4b3e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.49-597-gf820b41f4b3e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f820b41f4b3e043e9c7a8543e703f2749fc4f931 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch   | lab             | compiler | defconfig       =
+             | regressions
+-------------------+--------+-----------------+----------+-----------------=
+-------------+------------
+d2500cc            | x86_64 | lab-clabbe      | gcc-8    | x86_64_defconfig=
+             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ecb9cf2e5f7c0ce6117977
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500=
+cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500=
+cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ecb9cf2e5f7c0ce6117=
+978
+        failing since 1 day (last pass: v5.10.49, first fail: v5.10.49-581-=
+g85a3429452df0) =
+
+ =
+
+
+
+platform           | arch   | lab             | compiler | defconfig       =
+             | regressions
+-------------------+--------+-----------------+----------+-----------------=
+-------------+------------
+d2500cc            | x86_64 | lab-clabbe      | gcc-8    | x86_64_defcon...=
+6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ecbb2461c6d1aae01179ae
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe=
+/baseline-d2500cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe=
+/baseline-d2500cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ecbb2461c6d1aae0117=
+9af
+        failing since 1 day (last pass: v5.10.49, first fail: v5.10.49-581-=
+g85a3429452df0) =
+
+ =
+
+
+
+platform           | arch   | lab             | compiler | defconfig       =
+             | regressions
+-------------------+--------+-----------------+----------+-----------------=
+-------------+------------
+imx6ul-pico-hobbit | arm    | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
+fig          | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ecbbab727d6e9086117980
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-=
+imx6ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-=
+imx6ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ecbbab727d6e9086117=
+981
+        new failure (last pass: v5.10.49-594-gdb2c2c1f4b16e) =
+
+ =
+
+
+
+platform           | arch   | lab             | compiler | defconfig       =
+             | regressions
+-------------------+--------+-----------------+----------+-----------------=
+-------------+------------
+rk3288-veyron-jaq  | arm    | lab-collabora   | gcc-8    | multi_v7_defconf=
+ig           | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ece3c546cc4d91c6117976
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.4=
+9-597-gf820b41f4b3e/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3=
+288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60ece3c546cc4d91c611798e
+        failing since 27 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-07-13T00:51:57.790905  /lava-4186859/1/../bin/lava-test-case<8>[  =
+ 13.296086] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-07-13T00:51:57.791522  =
+
+    2021-07-13T00:51:57.792055  /lava-4186859/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60ece3c546cc4d91c61179a5
+        failing since 27 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-07-13T00:51:56.347762  /lava-4186859/1/../bin/lava-test-case
+    2021-07-13T00:51:56.353075  <8>[   11.869857] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60ece3c546cc4d91c61179a6
+        failing since 27 days (last pass: v5.10.43, first fail: v5.10.43-13=
+1-g3f05ff8b3370)
+
+    2021-07-13T00:51:55.334345  /lava-4186859/1/../bin/lava-test-case<8>[  =
+ 10.850250] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
+d RESULT=3Dfail>
+    2021-07-13T00:51:55.334811     =
+
+ =20
