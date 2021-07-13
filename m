@@ -2,66 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 882153C7296
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 16:46:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F04053C72D4
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 17:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236908AbhGMOtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 10:49:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58646 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236904AbhGMOtX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 10:49:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E98461361;
-        Tue, 13 Jul 2021 14:46:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626187593;
-        bh=9gvfN36Dprd4TP8wUitT/YKG0D2SzJ4HMNTTVd9tPQY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8BqSQE4rptH1MvFBDjFr07v3Ox4Bh9mvT0gpVA7UybbPUwa7RHRZ75+6FoXs8JNa
-         uhYVLNhxD2jWu9bw9ko6olu8OGp3uSgshi3gTOAr5TN2sVBsG+oexuX2Wv0bXa7njv
-         OBw3uNAIByt/ukuZ+F6+fjvNUfwRJZwVptYlf1UX+T6UIm8px7G7hOTMb2IIchRgkf
-         JYTFJciw1zYQFs2aieFkTZMdedfkG2lfLEY0NWM7acg0uooG+mLy+kNBzGhGzCdZHX
-         fqaIbHtDrjBWl8hwEQ51Qe9uDU7PQXQewV1jYvbO9/qgeGPS5O1Q/U7cDTFMCSrAYS
-         Tn8iJeLjyHUOA==
-From:   Dinh Nguyen <dinguyen@kernel.org>
-To:     linux-clk@vger.kernel.org
-Cc:     dinguyen@kernel.org, sboyd@kernel.org, mturquette@baylibre.com,
-        stable@vger.kernel.org, Kris Chaplin <kris.chaplin@intel.com>
-Subject: [PATCH 3/3] clk: socfpga: agilex: add the bypass register for s2f_usr0 clock
-Date:   Tue, 13 Jul 2021 09:46:21 -0500
-Message-Id: <20210713144621.605140-3-dinguyen@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210713144621.605140-1-dinguyen@kernel.org>
-References: <20210713144621.605140-1-dinguyen@kernel.org>
+        id S236984AbhGMPNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 11:13:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53408 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236977AbhGMPNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 11:13:32 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B318C0613DD
+        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 08:10:41 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id gb6so42092067ejc.5
+        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 08:10:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=abBnvCNHoiwPjk+pbO+twHux68rlYki9TXT2SBB9tcw=;
+        b=mMSm0wM3NOhKOxlm9bp2OYVdOl2GFv2ww21t4vL5hdSpHzKCDtOD5DtMMu4WhFyB/8
+         AA63GR7gN/lLDZ7K4Q469luHcVfOExwwI4EMPCDiGHCEb8RmyTxNoGV/iAB7Y83jJVMs
+         8s4Jwa6+oZTnQVFRQiw2wrCoJ6r4/wIMgg+IZnizdwTIikcjk6wuAtys2KkCBD9ypZ2K
+         Lk4Kb5FMxAN5iioqSvOExiVpweF1JJR6hnGhNlHZVe+jT+YReH+WsU/AVXqa2PlSZGP7
+         qTaCxSVq3fCDypRfz5j0Km4uBs0gmgsjUfFI/rta3CTklHA7NAlqEr73KD3iEdLS4/M9
+         jHag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=abBnvCNHoiwPjk+pbO+twHux68rlYki9TXT2SBB9tcw=;
+        b=HprhE8pmvpR0FcUXDh6FrAdTZRYOwNOnj74TrndfvbR9+0xVmZOkZwASEKfhBy4yNj
+         eBk0aUBsHnwFL06dzbSbbeStQgOjT+HA8Un4EiFxITKsQKCnX7NV0lJEkcQu95o7ZQ5E
+         L3mLP14lc8SxpBMsF1NbE+ava5T4Rxn1KFmhuYdyH0FoTX8S385lRRTRyvamwPaYe2X/
+         qTCP66LZEgCZ434aAABQV0DUi532tpaE9ijXj+595NDu5jlauLBhsMFcFSyrptcAN2IB
+         ZK4xvYbka3s94vGyRrheZI823q8qPh58/YEtZH7ibUuls/iNQyFHNF9KmLZqrMpcy8So
+         4Akg==
+X-Gm-Message-State: AOAM533zJGZCRuSafLPh4lS37ammsAjnpogZdTDmeqh5eXsmNmK8VCKW
+        H/776MK731JgoGi0GgFKzJxtTTiDh+/RjqA5qODaog==
+X-Google-Smtp-Source: ABdhPJyNpk+yq9jqqqPZ/24v2cTPBYfQ2AjOJJCtVBjGij/qpzOk/dCQ7ciO+D5h7rLmtYU0kt2COYcaM3lBc7W27w8=
+X-Received: by 2002:a17:907:76b8:: with SMTP id jw24mr6223309ejc.375.1626189039800;
+ Tue, 13 Jul 2021 08:10:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 13 Jul 2021 20:40:28 +0530
+Message-ID: <CA+G9fYubOg+Pu8N3LYFKn-eL3f=gn4ceK9Asj1RdBDntU_A2ng@mail.gmail.com>
+Subject: perf: bench/sched-messaging.c:73:13: error: 'dummy' may be used uninitialized
+To:     perf-users <perf-users@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>
+Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Leo Yan <leo.yan@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add the bypass register for the s2f_user0_clk.
+LKFT have noticed these warnings / errors when we have updated gcc version from
+gcc-9 to gcc-11 on stable-rc linux-5.4.y branch. I have provided the steps to
+reproduce in this email below.
 
-Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kris Chaplin <kris.chaplin@intel.com>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
----
- drivers/clk/socfpga/clk-agilex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Following perf builds failed with gcc-11 with linux-5.4.y branch.
+- build-arm-gcc-11-perf
+- build-arm64-gcc-11-perf
+- build-i386-gcc-11-perf
+- build-x86-gcc-11-perf
 
-diff --git a/drivers/clk/socfpga/clk-agilex.c b/drivers/clk/socfpga/clk-agilex.c
-index 7baaa16dea7b..242e94c0cf8a 100644
---- a/drivers/clk/socfpga/clk-agilex.c
-+++ b/drivers/clk/socfpga/clk-agilex.c
-@@ -280,7 +280,7 @@ static const struct stratix10_perip_cnt_clock agilex_main_perip_cnt_clks[] = {
- 	{ AGILEX_SDMMC_FREE_CLK, "sdmmc_free_clk", NULL, sdmmc_free_mux,
- 	  ARRAY_SIZE(sdmmc_free_mux), 0, 0xE4, 0, 0, 0},
- 	{ AGILEX_S2F_USER0_FREE_CLK, "s2f_user0_free_clk", NULL, s2f_usr0_free_mux,
--	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0, 0},
-+	  ARRAY_SIZE(s2f_usr0_free_mux), 0, 0xE8, 0, 0x30, 2},
- 	{ AGILEX_S2F_USER1_FREE_CLK, "s2f_user1_free_clk", NULL, s2f_usr1_free_mux,
- 	  ARRAY_SIZE(s2f_usr1_free_mux), 0, 0xEC, 0, 0x88, 5},
- 	{ AGILEX_PSI_REF_FREE_CLK, "psi_ref_free_clk", NULL, psi_ref_free_mux,
--- 
-2.25.1
+Build error log:
+--------------------
+find: 'x86_64-linux-gnu-gcc/arch': No such file or directory
+error: Found argument '-I' which wasn't expected, or isn't valid in this context
+USAGE:
+    sccache [FLAGS] [OPTIONS] [cmd]...
+For more information try --help
+error: Found argument '-I' which wasn't expected, or isn't valid in this context
+USAGE:
+    sccache [FLAGS] [OPTIONS] [cmd]...
+For more information try --help
 
+In function 'ready',
+    inlined from 'sender' at bench/sched-messaging.c:87:2:
+bench/sched-messaging.c:73:13: error: 'dummy' may be used
+uninitialized [-Werror=maybe-uninitialized]
+   73 |         if (write(ready_out, &dummy, 1) != 1)
+      |             ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from bench/sched-messaging.c:22:
+bench/sched-messaging.c: In function 'sender':
+/usr/x86_64-linux-gnu/include/unistd.h:366:16: note: by argument 2 of
+type 'const void *' to 'write' declared here
+  366 | extern ssize_t write (int __fd, const void *__buf, size_t __n) __wur;
+      |                ^~~~~
+bench/sched-messaging.c:69:14: note: 'dummy' declared here
+   69 |         char dummy;
+      |              ^~~~~
+cc1: all warnings being treated as errors
+
+ref:
+https://builds.tuxbuild.com/1vEIWryaujwVtL4wmodXkz1djUa/
+https://builds.tuxbuild.com/1vEIX7NTo5OpaN9nrs2UvO74oxB/
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Steps to reproduce:
+---------------------------
+tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-11
+--kconfig defconfig --kconfig-add
+https://builds.tuxbuild.com/1vEIWryaujwVtL4wmodXkz1djUa/config headers
+kernel modules perf
+
+--
+Linaro LKFT
+https://lkft.linaro.org
