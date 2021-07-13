@@ -2,136 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB8A73C6B9C
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 09:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C66073C6BAB
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 09:46:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234558AbhGMHpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 03:45:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:6454 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234548AbhGMHpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 03:45:30 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16D7XuPn061320;
-        Tue, 13 Jul 2021 03:42:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : content-transfer-encoding : mime-version; s=pp1;
- bh=kPEoSNC3+9NeuP52sd4WrijMgjy3yioYcn0or+J92CA=;
- b=VmNCuNdw/Qwwf3GBSibnG5O+kI+j1dfM6eNH9eNwaqZ0LhjDZv+xv1gtqaIFmNoXYSOn
- FXNwKEbMzf3dK8gW7WnChi6adgl/QUsgvel/4kVfG7kikRgcSmRZAqm33qDICU/tHALO
- 7P/wfN+CXrqRUlFEOHnLaQRMhwRd31BtR2LA+YshHtLxTRIDh0ee9A4f+E0t3lQn8BDs
- SHx0IZ9nGGBXYcY6kMZfwqk1TGNFhJ+cD1xGnldL0Q4SMR6lbaLh8pznPgYx+W+PEuVH
- bgWIYJp3MwWpVmYyix+/jsfsxNbAproiqeXR/xHKmbv4qJRhmLNog2aOH84swPqsgMrD wQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39qrf7v8fn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 03:42:34 -0400
-Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16D7XwsO061483;
-        Tue, 13 Jul 2021 03:42:33 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39qrf7v8dc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 03:42:33 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16D7XIHa022584;
-        Tue, 13 Jul 2021 07:42:31 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 39q36894sd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 13 Jul 2021 07:42:30 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16D7gRdx22872370
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 13 Jul 2021 07:42:28 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C26E55204E;
-        Tue, 13 Jul 2021 07:42:27 +0000 (GMT)
-Received: from localhost.localdomain.com (unknown [9.199.32.99])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 3F6EB52054;
-        Tue, 13 Jul 2021 07:42:22 +0000 (GMT)
-From:   Kajol Jain <kjain@linux.ibm.com>
-To:     will@kernel.org, hao.wu@intel.com, mark.rutland@arm.com
-Cc:     trix@redhat.com, yilun.xu@intel.com, mdf@kernel.org,
-        linux-fpga@vger.kernel.org, maddy@linux.ibm.com,
-        atrajeev@linux.vnet.ibm.com, kjain@linux.ibm.com,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        rnsastry@linux.ibm.com, linux-perf-users@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v3] fpga: dfl: fme: Fix cpu hotplug issue in performance reporting
-Date:   Tue, 13 Jul 2021 13:12:16 +0530
-Message-Id: <20210713074216.208391-1-kjain@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: FVqvcLVKiLkkyKw4ZEKdT5VwXxDvg-YH
-X-Proofpoint-GUID: FLEPZacoJTH9gAwYfc9AKxx11NF3afn9
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S234121AbhGMHtB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 03:49:01 -0400
+Received: from mx6.ucr.edu ([138.23.62.71]:17118 "EHLO mx6.ucr.edu"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234342AbhGMHtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 03:49:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=ucr.edu; i=@ucr.edu; q=dns/txt; s=selector3;
+  t=1626162372; x=1657698372;
+  h=mime-version:references:in-reply-to:from:date:message-id:
+   subject:to:cc;
+  bh=/PDBt9wlRWM1iCLp+k/CLplY3xQTV5OM8VyXbBUUaog=;
+  b=AgJvR9YPOYo55oU70TRbahZTMKg6od1iLRg1jd/q48MB0yRH647MZzGo
+   J0kj0Itca9NCmteud7SkvM1D4IT24kdwANMioLhFdIcLFwMZp0Qk81k3U
+   dApJ92iDZQyQ0dHxDteJs4GxJGap15IX4vMRMHGIa9O7+I6syVgXkFhHe
+   D9UZ20fk33PGPNj8w3Hs1L3juNk5b7GpsuMdORnCky/hL8wqCWxii+Zna
+   7W7VUk/wPIA3rbF5sTyzNMEdF9Zo02seGtb/0gWCaZkbHG+1ct1fhDu/C
+   3Fna1tWb3W4YyVTzLvSq9/6kwyHZk/ptnN8+lA1KF14Gqcwn3Yf33u9TP
+   A==;
+IronPort-SDR: Vwpdex8LoMTSiW+tEVVc/VucFrCViI1PpEPm0dFTpGefimJu1qzkf7/dywUOfAiEz81kDifjIc
+ X0kP9PSF9yc+REW71vczV6fCUK/61vF1PsP7hY6VkqjvZpK1HOz9a5VSDmIR5+POccA15VnqUo
+ lFDKEBQPxq+lOo7rhBArBkYlhLYjq/TZ39gNfYndnfJzxFEh7GQQX6NQfnj4nfOs9lLkeVOLmh
+ IrORPNd8d0oG86USJKHs8oR48xyLFhAKST9pQI09s9AyT66HRcbZ0cG8TcmOVQCBSraeNGpNwn
+ MHk=
+X-IPAS-Result: =?us-ascii?q?A2HjAgCfQ+1gdEihVdFaHgEBCxIMQIFOC4MiVmwCGIQuk?=
+ =?us-ascii?q?VsDlhuCa4JUgXwCCQEBAQ83CgQBAQMBA4ESgndEAm2CDAIlNAkOAgQBAQEBA?=
+ =?us-ascii?q?wIDAQEBAQUBAQYBAQEBAQEFBAEBAhABb4UvOQ2COCkBUhIDDVYBAQEBAQEBA?=
+ =?us-ascii?q?QEBAQEBAQEBIAIBAQEmAggFTQVnAQEBAxIRBFIOAgsLDQICJgICGwcSAQUBH?=
+ =?us-ascii?q?AYTCBqCUIMHBQqbOYEEPYsyfzOBAYghAQkNgV0GBQ1+KocJhmIngimBS4EFg?=
+ =?us-ascii?q?Wo+gmIEhHWCZASDGUxVGHtSbUBTAQEBnwqadoIPAQYCgwocijKUAiuDY4tch?=
+ =?us-ascii?q?j2QWC2UR41AkxcLhUkQI4E4ghUzGiV/BmeBS1AZDod/hiwWg04zikskLwIBD?=
+ =?us-ascii?q?CkCBgoBAQMJh2cBAQ?=
+IronPort-PHdr: A9a23:jXi7whJrMJFW/JVpvNmcuMBmWUAX0o4c3iYr45Yqw4hDbr6kt8y7e
+ hCFvbM00BSXA82bs6sC17OH9fi4GCQp2tWoiDg6aptCVhsI2409vjcLJ4q7M3D9N+PgdCcgH
+ c5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFRrhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTajfb9+N
+ gi6oAreusQXgIZpN6I9xgfUrndSdOla2GdlKUiPkxrg48u74YJu/TlXt/897cBLTL/0f74/T
+ bxWDTQmN3466cj2vhTdTgWB+2URXHwOnhVHHwbK4hf6XozssiThrepyxDOaPcztQr8qXzmp8
+ rpmRwXpiCcDMD457X3Xh8lth69VvB6tuxpyyJPPbYqLKPRxYL/SfdICRWpAQMlRUTBBApihZ
+ IcLFuYNIPpUo5X4q1YIsBCwBxSjBPn3xzBHiH/536003eoiHw/bwgIvA8kDsGjIoNjvKKseT
+ fy5wavOwD7eb/1WwzD96I3Qfx8goPGDR7VwftbRyUYxEQPOk1afqYv4PziI0ekMvGma7+19V
+ e6zlmIqqRp8oiWzycc2kIXGmJ8ayk3d+Ch/3Y06KsG2RlRhbt64DJtfqTuaN41uT84sTW9lp
+ Tg2xqAFtJKnYiUHypUqyRHfZfGac4WF4gzuWeSfLzp8in9oZb2xihSy/0WhxOPyVsq53EpIo
+ ydbnNTBsG0G2RLU6siCUPR9/0Gh1C6U2ADU7eFEPUQ0lavdK5I73rEwkZ8TvVzbHiDonkX2g
+ 7KWdlk++uiv7eTnY7rnqoWBOIBqjAz1L6cgmtSnDOgmLgQDW3KX9Oe82bH54EH0QahGguc0n
+ 6XHtp3RON4VqbSjAwBP14Yu8xO/DzC739sGhXQHN1dFeA6fj4juJlHOPOj0DfehjFSolzdm3
+ /XGMafgApXJN3TDl7Dhcatk505Sygc/08pT551TCrEGL/LzXlH+uMbEAR8+Ngy42+fnCNNj2
+ YMCQW+DHLOVPafIvVKL5u8jOfSAaY4ItDrnKfUp+ebijXojll8ceamp04EXaHe9Hvl+LESYY
+ H3sgsodHWsXvAczV/Hqh0GYUTJJeXm9Qr886ikhCI26FYfDWpytgLuZ0SegAp1ZfHtJClSSH
+ nrzaYWEVOkDaDiILs9ijDMET76hRJEl1R20sw/60bVnfaLo/Xg9vIjonPtx6uzVmFQY6DB4A
+ ozJ1mKJZ3l5mGwVWyUx2qFv50BwnASty6991sxZHNtY5/5PGjU9KNaI3/59FoirBSrcdc3PR
+ Vq7FIb1SQotR848loddK312HM+v21Wah3LCPg==
+IronPort-HdrOrdr: A9a23:pEI39qhh8EEx1P50mDi/rVKTMXBQXuEji2hC6mlwRA09TyVXrb
+ HWoB17726NtN9/YgBEpTntAtjjfZqYz+8X3WBzB9aftWvdyQ+VxehZhOOI/9SjIU3DH4VmpM
+ BdmsZFebvN5JtB4PoSIjPTLz/t+ra6GWmT6Ynj80s=
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="5.84,236,1620716400"; 
+   d="scan'208";a="228066433"
+Received: from mail-oo1-f72.google.com ([209.85.161.72])
+  by smtpmx6.ucr.edu with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Jul 2021 00:46:11 -0700
+Received: by mail-oo1-f72.google.com with SMTP id e10-20020a4ab14a0000b029020e1573bdb7so9245567ooo.9
+        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 00:46:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=E0c/itnJRqvseiRzZWaYFdOYbaZVWfzwqyJIgaHRkI4=;
+        b=g2g7IuLuhbE4IjuWC5E27TzmxR4FoBxQBrNHvcUyWvFJQrQWsZDtE1DTOostuLD46v
+         KEf8ZpaINZ0efSx6+a0eN5kM/A29LpiOLdXcuSIPiLpHP1hdXiixbicfbHB/XdSIZt10
+         C8DmE1N8H59RqyxArBFMbxXT4maA6AeuRwMyM/pcRqHCuC9TAKp0GhxfJH26nwnC+gKi
+         qCZ54NnN6LOV9HEKMZB8oF4H2wz8UA7ABaHMSDZTDK6T/hQ1lgJQNAqjIyEq4rh86Zct
+         4Qw4WQeWZFe5jzgdkJQPgPEV0135m5kIPMPQKlWY1518Gk90+TcfskvEZ5Ud9UBTVh3g
+         MueQ==
+X-Gm-Message-State: AOAM532i3KzcGzPsXTkVgioJG7cSk+mVlOET412rUR7PSiyWznjytSKm
+        l9765WqWRRaXt7TcYpXolexK4bT0vPL1vSbgc/CTFP/CsF9xOQ7Sl9N/3WA8q23xfpV68xp9RbW
+        CX7UahMLsHBjl0lrGDA9MHF64FJBvymuTyA==
+X-Received: by 2002:a05:6830:1e42:: with SMTP id e2mr2537579otj.135.1626162369807;
+        Tue, 13 Jul 2021 00:46:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwBf6asctnycGHrf0aHsUd7mMNxKyN11KyP8TucFVKHbFU6gvW9YJZO6cqXJ6+ucEspUXAJ06v7fWy8ISSDRwE=
+X-Received: by 2002:a05:6830:1e42:: with SMTP id e2mr2537573otj.135.1626162369633;
+ Tue, 13 Jul 2021 00:46:09 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-13_03:2021-07-13,2021-07-13 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxscore=0
- adultscore=0 mlxlogscore=999 phishscore=0 lowpriorityscore=0 spamscore=0
- impostorscore=0 bulkscore=0 suspectscore=0 priorityscore=1501
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2107130047
+References: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
+ <YO0Z7s8p7CoetxdW@kroah.com> <CAE1SXrv2Et9icDf2NesjWmrwbjXL8067Y=D3RnwqpEeZT4OgTg@mail.gmail.com>
+ <e1f71c33-a5dd-82b1-2dce-be4f052d6aa6@pengutronix.de>
+In-Reply-To: <e1f71c33-a5dd-82b1-2dce-be4f052d6aa6@pengutronix.de>
+From:   Xiaochen Zou <xzou017@ucr.edu>
+Date:   Tue, 13 Jul 2021 00:46:07 -0700
+Message-ID: <CAE1SXrv3Ouwt4Y9NEWGi0WO701w1YP1ruMSxraZr4PZTGsUZgg@mail.gmail.com>
+Subject: Re: Use-after-free access in j1939_session_deactivate
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     Greg KH <greg@kroah.com>, netdev@vger.kernel.org,
+        stable@vger.kernel.org, kernel@pengutronix.de,
+        linux-can@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The performance reporting driver added cpu hotplug
-feature but it didn't add pmu migration call in cpu
-offline function.
-This can create an issue incase the current designated
-cpu being used to collect fme pmu data got offline,
-as based on current code we are not migrating fme pmu to
-new target cpu. Because of that perf will still try to
-fetch data from that offline cpu and hence we will not
-get counter data.
+j1939_session_destroy() will free both session and session->priv. It
+leads to multiple use-after-free read and write in
+j1939_session_deactivate() when session was freed in
+j1939_session_deactivate_locked(). The free chain is
+j1939_session_deactivate_locked()->j1939_session_put()->__j1939_session_release()->j1939_session_destroy().
+To fix this bug, I moved j1939_session_put() behind
+j1939_session_deactivate_locked() and guarded it with a check of
+active since the session would be freed only if active is true.
 
-Patch fixed this issue by adding pmu_migrate_context call
-in fme_perf_offline_cpu function.
+Signed-off-by: Xiaochen Zou <xzou017@ucr.edu>
 
-Fixes: 724142f8c42a ("fpga: dfl: fme: add performance reporting support")
-Tested-by: Xu Yilun <yilun.xu@intel.com>
-Acked-by: Wu Hao <hao.wu@intel.com>
-Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- drivers/fpga/dfl-fme-perf.c | 2 ++
- 1 file changed, 2 insertions(+)
+diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
+index e5f1a56994c6..b6448f29a4bd 100644
+--- a/net/can/j1939/transport.c
++++ b/net/can/j1939/transport.c
+@@ -1018,7 +1018,6 @@ static bool
+j1939_session_deactivate_locked(struct j1939_session *session)
 
----
-Changelog:
-v2 -> v3:
-- Added Acked-by tag
-- Removed comment as suggested by Wu Hao
-- Link to patch v2: https://lkml.org/lkml/2021/7/9/143
+        list_del_init(&session->active_session_list_entry);
+        session->state = J1939_SESSION_DONE;
+-       j1939_session_put(session);
+    }
 
-v1 -> v2:
-- Add stable@vger.kernel.org in cc list
-- Link to patch v1: https://lkml.org/lkml/2021/6/28/275
+    return active;
+@@ -1031,6 +1030,9 @@ static bool j1939_session_deactivate(struct
+j1939_session *session)
+    j1939_session_list_lock(session->priv);
+    active = j1939_session_deactivate_locked(session);
+    j1939_session_list_unlock(session->priv);
++   if (active) {
++       j1939_session_put(session);
++   }
 
-RFC -> PATCH v1
-- Remove RFC tag
-- Did nits changes on subject and commit message as suggested by Xu Yilun
-- Added Tested-by tag
-- Link to rfc patch: https://lkml.org/lkml/2021/6/28/112
----
-
-diff --git a/drivers/fpga/dfl-fme-perf.c b/drivers/fpga/dfl-fme-perf.c
-index 4299145ef347..587c82be12f7 100644
---- a/drivers/fpga/dfl-fme-perf.c
-+++ b/drivers/fpga/dfl-fme-perf.c
-@@ -953,6 +953,8 @@ static int fme_perf_offline_cpu(unsigned int cpu, struct hlist_node *node)
- 		return 0;
- 
- 	priv->cpu = target;
-+	perf_pmu_migrate_context(&priv->pmu, cpu, target);
-+
- 	return 0;
+    return active;
  }
- 
--- 
-2.31.1
+@@ -2021,6 +2023,7 @@ void j1939_simple_recv(struct j1939_priv *priv,
+struct sk_buff *skb)
+ int j1939_cancel_active_session(struct j1939_priv *priv, struct sock *sk)
+ {
+    struct j1939_session *session, *saved;
++   bool active;
 
+    netdev_dbg(priv->ndev, "%s, sk: %p\n", __func__, sk);
+    j1939_session_list_lock(priv);
+@@ -2030,7 +2033,10 @@ int j1939_cancel_active_session(struct
+j1939_priv *priv, struct sock *sk)
+        if (!sk || sk == session->sk) {
+            j1939_session_timers_cancel(session);
+            session->err = ESHUTDOWN;
+-           j1939_session_deactivate_locked(session);
++           active = j1939_session_deactivate_locked(session);
++           if (active) {
++               j1939_session_put(session);
++           }
+        }
+    }
+    j1939_session_list_unlock(priv);
+
+On Tue, Jul 13, 2021 at 12:35 AM Marc Kleine-Budde <mkl@pengutronix.de> wrote:
+>
+> On 7/13/21 9:30 AM, Xiaochen Zou wrote:
+> > j1939_session_destroy() will free both session and session->priv. It
+> > leads to multiple use-after-free read and write in
+> > j1939_session_deactivate() when session was freed in
+> > j1939_session_deactivate_locked(). The free chain is
+> > j1939_session_deactivate_locked()->
+> > j1939_session_put()->__j1939_session_release()->j1939_session_destroy().
+> > To fix this bug, I moved j1939_session_put() behind
+> > j1939_session_deactivate_locked() and guarded it with a check of
+> > active since the session would be freed only if active is true.
+>
+> Please include your Signed-off-by.
+> See
+> https://elixir.bootlin.com/linux/v5.12/source/Documentation/process/submitting-patches.rst#L356
+>
+> Marc
+>
+> --
+> Pengutronix e.K.                 | Marc Kleine-Budde           |
+> Embedded Linux                   | https://www.pengutronix.de  |
+> Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
+> Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
+>
+
+
+-- 
+Xiaochen Zou
+PhD Student
+Department of Computer Science & Engineering
+University of California, Riverside
