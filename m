@@ -2,125 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CB73C7152
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 15:38:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D173C7293
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 16:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236596AbhGMNlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 09:41:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60882 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236222AbhGMNlK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 09:41:10 -0400
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE680C0613DD
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 06:38:20 -0700 (PDT)
-Received: by mail-wm1-x336.google.com with SMTP id m11-20020a05600c3b0bb0290228f19cb433so1674890wms.0
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 06:38:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=JXgLaEMV9AycbR+aBsr1GEHEZTKsPIe+O8bYHgn0+8A=;
-        b=No9W2eV0gFGsdgaro083xZsih7wNstPq317G3RZvMpcFHmxf+pyZR97e3sdDZPr5wQ
-         f6MnmfXpXs3IPPIkrYmd/nJSHVq2Hh1s8VHYZ2RiBZM+J1MscUgt3ntRRPyWX3coys6A
-         55WmXn1nAjqEbJEy0iBM+f3mK82hSB2zmQxCs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=JXgLaEMV9AycbR+aBsr1GEHEZTKsPIe+O8bYHgn0+8A=;
-        b=NbuCx2WAviDcb4gWLp/XBUel8tNT+qmakodDArip23Fx/qUksdp3lC1vZsVATXq1QS
-         R6LFd6X6/eqpLqg9zWO6oe62t0Hz/dI1zdqBquowzrVT+sOFXuxjrmYNCLr1dLALZd9V
-         hvJYCBvvN5JCt1HQiXc9I/bRAPxtnE6cTdQfEYhLHHdeCnRYOSVUCn+VnGQt6yCSAPaO
-         TYnDWlxzU7AereAwNf2tP8L58Ck/D0ibzKqqYydcgyNzM1fufWKptMl9Ms7fZ8bmukzH
-         ZnabADDT1hcB9eoao+j5E+muESBcgG/36Vv7CMY3+wYKFHuKvPmljW0FG/4LSkwokLix
-         v69Q==
-X-Gm-Message-State: AOAM531lmxeRPVkXIY1IsfTbNJw4tjq485xv8/hpKPvx0hxz9lnDg4xm
-        0/muq5WULk967WzG1iJ9ASIR4Q==
-X-Google-Smtp-Source: ABdhPJwKGByb0HrM4b/cEyIP5bovAUjTfz49C8V5J0SWHVircUw7X9KjQ7WgW7xM6dnU5pGOBEJrdw==
-X-Received: by 2002:a1c:9d8f:: with SMTP id g137mr72380wme.13.1626183499233;
-        Tue, 13 Jul 2021 06:38:19 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
-        by smtp.gmail.com with ESMTPSA id d24sm2408801wmb.42.2021.07.13.06.38.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 13 Jul 2021 06:38:18 -0700 (PDT)
-Date:   Tue, 13 Jul 2021 15:38:16 +0200
-From:   Daniel Vetter <daniel@ffwll.ch>
-To:     Matthew Auld <matthew.auld@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Chris Wilson <chris.p.wilson@intel.com>,
-        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm/i915/gtt: drop the page table optimisation
-Message-ID: <YO2XSKyCe5FIBwYS@phenom.ffwll.local>
-References: <20210713130431.2392740-1-matthew.auld@intel.com>
+        id S236888AbhGMOtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 10:49:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58600 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236883AbhGMOtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 10:49:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 695D961289;
+        Tue, 13 Jul 2021 14:46:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626187592;
+        bh=/oei90Ltg62kh8uWBdh1e3F5iY/fUBosgEXNrPGV8eM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DLjkEgMVuzJNNkwwONJ4zssNmeFtCQzlZR1aDCtwiayFNLOVQlv4G59X8y6w7nR9K
+         64QurgCEOprICLkPTQHqiMeaOQynMPpK7I6bDWZjDQLh4kCFcUuEM6gSR2489JRUki
+         +HcL/Z19Nf2mFpRNWsULJnSBy/MPzIFh6rvgkh5uILOkEGyr375ZKJdA233cFXs4ku
+         WOzi1XhMeWbBZRohTuMwiNm5cMDLDNzP/dXLWp04XdyHKhRTGtP58QSuUpzQenSyGO
+         cfsmy+E11ZwbZ0B+EcadWFRVWVBGEnLy7EMu7A4JIWxPfhIb/b5n761VbWjBTRMFAK
+         //LTIAHa706iw==
+From:   Dinh Nguyen <dinguyen@kernel.org>
+To:     linux-clk@vger.kernel.org
+Cc:     dinguyen@kernel.org, sboyd@kernel.org, mturquette@baylibre.com,
+        stable@vger.kernel.org, Kris Chaplin <kris.chaplin@intel.com>
+Subject: [PATCH 1/3] clk: socfpga: agilex: fix the parents of the psi_ref_clk
+Date:   Tue, 13 Jul 2021 09:46:19 -0500
+Message-Id: <20210713144621.605140-1-dinguyen@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210713130431.2392740-1-matthew.auld@intel.com>
-X-Operating-System: Linux phenom 5.10.0-7-amd64 
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 02:04:31PM +0100, Matthew Auld wrote:
-> We skip filling out the pt with scratch entries if the va range covers
-> the entire pt, since we later have to fill it with the PTEs for the
-> object pages anyway. However this might leave open a small window where
-> the PTEs don't point to anything valid for the HW to consume.
-> 
-> When for example using 2M GTT pages this fill_px() showed up as being
-> quite significant in perf measurements, and ends up being completely
-> wasted since we ignore the pt and just use the pde directly.
-> 
-> Anyway, currently we have our PTE construction split between alloc and
-> insert, which is probably slightly iffy nowadays, since the alloc
-> doesn't actually allocate anything anymore, instead it just sets up the
-> page directories and points the PTEs at the scratch page. Later when we
-> do the insert step we re-program the PTEs again. Better might be to
-> squash the alloc and insert into a single step, then bringing back this
-> optimisation(along with some others) should be possible.
-> 
-> Fixes: 14826673247e ("drm/i915: Only initialize partially filled pagetables")
-> Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-> Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-> Cc: Chris Wilson <chris.p.wilson@intel.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>
-> Cc: <stable@vger.kernel.org> # v4.15+
+The psi_ref_clk comes from the C2 node of the main_pll and periph_pll,
+not the C3.
 
-This is some impressively convoluted code, and I'm scared.
+Fixes: 80c6b7a0894f ("clk: socfpga: agilex: add clock driver for the Agilex platform")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kris Chaplin <kris.chaplin@intel.com>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+---
+ drivers/clk/socfpga/clk-agilex.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-But as far as I managed to convince myself, your story here checks out.
-Problem will be a bit that this code moved around a _lot_ so we'll need a
-lot of dedicated backports :-(
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> ---
->  drivers/gpu/drm/i915/gt/gen8_ppgtt.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-> index 3d02c726c746..6e0e52eeb87a 100644
-> --- a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-> +++ b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-> @@ -303,10 +303,7 @@ static void __gen8_ppgtt_alloc(struct i915_address_space * const vm,
->  			__i915_gem_object_pin_pages(pt->base);
->  			i915_gem_object_make_unshrinkable(pt->base);
->  
-> -			if (lvl ||
-> -			    gen8_pt_count(*start, end) < I915_PDES ||
-> -			    intel_vgpu_active(vm->i915))
-> -				fill_px(pt, vm->scratch[lvl]->encode);
-> +			fill_px(pt, vm->scratch[lvl]->encode);
->  
->  			spin_lock(&pd->lock);
->  			if (likely(!pd->entry[idx])) {
-> -- 
-> 2.26.3
-> 
-
+diff --git a/drivers/clk/socfpga/clk-agilex.c b/drivers/clk/socfpga/clk-agilex.c
+index 1cb21ea79c64..9dffe9ba0e74 100644
+--- a/drivers/clk/socfpga/clk-agilex.c
++++ b/drivers/clk/socfpga/clk-agilex.c
+@@ -107,10 +107,10 @@ static const struct clk_parent_data gpio_db_free_mux[] = {
+ };
+ 
+ static const struct clk_parent_data psi_ref_free_mux[] = {
+-	{ .fw_name = "main_pll_c3",
+-	  .name = "main_pll_c3", },
+-	{ .fw_name = "peri_pll_c3",
+-	  .name = "peri_pll_c3", },
++	{ .fw_name = "main_pll_c2",
++	  .name = "main_pll_c2", },
++	{ .fw_name = "peri_pll_c2",
++	  .name = "peri_pll_c2", },
+ 	{ .fw_name = "osc1",
+ 	  .name = "osc1", },
+ 	{ .fw_name = "cb-intosc-hs-div2-clk",
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.25.1
+
