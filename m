@@ -2,99 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A523C7352
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 17:32:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FA03C73E4
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 18:10:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237097AbhGMPfU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 11:35:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236969AbhGMPfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 11:35:20 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24650C0613E9
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 08:32:29 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id l1so11937481edr.11
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 08:32:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=t5TojjWrRBsIs06i7+P4LW8furiBuJJWbJ4iVN8Q5zU=;
-        b=mlQxxp9EfXr5aItbTmmQ0FP9K2knh+UKzG6qniVQXogxGFsBR7xTTUYytPs6CiE4l6
-         4Ho5o80fgXcAP3FsKZMD2099008Bkf/kjrftHtHQDiSVL+LhJSY0aBI9Ia79KaWyhlr4
-         2YlaAWpRMdB5rDX48BjbbUZWseSwSkvUgyxajpiEg4s/FaGrLIQ88Znap+zWu5kdKMxQ
-         dEHI4KByMeaedBUL1/SSK8Ya0pjdVAmxV8cJOxiuVZ5T1O2XXlsa3gh8xc5wgDQ5jgI7
-         3aLd8/VzaQpoLXpm6zsXMbkgJ8yH5tXn6UUN92CUuFbH/AFh8uGf17TDSRRO+x7zAPDH
-         T/JQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=t5TojjWrRBsIs06i7+P4LW8furiBuJJWbJ4iVN8Q5zU=;
-        b=n35EUcahNYU8VqvBr61sUVg+soWcvCZQauVT6+d+MtsD2mFxqEaKT06JMvaUs4IJ6L
-         XWFWxBDyTWRjNyYOAaRFYKj2aezWwrapKeoXs7sriTsTECKjK5Cgr6C4yHZ0R21nU9q4
-         3SMxn8HMqPZDcJF1CoL9pihx2mLrHDotO5nu0FDCZKJdwubfjEhfQMaLEh03aoW4ARrQ
-         JbzXXov2whv8KOgXmp1vIOL1JZQmhvqofY2PgwMTUe4uQQXnAExBPKR5WBt5ZwFIV/fe
-         iZTLKc9tMHBdbmhKtlNH7w+qs+e9uhvO0e/eCuEZNH7DDgKRR3+BohlJ6qY9XClUgYsC
-         qRRw==
-X-Gm-Message-State: AOAM532IJmt1cPgiisByIUi8jBv4cffSZWQX951gxF9RQf8uLJbfUaAQ
-        B2ErMHS2F5F4eMVLGX/xmpD2UiU78GsuFn/JVlT/4g==
-X-Google-Smtp-Source: ABdhPJx7BFiZukYc1OKQ43hzuOJtKSnIcPy4tciKGjhl9VBmnERkzb4cpRhd9T79CljqGYihGUH+rdRHgOcuLo1UOjg=
-X-Received: by 2002:aa7:db94:: with SMTP id u20mr6543698edt.381.1626190347701;
- Tue, 13 Jul 2021 08:32:27 -0700 (PDT)
+        id S230153AbhGMQNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 12:13:30 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:54072 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230122AbhGMQNa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 12:13:30 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1626192638;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=iEAhZ97kc19v5KOhlPKV1kLM8SFB0YQp8RmvQDnU2XE=;
+        b=ho1DbTFaxUHhnPyMnI4J3nwQKqJgz2YxEcfwiqLjGhO7y5S0KUHSdOs2GUOwfXJ9Pyb3Iu
+        q/YbW5YC2PpzHzMPId0giqqpC0JVj9eT8ZIDlPrdQzEtkdEybRNifRpjp3W+GABI1/mIWz
+        AuMZl42DpiU+U3gmItI17SmeK+A9g/B7N5P2uIH7VVmP0kG9coYDdDDJKYIL8hNtqfrfcU
+        73NO5umljMMq/14YspwSNBJJ3Il+780PUEfu6A0XwKyJ7uFCo5dTVKJltrFk3/nOs5Eiys
+        6cE9l15kKglOJ9DnaEyGIC3tTp6U+q3WrrHJxIlg7SLXo+60dw+uxqubpFaZLQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1626192638;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=iEAhZ97kc19v5KOhlPKV1kLM8SFB0YQp8RmvQDnU2XE=;
+        b=hDJAXLk2s+jZ7ffTp+oAOk1BpiDwv7hJIrqjFX70cWZd8QVV5firdqF92WgMdwDV5kao2+
+        iNWr41XxFmz1frBg==
+To:     Yongxin Liu <yongxin.liu@windriver.com>
+Cc:     evgreen@chromium.org, rajatja@google.com, bhelgaas@google.com,
+        stable@vger.kernel.org, linux-pci@vger.kernel.org, x86@kernel.org,
+        maz@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86/apic/msi: check interupt context before reporting warning
+In-Reply-To: <20210713064609.25429-1-yongxin.liu@windriver.com>
+References: <20210713064609.25429-1-yongxin.liu@windriver.com>
+Date:   Tue, 13 Jul 2021 18:10:38 +0200
+Message-ID: <874kcychz5.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-References: <CA+G9fYubOg+Pu8N3LYFKn-eL3f=gn4ceK9Asj1RdBDntU_A2ng@mail.gmail.com>
- <YO2upa4SZWS59KeB@kroah.com>
-In-Reply-To: <YO2upa4SZWS59KeB@kroah.com>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 13 Jul 2021 17:32:17 +0200
-Message-ID: <CADYN=9+vr=xHsY8yinyWUTN+xyEG=v8-xf4y2psDarFKWDU6xA@mail.gmail.com>
-Subject: Re: perf: bench/sched-messaging.c:73:13: error: 'dummy' may be used uninitialized
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        perf-users <perf-users@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>, Leo Yan <leo.yan@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 13 Jul 2021 at 17:18, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> On Tue, Jul 13, 2021 at 08:40:28PM +0530, Naresh Kamboju wrote:
-> > LKFT have noticed these warnings / errors when we have updated gcc version from
-> > gcc-9 to gcc-11 on stable-rc linux-5.4.y branch. I have provided the steps to
-> > reproduce in this email below.
-> >
-> > Following perf builds failed with gcc-11 with linux-5.4.y branch.
-> > - build-arm-gcc-11-perf
-> > - build-arm64-gcc-11-perf
-> > - build-i386-gcc-11-perf
-> > - build-x86-gcc-11-perf
-> >
-> > Build error log:
-> > --------------------
->
-> <snip>
->
-> I imagine this is fixed in newer kernel versions, so if you could
-> provide the git ids of the patches needed to fix this up in 5.4, that
-> would be great!
+On Tue, Jul 13 2021 at 14:46, Yongxin Liu wrote:
+> Affinity change can happen in both interrupt context and non-interrupt
+> context. The paranoia check for interrupt target cpu is not always true
+> in non-interrupt context.
 
-You were correct, I did a bisect [1] and found
-d493720581a6 ("perf bench: Fix 2 memory sanitizer warnings").
+Supressing the warning is just papering over a larger underlying problem
+which was discussed recently already. I'm working on a fix for that
+already.
 
-commit d2c73501a767514b6c85c7feff9457a165d51057 upstream.
+Thanks,
 
-Cherry picked it and I was able to build it on arm64 and x86.
-
-Cheers,
-Anders
-[1] http://ix.io/3sS6
+        tglx
