@@ -2,154 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2899C3C76B4
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 20:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 541BD3C76B5
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 20:51:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233980AbhGMSw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 14:52:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47940 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbhGMSw0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 14:52:26 -0400
-Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DCC6C0613DD
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 11:49:34 -0700 (PDT)
-Received: by mail-lj1-x235.google.com with SMTP id a6so31523198ljq.3
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 11:49:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wRjP314M1GpUJgRSbgMGoaSYR4Jg4jHqUSa68YgJXO4=;
-        b=e4sNa/Sg9kxdAqw8spcbO5TswTuu+YuZY4qDNyyT4dhSXDPimR6bb2lWnbbuTInGqB
-         vYUg38sUbSqtZrcvWZKELF4PIlu5pb7g5GNPYB2a3PjVTtamIQpdhfHkcPbrrm/2URQS
-         WJcBQQ/7EzRD+zl/dWIaXSSXiQFQ87HU4XNVI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wRjP314M1GpUJgRSbgMGoaSYR4Jg4jHqUSa68YgJXO4=;
-        b=guf/LZlsZV5K6auALsX1ZVCX6JBhnGiyhlguJLIIqGQ8YOcdLzXJaDgwVNCEhf2Uqq
-         GMiaUOoLX0A+9odpa4hs3Ybto/rYXp0/VinlmkjzvTBHDTt0H8FTiQD/LrS/ZRXRBUp9
-         TNSS1NVfXNVAs7k8wMQ+HGixhz+lk1zN1AcXJ8Tk7hLEhGp1AuNdkMqP/dfos118VreQ
-         WhPyqxFI5y8m8iHZAgkv9zCby2sTOFbWofK8aCT9VTlX5lTPe/dbKdmuHRX6pA2ez5me
-         s9TaztahJN0pF9ReRZ/PyxJ2jk89+hxar10y0i+bktM0GCfKPc1x1QFpS44dLqO65TUh
-         aC2g==
-X-Gm-Message-State: AOAM530X4tmdoXlOYV7B0N4QHxq8MTiGhRD/iIFwlz1CKYZyFKEYxzcv
-        olupRTWYJZFs/ZE4rDC28xNRMa/vDcRSJQNwWsE=
-X-Google-Smtp-Source: ABdhPJxgku7A6LN565bd4+RF86eGXRWbg83mpO5yKSJmPIe/nbTAJYRnzIY9UovgPOpLYPl3CznBPw==
-X-Received: by 2002:a05:651c:1aa:: with SMTP id c10mr5501330ljn.56.1626202172396;
-        Tue, 13 Jul 2021 11:49:32 -0700 (PDT)
-Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com. [209.85.208.174])
-        by smtp.gmail.com with ESMTPSA id m18sm1651763lfh.270.2021.07.13.11.49.30
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 13 Jul 2021 11:49:31 -0700 (PDT)
-Received: by mail-lj1-f174.google.com with SMTP id 11so27467343ljv.1
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 11:49:30 -0700 (PDT)
-X-Received: by 2002:a2e:a276:: with SMTP id k22mr5215151ljm.465.1626202170413;
- Tue, 13 Jul 2021 11:49:30 -0700 (PDT)
-MIME-Version: 1.0
-References: <00000000000069c40405be6bdad4@google.com> <000000000000b00c1105c6f971b2@google.com>
-In-Reply-To: <000000000000b00c1105c6f971b2@google.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 13 Jul 2021 11:49:14 -0700
-X-Gmail-Original-Message-ID: <CAHk-=wgWv1s1FbTxS+T7kbF-7LLm9Nz1eC+WBn+kr1WdYGtisA@mail.gmail.com>
-Message-ID: <CAHk-=wgWv1s1FbTxS+T7kbF-7LLm9Nz1eC+WBn+kr1WdYGtisA@mail.gmail.com>
-Subject: Re: [syzbot] KASAN: null-ptr-deref Read in filp_close (2)
-To:     syzbot <syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com>
-Cc:     brauner@kernel.org,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        gscrivan@redhat.com, Christoph Hellwig <hch@lst.de>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+        id S230376AbhGMSyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 14:54:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:38500 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229697AbhGMSyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 14:54:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1626202287;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc; bh=m2KCkNllqfc9y9Fv2TNxYrId4pKJsIrfXlJbYcD2q8w=;
+        b=QxmUs70wMQrRbeUpHL+sGu46RgRTTRffi05kycmCr8qw5lPBAOqRun5vhQZOOGbbAa3hpL
+        uGzfs6uG5oj84k9n8t+da4TdhGxlaQ4btt8owUe4o0PVswNateJHRUEsxdav7V9yJVpUna
+        hgWGeKKdCsvBXXZcTwY1B22v8PdsEEs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-204-EVn3WcyzPPSOg7mc3zhrpw-1; Tue, 13 Jul 2021 14:51:26 -0400
+X-MC-Unique: EVn3WcyzPPSOg7mc3zhrpw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 70672101C8CA;
+        Tue, 13 Jul 2021 18:51:25 +0000 (UTC)
+Received: from loberhel.redhat.com (ovpn-112-148.phx2.redhat.com [10.3.112.148])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7E7DD5D9CA;
+        Tue, 13 Jul 2021 18:51:20 +0000 (UTC)
+From:   Laurence Oberman <loberman@redhat.com>
+To:     linux-usb@vger.kernel.org, andriy.shevchenko@linux.intel.com,
+        stable@vger.kernel.org, loberman@redhat.com, emilne@redhat.com,
+        djeffery@redhat.com, apanagio@redhat.com, torez@redhat.com
+Subject: [PATCH] usb: hcd: Revert 306c54d0edb6ba94d39877524dddebaad7770cf2: Try MSI interrupts on PCI devices
+Date:   Tue, 13 Jul 2021 14:50:42 -0400
+Message-Id: <1626202242-14984-1-git-send-email-loberman@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 9:12 PM syzbot
-<syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com> wrote:
->
-> syzbot has found a reproducer for the following issue on:
+Customers have been reporting that the I/O is radically being
+slowed down to HPE virtual USB ILO served DVD images during installation.
 
-Hmm.
+Lots of investigation by the Red Hat lab has found that the issue is 
+because MSI edge interrupts do not work properly for these 
+ILO USB devices.
+We start fast and then drop to polling mode and its unusable.
 
-This issue is reported to have been already fixed:
+The issue exists currently upstream on 5.13 as tested by Red Hat, 
+and reverting the mentioned patch corrects this upstream.
 
-    Fix commit: 9b5b8722 file: fix close_range() for unshare+cloexec
+David Jeffery has this explanation:
 
-and that fix is already in the reported HEAD commit:
+The problem with the patch turning on MSI appears to be that the ehci 
+driver (and possibly other usb controller types too) wasn't written to
+support edge-triggered interrupts.
+The ehci_irq routine appears to be written in such a way that it will 
+be racy with multiple interrupt source bits.
+With a level-triggered interrupt, it gets called another time and cleans 
+up other interrupt sources.
+But with MSI edge, the interrupt state staying high results in no 
+new interrupt and ehci has to run based on polling.
 
-> HEAD commit:    7fef2edf sd: don't mess with SD_MINORS for CONFIG_DEBUG_BL..
+static irqreturn_t ehci_irq (struct usb_hcd *hcd)
+{
+...
+        status = ehci_readl(ehci, &ehci->regs->status);
 
-and the oops report clearly is from that:
+        /* e.g. cardbus physical eject */
+        if (status == ~(u32) 0) {
+                ehci_dbg (ehci, "device removed\n");
+                goto dead;
+        }
 
-> CPU: 1 PID: 8445 Comm: syz-executor493 Not tainted 5.14.0-rc1-syzkaller #0
+        /*
+         * We don't use STS_FLR, but some controllers don't like it to
+         * remain on, so mask it out along with the other status bits.
+         */
+        masked_status = status & (INTR_MASK | STS_FLR);
 
-so the alleged fix is already there.
+        /* Shared IRQ? */
+        if (!masked_status || unlikely(ehci->rh_state == EHCI_RH_HALTED)) {
+                spin_unlock_irqrestore(&ehci->lock, flags);
+                return IRQ_NONE;
+        }
 
-So clearly commit 9b5b872215fe ("file: fix close_range() for
-unshare+cloexec") does *NOT* fix the issue.
+        /* clear (just) interrupts */
+        ehci_writel(ehci, masked_status, &ehci->regs->status);
+...
 
-This was originally bisected to that 582f1fb6b721 ("fs, close_range:
-add flag CLOSE_RANGE_CLOEXEC") in
+ehci_irq() reads the interrupt status register and then writes the active 
+interrupt-related bits back out to ack the interrupt cause.
+But with an edge interrupt, this is racy as another source of interrupt 
+could be raised by ehci between the read and the write reaching the 
+hardware. 
+e.g.  If STS_IAA was set during the initial read, but some other bit like 
+STS_INT gets raised by the hardware between the read and the write to the 
+interrupt status register, the interrupt signal state won't drop.
+The interrupt state says high, and since it is now edged triggered with 
+MSI, no new invocation of the interrupt handler gets triggered.
 
-     https://syzkaller.appspot.com/bug?id=1bef50bdd9622a1969608d1090b2b4a588d0c6ac
+Suggested-by: David Jeffery <djeffery@redhat.com>
+Suggested-by: Alexandros Panagiotou <apanagio@redhat.com>
+Tested-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: Laurence Oberman <loberman@redhat.com>
+Fixes: 306c54d0edb6ba94d39877524dddebaad7770cf2 PCI: Disable MSI for 
+Pericom PCIe-USB adapter 
+---
+ drivers/usb/core/hcd-pci.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-which is where the "fix" is from.
+diff --git a/drivers/usb/core/hcd-pci.c b/drivers/usb/core/hcd-pci.c
+index d630ccc..522a179 100644
+--- a/drivers/usb/core/hcd-pci.c
++++ b/drivers/usb/core/hcd-pci.c
+@@ -195,21 +195,20 @@ int usb_hcd_pci_probe(struct pci_dev *dev, const struct pci_device_id *id,
+ 	 * make sure irq setup is not touched for xhci in generic hcd code
+ 	 */
+ 	if ((driver->flags & HCD_MASK) < HCD_USB3) {
+-		retval = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY | PCI_IRQ_MSI);
+-		if (retval < 0) {
++		if (!dev->irq) {
+ 			dev_err(&dev->dev,
+ 			"Found HC with no IRQ. Check BIOS/PCI %s setup!\n",
+ 				pci_name(dev));
+ 			retval = -ENODEV;
+ 			goto disable_pci;
+ 		}
+-		hcd_irq = pci_irq_vector(dev, 0);
++		hcd_irq = dev->irq;
+ 	}
+ 
+ 	hcd = usb_create_hcd(driver, &dev->dev, pci_name(dev));
+ 	if (!hcd) {
+ 		retval = -ENOMEM;
+-		goto free_irq_vectors;
++		goto disable_pci;
+ 	}
+ 
+ 	hcd->amd_resume_bug = (usb_hcd_amd_remote_wakeup_quirk(dev) &&
+@@ -288,9 +287,6 @@ int usb_hcd_pci_probe(struct pci_dev *dev, const struct pci_device_id *id,
+ 
+ put_hcd:
+ 	usb_put_hcd(hcd);
+-free_irq_vectors:
+-	if ((driver->flags & HCD_MASK) < HCD_USB3)
+-		pci_free_irq_vectors(dev);
+ disable_pci:
+ 	pci_disable_device(dev);
+ 	dev_err(&dev->dev, "init %s fail, %d\n", pci_name(dev), retval);
+@@ -352,8 +348,6 @@ void usb_hcd_pci_remove(struct pci_dev *dev)
+ 		up_read(&companions_rwsem);
+ 	}
+ 	usb_put_hcd(hcd);
+-	if ((hcd_driver_flags & HCD_MASK) < HCD_USB3)
+-		pci_free_irq_vectors(dev);
+ 	pci_disable_device(dev);
+ }
+ EXPORT_SYMBOL_GPL(usb_hcd_pci_remove);
+@@ -465,7 +459,7 @@ static int suspend_common(struct device *dev, bool do_wakeup)
+ 	 * synchronized here.
+ 	 */
+ 	if (!hcd->msix_enabled)
+-		synchronize_irq(pci_irq_vector(pci_dev, 0));
++		synchronize_irq(pci_dev->irq);
+ 
+ 	/* Downstream ports from this root hub should already be quiesced, so
+ 	 * there will be no DMA activity.  Now we can shut down the upstream
+-- 
+1.8.3.1
 
-It would probably be good if sysbot made this kind of "hey, it was
-reported fixed, but it's not" very clear.
-
-The KASAN report looks like a use-after-free, and that "use" is
-actually the sanity check that the file count is non-zero, so it's
-really a "struct file *" that has already been free'd.
-
-That bogus free is a regular close() system call
-
->  filp_close+0x22/0x170 fs/open.c:1306
->  close_fd+0x5c/0x80 fs/file.c:628
->  __do_sys_close fs/open.c:1331 [inline]
->  __se_sys_close fs/open.c:1329 [inline]
-
-And it was opened by a "creat()" system call:
-
-> Allocated by task 8445:
->  __alloc_file+0x21/0x280 fs/file_table.c:101
->  alloc_empty_file+0x6d/0x170 fs/file_table.c:150
->  path_openat+0xde/0x27f0 fs/namei.c:3493
->  do_filp_open+0x1aa/0x400 fs/namei.c:3534
->  do_sys_openat2+0x16d/0x420 fs/open.c:1204
->  do_sys_open fs/open.c:1220 [inline]
->  __do_sys_creat fs/open.c:1294 [inline]
->  __se_sys_creat fs/open.c:1288 [inline]
->  __x64_sys_creat+0xc9/0x120 fs/open.c:1288
->  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
->  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
->  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-But it has apparently already been closed from a workqueue:
-
-> Freed by task 8445:
->  __fput+0x288/0x920 fs/file_table.c:280
->  task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-
-So it's some kind of confusion and re-use of a struct file pointer.
-
-Which is certainly consistent with the "fix" in 9b5b872215fe ("file:
-fix close_range() for unshare+cloexec"), but it very much looks like
-that fix was incomplete and not the full story.
-
-Some fdtable got re-allocated? The fix that wasn't a fix ends up
-re-checking the maximum file number under the file_lock, but there's
-clearly something else going on too.
-
-Christian?
-
-                Linus
