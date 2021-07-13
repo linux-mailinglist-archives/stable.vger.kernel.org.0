@@ -2,174 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E483C77A8
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 22:05:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4FA3C77C9
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 22:20:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234290AbhGMUIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 16:08:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:60903 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229944AbhGMUIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 16:08:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626206710;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=BwIcVGw+0Tpi8eO5Of2PjsJTRkujnsB8Az7JZMygUWk=;
-        b=ZjLd9+zKtA9dwRPMMGQHhO+1sX4rS3JCx4DHjR/iK2ZN3Bo3pvcEelxA3LPmefzw2WFBfb
-        hIzpVt04U5p3IrPSYljDVaCfpshpQ3fj/46M7Ex0nJgyvo96dDt1wu1uvOG3uzJoXv/IHU
-        NB3A3LTkCKhvMWPvKRgy4YeHPWOoOHE=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-282-YgwaO3hbPQGURZ0vw_K-2g-1; Tue, 13 Jul 2021 16:05:09 -0400
-X-MC-Unique: YgwaO3hbPQGURZ0vw_K-2g-1
-Received: by mail-qk1-f200.google.com with SMTP id x2-20020ae9e6420000b02903b8853778c2so4395739qkl.18
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 13:05:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=BwIcVGw+0Tpi8eO5Of2PjsJTRkujnsB8Az7JZMygUWk=;
-        b=l5SShE5MqwC/NrbUQQ/Mi1xMI4mBUus9xiZE7ONaLjEZhdpRU9hUFY81O5XFHbgZ1N
-         ZSs9zwSsXYzD1CX13uSuSZ+keGqVjfMCeNN7cDqZpewGagY1o0+d/cCqq4a0Oij47S91
-         IUg56QFH0PrdnuvJPHwQDAXOq8hbK+j85XpfzVR3TXXYbE4CQqjiY5zHMJ1db1qOTUI4
-         yGsMKdJkHwnZE0exmD9iBhmIy0bcdpZ5inI78GXuiMEJfPrLKwtT/F2PBFQfeDDPaY9H
-         6J1Bs/Yj7jJbkWICtfg43Uy63FRu/bu4qBvxJOeiZrdfzowVlYUXyWemtyDOCRLUw5KE
-         u6/g==
-X-Gm-Message-State: AOAM5339WGZtJszyRYnv0MTKCy2m2sX/581h5zA52dN1/5WkwgtXpXc8
-        Ic/OAbqTOfKbK6A7N/qaDkR1FP5VAVCrX79EHlzSlpgKq2UmD1e7FMDFQzf0usnqCLGIte+7JC1
-        DitR9C5GEEgm5o0k2
-X-Received: by 2002:a05:620a:1998:: with SMTP id bm24mr5884471qkb.319.1626206708845;
-        Tue, 13 Jul 2021 13:05:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwDe3cstj1D1Ox/lILQfJ1rWd/L6BO4hUZ+6gTyqkymvtoSEiAmhV61ahK+2haONOa4F1/U3g==
-X-Received: by 2002:a05:620a:1998:: with SMTP id bm24mr5884447qkb.319.1626206708504;
-        Tue, 13 Jul 2021 13:05:08 -0700 (PDT)
-Received: from loberhel ([2600:6c64:4e7f:cee0:729d:61b6:700c:6b56])
-        by smtp.gmail.com with ESMTPSA id x7sm1514955qtw.24.2021.07.13.13.05.07
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 13 Jul 2021 13:05:07 -0700 (PDT)
-Message-ID: <e4cfb11631b00cb45b385be6048d5b39d301f433.camel@redhat.com>
-Subject: Re: [PATCH] usb: hcd: Revert
- 306c54d0edb6ba94d39877524dddebaad7770cf2: Try MSI interrupts on PCI devices
-From:   Laurence Oberman <loberman@redhat.com>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     linux-usb@vger.kernel.org, andriy.shevchenko@linux.intel.com,
-        stable@vger.kernel.org, emilne@redhat.com, djeffery@redhat.com,
-        apanagio@redhat.com, torez@redhat.com
-Date:   Tue, 13 Jul 2021 16:05:06 -0400
-In-Reply-To: <20210713191548.GD355405@rowland.harvard.edu>
-References: <1626202242-14984-1-git-send-email-loberman@redhat.com>
-         <20210713191548.GD355405@rowland.harvard.edu>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-10.el7) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S234615AbhGMUWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 16:22:52 -0400
+Received: from mga17.intel.com ([192.55.52.151]:21289 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234933AbhGMUWv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 16:22:51 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10044"; a="190614984"
+X-IronPort-AV: E=Sophos;i="5.84,237,1620716400"; 
+   d="scan'208";a="190614984"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2021 13:20:01 -0700
+X-IronPort-AV: E=Sophos;i="5.84,237,1620716400"; 
+   d="scan'208";a="493245515"
+Received: from rmvillaz-mobl2.amr.corp.intel.com (HELO intel.com) ([10.212.91.132])
+  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jul 2021 13:20:00 -0700
+Date:   Tue, 13 Jul 2021 16:19:59 -0400
+From:   Rodrigo Vivi <rodrigo.vivi@intel.com>
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@intel.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [Intel-gfx] [PATCH] drm/i915/gt: Fix -EDEADLK handling regression
+Message-ID: <YO31b16UqQtsjX1b@intel.com>
+References: <20210630164413.25481-1-ville.syrjala@linux.intel.com>
+ <2edf584b-3835-53ed-f6e3-76c7e8d581ed@linux.intel.com>
+ <CAKMK7uFTYgK9rmXTNSczPdBWPTNaLBp-GitzBQb0-gX5wZWHNQ@mail.gmail.com>
+ <CAKMK7uFjgu_TkPFYs0DTdAh9tdDbdpUc0S1n5XUfHJaq_0FHVw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAKMK7uFjgu_TkPFYs0DTdAh9tdDbdpUc0S1n5XUfHJaq_0FHVw@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2021-07-13 at 15:15 -0400, Alan Stern wrote:
-> On Tue, Jul 13, 2021 at 02:50:42PM -0400, Laurence Oberman wrote:
-> > Customers have been reporting that the I/O is radically being
-> > slowed down to HPE virtual USB ILO served DVD images during
-> > installation.
-> > 
-> > Lots of investigation by the Red Hat lab has found that the issue
-> > is 
-> > because MSI edge interrupts do not work properly for these 
-> > ILO USB devices.
-> > We start fast and then drop to polling mode and its unusable.
-> > 
-> > The issue exists currently upstream on 5.13 as tested by Red Hat, 
-> > and reverting the mentioned patch corrects this upstream.
-> > 
-> > David Jeffery has this explanation:
-> > 
-> > The problem with the patch turning on MSI appears to be that the
-> > ehci 
-> > driver (and possibly other usb controller types too) wasn't written
-> > to
-> > support edge-triggered interrupts.
-> > The ehci_irq routine appears to be written in such a way that it
-> > will 
-> > be racy with multiple interrupt source bits.
-> > With a level-triggered interrupt, it gets called another time and
-> > cleans 
-> > up other interrupt sources.
-> > But with MSI edge, the interrupt state staying high results in no 
-> > new interrupt and ehci has to run based on polling.
-> > 
-> > static irqreturn_t ehci_irq (struct usb_hcd *hcd)
-> > {
-> > ...
-> >         status = ehci_readl(ehci, &ehci->regs->status);
-> > 
-> >         /* e.g. cardbus physical eject */
-> >         if (status == ~(u32) 0) {
-> >                 ehci_dbg (ehci, "device removed\n");
-> >                 goto dead;
-> >         }
-> > 
-> >         /*
-> >          * We don't use STS_FLR, but some controllers don't like it
-> > to
-> >          * remain on, so mask it out along with the other status
-> > bits.
-> >          */
-> >         masked_status = status & (INTR_MASK | STS_FLR);
-> > 
-> >         /* Shared IRQ? */
-> >         if (!masked_status || unlikely(ehci->rh_state ==
-> > EHCI_RH_HALTED)) {
-> >                 spin_unlock_irqrestore(&ehci->lock, flags);
-> >                 return IRQ_NONE;
-> >         }
-> > 
-> >         /* clear (just) interrupts */
-> >         ehci_writel(ehci, masked_status, &ehci->regs->status);
-> > ...
-> > 
-> > ehci_irq() reads the interrupt status register and then writes the
-> > active 
-> > interrupt-related bits back out to ack the interrupt cause.
-> > But with an edge interrupt, this is racy as another source of
-> > interrupt 
-> > could be raised by ehci between the read and the write reaching
-> > the 
-> > hardware. 
-> > e.g.  If STS_IAA was set during the initial read, but some other
-> > bit like 
-> > STS_INT gets raised by the hardware between the read and the write
-> > to the 
-> > interrupt status register, the interrupt signal state won't drop.
-> > The interrupt state says high, and since it is now edged triggered
-> > with 
-> > MSI, no new invocation of the interrupt handler gets triggered.
+On Tue, Jul 13, 2021 at 09:59:18PM +0200, Daniel Vetter wrote:
+> On Tue, Jul 13, 2021 at 9:58 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> >
+> > On Thu, Jul 1, 2021 at 9:07 AM Maarten Lankhorst
+> > <maarten.lankhorst@linux.intel.com> wrote:
+> > > Op 30-06-2021 om 18:44 schreef Ville Syrjala:
+> > > > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > >
+> > > > The conversion to ww mutexes failed to address the fence code which
+> > > > already returns -EDEADLK when we run out of fences. Ww mutexes on
+> > > > the other hand treat -EDEADLK as an internal errno value indicating
+> > > > a need to restart the operation due to a deadlock. So now when the
+> > > > fence code returns -EDEADLK the higher level code erroneously
+> > > > restarts everything instead of returning the error to userspace
+> > > > as is expected.
+> > > >
+> > > > To remedy this let's switch the fence code to use a different errno
+> > > > value for this. -ENOBUFS seems like a semi-reasonable unique choice.
+> > > > Apart from igt the only user of this I could find is sna, and even
+> > > > there all we do is dump the current fence registers from debugfs
+> > > > into the X server log. So no user visible functionality is affected.
+> > > > If we really cared about preserving this we could of course convert
+> > > > back to -EDEADLK higher up, but doesn't seem like that's worth
+> > > > the hassle here.
+> > > >
+> > > > Not quite sure which commit specifically broke this, but I'll
+> > > > just attribute it to the general gem ww mutex work.
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > > > Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+> > > > Testcase: igt/gem_pread/exhaustion
+> > > > Testcase: igt/gem_pwrite/basic-exhaustion
+> > > > Testcase: igt/gem_fenced_exec_thrash/too-many-fences
+> > > > Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
+> > > > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > > > ---
+> > > >  drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c | 2 +-
+> > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+> > > > index cac7f3f44642..f8948de72036 100644
+> > > > --- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+> > > > +++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+> > > > @@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find(struct i915_ggtt *ggtt)
+> > > >       if (intel_has_pending_fb_unpin(ggtt->vm.i915))
+> > > >               return ERR_PTR(-EAGAIN);
+> > > >
+> > > > -     return ERR_PTR(-EDEADLK);
+> > > > +     return ERR_PTR(-ENOBUFS);
+> > > >  }
+> > > >
+> > > >  int __i915_vma_pin_fence(struct i915_vma *vma)
+> > >
+> > > Makes sense..
+> > >
+> > > Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> > >
+> > > Is it a slightly more reent commit? Might probably be the part that converts execbuffer to use ww locks.
+> >
+> > - please cc: dri-devel on anything gem/gt related.
+> > - this should probably be ENOSPC or something like that for at least a
+> > seeming retention of errno consistentcy:
+> >
+> > https://dri.freedesktop.org/docs/drm/gpu/drm-uapi.html#recommended-ioctl-return-values
 > 
-> Wouldn't it be better to change these other PCI drivers by adding 
-> proper MSI support?  I don't know what would be involved, but 
-> presumably it wouldn't be very hard.  (Just run the handler in a
-> loop 
-> until all the interrupt status bits are off?)
-> 
-> Alan Stern
-> 
+> Other option would be to map that back to EDEADLK in the execbuf ioctl
+> somewhere, so we retain a distinct errno code.
 
-Hello
+I'm about to push this patch to drm-intel-fixes... I'm assuming if there's any fix it will
+be a follow-up patch and not a revert or force push, right?!
 
-Agree with you that is a big hammer approach,  but it's such a key
-piece of the massive number of HPE servers out there and we have many
-affected customers.
-
-While I did all the test work and discovery etc, I am definitely not a
-USB kernel guy very often, I spend most of my time in storage.
-I will listen for the other replies to see how the folks who know the
-subsystem better than I would want this reolved.
-
-Thanks
-Laurence
-
-
-
+> -Daniel
+> -- 
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
