@@ -2,297 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FEF03C690D
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:08:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A102F3C6916
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229772AbhGMELV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 00:11:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229643AbhGMELU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 00:11:20 -0400
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FB4C0613DD
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 21:08:30 -0700 (PDT)
-Received: by mail-pl1-x631.google.com with SMTP id j3so8485375plx.7
-        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 21:08:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2ALDhkPxiv88DDzTFWBU8Q6MkixWV0FEJrQ6Bl2U5+0=;
-        b=RfUBHuhPSwZ2ccFFRFqCRirzlEG7djuFY3AN4sAPbyRRxnzndI2Mxd8lMTz1oqW8ns
-         VD8WiwwWmAxYzN0ru/inOLu6ARc3pqA0YFCdTqsux82DtDu46vP525dZte1xNiK6Qvj1
-         DVxfQ3mRLgThuwCCL+/elgGnicR8tS4w6qBm0NvXPPRPpUmNEPK6F5ahV+lYGv6ptkDP
-         rI+hsrWp/kgkIkLmNDkGHJJyfbWs5BYGobLki5INCHj4xUXv6puCZjHhxeE9J4PXSL9+
-         C22X8x4xLDe2IyccQ44QwdgjzGEQ5zp7dc/VskO6M/OJuAtIJpbIUnsLkla4irP3Rd2n
-         4nPQ==
+        id S229478AbhGMEPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 00:15:09 -0400
+Received: from mail-il1-f198.google.com ([209.85.166.198]:42787 "EHLO
+        mail-il1-f198.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229470AbhGMEPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 00:15:09 -0400
+Received: by mail-il1-f198.google.com with SMTP id d17-20020a9236110000b02901cf25fcfdcdso13582891ila.9
+        for <stable@vger.kernel.org>; Mon, 12 Jul 2021 21:12:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2ALDhkPxiv88DDzTFWBU8Q6MkixWV0FEJrQ6Bl2U5+0=;
-        b=aZTP2V6X2QTgJElTt0IuQ0PFHsk0yj03Zzyn9fCLgY8mWQqgVNKP4zo2WKPSNeHXT+
-         bg3B0opUB4mbWqB78fw6Wapwc9Br9NWBU5SWlZzjPAhM2bf8ASQmiqZFWHbcI5qEDyTf
-         Eztyvs4p2apWRa5lMtL93T+kARm8IG8hOkCuJx0IJGOZ29qJL4bmm+Be3aNpHU8LRlJn
-         dX4uGWOfb0cxRjz5sCO8GgECVmcbxzClgyPSNFu761yYIgK7+MTeiI6bO/DJgiJF4m+B
-         hyxhbQ/1Jgan7qINKGzX+skXJy3QZWeQD+zaJi9JzA/0NX2bt74YqcHZCWxy4Qi9GUut
-         qEEg==
-X-Gm-Message-State: AOAM5331F/mHDgoISChU3UUfiWLrfdU2IMx2gseCFUtzxVqAWWrC5YRP
-        Rv+8tOz4zCrzfyuphejIm5QQ1h2g/U1l1Ab4
-X-Google-Smtp-Source: ABdhPJxrp4avxAQyBpRmhKPXofWrbitDj3wVrcVwQlBitX2XhRY8OS5ozhNlulCdaC/oUEi3csWVPQ==
-X-Received: by 2002:a17:90b:d82:: with SMTP id bg2mr2292907pjb.28.1626149309945;
-        Mon, 12 Jul 2021 21:08:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e30sm611964pga.63.2021.07.12.21.08.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Jul 2021 21:08:29 -0700 (PDT)
-Message-ID: <60ed11bd.1c69fb81.b8ad.2cb3@mx.google.com>
-Date:   Mon, 12 Jul 2021 21:08:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=ccpUymmYMJnlE4BtUzanLseXkHW29GGGmHbpFP8ZztM=;
+        b=dcgXE6Sh+mxBvRZJEaulqkfddiHSQlBh5BecWTCUlI0xFBI5QVw3PADsZWsA95cATS
+         o5QVqbreP/2a4jA1iRbPCiVF0XpAwGr8g9MKrCjnKuI4bKF7q0cTjZgwJMNuK0RzbS15
+         7V3ehRTqPzFzQij2qLxiRu3xzSKvvSTAVP+Up3nzbsUG1koak1L29WgKOZezE7xpIeBA
+         0PP/X4J/4YRvQgwxhTdLVIyuw8aLcYrd+DfVw1+FBNmiMcUtZjbpj0fIpnK79LTHyAcC
+         /aGc2B4UEVHM8wwYPwvIovkMk5SrMYIG6dMSIHQ4vJ7f42JPWrc2iZJiQ64IiKAtow7Q
+         R0Xw==
+X-Gm-Message-State: AOAM532y8trEvRNgri0lqzsWa1tEnzp9OsL4Am5p2Xont70mSUjSw/+3
+        tXG27H+BiVZwAq66snH2atwF4l4OVmdc2YjdLPgsl4Df2hSr
+X-Google-Smtp-Source: ABdhPJyqv6fEm3KCkuMLgXE0cTLtuqsqJcimr+C6aG/c2PHeFwoVQdUBgejJq1zdGv8qJY6Jfm6iI23TaweAYv4EhkWCev7oZfDE
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.197-226-gbb5511458128
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 168 runs,
- 7 regressions (v4.19.197-226-gbb5511458128)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-Received: by 2002:a05:6602:3155:: with SMTP id m21mr1705310ioy.145.1626149540071;
+ Mon, 12 Jul 2021 21:12:20 -0700 (PDT)
+Date:   Mon, 12 Jul 2021 21:12:20 -0700
+In-Reply-To: <00000000000069c40405be6bdad4@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000b00c1105c6f971b2@google.com>
+Subject: Re: [syzbot] KASAN: null-ptr-deref Read in filp_close (2)
+From:   syzbot <syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com>
+To:     brauner@kernel.org, christian.brauner@ubuntu.com,
+        dvyukov@google.com, gregkh@linuxfoundation.org,
+        gscrivan@redhat.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org, syzkaller-bugs@googlegroups.com,
+        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 168 runs, 7 regressions (v4.19.197-226-gbb55=
-11458128)
+syzbot has found a reproducer for the following issue on:
+
+HEAD commit:    7fef2edf sd: don't mess with SD_MINORS for CONFIG_DEBUG_BL..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=178919b0300000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=20276914ec6ad813
+dashboard link: https://syzkaller.appspot.com/bug?extid=283ce5a46486d6acdbaf
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=120220f2300000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=115f37b4300000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com
+
+==================================================================
+BUG: KASAN: use-after-free in instrument_atomic_read include/linux/instrumented.h:71 [inline]
+BUG: KASAN: use-after-free in atomic64_read include/asm-generic/atomic-instrumented.h:605 [inline]
+BUG: KASAN: use-after-free in atomic_long_read include/asm-generic/atomic-long.h:29 [inline]
+BUG: KASAN: use-after-free in filp_close+0x22/0x170 fs/open.c:1306
+Read of size 8 at addr ffff888025a40a78 by task syz-executor493/8445
+
+CPU: 1 PID: 8445 Comm: syz-executor493 Not tainted 5.14.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:105
+ print_address_description.constprop.0.cold+0x6c/0x309 mm/kasan/report.c:233
+ __kasan_report mm/kasan/report.c:419 [inline]
+ kasan_report.cold+0x83/0xdf mm/kasan/report.c:436
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0x13d/0x180 mm/kasan/generic.c:189
+ instrument_atomic_read include/linux/instrumented.h:71 [inline]
+ atomic64_read include/asm-generic/atomic-instrumented.h:605 [inline]
+ atomic_long_read include/asm-generic/atomic-long.h:29 [inline]
+ filp_close+0x22/0x170 fs/open.c:1306
+ close_fd+0x5c/0x80 fs/file.c:628
+ __do_sys_close fs/open.c:1331 [inline]
+ __se_sys_close fs/open.c:1329 [inline]
+ __x64_sys_close+0x2f/0xa0 fs/open.c:1329
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x4021b3
+Code: c7 c2 c0 ff ff ff f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb ba 0f 1f 00 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24 0c e8
+RSP: 002b:00007ffe62cc73e8 EFLAGS: 00000246 ORIG_RAX: 0000000000000003
+RAX: ffffffffffffffda RBX: 0000000000000005 RCX: 00000000004021b3
+RDX: 0000000020000000 RSI: 0000000000000005 RDI: 0000000000000004
+RBP: 00007ffe62cc73f8 R08: 0000000000000004 R09: 00000000004aa000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffe62cc7400
+R13: 0000000000000000 R14: 00000000004ad018 R15: 0000000000400488
+
+Allocated by task 8445:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track mm/kasan/common.c:46 [inline]
+ set_alloc_info mm/kasan/common.c:434 [inline]
+ __kasan_slab_alloc+0x84/0xa0 mm/kasan/common.c:467
+ kasan_slab_alloc include/linux/kasan.h:253 [inline]
+ slab_post_alloc_hook mm/slab.h:512 [inline]
+ slab_alloc_node mm/slub.c:2981 [inline]
+ slab_alloc mm/slub.c:2989 [inline]
+ kmem_cache_alloc+0x216/0x3a0 mm/slub.c:2994
+ kmem_cache_zalloc include/linux/slab.h:711 [inline]
+ __alloc_file+0x21/0x280 fs/file_table.c:101
+ alloc_empty_file+0x6d/0x170 fs/file_table.c:150
+ path_openat+0xde/0x27f0 fs/namei.c:3493
+ do_filp_open+0x1aa/0x400 fs/namei.c:3534
+ do_sys_openat2+0x16d/0x420 fs/open.c:1204
+ do_sys_open fs/open.c:1220 [inline]
+ __do_sys_creat fs/open.c:1294 [inline]
+ __se_sys_creat fs/open.c:1288 [inline]
+ __x64_sys_creat+0xc9/0x120 fs/open.c:1288
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Freed by task 8445:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_set_track+0x1c/0x30 mm/kasan/common.c:46
+ kasan_set_free_info+0x20/0x30 mm/kasan/generic.c:360
+ ____kasan_slab_free mm/kasan/common.c:366 [inline]
+ ____kasan_slab_free mm/kasan/common.c:328 [inline]
+ __kasan_slab_free+0xfb/0x130 mm/kasan/common.c:374
+ kasan_slab_free include/linux/kasan.h:229 [inline]
+ slab_free_hook mm/slub.c:1650 [inline]
+ slab_free_freelist_hook+0xdf/0x240 mm/slub.c:1675
+ slab_free mm/slub.c:3235 [inline]
+ kfree+0xeb/0x650 mm/slub.c:4295
+ put_fs_context+0x3fb/0x650 fs/fs_context.c:454
+ fscontext_release+0x4c/0x60 fs/fsopen.c:73
+ __fput+0x288/0x920 fs/file_table.c:280
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:164
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:175 [inline]
+ exit_to_user_mode_prepare+0x27e/0x290 kernel/entry/common.c:209
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
+ syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
+ do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Last potentially related work creation:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_record_aux_stack+0xe5/0x110 mm/kasan/generic.c:348
+ __call_rcu kernel/rcu/tree.c:3029 [inline]
+ call_rcu+0xb1/0x750 kernel/rcu/tree.c:3109
+ task_work_run+0xdd/0x1a0 kernel/task_work.c:164
+ tracehook_notify_resume include/linux/tracehook.h:189 [inline]
+ exit_to_user_mode_loop kernel/entry/common.c:175 [inline]
+ exit_to_user_mode_prepare+0x27e/0x290 kernel/entry/common.c:209
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:291 [inline]
+ syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:302
+ do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Second to last potentially related work creation:
+ kasan_save_stack+0x1b/0x40 mm/kasan/common.c:38
+ kasan_record_aux_stack+0xe5/0x110 mm/kasan/generic.c:348
+ task_work_add+0x3a/0x190 kernel/task_work.c:38
+ fput_many.part.0+0xbb/0x170 fs/file_table.c:341
+ fput_many fs/file_table.c:336 [inline]
+ fput+0x3b/0x50 fs/file_table.c:357
+ path_openat+0x19bd/0x27f0 fs/namei.c:3516
+ do_filp_open+0x1aa/0x400 fs/namei.c:3534
+ do_sys_openat2+0x16d/0x420 fs/open.c:1204
+ do_sys_open fs/open.c:1220 [inline]
+ __do_sys_open fs/open.c:1228 [inline]
+ __se_sys_open fs/open.c:1224 [inline]
+ __x64_sys_open+0x119/0x1c0 fs/open.c:1224
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+The buggy address belongs to the object at ffff888025a40a00
+ which belongs to the cache filp of size 464
+The buggy address is located 120 bytes inside of
+ 464-byte region [ffff888025a40a00, ffff888025a40bd0)
+The buggy address belongs to the page:
+page:ffffea0000969000 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x25a40
+head:ffffea0000969000 order:1 compound_mapcount:0
+flags: 0xfff00000010200(slab|head|node=0|zone=1|lastcpupid=0x7ff)
+raw: 00fff00000010200 0000000000000000 0000000b00000001 ffff8880109c4780
+raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+page_owner tracks the page as allocated
+page last allocated via order 1, migratetype Unmovable, gfp_mask 0xd20c0(__GFP_IO|__GFP_FS|__GFP_NOWARN|__GFP_NORETRY|__GFP_COMP|__GFP_NOMEMALLOC), pid 4875, ts 15466439710, free_ts 15379402342
+ prep_new_page mm/page_alloc.c:2433 [inline]
+ get_page_from_freelist+0xa72/0x2f80 mm/page_alloc.c:4166
+ __alloc_pages+0x1b2/0x500 mm/page_alloc.c:5374
+ alloc_pages+0x18c/0x2a0 mm/mempolicy.c:2244
+ alloc_slab_page mm/slub.c:1713 [inline]
+ allocate_slab+0x32b/0x4c0 mm/slub.c:1853
+ new_slab mm/slub.c:1916 [inline]
+ new_slab_objects mm/slub.c:2662 [inline]
+ ___slab_alloc+0x4ba/0x820 mm/slub.c:2825
+ __slab_alloc.constprop.0+0xa7/0xf0 mm/slub.c:2865
+ slab_alloc_node mm/slub.c:2947 [inline]
+ slab_alloc mm/slub.c:2989 [inline]
+ kmem_cache_alloc+0x372/0x3a0 mm/slub.c:2994
+ kmem_cache_zalloc include/linux/slab.h:711 [inline]
+ __alloc_file+0x21/0x280 fs/file_table.c:101
+ alloc_empty_file+0x6d/0x170 fs/file_table.c:150
+ path_openat+0xde/0x27f0 fs/namei.c:3493
+ do_filp_open+0x1aa/0x400 fs/namei.c:3534
+ do_sys_openat2+0x16d/0x420 fs/open.c:1204
+ do_sys_open fs/open.c:1220 [inline]
+ __do_sys_open fs/open.c:1228 [inline]
+ __se_sys_open fs/open.c:1224 [inline]
+ __x64_sys_open+0x119/0x1c0 fs/open.c:1224
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+page last free stack trace:
+ reset_page_owner include/linux/page_owner.h:24 [inline]
+ free_pages_prepare mm/page_alloc.c:1343 [inline]
+ free_pcp_prepare+0x2c5/0x780 mm/page_alloc.c:1394
+ free_unref_page_prepare mm/page_alloc.c:3329 [inline]
+ free_unref_page+0x19/0x690 mm/page_alloc.c:3408
+ qlink_free mm/kasan/quarantine.c:146 [inline]
+ qlist_free_all+0x5a/0xc0 mm/kasan/quarantine.c:165
+ kasan_quarantine_reduce+0x180/0x200 mm/kasan/quarantine.c:272
+ __kasan_slab_alloc+0x8e/0xa0 mm/kasan/common.c:444
+ kasan_slab_alloc include/linux/kasan.h:253 [inline]
+ slab_post_alloc_hook mm/slab.h:512 [inline]
+ slab_alloc_node mm/slub.c:2981 [inline]
+ slab_alloc mm/slub.c:2989 [inline]
+ __kmalloc+0x1f4/0x330 mm/slub.c:4133
+ kmalloc include/linux/slab.h:596 [inline]
+ tomoyo_add_entry security/tomoyo/common.c:2031 [inline]
+ tomoyo_supervisor+0xce8/0xf00 security/tomoyo/common.c:2103
+ tomoyo_audit_path_log security/tomoyo/file.c:168 [inline]
+ tomoyo_path_permission security/tomoyo/file.c:587 [inline]
+ tomoyo_path_permission+0x270/0x3a0 security/tomoyo/file.c:573
+ tomoyo_path_perm+0x2f0/0x400 security/tomoyo/file.c:838
+ security_inode_getattr+0xcf/0x140 security/security.c:1332
+ vfs_getattr fs/stat.c:139 [inline]
+ vfs_statx+0x164/0x390 fs/stat.c:207
+ vfs_fstatat fs/stat.c:225 [inline]
+ vfs_lstat include/linux/fs.h:3386 [inline]
+ __do_sys_newlstat+0x91/0x110 fs/stat.c:380
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Memory state around the buggy address:
+ ffff888025a40900: 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc
+ ffff888025a40980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff888025a40a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                                                ^
+ ffff888025a40a80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff888025a40b00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-Regressions Summary
--------------------
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
-  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.197-226-gbb5511458128/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.197-226-gbb5511458128
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bb551145812841377d18ff71ea24dfa9a431012d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-baylibre  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ecdde6a611973bf611797b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ecdde6a611973bf6117=
-97c
-        failing since 241 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-broonie   | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ecde29066ebdcf5711797a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ecde29066ebdcf57117=
-97b
-        failing since 241 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-cip       | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ecdde15dfaca4fc511796a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ecdde15dfaca4fc5117=
-96b
-        failing since 241 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm  | lab-collabora | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ecde2d2c7f90510b1179d1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ecde2d2c7f90510b117=
-9d2
-        failing since 241 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab           | compiler | defconfig         =
-  | regressions
----------------------+------+---------------+----------+-------------------=
---+------------
-rk3288-veyron-jaq    | arm  | lab-collabora | gcc-8    | multi_v7_defconfig=
-  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ed0d37cc6620d94c11796a
-
-  Results:     64 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
-88-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
--226-gbb5511458128/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
-88-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60ed0d37cc6620d94c117982
-        failing since 28 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-07-13T03:48:44.535703  /lava-4187947/1/../bin/lava-test-case
-    2021-07-13T03:48:44.541022  <8>[   17.676378] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60ed0d38cc6620d94c117995
-        failing since 28 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-07-13T03:48:42.100417  /lava-4187947/1/../bin/lava-test-case<8>[  =
- 15.235516] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
-d RESULT=3Dfail>
-    2021-07-13T03:48:42.101069     =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60ed0d38cc6620d94c117996
-        failing since 28 days (last pass: v4.19.194-28-g6098ecdead2c, first=
- fail: v4.19.194-67-g1b5dea188d94)
-
-    2021-07-13T03:48:41.075731  /lava-4187947/1/../bin/lava-test-case
-    2021-07-13T03:48:41.080980  <8>[   14.216106] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
