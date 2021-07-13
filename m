@@ -2,194 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66073C6BAB
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 09:46:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3BBB3C6BDC
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 10:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234121AbhGMHtB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 03:49:01 -0400
-Received: from mx6.ucr.edu ([138.23.62.71]:17118 "EHLO mx6.ucr.edu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234342AbhGMHtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 03:49:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=ucr.edu; i=@ucr.edu; q=dns/txt; s=selector3;
-  t=1626162372; x=1657698372;
-  h=mime-version:references:in-reply-to:from:date:message-id:
-   subject:to:cc;
-  bh=/PDBt9wlRWM1iCLp+k/CLplY3xQTV5OM8VyXbBUUaog=;
-  b=AgJvR9YPOYo55oU70TRbahZTMKg6od1iLRg1jd/q48MB0yRH647MZzGo
-   J0kj0Itca9NCmteud7SkvM1D4IT24kdwANMioLhFdIcLFwMZp0Qk81k3U
-   dApJ92iDZQyQ0dHxDteJs4GxJGap15IX4vMRMHGIa9O7+I6syVgXkFhHe
-   D9UZ20fk33PGPNj8w3Hs1L3juNk5b7GpsuMdORnCky/hL8wqCWxii+Zna
-   7W7VUk/wPIA3rbF5sTyzNMEdF9Zo02seGtb/0gWCaZkbHG+1ct1fhDu/C
-   3Fna1tWb3W4YyVTzLvSq9/6kwyHZk/ptnN8+lA1KF14Gqcwn3Yf33u9TP
-   A==;
-IronPort-SDR: Vwpdex8LoMTSiW+tEVVc/VucFrCViI1PpEPm0dFTpGefimJu1qzkf7/dywUOfAiEz81kDifjIc
- X0kP9PSF9yc+REW71vczV6fCUK/61vF1PsP7hY6VkqjvZpK1HOz9a5VSDmIR5+POccA15VnqUo
- lFDKEBQPxq+lOo7rhBArBkYlhLYjq/TZ39gNfYndnfJzxFEh7GQQX6NQfnj4nfOs9lLkeVOLmh
- IrORPNd8d0oG86USJKHs8oR48xyLFhAKST9pQI09s9AyT66HRcbZ0cG8TcmOVQCBSraeNGpNwn
- MHk=
-X-IPAS-Result: =?us-ascii?q?A2HjAgCfQ+1gdEihVdFaHgEBCxIMQIFOC4MiVmwCGIQuk?=
- =?us-ascii?q?VsDlhuCa4JUgXwCCQEBAQ83CgQBAQMBA4ESgndEAm2CDAIlNAkOAgQBAQEBA?=
- =?us-ascii?q?wIDAQEBAQUBAQYBAQEBAQEFBAEBAhABb4UvOQ2COCkBUhIDDVYBAQEBAQEBA?=
- =?us-ascii?q?QEBAQEBAQEBIAIBAQEmAggFTQVnAQEBAxIRBFIOAgsLDQICJgICGwcSAQUBH?=
- =?us-ascii?q?AYTCBqCUIMHBQqbOYEEPYsyfzOBAYghAQkNgV0GBQ1+KocJhmIngimBS4EFg?=
- =?us-ascii?q?Wo+gmIEhHWCZASDGUxVGHtSbUBTAQEBnwqadoIPAQYCgwocijKUAiuDY4tch?=
- =?us-ascii?q?j2QWC2UR41AkxcLhUkQI4E4ghUzGiV/BmeBS1AZDod/hiwWg04zikskLwIBD?=
- =?us-ascii?q?CkCBgoBAQMJh2cBAQ?=
-IronPort-PHdr: A9a23:jXi7whJrMJFW/JVpvNmcuMBmWUAX0o4c3iYr45Yqw4hDbr6kt8y7e
- hCFvbM00BSXA82bs6sC17OH9fi4GCQp2tWoiDg6aptCVhsI2409vjcLJ4q7M3D9N+PgdCcgH
- c5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFRrhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTajfb9+N
- gi6oAreusQXgIZpN6I9xgfUrndSdOla2GdlKUiPkxrg48u74YJu/TlXt/897cBLTL/0f74/T
- bxWDTQmN3466cj2vhTdTgWB+2URXHwOnhVHHwbK4hf6XozssiThrepyxDOaPcztQr8qXzmp8
- rpmRwXpiCcDMD457X3Xh8lth69VvB6tuxpyyJPPbYqLKPRxYL/SfdICRWpAQMlRUTBBApihZ
- IcLFuYNIPpUo5X4q1YIsBCwBxSjBPn3xzBHiH/536003eoiHw/bwgIvA8kDsGjIoNjvKKseT
- fy5wavOwD7eb/1WwzD96I3Qfx8goPGDR7VwftbRyUYxEQPOk1afqYv4PziI0ekMvGma7+19V
- e6zlmIqqRp8oiWzycc2kIXGmJ8ayk3d+Ch/3Y06KsG2RlRhbt64DJtfqTuaN41uT84sTW9lp
- Tg2xqAFtJKnYiUHypUqyRHfZfGac4WF4gzuWeSfLzp8in9oZb2xihSy/0WhxOPyVsq53EpIo
- ydbnNTBsG0G2RLU6siCUPR9/0Gh1C6U2ADU7eFEPUQ0lavdK5I73rEwkZ8TvVzbHiDonkX2g
- 7KWdlk++uiv7eTnY7rnqoWBOIBqjAz1L6cgmtSnDOgmLgQDW3KX9Oe82bH54EH0QahGguc0n
- 6XHtp3RON4VqbSjAwBP14Yu8xO/DzC739sGhXQHN1dFeA6fj4juJlHOPOj0DfehjFSolzdm3
- /XGMafgApXJN3TDl7Dhcatk505Sygc/08pT551TCrEGL/LzXlH+uMbEAR8+Ngy42+fnCNNj2
- YMCQW+DHLOVPafIvVKL5u8jOfSAaY4ItDrnKfUp+ebijXojll8ceamp04EXaHe9Hvl+LESYY
- H3sgsodHWsXvAczV/Hqh0GYUTJJeXm9Qr886ikhCI26FYfDWpytgLuZ0SegAp1ZfHtJClSSH
- nrzaYWEVOkDaDiILs9ijDMET76hRJEl1R20sw/60bVnfaLo/Xg9vIjonPtx6uzVmFQY6DB4A
- ozJ1mKJZ3l5mGwVWyUx2qFv50BwnASty6991sxZHNtY5/5PGjU9KNaI3/59FoirBSrcdc3PR
- Vq7FIb1SQotR848loddK312HM+v21Wah3LCPg==
-IronPort-HdrOrdr: A9a23:pEI39qhh8EEx1P50mDi/rVKTMXBQXuEji2hC6mlwRA09TyVXrb
- HWoB17726NtN9/YgBEpTntAtjjfZqYz+8X3WBzB9aftWvdyQ+VxehZhOOI/9SjIU3DH4VmpM
- BdmsZFebvN5JtB4PoSIjPTLz/t+ra6GWmT6Ynj80s=
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-AV: E=Sophos;i="5.84,236,1620716400"; 
-   d="scan'208";a="228066433"
-Received: from mail-oo1-f72.google.com ([209.85.161.72])
-  by smtpmx6.ucr.edu with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Jul 2021 00:46:11 -0700
-Received: by mail-oo1-f72.google.com with SMTP id e10-20020a4ab14a0000b029020e1573bdb7so9245567ooo.9
-        for <stable@vger.kernel.org>; Tue, 13 Jul 2021 00:46:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=E0c/itnJRqvseiRzZWaYFdOYbaZVWfzwqyJIgaHRkI4=;
-        b=g2g7IuLuhbE4IjuWC5E27TzmxR4FoBxQBrNHvcUyWvFJQrQWsZDtE1DTOostuLD46v
-         KEf8ZpaINZ0efSx6+a0eN5kM/A29LpiOLdXcuSIPiLpHP1hdXiixbicfbHB/XdSIZt10
-         C8DmE1N8H59RqyxArBFMbxXT4maA6AeuRwMyM/pcRqHCuC9TAKp0GhxfJH26nwnC+gKi
-         qCZ54NnN6LOV9HEKMZB8oF4H2wz8UA7ABaHMSDZTDK6T/hQ1lgJQNAqjIyEq4rh86Zct
-         4Qw4WQeWZFe5jzgdkJQPgPEV0135m5kIPMPQKlWY1518Gk90+TcfskvEZ5Ud9UBTVh3g
-         MueQ==
-X-Gm-Message-State: AOAM532i3KzcGzPsXTkVgioJG7cSk+mVlOET412rUR7PSiyWznjytSKm
-        l9765WqWRRaXt7TcYpXolexK4bT0vPL1vSbgc/CTFP/CsF9xOQ7Sl9N/3WA8q23xfpV68xp9RbW
-        CX7UahMLsHBjl0lrGDA9MHF64FJBvymuTyA==
-X-Received: by 2002:a05:6830:1e42:: with SMTP id e2mr2537579otj.135.1626162369807;
-        Tue, 13 Jul 2021 00:46:09 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwBf6asctnycGHrf0aHsUd7mMNxKyN11KyP8TucFVKHbFU6gvW9YJZO6cqXJ6+ucEspUXAJ06v7fWy8ISSDRwE=
-X-Received: by 2002:a05:6830:1e42:: with SMTP id e2mr2537573otj.135.1626162369633;
- Tue, 13 Jul 2021 00:46:09 -0700 (PDT)
+        id S234492AbhGMIGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 04:06:54 -0400
+Received: from mail-dm6nam11on2056.outbound.protection.outlook.com ([40.107.223.56]:54881
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234157AbhGMIGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 04:06:53 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=lBMc7DpCbpp7P3l9/nfC+dWvMhsYuZksGYxdlyYY8BV0BX5M8EZlxGoRicz6LZ9GS1wTXSZa3ZCVi4yFzC73uPQxuCwQft+r1wbXlAJLSsEH21VBzbSolMkVSfJUDaLDqa0F5CafWeIskBmlH3tHBD47BWWsL9+ULo1WPYG/gJRnt/PRVpl6vE/WjLBTIi1qMxy1na4DHIQkt0twX1ODH7FaKX40SkVQCoYhgehdzXyFBr6zrL3SEOAy6ZQ+eknNKylnVYbA9oTywO6F71DEZr1jS+Vy/U5zlvBj1RNHubnmaeOaCZ61Z0gKW9JOPdzqbzo105YEMRhSuH725Y031w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BXe1t9MT8DGmIsU/dLUA3fWdUr6dxm7MiALiGWFg7bg=;
+ b=arw6DBT61HpN1BTL657ipNLmc5GPoIBdtM5cndMx8QL92H32d3nV6c3tNzmvldKjWcMEKpCg8A2JVckY8U8f746+BU8IByn+WINcHC/HPPHBMU0FhxCtl/yXc31f4o0c8RdT86cL1d/ukFzLMmUIjKZFP/J0fCPkjRcA0ydbjAVFh+BchU+qGa63XVFFkP77oCicIntpqDBBUifwdtgyoCjcE2EiK2n/IsZDg0/HRTCMoAIa4fa88VgRYtSWLDz8MQuAYNeru7AIGSA6Gsyw2Q7VuTeH2ibj+w33fHU4wwKWyhhPUd3iR92w9Aw33HzG3TJIK4VD+4AQeAYqboI4+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.35) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BXe1t9MT8DGmIsU/dLUA3fWdUr6dxm7MiALiGWFg7bg=;
+ b=D9FxmZ8ZoX95605/x6R4SrKOXCLUKaSQGzvZPdYD+4bMyEyPFiQZlVfsYENfOUwiuHNlygoV9+qYF4fxsXez3Mbupn7BR+TYsGAZrVBq3Q12MTapCE+nNIDMgpUHnZHctFCzhHZRjCVq4UfHkj7ChjzYN82xOVtpEpe+/a4U+7bw03K2wvOoUmeVf5ButBgaWHmMW6x8IBhlLPU/PDL3BRXtEl/22SXO829SOxF7GTjxdpDrxqfGjLI8lEsDafBvo0wMU58BWK0UjCxFzT4WRiub1y+cexigZ4AouXGllOBPGALaNL3xpFD63B4zHznhaB12GX4ekGG1nVecE0qMSA==
+Received: from BN0PR02CA0009.namprd02.prod.outlook.com (2603:10b6:408:e4::14)
+ by DM6PR12MB4988.namprd12.prod.outlook.com (2603:10b6:5:16a::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.22; Tue, 13 Jul
+ 2021 08:04:02 +0000
+Received: from BN8NAM11FT064.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:408:e4:cafe::19) by BN0PR02CA0009.outlook.office365.com
+ (2603:10b6:408:e4::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20 via Frontend
+ Transport; Tue, 13 Jul 2021 08:04:02 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.35; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.35) by
+ BN8NAM11FT064.mail.protection.outlook.com (10.13.176.160) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4308.20 via Frontend Transport; Tue, 13 Jul 2021 08:04:01 +0000
+Received: from HQMAIL101.nvidia.com (172.20.187.10) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 13 Jul
+ 2021 08:04:00 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.187.5) by mail.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Tue, 13 Jul 2021 08:04:00 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.4 000/349] 5.4.132-rc2 review
+In-Reply-To: <20210712184735.997723427@linuxfoundation.org>
+References: <20210712184735.997723427@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-References: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
- <YO0Z7s8p7CoetxdW@kroah.com> <CAE1SXrv2Et9icDf2NesjWmrwbjXL8067Y=D3RnwqpEeZT4OgTg@mail.gmail.com>
- <e1f71c33-a5dd-82b1-2dce-be4f052d6aa6@pengutronix.de>
-In-Reply-To: <e1f71c33-a5dd-82b1-2dce-be4f052d6aa6@pengutronix.de>
-From:   Xiaochen Zou <xzou017@ucr.edu>
-Date:   Tue, 13 Jul 2021 00:46:07 -0700
-Message-ID: <CAE1SXrv3Ouwt4Y9NEWGi0WO701w1YP1ruMSxraZr4PZTGsUZgg@mail.gmail.com>
-Subject: Re: Use-after-free access in j1939_session_deactivate
-To:     Marc Kleine-Budde <mkl@pengutronix.de>
-Cc:     Greg KH <greg@kroah.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org, kernel@pengutronix.de,
-        linux-can@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <975fa0a9fe264adfa478ac6a69bde755@HQMAIL101.nvidia.com>
+Date:   Tue, 13 Jul 2021 08:04:00 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 5c42f7ab-2251-4588-a24b-08d945d4c6c2
+X-MS-TrafficTypeDiagnostic: DM6PR12MB4988:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB4988E34CBAC5D89015A9A30AD9149@DM6PR12MB4988.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pAxxGRWpaiiiNA/JyrzVtb6lG9/ENEaAwhcuSthUIK0nfL5pIjeWirrXnqv5wLZG8COeFm6ZVWSi/YZO46467z7H1diiTOeDB/OLVcqCJqxqQKKpV/4I/V8gi2jfT3C1MZqFb/ynu+QfSETLXE6nnGajSjE6qnF1dJ3MyUigLU5te4yeYZcoEoF7b26RprPHodQhtBSp3OUeT8lSa4GTPF6l2v+oIuAXIxUMkoV2Z6T9ypAunARIAjpJt0d6gQN0kfMT3m5VBmb66ULLQnsbg/t1xGL6ncX57nMWz+gqlbeX2P1FZjLt/LZmA1kxJhgBSRCwc3/F3f3VkmnWf851OwNrPDaakb4c2fDau8emc8KUSRcfXGqD8clz0dbt+5OiLmPNSIeu07HgmqMvOgawn8w9AXC4h5+QYfQmX0HBowt/AA9QJ14cx23Rip4yTQunggoJODiyPiQZj4HwIvYMv1oY47mwqTYFnmeFLL7tAm6RLRoF80vXXPdeAA4aWziNvy9u4URLd0xxWWrbmem05PFVVFCRZfWHt9qkGWqEI955CQp1i3SHV+Bynylq/9RHWK+kgHG0o3rrTfDOQFj13uwtNqeTl8bn7SYRe8wEXn5ZrjWtw4m63/T1C63S/q1vZN0eo4o0iYf0aKdf+dyHNYekXpt/z/k6XDcn4zcpEmY8HtB286qBd3w9IlQSTolEw6BB3lACflqMTV7p+vqjTQAw8C3HlB4jgQqa9TBQSc7f3qFb1hP1nBcoMLreSEpH2+oZjHfG1mMIjd7nRzANApatKXruVrmoFrYl45zZ5+97dgLffzHyn+ilgQ0ToWr2
+X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid02.nvidia.com;CAT:NONE;SFS:(4636009)(376002)(396003)(136003)(39860400002)(346002)(36840700001)(46966006)(8676002)(36906005)(4326008)(336012)(8936002)(426003)(36860700001)(82310400003)(82740400003)(7636003)(478600001)(54906003)(34020700004)(316002)(6916009)(7416002)(47076005)(24736004)(186003)(2906002)(966005)(356005)(108616005)(5660300002)(70586007)(70206006)(26005)(86362001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2021 08:04:01.7904
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c42f7ab-2251-4588-a24b-08d945d4c6c2
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT064.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4988
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-j1939_session_destroy() will free both session and session->priv. It
-leads to multiple use-after-free read and write in
-j1939_session_deactivate() when session was freed in
-j1939_session_deactivate_locked(). The free chain is
-j1939_session_deactivate_locked()->j1939_session_put()->__j1939_session_release()->j1939_session_destroy().
-To fix this bug, I moved j1939_session_put() behind
-j1939_session_deactivate_locked() and guarded it with a check of
-active since the session would be freed only if active is true.
+On Mon, 12 Jul 2021 20:49:06 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.132 release.
+> There are 349 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Jul 2021 18:45:40 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.132-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Signed-off-by: Xiaochen Zou <xzou017@ucr.edu>
+All tests passing for Tegra ...
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index e5f1a56994c6..b6448f29a4bd 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1018,7 +1018,6 @@ static bool
-j1939_session_deactivate_locked(struct j1939_session *session)
+Test results for stable-v5.4:
+    10 builds:	10 pass, 0 fail
+    26 boots:	26 pass, 0 fail
+    59 tests:	59 pass, 0 fail
 
-        list_del_init(&session->active_session_list_entry);
-        session->state = J1939_SESSION_DONE;
--       j1939_session_put(session);
-    }
+Linux version:	5.4.132-rc2-g22b22e7110f5
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra20-ventana,
+                tegra210-p2371-2180, tegra210-p3450-0000,
+                tegra30-cardhu-a04
 
-    return active;
-@@ -1031,6 +1030,9 @@ static bool j1939_session_deactivate(struct
-j1939_session *session)
-    j1939_session_list_lock(session->priv);
-    active = j1939_session_deactivate_locked(session);
-    j1939_session_list_unlock(session->priv);
-+   if (active) {
-+       j1939_session_put(session);
-+   }
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-    return active;
- }
-@@ -2021,6 +2023,7 @@ void j1939_simple_recv(struct j1939_priv *priv,
-struct sk_buff *skb)
- int j1939_cancel_active_session(struct j1939_priv *priv, struct sock *sk)
- {
-    struct j1939_session *session, *saved;
-+   bool active;
-
-    netdev_dbg(priv->ndev, "%s, sk: %p\n", __func__, sk);
-    j1939_session_list_lock(priv);
-@@ -2030,7 +2033,10 @@ int j1939_cancel_active_session(struct
-j1939_priv *priv, struct sock *sk)
-        if (!sk || sk == session->sk) {
-            j1939_session_timers_cancel(session);
-            session->err = ESHUTDOWN;
--           j1939_session_deactivate_locked(session);
-+           active = j1939_session_deactivate_locked(session);
-+           if (active) {
-+               j1939_session_put(session);
-+           }
-        }
-    }
-    j1939_session_list_unlock(priv);
-
-On Tue, Jul 13, 2021 at 12:35 AM Marc Kleine-Budde <mkl@pengutronix.de> wrote:
->
-> On 7/13/21 9:30 AM, Xiaochen Zou wrote:
-> > j1939_session_destroy() will free both session and session->priv. It
-> > leads to multiple use-after-free read and write in
-> > j1939_session_deactivate() when session was freed in
-> > j1939_session_deactivate_locked(). The free chain is
-> > j1939_session_deactivate_locked()->
-> > j1939_session_put()->__j1939_session_release()->j1939_session_destroy().
-> > To fix this bug, I moved j1939_session_put() behind
-> > j1939_session_deactivate_locked() and guarded it with a check of
-> > active since the session would be freed only if active is true.
->
-> Please include your Signed-off-by.
-> See
-> https://elixir.bootlin.com/linux/v5.12/source/Documentation/process/submitting-patches.rst#L356
->
-> Marc
->
-> --
-> Pengutronix e.K.                 | Marc Kleine-Budde           |
-> Embedded Linux                   | https://www.pengutronix.de  |
-> Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-> Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
->
-
-
--- 
-Xiaochen Zou
-PhD Student
-Department of Computer Science & Engineering
-University of California, Riverside
+Jon
