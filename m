@@ -2,97 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE83F3C6980
-	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA243C6982
+	for <lists+stable@lfdr.de>; Tue, 13 Jul 2021 06:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229643AbhGMEqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 00:46:19 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:41765 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229470AbhGMEqT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 13 Jul 2021 00:46:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 7B21632008FA;
-        Tue, 13 Jul 2021 00:43:29 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Tue, 13 Jul 2021 00:43:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=vmxs6mKI24WNUXecEoptHIh1qYG
-        OvaWRWtHD0PBgWSA=; b=nurOFU7jp1IWxaBtshahbg4jr1Gbzzz/N3SCwtrf9A/
-        aqE1lRcpum7zRtot0DIrvANvEnAsfN5cjU5Kz+BRjPlJyJFKzGKXK1+wmhCQeBUt
-        6OI9gKqkB1JEA1qNGgmQeKGC0245ajEZQkUVAQSFpae1mdgmJzIj++VXwvptWNoV
-        P4jLsCzD+DNZ7uZujCgQ/gSjNM4wjJnCeiZzurCIM0Nx17hH+uTKW3hR4EOVdqXg
-        JU6eIPVVhzMU+eHAQxqAl0WT+ZXRk1EVZCzsArRKP38Jbq8PcmOZiGwB5+OZXag1
-        qbTdvLYWW5MuGQq1jyol0SlgPSsl3bcQySlHnLvdKuA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=vmxs6m
-        KI24WNUXecEoptHIh1qYGOvaWRWtHD0PBgWSA=; b=oyAKvF6gJqdDlQTglMgLpT
-        4qcMaXw1NW4eWQvv5m7L59LMmI+wzkZZxA6UH06Vje5UwPSfK5tOz8SfTozhl24x
-        tWQBc1zswqDE/FMCRT0oWi5v6/8kAGU/SHvnJI+vphMhB/T/+btEgViFmfqXsdBE
-        /b0f6D6fPxk5+0XceggI5IDAO8lcQFkPTqMd3qsPWpZ/r+Go8xVrD01O2yNaA6Ol
-        KzCD9YL6/vnSa79Uhg5nVqeUOmS+MLnRQuNa7Tp85sLeTCbD7LVec+z8EaCY/Y+Q
-        Fy8XxLDq4mjhK3I79AaRPGM7yCkJgwrWzisYBDFAlt3RZ5+k7DnrrTIOGOGbI/wQ
-        ==
-X-ME-Sender: <xms:8BntYIu8slazLnmjwpq0e_zoEl6j8AVn798XGnH8l8dvuow3h0sZUg>
-    <xme:8BntYFdFmSGRNtFqFjOb7FOB7wa82olVd5SGP0aXFdigMHrDJi52gPTxX0IHN1rw0
-    gjnGVAY2J50qw>
-X-ME-Received: <xmr:8BntYDwII1go2yI5CqzWyO4VACEcE7SjxrX-7a1anre_thah7mPF2gCnL4-eeqR9JCQ3fRdSFM6vxB7SFNfzi2TOmg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudeggdehvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:8BntYLPVg-TlH1-M6DfSLz9WS4WI-siJNTnRARVD4YQIyCbrc-iBUQ>
-    <xmx:8BntYI-TaDWrTbKPZ1YOXdIvB17B2HRtRxhdwR82XfshrwWHdumIbQ>
-    <xmx:8BntYDXq0zyDP6Y12WQqoC3j7M5GxCFYgoi5hLCp6VRH3UZJ8dF2fA>
-    <xmx:8RntYMR31BmV550b3r00CWMjQyVJBGuxe0gyKT4Nr82_AqZzy0vF-A>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 13 Jul 2021 00:43:28 -0400 (EDT)
-Date:   Tue, 13 Jul 2021 06:43:26 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Xiaochen Zou <xzou017@ucr.edu>
-Cc:     kernel@pengutronix.de, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Use-after-free access in j1939_session_deactivate
-Message-ID: <YO0Z7s8p7CoetxdW@kroah.com>
-References: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
+        id S230183AbhGMEq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 00:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40262 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229470AbhGMEq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 00:46:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E21161026;
+        Tue, 13 Jul 2021 04:44:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626151445;
+        bh=LhQ88MmfLPgOgVF9V7BGRh5TOT9dUVIs3HJWRwi/M/U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BC3ljYCFeJX0g7nn9XG2d24A3mG2UG5gGN9eA6jn1Ejes2QpC/K/xiIwax5ccS1/p
+         pwXsa2WLUb4CPQtUrJpwp8GHxNddjlkse0poNTvo1+/FOkKHinyYSQHKcLUgXbtYs+
+         jMsDybxPtlivulap/rxVzSvjnu0sX2OwecK5nzoE=
+Date:   Tue, 13 Jul 2021 06:44:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Stefan Lippers-Hollmann <s.l-h@gmx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>,
+        Yong Zhi <yong.zhi@intel.com>, Bard Liao <bard.liao@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.13 743/800] ASoC: Intel: sof_sdw: add quirk support for
+ Brya and BT-offload
+Message-ID: <YO0aEm/kWuu1UCow@kroah.com>
+References: <20210712060912.995381202@linuxfoundation.org>
+ <20210712061045.833441566@linuxfoundation.org>
+ <20210713054118.4e5abba3@mir>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAE1SXrtrg4CrWg_rZLUHqWWFHkGnK5Ez0PExJq8-A9d5NjE_-w@mail.gmail.com>
+In-Reply-To: <20210713054118.4e5abba3@mir>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 03:40:46PM -0700, Xiaochen Zou wrote:
-> Hi,
-> It looks like there are multiple use-after-free accesses in
-> j1939_session_deactivate()
+On Tue, Jul 13, 2021 at 05:41:18AM +0200, Stefan Lippers-Hollmann wrote:
+> Hi
 > 
-> static bool j1939_session_deactivate(struct j1939_session *session)
-> {
-> bool active;
+> On 2021-07-12, Greg Kroah-Hartman wrote:
+> > From: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
+> >
+> > [ Upstream commit 03effde3a2ea1d82c4dd6b634fc6174545d2c34f ]
+> >
+> > Brya is another ADL-P product.
+> >
+> > AlderLake has support for Bluetooth audio offload capability.
+> > Enable the BT-offload quirk for ADL-P Brya and the Intel RVP.
+> [...]
 > 
-> j1939_session_list_lock(session->priv);
-> active = j1939_session_deactivate_locked(session); //session can be freed inside
-> j1939_session_list_unlock(session->priv); // It causes UAF read and write
+> This patch seems to introduce a build failure into v5.13.2-rc1 on x86_64:
 > 
-> return active;
-> }
+>   CC [M]  sound/soc/intel/boards/sof_sdw.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt5682.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt700.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt711.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt711_sdca.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt715.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_rt715_sdca.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_dmic.o
+>   CC [M]  sound/soc/intel/boards/sof_sdw_hdmi.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sof_rt5682.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-haswell.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-bxt-da7219_max98357a.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-bxt-rt298.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-sof-pcm512x.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-sof-wm8804.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-glk-rt5682_max98357a.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-broadwell.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-bdw-rt5650-mach.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-bytcr-rt5640.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-bytcr-rt5651.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-rt5672.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-rt5645.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-max98090_ti.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-cht-bsw-nau8824.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-cx2072x.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-da7213.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-es8316.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sst-byt-cht-nocodec.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-cml_rt1011_rt5682.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-kbl_da7219_max98357a.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-kbl_da7219_max98927.o
+>   CHK     kernel/kheaders_data.tar.xz
+>   LD [M]  sound/soc/intel/boards/snd-soc-kbl_rt5663_max98927.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-kbl_rt5660.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-skl_rt286.o
+>   LD [M]  sound/soc/intel/boards/snd-skl_nau88l25_max98357a.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-skl_nau88l25_ssm4567.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-skl_hda_dsp.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-sof_da7219_max98373.o
+>   LD [M]  sound/soc/intel/boards/snd-soc-ehl-rt5660.o
+>   LD [M]  sound/soc/snd-soc-acpi.o
+> /build/linux-aptosid-5.13/sound/soc/intel/boards/sof_sdw.c:200:6: error: implicit declaration of function 'SOF_BT_OFFLOAD_SSP' [-Werror=implicit-function-declaration]
+>   200 |      SOF_BT_OFFLOAD_SSP(2) |
+>       |      ^~~~~~~~~~~~~~~~~~
+>   LD [M]  sound/soundcore.o
+>   LD [M]  sound/soc/sof/xtensa/snd-sof-xtensa-dsp.o
+> /build/linux-aptosid-5.13/sound/soc/intel/boards/sof_sdw.c:201:6: error: 'SOF_SSP_BT_OFFLOAD_PRESENT' undeclared here (not in a function)
+>   201 |      SOF_SSP_BT_OFFLOAD_PRESENT),
+>       |      ^~~~~~~~~~~~~~~~~~~~~~~~~~
+>   LD [M]  sound/soc/sof/intel/snd-sof-acpi-intel-bdw.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-intel-hda.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-tng.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-apl.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-cnl.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-icl.o
+>   LD [M]  sound/soc/sof/intel/snd-sof-pci-intel-tgl.o
+> cc1: some warnings being treated as errors
+> make[5]: *** [/build/linux-aptosid-5.13/scripts/Makefile.build:273: sound/soc/intel/boards/sof_sdw.o] Error 1
 > 
-> session can be freed by
-> j1939_session_deactivate_locked->j1939_session_put->__j1939_session_release->j1939_session_destroy->kfree.
-> Therefore it makes the unlock function perform UAF access.
+> > diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+> > index dfad2ad129ab..35ad448902c7 100644
+> > --- a/sound/soc/intel/boards/sof_sdw.c
+> > +++ b/sound/soc/intel/boards/sof_sdw.c
+> > @@ -197,7 +197,21 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+> >  		.driver_data = (void *)(SOF_RT711_JD_SRC_JD1 |
+> >  					SOF_SDW_TGL_HDMI |
+> >  					SOF_RT715_DAI_ID_FIX |
+> > -					SOF_SDW_PCH_DMIC),
+> > +					SOF_SDW_PCH_DMIC |
+> > +					SOF_BT_OFFLOAD_SSP(2) |
+> > +					SOF_SSP_BT_OFFLOAD_PRESENT),
+> > +	},
+> > +	{
+> > +		.callback = sof_sdw_quirk_cb,
+> > +		.matches = {
+> > +			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
+> > +			DMI_MATCH(DMI_PRODUCT_NAME, "Brya"),
+> > +		},
+> > +		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
+> > +					SOF_SDW_PCH_DMIC |
+> > +					SOF_SDW_FOUR_SPK |
+> > +					SOF_BT_OFFLOAD_SSP(2) |
+> > +					SOF_SSP_BT_OFFLOAD_PRESENT),
+> >  	},
+> >  	{}
+> >  };
+> 
 
-Great, can you make up a patch to fix this issue so you can get credit
-for finding and solving it?
-
-thanks,
+Already dropped, thanks!
 
 greg k-h
