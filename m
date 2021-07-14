@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71403C8FA3
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833143C8FAA
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240305AbhGNTxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:53:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+        id S240327AbhGNTxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240291AbhGNTti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9808461430;
-        Wed, 14 Jul 2021 19:44:59 +0000 (UTC)
+        id S240297AbhGNTtj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:49:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 381CE613E6;
+        Wed, 14 Jul 2021 19:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291900;
-        bh=I3Ug9ORhyZx+aWxRuZx6kk5NUv0HFnwkrWAbBsEC8Ac=;
+        s=k20201202; t=1626291902;
+        bh=30eWlAzrDopgJve91JjEseZeALr2hA3snjRwGKmePaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMn/fqGPKSl6Q+by1LI4uwsyXoSttQ/NpV8JKwN+FL+WdxygfW2wE+oMWBvm5+E6K
-         3C5eM0DGRCFXmush47ByMR6pnou7dEFxl8j2GB5BKaz+9VqajPicM+6H12aIcAtDVF
-         8WdVHTwCSjp4r+n5ZB65HVfW+BOvYesMLOdXdVzoo1vVV3kU4go12sJu74QRgTL8HE
-         KCw/B7Cqsq6daGIegFVezz90nfS0RMzfUJ11axKKo2Lg0hUWMnbgGeCQOcQdx1IRo/
-         We9rlPLOOMro6o8duq+kKLccq/l77WnhtTmveZjY6Ukt5JOpJbQciVN6Ewos054oMJ
-         hbfGySj5++yYQ==
+        b=C1WqpXtkaq20zJ+6+Ci6hzk99o/xWACvlH8aTwS6xXM3yO2GvqqJUCNoMODpB8FWq
+         ACHRZPGlgzg4g2WuZ/JHPPlNdSV685LLYfhXMf5tFCjj1UCzAmO6AgYZ/ZWftgJapa
+         XsrRAZDEFmXKov7dYhS1modgpDtGZ1RLreVv1Bvj0dYR3ggRp88+z2hbpjdHs5Jj69
+         XlOoGFg2aRDF+iud9Va76BhLmi9BVvOk4kDmyDd7lBxEvIO442XENFljyGCbPnMwE2
+         pIVvjs/zqvAxuOFoux+pFt9wO+1Zziq5uK/oJfVLfi42SopeLciRyykDhD8om02F+b
+         BDOBvlEFsMu2g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, Wu Bo <wubo40@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 79/88] scsi: libsas: Add LUN number check in .slave_alloc callback
-Date:   Wed, 14 Jul 2021 15:42:54 -0400
-Message-Id: <20210714194303.54028-79-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 80/88] scsi: be2iscsi: Fix some missing space in some messages
+Date:   Wed, 14 Jul 2021 15:42:55 -0400
+Message-Id: <20210714194303.54028-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
@@ -44,163 +42,350 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 49da96d77938db21864dae6b7736b71e96c1d203 ]
+[ Upstream commit c7fa2c855e892721bafafdf6393342c000e0ef77 ]
 
-Offlining a SATA device connected to a hisi SAS controller and then
-scanning the host will result in detecting 255 non-existent devices:
+Fix a few style issues reported by checkpatch.pl:
 
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:2:0]    disk    SEAGATE  ST600MM0006      B001  /dev/sdc
-  # echo "offline" > /sys/block/sdb/device/state
-  # echo "- - -" > /sys/class/scsi_host/host2/scan
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:1:1]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdh
-  ...
-  [2:0:1:255]  disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdjb
+ - Avoid duplicated word in comment.
 
-After a REPORT LUN command issued to the offline device fails, the SCSI
-midlayer tries to do a sequential scan of all devices whose LUN number is
-not 0. However, SATA does not support LUN numbers at all.
+ - Add missing space in messages.
 
-Introduce a generic sas_slave_alloc() handler which will return -ENXIO for
-SATA devices if the requested LUN number is larger than 0 and make libsas
-drivers use this function as their .slave_alloc callback.
+ - Unneeded continuation line character.
 
-Link: https://lore.kernel.org/r/20210622034037.1467088-1-yuyufen@huawei.com
-Reported-by: Wu Bo <wubo40@huawei.com>
-Suggested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+ - Unneeded extra spaces.
+
+ - Unneeded log message after memory allocation failure.
+
+Link: https://lore.kernel.org/r/8cb62f0eb96ec7ce7a73fe97cb4490dd5121ecff.1623482155.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic94xx/aic94xx_init.c    | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
- drivers/scsi/isci/init.c               | 1 +
- drivers/scsi/libsas/sas_scsi_host.c    | 9 +++++++++
- drivers/scsi/mvsas/mv_init.c           | 1 +
- drivers/scsi/pm8001/pm8001_init.c      | 1 +
- 8 files changed, 16 insertions(+)
+ drivers/scsi/be2iscsi/be_main.c | 102 ++++++++++++--------------------
+ 1 file changed, 38 insertions(+), 64 deletions(-)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
-index a195bfe9eccc..7a78606598c4 100644
---- a/drivers/scsi/aic94xx/aic94xx_init.c
-+++ b/drivers/scsi/aic94xx/aic94xx_init.c
-@@ -53,6 +53,7 @@ static struct scsi_host_template aic94xx_sht = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
- 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-index 6c2a97f80b12..b997a190bd06 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-@@ -1769,6 +1769,7 @@ static struct scsi_host_template sht_v1_hw = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-index 6ef8730c61a6..b75d54339e40 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-@@ -3545,6 +3545,7 @@ static struct scsi_host_template sht_v2_hw = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index e9a82a390672..50a1c3478a6e 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3126,6 +3126,7 @@ static struct scsi_host_template sht_v3_hw = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/isci/init.c b/drivers/scsi/isci/init.c
-index 93bc9019667f..9d7cc62ace2e 100644
---- a/drivers/scsi/isci/init.c
-+++ b/drivers/scsi/isci/init.c
-@@ -167,6 +167,7 @@ static struct scsi_host_template isci_sht = {
- 	.eh_abort_handler		= sas_eh_abort_handler,
- 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
-+	.slave_alloc			= sas_slave_alloc,
- 	.target_destroy			= sas_target_destroy,
- 	.ioctl				= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 1bf939818c98..ee44a0d7730b 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -911,6 +911,14 @@ void sas_task_abort(struct sas_task *task)
- 		blk_abort_request(sc->request);
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index 5c3513a4b450..f2639d1e985d 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -143,8 +143,7 @@ DEVICE_ATTR(beiscsi_##_name, S_IRUGO | S_IWUSR,\
+ 	      beiscsi_##_name##_disp, beiscsi_##_name##_store)
+ 
+ /*
+- * When new log level added update the
+- * the MAX allowed value for log_enable
++ * When new log level added update MAX allowed value for log_enable
+  */
+ BEISCSI_RW_ATTR(log_enable, 0x00,
+ 		0xFF, 0x00, "Enable logging Bit Mask\n"
+@@ -825,9 +824,8 @@ static int beiscsi_init_irqs(struct beiscsi_hba *phba)
+ 					  &phwi_context->be_eq[i]);
+ 			if (ret) {
+ 				beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-					    "BM_%d : beiscsi_init_irqs-Failed to"
+-					    "register msix for i = %d\n",
+-					    i);
++					    "BM_%d : %s-Failed to register msix for i = %d\n",
++					    __func__, i);
+ 				kfree(phba->msi_name[i]);
+ 				goto free_msix_irqs;
+ 			}
+@@ -841,9 +839,9 @@ static int beiscsi_init_irqs(struct beiscsi_hba *phba)
+ 		ret = request_irq(pci_irq_vector(pcidev, i), be_isr_mcc, 0,
+ 				  phba->msi_name[i], &phwi_context->be_eq[i]);
+ 		if (ret) {
+-			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT ,
+-				    "BM_%d : beiscsi_init_irqs-"
+-				    "Failed to register beiscsi_msix_mcc\n");
++			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
++				    "BM_%d : %s-Failed to register beiscsi_msix_mcc\n",
++				    __func__);
+ 			kfree(phba->msi_name[i]);
+ 			goto free_msix_irqs;
+ 		}
+@@ -853,8 +851,8 @@ static int beiscsi_init_irqs(struct beiscsi_hba *phba)
+ 				  "beiscsi", phba);
+ 		if (ret) {
+ 			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-				    "BM_%d : beiscsi_init_irqs-"
+-				    "Failed to register irq\\n");
++				    "BM_%d : %s-Failed to register irq\n",
++				    __func__);
+ 			return ret;
+ 		}
+ 	}
+@@ -1030,7 +1028,7 @@ free_wrb_handle(struct beiscsi_hba *phba, struct hwi_wrb_context *pwrb_context,
+ 			       phba->params.wrbs_per_cxn);
+ 	beiscsi_log(phba, KERN_INFO,
+ 		    BEISCSI_LOG_IO | BEISCSI_LOG_CONFIG,
+-		    "BM_%d : FREE WRB: pwrb_handle=%p free_index=0x%x"
++		    "BM_%d : FREE WRB: pwrb_handle=%p free_index=0x%x "
+ 		    "wrb_handles_available=%d\n",
+ 		    pwrb_handle, pwrb_context->free_index,
+ 		    pwrb_context->wrb_handles_available);
+@@ -1374,7 +1372,7 @@ static void hwi_complete_cmd(struct beiscsi_conn *beiscsi_conn,
+ 		beiscsi_log(phba, KERN_ERR,
+ 			    BEISCSI_LOG_CONFIG | BEISCSI_LOG_IO,
+ 			    "BM_%d :\t\t No HWH_TYPE_LOGIN Expected in"
+-			    " hwi_complete_cmd- Solicited path\n");
++			    " %s- Solicited path\n", __func__);
+ 		break;
+ 
+ 	case HWH_TYPE_NOP:
+@@ -1384,8 +1382,8 @@ static void hwi_complete_cmd(struct beiscsi_conn *beiscsi_conn,
+ 	default:
+ 		beiscsi_log(phba, KERN_WARNING,
+ 			    BEISCSI_LOG_CONFIG | BEISCSI_LOG_IO,
+-			    "BM_%d : In hwi_complete_cmd, unknown type = %d"
+-			    "wrb_index 0x%x CID 0x%x\n", type,
++			    "BM_%d : In %s, unknown type = %d "
++			    "wrb_index 0x%x CID 0x%x\n", __func__, type,
+ 			    csol_cqe.wrb_index,
+ 			    csol_cqe.cid);
+ 		break;
+@@ -1883,9 +1881,9 @@ unsigned int beiscsi_process_cq(struct be_eq_obj *pbe_eq, int budget)
+ 				cid = AMAP_GET_BITS(
+ 						    struct amap_i_t_dpdu_cqe_v2,
+ 						    cid, sol);
+-			 else
+-				 cid = AMAP_GET_BITS(struct amap_sol_cqe_v2,
+-						     cid, sol);
++			else
++				cid = AMAP_GET_BITS(struct amap_sol_cqe_v2,
++						    cid, sol);
+ 		}
+ 
+ 		cri_index = BE_GET_CRI_FROM_CID(cid);
+@@ -2010,8 +2008,7 @@ unsigned int beiscsi_process_cq(struct be_eq_obj *pbe_eq, int budget)
+ 		default:
+ 			beiscsi_log(phba, KERN_ERR,
+ 				    BEISCSI_LOG_IO | BEISCSI_LOG_CONFIG,
+-				    "BM_%d : Invalid CQE Event Received Code : %d"
+-				    "CID 0x%x...\n",
++				    "BM_%d : Invalid CQE Event Received Code : %d CID 0x%x...\n",
+ 				    code, cid);
+ 			break;
+ 		}
+@@ -3001,7 +2998,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 	void *eq_vaddress;
+ 	dma_addr_t paddr;
+ 
+-	num_eq_pages = PAGES_REQUIRED(phba->params.num_eq_entries * \
++	num_eq_pages = PAGES_REQUIRED(phba->params.num_eq_entries *
+ 				      sizeof(struct be_eq_entry));
+ 
+ 	if (phba->pcidev->msix_enabled)
+@@ -3034,8 +3031,7 @@ static int beiscsi_create_eqs(struct beiscsi_hba *phba,
+ 					    BEISCSI_EQ_DELAY_DEF);
+ 		if (ret) {
+ 			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-				    "BM_%d : beiscsi_cmd_eq_create"
+-				    "Failed for EQ\n");
++				    "BM_%d : beiscsi_cmd_eq_create Failed for EQ\n");
+ 			goto create_eq_error;
+ 		}
+ 
+@@ -3068,7 +3064,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 	int ret = -ENOMEM;
+ 	dma_addr_t paddr;
+ 
+-	num_cq_pages = PAGES_REQUIRED(phba->params.num_cq_entries * \
++	num_cq_pages = PAGES_REQUIRED(phba->params.num_cq_entries *
+ 				      sizeof(struct sol_cqe));
+ 
+ 	for (i = 0; i < phba->num_cpus; i++) {
+@@ -3090,8 +3086,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 				    sizeof(struct sol_cqe), cq_vaddress);
+ 		if (ret) {
+ 			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-				    "BM_%d : be_fill_queue Failed "
+-				    "for ISCSI CQ\n");
++				    "BM_%d : be_fill_queue Failed for ISCSI CQ\n");
+ 			goto create_cq_error;
+ 		}
+ 
+@@ -3100,8 +3095,7 @@ static int beiscsi_create_cqs(struct beiscsi_hba *phba,
+ 					    false, 0);
+ 		if (ret) {
+ 			beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-				    "BM_%d : beiscsi_cmd_eq_create"
+-				    "Failed for ISCSI CQ\n");
++				    "BM_%d : beiscsi_cmd_eq_create Failed for ISCSI CQ\n");
+ 			goto create_cq_error;
+ 		}
+ 		beiscsi_log(phba, KERN_INFO, BEISCSI_LOG_INIT,
+@@ -3226,8 +3220,8 @@ beiscsi_create_def_data(struct beiscsi_hba *phba,
+ 		    phwi_context->be_def_dataq[ulp_num].id);
+ 
+ 	beiscsi_log(phba, KERN_INFO, BEISCSI_LOG_INIT,
+-		    "BM_%d : DEFAULT PDU DATA RING CREATED"
+-		    "on ULP : %d\n", ulp_num);
++		    "BM_%d : DEFAULT PDU DATA RING CREATED on ULP : %d\n",
++		    ulp_num);
+ 	return 0;
  }
  
-+int sas_slave_alloc(struct scsi_device *sdev)
-+{
-+	if (dev_is_sata(sdev_to_domain_dev(sdev)) && sdev->lun)
-+		return -ENXIO;
-+
-+	return 0;
-+}
-+
- void sas_target_destroy(struct scsi_target *starget)
- {
- 	struct domain_device *found_dev = starget->hostdata;
-@@ -957,5 +965,6 @@ EXPORT_SYMBOL_GPL(sas_task_abort);
- EXPORT_SYMBOL_GPL(sas_phy_reset);
- EXPORT_SYMBOL_GPL(sas_eh_device_reset_handler);
- EXPORT_SYMBOL_GPL(sas_eh_target_reset_handler);
-+EXPORT_SYMBOL_GPL(sas_slave_alloc);
- EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
-diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
-index 6aa2697c4a15..b03c0f35d7b0 100644
---- a/drivers/scsi/mvsas/mv_init.c
-+++ b/drivers/scsi/mvsas/mv_init.c
-@@ -46,6 +46,7 @@ static struct scsi_host_template mvs_sht = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 0c0c886c7371..13b8ddec6189 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -101,6 +101,7 @@ static struct scsi_host_template pm8001_sht = {
- 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- #ifdef CONFIG_COMPAT
+@@ -3253,13 +3247,13 @@ beiscsi_post_template_hdr(struct beiscsi_hba *phba)
+ 
+ 			if (status != 0) {
+ 				beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-					    "BM_%d : Post Template HDR Failed for"
++					    "BM_%d : Post Template HDR Failed for "
+ 					    "ULP_%d\n", ulp_num);
+ 				return status;
+ 			}
+ 
+ 			beiscsi_log(phba, KERN_INFO, BEISCSI_LOG_INIT,
+-				    "BM_%d : Template HDR Pages Posted for"
++				    "BM_%d : Template HDR Pages Posted for "
+ 				    "ULP_%d\n", ulp_num);
+ 		}
+ 	}
+@@ -3374,18 +3368,17 @@ beiscsi_create_wrb_rings(struct beiscsi_hba *phba,
+ 		} else {
+ 			idx++;
+ 			wrb_vaddr = mem_descr->mem_array[idx].virtual_address;
+-			pa_addr_lo = mem_descr->mem_array[idx].\
++			pa_addr_lo = mem_descr->mem_array[idx].
+ 					bus_address.u.a64.address;
+ 			num_wrb_rings = mem_descr->mem_array[idx].size /
+ 					(phba->params.wrbs_per_cxn *
+ 					sizeof(struct iscsi_wrb));
+ 			pwrb_arr[num].virtual_address = wrb_vaddr;
+-			pwrb_arr[num].bus_address.u.a64.address\
+-						= pa_addr_lo;
++			pwrb_arr[num].bus_address.u.a64.address = pa_addr_lo;
+ 			pwrb_arr[num].size = phba->params.wrbs_per_cxn *
+ 						 sizeof(struct iscsi_wrb);
+ 			wrb_vaddr += pwrb_arr[num].size;
+-			pa_addr_lo   += pwrb_arr[num].size;
++			pa_addr_lo += pwrb_arr[num].size;
+ 			num_wrb_rings--;
+ 		}
+ 	}
+@@ -3939,7 +3932,7 @@ static int beiscsi_init_sgl_handle(struct beiscsi_hba *phba)
+ 		idx++;
+ 	}
+ 	beiscsi_log(phba, KERN_INFO, BEISCSI_LOG_INIT,
+-		    "BM_%d : phba->io_sgl_hndl_avbl=%d"
++		    "BM_%d : phba->io_sgl_hndl_avbl=%d "
+ 		    "phba->eh_sgl_hndl_avbl=%d\n",
+ 		    phba->io_sgl_hndl_avbl,
+ 		    phba->eh_sgl_hndl_avbl);
+@@ -3997,13 +3990,8 @@ static int hba_setup_cid_tbls(struct beiscsi_hba *phba)
+ 					       GFP_KERNEL);
+ 
+ 			if (!ptr_cid_info) {
+-				beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-					    "BM_%d : Failed to allocate memory"
+-					    "for ULP_CID_INFO for ULP : %d\n",
+-					    ulp_num);
+ 				ret = -ENOMEM;
+ 				goto free_memory;
+-
+ 			}
+ 
+ 			/* Allocate memory for CID array */
+@@ -4012,10 +4000,6 @@ static int hba_setup_cid_tbls(struct beiscsi_hba *phba)
+ 					sizeof(*ptr_cid_info->cid_array),
+ 					GFP_KERNEL);
+ 			if (!ptr_cid_info->cid_array) {
+-				beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-					    "BM_%d : Failed to allocate memory"
+-					    "for CID_ARRAY for ULP : %d\n",
+-					    ulp_num);
+ 				kfree(ptr_cid_info);
+ 				ptr_cid_info = NULL;
+ 				ret = -ENOMEM;
+@@ -4033,9 +4017,6 @@ static int hba_setup_cid_tbls(struct beiscsi_hba *phba)
+ 				 sizeof(struct iscsi_endpoint *),
+ 				 GFP_KERNEL);
+ 	if (!phba->ep_array) {
+-		beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-			    "BM_%d : Failed to allocate memory in "
+-			    "hba_setup_cid_tbls\n");
+ 		ret = -ENOMEM;
+ 
+ 		goto free_memory;
+@@ -4045,10 +4026,6 @@ static int hba_setup_cid_tbls(struct beiscsi_hba *phba)
+ 				   sizeof(struct beiscsi_conn *),
+ 				   GFP_KERNEL);
+ 	if (!phba->conn_table) {
+-		beiscsi_log(phba, KERN_ERR, BEISCSI_LOG_INIT,
+-			    "BM_%d : Failed to allocate memory in"
+-			    "hba_setup_cid_tbls\n");
+-
+ 		kfree(phba->ep_array);
+ 		phba->ep_array = NULL;
+ 		ret = -ENOMEM;
+@@ -4401,7 +4378,7 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 		if (!io_task->psgl_handle) {
+ 			beiscsi_log(phba, KERN_ERR,
+ 				    BEISCSI_LOG_IO | BEISCSI_LOG_CONFIG,
+-				    "BM_%d : Alloc of IO_SGL_ICD Failed"
++				    "BM_%d : Alloc of IO_SGL_ICD Failed "
+ 				    "for the CID : %d\n",
+ 				    beiscsi_conn->beiscsi_conn_cid);
+ 			goto free_hndls;
+@@ -4412,7 +4389,7 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 		if (!io_task->pwrb_handle) {
+ 			beiscsi_log(phba, KERN_ERR,
+ 				    BEISCSI_LOG_IO | BEISCSI_LOG_CONFIG,
+-				    "BM_%d : Alloc of WRB_HANDLE Failed"
++				    "BM_%d : Alloc of WRB_HANDLE Failed "
+ 				    "for the CID : %d\n",
+ 				    beiscsi_conn->beiscsi_conn_cid);
+ 			goto free_io_hndls;
+@@ -4428,10 +4405,9 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 					beiscsi_log(phba, KERN_ERR,
+ 						    BEISCSI_LOG_IO |
+ 						    BEISCSI_LOG_CONFIG,
+-						    "BM_%d : Alloc of MGMT_SGL_ICD Failed"
++						    "BM_%d : Alloc of MGMT_SGL_ICD Failed "
+ 						    "for the CID : %d\n",
+-						    beiscsi_conn->
+-						    beiscsi_conn_cid);
++						    beiscsi_conn->beiscsi_conn_cid);
+ 					goto free_hndls;
+ 				}
+ 
+@@ -4446,10 +4422,9 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 					beiscsi_log(phba, KERN_ERR,
+ 						    BEISCSI_LOG_IO |
+ 						    BEISCSI_LOG_CONFIG,
+-						    "BM_%d : Alloc of WRB_HANDLE Failed"
++						    "BM_%d : Alloc of WRB_HANDLE Failed "
+ 						    "for the CID : %d\n",
+-						    beiscsi_conn->
+-						    beiscsi_conn_cid);
++						    beiscsi_conn->beiscsi_conn_cid);
+ 					goto free_mgmt_hndls;
+ 				}
+ 				beiscsi_conn->plogin_wrb_handle =
+@@ -4467,10 +4442,9 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 				beiscsi_log(phba, KERN_ERR,
+ 					    BEISCSI_LOG_IO |
+ 					    BEISCSI_LOG_CONFIG,
+-					    "BM_%d : Alloc of MGMT_SGL_ICD Failed"
++					    "BM_%d : Alloc of MGMT_SGL_ICD Failed "
+ 					    "for the CID : %d\n",
+-					    beiscsi_conn->
+-					    beiscsi_conn_cid);
++					    beiscsi_conn->beiscsi_conn_cid);
+ 				goto free_hndls;
+ 			}
+ 			io_task->pwrb_handle =
+@@ -4480,7 +4454,7 @@ static int beiscsi_alloc_pdu(struct iscsi_task *task, uint8_t opcode)
+ 			if (!io_task->pwrb_handle) {
+ 				beiscsi_log(phba, KERN_ERR,
+ 					    BEISCSI_LOG_IO | BEISCSI_LOG_CONFIG,
+-					    "BM_%d : Alloc of WRB_HANDLE Failed"
++					    "BM_%d : Alloc of WRB_HANDLE Failed "
+ 					    "for the CID : %d\n",
+ 					    beiscsi_conn->beiscsi_conn_cid);
+ 				goto free_mgmt_hndls;
 -- 
 2.30.2
 
