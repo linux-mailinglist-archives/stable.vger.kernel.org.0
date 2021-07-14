@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E383C8D25
+	by mail.lfdr.de (Postfix) with ESMTP id A2C203C8D26
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235218AbhGNTnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
+        id S235225AbhGNTnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235846AbhGNTnL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10F8C613DC;
-        Wed, 14 Jul 2021 19:40:17 +0000 (UTC)
+        id S235866AbhGNTnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49C6661370;
+        Wed, 14 Jul 2021 19:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291618;
-        bh=JxfxbU+hWiQO2Ji+lo8fLwh1c+vG9CbvECsWFUbwYN8=;
+        s=k20201202; t=1626291620;
+        bh=E+iOY2yzXNa/d+8Y+LyMMqT6lx3jzGNbC2lLNqo6/cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LWAd9gQPk6PVC22Zx0qE9eDPuNVKtB6AjjmbOn5XW+ffLn9xKIXteUVYByR4sryxP
-         NTjSk67RV1Df3D5bhc0PH9flb7Li3zPvyrHHOcd9/ByoRvVBjnsgrawSW+EraZBwFl
-         LVv4aLIKyOXYX9rlWwukRV6XWljCvrMktUhKZbU5y7CHIxZ1YPG1OZThgwezk0FNMD
-         4Oq2708xnY6hzYwppqadOUtwVwnKQeWq55UcKI3dM6QCik8I4LnbeTNfjR2HlPhu5b
-         yhL65QhtL1to+SaqCto+BJaG+OCloWQs1BmiQFElECsnM7zRS7s/r8axWhwkDW1c7D
-         nlWEfBcvbSuAQ==
+        b=YBXeDHz3EoOH7LW7BUKeUYau/rT4Dr3O+Q1zCkRmTQUPRC4IoQhWZBWmyASJyGaM2
+         a0L+fca+LCFl9pKRPacQSEH5O0K2QH4guNs2GE7wRtzPUWp+NiKiqE2W6+FBlzApU9
+         sTforb6er/81kr2aerVtsrohfZ/qJoshSCAcddNWo62f7qW0qURclG5Pk0tC6QL0Zo
+         t0fyt0pA916IUvqzs/m6vFxKfN8f1iOTsJXTvlW1RmI8bNC4iZgvSgJRYUDy6AfV/a
+         hOg/XyIHLBmCUk4KdzsP83E7jL3/Q2Hr83JdC/xTPosunNVPjcHZ5Ugz4E23c+rN++
+         nkdk+Opowx65A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Konstantin Porotchkin <kostap@marvell.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 096/108] arch/arm64/boot/dts/marvell: fix NAND partitioning scheme
-Date:   Wed, 14 Jul 2021 15:37:48 -0400
-Message-Id: <20210714193800.52097-96-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 097/108] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
+Date:   Wed, 14 Jul 2021 15:37:49 -0400
+Message-Id: <20210714193800.52097-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -43,32 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Porotchkin <kostap@marvell.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit e3850467bf8c82de4a052619136839fe8054b774 ]
+[ Upstream commit 742b0d7e15c333303daad4856de0764f4bc83601 ]
 
-Eliminate 1MB gap between Linux and filesystem partitions.
+Interrupt line can be configured on different hardware in different way,
+even inverted.  Therefore driver should not enforce specific trigger
+type - edge falling - but instead rely on Devicetree to configure it.
 
-Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+The Maxim 77686 datasheet describes the interrupt line as active low
+with a requirement of acknowledge from the CPU therefore the edge
+falling is not correct.
+
+The interrupt line is shared between PMIC and RTC driver, so using level
+sensitive interrupt is here especially important to avoid races.  With
+an edge configuration in case if first PMIC signals interrupt followed
+shortly after by the RTC, the interrupt might not be yet cleared/acked
+thus the second one would not be noticed.
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210526172036.183223-6-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/marvell/cn9130-db.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-max77686.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/marvell/cn9130-db.dts b/arch/arm64/boot/dts/marvell/cn9130-db.dts
-index 2c2af001619b..9758609541c7 100644
---- a/arch/arm64/boot/dts/marvell/cn9130-db.dts
-+++ b/arch/arm64/boot/dts/marvell/cn9130-db.dts
-@@ -260,7 +260,7 @@ partition@0 {
- 			};
- 			partition@200000 {
- 				label = "Linux";
--				reg = <0x200000 0xd00000>;
-+				reg = <0x200000 0xe00000>;
- 			};
- 			partition@1000000 {
- 				label = "Filesystem";
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index d51cc12114cb..eae7cb9faf1e 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -717,8 +717,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
+ 
+ add_rtc_irq:
+ 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
+-				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
+-				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
++				  IRQF_ONESHOT | IRQF_SHARED,
++				  0, info->drv_data->rtc_irq_chip,
+ 				  &info->rtc_irq_data);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
 -- 
 2.30.2
 
