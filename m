@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B6E3C8C11
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864D93C8C15
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:38:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbhGNTlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:41:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35236 "EHLO mail.kernel.org"
+        id S231544AbhGNTlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231262AbhGNTlF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:41:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1342613D0;
-        Wed, 14 Jul 2021 19:38:11 +0000 (UTC)
+        id S231374AbhGNTlG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:41:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C75961370;
+        Wed, 14 Jul 2021 19:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291492;
-        bh=pnyR6fwBHtFyf6b4xz5/ykwTIcbWbhXNEyqQ/nN1DOY=;
+        s=k20201202; t=1626291494;
+        bh=7WPyDgtLqfpuzV80djq5MmeUFks9fzqefhlXiDzYijQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gY2bZXgnunmKf0g5N328+A3H37+vJpPXI1qaetzytF1TDIQggatwFsVGX0mKk6iW5
-         qtd9ZlNinfrxcwJf0/QD8McjoIOh/Ksv8V1ex087iE/eJWTizOYws+jDdDiWRW9rrX
-         g78Lwsvpq6j0Mk/BoaiV494sTThLZZ3/PyrAGciNz4CXtp2IZ3Jj/PaSOzExme5AOz
-         Vp/ijYQfTr5s8aWvgzWCWNggrO5zTEEZaFpxNnyVYEnlYfODFpS2qKOxT2deFzZi1I
-         1tS8o1EmHBbzv5auMVgU34aRtWYxFdAY+4m2WlXMBiswghncsZQUtFnj6pvyDGdtse
-         F4youBTxOwPvA==
+        b=JYQKNLvBKbtGL/Z3e262fYIevAX2mDGgx2lrEQO7oFZnmtWPzeYquAAUmxyn362CS
+         MSmGlDZevBnwGu/WezpWyuEv7EW07KImZmdcWjLasIXezHRPQQLB1lA360uA1WsdF5
+         u02sVbgUfJ0CNHhujQnqo5uhYyD0FW/X+/Bn1xJ7gr1UO/6IyykmHS3LsuWkf98VU+
+         rEv5KVxdulMaPP3SB1DcXAzVX93bLJgvVaqq6bzzeqCH9AR1d6xKYBcgqWeY6KCEn3
+         YXIag41mEqvP1uoshHvqpW54gFfvh0KxhQvwpdfvWwZCLccZv4UXwAvw3qePKG+13g
+         rpiclANj0nk4A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Gaignard <benjamin.gaignard@collabora.com>,
+Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 008/108] ARM: dts: rockchip: Fix IOMMU nodes properties on rk322x
-Date:   Wed, 14 Jul 2021 15:36:20 -0400
-Message-Id: <20210714193800.52097-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 009/108] ARM: dts: rockchip: Fix power-controller node names for rk3066a
+Date:   Wed, 14 Jul 2021 15:36:21 -0400
+Message-Id: <20210714193800.52097-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -44,69 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit 6b023929666f0be5df75f5e0278d1b70effadf42 ]
+[ Upstream commit f2948781a72f0d8cf2adf31758c357f2f35e6c79 ]
 
-Add '#" to iommu-cells properties.
-Remove useless interrupt-names properties
+Use more generic names (as recommended in the device tree specification
+or the binding documentation)
 
-Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
-Link: https://lore.kernel.org/r/20210507090232.233049-4-benjamin.gaignard@collabora.com
+Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210417112952.8516-2-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk322x.dtsi | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/rk3066a.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
-index 9f02ba7a0cc2..25f83f2f5618 100644
---- a/arch/arm/boot/dts/rk322x.dtsi
-+++ b/arch/arm/boot/dts/rk322x.dtsi
-@@ -558,10 +558,9 @@ vpu_mmu: iommu@20020800 {
- 		compatible = "rockchip,iommu";
- 		reg = <0x20020800 0x100>;
- 		interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "vpu_mmu";
- 		clocks = <&cru ACLK_VPU>, <&cru HCLK_VPU>;
- 		clock-names = "aclk", "iface";
--		iommu-cells = <0>;
-+		#iommu-cells = <0>;
- 		status = "disabled";
- 	};
+diff --git a/arch/arm/boot/dts/rk3066a.dtsi b/arch/arm/boot/dts/rk3066a.dtsi
+index 252750c97f97..bbc3bff50856 100644
+--- a/arch/arm/boot/dts/rk3066a.dtsi
++++ b/arch/arm/boot/dts/rk3066a.dtsi
+@@ -755,7 +755,7 @@ power: power-controller {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
  
-@@ -569,10 +568,9 @@ vdec_mmu: iommu@20030480 {
- 		compatible = "rockchip,iommu";
- 		reg = <0x20030480 0x40>, <0x200304c0 0x40>;
- 		interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "vdec_mmu";
- 		clocks = <&cru ACLK_RKVDEC>, <&cru HCLK_RKVDEC>;
- 		clock-names = "aclk", "iface";
--		iommu-cells = <0>;
-+		#iommu-cells = <0>;
- 		status = "disabled";
- 	};
+-		pd_vio@RK3066_PD_VIO {
++		power-domain@RK3066_PD_VIO {
+ 			reg = <RK3066_PD_VIO>;
+ 			clocks = <&cru ACLK_LCDC0>,
+ 				 <&cru ACLK_LCDC1>,
+@@ -782,7 +782,7 @@ pd_vio@RK3066_PD_VIO {
+ 				 <&qos_rga>;
+ 		};
  
-@@ -602,7 +600,6 @@ vop_mmu: iommu@20053f00 {
- 		compatible = "rockchip,iommu";
- 		reg = <0x20053f00 0x100>;
- 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "vop_mmu";
- 		clocks = <&cru ACLK_VOP>, <&cru HCLK_VOP>;
- 		clock-names = "aclk", "iface";
- 		#iommu-cells = <0>;
-@@ -623,10 +620,9 @@ iep_mmu: iommu@20070800 {
- 		compatible = "rockchip,iommu";
- 		reg = <0x20070800 0x100>;
- 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "iep_mmu";
- 		clocks = <&cru ACLK_IEP>, <&cru HCLK_IEP>;
- 		clock-names = "aclk", "iface";
--		iommu-cells = <0>;
-+		#iommu-cells = <0>;
- 		status = "disabled";
- 	};
+-		pd_video@RK3066_PD_VIDEO {
++		power-domain@RK3066_PD_VIDEO {
+ 			reg = <RK3066_PD_VIDEO>;
+ 			clocks = <&cru ACLK_VDPU>,
+ 				 <&cru ACLK_VEPU>,
+@@ -791,7 +791,7 @@ pd_video@RK3066_PD_VIDEO {
+ 			pm_qos = <&qos_vpu>;
+ 		};
  
+-		pd_gpu@RK3066_PD_GPU {
++		power-domain@RK3066_PD_GPU {
+ 			reg = <RK3066_PD_GPU>;
+ 			clocks = <&cru ACLK_GPU>;
+ 			pm_qos = <&qos_gpu>;
 -- 
 2.30.2
 
