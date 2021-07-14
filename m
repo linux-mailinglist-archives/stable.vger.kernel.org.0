@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 268743C8F4A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 229173C8F4F
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241176AbhGNTwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:52:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46246 "EHLO mail.kernel.org"
+        id S241379AbhGNTwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:52:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239115AbhGNTtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239120AbhGNTtL (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:49:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E05B561410;
-        Wed, 14 Jul 2021 19:44:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 963576044F;
+        Wed, 14 Jul 2021 19:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291844;
-        bh=S3IlfG69UXparSHCr+oLXcne8yC6qMFeodELkSRQv1c=;
+        s=k20201202; t=1626291846;
+        bh=ZP72MNIhNjEqgn3lAWKRauimmu/FfYaKtcaJ48nayNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkacUGdPjgAfJNP9KrKxm7kGpTBNWV9oVZ9pKO+UXzeGSPtZ9/rKVPCgjcOeqqSKs
-         RS8lDQYy9geiHxd8hj33uN/Zqm6+8P9ZDkiBacy2RwrF1LZM0Xe9qeRaCYPir4Ajoi
-         GA0/YDdDkzdmWrFHWAGG4I13JjeOOPhASjxEleJm9M61Dy0xe/BoUp8ZWd+8Tcjlet
-         LlCyNQeZZfQiHBJJsKRq2Wtgpue2n68r5hTnzDWL45jLrj54UPxT1GhkOwmZY+hTIv
-         OHPWn45zKFKxIyBCV7ICOfGcO1gAaLt51QmKmoB2O7AHOLVuE4T80Cib05l3djD1A6
-         CoAPmOi6hD29A==
+        b=aNjloTgC/S5IuQnUqd1D50zRMW5sArRb/gif9jUnVHTi4SEQ9blpQtukfhreAMO6k
+         oFCnjzZrT4NiJXWYzH+f0oDcLYAUpum+LEtLvLQmYSVGUSzlfbmAOUevZ+90DFhTlu
+         n1tfnJ2SdLtPFkCj3rTcGPPM4p7ZSBL+BecaG1aLVpRFj2ptKGH74RG8KrzKnhgjyO
+         TMnAoPESlmYGi+v4IdXaEiUTrb41hOBZfwE5FDIGBiSDipBz7/qNNJYRBLLphj9GtU
+         IFe9qsSXI2Hy2l8Ten0FTUAYyQTIR3LgvKXdf14f64dG0V114HaMoy340DUZXUkf+d
+         lauI6wXaSZ32A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+Cc:     Suman Anna <s-anna@ti.com>, Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 40/88] ARM: dts: am335x: fix ti,no-reset-on-init flag for gpios
-Date:   Wed, 14 Jul 2021 15:42:15 -0400
-Message-Id: <20210714194303.54028-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 41/88] ARM: dts: OMAP2+: Replace underscores in sub-mailbox node names
+Date:   Wed, 14 Jul 2021 15:42:16 -0400
+Message-Id: <20210714194303.54028-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
@@ -43,95 +42,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Suman Anna <s-anna@ti.com>
 
-[ Upstream commit d7d30b8fcd111e9feb171023c0e0c8d855582dcb ]
+[ Upstream commit 9e7f5ee1137397def6580461e27e5efcb68183ee ]
 
-The ti,no-reset-on-init flag need to be at the interconnect target module
-level for the modules that have it defined.
-The ti-sysc driver handles this case, but produces warning, not a critical
-issue.
+A number of sub-mailbox node names in various OMAP2+ dts files are
+currently using underscores. This is not adhering to the node name
+convention, fix all of these to use hiphens.
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+These nodes are already using the prefix mbox, so they will be in
+compliance with the sub-mailbox node name convention being added in
+the OMAP Mailbox YAML binding as well.
+
+Signed-off-by: Suman Anna <s-anna@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-baltos.dtsi              | 4 ++--
- arch/arm/boot/dts/am335x-evmsk.dts                | 2 +-
- arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi | 2 +-
- arch/arm/boot/dts/am335x-moxa-uc-8100-common.dtsi | 2 +-
- arch/arm/boot/dts/am33xx-l4.dtsi                  | 2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/am57xx-cl-som-am57x.dts   | 8 ++++----
+ arch/arm/boot/dts/dm816x.dtsi               | 2 +-
+ arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi  | 6 +++---
+ arch/arm/boot/dts/dra72x.dtsi               | 6 +++---
+ arch/arm/boot/dts/dra74-ipu-dsp-common.dtsi | 2 +-
+ arch/arm/boot/dts/dra74x.dtsi               | 8 ++++----
+ arch/arm/boot/dts/omap4-l4.dtsi             | 4 ++--
+ arch/arm/boot/dts/omap5-l4.dtsi             | 4 ++--
+ 8 files changed, 20 insertions(+), 20 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-baltos.dtsi b/arch/arm/boot/dts/am335x-baltos.dtsi
-index b7f64c7ba83d..77e23e736854 100644
---- a/arch/arm/boot/dts/am335x-baltos.dtsi
-+++ b/arch/arm/boot/dts/am335x-baltos.dtsi
-@@ -393,10 +393,10 @@ &aes {
+diff --git a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
+index 39eba2bc36dd..aed81568a297 100644
+--- a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
++++ b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
+@@ -454,20 +454,20 @@ &sata {
+ 
+ &mailbox5 {
  	status = "okay";
+-	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
++	mbox_ipu1_ipc3x: mbox-ipu1-ipc3x {
+ 		status = "okay";
+ 	};
+-	mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
++	mbox_dsp1_ipc3x: mbox-dsp1-ipc3x {
+ 		status = "okay";
+ 	};
  };
  
--&gpio0 {
-+&gpio0_target {
- 	ti,no-reset-on-init;
- };
- 
--&gpio3 {
-+&gpio3_target {
- 	ti,no-reset-on-init;
- };
-diff --git a/arch/arm/boot/dts/am335x-evmsk.dts b/arch/arm/boot/dts/am335x-evmsk.dts
-index b43b94122d3c..bf05b68274c2 100644
---- a/arch/arm/boot/dts/am335x-evmsk.dts
-+++ b/arch/arm/boot/dts/am335x-evmsk.dts
-@@ -648,7 +648,7 @@ &aes {
+ &mailbox6 {
  	status = "okay";
+-	mbox_ipu2_ipc3x: mbox_ipu2_ipc3x {
++	mbox_ipu2_ipc3x: mbox-ipu2-ipc3x {
+ 		status = "okay";
+ 	};
+-	mbox_dsp2_ipc3x: mbox_dsp2_ipc3x {
++	mbox_dsp2_ipc3x: mbox-dsp2-ipc3x {
+ 		status = "okay";
+ 	};
  };
- 
--&gpio0 {
-+&gpio0_target {
- 	ti,no-reset-on-init;
- };
- 
-diff --git a/arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi b/arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi
-index 4e90f9c23d2e..8121a199607c 100644
---- a/arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-moxa-uc-2100-common.dtsi
-@@ -150,7 +150,7 @@ &aes {
- 	status = "okay";
- };
- 
--&gpio0 {
-+&gpio0_target {
- 	ti,no-reset-on-init;
- };
- 
-diff --git a/arch/arm/boot/dts/am335x-moxa-uc-8100-common.dtsi b/arch/arm/boot/dts/am335x-moxa-uc-8100-common.dtsi
-index 98d8ed4ad967..39e5d2ce600a 100644
---- a/arch/arm/boot/dts/am335x-moxa-uc-8100-common.dtsi
-+++ b/arch/arm/boot/dts/am335x-moxa-uc-8100-common.dtsi
-@@ -353,7 +353,7 @@ &aes {
- 	status = "okay";
- };
- 
--&gpio0 {
-+&gpio0_target {
- 	ti,no-reset-on-init;
- };
- 
-diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index ea20e4bdf040..29fafb67cfaa 100644
---- a/arch/arm/boot/dts/am33xx-l4.dtsi
-+++ b/arch/arm/boot/dts/am33xx-l4.dtsi
-@@ -1723,7 +1723,7 @@ gpio2: gpio@0 {
+diff --git a/arch/arm/boot/dts/dm816x.dtsi b/arch/arm/boot/dts/dm816x.dtsi
+index 3551a64963f8..1825d912b8ab 100644
+--- a/arch/arm/boot/dts/dm816x.dtsi
++++ b/arch/arm/boot/dts/dm816x.dtsi
+@@ -351,7 +351,7 @@ mailbox: mailbox@480c8000 {
+ 			#mbox-cells = <1>;
+ 			ti,mbox-num-users = <4>;
+ 			ti,mbox-num-fifos = <12>;
+-			mbox_dsp: mbox_dsp {
++			mbox_dsp: mbox-dsp {
+ 				ti,mbox-tx = <3 0 0>;
+ 				ti,mbox-rx = <0 0 0>;
  			};
- 		};
+diff --git a/arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi b/arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi
+index a25749a1c365..a5bdc6431d8d 100644
+--- a/arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi
++++ b/arch/arm/boot/dts/dra7-ipu-dsp-common.dtsi
+@@ -5,17 +5,17 @@
  
--		target-module@ae000 {			/* 0x481ae000, ap 56 3a.0 */
-+		gpio3_target: target-module@ae000 {		/* 0x481ae000, ap 56 3a.0 */
- 			compatible = "ti,sysc-omap2", "ti,sysc";
- 			reg = <0xae000 0x4>,
- 			      <0xae010 0x4>,
+ &mailbox5 {
+ 	status = "okay";
+-	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
++	mbox_ipu1_ipc3x: mbox-ipu1-ipc3x {
+ 		status = "okay";
+ 	};
+-	mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
++	mbox_dsp1_ipc3x: mbox-dsp1-ipc3x {
+ 		status = "okay";
+ 	};
+ };
+ 
+ &mailbox6 {
+ 	status = "okay";
+-	mbox_ipu2_ipc3x: mbox_ipu2_ipc3x {
++	mbox_ipu2_ipc3x: mbox-ipu2-ipc3x {
+ 		status = "okay";
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
+index d403acc754b6..85ab1f46e56b 100644
+--- a/arch/arm/boot/dts/dra72x.dtsi
++++ b/arch/arm/boot/dts/dra72x.dtsi
+@@ -77,12 +77,12 @@ &dss {
+ };
+ 
+ &mailbox5 {
+-	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
++	mbox_ipu1_ipc3x: mbox-ipu1-ipc3x {
+ 		ti,mbox-tx = <6 2 2>;
+ 		ti,mbox-rx = <4 2 2>;
+ 		status = "disabled";
+ 	};
+-	mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
++	mbox_dsp1_ipc3x: mbox-dsp1-ipc3x {
+ 		ti,mbox-tx = <5 2 2>;
+ 		ti,mbox-rx = <1 2 2>;
+ 		status = "disabled";
+@@ -90,7 +90,7 @@ mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
+ };
+ 
+ &mailbox6 {
+-	mbox_ipu2_ipc3x: mbox_ipu2_ipc3x {
++	mbox_ipu2_ipc3x: mbox-ipu2-ipc3x {
+ 		ti,mbox-tx = <6 2 2>;
+ 		ti,mbox-rx = <4 2 2>;
+ 		status = "disabled";
+diff --git a/arch/arm/boot/dts/dra74-ipu-dsp-common.dtsi b/arch/arm/boot/dts/dra74-ipu-dsp-common.dtsi
+index b1147a4b77f9..3256631510c5 100644
+--- a/arch/arm/boot/dts/dra74-ipu-dsp-common.dtsi
++++ b/arch/arm/boot/dts/dra74-ipu-dsp-common.dtsi
+@@ -6,7 +6,7 @@
+ #include "dra7-ipu-dsp-common.dtsi"
+ 
+ &mailbox6 {
+-	mbox_dsp2_ipc3x: mbox_dsp2_ipc3x {
++	mbox_dsp2_ipc3x: mbox-dsp2-ipc3x {
+ 		status = "okay";
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
+index e1850d6c841a..411ad295c201 100644
+--- a/arch/arm/boot/dts/dra74x.dtsi
++++ b/arch/arm/boot/dts/dra74x.dtsi
+@@ -188,12 +188,12 @@ &dss {
+ };
+ 
+ &mailbox5 {
+-	mbox_ipu1_ipc3x: mbox_ipu1_ipc3x {
++	mbox_ipu1_ipc3x: mbox-ipu1-ipc3x {
+ 		ti,mbox-tx = <6 2 2>;
+ 		ti,mbox-rx = <4 2 2>;
+ 		status = "disabled";
+ 	};
+-	mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
++	mbox_dsp1_ipc3x: mbox-dsp1-ipc3x {
+ 		ti,mbox-tx = <5 2 2>;
+ 		ti,mbox-rx = <1 2 2>;
+ 		status = "disabled";
+@@ -201,12 +201,12 @@ mbox_dsp1_ipc3x: mbox_dsp1_ipc3x {
+ };
+ 
+ &mailbox6 {
+-	mbox_ipu2_ipc3x: mbox_ipu2_ipc3x {
++	mbox_ipu2_ipc3x: mbox-ipu2-ipc3x {
+ 		ti,mbox-tx = <6 2 2>;
+ 		ti,mbox-rx = <4 2 2>;
+ 		status = "disabled";
+ 	};
+-	mbox_dsp2_ipc3x: mbox_dsp2_ipc3x {
++	mbox_dsp2_ipc3x: mbox-dsp2-ipc3x {
+ 		ti,mbox-tx = <5 2 2>;
+ 		ti,mbox-rx = <1 2 2>;
+ 		status = "disabled";
+diff --git a/arch/arm/boot/dts/omap4-l4.dtsi b/arch/arm/boot/dts/omap4-l4.dtsi
+index de742bf84efb..5015df4d876c 100644
+--- a/arch/arm/boot/dts/omap4-l4.dtsi
++++ b/arch/arm/boot/dts/omap4-l4.dtsi
+@@ -597,11 +597,11 @@ mailbox: mailbox@0 {
+ 				#mbox-cells = <1>;
+ 				ti,mbox-num-users = <3>;
+ 				ti,mbox-num-fifos = <8>;
+-				mbox_ipu: mbox_ipu {
++				mbox_ipu: mbox-ipu {
+ 					ti,mbox-tx = <0 0 0>;
+ 					ti,mbox-rx = <1 0 0>;
+ 				};
+-				mbox_dsp: mbox_dsp {
++				mbox_dsp: mbox-dsp {
+ 					ti,mbox-tx = <3 0 0>;
+ 					ti,mbox-rx = <2 0 0>;
+ 				};
+diff --git a/arch/arm/boot/dts/omap5-l4.dtsi b/arch/arm/boot/dts/omap5-l4.dtsi
+index f3d3a16b7c64..c67c8698cc30 100644
+--- a/arch/arm/boot/dts/omap5-l4.dtsi
++++ b/arch/arm/boot/dts/omap5-l4.dtsi
+@@ -613,11 +613,11 @@ mailbox: mailbox@0 {
+ 				#mbox-cells = <1>;
+ 				ti,mbox-num-users = <3>;
+ 				ti,mbox-num-fifos = <8>;
+-				mbox_ipu: mbox_ipu {
++				mbox_ipu: mbox-ipu {
+ 					ti,mbox-tx = <0 0 0>;
+ 					ti,mbox-rx = <1 0 0>;
+ 				};
+-				mbox_dsp: mbox_dsp {
++				mbox_dsp: mbox-dsp {
+ 					ti,mbox-tx = <3 0 0>;
+ 					ti,mbox-rx = <2 0 0>;
+ 				};
 -- 
 2.30.2
 
