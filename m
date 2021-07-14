@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3A53C8F3B
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 719603C8F42
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241316AbhGNTwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:52:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
+        id S241341AbhGNTwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:52:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238335AbhGNTsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:48:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B94161400;
-        Wed, 14 Jul 2021 19:43:53 +0000 (UTC)
+        id S238832AbhGNTso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:48:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89A51613F9;
+        Wed, 14 Jul 2021 19:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291833;
-        bh=PmuHXE9H4zNBy25vnRaIZ9Atb03pBeeR/qmffxxS/XA=;
+        s=k20201202; t=1626291835;
+        bh=JHMHx19zVrV434m+crZ6x4tmXsd9HIpWzGS7dA8vWes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N9KY5h2gHc3wT+JRQRZd2gnyz9Ca5LIestW+z1MbkZJUyQmP/UtdfTeaOwri4XW3P
-         Nn4i5UGEGz7e8x+pVbDfVe9d/6T5soNW+9cp1BoQQOUhpEs7QyCkA+95Uk6HfWUBpx
-         jn3qlVbH+NvHb2O97aY3PcoAo2z1wUVJcAaoR/qbiGv4dSuKVWLxfp8ovLDv8qaPIk
-         8SOokCh9nw+zQqqxuClHYOE16dEHQEqsaU9u0ViOzE/dNAtztg5+CrwKhMVPr1EkYM
-         PFqvpPFXrJVRu8GKcK1PSfcqP9K+6ntgC/O4Lwx1F15DeYT9woWRd/09cK/mMGOELK
-         CA9BG5AivuCYA==
+        b=Atjx74+LatxUQXzre0hvUBuXuJTDRNZT6P87ELlsLhmGZY0ScV2IM3L2rPjllQsNd
+         Kyh/p/GpuyfLopx/5xANKIgAhjep4vr1bTUu9MVuciy5g15QFFwI1ax/VvRyeHyvz6
+         Evvi1Kec2UaNnWujEUBU8cWdI0c3o/7cSmMHszGdwCUVM10+Vol30IP3HGFf3LkvpX
+         NwgRyUDMIv4kXP21MZrGtSymE8Ji01l45bpkEyFCVHq7YeX/arn+jDpiKZJijrHKuv
+         50RIflcHp5bcEBOQtEzZNQxfCvhl4ySxzV0gNmjs6nDBAdQ2UAnIFgroilaZKzEerG
+         W3VGv3Pl+B8QQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 32/88] kbuild: sink stdout from cmd for silent build
-Date:   Wed, 14 Jul 2021 15:42:07 -0400
-Message-Id: <20210714194303.54028-32-sashal@kernel.org>
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 33/88] ARM: dts: am335x: align GPIO hog names with dt-schema
+Date:   Wed, 14 Jul 2021 15:42:08 -0400
+Message-Id: <20210714194303.54028-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
@@ -41,97 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 174a1dcc96429efce4ef7eb2f5c4506480da2182 ]
+[ Upstream commit fb97f63106f3174992a22fe5e42dda96a0810750 ]
 
-When building with 'make -s', no output to stdout should be printed.
+The GPIO Hog dt-schema node naming convention expect GPIO hogs node names
+to end with a 'hog' suffix.
 
-As Arnd Bergmann reported [1], mkimage shows the detailed information
-of the generated images.
-
-I think this should be suppressed by the 'cmd' macro instead of by
-individual scripts.
-
-Insert 'exec >/dev/null;' in order to redirect stdout to /dev/null for
-silent builds.
-
-[Note about this implementation]
-
-'exec >/dev/null;' may look somewhat tricky, but this has a reason.
-
-Appending '>/dev/null' at the end of command line is a common way for
-redirection, so I first tried this:
-
-  cmd = @set -e; $(echo-cmd) $(cmd_$(1)) >/dev/null
-
-... but it would not work if $(cmd_$(1)) itself contains a redirection.
-
-For example, cmd_wrap in scripts/Makefile.asm-generic redirects the
-output from the 'echo' command into the target file.
-
-It would be expanded into:
-
-  echo "#include <asm-generic/$*.h>" > $@ >/dev/null
-
-Then, the target file gets empty because the string will go to /dev/null
-instead of $@.
-
-Next, I tried this:
-
-  cmd = @set -e; $(echo-cmd) { $(cmd_$(1)); } >/dev/null
-
-The form above would be expanded into:
-
-  { echo "#include <asm-generic/$*.h>" > $@; } >/dev/null
-
-This works as expected. However, it would be a syntax error if
-$(cmd_$(1)) is empty.
-
-When CONFIG_TRIM_UNUSED_KSYMS is disabled, $(call cmd,gen_ksymdeps) in
-scripts/Makefile.build would be expanded into:
-
-  set -e;  { ; } >/dev/null
-
-..., which causes an syntax error.
-
-I also tried this:
-
-  cmd = @set -e; $(echo-cmd) ( $(cmd_$(1)) ) >/dev/null
-
-... but this causes a syntax error for the same reason.
-
-So, finally I adopted:
-
-  cmd = @set -e; $(echo-cmd) exec >/dev/null; $(cmd_$(1))
-
-[1]: https://lore.kernel.org/lkml/20210514135752.2910387-1-arnd@kernel.org/
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/Kbuild.include | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/am335x-boneblack-wireless.dts | 2 +-
+ arch/arm/boot/dts/am335x-boneblue.dts           | 2 +-
+ arch/arm/boot/dts/am335x-bonegreen-wireless.dts | 4 ++--
+ arch/arm/boot/dts/am335x-icev2.dts              | 4 ++--
+ arch/arm/boot/dts/am335x-shc.dts                | 8 ++++----
+ 5 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 08e011175b4c..0d6e11820791 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -174,8 +174,13 @@ clean := -f $(srctree)/scripts/Makefile.clean obj
- echo-cmd = $(if $($(quiet)cmd_$(1)),\
- 	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
+diff --git a/arch/arm/boot/dts/am335x-boneblack-wireless.dts b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+index 86cad9912906..80116646a3fe 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-wireless.dts
++++ b/arch/arm/boot/dts/am335x-boneblack-wireless.dts
+@@ -101,7 +101,7 @@ bluetooth {
+ };
  
-+# sink stdout for 'make -s'
-+       redirect :=
-+ quiet_redirect :=
-+silent_redirect := exec >/dev/null;
-+
- # printing commands
--cmd = @set -e; $(echo-cmd) $(cmd_$(1))
-+cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
+ &gpio3 {
+-	ls_buf_en {
++	ls-buf-en-hog {
+ 		gpio-hog;
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+diff --git a/arch/arm/boot/dts/am335x-boneblue.dts b/arch/arm/boot/dts/am335x-boneblue.dts
+index c696d57cf364..239b32a04eb4 100644
+--- a/arch/arm/boot/dts/am335x-boneblue.dts
++++ b/arch/arm/boot/dts/am335x-boneblue.dts
+@@ -412,7 +412,7 @@ &dcan1 {
+ };
  
- ###
- # if_changed      - execute command if any prerequisite is newer than
+ &gpio3 {
+-	ls_buf_en {
++	ls-buf-en-hog {
+ 		gpio-hog;
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+diff --git a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+index 7615327d906a..74db0fc39397 100644
+--- a/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
++++ b/arch/arm/boot/dts/am335x-bonegreen-wireless.dts
+@@ -101,7 +101,7 @@ bluetooth {
+ };
+ 
+ &gpio1 {
+-	ls_buf_en {
++	ls-buf-en-hog {
+ 		gpio-hog;
+ 		gpios = <29 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+@@ -118,7 +118,7 @@ ls_buf_en {
+ /* an external pulldown on U21 pin 4.                                  */
+ 
+ &gpio3 {
+-	bt_aud_in {
++	bt-aud-in-hog {
+ 		gpio-hog;
+ 		gpios = <16 GPIO_ACTIVE_HIGH>;
+ 		output-low;
+diff --git a/arch/arm/boot/dts/am335x-icev2.dts b/arch/arm/boot/dts/am335x-icev2.dts
+index b958ab56a412..ed45079a68ff 100644
+--- a/arch/arm/boot/dts/am335x-icev2.dts
++++ b/arch/arm/boot/dts/am335x-icev2.dts
+@@ -458,14 +458,14 @@ &uart3 {
+ };
+ 
+ &gpio3 {
+-	p4 {
++	pr1-mii-ctl-hog {
+ 		gpio-hog;
+ 		gpios = <4 GPIO_ACTIVE_HIGH>;
+ 		output-high;
+ 		line-name = "PR1_MII_CTRL";
+ 	};
+ 
+-	p10 {
++	mux-mii-hog {
+ 		gpio-hog;
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		/* ETH1 mux: Low for MII-PRU, high for RMII-CPSW */
+diff --git a/arch/arm/boot/dts/am335x-shc.dts b/arch/arm/boot/dts/am335x-shc.dts
+index 1eaa26533466..2bfe60d32783 100644
+--- a/arch/arm/boot/dts/am335x-shc.dts
++++ b/arch/arm/boot/dts/am335x-shc.dts
+@@ -140,14 +140,14 @@ ehrpwm1: pwm@200 {
+ };
+ 
+ &gpio1 {
+-	hmtc_rst {
++	hmtc-rst-hog {
+ 		gpio-hog;
+ 		gpios = <24 GPIO_ACTIVE_LOW>;
+ 		output-high;
+ 		line-name = "homematic_reset";
+ 	};
+ 
+-	hmtc_prog {
++	hmtc-prog-hog {
+ 		gpio-hog;
+ 		gpios = <27 GPIO_ACTIVE_LOW>;
+ 		output-high;
+@@ -156,14 +156,14 @@ hmtc_prog {
+ };
+ 
+ &gpio3 {
+-	zgb_rst {
++	zgb-rst-hog {
+ 		gpio-hog;
+ 		gpios = <18 GPIO_ACTIVE_LOW>;
+ 		output-low;
+ 		line-name = "zigbee_reset";
+ 	};
+ 
+-	zgb_boot {
++	zgb-boot-hog {
+ 		gpio-hog;
+ 		gpios = <19 GPIO_ACTIVE_HIGH>;
+ 		output-high;
 -- 
 2.30.2
 
