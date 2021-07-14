@@ -2,144 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E213C853C
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 15:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 932163C8546
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 15:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231521AbhGNN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 09:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35584 "EHLO mail.kernel.org"
+        id S231539AbhGNN3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 09:29:20 -0400
+Received: from ofcsgdbm.dwd.de ([141.38.3.245]:48663 "EHLO ofcsgdbm.dwd.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231391AbhGNN0o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 09:26:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33DAD613B6;
-        Wed, 14 Jul 2021 13:23:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626269032;
-        bh=8YweS0lldK7zFXXHnB47WnsCb1i6ItUCidY2qcQq06U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=IFDfD23EOd+aE4fwhDT8JLwKE2CxDe2MLiSZuNk06Yt/hf9YgphVvDpqAU0w8+DWx
-         CPgzi3qgJ5UoajCJI/m1jCLyu5QdLEd+9V9HF0RgClp7sXScjYAjsSay9+UZcZu4bJ
-         UBpxgUx8OuQnvo6hw1gaNg+OPCqhQ/mDJ0B507Mc=
-Date:   Wed, 14 Jul 2021 15:23:50 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Michal Hocko <mhocko@kernel.org>, Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: 5.13.2-rc and others have many not for stable
-Message-ID: <YO7lZpqC4xrMPXQg@kroah.com>
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
- <YO0zXVX9Bx9QZCTs@kroah.com>
- <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
- <YO6r1k7CIl16o61z@kroah.com>
+        id S231391AbhGNN3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 09:29:19 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTP id 4GPyvR4JvHz1yPg
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dwd.de; h=
+        content-type:content-type:mime-version:references:message-id
+        :in-reply-to:subject:subject:from:from:date:date:received
+        :received:received:received:received:received:received:received;
+         s=dwd-csg20210107; t=1626269187; x=1627478788; bh=hdFT0cqBNvrij
+        zVT0ctruTOy0UZY4W/lUJFZwHtlokU=; b=DlW6Xa79pf8pGyi+PuI5FC2Qw/QXl
+        ylD2PryrxnKSWN3Z9WSYo686dCCpkL9bMpg8W8gryfR9z1+RHKJBqI63iqtKuGT6
+        t5yg/LHX3fMzkfiTP9bQxmEvwor0IfZ6Cyy4Fmqo4epjqjl7tqVnn7mInuAvxP/J
+        mCKJqOOaa3tbLpUWn+4yAbMLK/gtXnUDh7YPRxvAa3MEj//jZ4Pc7FCCVqC6Hrjd
+        SWe2g26AhnAkchAjj3IQhbnUbdPEFg5wZMxqF9kChXyh5qVt2W9R3l+JOMmKiRQe
+        Soz/aSKVuDC4aHQ5OnIQ+RV4LpWxKwbKn2f799VYXMVIx/2pXm0EjuA7Q==
+X-Virus-Scanned: by amavisd-new at csg.dwd.de
+Received: from ofcsg2cteh1.dwd.de ([172.30.232.65])
+        by localhost (ofcsg2dn1.dwd.de [172.30.232.24]) (amavisd-new, port 10024)
+        with ESMTP id UpO6ea_yVSjI for <stable@vger.kernel.org>;
+        Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 62B03C90257C
+        for <root@ofcsg2dn1.dwd.de>; Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+Received: from ofcsg2cteh1.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 6101FC902516
+        for <root@ofcsg2dn1.dwd.de>; Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+X-DDEI-TLS-USAGE: Unused
+Received: from ofcsgdbm.dwd.de (unknown [172.30.232.24])
+        by ofcsg2cteh1.dwd.de (Postfix) with ESMTP
+        for <root@ofcsg2dn1.dwd.de>; Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+Received: from ofcsgdbm.dwd.de by localhost (Postfix XFORWARD proxy);
+ Wed, 14 Jul 2021 13:26:27 -0000
+Received: from ofcsg2dvf1.dwd.de (ofcsg2dvf1.dwd.de [172.30.232.10])
+        by ofcsg2dn1.dwd.de (Postfix) with ESMTPS id 4GPyvR2QS8z1xPB;
+        Wed, 14 Jul 2021 13:26:27 +0000 (UTC)
+Received: from ofmailhub.dwd.de (oflxs16.dwd.de [141.38.39.208])
+        by ofcsg2dvf1.dwd.de  with ESMTP id 16EDQQvF032493-16EDQQvG032493;
+        Wed, 14 Jul 2021 13:26:26 GMT
+Received: from praktifix.dwd.de (praktifix.dwd.de [141.38.44.46])
+        by ofmailhub.dwd.de (Postfix) with ESMTP id BE000453F5;
+        Wed, 14 Jul 2021 13:26:26 +0000 (UTC)
+Date:   Wed, 14 Jul 2021 13:26:26 +0000 (GMT)
+From:   Holger Kiehl <Holger.Kiehl@dwd.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jan Kara <jack@suse.cz>
+cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
+In-Reply-To: <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
+Message-ID: <df63b875-f140-606a-862a-73b102345cd@praktifix.dwd.de>
+References: <20210712060912.995381202@linuxfoundation.org> <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de> <YO56HTE3k95JLeje@kroah.com> <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YO6r1k7CIl16o61z@kroah.com>
+Content-Type: text/plain; charset=US-ASCII
+X-FE-Policy-ID: 2:2:1:SYSTEM
+X-TMASE-Version: DDEI-5.1-8.6.1018-26280.007
+X-TMASE-Result: 10--20.925600-10.000000
+X-TMASE-MatchedRID: x2HXvaraFomWfDtBOz4q28bYuTb6+cQg69aS+7/zbj/mNRhvDVinv2Kp
+        MJoimBcbPsj5qjS+dCEYwvDSTCG2BJQlTsRs6bL83nHtGkYl/VpF/jSlPtma/r0/f33kf9Gljn9
+        2T7igP2sXndhpsXecxygywW45LfL0yFuWu3nxO+19j6Il8VAHF8ZU3kmz9C/H3pxmYneHU6t/cL
+        JHsj+DkZhk/6bphJLMKISk8WdGcXCHbsX/GOLqdgPZZctd3P4BuqgVqRoQsiB7lDzh8Z+EhhBmt
+        oCUanEvwgx24xjlvojzX5siSEObomsc2OVQ/NyCfid4LSHtIANuWkE39mLwR2zpNYa+Tlcne/cQ
+        kmt0G7GVIsnYOY5w/uF45apSJW4bV6HcTxi1U3IqkSeDPauzryIk3dpe5X+hy5JfHvVu9Itvxt6
+        yFJGkPy7TvubsyJqlq4m5Bec/+bTecSkNT7l/2Tn/wcdfjLjCp5HLLTy++LOKpw8ALShsZoIV24
+        CuYj50/sXPK0ncsYCD2kmNFYh3E4R9x+rbFqRWhL9NX2TqmkAApu/OILCbuFGeC58QTjRVY2iR7
+        K8WcszjMF8ggjW87E7NMOR+KVhPkfRhdidsajP+xOhjarOnHt0H8LFZNFG7/nnwJ52QYi+pygCG
+        KFPC+BeYl5uS2QAg
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-12:0,22:0,33:0,34:0-0
+X-TMASE-INERTIA: 0-0;;;;
+X-DDEI-PROCESSED-RESULT: Safe
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 14, 2021 at 11:18:14AM +0200, Greg Kroah-Hartman wrote:
-> On Tue, Jul 13, 2021 at 06:28:13PM -0700, Andrew Morton wrote:
-> > On Tue, 13 Jul 2021 08:31:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > 
-> > > 
-> > > > Amongst the 2000+ patches posted today, there are a significant number
-> > > > of them Signed-off-by Andrew, Signed-off-by Linus, Signed-off-by Sasha:
-> > > > yet never Cc'ed to stable (nor even posted as AUTOSELs, I think).
-> > > > 
-> > > > Am I out of date?  I thought that had been agreed not to happen:
-> > > > https://lore.kernel.org/linux-mm/20190808000533.7701-1-mike.kravetz@oracle.com/
-> > > > is the thread I found when I looked for confirmation, but I believe the
-> > > > same has been agreed before and since too.
-> > > > 
-> > > > Andrew goes to a lot of trouble to establish which Fixes from his tree
-> > > > ought to go to stable.  Of course there will be exceptions which we
-> > > > later decide should go in after all; but it's worrying when there's a
-> > > > wholesale breach like this, and I think most of them should be dropped.
-> > > > 
-> > > > To pick on just one of many examples (sorry Miaohe!), a patch that
-> > > > surprises me, but I've not had time to look into so far, and would
-> > > > not want accelerated into X stable releases, 385/800
-> > > > 
-> > > > > Miaohe Lin <linmiaohe@huawei.com>
-> > > > >     mm/shmem: fix shmem_swapin() race with swapoff
-> > > 
-> > > Sasha, and I, take patches from Linus's tree like the above one that
-> > > have "Fixes:" tags in them as many many maintainers do not remember to
-> > > put "cc: stable" on their patches.
-> > 
-> > As do many many developers.  I always check.
-> > 
-> > > The above patch says it fixes a problem in the 5.1 kernel release, so
-> > > Sasha queued it up for 5.10, 5.12, and 5.13.  Odds are he should have
-> > > also sent a "FAILED" notice for 5.4, but we don't always do that for
-> > > patches only with a Fixes tag all the time as we only have so much we
-> > > can do...
-> > > 
-> > > So is that tag incorrect?  If not, why was it not cc: stable?  Why is it
-> > > not valid for a stable release?
-> > 
-> > Usually because we judged that the seriousness of the problem did not
-> > justify the risk & churn of backporting its fix.
-> > 
-> > >  So far, all automated testing seems to
-> > > show that there are no regressions in these releases with these commits
-> > > in them.  If there was a problem, how would it show up?
-> > > 
-> > > And as far as I know, mm/ stuff is still not triggered by the AUTOSEL
-> > > bot, but that is not what caused this commit to be added to a stable
-> > > release.
-> > > 
-> > > Trying to keep a "do not apply" list for Fixes: tags only is much harder
-> > > for both of us as we do these semi-manually and review them
-> > > individually.  Trying to remember what subsystem only does Fixes tags
-> > > yet really doesn't mean it is an impossible task.
-> > 
-> > Well, it shouldn't be super hard to skip all patches which have Fixes:,
-> > Signed-off-by:akpm and no cc:stable?
+On Wed, 14 Jul 2021, Holger Kiehl wrote:
+
+> On Wed, 14 Jul 2021, Greg Kroah-Hartman wrote:
 > 
-> Ok, I will do this now (goes and writes this down...)
+> > On Wed, Jul 14, 2021 at 05:39:43AM +0000, Holger Kiehl wrote:
+> > > Hello,
+> > > 
+> > > On Mon, 12 Jul 2021, Greg Kroah-Hartman wrote:
+> > > 
+> > > > This is the start of the stable review cycle for the 5.13.2 release.
+> > > > There are 800 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > > 
+> > > > Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
+> > > > Anything received after that time might be too late.
+> > > > 
+> > > With this my system no longer boots:
+> > > 
+> > >    [  OK  ] Reached target Swap.
+> > >    [   75.213852] NMI watchdog: Watchdog detected hard LOCKUP on cpu 0
+> > >    [   75.213926] NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+> > >    [   75.213962] NMI watchdog: Watchdog detected hard LOCKUP on cpu 4
+> > >    [FAILED] Failed to start Wait for udev To Complete Device Initialization.
+> > >    See 'systemctl status systemd-udev-settle.service' for details.
+> > >             Starting Activation of DM RAID sets...
+> > >    [      ] (1 of 2) A start job is running for Activation of DM RAID sets (..min ..s / no limit)
+> > >    [      ] (2 of 2) A start job is running for Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling (..min ..s / no limit)
+> > > 
+> > > System is a Fedora 34 with all updates applied. Two other similar
+> > > systems with AMD CPUs (Ryzen 4750G + 3400G) this does not happen
+> > > and boots fine. The system where it does not boot has an Intel
+> > > Xeon E3-1285L v4 CPU. All of them use a dm_crypt root filesystem.
+> > > 
+> > > Any idea which patch I should drop to see if it boots again. I already
+> > > dropped
+> > > 
+> > >    [PATCH 5.13 743/800] ASoC: Intel: sof_sdw: add quirk support for Brya and BT-offload
+> > > 
+> > > and I just see that this one should also be dropped:
+> > > 
+> > >    [PATCH 5.13 768/800] hugetlb: address ref count racing in prep_compound_gigantic_page
+> > > 
+> > > Will still need to test this.
+> > 
+> > Can you run 'git bisect' to see what commit causes the problem?
+> > 
+> Yes, will try to do that. I think it will take some time ...
 > 
-> But it really feels odd that you all take the time to add a "Hey, this
-> fixes this specific commit!" tag in the changelog, yet you do not
-> actually want to go and fix the kernels that have that commit in it.
-> This is an odd signal to others that watch the changelogs for context
-> clues.  Perhaps you might not want to do that anymore.
+With the help of Pavel Machek and Jiri Slaby I was able 'git bisect'
+this to:
 
-I looked at some of these patches and it seems really odd to me that you
-all are marking them with Fixes: tags, but do not want them backported.
+   yoda:/usr/src/kernels/linux-5.13.y# git bisect good
+   a483f513670541227e6a31ac7141826b8c785842 is the first bad commit
+   commit a483f513670541227e6a31ac7141826b8c785842
+   Author: Jan Kara <jack@suse.cz>
+   Date:   Wed Jun 23 11:36:33 2021 +0200
 
-First example is babbbdd08af9 ("mm/huge_memory.c: don't discard hugepage
-if other processes are mapping it")
+       bfq: Remove merged request already in bfq_requests_merged()
 
-Why is this not ok to backport?
+       [ Upstream commit a921c655f2033dd1ce1379128efe881dda23ea37 ]
 
-Also what about e6be37b2e7bd ("mm/huge_memory.c: add missing read-only
-THP checking in transparent_hugepage_enabled()")?
+       Currently, bfq does very little in bfq_requests_merged() and handles all
+       the request cleanup in bfq_finish_requeue_request() called from
+       blk_mq_free_request(). That is currently safe only because
+       blk_mq_free_request() is called shortly after bfq_requests_merged()
+       while bfqd->lock is still held. However to fix a lock inversion between
+       bfqd->lock and ioc->lock, we need to call blk_mq_free_request() after
+       dropping bfqd->lock. That would mean that already merged request could
+       be seen by other processes inside bfq queues and possibly dispatched to
+       the device which is wrong. So move cleanup of the request from
+       bfq_finish_requeue_request() to bfq_requests_merged().
 
-And 41eb5df1cbc9 ("mm: memcg/slab: properly set up gfp flags for objcg
-pointer array")?
+       Acked-by: Paolo Valente <paolo.valente@linaro.org>
+       Signed-off-by: Jan Kara <jack@suse.cz>
+       Link: https://lore.kernel.org/r/20210623093634.27879-2-jack@suse.cz
+       Signed-off-by: Jens Axboe <axboe@kernel.dk>
+       Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-And 6acfb5ba150c ("mm: migrate: fix missing update page_private to
-hugetlb_page_subpool")?
+    block/bfq-iosched.c | 41 +++++++++++++----------------------------
+    1 file changed, 13 insertions(+), 28 deletions(-)
 
-And 832b50725373 ("mm: mmap_lock: use local locks instead of disabling
-preemption")? (the RT people want that...)
-
-And f7ec104458e0 ("mm/page_alloc: fix counting of managed_pages")?
-
-Do you want to rely on systems where these fixes are not applied?
-
-I can understand if you all want to send them to us later after they
-have been "tested out" in Linus's tree, that's fine, but to just not
-want them applied at all feels odd to me.
-
-thanks,
-
-greg k-h
+Holger
