@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E83B33C8E67
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C436E3C8E64
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236100AbhGNTrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:47:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S236506AbhGNTrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237778AbhGNTqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237767AbhGNTqi (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:46:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27A43613EA;
-        Wed, 14 Jul 2021 19:42:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1477613E6;
+        Wed, 14 Jul 2021 19:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291766;
-        bh=jWSKzkJ1vsphKuArPC7UbEpDSmeIB1msXfkM5MF16iA=;
+        s=k20201202; t=1626291768;
+        bh=moddoNz0+8bEQGPquKy9fYYfCti8Qcmq1EEceJBdnDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=abBdj9WKu9CtyNA6tOI3pbtZF9h/rvE1yWNpXlN40V1Pxq1sC0BNMjAYEVRe1iudA
-         yxKHI3PCWVxVV9707jquc173HHt2LJoTRQ2fKF4mpY2nawppwBlu/+kjAT4ODht+Sp
-         MB1SdqQIFx/7GMuUAxYwk5nkkXQFaE4QABNWDRKm3VFuEeMxv4s8WDM7kmVVy/6J4F
-         RyNd54dqa7rbR5WZRD3WL7C/RILPmnC8xJBtGY5cv5Z4tMcXL0SVx/XoMDpz3j09Or
-         6NSdZKgNn5C3nXiWekdJq0eh8Qpbxo6I3l9jc/lbqTVMb9+ArLO30Gi8cOT9GFlSbG
-         iBTOrgrKHIrDg==
+        b=Vd4/rQKKAZmPaH6nozzV9p/k3gvAwxv2baJF2QeAIM9/UQ9qDe1aUN+7UtSNZorEB
+         I5cgx+ZxfXP+h/Yxq+aBLKfV13ngvi3D83WwdX68zm7V6ErTqf9x/zdxDsrMCn2PZm
+         4XIuuzU0sPxUVobN9qkNWu8QHNw5FX986onwIuc1XBzoN9mDpNGMEsGDt2QnHFnfAr
+         GoLwesV0cPc/aa75jmyYGZmkZgtacMdK5rfRKQSZnrSfT/Fz2STXp/vorGwtVRmVxh
+         TxNB00ic1yJ9so7cb9AQ+8tbfQ4t2gBznDaQF9oIghjqTT3oyy9VAteaTQAvLPhMfc
+         0qlgfk3vM+xtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
+Cc:     Yufen Yu <yuyufen@huawei.com>, Wu Bo <wubo40@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 092/102] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
-Date:   Wed, 14 Jul 2021 15:40:25 -0400
-Message-Id: <20210714194036.53141-92-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 093/102] scsi: libsas: Add LUN number check in .slave_alloc callback
+Date:   Wed, 14 Jul 2021 15:40:26 -0400
+Message-Id: <20210714194036.53141-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -42,43 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
+[ Upstream commit 49da96d77938db21864dae6b7736b71e96c1d203 ]
 
-The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
-to the left will be promoted to a 32 bit signed int and then sign-extended
-to a u64. In the event that the top bit of the u8 is set then all then all
-the upper 32 bits of the u64 end up as also being set because of the
-sign-extension. Fix this by casting the u8 values to a u64 before the 24
-bit left shift.
+Offlining a SATA device connected to a hisi SAS controller and then
+scanning the host will result in detecting 255 non-existent devices:
 
-[ This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
-commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
+  # lsscsi
+  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
+  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
+  [2:0:2:0]    disk    SEAGATE  ST600MM0006      B001  /dev/sdc
+  # echo "offline" > /sys/block/sdb/device/state
+  # echo "- - -" > /sys/class/scsi_host/host2/scan
+  # lsscsi
+  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
+  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
+  [2:0:1:1]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdh
+  ...
+  [2:0:1:255]  disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdjb
 
-Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+After a REPORT LUN command issued to the offline device fails, the SCSI
+midlayer tries to do a sequential scan of all devices whose LUN number is
+not 0. However, SATA does not support LUN numbers at all.
+
+Introduce a generic sas_slave_alloc() handler which will return -ENXIO for
+SATA devices if the requested LUN number is larger than 0 and make libsas
+drivers use this function as their .slave_alloc callback.
+
+Link: https://lore.kernel.org/r/20210622034037.1467088-1-yuyufen@huawei.com
+Reported-by: Wu Bo <wubo40@huawei.com>
+Suggested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Jason Yan <yanaijie@huawei.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Addresses-Coverity: ("Unintended sign extension")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/aic94xx/aic94xx_init.c    | 1 +
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 1 +
+ drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 1 +
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
+ drivers/scsi/isci/init.c               | 1 +
+ drivers/scsi/libsas/sas_scsi_host.c    | 9 +++++++++
+ drivers/scsi/mvsas/mv_init.c           | 1 +
+ drivers/scsi/pm8001/pm8001_init.c      | 1 +
+ 8 files changed, 16 insertions(+)
 
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
-index 4b04ab8908f8..a396f048a031 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_core.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
-@@ -493,7 +493,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
- 	return ((ahc_inb(ahc, port))
- 	      | (ahc_inb(ahc, port+1) << 8)
- 	      | (ahc_inb(ahc, port+2) << 16)
--	      | (ahc_inb(ahc, port+3) << 24)
-+	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
- 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
- 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
- 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
+diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
+index a195bfe9eccc..7a78606598c4 100644
+--- a/drivers/scsi/aic94xx/aic94xx_init.c
++++ b/drivers/scsi/aic94xx/aic94xx_init.c
+@@ -53,6 +53,7 @@ static struct scsi_host_template aic94xx_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 3e359ac752fd..15eaac3a4eb6 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1771,6 +1771,7 @@ static struct scsi_host_template sht_v1_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+index 46f60fc2a069..9df1639ffa65 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
+@@ -3584,6 +3584,7 @@ static struct scsi_host_template sht_v2_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index b21246b1ba99..de23213945a7 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -3147,6 +3147,7 @@ static struct scsi_host_template sht_v3_hw = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/isci/init.c b/drivers/scsi/isci/init.c
+index c452849e7bb4..ffd33e5decae 100644
+--- a/drivers/scsi/isci/init.c
++++ b/drivers/scsi/isci/init.c
+@@ -167,6 +167,7 @@ static struct scsi_host_template isci_sht = {
+ 	.eh_abort_handler		= sas_eh_abort_handler,
+ 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
++	.slave_alloc			= sas_slave_alloc,
+ 	.target_destroy			= sas_target_destroy,
+ 	.ioctl				= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
+index 1bf939818c98..ee44a0d7730b 100644
+--- a/drivers/scsi/libsas/sas_scsi_host.c
++++ b/drivers/scsi/libsas/sas_scsi_host.c
+@@ -911,6 +911,14 @@ void sas_task_abort(struct sas_task *task)
+ 		blk_abort_request(sc->request);
+ }
+ 
++int sas_slave_alloc(struct scsi_device *sdev)
++{
++	if (dev_is_sata(sdev_to_domain_dev(sdev)) && sdev->lun)
++		return -ENXIO;
++
++	return 0;
++}
++
+ void sas_target_destroy(struct scsi_target *starget)
+ {
+ 	struct domain_device *found_dev = starget->hostdata;
+@@ -957,5 +965,6 @@ EXPORT_SYMBOL_GPL(sas_task_abort);
+ EXPORT_SYMBOL_GPL(sas_phy_reset);
+ EXPORT_SYMBOL_GPL(sas_eh_device_reset_handler);
+ EXPORT_SYMBOL_GPL(sas_eh_target_reset_handler);
++EXPORT_SYMBOL_GPL(sas_slave_alloc);
+ EXPORT_SYMBOL_GPL(sas_target_destroy);
+ EXPORT_SYMBOL_GPL(sas_ioctl);
+diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
+index 6aa2697c4a15..b03c0f35d7b0 100644
+--- a/drivers/scsi/mvsas/mv_init.c
++++ b/drivers/scsi/mvsas/mv_init.c
+@@ -46,6 +46,7 @@ static struct scsi_host_template mvs_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
+diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
+index 4f3ec2bba8c9..18ea2a3e6b76 100644
+--- a/drivers/scsi/pm8001/pm8001_init.c
++++ b/drivers/scsi/pm8001/pm8001_init.c
+@@ -101,6 +101,7 @@ static struct scsi_host_template pm8001_sht = {
+ 	.max_sectors		= SCSI_DEFAULT_MAX_SECTORS,
+ 	.eh_device_reset_handler = sas_eh_device_reset_handler,
+ 	.eh_target_reset_handler = sas_eh_target_reset_handler,
++	.slave_alloc		= sas_slave_alloc,
+ 	.target_destroy		= sas_target_destroy,
+ 	.ioctl			= sas_ioctl,
+ #ifdef CONFIG_COMPAT
 -- 
 2.30.2
 
