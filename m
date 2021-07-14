@@ -2,253 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C200D3C92B9
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 23:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1482D3C92D4
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 23:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230382AbhGNVGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 17:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41142 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbhGNVGV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 17:06:21 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22A6FC06175F
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 14:03:29 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d12so3151145pfj.2
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 14:03:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ScZ3rUEEix4BF68pEXmy4eyC5aIo63jytRxDpaA52U4=;
-        b=mDOecBmp9FY0HWfWlKKZNwz8+c/qebepnFZFMmUfDLmfXO4YaDHFsYdddCqyJnWCax
-         hdfjeXb0hlGjtxA24KbcgHQT4mbfeuXcJKFe29VL+G+xUs2v2wP+ib43X2suKEUK67Tv
-         WCosiFirH9SB+zeZoAb1mJFcBnMsCKtI3i9LvCGb7RXZ84nfRgfj3ChRE8Q+s7xfY3Mn
-         i+T0bzbswVNaBnIgY61sI6EE/cah/f2X4wRcL7o6/cJOFPOVW/rUApDvjNZkbW99HU7i
-         2LKDKnGj7HBqGt440ohQXz9ZMN8VdjgfdfQx/iTy5zYqPdII41FJ2iWCFaPhpfVMyUXk
-         IXRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ScZ3rUEEix4BF68pEXmy4eyC5aIo63jytRxDpaA52U4=;
-        b=OwgxgwgIMaqVFcFCqdGkVzdlkVSHgrQQam8+ybDZkD2P5T76ozFe1xSIMkn1ryqCoH
-         MY8vxfVwbqjEdEsGON1CHb0tf6jZHr06bpKM7tmGe6jHFnhHgJIGkNogLsLeb9EcBCU3
-         TkqEbgLUJ4ipneCKRFs3wX8RQIkQeb7GN3q09+jEELmJzMFcK6Cib3iroEVxZOV36Yow
-         7QPKghMCnrOqTB4uRbKXwmKX3SH3af8XeznNevGh1A229E5C0ys0hJ7wukrHOCkn3n7r
-         4IYC+t0A6Uorx6E2ReCxFp1yhvD//TFUWj3EjIJHTEIj36tS0FKnZqo6yYW1pupsq338
-         FQ3A==
-X-Gm-Message-State: AOAM530shbN7NTiyCsecHrpztgnB4V5hro2haqt0Rx9eveUMRhtV92dW
-        INh3PGsaTwSJB2TZNFhcnaExo2qWMfAo/I7k
-X-Google-Smtp-Source: ABdhPJxIJmxtXA8bVFoic+yP51kroLzTRB0irSMXJlC8Q4Wcemht4uiNGdo9fMhloJlW/pRaTFnjIg==
-X-Received: by 2002:a63:2f05:: with SMTP id v5mr11265383pgv.449.1626296608424;
-        Wed, 14 Jul 2021 14:03:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 11sm4345637pge.7.2021.07.14.14.03.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jul 2021 14:03:28 -0700 (PDT)
-Message-ID: <60ef5120.1c69fb81.c5384.d815@mx.google.com>
-Date:   Wed, 14 Jul 2021 14:03:28 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.49-595-g4dccdd372b12
-Subject: stable-rc/queue/5.10 baseline: 130 runs,
- 6 regressions (v5.10.49-595-g4dccdd372b12)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S234891AbhGNVMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 17:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58756 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234998AbhGNVME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 17:12:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B46BF613CC;
+        Wed, 14 Jul 2021 21:09:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1626296952;
+        bh=hHlXOWAlgpR5zYXZWRZLzEhjTkhsaaifQTA1+gqRSu4=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=y44sm/PmDvlcm+SYUSSbjyrMdahlB1dXzuDoxpGIElSAhhuyE/IxYd8wq7baRA0Sk
+         HNL7tgdBEaKQOd/hZSXZsY9cGjpHhqQ7x9qLAjaLew4dlqO+y7G4fKolAExtHlUI3w
+         R3zDLSDN9Ash9MzS9pVhT547n9ygj/6rb7PJraZg=
+Date:   Wed, 14 Jul 2021 14:09:11 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, Michal Hocko <mhocko@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: 5.13.2-rc and others have many not for stable
+Message-Id: <20210714140911.6c45f8f4a9b129ed36bb9d06@linux-foundation.org>
+In-Reply-To: <YO7lZpqC4xrMPXQg@kroah.com>
+References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
+        <YO0zXVX9Bx9QZCTs@kroah.com>
+        <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
+        <YO6r1k7CIl16o61z@kroah.com>
+        <YO7lZpqC4xrMPXQg@kroah.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 130 runs, 6 regressions (v5.10.49-595-g4dccd=
-d372b12)
+On Wed, 14 Jul 2021 15:23:50 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-Regressions Summary
--------------------
+> > But it really feels odd that you all take the time to add a "Hey, this
+> > fixes this specific commit!" tag in the changelog, yet you do not
+> > actually want to go and fix the kernels that have that commit in it.
+> > This is an odd signal to others that watch the changelogs for context
+> > clues.  Perhaps you might not want to do that anymore.
+> 
+> I looked at some of these patches and it seems really odd to me that you
+> all are marking them with Fixes: tags, but do not want them backported.
+> 
+> First example is babbbdd08af9 ("mm/huge_memory.c: don't discard hugepage
+> if other processes are mapping it")
+> 
+> Why is this not ok to backport?
+> 
+> Also what about e6be37b2e7bd ("mm/huge_memory.c: add missing read-only
+> THP checking in transparent_hugepage_enabled()")?
+> 
+> And 41eb5df1cbc9 ("mm: memcg/slab: properly set up gfp flags for objcg
+> pointer array")?
+> 
+> And 6acfb5ba150c ("mm: migrate: fix missing update page_private to
+> hugetlb_page_subpool")?
+> 
+> And 832b50725373 ("mm: mmap_lock: use local locks instead of disabling
+> preemption")? (the RT people want that...)
+> 
+> And f7ec104458e0 ("mm/page_alloc: fix counting of managed_pages")?
+> 
+> Do you want to rely on systems where these fixes are not applied?
+> 
+> I can understand if you all want to send them to us later after they
+> have been "tested out" in Linus's tree, that's fine, but to just not
+> want them applied at all feels odd to me.
 
-platform                 | arch | lab             | compiler | defconfig   =
-        | regressions
--------------------------+------+-----------------+----------+-------------=
---------+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre    | gcc-8    | multi_v7_def=
-config  | 2          =
+Broadly speaking: end-user impact.  If we don't have reports of the
+issue causing a user-visible problem and we don't expect such things to
+occur, don't backport.  Why risk causing some regression when we cannot
+identify any benefit?  (and boy do my fingers get tired asking people
+to describe the user-visible effects of the bug they claim to have fixed!)
 
-imx6ul-pico-hobbit       | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_de=
-fconfig | 1          =
+Of course, screwups can happen and user-useful patches may be passed
+over.
 
-rk3288-veyron-jaq        | arm  | lab-collabora   | gcc-8    | multi_v7_def=
-config  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.49-595-g4dccdd372b12/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.49-595-g4dccdd372b12
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4dccdd372b12ff56923943f8bcefdb3d6d87aefb =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab             | compiler | defconfig   =
-        | regressions
--------------------------+------+-----------------+----------+-------------=
---------+------------
-imx6q-var-dt6customboard | arm  | lab-baylibre    | gcc-8    | multi_v7_def=
-config  | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef1ae7f0803f95d38a93a3
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-=
-var-dt6customboard.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-imx6q-=
-var-dt6customboard.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/60ef1ae7f0803f9=
-5d38a93a7
-        new failure (last pass: v5.10.49-596-gbf7048dec18f0)
-        4 lines
-
-    2021-07-14T17:11:42.873157  kern  :alert : 8<--- cut here ---
-    2021-07-14T17:11:42.873560  kern  :alert : Unhandled fault: alignment e=
-xception (0x001) at 0xcec60217
-    2021-07-14T17:11:42.874071  kern  :alert : pgd =3D (ptrval)
-    2021-07-14T17:11:42.874626  kern  :alert : [<8>[   39.434015] <LAVA_SIG=
-NAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=
-=3D4>
-    2021-07-14T17:11:42.874895  cec60217] *pgd=3D1ec1141e(bad)   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60ef1ae7f0803f9=
-5d38a93a8
-        new failure (last pass: v5.10.49-596-gbf7048dec18f0)
-        26 lines
-
-    2021-07-14T17:11:42.926056  kern  :emerg : Internal error: : 1 [#1] SMP=
- ARM
-    2021-07-14T17:11:42.926447  kern  :emerg : Process kworker/1:1 (pid: 57=
-, stack limit =3D 0x(ptrval))
-    2021-07-14T17:11:42.926959  kern  :emerg : Stack: (0xc2461eb0 to<8>[   =
-39.480872] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RESULT=3Dfail UNITS=
-=3Dlines MEASUREMENT=3D26>
-    2021-07-14T17:11:42.927231   0xc2462000)
-    2021-07-14T17:11:42.927476  kern  :emerg : 1ea0<8>[   39.492459] <LAVA_=
-SIGNAL_ENDRUN 0_dmesg 560769_1.5.2.4.1>
-    2021-07-14T17:11:42.927715  :                                     00000=
-000 00000000 c2460000 cec60217   =
-
- =
-
-
-
-platform                 | arch | lab             | compiler | defconfig   =
-        | regressions
--------------------------+------+-----------------+----------+-------------=
---------+------------
-imx6ul-pico-hobbit       | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef1a08acc138faa58a93bf
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ef1a08acc138faa58a9=
-3c0
-        new failure (last pass: v5.10.49-593-g5e321de204df8) =
-
- =
-
-
-
-platform                 | arch | lab             | compiler | defconfig   =
-        | regressions
--------------------------+------+-----------------+----------+-------------=
---------+------------
-rk3288-veyron-jaq        | arm  | lab-collabora   | gcc-8    | multi_v7_def=
-config  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef2559c587586d138a93ae
-
-  Results:     67 PASS, 3 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.49-=
-595-g4dccdd372b12/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60ef255ac587586d138a93c0
-        failing since 29 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-07-14T17:56:13.217642  /lava-4197553/1/../bin/lava-test-case
-    2021-07-14T17:56:13.234818  <8>[   13.808522] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-07-14T17:56:13.235047  /lava-4197553/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60ef255ac587586d138a93d8
-        failing since 29 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-07-14T17:56:11.790732  /lava-4197553/1/../bin/lava-test-case
-    2021-07-14T17:56:11.808850  <8>[   12.381302] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
-    2021-07-14T17:56:11.809078  /lava-4197553/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60ef255ac587586d138a93d9
-        failing since 29 days (last pass: v5.10.43-44-g253317604975, first =
-fail: v5.10.43-130-g87b5f83f722c)
-
-    2021-07-14T17:56:10.770730  /lava-4197553/1/../bin/lava-test-case
-    2021-07-14T17:56:10.776351  <8>[   11.361631] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
