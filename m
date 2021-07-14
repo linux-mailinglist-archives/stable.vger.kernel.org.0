@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7FA3C8DF0
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 094403C8DF5
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234304AbhGNTqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        id S237227AbhGNTqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229531AbhGNTpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237196AbhGNTpb (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:45:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4ABD0613DC;
-        Wed, 14 Jul 2021 19:42:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3FD7613D1;
+        Wed, 14 Jul 2021 19:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291724;
-        bh=fNAfgilUz+BSyvc/aOHy3dfty8RsDUxO9eDDWTBjaSk=;
+        s=k20201202; t=1626291725;
+        bh=hMBF/hJvioj+TreW6tILKhJlyVpec2dzPXhehcw4PkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhKVId9pqSpa+Ym76ErcUWdCUp/DSmJYPHnw2Dn+N2D7I88g9CtkzjV+1fwCZ95+v
-         vG8fUri7t+v8D+g+NYkUlemkNzv8xrO6635gVnhzVOoA4ecVYHonqI+spRqT+qxyAY
-         xks5nf0IDeY5gSonPGxDxLIi2QEnrXmI0KPTdstHh53bNDLUQ7FU9oXX1qC7uVpb2A
-         TWFSVQLh4J2fOIPpy70I4882l/DKr3QhEVEeqsHd14BcP+l2T12LtMP7OojKkdmb12
-         Mep9lex8yh+jQ1POmLkDd/MF/eEVKsw9G3R9QIvUy/vn3Wpj+J9Z8lAhGbenG+j3cK
-         Snw0QYA/C9sSQ==
+        b=qJmaTFOg7nNhT2/WMPcoqga4ymuJkZQKjyyzy+ug1bNDKXZ/aHzsr+dNNs1k3NYpb
+         ndU7LPeaNwDS0mMJvZuFkqSOP00HbSift7FA7LPK6PoW5aiZxTTDhsw7u4W8pqUTH+
+         MKcDkeusw0aS5SoDLvA8w0NyADkDqMrDTpaq6NDwZqfGyRSlTqpZghMSots9GGTir3
+         fzYi0nn21GDzu/yMcOfkDQiKDj9zLsZHqqCjCu4mToZ4Hx8lxrqJEF3C730/lf1ILH
+         BY23ugF0jlWFit//VzYG9mhvUdP9tZ8uX/iC6LZ5NWqJUpl4m4/rOL9XkyHCfaz83n
+         r0Of4i1P1B74A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Etienne Carriere <etienne.carriere@linaro.org>,
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Etienne Carriere <etienne.carriere@linaro.org>,
         Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        kernel test robot <lkp@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 062/102] firmware: arm_scmi: Add SMCCC discovery dependency in Kconfig
-Date:   Wed, 14 Jul 2021 15:39:55 -0400
-Message-Id: <20210714194036.53141-62-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 063/102] firmware: arm_scmi: Fix the build when CONFIG_MAILBOX is not selected
+Date:   Wed, 14 Jul 2021 15:39:56 -0400
+Message-Id: <20210714194036.53141-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -44,51 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Etienne Carriere <etienne.carriere@linaro.org>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit c05b07963e965ae34e75ee8c33af1095350cd87e ]
+[ Upstream commit ab7766b72855e6a68109b915d071181b93086e29 ]
 
-ARM_SCMI_PROTOCOL depends on either MAILBOX or HAVE_ARM_SMCCC_DISCOVERY,
-not MAILBOX alone. Fix the depedency in Kconfig file and driver to
-reflect the same.
+0day CI kernel test robot reported following build error with randconfig
 
-Link: https://lore.kernel.org/r/20210521134055.24271-1-etienne.carriere@linaro.org
+aarch64-linux-ld: drivers/firmware/arm_scmi/driver.o:(.rodata+0x1e0):
+		undefined reference to `scmi_mailbox_desc'
+
+Fix the error by adding CONFIG_MAILBOX dependency for scmi_mailbox_desc.
+
+Link: https://lore.kernel.org/r/20210603072631.1660963-1-sudeep.holla@arm.com
+Cc: Etienne Carriere <etienne.carriere@linaro.org>
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Reviewed-by: Etienne Carriere <etienne.carriere@linaro.org>
 Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
-[sudeep.holla: Minor tweaks to subject and change log]
+Tested-by: Cristian Marussi <cristian.marussi@arm.com>
+Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/Kconfig           | 2 +-
- drivers/firmware/arm_scmi/common.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index 5dd19dbd67a3..6f24b0429f36 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -9,7 +9,7 @@ menu "Firmware Drivers"
- config ARM_SCMI_PROTOCOL
- 	tristate "ARM System Control and Management Interface (SCMI) Message Protocol"
- 	depends on ARM || ARM64 || COMPILE_TEST
--	depends on MAILBOX
-+	depends on MAILBOX || HAVE_ARM_SMCCC_DISCOVERY
- 	help
- 	  ARM System Control and Management Interface (SCMI) protocol is a
- 	  set of operating system-independent software interfaces that are
-diff --git a/drivers/firmware/arm_scmi/common.h b/drivers/firmware/arm_scmi/common.h
-index c0fb45e7c3e8..9c1f06759536 100644
---- a/drivers/firmware/arm_scmi/common.h
-+++ b/drivers/firmware/arm_scmi/common.h
-@@ -244,7 +244,7 @@ struct scmi_desc {
- };
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index cacdf1589b10..a309622ea5c1 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -919,7 +919,9 @@ ATTRIBUTE_GROUPS(versions);
  
- extern const struct scmi_desc scmi_mailbox_desc;
--#ifdef CONFIG_HAVE_ARM_SMCCC
-+#ifdef CONFIG_HAVE_ARM_SMCCC_DISCOVERY
- extern const struct scmi_desc scmi_smc_desc;
+ /* Each compatible listed below must have descriptor associated with it */
+ static const struct of_device_id scmi_of_match[] = {
++#ifdef CONFIG_MAILBOX
+ 	{ .compatible = "arm,scmi", .data = &scmi_mailbox_desc },
++#endif
+ #ifdef CONFIG_HAVE_ARM_SMCCC_DISCOVERY
+ 	{ .compatible = "arm,scmi-smc", .data = &scmi_smc_desc},
  #endif
- 
 -- 
 2.30.2
 
