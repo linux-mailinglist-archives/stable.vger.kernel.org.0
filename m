@@ -2,116 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 770FC3C7EB2
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 08:52:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736653C7EDC
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238130AbhGNGwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 02:52:24 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:41869 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237948AbhGNGwY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 02:52:24 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id E27DB320094D;
-        Wed, 14 Jul 2021 02:49:27 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 14 Jul 2021 02:49:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=bP1/cBYeuMNK/c5k+fKj/Q99fkh
-        7RiYVSrPag0irGtQ=; b=poEridcrjUHBrhOUx8YueatE02fDYQR32sjqpiQ9Acw
-        LFco/lHIL6dVwSMHRDqKkuqx83uD1dLiQjqppqdvrWJ9tstk1W2tqNHKPEEGhoq/
-        Mw922kiJm0URJ/I9Fx+TGBenML19B1UMvu+A0o/vlStXp3wYaConwAzqH9wgcWAb
-        29LJjUzP9Kvtx6IMxg1V344ukS8h+LXQZKYxwAx1hQx4krxZi3FObpCN775I7Oiy
-        +SOrKdYWKhXNRg8BmH6bfhaqRzuFZonFxAL4ABlenbzC8EZ8TrrFaBp5RluxAQUF
-        eWRl70jedQExt8XvbKBqEzXFYLdfKzUNJHpfb7iLlIQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=bP1/cB
-        YeuMNK/c5k+fKj/Q99fkh7RiYVSrPag0irGtQ=; b=VD7FSFDQesigsOdkCLIo1C
-        /Gs2H795wsPU5UeySU6cxb5IJHRYz3Zv6+oDdscMIDVbyCd1SLp9va+NMOIQDoxJ
-        TNywinxN1dkbNSsli6ZA/Dgm/pUciQilpVZuNPcHGQdFlHfFN7GKbqQlOy3qMf+V
-        GoWXwMmMQrM5Z8FY/TQdW6zTdHoOo+GZzGAsbbHJK0jwDV2MkAtYreLRvkVSRq+9
-        sndLbdmT9ZupUKMQYa0f8o/EGc1/XSFopjV2g/YEhgAdXrasROgWOoO0ZXVTCgOK
-        XzUZtmNVlIEPkDR9+FlVi7uksW+4aWF786hVWBW344QtuIBUOVRWCv3IwS/Pu/WA
-        ==
-X-ME-Sender: <xms:94juYJn4O64L1YDsZAMsrsMFLApHAYdzgyx5tnwp8IHRkWIgMffDNw>
-    <xme:94juYE1r5DNkjce9m7PjKKX8nitUjDY5IRJkl7c3xXtrDZs1-nS2EVToVyXbzwty5
-    hVOyo2Q_5DtuA>
-X-ME-Received: <xmr:94juYPo1Bfl0dXU6GkkKcadbusNEoqvU0q7lUeNds7_PqrdvAYtgZMyTWzsUQ6VAbQBIFQ96v_ZyNrb4gY1D9jBpxA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrudejgddutdehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevudeghe
-    eiheehffeihfduudefkeehheefhedukeejtdeghedvtdetheelleevkeenucffohhmrghi
-    nhepthhruhgvrdhnvghtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:94juYJkDEon795_YfQ4UjraLORRoNCscXPxQFzubVAmDDgyXgn5bSg>
-    <xmx:94juYH3CNse6nZVq0s5BfamPtSBDj-D81Oz635GXotyR4-7wgo3aPg>
-    <xmx:94juYIu5LzfnZuTH_a9bWNC3v6pskTFN-LG_dh-7HaZB0NFbqaQDdg>
-    <xmx:94juYBq27GXBWHhl_52kkpUBNLvRZXNCYY2l9EZuUPGPG3IVcD8IwQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 14 Jul 2021 02:49:26 -0400 (EDT)
-Date:   Wed, 14 Jul 2021 08:49:25 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Xiaochen Zou <xzou017@ucr.edu>
-Cc:     stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-can@vger.kernel.org
-Subject: Re: [PATCH 0/1] can: fix a potential UAF access in
- j1939_session_deactivate()
-Message-ID: <YO6I9cvLuYUg+mM7@kroah.com>
-References: <aa64ef28-35d8-9deb-2756-8080296b7e3e@ucr.edu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aa64ef28-35d8-9deb-2756-8080296b7e3e@ucr.edu>
+        id S238104AbhGNHDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 03:03:49 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:35846 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237948AbhGNHDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 03:03:48 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id CC48022972;
+        Wed, 14 Jul 2021 07:00:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1626246056; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=EXfpwgyw6CEUgPbLD+Wqw0C3z2Gmg8ChSjydaanPZOE=;
+        b=rrDxyqTV2y0wteEKoNbf+YgaWZCrkZ+vkW9mZuQ88l0MoLfNEw9ty+wLHbO0sKrmZKKIcm
+        aYj3nJdczOheNVNbexcp5bOKWeDp/AgwAMukp/ylVs2f6h4UWgW0GOTEd9BWFTtAM5NB+N
+        0Z2IygPIm8DlbMnnWsA1S8iHqByePLc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1626246056;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=EXfpwgyw6CEUgPbLD+Wqw0C3z2Gmg8ChSjydaanPZOE=;
+        b=3JkZRU0+vbZiu+W8SQNirvJpbyjvzA12tZlYKU7ppclFCmAUJGnfKwT2BBKr3F3WVYfsW4
+        HVcou7voXM41G7Ag==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 2833DA3B88;
+        Wed, 14 Jul 2021 07:00:55 +0000 (UTC)
+Date:   Wed, 14 Jul 2021 09:00:55 +0200
+Message-ID: <s5h5yxd1is8.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Geoffrey D. Bennett" <g@b4.vu>, Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH 5.10 007/593] ALSA: usb-audio: scarlett2: Fix wrong resume call
+In-Reply-To: <20210713204643.GA21897@amd>
+References: <20210712060843.180606720@linuxfoundation.org>
+        <20210712060843.978749134@linuxfoundation.org>
+        <20210713204643.GA21897@amd>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 01:21:44PM -0700, Xiaochen Zou wrote:
+On Tue, 13 Jul 2021 22:46:43 +0200,
+Pavel Machek wrote:
 > 
-> Xiaochen Zou (1):
->   can: fix a potential UAF access in j1939_session_deactivate(). Both
->     session and session->priv may be freed in
->     j1939_session_deactivate_locked(). It leads to potential UAF read
->     and write in j1939_session_list_unlock(). The free chain is
+> Hi!
 > 
-> j1939_session_deactivate_locked()->j1939_session_put()->__j1939_session_release()->j1939_session_destroy().
->     To fix this bug, I moved j1939_session_put() behind
->     j1939_session_deactivate_locked(), and guarded it with a check of
->     active since the session would be freed only if active is true.
+> > This patch corrects those issues.  It introduces a new value type,
+> > USB_MIXER_BESPOKEN, which indicates a non-standard mixer element, and
+> > use this type for all scarlett2 mixer elements, as well as
+> > initializing the fixed unit id 0 for avoiding the overflow.
 > 
->  net/can/j1939/transport.c | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
+> New mixer value is introduced, but printing code in mixer.c is not
+> updated.
 > 
-> -- 
-> 2.17.1
+> Is something like this needed?
 
+Currently BESPOKEN type doesn't use the standard dump callback, hence
+this won't hit, but such a change wouldn't hurt.
 
-Hi,
-
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
-
-You are receiving this message because of the following common error(s)
-as indicated below:
-
-- Your patch was attached, please place it inline so that it can be
-  applied directly from the email message itself.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
 
 thanks,
 
-greg k-h's patch email bot
+Takashi
+
+> 
+> 
+> > +++ b/sound/usb/mixer.h
+> > @@ -55,6 +55,7 @@ enum {
+> >  	USB_MIXER_U16,
+> >  	USB_MIXER_S32,
+> >  	USB_MIXER_U32,
+> > +	USB_MIXER_BESPOKEN,	/* non-standard type */
+> >  };
+> >
+> 
+> Best regards,
+> 							Pavel
+> 
+> diff --git a/sound/usb/mixer.c b/sound/usb/mixer.c
+> index 2b5281ef8fca..83d5e4d19128 100644
+> --- a/sound/usb/mixer.c
+> +++ b/sound/usb/mixer.c
+> @@ -3294,7 +3294,7 @@ static void snd_usb_mixer_dump_cval(struct snd_info_buffer *buffer,
+>  {
+>  	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
+>  	static const char * const val_types[] = {
+> -		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
+> +		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32", "BESPOKEN", 
+>  	};
+> 
+> -- 
+> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> [2 Digital signature <application/pgp-signature (7bit)>]
+> 
