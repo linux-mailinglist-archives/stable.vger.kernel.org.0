@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B42E3C8D02
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034EA3C8D0B
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236079AbhGNTn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38712 "EHLO mail.kernel.org"
+        id S235088AbhGNTnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234572AbhGNTm5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B97B6613DA;
-        Wed, 14 Jul 2021 19:40:04 +0000 (UTC)
+        id S235613AbhGNTm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:42:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECDED613F1;
+        Wed, 14 Jul 2021 19:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291605;
-        bh=hTy3bHzj9LJkOJ3PZjheKqGQnrIXHro+9qpvDOZf/ms=;
+        s=k20201202; t=1626291606;
+        bh=u3w3CsD4nDqHG4INovIXkfXDTX1zfNhlhB6AXveT/dQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hA245KWKic3VZalNc0qg2yWjXVijRGc/iGUDQIKKHKYdR7Zxw2eTgjd7o57Pd2qtY
-         xMk5OHC+j0DSOlUzBcD8VrIvkNp59cOgxlcTuCTi5Vqh3imMj876HqY/zG4Ds8/O3b
-         OFlIHI878v3M5NuzrFJtwiFMTI2WOydaOzk5DXkTJUbffXR4fYCWLFeN69tlwGpFOt
-         7Yfg0dzk8tMJePs6WAsYx7m4VAEpER+RQyFiWiFwPZJzouTbc0a+NwDlrJrMaEGih8
-         sNMLB8ZDbPPhQMDD8S5GFmQ2HEPbRW0yeIzzlsVKu05Fesl6tsht5Z918N5dSicZNf
-         9FxLCMFAxUAlw==
+        b=SeAHBJKO0o/ErKYL9jzDpxQmPkCMfPVzSRLAYSHXR8qQ4W63wm/a2Edu357S8Vi+f
+         eU6ReZzP9p4x0hoAIMj4SHYgwn32pQT+7l9Pj8ZsQCqGOKXS1EJRIl/gUCGlaUoTjo
+         9rHy1fBXSwkS3gaFsqeD3Z1yeUbFL49BwvuirvGxWTth1nztezM6tRDtNOWoxXZNca
+         GZhisAHVK6gGPj1vyWIK8uhmldhWLn6D9IRPmwQ+Gio57FB8DU40aKMxirErvjnn3T
+         zyJLjBFH2FL0aAqSxwHi8YqJga4CV++fqT4tBFc3Z6Mbe+LUibDANC+nuBu+DAF4jQ
+         U1CiByFnWvwIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Ford <aford173@gmail.com>, Shawn Guo <shawnguo@kernel.org>,
+Cc:     Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 086/108] arm64: dts: imx8mn-beacon-som: Assign PMIC clock
-Date:   Wed, 14 Jul 2021 15:37:38 -0400
-Message-Id: <20210714193800.52097-86-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 087/108] arm64: dts: imx8mq: assign PCIe clocks
+Date:   Wed, 14 Jul 2021 15:37:39 -0400
+Message-Id: <20210714193800.52097-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -42,34 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 1de3aa8611d21d6be546ca1cd13ee05bdd650018 ]
+[ Upstream commit 15a5261e4d052bf85c7fba24dbe0e9a7c8c05925 ]
 
-The PMIC throws an errors because the clock isn't assigned to it.
-Fix this by assigning the clocks info.
+This fixes multiple issues with the current non-existent PCIe clock setup:
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
+The controller can run at up to 250MHz, so use a parent that provides this
+clock.
+
+The PHY needs an exact 100MHz reference clock to function if the PCIe
+refclock is not fed in via the refclock pads. While this mode is not
+supported (yet) in the driver it doesn't hurt to make sure we are
+providing a clock with the right rate.
+
+The AUX clock is specified to have a maximum clock rate of 10MHz. So
+the current setup, which drives it straight from the 25MHz oscillator is
+actually overclocking the AUX input.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mn-beacon-som.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mq.dtsi | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn-beacon-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mn-beacon-som.dtsi
-index c35eeaff958f..54eaf3d6055b 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn-beacon-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mn-beacon-som.dtsi
-@@ -120,6 +120,9 @@ pmic@4b {
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
- 		rohm,reset-snvs-powered;
-+		#clock-cells = <0>;
-+		clocks = <&osc_32k 0>;
-+		clock-output-names = "clk-32k-out";
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+index 17c449e12c2e..91df9c5350ae 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+@@ -1383,6 +1383,14 @@ pcie0: pcie@33800000 {
+ 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_EN>,
+ 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_TURNOFF>;
+ 			reset-names = "pciephy", "apps", "turnoff";
++			assigned-clocks = <&clk IMX8MQ_CLK_PCIE1_CTRL>,
++			                  <&clk IMX8MQ_CLK_PCIE1_PHY>,
++			                  <&clk IMX8MQ_CLK_PCIE1_AUX>;
++			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
++			                         <&clk IMX8MQ_SYS2_PLL_100M>,
++			                         <&clk IMX8MQ_SYS1_PLL_80M>;
++			assigned-clock-rates = <250000000>, <100000000>,
++			                       <10000000>;
+ 			status = "disabled";
+ 		};
  
- 		regulators {
- 			buck1_reg: BUCK1 {
+@@ -1413,6 +1421,14 @@ pcie1: pcie@33c00000 {
+ 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_EN>,
+ 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_TURNOFF>;
+ 			reset-names = "pciephy", "apps", "turnoff";
++			assigned-clocks = <&clk IMX8MQ_CLK_PCIE2_CTRL>,
++			                  <&clk IMX8MQ_CLK_PCIE2_PHY>,
++			                  <&clk IMX8MQ_CLK_PCIE2_AUX>;
++			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
++			                         <&clk IMX8MQ_SYS2_PLL_100M>,
++			                         <&clk IMX8MQ_SYS1_PLL_80M>;
++			assigned-clock-rates = <250000000>, <100000000>,
++			                       <10000000>;
+ 			status = "disabled";
+ 		};
+ 
 -- 
 2.30.2
 
