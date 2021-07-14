@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FC9C3C8E0C
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E2E3C8DE4
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbhGNTqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
+        id S234348AbhGNTp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234622AbhGNTpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:45:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA541613F4;
-        Wed, 14 Jul 2021 19:41:48 +0000 (UTC)
+        id S236926AbhGNTpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:45:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C4B261406;
+        Wed, 14 Jul 2021 19:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291709;
-        bh=liSe6McanGWa85HIg5Ho5nJWQTQVWy1aqtWDNjbkKxs=;
+        s=k20201202; t=1626291711;
+        bh=U8Nkdo/ewlLhcS5FyiG8l9+XiwHGGNjkMo5Mcy+M6S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gz/QwSOyp137vnWjXr3XXjT3727bjjSHQjrU4A0Xp7nj0n5CBCw++hurF2WkGXlKH
-         zqW9sRZaPN/WbfffjCF0Bpt4R48Y79SWAk6ByJvz/I6L7wgBvhT4wHbc6qONB5cDS1
-         CZGENH/ND1zf9/n8entxNPrT+kb3grl4Jy47BQS3eQesvmAh8aFLmDS8POXel9IzoO
-         +SueYfIZGbebyT5LHeOCWieivxBA7ScjVdWDQdbUwDMntAmiewYRvojzHAqpEex+jE
-         x7yQydryt41BLGNl0LD6FdwBaNrBggMBpdMFNxlb7CTuEfoBkA5sjOce3ftih680VY
-         fCD6mRN4aMw7Q==
+        b=m4+k7sMfJsYyp25TW2F24LuZkh7BTqgqxD9+kgh5We3zem0wtQRLP7e01Rb0h29bl
+         24EgavrrAFEIsvUpY7Zu9kdelpKUz0wga1lMNB/pnLzxvxaIfRp7kABatUnsbFS4L+
+         A9zOztPkA/zLrpEz9Bzuf9rvWg21mX7XhHcqPEpXXFiZIqTx0lq2pOg0PahH1M4KJa
+         gAsbejn+edQYf1uYhnylT57f+alK/1uBn6+LEGaHk2OntOw/+zAWsdvS0i3zv3mdZe
+         5BNtEiG5p+Jwk6s0qe3IUyLxmT4kDI6wpxSBezjmNEegmQqzANnW41jRxxFCfhfHG0
+         6j3E1nmf2u3Ig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Svyatoslav Ryhel <clamor95@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 052/102] ARM: tegra: nexus7: Correct 3v3 regulator GPIO of PM269 variant
-Date:   Wed, 14 Jul 2021 15:39:45 -0400
-Message-Id: <20210714194036.53141-52-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 053/102] arm64: dts: qcom: msm8996: Make CPUCC actually probe (and work)
+Date:   Wed, 14 Jul 2021 15:39:46 -0400
+Message-Id: <20210714194036.53141-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -44,35 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit c4dd6066bc304649e3159f1c7a08ece25d537e00 ]
+[ Upstream commit 0a275a35ceab07cb622ff212c54d6866e246ac53 ]
 
-The 3v3 regulator GPIO is GP6 and not GP7, which is the DDR regulator.
-Both regulators are always-on, nevertheless the DT model needs to be
-corrected, fix it.
+Fix the compatible to make the driver probe and tell the
+driver where to look for the "xo" clock to make sure everything
+works.
 
-Reported-by: Svyatoslav Ryhel <clamor95@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Then we get a happy (eh, happier) 8996:
+
+somainline-sdcard:/home/konrad# cat /sys/kernel/debug/clk/pwrcl_pll/clk_rate
+1152000000
+
+Don't backport without "arm64: dts: qcom: msm8996: Add CPU opps", as
+the system fails to boot without consumers for these clocks.
+
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210527192958.775434-1-konrad.dybcio@somainline.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-index bfc06b988781..215e497652d8 100644
---- a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-+++ b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-@@ -143,7 +143,7 @@ vdd_core: core-regulator@60 {
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index ce430ba9c118..dd89d3cb772b 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -1745,9 +1745,14 @@ apss_merge_funnel_out: endpoint {
+ 				};
+ 			};
+ 		};
++
+ 		kryocc: clock-controller@6400000 {
+-			compatible = "qcom,apcc-msm8996";
++			compatible = "qcom,msm8996-apcc";
+ 			reg = <0x06400000 0x90000>;
++
++			clock-names = "xo";
++			clocks = <&xo_board>;
++
+ 			#clock-cells = <1>;
+ 		};
  
- 	vdd_3v3_sys: regulator@1 {
--		gpio = <&pmic 7 GPIO_ACTIVE_HIGH>;
-+		gpio = <&pmic 6 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
- 	};
- };
 -- 
 2.30.2
 
