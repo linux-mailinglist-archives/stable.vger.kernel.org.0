@@ -2,101 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE43E3C8615
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 16:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B6F3C8621
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 16:27:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbhGNO3r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 10:29:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53170 "EHLO mail.kernel.org"
+        id S232220AbhGNOa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 10:30:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231977AbhGNO3q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 10:29:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6377611AD;
-        Wed, 14 Jul 2021 14:26:54 +0000 (UTC)
+        id S239481AbhGNOa0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 10:30:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78716611AD;
+        Wed, 14 Jul 2021 14:27:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626272815;
-        bh=3v5ilymBybdRvRvSEDJA+KRVQFXBDlKQaJO3h7AHNns=;
+        s=korg; t=1626272855;
+        bh=mNDabQnbs3PdxYHSy0gXLC5eeg9nVZF8v4geVZ5DNFQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=J5A//K4QYzuaoQXYksR17krj680x/1plUUKO9URyxTJNCbhfAr3F1EKWaCa3Hwn/1
-         226rI+IMe6/JK/l3ieIXqFdP1sXvgEzwYelpuIFrj8Ch3z2XmWHwXyBBMYnx6aC759
-         vGd3KqAVHCmcIE9OKDbGObHd+yeubuKOg6d5hI1Q=
-Date:   Wed, 14 Jul 2021 16:26:52 +0200
+        b=TEXopUiD3zuJ94daHSwHDo1cmAVsJ+gB5GMVd6ZlPecrfTKX5meOQumuFFEmsbO7j
+         z7Xl0hT4ahoAdynQQWUhHDzuM+YgpzlnTcDid+RIqjY83bQ9kzUZCDuq44ApLO6zJ+
+         1ORd8fGCFLoOyUYRjXsKIhjZ9kgIJ8ExnO3NYbDU=
+Date:   Wed, 14 Jul 2021 16:27:32 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Holger Kiehl <Holger.Kiehl@dwd.de>, Jan Kara <jack@suse.cz>,
+To:     Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc:     Jan Kara <jack@suse.cz>,
         linux-kernel <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
 Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
-Message-ID: <YO70LLnTE6LxcBnt@kroah.com>
+Message-ID: <YO70VCcsg3k35C4E@kroah.com>
 References: <20210712060912.995381202@linuxfoundation.org>
  <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de>
  <YO56HTE3k95JLeje@kroah.com>
  <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
  <df63b875-f140-606a-862a-73b102345cd@praktifix.dwd.de>
  <YO7nHhW2t4wEiI9G@kroah.com>
- <CA+G9fYuhbE6sY3ykoiyqZqYSG=+V0r3z0TiaVL8LptbXWw=duQ@mail.gmail.com>
- <CA+G9fYtWkOLVVKB0xYfAXWS57G1C2xV-Zbtp5i4dAJDJqwLQhg@mail.gmail.com>
+ <efa2bd81-2219-9e17-2841-d9b63fde22a1@praktifix.dwd.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+G9fYtWkOLVVKB0xYfAXWS57G1C2xV-Zbtp5i4dAJDJqwLQhg@mail.gmail.com>
+In-Reply-To: <efa2bd81-2219-9e17-2841-d9b63fde22a1@praktifix.dwd.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 14, 2021 at 07:29:26PM +0530, Naresh Kamboju wrote:
-> On Wed, 14 Jul 2021 at 19:22, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> >
-> > On Wed, 14 Jul 2021 at 19:01, Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
+On Wed, Jul 14, 2021 at 02:07:10PM +0000, Holger Kiehl wrote:
+> On Wed, 14 Jul 2021, Greg Kroah-Hartman wrote:
 > 
-> <trim>
+> > On Wed, Jul 14, 2021 at 01:26:26PM +0000, Holger Kiehl wrote:
+> > > On Wed, 14 Jul 2021, Holger Kiehl wrote:
+> > > 
+> > > > On Wed, 14 Jul 2021, Greg Kroah-Hartman wrote:
+> > > > 
+> > > > > On Wed, Jul 14, 2021 at 05:39:43AM +0000, Holger Kiehl wrote:
+> > > > > > Hello,
+> > > > > > 
+> > > > > > On Mon, 12 Jul 2021, Greg Kroah-Hartman wrote:
+> > > > > > 
+> > > > > > > This is the start of the stable review cycle for the 5.13.2 release.
+> > > > > > > There are 800 patches in this series, all will be posted as a response
+> > > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > > let me know.
+> > > > > > > 
+> > > > > > > Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
+> > > > > > > Anything received after that time might be too late.
+> > > > > > > 
+> > > > > > With this my system no longer boots:
+> > > > > > 
+> > > > > >    [  OK  ] Reached target Swap.
+> > > > > >    [   75.213852] NMI watchdog: Watchdog detected hard LOCKUP on cpu 0
+> > > > > >    [   75.213926] NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+> > > > > >    [   75.213962] NMI watchdog: Watchdog detected hard LOCKUP on cpu 4
+> > > > > >    [FAILED] Failed to start Wait for udev To Complete Device Initialization.
+> > > > > >    See 'systemctl status systemd-udev-settle.service' for details.
+> > > > > >             Starting Activation of DM RAID sets...
+> > > > > >    [      ] (1 of 2) A start job is running for Activation of DM RAID sets (..min ..s / no limit)
+> > > > > >    [      ] (2 of 2) A start job is running for Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling (..min ..s / no limit)
+> > > > > > 
+> > > > > > System is a Fedora 34 with all updates applied. Two other similar
+> > > > > > systems with AMD CPUs (Ryzen 4750G + 3400G) this does not happen
+> > > > > > and boots fine. The system where it does not boot has an Intel
+> > > > > > Xeon E3-1285L v4 CPU. All of them use a dm_crypt root filesystem.
+> > > > > > 
+> > > > > > Any idea which patch I should drop to see if it boots again. I already
+> > > > > > dropped
+> > > > > > 
+> > > > > >    [PATCH 5.13 743/800] ASoC: Intel: sof_sdw: add quirk support for Brya and BT-offload
+> > > > > > 
+> > > > > > and I just see that this one should also be dropped:
+> > > > > > 
+> > > > > >    [PATCH 5.13 768/800] hugetlb: address ref count racing in prep_compound_gigantic_page
+> > > > > > 
+> > > > > > Will still need to test this.
+> > > > > 
+> > > > > Can you run 'git bisect' to see what commit causes the problem?
+> > > > > 
+> > > > Yes, will try to do that. I think it will take some time ...
+> > > > 
+> > > With the help of Pavel Machek and Jiri Slaby I was able 'git bisect'
+> > > this to:
+> > > 
+> > >    yoda:/usr/src/kernels/linux-5.13.y# git bisect good
+> > >    a483f513670541227e6a31ac7141826b8c785842 is the first bad commit
+> > >    commit a483f513670541227e6a31ac7141826b8c785842
+> > >    Author: Jan Kara <jack@suse.cz>
+> > >    Date:   Wed Jun 23 11:36:33 2021 +0200
+> > > 
+> > >        bfq: Remove merged request already in bfq_requests_merged()
+> > > 
+> > >        [ Upstream commit a921c655f2033dd1ce1379128efe881dda23ea37 ]
+> > > 
+> > >        Currently, bfq does very little in bfq_requests_merged() and handles all
+> > >        the request cleanup in bfq_finish_requeue_request() called from
+> > >        blk_mq_free_request(). That is currently safe only because
+> > >        blk_mq_free_request() is called shortly after bfq_requests_merged()
+> > >        while bfqd->lock is still held. However to fix a lock inversion between
+> > >        bfqd->lock and ioc->lock, we need to call blk_mq_free_request() after
+> > >        dropping bfqd->lock. That would mean that already merged request could
+> > >        be seen by other processes inside bfq queues and possibly dispatched to
+> > >        the device which is wrong. So move cleanup of the request from
+> > >        bfq_finish_requeue_request() to bfq_requests_merged().
+> > > 
+> > >        Acked-by: Paolo Valente <paolo.valente@linaro.org>
+> > >        Signed-off-by: Jan Kara <jack@suse.cz>
+> > >        Link: https://lore.kernel.org/r/20210623093634.27879-2-jack@suse.cz
+> > >        Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> > >        Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > 
+> > >     block/bfq-iosched.c | 41 +++++++++++++----------------------------
+> > >     1 file changed, 13 insertions(+), 28 deletions(-)
+> > > 
+> > > Holger
+> > 
+> > Wonderful!
+> > 
+> > So if you drop that, all works well?  I'll go drop that from the queues
+> > now.
+> > 
+> Yes. Just double checked it took a plain 5.13.1, patched it with
+> patch-5.13.2-rc1.xz and then reverted
 > 
-> > My two cents,
-> > While running ssuite long running stress testing we have noticed deadlock.
-> >
-> > > So if you drop that, all works well?  I'll go drop that from the queues
-> > > now.
-> >
-> > Let me drop that patch and test it again.
-> >
-> > Crash log,
-> >
-> > [ 1957.278399] ============================================
-> > [ 1957.283717] WARNING: possible recursive locking detected
-> > [ 1957.289031] 5.13.2-rc1 #1 Not tainted
-> > [ 1957.292703] --------------------------------------------
-> > [ 1957.298016] kworker/u8:7/236 is trying to acquire lock:
-> > [ 1957.303241] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
-> > bfq_finish_requeue_request+0x55/0x500 [bfq]
-> > [ 1957.312643]
-> > [ 1957.312643] but task is already holding lock:
-> > [ 1957.318467] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
-> > bfq_insert_requests+0x81/0x1750 [bfq]
-> > [ 1957.327334]
-> > [ 1957.327334] other info that might help us debug this:
-> > [ 1957.333852]  Possible unsafe locking scenario:
-> > [ 1957.333852]
-> > [ 1957.339762]        CPU0
-> > [ 1957.342206]        ----
-> > [ 1957.344651]   lock(&bfqd->lock);
-> > [ 1957.347873]   lock(&bfqd->lock);
-> > [ 1957.351097]
-> > [ 1957.351097]  *** DEADLOCK ***
-> > [ 1957.351097]
+>    PATCH-5.13-259-800-bfq-Remove-merged-request-already-in-bfq_requests_merged
 > 
-> Also noticed on stable-rc 5.12.17-rc1.
+> and it booted fine with no problems. Tested several times.
+> Just wonder why it only happens on the Intel Broadwell CPU.
+> Maybe it is the 128MB eDRAM L4 Cache ...
 
-I dropped the same patch from there as well already, thanks.
+Wondeful!
+
+Could you test 5.14-rc1 to verify if this problem is there or not?  If
+it is, the developers need to know this so that they can work to fix the
+regression.
+
+thanks,
 
 greg k-h
