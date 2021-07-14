@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5150E3C8E22
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A3463C8E26
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237804AbhGNTqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S235061AbhGNTqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:46:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237343AbhGNTp5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:45:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A102613D6;
-        Wed, 14 Jul 2021 19:42:21 +0000 (UTC)
+        id S237149AbhGNTp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:45:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FD8C613D3;
+        Wed, 14 Jul 2021 19:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291742;
-        bh=zQwGF7FYOzS9A3/b35r9uSjCfXpspF/d10Zu18b6t5c=;
+        s=k20201202; t=1626291743;
+        bh=iRElQWIILeugblawQSDDQbAchKvJk/TUYMTfKJcVqqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsmeEp9DN2TsyduEBTAAJOHLTGB21P4PYiZ3tThC532KKi0DMIkzLm20/JW/Pc4da
-         hzqxIJd5JzHvE9X0jDvbzxauHHkrsUO5zXBPnj+HBaxNZibaDuIsKKpGLfcHRj8nRj
-         ojc5QdYH6yzEB+C8AzL5dIsA1mlGFhr5fVFnpPMAtcxOz2XFRLypfQftdzIH0niciW
-         PcI36H2Hp5SYn9pfwC8iwPOe/an/ay5hCFS7FSxO02LtCr7Vq7EKSy9M5/x8dh0/o2
-         dZpSresH7wsz4hvwSPBHf6/NQMjKY1bVcMtzQNWXjLFz0ShJGOiJfRoIeQDmKWVYVE
-         6NlOFmVb/bDTQ==
+        b=IHozlRMRrQ3Gai8qB6O6n5rj90czTyOdMVp2im9+FGtSum8u3rt9jaOK5Jxo/C0ll
+         n7eweB7VXC0+vd/bhbcRRjWopuqsC0U4drc97EkjaSReFH599SrYkXcg6AX/sDLwms
+         5SjdF3ANdsfRtDfYy0++nT9RCzOew2USQCo/SIjkfnuOrqxlvanxrM3oNFEg7HnPUo
+         DEkBvhgHKO8ZcgEwhw0aPEPTI3efqQ3lgOu4Ee4/hV+Piu2w98kcTLXcCEUrcMAjbx
+         r3y96isG45QHiYpfgKJhC6ir2oI/4/fAJJngN/4K1eLAr8GNfUMk32EdTBRijiDhLu
+         V6lxKBgDynkgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Patrick Delaunay <patrick.delaunay@foss.st.com>,
-        kernel@dh-electronics.com,
-        linux-stm32@st-md-mailman.stormreply.com,
+Cc:     Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 074/102] ARM: dts: stm32: Rename spi-flash/mx66l51235l@N to flash@N on DHCOM SoM
-Date:   Wed, 14 Jul 2021 15:40:07 -0400
-Message-Id: <20210714194036.53141-74-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 075/102] ARM: dts: stm32: fix stpmic node for stm32mp1 boards
+Date:   Wed, 14 Jul 2021 15:40:08 -0400
+Message-Id: <20210714194036.53141-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -47,53 +43,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Alexandre Torgue <alexandre.torgue@foss.st.com>
 
-[ Upstream commit 9b8a9b389d8464e1ca5a4e92c6a4422844ad4ef3 ]
+[ Upstream commit 4bf4abe19089245b7b12f35e5cafb5477b3e2c48 ]
 
-Fix the following dtbs_check warning:
-spi-flash@0: $nodename:0: 'spi-flash@0' does not match '^flash(@.*)?$'
+On some STM32 MP15 boards, stpmic node is not correct which generates
+warnings running "make dtbs_check W=1" command. Issues are:
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
-Cc: kernel@dh-electronics.com
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
+-"regulator-active-discharge" is not a boolean but an uint32.
+-"regulator-over-current-protection" is not a valid entry for vref_ddr.
+-LDO4 has a fixed voltage (3v3) so min/max entries are not allowed.
+
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 2 +-
- arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32mp157a-stinger96.dtsi   | 7 ++-----
+ arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi | 5 +----
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi   | 5 +----
+ arch/arm/boot/dts/stm32mp15xx-osd32.dtsi       | 7 ++-----
+ 4 files changed, 6 insertions(+), 18 deletions(-)
 
+diff --git a/arch/arm/boot/dts/stm32mp157a-stinger96.dtsi b/arch/arm/boot/dts/stm32mp157a-stinger96.dtsi
+index 113c48b2ef93..a4b14ef3caee 100644
+--- a/arch/arm/boot/dts/stm32mp157a-stinger96.dtsi
++++ b/arch/arm/boot/dts/stm32mp157a-stinger96.dtsi
+@@ -184,8 +184,6 @@ vtt_ddr: ldo3 {
+ 
+ 			vdd_usb: ldo4 {
+ 				regulator-name = "vdd_usb";
+-				regulator-min-microvolt = <3300000>;
+-				regulator-max-microvolt = <3300000>;
+ 				interrupts = <IT_CURLIM_LDO4 0>;
+ 			};
+ 
+@@ -208,7 +206,6 @@ v1v8: ldo6 {
+ 			vref_ddr: vref_ddr {
+ 				regulator-name = "vref_ddr";
+ 				regulator-always-on;
+-				regulator-over-current-protection;
+ 			};
+ 
+ 			bst_out: boost {
+@@ -219,13 +216,13 @@ bst_out: boost {
+ 			vbus_otg: pwr_sw1 {
+ 				regulator-name = "vbus_otg";
+ 				interrupts = <IT_OCP_OTG 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			};
+ 
+ 			vbus_sw: pwr_sw2 {
+ 				regulator-name = "vbus_sw";
+ 				interrupts = <IT_OCP_SWOUT 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			};
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
+index b5601d270c8f..2d9461006810 100644
+--- a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
+@@ -173,8 +173,6 @@ vtt_ddr: ldo3 {
+ 
+ 			vdd_usb: ldo4 {
+ 				regulator-name = "vdd_usb";
+-				regulator-min-microvolt = <3300000>;
+-				regulator-max-microvolt = <3300000>;
+ 				interrupts = <IT_CURLIM_LDO4 0>;
+ 			};
+ 
+@@ -197,7 +195,6 @@ v1v2_hdmi: ldo6 {
+ 			vref_ddr: vref_ddr {
+ 				regulator-name = "vref_ddr";
+ 				regulator-always-on;
+-				regulator-over-current-protection;
+ 			};
+ 
+ 			 bst_out: boost {
+@@ -213,7 +210,7 @@ vbus_otg: pwr_sw1 {
+ 			 vbus_sw: pwr_sw2 {
+ 				regulator-name = "vbus_sw";
+ 				interrupts = <IT_OCP_SWOUT 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			 };
+ 		};
+ 
 diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index 1c1c4198f2c1..6c8930fc1632 100644
+index 6c8930fc1632..b5a594c8f831 100644
 --- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
 +++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -367,7 +367,7 @@ &qspi {
- 	#size-cells = <0>;
- 	status = "okay";
+@@ -263,8 +263,6 @@ vtt_ddr: ldo3 {
  
--	flash0: mx66l51235l@0 {
-+	flash0: flash@0 {
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-rx-bus-width = <4>;
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
-index 803eb8bc9c85..a9eb82b2f170 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
-@@ -194,7 +194,7 @@ &qspi {
- 	#size-cells = <0>;
- 	status = "okay";
+ 			vdd_usb: ldo4 {
+ 				regulator-name = "vdd_usb";
+-				regulator-min-microvolt = <3300000>;
+-				regulator-max-microvolt = <3300000>;
+ 				interrupts = <IT_CURLIM_LDO4 0>;
+ 			};
  
--	flash0: spi-flash@0 {
-+	flash0: flash@0 {
- 		compatible = "jedec,spi-nor";
- 		reg = <0>;
- 		spi-rx-bus-width = <4>;
+@@ -286,7 +284,6 @@ v1v8: ldo6 {
+ 			vref_ddr: vref_ddr {
+ 				regulator-name = "vref_ddr";
+ 				regulator-always-on;
+-				regulator-over-current-protection;
+ 			};
+ 
+ 			bst_out: boost {
+@@ -302,7 +299,7 @@ vbus_otg: pwr_sw1 {
+ 			vbus_sw: pwr_sw2 {
+ 				regulator-name = "vbus_sw";
+ 				interrupts = <IT_OCP_SWOUT 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			};
+ 		};
+ 
+diff --git a/arch/arm/boot/dts/stm32mp15xx-osd32.dtsi b/arch/arm/boot/dts/stm32mp15xx-osd32.dtsi
+index 713485a95795..6706d8311a66 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-osd32.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-osd32.dtsi
+@@ -146,8 +146,6 @@ vtt_ddr: ldo3 {
+ 
+ 			vdd_usb: ldo4 {
+ 				regulator-name = "vdd_usb";
+-				regulator-min-microvolt = <3300000>;
+-				regulator-max-microvolt = <3300000>;
+ 				interrupts = <IT_CURLIM_LDO4 0>;
+ 			};
+ 
+@@ -171,7 +169,6 @@ v1v2_hdmi: ldo6 {
+ 			vref_ddr: vref_ddr {
+ 				regulator-name = "vref_ddr";
+ 				regulator-always-on;
+-				regulator-over-current-protection;
+ 			};
+ 
+ 			bst_out: boost {
+@@ -182,13 +179,13 @@ bst_out: boost {
+ 			vbus_otg: pwr_sw1 {
+ 				regulator-name = "vbus_otg";
+ 				interrupts = <IT_OCP_OTG 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			};
+ 
+ 			vbus_sw: pwr_sw2 {
+ 				regulator-name = "vbus_sw";
+ 				interrupts = <IT_OCP_SWOUT 0>;
+-				regulator-active-discharge;
++				regulator-active-discharge = <1>;
+ 			};
+ 		};
+ 
 -- 
 2.30.2
 
