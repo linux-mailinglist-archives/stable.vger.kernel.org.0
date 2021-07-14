@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5048E3C8FE2
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B468A3C8FE8
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240264AbhGNTxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45484 "EHLO mail.kernel.org"
+        id S240540AbhGNTxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240640AbhGNTt6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:49:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 528EC613DC;
-        Wed, 14 Jul 2021 19:45:43 +0000 (UTC)
+        id S240650AbhGNTt7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:49:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D86F6143E;
+        Wed, 14 Jul 2021 19:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291944;
-        bh=dydekw1/JdNtKj+p/nzgqhqzGkE8uOqo7BdpW50xPI8=;
+        s=k20201202; t=1626291945;
+        bh=vO6jLsstg1PqDiZfbP7AfOwVNt2TH0F65zgaoPMvmsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1l4J3QkkQQ+tMyi6Ju30fI9ToemqxEhoRjzzUeGwXoc/bMH18Pgu21lTemSkX2tF
-         2U18cyUJL7F2t5qbKiTcDq1R7z2FjPx3fW8QrRGC7qARHfmZ8iHPzFq5DIxQ+j3wFA
-         8jDPyRE5j4md7gNDG7ZSlIZ6yxJTrMphRyOl68J40JiuE3spwtctcFZeRVDpTQZE02
-         2J8piP0m85CuZfyXcKnduMCwchGJXUNSmQjNS8FDm3skjhFtQ/hy0tEQXvdK6S9lVd
-         0mw9OK4A8epbdOsaBbMit6+FZOYpp/E6/MUU27e6r8uo9nvCEA6Grbit6eIw6jN8TR
-         tiuJ3CMYfNSCg==
+        b=tswgjlQDr95KfXqJGDz9NK9xQkYEA+CuZwt0uFgbhzm/l9exZNHwExkXIEfJlGhco
+         saHBRrKt5HJArLmkFe4Vh8/sR87urzdS4ftVhUvSSkqmfz4rZwvoBtx6ROjFl9ocjk
+         Dl08Hd/l01yO2WnDx73KmtubSDDIwfgm3ID0KzYqc07vc50qhttlrvF2i7yWyV01dr
+         +Z7f7dnC70xHwyMykyqyYovElXX2SiFiFTiTlSo4hxjRyuACumPlFErPE3vmAFE9lh
+         1UjaA1XEJaFqZ8Bj4TSufDNxtpI0PS3VsFW81cLoMjgCVGMkgQzFYU1evBIIMRzf7k
+         pUE4+USxdho4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 21/51] rtc: mxc_v2: add missing MODULE_DEVICE_TABLE
-Date:   Wed, 14 Jul 2021 15:44:43 -0400
-Message-Id: <20210714194513.54827-21-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 22/51] kbuild: sink stdout from cmd for silent build
+Date:   Wed, 14 Jul 2021 15:44:44 -0400
+Message-Id: <20210714194513.54827-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194513.54827-1-sashal@kernel.org>
 References: <20210714194513.54827-1-sashal@kernel.org>
@@ -42,35 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 206e04ec7539e7bfdde9aa79a7cde656c9eb308e ]
+[ Upstream commit 174a1dcc96429efce4ef7eb2f5c4506480da2182 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+When building with 'make -s', no output to stdout should be printed.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210508031509.53735-1-cuibixuan@huawei.com
+As Arnd Bergmann reported [1], mkimage shows the detailed information
+of the generated images.
+
+I think this should be suppressed by the 'cmd' macro instead of by
+individual scripts.
+
+Insert 'exec >/dev/null;' in order to redirect stdout to /dev/null for
+silent builds.
+
+[Note about this implementation]
+
+'exec >/dev/null;' may look somewhat tricky, but this has a reason.
+
+Appending '>/dev/null' at the end of command line is a common way for
+redirection, so I first tried this:
+
+  cmd = @set -e; $(echo-cmd) $(cmd_$(1)) >/dev/null
+
+... but it would not work if $(cmd_$(1)) itself contains a redirection.
+
+For example, cmd_wrap in scripts/Makefile.asm-generic redirects the
+output from the 'echo' command into the target file.
+
+It would be expanded into:
+
+  echo "#include <asm-generic/$*.h>" > $@ >/dev/null
+
+Then, the target file gets empty because the string will go to /dev/null
+instead of $@.
+
+Next, I tried this:
+
+  cmd = @set -e; $(echo-cmd) { $(cmd_$(1)); } >/dev/null
+
+The form above would be expanded into:
+
+  { echo "#include <asm-generic/$*.h>" > $@; } >/dev/null
+
+This works as expected. However, it would be a syntax error if
+$(cmd_$(1)) is empty.
+
+When CONFIG_TRIM_UNUSED_KSYMS is disabled, $(call cmd,gen_ksymdeps) in
+scripts/Makefile.build would be expanded into:
+
+  set -e;  { ; } >/dev/null
+
+..., which causes an syntax error.
+
+I also tried this:
+
+  cmd = @set -e; $(echo-cmd) ( $(cmd_$(1)) ) >/dev/null
+
+... but this causes a syntax error for the same reason.
+
+So, finally I adopted:
+
+  cmd = @set -e; $(echo-cmd) exec >/dev/null; $(cmd_$(1))
+
+[1]: https://lore.kernel.org/lkml/20210514135752.2910387-1-arnd@kernel.org/
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mxc_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ scripts/Kbuild.include | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-index 91534560fe2a..d349cef09cb7 100644
---- a/drivers/rtc/rtc-mxc_v2.c
-+++ b/drivers/rtc/rtc-mxc_v2.c
-@@ -373,6 +373,7 @@ static const struct of_device_id mxc_ids[] = {
- 	{ .compatible = "fsl,imx53-rtc", },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, mxc_ids);
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 7da10afc92c6..b14a7d4a2f05 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -182,8 +182,13 @@ clean := -f $(srctree)/scripts/Makefile.clean obj
+ echo-cmd = $(if $($(quiet)cmd_$(1)),\
+ 	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
  
- static struct platform_driver mxc_rtc_driver = {
- 	.driver = {
++# sink stdout for 'make -s'
++       redirect :=
++ quiet_redirect :=
++silent_redirect := exec >/dev/null;
++
+ # printing commands
+-cmd = @set -e; $(echo-cmd) $(cmd_$(1))
++cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
+ 
+ ###
+ # if_changed      - execute command if any prerequisite is newer than
 -- 
 2.30.2
 
