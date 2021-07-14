@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4794D3C90B8
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C5D3C90B6
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234219AbhGNT4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48560 "EHLO mail.kernel.org"
+        id S238881AbhGNT4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237450AbhGNTvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235143AbhGNTvA (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 500AC613CA;
-        Wed, 14 Jul 2021 19:48:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D522613E2;
+        Wed, 14 Jul 2021 19:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292085;
-        bh=6Y9W5CE7mr7KW6UlyBi2buo11m/O+O5p28a1c+IyMfk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9s8ao6ah+yuFJ1bZDuTPMz09qp6Sm2n366i+BuwjFvlv/KwnqXMrXxXuB8xKhVaz
-         2Tv7AX1HoMtKQiOYmM9PHCLg1LgbxkU3/L28O9+p9GPDmBlPz00XpMzQgxyFrnsS1Z
-         JEcV0zOPZ2ykrBkCdAp73SQukJaYMarTi6GB3m0yURwIo4ov++wifP7KNytN6n/bhZ
-         bgOvmK3ImGtoAMUVi8EPD8YMU49jQFE5Luh5nQyZObiVAYJluvxA8e0bTVa4+POtyw
-         Se1q60/szZrA87bIHcr2IKDGtWDF8rP0fc09NFJk1neGg9Op5mNCFLYKoBC5sLuc2A
-         e0WqHXk7PRwOA==
+        s=k20201202; t=1626292089;
+        bh=Df/eyhnavKsliPrzBOaRIZeBhZo/AxhFTj2eGH63xdc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=e2g4J4vzBvTd3opI0RuPw7SDtImFsZi4N39hOK1S96h1epW82+yKi/U3fdyVtXhUY
+         FxXa7rYrUgrg6AzygIDToKpUvIEGd5bFIacMBmmm27O2ilEjKfszg0w2xfKgZLOORS
+         8mME/ZryiTETr1oS7HLbTkngz7Xd5HUkAND43/BGYysWMjP6wDDWnQpc8Ct5+4CKRb
+         U5BvvbIfxSFRdtPFF+7uRsOAcQDQqRstBMf5ZT9QIDAvTy5VwYrwCv9NcMrpgU6bMI
+         1jCHFd/pm+zsbs9E5PJPSXBQ1KT2ywFFiZwH8drMGGlHZNP9a5SLzS4/CRmQqn/hWv
+         J8azzc8IX2a5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Odin Ugedal <odin@uged.al>, Peter Zijlstra <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 28/28] sched/fair: Fix CFS bandwidth hrtimer expiry type
-Date:   Wed, 14 Jul 2021 15:47:23 -0400
-Message-Id: <20210714194723.55677-28-sashal@kernel.org>
+Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/18] ARM: dts: rockchip: fix pinctrl sleep nodename for rk3036-kylin and rk3288
+Date:   Wed, 14 Jul 2021 15:47:49 -0400
+Message-Id: <20210714194806.55962-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210714194723.55677-1-sashal@kernel.org>
-References: <20210714194723.55677-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,51 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Odin Ugedal <odin@uged.al>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 72d0ad7cb5bad265adb2014dbe46c4ccb11afaba ]
+[ Upstream commit dfbfb86a43f9a5bbd166d88bca9e07ee4e1bff31 ]
 
-The time remaining until expiry of the refresh_timer can be negative.
-Casting the type to an unsigned 64-bit value will cause integer
-underflow, making the runtime_refresh_within return false instead of
-true. These situations are rare, but they do happen.
+A test with the command below aimed at powerpc generates
+notifications in the Rockchip ARM tree.
 
-This does not cause user-facing issues or errors; other than
-possibly unthrottling cfs_rq's using runtime from the previous period(s),
-making the CFS bandwidth enforcement less strict in those (special)
-situations.
+Fix pinctrl "sleep" nodename by renaming it to "suspend"
+for rk3036-kylin and rk3288
 
-Signed-off-by: Odin Ugedal <odin@uged.al>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Link: https://lore.kernel.org/r/20210629121452.18429-1-odin@uged.al
+make ARCH=arm dtbs_check
+DT_SCHEMA_FILES=Documentation/devicetree/bindings/powerpc/sleep.yaml
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210126110221.10815-1-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/rk3036-kylin.dts | 2 +-
+ arch/arm/boot/dts/rk3288.dtsi      | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 37ac76dce908..3ff60230710c 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4464,7 +4464,7 @@ static const u64 cfs_bandwidth_slack_period = 5 * NSEC_PER_MSEC;
- static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
- {
- 	struct hrtimer *refresh_timer = &cfs_b->period_timer;
--	u64 remaining;
-+	s64 remaining;
+diff --git a/arch/arm/boot/dts/rk3036-kylin.dts b/arch/arm/boot/dts/rk3036-kylin.dts
+index 1df1557a46c3..3080915cfa5f 100644
+--- a/arch/arm/boot/dts/rk3036-kylin.dts
++++ b/arch/arm/boot/dts/rk3036-kylin.dts
+@@ -426,7 +426,7 @@ sdmmc_pwr: sdmmc-pwr {
+ 		};
+ 	};
  
- 	/* if the call-back is running a quota refresh is already occurring */
- 	if (hrtimer_callback_running(refresh_timer))
-@@ -4472,7 +4472,7 @@ static int runtime_refresh_within(struct cfs_bandwidth *cfs_b, u64 min_expire)
+-	sleep {
++	suspend {
+ 		global_pwroff: global-pwroff {
+ 			rockchip,pins = <2 7 RK_FUNC_1 &pcfg_pull_none>;
+ 		};
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 30f1384f619b..09e7898ffb6b 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1278,7 +1278,7 @@ pcfg_pull_none_12ma: pcfg-pull-none-12ma {
+ 			drive-strength = <12>;
+ 		};
  
- 	/* is a quota refresh about to occur? */
- 	remaining = ktime_to_ns(hrtimer_expires_remaining(refresh_timer));
--	if (remaining < min_expire)
-+	if (remaining < (s64)min_expire)
- 		return 1;
- 
- 	return 0;
+-		sleep {
++		suspend {
+ 			global_pwroff: global-pwroff {
+ 				rockchip,pins = <0 0 RK_FUNC_1 &pcfg_pull_none>;
+ 			};
 -- 
 2.30.2
 
