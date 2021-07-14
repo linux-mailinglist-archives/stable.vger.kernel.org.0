@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC983C9022
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51BA03C9023
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239500AbhGNTx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:53:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46240 "EHLO mail.kernel.org"
+        id S240106AbhGNTx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:53:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240953AbhGNTuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240954AbhGNTuO (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABA6861404;
-        Wed, 14 Jul 2021 19:46:21 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00AE4613EF;
+        Wed, 14 Jul 2021 19:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291982;
-        bh=f3eEHGE9LlZfIcJe7uTHu8yg6F7aNQaqF870lFKtniA=;
+        s=k20201202; t=1626291983;
+        bh=1hhfoDnLR//qSYDnY8xRYaUZegP8wJGVxsQXmHk7HfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzvkfkWSeH2WVbOn8VB70y8bxra1hwtddcA4n9kPKVWjIbz0evabzhePMDcI1igtd
-         tydfK/Gt+eYNIDy2obLh/l04uSEAq21eWznVo4t0kICSXjZ8oVMX56fp3XPF7Iz7nw
-         xvUPF55H2gWwHSi+WUgsS79zbKCtbtS04+PLH617BvH1Twvd8CZ5jzSkWl4T00SCyq
-         axqQ343EZhBujmhyOq7jIJjCOeXs7A3KhH/Q3cPJYNM2vlYXpHr2QxqwWnTi0U0wO9
-         hbQ7EUS5fYg5FShv5XCmVBvyCF2b3nptOo7Vnp6YedQXOXqimWRRZjYn4KQL4lQ8YI
-         BMOakVobhrdTQ==
+        b=tAJDodS7HRcNz2vWl+5TIwPzw3PGiRmNiicFJoM6Q7jB4uI5RsrkPxNoNMLDg77zb
+         PrUPtH1eEJ+XPS0JGJXRIUMhRprYN2PiRDJ2ZveNJB4sXXacyDFh4/5qHFe6FxHcL3
+         jIuCNpLMTSLQrH6FEFPlnKr4UJxSb+p45XN7gN6X2hBoNJrXF+I0IvZNVXkH9YqAN4
+         o2cWoDeBS4P/+8hHJ5rFhGqskUCfYhWN2cJ24oLZlH4vU6RbK5gu8n3XjA0mvX3xNH
+         kJkjyjt0Vzg3jfanN/TP0iedXb5v4+JM3bsEUYZaWi8mixXjAGouGVLc+LpfTafGEB
+         bPXMm+vTn2/BQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 50/51] s390: introduce proper type handling call_on_stack() macro
-Date:   Wed, 14 Jul 2021 15:45:12 -0400
-Message-Id: <20210714194513.54827-50-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.4 51/51] cifs: prevent NULL deref in cifs_compose_mount_options()
+Date:   Wed, 14 Jul 2021 15:45:13 -0400
+Message-Id: <20210714194513.54827-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194513.54827-1-sashal@kernel.org>
 References: <20210714194513.54827-1-sashal@kernel.org>
@@ -43,144 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 41d71fe59cce41237f24f3b7bdc1b414069a34ed ]
+[ Upstream commit 03313d1c3a2f086bb60920607ab79ac8f8578306 ]
 
-The existing CALL_ON_STACK() macro allows for subtle bugs:
+The optional @ref parameter might contain an NULL node_name, so
+prevent dereferencing it in cifs_compose_mount_options().
 
-- There is no type checking of the function that is being called. That
-  is: missing or too many arguments do not cause any compile error or
-  warning. The same is true if the return type of the called function
-  changes. This can lead to quite random bugs.
-
-- Sign and zero extension of arguments is missing. Given that the s390
-  C ABI requires that the caller of a function performs proper sign
-  and zero extension this can also lead to subtle bugs.
-
-- If arguments to the CALL_ON_STACK() macros contain functions calls
-  register corruption can happen due to register asm constructs being
-  used.
-
-Therefore introduce a new call_on_stack() macro which is supposed to
-fix all these problems.
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Addresses-Coverity: 1476408 ("Explicit null dereferenced")
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/stacktrace.h | 97 ++++++++++++++++++++++++++++++
- 1 file changed, 97 insertions(+)
+ fs/cifs/cifs_dfs_ref.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
-index 6836532f8d1a..e192681f83e1 100644
---- a/arch/s390/include/asm/stacktrace.h
-+++ b/arch/s390/include/asm/stacktrace.h
-@@ -115,6 +115,103 @@ struct stack_frame {
- 	r2;								\
- })
+diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
+index cc3ada12848d..42125601ebb1 100644
+--- a/fs/cifs/cifs_dfs_ref.c
++++ b/fs/cifs/cifs_dfs_ref.c
+@@ -151,6 +151,9 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
+ 		return ERR_PTR(-EINVAL);
  
-+#define CALL_LARGS_0(...)						\
-+	long dummy = 0
-+#define CALL_LARGS_1(t1, a1)						\
-+	long arg1  = (long)(t1)(a1)
-+#define CALL_LARGS_2(t1, a1, t2, a2)					\
-+	CALL_LARGS_1(t1, a1);						\
-+	long arg2 = (long)(t2)(a2)
-+#define CALL_LARGS_3(t1, a1, t2, a2, t3, a3)				\
-+	CALL_LARGS_2(t1, a1, t2, a2);					\
-+	long arg3 = (long)(t3)(a3)
-+#define CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4)			\
-+	CALL_LARGS_3(t1, a1, t2, a2, t3, a3);				\
-+	long arg4  = (long)(t4)(a4)
-+#define CALL_LARGS_5(t1, a1, t2, a2, t3, a3, t4, a4, t5, a5)		\
-+	CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4);			\
-+	long arg5 = (long)(t5)(a5)
+ 	if (ref) {
++		if (WARN_ON_ONCE(!ref->node_name || ref->path_consumed < 0))
++			return ERR_PTR(-EINVAL);
 +
-+#define CALL_REGS_0							\
-+	register long r2 asm("2") = dummy
-+#define CALL_REGS_1							\
-+	register long r2 asm("2") = arg1
-+#define CALL_REGS_2							\
-+	CALL_REGS_1;							\
-+	register long r3 asm("3") = arg2
-+#define CALL_REGS_3							\
-+	CALL_REGS_2;							\
-+	register long r4 asm("4") = arg3
-+#define CALL_REGS_4							\
-+	CALL_REGS_3;							\
-+	register long r5 asm("5") = arg4
-+#define CALL_REGS_5							\
-+	CALL_REGS_4;							\
-+	register long r6 asm("6") = arg5
-+
-+#define CALL_TYPECHECK_0(...)
-+#define CALL_TYPECHECK_1(t, a, ...)					\
-+	typecheck(t, a)
-+#define CALL_TYPECHECK_2(t, a, ...)					\
-+	CALL_TYPECHECK_1(__VA_ARGS__);					\
-+	typecheck(t, a)
-+#define CALL_TYPECHECK_3(t, a, ...)					\
-+	CALL_TYPECHECK_2(__VA_ARGS__);					\
-+	typecheck(t, a)
-+#define CALL_TYPECHECK_4(t, a, ...)					\
-+	CALL_TYPECHECK_3(__VA_ARGS__);					\
-+	typecheck(t, a)
-+#define CALL_TYPECHECK_5(t, a, ...)					\
-+	CALL_TYPECHECK_4(__VA_ARGS__);					\
-+	typecheck(t, a)
-+
-+#define CALL_PARM_0(...) void
-+#define CALL_PARM_1(t, a, ...) t
-+#define CALL_PARM_2(t, a, ...) t, CALL_PARM_1(__VA_ARGS__)
-+#define CALL_PARM_3(t, a, ...) t, CALL_PARM_2(__VA_ARGS__)
-+#define CALL_PARM_4(t, a, ...) t, CALL_PARM_3(__VA_ARGS__)
-+#define CALL_PARM_5(t, a, ...) t, CALL_PARM_4(__VA_ARGS__)
-+#define CALL_PARM_6(t, a, ...) t, CALL_PARM_5(__VA_ARGS__)
-+
-+/*
-+ * Use call_on_stack() to call a function switching to a specified
-+ * stack. Proper sign and zero extension of function arguments is
-+ * done. Usage:
-+ *
-+ * rc = call_on_stack(nr, stack, rettype, fn, t1, a1, t2, a2, ...)
-+ *
-+ * - nr specifies the number of function arguments of fn.
-+ * - stack specifies the stack to be used.
-+ * - fn is the function to be called.
-+ * - rettype is the return type of fn.
-+ * - t1, a1, ... are pairs, where t1 must match the type of the first
-+ *   argument of fn, t2 the second, etc. a1 is the corresponding
-+ *   first function argument (not name), etc.
-+ */
-+#define call_on_stack(nr, stack, rettype, fn, ...)			\
-+({									\
-+	rettype (*__fn)(CALL_PARM_##nr(__VA_ARGS__)) = fn;		\
-+	unsigned long frame = current_frame_address();			\
-+	unsigned long __stack = stack;					\
-+	unsigned long prev;						\
-+	CALL_LARGS_##nr(__VA_ARGS__);					\
-+	CALL_REGS_##nr;							\
-+									\
-+	CALL_TYPECHECK_##nr(__VA_ARGS__);				\
-+	asm volatile(							\
-+		"	lgr	%[_prev],15\n"				\
-+		"	lg	15,%[_stack]\n"				\
-+		"	stg	%[_frame],%[_bc](15)\n"			\
-+		"	brasl	14,%[_fn]\n"				\
-+		"	lgr	15,%[_prev]\n"				\
-+		: [_prev] "=&d" (prev), CALL_FMT_##nr			\
-+		: [_stack] "R" (__stack),				\
-+		  [_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
-+		  [_frame] "d" (frame),					\
-+		  [_fn] "X" (__fn) : CALL_CLOBBER_##nr);		\
-+	(rettype)r2;							\
-+})
-+
- #define CALL_ON_STACK_NORETURN(fn, stack)				\
- ({									\
- 	asm volatile(							\
+ 		if (strlen(fullpath) - ref->path_consumed) {
+ 			prepath = fullpath + ref->path_consumed;
+ 			/* skip initial delimiter */
 -- 
 2.30.2
 
