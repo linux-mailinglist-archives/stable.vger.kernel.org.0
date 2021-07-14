@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A703C8DC2
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A2E3C8DC4
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235846AbhGNTpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38106 "EHLO mail.kernel.org"
+        id S237248AbhGNTpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236973AbhGNTo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236836AbhGNTo6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A455F613F2;
-        Wed, 14 Jul 2021 19:41:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E05B3613EC;
+        Wed, 14 Jul 2021 19:41:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291699;
-        bh=kZF8/ieUsXrMmaq/wXqVUkL5F7XLLCOj7SNQ9omZ0V4=;
+        s=k20201202; t=1626291700;
+        bh=CebD5ftu/nq7tr6rupA7WEqLVx4LT7DxMpu/GFwYv/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwFZPakPFzNs+TVGwWLrBfz2OGgwLNovZAWI+tUnvrb8PkE3Go/fqUPawn3fE/Lc5
-         JLMaw9G1FsDvvHl41TRjPfPCzlJF5PBwdR8T31KignxoSGp0+hxsStV9AS6Uw2GbFI
-         7/WtnIzNuUegapDCDdEcL2xHEh+hsE4tuekM4jzZdVhe3iFCPWoBIrATNw+rinPzAW
-         2S6E4hlNPiJZzOziymUaklIsbvy3TUc1+D2ld585EZ6xQMh2LwxdJScvlSX4vIbL3D
-         JXANEBxXiuuLAueiaGQo/PGXKCElGYE0jAgbPmhoDbg8PzDxjNtG7ZzdA76pNEHCTl
-         tF8an5TOz2NpA==
+        b=W1B4UfPKmMGRn8xN+mljPgH5mA5nZbmv4uJelUMf4izu2z9qGM4Eq6phKd/LIwjNb
+         2ZWuwtM0nZuE4fNRGlcqzCAE20orIELyk7ozmOQi1SOnf2cZHEO4b5qVHEJ9Itt0Gr
+         OpA16pUJRL/VGcQnzimwnsr6voSUjnWX8pDqL8o7eQGirg0z6INK+r5Zvd9DofXYr1
+         zHa6mUL8IeIXt0Mn0pVAK/zXS5NogvCvrI6O0nYjNInHvyqSxYoyitika+5GO7UdnH
+         PmgPf06zuS9mzzjJJibeqPC9GXBWwHLVHJCk/YzSqCojHigm4cok5Eqfqxj9tXBQjf
+         uMAW1TkCjM6Ww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 045/102] ARM: dts: am57xx-cl-som-am57x: fix ti,no-reset-on-init flag for gpios
-Date:   Wed, 14 Jul 2021 15:39:38 -0400
-Message-Id: <20210714194036.53141-45-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 046/102] ARM: dts: am437x-gp-evm: fix ti,no-reset-on-init flag for gpios
+Date:   Wed, 14 Jul 2021 15:39:39 -0400
+Message-Id: <20210714194036.53141-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -45,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit b644c5e01c870056e13a096e14b9a92075c8f682 ]
+[ Upstream commit 2566d5b8c1670f7d7a44cc1426d254147ec5c421 ]
 
 The ti,no-reset-on-init flag need to be at the interconnect target module
 level for the modules that have it defined.
@@ -56,51 +56,43 @@ Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am57xx-cl-som-am57x.dts | 5 ++---
- arch/arm/boot/dts/dra7-l4.dtsi            | 4 ++--
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/am437x-gp-evm.dts | 5 ++++-
+ arch/arm/boot/dts/am437x-l4.dtsi    | 2 +-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
-index 0d5fe2bfb683..39eba2bc36dd 100644
---- a/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
-+++ b/arch/arm/boot/dts/am57xx-cl-som-am57x.dts
-@@ -610,12 +610,11 @@ &mcasp3 {
- 	>;
- };
- 
--&gpio3 {
--	status = "okay";
-+&gpio3_target {
- 	ti,no-reset-on-init;
- };
- 
--&gpio2 {
-+&gpio2_target {
+diff --git a/arch/arm/boot/dts/am437x-gp-evm.dts b/arch/arm/boot/dts/am437x-gp-evm.dts
+index 45cbc7fb557a..e2677682b540 100644
+--- a/arch/arm/boot/dts/am437x-gp-evm.dts
++++ b/arch/arm/boot/dts/am437x-gp-evm.dts
+@@ -813,11 +813,14 @@ &gpio4 {
  	status = "okay";
- 	ti,no-reset-on-init;
  };
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index a294a02f2d23..d1ff8a4121f5 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -1315,7 +1315,7 @@ gpio8: gpio@0 {
+ 
++&gpio5_target {
++	ti,no-reset-on-init;
++};
++
+ &gpio5 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&display_mux_pins>;
+ 	status = "okay";
+-	ti,no-reset-on-init;
+ 
+ 	sel-lcd-hdmi-hog {
+ 		/*
+diff --git a/arch/arm/boot/dts/am437x-l4.dtsi b/arch/arm/boot/dts/am437x-l4.dtsi
+index e217ffc09770..a6f19ae7d3e6 100644
+--- a/arch/arm/boot/dts/am437x-l4.dtsi
++++ b/arch/arm/boot/dts/am437x-l4.dtsi
+@@ -2070,7 +2070,7 @@ gpio4: gpio@0 {
  			};
  		};
  
--		target-module@55000 {			/* 0x48055000, ap 13 0e.0 */
-+		gpio2_target: target-module@55000 {		/* 0x48055000, ap 13 0e.0 */
+-		target-module@22000 {			/* 0x48322000, ap 116 64.0 */
++		gpio5_target: target-module@22000 {		/* 0x48322000, ap 116 64.0 */
  			compatible = "ti,sysc-omap2", "ti,sysc";
- 			reg = <0x55000 0x4>,
- 			      <0x55010 0x4>,
-@@ -1348,7 +1348,7 @@ gpio2: gpio@0 {
- 			};
- 		};
- 
--		target-module@57000 {			/* 0x48057000, ap 15 06.0 */
-+		gpio3_target: target-module@57000 {		/* 0x48057000, ap 15 06.0 */
- 			compatible = "ti,sysc-omap2", "ti,sysc";
- 			reg = <0x57000 0x4>,
- 			      <0x57010 0x4>,
+ 			reg = <0x22000 0x4>,
+ 			      <0x22010 0x4>,
 -- 
 2.30.2
 
