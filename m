@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6133C8C70
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47FD13C8C76
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:39:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234484AbhGNTmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:42:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36600 "EHLO mail.kernel.org"
+        id S234000AbhGNTmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233997AbhGNTlt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234001AbhGNTlt (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:41:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 28FBD613D3;
-        Wed, 14 Jul 2021 19:38:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77276613CF;
+        Wed, 14 Jul 2021 19:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291536;
-        bh=/LXC0pSLzFR6Suf13tw4eNPfaJ/VSEg952gbNu7tODY=;
+        s=k20201202; t=1626291537;
+        bh=p7QADGqyhrtfkCp/gEg7J+X9qhcFmVaqvBc+66MLyMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u64DflQ3ofOTKBPLnn+IijjEsmkdR8aMU8c6I9aJuBhJJkgILoqoS8xCl4PQYGbNR
-         vZmysKNy5aQj+QuluJs4jEg6/NObatIY15P+uF+QzOw3YHj3ajwcDHubzaSxtdMuXS
-         ndI9legW9G6clbc4eujhmuatZoMJCffyDVRUgmJ/8mvYmG3QBsuIPKXPO6C0bCBr3p
-         8OIfCZViPfxo+GHYNVtjM1Ez0QIHLZec9Be1uNfIyPwfO+Sty8gtyU5qw01HwEW5Kv
-         Qh1j8NqSuoIABUPmp/njTAtS07QNLST/jmLUgd/TavFWHYLn7vY/kS6E0j7cHCrmsr
-         ImYJDE9AyLmgA==
+        b=OlvHgUHoS69yrvWXj7VfX4d+FQA25Ml3RqdZ5e5SbpbfSmnEAu1we6WId77rka1Hv
+         zBZDjASw8Bi7bWMr7YJ0eesSffExtCuTyvLEw/ewJCzCyFmyzueNFiEdP9E2cyD5w2
+         zN+YJd/mV0EaqH3ZwUQI0K++uTYvBRWgco+N0PhIPg7GBHoSl7rb2w1VG18WTuNCnX
+         0HQSC+9SwV4qvYaP2pm5ELmO2FIn5WiNPWpl3+/iX+LKQ4bzn0sZmEUv5PWyn+k41K
+         QSxHSUXlbQURloGU6vhKqbNZDUr0F/JaEMQbkenE/M3WDo/yc2ThDgf7epD/zcDMV1
+         x6smkEFKeO2Lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Adam Ford <aford173@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 038/108] arm64: dts: renesas: beacon: Fix USB ref clock references
-Date:   Wed, 14 Jul 2021 15:36:50 -0400
-Message-Id: <20210714193800.52097-38-sashal@kernel.org>
+Cc:     Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 039/108] kbuild: sink stdout from cmd for silent build
+Date:   Wed, 14 Jul 2021 15:36:51 -0400
+Message-Id: <20210714193800.52097-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -43,48 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit ebc666f39ff67a01e748c34d670ddf05a9e45220 ]
+[ Upstream commit 174a1dcc96429efce4ef7eb2f5c4506480da2182 ]
 
-The RZ/G2 boards expect there to be an external clock reference for
-USB2 EHCI controllers.  For the Beacon boards, this reference clock
-is controlled by a programmable versaclock.  Because the RZ/G2
-family has a special clock driver when using an external clock,
-the third clock reference in the EHCI node needs to point to this
-special clock, called usb2_clksel.
+When building with 'make -s', no output to stdout should be printed.
 
-Since the usb2_clksel does not keep the usb_extal clock enabled,
-the 4th clock entry for the EHCI nodes needs to reference it to
-keep the clock running and make USB functional.
+As Arnd Bergmann reported [1], mkimage shows the detailed information
+of the generated images.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Link: https://lore.kernel.org/r/20210513114617.30191-2-aford173@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+I think this should be suppressed by the 'cmd' macro instead of by
+individual scripts.
+
+Insert 'exec >/dev/null;' in order to redirect stdout to /dev/null for
+silent builds.
+
+[Note about this implementation]
+
+'exec >/dev/null;' may look somewhat tricky, but this has a reason.
+
+Appending '>/dev/null' at the end of command line is a common way for
+redirection, so I first tried this:
+
+  cmd = @set -e; $(echo-cmd) $(cmd_$(1)) >/dev/null
+
+... but it would not work if $(cmd_$(1)) itself contains a redirection.
+
+For example, cmd_wrap in scripts/Makefile.asm-generic redirects the
+output from the 'echo' command into the target file.
+
+It would be expanded into:
+
+  echo "#include <asm-generic/$*.h>" > $@ >/dev/null
+
+Then, the target file gets empty because the string will go to /dev/null
+instead of $@.
+
+Next, I tried this:
+
+  cmd = @set -e; $(echo-cmd) { $(cmd_$(1)); } >/dev/null
+
+The form above would be expanded into:
+
+  { echo "#include <asm-generic/$*.h>" > $@; } >/dev/null
+
+This works as expected. However, it would be a syntax error if
+$(cmd_$(1)) is empty.
+
+When CONFIG_TRIM_UNUSED_KSYMS is disabled, $(call cmd,gen_ksymdeps) in
+scripts/Makefile.build would be expanded into:
+
+  set -e;  { ; } >/dev/null
+
+..., which causes an syntax error.
+
+I also tried this:
+
+  cmd = @set -e; $(echo-cmd) ( $(cmd_$(1)) ) >/dev/null
+
+... but this causes a syntax error for the same reason.
+
+So, finally I adopted:
+
+  cmd = @set -e; $(echo-cmd) exec >/dev/null; $(cmd_$(1))
+
+[1]: https://lore.kernel.org/lkml/20210514135752.2910387-1-arnd@kernel.org/
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ scripts/Kbuild.include | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-index d8046fedf9c1..e3c8b2fe143e 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-@@ -271,12 +271,12 @@ &du_out_rgb {
- &ehci0 {
- 	dr_mode = "otg";
- 	status = "okay";
--	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;
-+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&usb2_clksel>, <&versaclock5 3>;
- };
+diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+index 82dd1b65b7a8..f247e691562d 100644
+--- a/scripts/Kbuild.include
++++ b/scripts/Kbuild.include
+@@ -90,8 +90,13 @@ clean := -f $(srctree)/scripts/Makefile.clean obj
+ echo-cmd = $(if $($(quiet)cmd_$(1)),\
+ 	echo '  $(call escsq,$($(quiet)cmd_$(1)))$(echo-why)';)
  
- &ehci1 {
- 	status = "okay";
--	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;
-+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&usb2_clksel>, <&versaclock5 3>;
- };
++# sink stdout for 'make -s'
++       redirect :=
++ quiet_redirect :=
++silent_redirect := exec >/dev/null;
++
+ # printing commands
+-cmd = @set -e; $(echo-cmd) $(cmd_$(1))
++cmd = @set -e; $(echo-cmd) $($(quiet)redirect) $(cmd_$(1))
  
- &hdmi0 {
+ ###
+ # if_changed      - execute command if any prerequisite is newer than
 -- 
 2.30.2
 
