@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2763C8D8E
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27EC53C8D86
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237031AbhGNTpD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        id S236680AbhGNTo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:44:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233282AbhGNToQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233453AbhGNToQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17E13613DD;
-        Wed, 14 Jul 2021 19:41:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1E5F613ED;
+        Wed, 14 Jul 2021 19:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291670;
-        bh=JApliMSbP4eWKiuwY4+sr/M1qExj+z1PXmkl7snZtJw=;
+        s=k20201202; t=1626291671;
+        bh=/Y5p+u3HuN6J545R6s3d4Yr2Bp7btNdWGc+nyZL8xjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+1dnsj4rmn4vp7yr6uE2stRSNXviS49Y76W+CxFmfBP9rjvn2XrpKlKrPjorW/MD
-         xHn3rUINRqZExNi0EqspE1MrSTBbL03iytjOdeV/NFK4dC0r8FvfSoD8VN2s4JWJag
-         FjBs1Z5sb/ipW5ANSHNoCFMxmfRBHkDN2DMfDlW7uJ4+vDsUYkL/A/EomgroNTm9fH
-         cJkrdaMvYtumqYk+I3q9k/TlYr2rJR5zaRWzO91xHq67kDf5azU4rn/heZxwzdrCjz
-         wI1MddlECW8XXpT1cZjK3Y6IzDzKt/bXz2lsh0EOIWaNZjBR8h59a2FapC4dR6+I7n
-         uDE+pmNqE8Kxg==
+        b=prVemh+Z6iaH4aU6uYoX+Xaez6E0xC/GPcKKI2pDHYD+ytZBX/KT7tC9H/IcNJ6TH
+         w89EQYGqTkEG7BHWMEKyRBQmXk/TVR/czZM5wsTdCRNhhduaYafP4N3cXkV0cO3TNd
+         Qg8L+6E+V03G82bDiDQZp47Gzbex5GaVjPVrIQ4Y2LLzRV1OO/eTAKY+0bVwEjcFFq
+         tsQHiywvexilNeoyuwCSC4PqGbYYO2/N6pecc6rxBYpKG//NCyghcIa56hRx522nPl
+         TePKLIpoMeih6ekG9x39G+0mHjB/4kqir+75etMN7WlfX8dvZmkCqoh3Dk1Y6D5Q2b
+         Ce/rW1pz4I4yA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 5.12 023/102] soc: bcm: brcmstb: remove unused variable 'brcmstb_machine_match'
-Date:   Wed, 14 Jul 2021 15:39:16 -0400
-Message-Id: <20210714194036.53141-23-sashal@kernel.org>
+Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 024/102] ARM: dts: imx25-pinfunc: Fix gpio function name for pads GPIO_[A-F]
+Date:   Wed, 14 Jul 2021 15:39:17 -0400
+Message-Id: <20210714194036.53141-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,39 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit c1f512182c54dc87efd2f7ac19f16a49ff8bb19e ]
+[ Upstream commit e0cdd26af8eb9001689a4cde4f72c61c1c4b06be ]
 
-Fix the following clang warning:
+The pinfunc definitions used GPIO_A as function instead of GPIO_1_0 as
+done for all the other pins with GPIO functionality. Fix for consistency.
 
-drivers/soc/bcm/brcmstb/common.c:17:34: warning: unused variable
-'brcmstb_machine_match' [-Wunused-const-variable].
+There are no mainline users that needs adaption.
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/bcm/brcmstb/common.c | 5 -----
- 1 file changed, 5 deletions(-)
+ arch/arm/boot/dts/imx25-pinfunc.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/soc/bcm/brcmstb/common.c b/drivers/soc/bcm/brcmstb/common.c
-index e87dfc6660f3..2a010881f4b6 100644
---- a/drivers/soc/bcm/brcmstb/common.c
-+++ b/drivers/soc/bcm/brcmstb/common.c
-@@ -14,11 +14,6 @@
- static u32 family_id;
- static u32 product_id;
+diff --git a/arch/arm/boot/dts/imx25-pinfunc.h b/arch/arm/boot/dts/imx25-pinfunc.h
+index f984b702efc5..908caf810351 100644
+--- a/arch/arm/boot/dts/imx25-pinfunc.h
++++ b/arch/arm/boot/dts/imx25-pinfunc.h
+@@ -563,15 +563,15 @@
+ #define MX25_PAD_DE_B__DE_B			0x1f0 0x3ec 0x000 0x00 0x000
+ #define MX25_PAD_DE_B__GPIO_2_20		0x1f0 0x3ec 0x000 0x05 0x000
  
--static const struct of_device_id brcmstb_machine_match[] = {
--	{ .compatible = "brcm,brcmstb", },
--	{ }
--};
--
- u32 brcmstb_get_family_id(void)
- {
- 	return family_id;
+-#define MX25_PAD_GPIO_A__GPIO_A			0x1f4 0x3f0 0x000 0x00 0x000
++#define MX25_PAD_GPIO_A__GPIO_1_0		0x1f4 0x3f0 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_A__CAN1_TX		0x1f4 0x3f0 0x000 0x06 0x000
+ #define MX25_PAD_GPIO_A__USBOTG_PWR		0x1f4 0x3f0 0x000 0x02 0x000
+ 
+-#define MX25_PAD_GPIO_B__GPIO_B			0x1f8 0x3f4 0x000 0x00 0x000
++#define MX25_PAD_GPIO_B__GPIO_1_1		0x1f8 0x3f4 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_B__USBOTG_OC		0x1f8 0x3f4 0x57c 0x02 0x001
+ #define MX25_PAD_GPIO_B__CAN1_RX		0x1f8 0x3f4 0x480 0x06 0x001
+ 
+-#define MX25_PAD_GPIO_C__GPIO_C			0x1fc 0x3f8 0x000 0x00 0x000
++#define MX25_PAD_GPIO_C__GPIO_1_2		0x1fc 0x3f8 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_C__PWM4_PWMO		0x1fc 0x3f8 0x000 0x01 0x000
+ #define MX25_PAD_GPIO_C__I2C2_SCL		0x1fc 0x3f8 0x51c 0x02 0x001
+ #define MX25_PAD_GPIO_C__KPP_COL4		0x1fc 0x3f8 0x52c 0x03 0x001
+@@ -580,18 +580,18 @@
+ #define MX25_PAD_GPIO_C__CAN2_TX		0x1fc 0x3f8 0x000 0x06 0x000
+ #define MX25_PAD_GPIO_C__CSPI2_SS2		0x1fc 0x3f8 0x000 0x07 0x000
+ 
+-#define MX25_PAD_GPIO_D__GPIO_D			0x200 0x3fc 0x000 0x00 0x000
++#define MX25_PAD_GPIO_D__GPIO_1_3		0x200 0x3fc 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_D__I2C2_SDA		0x200 0x3fc 0x520 0x02 0x001
+ #define MX25_PAD_GPIO_D__CAN2_RX		0x200 0x3fc 0x484 0x06 0x001
+ #define MX25_PAD_GPIO_D__CSPI3_SS2		0x200 0x3fc 0x4c4 0x07 0x001
+ 
+-#define MX25_PAD_GPIO_E__GPIO_E			0x204 0x400 0x000 0x00 0x000
++#define MX25_PAD_GPIO_E__GPIO_1_4		0x204 0x400 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_E__I2C3_CLK		0x204 0x400 0x524 0x01 0x002
+ #define MX25_PAD_GPIO_E__LD16			0x204 0x400 0x000 0x02 0x000
+ #define MX25_PAD_GPIO_E__AUD7_TXD		0x204 0x400 0x000 0x04 0x000
+ #define MX25_PAD_GPIO_E__UART4_RXD		0x204 0x400 0x570 0x06 0x002
+ 
+-#define MX25_PAD_GPIO_F__GPIO_F			0x208 0x404 0x000 0x00 0x000
++#define MX25_PAD_GPIO_F__GPIO_1_5		0x208 0x404 0x000 0x00 0x000
+ #define MX25_PAD_GPIO_F__LD17			0x208 0x404 0x000 0x02 0x000
+ #define MX25_PAD_GPIO_F__AUD7_TXC		0x208 0x404 0x000 0x04 0x000
+ #define MX25_PAD_GPIO_F__UART4_TXD		0x208 0x404 0x000 0x06 0x000
 -- 
 2.30.2
 
