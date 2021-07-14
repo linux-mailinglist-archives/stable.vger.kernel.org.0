@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B293C9434
+	by mail.lfdr.de (Postfix) with ESMTP id F12E43C9435
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 01:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234968AbhGNXMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 19:12:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34812 "EHLO mail.kernel.org"
+        id S235972AbhGNXMS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 19:12:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229928AbhGNXL7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 19:11:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2C7061360;
-        Wed, 14 Jul 2021 23:09:06 +0000 (UTC)
+        id S235344AbhGNXMS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 19:12:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4437B613B5;
+        Wed, 14 Jul 2021 23:09:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1626304146;
-        bh=6WehOXPfHGhmExw7DxXEZuuREMY9ztJvo0vuzRfxqDE=;
+        s=korg; t=1626304166;
+        bh=JqZ737XEDaE3W/EPc5ghPKOtlyQV7tWlGwNDAYl7+zE=;
         h=Date:From:To:Subject:From;
-        b=OI861fkxgrY4iqCsly+lsmXzdVWXMVhG3bGzkwLiBrU4uNXQdD9pkC1Ta1/yW6XbC
-         IStV8S/W3k3DCqk+QFNFNph67dEJxivMY//qlpu/EoI687TzFRlHN8C352sE/iqtyB
-         2IYmWwrF1IcrQD82CfJ8qv2PGdShRAgMrnQBv3U8=
-Date:   Wed, 14 Jul 2021 16:09:06 -0700
+        b=vvLYaD6lnNL20khIbt94sNDnJz2z1R1w/7v2LhLIXmuOoQ8kDNbceYBDlhiowQv6j
+         AZ64Q4EiTO8bIYvnA4d+b5WvimPTUYChHNXvtewFz5pSbxxn+cSFEJoesbdbDCKhsQ
+         /XiUVL/W3bUYTo8mYd9zA1FotP/UR2cDqXl0E1yU=
+Date:   Wed, 14 Jul 2021 16:09:25 -0700
 From:   akpm@linux-foundation.org
-To:     joao.m.martins@oracle.com, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch added to -mm
- tree
-Message-ID: <20210714230906.zpqurUo_F%akpm@linux-foundation.org>
+To:     bowsingbetee@pm.me, glider@google.com, keescook@chromium.org,
+        mm-commits@vger.kernel.org, slyfox@gentoo.org,
+        stable@vger.kernel.org, tglx@linutronix.de, vbabka@suse.cz
+Subject:  [to-be-updated]
+ mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction.patch
+ removed from -mm tree
+Message-ID: <20210714230925.pMHiUhgZF%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -35,68 +36,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/hugetlb: fix refs calculation from unaligned @vaddr
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
+     Subject: mm: page_alloc: fix page_poison=1 / INIT_ON_ALLOC_DEFAULT_ON interaction
+has been removed from the -mm tree.  Its filename was
+     mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+This patch was dropped because an updated version will be merged
 
 ------------------------------------------------------
-From: Joao Martins <joao.m.martins@oracle.com>
-Subject: mm/hugetlb: fix refs calculation from unaligned @vaddr
+From: Sergei Trofimovich <slyfox@gentoo.org>
+Subject: mm: page_alloc: fix page_poison=1 / INIT_ON_ALLOC_DEFAULT_ON interaction
 
-commit 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording") refactored
-the count of subpages but missed an edge case when @vaddr is not aligned
-to PAGE_SIZE e.g.  when close to vma->vm_end.  It would then errousnly set
-@refs to 0 and record_subpages_vmas() wouldn't set the @pages array
-element to its value, consequently causing the reported null-deref by
-syzbot.
+To reproduce the failure we need the following system:
+  - kernel command: page_poison=1 init_on_free=0 init_on_alloc=0
+  - kernel config:
+    * CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
+    * CONFIG_INIT_ON_FREE_DEFAULT_ON=y
+    * CONFIG_PAGE_POISONING=y
 
-Fix it by aligning down @vaddr by PAGE_SIZE in @refs calculation.
+    0000000085629bdd: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    0000000022861832: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00000000c597f5b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    CPU: 11 PID: 15195 Comm: bash Kdump: loaded Tainted: G     U     O      5.13.1-gentoo-x86_64 #1
+    Hardware name: System manufacturer System Product Name/PRIME Z370-A, BIOS 2801 01/13/2021
+    Call Trace:
+     dump_stack+0x64/0x7c
+     __kernel_unpoison_pages.cold+0x48/0x84
+     post_alloc_hook+0x60/0xa0
+     get_page_from_freelist+0xdb8/0x1000
+     __alloc_pages+0x163/0x2b0
+     __get_free_pages+0xc/0x30
+     pgd_alloc+0x2e/0x1a0
+     ? dup_mm+0x37/0x4f0
+     mm_init+0x185/0x270
+     dup_mm+0x6b/0x4f0
+     ? __lock_task_sighand+0x35/0x70
+     copy_process+0x190d/0x1b10
+     kernel_clone+0xba/0x3b0
+     __do_sys_clone+0x8f/0xb0
+     do_syscall_64+0x68/0x80
+     ? do_syscall_64+0x11/0x80
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Link: https://lkml.kernel.org/r/20210713152440.28650-1-joao.m.martins@oracle.com
-Fixes: 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording")
-Reported-by: syzbot+a3fcd59df1b372066f5a@syzkaller.appspotmail.com
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Before the 51cba1eb ("init_on_alloc: Optimize static branches")
+init_on_alloc never enabled static branch by default.  It could only be
+enabed explicitly by init_mem_debugging_and_hardening().
+
+But after the 51cba1eb static branch could already be enabled by default. 
+There was no code to ever disable it.  That caused page_poison=1 /
+init_on_free=1 conflict.
+
+This change extends init_mem_debugging_and_hardening() to also disable
+static branch disabling.
+
+Link: https://lkml.kernel.org/r/20210712215816.1512739-1-slyfox@gentoo.org
+Fixes: 51cba1eb ("init_on_alloc: Optimize static branches")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: <bowsingbetee@pm.me>
+Reported-by: Mikhail Morfikov
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vlastimil Babka <vbabka@suse.cz>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/hugetlb.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/page_alloc.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/mm/hugetlb.c~mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr
-+++ a/mm/hugetlb.c
-@@ -5440,8 +5440,9 @@ long follow_hugetlb_page(struct mm_struc
- 			continue;
- 		}
+--- a/mm/page_alloc.c~mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction
++++ a/mm/page_alloc.c
+@@ -840,18 +840,22 @@ void init_mem_debugging_and_hardening(vo
+ 	}
+ #endif
  
--		refs = min3(pages_per_huge_page(h) - pfn_offset,
--			    (vma->vm_end - vaddr) >> PAGE_SHIFT, remainder);
-+		/* vaddr may not be aligned to PAGE_SIZE */
-+		refs = min3(pages_per_huge_page(h) - pfn_offset, remainder,
-+		    (vma->vm_end - ALIGN_DOWN(vaddr, PAGE_SIZE)) >> PAGE_SHIFT);
+-	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_requested)
++	if (_init_on_alloc_enabled_early ||
++	    IS_ENABLED(CONFIG_INIT_ON_ALLOC_DEFAULT_ON)) {
++		if (page_poisoning_requested) {
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+-		else
++			static_branch_disable(&init_on_alloc);
++		} else
+ 			static_branch_enable(&init_on_alloc);
+ 	}
+-	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_requested)
++	if (_init_on_free_enabled_early ||
++	    IS_ENABLED(CONFIG_INIT_ON_FREE_DEFAULT_ON)) {
++		if (page_poisoning_requested) {
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+-		else
++			static_branch_disable(&init_on_free);
++		} else
+ 			static_branch_enable(&init_on_free);
+ 	}
  
- 		if (pages || vmas)
- 			record_subpages_vmas(mem_map_offset(page, pfn_offset),
 _
 
-Patches currently in -mm which might be from joao.m.martins@oracle.com are
+Patches currently in -mm which might be from slyfox@gentoo.org are
 
-mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
 
