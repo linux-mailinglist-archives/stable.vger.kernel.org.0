@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AA663C9024
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D1493C9026
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240125AbhGNTx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
+        id S239566AbhGNTx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240957AbhGNTuP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8974613DD;
-        Wed, 14 Jul 2021 19:46:26 +0000 (UTC)
+        id S240960AbhGNTuQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E419261406;
+        Wed, 14 Jul 2021 19:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291987;
-        bh=ZcwUKOkhXKdWLeqDGC3PgNVbHduCINTJiLBaLTYNEuw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=VFdi1F1qf+KoopzirWHqFCBIYIkBtciq9oc+W2+8Fc1Ko08w7ma+AWt10qn5lWu9c
-         O01ubOQ3zREG0bI6Hm+kqshq3HYz8Y/SeGlaeBUxU4ljyayKA4zJVmS1QC4Gs4/XUb
-         +uhXkUqnLd6GEd5OCFbfexUgp3XVIr4AvmX4KGDP429z9ErdYTdSj816abl+0k1Un9
-         gns/xy5Nq+4CebSPRJUHGqX4ydSLjKmRQ1xraBfpvpkWxPrUc693UrztRPbkGwStJz
-         9vgU1+0X/JeqRxQPkGPx0MugFJzpz5DM8CfsYgbdUhILOxSzCRGsCOlTsE5k/4HCJR
-         TloTjYqfjU9EQ==
+        s=k20201202; t=1626291988;
+        bh=QeIk8TBOXjeCTIFRQ/JBLrnwEdrCMM6+OpeAEx6CFuw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=KOTc4WG5fEWCqKi/IUN8spPAD1i1Bk60VaDwX8tzKd9fzqvzOSSOVTvk2NqKj517D
+         i3MT0Rt+R3Ua4JrOMu1gJlm9rlBoWBw/XPquCvkTclFq4snkd3Udf3KW3xmt6g2oYR
+         SaULPIPOXeY3Ci7Q9rTgJJR1zNT2ifIWpnXhJEHZRNe4k2+vq9N1ylHrmi408EWsQQ
+         nQi7Z1DGQc5Iw/UZ/+qKK8Pi6RtyjkdcIKypflW0PaU7SSBPe8CsHk7QJjDhsNr3OG
+         5ZOYLyZfD4Om6XSjnM7IPIfW4mGjzAr+l+Eio21dlxQcwVkKb8iL0EN5bcBYSpue0M
+         WXn2mps6BO9tQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Corentin Labbe <clabbe@baylibre.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/39] ARM: dts: gemini: rename mdio to the right name
-Date:   Wed, 14 Jul 2021 15:45:46 -0400
-Message-Id: <20210714194625.55303-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 02/39] ARM: dts: gemini: add device_type on pci
+Date:   Wed, 14 Jul 2021 15:45:47 -0400
+Message-Id: <20210714194625.55303-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
+References: <20210714194625.55303-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,86 +44,29 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit fc5b59b945b546e27977e99a5ca6fe61179ff0d2 ]
+[ Upstream commit 483f3645b3f7acfd1c78a19d51b80c0656161974 ]
 
-ethernet-phy is not the right name for mdio, fix it.
+Fixes DT warning on pci node by adding the missing device_type.
 
 Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/gemini-dlink-dns-313.dts | 2 +-
- arch/arm/boot/dts/gemini-nas4220b.dts      | 2 +-
- arch/arm/boot/dts/gemini-rut1xx.dts        | 2 +-
- arch/arm/boot/dts/gemini-wbd111.dts        | 2 +-
- arch/arm/boot/dts/gemini-wbd222.dts        | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/gemini.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/gemini-dlink-dns-313.dts b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
-index 361dccd6c7ee..431c705a7b90 100644
---- a/arch/arm/boot/dts/gemini-dlink-dns-313.dts
-+++ b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
-@@ -140,7 +140,7 @@ map1 {
- 		};
- 	};
- 
--	mdio0: ethernet-phy {
-+	mdio0: mdio {
- 		compatible = "virtual,mdio-gpio";
- 		/* Uses MDC and MDIO */
- 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
-diff --git a/arch/arm/boot/dts/gemini-nas4220b.dts b/arch/arm/boot/dts/gemini-nas4220b.dts
-index 963ea890c87f..1c5f7f9e7be3 100644
---- a/arch/arm/boot/dts/gemini-nas4220b.dts
-+++ b/arch/arm/boot/dts/gemini-nas4220b.dts
-@@ -62,7 +62,7 @@ led-green-os {
- 		};
- 	};
- 
--	mdio0: ethernet-phy {
-+	mdio0: mdio {
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
- 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
-diff --git a/arch/arm/boot/dts/gemini-rut1xx.dts b/arch/arm/boot/dts/gemini-rut1xx.dts
-index eb4f0bf074da..c067c3778f1d 100644
---- a/arch/arm/boot/dts/gemini-rut1xx.dts
-+++ b/arch/arm/boot/dts/gemini-rut1xx.dts
-@@ -56,7 +56,7 @@ led-power {
- 		};
- 	};
- 
--	mdio0: ethernet-phy {
-+	mdio0: mdio {
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
- 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
-diff --git a/arch/arm/boot/dts/gemini-wbd111.dts b/arch/arm/boot/dts/gemini-wbd111.dts
-index 29af86cd10f7..52c10ec0dc72 100644
---- a/arch/arm/boot/dts/gemini-wbd111.dts
-+++ b/arch/arm/boot/dts/gemini-wbd111.dts
-@@ -68,7 +68,7 @@ led-greeb-l3 {
- 		};
- 	};
- 
--	mdio0: ethernet-phy {
-+	mdio0: mdio {
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
- 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
-diff --git a/arch/arm/boot/dts/gemini-wbd222.dts b/arch/arm/boot/dts/gemini-wbd222.dts
-index 24e6ae3616f7..73de5cfa01f8 100644
---- a/arch/arm/boot/dts/gemini-wbd222.dts
-+++ b/arch/arm/boot/dts/gemini-wbd222.dts
-@@ -67,7 +67,7 @@ led-green-l3 {
- 		};
- 	};
- 
--	mdio0: ethernet-phy {
-+	mdio0: mdio {
- 		compatible = "virtual,mdio-gpio";
- 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
- 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini.dtsi b/arch/arm/boot/dts/gemini.dtsi
+index eb752e9495de..4949951e3597 100644
+--- a/arch/arm/boot/dts/gemini.dtsi
++++ b/arch/arm/boot/dts/gemini.dtsi
+@@ -286,6 +286,7 @@ pci@50000000 {
+ 			clock-names = "PCLK", "PCICLK";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&pci_default_pins>;
++			device_type = "pci";
+ 			#address-cells = <3>;
+ 			#size-cells = <2>;
+ 			#interrupt-cells = <1>;
 -- 
 2.30.2
 
