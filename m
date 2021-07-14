@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C92553C8E89
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B243C8E8A
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236974AbhGNTsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237490AbhGNTsT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:48:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237971AbhGNTq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236430AbhGNTq4 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C714B613F3;
-        Wed, 14 Jul 2021 19:42:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F9156140F;
+        Wed, 14 Jul 2021 19:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291777;
-        bh=BjACueZrmMy41jSblqDHRPa31XqeZiJocDVJMgODDA8=;
+        s=k20201202; t=1626291778;
+        bh=xu4a09RyxjHjcQgsyVfU+AasF6ya7IX+aHbh4Bb+IP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XasX9UmbmfttsLMnKjV1dqeGO6A4F1KuY+4RUxAAAKXRUmxpJSl6N5CeCzpDP5PAF
-         m1KxwL1tUUeotVMEKSGAA+VDVP4C/5SQjQ8dOpww0LSjSznjQk6ge9f1QFLwowwD22
-         jxafQ/AJmaDbObmQ4qUKddPT+CC2dA6E10+7t5WsfQi/VPMcFYcx4hmre0FzMd1ufr
-         v4LZqAaPeir1vuzMBDAlXTDdwQlzJ8KWq5P9vbFIKm0rK54zg8cMOIUja6TRWfvkuL
-         H6z7HQP0br0+Pwvpy0TtzU+q4h+kiF8xDFqP62Utq3xKu9adTrmk+AJMNq8kzPQbCJ
-         m/Bcj3QFdHDwA==
+        b=bf0zJXDLPLBYmQfhOWJ+/oCwEVkta7M7bd4MQwhLFWlPtcCAybXmWRt//pipFRYQQ
+         /NwNZK+99nPbkd1tKU0ipYgUwXXON3wIF3kvsUKv89cLNWkwak91o+SdR0LPyAdvzk
+         lNh8Z8T/UOo2W4hoNo5544MQdwN+gXzNKzGrfjcAjNaQ6YZsrkbQ+OP7e2JpJNKTt1
+         ZtPUzYGBuH1ByOvtVHTbjGBIa+ORv+BnVmKJMugsnTTDlumxiWPvlvnyYS4u4VAjP1
+         yMk0owDRgmB5nyGolZU7Ia3V0iqcFMnv2FFE/2Gltm7U5yQ8TPqd37I4JbmWO6PrQb
+         T/IX0OSKASPLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilya Leoshkevich <iii@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 100/102] s390/traps: do not test MONITOR CALL without CONFIG_BUG
-Date:   Wed, 14 Jul 2021 15:40:33 -0400
-Message-Id: <20210714194036.53141-100-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 101/102] s390: introduce proper type handling call_on_stack() macro
+Date:   Wed, 14 Jul 2021 15:40:34 -0400
+Message-Id: <20210714194036.53141-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -43,36 +43,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit b8e9cc20b808e26329090c19ff80b7f5098e98ff ]
+[ Upstream commit 41d71fe59cce41237f24f3b7bdc1b414069a34ed ]
 
-tinyconfig fails to boot, because without CONFIG_BUG report_bug()
-always returns BUG_TRAP_TYPE_BUG, which causes mc 0,0 in
-test_monitor_call() to panic. Fix by skipping the test without
-CONFIG_BUG.
+The existing CALL_ON_STACK() macro allows for subtle bugs:
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+- There is no type checking of the function that is being called. That
+  is: missing or too many arguments do not cause any compile error or
+  warning. The same is true if the return type of the called function
+  changes. This can lead to quite random bugs.
+
+- Sign and zero extension of arguments is missing. Given that the s390
+  C ABI requires that the caller of a function performs proper sign
+  and zero extension this can also lead to subtle bugs.
+
+- If arguments to the CALL_ON_STACK() macros contain functions calls
+  register corruption can happen due to register asm constructs being
+  used.
+
+Therefore introduce a new call_on_stack() macro which is supposed to
+fix all these problems.
+
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/traps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/include/asm/stacktrace.h | 97 ++++++++++++++++++++++++++++++
+ 1 file changed, 97 insertions(+)
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index db7dd59b570c..c1b8d9170ba3 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -276,6 +276,8 @@ static void __init test_monitor_call(void)
- {
- 	int val = 1;
+diff --git a/arch/s390/include/asm/stacktrace.h b/arch/s390/include/asm/stacktrace.h
+index 76c6034428be..b4d936580fbf 100644
+--- a/arch/s390/include/asm/stacktrace.h
++++ b/arch/s390/include/asm/stacktrace.h
+@@ -129,6 +129,103 @@ struct stack_frame {
+ 	r2;								\
+ })
  
-+	if (!IS_ENABLED(CONFIG_BUG))
-+		return;
- 	asm volatile(
- 		"	mc	0,0\n"
- 		"0:	xgr	%0,%0\n"
++#define CALL_LARGS_0(...)						\
++	long dummy = 0
++#define CALL_LARGS_1(t1, a1)						\
++	long arg1  = (long)(t1)(a1)
++#define CALL_LARGS_2(t1, a1, t2, a2)					\
++	CALL_LARGS_1(t1, a1);						\
++	long arg2 = (long)(t2)(a2)
++#define CALL_LARGS_3(t1, a1, t2, a2, t3, a3)				\
++	CALL_LARGS_2(t1, a1, t2, a2);					\
++	long arg3 = (long)(t3)(a3)
++#define CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4)			\
++	CALL_LARGS_3(t1, a1, t2, a2, t3, a3);				\
++	long arg4  = (long)(t4)(a4)
++#define CALL_LARGS_5(t1, a1, t2, a2, t3, a3, t4, a4, t5, a5)		\
++	CALL_LARGS_4(t1, a1, t2, a2, t3, a3, t4, a4);			\
++	long arg5 = (long)(t5)(a5)
++
++#define CALL_REGS_0							\
++	register long r2 asm("2") = dummy
++#define CALL_REGS_1							\
++	register long r2 asm("2") = arg1
++#define CALL_REGS_2							\
++	CALL_REGS_1;							\
++	register long r3 asm("3") = arg2
++#define CALL_REGS_3							\
++	CALL_REGS_2;							\
++	register long r4 asm("4") = arg3
++#define CALL_REGS_4							\
++	CALL_REGS_3;							\
++	register long r5 asm("5") = arg4
++#define CALL_REGS_5							\
++	CALL_REGS_4;							\
++	register long r6 asm("6") = arg5
++
++#define CALL_TYPECHECK_0(...)
++#define CALL_TYPECHECK_1(t, a, ...)					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_2(t, a, ...)					\
++	CALL_TYPECHECK_1(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_3(t, a, ...)					\
++	CALL_TYPECHECK_2(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_4(t, a, ...)					\
++	CALL_TYPECHECK_3(__VA_ARGS__);					\
++	typecheck(t, a)
++#define CALL_TYPECHECK_5(t, a, ...)					\
++	CALL_TYPECHECK_4(__VA_ARGS__);					\
++	typecheck(t, a)
++
++#define CALL_PARM_0(...) void
++#define CALL_PARM_1(t, a, ...) t
++#define CALL_PARM_2(t, a, ...) t, CALL_PARM_1(__VA_ARGS__)
++#define CALL_PARM_3(t, a, ...) t, CALL_PARM_2(__VA_ARGS__)
++#define CALL_PARM_4(t, a, ...) t, CALL_PARM_3(__VA_ARGS__)
++#define CALL_PARM_5(t, a, ...) t, CALL_PARM_4(__VA_ARGS__)
++#define CALL_PARM_6(t, a, ...) t, CALL_PARM_5(__VA_ARGS__)
++
++/*
++ * Use call_on_stack() to call a function switching to a specified
++ * stack. Proper sign and zero extension of function arguments is
++ * done. Usage:
++ *
++ * rc = call_on_stack(nr, stack, rettype, fn, t1, a1, t2, a2, ...)
++ *
++ * - nr specifies the number of function arguments of fn.
++ * - stack specifies the stack to be used.
++ * - fn is the function to be called.
++ * - rettype is the return type of fn.
++ * - t1, a1, ... are pairs, where t1 must match the type of the first
++ *   argument of fn, t2 the second, etc. a1 is the corresponding
++ *   first function argument (not name), etc.
++ */
++#define call_on_stack(nr, stack, rettype, fn, ...)			\
++({									\
++	rettype (*__fn)(CALL_PARM_##nr(__VA_ARGS__)) = fn;		\
++	unsigned long frame = current_frame_address();			\
++	unsigned long __stack = stack;					\
++	unsigned long prev;						\
++	CALL_LARGS_##nr(__VA_ARGS__);					\
++	CALL_REGS_##nr;							\
++									\
++	CALL_TYPECHECK_##nr(__VA_ARGS__);				\
++	asm volatile(							\
++		"	lgr	%[_prev],15\n"				\
++		"	lg	15,%[_stack]\n"				\
++		"	stg	%[_frame],%[_bc](15)\n"			\
++		"	brasl	14,%[_fn]\n"				\
++		"	lgr	15,%[_prev]\n"				\
++		: [_prev] "=&d" (prev), CALL_FMT_##nr			\
++		: [_stack] "R" (__stack),				\
++		  [_bc] "i" (offsetof(struct stack_frame, back_chain)),	\
++		  [_frame] "d" (frame),					\
++		  [_fn] "X" (__fn) : CALL_CLOBBER_##nr);		\
++	(rettype)r2;							\
++})
++
+ #define CALL_ON_STACK_NORETURN(fn, stack)				\
+ ({									\
+ 	asm volatile(							\
 -- 
 2.30.2
 
