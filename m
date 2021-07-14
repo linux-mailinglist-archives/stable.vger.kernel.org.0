@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B38873C9039
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A033C9048
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241016AbhGNTyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S241155AbhGNTyN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:54:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241083AbhGNTuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92AE6613B5;
-        Wed, 14 Jul 2021 19:46:46 +0000 (UTC)
+        id S241104AbhGNTuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB896613D2;
+        Wed, 14 Jul 2021 19:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292007;
-        bh=uWyAnwa3WxnWjfWfs4xD2A6KM49nG54dNobJZvDA8a0=;
+        s=k20201202; t=1626292008;
+        bh=LBXD4Wz1qxz5k3KFOfls2JXbaV7WDf+oET1woDyQzbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBQiLaVHO4i24dpL7kB8XwhyKqyFnhaN6Tp3pL4dSW31S+86Cisu56NYOQ0ppUsEx
-         h+S9/C7uwly9NgiOUFhrCAOrJt+L5EoIOTp6x9RV927XlsbmE8gqtqP/Ry/6l5MNj/
-         NnIfg4mP/wZrVwDBK6JOP0tku4A8D1iBlsNYp4FUVHq1Tp9RxY1xIrzohBnjSN6IbJ
-         ZpLczMjG3ebuCgp6a7/wrCfLXJseldlku+rCfuKbjR0EwwcI/aV+dgBjEEg0vpB3dr
-         A6DamiDSb7bLDb7JLkS+q6QtPrb0SUy0i3gcOk2xp0FjOnnaxyKayGv9QwlXLrth0Y
-         N5nj8QGOhV9cA==
+        b=hvBvmtX3GW11AWTV7+cTxrj+vht5z4zb+e6FfspegERgfdcvgC3O9iixless8DKqe
+         Y/IUE5bkPU4zDRAYmpKbIvIaULRBIMzjEM9NjqsoR0HVo+hdIWCTrfNSIdJ9wsuGbt
+         6y65bc5CRh+vUUUOhZvuB8S/hJrqNf4Kxe83lu4EuqetDaE8YNNKPv8Bks9tWJRYnK
+         UwqLuCywiruTYYHVzejy3EaI4W7JBonngOc/2VQHUWUtFFgRCbCCUAbW5W+UpoY7XY
+         Uv7BtzozLWEaEDNGtNwBwweif5ZkPBKOfgRdVEcZuOqx0wDz25ntPW4kCT8trNynhI
+         3GFZFPiZkDu7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Primoz Fiser <primoz.fiser@norik.com>,
+Cc:     =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Fabio Estevam <festevam@gmail.com>,
         Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 16/39] ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
-Date:   Wed, 14 Jul 2021 15:46:01 -0400
-Message-Id: <20210714194625.55303-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 17/39] ARM: imx: pm-imx5: Fix references to imx5_cpu_suspend_info
+Date:   Wed, 14 Jul 2021 15:46:02 -0400
+Message-Id: <20210714194625.55303-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,47 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Primoz Fiser <primoz.fiser@norik.com>
+From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
 
-[ Upstream commit 14cdc1f243d79e0b46be150502b7dba9c5a6bdfd ]
+[ Upstream commit 89b759469d525f4d5f9c29cd3b1f490311c67f85 ]
 
-Serial interface uart3 on phyFLEX board is capable of 5-wire connection
-including signals RTS and CTS for hardware flow control.
+The name of the struct, as defined in arch/arm/mach-imx/pm-imx5.c,
+is imx5_cpu_suspend_info.
 
-Fix signals UART3_CTS_B and UART3_RTS_B padmux assignments and add
-missing property "uart-has-rtscts" to allow serial interface to be
-configured and used with the hardware flow control.
-
-Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
+Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/mach-imx/suspend-imx53.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-index 9499d113b139..25462f778994 100644
---- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
-@@ -306,8 +306,8 @@ pinctrl_uart3: uart3grp {
- 			fsl,pins = <
- 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
- 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
--				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
--				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
-+				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
-+				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
- 			>;
- 		};
+diff --git a/arch/arm/mach-imx/suspend-imx53.S b/arch/arm/mach-imx/suspend-imx53.S
+index 5ed078ad110a..f12d24104075 100644
+--- a/arch/arm/mach-imx/suspend-imx53.S
++++ b/arch/arm/mach-imx/suspend-imx53.S
+@@ -33,11 +33,11 @@
+  *                              ^
+  *                              ^
+  *                      imx53_suspend code
+- *              PM_INFO structure(imx53_suspend_info)
++ *              PM_INFO structure(imx5_cpu_suspend_info)
+  * ======================== low address =======================
+  */
  
-@@ -394,6 +394,7 @@ &reg_soc {
- &uart3 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart3>;
-+	uart-has-rtscts;
- 	status = "disabled";
- };
- 
+-/* Offsets of members of struct imx53_suspend_info */
++/* Offsets of members of struct imx5_cpu_suspend_info */
+ #define SUSPEND_INFO_MX53_M4IF_V_OFFSET		0x0
+ #define SUSPEND_INFO_MX53_IOMUXC_V_OFFSET	0x4
+ #define SUSPEND_INFO_MX53_IO_COUNT_OFFSET	0x8
 -- 
 2.30.2
 
