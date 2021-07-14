@@ -2,114 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1943C7B0E
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 03:28:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A673C7B43
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 04:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237232AbhGNBbF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 21:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
+        id S237392AbhGNCEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 22:04:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229843AbhGNBbE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 21:31:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCAED6128B;
-        Wed, 14 Jul 2021 01:28:13 +0000 (UTC)
+        id S237371AbhGNCEx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 22:04:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6082761361;
+        Wed, 14 Jul 2021 02:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1626226094;
-        bh=1Kq4a+B3sv2xmZ3srIAChXuQ/hkTCRS9tvGxI9qxX8o=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=XgCjkHJYFA/5vw/DvI6zk8UZ1aqrcF7YGM2yT3HL34SM9KQBwYYX32sIeboXDLaE8
-         bpp+NJ9bHKY0FVX8vure3zT70Hkg2JMfIy+JRdhj91DgEv5gDdlzbka3xYxif/mmbJ
-         6m0iYWhtJnBZjO2zGBr+twF+gJMOhIiFbw1376Oc=
-Date:   Tue, 13 Jul 2021 18:28:13 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: 5.13.2-rc and others have many not for stable
-Message-Id: <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
-In-Reply-To: <YO0zXVX9Bx9QZCTs@kroah.com>
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
-        <YO0zXVX9Bx9QZCTs@kroah.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        s=korg; t=1626228122;
+        bh=bPWJ0dLIFUBw+gVCjZ80/KjoLEoAdk6ptA7xYcrYZP0=;
+        h=Date:From:To:Subject:From;
+        b=2Id4OgLBv0jGyaceBQ6YjUROnkha9axtkA/TnlQP/OxWhCajhg3GIayUNjGPhWlpF
+         A3miUXhvUXLOvFyCKwRuvfv+AvBEkAI/Z3Azko+Kzz4bAxX7/SUQI292FZf2wblFDb
+         akeVxjjdiXbkTYKEPtGx5SBkQTj+qObm0nhu32NQ=
+Date:   Tue, 13 Jul 2021 19:02:00 -0700
+From:   akpm@linux-foundation.org
+To:     bowsingbetee@pm.me, glider@google.com, keescook@chromium.org,
+        mm-commits@vger.kernel.org, slyfox@gentoo.org,
+        stable@vger.kernel.org, tglx@linutronix.de, vbabka@suse.cz
+Subject:  +
+ mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction.patch
+ added to -mm tree
+Message-ID: <20210714020200.R85HJRvC7%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 13 Jul 2021 08:31:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-> 
-> > Amongst the 2000+ patches posted today, there are a significant number
-> > of them Signed-off-by Andrew, Signed-off-by Linus, Signed-off-by Sasha:
-> > yet never Cc'ed to stable (nor even posted as AUTOSELs, I think).
-> > 
-> > Am I out of date?  I thought that had been agreed not to happen:
-> > https://lore.kernel.org/linux-mm/20190808000533.7701-1-mike.kravetz@oracle.com/
-> > is the thread I found when I looked for confirmation, but I believe the
-> > same has been agreed before and since too.
-> > 
-> > Andrew goes to a lot of trouble to establish which Fixes from his tree
-> > ought to go to stable.  Of course there will be exceptions which we
-> > later decide should go in after all; but it's worrying when there's a
-> > wholesale breach like this, and I think most of them should be dropped.
-> > 
-> > To pick on just one of many examples (sorry Miaohe!), a patch that
-> > surprises me, but I've not had time to look into so far, and would
-> > not want accelerated into X stable releases, 385/800
-> > 
-> > > Miaohe Lin <linmiaohe@huawei.com>
-> > >     mm/shmem: fix shmem_swapin() race with swapoff
-> 
-> Sasha, and I, take patches from Linus's tree like the above one that
-> have "Fixes:" tags in them as many many maintainers do not remember to
-> put "cc: stable" on their patches.
+The patch titled
+     Subject: mm: page_alloc: fix page_poison=1 / INIT_ON_ALLOC_DEFAULT_ON interaction
+has been added to the -mm tree.  Its filename is
+     mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction.patch
 
-As do many many developers.  I always check.
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-page_alloc-fix-page_poison%3D1-init_on_alloc_default_on-interaction.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-page_alloc-fix-page_poison%3D1-init_on_alloc_default_on-interaction.patch
 
-> The above patch says it fixes a problem in the 5.1 kernel release, so
-> Sasha queued it up for 5.10, 5.12, and 5.13.  Odds are he should have
-> also sent a "FAILED" notice for 5.4, but we don't always do that for
-> patches only with a Fixes tag all the time as we only have so much we
-> can do...
-> 
-> So is that tag incorrect?  If not, why was it not cc: stable?  Why is it
-> not valid for a stable release?
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Usually because we judged that the seriousness of the problem did not
-justify the risk & churn of backporting its fix.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
->  So far, all automated testing seems to
-> show that there are no regressions in these releases with these commits
-> in them.  If there was a problem, how would it show up?
-> 
-> And as far as I know, mm/ stuff is still not triggered by the AUTOSEL
-> bot, but that is not what caused this commit to be added to a stable
-> release.
-> 
-> Trying to keep a "do not apply" list for Fixes: tags only is much harder
-> for both of us as we do these semi-manually and review them
-> individually.  Trying to remember what subsystem only does Fixes tags
-> yet really doesn't mean it is an impossible task.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Well, it shouldn't be super hard to skip all patches which have Fixes:,
-Signed-off-by:akpm and no cc:stable?
+------------------------------------------------------
+From: Sergei Trofimovich <slyfox@gentoo.org>
+Subject: mm: page_alloc: fix page_poison=1 / INIT_ON_ALLOC_DEFAULT_ON interaction
 
-I'd really really prefer this, please.  At present this -stable
-promiscuity is overriding the (sometime carefully) considered decisions
-of the MM developers, and that's a bit scary.  I've actually been
-spending the past couple of years believing that if I left off
-cc:stable, the fix wasn't going to go into -stable!
+To reproduce the failure we need the following system:
+  - kernel command: page_poison=1 init_on_free=0 init_on_alloc=0
+  - kernel config:
+    * CONFIG_INIT_ON_ALLOC_DEFAULT_ON=y
+    * CONFIG_INIT_ON_FREE_DEFAULT_ON=y
+    * CONFIG_PAGE_POISONING=y
 
-Alternatively I could just invent a new tag to replace the "Fixes:"
-("Fixes-no-backport?") to be used on patches which fix a known previous
-commit but which we don't want backported.
+    0000000085629bdd: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    0000000022861832: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00000000c597f5b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    CPU: 11 PID: 15195 Comm: bash Kdump: loaded Tainted: G     U     O      5.13.1-gentoo-x86_64 #1
+    Hardware name: System manufacturer System Product Name/PRIME Z370-A, BIOS 2801 01/13/2021
+    Call Trace:
+     dump_stack+0x64/0x7c
+     __kernel_unpoison_pages.cold+0x48/0x84
+     post_alloc_hook+0x60/0xa0
+     get_page_from_freelist+0xdb8/0x1000
+     __alloc_pages+0x163/0x2b0
+     __get_free_pages+0xc/0x30
+     pgd_alloc+0x2e/0x1a0
+     ? dup_mm+0x37/0x4f0
+     mm_init+0x185/0x270
+     dup_mm+0x6b/0x4f0
+     ? __lock_task_sighand+0x35/0x70
+     copy_process+0x190d/0x1b10
+     kernel_clone+0xba/0x3b0
+     __do_sys_clone+0x8f/0xb0
+     do_syscall_64+0x68/0x80
+     ? do_syscall_64+0x11/0x80
+     entry_SYSCALL_64_after_hwframe+0x44/0xae
 
+Before the 51cba1eb ("init_on_alloc: Optimize static branches")
+init_on_alloc never enabled static branch by default.  It could only be
+enabed explicitly by init_mem_debugging_and_hardening().
+
+But after the 51cba1eb static branch could already be enabled by default. 
+There was no code to ever disable it.  That caused page_poison=1 /
+init_on_free=1 conflict.
+
+This change extends init_mem_debugging_and_hardening() to also disable
+static branch disabling.
+
+Link: https://lkml.kernel.org/r/20210712215816.1512739-1-slyfox@gentoo.org
+Fixes: 51cba1eb ("init_on_alloc: Optimize static branches")
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Reported-by: <bowsingbetee@pm.me>
+Reported-by: Mikhail Morfikov
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_alloc.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+--- a/mm/page_alloc.c~mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction
++++ a/mm/page_alloc.c
+@@ -840,18 +840,22 @@ void init_mem_debugging_and_hardening(vo
+ 	}
+ #endif
+ 
+-	if (_init_on_alloc_enabled_early) {
+-		if (page_poisoning_requested)
++	if (_init_on_alloc_enabled_early ||
++	    IS_ENABLED(CONFIG_INIT_ON_ALLOC_DEFAULT_ON)) {
++		if (page_poisoning_requested) {
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_alloc\n");
+-		else
++			static_branch_disable(&init_on_alloc);
++		} else
+ 			static_branch_enable(&init_on_alloc);
+ 	}
+-	if (_init_on_free_enabled_early) {
+-		if (page_poisoning_requested)
++	if (_init_on_free_enabled_early ||
++	    IS_ENABLED(CONFIG_INIT_ON_FREE_DEFAULT_ON)) {
++		if (page_poisoning_requested) {
+ 			pr_info("mem auto-init: CONFIG_PAGE_POISONING is on, "
+ 				"will take precedence over init_on_free\n");
+-		else
++			static_branch_disable(&init_on_free);
++		} else
+ 			static_branch_enable(&init_on_free);
+ 	}
+ 
+_
+
+Patches currently in -mm which might be from slyfox@gentoo.org are
+
+mm-page_alloc-fix-page_poison=1-init_on_alloc_default_on-interaction.patch
 
