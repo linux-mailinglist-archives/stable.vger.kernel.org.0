@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F173C8D94
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7B53C8D84
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237066AbhGNTpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38836 "EHLO mail.kernel.org"
+        id S231316AbhGNTo5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:44:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234776AbhGNToP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235157AbhGNToP (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B589613D1;
-        Wed, 14 Jul 2021 19:41:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC009613E2;
+        Wed, 14 Jul 2021 19:41:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291667;
-        bh=cBakN/sw+SBG0A4dFB+/8gCBgPbiPQRJAWuWq+SFgug=;
+        s=k20201202; t=1626291668;
+        bh=FUQogsC63AgKVtlZSZYe/r6K/jr3cURdFyPF41bpO5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxtCyB5K1W+ro3RP82zJ2G6g28p5CZMDEAOKqIsuv7YMVD+pw/CWwG5EqfaIK03AJ
-         SYYK+vSQPqBU1miz9JVzxQb+LjI+DaxCNkVgQKicmRa+MKnSgTj5wVN8LqgYNKWSXI
-         p8RGgrdo8ztn5oy/Q3UYz4lhVrnyaBelc2YaFWJ2AkXg0P083IfFzZBTgZhckOu9LO
-         4A4BAlf8AyUCwnaz4no6Do3Hi+Brg7ECBi13i+2I3ZAgpUZ9/tB//QBBHacDCBBlC/
-         iqXqReUR8F2IFHHRWqF6DepJ/6eDjczdHaCJyI2tt/DGVMaHZ21GAxLWXverMm5gTt
-         iQOi/70y4vuIQ==
+        b=kguxu+R7aBEt+FnZlEz60toSN2bm0/una4h86+t89WUWjTsbUZcxVKkiP0mPHXKr4
+         qjFq1NoHDtwkzCG1gYanoWaMKFp6G+HwbD2N6NlyvZQTNMZzg4AQUOsFIW+GIftWdz
+         OAmi69pEvER28Zx+eRb58D4qpnlF5MfGouNMx8tOOK+6Ezxvxedo8RcwjZtg0zcfMv
+         xdWKDWAXHkLChiLPxdggfUuAmEVrfkQctQW0v7cGh7Fi6/JGjGQDo4YFq+mmnOTUQC
+         PNsg2LuXOCikxIyN29LeElmvl/7Ugk8bztenIwDn4aknJDHbiYpHKNWwYdMAlNPhFy
+         rE9Mfhj/i6Scw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 021/102] ARM: dts: Hurricane 2: Fix NAND nodes names
-Date:   Wed, 14 Jul 2021 15:39:14 -0400
-Message-Id: <20210714194036.53141-21-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 022/102] ARM: dts: BCM5301X: Fix pinmux subnodes names
+Date:   Wed, 14 Jul 2021 15:39:15 -0400
+Message-Id: <20210714194036.53141-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -46,30 +46,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit a4528d9029e2eda16e4fc9b9da1de1fbec10ab26 ]
+[ Upstream commit bb95d7d440fefd104c593d9cb20da6d34a474e97 ]
 
-This matches nand-controller.yaml requirements.
+This matches pinmux-node.yaml requirements.
 
 Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-hr2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm47094.dtsi | 2 +-
+ arch/arm/boot/dts/bcm5301x.dtsi | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-hr2.dtsi b/arch/arm/boot/dts/bcm-hr2.dtsi
-index e8df458aad39..84cda16f68a2 100644
---- a/arch/arm/boot/dts/bcm-hr2.dtsi
-+++ b/arch/arm/boot/dts/bcm-hr2.dtsi
-@@ -179,7 +179,7 @@ amac0: ethernet@22000 {
- 			status = "disabled";
- 		};
+diff --git a/arch/arm/boot/dts/bcm47094.dtsi b/arch/arm/boot/dts/bcm47094.dtsi
+index 2a8f7312d1be..6282363313e1 100644
+--- a/arch/arm/boot/dts/bcm47094.dtsi
++++ b/arch/arm/boot/dts/bcm47094.dtsi
+@@ -11,7 +11,7 @@ / {
+ &pinctrl {
+ 	compatible = "brcm,bcm4709-pinmux";
  
--		nand: nand@26000 {
-+		nand_controller: nand-controller@26000 {
- 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
- 			reg = <0x26000 0x600>,
- 			      <0x11b408 0x600>,
+-	pinmux_mdio: mdio {
++	pinmux_mdio: mdio-pins {
+ 		groups = "mdio_grp";
+ 		function = "mdio";
+ 	};
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index 092ec525c01c..5b9723a10bd6 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -458,18 +458,18 @@ spi-pins {
+ 					function = "spi";
+ 				};
+ 
+-				pinmux_i2c: i2c {
++				pinmux_i2c: i2c-pins {
+ 					groups = "i2c_grp";
+ 					function = "i2c";
+ 				};
+ 
+-				pinmux_pwm: pwm {
++				pinmux_pwm: pwm-pins {
+ 					groups = "pwm0_grp", "pwm1_grp",
+ 						 "pwm2_grp", "pwm3_grp";
+ 					function = "pwm";
+ 				};
+ 
+-				pinmux_uart1: uart1 {
++				pinmux_uart1: uart1-pins {
+ 					groups = "uart1_grp";
+ 					function = "uart1";
+ 				};
 -- 
 2.30.2
 
