@@ -2,56 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 534E93C8590
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 15:52:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24DE33C8594
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 15:53:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231941AbhGNNyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 09:54:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43832 "EHLO mail.kernel.org"
+        id S232073AbhGNNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 09:55:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231478AbhGNNyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 09:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D36C7613BE;
-        Wed, 14 Jul 2021 13:51:59 +0000 (UTC)
-Date:   Wed, 14 Jul 2021 15:51:57 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     syzbot <syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com>
-Cc:     brauner@kernel.org, dvyukov@google.com, gregkh@linuxfoundation.org,
-        gscrivan@redhat.com, hch@lst.de, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org, syzkaller-bugs@googlegroups.com,
-        torvalds@linux-foundation.org, viro@zeniv.linux.org.uk
-Subject: Re: [syzbot] KASAN: null-ptr-deref Read in filp_close (2)
-Message-ID: <20210714135157.mz7utfhctbja4ilo@wittgenstein>
-References: <00000000000069c40405be6bdad4@google.com>
- <000000000000b00c1105c6f971b2@google.com>
+        id S231478AbhGNNzq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 09:55:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B47E661374;
+        Wed, 14 Jul 2021 13:52:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626270774;
+        bh=OycTVQYaz4qZE3b0K8hY2CwdLFbGN3IgcJG4GWpdzyw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=iV9fmieb2VM6vRI2wSniHEk9q3GJYCB2uB0EWs83aHFRQGCWJouajGxtVfuu/jx1T
+         66DGdvNcbEzrQ3489b3pe5ZhQzvkHzYmaXVqryeeoGn1YXOi0UkpPwmkS47Z5HRznp
+         DMDF7QwOAWnrI5KtkccuaM8sFPhyX0nmVL3at+OFqA5xl266UKbGE3HgWChEbpdinT
+         oSM+/AoXxNlpt+3YZcbF7oNb8hWeyOItqWfVe5UbvD07VEXJwSMMbR28PCyWWekTtt
+         bmT+IKyL7gLeJlDVYsON42sVtgnyRgcvHQtMWxgnwtIaHa66Fjq745Gz+5c8jowNt+
+         stq9sP+2BngrQ==
+Date:   Wed, 14 Jul 2021 09:52:53 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: 5.13.2-rc and others have many not for stable
+Message-ID: <YO7sNd+6Vlw+hw3y@sashalap>
+References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
+ <YO0zXVX9Bx9QZCTs@kroah.com>
+ <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
+ <YO6r1k7CIl16o61z@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <000000000000b00c1105c6f971b2@google.com>
+In-Reply-To: <YO6r1k7CIl16o61z@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 09:12:20PM -0700, syzbot wrote:
-> syzbot has found a reproducer for the following issue on:
-> 
-> HEAD commit:    7fef2edf sd: don't mess with SD_MINORS for CONFIG_DEBUG_BL..
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=178919b0300000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=20276914ec6ad813
-> dashboard link: https://syzkaller.appspot.com/bug?extid=283ce5a46486d6acdbaf
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=120220f2300000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=115f37b4300000
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com
-> 
-> ==================================================================
-> BUG: KASAN: use-after-free in instrument_atomic_read include/linux/instrumented.h:71 [inline]
-> BUG: KASAN: use-after-free in atomic64_read include/asm-generic/atomic-instrumented.h:605 [inline]
-> BUG: KASAN: use-after-free in atomic_long_read include/asm-generic/atomic-long.h:29 [inline]
-> BUG: KASAN: use-after-free in filp_close+0x22/0x170 fs/open.c:1306
-> Read of size 8 at addr ffff888025a40a78 by task syz-executor493/8445
+On Wed, Jul 14, 2021 at 11:18:14AM +0200, Greg Kroah-Hartman wrote:
+>On Tue, Jul 13, 2021 at 06:28:13PM -0700, Andrew Morton wrote:
+>> Alternatively I could just invent a new tag to replace the "Fixes:"
+>> ("Fixes-no-backport?") to be used on patches which fix a known previous
+>> commit but which we don't want backported.
+>
+>No please, that's not needed, I'll just ignore these types of patches
+>now, and will go drop these from the queues.
+>
+>Sasha, can you also add these to your "do not apply" script as well?
 
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git/ 595fac5cecba71935450ec431eb8dfa963cf45fe 
+Sure, but I don't see how this is viable in the long term. Look at
+distros that don't follow LTS trees and cherry pick only important
+fixes, and see how many of those don't have a stable@ tag.
+
+-- 
+Thanks,
+Sasha
