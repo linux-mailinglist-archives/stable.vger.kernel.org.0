@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61ADF3C90C7
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12EAB3C90C4
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240493AbhGNT4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:56:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48640 "EHLO mail.kernel.org"
+        id S240911AbhGNT4T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:56:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236895AbhGNTun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8965600D4;
-        Wed, 14 Jul 2021 19:47:50 +0000 (UTC)
+        id S237149AbhGNTup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E2FE60FF2;
+        Wed, 14 Jul 2021 19:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292071;
-        bh=kdetEYL8bZ12lyAXjMNP1Yqi5TPzNdtdj75PtaAcwws=;
+        s=k20201202; t=1626292073;
+        bh=i7SE+8t7OdFK6tymq+AIhLwkMPwNu3CjjTJYGn3/Z+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DIT/SQGuSosSFFEC5DI2JHO5h2EykRshNcupIGP3ETMSmPJqQoV1YlMF93bWUIbPn
-         QdBx/MWzA+k9UVPyoTvBfE48gVH4WI1KiMW19DV5NfufaqB7Fkvhin7eyF5KkMP5Vf
-         p2w4nxevYdxskdwIF/66hfIDy1pQP5EhMs2hdPwz5BdaoKyBe/Q39PPGzdCfEoLKpl
-         p0hvHREp0HJv5Zk43lhEnW0We6CgZ1gbjA6ZL4Pdkft73G//WojHtAyVSCu3r4FB05
-         TcUWxDjMYawgX4zN4rYgTRhCrhRh5dZSQlEQU720rI6IE0hK56eWa9t9iSGe1hbLAr
-         XprnpLO/KtLpQ==
+        b=ppcUYcS6Oqorq9vQo4ZmRhoMZxjQ0vMl5vRgiKr/xrOj0LYdpBntiqi8U4hh/0UBE
+         N9p0DitbqNEeqEqD4Eo+/KqimdHqjriCE8EQQMYo6qrdEPQBsZ7ANoZMSJHnPDXG5M
+         rGMKDm4mmfPNEmQHt7KVhuL18fN5PM2TIh1rynSJV8GWitXWS1u33l2PIxHfeSwGoc
+         a8AzAQGwbFxuUTfsgTi6CrSsxyt3ShsCRX5PaTxf456OjJq3AYGVFQH9pSL7nZ44jn
+         1AUZdfgp9n+ymxCaE4EPA/jBm6e6eD2Xx46gOrQRCrmNoI+B68cy5Y9CE4dFajDzTH
+         9DVy7mQZKMdAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 18/28] ARM: dts: dra7x-evm: Align GPIO hog names with dt-schema
-Date:   Wed, 14 Jul 2021 15:47:13 -0400
-Message-Id: <20210714194723.55677-18-sashal@kernel.org>
+Cc:     Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 19/28] ARM: dts: stm32: fix RCC node name on stm32f429 MCU
+Date:   Wed, 14 Jul 2021 15:47:14 -0400
+Message-Id: <20210714194723.55677-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194723.55677-1-sashal@kernel.org>
 References: <20210714194723.55677-1-sashal@kernel.org>
@@ -44,76 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Alexandre Torgue <alexandre.torgue@foss.st.com>
 
-[ Upstream commit 0c149400c2f676e7b4cc68e517db29005a7a38c7 ]
+[ Upstream commit e4b948415a89a219d13e454011cdcf9e63ecc529 ]
 
-The dt-schema for nxp,pcf8575 expects GPIO hogs node names to end with a
-'hog' suffix.
+This prevent warning observed with "make dtbs_check W=1"
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Warning (simple_bus_reg): /soc/rcc@40023810: simple-bus unit address format
+error, expected "40023800"
+
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7-evm.dts          | 2 +-
- arch/arm/boot/dts/dra71-evm.dts         | 2 +-
- arch/arm/boot/dts/dra72-evm-common.dtsi | 2 +-
- arch/arm/boot/dts/dra76-evm.dts         | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/stm32f429.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/dra7-evm.dts b/arch/arm/boot/dts/dra7-evm.dts
-index aa426dabb6c3..c3990325f7e6 100644
---- a/arch/arm/boot/dts/dra7-evm.dts
-+++ b/arch/arm/boot/dts/dra7-evm.dts
-@@ -315,7 +315,7 @@ pcf_hdmi: gpio@26 {
- 		reg = <0x26>;
- 		gpio-controller;
- 		#gpio-cells = <2>;
--		p1 {
-+		hdmi-audio-hog {
- 			/* vin6_sel_s0: high: VIN6, low: audio */
- 			gpio-hog;
- 			gpios = <1 GPIO_ACTIVE_HIGH>;
-diff --git a/arch/arm/boot/dts/dra71-evm.dts b/arch/arm/boot/dts/dra71-evm.dts
-index 64363f75c01a..cf1db1b71bab 100644
---- a/arch/arm/boot/dts/dra71-evm.dts
-+++ b/arch/arm/boot/dts/dra71-evm.dts
-@@ -160,7 +160,7 @@ &pcf_gpio_21 {
- };
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index 5b36eb114ddc..d65a03d0da65 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -597,7 +597,7 @@ crc: crc@40023000 {
+ 			status = "disabled";
+ 		};
  
- &pcf_hdmi {
--	p0 {
-+	hdmi-i2c-disable-hog {
- 		/*
- 		 * PM_OEn to High: Disable routing I2C3 to PM_I2C
- 		 * With this PM_SEL(p3) should not matter
-diff --git a/arch/arm/boot/dts/dra72-evm-common.dtsi b/arch/arm/boot/dts/dra72-evm-common.dtsi
-index 2e485a13dfd7..a5e65c1a568e 100644
---- a/arch/arm/boot/dts/dra72-evm-common.dtsi
-+++ b/arch/arm/boot/dts/dra72-evm-common.dtsi
-@@ -272,7 +272,7 @@ pcf_hdmi: pcf8575@26 {
- 		 */
- 		lines-initial-states = <0x0f2b>;
- 
--		p1 {
-+		hdmi-audio-hog {
- 			/* vin6_sel_s0: high: VIN6, low: audio */
- 			gpio-hog;
- 			gpios = <1 GPIO_ACTIVE_HIGH>;
-diff --git a/arch/arm/boot/dts/dra76-evm.dts b/arch/arm/boot/dts/dra76-evm.dts
-index f64aab450315..51ff6321199d 100644
---- a/arch/arm/boot/dts/dra76-evm.dts
-+++ b/arch/arm/boot/dts/dra76-evm.dts
-@@ -314,7 +314,7 @@ pcf_hdmi: pcf8575@26 {
- 		reg = <0x26>;
- 		gpio-controller;
- 		#gpio-cells = <2>;
--		p1 {
-+		hdmi-audio-hog {
- 			/* vin6_sel_s0: high: VIN6, low: audio */
- 			gpio-hog;
- 			gpios = <1 GPIO_ACTIVE_HIGH>;
+-		rcc: rcc@40023810 {
++		rcc: rcc@40023800 {
+ 			#reset-cells = <1>;
+ 			#clock-cells = <2>;
+ 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
 -- 
 2.30.2
 
