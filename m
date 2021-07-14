@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDAC93C9032
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CEAD3C902F
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233864AbhGNTyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234028AbhGNTyC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:54:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46320 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240995AbhGNTuT (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241003AbhGNTuT (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A24DC61400;
-        Wed, 14 Jul 2021 19:46:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A73D613F9;
+        Wed, 14 Jul 2021 19:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291992;
-        bh=5xtU6QA2cflDVHl2kv8Q1fOHrTpKLkoiwAc6N6Nos+k=;
+        s=k20201202; t=1626291993;
+        bh=MrvJvscpo2LTj7JAkW3EHLvumxFOVj2Qi/NLBhySmfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfPB+fXenmSZoGbgOy4rgwrhJZefTPLdDJXU1zgHPYst695kPfxPVUq8oo2K8DxJl
-         SW/5H9pq+zrBPA0T0NNlbqlaH9+Rrp1Ua5bnozI+6Yn2LiAjO22ijoSa0v+v3djpkK
-         ijmdW+KNdnIBDc8fXp7fQGjesqGIGfBV53PK/V7o/igMSPK9LvaIK38qpUx0n6T9tT
-         tu5U8l6EI8RdmcEMcKAJpvlgJpk+iWGjFtC2n0fKdAf5kpKRWGZYsR3J2/2vOPgMD0
-         0vrJLu2c3oe1MUyIMf1j0NFYK+i1BCc6Qcr7KmQiKwPxntVgJKGDvyQ6BAXhvAh4w6
-         LsKUcC2+CRznA==
+        b=t61TaKijve8IMuTZ8GRyYHayiFSGKDr1ClJqk9Vsu7dQD7O0L/PieI9n2o0Cg/sjZ
+         QmEm9TA2mOaGixdsS3hRl3hd2/FMdvvZUsQ00ab5LfahPYcIc9o2CP5DJN/EawIwu+
+         CdHFd3eAP3XydD4w1Y7zyZ6qsgfuBvZNbyfN6sEqsuHMxADs/vv4HVPIjMBUwrW1jB
+         31f3LIjUDhPWXKaxWIgURgZ8vnoo4wUDSUe9m4zN6Jw3N3mUUubCiFn4HO11GEi66i
+         AMCxK6jO8ECi70ksQL9qrcxqe9DNqt3Cb/V+r4NesLxTXhpAhXjmkF4NS8ssJmNd7e
+         Zad8ZJg79yCPQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+Cc:     Benjamin Gaignard <benjamin.gaignard@collabora.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 05/39] ARM: dts: rockchip: Fix the timer clocks order
-Date:   Wed, 14 Jul 2021 15:45:50 -0400
-Message-Id: <20210714194625.55303-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/39] ARM: dts: rockchip: Fix IOMMU nodes properties on rk322x
+Date:   Wed, 14 Jul 2021 15:45:51 -0400
+Message-Id: <20210714194625.55303-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
@@ -44,63 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Benjamin Gaignard <benjamin.gaignard@collabora.com>
 
-[ Upstream commit 7b46d674ac000b101fdad92cf16cc11d90b72f86 ]
+[ Upstream commit 6b023929666f0be5df75f5e0278d1b70effadf42 ]
 
-Fixed order is the device-tree convention.
-The timer driver currently gets clocks by name,
-so no changes are needed there.
+Add '#" to iommu-cells properties.
+Remove useless interrupt-names properties
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Link: https://lore.kernel.org/r/20210506111136.3941-3-ezequiel@collabora.com
+Signed-off-by: Benjamin Gaignard <benjamin.gaignard@collabora.com>
+Link: https://lore.kernel.org/r/20210507090232.233049-4-benjamin.gaignard@collabora.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 8 ++++----
- arch/arm/boot/dts/rk3288.dtsi | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/rk322x.dtsi | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index aa123f93f181..3b7cae6f4127 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -73,16 +73,16 @@ timer3: timer@2000e000 {
- 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
- 		reg = <0x2000e000 0x20>;
- 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&cru SCLK_TIMER3>, <&cru PCLK_TIMER3>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER3>, <&cru SCLK_TIMER3>;
-+		clock-names = "pclk", "timer";
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 2aa74267ae51..3fe874cab38c 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -548,10 +548,9 @@ vpu_mmu: iommu@20020800 {
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20020800 0x100>;
+ 		interrupts = <GIC_SPI 10 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vpu_mmu";
+ 		clocks = <&cru ACLK_VPU>, <&cru HCLK_VPU>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
  	};
  
- 	timer6: timer@200380a0 {
- 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
- 		reg = <0x200380a0 0x20>;
- 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&cru SCLK_TIMER6>, <&cru PCLK_TIMER0>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER0>, <&cru SCLK_TIMER6>;
-+		clock-names = "pclk", "timer";
+@@ -559,10 +558,9 @@ vdec_mmu: iommu@20030480 {
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20030480 0x40>, <0x200304c0 0x40>;
+ 		interrupts = <GIC_SPI 8 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vdec_mmu";
+ 		clocks = <&cru ACLK_RKVDEC>, <&cru HCLK_RKVDEC>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
  	};
  
- 	i2s0: i2s@1011a000 {
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 545f991924fe..c38c853f5f50 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -234,8 +234,8 @@ timer: timer@ff810000 {
- 		compatible = "rockchip,rk3288-timer";
- 		reg = <0x0 0xff810000 0x0 0x20>;
- 		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&xin24m>, <&cru PCLK_TIMER>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER>, <&xin24m>;
-+		clock-names = "pclk", "timer";
+@@ -570,7 +568,6 @@ vop_mmu: iommu@20053f00 {
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20053f00 0x100>;
+ 		interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "vop_mmu";
+ 		clocks = <&cru ACLK_VOP>, <&cru HCLK_VOP>;
+ 		clock-names = "aclk", "iface";
+ 		iommu-cells = <0>;
+@@ -581,10 +578,9 @@ iep_mmu: iommu@20070800 {
+ 		compatible = "rockchip,iommu";
+ 		reg = <0x20070800 0x100>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "iep_mmu";
+ 		clocks = <&cru ACLK_IEP>, <&cru HCLK_IEP>;
+ 		clock-names = "aclk", "iface";
+-		iommu-cells = <0>;
++		#iommu-cells = <0>;
+ 		status = "disabled";
  	};
  
- 	display-subsystem {
 -- 
 2.30.2
 
