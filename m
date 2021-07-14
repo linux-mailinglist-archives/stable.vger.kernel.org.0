@@ -2,104 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D9C3C7AC4
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 03:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1943C7B0E
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 03:28:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237245AbhGNBFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 21:05:31 -0400
-Received: from mout.gmx.net ([212.227.15.15]:41089 "EHLO mout.gmx.net"
+        id S237232AbhGNBbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 21:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237180AbhGNBFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 21:05:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626224559;
-        bh=lxpFcYvSv+ZN5kjSF8j1xFhmw+hDTGIGlO0mGRo2Hso=;
-        h=X-UI-Sender-Class:From:Subject:To:Cc:Date;
-        b=VbbsZpQ6M2bkJ1FSQyyIS/AUOgnavfTqPFK5/6/w0sS+w89SDP5uTk5Ud2KKlX1E+
-         c5DOcZs2W710K4WSOC9KKe80AgiZ8KGAUPBFiCwmjts4aFckFPAA13ddndvehR2gvh
-         VhJTamdmjESIOV0fwtJ4kt4Tzg83CnPkqS1gjA28=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from obelix.fritz.box ([46.142.4.8]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MysVs-1lGiAH26BW-00w1CZ; Wed, 14
- Jul 2021 03:02:39 +0200
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review +++ UPDATE +++
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Message-ID: <de177981-f530-69ab-6fb2-e9f9e142647a@gmx.de>
-Date:   Wed, 14 Jul 2021 03:02:39 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: de-DE
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:tJ09X9k66KrOKlGLC5QbYL0AnCtX65voOwmk2G573F8CYaNhspu
- uKPE0lfC4HdhwZLZ27QNfyYc6w2w9jgCkrAIEYbbIm5SHI/1WTl3uM1R+ZKI9lSR+jvOw6C
- 3gN9QRPcj/dn0e31ZKCoMvV+2Bt/8hXKcVp8XDpqcT9o4YzT9VXx7SRsnRYXy8FqeFKf90B
- H7cVaKWlEgOXwBzRaWeTQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:UJ8AQgHu45Y=:yPLVLATp4Tg03LHgdTiQZO
- aEkEy/+D4ZO24Bz/64D2cIhtRgYv9J/vtMt4jfOc2SL3TTiv2JxCgQ5nRJJr8cRK7+ynTUV12
- KWoVsEzxOWInjSH5S4UbF8+S4xexHbEC54tpIe36Ext2zs7cWazTvLea6kmA83lSg7a0Vhmqf
- DLyMaN2NoUEvlFCfQ67ig9PAZFJCoiq1LOQh0JVZpIzo7jP4lc6iV4thvSrXipB9JVy/xjx83
- +PtUFNneZx4W90SkSCcpaVD0sUVfsMPq6mQIPITxKaVnimcaWMWlqSBS/CsAGagbmcUBxMczA
- uQwo2pIfIpRgYY4D1Tx7mBqLqxmF7WdJAiEt4uQFaEdL82ZgNzJXRnKXaunShbjz/0hPwJTfp
- mMPJsix//35z78N+/Vgbr3IuhvbFHa3mcKoXGVZdobx6Hcw79CiWonzCSSrbsLfnqKYHWwpb8
- myhwa2zihT3+uSCWqcNw/TCZAZ5Q9ej1Iliy6s0oo7PsoqqCpeW68FOAFoTIDzkkP1IGGuCjS
- asklBo9rTtKlovK761gd8at3L98viXxr2bx8hC/nUTixhtsEuTyNX/nXlbyILhht6hxHVfCLe
- Ixt3VtHEclEO3lFhZdUiWxFf4195PmtOp+zHij59KKCbufnPTKfa5IX7gEJKf1E/E//rNTpiv
- IJ8bt8cp2x5AIbsOLR6vro6dlhBoFgAua1ME68YdRXFLufAroxE0TpB8b8YYQR1Wk71unwYOi
- x1EhMonUU+wTtgo7vOAqYMjjd+Q4t5rwRNdSFNFwzmxgxV1gCyrluVI0HoOCXvkpU7lCcRgrM
- VaOaYtQwd08s0/xcBCkMMj5HbZLMbM/ZnQfmU8OPK0oEFQM8hoDW9ysBNPbMD9nEcIkDNMh5p
- pRoHRKUlPeSSrRhnXLxTBxVMxVK2ZX3NWkNeI3ZcXfYegLwoXTEDwzW3GjuchxpRl5ooLE6wx
- ugcBtS2Cz1IGDotUhtH05mJkOVO9PjK9mgH8nsAm/yPQonthdEyosyWTxFoDgf7to3JCmhI2R
- /j2zQ2wJblct5J1QCidjG1uEfX0OO0vnIgvobD3AtI+LTtskBgbnlGL2UcguPtm5HOi7LIEEu
- UFaEG41y2VUw3rRzELxM9ClLWXYPSKKRzMV
+        id S229843AbhGNBbE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 21:31:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCAED6128B;
+        Wed, 14 Jul 2021 01:28:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1626226094;
+        bh=1Kq4a+B3sv2xmZ3srIAChXuQ/hkTCRS9tvGxI9qxX8o=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=XgCjkHJYFA/5vw/DvI6zk8UZ1aqrcF7YGM2yT3HL34SM9KQBwYYX32sIeboXDLaE8
+         bpp+NJ9bHKY0FVX8vure3zT70Hkg2JMfIy+JRdhj91DgEv5gDdlzbka3xYxif/mmbJ
+         6m0iYWhtJnBZjO2zGBr+twF+gJMOhIiFbw1376Oc=
+Date:   Tue, 13 Jul 2021 18:28:13 -0700
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Michal Hocko <mhocko@kernel.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: 5.13.2-rc and others have many not for stable
+Message-Id: <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
+In-Reply-To: <YO0zXVX9Bx9QZCTs@kroah.com>
+References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
+        <YO0zXVX9Bx9QZCTs@kroah.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo
+On Tue, 13 Jul 2021 08:31:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
 
-all fine here on an Intel i7-6700 box.
+> 
+> > Amongst the 2000+ patches posted today, there are a significant number
+> > of them Signed-off-by Andrew, Signed-off-by Linus, Signed-off-by Sasha:
+> > yet never Cc'ed to stable (nor even posted as AUTOSELs, I think).
+> > 
+> > Am I out of date?  I thought that had been agreed not to happen:
+> > https://lore.kernel.org/linux-mm/20190808000533.7701-1-mike.kravetz@oracle.com/
+> > is the thread I found when I looked for confirmation, but I believe the
+> > same has been agreed before and since too.
+> > 
+> > Andrew goes to a lot of trouble to establish which Fixes from his tree
+> > ought to go to stable.  Of course there will be exceptions which we
+> > later decide should go in after all; but it's worrying when there's a
+> > wholesale breach like this, and I think most of them should be dropped.
+> > 
+> > To pick on just one of many examples (sorry Miaohe!), a patch that
+> > surprises me, but I've not had time to look into so far, and would
+> > not want accelerated into X stable releases, 385/800
+> > 
+> > > Miaohe Lin <linmiaohe@huawei.com>
+> > >     mm/shmem: fix shmem_swapin() race with swapoff
+> 
+> Sasha, and I, take patches from Linus's tree like the above one that
+> have "Fixes:" tags in them as many many maintainers do not remember to
+> put "cc: stable" on their patches.
 
-thanks
+As do many many developers.  I always check.
+
+> The above patch says it fixes a problem in the 5.1 kernel release, so
+> Sasha queued it up for 5.10, 5.12, and 5.13.  Odds are he should have
+> also sent a "FAILED" notice for 5.4, but we don't always do that for
+> patches only with a Fixes tag all the time as we only have so much we
+> can do...
+> 
+> So is that tag incorrect?  If not, why was it not cc: stable?  Why is it
+> not valid for a stable release?
+
+Usually because we judged that the seriousness of the problem did not
+justify the risk & churn of backporting its fix.
+
+>  So far, all automated testing seems to
+> show that there are no regressions in these releases with these commits
+> in them.  If there was a problem, how would it show up?
+> 
+> And as far as I know, mm/ stuff is still not triggered by the AUTOSEL
+> bot, but that is not what caused this commit to be added to a stable
+> release.
+> 
+> Trying to keep a "do not apply" list for Fixes: tags only is much harder
+> for both of us as we do these semi-manually and review them
+> individually.  Trying to remember what subsystem only does Fixes tags
+> yet really doesn't mean it is an impossible task.
+
+Well, it shouldn't be super hard to skip all patches which have Fixes:,
+Signed-off-by:akpm and no cc:stable?
+
+I'd really really prefer this, please.  At present this -stable
+promiscuity is overriding the (sometime carefully) considered decisions
+of the MM developers, and that's a bit scary.  I've actually been
+spending the past couple of years believing that if I left off
+cc:stable, the fix wasn't going to go into -stable!
+
+Alternatively I could just invent a new tag to replace the "Fixes:"
+("Fixes-no-backport?") to be used on patches which fix a known previous
+commit but which we don't want backported.
 
 
-+++ UPDATE +++
-##############
-
-Regarding the above I need to be more accurate:
-The kernel compiles, boots and runs without errors -so far -.
-
-BUT: it seems under load it could lead to an dead box.
-
-
-what I did:
-
-running in one terminal: dmesg -w
-
-and in an second terminal:
-
-make clean && ccache -Czs && time make all -j $(nproc)
-
-
-leads within a minutes to an complete dead box after make has started !
-
-
-- no output regarding crashes, etc. in the first terminal running dmesg
-- no mouse, no keyboard, no switch via CRTL+ALT+F3 to a console
-- the box is dead
-- only the power button helps
-
-
-with kernel 5.13.1 all the above is fine
-
-
-anyone (too) ?
-
-=2D-
-regards
-
-Ronald
