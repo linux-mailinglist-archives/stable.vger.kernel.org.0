@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B963C8CD7
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE41C3C8CDD
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234647AbhGNTmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:42:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S235706AbhGNTnC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235067AbhGNTme (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20AFA613D2;
-        Wed, 14 Jul 2021 19:39:42 +0000 (UTC)
+        id S234976AbhGNTmg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:42:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F385613D9;
+        Wed, 14 Jul 2021 19:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291582;
-        bh=VH03HZn5dpv/B59/D6YRfShvV1hnDkqQLpjtVwplC80=;
+        s=k20201202; t=1626291584;
+        bh=OlsKuSpdklUjpvAA6bTSRDA+ID/On4uE3M0rjUuFnNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hd2KY/gWaO0f7xeW83pX9j5Dsfm/9pkmHES6TMlmwaqo60tp8r5iRkoSyCJ1pna4g
-         +PV5OxcccwfgP1FkOXzRz6kAlhoJBgqQqkmuKbT5SzmDgtyT4qkwFkAWngqRaNPwX0
-         7ZLm9p7L/b1ZP1dIKtZa/JCy5mUwH8HsgXML+uUllvWiQg1crw1UDd5yD47MqG2Zjn
-         pR8vl6MZQS2IorPFPF0FpJ+M0CohetoQG/bwK2lAjn84RxqNhVseW9YMii/mSa72+E
-         GOTYvuwJ++M1NcEaeVSeWAKMaNOJK3GXUp2HdkzO3sZ5QBZm/dPwRB7TSJris3omWM
-         sk3thu9gjw6Lw==
+        b=H3iloH8tJyRIFmauITJ85o5bJo9onlGgdryr8Ew5itqs1GUNM6iCZzyWA1D+ZnpeD
+         nyqnOU6X8VCIpDWir8UXNB/78LTs59r11x2WApv5IHOBeAGfokaFXgq7gSk0TypPNa
+         re+ybpCerwboUw8V8LpU8tKlsReTXC42XijABRf4rWIEf2igl8nzbsPi2Q06WxtBHE
+         fgO+fftOd7K6dwzkxmCoEOF0GfUanUuM6omEo6+ZUeTrLA885rxKB/1+oWmOizPuuy
+         kq55Nwyr9SbDIifL73p+nBWysNYp/38T5YgnvOC5hasaOaImkP/ahtxmhpt0PMMi3h
+         BuBGaojgu4i/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 070/108] arm64: dts: juno: Update SCPI nodes as per the YAML schema
-Date:   Wed, 14 Jul 2021 15:37:22 -0400
-Message-Id: <20210714193800.52097-70-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 071/108] ARM: dts: rockchip: fix supply properties in io-domains nodes
+Date:   Wed, 14 Jul 2021 15:37:23 -0400
+Message-Id: <20210714193800.52097-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -42,50 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 70010556b158a0fefe43415fb0c58347dcce7da0 ]
+[ Upstream commit f07edc41220b14ce057a4e6d7161b30688ddb8a2 ]
 
-The SCPI YAML schema expects standard node names for clocks and
-power domain controllers. Fix those as per the schema for Juno
-platforms.
+A test with rockchip-io-domain.yaml gives notifications
+for supply properties in io-domains nodes.
+Fix them all into ".*-supply$" format.
 
-Link: https://lore.kernel.org/r/20210608145133.2088631-1-sudeep.holla@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210606181632.13371-1-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/arm/juno-base.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/rk3288-rock2-som.dtsi | 2 +-
+ arch/arm/boot/dts/rk3288-vyasa.dts      | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
-index 1cc7fdcec51b..8e7a66943b01 100644
---- a/arch/arm64/boot/dts/arm/juno-base.dtsi
-+++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
-@@ -568,13 +568,13 @@ scpi {
- 		clocks {
- 			compatible = "arm,scpi-clocks";
- 
--			scpi_dvfs: scpi-dvfs {
-+			scpi_dvfs: clocks-0 {
- 				compatible = "arm,scpi-dvfs-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <0>, <1>, <2>;
- 				clock-output-names = "atlclk", "aplclk","gpuclk";
- 			};
--			scpi_clk: scpi-clk {
-+			scpi_clk: clocks-1 {
- 				compatible = "arm,scpi-variable-clocks";
- 				#clock-cells = <1>;
- 				clock-indices = <3>;
-@@ -582,7 +582,7 @@ scpi_clk: scpi-clk {
- 			};
- 		};
- 
--		scpi_devpd: scpi-power-domains {
-+		scpi_devpd: power-controller {
- 			compatible = "arm,scpi-power-domains";
- 			num-domains = <2>;
- 			#power-domain-cells = <1>;
+diff --git a/arch/arm/boot/dts/rk3288-rock2-som.dtsi b/arch/arm/boot/dts/rk3288-rock2-som.dtsi
+index 44bb5e6f83b1..76363b8afcb9 100644
+--- a/arch/arm/boot/dts/rk3288-rock2-som.dtsi
++++ b/arch/arm/boot/dts/rk3288-rock2-som.dtsi
+@@ -218,7 +218,7 @@ &io_domains {
+ 	flash0-supply = <&vcc_flash>;
+ 	flash1-supply = <&vccio_pmu>;
+ 	gpio30-supply = <&vccio_pmu>;
+-	gpio1830 = <&vcc_io>;
++	gpio1830-supply = <&vcc_io>;
+ 	lcdc-supply = <&vcc_io>;
+ 	sdcard-supply = <&vccio_sd>;
+ 	wifi-supply = <&vcc_18>;
+diff --git a/arch/arm/boot/dts/rk3288-vyasa.dts b/arch/arm/boot/dts/rk3288-vyasa.dts
+index aa50f8ed4ca0..b156a83eb7d7 100644
+--- a/arch/arm/boot/dts/rk3288-vyasa.dts
++++ b/arch/arm/boot/dts/rk3288-vyasa.dts
+@@ -379,10 +379,10 @@ &io_domains {
+ 	audio-supply = <&vcc_18>;
+ 	bb-supply = <&vcc_io>;
+ 	dvp-supply = <&vcc_io>;
+-	flash0-suuply = <&vcc_18>;
++	flash0-supply = <&vcc_18>;
+ 	flash1-supply = <&vcc_lan>;
+ 	gpio30-supply = <&vcc_io>;
+-	gpio1830 = <&vcc_io>;
++	gpio1830-supply = <&vcc_io>;
+ 	lcdc-supply = <&vcc_io>;
+ 	sdcard-supply = <&vccio_sd>;
+ 	wifi-supply = <&vcc_18>;
 -- 
 2.30.2
 
