@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7293C8F35
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0593C8F38
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241297AbhGNTwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:52:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
+        id S239750AbhGNTwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:52:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237211AbhGNTsT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:48:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00CCB613EF;
-        Wed, 14 Jul 2021 19:43:46 +0000 (UTC)
+        id S238259AbhGNTse (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:48:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 365F9613F5;
+        Wed, 14 Jul 2021 19:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291827;
-        bh=+DqbFS5x2s+/musCghSMU5KuavezsX0x4DSciolvi5o=;
+        s=k20201202; t=1626291829;
+        bh=2SMvNzDwbWYDA2QYXZSquSh2lGytU7Rk4zv4kAQMPOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YyCMumc6CXTcn37yYpG5cETA4AAIxdsHsfT/bkfFjgnoeaK0zUc71/vZrHQrruc5v
-         78sOerZC9zp1poj7MGASWu1FwuGrHMoY0/mI3u5+tOdgL2apJv0M+a68qI9LRRFX09
-         ON+cdLd+cocUjdH0Z8xvTkTLaNqi6AtasYDCwmIPbhPqIp0+ui15Z1xWI4PM+CXE0i
-         DUZTftCRd0o05f26Ps8T4g+EP5KJ/y7bHpOImdEQG1P0xyoQXbWyaMiGun6bQBbBrm
-         l6htfWPOnekXpPUVphUgShPfSSGHlnZX+7UjViv3pKh9yyhPN+zbJUHkhyhwjjs+om
-         V8ztZznleIXQg==
+        b=ohLSZKcq05mAG48WywFARYRDnYGWn9ETD2lvQebz3RknJS/25vFmw9aool6rv49q+
+         KUdYYIk+/kx02HSx+728vdHhol+7fvi3lWSydAhC08yM7b8/OJKivF5M/8Gto2vZ1+
+         uBcuhMWYKGEU04b6lfUTDWVdvZBvOCd/TRqspN7ROdWGaz4Tb+V1CZ233FPz/avbuT
+         UKzyQ0UGAFAgvkfhZv/0TD+ogpzhkUaoIJr1NEYOIsu9u+lxVdWu8qUXXF7RDruQmq
+         kAf6goXbgJQo+PwJLzM79w7tBKC5PV6gAQS4UkLBbYfQjNNNyE5bUDSUeIBCVkajqF
+         RgsDChtTIpEHw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 27/88] ARM: dts: ux500: Fix orientation of accelerometer
-Date:   Wed, 14 Jul 2021 15:42:02 -0400
-Message-Id: <20210714194303.54028-27-sashal@kernel.org>
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 28/88] ARM: dts: imx6dl-riotboard: configure PHY clock and set proper EEE value
+Date:   Wed, 14 Jul 2021 15:42:03 -0400
+Message-Id: <20210714194303.54028-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
@@ -42,33 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 4beba4011995a2c44ee27e1d358dc32e6b9211b3 ]
+[ Upstream commit 723de6a4126b2474a8106e943749e1554012dad6 ]
 
-This adds a mounting matrix to the accelerometer
-on the TVK1281618 R3.
+Without SoC specific PHY fixups the network interface on this board will
+fail to work. Provide missing DT properties to make it work again.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/imx6dl-riotboard.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-index c0de1337bdaa..457bddabc32c 100644
---- a/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-+++ b/arch/arm/boot/dts/ste-href-tvk1281618-r3.dtsi
-@@ -19,6 +19,9 @@ accelerometer@19 {
- 					     <19 IRQ_TYPE_EDGE_RISING>;
- 				pinctrl-names = "default";
- 				pinctrl-0 = <&accel_tvk_mode>;
-+				mount-matrix = "0", "-1", "0",
-+					       "-1", "0", "0",
-+					       "0", "0", "-1";
- 			};
- 			magnetometer@1e {
- 				compatible = "st,lsm303dlm-magn";
+diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
+index 065d3ab0f50a..e7d9bfbfd0e4 100644
+--- a/arch/arm/boot/dts/imx6dl-riotboard.dts
++++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
+@@ -106,6 +106,8 @@ rgmii_phy: ethernet-phy@4 {
+ 			reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
+ 			reset-assert-us = <10000>;
+ 			reset-deassert-us = <1000>;
++			qca,smarteee-tw-us-1g = <24>;
++			qca,clk-out-frequency = <125000000>;
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
