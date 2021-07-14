@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 001973C8CCE
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A1143C8CD3
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235437AbhGNTmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:42:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37832 "EHLO mail.kernel.org"
+        id S235529AbhGNTmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234633AbhGNTma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32DD9613D4;
-        Wed, 14 Jul 2021 19:39:37 +0000 (UTC)
+        id S234993AbhGNTmc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:42:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30686613F8;
+        Wed, 14 Jul 2021 19:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291578;
-        bh=YRE3zEd5N+F6XJENeX5Caf8U5brSgG1mmTNvYP9jKtI=;
+        s=k20201202; t=1626291580;
+        bh=jTjAc1ciV6k/LZX5EvhjXYA1xYbSJ42fjOHeH0SwQBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHpMlT8l4/YTTt6XORRgYemNUwZWC3BgvZoxJxeuqhyRoqvZcnVmlrBdqRAJe/w6Q
-         bCKSpunP4cawFkL1WGcE0qUVbT7Xixvw+MBkmRCzMsmeJ/ICEwM79UPb5KzZk9bget
-         g6r552A/E/bdd94S4/FnuHJfwJVeX+kDPrw6kyYbFSpsg84Smc03JoWKq4P1BySkvc
-         0YhOxcFV+DTtdC1CRLBGlVP3FBhm5NcRBIMhmc0oCTZLYH60Lbo3TrZgoYwfo6KId5
-         Wmn5bwP2dEruOWhNT8zK/1pAo7DG/Hi7LBfKa+0e818SK8uIfzNqr95QPwwc6DmDLw
-         7LyrYpFt/Ql9w==
+        b=q61grIweRutfZrFmfzhprAqvwn3tgBZQQscHyw2OH/EYyx2RW3iABEtGzUmEJhe1A
+         l8w8cxsxwHNYZTAWcJOdBVF3VqQuPVdHzBxq0vm44Ll7K2+4FQ0Y/dUykRrSajJ8r5
+         Ul7YgUsvdCvfhHaZX3EmomJNCjL2nesgy4BKQts6lCQGsGtfxN/p/IhAnBHBPvuDtw
+         e19WCoN5MY6//VsNhDIwXJWYRjyUkfh1Kx+sUhcr0ZS6LBZ2CER5oUc+HobGhXIxQU
+         sJNfIZXmFh+gWqHdQHyzNAIobYgOGuGhO/UtsRT4tCcl+F4q9ThLqVcmB/G4GRlhPG
+         wy9sG2FU7Qc7g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Stefan Wahren <stefan.wahren@i2se.com>,
@@ -31,9 +31,9 @@ Cc:     Stefan Wahren <stefan.wahren@i2se.com>,
         bcm-kernel-feedback-list@broadcom.com,
         linux-rpi-kernel@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 067/108] ARM: dts: bcm283x: Fix up MMC node names
-Date:   Wed, 14 Jul 2021 15:37:19 -0400
-Message-Id: <20210714193800.52097-67-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 068/108] ARM: dts: bcm283x: Fix up GPIO LED node names
+Date:   Wed, 14 Jul 2021 15:37:20 -0400
+Message-Id: <20210714193800.52097-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -47,46 +47,258 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit f230c32349eb0a43a012a81c08a7f13859b86cbb ]
+[ Upstream commit 5f30dacf37bc93308e91e4d0fc94681ca73f0f91 ]
 
-Fix the node names for the MMC/SD card controller to conform
-to the standard node name mmc@..
+Fix the node names for the GPIO LEDs to conform to the standard node
+name led-..
 
 Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/1622981777-5023-2-git-send-email-stefan.wahren@i2se.com
+Link: https://lore.kernel.org/r/1622981777-5023-6-git-send-email-stefan.wahren@i2se.com
 Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2711.dtsi | 2 +-
- arch/arm/boot/dts/bcm283x.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts      | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-a-plus.dts   | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-a.dts        | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b-plus.dts   | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts   | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b.dts        | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi     | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts   | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero.dts     | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi.dtsi         | 2 +-
+ arch/arm/boot/dts/bcm2836-rpi-2-b.dts      | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-b.dts      | 2 +-
+ arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi     | 2 +-
+ 15 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 720beec54d61..d872064db761 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -413,7 +413,7 @@ emmc2bus: emmc2bus {
- 		ranges = <0x0 0x7e000000  0x0 0xfe000000  0x01800000>;
- 		dma-ranges = <0x0 0xc0000000  0x0 0x00000000  0x40000000>;
+diff --git a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+index 3b4ab947492a..27d2f859adfc 100644
+--- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
++++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+@@ -29,11 +29,11 @@ aliases {
+ 	};
  
--		emmc2: emmc2@7e340000 {
-+		emmc2: mmc@7e340000 {
- 			compatible = "brcm,bcm2711-emmc2";
- 			reg = <0x0 0x7e340000 0x100>;
- 			interrupts = <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index b83a864e2e8b..0f3be55201a5 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -420,7 +420,7 @@ pwm: pwm@7e20c000 {
- 			status = "disabled";
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 42 GPIO_ACTIVE_HIGH>;
  		};
  
--		sdhci: sdhci@7e300000 {
-+		sdhci: mmc@7e300000 {
- 			compatible = "brcm,bcm2835-sdhci";
- 			reg = <0x7e300000 0x100>;
- 			interrupts = <2 30>;
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts b/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
+index 6c8ce39833bf..40b9405f1a8e 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
+@@ -14,11 +14,11 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-a.dts b/arch/arm/boot/dts/bcm2835-rpi-a.dts
+index 17fdd48346ff..11edb581dbaf 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-a.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-a.dts
+@@ -14,7 +14,7 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts b/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
+index b0355c229cdc..1b435c64bd9c 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
+@@ -15,11 +15,11 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+index 33b3b5c02521..a23c25c00eea 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+@@ -15,7 +15,7 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b.dts b/arch/arm/boot/dts/bcm2835-rpi-b.dts
+index 2b69957e0113..1b63d6b19750 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b.dts
+@@ -15,7 +15,7 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi b/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
+index 58059c2ce129..e4e6b6abbfc1 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
+@@ -5,7 +5,7 @@
+ 
+ / {
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+index f65448c01e31..33b2b77aa47d 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+@@ -23,7 +23,7 @@ chosen {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero.dts b/arch/arm/boot/dts/bcm2835-rpi-zero.dts
+index 6dd93c6f4966..6f9b3a908f28 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero.dts
+@@ -18,7 +18,7 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+index d94357b21f7e..87ddcad76083 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+@@ -4,7 +4,7 @@ / {
+ 	leds {
+ 		compatible = "gpio-leds";
+ 
+-		act {
++		led-act {
+ 			label = "ACT";
+ 			default-state = "keep";
+ 			linux,default-trigger = "heartbeat";
+diff --git a/arch/arm/boot/dts/bcm2836-rpi-2-b.dts b/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
+index 0455a680394a..d8af8eeac7b6 100644
+--- a/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
++++ b/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
+@@ -15,11 +15,11 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
+index 28be0332c1c8..77099a7871b0 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
+@@ -19,11 +19,11 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+index 37343148643d..61010266ca9a 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+@@ -20,11 +20,11 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
+ 		};
+ 
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
+index 054ecaa355c9..dd4a48604097 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
+@@ -20,7 +20,7 @@ memory@0 {
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+index 925cb37c22f0..828a20561b96 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
++++ b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+@@ -14,7 +14,7 @@ leds {
+ 		 * Since there is no upstream GPIO driver yet,
+ 		 * remove the incomplete node.
+ 		 */
+-		/delete-node/ act;
++		/delete-node/ led-act;
+ 	};
+ 
+ 	reg_3v3: fixed-regulator {
 -- 
 2.30.2
 
