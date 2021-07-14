@@ -2,81 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE81B3C7F4B
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80BE93C7F58
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238079AbhGNH1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 03:27:48 -0400
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:39614 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238257AbhGNH1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 03:27:48 -0400
-Received: by mail-wr1-f52.google.com with SMTP id f17so1928021wrt.6;
-        Wed, 14 Jul 2021 00:24:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=GQ0u+slWZ8Bb87rt4Vm27M42/eqTUFnU65XMqjSO0JE=;
-        b=Cn+RVFp6S1mE5J2ewwDe7Ru4jU5c/D7xtVnbLPbAtgzmGqc4jaciQkZboGqUA9mHMa
-         Fdb9GzgK7l2rP5kEpvAg4NJOA7pUiQQ3cKyEE02sybhmw7RZ1FicK15jzNJ2NiPcCEjM
-         YYT+GWckzwxY6jsnw5cAfD85dtnRB7R/RpujuW+JziylZApiEmOKazjMCsGRXS7Rywut
-         SzV8VD2NXmfy4Vd2k/H0J68RmS4PyogwPm2Sz1FKZTfU3WMj1yEWG3fxfueUut8l+X/7
-         +EWRooa5U6lSDZGav3r8NoYGHSJsNjdouE7V02KYIZDAUbaFKWoWT+RGh9imZEFt0MYW
-         zmOQ==
-X-Gm-Message-State: AOAM5302dWI8d65IJfK6VrxgMTeh0LrvQX+evmuA155mgNsS5rzr2NeH
-        FEGxwcV82as0N/jAn7fF4U/QqEUje9Dwfw==
-X-Google-Smtp-Source: ABdhPJyoJT1NNCQ98cQsL6uKUtc8AuBYVvUEW7VDpz1HPx1f1Lq5GQlpkxieWhNRjdCYwCk4nR+57w==
-X-Received: by 2002:a5d:4522:: with SMTP id j2mr10721624wra.43.1626247495231;
-        Wed, 14 Jul 2021 00:24:55 -0700 (PDT)
-Received: from ?IPv6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
-        by smtp.gmail.com with ESMTPSA id m18sm1142863wmq.45.2021.07.14.00.24.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Jul 2021 00:24:54 -0700 (PDT)
-Subject: Re: 5.13.2-rc and others have many not for stable
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
- <YO0zXVX9Bx9QZCTs@kroah.com>
- <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
-From:   Jiri Slaby <jirislaby@kernel.org>
-Message-ID: <00091a33-52de-175b-b870-c45ebc1d9cc0@kernel.org>
-Date:   Wed, 14 Jul 2021 09:24:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S238163AbhGNHdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 03:33:11 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:6814 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238139AbhGNHdL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 03:33:11 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GPpsz4YWCzXsw4;
+        Wed, 14 Jul 2021 15:24:39 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Wed, 14 Jul 2021 15:30:16 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Wed, 14 Jul 2021 15:30:15 +0800
+Subject: Re: [PATCH 5.10 000/598] 5.10.50-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210712184832.376480168@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <fce9e6a8-3eb4-61ed-9d93-d6e69ee26f6e@huawei.com>
+Date:   Wed, 14 Jul 2021 15:30:15 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
+In-Reply-To: <20210712184832.376480168@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14. 07. 21, 3:28, Andrew Morton wrote:
-> Alternatively I could just invent a new tag to replace the "Fixes:"
-> ("Fixes-no-backport?") to be used on patches which fix a known previous
-> commit but which we don't want backported.
 
-Or what about:
-No-stable: <reason>
-like:
-No-stable: too intrusive
-No-stable: too dangerous
-No-stable: <5.10, isn't vulnerable
 
-So that the reason is known at least.
+On 2021/7/13 2:49, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.50 release.
+> There are 598 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 14 Jul 2021 18:45:43 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.50-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-thanks,
--- 
-js
-suse labs
+Tested on arm64 and x86 for 5.10.50-rc2,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.50-rc2
+Commit: f820b41f4b3e043e9c7a8543e703f2749fc4f931
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8906
+passed: 8906
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
