@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC83B3C909E
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33B03C909B
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239828AbhGNTzr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238903AbhGNTzr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:55:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44850 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241258AbhGNTu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241259AbhGNTu3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBA1E60FF2;
-        Wed, 14 Jul 2021 19:47:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 199EF613CA;
+        Wed, 14 Jul 2021 19:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292054;
-        bh=qVR5cTcj82tY3+nCt+CucjDK6kDSVVx4WNl1E5lKETY=;
+        s=k20201202; t=1626292055;
+        bh=RXx4TKXUitAf+azuu6hDSms9AQKWG0fAwf4MMjYp0vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RjnMcDcZOaDIWzVQWqiQW6/9794jpeUMLLmVKgnhxOZn6r5nd4wgv6sgzF2Wa0SXL
-         OblEHrDnNve3sFLRbEurzzoikNA1UCAi3uaoPMjfwhz+WPiaTE4rhshV/PyQ9c9/Cu
-         J6FFvMPHpL5FbXrvpoUY7oosGKr+pk/leXEd9wn9uKDq71/bJawtQg93qN7pEiR8Kt
-         9UxBrFkvcAP0Pn3RA2Es7lnrbDqB/276b8qNkJc6djATdX9O1UpfaNitRhtl9CK7Cp
-         1f8QoYUuGDUD/UombGikXjI3JonAXNry7+XT3dp+UyJ2O20/6SLQaBdWqHU1ie3StH
-         lJ0tO7i0GeEoA==
+        b=LBvJjrjV4pqED0bKRPt9mTkkPOpwUatJMSj4/UJkxFRLnhZ7EBI2iVBVZPRiY7X1g
+         etDQNwVZu695inUhSgUR8d9yfuBfaE0TDoqkwOya+06Cc+18X3KUMy+OB9FGyHVvqm
+         qfKgi0uQtoaUiNI1J5BvEjp3fiDZDEs5uangpe1ThRQpyYJy2KeKw4/sYRSO87+BzU
+         rFwN5Bwvz13iwyaRMYWVg2VXEFnDWY7Jww6ZyfAcQqG28MFrFYaBYpsATFbzCEMaCT
+         uBlCDxqkd/xHc6Djl8gt/HGCjTrkG1J+Y6CkkzcHp1sWH+6OoUqXITR+i/IP+Xvw2h
+         GXomWOhjP+NPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 07/28] reset: ti-syscon: fix to_ti_syscon_reset_data macro
-Date:   Wed, 14 Jul 2021 15:47:02 -0400
-Message-Id: <20210714194723.55677-7-sashal@kernel.org>
+Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/28] ARM: brcmstb: dts: fix NAND nodes names
+Date:   Wed, 14 Jul 2021 15:47:03 -0400
+Message-Id: <20210714194723.55677-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194723.55677-1-sashal@kernel.org>
 References: <20210714194723.55677-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -41,41 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 05cf8fffcdeb47aef1203c08cbec5224fd3a0e1c ]
+[ Upstream commit 9a800ce1aada6e0f56b78e4713f4858c8990c1f7 ]
 
-The to_ti_syscon_reset_data macro currently only works if the
-parameter passed into it is called 'rcdev'.
+This matches nand-controller.yaml requirements.
 
-Fixes a checkpatch --strict issue:
-
-  CHECK: Macro argument reuse 'rcdev' - possible side-effects?
-  #53: FILE: drivers/reset/reset-ti-syscon.c:53:
-  +#define to_ti_syscon_reset_data(rcdev)	\
-  +	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
-
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-ti-syscon.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm7445-bcm97445svmb.dts | 4 ++--
+ arch/arm/boot/dts/bcm7445.dtsi             | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/reset/reset-ti-syscon.c b/drivers/reset/reset-ti-syscon.c
-index 99520b0a1329..3d375747c4e6 100644
---- a/drivers/reset/reset-ti-syscon.c
-+++ b/drivers/reset/reset-ti-syscon.c
-@@ -58,8 +58,8 @@ struct ti_syscon_reset_data {
- 	unsigned int nr_controls;
+diff --git a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+index 8006c69a3fdf..5931c0288283 100644
+--- a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
++++ b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+@@ -14,10 +14,10 @@ memory {
+ 	};
  };
  
--#define to_ti_syscon_reset_data(rcdev)	\
--	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
-+#define to_ti_syscon_reset_data(_rcdev)	\
-+	container_of(_rcdev, struct ti_syscon_reset_data, rcdev)
+-&nand {
++&nand_controller {
+ 	status = "okay";
  
- /**
-  * ti_syscon_reset_assert() - assert device reset
+-	nandcs@1 {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <1>;
+ 		nand-ecc-step-size = <512>;
+diff --git a/arch/arm/boot/dts/bcm7445.dtsi b/arch/arm/boot/dts/bcm7445.dtsi
+index c859aa6f358c..b06845e92acd 100644
+--- a/arch/arm/boot/dts/bcm7445.dtsi
++++ b/arch/arm/boot/dts/bcm7445.dtsi
+@@ -150,7 +150,7 @@ aon-ctrl@410000 {
+ 			reg-names = "aon-ctrl", "aon-sram";
+ 		};
+ 
+-		nand: nand@3e2800 {
++		nand_controller: nand-controller@3e2800 {
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.30.2
 
