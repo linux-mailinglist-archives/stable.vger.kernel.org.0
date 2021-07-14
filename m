@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C163C8C02
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:38:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10EF53C8C06
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230296AbhGNTk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:40:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35024 "EHLO mail.kernel.org"
+        id S230347AbhGNTk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:40:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230237AbhGNTk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:40:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A231D613D1;
-        Wed, 14 Jul 2021 19:38:03 +0000 (UTC)
+        id S230340AbhGNTk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:40:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBE24613D6;
+        Wed, 14 Jul 2021 19:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291484;
-        bh=yALOl0UiSQkC3CuYYi8tHAy/WsG1GunY1vIUID0pJG8=;
+        s=k20201202; t=1626291485;
+        bh=fdX3OWonzQBkMm3CKVLceeQ5nc48BR8fbedd/LnPc0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6BpAyKqIgIIwJ9FVVj64/uQwcOcqvQTcosxgz0cQ6gs2F6zG3GTMZpnmrU3KM8um
-         rAEnea3vbEIpEkcD2Wc7mzy8S1SQOBOpOJkEyvRBsfF+NGe9IEiScunjqWFsEyzmZC
-         H7wz6HpIvqPlytf4u3yF/fC2bGXhD2PkyywK2bIEYWA0/MWubGghVA58+TjHabTtzk
-         sgp0uiOeC1vJWGyUicFUwwP7WtVX4NuazG75cE4+qS9pnOOgfzMcv6pqtLTthzSMJt
-         nMD2jdIr9raaKbVzfvIXc+e9Olp6VGLd5Jp/dwayGt3kQ7lOmvnxDsK49pIy8VgzNx
-         E48Iy/nQcw1IA==
+        b=pLF8YV4IlUqJA5w89aE7ezPwwv+9k4ZlJTdbL9qI2hFKkEhBChK5xOOoX8LMfP5zT
+         PUaKSWEzHwPhP5DIxNydqeTKCeyJX5hC+T9KJrsuS40U7XxiVBc2zFpwL50Z/cXQt4
+         dUW/jVCzAWd4xq1spC9t3LF4Jljgs/2HTm/TU2e044NmQ4DuHnkG+eMkYdX3OpNk0P
+         3EtdnSMiZ0BVomAzvZPbn+RaJeYcbYgAN513Ogv4zSi6vvFYIg4ci0ivPoEuDlvONf
+         +NdLqp624xWe15he1x+VFSOSsxxf2P06gNdQk3eimwBAkwjQ7fhuSPa473HYQ9UbGe
+         paoLq2tR3FS/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corentin Labbe <clabbe@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 002/108] ARM: dts: gemini: add device_type on pci
-Date:   Wed, 14 Jul 2021 15:36:14 -0400
-Message-Id: <20210714193800.52097-2-sashal@kernel.org>
+Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 003/108] ARM: dts: rockchip: Fix thermal sensor cells o rk322x
+Date:   Wed, 14 Jul 2021 15:36:15 -0400
+Message-Id: <20210714193800.52097-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -42,31 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit 483f3645b3f7acfd1c78a19d51b80c0656161974 ]
+[ Upstream commit d5c24e20daf09587cbc221d40be1ba92673e8d94 ]
 
-Fixes DT warning on pci node by adding the missing device_type.
+The number of cells to be used with a thermal sensor specifier
+must be "1". Fix this.
 
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20210506175514.168365-2-ezequiel@collabora.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/gemini.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/rk322x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/gemini.dtsi b/arch/arm/boot/dts/gemini.dtsi
-index 065ed10a79fa..07448c03dac9 100644
---- a/arch/arm/boot/dts/gemini.dtsi
-+++ b/arch/arm/boot/dts/gemini.dtsi
-@@ -286,6 +286,7 @@ pci@50000000 {
- 			clock-names = "PCLK", "PCICLK";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pci_default_pins>;
-+			device_type = "pci";
- 			#address-cells = <3>;
- 			#size-cells = <2>;
- 			#interrupt-cells = <1>;
+diff --git a/arch/arm/boot/dts/rk322x.dtsi b/arch/arm/boot/dts/rk322x.dtsi
+index 208f21245095..9f02ba7a0cc2 100644
+--- a/arch/arm/boot/dts/rk322x.dtsi
++++ b/arch/arm/boot/dts/rk322x.dtsi
+@@ -517,7 +517,7 @@ tsadc: tsadc@11150000 {
+ 		pinctrl-0 = <&otp_pin>;
+ 		pinctrl-1 = <&otp_out>;
+ 		pinctrl-2 = <&otp_pin>;
+-		#thermal-sensor-cells = <0>;
++		#thermal-sensor-cells = <1>;
+ 		rockchip,hw-tshut-temp = <95000>;
+ 		status = "disabled";
+ 	};
 -- 
 2.30.2
 
