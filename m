@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9E03C8F2A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 740AB3C8F1E
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240974AbhGNTwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:52:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46238 "EHLO mail.kernel.org"
+        id S239394AbhGNTvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238654AbhGNTsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238637AbhGNTsI (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:48:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 540B5613EE;
-        Wed, 14 Jul 2021 19:43:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A4A7613EB;
+        Wed, 14 Jul 2021 19:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291817;
-        bh=/Y5p+u3HuN6J545R6s3d4Yr2Bp7btNdWGc+nyZL8xjk=;
+        s=k20201202; t=1626291819;
+        bh=zk2+0tbakUZ/9PwNRSvSTCtLeNsiqr4jud6adup3Yng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hM/ZMQ1xiWW0Y1jEk6XqDgVl8zyOrGV+kJqanVdzDqrlG0+CrGgLXnlroQqPwStfR
-         6eiBp94r4IFKv+TTd6rVju/1i7EqCmucSoT5Gf/o7aCXeveyz4JjIUTuI/6wg6xPNY
-         NzLSFtSL3kzoRzUVkufQ/hS0nFSZvhusXVJ1JDvdwtEDeoxu7UVHXs5SpujZCRJj/T
-         qmrExpk9lDFke4UyBeXogxD8bcQxub9M27NvgCGRgkjOfN5ap2HP/t74GRAkHoj8mY
-         TGaLCgtY8d44UTO931j1V8mvoLRSiyPQxNGkbZXyMsgDcgGjcwfAn/gIVSJDoNb71l
-         tde3S65Au42OQ==
+        b=sq/iYU7R62YG+puH1pr+Ooay4vIpF1pmVflY2iKYS3JsMrHjl43aflL9eBLCUCMO6
+         yAB0UwkZgkOOQTIWcPgsLiGFJMpcON9Hfhtf0lqfIkNu09UcV1ac4BkbYhpIVoXNHv
+         lmYaIBD9RdoHSVY/zLge7h2BEjvl2Of1QabkbkNw3v9lG384FJkEEv9abhH3H3kOsh
+         oqSp1BlZcHmVPB3kk7jNE59mzZ7gas3ugpFMfFr4GWgoq0OKqVysMppHMBl06RaLxX
+         w4uyHwsieEbq9wTpjSHYABtqatlilp8VOM+JVthc5e7xHBZ6TxN4NodmhqmQpo+iXn
+         b5lWFVJZXYxoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 20/88] ARM: dts: imx25-pinfunc: Fix gpio function name for pads GPIO_[A-F]
-Date:   Wed, 14 Jul 2021 15:41:55 -0400
-Message-Id: <20210714194303.54028-20-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 21/88] ARM: dts: exynos: align Broadcom WiFi with dtschema
+Date:   Wed, 14 Jul 2021 15:41:56 -0400
+Message-Id: <20210714194303.54028-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,67 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit e0cdd26af8eb9001689a4cde4f72c61c1c4b06be ]
+[ Upstream commit cc29e39412b9a78b43f7dfa09d739f8ba9fa7984 ]
 
-The pinfunc definitions used GPIO_A as function instead of GPIO_1_0 as
-done for all the other pins with GPIO functionality. Fix for consistency.
+The Broadcom BCM4329 family dtschema expects devices to be compatible
+also with brcm,bcm4329-fmac:
 
-There are no mainline users that needs adaption.
+  arch/arm/boot/dts/exynos3250-rinato.dt.yaml: wifi@1: compatible: 'oneOf' conditional failed, one must be fixed:
+    ['brcm,bcm4334-fmac'] is too short
+    'brcm,bcm4329-fmac' was expected
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210505135941.59898-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx25-pinfunc.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/exynos3250-rinato.dts         | 2 +-
+ arch/arm/boot/dts/exynos4210-i9100.dts          | 2 +-
+ arch/arm/boot/dts/exynos4210-trats.dts          | 2 +-
+ arch/arm/boot/dts/exynos4210-universal_c210.dts | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx25-pinfunc.h b/arch/arm/boot/dts/imx25-pinfunc.h
-index f984b702efc5..908caf810351 100644
---- a/arch/arm/boot/dts/imx25-pinfunc.h
-+++ b/arch/arm/boot/dts/imx25-pinfunc.h
-@@ -563,15 +563,15 @@
- #define MX25_PAD_DE_B__DE_B			0x1f0 0x3ec 0x000 0x00 0x000
- #define MX25_PAD_DE_B__GPIO_2_20		0x1f0 0x3ec 0x000 0x05 0x000
+diff --git a/arch/arm/boot/dts/exynos3250-rinato.dts b/arch/arm/boot/dts/exynos3250-rinato.dts
+index f9e3b13d3aac..8ef20a66e24e 100644
+--- a/arch/arm/boot/dts/exynos3250-rinato.dts
++++ b/arch/arm/boot/dts/exynos3250-rinato.dts
+@@ -653,7 +653,7 @@ &mshc_1 {
+ 	mmc-pwrseq = <&wlan_pwrseq>;
  
--#define MX25_PAD_GPIO_A__GPIO_A			0x1f4 0x3f0 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_A__GPIO_1_0		0x1f4 0x3f0 0x000 0x00 0x000
- #define MX25_PAD_GPIO_A__CAN1_TX		0x1f4 0x3f0 0x000 0x06 0x000
- #define MX25_PAD_GPIO_A__USBOTG_PWR		0x1f4 0x3f0 0x000 0x02 0x000
+ 	brcmf: wifi@1 {
+-		compatible = "brcm,bcm4334-fmac";
++		compatible = "brcm,bcm4334-fmac", "brcm,bcm4329-fmac";
+ 		reg = <1>;
  
--#define MX25_PAD_GPIO_B__GPIO_B			0x1f8 0x3f4 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_B__GPIO_1_1		0x1f8 0x3f4 0x000 0x00 0x000
- #define MX25_PAD_GPIO_B__USBOTG_OC		0x1f8 0x3f4 0x57c 0x02 0x001
- #define MX25_PAD_GPIO_B__CAN1_RX		0x1f8 0x3f4 0x480 0x06 0x001
+ 		interrupt-parent = <&gpx1>;
+diff --git a/arch/arm/boot/dts/exynos4210-i9100.dts b/arch/arm/boot/dts/exynos4210-i9100.dts
+index 7777bf51a6e6..083408f3f695 100644
+--- a/arch/arm/boot/dts/exynos4210-i9100.dts
++++ b/arch/arm/boot/dts/exynos4210-i9100.dts
+@@ -746,7 +746,7 @@ &sdhci_3 {
+ 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
  
--#define MX25_PAD_GPIO_C__GPIO_C			0x1fc 0x3f8 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_C__GPIO_1_2		0x1fc 0x3f8 0x000 0x00 0x000
- #define MX25_PAD_GPIO_C__PWM4_PWMO		0x1fc 0x3f8 0x000 0x01 0x000
- #define MX25_PAD_GPIO_C__I2C2_SCL		0x1fc 0x3f8 0x51c 0x02 0x001
- #define MX25_PAD_GPIO_C__KPP_COL4		0x1fc 0x3f8 0x52c 0x03 0x001
-@@ -580,18 +580,18 @@
- #define MX25_PAD_GPIO_C__CAN2_TX		0x1fc 0x3f8 0x000 0x06 0x000
- #define MX25_PAD_GPIO_C__CSPI2_SS2		0x1fc 0x3f8 0x000 0x07 0x000
+ 	brcmf: wifi@1 {
+-		compatible = "brcm,bcm4330-fmac";
++		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
+ 		reg = <1>;
  
--#define MX25_PAD_GPIO_D__GPIO_D			0x200 0x3fc 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_D__GPIO_1_3		0x200 0x3fc 0x000 0x00 0x000
- #define MX25_PAD_GPIO_D__I2C2_SDA		0x200 0x3fc 0x520 0x02 0x001
- #define MX25_PAD_GPIO_D__CAN2_RX		0x200 0x3fc 0x484 0x06 0x001
- #define MX25_PAD_GPIO_D__CSPI3_SS2		0x200 0x3fc 0x4c4 0x07 0x001
+ 		interrupt-parent = <&gpx2>;
+diff --git a/arch/arm/boot/dts/exynos4210-trats.dts b/arch/arm/boot/dts/exynos4210-trats.dts
+index a226bec56a45..68635dad541f 100644
+--- a/arch/arm/boot/dts/exynos4210-trats.dts
++++ b/arch/arm/boot/dts/exynos4210-trats.dts
+@@ -501,7 +501,7 @@ &sdhci_3 {
+ 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
  
--#define MX25_PAD_GPIO_E__GPIO_E			0x204 0x400 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_E__GPIO_1_4		0x204 0x400 0x000 0x00 0x000
- #define MX25_PAD_GPIO_E__I2C3_CLK		0x204 0x400 0x524 0x01 0x002
- #define MX25_PAD_GPIO_E__LD16			0x204 0x400 0x000 0x02 0x000
- #define MX25_PAD_GPIO_E__AUD7_TXD		0x204 0x400 0x000 0x04 0x000
- #define MX25_PAD_GPIO_E__UART4_RXD		0x204 0x400 0x570 0x06 0x002
+ 	brcmf: wifi@1 {
+-		compatible = "brcm,bcm4330-fmac";
++		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
+ 		reg = <1>;
  
--#define MX25_PAD_GPIO_F__GPIO_F			0x208 0x404 0x000 0x00 0x000
-+#define MX25_PAD_GPIO_F__GPIO_1_5		0x208 0x404 0x000 0x00 0x000
- #define MX25_PAD_GPIO_F__LD17			0x208 0x404 0x000 0x02 0x000
- #define MX25_PAD_GPIO_F__AUD7_TXC		0x208 0x404 0x000 0x04 0x000
- #define MX25_PAD_GPIO_F__UART4_TXD		0x208 0x404 0x000 0x06 0x000
+ 		interrupt-parent = <&gpx2>;
+diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+index 08284e8f3624..28361994ff80 100644
+--- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
++++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
+@@ -596,7 +596,7 @@ &sdhci_3 {
+ 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
+ 
+ 	brcmf: wifi@1 {
+-		compatible = "brcm,bcm4330-fmac";
++		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
+ 		reg = <1>;
+ 		interrupt-parent = <&gpx2>;
+ 		interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.30.2
 
