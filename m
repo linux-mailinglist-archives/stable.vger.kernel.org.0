@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C78963C908C
+	by mail.lfdr.de (Postfix) with ESMTP id 1CF813C908B
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235919AbhGNTzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
+        id S235472AbhGNTzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241182AbhGNTu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241187AbhGNTu0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2960F600D4;
-        Wed, 14 Jul 2021 19:47:12 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 718B2613F2;
+        Wed, 14 Jul 2021 19:47:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292032;
-        bh=ak0X2iN8PqFo1g+nRJ173Suw6iFpP+hKATqviaSsB2k=;
+        s=k20201202; t=1626292034;
+        bh=0FQ45pWstN+Zlkt7RQ/AP0WjMo6LEH/8ijahYy65CRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OW9xjmkMIfGtgoDKvjJM8p42BAHkv73pvMH8ZW59F65wPHcvi0MSdZRaNqSKUjCtd
-         hvhN5tO2kKQGAC8xSTKObKHdpcMBtWBu0BUU3JMmzyDvtphgQQOkmHJAyilzRJQESd
-         xmGhmouKdTvq2Xs/Qsq8x7rV15rqcGLATgnin0hUAz5OuiY7DM9vWUkP12JKl0kG5z
-         QoFefWJrHf5FZX9tetwN1hmr4I7sP55MtaYuxJMMBCJdlsQ5hJCxSvwFp6v/lKmiNZ
-         xkqFRo79kPCVmomS3+UhnPTsQQuk88mvK85fZFXUGqGp8ud3usRY0smA14FkUxpXIa
-         l5+oHdiLi4GyA==
+        b=jMJCNSWghmge8V05ejODsCwEF8THFpoN17xDyvJkZTQOflCI2dwep5XIaRFmyJSKH
+         VjZKseOekPVGdX/LqUAyBG3iNjXPEHfUgWqRQ0el7VxuSq4LC7o2tx9aIvisMCMP3s
+         2NeO/wBMd8hD7EnbDmPYQWzQ3+PmHhdBwMiFhRNg1A3xO+ktpzrgbUyud/UAwY2r4Q
+         C/nnDmacQlxRYKZVC+jGXKROIfHUD3NP20qLAsPldilitwJ1vXNcUrGHcpDLALqaSz
+         ltwlQNiDg0e7CYUwLWo2tV2fHABjLhV3McnXIP98AzFlWNc6RKBK3PfeCwNWjjDS2j
+         U91y3gJpU84uQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthias Maennich <maennich@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 33/39] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
-Date:   Wed, 14 Jul 2021 15:46:18 -0400
-Message-Id: <20210714194625.55303-33-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzk@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 34/39] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
+Date:   Wed, 14 Jul 2021 15:46:19 -0400
+Message-Id: <20210714194625.55303-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
@@ -42,66 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Maennich <maennich@google.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
+[ Upstream commit 742b0d7e15c333303daad4856de0764f4bc83601 ]
 
-To avoid unnecessary recompilations, mkcompile_h does not regenerate
-compile.h if just the timestamp changed.
-Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
-build was requested, in which case we should not ignore it.
+Interrupt line can be configured on different hardware in different way,
+even inverted.  Therefore driver should not enforce specific trigger
+type - edge falling - but instead rely on Devicetree to configure it.
 
-If a user follows the documentation for reproducible builds [1] and
-defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
-build will have the correct timestamp. A subsequent cherry-pick (or
-amend) changes the commit timestamp and if an incremental build is done
-with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
-into consideration. But it should for reproducibility.
+The Maxim 77686 datasheet describes the interrupt line as active low
+with a requirement of acknowledge from the CPU therefore the edge
+falling is not correct.
 
-Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
-UTS_VERSION when making a decision about whether the regenerated version
-of compile.h should be moved into place.
+The interrupt line is shared between PMIC and RTC driver, so using level
+sensitive interrupt is here especially important to avoid races.  With
+an edge configuration in case if first PMIC signals interrupt followed
+shortly after by the RTC, the interrupt might not be yet cleared/acked
+thus the second one would not be noticed.
 
-[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
-
-Signed-off-by: Matthias Maennich <maennich@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210526172036.183223-6-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mkcompile_h | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-max77686.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
-index 87f1fc9801d7..662fe19da990 100755
---- a/scripts/mkcompile_h
-+++ b/scripts/mkcompile_h
-@@ -78,15 +78,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
- # Only replace the real compile.h if the new one is different,
- # in order to preserve the timestamp and avoid unnecessary
- # recompilations.
--# We don't consider the file changed if only the date/time changed.
-+# We don't consider the file changed if only the date/time changed,
-+# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
-+# reproducible builds with that value referring to a commit timestamp).
- # A kernel config change will increase the generation number, thus
- # causing compile.h to be updated (including date/time) due to the
- # changed comment in the
- # first line.
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index 4aff349ae301..8e09450d11a6 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -710,8 +710,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
  
-+if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
-+   IGNORE_PATTERN="UTS_VERSION"
-+else
-+   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
-+fi
-+
- if [ -r $TARGET ] && \
--      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
--      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
-+      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
-+      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
-       cmp -s .tmpver.1 .tmpver.2; then
-    rm -f .tmpcompile
- else
+ add_rtc_irq:
+ 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
+-				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
+-				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
++				  IRQF_ONESHOT | IRQF_SHARED,
++				  0, info->drv_data->rtc_irq_chip,
+ 				  &info->rtc_irq_data);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
 -- 
 2.30.2
 
