@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB2F3C90AE
+	by mail.lfdr.de (Postfix) with ESMTP id C78373C90AF
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240751AbhGNT4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48718 "EHLO mail.kernel.org"
+        id S239973AbhGNT4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:56:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237389AbhGNTur (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C85C161370;
-        Wed, 14 Jul 2021 19:47:54 +0000 (UTC)
+        id S238046AbhGNTuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DE47613D1;
+        Wed, 14 Jul 2021 19:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292075;
-        bh=wnqEBD36+j3UcQiTcxuhlhl7rX/zUF3309cWxPhutAM=;
+        s=k20201202; t=1626292076;
+        bh=YOgllG/rTEmQTDw1A015Rm1sGiBtgaiqWBPhjMR2xtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/jqI7stUETy8J+Sgtht9NnbiAT4uyK1TeCuhlCAKHn+x6qzrcSxApTaTF1BH31NJ
-         hRj7hP9YiNU3GbiCOW3qAJe7E7ktmdCuTcReS5DtUXXy+m0kEm2mNOFcQzkZJlCN8m
-         YA/QWa3Ju50gUHkypPAykx6Gv0tbc3sCfrvk8fm8FKVG0/3bapFCO+af8QijXjFeJl
-         4rjoNitSt/fcOx8mxTxDTAoVMrtEcImrXaFbyEElXbS1CqJ2U1IA7XQWlGIItf0vvg
-         hZHAcwAhuIY8M9Ip1EZaAIPqyJx7BKcb/H3xPe48/GBzfDuj3r0TPOEPJxoye09erl
-         4JkuuHGNcxHZw==
+        b=kPfuphhw+PgbVzeTDHqlcd8vMwAfKdb40d8XDw8RwcAhQdglxSGSKpMb2JQr6V/O1
+         1U5Hy77oLUyRE56EXn2axMMutadlvkYdKmb4VxZ3+KYIop6TCigp90Jv50eu2fGJjs
+         uivWzQnXy299fI+YTeDYSBfYXdluoyzbf2VB/xkMmWt4LcWa5iIVaJOW2kRQJENC/i
+         BzXnVYgHDVn4r7rL0wLDjpIPB43rLHfvFM21M/pOdjgZsfe0+G7W0OTECZq9jYx0wR
+         698Qzhk5wRVF62NAkKqjHD1RfFvsT/pbal2uMYXeeQirdnEQdFOwplvF58dmA/5WNz
+         U0qntlGWHfWMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 21/28] arm64: dts: ls208xa: remove bus-num from dspi node
-Date:   Wed, 14 Jul 2021 15:47:16 -0400
-Message-Id: <20210714194723.55677-21-sashal@kernel.org>
+Cc:     Yang Yingliang <yangyingliang@huawei.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 22/28] thermal/core: Correct function name thermal_zone_device_unregister()
+Date:   Wed, 14 Jul 2021 15:47:17 -0400
+Message-Id: <20210714194723.55677-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194723.55677-1-sashal@kernel.org>
 References: <20210714194723.55677-1-sashal@kernel.org>
@@ -43,46 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 8240c972c1798ea013cbb407722295fc826b3584 ]
+[ Upstream commit a052b5118f13febac1bd901fe0b7a807b9d6b51c ]
 
-On LS2088A-RDB board, if the spi-fsl-dspi driver is built as module
-then its probe fails with the following warning:
+Fix the following make W=1 kernel build warning:
 
-[   10.471363] couldn't get idr
-[   10.471381] WARNING: CPU: 4 PID: 488 at drivers/spi/spi.c:2689 spi_register_controller+0x73c/0x8d0
-...
-[   10.471651] fsl-dspi 2100000.spi: Problem registering DSPI ctlr
-[   10.471708] fsl-dspi: probe of 2100000.spi failed with error -16
+  drivers/thermal/thermal_core.c:1376: warning: expecting prototype for thermal_device_unregister(). Prototype was for thermal_zone_device_unregister() instead
 
-Reason for the failure is that bus-num property is set for dspi node.
-However, bus-num property is not set for the qspi node. If probe for
-spi-fsl-qspi happens first then id 0 is dynamically allocated to it.
-Call to spi_register_controller() from spi-fsl-dspi driver then fails.
-Since commit 29d2daf2c33c ("spi: spi-fsl-dspi: Make bus-num property
-optional") bus-num property is optional. Remove bus-num property from
-dspi node to fix the issue.
-
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210517051020.3463536-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/thermal/thermal_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index 4fb9a0966a84..4b459167a746 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -515,7 +515,6 @@ dspi: dspi@2100000 {
- 			clocks = <&clockgen 4 3>;
- 			clock-names = "dspi";
- 			spi-num-chipselects = <5>;
--			bus-num = <0>;
- 		};
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index fcefafe7df48..2db83b555e59 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -1304,7 +1304,7 @@ thermal_zone_device_register(const char *type, int trips, int mask,
+ EXPORT_SYMBOL_GPL(thermal_zone_device_register);
  
- 		esdhc: esdhc@2140000 {
+ /**
+- * thermal_device_unregister - removes the registered thermal zone device
++ * thermal_zone_device_unregister - removes the registered thermal zone device
+  * @tz: the thermal zone device to remove
+  */
+ void thermal_zone_device_unregister(struct thermal_zone_device *tz)
 -- 
 2.30.2
 
