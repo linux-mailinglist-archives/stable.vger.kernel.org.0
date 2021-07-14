@@ -2,135 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B3643C8155
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 11:18:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342633C8175
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 11:22:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238728AbhGNJVN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 05:21:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48892 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238189AbhGNJVJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 05:21:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78FC361370;
-        Wed, 14 Jul 2021 09:18:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626254298;
-        bh=TaQMEAMiqW5ftXExwf1yrkJI+SslnJWeSCkRVn4NqSI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o4lGqiJB0Ge6QP1LDnusUIRfmL1dsAT0/rUkEMH5n8Yf3vspME4x08nh2OS08T31K
-         Uo/egFjhyyY3YuzXS/RnJu3WEdtbL2V7l3i9G8KxcsbKg4FTsZKd03We97jVVBMR5n
-         ycrBXBZsvuCyIdzk03FUSlq3NfQaW34/Dwma9yQI=
-Date:   Wed, 14 Jul 2021 11:18:14 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Michal Hocko <mhocko@kernel.org>, Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: 5.13.2-rc and others have many not for stable
-Message-ID: <YO6r1k7CIl16o61z@kroah.com>
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
- <YO0zXVX9Bx9QZCTs@kroah.com>
- <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
+        id S238638AbhGNJZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 05:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47148 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238487AbhGNJZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 05:25:19 -0400
+Received: from mail-wr1-x449.google.com (mail-wr1-x449.google.com [IPv6:2a00:1450:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C79DC06175F
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 02:22:28 -0700 (PDT)
+Received: by mail-wr1-x449.google.com with SMTP id k3-20020a5d52430000b0290138092aea94so1163580wrc.20
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 02:22:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=Qyc6ohzjuGWO87gzL/Z+Is02vLbY2suPFPQ1nEFYzSU=;
+        b=AgQnCrNOd7i5dBNRA+Pqzh0QH1Aavvx/jvqVMlgotATgmfiQ9tML534h2Yt0Wp6UVD
+         dPCrTzqm3k828aTupcVUKNvi1boNjXELkbENaolWJCSx3FLNUG5vZY14y1N3UaxiQka5
+         +q+oEgzkBkNs6xz8EJ6+xX00OSYkkSX47ur8ATJ2uzpAtZh4TbLoyw6PlDiOrEPI7ePs
+         h3eyPY50SvRZx/kOkqepKO3iRLDAsYfLa6LAL+akoR+aYpsPu7dxAcRztxsEHgLOr6OL
+         Zx1N3zurNs4uK7PulQxbL3PGcncwcgxZBhtst0DHt/kWg1ICnEil0BewSj5afs/vQH71
+         JD7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=Qyc6ohzjuGWO87gzL/Z+Is02vLbY2suPFPQ1nEFYzSU=;
+        b=k8316bg32H6r8yxtt64srmdp25tJQgFxM26dBROsLYY9yhbj+vqlFiW8zuaFpl6E86
+         Zh9SdUtbsy6Mda8/+IQEZZahQAdqvvH7Tl+KxO+Q9pymDfFKV/yuuxrmpnWnLTWV3KwG
+         bA09arBMkwd5nShYL77F6nbABBtYL1T+2xb4mvzx8B+MZv4v+xN76p0MBdSIMlOq4U4Z
+         q3QUfanSkO/iv6bVEVD+iAVJ7R+h/i9DnZCpTP6Sx0pTt8AuJjYicsmuN/R6Sa2K6VCe
+         5uIYZNBV9PBDkDBRKrc86H9QhjIM6iWNb7q0C1gyLfZSNU9Lm9zgOS7AMQm+UPm1wuvz
+         AZug==
+X-Gm-Message-State: AOAM5306u5IauuUq7e0vVF2Aby04RXPflm9d0TH5PBJ80IL4NDx2pYgH
+        a54vJY8puoJPIQfGGfR8L5UriSqflF0=
+X-Google-Smtp-Source: ABdhPJzYuKhDVZIN8Rj3HEws6Yo8UjiKSv5LM81gKwrWyru/o3IaiXXaws7mE9L6DdcQ7W3fAYE05yBPxQ4=
+X-Received: from glider.muc.corp.google.com ([2a00:79e0:15:13:89ec:cd11:7e8b:63fe])
+ (user=glider job=sendgmr) by 2002:a05:600c:2248:: with SMTP id
+ a8mr2892376wmm.141.1626254546797; Wed, 14 Jul 2021 02:22:26 -0700 (PDT)
+Date:   Wed, 14 Jul 2021 11:22:21 +0200
+Message-Id: <20210714092222.1890268-1-glider@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
+Subject: [PATCH mm v5 1/2] kfence: move the size check to the beginning of __kfence_alloc()
+From:   Alexander Potapenko <glider@google.com>
+To:     akpm@linux-foundation.org
+Cc:     dvyukov@google.com, elver@google.com, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, jrdr.linux@gmail.com,
+        Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 06:28:13PM -0700, Andrew Morton wrote:
-> On Tue, 13 Jul 2021 08:31:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> 
-> > 
-> > > Amongst the 2000+ patches posted today, there are a significant number
-> > > of them Signed-off-by Andrew, Signed-off-by Linus, Signed-off-by Sasha:
-> > > yet never Cc'ed to stable (nor even posted as AUTOSELs, I think).
-> > > 
-> > > Am I out of date?  I thought that had been agreed not to happen:
-> > > https://lore.kernel.org/linux-mm/20190808000533.7701-1-mike.kravetz@oracle.com/
-> > > is the thread I found when I looked for confirmation, but I believe the
-> > > same has been agreed before and since too.
-> > > 
-> > > Andrew goes to a lot of trouble to establish which Fixes from his tree
-> > > ought to go to stable.  Of course there will be exceptions which we
-> > > later decide should go in after all; but it's worrying when there's a
-> > > wholesale breach like this, and I think most of them should be dropped.
-> > > 
-> > > To pick on just one of many examples (sorry Miaohe!), a patch that
-> > > surprises me, but I've not had time to look into so far, and would
-> > > not want accelerated into X stable releases, 385/800
-> > > 
-> > > > Miaohe Lin <linmiaohe@huawei.com>
-> > > >     mm/shmem: fix shmem_swapin() race with swapoff
-> > 
-> > Sasha, and I, take patches from Linus's tree like the above one that
-> > have "Fixes:" tags in them as many many maintainers do not remember to
-> > put "cc: stable" on their patches.
-> 
-> As do many many developers.  I always check.
-> 
-> > The above patch says it fixes a problem in the 5.1 kernel release, so
-> > Sasha queued it up for 5.10, 5.12, and 5.13.  Odds are he should have
-> > also sent a "FAILED" notice for 5.4, but we don't always do that for
-> > patches only with a Fixes tag all the time as we only have so much we
-> > can do...
-> > 
-> > So is that tag incorrect?  If not, why was it not cc: stable?  Why is it
-> > not valid for a stable release?
-> 
-> Usually because we judged that the seriousness of the problem did not
-> justify the risk & churn of backporting its fix.
-> 
-> >  So far, all automated testing seems to
-> > show that there are no regressions in these releases with these commits
-> > in them.  If there was a problem, how would it show up?
-> > 
-> > And as far as I know, mm/ stuff is still not triggered by the AUTOSEL
-> > bot, but that is not what caused this commit to be added to a stable
-> > release.
-> > 
-> > Trying to keep a "do not apply" list for Fixes: tags only is much harder
-> > for both of us as we do these semi-manually and review them
-> > individually.  Trying to remember what subsystem only does Fixes tags
-> > yet really doesn't mean it is an impossible task.
-> 
-> Well, it shouldn't be super hard to skip all patches which have Fixes:,
-> Signed-off-by:akpm and no cc:stable?
+Check the allocation size before toggling kfence_allocation_gate.
+This way allocations that can't be served by KFENCE will not result in
+waiting for another CONFIG_KFENCE_SAMPLE_INTERVAL without allocating
+anything.
 
-Ok, I will do this now (goes and writes this down...)
+Suggested-by: Marco Elver <elver@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org # 5.12+
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+---
+ mm/kfence/core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-But it really feels odd that you all take the time to add a "Hey, this
-fixes this specific commit!" tag in the changelog, yet you do not
-actually want to go and fix the kernels that have that commit in it.
-This is an odd signal to others that watch the changelogs for context
-clues.  Perhaps you might not want to do that anymore.
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index d7666ace9d2e4..2623ff401a104 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -733,6 +733,13 @@ void kfence_shutdown_cache(struct kmem_cache *s)
+ 
+ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
+ {
++	/*
++	 * Perform size check before switching kfence_allocation_gate, so that
++	 * we don't disable KFENCE without making an allocation.
++	 */
++	if (size > PAGE_SIZE)
++		return NULL;
++
+ 	/*
+ 	 * allocation_gate only needs to become non-zero, so it doesn't make
+ 	 * sense to continue writing to it and pay the associated contention
+@@ -757,9 +764,6 @@ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
+ 	if (!READ_ONCE(kfence_enabled))
+ 		return NULL;
+ 
+-	if (size > PAGE_SIZE)
+-		return NULL;
+-
+ 	return kfence_guarded_alloc(s, size, flags);
+ }
+ 
+-- 
+2.32.0.93.g670b81a890-goog
 
-> I'd really really prefer this, please.  At present this -stable
-> promiscuity is overriding the (sometime carefully) considered decisions
-> of the MM developers, and that's a bit scary.  I've actually been
-> spending the past couple of years believing that if I left off
-> cc:stable, the fix wasn't going to go into -stable!
-
-That used to be the case, but we have had to deal with all of the
-subsystems where people were NOT putting cc: stable on them, and only
-Fixes: tags.  It's slowly getting better, but some subsystems refuse to
-do this for some reason (it's hard to wrangle 4000 people to all do the
-same thing...)
-
-> Alternatively I could just invent a new tag to replace the "Fixes:"
-> ("Fixes-no-backport?") to be used on patches which fix a known previous
-> commit but which we don't want backported.
-
-No please, that's not needed, I'll just ignore these types of patches
-now, and will go drop these from the queues.
-
-Sasha, can you also add these to your "do not apply" script as well?
-
-thanks,
-
-greg k-h
