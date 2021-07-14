@@ -2,222 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DACD3C93E8
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 00:34:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F033C93F6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 00:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235267AbhGNWgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 18:36:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34100 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229900AbhGNWga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 18:36:30 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6B3EC06175F
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 15:33:38 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id k20so3994148pgg.7
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 15:33:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IsxizJRkZWrHnnto7Wt0OtIKbcnMV/2C4RyT04VofgU=;
-        b=ygbuEIULAInX2NeXPy+JVGS76MzNv3flLiQSRB0ripaKRGyWo16zGHRZJD3f0uUQK0
-         uf9KFoE+glx3SR/xTR9q6hRfXZsIENkbpH528BxwVaFIlkJNyP47M9qeRCFI4edJDolL
-         7ueTQ8IrIQwwSzHLi6FYIbzW+eZ0bb1HBk3zWRQCS/E0ixvU2BuKPldbDjxxlQl9siC4
-         vYSN570q+b9qt06EogCZC8YTxnttK123p06WkkdoS0dpL70M3C4KjGHCrG1iHZY/WfhE
-         OdDGryuMvU23yKTEavkEDBmgZqImAzBHnkXu9ibrOFREpUsLi+oTha64i7fnVDuvLdaW
-         sNSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IsxizJRkZWrHnnto7Wt0OtIKbcnMV/2C4RyT04VofgU=;
-        b=B4m1WfMtSayS8oonTOahakmD8kKZRYtr5Oh3aqXDodZ8CVR7yrJ9RjGmi3xjfjYNrS
-         X1klctxhOm85ruXnnLjIcsXIpF3HKLG02gc0I1IPQ0Uy0h8cNkrCIfSKXtAuwWhteTT0
-         G6ePFc3QqIuTV7+vNY4GRCS2fHOHXHdZHcErPY2ihU1mOWMIYQB+ytb6rdIpW9dpkc+k
-         1I+h68VKeUQqtORtbbIX9hQhSewWuaT4PM2v4+TQdf40Z9LgTxsz3JhaKZCD5u3JvtTp
-         San3MTU0yPsVUp2/NgSP7YVBhfToyu/XoKsnCJlFw6vkCerGis3GaSgeAJ4rFpLjSUb8
-         mlEQ==
-X-Gm-Message-State: AOAM532zINv8fr4h5JMveMZOTH9agMLAhNDcRfqYvbL94xDwOdeT9RZ1
-        S3Va8Wimq+5QKj0ehRJFH7hXGpKFNhNKSmfz
-X-Google-Smtp-Source: ABdhPJzUKEETcBoDc4p7P9S0rxCka847ZGfIYkt/h4mCtS3xBlEDGGK26GVzXKl2J04LeFSK3J3AEQ==
-X-Received: by 2002:a62:5b04:0:b029:308:6fc4:da91 with SMTP id p4-20020a625b040000b02903086fc4da91mr484405pfb.26.1626302018257;
-        Wed, 14 Jul 2021 15:33:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c136sm4057517pfc.201.2021.07.14.15.33.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Jul 2021 15:33:37 -0700 (PDT)
-Message-ID: <60ef6641.1c69fb81.b49ce.c960@mx.google.com>
-Date:   Wed, 14 Jul 2021 15:33:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.13.y
-X-Kernelci-Kernel: v5.13.2
-Subject: stable/linux-5.13.y baseline: 181 runs, 4 regressions (v5.13.2)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S236492AbhGNWpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 18:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58798 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231394AbhGNWpQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 18:45:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFC36613CA;
+        Wed, 14 Jul 2021 22:42:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1626302544;
+        bh=7UoXWEDjWSAFlA2Q+sOEamakvWHzDgRbhif22djQzCQ=;
+        h=Date:From:To:Subject:From;
+        b=S9q0hKdc5P+p6JHQpB/VU5MUpAZCkDgE+qluRmUzHOAJKw+uD61sIVUTZpuwBmC3Z
+         GjJHbQU4xDFNATdvQzXbgFaC9AepLq4NEKqBN4Y5URpmPfVkewwcFhUU1bYdtSkQGF
+         AvZrTqdlTjzJHaLZKBfK+UC3BwddDbE1/d+F/3KY=
+Date:   Wed, 14 Jul 2021 15:42:23 -0700
+From:   akpm@linux-foundation.org
+To:     dvyukov@google.com, elver@google.com, glider@google.com,
+        gregkh@linuxfoundation.org, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org
+Subject:  +
+ kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch added
+ to -mm tree
+Message-ID: <20210714224223.jnx_O_deA%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.13.y baseline: 181 runs, 4 regressions (v5.13.2)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: kfence: move the size check to the beginning of __kfence_alloc()
+has been added to the -mm tree.  Its filename is
+     kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch
 
-platform            | arch  | lab             | compiler | defconfig       =
-    | regressions
---------------------+-------+-----------------+----------+-----------------=
-----+------------
-bcm2837-rpi-3-b-32  | arm   | lab-baylibre    | gcc-8    | bcm2835_defconfi=
-g   | 1          =
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch
 
-imx6ul-pico-hobbit  | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
-fig | 1          =
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-r8a77950-salvator-x | arm64 | lab-baylibre    | gcc-8    | defconfig       =
-    | 1          =
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-r8a77960-ulcb       | arm64 | lab-baylibre    | gcc-8    | defconfig       =
-    | 1          =
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
+------------------------------------------------------
+From: Alexander Potapenko <glider@google.com>
+Subject: kfence: move the size check to the beginning of __kfence_alloc()
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.13.y/kernel=
-/v5.13.2/plan/baseline/
+Check the allocation size before toggling kfence_allocation_gate.  This
+way allocations that can't be served by KFENCE will not result in waiting
+for another CONFIG_KFENCE_SAMPLE_INTERVAL without allocating anything.
 
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.13.y
-  Describe: v5.13.2
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      d6fc894baac777c38a95a31f65343bea8b1a2678 =
+Link: https://lkml.kernel.org/r/20210714092222.1890268-1-glider@google.com
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Suggested-by: Marco Elver <elver@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Marco Elver <elver@google.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>	[5.12+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ mm/kfence/core.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
+--- a/mm/kfence/core.c~kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc
++++ a/mm/kfence/core.c
+@@ -734,6 +734,13 @@ void kfence_shutdown_cache(struct kmem_c
+ void *__kfence_alloc(struct kmem_cache *s, size_t size, gfp_t flags)
+ {
+ 	/*
++	 * Perform size check before switching kfence_allocation_gate, so that
++	 * we don't disable KFENCE without making an allocation.
++	 */
++	if (size > PAGE_SIZE)
++		return NULL;
++
++	/*
+ 	 * allocation_gate only needs to become non-zero, so it doesn't make
+ 	 * sense to continue writing to it and pay the associated contention
+ 	 * cost, in case we have a large number of concurrent allocations.
+@@ -757,9 +764,6 @@ void *__kfence_alloc(struct kmem_cache *
+ 	if (!READ_ONCE(kfence_enabled))
+ 		return NULL;
+ 
+-	if (size > PAGE_SIZE)
+-		return NULL;
+-
+ 	return kfence_guarded_alloc(s, size, flags);
+ }
+ 
+_
 
-Test Regressions
----------------- =
+Patches currently in -mm which might be from glider@google.com are
 
+kfence-move-the-size-check-to-the-beginning-of-__kfence_alloc.patch
+kfence-skip-all-gfp_zonemask-allocations.patch
 
-
-platform            | arch  | lab             | compiler | defconfig       =
-    | regressions
---------------------+-------+-----------------+----------+-----------------=
-----+------------
-bcm2837-rpi-3-b-32  | arm   | lab-baylibre    | gcc-8    | bcm2835_defconfi=
-g   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef31f969d5e25c3e8a9444
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ef31f969d5e25c3e8a9=
-445
-        new failure (last pass: v5.13) =
-
- =
-
-
-
-platform            | arch  | lab             | compiler | defconfig       =
-    | regressions
---------------------+-------+-----------------+----------+-----------------=
-----+------------
-imx6ul-pico-hobbit  | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef36267096158f408a93be
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-imx6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-imx6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ef36267096158f408a9=
-3bf
-        new failure (last pass: v5.13) =
-
- =
-
-
-
-platform            | arch  | lab             | compiler | defconfig       =
-    | regressions
---------------------+-------+-----------------+----------+-----------------=
-----+------------
-r8a77950-salvator-x | arm64 | lab-baylibre    | gcc-8    | defconfig       =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef37307fc1e25ed18a93a2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a77950-salvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ef37307fc1e25ed18a9=
-3a3
-        new failure (last pass: v5.13) =
-
- =
-
-
-
-platform            | arch  | lab             | compiler | defconfig       =
-    | regressions
---------------------+-------+-----------------+----------+-----------------=
-----+------------
-r8a77960-ulcb       | arm64 | lab-baylibre    | gcc-8    | defconfig       =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ef3645fe64b846198a93dd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a77960-ulcb.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.13.y/v5.13.2/ar=
-m64/defconfig/gcc-8/lab-baylibre/baseline-r8a77960-ulcb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ef3645fe64b846198a9=
-3de
-        new failure (last pass: v5.13) =
-
- =20
