@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8418E3C8C6A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5CA3C8C68
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233934AbhGNTl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:41:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36534 "EHLO mail.kernel.org"
+        id S233923AbhGNTl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:41:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233622AbhGNTlq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233427AbhGNTlq (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:41:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 829E3613D6;
-        Wed, 14 Jul 2021 19:38:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA981613E5;
+        Wed, 14 Jul 2021 19:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291533;
-        bh=ToHPHCSJF2WG4YeTUnEG8RVXT2dtGFwMgCE15/wD/m4=;
+        s=k20201202; t=1626291534;
+        bh=UsKyJiGxM5oZPFswj1xWUd9yE/lYzjzQ8OFYzK+hWQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJ3RPvjkQEm4UouropyHw0Jj2KfM72WhpYIRZcKWah4OBBPtZUQsGg2uhSUAYBKZA
-         jSBm5xLicdTamODP+pg3Z05eUHRGeQ5+uHoCOokf29HjAbrWgfzyWeEWtPWqC/3SLS
-         JDXGYAYi2XeT74J2OYnSdGQtOOlHLCnaetcbnfk4Otw+zJiXzBbkpmlsDv60ti+oxK
-         UsCyFwnWpPZJeiJPQZw8pN0pPzjsV6z3y4MJJF4v4g97mv1KLQ/V1lNjyBJNIqxdGi
-         O5M4cHc8tcWT7YzdbMhWuuSqoo4ojsAuZt0JjKLdHgJZ238ZwexNvnNisWJypbmh/V
-         HovDbui9G+jrg==
+        b=kdlwtvA1B6fDKPMdjyz6piwWGWUr1ImClOTSeTArfOQY/TScvmdjXcVeLwApWrKqZ
+         teubXNqnwcpEEUUlgF/8XX2z2NW5ICA6O0pq4mSf4BpnwQbvrC1zo06a2iXQJCS0j4
+         iD+e8mci1GXAwsT7Pjr059WnxwY5q3RVbyT8ZwChyOA4OM7caKim3Ce4zm6//G7zbl
+         /RZ2Po7xPX6z9d5/w2plj1xgY6ArFWhMVXyfO70qCHs/a2Tu7kLUAz6Wi3KLZjPNLE
+         ostiOsKRrhh2cXPKTtdXlhmEOOvdH80pUOsUVKfb4k0Vv3t1N92uvKWK/mJz6L0xkB
+         xhsm5i/K238ww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 036/108] rtc: mxc_v2: add missing MODULE_DEVICE_TABLE
-Date:   Wed, 14 Jul 2021 15:36:48 -0400
-Message-Id: <20210714193800.52097-36-sashal@kernel.org>
+Cc:     Adam Ford <aford173@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 037/108] arm64: dts: renesas: beacon: Fix USB extal reference
+Date:   Wed, 14 Jul 2021 15:36:49 -0400
+Message-Id: <20210714193800.52097-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -42,35 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit 206e04ec7539e7bfdde9aa79a7cde656c9eb308e ]
+[ Upstream commit 56bc54496f5d6bc638127bfc9df3742cbf0039e7 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The USB extal clock reference isn't associated to a crystal, it's
+associated to a programmable clock, so remove the extal reference,
+add the usb2_clksel.  Since usb_extal is referenced by the versaclock,
+reference it here so the usb2_clksel can get the proper clock speed
+of 50MHz.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210508031509.53735-1-cuibixuan@huawei.com
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Link: https://lore.kernel.org/r/20210513114617.30191-1-aford173@gmail.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mxc_v2.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
-index a577a74aaf75..5e0383401629 100644
---- a/drivers/rtc/rtc-mxc_v2.c
-+++ b/drivers/rtc/rtc-mxc_v2.c
-@@ -372,6 +372,7 @@ static const struct of_device_id mxc_ids[] = {
- 	{ .compatible = "fsl,imx53-rtc", },
- 	{}
+diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
+index 8d3a4d6ee885..bd3d26b2a2bb 100644
+--- a/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
++++ b/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi
+@@ -319,8 +319,10 @@ &sdhi3 {
+ 	status = "okay";
  };
-+MODULE_DEVICE_TABLE(of, mxc_ids);
  
- static struct platform_driver mxc_rtc_driver = {
- 	.driver = {
+-&usb_extal_clk {
+-	clock-frequency = <50000000>;
++&usb2_clksel {
++	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>,
++		  <&versaclock5 3>, <&usb3s0_clk>;
++	status = "okay";
+ };
+ 
+ &usb3s0_clk {
 -- 
 2.30.2
 
