@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 880EC3C8D24
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E383C8D25
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234706AbhGNTnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235218AbhGNTnt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37298 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235184AbhGNTnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7CE5613E6;
-        Wed, 14 Jul 2021 19:40:16 +0000 (UTC)
+        id S235846AbhGNTnL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10F8C613DC;
+        Wed, 14 Jul 2021 19:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291617;
-        bh=0DfvojDQtsTjKzPBJI6fP0XKs1/zGyGKKVN5ampn9VE=;
+        s=k20201202; t=1626291618;
+        bh=JxfxbU+hWiQO2Ji+lo8fLwh1c+vG9CbvECsWFUbwYN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/G5lydKCW3kV4uYphPjSGhtT98BuOFYSry6LmxkZig1m/Au9lhXHXzFsa/asNxWC
-         PvDf9e77foEj+lyJve1ld9ldRTxRMPsqBJfv2me9umdfLoO2/gkdcIcZUHWi+uR51k
-         6DBDTjrFL7W0nrP2xpzY4iN5yq8HoG4Mh0IsJPrjWhLOvjbLC3I2FEZGuh9g/yN4xF
-         XwNQpgklMdAVESJr6GudynuEAiy8as4YzrcAMVDFKtCQ6uYTncEnsGjinzYxmUybDj
-         w+oyq6monB842vlELO7t56GS6pjOrhIJEjkkPvenNlOscCaKLGxzNANhwhoCMi5cMN
-         KW4uAIYKOD3Ow==
+        b=LWAd9gQPk6PVC22Zx0qE9eDPuNVKtB6AjjmbOn5XW+ffLn9xKIXteUVYByR4sryxP
+         NTjSk67RV1Df3D5bhc0PH9flb7Li3zPvyrHHOcd9/ByoRvVBjnsgrawSW+EraZBwFl
+         LVv4aLIKyOXYX9rlWwukRV6XWljCvrMktUhKZbU5y7CHIxZ1YPG1OZThgwezk0FNMD
+         4Oq2708xnY6hzYwppqadOUtwVwnKQeWq55UcKI3dM6QCik8I4LnbeTNfjR2HlPhu5b
+         yhL65QhtL1to+SaqCto+BJaG+OCloWQs1BmiQFElECsnM7zRS7s/r8axWhwkDW1c7D
+         nlWEfBcvbSuAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthias Maennich <maennich@google.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 095/108] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
-Date:   Wed, 14 Jul 2021 15:37:47 -0400
-Message-Id: <20210714193800.52097-95-sashal@kernel.org>
+Cc:     Konstantin Porotchkin <kostap@marvell.com>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 096/108] arch/arm64/boot/dts/marvell: fix NAND partitioning scheme
+Date:   Wed, 14 Jul 2021 15:37:48 -0400
+Message-Id: <20210714193800.52097-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -42,66 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Maennich <maennich@google.com>
+From: Konstantin Porotchkin <kostap@marvell.com>
 
-[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
+[ Upstream commit e3850467bf8c82de4a052619136839fe8054b774 ]
 
-To avoid unnecessary recompilations, mkcompile_h does not regenerate
-compile.h if just the timestamp changed.
-Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
-build was requested, in which case we should not ignore it.
+Eliminate 1MB gap between Linux and filesystem partitions.
 
-If a user follows the documentation for reproducible builds [1] and
-defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
-build will have the correct timestamp. A subsequent cherry-pick (or
-amend) changes the commit timestamp and if an incremental build is done
-with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
-into consideration. But it should for reproducibility.
-
-Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
-UTS_VERSION when making a decision about whether the regenerated version
-of compile.h should be moved into place.
-
-[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
-
-Signed-off-by: Matthias Maennich <maennich@google.com>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Konstantin Porotchkin <kostap@marvell.com>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/mkcompile_h | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/marvell/cn9130-db.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
-index 4ae735039daf..a72b154de7b0 100755
---- a/scripts/mkcompile_h
-+++ b/scripts/mkcompile_h
-@@ -70,15 +70,23 @@ UTS_VERSION="$(echo $UTS_VERSION $CONFIG_FLAGS $TIMESTAMP | cut -b -$UTS_LEN)"
- # Only replace the real compile.h if the new one is different,
- # in order to preserve the timestamp and avoid unnecessary
- # recompilations.
--# We don't consider the file changed if only the date/time changed.
-+# We don't consider the file changed if only the date/time changed,
-+# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
-+# reproducible builds with that value referring to a commit timestamp).
- # A kernel config change will increase the generation number, thus
- # causing compile.h to be updated (including date/time) due to the
- # changed comment in the
- # first line.
- 
-+if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
-+   IGNORE_PATTERN="UTS_VERSION"
-+else
-+   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
-+fi
-+
- if [ -r $TARGET ] && \
--      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
--      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
-+      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
-+      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
-       cmp -s .tmpver.1 .tmpver.2; then
-    rm -f .tmpcompile
- else
+diff --git a/arch/arm64/boot/dts/marvell/cn9130-db.dts b/arch/arm64/boot/dts/marvell/cn9130-db.dts
+index 2c2af001619b..9758609541c7 100644
+--- a/arch/arm64/boot/dts/marvell/cn9130-db.dts
++++ b/arch/arm64/boot/dts/marvell/cn9130-db.dts
+@@ -260,7 +260,7 @@ partition@0 {
+ 			};
+ 			partition@200000 {
+ 				label = "Linux";
+-				reg = <0x200000 0xd00000>;
++				reg = <0x200000 0xe00000>;
+ 			};
+ 			partition@1000000 {
+ 				label = "Filesystem";
 -- 
 2.30.2
 
