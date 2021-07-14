@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1083C8FBF
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1FE3C8FC1
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240227AbhGNTxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45586 "EHLO mail.kernel.org"
+        id S240316AbhGNTxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:53:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240422AbhGNTtq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:49:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBD6D600D4;
-        Wed, 14 Jul 2021 19:45:18 +0000 (UTC)
+        id S240442AbhGNTtr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:49:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51FD3613E7;
+        Wed, 14 Jul 2021 19:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291919;
-        bh=tkhs2oleCy29LgoRLJeVYpcFY3jAEXYINZ8XP1zCpXw=;
+        s=k20201202; t=1626291921;
+        bh=j/3iw+ljeloJdSamvKxQ1KESNXTRz83jvoSRc714K2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jrv5T15KG5Hi08G2vBF0mqLi36DfHJUQ4f86b/zVwcK+lRkwwj6o37YV8kG7ULzF0
-         G3uEh0uiSyUKbTryOHIC/EXw9ep4+9pvHGFs4EsG4Kb5RCKvTrmBMZJlmSORgdwmwi
-         gj5XCn39io5avdMbByKmJK/ogvwEh1f8teZIzeLc01Qh1wf3hXHilwKb1V36ciU4lN
-         6sDYg19Iak8O7Md6Mz4/xFZE+CANd/c2wpNR+MVJJhZy61wcLFHIdCdwiboPqWAROZ
-         nHcKRwvzl8fQQuWkfcOB9JtSmuZjzytq8OfXJIHgH8H64N3jafyB1ocznfP4y4SKgO
-         FNF+3KbxXOLYg==
+        b=SUU8khK+YfYIyBUNCrX15tYuwWL/W1B9hFSzVqTjmKhhAp9W0R6YFWzxS5LypW2o4
+         G8QGp2lKBqmOY3LOxl/OrECFJ1LQ1hsUNZ2M9oi8U16D1nkhAMGaUzW3vjParBUbzH
+         8mgYBLxtljSVjc5qro4AMQp6zfV4i+yLr/mHP9yXflDuH096GDr1mz/9resxq3g6o6
+         yoJjJCy5PqWN3Kr/HA0fB/wq/Jsn+dZc1s3t939Sx+UCnOxJxjOohUVqhNEwuyH6Ec
+         Vq0CaGbRbkyZvl7dfD22J/f5X/DsD7jiKzrtqu77rCzyHLUhpMAgyEoteVQMgIikF1
+         HOA1OU6sEdO3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 04/51] arm64: dts: rockchip: fix pinctrl sleep nodename for rk3399.dtsi
-Date:   Wed, 14 Jul 2021 15:44:26 -0400
-Message-Id: <20210714194513.54827-4-sashal@kernel.org>
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 05/51] ARM: dts: rockchip: Fix the timer clocks order
+Date:   Wed, 14 Jul 2021 15:44:27 -0400
+Message-Id: <20210714194513.54827-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194513.54827-1-sashal@kernel.org>
 References: <20210714194513.54827-1-sashal@kernel.org>
@@ -43,40 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Ezequiel Garcia <ezequiel@collabora.com>
 
-[ Upstream commit a7ecfad495f8af63a5cb332c91f60ab2018897f5 ]
+[ Upstream commit 7b46d674ac000b101fdad92cf16cc11d90b72f86 ]
 
-A test with the command below aimed at powerpc generates
-notifications in the Rockchip arm64 tree.
+Fixed order is the device-tree convention.
+The timer driver currently gets clocks by name,
+so no changes are needed there.
 
-Fix pinctrl "sleep" nodename by renaming it to "suspend"
-for rk3399.dtsi
-
-make ARCH=arm64 dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/powerpc/sleep.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210126110221.10815-2-jbx6244@gmail.com
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Link: https://lore.kernel.org/r/20210506111136.3941-3-ezequiel@collabora.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/rk3188.dtsi | 8 ++++----
+ arch/arm/boot/dts/rk3288.dtsi | 4 ++--
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index 9d6ed8cda2c8..750dad0d1740 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -2317,7 +2317,7 @@ sdmmc_wp: sdmmc-wp {
- 			};
- 		};
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 10ede65d90f3..41de555df844 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -150,16 +150,16 @@ timer3: timer@2000e000 {
+ 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+ 		reg = <0x2000e000 0x20>;
+ 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&cru SCLK_TIMER3>, <&cru PCLK_TIMER3>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER3>, <&cru SCLK_TIMER3>;
++		clock-names = "pclk", "timer";
+ 	};
  
--		sleep {
-+		suspend {
- 			ap_pwroff: ap-pwroff {
- 				rockchip,pins = <1 RK_PA5 1 &pcfg_pull_none>;
- 			};
+ 	timer6: timer@200380a0 {
+ 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
+ 		reg = <0x200380a0 0x20>;
+ 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&cru SCLK_TIMER6>, <&cru PCLK_TIMER0>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER0>, <&cru SCLK_TIMER6>;
++		clock-names = "pclk", "timer";
+ 	};
+ 
+ 	i2s0: i2s@1011a000 {
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index a452d4ea3938..6f145b82780d 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -238,8 +238,8 @@ timer: timer@ff810000 {
+ 		compatible = "rockchip,rk3288-timer";
+ 		reg = <0x0 0xff810000 0x0 0x20>;
+ 		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
+-		clocks = <&xin24m>, <&cru PCLK_TIMER>;
+-		clock-names = "timer", "pclk";
++		clocks = <&cru PCLK_TIMER>, <&xin24m>;
++		clock-names = "pclk", "timer";
+ 	};
+ 
+ 	display-subsystem {
 -- 
 2.30.2
 
