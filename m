@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A02683C90B9
+	by mail.lfdr.de (Postfix) with ESMTP id F0CF63C90BA
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236986AbhGNT4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
+        id S237177AbhGNT4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:56:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238623AbhGNTvD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:51:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30BF7600D4;
-        Wed, 14 Jul 2021 19:48:11 +0000 (UTC)
+        id S233384AbhGNTvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:51:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36F21613F6;
+        Wed, 14 Jul 2021 19:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292091;
-        bh=4iyJmHIX7DMzBZng0NIVgAwDZxZPFo6127VKEYN3pkQ=;
+        s=k20201202; t=1626292093;
+        bh=n8HgM6WO45WIlTe1BG2AxxEVNh9IpZpYOvrLwQTKtSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UTxUQAEfBy4KFt0sn103IvBurOFJArrwBDZ0hGIV1FizvQnOTbEZ7XHPiW0ZB9R/r
-         VItlfVy9NgjCoU/yBu9Ne8FrGLhefV86TwH0XvX/hALOK0/PXDRduvpXhLp6f+TfXb
-         8KI4w1FgC8lXPisRMH0OWFVvZn1XoY0rBCjFp4xLJ6m+DheKnt9pmbG8NjNZlTtBs2
-         tXNTJvNYs2jfeSvl89HSImnDA839fe/SCvREh94Mhx7S/caCr1sRUjjbFroFEfxJs2
-         s/g17iGBXif02Rq282a2wh8au00C55rwFUwA1sJIFQdajUAzQ9K6y96x4BEngFcFfY
-         UwmDPMeEGbyUQ==
+        b=TJiy75/Ob1m+LejGIfMN52JiLnzSEbjgsySJ4rlAKDx7dTCzoM944G0atFdZfdDfS
+         jskAgvf3pCG8RD6DRZwG75dz0K2vhGaez2N+vXzUUGOkTDyq1tIzX45ZImsb4+XbYY
+         o+jFGXXAbiP1yF/8n6JgLE7IHLAdMFJiasuCLKWg0AZWj7Y9hfK59xuG+sl4fGEXyw
+         Jk8l8mUU8GvYNCdAIjINspk5FY9RJFtpSem3CFNUO+uPgltrkZ68bBSeZ91VW7Oq+G
+         3CMXFjZNLCWuQY96yex600PYNgFdOlXwbtGCneve0sWIPDVIzVobZ+ez3PHKYTx5IH
+         x56ePImgmWaAw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 03/18] reset: ti-syscon: fix to_ti_syscon_reset_data macro
-Date:   Wed, 14 Jul 2021 15:47:51 -0400
-Message-Id: <20210714194806.55962-3-sashal@kernel.org>
+Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 04/18] ARM: brcmstb: dts: fix NAND nodes names
+Date:   Wed, 14 Jul 2021 15:47:52 -0400
+Message-Id: <20210714194806.55962-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194806.55962-1-sashal@kernel.org>
 References: <20210714194806.55962-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -41,41 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Philipp Zabel <p.zabel@pengutronix.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 05cf8fffcdeb47aef1203c08cbec5224fd3a0e1c ]
+[ Upstream commit 9a800ce1aada6e0f56b78e4713f4858c8990c1f7 ]
 
-The to_ti_syscon_reset_data macro currently only works if the
-parameter passed into it is called 'rcdev'.
+This matches nand-controller.yaml requirements.
 
-Fixes a checkpatch --strict issue:
-
-  CHECK: Macro argument reuse 'rcdev' - possible side-effects?
-  #53: FILE: drivers/reset/reset-ti-syscon.c:53:
-  +#define to_ti_syscon_reset_data(rcdev)	\
-  +	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
-
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-ti-syscon.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/bcm7445-bcm97445svmb.dts | 4 ++--
+ arch/arm/boot/dts/bcm7445.dtsi             | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/reset/reset-ti-syscon.c b/drivers/reset/reset-ti-syscon.c
-index 1799fd423901..54ae04333d75 100644
---- a/drivers/reset/reset-ti-syscon.c
-+++ b/drivers/reset/reset-ti-syscon.c
-@@ -58,8 +58,8 @@ struct ti_syscon_reset_data {
- 	unsigned int nr_controls;
+diff --git a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+index 0bb8d17e4c2d..e51c9b079432 100644
+--- a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
++++ b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
+@@ -13,10 +13,10 @@ memory {
+ 	};
  };
  
--#define to_ti_syscon_reset_data(rcdev)	\
--	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
-+#define to_ti_syscon_reset_data(_rcdev)	\
-+	container_of(_rcdev, struct ti_syscon_reset_data, rcdev)
+-&nand {
++&nand_controller {
+ 	status = "okay";
  
- /**
-  * ti_syscon_reset_assert() - assert device reset
+-	nandcs@1 {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <1>;
+ 		nand-ecc-step-size = <512>;
+diff --git a/arch/arm/boot/dts/bcm7445.dtsi b/arch/arm/boot/dts/bcm7445.dtsi
+index 4791321969b3..3f002f2047f1 100644
+--- a/arch/arm/boot/dts/bcm7445.dtsi
++++ b/arch/arm/boot/dts/bcm7445.dtsi
+@@ -149,7 +149,7 @@ aon-ctrl@410000 {
+ 			reg-names = "aon-ctrl", "aon-sram";
+ 		};
+ 
+-		nand: nand@3e2800 {
++		nand_controller: nand-controller@3e2800 {
+ 			status = "disabled";
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.30.2
 
