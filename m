@@ -2,120 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9716B3C91D1
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F173C91D3
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235949AbhGNULc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236171AbhGNULc (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 16:11:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54516 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243074AbhGNUKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 16:10:22 -0400
-Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6707AC00571B
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 12:54:46 -0700 (PDT)
-Received: by mail-yb1-xb4a.google.com with SMTP id p63-20020a25d8420000b029055bc6fd5e5bso4249662ybg.9
-        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 12:54:46 -0700 (PDT)
+        with ESMTP id S243440AbhGNUKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 16:10:40 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9B7C0F26F7
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 12:55:32 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id b8-20020a17090a4888b02901725eedd346so2456103pjh.4
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 12:55:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=B2T/QoILMvWNJwGEC8KUZ3dRqSE7FSHo/f6R3sq7KQ0=;
-        b=XZsShrzrStmjVySs21Gzk2A2FMCDoAPRdGrEO2gWNOpRoYsuDg8nW1yTSHBtW/k5lr
-         qtwJsxcGpiaqdZLPzbgcwOuod9AVtpIpJ9JGbyVnZ7C85SNBdB7CRkXBY442pdSdx3Ji
-         VjTkW53yAnDvSJUGrSRXLw2zrOgNRXsMHn9lkeEl+tjAw9jAz/6DhNvgBEarrZybI8gr
-         bk8n1dUNlf9vKF27JWWt7aMSl7rZf3fZaVz2+7l/HMtvjCKTYIkGw/jQBryZQYpaAmSH
-         UKvID81ySSnv9WulZYDkG3dWXTWeQsexbhyMo3JKuIlM6nSuE4Mtgkh0icAlJ4k/OurB
-         9dXQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=W0lgouJE//UKb7ACTXe7P+p9fsBmDtQmyZ+Ehlz+sRk=;
+        b=SoUd43p95JWGJuIvuHM8mZQXpdK7XN+88VqZUX/gFhjRACFehQuZSmuMY8f5wXKui2
+         F6YrmMvlFHvVioU3iFY2+5Lcf3YdEx1VNYiJG/eGg4R0GTBnrNcCBiyIthFXVWkBORQu
+         AqkGeb99KCtz2YOwvVj6h1OkF2SQ6wvPb7pgoa8o1JFYji9s91WjPtxcEeQOw6MzcWp8
+         DlTZW6JLCEBFVThp08LJLt2hwgPA5lIYusy0jDsT1J04dEaHRznglpC4x+PJ5DQUGfOm
+         ZVaY3kzSP5Wi7lmn1wjdxGH6YP3TflP44Hd5z6YGL9UZAdzHVKkx15Gp6txL9QI0svaI
+         mAxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=B2T/QoILMvWNJwGEC8KUZ3dRqSE7FSHo/f6R3sq7KQ0=;
-        b=MoJW9Cby0OhNCfpLG2H7CNRP+kPwWkGYkInYvRKJFwxDgaWIUEfOjtmLPQxnkhP20J
-         C4DkMtacaAHus5jnT6c7l60Azkr/iUny5iSiT+8UPIT6Q4OavLtvbXQmgXVo3yRCa6qe
-         /uJeGgWbYAyHdeL88Vs/fMdVHpDqXPQ5ZptQJCYUvTVou6OSMvF3PwLAzvyIhxo5x22p
-         B9L/sUlpVr0YrikGUWIasgjp3N4SYSS/CAuDKmllIWFF+fbLNtI7ngv2QNPayRtdqeFm
-         cGpSXp2zn4evnbS5tC+ylf6DmTJqFui62fJ3axP8h/k3IdIWrwwIWLEwbr48BhN+Zdnb
-         1bnw==
-X-Gm-Message-State: AOAM531ymD1jVtUbQLp0Zo0WOhVcquu3LvL5R4eFVRRG1Z7A+f79lcnJ
-        ujXcmWbtCjr79JlDZL4hhteReew=
-X-Google-Smtp-Source: ABdhPJxHHuofGRrNpyWOKcdgFFhfd4tvNc6mNmwkGOkCIjfVdw6REnbEpqsPyP88Cl2HzCm8oQINk34=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2ce:200:a993:4290:ae1e:51db])
- (user=pcc job=sendgmr) by 2002:a25:2651:: with SMTP id m78mr15159674ybm.372.1626292485613;
- Wed, 14 Jul 2021 12:54:45 -0700 (PDT)
-Date:   Wed, 14 Jul 2021 12:54:37 -0700
-In-Reply-To: <20210714195437.118982-1-pcc@google.com>
-Message-Id: <20210714195437.118982-3-pcc@google.com>
-Mime-Version: 1.0
-References: <20210714195437.118982-1-pcc@google.com>
-X-Mailer: git-send-email 2.32.0.93.g670b81a890-goog
-Subject: [PATCH v5 2/2] selftest: use mmap instead of posix_memalign to
- allocate memory
-From:   Peter Collingbourne <pcc@google.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Dave Martin <Dave.Martin@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrea Arcangeli <aarcange@redhat.com>
-Cc:     Peter Collingbourne <pcc@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        William McVicker <willmcvicker@google.com>,
-        Evgenii Stepanov <eugenis@google.com>,
-        Mitch Phillips <mitchp@google.com>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        linux-mm@kvack.org, Andrey Konovalov <andreyknvl@gmail.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=W0lgouJE//UKb7ACTXe7P+p9fsBmDtQmyZ+Ehlz+sRk=;
+        b=DHG7Irp4CQG1Q7ygapI7p6Vx9c6HtlSJDEVoOMGXTVqH9/hHhFbjtr6ZlhqnnZU2co
+         onDFzrbTE0Tu0zwQHSnGRN5ScPt4RrtH80FL0Sp0ZGIPmFcNs20ikMOXYGhfbC6pOD3V
+         SwGOchpOpxa9UpyC3QiKZj5IPcIXYQWpC8RNd92901p1Tuc+V+YqyNuyY7mQKuCwLHIh
+         QLcddHlU5Ux8V4kpdywa/MFyAqcVVCprNL4EpVLyLFxgzIFLwPkPzwyER/hGLShs69eU
+         7M8u4YwBFt+t7Xga5hxOUcU3PxDHJgY5p0zHj+7h/+BiDsvN8Xb+jloMSjYGbupQGV/e
+         +5Vw==
+X-Gm-Message-State: AOAM533DLyhhmkuZVbcOZNDG38ey8rnH/yxZIoypJwnP9ksmcEbOGM19
+        bIn5/eIgX41VtQyo9Jsg6b73ni6ktFjXV4aC
+X-Google-Smtp-Source: ABdhPJwBj2FbnbGUG/m5DJoRBG8FrK7Ugt3nCPJKut7BW1EHHbHCTDXdOmXY7icWriVJuQVZ/j7kwA==
+X-Received: by 2002:a17:90b:fd1:: with SMTP id gd17mr7064127pjb.41.1626292532230;
+        Wed, 14 Jul 2021 12:55:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u33sm3813352pfg.3.2021.07.14.12.55.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Jul 2021 12:55:31 -0700 (PDT)
+Message-ID: <60ef4133.1c69fb81.e1ca1.b8fc@mx.google.com>
+Date:   Wed, 14 Jul 2021 12:55:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+X-Kernelci-Kernel: v5.4.131-349-g4bd89bb5de37
+Subject: stable-rc/queue/5.4 baseline: 174 runs,
+ 5 regressions (v5.4.131-349-g4bd89bb5de37)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This test passes pointers obtained from anon_allocate_area to the
-userfaultfd and mremap APIs. This causes a problem if the system
-allocator returns tagged pointers because with the tagged address ABI
-the kernel rejects tagged addresses passed to these APIs, which would
-end up causing the test to fail. To make this test compatible with
-such system allocators, stop using the system allocator to allocate
-memory in anon_allocate_area, and instead just use mmap.
+stable-rc/queue/5.4 baseline: 174 runs, 5 regressions (v5.4.131-349-g4bd89b=
+b5de37)
 
-Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: c47174fc362a ("userfaultfd: selftest")
-Cc: <stable@vger.kernel.org> # 5.4
-Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
----
-v5:
-- rebase to 5.14rc1
+Regressions Summary
+-------------------
 
-N.B. when backporting to stable branches, please use the v4 of
-this patch:
-https://lore.kernel.org/linux-mm/20210707184313.3697385-3-pcc@google.com/
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-8    | x86_64_defcon...6-=
+chromebook | 1          =
 
- tools/testing/selftests/vm/userfaultfd.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+meson-gxm-q200     | arm64  | lab-baylibre  | gcc-8    | defconfig         =
+           | 1          =
 
-diff --git a/tools/testing/selftests/vm/userfaultfd.c b/tools/testing/selftests/vm/userfaultfd.c
-index e363bdaff59d..2ea438e6b8b1 100644
---- a/tools/testing/selftests/vm/userfaultfd.c
-+++ b/tools/testing/selftests/vm/userfaultfd.c
-@@ -210,8 +210,10 @@ static void anon_release_pages(char *rel_area)
- 
- static void anon_allocate_area(void **alloc_area)
- {
--	if (posix_memalign(alloc_area, page_size, nr_pages * page_size))
--		err("posix_memalign() failed");
-+	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-+			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-+	if (*alloc_area == MAP_FAILED)
-+		err("mmap of anonymous memory failed");
- }
- 
- static void noop_alias_mapping(__u64 *start, size_t len, unsigned long offset)
--- 
-2.32.0.93.g670b81a890-goog
+rk3288-veyron-jaq  | arm    | lab-collabora | gcc-8    | multi_v7_defconfig=
+           | 3          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.131-349-g4bd89bb5de37/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.131-349-g4bd89bb5de37
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4bd89bb5de37feddc86f1d9ad6ea2e169785a068 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-8    | x86_64_defcon...6-=
+chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ef0ed27721b855f88a93a4
+
+  Results:     17 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-collabora=
+/baseline-hp-11A-G6-EE-grunt.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-collabora=
+/baseline-hp-11A-G6-EE-grunt.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60ef0ed27721b85=
+5f88a93a7
+        new failure (last pass: v5.4.131-349-g6063b14ea179)
+        1 lines
+
+    2021-07-14T16:20:21.785093  kern  :emerg : do_IRQ: 1.55 No irq handler =
+for vector   =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+meson-gxm-q200     | arm64  | lab-baylibre  | gcc-8    | defconfig         =
+           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ef141617ba0fcc678a93b5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ef141617ba0fcc678a9=
+3b6
+        new failure (last pass: v5.4.131-349-g6063b14ea179) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+rk3288-veyron-jaq  | arm    | lab-collabora | gcc-8    | multi_v7_defconfig=
+           | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ef12d6337510099e8a93a7
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.131-3=
+49-g4bd89bb5de37/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk3288=
+-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60ef12d6337510099e8a93bf
+        failing since 29 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-14T16:37:35.182819  /lava-4197029/1/../bin/lava-test-case<8>[  =
+ 15.166004] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Drockchip-iodomain-grf-prob=
+ed RESULT=3Dfail>
+    2021-07-14T16:37:35.183127  =
+
+    2021-07-14T16:37:35.183305  /lava-4197029/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60ef12d6337510099e8a93d7
+        failing since 29 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-14T16:37:33.759976  /lava-4197029/1/../bin/lava-test-case<8>[  =
+ 13.741657] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdio0-probe=
+d RESULT=3Dfail>
+    2021-07-14T16:37:33.760301  =
+
+    2021-07-14T16:37:33.760480  /lava-4197029/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60ef12d6337510099e8a93d8
+        failing since 29 days (last pass: v5.4.125-37-g7cda316475cf, first =
+fail: v5.4.125-84-g411d62eda127)
+
+    2021-07-14T16:37:32.722219  /lava-4197029/1/../bin/lava-test-case
+    2021-07-14T16:37:32.727705  <8>[   12.722049] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
