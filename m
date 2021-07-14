@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0163C8DA3
+	by mail.lfdr.de (Postfix) with ESMTP id D9FE73C8DA5
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236250AbhGNTpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38508 "EHLO mail.kernel.org"
+        id S236388AbhGNTpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235744AbhGNToq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236974AbhGNToq (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E57B613D7;
-        Wed, 14 Jul 2021 19:41:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CA9B613D0;
+        Wed, 14 Jul 2021 19:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291683;
-        bh=R0Iy83AXnoDTxq5mWPLNLkyKgTaVdgDvAA9n2tczZMU=;
+        s=k20201202; t=1626291685;
+        bh=2SMvNzDwbWYDA2QYXZSquSh2lGytU7Rk4zv4kAQMPOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ud2/iDzuU9FDRoJGJ//jBPHfyrLWbW5NCsg1uy0hPo0RaHlDQIjInzAJVcdGN62VG
-         HU5ai7Vm5KQ2gqftEJag8sMD1Auwl0UlRKMHaMokzurbH4NqI2BHVgILxvciDRxY0R
-         HZ7M/yc1aYGDvisoI0U6AIAq0/KpxjoxtO41YjrzxqyUEu32KzL3daaxI/QV/PFHHE
-         IvF6i9M42DQwengg0IqUjyBvXt0xshYB2biFweP8smBzJz5NW627sFDNFCA9ntwSp7
-         eWu1O8kABnQe5REyL1e7dCw/YOl0Y/vDaLjKbe1JAfPW9f9H0UMFQWJNqJkPJhR0qJ
-         zKaay1M3uXlyw==
+        b=RGKu3LG8uimAMBJ8A0Wu5dVWw4bUj6mBRrxlcT0yzcyGcclOIu0GFWD+nhmJSMNGu
+         WrpkjKQZy2KJOUzkNFY8IsuLY+6Ptl/WxPByNIyW1Kk+YzL8h7kgw1npfSGBqw5mHy
+         41WMfQO66/T3WUjI97cMUrjeAirROed3aam+cvC7XMF/EqHyIwnGuGZTWgaKAqYnuY
+         gtnQ0lo1gOxJfx0f0PVNJXrGkJMtykkO8dBgiI1kn1I0fmwQz8qi2qp33SZ1nVJrwY
+         N6GMro0j3ZUQud1/hPq75TeivfqM22eH78gvIZdzJQIP8yROYAKhVB2A4umaGcXQ0+
+         NGnxraJCDm/gw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 033/102] ARM: dts: ux500: Fix some compatible strings
-Date:   Wed, 14 Jul 2021 15:39:26 -0400
-Message-Id: <20210714194036.53141-33-sashal@kernel.org>
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        Andrew Lunn <andrew@lunn.ch>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 034/102] ARM: dts: imx6dl-riotboard: configure PHY clock and set proper EEE value
+Date:   Wed, 14 Jul 2021 15:39:27 -0400
+Message-Id: <20210714194036.53141-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -42,86 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 59ba546d1662c4beb738725965041f350afe24b4 ]
+[ Upstream commit 723de6a4126b2474a8106e943749e1554012dad6 ]
 
-The Golden and Skomer phones have BCM4334 WLAN+BT chips,
-so make the compatible strings reflect the new available
-bindings for these.
+Without SoC specific PHY fixups the network interface on this board will
+fail to work. Provide missing DT properties to make it work again.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-ux500-samsung-golden.dts | 3 ++-
- arch/arm/boot/dts/ste-ux500-samsung-janice.dts | 4 ++--
- arch/arm/boot/dts/ste-ux500-samsung-skomer.dts | 3 ++-
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/imx6dl-riotboard.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/ste-ux500-samsung-golden.dts b/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
-index 0d43ee6583cf..40df7c61bf69 100644
---- a/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
-+++ b/arch/arm/boot/dts/ste-ux500-samsung-golden.dts
-@@ -121,7 +121,7 @@ mmc@80118000 {
- 			#size-cells = <0>;
- 
- 			wifi@1 {
--				compatible = "brcm,bcm4329-fmac";
-+				compatible = "brcm,bcm4334-fmac", "brcm,bcm4329-fmac";
- 				reg = <1>;
- 
- 				/* GPIO216 (WLAN_HOST_WAKE) */
-@@ -162,6 +162,7 @@ uart@80120000 {
- 			pinctrl-1 = <&u0_a_1_sleep>;
- 
- 			bluetooth {
-+				/* BCM4334B0 actually */
- 				compatible = "brcm,bcm4330-bt";
- 				/* GPIO222 (BT_VREG_ON) */
- 				shutdown-gpios = <&gpio6 30 GPIO_ACTIVE_HIGH>;
-diff --git a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
-index 7411bfeda285..382f4af08a68 100644
---- a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
-+++ b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
-@@ -401,8 +401,7 @@ mmc@80118000 {
- 			status = "okay";
- 
- 			wifi@1 {
--				/* Actually BRCM4330 */
--				compatible = "brcm,bcm4329-fmac";
-+				compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
- 				reg = <1>;
- 				/* GPIO216 WL_HOST_WAKE */
- 				interrupt-parent = <&gpio6>;
-@@ -439,6 +438,7 @@ uart@80120000 {
- 			status = "okay";
- 
- 			bluetooth {
-+				/* BCM4330B1 actually */
- 				compatible = "brcm,bcm4330-bt";
- 				/*
- 				 * We actually have shutdown-gpios, BT_VREG_EN on GPIO222,
-diff --git a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
-index d28a00757d0b..94afd7a0fe1f 100644
---- a/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
-+++ b/arch/arm/boot/dts/ste-ux500-samsung-skomer.dts
-@@ -211,7 +211,7 @@ mmc@80118000 {
- 			#size-cells = <0>;
- 
- 			wifi@1 {
--				compatible = "brcm,bcm4329-fmac";
-+				compatible = "brcm,bcm4334-fmac", "brcm,bcm4329-fmac";
- 				reg = <1>;
- 				/* GPIO216 WL_HOST_WAKE */
- 				interrupt-parent = <&gpio6>;
-@@ -247,6 +247,7 @@ uart@80120000 {
- 
- 			/* FIXME: not quite working yet, probably needs regulators */
- 			bluetooth {
-+				/* BCM4334B0 actually */
- 				compatible = "brcm,bcm4330-bt";
- 				shutdown-gpios = <&gpio6 30 GPIO_ACTIVE_HIGH>;
- 				device-wakeup-gpios = <&gpio6 7 GPIO_ACTIVE_HIGH>;
+diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
+index 065d3ab0f50a..e7d9bfbfd0e4 100644
+--- a/arch/arm/boot/dts/imx6dl-riotboard.dts
++++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
+@@ -106,6 +106,8 @@ rgmii_phy: ethernet-phy@4 {
+ 			reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
+ 			reset-assert-us = <10000>;
+ 			reset-deassert-us = <1000>;
++			qca,smarteee-tw-us-1g = <24>;
++			qca,clk-out-frequency = <125000000>;
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
