@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 744BE3C8CEA
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 899A13C8D08
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235870AbhGNTnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:43:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
+        id S234666AbhGNTna (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229721AbhGNTmp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9795613D3;
-        Wed, 14 Jul 2021 19:39:51 +0000 (UTC)
+        id S235345AbhGNTmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:42:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A6E260FF2;
+        Wed, 14 Jul 2021 19:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291593;
-        bh=o/5BGkW9IfiS4kLnJ19sjvYH0Uk7ZMME1iMaVKhqcrE=;
+        s=k20201202; t=1626291594;
+        bh=7hmF5aU5Ljr+2rIxPSbrVHU+IPJG3+GGTORGvp4bE6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7C8UY/3NuI+nBE8GuhhM7i19vagsMbpJOMxe7qT8ShLE5MEcpTfBNYFnHz4aWxxc
-         R/AEWHvE/0Or5Q2vZ2OdvbTm0jZD3+ekf6W7Ns8uGfpwO3PQczAgYv/vgeEI8kb4/9
-         OmZaehXAQbEpJlb+xAsseAAFExvBa+xqSE/VQm7LoWgp2QOW8xL5IrHnP4vgrkCvWH
-         X+W+unCLnTTWtQYbhsqa15msjKJrgByS8WTNa2E5OYwcHUZtN785tAtrDZJO+FKbSk
-         1KkE36VfJe+1O5kd0hqnhcEnEIe6pkDDx5ugbbkIpLJDaUIRmyaOiyElpq6tLFe3xb
-         Q3hjxGGN1gF5Q==
+        b=nl3UB8xWZDzVlcXmmGK8jF0JfP02Etke9nRyKjqco/FZ+TtTDM3EOmc1PJGG0XWrK
+         /TUr8EzkwGt26zeqo7JIyN+7BtWODVmdvopwkxkQKM11LQm+iR4YKLT7yI0JnCIuWn
+         aBo3ZppMTI73Jf0KI39GaKN/Fm2y//UuUbKMDA7Sih/OubcIodL4lldUY4ptuMIAaV
+         AIO6biJpelAbnIZQMTu/cjsVbeohzcGGjjZj1aJ5gs6aVaUCk6dVQcx2ZsSgI/uW7r
+         M8Yy3pvInpBUJqzp0J3IlFRym8xDcG6hlaCa5nsLLQuhJYVzY5BqQke6LUjUaTh12v
+         qY0Lf2cMP/XFw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Marek Vasut <marex@denx.de>,
@@ -33,9 +33,9 @@ Cc:     Marek Vasut <marex@denx.de>,
         linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 077/108] ARM: dts: stm32: Rename eth@N to ethernet@N on DHCOM SoM
-Date:   Wed, 14 Jul 2021 15:37:29 -0400
-Message-Id: <20210714193800.52097-77-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 078/108] ARM: dts: stm32: Rename spi-flash/mx66l51235l@N to flash@N on DHCOM SoM
+Date:   Wed, 14 Jul 2021 15:37:30 -0400
+Message-Id: <20210714193800.52097-78-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -49,10 +49,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit b586250df24226f8a257e11e1f5953054c54fd35 ]
+[ Upstream commit 9b8a9b389d8464e1ca5a4e92c6a4422844ad4ef3 ]
 
 Fix the following dtbs_check warning:
-eth@1,0: $nodename:0: 'eth@1,0' does not match '^ethernet(@.*)?$'
+spi-flash@0: $nodename:0: 'spi-flash@0' does not match '^flash(@.*)?$'
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
@@ -65,21 +65,35 @@ Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
  arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-index 272a1a67a9ad..ae58f3b4d9d4 100644
+index ae58f3b4d9d4..260ef8965e08 100644
 --- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
 +++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
-@@ -144,7 +144,7 @@ &fmc {
- 	pinctrl-1 = <&fmc_sleep_pins_b>;
+@@ -431,7 +431,7 @@ &qspi {
+ 	#size-cells = <0>;
  	status = "okay";
  
--	ksz8851: ks8851mll@1,0 {
-+	ksz8851: ethernet@1,0 {
- 		compatible = "micrel,ks8851-mll";
- 		reg = <1 0x0 0x2>, <1 0x2 0x20000>;
- 		interrupt-parent = <&gpioc>;
+-	flash0: mx66l51235l@0 {
++	flash0: flash@0 {
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-rx-bus-width = <4>;
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
+index 013ae369791d..2b0ac605549d 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcor-som.dtsi
+@@ -198,7 +198,7 @@ &qspi {
+ 	#size-cells = <0>;
+ 	status = "okay";
+ 
+-	flash0: spi-flash@0 {
++	flash0: flash@0 {
+ 		compatible = "jedec,spi-nor";
+ 		reg = <0>;
+ 		spi-rx-bus-width = <4>;
 -- 
 2.30.2
 
