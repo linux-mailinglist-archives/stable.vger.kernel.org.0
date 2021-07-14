@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66DCC3C8DED
+	by mail.lfdr.de (Postfix) with ESMTP id 162403C8DEC
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237507AbhGNTqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38626 "EHLO mail.kernel.org"
+        id S237443AbhGNTqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:46:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234803AbhGNTp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:45:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F77A613E4;
-        Wed, 14 Jul 2021 19:41:54 +0000 (UTC)
+        id S234525AbhGNTp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:45:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3824B613E7;
+        Wed, 14 Jul 2021 19:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291715;
-        bh=PhYyfPruZeRVLfe/AeAxTw0IKQy3kLu0CfpfwVFh/0E=;
+        s=k20201202; t=1626291717;
+        bh=8GeQ5M75UeMZspnSxlJDRK/s5IqEBi4K7a3A1jfCdVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JuGLXRGf3zfllR+C/LohdrB8EfiSgUWH6k8FmWWrf2KaSG2TX9Hp9g3qD6u4Kxt62
-         QNakG2aGw7iz0Mit1cGPUXvw66vOlSjAQJ/7J6mM4Ko7dlJyaz+AciKS8b2wfcI8sP
-         CuP1O0vZBaFTDqwdrD8j4s1QxBo70dt90U9EEhkWz5STbhPN/pTv32spbIEF5TuAPL
-         wrsdyLucQCvZj2Rc9088YdutMlrgnozO8sL6QA3rigIvIIBcObljuv4EP0V+sUBnnN
-         xB1PiNwV47FwpD99U/8qbyN0eX2iEpVvdjRUPxkgYdtJk1J/yn4Dtxd8s1L85IXNzD
-         w4uMwRXIdVBZg==
+        b=PBAFdW+W5KGXhoIvs6gVwH+0hAiWUkbdOQc1LsaIZW35rYwkBF5BexnkoiQ7ueXXW
+         nqkEDyQznPyNcFfJm7MuqySKMrbgQLIi6IkAWFYAQWcAz6mzulhr/EVPfUHTWg7PSt
+         H2sEBkL1TsVmvkeZqU1U3M1i00Vzixgj12PpQi6dda6ZgAAlxqjcTnssibcwUl3OCl
+         iQslGKsiXQHLKleud/z07WYsgEa16Vu54O+Ae5cvjrtecn5T5W17pq+asUljIaF7g8
+         HPu7OteWRdY25JMK/RmFRRO3UG90up358lolkfsXeLnxW2oOo8YhwoWKNaxSbjoP7j
+         wwqXYPHtnJ/Zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
-        Patrice Chotard <patrice.chotard@st.com>,
-        Patrick Delaunay <patrick.delaunay@st.com>,
-        linux-stm32@st-md-mailman.stormreply.com,
+Cc:     Grzegorz Szymaszek <gszymaszek@short.pl>,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 056/102] ARM: dts: stm32: Fix touchscreen node on dhcom-pdk2
-Date:   Wed, 14 Jul 2021 15:39:49 -0400
-Message-Id: <20210714194036.53141-56-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 057/102] ARM: dts: stm32: fix stm32mp157c-odyssey card detect pin
+Date:   Wed, 14 Jul 2021 15:39:50 -0400
+Message-Id: <20210714194036.53141-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,40 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Grzegorz Szymaszek <gszymaszek@short.pl>
 
-[ Upstream commit 4b5fadef3fc2ab8863ffdf31eed6a745b1bf6e61 ]
+[ Upstream commit 0171b07373cc8c2815ca5fa79a7308fdefa54ca4 ]
 
-Fix make dtbs_check warning:
-arch/arm/boot/dts/stm32mp157c-dhcom-pdk2.dt.yaml:0:0: /soc/i2c@40015000/polytouch@38: failed to match any schema with compatible: ['edt,edt-ft5x06']
+The microSD card detect pin is physically connected to the MPU pin PI3.
+The Device Tree configuration of the card detect pin was wrong—it was
+set to pin PB7 instead. If such configuration was used, the kernel would
+hang on “Waiting for root device” when booting from a microSD card.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Cc: Patrice Chotard <patrice.chotard@st.com>
-Cc: Patrick Delaunay <patrick.delaunay@st.com>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Grzegorz Szymaszek <gszymaszek@short.pl>
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32mp157c-odyssey.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index 0fbf9913e8df..b8c8f0b284c3 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -182,8 +182,8 @@ sgtl5000_rx_endpoint: endpoint@1 {
- 
- 	};
- 
--	polytouch@38 {
--		compatible = "edt,edt-ft5x06";
-+	touchscreen@38 {
-+		compatible = "edt,edt-ft5406";
- 		reg = <0x38>;
- 		interrupt-parent = <&gpiog>;
- 		interrupts = <2 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
+diff --git a/arch/arm/boot/dts/stm32mp157c-odyssey.dts b/arch/arm/boot/dts/stm32mp157c-odyssey.dts
+index a7ffec8f1516..be1dd5e9e744 100644
+--- a/arch/arm/boot/dts/stm32mp157c-odyssey.dts
++++ b/arch/arm/boot/dts/stm32mp157c-odyssey.dts
+@@ -64,7 +64,7 @@ &sdmmc1 {
+ 	pinctrl-0 = <&sdmmc1_b4_pins_a>;
+ 	pinctrl-1 = <&sdmmc1_b4_od_pins_a>;
+ 	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a>;
+-	cd-gpios = <&gpiob 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
++	cd-gpios = <&gpioi 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+ 	disable-wp;
+ 	st,neg-edge;
+ 	bus-width = <4>;
 -- 
 2.30.2
 
