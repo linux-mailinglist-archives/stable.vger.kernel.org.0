@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 604413C8D82
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9A43C8D97
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236526AbhGNTo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:44:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38672 "EHLO mail.kernel.org"
+        id S236538AbhGNTpO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236630AbhGNToK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236645AbhGNToK (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99C3C613EB;
-        Wed, 14 Jul 2021 19:41:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC42613DC;
+        Wed, 14 Jul 2021 19:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291661;
-        bh=dumczC+bSItUFokwnf1JtchFKI5EZs3VRWdzdaiVhvA=;
+        s=k20201202; t=1626291662;
+        bh=MnkZqjfaEZebjtwblUsWzU5f/OOwRtIiyMkh/TTg7Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEN7WZc/VsjbuhjfsTTSGPOCy6HX8TKq49yWMUfZ/GiAToHjltAa9s8O2iRKhhcKc
-         lgkVWnEl9+KQcnuyz6yqOQENsbgYFao/Fg7GdITbBuUoMR23UiKLCjnDIOPDLcc7l6
-         vrknMBLKQy2XmggwsqqDJeIU7a937kX1RyWzNZF9/p5L4+PU3LkCiPyZ468v312jcd
-         0dttjlgL6bP2JGD4A3yiyUNOfbj7FkXsl3zNkjvehETsPnF5m6fA+tLKs7JjMhLk0d
-         hWPpv6N+6tLNZ/VqlbrGxsA18B+TueWpWg7JRK1GxeXSvXCdKP3stL2t5cdpj0nCu0
-         XTCM8tUPMCSMQ==
+        b=RtN41EkxOVaBgjvQM5xKQAs8pkUps6ktwkbJqb2Jg75nVcZ2GC5FSUm+2ngW0ttnA
+         SCzQV6O6u/lwAyklWCP5DohBRJ75p1ZRmQo8I+asWV2FJdLFugPXeECfktvxJ8ILkP
+         e6ixXic/ZcdGCwpnMjCmvSgQIqj8Bx3mURg2affVoYzuH+Kuhp/G3pXSXwMKmxsWVz
+         A2/6dw/2SD9TVU8FOgvY4wCEYgHaekinuDaOckifnXzOD5ypA+ehMGSxlFQB6BIE61
+         wBhu50MsgwKkOo7o6mhmK9WQnLFZ+tarmBy2FjlvyVcA7kIo+tOjRXEGyv/COGmjbD
+         7F1PVg2qh1nEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 017/102] ARM: brcmstb: dts: fix NAND nodes names
-Date:   Wed, 14 Jul 2021 15:39:10 -0400
-Message-Id: <20210714194036.53141-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 018/102] ARM: Cygnus: dts: fix NAND nodes names
+Date:   Wed, 14 Jul 2021 15:39:11 -0400
+Message-Id: <20210714194036.53141-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 9a800ce1aada6e0f56b78e4713f4858c8990c1f7 ]
+[ Upstream commit e256b48a3b07ee1ae4bfa60abbf509ba8e386862 ]
 
 This matches nand-controller.yaml requirements.
 
@@ -54,40 +54,70 @@ Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm7445-bcm97445svmb.dts | 4 ++--
- arch/arm/boot/dts/bcm7445.dtsi             | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm-cygnus.dtsi      | 2 +-
+ arch/arm/boot/dts/bcm911360_entphn.dts | 4 ++--
+ arch/arm/boot/dts/bcm958300k.dts       | 4 ++--
+ arch/arm/boot/dts/bcm958305k.dts       | 4 ++--
+ 4 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
-index 8313b7cad542..f92d2cf85972 100644
---- a/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
-+++ b/arch/arm/boot/dts/bcm7445-bcm97445svmb.dts
-@@ -14,10 +14,10 @@ memory@0 {
- 	};
+diff --git a/arch/arm/boot/dts/bcm-cygnus.dtsi b/arch/arm/boot/dts/bcm-cygnus.dtsi
+index 0025c88f660c..8ecb7861ce10 100644
+--- a/arch/arm/boot/dts/bcm-cygnus.dtsi
++++ b/arch/arm/boot/dts/bcm-cygnus.dtsi
+@@ -460,7 +460,7 @@ sdhci1: sdhci@18043000 {
+ 			status = "disabled";
+ 		};
+ 
+-		nand: nand@18046000 {
++		nand_controller: nand-controller@18046000 {
+ 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
+ 			reg = <0x18046000 0x600>, <0xf8105408 0x600>,
+ 			      <0x18046f00 0x20>;
+diff --git a/arch/arm/boot/dts/bcm911360_entphn.dts b/arch/arm/boot/dts/bcm911360_entphn.dts
+index b2d323f4a5ab..a76c74b44bba 100644
+--- a/arch/arm/boot/dts/bcm911360_entphn.dts
++++ b/arch/arm/boot/dts/bcm911360_entphn.dts
+@@ -82,8 +82,8 @@ &uart3 {
+ 	status = "okay";
  };
  
 -&nand {
-+&nand_controller {
- 	status = "okay";
- 
 -	nandcs@1 {
++&nand_controller {
 +	nand@1 {
  		compatible = "brcm,nandcs";
- 		reg = <1>;
- 		nand-ecc-step-size = <512>;
-diff --git a/arch/arm/boot/dts/bcm7445.dtsi b/arch/arm/boot/dts/bcm7445.dtsi
-index 58f67c9b830b..5ac2042515b8 100644
---- a/arch/arm/boot/dts/bcm7445.dtsi
-+++ b/arch/arm/boot/dts/bcm7445.dtsi
-@@ -148,7 +148,7 @@ aon-ctrl@410000 {
- 			reg-names = "aon-ctrl", "aon-sram";
- 		};
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958300k.dts b/arch/arm/boot/dts/bcm958300k.dts
+index b4a1392bd5a6..dda3e11b711f 100644
+--- a/arch/arm/boot/dts/bcm958300k.dts
++++ b/arch/arm/boot/dts/bcm958300k.dts
+@@ -60,8 +60,8 @@ &uart3 {
+ 	status = "okay";
+ };
  
--		nand: nand@3e2800 {
-+		nand_controller: nand-controller@3e2800 {
- 			status = "disabled";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+-&nand {
+-	nandcs@1 {
++&nand_controller {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
+diff --git a/arch/arm/boot/dts/bcm958305k.dts b/arch/arm/boot/dts/bcm958305k.dts
+index 3378683321d3..ea3c6b88b313 100644
+--- a/arch/arm/boot/dts/bcm958305k.dts
++++ b/arch/arm/boot/dts/bcm958305k.dts
+@@ -68,8 +68,8 @@ &uart3 {
+ 	status = "okay";
+ };
+ 
+-&nand {
+-	nandcs@1 {
++&nand_controller {
++	nand@1 {
+ 		compatible = "brcm,nandcs";
+ 		reg = <0>;
+ 		nand-on-flash-bbt;
 -- 
 2.30.2
 
