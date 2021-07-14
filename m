@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2EF3C9093
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC62E3C9092
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237699AbhGNTzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45102 "EHLO mail.kernel.org"
+        id S237255AbhGNTzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241252AbhGNTu2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241253AbhGNTu2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C667C613F4;
-        Wed, 14 Jul 2021 19:47:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42FDE613F7;
+        Wed, 14 Jul 2021 19:47:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292049;
-        bh=4tcDpdxrXw1XvD4LTfMK69Frzm4Uaw5FIxR/EHkUNKM=;
+        s=k20201202; t=1626292051;
+        bh=q+2vRJqt2FSElcn8LV2TzQt53MFf5QBddk+3QQKGOjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfJP44GpRy0DSysA0ji8xyA6EWqpoNlY7jex3wmtEIocvXG4eMF8qY39jzjxHuNjy
-         +Vx4QKxgIDoPabeJmAz8N/eM/shOlsS0MfCr432q//ipCCVqrFrQYmjM4PYmY5NFPE
-         b4TJmmv5vFyFVmDiNghdDicXnxWdPJ63QZ4cdIFSfvLrTu20HFPGfmz8RsfnX47x2k
-         D1xSLv0ZU6ghUVD9nFCjRdFZI7myKvYQT4brqdYxoNwZm1ulAIYG92FDKYd5DRrccA
-         iHq4AxKZ5HmDnNqwyFkqLa5BFTB+G7t7crjfVEg1JJgRiw6Ay/aFaK5gSsCS/Q4eK0
-         gtozR8m378dfA==
+        b=C0QB8Et9WdwCTjNBMw1CmbtIynGrmDd5BB5uJawYud4UVlaRlJFDtUVDItaZCPvB5
+         8BLWNIfvLO5/nZpGcXOZcu1Fbcn2FXq4bOCgKqkGbEaGXQdghAZc/a/90cgR9BCVgy
+         OJQjupPFsfx+BhgutKjPF5xAf6Eh2A21bVqCEuaKrHyjOKSZDFYf0PoG2UFs2pgNSd
+         gB8LovW0pg94f2SsTez1Iw6DVBeZkuJMFyEaBYrahBXiMwEVlCVRLLkKToZMjhUcwe
+         DWJN35wmAc0Im8Ki8YQ0LCptxGGfs7vHzU+LowM61wp8vIJT4MZ2EII0B3M5XX6uwS
+         j6+u4gkvwuE1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
+Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 04/28] ARM: dts: rockchip: Fix the timer clocks order
-Date:   Wed, 14 Jul 2021 15:46:59 -0400
-Message-Id: <20210714194723.55677-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 05/28] ARM: dts: rockchip: Fix power-controller node names for rk3288
+Date:   Wed, 14 Jul 2021 15:47:00 -0400
+Message-Id: <20210714194723.55677-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194723.55677-1-sashal@kernel.org>
 References: <20210714194723.55677-1-sashal@kernel.org>
@@ -44,63 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ezequiel Garcia <ezequiel@collabora.com>
+From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit 7b46d674ac000b101fdad92cf16cc11d90b72f86 ]
+[ Upstream commit 970cdc53cb1afa73602028c103dbfb6a230080be ]
 
-Fixed order is the device-tree convention.
-The timer driver currently gets clocks by name,
-so no changes are needed there.
+Use more generic names (as recommended in the device tree specification
+or the binding documentation)
 
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Link: https://lore.kernel.org/r/20210506111136.3941-3-ezequiel@collabora.com
+Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210417112952.8516-4-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 8 ++++----
- arch/arm/boot/dts/rk3288.dtsi | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 1399bc04ea77..74eb1dfa2f6c 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -110,16 +110,16 @@ timer3: timer@2000e000 {
- 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
- 		reg = <0x2000e000 0x20>;
- 		interrupts = <GIC_SPI 46 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&cru SCLK_TIMER3>, <&cru PCLK_TIMER3>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER3>, <&cru SCLK_TIMER3>;
-+		clock-names = "pclk", "timer";
- 	};
- 
- 	timer6: timer@200380a0 {
- 		compatible = "rockchip,rk3188-timer", "rockchip,rk3288-timer";
- 		reg = <0x200380a0 0x20>;
- 		interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&cru SCLK_TIMER6>, <&cru PCLK_TIMER0>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER0>, <&cru SCLK_TIMER6>;
-+		clock-names = "pclk", "timer";
- 	};
- 
- 	i2s0: i2s@1011a000 {
 diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 5dd37d09c1f1..8abf0990c691 100644
+index 8abf0990c691..9adb58930c08 100644
 --- a/arch/arm/boot/dts/rk3288.dtsi
 +++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -220,8 +220,8 @@ timer: timer@ff810000 {
- 		compatible = "rockchip,rk3288-timer";
- 		reg = <0x0 0xff810000 0x0 0x20>;
- 		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>;
--		clocks = <&xin24m>, <&cru PCLK_TIMER>;
--		clock-names = "timer", "pclk";
-+		clocks = <&cru PCLK_TIMER>, <&xin24m>;
-+		clock-names = "pclk", "timer";
- 	};
- 
- 	display-subsystem {
+@@ -745,7 +745,7 @@ power: power-controller {
+ 			 *	*_HDMI		HDMI
+ 			 *	*_MIPI_*	MIPI
+ 			 */
+-			pd_vio@RK3288_PD_VIO {
++			power-domain@RK3288_PD_VIO {
+ 				reg = <RK3288_PD_VIO>;
+ 				clocks = <&cru ACLK_IEP>,
+ 					 <&cru ACLK_ISP>,
+@@ -787,7 +787,7 @@ pd_vio@RK3288_PD_VIO {
+ 			 * Note: The following 3 are HEVC(H.265) clocks,
+ 			 * and on the ACLK_HEVC_NIU (NOC).
+ 			 */
+-			pd_hevc@RK3288_PD_HEVC {
++			power-domain@RK3288_PD_HEVC {
+ 				reg = <RK3288_PD_HEVC>;
+ 				clocks = <&cru ACLK_HEVC>,
+ 					 <&cru SCLK_HEVC_CABAC>,
+@@ -801,7 +801,7 @@ pd_hevc@RK3288_PD_HEVC {
+ 			 * (video endecoder & decoder) clocks that on the
+ 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
+ 			 */
+-			pd_video@RK3288_PD_VIDEO {
++			power-domain@RK3288_PD_VIDEO {
+ 				reg = <RK3288_PD_VIDEO>;
+ 				clocks = <&cru ACLK_VCODEC>,
+ 					 <&cru HCLK_VCODEC>;
+@@ -812,7 +812,7 @@ pd_video@RK3288_PD_VIDEO {
+ 			 * Note: ACLK_GPU is the GPU clock,
+ 			 * and on the ACLK_GPU_NIU (NOC).
+ 			 */
+-			pd_gpu@RK3288_PD_GPU {
++			power-domain@RK3288_PD_GPU {
+ 				reg = <RK3288_PD_GPU>;
+ 				clocks = <&cru ACLK_GPU>;
+ 				pm_qos = <&qos_gpu_r>,
 -- 
 2.30.2
 
