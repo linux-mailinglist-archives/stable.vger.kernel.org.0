@@ -2,100 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0C253C7F5A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:30:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDE663C7F9B
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:53:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238139AbhGNHdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 03:33:16 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:15010 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238289AbhGNHdQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 03:33:16 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4GPpwn6typzbcX5;
-        Wed, 14 Jul 2021 15:27:05 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Wed, 14 Jul 2021 15:30:22 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Wed, 14 Jul 2021 15:30:21 +0800
-Subject: Re: [PATCH 5.4 000/349] 5.4.132-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210712184735.997723427@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <35e1b5ce-eab0-5db7-0612-ce317fb4cf53@huawei.com>
-Date:   Wed, 14 Jul 2021 15:30:21 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S238287AbhGNHzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 03:55:51 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:41000 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238139AbhGNHzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 03:55:51 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 23B392058A;
+        Wed, 14 Jul 2021 07:52:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1626249179; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Ujqb/zEY2k9KvhKQHF6Csk8Ctg8A3CK/RhiEIwOGvQA=;
+        b=mflHGjHAofHGhgtGzeEs8vUR+3U3yHRYl6hwwZpM5P9l9DMXZpV2dPZGYR2MCBojyn/4Gi
+        iCX3TqfqM4EYUA15Vt/MUeHNN8f1GkQ1W4J14zMjbj9dE4JcqsLVR4n5T9T4xc7I+DPOXU
+        UA2rvnU5k18eBPSdS5sWMjgpof5fDkI=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 93688A3B85;
+        Wed, 14 Jul 2021 07:52:58 +0000 (UTC)
+Date:   Wed, 14 Jul 2021 09:52:58 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Hugh Dickins <hughd@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: 5.13.2-rc and others have many not for stable
+Message-ID: <YO6X2og4mzqAEwJn@dhcp22.suse.cz>
+References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
+ <YO0zXVX9Bx9QZCTs@kroah.com>
+ <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20210712184735.997723427@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/7/13 2:49, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.132 release.
-> There are 349 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue 13-07-21 18:28:13, Andrew Morton wrote:
+[...]
+> > Trying to keep a "do not apply" list for Fixes: tags only is much harder
+> > for both of us as we do these semi-manually and review them
+> > individually.  Trying to remember what subsystem only does Fixes tags
+> > yet really doesn't mean it is an impossible task.
 > 
-> Responses should be made by Wed, 14 Jul 2021 18:45:40 +0000.
-> Anything received after that time might be too late.
+> Well, it shouldn't be super hard to skip all patches which have Fixes:,
+> Signed-off-by:akpm and no cc:stable?
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.132-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
+> I'd really really prefer this, please.
+
+Yes please!
+
+> At present this -stable
+> promiscuity is overriding the (sometime carefully) considered decisions
+> of the MM developers, and that's a bit scary.
+
+Not only scary, it is also a waste of precious time of those who
+carefuly evaluate stable tree backports.
+
+> I've actually been
+> spending the past couple of years believing that if I left off
+> cc:stable, the fix wasn't going to go into -stable!
 > 
-> thanks,
-> 
-> greg k-h
-> 
+> Alternatively I could just invent a new tag to replace the "Fixes:"
+> ("Fixes-no-backport?") to be used on patches which fix a known previous
+> commit but which we don't want backported.
+ 
+Please no. We already do have a way to mark for stable trees. The fact
+that stable kernel maintainers tend oto ignore that shouldn't put the
+burden to developers/maintainers. But hey, if stable maintainers really
+want to push to quantity over quality then be it....
 
-Tested on arm64 and x86 for 5.4.132-rc2,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.132-rc2
-Commit: 22b22e7110f52e9b2458fcb1a31aafea2590025f
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+-- 
+Michal Hocko
+SUSE Labs
