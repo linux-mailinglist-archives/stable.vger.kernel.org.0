@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4853C8D15
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F4F3C8D21
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235650AbhGNTnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:43:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        id S231985AbhGNTnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235733AbhGNTnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CC4600D4;
-        Wed, 14 Jul 2021 19:40:12 +0000 (UTC)
+        id S235761AbhGNTnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41D5A613E4;
+        Wed, 14 Jul 2021 19:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291613;
-        bh=MhlHhY1agYYtzBqt09Hw4336F4Nu3+PK1eJjW4GESKE=;
+        s=k20201202; t=1626291615;
+        bh=VS0/Le/ItSlZUoCnxW7/1qeWmT4X2KmBRrxaW+zvDuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tl/YctwMAyhC+9NVnAQRZQvwxYwCcI3jLclXRFZW6asQ/+lM7IA62r49rauhskFDq
-         utDXuPtIVMnVA7uavtMyaoTtWUn00d8LCkPFCuwHaUHCsVAttK+MpXAJHXRKiqfmDF
-         KWpHsqUwPUVcAA8Zkj0vtikSJuGFAXOZy9BYS2nMc2BmbTvVJ2AN6cWAYFfMRqBFeR
-         +BRDg3OPeUSPap0IY209zmyCBCENuzJa7OVmdjZQeyWDSaWjzHIzOoeBbvArI3TX0Q
-         OX0SunTqdKUkg7l2i6Pt6XmRoVc1/WkdCelSHwzwU3OpVVwDZGobE6DYRTLH6Usj/N
-         I83ND6QtV+OLQ==
+        b=nIEIOjLByrAZ7RMmTqRCIZpTUeG7PMYmng3D0tZTh0Q+rHCAXpw5aAJDJvbSPPJmz
+         P+qPXlD24m7YIePkmcAYmPMshiTlyusSst0A4r7G3yM3PW+3Sze10GjiXs6zGF2u9J
+         bPSl7OqbDvZ+lLEINo0xjHD1EXZwIHvnD+xEHXGBhNWbZBZwQu3as6gzd3SdCRuvOE
+         sWqLjpn9czsKed6cG9WNqzGz2IpjmxzwqGC73+Ht63vjVMWEm4baMLD66Fb6LsFX+q
+         VIO3xuf4upzGw5LN6Z1tr/deAGIks6mDUpP98gdJZ60kyJFxeTHgFVDbiOgZL9pSwu
+         4IqPGv+MAMZXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 092/108] thermal/drivers/sprd: Add missing of_node_put for loop iteration
-Date:   Wed, 14 Jul 2021 15:37:44 -0400
-Message-Id: <20210714193800.52097-92-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 093/108] arm64: dts: qcom: sm8250: Fix pcie2_lane unit address
+Date:   Wed, 14 Jul 2021 15:37:45 -0400
+Message-Id: <20210714193800.52097-93-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -43,87 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit d8ac5bb4ae653e092d7429a7587b73f1662d6ad7 ]
+[ Upstream commit dc2f86369b157dfe4dccd31497d2e3c541e7239d ]
 
-Early exits from for_each_available_child_of_node() should decrement the
-node reference counter.  Reported by Coccinelle:
+The previous one was likely a mistaken copy from pcie1_lane.
 
-  drivers/thermal/sprd_thermal.c:387:1-23: WARNING:
-    Function "for_each_child_of_node" should have of_node_put() before goto around lines 391.
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Acked-by: Chunyan Zhang <zhang.lyra@gmail.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210614192230.19248-2-krzysztof.kozlowski@canonical.com
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210613185334.306225-1-konrad.dybcio@somainline.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/sprd_thermal.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/sprd_thermal.c b/drivers/thermal/sprd_thermal.c
-index 3682edb2f466..76a2caa9c265 100644
---- a/drivers/thermal/sprd_thermal.c
-+++ b/drivers/thermal/sprd_thermal.c
-@@ -388,7 +388,7 @@ static int sprd_thm_probe(struct platform_device *pdev)
- 		sen = devm_kzalloc(&pdev->dev, sizeof(*sen), GFP_KERNEL);
- 		if (!sen) {
- 			ret = -ENOMEM;
--			goto disable_clk;
-+			goto of_put;
- 		}
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 75f9476109e6..09b552396557 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1470,7 +1470,7 @@ pcie2_phy: phy@1c16000 {
  
- 		sen->data = thm;
-@@ -397,13 +397,13 @@ static int sprd_thm_probe(struct platform_device *pdev)
- 		ret = of_property_read_u32(sen_child, "reg", &sen->id);
- 		if (ret) {
- 			dev_err(&pdev->dev, "get sensor reg failed");
--			goto disable_clk;
-+			goto of_put;
- 		}
+ 			status = "disabled";
  
- 		ret = sprd_thm_sensor_calibration(sen_child, thm, sen);
- 		if (ret) {
- 			dev_err(&pdev->dev, "efuse cal analysis failed");
--			goto disable_clk;
-+			goto of_put;
- 		}
- 
- 		sprd_thm_sensor_init(thm, sen);
-@@ -416,19 +416,20 @@ static int sprd_thm_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev, "register thermal zone failed %d\n",
- 				sen->id);
- 			ret = PTR_ERR(sen->tzd);
--			goto disable_clk;
-+			goto of_put;
- 		}
- 
- 		thm->sensor[sen->id] = sen;
- 	}
-+	/* sen_child set to NULL at this point */
- 
- 	ret = sprd_thm_set_ready(thm);
- 	if (ret)
--		goto disable_clk;
-+		goto of_put;
- 
- 	ret = sprd_thm_wait_temp_ready(thm);
- 	if (ret)
--		goto disable_clk;
-+		goto of_put;
- 
- 	for (i = 0; i < thm->nr_sensors; i++)
- 		sprd_thm_toggle_sensor(thm->sensor[i], true);
-@@ -436,6 +437,8 @@ static int sprd_thm_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, thm);
- 	return 0;
- 
-+of_put:
-+	of_node_put(sen_child);
- disable_clk:
- 	clk_disable_unprepare(thm->clk);
- 	return ret;
+-			pcie2_lane: lanes@1c0e200 {
++			pcie2_lane: lanes@1c16200 {
+ 				reg = <0 0x1c16200 0 0x170>, /* tx0 */
+ 				      <0 0x1c16400 0 0x200>, /* rx0 */
+ 				      <0 0x1c16a00 0 0x1f0>, /* pcs */
 -- 
 2.30.2
 
