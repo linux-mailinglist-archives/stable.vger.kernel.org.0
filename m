@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0EEA3C8E39
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A8F3C8E3E
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:45:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237500AbhGNTq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S238019AbhGNTq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:46:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237545AbhGNTqG (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237546AbhGNTqG (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:46:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2AFF06140C;
-        Wed, 14 Jul 2021 19:42:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0B1E6044F;
+        Wed, 14 Jul 2021 19:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291749;
-        bh=D+Vn7BHciUU72abRGv2PgNL21V8jbuLfrDPCzZQpGEU=;
+        s=k20201202; t=1626291750;
+        bh=kDdWwWdF9mt7T0IkysEGMK0xHqQ/vBVzPEALDKOeDHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gyy5zYtjjqp+h3Duf1Gb6ulNQ7rdFz6ILTE3Rvc17UuLmwWxmxnxcCTz5obV/to/j
-         nwXKgJ7haoLaEgoc/gNdpuaEpvsbiqiDAifm/eprab8kHOkgv8BASK4pa6jBNP8Qla
-         pMvbVSb1Gk8+MZzxse/rh/ba7Hb3bKQ4AMud+pM8RWJI85j4/KS1Akgy9TiiiQOx6S
-         q2WQWjlS+quE2BboZHG/s3Rlk1c9jxms8yg2X6egmJVgfIPyS9TnHF8VOCq8svrQ9U
-         5Y7TzLSyLwvwPDyv4G6hQ1Fpu1iP2vgA4IcH1TWGx4wDRFkH1D2ICV4IQPYnDDjs1y
-         Enti/7KmNAnhw==
+        b=mX2Evak5ThKd+UcfihVRmTyEBkRbJx0hVjvq2qIz057wAhaVVdXQYcjSBT+whW+b6
+         w46q0ZdEkH0jJ/ivWxSn389xdV6gU3G1CsTeIysrnBy7ulrPh8BMPbOsya+YznBucP
+         hdm2sv07sEdwPYy+Ammtzddc+vJqAe42TjIZjwW9y4l12me8ELEB5NfPGnJZh/pq8G
+         akoCCJLBKTZy1FMAhD55Z3ED9+eyYxgjBNYRwc6I43o1wHUQrR8a1ScVSf7NRZh8+W
+         pAdqMXb6WzWyVA6EaDs9pVQawLTfee4SeN5nQwv2YXZNkAyigl7c8jRdR6VhxC+Itz
+         63JufL1U3Gr4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Punit Agrawal <punitagrawal@gmail.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 079/102] arm64: dts: rockchip: Update RK3399 PCI host bridge window to 32-bit address memory
-Date:   Wed, 14 Jul 2021 15:40:12 -0400
-Message-Id: <20210714194036.53141-79-sashal@kernel.org>
+Cc:     Mian Yousaf Kaukab <ykaukab@suse.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 080/102] arm64: dts: ls208xa: remove bus-num from dspi node
+Date:   Wed, 14 Jul 2021 15:40:13 -0400
+Message-Id: <20210714194036.53141-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -46,53 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Punit Agrawal <punitagrawal@gmail.com>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit 8efe01b4386ab38a36b99cfdc1dc02c38a8898c3 ]
+[ Upstream commit 8240c972c1798ea013cbb407722295fc826b3584 ]
 
-The PCIe host bridge on RK3399 advertises a single 64-bit memory
-address range even though it lies entirely below 4GB.
+On LS2088A-RDB board, if the spi-fsl-dspi driver is built as module
+then its probe fails with the following warning:
 
-Previously the OF PCI range parser treated 64-bit ranges more
-leniently (i.e., as 32-bit), but since commit 9d57e61bf723 ("of/pci:
-Add IORESOURCE_MEM_64 to resource flags for 64-bit memory addresses")
-the code takes a stricter view and treats the ranges as advertised in
-the device tree (i.e, as 64-bit).
+[   10.471363] couldn't get idr
+[   10.471381] WARNING: CPU: 4 PID: 488 at drivers/spi/spi.c:2689 spi_register_controller+0x73c/0x8d0
+...
+[   10.471651] fsl-dspi 2100000.spi: Problem registering DSPI ctlr
+[   10.471708] fsl-dspi: probe of 2100000.spi failed with error -16
 
-The change in behaviour causes failure when allocating bus addresses
-to devices connected behind a PCI-to-PCI bridge that require
-non-prefetchable memory ranges. The allocation failure was observed
-for certain Samsung NVMe drives connected to RockPro64 boards.
+Reason for the failure is that bus-num property is set for dspi node.
+However, bus-num property is not set for the qspi node. If probe for
+spi-fsl-qspi happens first then id 0 is dynamically allocated to it.
+Call to spi_register_controller() from spi-fsl-dspi driver then fails.
+Since commit 29d2daf2c33c ("spi: spi-fsl-dspi: Make bus-num property
+optional") bus-num property is optional. Remove bus-num property from
+dspi node to fix the issue.
 
-Update the host bridge window attributes to treat it as 32-bit address
-memory. This fixes the allocation failure observed since commit
-9d57e61bf723.
-
-Reported-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Link: https://lore.kernel.org/r/7a1e2ebc-f7d8-8431-d844-41a9c36a8911@arm.com
-Suggested-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Punit Agrawal <punitagrawal@gmail.com>
-Tested-by: Alexandru Elisei <alexandru.elisei@arm.com>
-Link: https://lore.kernel.org/r/20210607112856.3499682-5-punitagrawal@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399.dtsi b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-index b265cc1b558d..62846464a885 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399.dtsi
-@@ -230,7 +230,7 @@ pcie0: pcie@f8000000 {
- 		       <&pcie_phy 2>, <&pcie_phy 3>;
- 		phy-names = "pcie-phy-0", "pcie-phy-1",
- 			    "pcie-phy-2", "pcie-phy-3";
--		ranges = <0x83000000 0x0 0xfa000000 0x0 0xfa000000 0x0 0x1e00000>,
-+		ranges = <0x82000000 0x0 0xfa000000 0x0 0xfa000000 0x0 0x1e00000>,
- 			 <0x81000000 0x0 0xfbe00000 0x0 0xfbe00000 0x0 0x100000>;
- 		resets = <&cru SRST_PCIE_CORE>, <&cru SRST_PCIE_MGMT>,
- 			 <&cru SRST_PCIE_MGMT_STICKY>, <&cru SRST_PCIE_PIPE>,
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index 135ac8210871..801ba9612d36 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -929,7 +929,6 @@ dspi: spi@2100000 {
+ 					    QORIQ_CLK_PLL_DIV(4)>;
+ 			clock-names = "dspi";
+ 			spi-num-chipselects = <5>;
+-			bus-num = <0>;
+ 		};
+ 
+ 		esdhc: esdhc@2140000 {
 -- 
 2.30.2
 
