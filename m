@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1B93C8C97
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8173C8C8A
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:39:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233582AbhGNTmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:42:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S234749AbhGNTmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234258AbhGNTly (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:41:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AED7C61370;
-        Wed, 14 Jul 2021 19:39:00 +0000 (UTC)
+        id S234287AbhGNTlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03309613D9;
+        Wed, 14 Jul 2021 19:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291541;
-        bh=tkbnrYTRku90PmRyB2CpW7EvmcO8ivAcS/EzWo9+h1Q=;
+        s=k20201202; t=1626291542;
+        bh=61zfSRzG8fZ7cjyr30XK1KAYJ+D4Q/kZXSuqGCbjFjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZBMyxmHeB7e2v7TtM3TnucAi32aPKEpRTjMnPAm0prtjCPM7h22xAFb0rShL3God8
-         4FIWHFnKMyij7lHDej7IUlhSUfX+1g56chUoppqkxbrgE0C+uQE4/nuH+qpS2LA4R+
-         WqZ4Lu9lJhz007TwXbH8qth3ub+XnyIVJH2yJrmUpU5CbHMdC8PLqeRuU4m91TCRhr
-         xoi2SEPAWFFiEMhFh3GKkoe0C9rI2UtuVtqr7G9BGuZd2iShDtvsqZN+IBxMyHziAd
-         ZaMP4dKp3U5EpoQ9xrS/RZyWYrfVBJrfrL7NHY5fEQdKz8CQZw+HIvbgW7OLpvuWcT
-         Y4BZmDNREqvLQ==
+        b=dzbBf/WM0By+rCDG7p6nX8WjcqSCBJaKGwFJoN/U7leUuIbQ+2kPxu2FQnDZLWlXP
+         QO/wmWAjTZu14KJmt5t7TIEUYUHuWqFEfTGueXv1wFh76ggjEZLj6LDM2TSXq/mW4X
+         EJr/XX1balgFex0THeqDNhIERf9/0rsUH+wXERbty9kCJh1OqQLvMk+C5AOSpTNnOd
+         s7tK0q4gHTTvLEu8GM80Ym0omsEwgMlYoEC1xQZJD1aoB4NyF7IqGxsetU5f+glvVx
+         kIG/bA/DoYgOSdRfUnM95GBHbte2uhh0GfdW+5gMNCBA6e57ulk3YKhmPoUweM72Rv
+         TPOTaVeMHOvrg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
         devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 042/108] ARM: dts: omap3: align gpio hog names with dt-schema
-Date:   Wed, 14 Jul 2021 15:36:54 -0400
-Message-Id: <20210714193800.52097-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 043/108] ARM: dts: omap5-board-common: align gpio hog names with dt-schema
+Date:   Wed, 14 Jul 2021 15:36:55 -0400
+Message-Id: <20210714193800.52097-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -45,7 +45,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit cfb4ab3b5df86c6001127346d8331f5e87012f91 ]
+[ Upstream commit 4823117cb80eedf31ddbc126b9bd92e707bd9a26 ]
 
 The GPIO Hog dt-schema node naming convention expect GPIO hogs node names
 to end with a 'hog' suffix.
@@ -54,36 +54,22 @@ Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-evm-processor-common.dtsi | 2 +-
- arch/arm/boot/dts/omap3-gta04a5.dts               | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap3-evm-processor-common.dtsi b/arch/arm/boot/dts/omap3-evm-processor-common.dtsi
-index b4109f48ec18..e6ba30a21166 100644
---- a/arch/arm/boot/dts/omap3-evm-processor-common.dtsi
-+++ b/arch/arm/boot/dts/omap3-evm-processor-common.dtsi
-@@ -195,7 +195,7 @@ &uart3 {
-  * for bus switch SN74CB3Q3384A, level-shifter SN74AVC16T245DGGR, and 1.8V.
-  */
- &gpio2 {
--	en_usb2_port {
-+	en-usb2-port-hog {
- 		gpio-hog;
- 		gpios = <29 GPIO_ACTIVE_HIGH>;	/* gpio_61 */
- 		output-low;
-diff --git a/arch/arm/boot/dts/omap3-gta04a5.dts b/arch/arm/boot/dts/omap3-gta04a5.dts
-index fd84bbf3b9cc..9ce8d81250aa 100644
---- a/arch/arm/boot/dts/omap3-gta04a5.dts
-+++ b/arch/arm/boot/dts/omap3-gta04a5.dts
-@@ -37,7 +37,7 @@ pps {
- };
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index d8f13626cfd1..45435bb88c89 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -149,7 +149,7 @@ sound: sound {
  
- &gpio5 {
--	irda_en {
-+	irda-en-hog {
+ &gpio8 {
+ 	/* TI trees use GPIO instead of msecure, see also muxing */
+-	p234 {
++	msecure-hog {
  		gpio-hog;
- 		gpios = <(175-160) GPIO_ACTIVE_HIGH>;
- 		output-high;	/* activate gpio_175 to disable IrDA receiver */
+ 		gpios = <10 GPIO_ACTIVE_HIGH>;
+ 		output-high;
 -- 
 2.30.2
 
