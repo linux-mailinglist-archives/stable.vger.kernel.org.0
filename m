@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51BA03C9023
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA663C9024
 	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240106AbhGNTx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240125AbhGNTx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46236 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240954AbhGNTuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00AE4613EF;
-        Wed, 14 Jul 2021 19:46:22 +0000 (UTC)
+        id S240957AbhGNTuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8974613DD;
+        Wed, 14 Jul 2021 19:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291983;
-        bh=1hhfoDnLR//qSYDnY8xRYaUZegP8wJGVxsQXmHk7HfQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tAJDodS7HRcNz2vWl+5TIwPzw3PGiRmNiicFJoM6Q7jB4uI5RsrkPxNoNMLDg77zb
-         PrUPtH1eEJ+XPS0JGJXRIUMhRprYN2PiRDJ2ZveNJB4sXXacyDFh4/5qHFe6FxHcL3
-         jIuCNpLMTSLQrH6FEFPlnKr4UJxSb+p45XN7gN6X2hBoNJrXF+I0IvZNVXkH9YqAN4
-         o2cWoDeBS4P/+8hHJ5rFhGqskUCfYhWN2cJ24oLZlH4vU6RbK5gu8n3XjA0mvX3xNH
-         kJkjyjt0Vzg3jfanN/TP0iedXb5v4+JM3bsEUYZaWi8mixXjAGouGVLc+LpfTafGEB
-         bPXMm+vTn2/BQ==
+        s=k20201202; t=1626291987;
+        bh=ZcwUKOkhXKdWLeqDGC3PgNVbHduCINTJiLBaLTYNEuw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VFdi1F1qf+KoopzirWHqFCBIYIkBtciq9oc+W2+8Fc1Ko08w7ma+AWt10qn5lWu9c
+         O01ubOQ3zREG0bI6Hm+kqshq3HYz8Y/SeGlaeBUxU4ljyayKA4zJVmS1QC4Gs4/XUb
+         +uhXkUqnLd6GEd5OCFbfexUgp3XVIr4AvmX4KGDP429z9ErdYTdSj816abl+0k1Un9
+         gns/xy5Nq+4CebSPRJUHGqX4ydSLjKmRQ1xraBfpvpkWxPrUc693UrztRPbkGwStJz
+         9vgU1+0X/JeqRxQPkGPx0MugFJzpz5DM8CfsYgbdUhILOxSzCRGsCOlTsE5k/4HCJR
+         TloTjYqfjU9EQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paulo Alcantara <pc@cjr.nz>, Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
-        samba-technical@lists.samba.org
-Subject: [PATCH AUTOSEL 5.4 51/51] cifs: prevent NULL deref in cifs_compose_mount_options()
-Date:   Wed, 14 Jul 2021 15:45:13 -0400
-Message-Id: <20210714194513.54827-51-sashal@kernel.org>
+Cc:     Corentin Labbe <clabbe@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/39] ARM: dts: gemini: rename mdio to the right name
+Date:   Wed, 14 Jul 2021 15:45:46 -0400
+Message-Id: <20210714194625.55303-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210714194513.54827-1-sashal@kernel.org>
-References: <20210714194513.54827-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,35 +40,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 03313d1c3a2f086bb60920607ab79ac8f8578306 ]
+[ Upstream commit fc5b59b945b546e27977e99a5ca6fe61179ff0d2 ]
 
-The optional @ref parameter might contain an NULL node_name, so
-prevent dereferencing it in cifs_compose_mount_options().
+ethernet-phy is not the right name for mdio, fix it.
 
-Addresses-Coverity: 1476408 ("Explicit null dereferenced")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/cifs_dfs_ref.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm/boot/dts/gemini-dlink-dns-313.dts | 2 +-
+ arch/arm/boot/dts/gemini-nas4220b.dts      | 2 +-
+ arch/arm/boot/dts/gemini-rut1xx.dts        | 2 +-
+ arch/arm/boot/dts/gemini-wbd111.dts        | 2 +-
+ arch/arm/boot/dts/gemini-wbd222.dts        | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
-index cc3ada12848d..42125601ebb1 100644
---- a/fs/cifs/cifs_dfs_ref.c
-+++ b/fs/cifs/cifs_dfs_ref.c
-@@ -151,6 +151,9 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
- 		return ERR_PTR(-EINVAL);
+diff --git a/arch/arm/boot/dts/gemini-dlink-dns-313.dts b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+index 361dccd6c7ee..431c705a7b90 100644
+--- a/arch/arm/boot/dts/gemini-dlink-dns-313.dts
++++ b/arch/arm/boot/dts/gemini-dlink-dns-313.dts
+@@ -140,7 +140,7 @@ map1 {
+ 		};
+ 	};
  
- 	if (ref) {
-+		if (WARN_ON_ONCE(!ref->node_name || ref->path_consumed < 0))
-+			return ERR_PTR(-EINVAL);
-+
- 		if (strlen(fullpath) - ref->path_consumed) {
- 			prepath = fullpath + ref->path_consumed;
- 			/* skip initial delimiter */
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		/* Uses MDC and MDIO */
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+diff --git a/arch/arm/boot/dts/gemini-nas4220b.dts b/arch/arm/boot/dts/gemini-nas4220b.dts
+index 963ea890c87f..1c5f7f9e7be3 100644
+--- a/arch/arm/boot/dts/gemini-nas4220b.dts
++++ b/arch/arm/boot/dts/gemini-nas4220b.dts
+@@ -62,7 +62,7 @@ led-green-os {
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-rut1xx.dts b/arch/arm/boot/dts/gemini-rut1xx.dts
+index eb4f0bf074da..c067c3778f1d 100644
+--- a/arch/arm/boot/dts/gemini-rut1xx.dts
++++ b/arch/arm/boot/dts/gemini-rut1xx.dts
+@@ -56,7 +56,7 @@ led-power {
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-wbd111.dts b/arch/arm/boot/dts/gemini-wbd111.dts
+index 29af86cd10f7..52c10ec0dc72 100644
+--- a/arch/arm/boot/dts/gemini-wbd111.dts
++++ b/arch/arm/boot/dts/gemini-wbd111.dts
+@@ -68,7 +68,7 @@ led-greeb-l3 {
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
+diff --git a/arch/arm/boot/dts/gemini-wbd222.dts b/arch/arm/boot/dts/gemini-wbd222.dts
+index 24e6ae3616f7..73de5cfa01f8 100644
+--- a/arch/arm/boot/dts/gemini-wbd222.dts
++++ b/arch/arm/boot/dts/gemini-wbd222.dts
+@@ -67,7 +67,7 @@ led-green-l3 {
+ 		};
+ 	};
+ 
+-	mdio0: ethernet-phy {
++	mdio0: mdio {
+ 		compatible = "virtual,mdio-gpio";
+ 		gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>, /* MDC */
+ 			<&gpio0 21 GPIO_ACTIVE_HIGH>; /* MDIO */
 -- 
 2.30.2
 
