@@ -2,194 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B92D03C7FC1
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 10:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A2773C7FDA
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 10:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238408AbhGNIJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 04:09:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34446 "EHLO mail.kernel.org"
+        id S238469AbhGNIRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 04:17:55 -0400
+Received: from ofcsgdbm.dwd.de ([141.38.3.245]:36291 "EHLO ofcsgdbm.dwd.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238385AbhGNIJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 04:09:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58FA3613AF;
-        Wed, 14 Jul 2021 08:06:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626250008;
-        bh=Ya3u94eMIcTHm5PPl4FfDKsZbgE5F56Nv1jfp2qsi8Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DXxuwXaLwhI9n2rtysmsiXshuTT4jZIfwP4LrA8Ah/69Pg8rJrWjavP4kfhSitSjV
-         RwBrWYuFqveLqZQ3dL49cWAfoX8Q9wVcpifnpnhN1lf6+yPStO6CfSONrSpRpbg2bI
-         4r5TvL3Ys2wrVVg3WbxJZjN4bMtidPRa5jBwpbNwtWHEDan78BlHil4rrffWNwzZWt
-         PhJZwdhW8wG2EhN84fi82OMR9PfwxVlnbYuDmYU37SdVhZTYOcVUsBSscWjyDJqldW
-         nkuXzshcT6Np4Te4lpzrtBpl0GWHc5gaxfP8YKrXwrWwM3UxsRxDRbwW9Pmg14o6yK
-         9iyVHMskpfQOw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1m3ZuX-0007LK-KG; Wed, 14 Jul 2021 10:06:30 +0200
-From:   Johan Hovold <johan@kernel.org>
+        id S229940AbhGNIRz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 04:17:55 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by ofcsg2dn4.dwd.de (Postfix) with ESMTP id 4GPr070SHNz3wDm
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 08:15:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dwd.de; h=
+        content-type:content-type:mime-version:references:message-id
+        :in-reply-to:subject:subject:from:from:date:date:received
+        :received:received:received:received:received:received:received;
+         s=dwd-csg20210107; t=1626250502; x=1627460103; bh=e5pnm72OJF8lq
+        bUh1JoO9W40SSc2JAzCwfBIeXGRxU4=; b=h+f3LQOGRaP+lwOT30gFzAQoB1GUB
+        Pom3WQNh2k+wGayVMje89gNyVQriqKnXa+EOzA34BwlTZerLzREwxkXzB9BwLjHP
+        lHGaY1a97RB8hWslccGLhBUdwDEYHJyzXEHM3AgdnE1ln3vIWrDF9GqtBXQwnNFw
+        dUu2bDS2n+74Xv2P633n8yGU4opMPafqsSDilW4OqDzrMBe3DYe6V0KlU7P5oHr0
+        0XzkcRv/5Uarwc2p/8jyYvUfkV3meV4yF8w/CFkDPVAs/ifI2MlF/L8Ujnp5nLKV
+        cE3OZU9I5ujKQZ7HFHqzNlKr0/z03DiTHs9K3+q/I/EZ6IKaduI6aWCJg==
+X-Virus-Scanned: by amavisd-new at csg.dwd.de
+Received: from ofcsg2ctev2.dwd.de ([172.30.232.68])
+        by localhost (ofcsg2dn4.dwd.de [172.30.232.27]) (amavisd-new, port 10024)
+        with ESMTP id pgD1kr2XRIQ3 for <stable@vger.kernel.org>;
+        Wed, 14 Jul 2021 08:15:02 +0000 (UTC)
+Received: from ofcsg2ctev2.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 870D55E3C80
+        for <root@ofcsg2dn4.dwd.de>; Wed, 14 Jul 2021 08:15:01 +0000 (UTC)
+Received: from ofcsg2ctev2.dwd.de (unknown [127.0.0.1])
+        by DDEI (Postfix) with ESMTP id 79CED5E3C74
+        for <root@ofcsg2dn4.dwd.de>; Wed, 14 Jul 2021 08:15:01 +0000 (UTC)
+X-DDEI-TLS-USAGE: Unused
+Received: from ofcsgdbm.dwd.de (unknown [172.30.232.27])
+        by ofcsg2ctev2.dwd.de (Postfix) with ESMTP
+        for <root@ofcsg2dn4.dwd.de>; Wed, 14 Jul 2021 08:15:01 +0000 (UTC)
+Received: from ofcsgdbm.dwd.de by localhost (Postfix XFORWARD proxy);
+ Wed, 14 Jul 2021 08:15:02 -0000
+Received: from ofcsg2dvf2.dwd.de (ofcsg2dvf2.dwd.de [172.30.232.11])
+        by ofcsg2dn4.dwd.de (Postfix) with ESMTPS id 4GPr065Nx3z3wTw;
+        Wed, 14 Jul 2021 08:15:02 +0000 (UTC)
+Received: from ofmailhub.dwd.de (ofldap.dwd.de [141.38.39.196])
+        by ofcsg2dvf2.dwd.de  with ESMTP id 16E8F2Gh015635-16E8F2Gi015635;
+        Wed, 14 Jul 2021 08:15:02 GMT
+Received: from praktifix.dwd.de (praktifix.dwd.de [141.38.44.46])
+        by ofmailhub.dwd.de (Postfix) with ESMTP id 21608E2BEC;
+        Wed, 14 Jul 2021 08:15:02 +0000 (UTC)
+Date:   Wed, 14 Jul 2021 08:15:02 +0000 (GMT)
+From:   Holger Kiehl <Holger.Kiehl@dwd.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
-        Andrew Jeffery <andrew@aj.id.au>
-Subject: [PATCH] serial: 8250: fix handle_irq locking
-Date:   Wed, 14 Jul 2021 10:04:27 +0200
-Message-Id: <20210714080427.28164-1-johan@kernel.org>
-X-Mailer: git-send-email 2.31.1
+cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
+In-Reply-To: <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
+Message-ID: <20653f1-deaa-6fac-1f8-19319e87623a@praktifix.dwd.de>
+References: <20210712060912.995381202@linuxfoundation.org> <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de> <YO56HTE3k95JLeje@kroah.com> <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+X-FE-Policy-ID: 2:2:1:SYSTEM
+X-TMASE-Version: DDEI-5.1-8.6.1018-26280.006
+X-TMASE-Result: 10--21.179100-10.000000
+X-TMASE-MatchedRID: PL66URbwWA+WfDtBOz4q28bYuTb6+cQg69aS+7/zbj/mNRhvDVinv2Kp
+        MJoimBcbPsj5qjS+dCEYwvDSTCG2BJQlTsRs6bL83nHtGkYl/VpF/jSlPtma/r0/f33kf9Gljn9
+        2T7igP2sXndhpsXecxygywW45LfL0yFuWu3nxO+19j6Il8VAHF8ZU3kmz9C/H3pxmYneHU6t/cL
+        JHsj+DkZhk/6bphJLMKISk8WdGcXCHbsX/GOLqdgPZZctd3P4BuqgVqRoQsiB7lDzh8Z+EhhBmt
+        oCUanEvwgx24xjlvojzX5siSEObomsc2OVQ/NyCfid4LSHtIANuWkE39mLwR2zpNYa+Tlcne/cQ
+        kmt0G7GVIsnYOY5w/uF45apSJW4bV6HcTxi1U3IqkSeDPauzryIk3dpe5X+hy5JfHvVu9It4yU/
+        xJmlyD5xLNR1DtMjuAbnTY7qqRyLvcjreWe4HbPbta0OAYFzy+wLfgJ/bqPM8sS0dkmSGjDzprL
+        002Ijx4vM1YF6AJbY65tgsJWcFUd934/rDAK3zGjFMngtLLWhJFQD69E10vA==
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-12:0,22:0,33:0,34:0-0
+X-TMASE-INERTIA: 0-0;;;;
+X-DDEI-PROCESSED-RESULT: Safe
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 8250 handle_irq callback is not just called from the interrupt
-handler but also from a timer callback when polling (e.g. for ports
-without an interrupt line). Consequently the callback must explicitly
-disable interrupts to avoid a potential deadlock with another interrupt
-in polled mode.
 
-Add back an irqrestore-version of the sysrq port-unlock helper and use
-it in the 8250 callbacks that need it.
 
-Fixes: 75f4e830fa9c ("serial: do not restore interrupt state in sysrq helper")
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Cc: stable@vger.kernel.org	# 5.13
-Cc: Joel Stanley <joel@jms.id.au>
-Cc: Andrew Jeffery <andrew@aj.id.au>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/tty/serial/8250/8250_aspeed_vuart.c |  5 +++--
- drivers/tty/serial/8250/8250_fsl.c          |  5 +++--
- drivers/tty/serial/8250/8250_port.c         |  5 +++--
- include/linux/serial_core.h                 | 24 +++++++++++++++++++++
- 4 files changed, 33 insertions(+), 6 deletions(-)
+On Wed, 14 Jul 2021, Holger Kiehl wrote:
 
-diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-index 4caab8714e2c..2350fb3bb5e4 100644
---- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
-+++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
-@@ -329,6 +329,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
- {
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	unsigned int iir, lsr;
-+	unsigned long flags;
- 	unsigned int space, count;
- 
- 	iir = serial_port_in(port, UART_IIR);
-@@ -336,7 +337,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
- 	if (iir & UART_IIR_NO_INT)
- 		return 0;
- 
--	spin_lock(&port->lock);
-+	spin_lock_irqsave(&port->lock, flags);
- 
- 	lsr = serial_port_in(port, UART_LSR);
- 
-@@ -370,7 +371,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
- 	if (lsr & UART_LSR_THRE)
- 		serial8250_tx_chars(up);
- 
--	uart_unlock_and_check_sysrq(port);
-+	uart_unlock_and_check_sysrq_irqrestore(port, flags);
- 
- 	return 1;
- }
-diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
-index 4e75d2e4f87c..fc65a2293ce9 100644
---- a/drivers/tty/serial/8250/8250_fsl.c
-+++ b/drivers/tty/serial/8250/8250_fsl.c
-@@ -30,10 +30,11 @@ struct fsl8250_data {
- int fsl8250_handle_irq(struct uart_port *port)
- {
- 	unsigned char lsr, orig_lsr;
-+	unsigned long flags;
- 	unsigned int iir;
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 
--	spin_lock(&up->port.lock);
-+	spin_lock_irqsave(&up->port.lock, flags);
- 
- 	iir = port->serial_in(port, UART_IIR);
- 	if (iir & UART_IIR_NO_INT) {
-@@ -82,7 +83,7 @@ int fsl8250_handle_irq(struct uart_port *port)
- 
- 	up->lsr_saved_flags = orig_lsr;
- 
--	uart_unlock_and_check_sysrq(&up->port);
-+	uart_unlock_and_check_sysrq_irqrestore(&up->port, flags);
- 
- 	return 1;
- }
-diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
-index 2164290cbd31..d65778c4e4ca 100644
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -1893,11 +1893,12 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 	unsigned char status;
- 	struct uart_8250_port *up = up_to_u8250p(port);
- 	bool skip_rx = false;
-+	unsigned long flags;
- 
- 	if (iir & UART_IIR_NO_INT)
- 		return 0;
- 
--	spin_lock(&port->lock);
-+	spin_lock_irqsave(&port->lock, flags);
- 
- 	status = serial_port_in(port, UART_LSR);
- 
-@@ -1923,7 +1924,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
- 		(up->ier & UART_IER_THRI))
- 		serial8250_tx_chars(up);
- 
--	uart_unlock_and_check_sysrq(port);
-+	uart_unlock_and_check_sysrq_irqrestore(port, flags);
- 
- 	return 1;
- }
-diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 52d7fb92a69d..c58cc142d23f 100644
---- a/include/linux/serial_core.h
-+++ b/include/linux/serial_core.h
-@@ -518,6 +518,25 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
- 	if (sysrq_ch)
- 		handle_sysrq(sysrq_ch);
- }
-+
-+static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
-+		unsigned long flags)
-+{
-+	int sysrq_ch;
-+
-+	if (!port->has_sysrq) {
-+		spin_unlock_irqrestore(&port->lock, flags);
-+		return;
-+	}
-+
-+	sysrq_ch = port->sysrq_ch;
-+	port->sysrq_ch = 0;
-+
-+	spin_unlock_irqrestore(&port->lock, flags);
-+
-+	if (sysrq_ch)
-+		handle_sysrq(sysrq_ch);
-+}
- #else	/* CONFIG_MAGIC_SYSRQ_SERIAL */
- static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
- {
-@@ -531,6 +550,11 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
- {
- 	spin_unlock(&port->lock);
- }
-+static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
-+		unsigned long flags)
-+{
-+	spin_unlock_irqrestore(&port->lock, flags);
-+}
- #endif	/* CONFIG_MAGIC_SYSRQ_SERIAL */
- 
- /*
--- 
-2.31.1
+> On Wed, 14 Jul 2021, Greg Kroah-Hartman wrote:
+> 
+> > On Wed, Jul 14, 2021 at 05:39:43AM +0000, Holger Kiehl wrote:
+> > > Hello,
+> > > 
+> > > On Mon, 12 Jul 2021, Greg Kroah-Hartman wrote:
+> > > 
+> > > > This is the start of the stable review cycle for the 5.13.2 release.
+> > > > There are 800 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > > 
+> > > > Responses should be made by Wed, 14 Jul 2021 06:02:46 +0000.
+> > > > Anything received after that time might be too late.
+> > > > 
+> > > With this my system no longer boots:
+> > > 
+> > >    [  OK  ] Reached target Swap.
+> > >    [   75.213852] NMI watchdog: Watchdog detected hard LOCKUP on cpu 0
+> > >    [   75.213926] NMI watchdog: Watchdog detected hard LOCKUP on cpu 2
+> > >    [   75.213962] NMI watchdog: Watchdog detected hard LOCKUP on cpu 4
+> > >    [FAILED] Failed to start Wait for udev To Complete Device Initialization.
+> > >    See 'systemctl status systemd-udev-settle.service' for details.
+> > >             Starting Activation of DM RAID sets...
+> > >    [      ] (1 of 2) A start job is running for Activation of DM RAID sets (..min ..s / no limit)
+> > >    [      ] (2 of 2) A start job is running for Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling (..min ..s / no limit)
+> > > 
+> > > System is a Fedora 34 with all updates applied. Two other similar
+> > > systems with AMD CPUs (Ryzen 4750G + 3400G) this does not happen
+> > > and boots fine. The system where it does not boot has an Intel
+> > > Xeon E3-1285L v4 CPU. All of them use a dm_crypt root filesystem.
+> > > 
+> > > Any idea which patch I should drop to see if it boots again. I already
+> > > dropped
+> > > 
+> > >    [PATCH 5.13 743/800] ASoC: Intel: sof_sdw: add quirk support for Brya and BT-offload
+> > > 
+> > > and I just see that this one should also be dropped:
+> > > 
+> > >    [PATCH 5.13 768/800] hugetlb: address ref count racing in prep_compound_gigantic_page
+> > > 
+> > > Will still need to test this.
+> > 
+> > Can you run 'git bisect' to see what commit causes the problem?
+> > 
+> Yes, will try to do that. I think it will take some time ...
+> 
+Hmm, I am doing something wrong?
 
+   git clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+   cd linux-5.13.y/
+   git tag|grep v5.13
+   v5.13
+   v5.13-rc1
+   v5.13-rc2
+   v5.13-rc3
+   v5.13-rc4
+   v5.13-rc5
+   v5.13-rc6
+   v5.13-rc7
+   v5.13.1
+
+There is no v5.13.2-rc1. It is my first time with 'git bisect'. Must be
+doing something wrong. How can I get the correct git kernel rc version?
+
+Holger
