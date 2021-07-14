@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FD3C3C905A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73BD3C9064
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241480AbhGNTyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:54:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
+        id S241530AbhGNTyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:54:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241143AbhGNTuZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241144AbhGNTuZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC1E613E8;
-        Wed, 14 Jul 2021 19:46:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9091613D7;
+        Wed, 14 Jul 2021 19:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292019;
-        bh=RyKWKS9Wn2UL5CUQ2su9ScOsEpfbJY4hls2l6JX+pew=;
+        s=k20201202; t=1626292020;
+        bh=8fQUw86KNq46gh5I/Et62421OVcUUiXTX4iD5RAVWdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/+tzp69qYD4/ly3AOyz8xeUhKH/cCGW07fIzQUC/99hX+wHJT/zPLnXlEfmHcEA3
-         iDqIjA76Iyg0NtG9fGK8RwHsfdanniiT45MB7ygDynpDoeNtcribXoqJQTgGCFd2u/
-         Krhu3oOSr3epjVXBI5u2LXGemfrjPgg3fpGz3X82xxdIHxkzzN1M0gh0fHvACtSXxC
-         vUSV8dlOqjLlMwZswgi1kUkLgdPjxvz8zeDRpbhUVa4TklePvMb1MgwMeoTAZJE3GF
-         zA/FXn1jzSZF1CeFlMiNjXFXghcq0tMjjU95CqPgP1IlOJ3KmSzMM5wA5mZQxDNdFE
-         KDSKSKUjfMdXg==
+        b=CYgigLQBVajMy0e7WLIkRF6RBZI8oUdUDVVCQLy7QPVNMZ9hwzPNFhn/ykR4ASieR
+         wsTNRR9pvdef8YsBjHr06qRodjkClMdPZ25SLiQQIY5cZydAvLa1nJ1vALhK2C4qBo
+         1K5PrMZl4oqVj3SFKw06zmtrt8FTUrRX31mqNi6gZeE7jp3aT++1cfYotHnaVOwvNH
+         sUueLtF6Jh8LHVl/qt5ZGW1YB4teNcNMmcsSzhZZIJjtc9RQ4KBdGP+6eSCUxhsez9
+         ss8bWWOfWf4c8TdXYJpt1VTe//0SqquY7dOanBTraEmSIHt2r2Ei4TyfG9Ce/Dn92y
+         QTby0heDzZx8Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-stm32@st-md-mailman.stormreply.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 23/39] ARM: dts: stm32: fix gpio-keys node on STM32 MCU boards
-Date:   Wed, 14 Jul 2021 15:46:08 -0400
-Message-Id: <20210714194625.55303-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/39] ARM: dts: stm32: fix RCC node name on stm32f429 MCU
+Date:   Wed, 14 Jul 2021 15:46:09 -0400
+Message-Id: <20210714194625.55303-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
@@ -45,125 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexandre Torgue <alexandre.torgue@foss.st.com>
 
-[ Upstream commit bf24b91f4baf7e421c770a1d9c7d381b10206ac9 ]
+[ Upstream commit e4b948415a89a219d13e454011cdcf9e63ecc529 ]
 
-Fix following warning observed with "make dtbs_check W=1" command.
-It concerns f429 eval and disco boards, f769 disco board.
+This prevent warning observed with "make dtbs_check W=1"
 
-Warning (unit_address_vs_reg): /gpio_keys/button@0: node has a unit name,
-but no reg or ranges property
+Warning (simple_bus_reg): /soc/rcc@40023810: simple-bus unit address format
+error, expected "40023800"
 
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32429i-eval.dts  | 8 +++-----
- arch/arm/boot/dts/stm32746g-eval.dts  | 6 ++----
- arch/arm/boot/dts/stm32f429-disco.dts | 6 ++----
- arch/arm/boot/dts/stm32f469-disco.dts | 6 ++----
- arch/arm/boot/dts/stm32f769-disco.dts | 6 ++----
- 5 files changed, 11 insertions(+), 21 deletions(-)
+ arch/arm/boot/dts/stm32f429.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32429i-eval.dts b/arch/arm/boot/dts/stm32429i-eval.dts
-index 7eb786a2d624..f5429e495024 100644
---- a/arch/arm/boot/dts/stm32429i-eval.dts
-+++ b/arch/arm/boot/dts/stm32429i-eval.dts
-@@ -111,17 +111,15 @@ blue {
+diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
+index e35d782e7e5f..b16bf00977d5 100644
+--- a/arch/arm/boot/dts/stm32f429.dtsi
++++ b/arch/arm/boot/dts/stm32f429.dtsi
+@@ -609,7 +609,7 @@ crc: crc@40023000 {
+ 			status = "disabled";
  		};
- 	};
  
--	gpio_keys {
-+	gpio-keys {
- 		compatible = "gpio-keys";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		autorepeat;
--		button@0 {
-+		button-0 {
- 			label = "Wake up";
- 			linux,code = <KEY_WAKEUP>;
- 			gpios = <&gpioa 0 0>;
- 		};
--		button@1 {
-+		button-1 {
- 			label = "Tamper";
- 			linux,code = <KEY_RESTART>;
- 			gpios = <&gpioc 13 0>;
-diff --git a/arch/arm/boot/dts/stm32746g-eval.dts b/arch/arm/boot/dts/stm32746g-eval.dts
-index 8c081eaf20fe..f99b5df4c12f 100644
---- a/arch/arm/boot/dts/stm32746g-eval.dts
-+++ b/arch/arm/boot/dts/stm32746g-eval.dts
-@@ -73,12 +73,10 @@ red {
- 		};
- 	};
- 
--	gpio_keys {
-+	gpio-keys {
- 		compatible = "gpio-keys";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		autorepeat;
--		button@0 {
-+		button-0 {
- 			label = "Wake up";
- 			linux,code = <KEY_WAKEUP>;
- 			gpios = <&gpioc 13 0>;
-diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
-index 5ceb2cf3777f..bcf2a5cfd6b2 100644
---- a/arch/arm/boot/dts/stm32f429-disco.dts
-+++ b/arch/arm/boot/dts/stm32f429-disco.dts
-@@ -78,12 +78,10 @@ green {
- 		};
- 	};
- 
--	gpio_keys {
-+	gpio-keys {
- 		compatible = "gpio-keys";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		autorepeat;
--		button@0 {
-+		button-0 {
- 			label = "User";
- 			linux,code = <KEY_HOME>;
- 			gpios = <&gpioa 0 0>;
-diff --git a/arch/arm/boot/dts/stm32f469-disco.dts b/arch/arm/boot/dts/stm32f469-disco.dts
-index eea979ef5512..881210d820bb 100644
---- a/arch/arm/boot/dts/stm32f469-disco.dts
-+++ b/arch/arm/boot/dts/stm32f469-disco.dts
-@@ -103,12 +103,10 @@ blue {
- 		};
- 	};
- 
--	gpio_keys {
-+	gpio-keys {
- 		compatible = "gpio-keys";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		autorepeat;
--		button@0 {
-+		button-0 {
- 			label = "User";
- 			linux,code = <KEY_WAKEUP>;
- 			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
-diff --git a/arch/arm/boot/dts/stm32f769-disco.dts b/arch/arm/boot/dts/stm32f769-disco.dts
-index 677276ba4dbe..80516f44bb19 100644
---- a/arch/arm/boot/dts/stm32f769-disco.dts
-+++ b/arch/arm/boot/dts/stm32f769-disco.dts
-@@ -74,12 +74,10 @@ red {
- 		};
- 	};
- 
--	gpio_keys {
-+	gpio-keys {
- 		compatible = "gpio-keys";
--		#address-cells = <1>;
--		#size-cells = <0>;
- 		autorepeat;
--		button@0 {
-+		button-0 {
- 			label = "User";
- 			linux,code = <KEY_HOME>;
- 			gpios = <&gpioa 0 GPIO_ACTIVE_HIGH>;
+-		rcc: rcc@40023810 {
++		rcc: rcc@40023800 {
+ 			#reset-cells = <1>;
+ 			#clock-cells = <2>;
+ 			compatible = "st,stm32f42xx-rcc", "st,stm32-rcc";
 -- 
 2.30.2
 
