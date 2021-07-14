@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE623C9087
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C78963C908C
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232130AbhGNTzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S235919AbhGNTzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241195AbhGNTu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241182AbhGNTu0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:50:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F132613F3;
-        Wed, 14 Jul 2021 19:47:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2960F600D4;
+        Wed, 14 Jul 2021 19:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292037;
-        bh=1r/UUIxhZ95sgnExU30CyJM8Jv+Y+6Rk5Z5ULUsGPWM=;
+        s=k20201202; t=1626292032;
+        bh=ak0X2iN8PqFo1g+nRJ173Suw6iFpP+hKATqviaSsB2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FilgRXRPyygEJaaC4d3YolFdw1HnxnEZK4C+FR2KMlQFUprOBF7WyqNDkY9lglnaQ
-         jhV5ry7xJLgl7tgNf1kPCLiH9TVvfBt07X/BSEpbR9CP5tZMoY4vIm/snPLSy9xVY3
-         pzUPowPyjDzuw4/k/tjB6FwlHfFiOH4LvqmciylnRvzSJfPrT+TlAU2qg/qLRvlluL
-         sIVMFcw9XP7yco54TK82YzSJNEOUZhK3gQ+2js4AAN1vp2A17sZFKz7wSwFTEfHCwi
-         tLecOb+zj9suOhWDnRWFykJXUjFXZR26qWkNUHA1BYQloA/aloWNHZ6PkZJoTltYY5
-         Jb1gB0RcYyWDw==
+        b=OW9xjmkMIfGtgoDKvjJM8p42BAHkv73pvMH8ZW59F65wPHcvi0MSdZRaNqSKUjCtd
+         hvhN5tO2kKQGAC8xSTKObKHdpcMBtWBu0BUU3JMmzyDvtphgQQOkmHJAyilzRJQESd
+         xmGhmouKdTvq2Xs/Qsq8x7rV15rqcGLATgnin0hUAz5OuiY7DM9vWUkP12JKl0kG5z
+         QoFefWJrHf5FZX9tetwN1hmr4I7sP55MtaYuxJMMBCJdlsQ5hJCxSvwFp6v/lKmiNZ
+         xkqFRo79kPCVmomS3+UhnPTsQQuk88mvK85fZFXUGqGp8ud3usRY0smA14FkUxpXIa
+         l5+oHdiLi4GyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yufen Yu <yuyufen@huawei.com>, Wu Bo <wubo40@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Jason Yan <yanaijie@huawei.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 36/39] scsi: libsas: Add LUN number check in .slave_alloc callback
-Date:   Wed, 14 Jul 2021 15:46:21 -0400
-Message-Id: <20210714194625.55303-36-sashal@kernel.org>
+Cc:     Matthias Maennich <maennich@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-kbuild@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 33/39] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
+Date:   Wed, 14 Jul 2021 15:46:18 -0400
+Message-Id: <20210714194625.55303-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
@@ -44,163 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Matthias Maennich <maennich@google.com>
 
-[ Upstream commit 49da96d77938db21864dae6b7736b71e96c1d203 ]
+[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
 
-Offlining a SATA device connected to a hisi SAS controller and then
-scanning the host will result in detecting 255 non-existent devices:
+To avoid unnecessary recompilations, mkcompile_h does not regenerate
+compile.h if just the timestamp changed.
+Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
+build was requested, in which case we should not ignore it.
 
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:2:0]    disk    SEAGATE  ST600MM0006      B001  /dev/sdc
-  # echo "offline" > /sys/block/sdb/device/state
-  # echo "- - -" > /sys/class/scsi_host/host2/scan
-  # lsscsi
-  [2:0:0:0]    disk    ATA      Samsung SSD 860  2B6Q  /dev/sda
-  [2:0:1:0]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdb
-  [2:0:1:1]    disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdh
-  ...
-  [2:0:1:255]  disk    ATA      WDC WD2003FYYS-3 1D01  /dev/sdjb
+If a user follows the documentation for reproducible builds [1] and
+defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
+build will have the correct timestamp. A subsequent cherry-pick (or
+amend) changes the commit timestamp and if an incremental build is done
+with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
+into consideration. But it should for reproducibility.
 
-After a REPORT LUN command issued to the offline device fails, the SCSI
-midlayer tries to do a sequential scan of all devices whose LUN number is
-not 0. However, SATA does not support LUN numbers at all.
+Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
+UTS_VERSION when making a decision about whether the regenerated version
+of compile.h should be moved into place.
 
-Introduce a generic sas_slave_alloc() handler which will return -ENXIO for
-SATA devices if the requested LUN number is larger than 0 and make libsas
-drivers use this function as their .slave_alloc callback.
+[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
 
-Link: https://lore.kernel.org/r/20210622034037.1467088-1-yuyufen@huawei.com
-Reported-by: Wu Bo <wubo40@huawei.com>
-Suggested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Jason Yan <yanaijie@huawei.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic94xx/aic94xx_init.c    | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v2_hw.c | 1 +
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
- drivers/scsi/isci/init.c               | 1 +
- drivers/scsi/libsas/sas_scsi_host.c    | 9 +++++++++
- drivers/scsi/mvsas/mv_init.c           | 1 +
- drivers/scsi/pm8001/pm8001_init.c      | 1 +
- 8 files changed, 16 insertions(+)
+ scripts/mkcompile_h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/aic94xx/aic94xx_init.c b/drivers/scsi/aic94xx/aic94xx_init.c
-index 702da909cee5..ad8a65ab489c 100644
---- a/drivers/scsi/aic94xx/aic94xx_init.c
-+++ b/drivers/scsi/aic94xx/aic94xx_init.c
-@@ -71,6 +71,7 @@ static struct scsi_host_template aic94xx_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler	= sas_eh_device_reset_handler,
- 	.eh_target_reset_handler	= sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.track_queue_depth	= 1,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-index 8aa3222fe486..fea26edd505e 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
-@@ -1814,6 +1814,7 @@ static struct scsi_host_template sht_v1_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-index ebc984ffe6a2..7be943197604 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v2_hw.c
-@@ -3565,6 +3565,7 @@ static struct scsi_host_template sht_v2_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index ce2f232b3df3..16b7ea556118 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -2115,6 +2115,7 @@ static struct scsi_host_template sht_v3_hw = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= host_attrs,
-diff --git a/drivers/scsi/isci/init.c b/drivers/scsi/isci/init.c
-index dde84f744313..07de94ea3819 100644
---- a/drivers/scsi/isci/init.c
-+++ b/drivers/scsi/isci/init.c
-@@ -167,6 +167,7 @@ static struct scsi_host_template isci_sht = {
- 	.eh_abort_handler		= sas_eh_abort_handler,
- 	.eh_device_reset_handler        = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler        = sas_eh_target_reset_handler,
-+	.slave_alloc			= sas_slave_alloc,
- 	.target_destroy			= sas_target_destroy,
- 	.ioctl				= sas_ioctl,
- 	.shost_attrs			= isci_host_attrs,
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 33229348dcb6..316a11183555 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -942,6 +942,14 @@ void sas_task_abort(struct sas_task *task)
- 	}
- }
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index 87f1fc9801d7..662fe19da990 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -78,15 +78,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+ # recompilations.
+-# We don't consider the file changed if only the date/time changed.
++# We don't consider the file changed if only the date/time changed,
++# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
++# reproducible builds with that value referring to a commit timestamp).
+ # A kernel config change will increase the generation number, thus
+ # causing compile.h to be updated (including date/time) due to the
+ # changed comment in the
+ # first line.
  
-+int sas_slave_alloc(struct scsi_device *sdev)
-+{
-+	if (dev_is_sata(sdev_to_domain_dev(sdev)) && sdev->lun)
-+		return -ENXIO;
++if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
++   IGNORE_PATTERN="UTS_VERSION"
++else
++   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
++fi
 +
-+	return 0;
-+}
-+
- void sas_target_destroy(struct scsi_target *starget)
- {
- 	struct domain_device *found_dev = starget->hostdata;
-@@ -988,5 +996,6 @@ EXPORT_SYMBOL_GPL(sas_task_abort);
- EXPORT_SYMBOL_GPL(sas_phy_reset);
- EXPORT_SYMBOL_GPL(sas_eh_device_reset_handler);
- EXPORT_SYMBOL_GPL(sas_eh_target_reset_handler);
-+EXPORT_SYMBOL_GPL(sas_slave_alloc);
- EXPORT_SYMBOL_GPL(sas_target_destroy);
- EXPORT_SYMBOL_GPL(sas_ioctl);
-diff --git a/drivers/scsi/mvsas/mv_init.c b/drivers/scsi/mvsas/mv_init.c
-index 8c91637cd598..98d6608068ab 100644
---- a/drivers/scsi/mvsas/mv_init.c
-+++ b/drivers/scsi/mvsas/mv_init.c
-@@ -62,6 +62,7 @@ static struct scsi_host_template mvs_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= mvst_host_attrs,
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 1d59d7447a1c..9547cf516d39 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -87,6 +87,7 @@ static struct scsi_host_template pm8001_sht = {
- 	.use_clustering		= ENABLE_CLUSTERING,
- 	.eh_device_reset_handler = sas_eh_device_reset_handler,
- 	.eh_target_reset_handler = sas_eh_target_reset_handler,
-+	.slave_alloc		= sas_slave_alloc,
- 	.target_destroy		= sas_target_destroy,
- 	.ioctl			= sas_ioctl,
- 	.shost_attrs		= pm8001_host_attrs,
+ if [ -r $TARGET ] && \
+-      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
+-      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
++      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
++      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
+       cmp -s .tmpver.1 .tmpver.2; then
+    rm -f .tmpcompile
+ else
 -- 
 2.30.2
 
