@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 034EA3C8D0B
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21DB63C8D0E
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235088AbhGNTnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:43:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38740 "EHLO mail.kernel.org"
+        id S235326AbhGNTnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:43:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235613AbhGNTm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECDED613F1;
-        Wed, 14 Jul 2021 19:40:05 +0000 (UTC)
+        id S229902AbhGNTnA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F6DD613D8;
+        Wed, 14 Jul 2021 19:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291606;
-        bh=u3w3CsD4nDqHG4INovIXkfXDTX1zfNhlhB6AXveT/dQ=;
+        s=k20201202; t=1626291608;
+        bh=Qscmt7Nun27TYaNstMnTrXFhdZ+CUTGL/F3JW5XARhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SeAHBJKO0o/ErKYL9jzDpxQmPkCMfPVzSRLAYSHXR8qQ4W63wm/a2Edu357S8Vi+f
-         eU6ReZzP9p4x0hoAIMj4SHYgwn32pQT+7l9Pj8ZsQCqGOKXS1EJRIl/gUCGlaUoTjo
-         9rHy1fBXSwkS3gaFsqeD3Z1yeUbFL49BwvuirvGxWTth1nztezM6tRDtNOWoxXZNca
-         GZhisAHVK6gGPj1vyWIK8uhmldhWLn6D9IRPmwQ+Gio57FB8DU40aKMxirErvjnn3T
-         zyJLjBFH2FL0aAqSxwHi8YqJga4CV++fqT4tBFc3Z6Mbe+LUibDANC+nuBu+DAF4jQ
-         U1CiByFnWvwIw==
+        b=d8FdUAEoUJJbg2WF3a1+mjUEvSOpVlzXUNxpbeEpKqcvcr1DaSPU4GT5mw4+12a2a
+         GxVWkYYJaH0x36NqScOp3Zf2tcUF0JoZme1J/4BEltIO7OsRKuPiTd8A5kmfXM+QoG
+         wPrgRukGh13sVz/Oc5TSkxA2TLbBqlvr1mx2Uhldkz6uXarvh0hdV2fVO/KWd0GEVg
+         Bte847Ko26jEW6xE+mwVjmQceWN8+b80coAidmKg8G5+4DblQFy+f16kuR/1FvuwI+
+         ZUnWpeRYAabbCkWDh4ahkWGUv+BLks9xIgEBMHV9lt5opVUpP/j66tpocxU33MYzk9
+         cO0mwYIBKaHBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
+Cc:     Dong Aisheng <aisheng.dong@nxp.com>, Abel Vesa <abel.vesa@nxp.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 087/108] arm64: dts: imx8mq: assign PCIe clocks
-Date:   Wed, 14 Jul 2021 15:37:39 -0400
-Message-Id: <20210714193800.52097-87-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.13 088/108] arm64: dts: imx8: conn: fix enet clock setting
+Date:   Wed, 14 Jul 2021 15:37:40 -0400
+Message-Id: <20210714193800.52097-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -43,65 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-[ Upstream commit 15a5261e4d052bf85c7fba24dbe0e9a7c8c05925 ]
+[ Upstream commit dfda1fd16aa71c839e4002109b0cd15f61105ebb ]
 
-This fixes multiple issues with the current non-existent PCIe clock setup:
+enet_clk_ref actually is sourced from internal gpr clocks
+which needs a default rate. Also update enet lpcg clock
+output names to be more straightforward.
 
-The controller can run at up to 250MHz, so use a parent that provides this
-clock.
-
-The PHY needs an exact 100MHz reference clock to function if the PCIe
-refclock is not fed in via the refclock pads. While this mode is not
-supported (yet) in the driver it doesn't hurt to make sure we are
-providing a clock with the right rate.
-
-The AUX clock is specified to have a maximum clock rate of 10MHz. So
-the current setup, which drives it straight from the 25MHz oscillator is
-actually overclocking the AUX input.
-
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Cc: Abel Vesa <abel.vesa@nxp.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ .../boot/dts/freescale/imx8-ss-conn.dtsi      | 50 ++++++++++++-------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-index 17c449e12c2e..91df9c5350ae 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
-@@ -1383,6 +1383,14 @@ pcie0: pcie@33800000 {
- 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_EN>,
- 			         <&src IMX8MQ_RESET_PCIE_CTRL_APPS_TURNOFF>;
- 			reset-names = "pciephy", "apps", "turnoff";
-+			assigned-clocks = <&clk IMX8MQ_CLK_PCIE1_CTRL>,
-+			                  <&clk IMX8MQ_CLK_PCIE1_PHY>,
-+			                  <&clk IMX8MQ_CLK_PCIE1_AUX>;
-+			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
-+			                         <&clk IMX8MQ_SYS2_PLL_100M>,
-+			                         <&clk IMX8MQ_SYS1_PLL_80M>;
-+			assigned-clock-rates = <250000000>, <100000000>,
-+			                       <10000000>;
- 			status = "disabled";
- 		};
+diff --git a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
+index e1e81ca0ca69..a79f42a9618e 100644
+--- a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
+@@ -77,9 +77,12 @@ fec1: ethernet@5b040000 {
+ 			     <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&enet0_lpcg IMX_LPCG_CLK_4>,
+ 			 <&enet0_lpcg IMX_LPCG_CLK_2>,
+-			 <&enet0_lpcg IMX_LPCG_CLK_1>,
++			 <&enet0_lpcg IMX_LPCG_CLK_3>,
+ 			 <&enet0_lpcg IMX_LPCG_CLK_0>;
+ 		clock-names = "ipg", "ahb", "enet_clk_ref", "ptp";
++		assigned-clocks = <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
++				  <&clk IMX_SC_R_ENET_0 IMX_SC_C_CLKDIV>;
++		assigned-clock-rates = <250000000>, <125000000>;
+ 		fsl,num-tx-queues=<3>;
+ 		fsl,num-rx-queues=<3>;
+ 		power-domains = <&pd IMX_SC_R_ENET_0>;
+@@ -94,9 +97,12 @@ fec2: ethernet@5b050000 {
+ 				<GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&enet1_lpcg IMX_LPCG_CLK_4>,
+ 			 <&enet1_lpcg IMX_LPCG_CLK_2>,
+-			 <&enet1_lpcg IMX_LPCG_CLK_1>,
++			 <&enet1_lpcg IMX_LPCG_CLK_3>,
+ 			 <&enet1_lpcg IMX_LPCG_CLK_0>;
+ 		clock-names = "ipg", "ahb", "enet_clk_ref", "ptp";
++		assigned-clocks = <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
++				  <&clk IMX_SC_R_ENET_1 IMX_SC_C_CLKDIV>;
++		assigned-clock-rates = <250000000>, <125000000>;
+ 		fsl,num-tx-queues=<3>;
+ 		fsl,num-rx-queues=<3>;
+ 		power-domains = <&pd IMX_SC_R_ENET_1>;
+@@ -152,15 +158,19 @@ enet0_lpcg: clock-controller@5b230000 {
+ 		#clock-cells = <1>;
+ 		clocks = <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
+ 			 <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
+-			 <&conn_axi_clk>, <&conn_ipg_clk>, <&conn_ipg_clk>;
++			 <&conn_axi_clk>,
++			 <&clk IMX_SC_R_ENET_0 IMX_SC_C_TXCLK>,
++			 <&conn_ipg_clk>,
++			 <&conn_ipg_clk>;
+ 		clock-indices = <IMX_LPCG_CLK_0>, <IMX_LPCG_CLK_1>,
+-				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_4>,
+-				<IMX_LPCG_CLK_5>;
+-		clock-output-names = "enet0_ipg_root_clk",
+-				     "enet0_tx_clk",
+-				     "enet0_ahb_clk",
+-				     "enet0_ipg_clk",
+-				     "enet0_ipg_s_clk";
++				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_3>,
++				<IMX_LPCG_CLK_4>, <IMX_LPCG_CLK_5>;
++		clock-output-names = "enet0_lpcg_timer_clk",
++				     "enet0_lpcg_txc_sampling_clk",
++				     "enet0_lpcg_ahb_clk",
++				     "enet0_lpcg_rgmii_txc_clk",
++				     "enet0_lpcg_ipg_clk",
++				     "enet0_lpcg_ipg_s_clk";
+ 		power-domains = <&pd IMX_SC_R_ENET_0>;
+ 	};
  
-@@ -1413,6 +1421,14 @@ pcie1: pcie@33c00000 {
- 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_EN>,
- 			         <&src IMX8MQ_RESET_PCIE2_CTRL_APPS_TURNOFF>;
- 			reset-names = "pciephy", "apps", "turnoff";
-+			assigned-clocks = <&clk IMX8MQ_CLK_PCIE2_CTRL>,
-+			                  <&clk IMX8MQ_CLK_PCIE2_PHY>,
-+			                  <&clk IMX8MQ_CLK_PCIE2_AUX>;
-+			assigned-clock-parents = <&clk IMX8MQ_SYS2_PLL_250M>,
-+			                         <&clk IMX8MQ_SYS2_PLL_100M>,
-+			                         <&clk IMX8MQ_SYS1_PLL_80M>;
-+			assigned-clock-rates = <250000000>, <100000000>,
-+			                       <10000000>;
- 			status = "disabled";
- 		};
- 
+@@ -170,15 +180,19 @@ enet1_lpcg: clock-controller@5b240000 {
+ 		#clock-cells = <1>;
+ 		clocks = <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
+ 			 <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
+-			 <&conn_axi_clk>, <&conn_ipg_clk>, <&conn_ipg_clk>;
++			 <&conn_axi_clk>,
++			 <&clk IMX_SC_R_ENET_1 IMX_SC_C_TXCLK>,
++			 <&conn_ipg_clk>,
++			 <&conn_ipg_clk>;
+ 		clock-indices = <IMX_LPCG_CLK_0>, <IMX_LPCG_CLK_1>,
+-				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_4>,
+-				<IMX_LPCG_CLK_5>;
+-		clock-output-names = "enet1_ipg_root_clk",
+-				     "enet1_tx_clk",
+-				     "enet1_ahb_clk",
+-				     "enet1_ipg_clk",
+-				     "enet1_ipg_s_clk";
++				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_3>,
++				<IMX_LPCG_CLK_4>, <IMX_LPCG_CLK_5>;
++		clock-output-names = "enet1_lpcg_timer_clk",
++				     "enet1_lpcg_txc_sampling_clk",
++				     "enet1_lpcg_ahb_clk",
++				     "enet1_lpcg_rgmii_txc_clk",
++				     "enet1_lpcg_ipg_clk",
++				     "enet1_lpcg_ipg_s_clk";
+ 		power-domains = <&pd IMX_SC_R_ENET_1>;
+ 	};
+ };
 -- 
 2.30.2
 
