@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF6C3C8E0B
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1587D3C8E0F
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234818AbhGNTqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:46:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38106 "EHLO mail.kernel.org"
+        id S235954AbhGNTqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:46:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234682AbhGNTpe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:45:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E052E613ED;
-        Wed, 14 Jul 2021 19:42:09 +0000 (UTC)
+        id S237326AbhGNTpm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:45:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE32613DD;
+        Wed, 14 Jul 2021 19:42:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291730;
-        bh=6+Wlq+NCWafYBSgguk87hl6FjEhjLQXdS/RTcB7OM0A=;
+        s=k20201202; t=1626291732;
+        bh=UlPQTFrovZmMmtC75o7ux5KIL2EJw+XTxxB/ugWFKjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEdaPhG53U6TiX/UgUiho1GdHUWijDEU68J1f1Gs6CqZEl+4L2kmQWVoGEj4jd1GG
-         /k8L//u0B8JtUob0ZSHbuvsxSWgWXbkPIM5S8oXTyIklwTpeIQ6AD/9rL+jGLQEq1+
-         leJOq0U6NikoPH6Fd3nJ4cAt7RJplwrgr62Px7NoyonNSIBd3Ef8gwLTeZCSs0yMJH
-         1nWNUDDOnEdOFARUeZ88PcVF4zsU9+4rpiwBEWZab2dpjy8gUcRmuuM1yI6GxeZ40Y
-         F9WrqQfQKVQ85n3NqmDc4Ixl4LW1VAOYi3XTNMMY3SxwJhahMIb0KEkMX15nYjpkqr
-         B7nrZE9P+TTkg==
+        b=M+8D2sIkH+Ry+Hy3gt1DI4pys5W/9hplaHYMP9c3Rz70SnUwUqvYasJLcKaasiuwT
+         lzO3I4NxexUR2mlMsU6FJ/w3MTe8GMVoM9I3nMpDwZXKFc+svof/sdtq9W60GTnEMk
+         eB4lOBD+Kd+zlwqTuh3PtGBjfWIS7HrrIwonjml9Gja4RzP5gx7hYTxMnAXLev/k7g
+         zmiEmvoajoqRTyMYqzUAY954X1jN987sYRPynd0towDrvZqgKAmmja/dcTC8mfCWIR
+         Ffsm1AHM0FzbTZV63AxEOtD60bmJLnEA0v3jVO7dKmtmqBdfziOYuHnXtrITYIvWk8
+         6kOodmQ30TNxA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Yingliang <yangyingliang@huawei.com>,
-        Hulk Robot <hulkci@huawei.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-i3c@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 066/102] i3c: master: svc: drop free_irq of devm_request_irq allocated irq
-Date:   Wed, 14 Jul 2021 15:39:59 -0400
-Message-Id: <20210714194036.53141-66-sashal@kernel.org>
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 067/102] arm64: dts: juno: Update SCPI nodes as per the YAML schema
+Date:   Wed, 14 Jul 2021 15:40:00 -0400
+Message-Id: <20210714194036.53141-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -44,36 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 59a61e69c4252b4e8ecd15e752b0d2337f0121b7 ]
+[ Upstream commit 70010556b158a0fefe43415fb0c58347dcce7da0 ]
 
-irq allocated with devm_request_irq() will be freed in devm_irq_release(),
-using free_irq() in ->remove() will causes a dangling pointer, and a
-subsequent double free. So remove the free_irq() in svc_i3c_master_remove().
+The SCPI YAML schema expects standard node names for clocks and
+power domain controllers. Fix those as per the schema for Juno
+platforms.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210602084935.3977636-1-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20210608145133.2088631-1-sudeep.holla@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i3c/master/svc-i3c-master.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm64/boot/dts/arm/juno-base.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i3c/master/svc-i3c-master.c b/drivers/i3c/master/svc-i3c-master.c
-index 8d990696676e..014936120f4a 100644
---- a/drivers/i3c/master/svc-i3c-master.c
-+++ b/drivers/i3c/master/svc-i3c-master.c
-@@ -1449,7 +1449,6 @@ static int svc_i3c_master_remove(struct platform_device *pdev)
- 	if (ret)
- 		return ret;
+diff --git a/arch/arm64/boot/dts/arm/juno-base.dtsi b/arch/arm64/boot/dts/arm/juno-base.dtsi
+index f6c55877fbd9..2c0161125ece 100644
+--- a/arch/arm64/boot/dts/arm/juno-base.dtsi
++++ b/arch/arm64/boot/dts/arm/juno-base.dtsi
+@@ -564,13 +564,13 @@ scpi {
+ 		clocks {
+ 			compatible = "arm,scpi-clocks";
  
--	free_irq(master->irq, master);
- 	clk_disable_unprepare(master->pclk);
- 	clk_disable_unprepare(master->fclk);
- 	clk_disable_unprepare(master->sclk);
+-			scpi_dvfs: scpi-dvfs {
++			scpi_dvfs: clocks-0 {
+ 				compatible = "arm,scpi-dvfs-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <0>, <1>, <2>;
+ 				clock-output-names = "atlclk", "aplclk","gpuclk";
+ 			};
+-			scpi_clk: scpi-clk {
++			scpi_clk: clocks-1 {
+ 				compatible = "arm,scpi-variable-clocks";
+ 				#clock-cells = <1>;
+ 				clock-indices = <3>;
+@@ -578,7 +578,7 @@ scpi_clk: scpi-clk {
+ 			};
+ 		};
+ 
+-		scpi_devpd: scpi-power-domains {
++		scpi_devpd: power-controller {
+ 			compatible = "arm,scpi-power-domains";
+ 			num-domains = <2>;
+ 			#power-domain-cells = <1>;
 -- 
 2.30.2
 
