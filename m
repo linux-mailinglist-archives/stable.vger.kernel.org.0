@@ -2,123 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BC2C3C8310
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 12:41:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4EE3C83F2
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 13:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232119AbhGNKoN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 06:44:13 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:46964 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbhGNKoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 06:44:13 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 682961C0B7A; Wed, 14 Jul 2021 12:41:20 +0200 (CEST)
-Date:   Wed, 14 Jul 2021 12:41:19 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
-Message-ID: <20210714104119.GA30649@amd>
-References: <20210712060912.995381202@linuxfoundation.org>
- <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de>
- <YO56HTE3k95JLeje@kroah.com>
- <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
- <20653f1-deaa-6fac-1f8-19319e87623a@praktifix.dwd.de>
- <a59b73aa-24f6-7395-6b99-d6c62feb0fc4@kernel.org>
- <83b8a9a7-a29c-526-d36-78737cb9f56b@praktifix.dwd.de>
+        id S239230AbhGNLgj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 07:36:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239206AbhGNLgj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 07:36:39 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB008C06175F
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 04:33:46 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id l11so1368605pji.5
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 04:33:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=n+So7EW9JRIL4fRIBcgrgmuHUjmqlR7dKDYFAINTaHY=;
+        b=OVfGjC+cCzumMX/GZcsu8zKf1i+6fqFVrmzEdERwd1CR0Hee+o5+FrMSH/2FymkQxA
+         83fRpKTtvc4B0sNr4jIVx6s6Q0xnx7TbJ0458FdswdbjJh1TA/P6rk6MH4pNULfITdiS
+         80DXnmVyWvVfV+M3dGHQxph0WTeC+l3RBCOjLobszr3hNwhi2wNfWuUK3RLHnMmHcZSB
+         T3vDHReIC0f0pbMVoYxmkH2NSQFs+VucbfcZNMhjj+NSlZ19WkonGsIsznxwwdsyQTFs
+         /dxtzHjlPGJSUgEbpuGacJsHRx7rWC3fVJ87G4Iimnitl7r3kFI1BtK9fIr1JJ8hReMY
+         fIew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=n+So7EW9JRIL4fRIBcgrgmuHUjmqlR7dKDYFAINTaHY=;
+        b=jaAzikghPIE0FOrMN7T0vnT+VsoehuxG9BvfKLjbZ6BgEPFU7UFzhUh6oN8wVJvhdz
+         p7g+Eyb2B7Fq8NY+X4xQCFb0DGs4bZjtGPiEs8g/hyPWWizKvJRU45xjj7dQvu9WIAy1
+         10ZBDgeITi6iRuMAfkTF0wJX77P07rubl7jk35XZKUebxr6gSCs0k2S+O/NB8oK0Z+6c
+         c++8je+eDGoin7NX4kVJ1vX5h+E2OiSdgE63NuTdg1S3EaAqmcRJOi0F0OWQkTRmk//1
+         2ytnIHutNqTcLDvOgt++yqusySvPkcYDJcjMeSXMLGS4fuGur4dCAf9nfPwd05Avwroh
+         Y8cQ==
+X-Gm-Message-State: AOAM531psuaTxSk5PMTDGd5L83Sc3F1C/ZRJEAfSzwjvqe5myD7ZUPu9
+        XPmjA+Wxgv/Eqwit/pmXNyMlN2iNmhyJsVsTP/U=
+X-Google-Smtp-Source: ABdhPJym2hnZ1vYM4GcQXUogMSgmUVC7BVreJKHB2hdsOlqR1N7bvw/zt25ggJLyTUN8h5JXLyGccsa3d2riTfygGQs=
+X-Received: by 2002:a17:902:e891:b029:12b:1c4f:4ce3 with SMTP id
+ w17-20020a170902e891b029012b1c4f4ce3mr7151146plg.20.1626262425936; Wed, 14
+ Jul 2021 04:33:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Content-Disposition: inline
-In-Reply-To: <83b8a9a7-a29c-526-d36-78737cb9f56b@praktifix.dwd.de>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Received: by 2002:a05:6a10:157:0:0:0:0 with HTTP; Wed, 14 Jul 2021 04:33:44
+ -0700 (PDT)
+Reply-To: sroomf70@gmail.com
+From:   "Mrs. Rose Godwin" <rosegodwin1999@gmail.com>
+Date:   Wed, 14 Jul 2021 04:33:44 -0700
+Message-ID: <CAL6LAtqZ7_KCo09OvsvBDeUr-hYGx=SkgxCa+ZJELMRSdT1Ogw@mail.gmail.com>
+Subject: Greetings,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+From Mrs. Rose Godwin, we notify you through our official mail but no
+respond from you before sending you with this private email hope you
+Received the Fund that was paid to your account? do not hesitate to
+keep us notice as soon as possible to enable us make the balance
+transfer into your nominated account. awaiting your urgent
+notification.
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks
+Mrs. Rose Godwin,
+Foreign Remittance
 
-Hi!
->=20
-> > On 14. 07. 21, 10:15, Holger Kiehl wrote:
-> > >> Yes, will try to do that. I think it will take some time ...
-> > >>
-> > > Hmm, I am doing something wrong?
-> >=20
-> > No, you are not: -rcs are not tagged.
-> >=20
-> > >     git clone
-> > >     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git
-> > >     linux-5.13.y
-> > >     cd linux-5.13.y/
-> > >     git tag|grep v5.13
-> > >     v5.13
-> > >     v5.13-rc1
-> > >     v5.13-rc2
-> > >     v5.13-rc3
-> > >     v5.13-rc4
-> > >     v5.13-rc5
-> > >     v5.13-rc6
-> > >     v5.13-rc7
-> > >     v5.13.1
-> > >=20
-> > > There is no v5.13.2-rc1. It is my first time with 'git bisect'. Must =
-be
-> > > doing something wrong. How can I get the correct git kernel rc versio=
-n?
-> >=20
-> > So just bisect v5.13.1..linux-5.13.y.
-> >=20
-> But what do I say for bad?
->=20
->    git bisect bad linux-5.13.y
->    error: Bad rev input: linux-5.13.y
->=20
-> Just saying:
->=20
->    git bisect bad
->    git bisect good v5.13.1
->    Bisecting: a merge base must be tested
->    [62fb9874f5da54fdb243003b386128037319b219] Linux 5.13
->=20
-> If I read this correctly it now set v5.13 as bad and v5.13.1 as good.
-> How to set the correct bad?
-
-You can use hashes instead of symbolic revisions, and that may be
-easier. I suspect you want to say "git bisect bad
-origin/linux-5.13.y". You can also just do git show and note the hash.
-
-There's other option: git bisect can be quite confusing, but you are
-searching for a bug in linear history, so you can just git log
---pretty=3Doneline into a file, then do the binary search
-manually. Should be 10 steps or so...
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmDuv08ACgkQMOfwapXb+vKxFgCfV3aTQlvGcOYdpaqp/aN+S/5O
-eHUAn2IsWIEEr11mU9rYm4E2WaTxsdM0
-=hiMI
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+Best regards
+Prof. Dr Diane
+Head of Foreign Operation
