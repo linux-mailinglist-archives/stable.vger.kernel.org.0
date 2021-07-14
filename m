@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBE7C3C902D
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A45E43C9037
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240753AbhGNTyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:54:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45124 "EHLO mail.kernel.org"
+        id S240972AbhGNTyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:54:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241006AbhGNTuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:50:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02259613EB;
-        Wed, 14 Jul 2021 19:46:35 +0000 (UTC)
+        id S241034AbhGNTuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:50:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 913A260FF2;
+        Wed, 14 Jul 2021 19:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291997;
-        bh=a9BUORn8Zmj7mDMYas7VcAnybJGxBCrEyBboM18SPEo=;
+        s=k20201202; t=1626291998;
+        bh=wzFNLVPeIlQlLrIQZ3+S8W4G1Mep2IE4KMTCFszJ1gQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d7iGVWfX/2+N+jS5tPlnDFbk6mO72v7XwIzlRqAbAaeUOGJUVf9EyxnemzHJsCQK0
-         2oVemThW747RMVZy+kNHcjVRFQqnXltFr/b88YT+oUfAfaQqoPvmXhOk2bKEdPoyc8
-         IoNaMLHNFOQyxRbfIaP5H/EENTasuPUUcJGbVKtwnFtAnEd0/ngHopEb2cvXxRRD1d
-         l+iWHR1Uhn2toVV0dY9gUHRlGRVW3yr6aPyHgH9Tli+QT12TnuRU1n4R1eYjgs35Q3
-         fpovT+N02bpbL/gcb6S1CBolU1wQ8NX+frLzNqZ+cfKF9rImx5rgdzoCcb2fLJhyPc
-         y7D5cHvb4zQfw==
+        b=ZxsTgqkRIAohCpImNyhQ3NqzcM42q3GoCBgBPtH7ntQxsxIz6UwcPm1w4J3VkdGhD
+         0Lu4BdDZP3PTYmMYs+bpnsMhFQvfyNkdHyTMSShfbdxqsCgikTXDxGG0FGQqMo5DNw
+         jYr6nYJlR1g4ZVJugP58tD6AvaQsnJxR5GoSDHaavaJ47i1BrWSddB/WJ1eDnNgPz9
+         NZlnDcaQiFF4BQTJVievfoHFxrj0cGgJ/4rkFnY5M2ADPUqIQAOBvfp/4FzT3XUQMd
+         0VhQb13UcA/E5V9xJ2TgfEBJED1q8BUQuVt5crXZ9Rr4FCozL5Zod950NjxZIaeUcU
+         ogh7bunil43Rg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 08/39] arm64: dts: rockchip: Fix power-controller node names for rk3328
-Date:   Wed, 14 Jul 2021 15:45:53 -0400
-Message-Id: <20210714194625.55303-8-sashal@kernel.org>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 09/39] reset: ti-syscon: fix to_ti_syscon_reset_data macro
+Date:   Wed, 14 Jul 2021 15:45:54 -0400
+Message-Id: <20210714194625.55303-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194625.55303-1-sashal@kernel.org>
 References: <20210714194625.55303-1-sashal@kernel.org>
@@ -46,44 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 6e6a282b49c6db408d27231e3c709fbdf25e3c1b ]
+[ Upstream commit 05cf8fffcdeb47aef1203c08cbec5224fd3a0e1c ]
 
-Use more generic names (as recommended in the device tree specification
-or the binding documentation)
+The to_ti_syscon_reset_data macro currently only works if the
+parameter passed into it is called 'rcdev'.
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-7-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes a checkpatch --strict issue:
+
+  CHECK: Macro argument reuse 'rcdev' - possible side-effects?
+  #53: FILE: drivers/reset/reset-ti-syscon.c:53:
+  +#define to_ti_syscon_reset_data(rcdev)	\
+  +	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/reset/reset-ti-syscon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-index 6be7c67584ba..05fa0dcb4c69 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
-@@ -255,13 +255,13 @@ power: power-controller {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+diff --git a/drivers/reset/reset-ti-syscon.c b/drivers/reset/reset-ti-syscon.c
+index a2635c21db7f..ecb8873e3a19 100644
+--- a/drivers/reset/reset-ti-syscon.c
++++ b/drivers/reset/reset-ti-syscon.c
+@@ -58,8 +58,8 @@ struct ti_syscon_reset_data {
+ 	unsigned int nr_controls;
+ };
  
--			pd_hevc@RK3328_PD_HEVC {
-+			power-domain@RK3328_PD_HEVC {
- 				reg = <RK3328_PD_HEVC>;
- 			};
--			pd_video@RK3328_PD_VIDEO {
-+			power-domain@RK3328_PD_VIDEO {
- 				reg = <RK3328_PD_VIDEO>;
- 			};
--			pd_vpu@RK3328_PD_VPU {
-+			power-domain@RK3328_PD_VPU {
- 				reg = <RK3328_PD_VPU>;
- 			};
- 		};
+-#define to_ti_syscon_reset_data(rcdev)	\
+-	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
++#define to_ti_syscon_reset_data(_rcdev)	\
++	container_of(_rcdev, struct ti_syscon_reset_data, rcdev)
+ 
+ /**
+  * ti_syscon_reset_assert() - assert device reset
 -- 
 2.30.2
 
