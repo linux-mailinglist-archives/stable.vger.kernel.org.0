@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66AE13C8D5D
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A343C8D6E
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234809AbhGNToi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:44:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38404 "EHLO mail.kernel.org"
+        id S236960AbhGNToo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:44:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236258AbhGNTnx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33F28613FE;
-        Wed, 14 Jul 2021 19:40:50 +0000 (UTC)
+        id S236327AbhGNTny (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2E2A600D4;
+        Wed, 14 Jul 2021 19:40:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291651;
-        bh=KZ7qtIBvJQCUHMJ7yqOjOv/AUPX2tA0r9ajKz661kdY=;
+        s=k20201202; t=1626291652;
+        bh=k0+Z/EBZfGlnZ3T8kgB5h2QtLkn3zoz8QDEienCkj74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4ncF90+XvpCXnzCvQ6WEVhsmZSr53h7yfz0q1ZWGcEJ2WE/qsjXiIQjmGwnJ3Yg9
-         /z6Zs1Y2VdvxrAuy7Ui8HXluq/PG7X8Z/2Q9I8eZFVKjDV5Ig2BURHxwL0DAavOm7H
-         2OpXuESonsokqZUF9dU/5Q+cxPYxqiHH5PM0aISQsaX4mnkQJwZLO/IYbDOUBY4h0F
-         glgSpFjxzP18axb3xbFO1g5k4D2KNthiS2NaX7A4OkmADYF0lzxGuBejE4H2KHRp2A
-         ts+/+GdHIDVNx0eF+bzjitiUDTiv0FyaCI5eGafEb8XUyOqgAW3gqWZhg42ygMDkfV
-         /eeDm27nype1g==
+        b=QtDRgFPpArvP3dWBKeE1KKGnBq1shJwP1CHuLyzDkUmpjDnIwcQyFLPyBWg93AG8x
+         zD9Vt+ZxIYZWzO6RJNkMSQRGfqBPJQAlyYlNlgpOA7RfIhC88U75H2q1Fz8ii1WVD3
+         KYez+7p5M43HMehBstVb6qYlQLRADe1qnOpISyLNFlGKTF+bonasTzRfxsf4MGyn32
+         HJ2hS694Tc9uSYyUgN9QQzZSVgw2YgTX9pbVXYgHH8VWCqaNYMt3/z4KWwNq8ikgp9
+         5W9LSFVEO+97/Go6qLfyL+u/6WxWbFOWA4IRuN7az6RGOQbwBfYe5Np8SJG/uJYYnv
+         Gdps94f26s4Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
@@ -32,9 +32,9 @@ Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
         Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 010/102] ARM: dts: rockchip: Fix power-controller node names for rk3188
-Date:   Wed, 14 Jul 2021 15:39:03 -0400
-Message-Id: <20210714194036.53141-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 011/102] ARM: dts: rockchip: Fix power-controller node names for rk3288
+Date:   Wed, 14 Jul 2021 15:39:04 -0400
+Message-Id: <20210714194036.53141-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -48,7 +48,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit d3bcbcd396175ac26aa54919c0b31c7d2878fc24 ]
+[ Upstream commit 970cdc53cb1afa73602028c103dbfb6a230080be ]
 
 Use more generic names (as recommended in the device tree specification
 or the binding documentation)
@@ -56,44 +56,53 @@ or the binding documentation)
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-3-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20210417112952.8516-4-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 2c08ae60e4a1..b6bde9d12c2b 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -699,7 +699,7 @@ power: power-controller {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		pd_vio@RK3188_PD_VIO {
-+		power-domain@RK3188_PD_VIO {
- 			reg = <RK3188_PD_VIO>;
- 			clocks = <&cru ACLK_LCDC0>,
- 				 <&cru ACLK_LCDC1>,
-@@ -721,7 +721,7 @@ pd_vio@RK3188_PD_VIO {
- 				 <&qos_rga>;
- 		};
- 
--		pd_video@RK3188_PD_VIDEO {
-+		power-domain@RK3188_PD_VIDEO {
- 			reg = <RK3188_PD_VIDEO>;
- 			clocks = <&cru ACLK_VDPU>,
- 				 <&cru ACLK_VEPU>,
-@@ -730,7 +730,7 @@ pd_video@RK3188_PD_VIDEO {
- 			pm_qos = <&qos_vpu>;
- 		};
- 
--		pd_gpu@RK3188_PD_GPU {
-+		power-domain@RK3188_PD_GPU {
- 			reg = <RK3188_PD_GPU>;
- 			clocks = <&cru ACLK_GPU>;
- 			pm_qos = <&qos_gpu>;
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index f9ee26e3ca55..75613ae2d643 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -769,7 +769,7 @@ power: power-controller {
+ 			 *	*_HDMI		HDMI
+ 			 *	*_MIPI_*	MIPI
+ 			 */
+-			pd_vio@RK3288_PD_VIO {
++			power-domain@RK3288_PD_VIO {
+ 				reg = <RK3288_PD_VIO>;
+ 				clocks = <&cru ACLK_IEP>,
+ 					 <&cru ACLK_ISP>,
+@@ -811,7 +811,7 @@ pd_vio@RK3288_PD_VIO {
+ 			 * Note: The following 3 are HEVC(H.265) clocks,
+ 			 * and on the ACLK_HEVC_NIU (NOC).
+ 			 */
+-			pd_hevc@RK3288_PD_HEVC {
++			power-domain@RK3288_PD_HEVC {
+ 				reg = <RK3288_PD_HEVC>;
+ 				clocks = <&cru ACLK_HEVC>,
+ 					 <&cru SCLK_HEVC_CABAC>,
+@@ -825,7 +825,7 @@ pd_hevc@RK3288_PD_HEVC {
+ 			 * (video endecoder & decoder) clocks that on the
+ 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
+ 			 */
+-			pd_video@RK3288_PD_VIDEO {
++			power-domain@RK3288_PD_VIDEO {
+ 				reg = <RK3288_PD_VIDEO>;
+ 				clocks = <&cru ACLK_VCODEC>,
+ 					 <&cru HCLK_VCODEC>;
+@@ -836,7 +836,7 @@ pd_video@RK3288_PD_VIDEO {
+ 			 * Note: ACLK_GPU is the GPU clock,
+ 			 * and on the ACLK_GPU_NIU (NOC).
+ 			 */
+-			pd_gpu@RK3288_PD_GPU {
++			power-domain@RK3288_PD_GPU {
+ 				reg = <RK3288_PD_GPU>;
+ 				clocks = <&cru ACLK_GPU>;
+ 				pm_qos = <&qos_gpu_r>,
 -- 
 2.30.2
 
