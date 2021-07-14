@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 350A03C8F8C
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C67F3C8F92
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239363AbhGNTws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46918 "EHLO mail.kernel.org"
+        id S239577AbhGNTww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240151AbhGNTtd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:49:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A8F613E8;
-        Wed, 14 Jul 2021 19:44:45 +0000 (UTC)
+        id S240183AbhGNTte (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:49:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 650E461428;
+        Wed, 14 Jul 2021 19:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291885;
-        bh=IS1vLpPz6uocNDSd2Xrszaj7fRjp7DbJLKWZOOhIkb4=;
+        s=k20201202; t=1626291887;
+        bh=7CRownILOEHraGQb/+o7G60263aYdP+BP0g8NUMrV/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UaDe1mc54t0bpcEiY7jC2YYOiUhJxeG33i2c1W8zOTDFEYDVBaoyAqI/0U7O+64+o
-         NQdYeMJBpQMLtYR/g5wS26M0x88HnJso3PqCq7H/Gxq7UH9HVuI3qOXK9jEULCmMKE
-         6qTYxsm2RsCqTRS0u5/lWQQSw+wNVSP+cPEwxtjgGV6tfrhvQ1XA71PnH3a1zppNIV
-         fOWsimOPd8zk48bO4b2UhsH7F7/QRspq6vXYGD/upDfhAsWYcj9ZHADZd8y/Mz8mKC
-         L8RSIHk+zyuuJj5IIItXSjTdXFQ7u3WHJughnmpiaAXWnGoKd0E5e4O/gIAdKxcE2i
-         Ik3bXY6PEmNZA==
+        b=kuAZ5W8aqlYIlzpBum0jSoZ2g4fqx2Jh9Qd3G3Oz33inR2WCZko5B4slpsJrnEeWA
+         ZtspyKWClVIE7Zw/3IYi8XJdAfWS/BemjLE3f2KboDFZE8IriLYo2Smmld6grxRrZh
+         jtN8w147b/O2BeqEsxplJ18kq1of18oKfARwpVaqAi1g4VnvwmGlfWyaM5Xlhz8Aic
+         9VoTmTISkTDFxUV6HgAtT9ofMan82uJ3gjlwjOoC6AX7D6e0ctSNXEs44CWUPVcbjp
+         u8yZxDkFnKKDL0yN3/scQ3jy1RGoKZh9m7da2pWkQ3FtG4HIqviFM8+XRsSSGFekyN
+         uE0hs0JMbJ+/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 68/88] firmware: tegra: bpmp: Fix Tegra234-only builds
-Date:   Wed, 14 Jul 2021 15:42:43 -0400
-Message-Id: <20210714194303.54028-68-sashal@kernel.org>
+Cc:     Mian Yousaf Kaukab <ykaukab@suse.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 69/88] arm64: dts: ls208xa: remove bus-num from dspi node
+Date:   Wed, 14 Jul 2021 15:42:44 -0400
+Message-Id: <20210714194303.54028-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194303.54028-1-sashal@kernel.org>
 References: <20210714194303.54028-1-sashal@kernel.org>
@@ -41,61 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Mian Yousaf Kaukab <ykaukab@suse.de>
 
-[ Upstream commit bd778b893963d67d7eb01f49d84ffcd3eaf229dd ]
+[ Upstream commit 8240c972c1798ea013cbb407722295fc826b3584 ]
 
-The tegra186_bpmp_ops symbol is used on Tegra234, so make sure it's
-available.
+On LS2088A-RDB board, if the spi-fsl-dspi driver is built as module
+then its probe fails with the following warning:
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+[   10.471363] couldn't get idr
+[   10.471381] WARNING: CPU: 4 PID: 488 at drivers/spi/spi.c:2689 spi_register_controller+0x73c/0x8d0
+...
+[   10.471651] fsl-dspi 2100000.spi: Problem registering DSPI ctlr
+[   10.471708] fsl-dspi: probe of 2100000.spi failed with error -16
+
+Reason for the failure is that bus-num property is set for dspi node.
+However, bus-num property is not set for the qspi node. If probe for
+spi-fsl-qspi happens first then id 0 is dynamically allocated to it.
+Call to spi_register_controller() from spi-fsl-dspi driver then fails.
+Since commit 29d2daf2c33c ("spi: spi-fsl-dspi: Make bus-num property
+optional") bus-num property is optional. Remove bus-num property from
+dspi node to fix the issue.
+
+Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/tegra/Makefile       | 1 +
- drivers/firmware/tegra/bpmp-private.h | 3 ++-
- drivers/firmware/tegra/bpmp.c         | 3 ++-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/firmware/tegra/Makefile b/drivers/firmware/tegra/Makefile
-index 49c87e00fafb..620cf3fdd607 100644
---- a/drivers/firmware/tegra/Makefile
-+++ b/drivers/firmware/tegra/Makefile
-@@ -3,6 +3,7 @@ tegra-bpmp-y			= bpmp.o
- tegra-bpmp-$(CONFIG_ARCH_TEGRA_210_SOC)	+= bpmp-tegra210.o
- tegra-bpmp-$(CONFIG_ARCH_TEGRA_186_SOC)	+= bpmp-tegra186.o
- tegra-bpmp-$(CONFIG_ARCH_TEGRA_194_SOC)	+= bpmp-tegra186.o
-+tegra-bpmp-$(CONFIG_ARCH_TEGRA_234_SOC)	+= bpmp-tegra186.o
- tegra-bpmp-$(CONFIG_DEBUG_FS)	+= bpmp-debugfs.o
- obj-$(CONFIG_TEGRA_BPMP)	+= tegra-bpmp.o
- obj-$(CONFIG_TEGRA_IVC)		+= ivc.o
-diff --git a/drivers/firmware/tegra/bpmp-private.h b/drivers/firmware/tegra/bpmp-private.h
-index 54d560c48398..182bfe396516 100644
---- a/drivers/firmware/tegra/bpmp-private.h
-+++ b/drivers/firmware/tegra/bpmp-private.h
-@@ -24,7 +24,8 @@ struct tegra_bpmp_ops {
- };
+diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+index e7abb74bd816..4d34d82b898a 100644
+--- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
++++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
+@@ -625,7 +625,6 @@ dspi: spi@2100000 {
+ 			clocks = <&clockgen 4 3>;
+ 			clock-names = "dspi";
+ 			spi-num-chipselects = <5>;
+-			bus-num = <0>;
+ 		};
  
- #if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
--    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC)
-+    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
-+    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
- extern const struct tegra_bpmp_ops tegra186_bpmp_ops;
- #endif
- #if IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC)
-diff --git a/drivers/firmware/tegra/bpmp.c b/drivers/firmware/tegra/bpmp.c
-index 0742a90cb844..5654c5e9862b 100644
---- a/drivers/firmware/tegra/bpmp.c
-+++ b/drivers/firmware/tegra/bpmp.c
-@@ -809,7 +809,8 @@ static const struct dev_pm_ops tegra_bpmp_pm_ops = {
- };
- 
- #if IS_ENABLED(CONFIG_ARCH_TEGRA_186_SOC) || \
--    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC)
-+    IS_ENABLED(CONFIG_ARCH_TEGRA_194_SOC) || \
-+    IS_ENABLED(CONFIG_ARCH_TEGRA_234_SOC)
- static const struct tegra_bpmp_soc tegra186_soc = {
- 	.channels = {
- 		.cpu_tx = {
+ 		esdhc: esdhc@2140000 {
 -- 
 2.30.2
 
