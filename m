@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2DD3C8D8A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2CF63C8D88
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237027AbhGNTpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36840 "EHLO mail.kernel.org"
+        id S236878AbhGNTpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235533AbhGNToY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236874AbhGNToY (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D1C1613EE;
-        Wed, 14 Jul 2021 19:41:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54D6F613F1;
+        Wed, 14 Jul 2021 19:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291672;
-        bh=gpnF7OUMNHCYMkaXyNSVlQlN1/Aws7hl9vXk2PLcjrA=;
+        s=k20201202; t=1626291674;
+        bh=oYfTxqLGVBT5yg+xMwCwpdKCTFpfJ5wd+O/hqJoewfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TjQ4RJO9PiNXFchSaNm1MJuDcOEnRi7KlmFkCHcN2TEFonQCAXbQitUn8dOl4Oi92
-         zb1Bos1BTFwtdgqo0UlBiZHLm4Ykmt8FNBCuHIRnnJznQERpZqtgkW/k3CYyouzcW9
-         y06LH+Mlabr1iPFj7V85qbu9CEvexY1xIaox2QV2Z/MASjxm5aEv3bQ2jthQCFamBA
-         OCiuAfdpF+ZsCHjzUPZRVoDA++P4pgDSL8v/8LsxHVH22GhiDlvlQTeAhC0JzW7Kno
-         PZBZ9shKmr2W1qnN4hJHblpNXlhSmdKF7xJ1m/W5ZvtdwJXoMZstB6BbdICEcrh31Y
-         lNy5T6JGqeRcg==
+        b=id7NpUMDZiuEx341ljGc3/hZbh1Lc86eNcij5s09NcNQSY+yyxcr/Cc8yLaBXLfAZ
+         KQwGaG4A2OsFrJpycfrdBsb1PsoJfOibC5h0g/PqKyxvwV+P7GlmD3SURnK8PdTPXO
+         mLlaK+Xe2Qyh1gBcMGLOyZCrhzEvfpPqsFwyUkomdxwtFdbGUUrPBfPntIGYI6Q4Gz
+         O7MTZ9D7BPiq0K+TdeQTNfVh4S6e+X/Ycy/foDWIzKaeT4V5vlv9QluCQP2FEpGNeo
+         aguDAupew9tTaWnOEPE/MIhIZNbj7/MT4hp9ugeDJijH1crtYW586Lm5H/yuIg4drc
+         Yms2Qwswquf/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 025/102] ARM: dts: exynos: align Broadcom WiFi with dtschema
-Date:   Wed, 14 Jul 2021 15:39:18 -0400
-Message-Id: <20210714194036.53141-25-sashal@kernel.org>
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 026/102] soc: mediatek: add missing MODULE_DEVICE_TABLE
+Date:   Wed, 14 Jul 2021 15:39:19 -0400
+Message-Id: <20210714194036.53141-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -43,79 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit cc29e39412b9a78b43f7dfa09d739f8ba9fa7984 ]
+[ Upstream commit ba96de3ae5a7e2121cac80053b277eb2ab51a0ae ]
 
-The Broadcom BCM4329 family dtschema expects devices to be compatible
-also with brcm,bcm4329-fmac:
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-  arch/arm/boot/dts/exynos3250-rinato.dt.yaml: wifi@1: compatible: 'oneOf' conditional failed, one must be fixed:
-    ['brcm,bcm4334-fmac'] is too short
-    'brcm,bcm4329-fmac' was expected
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210505135941.59898-1-krzysztof.kozlowski@canonical.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620705350-104687-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos3250-rinato.dts         | 2 +-
- arch/arm/boot/dts/exynos4210-i9100.dts          | 2 +-
- arch/arm/boot/dts/exynos4210-trats.dts          | 2 +-
- arch/arm/boot/dts/exynos4210-universal_c210.dts | 2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/soc/mediatek/mtk-devapc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/exynos3250-rinato.dts b/arch/arm/boot/dts/exynos3250-rinato.dts
-index d64ccf4b7d32..2a93f71abf9a 100644
---- a/arch/arm/boot/dts/exynos3250-rinato.dts
-+++ b/arch/arm/boot/dts/exynos3250-rinato.dts
-@@ -653,7 +653,7 @@ &mshc_1 {
- 	mmc-pwrseq = <&wlan_pwrseq>;
+diff --git a/drivers/soc/mediatek/mtk-devapc.c b/drivers/soc/mediatek/mtk-devapc.c
+index f1cea041dc5a..7c65ad3d1f8a 100644
+--- a/drivers/soc/mediatek/mtk-devapc.c
++++ b/drivers/soc/mediatek/mtk-devapc.c
+@@ -234,6 +234,7 @@ static const struct of_device_id mtk_devapc_dt_match[] = {
+ 	}, {
+ 	},
+ };
++MODULE_DEVICE_TABLE(of, mtk_devapc_dt_match);
  
- 	brcmf: wifi@1 {
--		compatible = "brcm,bcm4334-fmac";
-+		compatible = "brcm,bcm4334-fmac", "brcm,bcm4329-fmac";
- 		reg = <1>;
- 
- 		interrupt-parent = <&gpx1>;
-diff --git a/arch/arm/boot/dts/exynos4210-i9100.dts b/arch/arm/boot/dts/exynos4210-i9100.dts
-index d98c78207aaf..26820b46cc76 100644
---- a/arch/arm/boot/dts/exynos4210-i9100.dts
-+++ b/arch/arm/boot/dts/exynos4210-i9100.dts
-@@ -752,7 +752,7 @@ &sdhci_3 {
- 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
- 
- 	brcmf: wifi@1 {
--		compatible = "brcm,bcm4330-fmac";
-+		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
- 		reg = <1>;
- 
- 		interrupt-parent = <&gpx2>;
-diff --git a/arch/arm/boot/dts/exynos4210-trats.dts b/arch/arm/boot/dts/exynos4210-trats.dts
-index d2406c9146b8..3eb8df319246 100644
---- a/arch/arm/boot/dts/exynos4210-trats.dts
-+++ b/arch/arm/boot/dts/exynos4210-trats.dts
-@@ -521,7 +521,7 @@ &sdhci_3 {
- 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
- 
- 	brcmf: wifi@1 {
--		compatible = "brcm,bcm4330-fmac";
-+		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
- 		reg = <1>;
- 
- 		interrupt-parent = <&gpx2>;
-diff --git a/arch/arm/boot/dts/exynos4210-universal_c210.dts b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-index dd44ad2c6ad6..f052853244a4 100644
---- a/arch/arm/boot/dts/exynos4210-universal_c210.dts
-+++ b/arch/arm/boot/dts/exynos4210-universal_c210.dts
-@@ -614,7 +614,7 @@ &sdhci_3 {
- 	pinctrl-0 = <&sd3_clk>, <&sd3_cmd>, <&sd3_bus4>;
- 
- 	brcmf: wifi@1 {
--		compatible = "brcm,bcm4330-fmac";
-+		compatible = "brcm,bcm4330-fmac", "brcm,bcm4329-fmac";
- 		reg = <1>;
- 		interrupt-parent = <&gpx2>;
- 		interrupts = <5 IRQ_TYPE_LEVEL_HIGH>;
+ static int mtk_devapc_probe(struct platform_device *pdev)
+ {
 -- 
 2.30.2
 
