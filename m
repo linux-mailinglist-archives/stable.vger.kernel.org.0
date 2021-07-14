@@ -2,71 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E9E3C7A41
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 01:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0EAC3C7AC3
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 03:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236769AbhGMXpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 13 Jul 2021 19:45:41 -0400
-Received: from mout.gmx.net ([212.227.17.21]:49283 "EHLO mout.gmx.net"
+        id S237244AbhGNBFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 13 Jul 2021 21:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235437AbhGMXpl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 13 Jul 2021 19:45:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626219769;
-        bh=NFK0JmTje2XquxmWeGMwh8hvNPkY78Lb2EycqbxdNg8=;
-        h=X-UI-Sender-Class:From:Subject:To:Cc:Date;
-        b=GlQ3vCfmZlYQTFIzzSt2LgxIfyRXFEoEHIouaCjs90cG45B6k/5d1e552KYZb6rkz
-         q/D9O3RCZNWMGf7l8hfvCaWrEVS82zSSptpPK9tTCRJYc3EQUvBmJW3tv97IqrCZP9
-         onp7rR2vp8jUJfWrLz8n/Be1L4muoHZ/ks85UGcc=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from obelix.fritz.box ([46.142.4.8]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MK3Rm-1li4sZ1QSc-00LUUl; Wed, 14
- Jul 2021 01:42:49 +0200
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-Message-ID: <02a79df3-f7cc-53ba-e5f2-3b38007468a3@gmx.de>
-Date:   Wed, 14 Jul 2021 01:42:48 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: de-DE
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:kSjeC345SE5rXz6k59BnEOxh1tYosyfrhUteuPmeH/Zwi3vlDLO
- 3zrDrkqoOfisJ8vVTKH7HQwsRuYOVTBNLl7LLCcm6HdzbbchBOOQvnd7nd2AHLs1XsdGGue
- lwHL4x074uVZv33lBSgsa1gH+D1S4lLtEE9Y/Wo85st7pfXKokq+01Np2o044LJVRKFFhmf
- /yWdlTwiMLv+UkacTAl4Q==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:FhmN599gTqs=:xuRLlMdiC5qJfHVxHlB6CK
- blMbXx3E1kPXZ7EaJiatKGRdWE9aYJoJ8mZD5RMI5oHH7aUf6798n9tbluTbxH5bfz9nD5eHf
- 2aM+3CAkqLoNFS4NFDf3iVNypYTELEalNDchHx9mg4mCJskHk+ht5nT4zX0JXCG2AC1b/TUW2
- TYwXk8NuKdNcuhJQ+nvVek/vP2KtqayS0X8rLL5iSLt4YLtM3FPDuA9AHZcrubEFltUIsRiY/
- 1esdVf/sWDJpiV4h70EFGkEr4dRCCPEo+6gS/jokbO1UQBGqPF/H4i8nhEvu4ebpc/7pA9PHZ
- t04nufSRPReYTBHbUbc1qNQgLaVy+1ruIAEY2nMf46dw0Ss5TcWKJOuHyqMOM3IhSJxgJJKfG
- EJkUwkJJ2VZQM9isWKv7+DeuBsbLpinkkQyEJNQWjm+4B3F9JgU8kxiu7M0bV8R1e4ge33bfu
- 7oc+owwwIdMDlXrpfN2LIHuex+dVC/vwXRtFsdd4QPp+fjswGzhYp3AkYn3Xz4X7BCEmRXeVp
- u0woyV9X/dN4e3jNDSjVdnjhl4z5vr8ASBcQX+AlG8uiNjuq+dO3qgR4qz5N/Lz7zLML3gDWI
- 6WGg1p37klEPoBLn4OhEewpaudC9Y7Woo3YkEcIXkMJvsM5zYFQTTjDkUjcMAUH5mgCTDQ0PI
- /zfG2Ri1lA2iQZyemO1ugvTBKU8JlhvlrYSNXAKjdds/XmEVEHVJdkatAsAn9Xtcy5Bn50KJX
- dQd1LuzXYhl2gXapCZg4Va7Ihh8oYzlzFtTSJjrdWUG8Y04K/SH05bmGf9w/TA2lypSP6gwag
- SNt3fGuKt9IZUO9boYZt8qHWs7bQ9EhSjiL9TCdj3uTNZ/v+69sHWLvdM5+Js/UEwp4iqD6+P
- gn0hHT6kez/UHRmkB+A2c0bbiGqgCy+sijzwc+juG1RnDLt8lNMTVT3l2s3WgCYF3PUQG4cbf
- 1CQm48aUh4WszattanlA6AwdLNwzyfu9DGMPvH52ckkgUxzzRrN6CP6Mzz5RpdTL20+UMy3BB
- s0yV7/EBPgB/6ORMAHwlyjva++HATH9602PkLjScOyutXnLstDgSie169B2QDS6Fz9Amn5v3s
- O3hufghnNOpJJcQvyU6XLG6AQpiWwYB56OH
+        id S237180AbhGNBFY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 13 Jul 2021 21:05:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DEB86136E;
+        Wed, 14 Jul 2021 01:02:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1626224552;
+        bh=6WehOXPfHGhmExw7DxXEZuuREMY9ztJvo0vuzRfxqDE=;
+        h=Date:From:To:Subject:From;
+        b=yx4Sh8P14g5aXWdqtC46rFFUjAl3xjfeAd9X6OqlSgqmFZcMw1hDMXrJ6MdiaXoy/
+         GOINS/fmTXnYGS3XabtG5AUD5Vph9MoSXvryQAt0J3Ot6gq4BL6nTk0jNtSMCiCT0o
+         TOwwzZic9p5DWPA/QTPl/Z29If0yk7Z2vz4vLIAg=
+Date:   Tue, 13 Jul 2021 18:02:32 -0700
+From:   akpm@linux-foundation.org
+To:     joao.m.martins@oracle.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
+Subject:  +
+ mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch added to -mm
+ tree
+Message-ID: <20210714010232.mZYMDcaPP%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo
 
-all fine here on an Intel i7-6700 box.
+The patch titled
+     Subject: mm/hugetlb: fix refs calculation from unaligned @vaddr
+has been added to the -mm tree.  Its filename is
+     mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
 
-thanks
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
 
-=2D-
-regards
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Ronald
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Joao Martins <joao.m.martins@oracle.com>
+Subject: mm/hugetlb: fix refs calculation from unaligned @vaddr
+
+commit 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording") refactored
+the count of subpages but missed an edge case when @vaddr is not aligned
+to PAGE_SIZE e.g.  when close to vma->vm_end.  It would then errousnly set
+@refs to 0 and record_subpages_vmas() wouldn't set the @pages array
+element to its value, consequently causing the reported null-deref by
+syzbot.
+
+Fix it by aligning down @vaddr by PAGE_SIZE in @refs calculation.
+
+Link: https://lkml.kernel.org/r/20210713152440.28650-1-joao.m.martins@oracle.com
+Fixes: 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording")
+Reported-by: syzbot+a3fcd59df1b372066f5a@syzkaller.appspotmail.com
+Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/hugetlb.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/mm/hugetlb.c~mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr
++++ a/mm/hugetlb.c
+@@ -5440,8 +5440,9 @@ long follow_hugetlb_page(struct mm_struc
+ 			continue;
+ 		}
+ 
+-		refs = min3(pages_per_huge_page(h) - pfn_offset,
+-			    (vma->vm_end - vaddr) >> PAGE_SHIFT, remainder);
++		/* vaddr may not be aligned to PAGE_SIZE */
++		refs = min3(pages_per_huge_page(h) - pfn_offset, remainder,
++		    (vma->vm_end - ALIGN_DOWN(vaddr, PAGE_SIZE)) >> PAGE_SHIFT);
+ 
+ 		if (pages || vmas)
+ 			record_subpages_vmas(mem_map_offset(page, pfn_offset),
+_
+
+Patches currently in -mm which might be from joao.m.martins@oracle.com are
+
+mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr.patch
+
