@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3DC3C8D92
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F173C8D94
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233634AbhGNTpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:45:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S237066AbhGNTpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:45:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236777AbhGNToP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234776AbhGNToP (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 14 Jul 2021 15:44:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 099F5613E3;
-        Wed, 14 Jul 2021 19:41:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B589613D1;
+        Wed, 14 Jul 2021 19:41:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291665;
-        bh=x+qdZzgSdk3d/ojZFp62G+S3M5I1KK3oAlR4rrJvUFE=;
+        s=k20201202; t=1626291667;
+        bh=cBakN/sw+SBG0A4dFB+/8gCBgPbiPQRJAWuWq+SFgug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRUUA3Sy7G8fQt4h5baVCMm8BPo2eWJW53yojndu7mwJMJd/ZevN9XvXYgR2cwPh+
-         pFw3z4yILdeC2mA8H2vt7gc72XWjUs8fjzqqydyugxk9hjH9/yEZxILHdvMDh0y9uG
-         9kOSDf0/krzIcemHRnvynqH5q6qL/xLVPSdjw19w7InTyPfrSPujlXZ8UGy3ZZzaA+
-         401WpiQzEzyguCXUzCmB/Ai/FdYIjge7lI7hITenMX79ArhohV0xrfexnl2kTHnr9B
-         TvhlqADTDL+9K3G8xMhlUrxDGRwn/ZmQEb8SmavsHmUBvbxPn3R4b5vmuASzDJykeG
-         I2e2mHnktrTwg==
+        b=gxtCyB5K1W+ro3RP82zJ2G6g28p5CZMDEAOKqIsuv7YMVD+pw/CWwG5EqfaIK03AJ
+         SYYK+vSQPqBU1miz9JVzxQb+LjI+DaxCNkVgQKicmRa+MKnSgTj5wVN8LqgYNKWSXI
+         p8RGgrdo8ztn5oy/Q3UYz4lhVrnyaBelc2YaFWJ2AkXg0P083IfFzZBTgZhckOu9LO
+         4A4BAlf8AyUCwnaz4no6Do3Hi+Brg7ECBi13i+2I3ZAgpUZ9/tB//QBBHacDCBBlC/
+         iqXqReUR8F2IFHHRWqF6DepJ/6eDjczdHaCJyI2tt/DGVMaHZ21GAxLWXverMm5gTt
+         iQOi/70y4vuIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
         Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 020/102] ARM: dts: BCM63xx: Fix NAND nodes names
-Date:   Wed, 14 Jul 2021 15:39:13 -0400
-Message-Id: <20210714194036.53141-20-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.12 021/102] ARM: dts: Hurricane 2: Fix NAND nodes names
+Date:   Wed, 14 Jul 2021 15:39:14 -0400
+Message-Id: <20210714194036.53141-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194036.53141-1-sashal@kernel.org>
 References: <20210714194036.53141-1-sashal@kernel.org>
@@ -45,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 75e2f012f6e34b93124d1d86eaa8f27df48e9ea0 ]
+[ Upstream commit a4528d9029e2eda16e4fc9b9da1de1fbec10ab26 ]
 
 This matches nand-controller.yaml requirements.
 
@@ -53,40 +54,22 @@ Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm63138.dtsi    | 2 +-
- arch/arm/boot/dts/bcm963138dvt.dts | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/bcm-hr2.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm63138.dtsi b/arch/arm/boot/dts/bcm63138.dtsi
-index 9c0325cf9e22..cca49a2e2d62 100644
---- a/arch/arm/boot/dts/bcm63138.dtsi
-+++ b/arch/arm/boot/dts/bcm63138.dtsi
-@@ -203,7 +203,7 @@ serial1: serial@620 {
+diff --git a/arch/arm/boot/dts/bcm-hr2.dtsi b/arch/arm/boot/dts/bcm-hr2.dtsi
+index e8df458aad39..84cda16f68a2 100644
+--- a/arch/arm/boot/dts/bcm-hr2.dtsi
++++ b/arch/arm/boot/dts/bcm-hr2.dtsi
+@@ -179,7 +179,7 @@ amac0: ethernet@22000 {
  			status = "disabled";
  		};
  
--		nand: nand@2000 {
-+		nand_controller: nand-controller@2000 {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
- 			compatible = "brcm,nand-bcm63138", "brcm,brcmnand-v7.0", "brcm,brcmnand";
-diff --git a/arch/arm/boot/dts/bcm963138dvt.dts b/arch/arm/boot/dts/bcm963138dvt.dts
-index 5b177274f182..df5c8ab90627 100644
---- a/arch/arm/boot/dts/bcm963138dvt.dts
-+++ b/arch/arm/boot/dts/bcm963138dvt.dts
-@@ -31,10 +31,10 @@ &serial1 {
- 	status = "okay";
- };
- 
--&nand {
-+&nand_controller {
- 	status = "okay";
- 
--	nandcs@0 {
-+	nand@0 {
- 		compatible = "brcm,nandcs";
- 		reg = <0>;
- 		nand-ecc-strength = <4>;
+-		nand: nand@26000 {
++		nand_controller: nand-controller@26000 {
+ 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
+ 			reg = <0x26000 0x600>,
+ 			      <0x11b408 0x600>,
 -- 
 2.30.2
 
