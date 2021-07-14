@@ -2,39 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B33733C90B7
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A02683C90B9
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 22:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236601AbhGNT4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236986AbhGNT4M (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238459AbhGNTvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:51:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7898560FF2;
-        Wed, 14 Jul 2021 19:48:09 +0000 (UTC)
+        id S238623AbhGNTvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:51:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30BF7600D4;
+        Wed, 14 Jul 2021 19:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626292090;
-        bh=8zIigjkUMosnGJUb/nys8Niuj2O/XBWtHtdGSyy/lLk=;
+        s=k20201202; t=1626292091;
+        bh=4iyJmHIX7DMzBZng0NIVgAwDZxZPFo6127VKEYN3pkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dsFRN0xKC4BTVT+b0y8VNW00oetHoJySc2Z3aMOLBm/e6rBuOmhk7kRPJ/QbMOFjZ
-         9MbL11A/7RgrI9czZhg7woAagTlajGSm3zHS+3jOF5ULo4i8Ryal5MnFR7RHH91pPx
-         4+WZdhtbvBaq0/Fdj2LS8Nh9TkbmUYJCP3mRkMnRcrArDoLzr5SoV/FI8oCK7nkjkJ
-         19l6jb/HECVj7eGIkdXDtUv9IDPuE8MdbgUc8Ve8dBtVs066GA68zlaMaiaKYhMbNN
-         /xK2QfDV1TcSZazujj9jxCe029ZhNMapto47yTc4gJg/lO+2BsqD8I/e+aHKp+Up/9
-         WO5KeHHYL2Tlw==
+        b=UTxUQAEfBy4KFt0sn103IvBurOFJArrwBDZ0hGIV1FizvQnOTbEZ7XHPiW0ZB9R/r
+         VItlfVy9NgjCoU/yBu9Ne8FrGLhefV86TwH0XvX/hALOK0/PXDRduvpXhLp6f+TfXb
+         8KI4w1FgC8lXPisRMH0OWFVvZn1XoY0rBCjFp4xLJ6m+DheKnt9pmbG8NjNZlTtBs2
+         tXNTJvNYs2jfeSvl89HSImnDA839fe/SCvREh94Mhx7S/caCr1sRUjjbFroFEfxJs2
+         s/g17iGBXif02Rq282a2wh8au00C55rwFUwA1sJIFQdajUAzQ9K6y96x4BEngFcFfY
+         UwmDPMeEGbyUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Elaine Zhang <zhangqing@rock-chips.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 02/18] ARM: dts: rockchip: Fix power-controller node names for rk3288
-Date:   Wed, 14 Jul 2021 15:47:50 -0400
-Message-Id: <20210714194806.55962-2-sashal@kernel.org>
+Cc:     Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 03/18] reset: ti-syscon: fix to_ti_syscon_reset_data macro
+Date:   Wed, 14 Jul 2021 15:47:51 -0400
+Message-Id: <20210714194806.55962-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714194806.55962-1-sashal@kernel.org>
 References: <20210714194806.55962-1-sashal@kernel.org>
@@ -46,63 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 970cdc53cb1afa73602028c103dbfb6a230080be ]
+[ Upstream commit 05cf8fffcdeb47aef1203c08cbec5224fd3a0e1c ]
 
-Use more generic names (as recommended in the device tree specification
-or the binding documentation)
+The to_ti_syscon_reset_data macro currently only works if the
+parameter passed into it is called 'rcdev'.
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-4-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes a checkpatch --strict issue:
+
+  CHECK: Macro argument reuse 'rcdev' - possible side-effects?
+  #53: FILE: drivers/reset/reset-ti-syscon.c:53:
+  +#define to_ti_syscon_reset_data(rcdev)	\
+  +	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
+
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/reset/reset-ti-syscon.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 09e7898ffb6b..7b727d738b69 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -735,7 +735,7 @@ power: power-controller {
- 			 *	*_HDMI		HDMI
- 			 *	*_MIPI_*	MIPI
- 			 */
--			pd_vio@RK3288_PD_VIO {
-+			power-domain@RK3288_PD_VIO {
- 				reg = <RK3288_PD_VIO>;
- 				clocks = <&cru ACLK_IEP>,
- 					 <&cru ACLK_ISP>,
-@@ -768,7 +768,7 @@ pd_vio@RK3288_PD_VIO {
- 			 * Note: The following 3 are HEVC(H.265) clocks,
- 			 * and on the ACLK_HEVC_NIU (NOC).
- 			 */
--			pd_hevc@RK3288_PD_HEVC {
-+			power-domain@RK3288_PD_HEVC {
- 				reg = <RK3288_PD_HEVC>;
- 				clocks = <&cru ACLK_HEVC>,
- 					 <&cru SCLK_HEVC_CABAC>,
-@@ -780,7 +780,7 @@ pd_hevc@RK3288_PD_HEVC {
- 			 * (video endecoder & decoder) clocks that on the
- 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
- 			 */
--			pd_video@RK3288_PD_VIDEO {
-+			power-domain@RK3288_PD_VIDEO {
- 				reg = <RK3288_PD_VIDEO>;
- 				clocks = <&cru ACLK_VCODEC>,
- 					 <&cru HCLK_VCODEC>;
-@@ -790,7 +790,7 @@ pd_video@RK3288_PD_VIDEO {
- 			 * Note: ACLK_GPU is the GPU clock,
- 			 * and on the ACLK_GPU_NIU (NOC).
- 			 */
--			pd_gpu@RK3288_PD_GPU {
-+			power-domain@RK3288_PD_GPU {
- 				reg = <RK3288_PD_GPU>;
- 				clocks = <&cru ACLK_GPU>;
- 			};
+diff --git a/drivers/reset/reset-ti-syscon.c b/drivers/reset/reset-ti-syscon.c
+index 1799fd423901..54ae04333d75 100644
+--- a/drivers/reset/reset-ti-syscon.c
++++ b/drivers/reset/reset-ti-syscon.c
+@@ -58,8 +58,8 @@ struct ti_syscon_reset_data {
+ 	unsigned int nr_controls;
+ };
+ 
+-#define to_ti_syscon_reset_data(rcdev)	\
+-	container_of(rcdev, struct ti_syscon_reset_data, rcdev)
++#define to_ti_syscon_reset_data(_rcdev)	\
++	container_of(_rcdev, struct ti_syscon_reset_data, rcdev)
+ 
+ /**
+  * ti_syscon_reset_assert() - assert device reset
 -- 
 2.30.2
 
