@@ -2,94 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA233C887B
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 18:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1AB53C888A
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 18:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232383AbhGNQSO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 12:18:14 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:40061 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230427AbhGNQSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 12:18:14 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R331e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UfnjiFQ_1626279319;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UfnjiFQ_1626279319)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 15 Jul 2021 00:15:21 +0800
-Date:   Thu, 15 Jul 2021 00:15:19 +0800
-From:   Gao Xiang <hsiangkao@linux.alibaba.com>
-To:     stable <stable@vger.kernel.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH 5.4.y stable only] MIPS: fix "mipsel-linux-ld:
- decompress.c:undefined reference to `memmove'"
-Message-ID: <YO8Nl11tgbQ0Sm59@B-P7TQMD6M-0146.local>
-References: <YOglcE85xuwfD7It@kroah.com>
- <20210709132408.174206-1-hsiangkao@linux.alibaba.com>
+        id S231499AbhGNQVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 12:21:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58368 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229897AbhGNQVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 12:21:40 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1DFCC06175F
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 09:18:48 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id v7so3007398pgl.2
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 09:18:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/U2/ycfgfRQt0OB4ABpAAesB6TyhD4PV4afyZBKM4GI=;
+        b=KSCrfe9myv2qxnputVLa/+gdPm7i5p9caxSxPLsWzA6XqLDXZgJQpFCPVWdbiIMgXy
+         w8n4snKDkKGI++X3cvcojxIrUEUyqQEiLtDYbtlJGs2lip4KQzm9OZeDdGCtScL7jo1W
+         VKpnolWX6fI9EKlQOOYyLFRoSG2EGbstgKBbEZU2dXHq7d4+ZYI2+M3ElN+UaQLU39NJ
+         xPLZxUp6VkGiGPHzHJCvJa8YI9i6XO3gHudmmyLPva4jBibKX4OOKCCSHtHwvQncI3tZ
+         jYKAOpctKeOhzD1fVhAJfSHsUR2pE8u2h4FCzQvKTHT2CgClA0PtjblJ8FG9L8TdoiiZ
+         hAGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/U2/ycfgfRQt0OB4ABpAAesB6TyhD4PV4afyZBKM4GI=;
+        b=d9oh4lHUgEEp/+NEY+n7GpbV+kJSwXeMB4kZH5ARmupJSVPYjgU+GG4JJ+xTJVThCN
+         C5xi9dteKlLFouUAM6iZdZMnNjdH+szCeaJ310/tHMEiPxSUKg6V3QLd4HPlyTPgObgW
+         DRV6d6eRdQ94qBJgpxTKXuhH9gMszxiKmDx0oE0T2IOZQaNoqtjgNhFDpMKpC01KDdS1
+         i1CVgZhtNbHImVin+COvSePGNPXWy92oVNlGfdYhsK1Bg3gtS6XlzTFu0cWhO4YffcTX
+         F8WCgqT62iN6d8y9Fsbx8CMpntX1zaH+nyuLFUSY3BAQ2nLqsl/okx8ubiDDgYuFVx1t
+         8cwg==
+X-Gm-Message-State: AOAM530mc2bHG2f9EO4RM/dsj26hm/YbLtbHUmsv0D0ySZxollS4xzAx
+        XuJJ8XLs1EewAwRNt4Vm375jTThJWURmhJsp
+X-Google-Smtp-Source: ABdhPJyyQf/0mTuuT0EuL4jklJwORDApifbMm1vZ02YbJrNpqyc7a7peXcOnVpG3ZeefOzyAKiZUmw==
+X-Received: by 2002:a63:eb04:: with SMTP id t4mr10647195pgh.84.1626279528102;
+        Wed, 14 Jul 2021 09:18:48 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u23sm3958764pgk.38.2021.07.14.09.18.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Jul 2021 09:18:47 -0700 (PDT)
+Message-ID: <60ef0e67.1c69fb81.adbd6.aba6@mx.google.com>
+Date:   Wed, 14 Jul 2021 09:18:47 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20210709132408.174206-1-hsiangkao@linux.alibaba.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.12
+X-Kernelci-Kernel: v5.12.16-704-g811a519d7fbbb
+Subject: stable-rc/queue/5.12 baseline: 203 runs,
+ 5 regressions (v5.12.16-704-g811a519d7fbbb)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/queue/5.12 baseline: 203 runs, 5 regressions (v5.12.16-704-g811a5=
+19d7fbbb)
 
-On Fri, Jul 09, 2021 at 09:24:08PM +0800, Gao Xiang wrote:
-> commit a510b616131f85215ba156ed67e5ed1c0701f80f upstream.
-> 
-> kernel test robot reported a 5.4.y build issue found by randconfig [1]
-> after backporting commit 89b158635ad7 ("lib/lz4: explicitly support
-> in-place decompression""). This isn't a problem for v5.10+ since
-> commit a510b616131f ("MIPS: Add support for ZSTD-compressed kernels")
-> which wasn't included in v5.4, but included in v5.10.y, so only v5.4.y
-> is effected.
-> 
-> This partially cherry-picks the memmove part of commit a510b616131f
-> to fix the reported build issue for v5.4.y stable only. Hopefully
-> kernelci could also double check this.
-> 
-> [1] https://lore.kernel.org/r/202107070120.6dOj1kB7-lkp@intel.com/
-> Fixes: defcc2b5e54a ("lib/lz4: explicitly support in-place decompression") # 5.4.y
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-> ---
-> not sure if the stable-only patch format is like this, it partially
-> cherry-picks the useful memmove part of commit a510b616131f to fix
-> the build issue found by randconfig fuzz only.
+Regressions Summary
+-------------------
 
-ping.. are there more things I can do for this?
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+| 1          =
 
-Thanks,
-Gao Xiang
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+| 1          =
 
-> 
->  arch/mips/boot/compressed/string.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
-> 
-> diff --git a/arch/mips/boot/compressed/string.c b/arch/mips/boot/compressed/string.c
-> index 43beecc3587c..e9ab7ea592ba 100644
-> --- a/arch/mips/boot/compressed/string.c
-> +++ b/arch/mips/boot/compressed/string.c
-> @@ -27,3 +27,19 @@ void *memset(void *s, int c, size_t n)
->  		ss[i] = c;
->  	return s;
->  }
-> +
-> +void * __weak memmove(void *dest, const void *src, size_t n)
-> +{
-> +	unsigned int i;
-> +	const char *s = src;
-> +	char *d = dest;
-> +
-> +	if ((uintptr_t)dest < (uintptr_t)src) {
-> +		for (i = 0; i < n; i++)
-> +			d[i] = s[i];
-> +	} else {
-> +		for (i = n; i > 0; i--)
-> +			d[i - 1] = s[i - 1];
-> +	}
-> +	return dest;
-> +}
-> -- 
-> 2.24.4
+rk3288-veyron-jaq  | arm   | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.16-704-g811a519d7fbbb/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.16-704-g811a519d7fbbb
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      811a519d7fbbb90138fdca36f307081d662ab6fa =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+bcm2837-rpi-3-b-32 | arm   | lab-baylibre  | gcc-8    | bcm2835_defconfig  =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60eed7e60428244bae8a93be
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
+7-rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm283=
+7-rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60eed7e60428244bae8a9=
+3bf
+        new failure (last pass: v5.12.16-706-ge2aabcece18e) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+hip07-d05          | arm64 | lab-collabora | gcc-8    | defconfig          =
+| 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60eefb16031bdb7bc38a93b2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.t=
+xt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.h=
+tml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60eefb16031bdb7bc38a9=
+3b3
+        failing since 13 days (last pass: v5.12.13-109-g5add6842f3ea, first=
+ fail: v5.12.13-109-g47e1fda87919) =
+
+ =
+
+
+
+platform           | arch  | lab           | compiler | defconfig          =
+| regressions
+-------------------+-------+---------------+----------+--------------------=
++------------
+rk3288-veyron-jaq  | arm   | lab-collabora | gcc-8    | multi_v7_defconfig =
+| 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60eee98c72282b62fd8a93ac
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.16-=
+704-g811a519d7fbbb/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60eee98c72282b62fd8a93c4
+        failing since 29 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-14T13:41:14.784881  /lava-4196318/1/../bin/lava-test-case
+    2021-07-14T13:41:14.801864  <8>[   14.616214] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-07-14T13:41:14.802122  /lava-4196318/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60eee98c72282b62fd8a93dc
+        failing since 29 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-14T13:41:13.354568  /lava-4196318/1/../bin/lava-test-case
+    2021-07-14T13:41:13.372274  <8>[   13.186320] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>
+    2021-07-14T13:41:13.372564  /lava-4196318/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60eee98c72282b62fd8a93dd
+        failing since 29 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-14T13:41:12.335122  /lava-4196318/1/../bin/lava-test-case
+    2021-07-14T13:41:12.340431  <8>[   12.166652] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
