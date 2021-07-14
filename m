@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27603C8CA9
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FCA03C8CAD
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234978AbhGNTma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 15:42:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37098 "EHLO mail.kernel.org"
+        id S235090AbhGNTme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 15:42:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234603AbhGNTmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:42:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44200613D6;
-        Wed, 14 Jul 2021 19:39:15 +0000 (UTC)
+        id S234657AbhGNTmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:42:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9570761370;
+        Wed, 14 Jul 2021 19:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291556;
-        bh=rXWkPXBg4LUBXWPmKfZQEWc7QHNFNsYsoQEmj6nhgbU=;
+        s=k20201202; t=1626291557;
+        bh=P0Qq2ceI7w7g3OlkqgXU0sTHuhLC6kHZ+SQxzV9wWTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRLe4oajfoce+6POBEQcxlfO7h6JRCqIWMUyECYjPebRqXGfdODn3opTERj09gekV
-         LtorLTt0+rI5/c7Onzklf/WrLLaElMRwexnxXOf9XBqksH207cKe6v3E5CuTJS8SEh
-         hwbTIEytBaV3tdc+W+0eX4bB4oqGQuSlidihIK9CtYLR+lJFw62qUv7KPIIuQEWM9F
-         4g6nkBFa0H0fYnLzlFRT37ENSzkUsHo+ho6dKbo44dCPT3opsogG8yjrnRxfP5mjo+
-         8he67pX2dhllLP94xBBLjxMnxMHCrB6vDDN3/O3msLAR2GlhF778gBE4sVIdaEwIiW
-         UU+Ov6iXk81/A==
+        b=TGaGy3TptQwbM75gzUaC/4FEyDDFMtwo3yd1i0DwkAMlt+YVS+Takf2NomGEYxmQf
+         QZFvI12E3Zs5F8scvUaEGnoCkgzvO8dN4P9Ky8XN2PDcegk/Mrf5YR7QPgNISvpTbS
+         Uwivd8ZIZDftlwwrFnryTMtDoktT6hrclIS4EiZauhVumTThAy2kcFsIeKRT+cj0ra
+         ZNRfUSZKPV16Hhx3voCk3J35pWOFpSifw/H3i41VlbtquYUfeTmhXdN3PlAiUsSeYL
+         mClU/aUnHfXopwVK2K/O1dlp1v2N68+iW43ogOEwxOdMpMRAw3qoBdnU6QR7bt+RpP
+         Kq3XVTiZMhftg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Osipenko <digetx@gmail.com>,
-        Svyatoslav Ryhel <clamor95@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.13 052/108] ARM: tegra: nexus7: Correct 3v3 regulator GPIO of PM269 variant
-Date:   Wed, 14 Jul 2021 15:37:04 -0400
-Message-Id: <20210714193800.52097-52-sashal@kernel.org>
+Cc:     Vinod Koul <vkoul@kernel.org>,
+        Robert Foss <robert.foss@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 053/108] arm64: dts: qcom: sm8350: fix the node unit addresses
+Date:   Wed, 14 Jul 2021 15:37:05 -0400
+Message-Id: <20210714193800.52097-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -44,35 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Vinod Koul <vkoul@kernel.org>
 
-[ Upstream commit c4dd6066bc304649e3159f1c7a08ece25d537e00 ]
+[ Upstream commit 1dee9e3b0997fef7170f7ea2d8eab47d0cd334d8 ]
 
-The 3v3 regulator GPIO is GP6 and not GP7, which is the DDR regulator.
-Both regulators are always-on, nevertheless the DT model needs to be
-corrected, fix it.
+Some node unit addresses were put wrongly in the dts, resulting in
+below warning when run with W=1
 
-Reported-by: Svyatoslav Ryhel <clamor95@gmail.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+arch/arm64/boot/dts/qcom/sm8350.dtsi:693.34-702.5: Warning (simple_bus_reg): /soc@0/thermal-sensor@c222000: simple-bus unit address format error, expected "c263000"
+arch/arm64/boot/dts/qcom/sm8350.dtsi:704.34-713.5: Warning (simple_bus_reg): /soc@0/thermal-sensor@c223000: simple-bus unit address format error, expected "c265000"
+arch/arm64/boot/dts/qcom/sm8350.dtsi:1180.32-1185.5: Warning (simple_bus_reg): /soc@0/interconnect@90e0000: simple-bus unit address format error, expected "90c0000"
+
+Fix by correcting to the correct address as given in reg node
+
+Reviewed-by: Robert Foss <robert.foss@linaro.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210513060733.382420-1-vkoul@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8350.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-index b97da45ebdb4..e1325ee0a3c4 100644
---- a/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-+++ b/arch/arm/boot/dts/tegra30-asus-nexus7-grouper-ti-pmic.dtsi
-@@ -144,7 +144,7 @@ vdd_core: core-regulator@60 {
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+index ed0b51bc03ea..a2382eb8619b 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+@@ -689,7 +689,7 @@ pdc: interrupt-controller@b220000 {
+ 			interrupt-controller;
+ 		};
  
- 	vdd_3v3_sys: regulator@1 {
--		gpio = <&pmic 7 GPIO_ACTIVE_HIGH>;
-+		gpio = <&pmic 6 GPIO_ACTIVE_HIGH>;
- 		enable-active-high;
- 	};
- };
+-		tsens0: thermal-sensor@c222000 {
++		tsens0: thermal-sensor@c263000 {
+ 			compatible = "qcom,sm8350-tsens", "qcom,tsens-v2";
+ 			reg = <0 0x0c263000 0 0x1ff>, /* TM */
+ 			      <0 0x0c222000 0 0x8>; /* SROT */
+@@ -700,7 +700,7 @@ tsens0: thermal-sensor@c222000 {
+ 			#thermal-sensor-cells = <1>;
+ 		};
+ 
+-		tsens1: thermal-sensor@c223000 {
++		tsens1: thermal-sensor@c265000 {
+ 			compatible = "qcom,sm8350-tsens", "qcom,tsens-v2";
+ 			reg = <0 0x0c265000 0 0x1ff>, /* TM */
+ 			      <0 0x0c223000 0 0x8>; /* SROT */
+@@ -1176,7 +1176,7 @@ usb_2_ssphy: phy@88ebe00 {
+ 			};
+ 		};
+ 
+-		dc_noc: interconnect@90e0000 {
++		dc_noc: interconnect@90c0000 {
+ 			compatible = "qcom,sm8350-dc-noc";
+ 			reg = <0 0x090c0000 0 0x4200>;
+ 			#interconnect-cells = <1>;
 -- 
 2.30.2
 
