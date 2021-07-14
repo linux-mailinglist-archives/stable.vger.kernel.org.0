@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A70B3C8D19
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4853C8D15
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 21:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235684AbhGNTnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235650AbhGNTnl (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 14 Jul 2021 15:43:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38880 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233694AbhGNTnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 15:43:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80FE3613E7;
-        Wed, 14 Jul 2021 19:40:11 +0000 (UTC)
+        id S235733AbhGNTnF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 15:43:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CC4600D4;
+        Wed, 14 Jul 2021 19:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626291612;
-        bh=Ba38WJGVqGtC8P5d4zPWnHTztyf1aMSimuHwSDGgzEg=;
+        s=k20201202; t=1626291613;
+        bh=MhlHhY1agYYtzBqt09Hw4336F4Nu3+PK1eJjW4GESKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxjKPBvMcLFOVrIfGPF+5cWXripk+sCkyGZa7TLV08QLRAJ0WWeJfq1xRB1jLxlo/
-         rN0aI9Fhq7bAKfcEYw+YLqJCa5rdpkqilMXnTJQ39vELOOn8mPfygE8FQxy4Hy+T6s
-         VidfEHCPbJvU6DT03FUwRmhwwyz2FNQjxYu3VWcSsvHjm5Dceb3tUWcp3NGPPFTf1H
-         VqiDJZ0spaebb96Ejsg0FbOQ2AfZa+YxLOv3bdgjIMGR9lxxI4Vu9xKNSqRGv48kmF
-         N8VTUTeJnGK5n2X7t7q62ax4VJo5gzyq/m7vJ7wQEqbz/1zi7AqI5f2bZ2skcTZeG0
-         sPMlAodkE6NTw==
+        b=Tl/YctwMAyhC+9NVnAQRZQvwxYwCcI3jLclXRFZW6asQ/+lM7IA62r49rauhskFDq
+         utDXuPtIVMnVA7uavtMyaoTtWUn00d8LCkPFCuwHaUHCsVAttK+MpXAJHXRKiqfmDF
+         KWpHsqUwPUVcAA8Zkj0vtikSJuGFAXOZy9BYS2nMc2BmbTvVJ2AN6cWAYFfMRqBFeR
+         +BRDg3OPeUSPap0IY209zmyCBCENuzJa7OVmdjZQeyWDSaWjzHIzOoeBbvArI3TX0Q
+         OX0SunTqdKUkg7l2i6Pt6XmRoVc1/WkdCelSHwzwU3OpVVwDZGobE6DYRTLH6Usj/N
+         I83ND6QtV+OLQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Jacky Bai <ping.bai@nxp.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.13 091/108] thermal/drivers/imx_sc: Add missing of_node_put for loop iteration
-Date:   Wed, 14 Jul 2021 15:37:43 -0400
-Message-Id: <20210714193800.52097-91-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.13 092/108] thermal/drivers/sprd: Add missing of_node_put for loop iteration
+Date:   Wed, 14 Jul 2021 15:37:44 -0400
+Message-Id: <20210714193800.52097-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210714193800.52097-1-sashal@kernel.org>
 References: <20210714193800.52097-1-sashal@kernel.org>
@@ -46,51 +45,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 3da97620e8d60da4a7eaae46e03e0a494780642d ]
+[ Upstream commit d8ac5bb4ae653e092d7429a7587b73f1662d6ad7 ]
 
 Early exits from for_each_available_child_of_node() should decrement the
 node reference counter.  Reported by Coccinelle:
 
-  drivers/thermal/imx_sc_thermal.c:93:1-33: WARNING:
-    Function "for_each_available_child_of_node" should have of_node_put() before return around line 97.
+  drivers/thermal/sprd_thermal.c:387:1-23: WARNING:
+    Function "for_each_child_of_node" should have of_node_put() before goto around lines 391.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Jacky Bai <ping.bai@nxp.com>
+Acked-by: Chunyan Zhang <zhang.lyra@gmail.com>
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210614192230.19248-1-krzysztof.kozlowski@canonical.com
+Link: https://lore.kernel.org/r/20210614192230.19248-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/imx_sc_thermal.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/thermal/sprd_thermal.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/thermal/imx_sc_thermal.c b/drivers/thermal/imx_sc_thermal.c
-index b01d28eca7ee..8d76dbfde6a9 100644
---- a/drivers/thermal/imx_sc_thermal.c
-+++ b/drivers/thermal/imx_sc_thermal.c
-@@ -93,6 +93,7 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
- 	for_each_available_child_of_node(np, child) {
- 		sensor = devm_kzalloc(&pdev->dev, sizeof(*sensor), GFP_KERNEL);
- 		if (!sensor) {
-+			of_node_put(child);
- 			of_node_put(sensor_np);
- 			return -ENOMEM;
- 		}
-@@ -104,6 +105,7 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"failed to get valid sensor resource id: %d\n",
- 				ret);
-+			of_node_put(child);
- 			break;
+diff --git a/drivers/thermal/sprd_thermal.c b/drivers/thermal/sprd_thermal.c
+index 3682edb2f466..76a2caa9c265 100644
+--- a/drivers/thermal/sprd_thermal.c
++++ b/drivers/thermal/sprd_thermal.c
+@@ -388,7 +388,7 @@ static int sprd_thm_probe(struct platform_device *pdev)
+ 		sen = devm_kzalloc(&pdev->dev, sizeof(*sen), GFP_KERNEL);
+ 		if (!sen) {
+ 			ret = -ENOMEM;
+-			goto disable_clk;
++			goto of_put;
  		}
  
-@@ -114,6 +116,7 @@ static int imx_sc_thermal_probe(struct platform_device *pdev)
- 		if (IS_ERR(sensor->tzd)) {
- 			dev_err(&pdev->dev, "failed to register thermal zone\n");
- 			ret = PTR_ERR(sensor->tzd);
-+			of_node_put(child);
- 			break;
+ 		sen->data = thm;
+@@ -397,13 +397,13 @@ static int sprd_thm_probe(struct platform_device *pdev)
+ 		ret = of_property_read_u32(sen_child, "reg", &sen->id);
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "get sensor reg failed");
+-			goto disable_clk;
++			goto of_put;
  		}
  
+ 		ret = sprd_thm_sensor_calibration(sen_child, thm, sen);
+ 		if (ret) {
+ 			dev_err(&pdev->dev, "efuse cal analysis failed");
+-			goto disable_clk;
++			goto of_put;
+ 		}
+ 
+ 		sprd_thm_sensor_init(thm, sen);
+@@ -416,19 +416,20 @@ static int sprd_thm_probe(struct platform_device *pdev)
+ 			dev_err(&pdev->dev, "register thermal zone failed %d\n",
+ 				sen->id);
+ 			ret = PTR_ERR(sen->tzd);
+-			goto disable_clk;
++			goto of_put;
+ 		}
+ 
+ 		thm->sensor[sen->id] = sen;
+ 	}
++	/* sen_child set to NULL at this point */
+ 
+ 	ret = sprd_thm_set_ready(thm);
+ 	if (ret)
+-		goto disable_clk;
++		goto of_put;
+ 
+ 	ret = sprd_thm_wait_temp_ready(thm);
+ 	if (ret)
+-		goto disable_clk;
++		goto of_put;
+ 
+ 	for (i = 0; i < thm->nr_sensors; i++)
+ 		sprd_thm_toggle_sensor(thm->sensor[i], true);
+@@ -436,6 +437,8 @@ static int sprd_thm_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, thm);
+ 	return 0;
+ 
++of_put:
++	of_node_put(sen_child);
+ disable_clk:
+ 	clk_disable_unprepare(thm->clk);
+ 	return ret;
 -- 
 2.30.2
 
