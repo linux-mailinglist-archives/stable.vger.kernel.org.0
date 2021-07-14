@@ -2,116 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5A583C934A
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 23:45:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E69E3C9357
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 23:47:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbhGNVr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 17:47:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36544 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235751AbhGNVrz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 17:47:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E8E461358;
-        Wed, 14 Jul 2021 21:45:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1626299102;
-        bh=csbUR4VwW5Oh/OyHKwDdLpaYb3J21NNohncNdHr/W4Y=;
-        h=Date:From:To:Subject:From;
-        b=mncOS4sYN2ZoIzYOL746F7QS91ofT+Y0hFSATvrXA0NrqxkPhxPCJWWGnc/TDukpo
-         htDLeO7y65kdN7SVqQDiJsyGWcOoB8hON2b17p/4nw+MUAAUNR44lEvWTSWDU4wsvF
-         9HAdDO2es7IoykFbHsdIzqdm7j1x6ZHm4zMGdhcI=
-Date:   Wed, 14 Jul 2021 14:45:01 -0700
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, adelva@google.com, andreyknvl@gmail.com,
-        catalin.marinas@arm.com, Dave.Martin@arm.com, eugenis@google.com,
-        lokeshgidra@google.com, mitchp@google.com,
-        mm-commits@vger.kernel.org, pcc@google.com, stable@vger.kernel.org,
-        vincenzo.frascino@arm.com, will@kernel.org, willmcvicker@google.com
-Subject:  +
- selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch added
- to -mm tree
-Message-ID: <20210714214501.zhVAj13Az%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S234100AbhGNVuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 17:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51510 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233381AbhGNVuE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 14 Jul 2021 17:50:04 -0400
+Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33ED8C06175F
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 14:47:11 -0700 (PDT)
+Received: by mail-il1-x141.google.com with SMTP id w1so3051773ilg.10
+        for <stable@vger.kernel.org>; Wed, 14 Jul 2021 14:47:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=o72q88wvgUSQcwcj/zRucGgLdoXqkmgIsRz30CW7aDs=;
+        b=dUSMsom+jLsrbnUToZGWuBdbJdXny3d9aTyiBv8h2GmD3fUIiDOYqUUgtBTm7bkFyz
+         1a8UQqrj/GlGhJJWglb0nuvdFaFcB3ADge5WJ+dvFT1XZqDG+rmJwtG+rLH0mpzs1Yu5
+         txEm+lhe/YO+MIFcEFlo3cm1PzbrWmtwI9D4g2iiL3xgJVJawtdbVjTQ4qvkHWSh1TcG
+         AAekfRv0tMntXXtkVvFsCqZCd08N5RU809wx26UlKS9r3/8PU2UnGZIMKSWfPNmgeWue
+         U/tq8N8kbGLM+MpgW9oSVEXfEch9zNz2fbgaOrPSG9cIh7WiN5yTOecDWUCulWkAZ4k1
+         HM5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=o72q88wvgUSQcwcj/zRucGgLdoXqkmgIsRz30CW7aDs=;
+        b=R0r53m2uYkd9sFVVRzy/47mUlqWqx6vBLE4PvriVkwXNtfIMGkgXbsQHcr+k2D7n6h
+         o0OYQSXUq6ltYdqmeb3bkXCZFQ1X1fP2x1h6TosmFswCFYP25QffvSUaDEgk1XKAWrXh
+         VrTfGvVXXwlIZavDLCnuLsXlhjYgPMoXEc1YjJmRmL4uF/a5JqvRdZB6S7+9mBE12D+e
+         Kdl20s1fRWPbDHS3MNi8phgmWDorvAQI2JOJ+BC1g0YzPtHY/7MnYFkl/bfd5fwiMa9I
+         SzvZiWzN/CHu+pvFU2JsGPmUzycH1H0Qy0Wwgl8t4pEqW87V4+UvHf8CnPtSeEeXasgP
+         jlUA==
+X-Gm-Message-State: AOAM533I4pI4mBYd/t2IOj7DT4WFuFHrZ/kRC+BMAemacv/Q0rttEAnI
+        bvO38nZhXVPAM2lS9VhAbFSlTkuKOixpmf+cBVw=
+X-Google-Smtp-Source: ABdhPJwUCxoZA6/oL/fMIS9TazviPzxIQDnY4TTXVvrVD5Dcra0xoHXOiSz2pQHt3w/5vyeyNn+uGCUkFbqtT8qCLk0=
+X-Received: by 2002:a92:a004:: with SMTP id e4mr7554091ili.299.1626299230603;
+ Wed, 14 Jul 2021 14:47:10 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:a5e:9e44:0:0:0:0:0 with HTTP; Wed, 14 Jul 2021 14:47:10
+ -0700 (PDT)
+Reply-To: mrfifafetea1@aol.com
+From:   "Mr. Wahabou Bara" <sjerr8697@gmail.com>
+Date:   Wed, 14 Jul 2021 22:47:10 +0100
+Message-ID: <CALDfuP-OJcy7-tPi_Xyt+7fqRot0ARcEppg6dqFXS3zGKgbMPA@mail.gmail.com>
+Subject: Your Compensation Funds ATM VISA CARD
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Dear friend Contact my secretary for the delivering of your VISA CARD
+value sum$2.50000.00.US D.
 
-The patch titled
-     Subject: selftest: use mmap instead of posix_memalign to allocate memory
-has been added to the -mm tree.  Its filename is
-     selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
+I'm sorry but happy to inform you about my success in getting those
+funds transferred under the co-operation of a new partner from
+Paraguay though I tried my best to involve you in the Gold/diamond,
+business but God decided the whole situations. Presently I am in
+United Arab Emirates for investment projects with my own share of the
+total sum.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
+Meanwhile, I didn't forget your past efforts and attempts to assist me
+in transferring those funds despite that it failed us somehow.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Now contact my secretary in Burkina Faso.
+His name: Mr Fifa Fete
+His E-mail: mrfifafetea1@aol.com
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Ask him to send you the VISA CARD total of $2.50000.00 which i kept
+for your compensation for all the past efforts and attempts to assist
+me in this matter. I appreciated your efforts at that time very much.
+So feel free and get in touched with my secretary. Fifa Fete and
+instruct him where to send the VISA CARD to you value sum of $
+2.50000.000.00.USD.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Now this amount is me and the new partner contribute and offer you
+this amount $ 1.50000.00.USD is from my own share while my new partner
+supported you also with sum of $ 1000000.USD from his own share also
+because I explain the whole thing to him that you are the first person
+I contacted that wanted to assist me bet you could not make it and he
+said okay there is no problem.
 
-------------------------------------------------------
-From: Peter Collingbourne <pcc@google.com>
-Subject: selftest: use mmap instead of posix_memalign to allocate memory
+so that you will kept the whole secret about my success because I knew
+that it was only you know how I made the money so try to kept
+everything very secret. I hope you understand the reason why this huge
+amount of funds was kept for you?
 
-This test passes pointers obtained from anon_allocate_area to the
-userfaultfd and mremap APIs.  This causes a problem if the system
-allocator returns tagged pointers because with the tagged address ABI the
-kernel rejects tagged addresses passed to these APIs, which would end up
-causing the test to fail.  To make this test compatible with such system
-allocators, stop using the system allocator to allocate memory in
-anon_allocate_area, and instead just use mmap.
+Please do let me know immediately you receive the VISA CARD so that we
+can share the joy after all the sufferings at that time. In the
+moment, I am very busy here because of the investment projects which I
+and the new partner are having at hand, finally,
 
-Link: https://lkml.kernel.org/r/20210714195437.118982-3-pcc@google.com
-Link: https://linux-review.googlesource.com/id/Icac91064fcd923f77a83e8e133f8631c5b8fc241
-Fixes: c47174fc362a ("userfaultfd: selftest")
-Co-developed-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Dave Martin <Dave.Martin@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Alistair Delva <adelva@google.com>
-Cc: William McVicker <willmcvicker@google.com>
-Cc: Evgenii Stepanov <eugenis@google.com>
-Cc: Mitch Phillips <mitchp@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: <stable@vger.kernel.org>	[5.4]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+Remember that I had forwarded instruction to the secretary on your
+behalf to receive that money, so feel free to keep in touch with him,
+so that he will send the VISA CARD value of $2.50000.00.US D. Two
+Million Fifty Thousand United State Dollars to you without any delay.
 
- tools/testing/selftests/vm/userfaultfd.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
---- a/tools/testing/selftests/vm/userfaultfd.c~selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory
-+++ a/tools/testing/selftests/vm/userfaultfd.c
-@@ -210,8 +210,10 @@ static void anon_release_pages(char *rel
- 
- static void anon_allocate_area(void **alloc_area)
- {
--	if (posix_memalign(alloc_area, page_size, nr_pages * page_size))
--		err("posix_memalign() failed");
-+	*alloc_area = mmap(NULL, nr_pages * page_size, PROT_READ | PROT_WRITE,
-+			   MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-+	if (*alloc_area == MAP_FAILED)
-+		err("mmap of anonymous memory failed");
- }
- 
- static void noop_alias_mapping(__u64 *start, size_t len, unsigned long offset)
-_
-
-Patches currently in -mm which might be from pcc@google.com are
-
-userfaultfd-do-not-untag-user-pointers.patch
-selftest-use-mmap-instead-of-posix_memalign-to-allocate-memory.patch
-
+Best Regards,
+Mr. Wahabou Bara
