@@ -2,155 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AD123C7FAB
-	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 09:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B92D03C7FC1
+	for <lists+stable@lfdr.de>; Wed, 14 Jul 2021 10:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238404AbhGNICX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 14 Jul 2021 04:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33396 "EHLO mail.kernel.org"
+        id S238408AbhGNIJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 14 Jul 2021 04:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238287AbhGNICW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 14 Jul 2021 04:02:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E0C96128B;
-        Wed, 14 Jul 2021 07:59:28 +0000 (UTC)
-Date:   Wed, 14 Jul 2021 09:59:25 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     syzbot <syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com>,
-        brauner@kernel.org, Dmitry Vyukov <dvyukov@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        gscrivan@redhat.com, Christoph Hellwig <hch@lst.de>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable-commits@vger.kernel.org, stable <stable@vger.kernel.org>,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [syzbot] KASAN: null-ptr-deref Read in filp_close (2)
-Message-ID: <20210714075925.jtlfrhhuj4bzff3m@wittgenstein>
-References: <00000000000069c40405be6bdad4@google.com>
- <000000000000b00c1105c6f971b2@google.com>
- <CAHk-=wgWv1s1FbTxS+T7kbF-7LLm9Nz1eC+WBn+kr1WdYGtisA@mail.gmail.com>
+        id S238385AbhGNIJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 14 Jul 2021 04:09:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58FA3613AF;
+        Wed, 14 Jul 2021 08:06:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626250008;
+        bh=Ya3u94eMIcTHm5PPl4FfDKsZbgE5F56Nv1jfp2qsi8Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DXxuwXaLwhI9n2rtysmsiXshuTT4jZIfwP4LrA8Ah/69Pg8rJrWjavP4kfhSitSjV
+         RwBrWYuFqveLqZQ3dL49cWAfoX8Q9wVcpifnpnhN1lf6+yPStO6CfSONrSpRpbg2bI
+         4r5TvL3Ys2wrVVg3WbxJZjN4bMtidPRa5jBwpbNwtWHEDan78BlHil4rrffWNwzZWt
+         PhJZwdhW8wG2EhN84fi82OMR9PfwxVlnbYuDmYU37SdVhZTYOcVUsBSscWjyDJqldW
+         nkuXzshcT6Np4Te4lpzrtBpl0GWHc5gaxfP8YKrXwrWwM3UxsRxDRbwW9Pmg14o6yK
+         9iyVHMskpfQOw==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1m3ZuX-0007LK-KG; Wed, 14 Jul 2021 10:06:30 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>
+Subject: [PATCH] serial: 8250: fix handle_irq locking
+Date:   Wed, 14 Jul 2021 10:04:27 +0200
+Message-Id: <20210714080427.28164-1-johan@kernel.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHk-=wgWv1s1FbTxS+T7kbF-7LLm9Nz1eC+WBn+kr1WdYGtisA@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 11:49:14AM -0700, Linus Torvalds wrote:
-> On Mon, Jul 12, 2021 at 9:12 PM syzbot
-> <syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com> wrote:
-> >
-> > syzbot has found a reproducer for the following issue on:
-> 
-> Hmm.
-> 
-> This issue is reported to have been already fixed:
-> 
->     Fix commit: 9b5b8722 file: fix close_range() for unshare+cloexec
-> 
-> and that fix is already in the reported HEAD commit:
-> 
-> > HEAD commit:    7fef2edf sd: don't mess with SD_MINORS for CONFIG_DEBUG_BL..
-> 
-> and the oops report clearly is from that:
-> 
-> > CPU: 1 PID: 8445 Comm: syz-executor493 Not tainted 5.14.0-rc1-syzkaller #0
-> 
-> so the alleged fix is already there.
-> 
-> So clearly commit 9b5b872215fe ("file: fix close_range() for
-> unshare+cloexec") does *NOT* fix the issue.
-> 
-> This was originally bisected to that 582f1fb6b721 ("fs, close_range:
-> add flag CLOSE_RANGE_CLOEXEC") in
-> 
->      https://syzkaller.appspot.com/bug?id=1bef50bdd9622a1969608d1090b2b4a588d0c6ac
-> 
-> which is where the "fix" is from.
-> 
-> It would probably be good if sysbot made this kind of "hey, it was
-> reported fixed, but it's not" very clear.
-> 
-> The KASAN report looks like a use-after-free, and that "use" is
-> actually the sanity check that the file count is non-zero, so it's
-> really a "struct file *" that has already been free'd.
-> 
-> That bogus free is a regular close() system call
-> 
-> >  filp_close+0x22/0x170 fs/open.c:1306
-> >  close_fd+0x5c/0x80 fs/file.c:628
-> >  __do_sys_close fs/open.c:1331 [inline]
-> >  __se_sys_close fs/open.c:1329 [inline]
-> 
-> And it was opened by a "creat()" system call:
-> 
-> > Allocated by task 8445:
-> >  __alloc_file+0x21/0x280 fs/file_table.c:101
-> >  alloc_empty_file+0x6d/0x170 fs/file_table.c:150
-> >  path_openat+0xde/0x27f0 fs/namei.c:3493
-> >  do_filp_open+0x1aa/0x400 fs/namei.c:3534
-> >  do_sys_openat2+0x16d/0x420 fs/open.c:1204
-> >  do_sys_open fs/open.c:1220 [inline]
-> >  __do_sys_creat fs/open.c:1294 [inline]
-> >  __se_sys_creat fs/open.c:1288 [inline]
-> >  __x64_sys_creat+0xc9/0x120 fs/open.c:1288
-> >  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-> >  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-> >  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> But it has apparently already been closed from a workqueue:
-> 
-> > Freed by task 8445:
-> >  __fput+0x288/0x920 fs/file_table.c:280
-> >  task_work_run+0xdd/0x1a0 kernel/task_work.c:164
-> 
-> So it's some kind of confusion and re-use of a struct file pointer.
-> 
-> Which is certainly consistent with the "fix" in 9b5b872215fe ("file:
-> fix close_range() for unshare+cloexec"), but it very much looks like
-> that fix was incomplete and not the full story.
-> 
-> Some fdtable got re-allocated? The fix that wasn't a fix ends up
-> re-checking the maximum file number under the file_lock, but there's
-> clearly something else going on too.
-> 
-> Christian?
+The 8250 handle_irq callback is not just called from the interrupt
+handler but also from a timer callback when polling (e.g. for ports
+without an interrupt line). Consequently the callback must explicitly
+disable interrupts to avoid a potential deadlock with another interrupt
+in polled mode.
 
-Looking into this now.
+Add back an irqrestore-version of the sysrq port-unlock helper and use
+it in the 8250 callbacks that need it.
 
-I have to say I'm very confused by the syzkaller report here.
+Fixes: 75f4e830fa9c ("serial: do not restore interrupt state in sysrq helper")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Cc: stable@vger.kernel.org	# 5.13
+Cc: Joel Stanley <joel@jms.id.au>
+Cc: Andrew Jeffery <andrew@aj.id.au>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/tty/serial/8250/8250_aspeed_vuart.c |  5 +++--
+ drivers/tty/serial/8250/8250_fsl.c          |  5 +++--
+ drivers/tty/serial/8250/8250_port.c         |  5 +++--
+ include/linux/serial_core.h                 | 24 +++++++++++++++++++++
+ 4 files changed, 33 insertions(+), 6 deletions(-)
 
-If I go to
+diff --git a/drivers/tty/serial/8250/8250_aspeed_vuart.c b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+index 4caab8714e2c..2350fb3bb5e4 100644
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -329,6 +329,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
+ {
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	unsigned int iir, lsr;
++	unsigned long flags;
+ 	unsigned int space, count;
+ 
+ 	iir = serial_port_in(port, UART_IIR);
+@@ -336,7 +337,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+ 
+-	spin_lock(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 
+ 	lsr = serial_port_in(port, UART_LSR);
+ 
+@@ -370,7 +371,7 @@ static int aspeed_vuart_handle_irq(struct uart_port *port)
+ 	if (lsr & UART_LSR_THRE)
+ 		serial8250_tx_chars(up);
+ 
+-	uart_unlock_and_check_sysrq(port);
++	uart_unlock_and_check_sysrq_irqrestore(port, flags);
+ 
+ 	return 1;
+ }
+diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
+index 4e75d2e4f87c..fc65a2293ce9 100644
+--- a/drivers/tty/serial/8250/8250_fsl.c
++++ b/drivers/tty/serial/8250/8250_fsl.c
+@@ -30,10 +30,11 @@ struct fsl8250_data {
+ int fsl8250_handle_irq(struct uart_port *port)
+ {
+ 	unsigned char lsr, orig_lsr;
++	unsigned long flags;
+ 	unsigned int iir;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 
+-	spin_lock(&up->port.lock);
++	spin_lock_irqsave(&up->port.lock, flags);
+ 
+ 	iir = port->serial_in(port, UART_IIR);
+ 	if (iir & UART_IIR_NO_INT) {
+@@ -82,7 +83,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+ 
+ 	up->lsr_saved_flags = orig_lsr;
+ 
+-	uart_unlock_and_check_sysrq(&up->port);
++	uart_unlock_and_check_sysrq_irqrestore(&up->port, flags);
+ 
+ 	return 1;
+ }
+diff --git a/drivers/tty/serial/8250/8250_port.c b/drivers/tty/serial/8250/8250_port.c
+index 2164290cbd31..d65778c4e4ca 100644
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1893,11 +1893,12 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 	unsigned char status;
+ 	struct uart_8250_port *up = up_to_u8250p(port);
+ 	bool skip_rx = false;
++	unsigned long flags;
+ 
+ 	if (iir & UART_IIR_NO_INT)
+ 		return 0;
+ 
+-	spin_lock(&port->lock);
++	spin_lock_irqsave(&port->lock, flags);
+ 
+ 	status = serial_port_in(port, UART_LSR);
+ 
+@@ -1923,7 +1924,7 @@ int serial8250_handle_irq(struct uart_port *port, unsigned int iir)
+ 		(up->ier & UART_IER_THRI))
+ 		serial8250_tx_chars(up);
+ 
+-	uart_unlock_and_check_sysrq(port);
++	uart_unlock_and_check_sysrq_irqrestore(port, flags);
+ 
+ 	return 1;
+ }
+diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
+index 52d7fb92a69d..c58cc142d23f 100644
+--- a/include/linux/serial_core.h
++++ b/include/linux/serial_core.h
+@@ -518,6 +518,25 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
+ 	if (sysrq_ch)
+ 		handle_sysrq(sysrq_ch);
+ }
++
++static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
++		unsigned long flags)
++{
++	int sysrq_ch;
++
++	if (!port->has_sysrq) {
++		spin_unlock_irqrestore(&port->lock, flags);
++		return;
++	}
++
++	sysrq_ch = port->sysrq_ch;
++	port->sysrq_ch = 0;
++
++	spin_unlock_irqrestore(&port->lock, flags);
++
++	if (sysrq_ch)
++		handle_sysrq(sysrq_ch);
++}
+ #else	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+ static inline int uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
+ {
+@@ -531,6 +550,11 @@ static inline void uart_unlock_and_check_sysrq(struct uart_port *port)
+ {
+ 	spin_unlock(&port->lock);
+ }
++static inline void uart_unlock_and_check_sysrq_irqrestore(struct uart_port *port,
++		unsigned long flags)
++{
++	spin_unlock_irqrestore(&port->lock, flags);
++}
+ #endif	/* CONFIG_MAGIC_SYSRQ_SERIAL */
+ 
+ /*
+-- 
+2.31.1
 
-https://syzkaller.appspot.com/bug?extid=283ce5a46486d6acdbaf
-
-which is the original link in the report it shows me
-
-android-54	KASAN: use-after-free Read in filp_close	C			2	183d	183d	0/1	upstream: reported C repro on 2021/01/11 12:38
-
-which seems to indicate that this happened on an Android specific 5.4
-kernel?
-
-But ok, so I click on the link "upstream: reported C repro on 2021/01/11 12:38"
-which takes me to a google group
-
-https://groups.google.com/g/syzkaller-android-bugs/c/FQj0qcRSy_M/m/wrY70QFzBAAJ
-
-which again strongly indicates that this is an Android specific kernel?
-
-HEAD commit: c9951e5d Merge 5.4.88 into android12-5.4
-git tree: android12-5.4
-
-but then I can click on the dashboard link for that crash report and it
-takes me to:
-
-https://syzkaller.appspot.com/bug?extid=53897bcb31b82c7a08fe
-
-which seems to be the upstream report?
-
-So I'm a bit confused whether I'm even looking at the correct bug report
-but I'll just give the repro a try and see what's going on.
-
-Christian
