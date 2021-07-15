@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C26FE3CA658
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09343CA79D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236357AbhGOSrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48812 "EHLO mail.kernel.org"
+        id S240360AbhGOSzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238538AbhGOSrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00C57613D2;
-        Thu, 15 Jul 2021 18:44:20 +0000 (UTC)
+        id S242212AbhGOSy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A80B8613C4;
+        Thu, 15 Jul 2021 18:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374661;
-        bh=bEhxiJfXKelDOYmrF7VDpzDeC9mwLyPm+++Zf04X9l4=;
+        s=korg; t=1626375123;
+        bh=ABPESi/tvCvsDdS+Q26E3nZ0CcXREcFW90/hodmz2z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcoKvNyG/G8AYR7ucxBAiHENlL3pIvducuey2tL33FhkBB64LCpoNup2JmmxLKNzg
-         eko+Cgq9RoG5qwq29N4QXeJBbVs1U9Z7Db7u6eOHAcDxI2IFXs40t1X+uegkp9Eegn
-         i4eX+F+J+Bw5A1yM96/EGegVXDmmXdQggirIdEVE=
+        b=TwjE8jSWtHAB/HfoQTccCDNSjNFFrs5lbIUGPtylMD6nD9Hl51nwIWihA9NEsqTKK
+         VS06c9N/NbFT8eCM8BdEQI839QR/n6FiwGJ/tPD7+BeRd73ZaamkrTt6vI/vHScS0r
+         kQEnnGe1JQKXp6+NBB4ZfbJbPGKfCEHqyoLw+Ccc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 094/122] ASoC: tegra: Set driver_name=tegra for all machine drivers
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 169/215] mmc: core: Allow UHS-I voltage switch for SDSC cards if supported
 Date:   Thu, 15 Jul 2021 20:39:01 +0200
-Message-Id: <20210715182516.697718751@linuxfoundation.org>
+Message-Id: <20210715182629.456022986@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,131 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-commit f6eb84fa596abf28959fc7e0b626f925eb1196c7 upstream.
+commit 09247e110b2efce3a104e57e887c373e0a57a412 upstream.
 
-The driver_name="tegra" is now required by the newer ALSA UCMs, otherwise
-Tegra UCMs don't match by the path/name.
+While initializing an UHS-I SD card, the mmc core first tries to switch to
+1.8V I/O voltage, before it continues to change the settings for the bus
+speed mode.
 
-All Tegra machine drivers are specifying the card's name, but it has no
-effect if model name is specified in the device-tree since it overrides
-the card's name. We need to set the driver_name to "tegra" in order to
-get a usable lookup path for the updated ALSA UCMs. The new UCM lookup
-path has a form of driver_name/card_name.
+However, the current behaviour in the mmc core is inconsistent and doesn't
+conform to the SD spec. More precisely, an SD card that supports UHS-I must
+set both the SD_OCR_CCS bit and the SD_OCR_S18R bit in the OCR register
+response. When switching to 1.8V I/O the mmc core correctly checks both of
+the bits, but only the SD_OCR_S18R bit when changing the settings for bus
+speed mode.
 
-The old lookup paths that are based on driver module name continue to
-work as before. Note that UCM matching never worked for Tegra ASoC drivers
-if they were compiled as built-in, this is fixed by supporting the new
-naming scheme.
+Rather than actually fixing the code to confirm to the SD spec, let's
+deliberately deviate from it by requiring only the SD_OCR_S18R bit for both
+parts. This enables us to support UHS-I for SDSC cards (outside spec),
+which is actually being supported by some existing SDSC cards. Moreover,
+this fixes the inconsistent behaviour.
 
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Link: https://lore.kernel.org/r/CWXP265MB26803AE79E0AD5ED083BF2A6C4529@CWXP265MB2680.GBRP265.PROD.OUTLOOK.COM
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210529154649.25936-2-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[Ulf: Rewrote commit message and comments to clarify the changes]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/soc/tegra/tegra_alc5632.c  |    1 +
- sound/soc/tegra/tegra_max98090.c |    1 +
- sound/soc/tegra/tegra_rt5640.c   |    1 +
- sound/soc/tegra/tegra_rt5677.c   |    1 +
- sound/soc/tegra/tegra_sgtl5000.c |    1 +
- sound/soc/tegra/tegra_wm8753.c   |    1 +
- sound/soc/tegra/tegra_wm8903.c   |    1 +
- sound/soc/tegra/tegra_wm9712.c   |    1 +
- sound/soc/tegra/trimslice.c      |    1 +
- 9 files changed, 9 insertions(+)
+ drivers/mmc/core/sd.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/sound/soc/tegra/tegra_alc5632.c
-+++ b/sound/soc/tegra/tegra_alc5632.c
-@@ -139,6 +139,7 @@ static struct snd_soc_dai_link tegra_alc
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -847,11 +847,13 @@ try_again:
+ 		return err;
  
- static struct snd_soc_card snd_soc_tegra_alc5632 = {
- 	.name = "tegra-alc5632",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_alc5632_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_max98090.c
-+++ b/sound/soc/tegra/tegra_max98090.c
-@@ -182,6 +182,7 @@ static struct snd_soc_dai_link tegra_max
- 
- static struct snd_soc_card snd_soc_tegra_max98090 = {
- 	.name = "tegra-max98090",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_max98090_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_rt5640.c
-+++ b/sound/soc/tegra/tegra_rt5640.c
-@@ -132,6 +132,7 @@ static struct snd_soc_dai_link tegra_rt5
- 
- static struct snd_soc_card snd_soc_tegra_rt5640 = {
- 	.name = "tegra-rt5640",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_rt5640_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_rt5677.c
-+++ b/sound/soc/tegra/tegra_rt5677.c
-@@ -175,6 +175,7 @@ static struct snd_soc_dai_link tegra_rt5
- 
- static struct snd_soc_card snd_soc_tegra_rt5677 = {
- 	.name = "tegra-rt5677",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_rt5677_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_sgtl5000.c
-+++ b/sound/soc/tegra/tegra_sgtl5000.c
-@@ -97,6 +97,7 @@ static struct snd_soc_dai_link tegra_sgt
- 
- static struct snd_soc_card snd_soc_tegra_sgtl5000 = {
- 	.name = "tegra-sgtl5000",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_sgtl5000_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm8753.c
-+++ b/sound/soc/tegra/tegra_wm8753.c
-@@ -101,6 +101,7 @@ static struct snd_soc_dai_link tegra_wm8
- 
- static struct snd_soc_card snd_soc_tegra_wm8753 = {
- 	.name = "tegra-wm8753",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8753_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm8903.c
-+++ b/sound/soc/tegra/tegra_wm8903.c
-@@ -217,6 +217,7 @@ static struct snd_soc_dai_link tegra_wm8
- 
- static struct snd_soc_card snd_soc_tegra_wm8903 = {
- 	.name = "tegra-wm8903",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8903_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm9712.c
-+++ b/sound/soc/tegra/tegra_wm9712.c
-@@ -54,6 +54,7 @@ static struct snd_soc_dai_link tegra_wm9
- 
- static struct snd_soc_card snd_soc_tegra_wm9712 = {
- 	.name = "tegra-wm9712",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm9712_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/trimslice.c
-+++ b/sound/soc/tegra/trimslice.c
-@@ -94,6 +94,7 @@ static struct snd_soc_dai_link trimslice
- 
- static struct snd_soc_card snd_soc_trimslice = {
- 	.name = "tegra-trimslice",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &trimslice_tlv320aic23_dai,
- 	.num_links = 1,
+ 	/*
+-	 * In case CCS and S18A in the response is set, start Signal Voltage
+-	 * Switch procedure. SPI mode doesn't support CMD11.
++	 * In case the S18A bit is set in the response, let's start the signal
++	 * voltage switch procedure. SPI mode doesn't support CMD11.
++	 * Note that, according to the spec, the S18A bit is not valid unless
++	 * the CCS bit is set as well. We deliberately deviate from the spec in
++	 * regards to this, which allows UHS-I to be supported for SDSC cards.
+ 	 */
+-	if (!mmc_host_is_spi(host) && rocr &&
+-	   ((*rocr & 0x41000000) == 0x41000000)) {
++	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
+ 		err = mmc_set_uhs_voltage(host, pocr);
+ 		if (err == -EAGAIN) {
+ 			retries--;
 
 
