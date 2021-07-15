@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BA4F3CA9B3
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C293CAB0A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:14:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240795AbhGOTIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+        id S243180AbhGOTQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241532AbhGOTHm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA54861158;
-        Thu, 15 Jul 2021 19:03:32 +0000 (UTC)
+        id S241084AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA3561158;
+        Thu, 15 Jul 2021 19:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375813;
-        bh=+H5wUAr7V9fkMmf4EVqWe5kdVPs57aQ+x+P4CG9MZoY=;
+        s=korg; t=1626376309;
+        bh=jWZGCnsAY9L7zigkpJsKBGOJiuu91rRo/tR1JLcJN4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmPax2yC7XFyTNCBdmnQ3lDdXJOVDh9y1Lx7xQs1irXF4rddydxDKutG7oRfJPAlH
-         wak8D/3ud0UXeDGg1BlePAx2sF5XbKpCJpfcJ4r03wkgjVsAKkIWQxqGBKP2yD0qv7
-         p10/pTcAQwk0dBCW7Mvdco1teZY+ah0ZN4p0s82s=
+        b=1h/AKKBMAEEP1hcUifd68AstLAr5rAjNE0j9LmHRFfhz3cUEkfa7A8be04UYdmiM/
+         YLuLvri/jwgW0mXQxEo6HKJjpwjHWXWLE+S4zTkpSgeJOKxCxdxm2zFEK5YXnofQPy
+         ckinZe0f83IWvsp9aCh29k+z1k/FX8sXA8dha8nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.12 210/242] tracing: Simplify & fix saved_tgids logic
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.13 217/266] ASoC: tegra: Set driver_name=tegra for all machine drivers
 Date:   Thu, 15 Jul 2021 20:39:32 +0200
-Message-Id: <20210715182630.195443522@linuxfoundation.org>
+Message-Id: <20210715182647.815696813@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +39,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
+commit f6eb84fa596abf28959fc7e0b626f925eb1196c7 upstream.
 
-The tgid_map array records a mapping from pid to tgid, where the index
-of an entry within the array is the pid & the value stored at that index
-is the tgid.
+The driver_name="tegra" is now required by the newer ALSA UCMs, otherwise
+Tegra UCMs don't match by the path/name.
 
-The saved_tgids_next() function iterates over pointers into the tgid_map
-array & dereferences the pointers which results in the tgid, but then it
-passes that dereferenced value to trace_find_tgid() which treats it as a
-pid & does a further lookup within the tgid_map array. It seems likely
-that the intent here was to skip over entries in tgid_map for which the
-recorded tgid is zero, but instead we end up skipping over entries for
-which the thread group leader hasn't yet had its own tgid recorded in
-tgid_map.
+All Tegra machine drivers are specifying the card's name, but it has no
+effect if model name is specified in the device-tree since it overrides
+the card's name. We need to set the driver_name to "tegra" in order to
+get a usable lookup path for the updated ALSA UCMs. The new UCM lookup
+path has a form of driver_name/card_name.
 
-A minimal fix would be to remove the call to trace_find_tgid, turning:
+The old lookup paths that are based on driver module name continue to
+work as before. Note that UCM matching never worked for Tegra ASoC drivers
+if they were compiled as built-in, this is fixed by supporting the new
+naming scheme.
 
-  if (trace_find_tgid(*ptr))
-
-into:
-
-  if (*ptr)
-
-..but it seems like this logic can be much simpler if we simply let
-seq_read() iterate over the whole tgid_map array & filter out empty
-entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
-approach, removing the incorrect logic here entirely.
-
-Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210529154649.25936-2-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/trace/trace.c |   38 +++++++++++++-------------------------
- 1 file changed, 13 insertions(+), 25 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5352,37 +5352,20 @@ static const struct file_operations trac
+---
+ sound/soc/tegra/tegra_alc5632.c  |    1 +
+ sound/soc/tegra/tegra_max98090.c |    1 +
+ sound/soc/tegra/tegra_rt5640.c   |    1 +
+ sound/soc/tegra/tegra_rt5677.c   |    1 +
+ sound/soc/tegra/tegra_sgtl5000.c |    1 +
+ sound/soc/tegra/tegra_wm8753.c   |    1 +
+ sound/soc/tegra/tegra_wm8903.c   |    1 +
+ sound/soc/tegra/tegra_wm9712.c   |    1 +
+ sound/soc/tegra/trimslice.c      |    1 +
+ 9 files changed, 9 insertions(+)
+
+--- a/sound/soc/tegra/tegra_alc5632.c
++++ b/sound/soc/tegra/tegra_alc5632.c
+@@ -139,6 +139,7 @@ static struct snd_soc_dai_link tegra_alc
  
- static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
- {
--	int *ptr = v;
-+	int pid = ++(*pos);
+ static struct snd_soc_card snd_soc_tegra_alc5632 = {
+ 	.name = "tegra-alc5632",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_alc5632_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_max98090.c
++++ b/sound/soc/tegra/tegra_max98090.c
+@@ -182,6 +182,7 @@ static struct snd_soc_dai_link tegra_max
  
--	if (*pos || m->count)
--		ptr++;
--
--	(*pos)++;
--
--	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
--		if (trace_find_tgid(*ptr))
--			return ptr;
--	}
-+	if (pid > PID_MAX_DEFAULT)
-+		return NULL;
+ static struct snd_soc_card snd_soc_tegra_max98090 = {
+ 	.name = "tegra-max98090",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_max98090_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_rt5640.c
++++ b/sound/soc/tegra/tegra_rt5640.c
+@@ -132,6 +132,7 @@ static struct snd_soc_dai_link tegra_rt5
  
--	return NULL;
-+	return &tgid_map[pid];
- }
+ static struct snd_soc_card snd_soc_tegra_rt5640 = {
+ 	.name = "tegra-rt5640",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_rt5640_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_rt5677.c
++++ b/sound/soc/tegra/tegra_rt5677.c
+@@ -175,6 +175,7 @@ static struct snd_soc_dai_link tegra_rt5
  
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	void *v;
--	loff_t l = 0;
--
--	if (!tgid_map)
-+	if (!tgid_map || *pos > PID_MAX_DEFAULT)
- 		return NULL;
+ static struct snd_soc_card snd_soc_tegra_rt5677 = {
+ 	.name = "tegra-rt5677",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_rt5677_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_sgtl5000.c
++++ b/sound/soc/tegra/tegra_sgtl5000.c
+@@ -97,6 +97,7 @@ static struct snd_soc_dai_link tegra_sgt
  
--	v = &tgid_map[0];
--	while (l <= *pos) {
--		v = saved_tgids_next(m, v, &l);
--		if (!v)
--			return NULL;
--	}
--
--	return v;
-+	return &tgid_map[*pos];
- }
+ static struct snd_soc_card snd_soc_tegra_sgtl5000 = {
+ 	.name = "tegra-sgtl5000",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_sgtl5000_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_wm8753.c
++++ b/sound/soc/tegra/tegra_wm8753.c
+@@ -101,6 +101,7 @@ static struct snd_soc_dai_link tegra_wm8
  
- static void saved_tgids_stop(struct seq_file *m, void *v)
-@@ -5391,9 +5374,14 @@ static void saved_tgids_stop(struct seq_
+ static struct snd_soc_card snd_soc_tegra_wm8753 = {
+ 	.name = "tegra-wm8753",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm8753_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_wm8903.c
++++ b/sound/soc/tegra/tegra_wm8903.c
+@@ -235,6 +235,7 @@ static struct snd_soc_dai_link tegra_wm8
  
- static int saved_tgids_show(struct seq_file *m, void *v)
- {
--	int pid = (int *)v - tgid_map;
-+	int *entry = (int *)v;
-+	int pid = entry - tgid_map;
-+	int tgid = *entry;
-+
-+	if (tgid == 0)
-+		return SEQ_SKIP;
+ static struct snd_soc_card snd_soc_tegra_wm8903 = {
+ 	.name = "tegra-wm8903",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm8903_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_wm9712.c
++++ b/sound/soc/tegra/tegra_wm9712.c
+@@ -54,6 +54,7 @@ static struct snd_soc_dai_link tegra_wm9
  
--	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
-+	seq_printf(m, "%d %d\n", pid, tgid);
- 	return 0;
- }
+ static struct snd_soc_card snd_soc_tegra_wm9712 = {
+ 	.name = "tegra-wm9712",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm9712_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/trimslice.c
++++ b/sound/soc/tegra/trimslice.c
+@@ -94,6 +94,7 @@ static struct snd_soc_dai_link trimslice
  
+ static struct snd_soc_card snd_soc_trimslice = {
+ 	.name = "tegra-trimslice",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &trimslice_tlv320aic23_dai,
+ 	.num_links = 1,
 
 
