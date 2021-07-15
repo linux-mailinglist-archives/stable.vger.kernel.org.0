@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FD043CAAFE
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7498B3CA956
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244288AbhGOTQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50894 "EHLO mail.kernel.org"
+        id S241968AbhGOTGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:06:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244822AbhGOTPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 038296140E;
-        Thu, 15 Jul 2021 19:11:24 +0000 (UTC)
+        id S242690AbhGOTFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89DB9613C4;
+        Thu, 15 Jul 2021 19:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376285;
-        bh=R10IEylSKFdiya8iUs3Ly/1gr7s/BHDBmFKJQozhd8A=;
+        s=korg; t=1626375699;
+        bh=lujL2cvlgyfZDifBxwWYnoklm+/o68G+SorLx8OaS6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJJFewi2WvnQNvPZlSIhWgK6foA1lTRpNIIBbCDMW4MqjZo9o55SU1G+KYdZDFrH7
-         wBW9EIcMRFqGHJDYBLvaKRux1ZvRat8pccMVMwTkpOC6vGQiRjCEmjgPI5Fp6gGW4b
-         hPIOsV2rkZR6RhRFO2etsqEw+vqpT8orbwEP+IZ0=
+        b=hizRh1jPZ0RuwffvqtSubK/93BuhLb5fcdi3p6dEcmz+AQYEq9akc386YqEIrnoXR
+         Jndkv/WF29tygetu7SRxGuR9TnMJ+atg1SumgYOa2fvKYhns2659WIDNRUZImM2YP+
+         Anz/IgeDyy55shHu9WonNtHih4TAXmJ/CiOR5jXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org
-Subject: [PATCH 5.13 204/266] drm/nouveau: Dont set allow_fb_modifiers explicitly
+        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.12 197/242] ipmi/watchdog: Stop watchdog timer when the current action is none
 Date:   Thu, 15 Jul 2021 20:39:19 +0200
-Message-Id: <20210715182646.086809769@linuxfoundation.org>
+Message-Id: <20210715182627.908812353@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-commit cee93c028288b9af02919f3bd8593ba61d1e610d upstream.
+commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
 
-Since
+When an IPMI watchdog timer is being stopped in ipmi_close() or
+ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
+WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
+to install this action. The latter function ends up invoking
+__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
+request.
 
-commit 890880ddfdbe256083170866e49c87618b706ac7
-Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Date:   Fri Jan 4 09:56:10 2019 +0100
+For IPMI 1.0, this operation results in fully stopping the watchdog timer.
+For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
+stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
+that the watchdog timer has its action correctly updated to 'none' but the
+timer continues to run. A problem is that IPMI firmware can then still log
+an expiration event when the configured timeout is reached, which is
+unexpected because the watchdog timer was requested to be stopped.
 
-    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
+The patch fixes this problem by not setting the "don't stop" flag in
+__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
+results in stopping the watchdog timer. This makes the behaviour for
+IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
+__ipmi_heartbeat() which does not allow to reset the watchdog if the
+current action is WDOG_TIMEOUT_NONE as that would start the timer.
 
-this is done automatically as part of plane init, if drivers set the
-modifier list correctly. Which is the case here.
-
-Note that this fixes an inconsistency: We've set the cap everywhere,
-but only nv50+ supports modifiers. Hence cc stable, but not further
-back then the patch from Paul.
-
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org # v5.1 +
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: nouveau@lists.freedesktop.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-6-daniel.vetter@ffwll.ch
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/nouveau_display.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nouveau_display.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_display.c
-@@ -697,7 +697,6 @@ nouveau_display_create(struct drm_device
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -371,16 +371,18 @@ static int __ipmi_set_timeout(struct ipm
+ 	data[0] = 0;
+ 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
  
- 	dev->mode_config.preferred_depth = 24;
- 	dev->mode_config.prefer_shadow = 1;
--	dev->mode_config.allow_fb_modifiers = true;
+-	if ((ipmi_version_major > 1)
+-	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
+-		/* This is an IPMI 1.5-only feature. */
+-		data[0] |= WDOG_DONT_STOP_ON_SET;
+-	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
+-		/*
+-		 * In ipmi 1.0, setting the timer stops the watchdog, we
+-		 * need to start it back up again.
+-		 */
+-		hbnow = 1;
++	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
++		if ((ipmi_version_major > 1) ||
++		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
++			/* This is an IPMI 1.5-only feature. */
++			data[0] |= WDOG_DONT_STOP_ON_SET;
++		} else {
++			/*
++			 * In ipmi 1.0, setting the timer stops the watchdog, we
++			 * need to start it back up again.
++			 */
++			hbnow = 1;
++		}
+ 	}
  
- 	if (drm->client.device.info.chipset < 0x11)
- 		dev->mode_config.async_page_flip = false;
+ 	data[1] = 0;
 
 
