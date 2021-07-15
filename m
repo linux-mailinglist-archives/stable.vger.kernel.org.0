@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CBC3CA6DA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAED53CA852
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239999AbhGOSu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
+        id S239723AbhGOTAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:00:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240564AbhGOSuX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 47847613CF;
-        Thu, 15 Jul 2021 18:47:29 +0000 (UTC)
+        id S242334AbhGOS7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6CD5613EE;
+        Thu, 15 Jul 2021 18:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374849;
-        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
+        s=korg; t=1626375382;
+        bh=+DqxFN9ITQT8/uYsw9hTN5wttBWimqS6cfsrA3DFqjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0BiI1HZsjxQKoeLpobMA2YR0MqKgIWWa4h0G/H+mp3TFN9qYC5qV7a2+O1gimPhD2
-         hltitJxLr/c/4YrXO+/QXvfoiK2R+lpTFwfLpn45qwRzZ+KQ+vLFcrqPo013FAR2e5
-         Z/NRqSePLlkyXo0iZ56/5aqKaHm/Ts26D02mFiOM=
+        b=ymZiBQLD0g+tKfTkEvTtG5qqadED7kVCspexPDNJtr6JIW7D9x4/KA7c9+2tzbChf
+         yXx0c3j7ukwwUao54STzAvpHg0xjddkYF7khyDjEkl0RsOIA45hDivl7UrCsumEipv
+         nejBw7//3UcP+BLUnSI+Q4RPCGFmUpG8MEMtRm1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        Radim Pavlik <radim.pavlik@tbs-biometrics.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/215] dm space maps: dont reset space map allocation cursor when committing
+Subject: [PATCH 5.12 061/242] pinctrl: mcp23s08: fix race condition in irq handler
 Date:   Thu, 15 Jul 2021 20:37:03 +0200
-Message-Id: <20210715182608.418689880@linuxfoundation.org>
+Message-Id: <20210715182603.193204547@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
 
-[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
+[ Upstream commit 897120d41e7afd9da435cb00041a142aeeb53c07 ]
 
-Current commit code resets the place where the search for free blocks
-will begin back to the start of the metadata device.  There are a couple
-of repercussions to this:
+Checking value of MCP_INTF in mcp23s08_irq suggests that the handler may be
+called even when there is no interrupt pending.
 
-- The first allocation after the commit is likely to take longer than
-  normal as it searches for a free block in an area that is likely to
-  have very few free blocks (if any).
+But the actual interrupt could happened between reading MCP_INTF and MCP_GPIO.
+In this situation we got nothing from MCP_INTF, but the event gets acknowledged
+on the expander by reading MCP_GPIO. This leads to losing events.
 
-- Any free blocks it finds will have been recently freed.  Reusing them
-  means we have fewer old copies of the metadata to aid recovery from
-  hardware error.
+Fix the problem by not reading any register until we see something in MCP_INTF.
 
-Fix these issues by leaving the cursor alone, only resetting when the
-search hits the end of the metadata device.
+The error was reproduced and fix tested on MCP23017.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
+Link: https://lore.kernel.org/r/AM7PR06MB6769E1183F68DEBB252F665ABA3E9@AM7PR06MB6769.eurprd06.prod.outlook.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
- drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-mcp23s08.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
-index bf4c5e2ccb6f..e0acae7a3815 100644
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smd->begin and the end of the metadata device.
-+		 * We search before smd->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
+index ce2d8014b7e0..799d596a1a4b 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -351,6 +351,11 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
+ 	if (mcp_read(mcp, MCP_INTF, &intf))
+ 		goto unlock;
+ 
++	if (intf == 0) {
++		/* There is no interrupt pending */
++		return IRQ_HANDLED;
 +	}
 +
- 	if (r)
- 		return r;
+ 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
+ 		goto unlock;
  
-@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
- 		return r;
+@@ -368,11 +373,6 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
+ 	mcp->cached_gpio = gpio;
+ 	mutex_unlock(&mcp->lock);
  
- 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
--	smd->begin = 0;
- 	smd->nr_allocated_this_transaction = 0;
- 
- 	r = sm_disk_get_nr_free(sm, &nr_free);
-diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
-index 9e3c64ec2026..da439ac85796 100644
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smm->begin and the end of the metadata device.
-+		 * We search before smm->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
-+	}
-+
- 	if (r)
- 		return r;
- 
-@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
--	smm->begin = 0;
- 	smm->allocated_this_transaction = 0;
- 
- 	return 0;
+-	if (intf == 0) {
+-		/* There is no interrupt pending */
+-		return IRQ_HANDLED;
+-	}
+-
+ 	dev_dbg(mcp->chip.parent,
+ 		"intcap 0x%04X intf 0x%04X gpio_orig 0x%04X gpio 0x%04X\n",
+ 		intcap, intf, gpio_orig, gpio);
 -- 
 2.30.2
 
