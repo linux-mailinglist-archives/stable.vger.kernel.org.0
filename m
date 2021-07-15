@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 827D73CA917
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65F803CA919
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241804AbhGOTFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
+        id S242686AbhGOTFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242400AbhGOTDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6D2B613D7;
-        Thu, 15 Jul 2021 18:59:38 +0000 (UTC)
+        id S243067AbhGOTER (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:04:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25780613DC;
+        Thu, 15 Jul 2021 18:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375579;
-        bh=qkBu6LtwSHW6e9gJ6y7H1ZaKH79w7EKUPovML+t5HBQ=;
+        s=korg; t=1626375581;
+        bh=0XRFg5hIq6dpQhf6aGNiDBR8wtXCngnhyGCW3ADbjSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkuBn3fGf2zFK3zEHgRDuE2jHSrJd5LyAmNaWo6vtEHwrMYagSCgcO9V15aEdOqSk
-         tUzfpfP6lG7v8vetacGXifuZX8D0r6paZqYKBY2MVNfDMl+RD/IM47rhpSsGfPwsiS
-         X/3WzHju2KgJ3xUvlvDuRtwzy6amSBlM269cwBxI=
+        b=fHcXc28pMgQqUJlJuZ1HOdAjRYqyZdHzj/OQ3DZASPlkCWlwBhhu82YA0NJUnDO5Q
+         rKQYhwxO05spB7ESR3ZfSfO8icjZNz1ix/PRyPetX+CZXj+STJIY39IVyGF67NDb10
+         KuflQlmr4qMLRh9TGGQ7mQlHlBlXi6Xi/pJX8fI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Odin Ugedal <odin@uged.al>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        stable@vger.kernel.org,
+        syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com,
+        Rustam Kovhaev <rkovhaev@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 146/242] sched/fair: Ensure _sum and _avg values stay consistent
-Date:   Thu, 15 Jul 2021 20:38:28 +0200
-Message-Id: <20210715182618.902752060@linuxfoundation.org>
+Subject: [PATCH 5.12 147/242] bpf: Fix false positive kmemleak report in bpf_ringbuf_area_alloc()
+Date:   Thu, 15 Jul 2021 20:38:29 +0200
+Message-Id: <20210715182619.085854190@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
 References: <20210715182551.731989182@linuxfoundation.org>
@@ -43,62 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Odin Ugedal <odin@uged.al>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-[ Upstream commit 1c35b07e6d3986474e5635be566e7bc79d97c64d ]
+[ Upstream commit ccff81e1d028bbbf8573d3364a87542386c707bf ]
 
-The _sum and _avg values are in general sync together with the PELT
-divider. They are however not always completely in perfect sync,
-resulting in situations where _sum gets to zero while _avg stays
-positive. Such situations are undesirable.
+kmemleak scans struct page, but it does not scan the page content. If we
+allocate some memory with kmalloc(), then allocate page with alloc_page(),
+and if we put kmalloc pointer somewhere inside that page, kmemleak will
+report kmalloc pointer as a false positive.
 
-This comes from the fact that PELT will increase period_contrib, also
-increasing the PELT divider, without updating _sum and _avg values to
-stay in perfect sync where (_sum == _avg * divider). However, such PELT
-change will never lower _sum, making it impossible to end up in a
-situation where _sum is zero and _avg is not.
+We can instruct kmemleak to scan the memory area by calling kmemleak_alloc()
+and kmemleak_free(), but part of struct bpf_ringbuf is mmaped to user space,
+and if struct bpf_ringbuf changes we would have to revisit and review size
+argument in kmemleak_alloc(), because we do not want kmemleak to scan the
+user space memory. Let's simplify things and use kmemleak_not_leak() here.
 
-Therefore, we need to ensure that when subtracting load outside PELT,
-that when _sum is zero, _avg is also set to zero. This occurs when
-(_sum < _avg * divider), and the subtracted (_avg * divider) is bigger
-or equal to the current _sum, while the subtracted _avg is smaller than
-the current _avg.
+For posterity, also adding additional prior analysis from Andrii:
 
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Odin Ugedal <odin@uged.al>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/20210624111815.57937-1-odin@uged.al
+  I think either kmemleak or syzbot are misreporting this. I've added a
+  bunch of printks around all allocations performed by BPF ringbuf. [...]
+  On repro side I get these two warnings:
+
+  [vmuser@archvm bpf]$ sudo ./repro
+  BUG: memory leak
+  unreferenced object 0xffff88810d538c00 (size 64):
+    comm "repro", pid 2140, jiffies 4294692933 (age 14.540s)
+    hex dump (first 32 bytes):
+      00 af 19 04 00 ea ff ff c0 ae 19 04 00 ea ff ff  ................
+      80 ae 19 04 00 ea ff ff c0 29 2e 04 00 ea ff ff  .........)......
+    backtrace:
+      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
+      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
+      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
+      [<00000000f601d565>] do_syscall_64+0x2d/0x40
+      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  BUG: memory leak
+  unreferenced object 0xffff88810d538c80 (size 64):
+    comm "repro", pid 2143, jiffies 4294699025 (age 8.448s)
+    hex dump (first 32 bytes):
+      80 aa 19 04 00 ea ff ff 00 ab 19 04 00 ea ff ff  ................
+      c0 ab 19 04 00 ea ff ff 80 44 28 04 00 ea ff ff  .........D(.....
+    backtrace:
+      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
+      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
+      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
+      [<00000000f601d565>] do_syscall_64+0x2d/0x40
+      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  Note that both reported leaks (ffff88810d538c80 and ffff88810d538c00)
+  correspond to pages array bpf_ringbuf is allocating and tracking properly
+  internally. Note also that syzbot repro doesn't close FD of created BPF
+  ringbufs, and even when ./repro itself exits with error, there are still
+  two forked processes hanging around in my system. So clearly ringbuf maps
+  are alive at that point. So reporting any memory leak looks weird at that
+  point, because that memory is being used by active referenced BPF ringbuf.
+
+  It's also a question why repro doesn't clean up its forks. But if I do a
+  `pkill repro`, I do see that all the allocated memory is /properly/ cleaned
+  up [and the] "leaks" are deallocated properly.
+
+  BTW, if I add close() right after bpf() syscall in syzbot repro, I see that
+  everything is immediately deallocated, like designed. And no memory leak
+  is reported. So I don't think the problem is anywhere in bpf_ringbuf code,
+  rather in the leak detection and/or repro itself.
+
+Reported-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+[ Daniel: also included analysis from Andrii to the commit log ]
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/CAEf4BzYk+dqs+jwu6VKXP-RttcTEGFe+ySTGWT9CRNkagDiJVA@mail.gmail.com
+Link: https://lore.kernel.org/lkml/YNTAqiE7CWJhOK2M@nuc10
+Link: https://lore.kernel.org/lkml/20210615101515.GC26027@arm.com
+Link: https://syzkaller.appspot.com/bug?extid=5d895828587f49e7fe9b
+Link: https://lore.kernel.org/bpf/20210626181156.1873604-1-rkovhaev@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/bpf/ringbuf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 20ac5dff9a0c..572f312cc803 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -3665,15 +3665,15 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
+diff --git a/kernel/bpf/ringbuf.c b/kernel/bpf/ringbuf.c
+index 84b3b35fc0d0..9e0c10c6892a 100644
+--- a/kernel/bpf/ringbuf.c
++++ b/kernel/bpf/ringbuf.c
+@@ -8,6 +8,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/wait.h>
+ #include <linux/poll.h>
++#include <linux/kmemleak.h>
+ #include <uapi/linux/btf.h>
  
- 		r = removed_load;
- 		sub_positive(&sa->load_avg, r);
--		sub_positive(&sa->load_sum, r * divider);
-+		sa->load_sum = sa->load_avg * divider;
- 
- 		r = removed_util;
- 		sub_positive(&sa->util_avg, r);
--		sub_positive(&sa->util_sum, r * divider);
-+		sa->util_sum = sa->util_avg * divider;
- 
- 		r = removed_runnable;
- 		sub_positive(&sa->runnable_avg, r);
--		sub_positive(&sa->runnable_sum, r * divider);
-+		sa->runnable_sum = sa->runnable_avg * divider;
- 
- 		/*
- 		 * removed_runnable is the unweighted version of removed_load so we
+ #define RINGBUF_CREATE_FLAG_MASK (BPF_F_NUMA_NODE)
+@@ -105,6 +106,7 @@ static struct bpf_ringbuf *bpf_ringbuf_area_alloc(size_t data_sz, int numa_node)
+ 	rb = vmap(pages, nr_meta_pages + 2 * nr_data_pages,
+ 		  VM_ALLOC | VM_USERMAP, PAGE_KERNEL);
+ 	if (rb) {
++		kmemleak_not_leak(pages);
+ 		rb->pages = pages;
+ 		rb->nr_pages = nr_pages;
+ 		return rb;
 -- 
 2.30.2
 
