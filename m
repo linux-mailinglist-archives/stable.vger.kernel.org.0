@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FEC83C9E77
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F63B3C9EA4
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235960AbhGOMRP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:17:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33906 "EHLO mail.kernel.org"
+        id S237387AbhGOMeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236422AbhGOMRP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:17:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB7DC61374;
-        Thu, 15 Jul 2021 12:14:21 +0000 (UTC)
+        id S237385AbhGOMeP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:34:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B2BE61178;
+        Thu, 15 Jul 2021 12:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626351262;
-        bh=4eul+YXcRJsxBOp4IH8b1C8Q8IxRf2Gp5J/ws/qUk4A=;
+        s=korg; t=1626352282;
+        bh=+8WklqRIPbMK19FjViu3eg+7qwGpJSy+13/U9X/Qr9g=;
         h=Subject:To:Cc:From:Date:From;
-        b=A99Y0Xt8x34X3FWfMHYcEQEWvArBJFB0+eltfjQvzBPAOooptg/z205yK6uZd/C0w
-         xOfrJRhRV1m18sK346QBkBWk36ZOzTDokePkzsdL1mcv2MYOassU5YlWH2tLUV/N/Z
-         L1n2WkqLdME+5g3x1E0u0L3ELVGZmjyFNZYmvZ+g=
-Subject: FAILED: patch "[PATCH] drm/radeon/ni_dpm: Fix booting bug" failed to apply to 5.13-stable tree
-To:     gustavoars@kernel.org, alexander.deucher@amd.com,
-        chzigotzky@xenosoft.de
+        b=Ns8EsVTXdxvQvld/bose/dfKF/zk5H+PU8B1zHZ+iGPU8gijpfNHtKaH+iDnGmXZf
+         IgxVsPwvkTkKrKTJ9qeRfSzkYL+C7a+usWROlkkCoP7AZd/BLmEhOiosGWRGnALRuc
+         IdyvNLh0vbs33RTCioFaulmXnsuvbBRSSMRAw4Hw=
+Subject: FAILED: patch "[PATCH] drm/dp_mst: Avoid to mess up payload table by ports in stale" failed to apply to 5.13-stable tree
+To:     Wayne.Lin@amd.com, lyude@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:13:58 +0200
-Message-ID: <16263512387210@kroah.com>
+Date:   Thu, 15 Jul 2021 14:17:00 +0200
+Message-ID: <1626351420140215@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -46,379 +45,120 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 293774413a3f519c826d4eb5313ef02e20515700 Mon Sep 17 00:00:00 2001
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Date: Sun, 9 May 2021 17:49:26 -0500
-Subject: [PATCH] drm/radeon/ni_dpm: Fix booting bug
+From 3769e4c0af5b82c8ea21d037013cb9564dfaa51f Mon Sep 17 00:00:00 2001
+From: Wayne Lin <Wayne.Lin@amd.com>
+Date: Wed, 16 Jun 2021 11:55:01 +0800
+Subject: [PATCH] drm/dp_mst: Avoid to mess up payload table by ports in stale
+ topology
 
-Create new structure NISLANDS_SMC_SWSTATE_SINGLE, as initialState.levels
-and ACPIState.levels are never actually used as flexible arrays. Those
-arrays can be used as simple objects of type
-NISLANDS_SMC_HW_PERFORMANCE_LEVEL, instead.
+[Why]
+After unplug/hotplug hub from the system, userspace might start to
+clear stale payloads gradually. If we call drm_dp_mst_deallocate_vcpi()
+to release stale VCPI of those ports which are not relating to current
+topology, we have chane to wrongly clear active payload table entry for
+current topology.
 
-Currently, the code fails because flexible array _levels_ in
-struct NISLANDS_SMC_SWSTATE doesn't allow for code that access
-the first element of initialState.levels and ACPIState.levels
-arrays:
+E.g.
+We have allocated VCPI 1 in current payload table and we call
+drm_dp_mst_deallocate_vcpi() to clean VCPI 1 in stale topology. In
+drm_dp_mst_deallocate_vcpi(), it will call drm_dp_mst_put_payload_id()
+tp put VCPI 1 and which means ID 1 is available again. Thereafter, if we
+want to allocate a new payload stream, it will find ID 1 is available by
+drm_dp_mst_assign_payload_id(). However, ID 1 is being used
 
-drivers/gpu/drm/radeon/ni_dpm.c:
-1690         table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL =
-1691                 cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl);
-...
-1903:   table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL = cpu_to_be32(mpll_ad_func_cntl);
-1904:   table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 = cpu_to_be32(mpll_ad_func_cntl_2);
+[How]
+Check target sink is relating to current topology or not before doing
+any payload table update.
+Searching upward to find the target sink's relevant root branch device.
+If the found root branch device is not the same root of current
+topology, don't update payload table.
 
-because such element cannot exist without previously allocating
-any dynamic memory for it (which never actually happens).
+Changes since v1:
+* Change debug macro to use drm_dbg_kms() instead
+* Amend the commit message to add Cc tag.
 
-That's why struct NISLANDS_SMC_SWSTATE should only be used as type
-for object driverState and new struct SISLANDS_SMC_SWSTATE_SINGLE is
-created as type for objects initialState, ACPIState and ULVState.
-
-Also, with the change from one-element array to flexible-array member
-in commit 434fb1e7444a ("drm/radeon/nislands_smc.h: Replace one-element
-array with flexible-array member in struct NISLANDS_SMC_SWSTATE"), the
-size of dpmLevels in struct NISLANDS_SMC_STATETABLE should be fixed to
-be NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE instead of
-NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE - 1.
-
-Bug: https://lore.kernel.org/dri-devel/3eedbe78-1fbd-4763-a7f3-ac5665e76a4a@xenosoft.de/
-Fixes: 434fb1e7444a ("drm/radeon/nislands_smc.h: Replace one-element array with flexible-array member in struct NISLANDS_SMC_SWSTATE")
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
 Cc: stable@vger.kernel.org
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Tested-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Link: https://lore.kernel.org/dri-devel/9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de/
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-3-Wayne.Lin@amd.com
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 
-diff --git a/drivers/gpu/drm/radeon/ni_dpm.c b/drivers/gpu/drm/radeon/ni_dpm.c
-index dd5ef6493723..769f666335ac 100644
---- a/drivers/gpu/drm/radeon/ni_dpm.c
-+++ b/drivers/gpu/drm/radeon/ni_dpm.c
-@@ -1687,102 +1687,102 @@ static int ni_populate_smc_initial_state(struct radeon_device *rdev,
- 	u32 reg;
- 	int ret;
+diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
+index b41b837db66d..9ac148efd9e4 100644
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -94,6 +94,9 @@ static int drm_dp_mst_register_i2c_bus(struct drm_dp_mst_port *port);
+ static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
+ static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
  
--	table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL =
-+	table->initialState.level.mclk.vMPLL_AD_FUNC_CNTL =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl);
--	table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 =
-+	table->initialState.level.mclk.vMPLL_AD_FUNC_CNTL_2 =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl_2);
--	table->initialState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL =
-+	table->initialState.level.mclk.vMPLL_DQ_FUNC_CNTL =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_dq_func_cntl);
--	table->initialState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL_2 =
-+	table->initialState.level.mclk.vMPLL_DQ_FUNC_CNTL_2 =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_dq_func_cntl_2);
--	table->initialState.levels[0].mclk.vMCLK_PWRMGT_CNTL =
-+	table->initialState.level.mclk.vMCLK_PWRMGT_CNTL =
- 		cpu_to_be32(ni_pi->clock_registers.mclk_pwrmgt_cntl);
--	table->initialState.levels[0].mclk.vDLL_CNTL =
-+	table->initialState.level.mclk.vDLL_CNTL =
- 		cpu_to_be32(ni_pi->clock_registers.dll_cntl);
--	table->initialState.levels[0].mclk.vMPLL_SS =
-+	table->initialState.level.mclk.vMPLL_SS =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_ss1);
--	table->initialState.levels[0].mclk.vMPLL_SS2 =
-+	table->initialState.level.mclk.vMPLL_SS2 =
- 		cpu_to_be32(ni_pi->clock_registers.mpll_ss2);
--	table->initialState.levels[0].mclk.mclk_value =
-+	table->initialState.level.mclk.mclk_value =
- 		cpu_to_be32(initial_state->performance_levels[0].mclk);
- 
--	table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL =
-+	table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl);
--	table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_2 =
-+	table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_2 =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_2);
--	table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_3 =
-+	table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_3 =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_3);
--	table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_4 =
-+	table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_4 =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_4);
--	table->initialState.levels[0].sclk.vCG_SPLL_SPREAD_SPECTRUM =
-+	table->initialState.level.sclk.vCG_SPLL_SPREAD_SPECTRUM =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_spread_spectrum);
--	table->initialState.levels[0].sclk.vCG_SPLL_SPREAD_SPECTRUM_2 =
-+	table->initialState.level.sclk.vCG_SPLL_SPREAD_SPECTRUM_2 =
- 		cpu_to_be32(ni_pi->clock_registers.cg_spll_spread_spectrum_2);
--	table->initialState.levels[0].sclk.sclk_value =
-+	table->initialState.level.sclk.sclk_value =
- 		cpu_to_be32(initial_state->performance_levels[0].sclk);
--	table->initialState.levels[0].arbRefreshState =
-+	table->initialState.level.arbRefreshState =
- 		NISLANDS_INITIAL_STATE_ARB_INDEX;
- 
--	table->initialState.levels[0].ACIndex = 0;
-+	table->initialState.level.ACIndex = 0;
- 
- 	ret = ni_populate_voltage_value(rdev, &eg_pi->vddc_voltage_table,
- 					initial_state->performance_levels[0].vddc,
--					&table->initialState.levels[0].vddc);
-+					&table->initialState.level.vddc);
- 	if (!ret) {
- 		u16 std_vddc;
- 
- 		ret = ni_get_std_voltage_value(rdev,
--					       &table->initialState.levels[0].vddc,
-+					       &table->initialState.level.vddc,
- 					       &std_vddc);
- 		if (!ret)
- 			ni_populate_std_voltage_value(rdev, std_vddc,
--						      table->initialState.levels[0].vddc.index,
--						      &table->initialState.levels[0].std_vddc);
-+						      table->initialState.level.vddc.index,
-+						      &table->initialState.level.std_vddc);
- 	}
- 
- 	if (eg_pi->vddci_control)
- 		ni_populate_voltage_value(rdev,
- 					  &eg_pi->vddci_voltage_table,
- 					  initial_state->performance_levels[0].vddci,
--					  &table->initialState.levels[0].vddci);
-+					  &table->initialState.level.vddci);
- 
--	ni_populate_initial_mvdd_value(rdev, &table->initialState.levels[0].mvdd);
-+	ni_populate_initial_mvdd_value(rdev, &table->initialState.level.mvdd);
- 
- 	reg = CG_R(0xffff) | CG_L(0);
--	table->initialState.levels[0].aT = cpu_to_be32(reg);
-+	table->initialState.level.aT = cpu_to_be32(reg);
- 
--	table->initialState.levels[0].bSP = cpu_to_be32(pi->dsp);
-+	table->initialState.level.bSP = cpu_to_be32(pi->dsp);
- 
- 	if (pi->boot_in_gen2)
--		table->initialState.levels[0].gen2PCIE = 1;
-+		table->initialState.level.gen2PCIE = 1;
- 	else
--		table->initialState.levels[0].gen2PCIE = 0;
-+		table->initialState.level.gen2PCIE = 0;
- 
- 	if (pi->mem_gddr5) {
--		table->initialState.levels[0].strobeMode =
-+		table->initialState.level.strobeMode =
- 			cypress_get_strobe_mode_settings(rdev,
- 							 initial_state->performance_levels[0].mclk);
- 
- 		if (initial_state->performance_levels[0].mclk > pi->mclk_edc_enable_threshold)
--			table->initialState.levels[0].mcFlags = NISLANDS_SMC_MC_EDC_RD_FLAG | NISLANDS_SMC_MC_EDC_WR_FLAG;
-+			table->initialState.level.mcFlags = NISLANDS_SMC_MC_EDC_RD_FLAG | NISLANDS_SMC_MC_EDC_WR_FLAG;
- 		else
--			table->initialState.levels[0].mcFlags =  0;
-+			table->initialState.level.mcFlags =  0;
- 	}
- 
- 	table->initialState.levelCount = 1;
- 
- 	table->initialState.flags |= PPSMC_SWSTATE_FLAG_DC;
- 
--	table->initialState.levels[0].dpm2.MaxPS = 0;
--	table->initialState.levels[0].dpm2.NearTDPDec = 0;
--	table->initialState.levels[0].dpm2.AboveSafeInc = 0;
--	table->initialState.levels[0].dpm2.BelowSafeInc = 0;
-+	table->initialState.level.dpm2.MaxPS = 0;
-+	table->initialState.level.dpm2.NearTDPDec = 0;
-+	table->initialState.level.dpm2.AboveSafeInc = 0;
-+	table->initialState.level.dpm2.BelowSafeInc = 0;
- 
- 	reg = MIN_POWER_MASK | MAX_POWER_MASK;
--	table->initialState.levels[0].SQPowerThrottle = cpu_to_be32(reg);
-+	table->initialState.level.SQPowerThrottle = cpu_to_be32(reg);
- 
- 	reg = MAX_POWER_DELTA_MASK | STI_SIZE_MASK | LTI_RATIO_MASK;
--	table->initialState.levels[0].SQPowerThrottle_2 = cpu_to_be32(reg);
-+	table->initialState.level.SQPowerThrottle_2 = cpu_to_be32(reg);
- 
- 	return 0;
- }
-@@ -1813,43 +1813,43 @@ static int ni_populate_smc_acpi_state(struct radeon_device *rdev,
- 	if (pi->acpi_vddc) {
- 		ret = ni_populate_voltage_value(rdev,
- 						&eg_pi->vddc_voltage_table,
--						pi->acpi_vddc, &table->ACPIState.levels[0].vddc);
-+						pi->acpi_vddc, &table->ACPIState.level.vddc);
- 		if (!ret) {
- 			u16 std_vddc;
- 
- 			ret = ni_get_std_voltage_value(rdev,
--						       &table->ACPIState.levels[0].vddc, &std_vddc);
-+						       &table->ACPIState.level.vddc, &std_vddc);
- 			if (!ret)
- 				ni_populate_std_voltage_value(rdev, std_vddc,
--							      table->ACPIState.levels[0].vddc.index,
--							      &table->ACPIState.levels[0].std_vddc);
-+							      table->ACPIState.level.vddc.index,
-+							      &table->ACPIState.level.std_vddc);
- 		}
- 
- 		if (pi->pcie_gen2) {
- 			if (pi->acpi_pcie_gen2)
--				table->ACPIState.levels[0].gen2PCIE = 1;
-+				table->ACPIState.level.gen2PCIE = 1;
- 			else
--				table->ACPIState.levels[0].gen2PCIE = 0;
-+				table->ACPIState.level.gen2PCIE = 0;
- 		} else {
--			table->ACPIState.levels[0].gen2PCIE = 0;
-+			table->ACPIState.level.gen2PCIE = 0;
- 		}
- 	} else {
- 		ret = ni_populate_voltage_value(rdev,
- 						&eg_pi->vddc_voltage_table,
- 						pi->min_vddc_in_table,
--						&table->ACPIState.levels[0].vddc);
-+						&table->ACPIState.level.vddc);
- 		if (!ret) {
- 			u16 std_vddc;
- 
- 			ret = ni_get_std_voltage_value(rdev,
--						       &table->ACPIState.levels[0].vddc,
-+						       &table->ACPIState.level.vddc,
- 						       &std_vddc);
- 			if (!ret)
- 				ni_populate_std_voltage_value(rdev, std_vddc,
--							      table->ACPIState.levels[0].vddc.index,
--							      &table->ACPIState.levels[0].std_vddc);
-+							      table->ACPIState.level.vddc.index,
-+							      &table->ACPIState.level.std_vddc);
- 		}
--		table->ACPIState.levels[0].gen2PCIE = 0;
-+		table->ACPIState.level.gen2PCIE = 0;
- 	}
- 
- 	if (eg_pi->acpi_vddci) {
-@@ -1857,7 +1857,7 @@ static int ni_populate_smc_acpi_state(struct radeon_device *rdev,
- 			ni_populate_voltage_value(rdev,
- 						  &eg_pi->vddci_voltage_table,
- 						  eg_pi->acpi_vddci,
--						  &table->ACPIState.levels[0].vddci);
-+						  &table->ACPIState.level.vddci);
- 	}
- 
- 
-@@ -1900,37 +1900,37 @@ static int ni_populate_smc_acpi_state(struct radeon_device *rdev,
- 	spll_func_cntl_2 &= ~SCLK_MUX_SEL_MASK;
- 	spll_func_cntl_2 |= SCLK_MUX_SEL(4);
- 
--	table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL = cpu_to_be32(mpll_ad_func_cntl);
--	table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 = cpu_to_be32(mpll_ad_func_cntl_2);
--	table->ACPIState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL = cpu_to_be32(mpll_dq_func_cntl);
--	table->ACPIState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL_2 = cpu_to_be32(mpll_dq_func_cntl_2);
--	table->ACPIState.levels[0].mclk.vMCLK_PWRMGT_CNTL = cpu_to_be32(mclk_pwrmgt_cntl);
--	table->ACPIState.levels[0].mclk.vDLL_CNTL = cpu_to_be32(dll_cntl);
-+	table->ACPIState.level.mclk.vMPLL_AD_FUNC_CNTL = cpu_to_be32(mpll_ad_func_cntl);
-+	table->ACPIState.level.mclk.vMPLL_AD_FUNC_CNTL_2 = cpu_to_be32(mpll_ad_func_cntl_2);
-+	table->ACPIState.level.mclk.vMPLL_DQ_FUNC_CNTL = cpu_to_be32(mpll_dq_func_cntl);
-+	table->ACPIState.level.mclk.vMPLL_DQ_FUNC_CNTL_2 = cpu_to_be32(mpll_dq_func_cntl_2);
-+	table->ACPIState.level.mclk.vMCLK_PWRMGT_CNTL = cpu_to_be32(mclk_pwrmgt_cntl);
-+	table->ACPIState.level.mclk.vDLL_CNTL = cpu_to_be32(dll_cntl);
- 
--	table->ACPIState.levels[0].mclk.mclk_value = 0;
-+	table->ACPIState.level.mclk.mclk_value = 0;
- 
--	table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL = cpu_to_be32(spll_func_cntl);
--	table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_2 = cpu_to_be32(spll_func_cntl_2);
--	table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_3 = cpu_to_be32(spll_func_cntl_3);
--	table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_4 = cpu_to_be32(spll_func_cntl_4);
-+	table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL = cpu_to_be32(spll_func_cntl);
-+	table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_2 = cpu_to_be32(spll_func_cntl_2);
-+	table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_3 = cpu_to_be32(spll_func_cntl_3);
-+	table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_4 = cpu_to_be32(spll_func_cntl_4);
- 
--	table->ACPIState.levels[0].sclk.sclk_value = 0;
-+	table->ACPIState.level.sclk.sclk_value = 0;
- 
--	ni_populate_mvdd_value(rdev, 0, &table->ACPIState.levels[0].mvdd);
-+	ni_populate_mvdd_value(rdev, 0, &table->ACPIState.level.mvdd);
- 
- 	if (eg_pi->dynamic_ac_timing)
--		table->ACPIState.levels[0].ACIndex = 1;
-+		table->ACPIState.level.ACIndex = 1;
- 
--	table->ACPIState.levels[0].dpm2.MaxPS = 0;
--	table->ACPIState.levels[0].dpm2.NearTDPDec = 0;
--	table->ACPIState.levels[0].dpm2.AboveSafeInc = 0;
--	table->ACPIState.levels[0].dpm2.BelowSafeInc = 0;
-+	table->ACPIState.level.dpm2.MaxPS = 0;
-+	table->ACPIState.level.dpm2.NearTDPDec = 0;
-+	table->ACPIState.level.dpm2.AboveSafeInc = 0;
-+	table->ACPIState.level.dpm2.BelowSafeInc = 0;
- 
- 	reg = MIN_POWER_MASK | MAX_POWER_MASK;
--	table->ACPIState.levels[0].SQPowerThrottle = cpu_to_be32(reg);
-+	table->ACPIState.level.SQPowerThrottle = cpu_to_be32(reg);
- 
- 	reg = MAX_POWER_DELTA_MASK | STI_SIZE_MASK | LTI_RATIO_MASK;
--	table->ACPIState.levels[0].SQPowerThrottle_2 = cpu_to_be32(reg);
-+	table->ACPIState.level.SQPowerThrottle_2 = cpu_to_be32(reg);
- 
- 	return 0;
- }
-@@ -1980,7 +1980,9 @@ static int ni_init_smc_table(struct radeon_device *rdev)
- 	if (ret)
- 		return ret;
- 
--	table->driverState = table->initialState;
-+	table->driverState.flags = table->initialState.flags;
-+	table->driverState.levelCount = table->initialState.levelCount;
-+	table->driverState.levels[0] = table->initialState.level;
- 
- 	table->ULVState = table->initialState;
- 
-diff --git a/drivers/gpu/drm/radeon/nislands_smc.h b/drivers/gpu/drm/radeon/nislands_smc.h
-index 7395cb6b3cac..42f3bab0f9ee 100644
---- a/drivers/gpu/drm/radeon/nislands_smc.h
-+++ b/drivers/gpu/drm/radeon/nislands_smc.h
-@@ -143,6 +143,14 @@ struct NISLANDS_SMC_SWSTATE
- 
- typedef struct NISLANDS_SMC_SWSTATE NISLANDS_SMC_SWSTATE;
- 
-+struct NISLANDS_SMC_SWSTATE_SINGLE {
-+	uint8_t                             flags;
-+	uint8_t                             levelCount;
-+	uint8_t                             padding2;
-+	uint8_t                             padding3;
-+	NISLANDS_SMC_HW_PERFORMANCE_LEVEL   level;
-+};
++static bool drm_dp_mst_port_downstream_of_branch(struct drm_dp_mst_port *port,
++						 struct drm_dp_mst_branch *branch);
 +
- #define NISLANDS_SMC_VOLTAGEMASK_VDDC  0
- #define NISLANDS_SMC_VOLTAGEMASK_MVDD  1
- #define NISLANDS_SMC_VOLTAGEMASK_VDDCI 2
-@@ -160,19 +168,19 @@ typedef struct NISLANDS_SMC_VOLTAGEMASKTABLE NISLANDS_SMC_VOLTAGEMASKTABLE;
+ #define DBG_PREFIX "[dp_mst]"
  
- struct NISLANDS_SMC_STATETABLE
+ #define DP_STR(x) [DP_ ## x] = #x
+@@ -3366,6 +3369,7 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
+ 	struct drm_dp_mst_port *port;
+ 	int i, j;
+ 	int cur_slots = 1;
++	bool skip;
+ 
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3380,6 +3384,14 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
+ 			port = container_of(vcpi, struct drm_dp_mst_port,
+ 					    vcpi);
+ 
++			mutex_lock(&mgr->lock);
++			skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++			mutex_unlock(&mgr->lock);
++
++			if (skip) {
++				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
++				continue;
++			}
+ 			/* Validated ports don't matter if we're releasing
+ 			 * VCPI
+ 			 */
+@@ -3479,6 +3491,7 @@ int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr)
+ 	struct drm_dp_mst_port *port;
+ 	int i;
+ 	int ret = 0;
++	bool skip;
+ 
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3488,6 +3501,13 @@ int drm_dp_update_payload_part2(struct drm_dp_mst_topology_mgr *mgr)
+ 
+ 		port = container_of(mgr->proposed_vcpis[i], struct drm_dp_mst_port, vcpi);
+ 
++		mutex_lock(&mgr->lock);
++		skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++		mutex_unlock(&mgr->lock);
++
++		if (skip)
++			continue;
++
+ 		drm_dbg_kms(mgr->dev, "payload %d %d\n", i, mgr->payloads[i].payload_state);
+ 		if (mgr->payloads[i].payload_state == DP_PAYLOAD_LOCAL) {
+ 			ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
+@@ -4574,9 +4594,18 @@ EXPORT_SYMBOL(drm_dp_mst_reset_vcpi_slots);
+ void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
+ 				struct drm_dp_mst_port *port)
  {
--    uint8_t                             thermalProtectType;
--    uint8_t                             systemFlags;
--    uint8_t                             maxVDDCIndexInPPTable;
--    uint8_t                             extraFlags;
--    uint8_t                             highSMIO[NISLANDS_MAX_NO_VREG_STEPS];
--    uint32_t                            lowSMIO[NISLANDS_MAX_NO_VREG_STEPS];
--    NISLANDS_SMC_VOLTAGEMASKTABLE       voltageMaskTable;
--    PP_NIslands_DPM2Parameters          dpm2Params;
--    NISLANDS_SMC_SWSTATE                initialState;
--    NISLANDS_SMC_SWSTATE                ACPIState;
--    NISLANDS_SMC_SWSTATE                ULVState;
--    NISLANDS_SMC_SWSTATE                driverState;
--    NISLANDS_SMC_HW_PERFORMANCE_LEVEL   dpmLevels[NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE - 1];
-+	uint8_t                             thermalProtectType;
-+	uint8_t                             systemFlags;
-+	uint8_t                             maxVDDCIndexInPPTable;
-+	uint8_t                             extraFlags;
-+	uint8_t                             highSMIO[NISLANDS_MAX_NO_VREG_STEPS];
-+	uint32_t                            lowSMIO[NISLANDS_MAX_NO_VREG_STEPS];
-+	NISLANDS_SMC_VOLTAGEMASKTABLE       voltageMaskTable;
-+	PP_NIslands_DPM2Parameters          dpm2Params;
-+	struct NISLANDS_SMC_SWSTATE_SINGLE  initialState;
-+	struct NISLANDS_SMC_SWSTATE_SINGLE  ACPIState;
-+	struct NISLANDS_SMC_SWSTATE_SINGLE  ULVState;
-+	NISLANDS_SMC_SWSTATE                driverState;
-+	NISLANDS_SMC_HW_PERFORMANCE_LEVEL   dpmLevels[NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE];
- };
++	bool skip;
++
+ 	if (!port->vcpi.vcpi)
+ 		return;
  
- typedef struct NISLANDS_SMC_STATETABLE NISLANDS_SMC_STATETABLE;
++	mutex_lock(&mgr->lock);
++	skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++	mutex_unlock(&mgr->lock);
++
++	if (skip)
++		return;
++
+ 	drm_dp_mst_put_payload_id(mgr, port->vcpi.vcpi);
+ 	port->vcpi.num_slots = 0;
+ 	port->vcpi.pbn = 0;
 
