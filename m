@@ -2,76 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8162B3CA428
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 19:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13ECF3CA458
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 19:27:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbhGOR20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 13:28:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233770AbhGOR2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 13:28:25 -0400
-Received: from mail-qt1-x830.google.com (mail-qt1-x830.google.com [IPv6:2607:f8b0:4864:20::830])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7718CC061762
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 10:25:32 -0700 (PDT)
-Received: by mail-qt1-x830.google.com with SMTP id q15so132465qtp.0
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 10:25:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Ibb5KNEw1DKqJEg9n4gJy5KnzVasBofn6QaWYsu9UCQ=;
-        b=VEbievBeLXzXz2IFTCJlfsSW3SGnPx5BRLHAunZVXukgfJX3HSSAUxCtdiKf61hv/8
-         dEjk1vTJjxHihT0WA1OL/uEOLbisu+eOZ9QBM+pSgOr0g3iviST/L7UaXer3M8NeFmjI
-         cUcDXANijM5RzePSgHNEUg4tiAZJvw7xY2717+o5bCXGYbN3j0in5RSdJSiv5QmZpfXV
-         xJwXiiE0C1Gs4ldNfG+SItE+RoyPJtAgR4hB34JMXRrPZxzy82ifiVVChBVQnRUKYafC
-         pLvyRURLCMNCEs5zTTafGrQe1zI12ARsnWy7gNJNMcFCKTa1+89JJPFI0mohmLMeae0x
-         ASdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Ibb5KNEw1DKqJEg9n4gJy5KnzVasBofn6QaWYsu9UCQ=;
-        b=Y/zySQF6wMr4skAnGQiDQpv9gN020KRu5p/PWO7tT8whCR0itOd2pURh7frrn2jcAI
-         FVtA53II/MF2HfoJvSS4p40EdSSR5wj/XQhclsQ/pNdQTfwFCEiUGhwtfaaqJiTM2axj
-         KF3vidcLJ9gzPC+kwsXCEEFFQQLymphXz+Y8BjtH182SM73qqtbY0w8JnCtZUzWA487y
-         xARxTtVnvR/MqWQXzkxtFPpBzsvlBvKrebaAp8xXUCWFN+QHuZq5bzrNHBqNqvxy3SL2
-         Y87k6z9JjXmSqH8zBMDBej9Fj2HQr1kFeBUoabGcLUNA/MdsyLfyFekgKXbgflnivpC9
-         BGfw==
-X-Gm-Message-State: AOAM530MWKNbrTCuzY7zGHoXMNShdOIFSGu5bpqH7P2qhT7BC7umtAe3
-        5MoDs22QbPS8K2bz3H1v6RlIXC82+U28qyefaUwP8LOJM5lqWsuL
-X-Google-Smtp-Source: ABdhPJyVA6gR/njuabWs2C2fW8gelCsYJFEl6/1qckwAKb5sFvak5SWUy5PHC6/Yk0GlmffBpcH6FQwcd62hdQoqBbA=
-X-Received: by 2002:a37:9947:: with SMTP id b68mr5263725qke.56.1626369920992;
- Thu, 15 Jul 2021 10:25:20 -0700 (PDT)
+        id S229695AbhGORao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 13:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55436 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229506AbhGORao (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 13:30:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FC83613D8;
+        Thu, 15 Jul 2021 17:27:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626370071;
+        bh=R/wbqKDj6dP85+o15sGDZqVlYXdKpyzGlSiQj2Yp3qQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=o00kPKLs682vazYEW+edBKRrHZoS6KUbJFL6EBAqtYFo6EOhpN4SbkoPvswie/Xer
+         ylFqr1yLX8mSZ0xh+jizO7d+w9LFU8PFsZ1DWAh1dppLrt5EAxoI782ki5XDpu5VkT
+         aqc5xRrP92EpOEhNj6QyJSdoBhscqFZWGf393scQ=
+Date:   Thu, 15 Jul 2021 19:27:48 +0200
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     "Lin, Wayne" <Wayne.Lin@amd.com>
+Cc:     "lyude@redhat.com" <lyude@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] drm/dp_mst: Avoid to mess up payload
+ table by ports in stale" failed to apply to 5.13-stable tree
+Message-ID: <YPBwFGmNN2zLb3cf@kroah.com>
+References: <1626351420140215@kroah.com>
+ <CO6PR12MB548978A31FF543E2333447FFFC129@CO6PR12MB5489.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Received: by 2002:a0c:e502:0:0:0:0:0 with HTTP; Thu, 15 Jul 2021 10:25:20
- -0700 (PDT)
-Reply-To: faty.muhamad@gmail.com
-From:   Ms Fatima Muhammad <steveokoh.fedexdeliveryagent@gmail.com>
-Date:   Thu, 15 Jul 2021 17:25:20 +0000
-Message-ID: <CAFKwDuBfMzCdHqoenSL2rqjnW5tE27dPjiWKbgxM_hjsa-G7pg@mail.gmail.com>
-Subject: Hello Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CO6PR12MB548978A31FF543E2333447FFFC129@CO6PR12MB5489.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+On Thu, Jul 15, 2021 at 03:07:19PM +0000, Lin, Wayne wrote:
+> [AMD Official Use Only]
+> 
+> Hi Greg,
+> 
+> Really thanks for your time. About failing to apply below patches to stable tree:
+> 3769e4c0af5b82c8ea21d037013cb9564dfaa51f
+> [PATCH] drm/dp_mst: Avoid to mess up payload table by ports in stale topology
+> 
+> 35d3e8cb35e75450f87f87e3d314e2d418b6954b
+>  [PATCH] drm/dp_mst: Do not set proposed vcpi directly
+> 
+> There was an immediate following patch to correct the issue caused by above patches:
+> 24ff3dc18b99c4b912ab1746e803ddb3be5ced4c
+> [PATCH] drm/dp_mst: Add missing drm parameters to recently added call to drm_dbg_kms()
+> 
+> In other words, these three patches should be committed at the same time. Sorry for any inconvenience it brought.
+> Please advise me if there is anything else to do for having these patches applied to stable tree.
+> Really thanks for your help.
 
-My name is Ms.Fatima Muhammad., Please forgive me for stressing you
-with my predicaments and I sorry to approach you through this media
-because is serves the fastest means of  my communication right now,
+These commits do not apply to the current stable trees, so please submit
+backports of them for how ever far back you wish to see them, so that we
+can apply them.
 
-I came across your Email from my personal search and I decided to
-contact you believing you will be honest to fulfill my business
-proposal which I believe that will be a very good opportunity for both
-of us. Please it is my pleasure to contact you today for a business
-partnership investments projects worth $4.6 million USD which I intend
-to establish in your country..
+thanks,
 
-Pls If this business proposal offends your moral and ethic values do
-accept my apology. therefore kindly contact me immediately if you are
-interested for more details.
-
-Thank you for your wiliness to help me
-Yours Sincerely Fatima Muhammad
+greg k-h
