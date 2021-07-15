@@ -2,85 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE71C3CAEE3
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 00:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0682D3CAF04
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 00:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbhGOWFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 18:05:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
+        id S232008AbhGOWQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 18:16:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231374AbhGOWFN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 18:05:13 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF313C06175F;
-        Thu, 15 Jul 2021 15:02:19 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id 37so7999181pgq.0;
-        Thu, 15 Jul 2021 15:02:19 -0700 (PDT)
+        with ESMTP id S231925AbhGOWQK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 18:16:10 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400F4C06175F;
+        Thu, 15 Jul 2021 15:13:17 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id b5-20020a17090a9905b029016fc06f6c5bso5544369pjp.5;
+        Thu, 15 Jul 2021 15:13:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=mosenkovs.lv; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dsjmWnzuwCKGDNv5+cF7xjYKlGjPfXn52Osxyj1z9Rs=;
-        b=A5bDKok4gx7w4KSjPEcW44Mfrh2i0OWHbT02mTojgrqchFjbJCg9/ueipOB70lW7/V
-         ZWT2TI0LbAmhRi6o4/YGoJOXAKnXzNzhu4TvHrmECiMyVQ/6sMCjf1QTwuLq08acl+Ke
-         AthwqxrWVTu9haH1ZGpBke7Y+127fu/0O5MgM=
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=j4RQ4cqe6boeDQu8MH47CCEJwmPxlvOW8sENDevC29Q=;
+        b=WAfyCklf7Lm/1z3vFeKdM0PkSIKfqqWJc93M6a0iKIqNlwcw138/iuMpPQuPadVjoK
+         Ifq14gQk8i3Sknnslh6QjbFGkBoS1mNuPYLoIZDGwt+TAKIxJ83ymtKQ3AMoBpbohzxM
+         +3wFLOjZN+X4+gyA8JvITFJh57qUyUJuB9HkppeEdyoq9+qBQrqYvssUgE2fWlViDjVi
+         QyB8wijS709vbq6QBiZ2SFWL1sKvKIBoWLgP3Qq/N/fY4f53i64LxrpdCHRtOZiFkSrM
+         zsWIWsQMXItbkjBT33AVVBTNdZ8xvS5fkC/ZwV2mQ/Wusw7NRN9oTl6iBDcdKIF+ZxM2
+         zMCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dsjmWnzuwCKGDNv5+cF7xjYKlGjPfXn52Osxyj1z9Rs=;
-        b=E//v29KTLVWVLKk7nel7+jMzUbsXMbADVpvWhmIgpZD2nUP0dUuIN69++/vzEqy8bk
-         3hGGkxir6fkLzH8Vw4JFn5UoyQjbpYZ2LJH18g9AM/6KSfkrdM+xmfvBgYiKyv6YaECk
-         xp9BWV/0XyqAazcKX/F+BrSKlHEENI/5vDnuWZ6voyWn/4o7hqfSY0Xa9eJB+XY5nfH/
-         KMoi+Q1aQL5YVjksgblw75PW4J5Fea6pNM0wx6auGRL3FfWuz+lvsN0PevC+nr1diX0N
-         4dmP2FnEMn4XeZUPKpiFOwzkZv9KMlzLlKp1v70/HfWczlngpma5srzWdW69ZJXGxHAr
-         6/tw==
-X-Gm-Message-State: AOAM5306wPnELcLOIOs70FvY2XBw1dI4kPP+ebdrYXuvvreRleiwb3hE
-        54GEjpL5tnZfFEnYuAVGq2qhmgVCAXhhGr7KY1Ku1QA8bsw=
-X-Google-Smtp-Source: ABdhPJwMxVzfAcdMooIhZigmCBvhy7+BSQCLwGxU1lHdDPFymYEr3Zc3L+1RGdkNOY5WASGXSiRd5N94aMSBgHAhRdg=
-X-Received: by 2002:a63:e43:: with SMTP id 3mr6499099pgo.61.1626386539364;
- Thu, 15 Jul 2021 15:02:19 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=j4RQ4cqe6boeDQu8MH47CCEJwmPxlvOW8sENDevC29Q=;
+        b=Zj1h4WkyLnNT6iOORebNT/ceOV896TvdotVXHh9Q2cs05lsJimh/DhPkp2amRsEqZc
+         d0sRV4+LTatuIn3u8Xot4Ton8jj4EspltRY/Kh9O3X0tzmejg/6Bs0RTNQvpkcuKKa6S
+         /Jl9BgHZTDzcXL8tUN54bKcjvMIol9m52Zih+MDbfx9ZhSY0lSJTz8e3P/EDkZ+YJ6qk
+         DWFDkrg+579soY64TbPKEBhZC5wICbR0YkQSTly9eqH8FifDq7HLdeiFSrZdxI9II7Fz
+         GCpxLBMALhs5S48JPcs9PEzCo8hi5QV6HU5QmKIoFDmbl27S45LoyzeEdVG1RgiwQGDI
+         v94A==
+X-Gm-Message-State: AOAM5304GPJb8PhAZgSkgQ92F2EAMygAfOq8PHudQLz/5/l4WhKsyYN7
+        oO5zPBQBH3DGJmMb4jP6r2v229g0R7JMHQ==
+X-Google-Smtp-Source: ABdhPJxY84RWMXAQWGU7FaW/M7r9unBecVwqt3Tlvm2H5YgKed79/TbAzXQyMPSw0cYxIIRQM33JzQ==
+X-Received: by 2002:a17:90b:3b4c:: with SMTP id ot12mr6474284pjb.218.1626387196374;
+        Thu, 15 Jul 2021 15:13:16 -0700 (PDT)
+Received: from [10.67.49.104] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id w18sm7057618pjg.50.2021.07.15.15.13.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Jul 2021 15:13:15 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/215] 5.10.51-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210715182558.381078833@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <f5b15db4-210a-a5dc-cf5c-899737c3365d@gmail.com>
+Date:   Thu, 15 Jul 2021 15:13:14 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <20210710183710.5687-1-davis@mosenkovs.lv> <YPAiFsEncZ95Oomx@kroah.com>
-In-Reply-To: <YPAiFsEncZ95Oomx@kroah.com>
-From:   Davis <davis@mosenkovs.lv>
-Date:   Fri, 16 Jul 2021 01:02:06 +0300
-Message-ID: <CAHQn7p+dA3-FS+DGPqCvXJGtTZfWqg9hy1GUbtWFwtQFvKcnfg@mail.gmail.com>
-Subject: Re: [PATCH 4.4] mac80211: fix memory corruption in EAPOL handling
-To:     Greg KH <greg@kroah.com>
-Cc:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-07-15 at 15:36 Greg KH (<greg@kroah.com>) wrote:
->
-> On Sat, Jul 10, 2021 at 09:37:10PM +0300, Davis Mosenkovs wrote:
-> > Commit e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL
-> > frames") uses skb_mac_header() before eth_type_trans() is called
-> > leading to incorrect pointer, the pointer gets written to. This issue
-> > has appeared during backporting to 4.4, 4.9 and 4.14.
->
-> So this is also needed in 4.9 and 4.14, right?  If so, now queued up
-> everywhere.  If not, please let me know so I can drop it from the other
-> trees.
->
+On 7/15/21 11:36 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.51 release.
+> There are 215 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.51-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
 > thanks,
->
+> 
 > greg k-h
 
-Thank you! Yes - this is needed in 4.4, 4.9 and 4.14.
-Only line offsets and commit messages (they contain references to
-backport commits introducing the issue) differ between kernel versions
-and I see the patches are queued with correct line offsets.
-Patches for 4.9
-(https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-4.9/mac80211-fix-memory-corruption-in-eapol-handling.patch)
-and 4.14 (https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-4.14/mac80211-fix-memory-corruption-in-eapol-handling.patch)
-still contain 4.4 in the cc line in sign-off section. Also these
-patches contain reference to commit e3d4030498c3 that is from 4.4
-branch. Is this OK?
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Br,
-Davis
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
