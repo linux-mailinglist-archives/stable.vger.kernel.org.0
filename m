@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4183CA6C7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A21953CA8C0
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238768AbhGOSuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52330 "EHLO mail.kernel.org"
+        id S241242AbhGOTCq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239795AbhGOStt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF601613DC;
-        Thu, 15 Jul 2021 18:46:54 +0000 (UTC)
+        id S241208AbhGOS6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D4B613EB;
+        Thu, 15 Jul 2021 18:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374815;
-        bh=fkdniDa+xDCETYQggD9oaebwsk6k8b5LwB+FE25nR24=;
+        s=korg; t=1626375345;
+        bh=NKRBa+ZnalVf/of+MHcxQ4XWS/mH2Exv8L+GNaH1lEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TEBNrqIUldT56nKCN4IXU9pO0dMzZxz4xgDMxvxEL1Y1riZv2LUwf8oYXtvD71o0
-         m/TGfnt3+ohBGIshlbZz3mJYWkszakXFZydV+pie5Ex/yOSty5YWZVcictndj0AHSr
-         hoBFO/RVsWGbiRg2dNsX45/j8c5Wr7f/4QghhcxI=
+        b=jjmHOC3HfsMd7Z834ufYxmE0LYBQDbz/B9gM2fobmsh7t0ZsqGru9vYS3UOuEXZnr
+         KL1mRtzjsja3lrnolq7lR4hdfniN8psFUlKNwf7TVvIrgZkNxzxczXoyy3oCRktQN9
+         b1Hf0BuE1kCo5fuh+PyvwJbmHoBFxYnOeGV3kyP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 037/215] drm: rockchip: add missing registers for RK3066
+Subject: [PATCH 5.12 047/242] ipv6: use prandom_u32() for ID generation
 Date:   Thu, 15 Jul 2021 20:36:49 +0200
-Message-Id: <20210715182605.892049642@linuxfoundation.org>
+Message-Id: <20210715182600.463228673@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 742203cd56d150eb7884eb45abb7d9dbc2bdbf04 ]
+[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
 
-Add dither_up, dsp_lut_en and data_blank registers to enable their
-respective functionality for RK3066's VOP.
+This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
+table for IP ID generation"), but focusing on some specific aspects
+of IPv6.
 
-While at that also fix .rb_swap and .format registers for all windows,
-which have to be set though RK3066_SYS_CTRL1 register.
-Also remove .scl from win1: Scaling is only supported on the primary
-plane.
+Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
+minimum MTU of 1280, it's much less easy to force a remote peer to
+produce many fragments to explore its ID sequence. In addition packet
+IDs are 32-bit in IPv6, which further complicates their analysis. On
+the other hand, it is often easier to choose among plenty of possible
+source addresses and partially work around the bigger hash table the
+commit above permits, which leaves IPv6 partially exposed to some
+possibilities of remote analysis at the risk of weakening some
+protocols like DNS if some IDs can be predicted with a good enough
+probability.
 
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210528130554.72191-4-knaerzche@gmail.com
+Given the wide range of permitted IDs, the risk of collision is extremely
+low so there's no need to rely on the positive increment algorithm that
+is shared with the IPv4 code via ip_idents_reserve(). We have a fast
+PRNG, so let's simply call prandom_u32() and be done with it.
+
+Performance measurements at 10 Gbps couldn't show any difference with
+the previous code, even when using a single core, because due to the
+large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
+of the random generation is completely offset by other operations and by
+the network transfer time. In addition, this change removes the need to
+update a shared entry in the idents table so it may even end up being
+slightly faster on large scale systems where this matters.
+
+The risk of at least one collision here is about 1/80 million among
+10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
+which remains very low compared to IPv4 where all IDs are reused
+every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ net/ipv6/output_core.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-index b8dcee64a1f7..a6fe03c3748a 100644
---- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-@@ -349,8 +349,8 @@ static const struct vop_win_phy rk3066_win0_data = {
- 	.nformats = ARRAY_SIZE(formats_win_full),
- 	.format_modifiers = format_modifiers_win_full,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 0),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 4),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 19),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 4),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 19),
- 	.act_info = VOP_REG(RK3066_WIN0_ACT_INFO, 0x1fff1fff, 0),
- 	.dsp_info = VOP_REG(RK3066_WIN0_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN0_DSP_ST, 0x1fff1fff, 0),
-@@ -361,13 +361,12 @@ static const struct vop_win_phy rk3066_win0_data = {
- };
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index af36acc1a644..2880dc7d9a49 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -15,29 +15,11 @@ static u32 __ipv6_select_ident(struct net *net,
+ 			       const struct in6_addr *dst,
+ 			       const struct in6_addr *src)
+ {
+-	const struct {
+-		struct in6_addr dst;
+-		struct in6_addr src;
+-	} __aligned(SIPHASH_ALIGNMENT) combined = {
+-		.dst = *dst,
+-		.src = *src,
+-	};
+-	u32 hash, id;
+-
+-	/* Note the following code is not safe, but this is okay. */
+-	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
+-		get_random_bytes(&net->ipv4.ip_id_key,
+-				 sizeof(net->ipv4.ip_id_key));
+-
+-	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
+-
+-	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+-	 * set the hight order instead thus minimizing possible future
+-	 * collisions.
+-	 */
+-	id = ip_idents_reserve(hash, 1);
+-	if (unlikely(!id))
+-		id = 1 << 31;
++	u32 id;
++
++	do {
++		id = prandom_u32();
++	} while (!id);
  
- static const struct vop_win_phy rk3066_win1_data = {
--	.scl = &rk3066_win_scl,
- 	.data_formats = formats_win_full,
- 	.nformats = ARRAY_SIZE(formats_win_full),
- 	.format_modifiers = format_modifiers_win_full,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 1),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 7),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 23),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 7),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 23),
- 	.act_info = VOP_REG(RK3066_WIN1_ACT_INFO, 0x1fff1fff, 0),
- 	.dsp_info = VOP_REG(RK3066_WIN1_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN1_DSP_ST, 0x1fff1fff, 0),
-@@ -382,8 +381,8 @@ static const struct vop_win_phy rk3066_win2_data = {
- 	.nformats = ARRAY_SIZE(formats_win_lite),
- 	.format_modifiers = format_modifiers_win_lite,
- 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 2),
--	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 10),
--	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 27),
-+	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 10),
-+	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 27),
- 	.dsp_info = VOP_REG(RK3066_WIN2_DSP_INFO, 0x0fff0fff, 0),
- 	.dsp_st = VOP_REG(RK3066_WIN2_DSP_ST, 0x1fff1fff, 0),
- 	.yrgb_mst = VOP_REG(RK3066_WIN2_MST, 0xffffffff, 0),
-@@ -408,6 +407,9 @@ static const struct vop_common rk3066_common = {
- 	.dither_down_en = VOP_REG(RK3066_DSP_CTRL0, 0x1, 11),
- 	.dither_down_mode = VOP_REG(RK3066_DSP_CTRL0, 0x1, 10),
- 	.dsp_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 24),
-+	.dither_up = VOP_REG(RK3066_DSP_CTRL0, 0x1, 9),
-+	.dsp_lut_en = VOP_REG(RK3066_SYS_CTRL1, 0x1, 31),
-+	.data_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 25),
- };
- 
- static const struct vop_win_data rk3066_vop_win_data[] = {
+ 	return id;
+ }
 -- 
 2.30.2
 
