@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F673CA7B8
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA4B23CA667
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236971AbhGOS4A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59368 "EHLO mail.kernel.org"
+        id S235298AbhGOSrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:47:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239301AbhGOSzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D43E7610C7;
-        Thu, 15 Jul 2021 18:52:16 +0000 (UTC)
+        id S235059AbhGOSr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C01C261158;
+        Thu, 15 Jul 2021 18:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375137;
-        bh=Db9BWr13IIhpMoNlTyg48YEuC4w/VdnvUhnVfdi8Q8U=;
+        s=korg; t=1626374675;
+        bh=Nze3XrVeW7EtsmcRG/Qmm3lpamjNBbyeF80Q0ji17JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=veqORtke8VIcP59pKpyeBhTuI9RGv5IUOJnDUOmiPn+recZFaa67BNWwXq3XiQP5a
-         tlZYkivj75uzIfSxhorhIJO52PsuyePRgcSAMjEnifvt/htnpVsLIlheR63JO/3EUL
-         V+iWelM4p6CeMCSgAM0Np3qcnfkcDcnTisxTrtUQ=
+        b=H9jUrLXk3rO5q/IuVfIRnJhmzdTSRYhcgRK/9ojWaFKrgiaZMWTY1Q1xlyM3OMF1X
+         RnYTnfWFom+C9eKkzpzozK7uDM2MqK60BbKroHSCSYsfbG+kh2U4WnlWK3h6UHGUP2
+         OGTSzHQCwWBvzkHwZ7fdWTN9YHIVSJ8dfNTDRWx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Haren Myneni <haren@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 148/215] powerpc/powernv/vas: Release reference to tgid during window close
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.4 073/122] crypto: ccp - Annotate SEV Firmware file names
 Date:   Thu, 15 Jul 2021 20:38:40 +0200
-Message-Id: <20210715182625.796429330@linuxfoundation.org>
+Message-Id: <20210715182509.138888783@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haren Myneni <haren@linux.ibm.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 91cdbb955aa94ee0841af4685be40937345d29b8 upstream.
+commit c8671c7dc7d51125ab9f651697866bf4a9132277 upstream.
 
-The kernel handles the NX fault by updating CSB or sending
-signal to process. In multithread applications, children can
-open VAS windows and can exit without closing them. But the
-parent can continue to send NX requests with these windows. To
-prevent pid reuse, reference will be taken on pid and tgid
-when the window is opened and release them during window close.
+Annotate the firmware files CCP might need using MODULE_FIRMWARE().
+This will get them included into an initrd when CCP is also included
+there. Otherwise the CCP module will not find its firmware when loaded
+before the root-fs is mounted.
+This can cause problems when the pre-loaded SEV firmware is too old to
+support current SEV and SEV-ES virtualization features.
 
-The current code is not releasing the tgid reference which can
-cause pid leak and this patch fixes the issue.
-
-Fixes: db1c08a740635 ("powerpc/vas: Take reference to PID and mm for user space windows")
-Cc: stable@vger.kernel.org # 5.8+
-Reported-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Haren Myneni <haren@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/6020fc4d444864fe20f7dcdc5edfe53e67480a1c.camel@linux.ibm.com
+Fixes: e93720606efd ("crypto: ccp - Allow SEV firmware to be chosen based on Family and Model")
+Cc: stable@vger.kernel.org # v4.20+
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/platforms/powernv/vas-window.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/crypto/ccp/psp-dev.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/powerpc/platforms/powernv/vas-window.c
-+++ b/arch/powerpc/platforms/powernv/vas-window.c
-@@ -1093,9 +1093,9 @@ struct vas_window *vas_tx_win_open(int v
- 		/*
- 		 * Process closes window during exit. In the case of
- 		 * multithread application, the child thread can open
--		 * window and can exit without closing it. Expects parent
--		 * thread to use and close the window. So do not need
--		 * to take pid reference for parent thread.
-+		 * window and can exit without closing it. so takes tgid
-+		 * reference until window closed to make sure tgid is not
-+		 * reused.
- 		 */
- 		txwin->tgid = find_get_pid(task_tgid_vnr(current));
- 		/*
-@@ -1339,8 +1339,9 @@ int vas_win_close(struct vas_window *win
- 	/* if send window, drop reference to matching receive window */
- 	if (window->tx_win) {
- 		if (window->user_win) {
--			/* Drop references to pid and mm */
-+			/* Drop references to pid. tgid and mm */
- 			put_pid(window->pid);
-+			put_pid(window->tgid);
- 			if (window->mm) {
- 				mm_context_remove_vas_window(window->mm);
- 				mmdrop(window->mm);
+--- a/drivers/crypto/ccp/psp-dev.c
++++ b/drivers/crypto/ccp/psp-dev.c
+@@ -40,6 +40,10 @@ static int psp_probe_timeout = 5;
+ module_param(psp_probe_timeout, int, 0644);
+ MODULE_PARM_DESC(psp_probe_timeout, " default timeout value, in seconds, during PSP device probe");
+ 
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model0xh.sbin"); /* 1st gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam17h_model3xh.sbin"); /* 2nd gen EPYC */
++MODULE_FIRMWARE("amd/amd_sev_fam19h_model0xh.sbin"); /* 3rd gen EPYC */
++
+ static bool psp_dead;
+ static int psp_timeout;
+ 
 
 
