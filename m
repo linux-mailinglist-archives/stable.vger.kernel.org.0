@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BCE3CA962
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 833EB3CAAC5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239672AbhGOTGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38160 "EHLO mail.kernel.org"
+        id S239962AbhGOTPd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242714AbhGOTFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7D9661414;
-        Thu, 15 Jul 2021 19:01:54 +0000 (UTC)
+        id S244247AbhGOTOh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6CD613D0;
+        Thu, 15 Jul 2021 19:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375715;
-        bh=h6SGYwkOPYKkFn333x4SYe2QVtcmWZIhEINtZl4VNX0=;
+        s=korg; t=1626376199;
+        bh=0XRFg5hIq6dpQhf6aGNiDBR8wtXCngnhyGCW3ADbjSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mla3t2aI4Z86pY1NoaVIF2zJiRiS7/vls9o1ivUwxZZKfEPscFXuvd8egghzjW+8X
-         mpD+N8cfd6FX1qUfM5hcVVwowBcxtA2dwAPV61wv6skipmfM/djlycfSQLSx28NRcb
-         usYkoDvgODCozkuMEZf6KHbgCuMmxY/nzUUeuU9w=
+        b=ifBV18tIkUd7a9U/7Dy5QSO7pfJA/xeX9ua9sH+xPnsTXaU5GtAf9fSVsdC6azO3m
+         Jja4HOzLt8I/1xhcBqi8RsugeLpsJwYokCQxgb0T19AmYfXPkR8hX3opTdKh+WYcSp
+         Me04TPAinI7ir484h5tmrk2KF1Z/J4yk9+zKjxko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 163/242] drm/amdgpu: enable sdma0 tmz for Raven/Renoir(V2)
+        stable@vger.kernel.org,
+        syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com,
+        Rustam Kovhaev <rkovhaev@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 170/266] bpf: Fix false positive kmemleak report in bpf_ringbuf_area_alloc()
 Date:   Thu, 15 Jul 2021 20:38:45 +0200
-Message-Id: <20210715182621.875363177@linuxfoundation.org>
+Message-Id: <20210715182642.329830306@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Liu <aaron.liu@amd.com>
+From: Rustam Kovhaev <rkovhaev@gmail.com>
 
-commit e2329e74a615cc58b25c42b7aa1477a5e3f6a435 upstream.
+[ Upstream commit ccff81e1d028bbbf8573d3364a87542386c707bf ]
 
-Without driver loaded, SDMA0_UTCL1_PAGE.TMZ_ENABLE is set to 1
-by default for all asic. On Raven/Renoir, the sdma goldsetting
-changes SDMA0_UTCL1_PAGE.TMZ_ENABLE to 0.
-This patch restores SDMA0_UTCL1_PAGE.TMZ_ENABLE to 1.
+kmemleak scans struct page, but it does not scan the page content. If we
+allocate some memory with kmalloc(), then allocate page with alloc_page(),
+and if we put kmalloc pointer somewhere inside that page, kmemleak will
+report kmalloc pointer as a false positive.
 
-Signed-off-by: Aaron Liu <aaron.liu@amd.com>
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can instruct kmemleak to scan the memory area by calling kmemleak_alloc()
+and kmemleak_free(), but part of struct bpf_ringbuf is mmaped to user space,
+and if struct bpf_ringbuf changes we would have to revisit and review size
+argument in kmemleak_alloc(), because we do not want kmemleak to scan the
+user space memory. Let's simplify things and use kmemleak_not_leak() here.
 
+For posterity, also adding additional prior analysis from Andrii:
+
+  I think either kmemleak or syzbot are misreporting this. I've added a
+  bunch of printks around all allocations performed by BPF ringbuf. [...]
+  On repro side I get these two warnings:
+
+  [vmuser@archvm bpf]$ sudo ./repro
+  BUG: memory leak
+  unreferenced object 0xffff88810d538c00 (size 64):
+    comm "repro", pid 2140, jiffies 4294692933 (age 14.540s)
+    hex dump (first 32 bytes):
+      00 af 19 04 00 ea ff ff c0 ae 19 04 00 ea ff ff  ................
+      80 ae 19 04 00 ea ff ff c0 29 2e 04 00 ea ff ff  .........)......
+    backtrace:
+      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
+      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
+      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
+      [<00000000f601d565>] do_syscall_64+0x2d/0x40
+      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  BUG: memory leak
+  unreferenced object 0xffff88810d538c80 (size 64):
+    comm "repro", pid 2143, jiffies 4294699025 (age 8.448s)
+    hex dump (first 32 bytes):
+      80 aa 19 04 00 ea ff ff 00 ab 19 04 00 ea ff ff  ................
+      c0 ab 19 04 00 ea ff ff 80 44 28 04 00 ea ff ff  .........D(.....
+    backtrace:
+      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
+      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
+      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
+      [<00000000f601d565>] do_syscall_64+0x2d/0x40
+      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+  Note that both reported leaks (ffff88810d538c80 and ffff88810d538c00)
+  correspond to pages array bpf_ringbuf is allocating and tracking properly
+  internally. Note also that syzbot repro doesn't close FD of created BPF
+  ringbufs, and even when ./repro itself exits with error, there are still
+  two forked processes hanging around in my system. So clearly ringbuf maps
+  are alive at that point. So reporting any memory leak looks weird at that
+  point, because that memory is being used by active referenced BPF ringbuf.
+
+  It's also a question why repro doesn't clean up its forks. But if I do a
+  `pkill repro`, I do see that all the allocated memory is /properly/ cleaned
+  up [and the] "leaks" are deallocated properly.
+
+  BTW, if I add close() right after bpf() syscall in syzbot repro, I see that
+  everything is immediately deallocated, like designed. And no memory leak
+  is reported. So I don't think the problem is anywhere in bpf_ringbuf code,
+  rather in the leak detection and/or repro itself.
+
+Reported-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
+Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
+[ Daniel: also included analysis from Andrii to the commit log ]
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/CAEf4BzYk+dqs+jwu6VKXP-RttcTEGFe+ySTGWT9CRNkagDiJVA@mail.gmail.com
+Link: https://lore.kernel.org/lkml/YNTAqiE7CWJhOK2M@nuc10
+Link: https://lore.kernel.org/lkml/20210615101515.GC26027@arm.com
+Link: https://syzkaller.appspot.com/bug?extid=5d895828587f49e7fe9b
+Link: https://lore.kernel.org/bpf/20210626181156.1873604-1-rkovhaev@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/bpf/ringbuf.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -142,7 +142,7 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC0_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_IB_CNTL, 0x800f0111, 0x00000100),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
--	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003c0),
-+	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003e0),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_WATERMK, 0xfc000000, 0x00000000)
- };
+diff --git a/kernel/bpf/ringbuf.c b/kernel/bpf/ringbuf.c
+index 84b3b35fc0d0..9e0c10c6892a 100644
+--- a/kernel/bpf/ringbuf.c
++++ b/kernel/bpf/ringbuf.c
+@@ -8,6 +8,7 @@
+ #include <linux/vmalloc.h>
+ #include <linux/wait.h>
+ #include <linux/poll.h>
++#include <linux/kmemleak.h>
+ #include <uapi/linux/btf.h>
  
-@@ -268,7 +268,7 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_POWER_CNTL, 0x003fff07, 0x40000051),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC0_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
--	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003c0),
-+	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003e0),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_WATERMK, 0xfc000000, 0x03fbe1fe)
- };
- 
+ #define RINGBUF_CREATE_FLAG_MASK (BPF_F_NUMA_NODE)
+@@ -105,6 +106,7 @@ static struct bpf_ringbuf *bpf_ringbuf_area_alloc(size_t data_sz, int numa_node)
+ 	rb = vmap(pages, nr_meta_pages + 2 * nr_data_pages,
+ 		  VM_ALLOC | VM_USERMAP, PAGE_KERNEL);
+ 	if (rb) {
++		kmemleak_not_leak(pages);
+ 		rb->pages = pages;
+ 		rb->nr_pages = nr_pages;
+ 		return rb;
+-- 
+2.30.2
+
 
 
