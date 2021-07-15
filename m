@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB0B3CA7D2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 272853CA67D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241647AbhGOS4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60034 "EHLO mail.kernel.org"
+        id S238019AbhGOSsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241240AbhGOSze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE6B5613CF;
-        Thu, 15 Jul 2021 18:52:39 +0000 (UTC)
+        id S239180AbhGOSrw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A528601FF;
+        Thu, 15 Jul 2021 18:44:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375160;
-        bh=Zyse1W4/NOhaulWxxXeZ1NpcQ0SdVWN3GZYNdIpzm1s=;
+        s=korg; t=1626374698;
+        bh=C1ShubNXVTEITTM499ROiCEtSal1Awt21Bbup50aTP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qGIiVENCGbfuCNUqzOrKZtBrnHDtz1nu8sPDKao2RAAg0UPgzyUv9lDHkRhyEloH
-         lszs7F+7XHvN33WFTJyOjUFyBVRoaxIkZvjij/fI6Lf6YMa9mpOy8js3WGHeiwxJZy
-         zZClPGVF5baDxHdl+yqd+r3HBMz0ouTjIJtbOxmk=
+        b=thNVcbWNR0b++nwr/1MtCKM1BLwXzz1FtYIICzHiuC2fm/M2Knj3GXE46EPo0N6Qq
+         58pReHK39JMwtaFvG/0q5yLjL/lSYR4rqjfeM6SjzJXEFfP/g2bDvnZ7xpExPl31Aj
+         Nfrpe/26FsWx6sxxW1kbkC7aMTKGWkYNbL8vc/F8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.10 184/215] nvmem: core: add a missing of_node_put
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.4 109/122] dm btree remove: assign new_root only when removal succeeds
 Date:   Thu, 15 Jul 2021 20:39:16 +0200
-Message-Id: <20210715182631.808344889@linuxfoundation.org>
+Message-Id: <20210715182520.673081149@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 63879e2964bceee2aa5bbe8b99ea58bba28bb64f upstream.
+commit b6e58b5466b2959f83034bead2e2e1395cca8aeb upstream.
 
-'for_each_child_of_node' performs an of_node_get on each iteration, so a
-return from the middle of the loop requires an of_node_put.
+remove_raw() in dm_btree_remove() may fail due to IO read error
+(e.g. read the content of origin block fails during shadowing),
+and the value of shadow_spine::root is uninitialized, but
+the uninitialized value is still assign to new_root in the
+end of dm_btree_remove().
 
-Fixes: e888d445ac33 ("nvmem: resolve cells from DT at registration time")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210611102321.11509-1-srinivas.kandagatla@linaro.org
+For dm-thin, the value of pmd->details_root or pmd->root will become
+an uninitialized value, so if trying to read details_info tree again
+out-of-bound memory may occur as showed below:
+
+  general protection fault, probably for non-canonical address 0x3fdcb14c8d7520
+  CPU: 4 PID: 515 Comm: dmsetup Not tainted 5.13.0-rc6
+  Hardware name: QEMU Standard PC
+  RIP: 0010:metadata_ll_load_ie+0x14/0x30
+  Call Trace:
+   sm_metadata_count_is_more_than_one+0xb9/0xe0
+   dm_tm_shadow_block+0x52/0x1c0
+   shadow_step+0x59/0xf0
+   remove_raw+0xb2/0x170
+   dm_btree_remove+0xf4/0x1c0
+   dm_pool_delete_thin_device+0xc3/0x140
+   pool_message+0x218/0x2b0
+   target_message+0x251/0x290
+   ctl_ioctl+0x1c4/0x4d0
+   dm_ctl_ioctl+0xe/0x20
+   __x64_sys_ioctl+0x7b/0xb0
+   do_syscall_64+0x40/0xb0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixing it by only assign new_root when removal succeeds
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/core.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/md/persistent-data/dm-btree-remove.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -549,15 +549,17 @@ static int nvmem_add_cells_from_of(struc
- 			continue;
- 		if (len < 2 * sizeof(u32)) {
- 			dev_err(dev, "nvmem: invalid reg on %pOF\n", child);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
- 		cell = kzalloc(sizeof(*cell), GFP_KERNEL);
--		if (!cell)
-+		if (!cell) {
-+			of_node_put(child);
- 			return -ENOMEM;
-+		}
- 
- 		cell->nvmem = nvmem;
--		cell->np = of_node_get(child);
- 		cell->offset = be32_to_cpup(addr++);
- 		cell->bytes = be32_to_cpup(addr);
- 		cell->name = kasprintf(GFP_KERNEL, "%pOFn", child);
-@@ -578,11 +580,12 @@ static int nvmem_add_cells_from_of(struc
- 				cell->name, nvmem->stride);
- 			/* Cells already added will be freed later. */
- 			kfree_const(cell->name);
--			of_node_put(cell->np);
- 			kfree(cell);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
-+		cell->np = of_node_get(child);
- 		nvmem_cell_add(cell);
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -549,7 +549,8 @@ int dm_btree_remove(struct dm_btree_info
+ 		delete_at(n, index);
  	}
  
+-	*new_root = shadow_root(&spine);
++	if (!r)
++		*new_root = shadow_root(&spine);
+ 	exit_shadow_spine(&spine);
+ 
+ 	return r;
 
 
