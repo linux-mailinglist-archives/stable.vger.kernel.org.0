@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7882B3CAB70
+	by mail.lfdr.de (Postfix) with ESMTP id E8CC43CAB71
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242757AbhGOTUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
+        id S244736AbhGOTUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243277AbhGOTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244760AbhGOTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:18:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 566A861412;
-        Thu, 15 Jul 2021 19:13:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D5361410;
+        Thu, 15 Jul 2021 19:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376390;
-        bh=ABPESi/tvCvsDdS+Q26E3nZ0CcXREcFW90/hodmz2z0=;
+        s=korg; t=1626376393;
+        bh=z5CRr9uHvX/YCjApLw/rtBTEcqZGDMlsFP/f3WWWQy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oFNGXvaxTx64BN8Bl0kUQd+Tf5v8zq3NyZV/i6NRTZ9KeKvpCecABh46/mVr0h21v
-         MuL5RxAxmdbjG5Qyg7MzW5bwbl8VzyNBcBc+pHg09iKeLC9OD06RbHMZpZqg8c1IvU
-         oTqubHhP23hPdw6DXy1ydrE7VAQ8SoQ4bWll1u5U=
+        b=OFhCvMxvhCTz3wkiMMu4KFs4k9wSEKT/3+nBFnK3C4ajamEKL/k5QGrE9nYttUgSS
+         d4vI+9aWafzWKfJgUVx7pbUc3w/uRSUAm1QsKo4kee8Nn4sv8ycOQZ1+s/5odYJVs1
+         czYq+LYA3D9fHIYdlBEIiD5FAM5BMI0xSiZ03u0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.13 210/266] mmc: core: Allow UHS-I voltage switch for SDSC cards if supported
-Date:   Thu, 15 Jul 2021 20:39:25 +0200
-Message-Id: <20210715182646.888166608@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.13 211/266] docs: Makefile: Use CONFIG_SHELL not SHELL
+Date:   Thu, 15 Jul 2021 20:39:26 +0200
+Message-Id: <20210715182647.036264216@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -39,57 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Löhle <CLoehle@hyperstone.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 09247e110b2efce3a104e57e887c373e0a57a412 upstream.
+commit 222a28edce38b62074a950fb243df621c602b4d3 upstream.
 
-While initializing an UHS-I SD card, the mmc core first tries to switch to
-1.8V I/O voltage, before it continues to change the settings for the bus
-speed mode.
+Fix think-o about which variable to find the Kbuild-configured shell.
+This has accidentally worked due to most shells setting $SHELL by
+default.
 
-However, the current behaviour in the mmc core is inconsistent and doesn't
-conform to the SD spec. More precisely, an SD card that supports UHS-I must
-set both the SD_OCR_CCS bit and the SD_OCR_S18R bit in the OCR register
-response. When switching to 1.8V I/O the mmc core correctly checks both of
-the bits, but only the SD_OCR_S18R bit when changing the settings for bus
-speed mode.
-
-Rather than actually fixing the code to confirm to the SD spec, let's
-deliberately deviate from it by requiring only the SD_OCR_S18R bit for both
-parts. This enables us to support UHS-I for SDSC cards (outside spec),
-which is actually being supported by some existing SDSC cards. Moreover,
-this fixes the inconsistent behaviour.
-
-Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-Link: https://lore.kernel.org/r/CWXP265MB26803AE79E0AD5ED083BF2A6C4529@CWXP265MB2680.GBRP265.PROD.OUTLOOK.COM
+Fixes: 51e46c7a4007 ("docs, parallelism: Rearrange how jobserver reservations are made")
 Cc: stable@vger.kernel.org
-[Ulf: Rewrote commit message and comments to clarify the changes]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210617225808.3907377-1-keescook@chromium.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/sd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ Documentation/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -847,11 +847,13 @@ try_again:
- 		return err;
- 
- 	/*
--	 * In case CCS and S18A in the response is set, start Signal Voltage
--	 * Switch procedure. SPI mode doesn't support CMD11.
-+	 * In case the S18A bit is set in the response, let's start the signal
-+	 * voltage switch procedure. SPI mode doesn't support CMD11.
-+	 * Note that, according to the spec, the S18A bit is not valid unless
-+	 * the CCS bit is set as well. We deliberately deviate from the spec in
-+	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr &&
--	   ((*rocr & 0x41000000) == 0x41000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+--- a/Documentation/Makefile
++++ b/Documentation/Makefile
+@@ -76,7 +76,7 @@ quiet_cmd_sphinx = SPHINX  $@ --> file:/
+ 	PYTHONDONTWRITEBYTECODE=1 \
+ 	BUILDDIR=$(abspath $(BUILDDIR)) SPHINX_CONF=$(abspath $(srctree)/$(src)/$5/$(SPHINX_CONF)) \
+ 	$(PYTHON3) $(srctree)/scripts/jobserver-exec \
+-	$(SHELL) $(srctree)/Documentation/sphinx/parallel-wrapper.sh \
++	$(CONFIG_SHELL) $(srctree)/Documentation/sphinx/parallel-wrapper.sh \
+ 	$(SPHINXBUILD) \
+ 	-b $2 \
+ 	-c $(abspath $(srctree)/$(src)) \
 
 
