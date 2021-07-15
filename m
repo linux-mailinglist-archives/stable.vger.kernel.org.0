@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A21953CA8C0
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 659CF3CA6C5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241242AbhGOTCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35016 "EHLO mail.kernel.org"
+        id S231895AbhGOSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241208AbhGOS6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05D4B613EB;
-        Thu, 15 Jul 2021 18:55:44 +0000 (UTC)
+        id S236182AbhGOStv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 029B3613D0;
+        Thu, 15 Jul 2021 18:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375345;
-        bh=NKRBa+ZnalVf/of+MHcxQ4XWS/mH2Exv8L+GNaH1lEg=;
+        s=korg; t=1626374817;
+        bh=WNd2XvsHmMzMTc8q8RW82ovz6hXwJfeCBtj0g4KFKKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjmHOC3HfsMd7Z834ufYxmE0LYBQDbz/B9gM2fobmsh7t0ZsqGru9vYS3UOuEXZnr
-         KL1mRtzjsja3lrnolq7lR4hdfniN8psFUlKNwf7TVvIrgZkNxzxczXoyy3oCRktQN9
-         b1Hf0BuE1kCo5fuh+PyvwJbmHoBFxYnOeGV3kyP4=
+        b=li0JwmiNRqcwvXVgHyUUdQPF5CeZKYpW1+Zk2COg1ZK8WlEcLUqTO0e2BD2me1BcL
+         uFRC3TrffyB5xB7PpUt0JCBblCauzVUv3cfLtTm8Ti7rjh6zsOXUI0O5iJxxwQzQZ1
+         ndp34zMw5fdjr9m4+jAZK7ss2FiBqgTEiW0wDKXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 047/242] ipv6: use prandom_u32() for ID generation
-Date:   Thu, 15 Jul 2021 20:36:49 +0200
-Message-Id: <20210715182600.463228673@linuxfoundation.org>
+Subject: [PATCH 5.10 038/215] net: stmmac: the XPCS obscures a potential "PHY not found" error
+Date:   Thu, 15 Jul 2021 20:36:50 +0200
+Message-Id: <20210715182606.018626833@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
+[ Upstream commit 4751d2aa321f2828d8c5d2f7ce4ed18a01e47f46 ]
 
-This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
-table for IP ID generation"), but focusing on some specific aspects
-of IPv6.
+stmmac_mdio_register() has logic to search for PHYs on the MDIO bus and
+assign them IRQ lines, as well as to set priv->plat->phy_addr.
 
-Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
-minimum MTU of 1280, it's much less easy to force a remote peer to
-produce many fragments to explore its ID sequence. In addition packet
-IDs are 32-bit in IPv6, which further complicates their analysis. On
-the other hand, it is often easier to choose among plenty of possible
-source addresses and partially work around the bigger hash table the
-commit above permits, which leaves IPv6 partially exposed to some
-possibilities of remote analysis at the risk of weakening some
-protocols like DNS if some IDs can be predicted with a good enough
-probability.
+If no PHY is found, the "found" variable remains set to 0 and the
+function errors out.
 
-Given the wide range of permitted IDs, the risk of collision is extremely
-low so there's no need to rely on the positive increment algorithm that
-is shared with the IPv4 code via ip_idents_reserve(). We have a fast
-PRNG, so let's simply call prandom_u32() and be done with it.
+After the introduction of commit f213bbe8a9d6 ("net: stmmac: Integrate
+it with DesignWare XPCS"), the "found" variable was immediately reused
+for searching for a PCS on the same MDIO bus.
 
-Performance measurements at 10 Gbps couldn't show any difference with
-the previous code, even when using a single core, because due to the
-large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
-of the random generation is completely offset by other operations and by
-the network transfer time. In addition, this change removes the need to
-update a shared entry in the idents table so it may even end up being
-slightly faster on large scale systems where this matters.
+This can result in 2 types of potential problems (none of them seems to
+be seen on the only Intel system that sets has_xpcs = true, otherwise it
+would have been reported):
 
-The risk of at least one collision here is about 1/80 million among
-10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
-which remains very low compared to IPv4 where all IDs are reused
-every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
+1. If a PCS is found but a PHY is not, then the code happily exits with
+   no error. One might say "yes, but this is not possible, because
+   of_mdiobus_register will probe a PHY for all MDIO addresses,
+   including for the XPCS, so if an XPCS exists, then a PHY certainly
+   exists too". Well, that is not true, see intel_mgbe_common_data():
 
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+	/* Ensure mdio bus scan skips intel serdes and pcs-xpcs */
+	plat->mdio_bus_data->phy_mask = 1 << INTEL_MGBE_ADHOC_ADDR;
+	plat->mdio_bus_data->phy_mask |= 1 << INTEL_MGBE_XPCS_ADDR;
+
+2. A PHY is found but an MDIO device with the XPCS PHY ID isn't, and in
+   that case, the error message will be "No PHY found". Confusing.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Link: https://lore.kernel.org/r/20210527155959.3270478-1-olteanv@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/output_core.c | 28 +++++-----------------------
- 1 file changed, 5 insertions(+), 23 deletions(-)
+ .../net/ethernet/stmicro/stmmac/stmmac_mdio.c | 21 +++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
-index af36acc1a644..2880dc7d9a49 100644
---- a/net/ipv6/output_core.c
-+++ b/net/ipv6/output_core.c
-@@ -15,29 +15,11 @@ static u32 __ipv6_select_ident(struct net *net,
- 			       const struct in6_addr *dst,
- 			       const struct in6_addr *src)
- {
--	const struct {
--		struct in6_addr dst;
--		struct in6_addr src;
--	} __aligned(SIPHASH_ALIGNMENT) combined = {
--		.dst = *dst,
--		.src = *src,
--	};
--	u32 hash, id;
--
--	/* Note the following code is not safe, but this is okay. */
--	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
--		get_random_bytes(&net->ipv4.ip_id_key,
--				 sizeof(net->ipv4.ip_id_key));
--
--	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
--
--	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
--	 * set the hight order instead thus minimizing possible future
--	 * collisions.
--	 */
--	id = ip_idents_reserve(hash, 1);
--	if (unlikely(!id))
--		id = 1 << 31;
-+	u32 id;
-+
-+	do {
-+		id = prandom_u32();
-+	} while (!id);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
+index b2a707e2ef43..678726c62a8a 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c
+@@ -441,6 +441,12 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 		found = 1;
+ 	}
  
- 	return id;
- }
++	if (!found && !mdio_node) {
++		dev_warn(dev, "No PHY found\n");
++		err = -ENODEV;
++		goto no_phy_found;
++	}
++
+ 	/* Try to probe the XPCS by scanning all addresses. */
+ 	if (priv->hw->xpcs) {
+ 		struct mdio_xpcs_args *xpcs = &priv->hw->xpcs_args;
+@@ -449,6 +455,7 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 
+ 		xpcs->bus = new_bus;
+ 
++		found = 0;
+ 		for (addr = 0; addr < max_addr; addr++) {
+ 			xpcs->addr = addr;
+ 
+@@ -458,13 +465,12 @@ int stmmac_mdio_register(struct net_device *ndev)
+ 				break;
+ 			}
+ 		}
+-	}
+ 
+-	if (!found && !mdio_node) {
+-		dev_warn(dev, "No PHY found\n");
+-		mdiobus_unregister(new_bus);
+-		mdiobus_free(new_bus);
+-		return -ENODEV;
++		if (!found && !mdio_node) {
++			dev_warn(dev, "No XPCS found\n");
++			err = -ENODEV;
++			goto no_xpcs_found;
++		}
+ 	}
+ 
+ bus_register_done:
+@@ -472,6 +478,9 @@ bus_register_done:
+ 
+ 	return 0;
+ 
++no_xpcs_found:
++no_phy_found:
++	mdiobus_unregister(new_bus);
+ bus_register_fail:
+ 	mdiobus_free(new_bus);
+ 	return err;
 -- 
 2.30.2
 
