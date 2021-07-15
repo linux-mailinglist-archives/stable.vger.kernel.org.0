@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA4E3CA888
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B1F3CA5D0
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231390AbhGOTB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37544 "EHLO mail.kernel.org"
+        id S232870AbhGOSom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241113AbhGOTAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F28DA613CC;
-        Thu, 15 Jul 2021 18:57:26 +0000 (UTC)
+        id S234083AbhGOSoi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82B39613CA;
+        Thu, 15 Jul 2021 18:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375447;
-        bh=DdM/QtZXD7pf1Ou7w+R2eAax2FtnYf4YG/2ZosDBU5k=;
+        s=korg; t=1626374505;
+        bh=N0yqi/fE7VKWJ21/uelkUPX4mEQZlqAA9NU03kqqLWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BMh7UcSstCw2GLCe1EEdCLy9vsAtlWOSmwuHxzGAxo7BjEs9/1LL4NBq9NXnFf3zc
-         49IpgRWvU71ebpjBdyOAx9sqXiosI5uAsP9fnT3xASS7mTQCAENT8cds/XEZwp+b3X
-         1cGem2gBarChNK5wt6LePVTetcXKJ6+ciUnpS+eU=
+        b=JZnL1oQeHLR8fpE0OUpiogBxxPrwl/96A2T6uNh2ppQ/F2Cd4hdBOUlJ/Nt7O/tKD
+         dmOEDyXz8xu8nZg+jR6/F5TDknfbGcWJs/Gpspa3OpmY13qRVkTu0PLnb1VqXdX5bu
+         TATnSb4aQQXzmFaK6oMEvtD06aPlQ4Epr2V0k13w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amber Lin <Amber.Lin@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        stable@vger.kernel.org,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 091/242] drm/amdkfd: Fix circular lock in nocpsch path
+Subject: [PATCH 5.4 006/122] drm/amd/display: fix use_max_lb flag for 420 pixel formats
 Date:   Thu, 15 Jul 2021 20:37:33 +0200
-Message-Id: <20210715182609.094192544@linuxfoundation.org>
+Message-Id: <20210715182449.976688432@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,88 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amber Lin <Amber.Lin@amd.com>
+From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 
-[ Upstream commit a7b2451d31cfa2e8aeccf3b35612ce33f02371fc ]
+[ Upstream commit 8809a7a4afe90ad9ffb42f72154d27e7c47551ae ]
 
-Calling free_mqd inside of destroy_queue_nocpsch_locked can cause a
-circular lock. destroy_queue_nocpsch_locked is called under a DQM lock,
-which is taken in MMU notifiers, potentially in FS reclaim context.
-Taking another lock, which is BO reservation lock from free_mqd, while
-causing an FS reclaim inside the DQM lock creates a problematic circular
-lock dependency. Therefore move free_mqd out of
-destroy_queue_nocpsch_locked and call it after unlocking DQM.
+Right now the flag simply selects memory config 0 when flag is true
+however 420 modes benefit more from memory config 3.
 
-Signed-off-by: Amber Lin <Amber.Lin@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c  | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index df05eca73275..3d66565a618f 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -486,9 +486,6 @@ static int destroy_queue_nocpsch_locked(struct device_queue_manager *dqm,
- 	if (retval == -ETIME)
- 		qpd->reset_wavefronts = true;
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
+index d67e0abeee93..11a89d873384 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
+@@ -484,10 +484,13 @@ static enum lb_memory_config dpp1_dscl_find_lb_memory_config(struct dcn10_dpp *d
+ 	int vtaps_c = scl_data->taps.v_taps_c;
+ 	int ceil_vratio = dc_fixpt_ceil(scl_data->ratios.vert);
+ 	int ceil_vratio_c = dc_fixpt_ceil(scl_data->ratios.vert_c);
+-	enum lb_memory_config mem_cfg = LB_MEMORY_CONFIG_0;
  
--
--	mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
--
- 	list_del(&q->list);
- 	if (list_empty(&qpd->queues_list)) {
- 		if (qpd->reset_wavefronts) {
-@@ -523,6 +520,8 @@ static int destroy_queue_nocpsch(struct device_queue_manager *dqm,
- 	int retval;
- 	uint64_t sdma_val = 0;
- 	struct kfd_process_device *pdd = qpd_to_pdd(qpd);
-+	struct mqd_manager *mqd_mgr =
-+		dqm->mqd_mgrs[get_mqd_type_from_queue_type(q->properties.type)];
+-	if (dpp->base.ctx->dc->debug.use_max_lb)
+-		return mem_cfg;
++	if (dpp->base.ctx->dc->debug.use_max_lb) {
++		if (scl_data->format == PIXEL_FORMAT_420BPP8
++				|| scl_data->format == PIXEL_FORMAT_420BPP10)
++			return LB_MEMORY_CONFIG_3;
++		return LB_MEMORY_CONFIG_0;
++	}
  
- 	/* Get the SDMA queue stats */
- 	if ((q->properties.type == KFD_QUEUE_TYPE_SDMA) ||
-@@ -540,6 +539,8 @@ static int destroy_queue_nocpsch(struct device_queue_manager *dqm,
- 		pdd->sdma_past_activity_counter += sdma_val;
- 	dqm_unlock(dqm);
- 
-+	mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+
- 	return retval;
- }
- 
-@@ -1632,7 +1633,7 @@ static int set_trap_handler(struct device_queue_manager *dqm,
- static int process_termination_nocpsch(struct device_queue_manager *dqm,
- 		struct qcm_process_device *qpd)
- {
--	struct queue *q, *next;
-+	struct queue *q;
- 	struct device_process_node *cur, *next_dpn;
- 	int retval = 0;
- 	bool found = false;
-@@ -1640,12 +1641,19 @@ static int process_termination_nocpsch(struct device_queue_manager *dqm,
- 	dqm_lock(dqm);
- 
- 	/* Clear all user mode queues */
--	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
-+	while (!list_empty(&qpd->queues_list)) {
-+		struct mqd_manager *mqd_mgr;
- 		int ret;
- 
-+		q = list_first_entry(&qpd->queues_list, struct queue, list);
-+		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
-+				q->properties.type)];
- 		ret = destroy_queue_nocpsch_locked(dqm, qpd, q);
- 		if (ret)
- 			retval = ret;
-+		dqm_unlock(dqm);
-+		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+		dqm_lock(dqm);
- 	}
- 
- 	/* Unregister process */
+ 	dpp->base.caps->dscl_calc_lb_num_partitions(
+ 			scl_data, LB_MEMORY_CONFIG_1, &num_part_y, &num_part_c);
 -- 
 2.30.2
 
