@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 040033CA5E7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4324B3CA750
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236333AbhGOSpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
+        id S240350AbhGOSxS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235924AbhGOSpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36D6B613CF;
-        Thu, 15 Jul 2021 18:42:05 +0000 (UTC)
+        id S239776AbhGOSwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ECBF613CF;
+        Thu, 15 Jul 2021 18:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374525;
-        bh=hJvUjptkuHe8DrOfp/X28AnaU9SsW4Do5T0kzTafEU8=;
+        s=korg; t=1626374987;
+        bh=umTpPidblLEoLIcldFS+oYQrpZPqv5PsjC7OHkD8deQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5uV2oss5VzccRmJUv0xk/003Eyr4cD5eFFIO5df+iyEFa9JjX9F2O5E2v0KBTxLo
-         UAKxVGjJygcbPCsdH1oOQUcWGJa7pQcpLZ/qIVLroMTBfU8B5FNeucOi0gJPixJFX2
-         IqJOawNI9lLc3/11mtwNELbq0hCQikiEcDB2s08k=
+        b=JyHvItQkPMHGMUBUoi55MW/CCBGcAUpLz4135jDn1I3mkgiT5ASlKiPCX7hvTjdb2
+         Z+jtK1y+4ZrxYXO9PEjostZ5KHy9AJ8jjOq7/LUiePGYfQ7VASJS8mB9T6fTVI/P06
+         VDYDHro0Y0pSuXwH2Yr52s7sl1HjUYzwUsNRANts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Alaa Hleihel <alaa@nvidia.com>,
+        Israel Rukshin <israelr@nvidia.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/122] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
+Subject: [PATCH 5.10 112/215] IB/isert: Align target max I/O size to initiator size
 Date:   Thu, 15 Jul 2021 20:38:04 +0200
-Message-Id: <20210715182458.409072994@linuxfoundation.org>
+Message-Id: <20210715182619.339869374@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,129 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
-[ Upstream commit 648f2c6100cfa18e7dfe43bc0b9c3b73560d623c ]
+[ Upstream commit 109d19a5eb3ddbdb87c43bfd4bcf644f4569da64 ]
 
-In the field, we have seen lots of allocation failure from the call
-path below.
+Since the Linux iser initiator default max I/O size set to 512KB and since
+there is no handshake procedure for this size in iser protocol, set the
+default max IO size of the target to 512KB as well.
 
-06-03 13:29:12.999 1010315 31557 31557 W Binder  : 31542_2: page allocation failure: order:0, mode:0x800(GFP_NOWAIT), nodemask=(null),cpuset=background,mems_allowed=0
-...
-...
-06-03 13:29:12.999 1010315 31557 31557 W Call trace:
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_backtrace.cfi_jt+0x0/0x8
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_stack+0xc8/0x14c
-06-03 13:29:12.999 1010315 31557 31557 W         : warn_alloc+0x158/0x1c8
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_slowpath+0x9d8/0xb80
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_nodemask+0x1c4/0x430
-06-03 13:29:12.999 1010315 31557 31557 W         : allocate_slab+0xb4/0x390
-06-03 13:29:12.999 1010315 31557 31557 W         : ___slab_alloc+0x12c/0x3a4
-06-03 13:29:12.999 1010315 31557 31557 W         : kmem_cache_alloc+0x358/0x5e4
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_alloc_node+0x30/0x184
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_update_node+0x54/0x4f0
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_has_extended_perms+0x1a4/0x460
-06-03 13:29:12.999 1010315 31557 31557 W         : selinux_file_ioctl+0x320/0x3d0
-06-03 13:29:12.999 1010315 31557 31557 W         : __arm64_sys_ioctl+0xec/0x1fc
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc_common+0xc0/0x24c
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc+0x28/0x88
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync_handler+0x8c/0xf0
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync+0x1a4/0x1c0
-..
-..
-06-03 13:29:12.999 1010315 31557 31557 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010315 31557 31557 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010315 31557 31557 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 10230 30892 30892 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+For changing the default values, there is a module parameter for both
+drivers.
 
-Based on [1], selinux is tolerate for failure of memory allocation.
-Then, use __GFP_NOWARN together.
-
-[1] 476accbe2f6e ("selinux: use GFP_NOWAIT in the AVC kmem_caches")
-
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-[PM: subj fix, line wraps, normalized commit refs]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Link: https://lore.kernel.org/r/20210524085215.29005-1-mgurtovoy@nvidia.com
+Reviewed-by: Alaa Hleihel <alaa@nvidia.com>
+Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Acked-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/infiniband/ulp/isert/ib_isert.c | 4 ++--
+ drivers/infiniband/ulp/isert/ib_isert.h | 3 ---
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index d18cb32a242a..4a744b1cebc8 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -294,26 +294,27 @@ static struct avc_xperms_decision_node
- 	struct avc_xperms_decision_node *xpd_node;
- 	struct extended_perms_decision *xpd;
+diff --git a/drivers/infiniband/ulp/isert/ib_isert.c b/drivers/infiniband/ulp/isert/ib_isert.c
+index e653c83f8a35..edea37da8a5b 100644
+--- a/drivers/infiniband/ulp/isert/ib_isert.c
++++ b/drivers/infiniband/ulp/isert/ib_isert.c
+@@ -35,10 +35,10 @@ static const struct kernel_param_ops sg_tablesize_ops = {
+ 	.get = param_get_int,
+ };
  
--	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep, GFP_NOWAIT);
-+	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
-+				     GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xpd_node)
- 		return NULL;
+-static int isert_sg_tablesize = ISCSI_ISER_DEF_SG_TABLESIZE;
++static int isert_sg_tablesize = ISCSI_ISER_MIN_SG_TABLESIZE;
+ module_param_cb(sg_tablesize, &sg_tablesize_ops, &isert_sg_tablesize, 0644);
+ MODULE_PARM_DESC(sg_tablesize,
+-		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 256, max: 4096)");
++		 "Number of gather/scatter entries in a single scsi command, should >= 128 (default: 128, max: 4096)");
  
- 	xpd = &xpd_node->xpd;
- 	if (which & XPERMS_ALLOWED) {
- 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->allowed)
- 			goto error;
- 	}
- 	if (which & XPERMS_AUDITALLOW) {
- 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->auditallow)
- 			goto error;
- 	}
- 	if (which & XPERMS_DONTAUDIT) {
- 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->dontaudit)
- 			goto error;
- 	}
-@@ -341,7 +342,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
- {
- 	struct avc_xperms_node *xp_node;
+ static DEFINE_MUTEX(device_list_mutex);
+ static LIST_HEAD(device_list);
+diff --git a/drivers/infiniband/ulp/isert/ib_isert.h b/drivers/infiniband/ulp/isert/ib_isert.h
+index 6c5af13db4e0..ca8cfebe26ca 100644
+--- a/drivers/infiniband/ulp/isert/ib_isert.h
++++ b/drivers/infiniband/ulp/isert/ib_isert.h
+@@ -65,9 +65,6 @@
+  */
+ #define ISER_RX_SIZE		(ISCSI_DEF_MAX_RECV_SEG_LEN + 1024)
  
--	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
-+	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xp_node)
- 		return xp_node;
- 	INIT_LIST_HEAD(&xp_node->xpd_head);
-@@ -497,7 +498,7 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
- {
- 	struct avc_node *node;
- 
--	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
-+	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!node)
- 		goto out;
+-/* Default I/O size is 1MB */
+-#define ISCSI_ISER_DEF_SG_TABLESIZE 256
+-
+ /* Minimum I/O size is 512KB */
+ #define ISCSI_ISER_MIN_SG_TABLESIZE 128
  
 -- 
 2.30.2
