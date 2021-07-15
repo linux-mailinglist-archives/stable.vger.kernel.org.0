@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD1A3CA5C0
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821223CA8A5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbhGOSoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:44:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
+        id S242517AbhGOTCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231739AbhGOSoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:44:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79E0561396;
-        Thu, 15 Jul 2021 18:41:23 +0000 (UTC)
+        id S241463AbhGOTBP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2A5E613D4;
+        Thu, 15 Jul 2021 18:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374484;
-        bh=ZP1acyJ8uDVnQc1RK57kx3rIAh4r8Qwak6pgb9sNWd8=;
+        s=korg; t=1626375480;
+        bh=0Em+bgYmrDU1JOZhftUS5xrrOixdfruBKkFRuFCROBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N68uiY6lFCH5Xgjmzc6x+aGeLUSZe0Ee/IrdFfhC0Dt7MWiu9vvGlxwv3eRfveNiV
-         X5Fv3lk1HdAd2eO48WiFdeOOvZ9G/Ynp17zG0dYf2DuEP3QSTcDrDrT3ZOWZqm84Lt
-         BtGcMIlgEESluQHApwKdNJIP6VlCo4YXUNoD2uDA=
+        b=MehYmks3hPIAXbE8JZzu8NrN4v2mQ0A6saVx+484vV+m2YqyHeoWAJoiX7G05rZgE
+         Q6nvtbwZd8v8EgjHephxvOAxU+YPZkvPe1hRv8ESiFRcu70bmI60QWM1C17UQun170
+         LNkZ3m58TwyoqB0NHLMJq6SNQIxu4Sg/XMD4mZMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 019/122] drm/bridge: cdns: Fix PM reference leak in cdns_dsi_transfer()
+        stable@vger.kernel.org, Evelyn Tsai <evelyn.tsai@mediatek.com>,
+        Shayne Chen <shayne.chen@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 104/242] mt76: mt7915: fix tssi indication field of DBDC NICs
 Date:   Thu, 15 Jul 2021 20:37:46 +0200
-Message-Id: <20210715182454.406242802@linuxfoundation.org>
+Message-Id: <20210715182611.324416592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Evelyn Tsai <evelyn.tsai@mediatek.com>
 
-[ Upstream commit 33f90f27e1c5ccd648d3e78a1c28be9ee8791cf1 ]
+[ Upstream commit 64cf5ad3c2fa841e4b416343a7ea69c63d60fa4e ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+Correct the bitfield which indicates TSSI on/off for MT7915D NIC.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1621840862-106024-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Evelyn Tsai <evelyn.tsai@mediatek.com>
+Signed-off-by: Shayne Chen <shayne.chen@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/cdns-dsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/cdns-dsi.c b/drivers/gpu/drm/bridge/cdns-dsi.c
-index 6166dca6be81..0cb9dd6986ec 100644
---- a/drivers/gpu/drm/bridge/cdns-dsi.c
-+++ b/drivers/gpu/drm/bridge/cdns-dsi.c
-@@ -1026,7 +1026,7 @@ static ssize_t cdns_dsi_transfer(struct mipi_dsi_host *host,
- 	struct mipi_dsi_packet packet;
- 	int ret, i, tx_len, rx_len;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+index 3ee8c27bb61b..40a51d99a781 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/eeprom.h
+@@ -116,12 +116,15 @@ static inline bool
+ mt7915_tssi_enabled(struct mt7915_dev *dev, enum nl80211_band band)
+ {
+ 	u8 *eep = dev->mt76.eeprom.data;
++	u8 val = eep[MT_EE_WIFI_CONF + 7];
  
--	ret = pm_runtime_get_sync(host->dev);
-+	ret = pm_runtime_resume_and_get(host->dev);
- 	if (ret < 0)
- 		return ret;
+-	/* TODO: DBDC */
+-	if (band == NL80211_BAND_5GHZ)
+-		return eep[MT_EE_WIFI_CONF + 7] & MT_EE_WIFI_CONF7_TSSI0_5G;
++	if (band == NL80211_BAND_2GHZ)
++		return val & MT_EE_WIFI_CONF7_TSSI0_2G;
++
++	if (dev->dbdc_support)
++		return val & MT_EE_WIFI_CONF7_TSSI1_5G;
+ 	else
+-		return eep[MT_EE_WIFI_CONF + 7] & MT_EE_WIFI_CONF7_TSSI0_2G;
++		return val & MT_EE_WIFI_CONF7_TSSI0_5G;
+ }
  
+ extern const struct sku_group mt7915_sku_groups[];
 -- 
 2.30.2
 
