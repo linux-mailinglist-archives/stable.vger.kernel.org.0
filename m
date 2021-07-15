@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DBA43CA781
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28DF3CA60C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238865AbhGOSzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57930 "EHLO mail.kernel.org"
+        id S237695AbhGOSp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240482AbhGOSxf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:53:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E96E4613DA;
-        Thu, 15 Jul 2021 18:50:40 +0000 (UTC)
+        id S236971AbhGOSpy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C9561396;
+        Thu, 15 Jul 2021 18:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375041;
-        bh=gWwBBg4a6xmnU0NOxAxZXtYOk15quw5sP7AcEnJZ1rg=;
+        s=korg; t=1626374580;
+        bh=pzV0TO+GBJ8LSqk5I/LiZ5KgXN2MACgT5QmQXiGibMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ql9VViGb4Fx07fevkltDkE4YaPy8ROfz6aasF+hsuwLxk6dQWQJM03GoCCuKJU6pU
-         wifZAQKhzNAAZ+CWEotxYlevDQRFhJydJa40jYB/zUm0Yy5EMclPfRpdQPT/VWCmuz
-         w2659BtHsg/zI9PD56fx+YOv715UEtIqSYxwT4ts=
+        b=IQAhOuerGU99iRIcT1uurHtBzRdu3RDedLu9gVhEbSgx6W4JLbrssKiGKIHpN80SB
+         UcrP1ysiSsCYwjIaftEPDnik63n4j/40OnSq9HZ0gg1OKPBqe7ZEgzS+r/Zn5qjJ/i
+         1yna73gHMdOaLNnW2k7pstK5uUDSSD4GnCLXYz8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaochen Shen <xiaochen.shen@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 5.10 133/215] selftests/resctrl: Fix incorrect parsing of option "-t"
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 058/122] sfc: avoid double pci_remove of VFs
 Date:   Thu, 15 Jul 2021 20:38:25 +0200
-Message-Id: <20210715182623.089448296@linuxfoundation.org>
+Message-Id: <20210715182504.678611891@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +41,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaochen Shen <xiaochen.shen@intel.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-commit 1421ec684a43379b2aa3cfda20b03d38282dc990 upstream.
+[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
 
-Resctrl test suite accepts command line argument "-t" to specify the
-unit tests to run in the test list (e.g., -t mbm,mba,cmt,cat) as
-documented in the help.
+If pci_remove was called for a PF with VFs, the removal of the VFs was
+called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
+and another implicit by calling pci_disable_sriov, which also perform
+the VFs remove. This was leading to crashing the kernel on the second
+attempt.
 
-When calling strtok() to parse the option, the incorrect delimiters
-argument ":\t" is used. As a result, passing "-t mbm,mba,cmt,cat" throws
-an invalid option error.
+Given that pci_disable_sriov already calls to pci remove function, get
+rid of the direct call to pci_driver->remove from the driver.
 
-Fix this by using delimiters argument "," instead of ":\t" for parsing
-of unit tests list. At the same time, remove the unnecessary "spaces"
-between the unit tests in help documentation to prevent confusion.
+2 different ways to trigger the bug:
+- Create one or more VFs, then attach the PF to a virtual machine (at
+  least with qemu/KVM)
+- Create one or more VFs, then remove the PF with:
+  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
 
-Fixes: 790bf585b0ee ("selftests/resctrl: Add Cache Allocation Technology (CAT) selftest")
-Fixes: 78941183d1b1 ("selftests/resctrl: Add Cache QoS Monitoring (CQM) selftest")
-Fixes: ecdbb911f22d ("selftests/resctrl: Add MBM test")
-Fixes: 034c7678dd2c ("selftests/resctrl: Add README for resctrl tests")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Removing sfc module does not trigger the error, at least for me, because
+it removes the VF first, and then the PF.
 
+Example of a log with the error:
+    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
+    ------------[ cut here ]------------
+    kernel BUG at lib/list_debug.c:47!
+    [...trimmed...]
+    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
+    [...trimmed...]
+    Call Trace:
+    efx_dissociate+0x1f/0x140 [sfc]
+    efx_pci_remove+0x27/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    pci_stop_bus_device+0x69/0x90
+    pci_stop_and_remove_bus_device+0xe/0x20
+    pci_iov_remove_virtfn+0xba/0x120
+    sriov_disable+0x2f/0xe0
+    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
+    ? pcie_aer_is_native+0x12/0x40
+    efx_ef10_sriov_fini+0x72/0x110 [sfc]
+    efx_pci_remove+0x62/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    unbind_store+0xf6/0x130
+    kernfs_fop_write+0x116/0x190
+    vfs_write+0xa5/0x1a0
+    ksys_write+0x4f/0xb0
+    do_syscall_64+0x5b/0x1a0
+    entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/resctrl/README          |    2 +-
- tools/testing/selftests/resctrl/resctrl_tests.c |    4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
---- a/tools/testing/selftests/resctrl/README
-+++ b/tools/testing/selftests/resctrl/README
-@@ -47,7 +47,7 @@ Parameter '-h' shows usage information.
+diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
+index 52bd43f45761..695e3508b4d8 100644
+--- a/drivers/net/ethernet/sfc/ef10_sriov.c
++++ b/drivers/net/ethernet/sfc/ef10_sriov.c
+@@ -440,7 +440,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
+ void efx_ef10_sriov_fini(struct efx_nic *efx)
+ {
+ 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-	unsigned int i;
+ 	int rc;
  
- usage: resctrl_tests [-h] [-b "benchmark_cmd [options]"] [-t test list] [-n no_of_bits]
-         -b benchmark_cmd [options]: run specified benchmark for MBM, MBA and CQM default benchmark is builtin fill_buf
--        -t test list: run tests specified in the test list, e.g. -t mbm, mba, cqm, cat
-+        -t test list: run tests specified in the test list, e.g. -t mbm,mba,cqm,cat
-         -n no_of_bits: run cache tests using specified no of bits in cache bit mask
-         -p cpu_no: specify CPU number to run the test. 1 is default
-         -h: help
---- a/tools/testing/selftests/resctrl/resctrl_tests.c
-+++ b/tools/testing/selftests/resctrl/resctrl_tests.c
-@@ -40,7 +40,7 @@ static void cmd_help(void)
- 	printf("\t-b benchmark_cmd [options]: run specified benchmark for MBM, MBA and CQM");
- 	printf("\t default benchmark is builtin fill_buf\n");
- 	printf("\t-t test list: run tests specified in the test list, ");
--	printf("e.g. -t mbm, mba, cqm, cat\n");
-+	printf("e.g. -t mbm,mba,cqm,cat\n");
- 	printf("\t-n no_of_bits: run cache tests using specified no of bits in cache bit mask\n");
- 	printf("\t-p cpu_no: specify CPU number to run the test. 1 is default\n");
- 	printf("\t-h: help\n");
-@@ -98,7 +98,7 @@ int main(int argc, char **argv)
+ 	if (!nic_data->vf) {
+@@ -450,14 +449,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
+ 		return;
+ 	}
  
- 					return -1;
- 				}
--				token = strtok(NULL, ":\t");
-+				token = strtok(NULL, ",");
- 			}
- 			break;
- 		case 'p':
+-	/* Remove any VFs in the host */
+-	for (i = 0; i < efx->vf_count; ++i) {
+-		struct efx_nic *vf_efx = nic_data->vf[i].efx;
+-
+-		if (vf_efx)
+-			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
+-	}
+-
++	/* Disable SRIOV and remove any VFs in the host */
+ 	rc = efx_ef10_pci_sriov_disable(efx, true);
+ 	if (rc)
+ 		netif_dbg(efx, drv, efx->net_dev,
+-- 
+2.30.2
+
 
 
