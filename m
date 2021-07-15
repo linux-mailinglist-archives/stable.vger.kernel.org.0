@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5A533CA675
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9328F3CA7D3
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239136AbhGOSsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49216 "EHLO mail.kernel.org"
+        id S241764AbhGOS4k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238940AbhGOSrs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C9E861158;
-        Thu, 15 Jul 2021 18:44:53 +0000 (UTC)
+        id S241044AbhGOSzc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C5B7613D0;
+        Thu, 15 Jul 2021 18:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374693;
-        bh=oDj4QzskaiCbEtmnzszlg04IE4Xh1gAq207OnqONIEU=;
+        s=korg; t=1626375158;
+        bh=oeHtHu3SOTnq8xDXXFlMf7eT9quDwllg4ho5H1FEKSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9KuoKB/4oR5/mXDxd9sJtlvYwbNX5MC0JESnYEbrGUMA+XpA2bmVGWfav9oCS9ZS
-         DjTcH8uEeJ58gXpZzOHti9vsY/AQX4oMLrEswmKJQQhEhXegVZPKz2YnjPohfpfyqq
-         iXdGfQhPm096/e9mICFWsoIY/rPPLOX44Z1OimgQ=
+        b=MsgB3K7to3sMFZVy5pX6iZ4lRT1P+onj9mZX0FjVmRkKsSTxgtRcZd46DDBElVPlU
+         ZQ8zHgzfqWup3Io0QMertUtp9vUMBNcaiBD0TOwXiGWvhFnDCiezICpM4KjYOd24pt
+         s0uH8wULRHSoAyXUFjtq6lOBSJNllALFXg7U856w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Subject: [PATCH 5.4 107/122] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
-Date:   Thu, 15 Jul 2021 20:39:14 +0200
-Message-Id: <20210715182520.248548477@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.10 183/215] mfd: syscon: Free the allocated name field of struct regmap_config
+Date:   Thu, 15 Jul 2021 20:39:15 +0200
+Message-Id: <20210715182631.652324619@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Limeng <Meng.Li@windriver.com>
 
-commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
+commit 56a1188159cb2b87fbcb5a7a7afb38a4dd9db0c1 upstream.
 
-In the out_err_bus_register error branch of tpci200_pci_probe,
-tpci200->info->cfg_regs is freed by tpci200_uninstall()->
-tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
-in the first time.
+The commit 529a1101212a("mfd: syscon: Don't free allocated name
+for regmap_config") doesn't free the allocated name field of struct
+regmap_config, but introduce a memory leak. There is another
+commit 94cc89eb8fa5("regmap: debugfs: Fix handling of name string
+for debugfs init delays") fixing this debugfs init issue from root
+cause. With this fixing, the name field in struct regmap_debugfs_node
+is removed. When initialize debugfs for syscon driver, the name
+field of struct regmap_config is not used anymore. So, the allocated
+name field of struct regmap_config is need to be freed directly after
+regmap initialization to avoid memory leak.
 
-But later, iounmap() is called to free tpci200->info->cfg_regs
-again.
-
-My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
-to avoid the double free.
-
-Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
+Cc: stable@vger.kernel.org
+Fixes: 529a1101212a("mfd: syscon: Don't free allocated name for regmap_config")
+Signed-off-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ipack/carriers/tpci200.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mfd/syscon.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -596,8 +596,11 @@ static int tpci200_pci_probe(struct pci_
+--- a/drivers/mfd/syscon.c
++++ b/drivers/mfd/syscon.c
+@@ -108,6 +108,7 @@ static struct syscon *of_syscon_register
+ 	syscon_config.max_register = resource_size(&res) - reg_io_width;
  
- out_err_bus_register:
- 	tpci200_uninstall(tpci200);
-+	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
-+	tpci200->info->cfg_regs = NULL;
- out_err_install:
--	iounmap(tpci200->info->cfg_regs);
-+	if (tpci200->info->cfg_regs)
-+		iounmap(tpci200->info->cfg_regs);
- out_err_ioremap:
- 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
- out_err_pci_request:
+ 	regmap = regmap_init_mmio(NULL, base, &syscon_config);
++	kfree(syscon_config.name);
+ 	if (IS_ERR(regmap)) {
+ 		pr_err("regmap init failed\n");
+ 		ret = PTR_ERR(regmap);
+@@ -144,7 +145,6 @@ err_clk:
+ 	regmap_exit(regmap);
+ err_regmap:
+ 	iounmap(base);
+-	kfree(syscon_config.name);
+ err_map:
+ 	kfree(syscon);
+ 	return ERR_PTR(ret);
 
 
