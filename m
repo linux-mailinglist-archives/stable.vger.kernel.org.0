@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA963CA84A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:57:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A76F13CA6C4
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241910AbhGOTAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:00:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35104 "EHLO mail.kernel.org"
+        id S237530AbhGOSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241038AbhGOS6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C643613F2;
-        Thu, 15 Jul 2021 18:55:47 +0000 (UTC)
+        id S238534AbhGOStx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F56F613D1;
+        Thu, 15 Jul 2021 18:46:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375347;
-        bh=jkuEZkfL7lr8mk1AeV04Qf6U6eKhfHJ7PJkPe7AUo14=;
+        s=korg; t=1626374819;
+        bh=x1TvY+knuN5gDF07XZ/Q+PwYNswhi2uTCeBf1ReKKX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3Y8m/XaBEN3TkirE/xX0KEMKIlKDD4nt1ppACU1g0hE1wVlpQ9QZUYkSelVtWb7c
-         S1//tDRZj1QIeT17Appznd9m2HTilptzrtll9GmR4Nly815tvDnYekQxzTMXzV6IOO
-         PSONt6KKFSebs77EBp0kx0XobIGRUVc55IoqGlbg=
+        b=fGWBbMP7YW8ZkhGZCERDX3QSdOTIstV2e7nsUyxdn0AlmN+l7kOp67jakO2ijh9oa
+         JgPKjETFNw36FsTQSyFKi/w+2wMBugSOdOeHZTWMfF2ymJPGfRwVF08dDodkSi1TYd
+         Vk7S8mZAc9eGyj402DbczKREZ4Rxi8kpBTmbRGl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
+        Jack Wang <jinpu.wang@ionos.com>,
+        kernel test robot <lkp@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 048/242] MIPS: cpu-probe: Fix FPU detection on Ingenic JZ4760(B)
-Date:   Thu, 15 Jul 2021 20:36:50 +0200
-Message-Id: <20210715182600.651035607@linuxfoundation.org>
+Subject: [PATCH 5.10 039/215] RDMA/rtrs: Change MAX_SESS_QUEUE_DEPTH
+Date:   Thu, 15 Jul 2021 20:36:51 +0200
+Message-Id: <20210715182606.192472378@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
 
-[ Upstream commit fc52f92a653215fbd6bc522ac5311857b335e589 ]
+[ Upstream commit 3a98ea7041b7d18ac356da64823c2ba2f8391b3e ]
 
-Ingenic JZ4760 and JZ4760B do have a FPU, but the config registers don't
-report it. Force the FPU detection in case the processor ID match the
-JZ4760(B) one.
+Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
+and the minimum chunk size is 4096 (2^12).
+Therefore the maximum sess_queue_depth is 65536 (2^16).
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lore.kernel.org/r/20210528113018.52290-6-jinpu.wang@ionos.com
+Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
+Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cpu-probe.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/infiniband/ulp/rtrs/rtrs-pri.h | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index 0ef240adefb5..630fcb4cb30e 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1840,6 +1840,11 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
- 		 */
- 		case PRID_COMP_INGENIC_D0:
- 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
-+
-+			/* FPU is not properly detected on JZ4760(B). */
-+			if (c->processor_id == 0x2ed0024f)
-+				c->options |= MIPS_CPU_FPU;
-+
- 			fallthrough;
+diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+index 8caad0a2322b..51c60f542876 100644
+--- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
++++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
+@@ -47,12 +47,15 @@ enum {
+ 	MAX_PATHS_NUM = 128,
  
- 		/*
+ 	/*
+-	 * With the size of struct rtrs_permit allocated on the client, 4K
+-	 * is the maximum number of rtrs_permits we can allocate. This number is
+-	 * also used on the client to allocate the IU for the user connection
+-	 * to receive the RDMA addresses from the server.
++	 * Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
++	 * and the minimum chunk size is 4096 (2^12).
++	 * So the maximum sess_queue_depth is 65536 (2^16) in theory.
++	 * But mempool_create, create_qp and ib_post_send fail with
++	 * "cannot allocate memory" error if sess_queue_depth is too big.
++	 * Therefore the pratical max value of sess_queue_depth is
++	 * somewhere between 1 and 65536 and it depends on the system.
+ 	 */
+-	MAX_SESS_QUEUE_DEPTH = 4096,
++	MAX_SESS_QUEUE_DEPTH = 65536,
+ 
+ 	RTRS_HB_INTERVAL_MS = 5000,
+ 	RTRS_HB_MISSED_MAX = 5,
 -- 
 2.30.2
 
