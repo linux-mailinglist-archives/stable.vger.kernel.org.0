@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE0AC3CAA79
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B5D3CA92A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242770AbhGOTNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
+        id S242758AbhGOTFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242580AbhGOTLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:11:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12515610C7;
-        Thu, 15 Jul 2021 19:08:15 +0000 (UTC)
+        id S243423AbhGOTEY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:04:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27519613D8;
+        Thu, 15 Jul 2021 19:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376096;
-        bh=MK168te3q4xrxilY5WfCGkfKnWLr9gBCl6UPtSuKADI=;
+        s=korg; t=1626375614;
+        bh=m/uSeaYwYSy3F559zEKb0I+NuHdp+bdo7Pc8iYTmtEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0jpXUnP0T/7YXFQUEY6fFl5n0ROSG7qyaUiXK7CF5qOwKOCy+ReZ4AtQ7lnQKY+C
-         CjpeytN+u4pLhLm/uHmpQ3Or01K4/M+n6zXgOtOcJAxqf+1hcnMeRIb9hNeob1OR/m
-         Os1qI4oLevEA3tLu6xy9uXOD/h7TyfYBRbfUjIlk=
+        b=olQD7lht5Fp2gAZCR9QWcPRbfX0IvcuDw/FmUGh/NlyajulKK0AhgMTZC1vuHW+za
+         MIrhx957wXxTxQ1zTZNsayGPVOICGVnwocf/7cQn87OeapcNDqIYsegFqP7iSZkCXT
+         Vm2OrQIN+WgZTGu8qQUXJ4cEPQ/p4pkMF1/9F2KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 126/266] mt76: connac: fix the maximum interval schedule scan can support
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 119/242] iwlwifi: pcie: free IML DMA memory allocation
 Date:   Thu, 15 Jul 2021 20:38:01 +0200
-Message-Id: <20210715182636.168023283@linuxfoundation.org>
+Message-Id: <20210715182614.045752776@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,76 +40,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit abded041a07467c2f3dfe10afd9ea10572c63cc9 ]
+[ Upstream commit 310f60f53a86eba680d9bc20a371e13b06a5f903 ]
 
-Maximum interval (in seconds) for schedule scan plan supported by
-the offload firmware can be U16_MAX.
+In the case of gen3 devices with image loader (IML) support,
+we were leaking the IML DMA allocation and never freeing it.
+Fix that.
 
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210618105614.07e117dbedb7.I7bb9ebbe0617656986c2a598ea5e827b533bd3b9@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/init.c     | 2 +-
- drivers/net/wireless/mediatek/mt76/mt76_connac.h     | 3 ++-
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h | 2 +-
- drivers/net/wireless/mediatek/mt76/mt7921/init.c     | 2 +-
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ .../wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c  | 15 ++++++++++-----
+ .../net/wireless/intel/iwlwifi/pcie/internal.h    |  3 +++
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/init.c b/drivers/net/wireless/mediatek/mt76/mt7615/init.c
-index d20f05a7717d..0d01fd3c77b5 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/init.c
-@@ -362,7 +362,7 @@ mt7615_init_wiphy(struct ieee80211_hw *hw)
- 	wiphy->reg_notifier = mt7615_regd_notifier;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+index cecc32e7dbe8..2dbc51daa2f8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
+@@ -79,7 +79,6 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
+ 	struct iwl_prph_scratch *prph_scratch;
+ 	struct iwl_prph_scratch_ctrl_cfg *prph_sc_ctrl;
+ 	struct iwl_prph_info *prph_info;
+-	void *iml_img;
+ 	u32 control_flags = 0;
+ 	int ret;
+ 	int cmdq_size = max_t(u32, IWL_CMD_QUEUE_SIZE,
+@@ -187,14 +186,15 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
+ 	trans_pcie->prph_scratch = prph_scratch;
  
- 	wiphy->max_sched_scan_plan_interval =
--		MT76_CONNAC_MAX_SCHED_SCAN_INTERVAL;
-+		MT76_CONNAC_MAX_TIME_SCHED_SCAN_INTERVAL;
- 	wiphy->max_sched_scan_ie_len = IEEE80211_MAX_DATA_LEN;
- 	wiphy->max_scan_ie_len = MT76_CONNAC_SCAN_IE_LEN;
- 	wiphy->max_sched_scan_ssids = MT76_CONNAC_MAX_SCHED_SCAN_SSID;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac.h b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-index c26cfef425ed..75223b6e1c87 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac.h
-@@ -7,7 +7,8 @@
- #include "mt76.h"
+ 	/* Allocate IML */
+-	iml_img = dma_alloc_coherent(trans->dev, trans->iml_len,
+-				     &trans_pcie->iml_dma_addr, GFP_KERNEL);
+-	if (!iml_img) {
++	trans_pcie->iml = dma_alloc_coherent(trans->dev, trans->iml_len,
++					     &trans_pcie->iml_dma_addr,
++					     GFP_KERNEL);
++	if (!trans_pcie->iml) {
+ 		ret = -ENOMEM;
+ 		goto err_free_ctxt_info;
+ 	}
  
- #define MT76_CONNAC_SCAN_IE_LEN			600
--#define MT76_CONNAC_MAX_SCHED_SCAN_INTERVAL	10
-+#define MT76_CONNAC_MAX_NUM_SCHED_SCAN_INTERVAL	 10
-+#define MT76_CONNAC_MAX_TIME_SCHED_SCAN_INTERVAL U16_MAX
- #define MT76_CONNAC_MAX_SCHED_SCAN_SSID		10
- #define MT76_CONNAC_MAX_SCAN_MATCH		16
+-	memcpy(iml_img, trans->iml, trans->iml_len);
++	memcpy(trans_pcie->iml, trans->iml, trans->iml_len);
  
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-index 0450d8c1c181..facebed1e301 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-@@ -770,7 +770,7 @@ struct mt76_connac_sched_scan_req {
- 	u8 intervals_num;
- 	u8 scan_func; /* MT7663: BIT(0) eable random mac address */
- 	struct mt76_connac_mcu_scan_channel channels[64];
--	__le16 intervals[MT76_CONNAC_MAX_SCHED_SCAN_INTERVAL];
-+	__le16 intervals[MT76_CONNAC_MAX_NUM_SCHED_SCAN_INTERVAL];
- 	union {
- 		struct {
- 			u8 random_mac[ETH_ALEN];
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/init.c b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-index 2cb0252e63b2..db7e436076b3 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/init.c
-@@ -93,7 +93,7 @@ mt7921_init_wiphy(struct ieee80211_hw *hw)
- 	wiphy->max_scan_ie_len = MT76_CONNAC_SCAN_IE_LEN;
- 	wiphy->max_scan_ssids = 4;
- 	wiphy->max_sched_scan_plan_interval =
--		MT76_CONNAC_MAX_SCHED_SCAN_INTERVAL;
-+		MT76_CONNAC_MAX_TIME_SCHED_SCAN_INTERVAL;
- 	wiphy->max_sched_scan_ie_len = IEEE80211_MAX_DATA_LEN;
- 	wiphy->max_sched_scan_ssids = MT76_CONNAC_MAX_SCHED_SCAN_SSID;
- 	wiphy->max_match_sets = MT76_CONNAC_MAX_SCAN_MATCH;
+ 	iwl_enable_fw_load_int_ctx_info(trans);
+ 
+@@ -243,6 +243,11 @@ void iwl_pcie_ctxt_info_gen3_free(struct iwl_trans *trans)
+ 	trans_pcie->ctxt_info_dma_addr = 0;
+ 	trans_pcie->ctxt_info_gen3 = NULL;
+ 
++	dma_free_coherent(trans->dev, trans->iml_len, trans_pcie->iml,
++			  trans_pcie->iml_dma_addr);
++	trans_pcie->iml_dma_addr = 0;
++	trans_pcie->iml = NULL;
++
+ 	iwl_pcie_ctxt_info_free_fw_img(trans);
+ 
+ 	dma_free_coherent(trans->dev, sizeof(*trans_pcie->prph_scratch),
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
+index d9688c7bed07..53af3f29eab8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
+@@ -279,6 +279,8 @@ struct cont_rec {
+  *	Context information addresses will be taken from here.
+  *	This is driver's local copy for keeping track of size and
+  *	count for allocating and freeing the memory.
++ * @iml: image loader image virtual address
++ * @iml_dma_addr: image loader image DMA address
+  * @trans: pointer to the generic transport area
+  * @scd_base_addr: scheduler sram base address in SRAM
+  * @kw: keep warm address
+@@ -329,6 +331,7 @@ struct iwl_trans_pcie {
+ 	};
+ 	struct iwl_prph_info *prph_info;
+ 	struct iwl_prph_scratch *prph_scratch;
++	void *iml;
+ 	dma_addr_t ctxt_info_dma_addr;
+ 	dma_addr_t prph_info_dma_addr;
+ 	dma_addr_t prph_scratch_dma_addr;
 -- 
 2.30.2
 
