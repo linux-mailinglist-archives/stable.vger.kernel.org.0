@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 391003CAAAD
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 260273CA90E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242744AbhGOTPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50894 "EHLO mail.kernel.org"
+        id S241026AbhGOTFR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244046AbhGOTMi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:12:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D0C4613E0;
-        Thu, 15 Jul 2021 19:09:05 +0000 (UTC)
+        id S243182AbhGOTDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:03:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8204613F2;
+        Thu, 15 Jul 2021 18:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376145;
-        bh=+8rqQbAuVd7Yc+LWivSX8JFw1Pu4KMR5sP8kZhHQ84g=;
+        s=korg; t=1626375560;
+        bh=kXDM29sv0EVV85K0UGbIqr00ds/QrKFu9y7q4BCgMqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsM3seM6cGeblZ5s1Cz/ObcBMxSN1BFFawjQZ/2r5ZOFQriG8BGvVeSVGa5kbRCRu
-         L8lEyxvWNZ0ncyvzSJ9XQ1yBW57WjPlI3SRPqpInRhGqT1dtZSBUZg2rgJB40CI9v/
-         JRZw5jS/UhqqfO/X62upKQJ5r0PZlCmiQoIqjUpU=
+        b=xr+Hzs/sIkaYnR0qgoIsDs1wxuUrI+vj3Etwi1/skr8BIqDwBjZY5bxhdTN2fnzGS
+         sdxNeAtR4a1VW857GMX6MgSpn6WNPcGz/WrwL1FzuOJDaoSukv8sbAzy1YusUEC/oi
+         Vd1eT1uh7X5EP1W6YzHmqLFnpca+3pQgxRJMi/H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Daniel Lenski <dlenski@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 145/266] sfc: avoid double pci_remove of VFs
-Date:   Thu, 15 Jul 2021 20:38:20 +0200
-Message-Id: <20210715182639.215519179@linuxfoundation.org>
+Subject: [PATCH 5.12 139/242] Bluetooth: btusb: Add a new QCA_ROME device (0cf3:e500)
+Date:   Thu, 15 Jul 2021 20:38:21 +0200
+Message-Id: <20210715182617.491553183@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Daniel Lenski <dlenski@gmail.com>
 
-[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
+[ Upstream commit 0324d19cb99804d99e42c990b8b1e191575a091b ]
 
-If pci_remove was called for a PF with VFs, the removal of the VFs was
-called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
-and another implicit by calling pci_disable_sriov, which also perform
-the VFs remove. This was leading to crashing the kernel on the second
-attempt.
+This patch adds the 0cf3:e500 Bluetooth device (from a QCA9377 board) as a
+QCA_ROME device.  It appears to be functionally identical to another device
+ID, also from a QCA9377 board, which was previously marked as QCA_ROME in
+0a03f98b98c201191e3ba15a0e33f46d8660e1fd
+("Bluetooth: Add a new 04ca:3015 QCA_ROME device").
 
-Given that pci_disable_sriov already calls to pci remove function, get
-rid of the direct call to pci_driver->remove from the driver.
+Without this patch, the WiFi side of the QCA9377 board is slow or unusable
+when the Bluetooth side is in use.
 
-2 different ways to trigger the bug:
-- Create one or more VFs, then attach the PF to a virtual machine (at
-  least with qemu/KVM)
-- Create one or more VFs, then remove the PF with:
-  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
+See https://askubuntu.com/a/1137852 for another report of QCA_ROME fixing
+this issue for this device ID.
 
-Removing sfc module does not trigger the error, at least for me, because
-it removes the VF first, and then the PF.
+/sys/kernel/debug/usb/devices:
 
-Example of a log with the error:
-    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
-    ------------[ cut here ]------------
-    kernel BUG at lib/list_debug.c:47!
-    [...trimmed...]
-    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
-    [...trimmed...]
-    Call Trace:
-    efx_dissociate+0x1f/0x140 [sfc]
-    efx_pci_remove+0x27/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    pci_stop_bus_device+0x69/0x90
-    pci_stop_and_remove_bus_device+0xe/0x20
-    pci_iov_remove_virtfn+0xba/0x120
-    sriov_disable+0x2f/0xe0
-    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
-    ? pcie_aer_is_native+0x12/0x40
-    efx_ef10_sriov_fini+0x72/0x110 [sfc]
-    efx_pci_remove+0x62/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    unbind_store+0xf6/0x130
-    kernfs_fop_write+0x116/0x190
-    vfs_write+0xa5/0x1a0
-    ksys_write+0x4f/0xb0
-    do_syscall_64+0x5b/0x1a0
-    entry_SYSCALL_64_after_hwframe+0x65/0xca
+T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 2.01 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0cf3 ProdID=e500 Rev= 0.01
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Daniel Lenski <dlenski@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/bluetooth/btusb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index 21fa6c0e8873..a5d28b0f75ba 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -439,7 +439,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
- void efx_ef10_sriov_fini(struct efx_nic *efx)
- {
- 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
--	unsigned int i;
- 	int rc;
- 
- 	if (!nic_data->vf) {
-@@ -449,14 +448,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
- 		return;
- 	}
- 
--	/* Remove any VFs in the host */
--	for (i = 0; i < efx->vf_count; ++i) {
--		struct efx_nic *vf_efx = nic_data->vf[i].efx;
--
--		if (vf_efx)
--			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
--	}
--
-+	/* Disable SRIOV and remove any VFs in the host */
- 	rc = efx_ef10_pci_sriov_disable(efx, true);
- 	if (rc)
- 		netif_dbg(efx, drv, efx->net_dev,
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index b3ba5a9dc5fc..12f05093c46d 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -270,6 +270,8 @@ static const struct usb_device_id blacklist_table[] = {
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0cf3, 0xe360), .driver_info = BTUSB_QCA_ROME |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x0cf3, 0xe500), .driver_info = BTUSB_QCA_ROME |
++						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0489, 0xe092), .driver_info = BTUSB_QCA_ROME |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0489, 0xe09f), .driver_info = BTUSB_QCA_ROME |
 -- 
 2.30.2
 
