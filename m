@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4103CA976
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC80F3CAB1A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242132AbhGOTGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39758 "EHLO mail.kernel.org"
+        id S243104AbhGOTRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:17:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241646AbhGOTFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A709613E7;
-        Thu, 15 Jul 2021 19:02:18 +0000 (UTC)
+        id S243321AbhGOTPX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A373613D6;
+        Thu, 15 Jul 2021 19:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375738;
-        bh=TywS3+8OR6jJVRM/MIr9EVIcjLg13f71Y5+XN6BhK9g=;
+        s=korg; t=1626376323;
+        bh=LzPTVCKk5pTrMWa6qyP+fACmjrQbtz4UR69fbiu+ICk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTRu+E4CJDtNj67AainxPP2FRiUKB78H6zwQVkHMdQoLIKUYa4Cj+WGkIjvAZjwJj
-         SAFP3oTGnbuPA43E6vNpZxqM8Xt4YBxE+YCowmJSkBL56cTd5ZsSmVjhGoS4CwUAWs
-         nI7YT8dn9feHZQaCNkk0RicZKAkskhzQV52zPNnU=
+        b=r2e3eT2z3X33FHY7YnFXJpZmrD+H9zn61cb4w7RPch2KAtH/H+2YbFHCBDpnkDrQl
+         GI87GfIDLTTQe9BWtHVtIVXgxRqssKhaq+9PP28MnD+dq8+faeN++Tfj3fMl73tmFS
+         gkF+L+dL6+yl5k67ce5KRicVJQUi6FhT49VAW/zU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.12 216/242] dm writecache: flush origin device when writing and cache is full
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.13 223/266] thermal/drivers/int340x/processor_thermal: Fix tcc setting
 Date:   Thu, 15 Jul 2021 20:39:38 +0200
-Message-Id: <20210715182631.135048546@linuxfoundation.org>
+Message-Id: <20210715182648.652063874@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit ee55b92a7391bf871939330f662651b54be51b73 upstream.
+commit fe6a6de6692e7f7159c1ff42b07ecd737df712b4 upstream.
 
-Commit d53f1fafec9d086f1c5166436abefdaef30e0363 ("dm writecache: do
-direct write if the cache is full") changed dm-writecache, so that it
-writes directly to the origin device if the cache is full.
-Unfortunately, it doesn't forward flush requests to the origin device,
-so that there is a bug where flushes are being ignored.
+The following fixes are done for tcc sysfs interface:
+- TCC is 6 bits only from bit 29-24
+- TCC of 0 is valid
+- When BIT(31) is set, this register is read only
+- Check for invalid tcc value
+- Error for negative values
 
-Fix this by adding missing flush forwarding.
-
-For PMEM mode, we fix this bug by disabling direct writes to the origin
-device, because it performs better.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Fixes: d53f1fafec9d ("dm writecache: do direct write if the cache is full")
-Cc: stable@vger.kernel.org # v5.7+
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: fdf4f2fb8e899 ("drivers: thermal: processor_thermal_device: Export sysfs interface for TCC offset")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org
+Acked-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210628215803.75038-1-srinivas.pandruvada@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-writecache.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.c |   20 ++++++----
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -1297,8 +1297,12 @@ static int writecache_map(struct dm_targ
- 			writecache_flush(wc);
- 			if (writecache_has_error(wc))
- 				goto unlock_error;
-+			if (unlikely(wc->cleaner))
-+				goto unlock_remap_origin;
- 			goto unlock_submit;
- 		} else {
-+			if (dm_bio_get_target_bio_nr(bio))
-+				goto unlock_remap_origin;
- 			writecache_offload_bio(wc, bio);
- 			goto unlock_return;
- 		}
-@@ -1377,7 +1381,7 @@ read_next_block:
- 			}
- 			e = writecache_pop_from_freelist(wc, (sector_t)-1);
- 			if (unlikely(!e)) {
--				if (!found_entry) {
-+				if (!WC_MODE_PMEM(wc) && !found_entry) {
- direct_write:
- 					e = writecache_find_entry(wc, bio->bi_iter.bi_sector, WFE_RETURN_FOLLOWING);
- 					if (e) {
-@@ -2481,7 +2485,7 @@ overflow:
- 		goto bad;
- 	}
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
+@@ -100,24 +100,27 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (err)
+ 		return err;
  
--	ti->num_flush_bios = 1;
-+	ti->num_flush_bios = WC_MODE_PMEM(wc) ? 1 : 2;
- 	ti->flush_supported = true;
- 	ti->num_discard_bios = 1;
+-	val = (val >> 24) & 0xff;
++	val = (val >> 24) & 0x3f;
+ 	return sprintf(buf, "%d\n", (int)val);
+ }
  
+-static int tcc_offset_update(int tcc)
++static int tcc_offset_update(unsigned int tcc)
+ {
+ 	u64 val;
+ 	int err;
+ 
+-	if (!tcc)
++	if (tcc > 63)
+ 		return -EINVAL;
+ 
+ 	err = rdmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, &val);
+ 	if (err)
+ 		return err;
+ 
+-	val &= ~GENMASK_ULL(31, 24);
+-	val |= (tcc & 0xff) << 24;
++	if (val & BIT(31))
++		return -EPERM;
++
++	val &= ~GENMASK_ULL(29, 24);
++	val |= (tcc & 0x3f) << 24;
+ 
+ 	err = wrmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, val);
+ 	if (err)
+@@ -126,14 +129,15 @@ static int tcc_offset_update(int tcc)
+ 	return 0;
+ }
+ 
+-static int tcc_offset_save;
++static unsigned int tcc_offset_save;
+ 
+ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+ 				size_t count)
+ {
++	unsigned int tcc;
+ 	u64 val;
+-	int tcc, err;
++	int err;
+ 
+ 	err = rdmsrl_safe(MSR_PLATFORM_INFO, &val);
+ 	if (err)
+@@ -142,7 +146,7 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (!(val & BIT(30)))
+ 		return -EACCES;
+ 
+-	if (kstrtoint(buf, 0, &tcc))
++	if (kstrtouint(buf, 0, &tcc))
+ 		return -EINVAL;
+ 
+ 	err = tcc_offset_update(tcc);
 
 
