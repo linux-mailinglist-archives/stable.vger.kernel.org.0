@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5528B3CA937
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 551363CAADD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239914AbhGOTFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39662 "EHLO mail.kernel.org"
+        id S243580AbhGOTPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239531AbhGOTEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2705D61411;
-        Thu, 15 Jul 2021 19:00:42 +0000 (UTC)
+        id S244436AbhGOTOs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A05D613FC;
+        Thu, 15 Jul 2021 19:10:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375642;
-        bh=EGz4e5SLuBHfeNsdavJb+QjlZ8PNnhysJZHoaxwkzak=;
+        s=korg; t=1626376229;
+        bh=vyj3stJ8GDoobQWKF9oJ1Xi5HvGchXFYvMePAOqiv6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqL7l6TxA6o13SX/ZigeZGVdvdJFeazHc/NXuBxz4H4mGIn9BreglHpD5r0qpyUND
-         5YLnZhQcMjOda4TV0UY0qsVTcZDWith7rXRQcvRbTMtjE9airuZoAo+/xlfVKnRvcO
-         roV/TmIfVzI4EsAD0uSgPs8Z/f+zMOm11HFOwnKU=
+        b=BvoZX0hxQwbkkMfY7oghif8SgMgYSMxLB3Khv+ROTNngi8OZ1ffdhP/iUSHGHtDIn
+         S5lcLcmiC4WFQoVU1zIZHUdiFlBKHhb4uEoFfXY6v4Gy51XDSSn6ohHzj4U4fgyYBp
+         AHJq1d8DHuEQ+Wmv+uU+z6ntKrqrdWNgTSqe6egE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
-        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
-        danny.wang@amd.com,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.12 175/242] drm/amd/display: Reject non-zero src_y and src_x for video planes
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.13 182/266] powerpc/xive: Fix error handling when allocating an IPI
 Date:   Thu, 15 Jul 2021 20:38:57 +0200
-Message-Id: <20210715182624.027757405@linuxfoundation.org>
+Message-Id: <20210715182643.664089292@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Cédric Le Goater <clg@kaod.org>
 
-commit c6c6a712199ab355ce333fa5764a59506bb107c1 upstream.
+commit 3f601608b71c3ca1e199898cd16f09d707fedb56 upstream.
 
-[Why]
-This hasn't been well tested and leads to complete system hangs on DCN1
-based systems, possibly others.
+This is a smatch warning:
 
-The system hang can be reproduced by gesturing the video on the YouTube
-Android app on ChromeOS into full screen.
+  arch/powerpc/sysdev/xive/common.c:1161 xive_request_ipi() warn: unsigned 'xid->irq' is never less than zero.
 
-[How]
-Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
-
-v2:
- - Add code comment describing the reason we're rejecting non-zero
-   src_x and src_y
- - Drop gerrit Change-Id
- - Add stable CC
- - Based on amd-staging-drm-next
-
-v3: removed trailing whitespace
-
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Cc: stable@vger.kernel.org
-Cc: nicholas.kazlauskas@amd.com
-Cc: amd-gfx@lists.freedesktop.org
-Cc: alexander.deucher@amd.com
-Cc: Roman.Li@amd.com
-Cc: hersenxs.wu@amd.com
-Cc: danny.wang@amd.com
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: fd6db2892eba ("powerpc/xive: Modernize XIVE-IPI domain with an 'alloc' handler")
+Cc: stable@vger.kernel.org # v5.13
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210701152412.1507612-1-clg@kaod.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/powerpc/sysdev/xive/common.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3884,6 +3884,23 @@ static int fill_dc_scaling_info(const st
- 	     scaling_info->src_rect.y != 0))
- 		return -EINVAL;
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -1153,11 +1153,10 @@ static int __init xive_request_ipi(void)
+ 		 * Since the HW interrupt number doesn't have any meaning,
+ 		 * simply use the node number.
+ 		 */
+-		xid->irq = irq_domain_alloc_irqs(ipi_domain, 1, node, &info);
+-		if (xid->irq < 0) {
+-			ret = xid->irq;
++		ret = irq_domain_alloc_irqs(ipi_domain, 1, node, &info);
++		if (ret < 0)
+ 			goto out_free_xive_ipis;
+-		}
++		xid->irq = ret;
  
-+	/*
-+	 * For reasons we don't (yet) fully understand a non-zero
-+	 * src_y coordinate into an NV12 buffer can cause a
-+	 * system hang. To avoid hangs (and maybe be overly cautious)
-+	 * let's reject both non-zero src_x and src_y.
-+	 *
-+	 * We currently know of only one use-case to reproduce a
-+	 * scenario with non-zero src_x and src_y for NV12, which
-+	 * is to gesture the YouTube Android app into full screen
-+	 * on ChromeOS.
-+	 */
-+	if (state->fb &&
-+	    state->fb->format->format == DRM_FORMAT_NV12 &&
-+	    (scaling_info->src_rect.x != 0 ||
-+	     scaling_info->src_rect.y != 0))
-+		return -EINVAL;
-+
- 	scaling_info->src_rect.width = state->src_w >> 16;
- 	if (scaling_info->src_rect.width == 0)
- 		return -EINVAL;
+ 		snprintf(xid->name, sizeof(xid->name), "IPI-%d", node);
+ 
 
 
