@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F63B3C9EA4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DA533C9EA5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237387AbhGOMeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:34:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36436 "EHLO mail.kernel.org"
+        id S229604AbhGOMeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:34:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237385AbhGOMeP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:34:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B2BE61178;
-        Thu, 15 Jul 2021 12:31:21 +0000 (UTC)
+        id S229595AbhGOMeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:34:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5995E61178;
+        Thu, 15 Jul 2021 12:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626352282;
+        s=korg; t=1626352285;
         bh=+8WklqRIPbMK19FjViu3eg+7qwGpJSy+13/U9X/Qr9g=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ns8EsVTXdxvQvld/bose/dfKF/zk5H+PU8B1zHZ+iGPU8gijpfNHtKaH+iDnGmXZf
-         IgxVsPwvkTkKrKTJ9qeRfSzkYL+C7a+usWROlkkCoP7AZd/BLmEhOiosGWRGnALRuc
-         IdyvNLh0vbs33RTCioFaulmXnsuvbBRSSMRAw4Hw=
+        b=GU4lDjpjrw0Pkt4FQpCKx/my6/grXg0DoPDELIS31mAqH2xNQ/kGApD9ZLaHsv15L
+         uZZr17bEx9dQFE7j55o7xIWXJFfe3vTXLiP7cXlMwJeb44W9I9GZcjKN5GRZwjRKsV
+         1thY9OFW5W6b5sddVmxCZ/RLSQa6KehtLZa3O4+w=
 Subject: FAILED: patch "[PATCH] drm/dp_mst: Avoid to mess up payload table by ports in stale" failed to apply to 5.13-stable tree
 To:     Wayne.Lin@amd.com, lyude@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:17:00 +0200
-Message-ID: <1626351420140215@kroah.com>
+Date:   Thu, 15 Jul 2021 14:17:18 +0200
+Message-ID: <16263514381332@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
