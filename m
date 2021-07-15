@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB873CA9BB
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7882B3CAB70
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241632AbhGOTIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46406 "EHLO mail.kernel.org"
+        id S242757AbhGOTUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240943AbhGOTHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E50613DC;
-        Thu, 15 Jul 2021 19:03:39 +0000 (UTC)
+        id S243277AbhGOTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:18:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 566A861412;
+        Thu, 15 Jul 2021 19:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375820;
-        bh=XqrB24X1ye5kgsWGM7gXL+a8soN9g30UbzZFfOELc3I=;
+        s=korg; t=1626376390;
+        bh=ABPESi/tvCvsDdS+Q26E3nZ0CcXREcFW90/hodmz2z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZd0vqCs3qMFtIvdgoTQRQC/qQxnYLwXESjoilIMwNs/6GSXqBcz6cSBzI8Y/or+C
-         LkLKLiD2uvS/bexPXkqfBJt8WOu+nDwBJAWLP44W6WwGKQ+FPcemmyqv9SRt4KK2Rw
-         ABwnV7RqUrDqbGxD8GX6pPdvPW7hkxbGBOHUuzeI=
+        b=oFNGXvaxTx64BN8Bl0kUQd+Tf5v8zq3NyZV/i6NRTZ9KeKvpCecABh46/mVr0h21v
+         MuL5RxAxmdbjG5Qyg7MzW5bwbl8VzyNBcBc+pHg09iKeLC9OD06RbHMZpZqg8c1IvU
+         oTqubHhP23hPdw6DXy1ydrE7VAQ8SoQ4bWll1u5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.12 203/242] nvmem: core: add a missing of_node_put
+        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.13 210/266] mmc: core: Allow UHS-I voltage switch for SDSC cards if supported
 Date:   Thu, 15 Jul 2021 20:39:25 +0200
-Message-Id: <20210715182629.017718823@linuxfoundation.org>
+Message-Id: <20210715182646.888166608@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Christian Löhle <CLoehle@hyperstone.com>
 
-commit 63879e2964bceee2aa5bbe8b99ea58bba28bb64f upstream.
+commit 09247e110b2efce3a104e57e887c373e0a57a412 upstream.
 
-'for_each_child_of_node' performs an of_node_get on each iteration, so a
-return from the middle of the loop requires an of_node_put.
+While initializing an UHS-I SD card, the mmc core first tries to switch to
+1.8V I/O voltage, before it continues to change the settings for the bus
+speed mode.
 
-Fixes: e888d445ac33 ("nvmem: resolve cells from DT at registration time")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210611102321.11509-1-srinivas.kandagatla@linaro.org
+However, the current behaviour in the mmc core is inconsistent and doesn't
+conform to the SD spec. More precisely, an SD card that supports UHS-I must
+set both the SD_OCR_CCS bit and the SD_OCR_S18R bit in the OCR register
+response. When switching to 1.8V I/O the mmc core correctly checks both of
+the bits, but only the SD_OCR_S18R bit when changing the settings for bus
+speed mode.
+
+Rather than actually fixing the code to confirm to the SD spec, let's
+deliberately deviate from it by requiring only the SD_OCR_S18R bit for both
+parts. This enables us to support UHS-I for SDSC cards (outside spec),
+which is actually being supported by some existing SDSC cards. Moreover,
+this fixes the inconsistent behaviour.
+
+Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
+Link: https://lore.kernel.org/r/CWXP265MB26803AE79E0AD5ED083BF2A6C4529@CWXP265MB2680.GBRP265.PROD.OUTLOOK.COM
+Cc: stable@vger.kernel.org
+[Ulf: Rewrote commit message and comments to clarify the changes]
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/core.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -686,15 +686,17 @@ static int nvmem_add_cells_from_of(struc
- 			continue;
- 		if (len < 2 * sizeof(u32)) {
- 			dev_err(dev, "nvmem: invalid reg on %pOF\n", child);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
+---
+ drivers/mmc/core/sd.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -847,11 +847,13 @@ try_again:
+ 		return err;
  
- 		cell = kzalloc(sizeof(*cell), GFP_KERNEL);
--		if (!cell)
-+		if (!cell) {
-+			of_node_put(child);
- 			return -ENOMEM;
-+		}
- 
- 		cell->nvmem = nvmem;
--		cell->np = of_node_get(child);
- 		cell->offset = be32_to_cpup(addr++);
- 		cell->bytes = be32_to_cpup(addr);
- 		cell->name = kasprintf(GFP_KERNEL, "%pOFn", child);
-@@ -715,11 +717,12 @@ static int nvmem_add_cells_from_of(struc
- 				cell->name, nvmem->stride);
- 			/* Cells already added will be freed later. */
- 			kfree_const(cell->name);
--			of_node_put(cell->np);
- 			kfree(cell);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
-+		cell->np = of_node_get(child);
- 		nvmem_cell_add(cell);
- 	}
- 
+ 	/*
+-	 * In case CCS and S18A in the response is set, start Signal Voltage
+-	 * Switch procedure. SPI mode doesn't support CMD11.
++	 * In case the S18A bit is set in the response, let's start the signal
++	 * voltage switch procedure. SPI mode doesn't support CMD11.
++	 * Note that, according to the spec, the S18A bit is not valid unless
++	 * the CCS bit is set as well. We deliberately deviate from the spec in
++	 * regards to this, which allows UHS-I to be supported for SDSC cards.
+ 	 */
+-	if (!mmc_host_is_spi(host) && rocr &&
+-	   ((*rocr & 0x41000000) == 0x41000000)) {
++	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
+ 		err = mmc_set_uhs_voltage(host, pocr);
+ 		if (err == -EAGAIN) {
+ 			retries--;
 
 
