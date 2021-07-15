@@ -2,70 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3474B3C9E95
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:26:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203B23C9E98
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:28:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbhGOM3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:29:51 -0400
-Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:51033 "EHLO
-        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237205AbhGOM3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 08:29:50 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R961e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0UftPkJr_1626352015;
-Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UftPkJr_1626352015)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 15 Jul 2021 20:26:56 +0800
-Date:   Thu, 15 Jul 2021 20:26:54 +0800
-From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+        id S237075AbhGOMax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:30:53 -0400
+Received: from smtp-out1.suse.de ([195.135.220.28]:38570 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230208AbhGOMax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 08:30:53 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 009C022A40;
+        Thu, 15 Jul 2021 12:27:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1626352079; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CJEWq8qiVgvEoVbn4aLIKGb5fN74YYFkq1XScfceEpA=;
+        b=UzW72TZ1XOcaU2Yrkabqq0GrXcQuW3FxMgmoOpGJl8KNPeqskrMjR+Ty0kWneMszvM6m2r
+        /pSVXUBknVyeVnBBczRGUD6ZOG7PkfOMyJ5EEXxciemhIUgEaJ/+4pyURWeer8M73E1ETH
+        mYf7/jYSqQEfRJS4ngdJnNXpdF1+hsU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1626352079;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CJEWq8qiVgvEoVbn4aLIKGb5fN74YYFkq1XScfceEpA=;
+        b=rj2SYw+nY2a8p3YpBCTL+WirfJhVCko8/VO3xIclrvXosgaTLyoqdB0vgHgchJPJs+iwMT
+        20Earc0sUckerDAg==
+Received: from quack2.suse.cz (unknown [10.100.200.198])
+        by relay2.suse.de (Postfix) with ESMTP id ACA50A3B8D;
+        Thu, 15 Jul 2021 12:27:58 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 86F2F1E0BF2; Thu, 15 Jul 2021 14:27:58 +0200 (CEST)
+Date:   Thu, 15 Jul 2021 14:27:58 +0200
+From:   Jan Kara <jack@suse.cz>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>, kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH 5.4.y stable only] MIPS: fix "mipsel-linux-ld:
- decompress.c:undefined reference to `memmove'"
-Message-ID: <YPApjvqvv1mhvgqt@B-P7TQMD6M-0146.local>
-References: <YOglcE85xuwfD7It@kroah.com>
- <20210709132408.174206-1-hsiangkao@linux.alibaba.com>
- <YPATcUXGydBlQ+BK@kroah.com>
- <YPAaWOM1z75o21V1@B-P7TQMD6M-0146.local>
- <YPAdi8UOhyaw0eNT@kroah.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>, Jan Kara <jack@suse.cz>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
+Message-ID: <20210715122758.GB31920@quack2.suse.cz>
+References: <20210712060912.995381202@linuxfoundation.org>
+ <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de>
+ <YO56HTE3k95JLeje@kroah.com>
+ <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
+ <df63b875-f140-606a-862a-73b102345cd@praktifix.dwd.de>
+ <YO7nHhW2t4wEiI9G@kroah.com>
+ <CA+G9fYuhbE6sY3ykoiyqZqYSG=+V0r3z0TiaVL8LptbXWw=duQ@mail.gmail.com>
+ <CA+G9fYtWkOLVVKB0xYfAXWS57G1C2xV-Zbtp5i4dAJDJqwLQhg@mail.gmail.com>
+ <YO70LLnTE6LxcBnt@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YPAdi8UOhyaw0eNT@kroah.com>
+In-Reply-To: <YO70LLnTE6LxcBnt@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 01:35:39PM +0200, Greg Kroah-Hartman wrote:
-> On Thu, Jul 15, 2021 at 07:22:00PM +0800, Gao Xiang wrote:
-> > Hi Greg,
+On Wed 14-07-21 16:26:52, Greg Kroah-Hartman wrote:
+> On Wed, Jul 14, 2021 at 07:29:26PM +0530, Naresh Kamboju wrote:
+> > On Wed, 14 Jul 2021 at 19:22, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > >
+> > > On Wed, 14 Jul 2021 at 19:01, Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
 > > 
-> > On Thu, Jul 15, 2021 at 12:52:33PM +0200, Greg Kroah-Hartman wrote:
-> > > On Fri, Jul 09, 2021 at 09:24:08PM +0800, Gao Xiang wrote:
-> > > > commit a510b616131f85215ba156ed67e5ed1c0701f80f upstream.
-> > > 
-> > > That is not what this commit id is :(
-> > > 
-> > > Please fix this up and be more careful.
+> > <trim>
 > > 
-> > That's the exact commit, the original upstream commit was named as
-> > "MIPS: Add support for ZSTD-compressed kernels", which contains the
-> > memmove() definition so the upstream / 5.10 LTS kernel is fine.
+> > > My two cents,
+> > > While running ssuite long running stress testing we have noticed deadlock.
+> > >
+> > > > So if you drop that, all works well?  I'll go drop that from the queues
+> > > > now.
+> > >
+> > > Let me drop that patch and test it again.
+> > >
+> > > Crash log,
+> > >
+> > > [ 1957.278399] ============================================
+> > > [ 1957.283717] WARNING: possible recursive locking detected
+> > > [ 1957.289031] 5.13.2-rc1 #1 Not tainted
+> > > [ 1957.292703] --------------------------------------------
+> > > [ 1957.298016] kworker/u8:7/236 is trying to acquire lock:
+> > > [ 1957.303241] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> > > bfq_finish_requeue_request+0x55/0x500 [bfq]
+> > > [ 1957.312643]
+> > > [ 1957.312643] but task is already holding lock:
+> > > [ 1957.318467] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> > > bfq_insert_requests+0x81/0x1750 [bfq]
+> > > [ 1957.327334]
+> > > [ 1957.327334] other info that might help us debug this:
+> > > [ 1957.333852]  Possible unsafe locking scenario:
+> > > [ 1957.333852]
+> > > [ 1957.339762]        CPU0
+> > > [ 1957.342206]        ----
+> > > [ 1957.344651]   lock(&bfqd->lock);
+> > > [ 1957.347873]   lock(&bfqd->lock);
+> > > [ 1957.351097]
+> > > [ 1957.351097]  *** DEADLOCK ***
+> > > [ 1957.351097]
 > > 
-> > But for 5.4 LTS, we shouldn't backport the whole patch since only
-> > memmove() part is needed in order to fix the build regression...
+> > Also noticed on stable-rc 5.12.17-rc1.
 > 
-> That was not obvious, and is confusing :(
-> 
-> Please just submit the fix and say _why_ this is not an upstream commit,
-> do not attempt to emulate an upstream commit like your change did.
+> I dropped the same patch from there as well already, thanks.
 
-Ok, got it. I was confused how to handle such condition as well...
-Let me resend it...
+OK, when you dropped this patch, please also drop upstream commit
+fd2ef39cc9a6b ("blk: Fix lock inversion between ioc lock and bfqd lock").
+Because without BFQ patch this block layer patch could cause some
+use-after-free issues. I'll have a look if I can understand why BFQ patch
+causes problems in stable kernels...
 
-Thanks,
-Gao Xiang
-
-> 
-> thanks,
-> 
-> greg k-h
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
