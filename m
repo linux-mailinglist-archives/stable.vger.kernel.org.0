@@ -2,106 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 779433C9D29
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 279C73C9D05
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241662AbhGOKtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 06:49:00 -0400
-Received: from outbound-smtp61.blacknight.com ([46.22.136.249]:56355 "EHLO
-        outbound-smtp61.blacknight.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S241665AbhGOKtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 06:49:00 -0400
-X-Greylist: delayed 380 seconds by postgrey-1.27 at vger.kernel.org; Thu, 15 Jul 2021 06:49:00 EDT
-Received: from mail.blacknight.com (pemlinmail03.blacknight.ie [81.17.254.16])
-        by outbound-smtp61.blacknight.com (Postfix) with ESMTPS id 1D114FAAA4
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 11:39:46 +0100 (IST)
-Received: (qmail 15713 invoked from network); 15 Jul 2021 10:39:45 -0000
-Received: from unknown (HELO techsingularity.net) (mgorman@techsingularity.net@[84.203.17.255])
-  by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated); 15 Jul 2021 10:39:45 -0000
-Date:   Thu, 15 Jul 2021 11:39:44 +0100
-From:   Mel Gorman <mgorman@techsingularity.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: 5.13.2-rc and others have many not for stable
-Message-ID: <20210715103944.GQ3809@techsingularity.net>
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
- <YO0zXVX9Bx9QZCTs@kroah.com>
- <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
- <YO6r1k7CIl16o61z@kroah.com>
- <YO7lZpqC4xrMPXQg@kroah.com>
+        id S241569AbhGOKpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 06:45:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240920AbhGOKpU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 06:45:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49D23613C0;
+        Thu, 15 Jul 2021 10:42:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626345747;
+        bh=YclN/odYoP04lN50BJ4ZxjBFT2n0ds/xP7p7UpTSEh8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=UMoWj/RvhBTk6BUxeqajsC6nr1Jp0AzGp4wRZMbdYPofrDPhnr6miJjgxcWVEHAMp
+         C1Zcm5FYR+Mo4qF5Tc6d2+m/tgAhfnkpPEZFUmfvRG9aUNfq2bikOQqvPcZ7IzPVIS
+         2JCfdcXnby68hFwBTcws+QClYffivtgdsSEwcfzXnQa70uleI+LSKmnkKOUePzZZbS
+         UeivXfAzlj7YCzjJkba1EPdlMp3U73x0t45msRsYO7I5S91SmwFVQ8xX8izegYbHD6
+         9jQElbpiiRUQY5Ci0M/Iuh+NMCgBcpOhQxVPKOzEnaJEjtM9m47eo/Y40Fj6/NTjzi
+         Wqr10plvY0ITQ==
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Oleg Nesterov <oleg@redhat.com>, stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzju@redhat.com>
+Subject: [PATCH 1/2] posix-cpu-timers: Fix rearm racing against process tick
+Date:   Thu, 15 Jul 2021 12:42:17 +0200
+Message-Id: <20210715104218.81276-2-frederic@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210715104218.81276-1-frederic@kernel.org>
+References: <20210715104218.81276-1-frederic@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <YO7lZpqC4xrMPXQg@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 14, 2021 at 03:23:50PM +0200, Greg Kroah-Hartman wrote:
-> On Wed, Jul 14, 2021 at 11:18:14AM +0200, Greg Kroah-Hartman wrote:
-> > On Tue, Jul 13, 2021 at 06:28:13PM -0700, Andrew Morton wrote:
-> > > On Tue, 13 Jul 2021 08:31:57 +0200 Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > > >  So far, all automated testing seems to
-> > > > show that there are no regressions in these releases with these commits
-> > > > in them.  If there was a problem, how would it show up?
-> > > > 
-> > > > And as far as I know, mm/ stuff is still not triggered by the AUTOSEL
-> > > > bot, but that is not what caused this commit to be added to a stable
-> > > > release.
-> > > > 
-> > > > Trying to keep a "do not apply" list for Fixes: tags only is much harder
-> > > > for both of us as we do these semi-manually and review them
-> > > > individually.  Trying to remember what subsystem only does Fixes tags
-> > > > yet really doesn't mean it is an impossible task.
-> > > 
-> > > Well, it shouldn't be super hard to skip all patches which have Fixes:,
-> > > Signed-off-by:akpm and no cc:stable?
-> > 
-> > Ok, I will do this now (goes and writes this down...)
-> > 
-> > But it really feels odd that you all take the time to add a "Hey, this
-> > fixes this specific commit!" tag in the changelog, yet you do not
-> > actually want to go and fix the kernels that have that commit in it.
-> > This is an odd signal to others that watch the changelogs for context
-> > clues.  Perhaps you might not want to do that anymore.
-> 
-> I looked at some of these patches and it seems really odd to me that you
-> all are marking them with Fixes: tags, but do not want them backported.
-> 
-> First example is babbbdd08af9 ("mm/huge_memory.c: don't discard hugepage
-> if other processes are mapping it")
-> 
-> Why is this not ok to backport?
-> 
-> Also what about e6be37b2e7bd ("mm/huge_memory.c: add missing read-only
-> THP checking in transparent_hugepage_enabled()")?
-> 
-> And 41eb5df1cbc9 ("mm: memcg/slab: properly set up gfp flags for objcg
-> pointer array")?
-> 
-> And 6acfb5ba150c ("mm: migrate: fix missing update page_private to
-> hugetlb_page_subpool")?
-> 
-> And 832b50725373 ("mm: mmap_lock: use local locks instead of disabling
-> preemption")? (the RT people want that...)
-> 
+Since the process wide cputime counter is started locklessly from
+posix_cpu_timer_rearm(), it can be concurrently stopped by operations
+on other timers from the same thread group, such as in the following
+unlucky scenario:
 
-This one at least is theoritical in nature for a backport because
-PREEMPT_RT cannot be selected as no arch defines ARCH_SUPPORTS_RT
-yet. If is was heading to any stable branch, it would be under
-https://git.kernel.org/pub/scm/linux/kernel/git/rt/linux-stable-rt.git/.
-The latest kernel there is v5.10-rt and the Fixes tag is for 5.11 so that
-fix would be ignored.
+         CPU 0                                CPU 1
+         -----                                -----
+                                           timer_settime(TIMER B)
+   posix_cpu_timer_rearm(TIMER A)
+       cpu_clock_sample_group()
+           (pct->timers_active already true)
 
+                                           handle_posix_cpu_timers()
+                                               check_process_timers()
+                                                   stop_process_timers()
+                                                       pct->timers_active = false
+       arm_timer(TIMER A)
+
+   tick -> run_posix_cpu_timers()
+       // sees !pct->timers_active, ignore
+       // our TIMER A
+
+Fix this with simply locking process wide cputime counting start and
+timer arm in the same block.
+
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Fixes: 60f2ceaa8111 ("posix-cpu-timers: Remove unnecessary locking around cpu_clock_sample_group")
+Cc: stable@vger.kernel.org
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+---
+ kernel/time/posix-cpu-timers.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
+index 29a5e54e6e10..517be7fd175e 100644
+--- a/kernel/time/posix-cpu-timers.c
++++ b/kernel/time/posix-cpu-timers.c
+@@ -991,6 +991,11 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
+ 	if (!p)
+ 		goto out;
+ 
++	/* Protect timer list r/w in arm_timer() */
++	sighand = lock_task_sighand(p, &flags);
++	if (unlikely(sighand == NULL))
++		goto out;
++
+ 	/*
+ 	 * Fetch the current sample and update the timer's expiry time.
+ 	 */
+@@ -1001,11 +1006,6 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
+ 
+ 	bump_cpu_timer(timer, now);
+ 
+-	/* Protect timer list r/w in arm_timer() */
+-	sighand = lock_task_sighand(p, &flags);
+-	if (unlikely(sighand == NULL))
+-		goto out;
+-
+ 	/*
+ 	 * Now re-arm for the new expiry time.
+ 	 */
 -- 
-Mel Gorman
-SUSE Labs
+2.25.1
+
