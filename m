@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 480783CA6D9
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23FE73CA8B2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239899AbhGOSu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52350 "EHLO mail.kernel.org"
+        id S242882AbhGOTCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240310AbhGOSuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8027F613E9;
-        Thu, 15 Jul 2021 18:47:15 +0000 (UTC)
+        id S241982AbhGOS71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15C7D60D07;
+        Thu, 15 Jul 2021 18:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374835;
-        bh=G2nzf0gXd2W5OSMmOy62iXfCIWuNGIizdeqqd4gYbWY=;
+        s=korg; t=1626375368;
+        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cs//9cDFwrfs/x4HzBldUuHfNw4IwVpeVNIWtQNlmiRYXZZBqoSAUFeMQ1GroZx1t
-         u2oDIaoudFOTe8YwfzC96npYaTPyr5gm0awKv6viDSYvGecZDc18t5ii8pYE0GSGSu
-         eWQm8i/CZv6I4015RuPmaG3k8peubG65Xt9DB7Bg=
+        b=a/o6xqwf+q56ywooy3fmCqA/KGV1a1XszSDxUFQ4+MH4zKZm6Tv8iUE8ehx4eJJpO
+         vYy6C3+0Kxk1J8bhqvsPN9AFWmH0r9G8RnFktB/+aK8szl2QJn1ZtFbCPtj3RLs3C5
+         F0CB+NyMfemqAc5P7jSU9rnMpQ3tQZrOk0t1ZfWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/215] MIPS: ingenic: Select CPU_SUPPORTS_CPUFREQ && MIPS_EXTERNAL_TIMER
+Subject: [PATCH 5.12 056/242] dm space maps: dont reset space map allocation cursor when committing
 Date:   Thu, 15 Jul 2021 20:36:58 +0200
-Message-Id: <20210715182607.520293689@linuxfoundation.org>
+Message-Id: <20210715182602.216897048@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit eb3849370ae32b571e1f9a63ba52c61adeaf88f7 ]
+[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
 
-The clock driving the XBurst CPUs in Ingenic SoCs is integer divided
-from the main PLL. As such, it is possible to control the frequency of
-the CPU, either by changing the divider, or by changing the rate of the
-main PLL.
+Current commit code resets the place where the search for free blocks
+will begin back to the start of the metadata device.  There are a couple
+of repercussions to this:
 
-The XBurst CPUs also lack the CP0 timer; the TCU, a separate piece of
-hardware in the SoC, provides this functionality.
+- The first allocation after the commit is likely to take longer than
+  normal as it searches for a free block in an area that is likely to
+  have very few free blocks (if any).
 
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+- Any free blocks it finds will have been recently freed.  Reusing them
+  means we have fewer old copies of the metadata to aid recovery from
+  hardware error.
+
+Fix these issues by leaving the cursor alone, only resetting when the
+search hits the end of the metadata device.
+
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
+ drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 1917ccd39256..1a63f592034e 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -418,6 +418,8 @@ config MACH_INGENIC_SOC
- 	select MIPS_GENERIC
- 	select MACH_INGENIC
- 	select SYS_SUPPORTS_ZBOOT_UART16550
-+	select CPU_SUPPORTS_CPUFREQ
-+	select MIPS_EXTERNAL_TIMER
+diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
+index bf4c5e2ccb6f..e0acae7a3815 100644
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smd->begin and the end of the metadata device.
++		 * We search before smd->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
- config LANTIQ
- 	bool "Lantiq based platforms"
+@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+-	smd->begin = 0;
+ 	smd->nr_allocated_this_transaction = 0;
+ 
+ 	r = sm_disk_get_nr_free(sm, &nr_free);
+diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
+index 9e3c64ec2026..da439ac85796 100644
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smm->begin and the end of the metadata device.
++		 * We search before smm->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
+ 
+@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
+-	smm->begin = 0;
+ 	smm->allocated_this_transaction = 0;
+ 
+ 	return 0;
 -- 
 2.30.2
 
