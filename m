@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0F73CA72D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0391D3CA5C7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239175AbhGOSwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55818 "EHLO mail.kernel.org"
+        id S232437AbhGOSob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239689AbhGOSwN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:52:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CCDA613E7;
-        Thu, 15 Jul 2021 18:49:18 +0000 (UTC)
+        id S231909AbhGOSo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFAC761396;
+        Thu, 15 Jul 2021 18:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374959;
-        bh=LlaTLV09ZOd1n20+MzKTB7XuZ8GKeoabfTM8sYe0jq8=;
+        s=korg; t=1626374493;
+        bh=NKRBa+ZnalVf/of+MHcxQ4XWS/mH2Exv8L+GNaH1lEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFNWzei7fFRtQoedhJBFu5kMU5f9xpb1ccnA6FDeDFp/EMp/xRoEh6g05KGDflDnA
-         KiqlfyFXbT+VHI+Xw1lheafhmpX6IQLI2zvuuZtzShykCILIfk6JX+u6llgCNNUdC6
-         rZ5/u2H8fkYPFyr68tupSyO8YaQLJEv5USjWXAX0=
+        b=Cl3jOgQ73uedA7AfBiMfFxa5jVrxPQ8pswurOs4/TKo9CLPpT89Eh/xZkN4tyum1s
+         jf7zyVsvTmBw+8lXectymRnsVZyQRyqDH7R8irClHZ2nsXVtn3cUJSVCEHjEKN7p1L
+         00aw3J4Zn4/WkrSJ4Sbd2VMoprNnjE2TJyBmwYXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Fugang Duan <fugang.duan@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/215] net: fec: add ndo_select_queue to fix TX bandwidth fluctuations
+Subject: [PATCH 5.4 022/122] ipv6: use prandom_u32() for ID generation
 Date:   Thu, 15 Jul 2021 20:37:49 +0200
-Message-Id: <20210715182616.477469060@linuxfoundation.org>
+Message-Id: <20210715182454.911704666@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 52c4a1a85f4b346c39c896c0168f4a843b3385ff ]
+[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
 
-As we know that AVB is enabled by default, and the ENET IP design is
-queue 0 for best effort, queue 1&2 for AVB Class A&B. Bandwidth of each
-queue 1&2 set in driver is 50%, TX bandwidth fluctuated when selecting
-tx queues randomly with FEC_QUIRK_HAS_AVB quirk available.
+This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
+table for IP ID generation"), but focusing on some specific aspects
+of IPv6.
 
-This patch adds ndo_select_queue callback to select queues for
-transmitting to fix this issue. It will always return queue 0 if this is
-not a vlan packet, and return queue 1 or 2 based on priority of vlan
-packet.
+Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
+minimum MTU of 1280, it's much less easy to force a remote peer to
+produce many fragments to explore its ID sequence. In addition packet
+IDs are 32-bit in IPv6, which further complicates their analysis. On
+the other hand, it is often easier to choose among plenty of possible
+source addresses and partially work around the bigger hash table the
+commit above permits, which leaves IPv6 partially exposed to some
+possibilities of remote analysis at the risk of weakening some
+protocols like DNS if some IDs can be predicted with a good enough
+probability.
 
-You may complain that in fact we only use single queue for trasmitting
-if we are not targeted to VLAN. Yes, but seems we have no choice, since
-AVB is enabled when the driver probed, we can't switch this feature
-dynamicly. After compare multiple queues to single queue, TX throughput
-almost no improvement.
+Given the wide range of permitted IDs, the risk of collision is extremely
+low so there's no need to rely on the positive increment algorithm that
+is shared with the IPv4 code via ip_idents_reserve(). We have a fast
+PRNG, so let's simply call prandom_u32() and be done with it.
 
-One way we can implemet is to configure the driver to multiple queues
-with Round-robin scheme by default. Then add ndo_setup_tc callback to
-enable/disable AVB feature for users. Unfortunately, ENET AVB IP seems
-not follow the standard 802.1Qav spec. We only can program
-DMAnCFG[IDLE_SLOPE] field to calculate bandwidth fraction. And idle
-slope is restricted to certain valus (a total of 19). It's far away from
-CBS QDisc implemented in Linux TC framework. If you strongly suggest to do
-this, I think we only can support limited numbers of bandwidth and reject
-others, but it's really urgly and wried.
+Performance measurements at 10 Gbps couldn't show any difference with
+the previous code, even when using a single core, because due to the
+large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
+of the random generation is completely offset by other operations and by
+the network transfer time. In addition, this change removes the need to
+update a shared entry in the idents table so it may even end up being
+slightly faster on large scale systems where this matters.
 
-With this patch, VLAN tagged packets route to queue 0/1/2 based on vlan
-priority; VLAN untagged packets route to queue 0.
+The risk of at least one collision here is about 1/80 million among
+10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
+which remains very low compared to IPv4 where all IDs are reused
+every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
 
-Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 32 +++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ net/ipv6/output_core.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 960def41cc55..2cb73e850a32 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -75,6 +75,8 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
- 
- #define DRIVER_NAME	"fec"
- 
-+static const u16 fec_enet_vlan_pri_to_queue[8] = {0, 0, 1, 1, 1, 2, 2, 2};
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index af36acc1a644..2880dc7d9a49 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -15,29 +15,11 @@ static u32 __ipv6_select_ident(struct net *net,
+ 			       const struct in6_addr *dst,
+ 			       const struct in6_addr *src)
+ {
+-	const struct {
+-		struct in6_addr dst;
+-		struct in6_addr src;
+-	} __aligned(SIPHASH_ALIGNMENT) combined = {
+-		.dst = *dst,
+-		.src = *src,
+-	};
+-	u32 hash, id;
+-
+-	/* Note the following code is not safe, but this is okay. */
+-	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
+-		get_random_bytes(&net->ipv4.ip_id_key,
+-				 sizeof(net->ipv4.ip_id_key));
+-
+-	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
+-
+-	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+-	 * set the hight order instead thus minimizing possible future
+-	 * collisions.
+-	 */
+-	id = ip_idents_reserve(hash, 1);
+-	if (unlikely(!id))
+-		id = 1 << 31;
++	u32 id;
 +
- /* Pause frame feild and FIFO threshold */
- #define FEC_ENET_FCE	(1 << 5)
- #define FEC_ENET_RSEM_V	0x84
-@@ -3222,10 +3224,40 @@ static int fec_set_features(struct net_device *netdev,
- 	return 0;
++	do {
++		id = prandom_u32();
++	} while (!id);
+ 
+ 	return id;
  }
- 
-+static u16 fec_enet_get_raw_vlan_tci(struct sk_buff *skb)
-+{
-+	struct vlan_ethhdr *vhdr;
-+	unsigned short vlan_TCI = 0;
-+
-+	if (skb->protocol == htons(ETH_P_ALL)) {
-+		vhdr = (struct vlan_ethhdr *)(skb->data);
-+		vlan_TCI = ntohs(vhdr->h_vlan_TCI);
-+	}
-+
-+	return vlan_TCI;
-+}
-+
-+static u16 fec_enet_select_queue(struct net_device *ndev, struct sk_buff *skb,
-+				 struct net_device *sb_dev)
-+{
-+	struct fec_enet_private *fep = netdev_priv(ndev);
-+	u16 vlan_tag;
-+
-+	if (!(fep->quirks & FEC_QUIRK_HAS_AVB))
-+		return netdev_pick_tx(ndev, skb, NULL);
-+
-+	vlan_tag = fec_enet_get_raw_vlan_tci(skb);
-+	if (!vlan_tag)
-+		return vlan_tag;
-+
-+	return fec_enet_vlan_pri_to_queue[vlan_tag >> 13];
-+}
-+
- static const struct net_device_ops fec_netdev_ops = {
- 	.ndo_open		= fec_enet_open,
- 	.ndo_stop		= fec_enet_close,
- 	.ndo_start_xmit		= fec_enet_start_xmit,
-+	.ndo_select_queue       = fec_enet_select_queue,
- 	.ndo_set_rx_mode	= set_multicast_list,
- 	.ndo_validate_addr	= eth_validate_addr,
- 	.ndo_tx_timeout		= fec_timeout,
 -- 
 2.30.2
 
