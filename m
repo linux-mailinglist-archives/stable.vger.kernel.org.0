@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 882C13CA870
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8D123CA8B1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242235AbhGOTBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
+        id S242095AbhGOTCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234100AbhGOS7Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:59:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B786F613D6;
-        Thu, 15 Jul 2021 18:55:58 +0000 (UTC)
+        id S241618AbhGOS7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DB25613D8;
+        Thu, 15 Jul 2021 18:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375359;
-        bh=i09kXPCbvTLasuCF6x0xbGddtyuLPQXaRHxe8X5l2eA=;
+        s=korg; t=1626375361;
+        bh=NOfpLa5aBZ+YeJoN+sifc7XSiFFqJYiYutLvPXV94U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tGtfZWODeCaul4NahPllMEip5Gx9D2FIadWcZ7bB4roLcfkq2J+8OvymhZTwvL/7r
-         rqt+6DwmPk9UXPlIL6io3XX3j+thCCUBmRQHmb/yIKNZv0AeK7wlwoAm7BkuE7SsiB
-         KRm5Ol9VXrSOYA0w9r6RiUvMbh+KveXTvWdboVuU=
+        b=CUYBn7N2UD33lMDEcUG0tuxXn6Eq9CberA1jxw7s155BdBkqr/MIpuWNGx4Zm76sh
+         AXgzkjkGpm/zihDs5TauEDqSk1XsVBG+WgXsw2Sg3+JqB8aJ12bnFzvcbCTZqzeHl4
+         UAagsfhkQ/OE2/U2i6IoNdwNH0sWjEZwcfZ8XARo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiansong Chen <Jiansong.Chen@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 052/242] drm/amdgpu: remove unsafe optimization to drop preamble ib
-Date:   Thu, 15 Jul 2021 20:36:54 +0200
-Message-Id: <20210715182601.499183124@linuxfoundation.org>
+Subject: [PATCH 5.12 053/242] clk: tegra: tegra124-emc: Fix clock imbalance in emc_set_timing()
+Date:   Thu, 15 Jul 2021 20:36:55 +0200
+Message-Id: <20210715182601.670310684@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
 References: <20210715182551.731989182@linuxfoundation.org>
@@ -41,59 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7d9c70d23550eb86a1bec1954ccaa8d6ec3a3328 ]
+[ Upstream commit f13570e7e830ca4fbf4869015af8492b8918445e ]
 
-Take the situation with gfxoff, the optimization may cause
-corrupt CE ram contents. In addition emit_cntxcntl callback
-has similar optimization which firmware can handle properly
-even for power feature.
+After calling clk_prepare_enable(), clk_disable_unprepare() needs
+be called when prepare_timing_change() failed.
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ drivers/clk/tegra/clk-tegra124-emc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-index 97c11aa47ad0..7892958d5f59 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ib.c
-@@ -131,7 +131,7 @@ int amdgpu_ib_schedule(struct amdgpu_ring *ring, unsigned num_ibs,
- 	struct amdgpu_device *adev = ring->adev;
- 	struct amdgpu_ib *ib = &ibs[0];
- 	struct dma_fence *tmp = NULL;
--	bool skip_preamble, need_ctx_switch;
-+	bool need_ctx_switch;
- 	unsigned patch_offset = ~0;
- 	struct amdgpu_vm *vm;
- 	uint64_t fence_ctx;
-@@ -228,7 +228,6 @@ int amdgpu_ib_schedule(struct amdgpu_ring *ring, unsigned num_ibs,
- 	if (need_ctx_switch)
- 		status |= AMDGPU_HAVE_CTX_SWITCH;
+diff --git a/drivers/clk/tegra/clk-tegra124-emc.c b/drivers/clk/tegra/clk-tegra124-emc.c
+index bdf6f4a51617..74c1d894cca8 100644
+--- a/drivers/clk/tegra/clk-tegra124-emc.c
++++ b/drivers/clk/tegra/clk-tegra124-emc.c
+@@ -249,8 +249,10 @@ static int emc_set_timing(struct tegra_clk_emc *tegra,
+ 	div = timing->parent_rate / (timing->rate / 2) - 2;
  
--	skip_preamble = ring->current_ctx == fence_ctx;
- 	if (job && ring->funcs->emit_cntxcntl) {
- 		status |= job->preamble_status;
- 		status |= job->preemption_status;
-@@ -246,14 +245,6 @@ int amdgpu_ib_schedule(struct amdgpu_ring *ring, unsigned num_ibs,
- 	for (i = 0; i < num_ibs; ++i) {
- 		ib = &ibs[i];
+ 	err = tegra->prepare_timing_change(emc, timing->rate);
+-	if (err)
++	if (err) {
++		clk_disable_unprepare(timing->parent);
+ 		return err;
++	}
  
--		/* drop preamble IBs if we don't have a context switch */
--		if ((ib->flags & AMDGPU_IB_FLAG_PREAMBLE) &&
--		    skip_preamble &&
--		    !(status & AMDGPU_PREAMBLE_IB_PRESENT_FIRST) &&
--		    !amdgpu_mcbp &&
--		    !amdgpu_sriov_vf(adev)) /* for SRIOV preemption, Preamble CE ib must be inserted anyway */
--			continue;
--
- 		if (job && ring->funcs->emit_frame_cntl) {
- 			if (secure != !!(ib->flags & AMDGPU_IB_FLAGS_SECURE)) {
- 				amdgpu_ring_emit_frame_cntl(ring, false, secure);
+ 	spin_lock_irqsave(tegra->lock, flags);
+ 
 -- 
 2.30.2
 
