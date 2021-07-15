@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BA53CA6E6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 149853CA82B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:56:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239583AbhGOSvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53388 "EHLO mail.kernel.org"
+        id S240317AbhGOS64 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:58:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238211AbhGOSuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CAAC613D1;
-        Thu, 15 Jul 2021 18:47:38 +0000 (UTC)
+        id S241276AbhGOS6E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B045F613E7;
+        Thu, 15 Jul 2021 18:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374859;
-        bh=pCcN7BDwCybXFoZyfxMlftp9PONrIJ9xYGZ2x7wtsgk=;
+        s=korg; t=1626375306;
+        bh=skqswtmKqrqAPY5m7IrXU75ApWqmW8CDHzvsnzp79pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSRf2n6Z6m9uyrNpZt9zV6yHkSB/dUJn55rbYlBKwo4NQYDRjm4IXxvyI49Pmvbgp
-         //dZTspsxq9Eo2PAnU82RBafSTIuJWG1xx6ygbJCmXNPwvPMuovGiolgmUTzsB5SVz
-         qf2IWYQwrHftYZX67Q+BFAZqAHABBVik0Qf2c10M=
+        b=E7aUbGJTp9WTJCovgTMNQuFjTyE5HzAThT+3q5VYydNATX+X5SJSitkXzMsRjuAI6
+         tbusOd3Ryf3GYeARiFp0keTkEtbHUAyJTgKkvWMc/NhfWelTpURp2dCW1DFwMD/gxt
+         tSDKNTIqY4y5vjG2bSDmgX8RuQnugJ4DFDqlmGIE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 021/215] net: mdio: provide shim implementation of devm_of_mdiobus_register
-Date:   Thu, 15 Jul 2021 20:36:33 +0200
-Message-Id: <20210715182602.515045000@linuxfoundation.org>
+Subject: [PATCH 5.12 032/242] igb: handle vlan types with checker enabled
+Date:   Thu, 15 Jul 2021 20:36:34 +0200
+Message-Id: <20210715182557.595976094@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <olteanv@gmail.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit 86544c3de6a2185409c5a3d02f674ea223a14217 ]
+[ Upstream commit c7cbfb028b95360403d579c47aaaeef1ff140964 ]
 
-Similar to the way in which of_mdiobus_register() has a fallback to the
-non-DT based mdiobus_register() when CONFIG_OF is not set, we can create
-a shim for the device-managed devm_of_mdiobus_register() which calls
-devm_mdiobus_register() and discards the struct device_node *.
+The sparse build (C=2) finds some issues with how the driver
+dealt with the (very difficult) hardware that in some generations
+uses little-endian, and in others uses big endian, for the VLAN
+field. The code as written picks __le16 as a type and for some
+hardware revisions we override it to __be16 as done in this
+patch. This impacted the VF driver as well so fix it there too.
 
-In particular, this solves a build issue with the qca8k DSA driver which
-uses devm_of_mdiobus_register and can be compiled without CONFIG_OF.
+Also change the vlan_tci assignment to override the sparse
+warning without changing functionality.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/of_mdio.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/intel/igb/igb_main.c | 5 +++--
+ drivers/net/ethernet/intel/igbvf/netdev.c | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/include/linux/of_mdio.h b/include/linux/of_mdio.h
-index cfe8c607a628..f56c6a9230ac 100644
---- a/include/linux/of_mdio.h
-+++ b/include/linux/of_mdio.h
-@@ -75,6 +75,13 @@ static inline int of_mdiobus_register(struct mii_bus *mdio, struct device_node *
- 	return mdiobus_register(mdio);
- }
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index caa8929289ae..894b9b87dba1 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -2643,7 +2643,8 @@ static int igb_parse_cls_flower(struct igb_adapter *adapter,
+ 			}
  
-+static inline int devm_of_mdiobus_register(struct device *dev,
-+					   struct mii_bus *mdio,
-+					   struct device_node *np)
-+{
-+	return devm_mdiobus_register(dev, mdio);
-+}
-+
- static inline struct mdio_device *of_mdio_find_device(struct device_node *np)
+ 			input->filter.match_flags |= IGB_FILTER_FLAG_VLAN_TCI;
+-			input->filter.vlan_tci = match.key->vlan_priority;
++			input->filter.vlan_tci =
++				(__force __be16)match.key->vlan_priority;
+ 		}
+ 	}
+ 
+@@ -8593,7 +8594,7 @@ static void igb_process_skb_fields(struct igb_ring *rx_ring,
+ 
+ 		if (igb_test_staterr(rx_desc, E1000_RXDEXT_STATERR_LB) &&
+ 		    test_bit(IGB_RING_FLAG_RX_LB_VLAN_BSWAP, &rx_ring->flags))
+-			vid = be16_to_cpu(rx_desc->wb.upper.vlan);
++			vid = be16_to_cpu((__force __be16)rx_desc->wb.upper.vlan);
+ 		else
+ 			vid = le16_to_cpu(rx_desc->wb.upper.vlan);
+ 
+diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
+index fb3fbcb13331..630c1155f196 100644
+--- a/drivers/net/ethernet/intel/igbvf/netdev.c
++++ b/drivers/net/ethernet/intel/igbvf/netdev.c
+@@ -83,14 +83,14 @@ static int igbvf_desc_unused(struct igbvf_ring *ring)
+ static void igbvf_receive_skb(struct igbvf_adapter *adapter,
+ 			      struct net_device *netdev,
+ 			      struct sk_buff *skb,
+-			      u32 status, u16 vlan)
++			      u32 status, __le16 vlan)
  {
- 	return NULL;
+ 	u16 vid;
+ 
+ 	if (status & E1000_RXD_STAT_VP) {
+ 		if ((adapter->flags & IGBVF_FLAG_RX_LB_VLAN_BSWAP) &&
+ 		    (status & E1000_RXDEXT_STATERR_LB))
+-			vid = be16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
++			vid = be16_to_cpu((__force __be16)vlan) & E1000_RXD_SPC_VLAN_MASK;
+ 		else
+ 			vid = le16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
+ 		if (test_bit(vid, adapter->active_vlans))
 -- 
 2.30.2
 
