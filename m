@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6148A3CA811
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BC013CA6CC
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242030AbhGOS6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:58:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34230 "EHLO mail.kernel.org"
+        id S235506AbhGOSuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242248AbhGOS5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 598E2613DC;
-        Thu, 15 Jul 2021 18:54:18 +0000 (UTC)
+        id S239428AbhGOSs7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89205613D7;
+        Thu, 15 Jul 2021 18:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375258;
-        bh=swNqVe0z99ZqvzGEdEapp55al/zXzvnmMw+OPrrGzhc=;
+        s=korg; t=1626374766;
+        bh=epLAffIQc77bcA44wYbXzn+8dh4Eepktdm8W90mUD4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MpVJePY5kl82pcfUtOPbJYi4KBbeJblxN303uLcMWpfB8qW9CCAflu7aJ4AAYwpvD
-         04ZNeyvqt9G9kaVuXurhTnpeRtYIHR8xcY1i5VnEd3LqogqT2wB+TgRLA2CPC7Oxv2
-         xuZsV0GcdgTl3NxpXJlsMlID8bDfHd6uUePoPuH0=
+        b=bG++yiJv1HAD3JqeRfDB6hnWCdJbfDE+Zf5xZEcpyke5t6msTJguaygRF6x5RlOFI
+         r0xTaupyWwJYfxiex92CafP5GOwz4gpoX21gq3wXljb0w0i0O7Ef0xC+kemolMCram
+         YEvt+kKqTuH9aVlt0GfjyCYTv+sCcbAfllf3F8MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibo Mao <maobibo@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 012/242] hugetlb: clear huge pte during flush function on mips platform
+Subject: [PATCH 5.10 002/215] drm/zte: Dont select DRM_KMS_FB_HELPER
 Date:   Thu, 15 Jul 2021 20:36:14 +0200
-Message-Id: <20210715182553.931931387@linuxfoundation.org>
+Message-Id: <20210715182558.835722039@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibo Mao <maobibo@loongson.cn>
+From: Thomas Zimmermann <tzimmermann@suse.de>
 
-[ Upstream commit 33ae8f801ad8bec48e886d368739feb2816478f2 ]
+[ Upstream commit a50e74bec1d17e95275909660c6b43ffe11ebcf0 ]
 
-If multiple threads are accessing the same huge page at the same
-time, hugetlb_cow will be called if one thread write the COW huge
-page. And function huge_ptep_clear_flush is called to notify other
-threads to clear the huge pte tlb entry. The other threads clear
-the huge pte tlb entry and reload it from page table, the reload
-huge pte entry may be old.
+Selecting DRM_FBDEV_EMULATION will include the correct settings for
+fbdev emulation. Drivers should not override this.
 
-This patch fixes this issue on mips platform, and it clears huge
-pte entry before notifying other threads to flush current huge
-page entry, it is similar with other architectures.
-
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210415110040.23525-4-tzimmermann@suse.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/hugetlb.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/zte/Kconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/hugetlb.h b/arch/mips/include/asm/hugetlb.h
-index 10e3be870df7..c2144409c0c4 100644
---- a/arch/mips/include/asm/hugetlb.h
-+++ b/arch/mips/include/asm/hugetlb.h
-@@ -46,7 +46,13 @@ static inline pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
- static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
- 					 unsigned long addr, pte_t *ptep)
- {
--	flush_tlb_page(vma, addr & huge_page_mask(hstate_vma(vma)));
-+	/*
-+	 * clear the huge pte entry firstly, so that the other smp threads will
-+	 * not get old pte entry after finishing flush_tlb_page and before
-+	 * setting new huge pte entry
-+	 */
-+	huge_ptep_get_and_clear(vma->vm_mm, addr, ptep);
-+	flush_tlb_page(vma, addr);
- }
- 
- #define __HAVE_ARCH_HUGE_PTE_NONE
+diff --git a/drivers/gpu/drm/zte/Kconfig b/drivers/gpu/drm/zte/Kconfig
+index 90ebaedc11fd..aa8594190b50 100644
+--- a/drivers/gpu/drm/zte/Kconfig
++++ b/drivers/gpu/drm/zte/Kconfig
+@@ -3,7 +3,6 @@ config DRM_ZTE
+ 	tristate "DRM Support for ZTE SoCs"
+ 	depends on DRM && ARCH_ZX
+ 	select DRM_KMS_CMA_HELPER
+-	select DRM_KMS_FB_HELPER
+ 	select DRM_KMS_HELPER
+ 	select SND_SOC_HDMI_CODEC if SND_SOC
+ 	select VIDEOMODE_HELPERS
 -- 
 2.30.2
 
