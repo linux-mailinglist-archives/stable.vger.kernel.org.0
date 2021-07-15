@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF4DD3CA94E
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 633123CAAE1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242921AbhGOTGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S244293AbhGOTPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242642AbhGOTFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D079D61419;
-        Thu, 15 Jul 2021 19:01:12 +0000 (UTC)
+        id S244636AbhGOTO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 846F36140F;
+        Thu, 15 Jul 2021 19:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375673;
-        bh=z5CRr9uHvX/YCjApLw/rtBTEcqZGDMlsFP/f3WWWQy8=;
+        s=korg; t=1626376260;
+        bh=AykE/DNX1ohxHWrctLld96qWYnNgwrQLNEkWEleFwec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoxwSwFlt/YatfRIoHJrUyDNOBcZpvqdbYSdFAGJmFCBBoDuCcLOouCH+Onn2z7bj
-         LWIPZhM68fzW8/b6FIAn44VosQTxM8Xek32Drfp55Ol1z7BAxfTO2Pj6dZsnA3NlJt
-         jq+twZNXPln3nRkBaGrlE0OPgGs9M+hdtYUI3MPQ=
+        b=NOflgjVRKMTmf4piaSkPI+dqKjQ8SsWgsUE9+EzJvEpp9KgUdmJCmLPaC8fNlKNsE
+         mjd2mvDsUYlNmc+K4OdyKMoE9Rx5EI/6NTncoxWXjsMs8lyClA620JVZw37u+01ym5
+         wJgbW6FSLiNun8pK0trHChgRG2WYnoibKrnVdUFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.12 187/242] docs: Makefile: Use CONFIG_SHELL not SHELL
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>
+Subject: [PATCH 5.13 194/266] drm/vc4: hdmi: Prevent clock unbalance
 Date:   Thu, 15 Jul 2021 20:39:09 +0200
-Message-Id: <20210715182626.199924247@linuxfoundation.org>
+Message-Id: <20210715182644.976995978@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 222a28edce38b62074a950fb243df621c602b4d3 upstream.
+commit 5b006000423667ef0f55721fc93e477b31f22d28 upstream.
 
-Fix think-o about which variable to find the Kbuild-configured shell.
-This has accidentally worked due to most shells setting $SHELL by
-default.
+Since we fixed the hooks to disable the encoder at boot, we now have an
+unbalanced clk_disable call at boot since we never enabled them in the
+first place.
 
-Fixes: 51e46c7a4007 ("docs, parallelism: Rearrange how jobserver reservations are made")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210617225808.3907377-1-keescook@chromium.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Let's mimic the state of the hardware and enable the clocks at boot if
+the controller is enabled to get the use-count right.
+
+Cc: <stable@vger.kernel.org> # v5.10+
+Fixes: 09c438139b8f ("drm/vc4: hdmi: Implement finer-grained hooks")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210507150515.257424-7-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/Documentation/Makefile
-+++ b/Documentation/Makefile
-@@ -76,7 +76,7 @@ quiet_cmd_sphinx = SPHINX  $@ --> file:/
- 	PYTHONDONTWRITEBYTECODE=1 \
- 	BUILDDIR=$(abspath $(BUILDDIR)) SPHINX_CONF=$(abspath $(srctree)/$(src)/$5/$(SPHINX_CONF)) \
- 	$(PYTHON3) $(srctree)/scripts/jobserver-exec \
--	$(SHELL) $(srctree)/Documentation/sphinx/parallel-wrapper.sh \
-+	$(CONFIG_SHELL) $(srctree)/Documentation/sphinx/parallel-wrapper.sh \
- 	$(SPHINXBUILD) \
- 	-b $2 \
- 	-c $(abspath $(srctree)/$(src)) \
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -2012,6 +2012,14 @@ static int vc4_hdmi_bind(struct device *
+ 	if (vc4_hdmi->variant->reset)
+ 		vc4_hdmi->variant->reset(vc4_hdmi);
+ 
++	if ((of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi0") ||
++	     of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi1")) &&
++	    HDMI_READ(HDMI_VID_CTL) & VC4_HD_VID_CTL_ENABLE) {
++		clk_prepare_enable(vc4_hdmi->pixel_clock);
++		clk_prepare_enable(vc4_hdmi->hsm_clock);
++		clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
++	}
++
+ 	pm_runtime_enable(dev);
+ 
+ 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
 
 
