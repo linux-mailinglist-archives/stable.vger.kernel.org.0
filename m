@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4C2D3CA707
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D45FC3CA887
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbhGOSwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54550 "EHLO mail.kernel.org"
+        id S243132AbhGOTBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239126AbhGOSvW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8912613E3;
-        Thu, 15 Jul 2021 18:48:27 +0000 (UTC)
+        id S243092AbhGOTAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:00:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9820D60D07;
+        Thu, 15 Jul 2021 18:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374908;
-        bh=jFSMofy9TP1jCzwJh7+cw0YgBnKGkyqc4awKL9lg4B0=;
+        s=korg; t=1626375438;
+        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uGXAhZtYHZ8mWyV0BnmQm4VcHhD+5ifB47UrjqOJQ6jxw0lNNHUhPa38rP85aWhtB
-         AEmikKUoHEEwKz/88PVzn5dvK1M6diYOwBxzSxXpzNoxhNJb0q6cyrDklWGGLFlkdL
-         sy/S+lyGTTC/hn/HsPsmDwnWd408hawmhawIQ8H4=
+        b=boCjb+OOCfVihCPrN1Q3T7CgB4D0vvr5wllfzVUBjH4eAMLIy5lai93LbZ2sGe4tR
+         0Bpfci1Peh5R86SKHJSezcb0Og90xulLDgr95OmEtt7LwbRbRhtmLolWhTrWihMEFL
+         mGqeWn6J3Kqb8t1x6WiYmNh0u4/vV5g+2vNVmXu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Tony Lindgren <tony@atomide.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/215] xfrm: Fix error reporting in xfrm_state_construct.
+Subject: [PATCH 5.12 087/242] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
 Date:   Thu, 15 Jul 2021 20:37:29 +0200
-Message-Id: <20210715182613.084944872@linuxfoundation.org>
+Message-Id: <20210715182608.344023654@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
+[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
 
-When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
-the error will not be reported because the -ENOMEM assignment
-to the err variable is overwritten before. Fix this by moving
-these two in front of the function so that memory allocation
-failures will be reported.
+At least on wl12xx, reading the MAC after boot can fail with a warning
+at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
+The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
+after request_firmware_work_func().
 
-Reported-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+After the error, no wireless interface is created. Reloading the wl12xx
+module makes the interface work.
+
+Turns out the wlan controller can be in a low-power ELP state after the
+boot from the bootloader or kexec, and needs to be woken up first.
+
+Let's wake the hardware and add a sleep after that similar to
+wl12xx_pre_boot() is already doing.
+
+Note that a similar issue could exist for wl18xx, but I have not seen it
+so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
+produce similar errors.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index d0c32a8fcc4a..45f86a97eaf2 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -580,6 +580,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 9d7dbfe7fe0c..c6da0cfb4afb 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
+ 	u32 mac1, mac2;
+ 	int ret;
  
- 	copy_from_user_state(x, p);
- 
-+	if (attrs[XFRMA_ENCAP]) {
-+		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-+				   sizeof(*x->encap), GFP_KERNEL);
-+		if (x->encap == NULL)
-+			goto error;
-+	}
++	/* Device may be in ELP from the bootloader or kexec */
++	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
++	if (ret < 0)
++		goto out;
 +
-+	if (attrs[XFRMA_COADDR]) {
-+		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
-+				    sizeof(*x->coaddr), GFP_KERNEL);
-+		if (x->coaddr == NULL)
-+			goto error;
-+	}
++	usleep_range(500000, 700000);
 +
- 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
- 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
- 
-@@ -600,23 +614,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
- 				   attrs[XFRMA_ALG_COMP])))
- 		goto error;
- 
--	if (attrs[XFRMA_ENCAP]) {
--		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
--				   sizeof(*x->encap), GFP_KERNEL);
--		if (x->encap == NULL)
--			goto error;
--	}
--
- 	if (attrs[XFRMA_TFCPAD])
- 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
- 
--	if (attrs[XFRMA_COADDR]) {
--		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
--				    sizeof(*x->coaddr), GFP_KERNEL);
--		if (x->coaddr == NULL)
--			goto error;
--	}
--
- 	xfrm_mark_get(attrs, &x->mark);
- 
- 	xfrm_smark_init(attrs, &x->props.smark);
+ 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
+ 	if (ret < 0)
+ 		goto out;
 -- 
 2.30.2
 
