@@ -2,90 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 941DA3CA171
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 17:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4803CA178
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 17:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238690AbhGOPau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 11:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38078 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231438AbhGOPat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 11:30:49 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB85C061760
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 08:27:56 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id 59-20020a9d0ac10000b0290462f0ab0800so6535941otq.11
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 08:27:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=7Ds+bjf4PfC5bkHeufgUSDHW7WzmtQEzph79Y9c1bnI=;
-        b=wrUsu36HrQdl+V7iK7ZHXGh+4F7c8wbFcjZL3//oQHTOw8l/GCCxfy4z89+/0Q7hMl
-         G3q1mXMeOGTxJfu6XPnJGMJq81B49B5/3AgqtLOOEDvcIP/6crj0gXUCRZQxI6uQ72df
-         JQaRz+6WQmhnxiEygMEEIP3IBQphJACO4NPiJ9LnrSxY/o726btX7I6uAq9MftR0ukkH
-         hccp9q+KbKGEiGnN8Op7oC94xl/XL6V/R20fPrhsGvH8UtizCZyHd0B5PETdQe7GljXT
-         Hx7rCnkPH21oh5En8qyckiYVXCo4ErPD0GPVj/8XXx0/nd23NKHY9E6YgFKKw04kDAPX
-         O0Lg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=7Ds+bjf4PfC5bkHeufgUSDHW7WzmtQEzph79Y9c1bnI=;
-        b=RS1ggVUKp6wiwVT4xs5WUl0TF46D4ZQdBUY9Iu5u22rtPQpZ80rgS2Dqg8p/+g2fjz
-         9NfdtxHhnjPK4bLowidrGCvgb40tJtwq/i60sKYeH/PY6a6dqBOy5uzkB0jQJhoBrxnl
-         81NIDlJsETrQEfCgU20SEK3pdGFeYmg7VKStR5LSo5QRN3Mtc++Py2quBY6d/JAda6Z1
-         Slr1H7OQlMuzQuhpWSz0DAqSNiy9Ncdi18xb+MaIVt1u81P3hP2zM1VYEakGvO6RsJwl
-         mKsmWLnzqmsCrh+x0MYUaf51yanXalnpWDvelWrpGxSqIBh3jM8ervGdL611EYmPEM66
-         iP5w==
-X-Gm-Message-State: AOAM533DYGInChwXbMLyzDCIlg7O389i0l3KkWcI7tbys5iC1G8sY+XR
-        JU1nuYAAoS/vnxKc4FGMufdQI/cUOU6imQ==
-X-Google-Smtp-Source: ABdhPJwBhTMxIAVGPIlv3Hn+mnmRz9ROUHjlWhdzsEg4nEHfoNurmtDg6LRKABg7fz6E19dZE9KWbw==
-X-Received: by 2002:a9d:4e03:: with SMTP id p3mr4201481otf.214.1626362875425;
-        Thu, 15 Jul 2021 08:27:55 -0700 (PDT)
-Received: from [192.168.1.30] ([207.135.234.126])
-        by smtp.gmail.com with ESMTPSA id r9sm1128074oos.7.2021.07.15.08.27.54
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Jul 2021 08:27:55 -0700 (PDT)
-Subject: Re: [PATCH stable-5.10] io_uring: fix clear IORING_SETUP_R_DISABLED
- in wrong function
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Yang Yingliang <yangyingliang@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210715131825.2410912-1-yangyingliang@huawei.com>
- <YPA2kfnTb5VtSTMm@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <2d9aa268-fd78-17ec-df0f-00daa1138a72@kernel.dk>
-Date:   Thu, 15 Jul 2021 09:27:53 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S232630AbhGOPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 11:32:25 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40948 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232330AbhGOPcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 11:32:25 -0400
+From:   John Ogness <john.ogness@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1626362971;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=35CXobfY8CFmqTt4Bwc24NZBVuf8jY71PYlcrs1aoUA=;
+        b=IPlGbN2quQJzuVV69+X+jmjMFNyPW9sCjB0dJNENhIXKmmHqeJrcDTcLvQrWG9sdmb6Ngl
+        Z0ylHL+qNKLQwiqUIEMejKEQRKKjvduqLB+LSgL/J6YnLnZ+pH4RDxxAe5h8l+aRb8T9f6
+        NhefWjvXh14KKD9K/sARGN+xlQXtzPbidc/B9YsKHhCsBpYGWozYlsUcNoSpAmDfEYxfON
+        b+uGech+YRQpymDx24abNQpaMmjHy06kzV+pWD8deg9wBuKHvbw7R+zJp0xr3gpTPNbjjF
+        QqX0c8otmlhFWn/nFfB3oUpMzu7VC1biujL79WojNgm65EZxa2+/cAiO3wUPtg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1626362971;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=35CXobfY8CFmqTt4Bwc24NZBVuf8jY71PYlcrs1aoUA=;
+        b=oyKYgh4Sh9edL3MjsTq1m9hK2hxbHfTtE2GOeBTQeF2ZYwCXNsHzsChZO7+v/dr7/4RPcw
+        12s6IdDoZxJpy1AA==
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Petr Mladek <pmladek@suse.com>, kernel test robot <lkp@intel.com>,
+        stable@vger.kernel.org,
+        Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: [PATCH tglx/in-place v1 03/21] printk/console: Check consistent sequence number when handling race in console_unlock()
+Date:   Thu, 15 Jul 2021 17:35:12 +0206
+Message-Id: <20210715152930.22959-4-john.ogness@linutronix.de>
+In-Reply-To: <20210715152930.22959-1-john.ogness@linutronix.de>
+References: <20210715152930.22959-1-john.ogness@linutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <YPA2kfnTb5VtSTMm@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/15/21 7:22 AM, Greg KH wrote:
-> On Thu, Jul 15, 2021 at 09:18:25PM +0800, Yang Yingliang wrote:
->> In commit 3ebba796fa25 ("io_uring: ensure that SQPOLL thread is started for exit"),
->> the IORING_SETUP_R_DISABLED is cleared in io_sq_offload_start(), but when backport
->> it to stable-5.10, IORING_SETUP_R_DISABLED is cleared in __io_req_task_submit(),
->> move clearing IORING_SETUP_R_DISABLED to io_sq_offload_start() to fix this.
->>
->> Fixes: 6cae8095490ca ("io_uring: ensure that SQPOLL thread is started for exit")
->> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
->> ---
->>  fs/io_uring.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> I need an ack from Jens before I can take this...
+From: Petr Mladek <pmladek@suse.com>
 
-Ack, that looks like a bad merge. Fine to apply this patch, thanks.
+The standard printk() tries to flush the message to the console
+immediately. It tries to take the console lock. If the lock is
+already taken then the current owner is responsible for flushing
+even the new message.
 
+There is a small race window between checking whether a new message is
+available and releasing the console lock. It is solved by re-checking
+the state after releasing the console lock. If the check is positive
+then console_unlock() tries to take the lock again and process the new
+message as well.
+
+The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
+console_seq is not longer read atomically. As a result, the re-check might
+be done with an inconsistent 64-bit index.
+
+Solve it by using the last sequence number that has been checked under
+the console lock. In the worst case, it will take the lock again only
+to realized that the new message has already been proceed. But it
+was possible even before.
+
+The variable next_seq is marked as __maybe_unused to call down compiler
+warning when CONFIG_PRINTK is not defined.
+
+Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
+Reported-by: kernel test robot <lkp@intel.com>  # unused next_seq warning
+Cc: stable@vger.kernel.org # 5.13
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Reviewed-by: John Ogness <john.ogness@linutronix.de>
+Link: https://lore.kernel.org/r/20210702150657.26760-1-pmladek@suse.com
+---
+ kernel/printk/printk.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 142a58d124d9..6dad7da8f383 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2545,6 +2545,7 @@ void console_unlock(void)
+ 	bool do_cond_resched, retry;
+ 	struct printk_info info;
+ 	struct printk_record r;
++	u64 __maybe_unused next_seq;
+ 
+ 	if (console_suspended) {
+ 		up_console_sem();
+@@ -2654,8 +2655,10 @@ void console_unlock(void)
+ 			cond_resched();
+ 	}
+ 
+-	console_locked = 0;
++	/* Get consistent value of the next-to-be-used sequence number. */
++	next_seq = console_seq;
+ 
++	console_locked = 0;
+ 	up_console_sem();
+ 
+ 	/*
+@@ -2664,7 +2667,7 @@ void console_unlock(void)
+ 	 * there's a new owner and the console_unlock() from them will do the
+ 	 * flush, no worries.
+ 	 */
+-	retry = prb_read_valid(prb, console_seq, NULL);
++	retry = prb_read_valid(prb, next_seq, NULL);
+ 	printk_safe_exit_irqrestore(flags);
+ 
+ 	if (retry && console_trylock())
 -- 
-Jens Axboe
+2.20.1
 
