@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FD23CAA1A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0899F3CAA1D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241852AbhGOTL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:11:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46404 "EHLO mail.kernel.org"
+        id S243851AbhGOTL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243285AbhGOTJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243282AbhGOTJn (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:09:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4224B6140F;
-        Thu, 15 Jul 2021 19:05:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9593461412;
+        Thu, 15 Jul 2021 19:05:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375925;
-        bh=BLKhPJn70wKsp1Y9XlgYKucJA7iNKkDdhIwj+zGU1UQ=;
+        s=korg; t=1626375928;
+        bh=9xVSFwSdGvi+MG5/iZ3T4N9Ju40mVHzCL+79qf0SEa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uQpS30VIRXk7zPD56K70fodUM63Wtqp0Ro1fwOwjCzKq4XBjXSpaXFXizl/2m1u+4
-         IadCc0UKQThH8sktyp1epsQxduA6Ha52rCMEiq+uH9Zw4QnDC0PZfUjP6Slx4+oTtC
-         ojEeT5LroiGj0B5BmGMNG3Yo8u9ZzDu9TP1J81KE=
+        b=xxSJ/jsAh83+MaoKWBKQCAtCXcuZa0aEH4FDhb+GolzsZWe6rIeleRUvYwDxgUUp/
+         n8cnR/2xHXOO5EcxAhYo7QdL3tAe91O1FCzYdKQ7PDHjfj7+B73njMemzWF8qHb188
+         GsOkK9POayn+EEs9B/HXTDLlE0WCiG/FrxCuLzW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 052/266] drm/tegra: hub: Fix YUV support
-Date:   Thu, 15 Jul 2021 20:36:47 +0200
-Message-Id: <20210715182623.378511582@linuxfoundation.org>
+Subject: [PATCH 5.13 053/266] clk: tegra: Fix refcounting of gate clocks
+Date:   Thu, 15 Jul 2021 20:36:48 +0200
+Message-Id: <20210715182623.568150633@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -39,224 +40,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit e16efff4e5f490ce34a8c60d9ae7297dca5eb616 ]
+[ Upstream commit c592c8a28f5821e880ac6675781cd8a151b0737c ]
 
-The driver currently exposes several YUV formats but fails to properly
-program all the registers needed to display such formats. Add the right
-programming sequences so that overlay windows can be used to accelerate
-color format conversions in multimedia playback use-cases.
+The refcounting of the gate clocks has a bug causing the enable_refcnt
+to underflow when unused clocks are disabled. This happens because clk
+provider erroneously bumps the refcount if clock is enabled at a boot
+time, which it shouldn't be doing, and it does this only for the gate
+clocks, while peripheral clocks are using the same gate ops and the
+peripheral clocks are missing the initial bump. Hence the refcount of
+the peripheral clocks is 0 when unused clocks are disabled and then the
+counter is decremented further by the gate ops, causing the integer
+underflow.
 
+Fix this problem by removing the erroneous bump and by implementing the
+disable_unused() callback, which disables the unused gates properly.
+
+The visible effect of the bug is such that the unused clocks are never
+gated if a loaded kernel module grabs the unused clocks and starts to use
+them. In practice this shouldn't cause any real problems for the drivers
+and boards supported by the kernel today.
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/dc.c    |  2 +-
- drivers/gpu/drm/tegra/dc.h    |  7 +++++
- drivers/gpu/drm/tegra/hub.c   | 52 +++++++++++++++++++++++++++++++----
- drivers/gpu/drm/tegra/plane.c | 23 ++++++++++++++--
- drivers/gpu/drm/tegra/plane.h |  3 +-
- 5 files changed, 78 insertions(+), 9 deletions(-)
+ drivers/clk/tegra/clk-periph-gate.c | 72 +++++++++++++++++++----------
+ drivers/clk/tegra/clk-periph.c      | 11 +++++
+ 2 files changed, 58 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
-index f9120dc24682..c5ea88a686d1 100644
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -348,7 +348,7 @@ static void tegra_dc_setup_window(struct tegra_plane *plane,
- 	 * For YUV planar modes, the number of bytes per pixel takes into
- 	 * account only the luma component and therefore is 1.
- 	 */
--	yuv = tegra_plane_format_is_yuv(window->format, &planar);
-+	yuv = tegra_plane_format_is_yuv(window->format, &planar, NULL);
- 	if (!yuv)
- 		bpp = window->bits_per_pixel / 8;
- 	else
-diff --git a/drivers/gpu/drm/tegra/dc.h b/drivers/gpu/drm/tegra/dc.h
-index 29f19c3c6149..455c3fdef8dc 100644
---- a/drivers/gpu/drm/tegra/dc.h
-+++ b/drivers/gpu/drm/tegra/dc.h
-@@ -696,6 +696,9 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
- 
- #define DC_WINBUF_START_ADDR_HI			0x80d
- 
-+#define DC_WINBUF_START_ADDR_HI_U		0x80f
-+#define DC_WINBUF_START_ADDR_HI_V		0x811
-+
- #define DC_WINBUF_CDE_CONTROL			0x82f
- #define  ENABLE_SURFACE (1 << 0)
- 
-@@ -720,6 +723,10 @@ int tegra_dc_rgb_exit(struct tegra_dc *dc);
- #define DC_WIN_PLANAR_STORAGE			0x709
- #define PITCH(x) (((x) >> 6) & 0x1fff)
- 
-+#define DC_WIN_PLANAR_STORAGE_UV		0x70a
-+#define  PITCH_U(x) ((((x) >> 6) & 0x1fff) <<  0)
-+#define  PITCH_V(x) ((((x) >> 6) & 0x1fff) << 16)
-+
- #define DC_WIN_SET_PARAMS			0x70d
- #define  CLAMP_BEFORE_BLEND (1 << 15)
- #define  DEGAMMA_NONE (0 << 13)
-diff --git a/drivers/gpu/drm/tegra/hub.c b/drivers/gpu/drm/tegra/hub.c
-index bfae8a02f55b..94e1ccfb6235 100644
---- a/drivers/gpu/drm/tegra/hub.c
-+++ b/drivers/gpu/drm/tegra/hub.c
-@@ -454,7 +454,9 @@ static void tegra_shared_plane_atomic_update(struct drm_plane *plane,
- 	unsigned int zpos = new_state->normalized_zpos;
- 	struct drm_framebuffer *fb = new_state->fb;
- 	struct tegra_plane *p = to_tegra_plane(plane);
--	dma_addr_t base;
-+	dma_addr_t base, addr_flag = 0;
-+	unsigned int bpc;
-+	bool yuv, planar;
- 	u32 value;
- 	int err;
- 
-@@ -473,6 +475,8 @@ static void tegra_shared_plane_atomic_update(struct drm_plane *plane,
- 		return;
- 	}
- 
-+	yuv = tegra_plane_format_is_yuv(tegra_plane_state->format, &planar, &bpc);
-+
- 	tegra_dc_assign_shared_plane(dc, p);
- 
- 	tegra_plane_writel(p, VCOUNTER, DC_WIN_CORE_ACT_CONTROL);
-@@ -501,8 +505,6 @@ static void tegra_shared_plane_atomic_update(struct drm_plane *plane,
- 	/* disable compression */
- 	tegra_plane_writel(p, 0, DC_WINBUF_CDE_CONTROL);
- 
--	base = tegra_plane_state->iova[0] + fb->offsets[0];
--
- #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
- 	/*
- 	 * Physical address bit 39 in Tegra194 is used as a switch for special
-@@ -510,9 +512,12 @@ static void tegra_shared_plane_atomic_update(struct drm_plane *plane,
- 	 * dGPU sector layout.
- 	 */
- 	if (tegra_plane_state->tiling.sector_layout == TEGRA_BO_SECTOR_LAYOUT_GPU)
--		base |= BIT_ULL(39);
-+		addr_flag = BIT_ULL(39);
- #endif
- 
-+	base = tegra_plane_state->iova[0] + fb->offsets[0];
-+	base |= addr_flag;
-+
- 	tegra_plane_writel(p, tegra_plane_state->format, DC_WIN_COLOR_DEPTH);
- 	tegra_plane_writel(p, 0, DC_WIN_PRECOMP_WGRP_PARAMS);
- 
-@@ -535,7 +540,44 @@ static void tegra_shared_plane_atomic_update(struct drm_plane *plane,
- 	value = PITCH(fb->pitches[0]);
- 	tegra_plane_writel(p, value, DC_WIN_PLANAR_STORAGE);
- 
--	value = CLAMP_BEFORE_BLEND | DEGAMMA_SRGB | INPUT_RANGE_FULL;
-+	if (yuv && planar) {
-+		base = tegra_plane_state->iova[1] + fb->offsets[1];
-+		base |= addr_flag;
-+
-+		tegra_plane_writel(p, upper_32_bits(base), DC_WINBUF_START_ADDR_HI_U);
-+		tegra_plane_writel(p, lower_32_bits(base), DC_WINBUF_START_ADDR_U);
-+
-+		base = tegra_plane_state->iova[2] + fb->offsets[2];
-+		base |= addr_flag;
-+
-+		tegra_plane_writel(p, upper_32_bits(base), DC_WINBUF_START_ADDR_HI_V);
-+		tegra_plane_writel(p, lower_32_bits(base), DC_WINBUF_START_ADDR_V);
-+
-+		value = PITCH_U(fb->pitches[2]) | PITCH_V(fb->pitches[2]);
-+		tegra_plane_writel(p, value, DC_WIN_PLANAR_STORAGE_UV);
-+	} else {
-+		tegra_plane_writel(p, 0, DC_WINBUF_START_ADDR_U);
-+		tegra_plane_writel(p, 0, DC_WINBUF_START_ADDR_HI_U);
-+		tegra_plane_writel(p, 0, DC_WINBUF_START_ADDR_V);
-+		tegra_plane_writel(p, 0, DC_WINBUF_START_ADDR_HI_V);
-+		tegra_plane_writel(p, 0, DC_WIN_PLANAR_STORAGE_UV);
-+	}
-+
-+	value = CLAMP_BEFORE_BLEND | INPUT_RANGE_FULL;
-+
-+	if (yuv) {
-+		if (bpc < 12)
-+			value |= DEGAMMA_YUV8_10;
-+		else
-+			value |= DEGAMMA_YUV12;
-+
-+		/* XXX parameterize */
-+		value |= COLOR_SPACE_YUV_2020;
-+	} else {
-+		if (!tegra_plane_format_is_indexed(tegra_plane_state->format))
-+			value |= DEGAMMA_SRGB;
-+	}
-+
- 	tegra_plane_writel(p, value, DC_WIN_SET_PARAMS);
- 
- 	value = OFFSET_X(new_state->src_y >> 16) |
-diff --git a/drivers/gpu/drm/tegra/plane.c b/drivers/gpu/drm/tegra/plane.c
-index 2e11b4b1f702..2e65b4075ce6 100644
---- a/drivers/gpu/drm/tegra/plane.c
-+++ b/drivers/gpu/drm/tegra/plane.c
-@@ -375,7 +375,20 @@ int tegra_plane_format(u32 fourcc, u32 *format, u32 *swap)
- 	return 0;
+diff --git a/drivers/clk/tegra/clk-periph-gate.c b/drivers/clk/tegra/clk-periph-gate.c
+index 4b31beefc9fc..dc3f92678407 100644
+--- a/drivers/clk/tegra/clk-periph-gate.c
++++ b/drivers/clk/tegra/clk-periph-gate.c
+@@ -48,18 +48,9 @@ static int clk_periph_is_enabled(struct clk_hw *hw)
+ 	return state;
  }
  
--bool tegra_plane_format_is_yuv(unsigned int format, bool *planar)
-+bool tegra_plane_format_is_indexed(unsigned int format)
-+{
-+	switch (format) {
-+	case WIN_COLOR_DEPTH_P1:
-+	case WIN_COLOR_DEPTH_P2:
-+	case WIN_COLOR_DEPTH_P4:
-+	case WIN_COLOR_DEPTH_P8:
-+		return true;
-+	}
-+
-+	return false;
+-static int clk_periph_enable(struct clk_hw *hw)
++static void clk_periph_enable_locked(struct clk_hw *hw)
+ {
+ 	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
+-	unsigned long flags = 0;
+-
+-	spin_lock_irqsave(&periph_ref_lock, flags);
+-
+-	gate->enable_refcnt[gate->clk_num]++;
+-	if (gate->enable_refcnt[gate->clk_num] > 1) {
+-		spin_unlock_irqrestore(&periph_ref_lock, flags);
+-		return 0;
+-	}
+ 
+ 	write_enb_set(periph_clk_to_bit(gate), gate);
+ 	udelay(2);
+@@ -78,6 +69,32 @@ static int clk_periph_enable(struct clk_hw *hw)
+ 		udelay(1);
+ 		writel_relaxed(0, gate->clk_base + LVL2_CLK_GATE_OVRE);
+ 	}
 +}
 +
-+bool tegra_plane_format_is_yuv(unsigned int format, bool *planar, unsigned int *bpc)
- {
- 	switch (format) {
- 	case WIN_COLOR_DEPTH_YCbCr422:
-@@ -383,6 +396,9 @@ bool tegra_plane_format_is_yuv(unsigned int format, bool *planar)
- 		if (planar)
- 			*planar = false;
- 
-+		if (bpc)
-+			*bpc = 8;
++static void clk_periph_disable_locked(struct clk_hw *hw)
++{
++	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
 +
- 		return true;
- 
- 	case WIN_COLOR_DEPTH_YCbCr420P:
-@@ -396,6 +412,9 @@ bool tegra_plane_format_is_yuv(unsigned int format, bool *planar)
- 		if (planar)
- 			*planar = true;
- 
-+		if (bpc)
-+			*bpc = 8;
++	/*
++	 * If peripheral is in the APB bus then read the APB bus to
++	 * flush the write operation in apb bus. This will avoid the
++	 * peripheral access after disabling clock
++	 */
++	if (gate->flags & TEGRA_PERIPH_ON_APB)
++		tegra_read_chipid();
 +
- 		return true;
- 	}
++	write_enb_clr(periph_clk_to_bit(gate), gate);
++}
++
++static int clk_periph_enable(struct clk_hw *hw)
++{
++	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
++	unsigned long flags = 0;
++
++	spin_lock_irqsave(&periph_ref_lock, flags);
++
++	if (!gate->enable_refcnt[gate->clk_num]++)
++		clk_periph_enable_locked(hw);
  
-@@ -421,7 +440,7 @@ static bool __drm_format_has_alpha(u32 format)
- static int tegra_plane_format_get_alpha(unsigned int opaque,
- 					unsigned int *alpha)
+ 	spin_unlock_irqrestore(&periph_ref_lock, flags);
+ 
+@@ -91,21 +108,28 @@ static void clk_periph_disable(struct clk_hw *hw)
+ 
+ 	spin_lock_irqsave(&periph_ref_lock, flags);
+ 
+-	gate->enable_refcnt[gate->clk_num]--;
+-	if (gate->enable_refcnt[gate->clk_num] > 0) {
+-		spin_unlock_irqrestore(&periph_ref_lock, flags);
+-		return;
+-	}
++	WARN_ON(!gate->enable_refcnt[gate->clk_num]);
++
++	if (--gate->enable_refcnt[gate->clk_num] == 0)
++		clk_periph_disable_locked(hw);
++
++	spin_unlock_irqrestore(&periph_ref_lock, flags);
++}
++
++static void clk_periph_disable_unused(struct clk_hw *hw)
++{
++	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
++	unsigned long flags = 0;
++
++	spin_lock_irqsave(&periph_ref_lock, flags);
+ 
+ 	/*
+-	 * If peripheral is in the APB bus then read the APB bus to
+-	 * flush the write operation in apb bus. This will avoid the
+-	 * peripheral access after disabling clock
++	 * Some clocks are duplicated and some of them are marked as critical,
++	 * like fuse and fuse_burn for example, thus the enable_refcnt will
++	 * be non-zero here if the "unused" duplicate is disabled by CCF.
+ 	 */
+-	if (gate->flags & TEGRA_PERIPH_ON_APB)
+-		tegra_read_chipid();
+-
+-	write_enb_clr(periph_clk_to_bit(gate), gate);
++	if (!gate->enable_refcnt[gate->clk_num])
++		clk_periph_disable_locked(hw);
+ 
+ 	spin_unlock_irqrestore(&periph_ref_lock, flags);
+ }
+@@ -114,6 +138,7 @@ const struct clk_ops tegra_clk_periph_gate_ops = {
+ 	.is_enabled = clk_periph_is_enabled,
+ 	.enable = clk_periph_enable,
+ 	.disable = clk_periph_disable,
++	.disable_unused = clk_periph_disable_unused,
+ };
+ 
+ struct clk *tegra_clk_register_periph_gate(const char *name,
+@@ -148,9 +173,6 @@ struct clk *tegra_clk_register_periph_gate(const char *name,
+ 	gate->enable_refcnt = enable_refcnt;
+ 	gate->regs = pregs;
+ 
+-	if (read_enb(gate) & periph_clk_to_bit(gate))
+-		enable_refcnt[clk_num]++;
+-
+ 	/* Data in .init is copied by clk_register(), so stack variable OK */
+ 	gate->hw.init = &init;
+ 
+diff --git a/drivers/clk/tegra/clk-periph.c b/drivers/clk/tegra/clk-periph.c
+index 67620c7ecd9e..79ca3aa072b7 100644
+--- a/drivers/clk/tegra/clk-periph.c
++++ b/drivers/clk/tegra/clk-periph.c
+@@ -100,6 +100,15 @@ static void clk_periph_disable(struct clk_hw *hw)
+ 	gate_ops->disable(gate_hw);
+ }
+ 
++static void clk_periph_disable_unused(struct clk_hw *hw)
++{
++	struct tegra_clk_periph *periph = to_clk_periph(hw);
++	const struct clk_ops *gate_ops = periph->gate_ops;
++	struct clk_hw *gate_hw = &periph->gate.hw;
++
++	gate_ops->disable_unused(gate_hw);
++}
++
+ static void clk_periph_restore_context(struct clk_hw *hw)
  {
--	if (tegra_plane_format_is_yuv(opaque, NULL)) {
-+	if (tegra_plane_format_is_yuv(opaque, NULL, NULL)) {
- 		*alpha = opaque;
- 		return 0;
- 	}
-diff --git a/drivers/gpu/drm/tegra/plane.h b/drivers/gpu/drm/tegra/plane.h
-index c691dd79b27b..1785c1559c0c 100644
---- a/drivers/gpu/drm/tegra/plane.h
-+++ b/drivers/gpu/drm/tegra/plane.h
-@@ -74,7 +74,8 @@ int tegra_plane_state_add(struct tegra_plane *plane,
- 			  struct drm_plane_state *state);
+ 	struct tegra_clk_periph *periph = to_clk_periph(hw);
+@@ -126,6 +135,7 @@ const struct clk_ops tegra_clk_periph_ops = {
+ 	.is_enabled = clk_periph_is_enabled,
+ 	.enable = clk_periph_enable,
+ 	.disable = clk_periph_disable,
++	.disable_unused = clk_periph_disable_unused,
+ 	.restore_context = clk_periph_restore_context,
+ };
  
- int tegra_plane_format(u32 fourcc, u32 *format, u32 *swap);
--bool tegra_plane_format_is_yuv(unsigned int format, bool *planar);
-+bool tegra_plane_format_is_indexed(unsigned int format);
-+bool tegra_plane_format_is_yuv(unsigned int format, bool *planar, unsigned int *bpc);
- int tegra_plane_setup_legacy_state(struct tegra_plane *tegra,
- 				   struct tegra_plane_state *state);
+@@ -135,6 +145,7 @@ static const struct clk_ops tegra_clk_periph_nodiv_ops = {
+ 	.is_enabled = clk_periph_is_enabled,
+ 	.enable = clk_periph_enable,
+ 	.disable = clk_periph_disable,
++	.disable_unused = clk_periph_disable_unused,
+ 	.restore_context = clk_periph_restore_context,
+ };
  
 -- 
 2.30.2
