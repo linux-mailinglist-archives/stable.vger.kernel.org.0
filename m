@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B9A3CA97E
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE0B3CAB0F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:14:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241183AbhGOTG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
+        id S244561AbhGOTQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241438AbhGOTFu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D15A613F1;
-        Thu, 15 Jul 2021 19:02:11 +0000 (UTC)
+        id S242296AbhGOTPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9C9361285;
+        Thu, 15 Jul 2021 19:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375731;
-        bh=+KNdvSiSTwrRQseY2ACMiYBWQDELdkM7Ft8ARJ2W67w=;
+        s=korg; t=1626376316;
+        bh=s5hHcSw2lwzQd6yShPQcB+bG5BiV+Y/+hfnpVyQMXp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/RZ/IuwQL90s2SVkRLnbad9ZZzaLEeUsFtqoXgeTBBhpm6WtYHLPQ4w46l7wuCQx
-         3288wYN81HAeECyCatsI0pgIDcDDFJq6qZFfTk6VBklm1eh5g4ZcQi+BNHHjMvb+t2
-         bT7dIbYSehLX/e6rmosYCATJLCqxoLvy8Gy/+wUI=
+        b=cxCDpr9GuPy8rL05pgAvJGrmE29b/c2UMtfwbEXK5dYjDSUlFc+q+/2xAOcTi7vyM
+         yzDN/6StT13T3IYG/3IwSzzVZITfM6rGFxsSEfentu9z595K6qXv5HEwmAoKQ0XToj
+         AvxfzVBU6UkgLZReVRIdZn0CRfTpauSLhz4ItjHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.12 213/242] coresight: Propagate symlink failure
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.13 220/266] qemu_fw_cfg: Make fw_cfg_rev_attr a proper kobj_attribute
 Date:   Thu, 15 Jul 2021 20:39:35 +0200
-Message-Id: <20210715182630.681224360@linuxfoundation.org>
+Message-Id: <20210715182648.241303889@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 51dd19a7e9f8fbbb7cd92b8a357091911eae7f78 upstream.
+commit fca41af18e10318e4de090db47d9fa7169e1bf2f upstream.
 
-If the symlink is unable to be created, the driver goes
-ahead and continues device creation. Instead lets propagate
-the failure, and fail the probe.
+fw_cfg_showrev() is called by an indirect call in kobj_attr_show(),
+which violates clang's CFI checking because fw_cfg_showrev()'s second
+parameter is 'struct attribute', whereas the ->show() member of 'struct
+kobj_structure' expects the second parameter to be of type 'struct
+kobj_attribute'.
 
-Link: https://lore.kernel.org/r/20210526204042.2681700-1-jeremy.linton@arm.com
-Fixes: 8a7365c2d418 ("coresight: Expose device connections via sysfs")
+$ cat /sys/firmware/qemu_fw_cfg/rev
+3
+
+$ dmesg | grep "CFI failure"
+[   26.016832] CFI failure (target: fw_cfg_showrev+0x0/0x8):
+
+Fix this by converting fw_cfg_rev_attr to 'struct kobj_attribute' where
+this would have been caught automatically by the incompatible pointer
+types compiler warning. Update fw_cfg_showrev() accordingly.
+
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1299
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210614175901.532683-7-mathieu.poirier@linaro.org
+Link: https://lore.kernel.org/r/20210211194258.4137998-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/hwtracing/coresight/coresight-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwtracing/coresight/coresight-core.c
-+++ b/drivers/hwtracing/coresight/coresight-core.c
-@@ -1367,7 +1367,7 @@ static int coresight_fixup_device_conns(
- 		}
- 	}
- 
--	return 0;
-+	return ret;
+---
+ drivers/firmware/qemu_fw_cfg.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -299,15 +299,13 @@ static int fw_cfg_do_platform_probe(stru
+ 	return 0;
  }
  
- static int coresight_remove_match(struct device *dev, void *data)
+-static ssize_t fw_cfg_showrev(struct kobject *k, struct attribute *a, char *buf)
++static ssize_t fw_cfg_showrev(struct kobject *k, struct kobj_attribute *a,
++			      char *buf)
+ {
+ 	return sprintf(buf, "%u\n", fw_cfg_rev);
+ }
+ 
+-static const struct {
+-	struct attribute attr;
+-	ssize_t (*show)(struct kobject *k, struct attribute *a, char *buf);
+-} fw_cfg_rev_attr = {
++static const struct kobj_attribute fw_cfg_rev_attr = {
+ 	.attr = { .name = "rev", .mode = S_IRUSR },
+ 	.show = fw_cfg_showrev,
+ };
 
 
