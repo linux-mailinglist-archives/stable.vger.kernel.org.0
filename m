@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1005D3CAB0B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA4F3CA9B3
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244665AbhGOTQh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:16:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S240795AbhGOTIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:08:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241363AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48195613CF;
-        Thu, 15 Jul 2021 19:11:46 +0000 (UTC)
+        id S241532AbhGOTHm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:07:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA54861158;
+        Thu, 15 Jul 2021 19:03:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376306;
-        bh=V4JGcCcIve5zm2wBydiLP5y0SxYpXcftaSdlt/R27uI=;
+        s=korg; t=1626375813;
+        bh=+H5wUAr7V9fkMmf4EVqWe5kdVPs57aQ+x+P4CG9MZoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l66UaHbgWJAq6v2im3iowahku59JgzUrInv7gJszeaXJawzHHKOZ7+Sm9/ZuOxB12
-         7uMkDGVuna4hWRKxUjb4B/GJ2h4Ianno6e6M5nZv4PzTvFvBqDPs0a5eaYLYxpP4F+
-         M948DfLScAgg5pjqlbBrq2d1k5mmXL2Sy1mseEpk=
+        b=kmPax2yC7XFyTNCBdmnQ3lDdXJOVDh9y1Lx7xQs1irXF4rddydxDKutG7oRfJPAlH
+         wak8D/3ud0UXeDGg1BlePAx2sF5XbKpCJpfcJ4r03wkgjVsAKkIWQxqGBKP2yD0qv7
+         p10/pTcAQwk0dBCW7Mvdco1teZY+ah0ZN4p0s82s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russ Weight <russell.h.weight@intel.com>,
-        Xu Yilun <yilun.xu@intel.com>, Moritz Fischer <mdf@kernel.org>
-Subject: [PATCH 5.13 216/266] fpga: stratix10-soc: Add missing fpga_mgr_free() call
-Date:   Thu, 15 Jul 2021 20:39:31 +0200
-Message-Id: <20210715182647.674911549@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.12 210/242] tracing: Simplify & fix saved_tgids logic
+Date:   Thu, 15 Jul 2021 20:39:32 +0200
+Message-Id: <20210715182630.195443522@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russ Weight <russell.h.weight@intel.com>
+From: Paul Burton <paulburton@google.com>
 
-commit d9ec9daa20eb8de1efe6abae78c9835ec8ed86f9 upstream.
+commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
 
-The stratix10-soc driver uses fpga_mgr_create() function and is therefore
-responsible to call fpga_mgr_free() to release the class driver resources.
-Add a missing call to fpga_mgr_free in the s10_remove() function.
+The tgid_map array records a mapping from pid to tgid, where the index
+of an entry within the array is the pid & the value stored at that index
+is the tgid.
 
-Signed-off-by: Russ Weight <russell.h.weight@intel.com>
-Reviewed-by: Xu Yilun <yilun.xu@intel.com>
-Signed-off-by: Moritz Fischer <mdf@kernel.org>
-Fixes: e7eef1d7633a ("fpga: add intel stratix10 soc fpga manager driver")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210614170909.232415-3-mdf@kernel.org
+The saved_tgids_next() function iterates over pointers into the tgid_map
+array & dereferences the pointers which results in the tgid, but then it
+passes that dereferenced value to trace_find_tgid() which treats it as a
+pid & does a further lookup within the tgid_map array. It seems likely
+that the intent here was to skip over entries in tgid_map for which the
+recorded tgid is zero, but instead we end up skipping over entries for
+which the thread group leader hasn't yet had its own tgid recorded in
+tgid_map.
+
+A minimal fix would be to remove the call to trace_find_tgid, turning:
+
+  if (trace_find_tgid(*ptr))
+
+into:
+
+  if (*ptr)
+
+..but it seems like this logic can be much simpler if we simply let
+seq_read() iterate over the whole tgid_map array & filter out empty
+entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
+approach, removing the incorrect logic here entirely.
+
+Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/fpga/stratix10-soc.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/trace/trace.c |   38 +++++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 25 deletions(-)
 
---- a/drivers/fpga/stratix10-soc.c
-+++ b/drivers/fpga/stratix10-soc.c
-@@ -454,6 +454,7 @@ static int s10_remove(struct platform_de
- 	struct s10_priv *priv = mgr->priv;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5352,37 +5352,20 @@ static const struct file_operations trac
  
- 	fpga_mgr_unregister(mgr);
-+	fpga_mgr_free(mgr);
- 	stratix10_svc_free_channel(priv->chan);
+ static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+-	int *ptr = v;
++	int pid = ++(*pos);
  
+-	if (*pos || m->count)
+-		ptr++;
+-
+-	(*pos)++;
+-
+-	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
+-		if (trace_find_tgid(*ptr))
+-			return ptr;
+-	}
++	if (pid > PID_MAX_DEFAULT)
++		return NULL;
+ 
+-	return NULL;
++	return &tgid_map[pid];
+ }
+ 
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	void *v;
+-	loff_t l = 0;
+-
+-	if (!tgid_map)
++	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+ 		return NULL;
+ 
+-	v = &tgid_map[0];
+-	while (l <= *pos) {
+-		v = saved_tgids_next(m, v, &l);
+-		if (!v)
+-			return NULL;
+-	}
+-
+-	return v;
++	return &tgid_map[*pos];
+ }
+ 
+ static void saved_tgids_stop(struct seq_file *m, void *v)
+@@ -5391,9 +5374,14 @@ static void saved_tgids_stop(struct seq_
+ 
+ static int saved_tgids_show(struct seq_file *m, void *v)
+ {
+-	int pid = (int *)v - tgid_map;
++	int *entry = (int *)v;
++	int pid = entry - tgid_map;
++	int tgid = *entry;
++
++	if (tgid == 0)
++		return SEQ_SKIP;
+ 
+-	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
++	seq_printf(m, "%d %d\n", pid, tgid);
  	return 0;
+ }
+ 
 
 
