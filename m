@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10E8C3CA621
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57BA13CA7B6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237941AbhGOSqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47278 "EHLO mail.kernel.org"
+        id S242412AbhGOSz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237961AbhGOSqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BB51613D0;
-        Thu, 15 Jul 2021 18:43:18 +0000 (UTC)
+        id S239531AbhGOSxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA109613CA;
+        Thu, 15 Jul 2021 18:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374598;
-        bh=E2/m5cM8J69TE9N7Y8y44WbVkguPRAXBsQegEdrshX4=;
+        s=korg; t=1626375060;
+        bh=/aw41K5/NSchCtxNyxON9OJdJYhSrdRVM1wLVHcs0hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ka/RqhCN+sGNuydwmDYa2rGp6MneKnuOt9779ZRz+AGIugwC/93zXGMe7ROmDByJO
-         gOGUSXKhxGnb9O1jv55JRzCpZkUX298fiDe7IdhCT3voqtA9HtXmdDRfhlrUxk2OVo
-         fWtQx6TaXqse3VAukOQGimpT0/fnDBipJA8Dftjk=
+        b=D7/sRP+s950+4qtxnEXyHA6xUgLOCelPo8nZLdp2YGPCNn/9VTD8os4BhfKPGVIes
+         G6UA/HYvyzIBx2xiSOLQirepD/FDMjwVmlVH/ehRbBaW9wwhXcUEXhc93XkPMqY62E
+         eFD0bYzPw1yUg+X5MrjxEx7JXtMhQ4oN+xvfgdkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
-        Yu Liu <yudiliu@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/122] Bluetooth: Fix the HCI to MGMT status conversion table
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 5.10 140/215] mm,hwpoison: return -EBUSY when migration fails
 Date:   Thu, 15 Jul 2021 20:38:32 +0200
-Message-Id: <20210715182506.757540596@linuxfoundation.org>
+Message-Id: <20210715182624.294004469@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liu <yudiliu@google.com>
+From: Oscar Salvador <osalvador@suse.de>
 
-[ Upstream commit 4ef36a52b0e47c80bbfd69c0cce61c7ae9f541ed ]
+commit 3f4b815a439adfb8f238335612c4b28bc10084d8
 
-0x2B, 0x31 and 0x33 are reserved for future use but were not present in
-the HCI to MGMT conversion table, this caused the conversion to be
-incorrect for the HCI status code greater than 0x2A.
+Currently, we return -EIO when we fail to migrate the page.
 
-Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
-Signed-off-by: Yu Liu <yudiliu@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Migrations' failures are rather transient as they can happen due to
+several reasons, e.g: high page refcount bump, mapping->migrate_page
+failing etc.  All meaning that at that time the page could not be
+migrated, but that has nothing to do with an EIO error.
+
+Let us return -EBUSY instead, as we do in case we failed to isolate the
+page.
+
+While are it, let us remove the "ret" print as its value does not change.
+
+Link: https://lkml.kernel.org/r/20201209092818.30417-1-osalvador@suse.de
+Signed-off-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Hildenbrand <david@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/mgmt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ mm/memory-failure.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index db525321da1f..0ae5d3cab4dc 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -219,12 +219,15 @@ static u8 mgmt_status_table[] = {
- 	MGMT_STATUS_TIMEOUT,		/* Instant Passed */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Pairing Not Supported */
- 	MGMT_STATUS_FAILED,		/* Transaction Collision */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Unacceptable Parameter */
- 	MGMT_STATUS_REJECTED,		/* QoS Rejected */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Classification Not Supported */
- 	MGMT_STATUS_REJECTED,		/* Insufficient Security */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Parameter Out Of Range */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_BUSY,		/* Role Switch Pending */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_FAILED,		/* Slot Violation */
- 	MGMT_STATUS_FAILED,		/* Role Switch Failed */
- 	MGMT_STATUS_INVALID_PARAMS,	/* EIR Too Large */
--- 
-2.30.2
-
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1856,11 +1856,11 @@ static int __soft_offline_page(struct pa
+ 			pr_info("soft offline: %#lx: %s migration failed %d, type %lx (%pGp)\n",
+ 				pfn, msg_page[huge], ret, page->flags, &page->flags);
+ 			if (ret > 0)
+-				ret = -EIO;
++				ret = -EBUSY;
+ 		}
+ 	} else {
+-		pr_info("soft offline: %#lx: %s isolation failed: %d, page count %d, type %lx (%pGp)\n",
+-			pfn, msg_page[huge], ret, page_count(page), page->flags, &page->flags);
++		pr_info("soft offline: %#lx: %s isolation failed, page count %d, type %lx (%pGp)\n",
++			pfn, msg_page[huge], page_count(page), page->flags, &page->flags);
+ 		ret = -EBUSY;
+ 	}
+ 	return ret;
 
 
