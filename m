@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB6F73CA6F0
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FE043CA85D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239293AbhGOSva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53048 "EHLO mail.kernel.org"
+        id S243209AbhGOTAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239252AbhGOSuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71985613F3;
-        Thu, 15 Jul 2021 18:47:45 +0000 (UTC)
+        id S241406AbhGOS6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C568360D07;
+        Thu, 15 Jul 2021 18:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374865;
-        bh=jH8NKxFTKwNu/qUdPjPesAKZszR0sQ/EmNDNJP5FCcs=;
+        s=korg; t=1626375315;
+        bh=9PUz2JEzNqP8FPrrAIuHzZWbBfeElfuJOzxMMKfDIaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BqOcpFQ0H3xPGeVK8S+wFY9+jMNW38C8e2aX0/p64FZ8fINmGKUZbB2yCe2Y9ZzZZ
-         VAmEVM7UgHyeOY9rMd147rqWnNapdqslg7hhzjWqGrC691QAktiiYgKBeaUnIf2zWC
-         HOvA2RfEzzzJrjwez9rvwVbIzLYeKPWYiQqvhZE4=
+        b=YsogW0LCtokkkamP+w3ugWbgLtGUHbzh9Ni33M1JX6PixCH+VwSs9w+H3uHorPcow
+         +rJvwofp8QIoBWFgdq5kTjBGO9AlHC1xc8ikuzIZvPasDg1J21p667WIisT71wl33i
+         MCH5oAQpNXl7tVz+HFoLYUJAiyzuFi9H/4edrbVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/215] drm/scheduler: Fix hang when sched_entity released
-Date:   Thu, 15 Jul 2021 20:36:36 +0200
-Message-Id: <20210715182603.127125120@linuxfoundation.org>
+Subject: [PATCH 5.12 035/242] clk: renesas: r8a77995: Add ZA2 clock
+Date:   Thu, 15 Jul 2021 20:36:37 +0200
+Message-Id: <20210715182558.164077378@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,90 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
 
-[ Upstream commit c61cdbdbffc169dc7f1e6fe94dfffaf574fe672a ]
+[ Upstream commit 790c06cc5df263cdaff748670cc65958c81b0951 ]
 
-Problem: If scheduler is already stopped by the time sched_entity
-is released and entity's job_queue not empty I encountred
-a hang in drm_sched_entity_flush. This is because drm_sched_entity_is_idle
-never becomes false.
+R-Car D3 ZA2 clock is from PLL0D3 or S0,
+and it can be controlled by ZA2CKCR.
+It is needed for R-Car Sound, but is not used so far.
+Using default settings is very enough at this point.
+This patch adds it by DEF_FIXED().
 
-Fix: In drm_sched_fini detach all sched_entities from the
-scheduler's run queues. This will satisfy drm_sched_entity_is_idle.
-Also wakeup all those processes stuck in sched_entity flushing
-as the scheduler main thread which wakes them up is stopped by now.
-
-v2:
-Reverse order of drm_sched_rq_remove_entity and marking
-s_entity as stopped to prevent reinserion back to rq due
-to race.
-
-v3:
-Drop drm_sched_rq_remove_entity, only modify entity->stopped
-and check for it in drm_sched_entity_is_idle
-
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210512142648.666476-14-andrey.grodzovsky@amd.com
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/87pmxclrmy.wl-kuninori.morimoto.gx@renesas.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/scheduler/sched_entity.c |  3 ++-
- drivers/gpu/drm/scheduler/sched_main.c   | 24 ++++++++++++++++++++++++
- 2 files changed, 26 insertions(+), 1 deletion(-)
+ drivers/clk/renesas/r8a77995-cpg-mssr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/scheduler/sched_entity.c b/drivers/gpu/drm/scheduler/sched_entity.c
-index 146380118962..2006cc057f99 100644
---- a/drivers/gpu/drm/scheduler/sched_entity.c
-+++ b/drivers/gpu/drm/scheduler/sched_entity.c
-@@ -113,7 +113,8 @@ static bool drm_sched_entity_is_idle(struct drm_sched_entity *entity)
- 	rmb(); /* for list_empty to work without lock */
+diff --git a/drivers/clk/renesas/r8a77995-cpg-mssr.c b/drivers/clk/renesas/r8a77995-cpg-mssr.c
+index 9cfd00cf4e69..81c0bc1e78af 100644
+--- a/drivers/clk/renesas/r8a77995-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77995-cpg-mssr.c
+@@ -75,6 +75,7 @@ static const struct cpg_core_clk r8a77995_core_clks[] __initconst = {
+ 	DEF_RATE(".oco",       CLK_OCO,            8 * 1000 * 1000),
  
- 	if (list_empty(&entity->list) ||
--	    spsc_queue_count(&entity->job_queue) == 0)
-+	    spsc_queue_count(&entity->job_queue) == 0 ||
-+	    entity->stopped)
- 		return true;
- 
- 	return false;
-diff --git a/drivers/gpu/drm/scheduler/sched_main.c b/drivers/gpu/drm/scheduler/sched_main.c
-index 7111e0f527b0..b6c2757c3d83 100644
---- a/drivers/gpu/drm/scheduler/sched_main.c
-+++ b/drivers/gpu/drm/scheduler/sched_main.c
-@@ -887,9 +887,33 @@ EXPORT_SYMBOL(drm_sched_init);
-  */
- void drm_sched_fini(struct drm_gpu_scheduler *sched)
- {
-+	struct drm_sched_entity *s_entity;
-+	int i;
-+
- 	if (sched->thread)
- 		kthread_stop(sched->thread);
- 
-+	for (i = DRM_SCHED_PRIORITY_COUNT - 1; i >= DRM_SCHED_PRIORITY_MIN; i--) {
-+		struct drm_sched_rq *rq = &sched->sched_rq[i];
-+
-+		if (!rq)
-+			continue;
-+
-+		spin_lock(&rq->lock);
-+		list_for_each_entry(s_entity, &rq->entities, list)
-+			/*
-+			 * Prevents reinsertion and marks job_queue as idle,
-+			 * it will removed from rq in drm_sched_entity_fini
-+			 * eventually
-+			 */
-+			s_entity->stopped = true;
-+		spin_unlock(&rq->lock);
-+
-+	}
-+
-+	/* Wakeup everyone stuck in drm_sched_entity_flush for this scheduler */
-+	wake_up_all(&sched->job_scheduled);
-+
- 	/* Confirm no work left behind accessing device structures */
- 	cancel_delayed_work_sync(&sched->work_tdr);
- 
+ 	/* Core Clock Outputs */
++	DEF_FIXED("za2",       R8A77995_CLK_ZA2,   CLK_PLL0D3,     2, 1),
+ 	DEF_FIXED("z2",        R8A77995_CLK_Z2,    CLK_PLL0D3,     1, 1),
+ 	DEF_FIXED("ztr",       R8A77995_CLK_ZTR,   CLK_PLL1,       6, 1),
+ 	DEF_FIXED("zt",        R8A77995_CLK_ZT,    CLK_PLL1,       4, 1),
 -- 
 2.30.2
 
