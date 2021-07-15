@@ -2,49 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF103C9D92
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 13:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D78153C9DA9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 13:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241810AbhGOLQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 07:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33542 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241139AbhGOLQR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 07:16:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E952613BC;
-        Thu, 15 Jul 2021 11:13:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626347603;
-        bh=zagrihgDRoo1hqbAygIIr5cILA2U3B6BwooCsj6HERQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=f1KCnQ0FGxjfmySEoIc/SBe0KCrQsG4vvw/62X4RJ2ml+AGV+gee9obCRTGmNcM4k
-         WrUZJ7pQ3Ouz6UcbVW2md/ZsNuN9/r8yCraL8b52RI0mH+MM06RS+cIBcXSPLMs10E
-         BqPyGsugq4pf7YSa1tByBEVO0T38sI+OhToFTxQM=
-Date:   Thu, 15 Jul 2021 13:12:08 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hanjun Guo <guohanjun@huawei.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [Backport for 5.10.y PATCH 0/7] Patches for 5.10.y
-Message-ID: <YPAYCN+cQfgsGbYw@kroah.com>
-References: <1626167917-11972-1-git-send-email-guohanjun@huawei.com>
+        id S232677AbhGOLY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 07:24:56 -0400
+Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:34060 "EHLO
+        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232645AbhGOLY4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 07:24:56 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=3;SR=0;TI=SMTPD_---0Uft0aTH_1626348120;
+Received: from B-P7TQMD6M-0146.local(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0Uft0aTH_1626348120)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 15 Jul 2021 19:22:02 +0800
+Date:   Thu, 15 Jul 2021 19:22:00 +0800
+From:   Gao Xiang <hsiangkao@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH 5.4.y stable only] MIPS: fix "mipsel-linux-ld:
+ decompress.c:undefined reference to `memmove'"
+Message-ID: <YPAaWOM1z75o21V1@B-P7TQMD6M-0146.local>
+References: <YOglcE85xuwfD7It@kroah.com>
+ <20210709132408.174206-1-hsiangkao@linux.alibaba.com>
+ <YPATcUXGydBlQ+BK@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1626167917-11972-1-git-send-email-guohanjun@huawei.com>
+In-Reply-To: <YPATcUXGydBlQ+BK@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jul 13, 2021 at 05:18:30PM +0800, Hanjun Guo wrote:
-> Hi Greg, Sasha,
-> 
-> Patches below are some collections of bugfixes, those fixes are
-> found when we are using the stable 5.10 kernel, please consider
-> to apply them, I also Cced the author and maintainer for each
-> patch to see if any objections.
-> 
+Hi Greg,
 
-All look good, thanks for these, now queued up.
+On Thu, Jul 15, 2021 at 12:52:33PM +0200, Greg Kroah-Hartman wrote:
+> On Fri, Jul 09, 2021 at 09:24:08PM +0800, Gao Xiang wrote:
+> > commit a510b616131f85215ba156ed67e5ed1c0701f80f upstream.
+> 
+> That is not what this commit id is :(
+> 
+> Please fix this up and be more careful.
 
-greg k-h
+That's the exact commit, the original upstream commit was named as
+"MIPS: Add support for ZSTD-compressed kernels", which contains the
+memmove() definition so the upstream / 5.10 LTS kernel is fine.
+
+But for 5.4 LTS, we shouldn't backport the whole patch since only
+memmove() part is needed in order to fix the build regression...
+
+Thanks,
+Gao Xiang
+
+> 
+> thanks,
+> 
+> greg k-h
