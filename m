@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEE7C3CAB29
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D64333CA978
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244373AbhGOTR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50894 "EHLO mail.kernel.org"
+        id S242386AbhGOTGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:06:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243838AbhGOTP6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16DE061370;
-        Thu, 15 Jul 2021 19:12:11 +0000 (UTC)
+        id S242231AbhGOTFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:05:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42921613D1;
+        Thu, 15 Jul 2021 19:02:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376332;
-        bh=oeHtHu3SOTnq8xDXXFlMf7eT9quDwllg4ho5H1FEKSM=;
+        s=korg; t=1626375745;
+        bh=VCbkn5xnj6I8I39UGSdZSENyID19O7Gl0jTqClZXik8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olqwvRaregawMTHlxlcWVNpwm7n+mFE4P4caGJG8V2p6usMEJOWag79+SVkECh+00
-         wO2UwYQIjkHg7oDLPn1r24Izf6SSY2Po2cGfsDvuMC+alzinRZHXURtF37LUkM4kSH
-         ASV6qxw1kD0YzF9GsxCiCLPrSmwWTcIsYZMBGql4=
+        b=LDSFJJon4MgI6QLCNNmhatcqnu4ScfGXPf7zRFu9hjAf4j9YxjRKBFnqHiJ8zwfp0
+         NW5dRfyy7GatFbPoNMvP2gXdIWLFSaTtXHp7oFZDzqthNhaCnQeD/Da+WHU1Um5NIB
+         IMKpiHycamcnmKLecqVQAeGQvp6dUih14uLz08+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.13 226/266] mfd: syscon: Free the allocated name field of struct regmap_config
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.12 219/242] PCI: aardvark: Fix checking for PIO Non-posted Request
 Date:   Thu, 15 Jul 2021 20:39:41 +0200
-Message-Id: <20210715182648.972371678@linuxfoundation.org>
+Message-Id: <20210715182631.614351427@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Limeng <Meng.Li@windriver.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 56a1188159cb2b87fbcb5a7a7afb38a4dd9db0c1 upstream.
+commit 8ceeac307a79f68c0d0c72d6e48b82fa424204ec upstream.
 
-The commit 529a1101212a("mfd: syscon: Don't free allocated name
-for regmap_config") doesn't free the allocated name field of struct
-regmap_config, but introduce a memory leak. There is another
-commit 94cc89eb8fa5("regmap: debugfs: Fix handling of name string
-for debugfs init delays") fixing this debugfs init issue from root
-cause. With this fixing, the name field in struct regmap_debugfs_node
-is removed. When initialize debugfs for syscon driver, the name
-field of struct regmap_config is not used anymore. So, the allocated
-name field of struct regmap_config is need to be freed directly after
-regmap initialization to avoid memory leak.
+PIO_NON_POSTED_REQ for PIO_STAT register is incorrectly defined. Bit 10 in
+register PIO_STAT indicates the response is to a non-posted request.
 
+Link: https://lore.kernel.org/r/20210624213345.3617-2-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 529a1101212a("mfd: syscon: Don't free allocated name for regmap_config")
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/syscon.c |    2 +-
+ drivers/pci/controller/pci-aardvark.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mfd/syscon.c
-+++ b/drivers/mfd/syscon.c
-@@ -108,6 +108,7 @@ static struct syscon *of_syscon_register
- 	syscon_config.max_register = resource_size(&res) - reg_io_width;
- 
- 	regmap = regmap_init_mmio(NULL, base, &syscon_config);
-+	kfree(syscon_config.name);
- 	if (IS_ERR(regmap)) {
- 		pr_err("regmap init failed\n");
- 		ret = PTR_ERR(regmap);
-@@ -144,7 +145,6 @@ err_clk:
- 	regmap_exit(regmap);
- err_regmap:
- 	iounmap(base);
--	kfree(syscon_config.name);
- err_map:
- 	kfree(syscon);
- 	return ERR_PTR(ret);
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -57,7 +57,7 @@
+ #define   PIO_COMPLETION_STATUS_UR		1
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+-#define   PIO_NON_POSTED_REQ			BIT(0)
++#define   PIO_NON_POSTED_REQ			BIT(10)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
 
 
