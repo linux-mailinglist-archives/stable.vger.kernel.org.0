@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17BE33C9EA9
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AEB03C9EAB
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:32:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229679AbhGOMec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:34:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36634 "EHLO mail.kernel.org"
+        id S230123AbhGOMfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229595AbhGOMec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:34:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DBF56136E;
-        Thu, 15 Jul 2021 12:31:37 +0000 (UTC)
+        id S229595AbhGOMfL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:35:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 643856136E;
+        Thu, 15 Jul 2021 12:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626352298;
+        s=korg; t=1626352338;
         bh=7yFu7cJnENS+busAXR9D32G1Rfb1VXnBmFLqpXsCYoY=;
         h=Subject:To:Cc:From:Date:From;
-        b=g00PGcyw7+PHo+NM/yFAFK2yN2AgregPGSrOT2qW33re7BFFKNa6U+Xj6rFlmUdZA
-         fO8U2LahrFfInTPLoei5n1Fb1FmxCIGigJNYP8UygqC6XlFBd/mrPijJ0jZpObJvoy
-         3r0dOUxKoXwF/Y4jsPBROrstpjoXTOxncbBfqoTw=
+        b=PNgcvcH/b/YBSb310/ZTs9gQHMKypUOV+ojyG4ROQ/aySEPvjZHyIxtdkBXuTrqwf
+         /zw1ZN89sZssROoPtyTGXRiz0UHMM6d0uStcJD+hNa3rCh2QdxP48nlKDcCgidRWyl
+         Mp+3AgwT2PoSrMfZk/exwGc4xqbTVsnHpQR3n2tw=
 Subject: FAILED: patch "[PATCH] drm/ingenic: Switch IPU plane to type OVERLAY" failed to apply to 5.10-stable tree
 To:     paul@crapouillou.net, contact@emersion.fr, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:28:54 +0200
-Message-ID: <162635213442176@kroah.com>
+Date:   Thu, 15 Jul 2021 14:29:08 +0200
+Message-ID: <1626352148199179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
