@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41D993CA9FA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A8A3CA9BC
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243213AbhGOTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
+        id S242479AbhGOTIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:08:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242367AbhGOTIt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:08:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1187F613E6;
-        Thu, 15 Jul 2021 19:04:36 +0000 (UTC)
+        id S242381AbhGOTHw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:07:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CBD161404;
+        Thu, 15 Jul 2021 19:03:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375876;
-        bh=y5INbB7BhKNTobXp8zKDbun0s0xvNKCmJ4x0sSzC/yY=;
+        s=korg; t=1626375825;
+        bh=4Mt4v9bMCOudDyhdtrCCX0r/sixBGxI4RN+fVqB2L84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ96qlqLznWqYhbPrfqnU+jf91kRc+zXqcq2UwdYDpA3GwQypEVPfVZ2Cs8MlU4sc
-         ILNmFJXNXAX5we4TKB4Ex7qF2JXsNvygKcWw01VcR42vW8P0xrvV8BcSD2vb7FeAj/
-         4FUvQ1PunOT8yWD5uNFDf6Z66vAYUfKL/uWwSg+w=
+        b=A5BQehIYIJ7UEgqjGl02jnNW5hqWOxHfsMl1SL/BEVAfNWfvH06odQahcJMzCvDuH
+         GI2KmocYcg8+R73L/ji4TpqWh9AF5XoKp3of3cNFc0/Jc2IR4V+mz+iKUr1S3lFrsp
+         D/QpdBWRufc6jM6u7xHEe+Qmd4jroo+GQaUsb9fY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@siol.net>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Robert Chiras <robert.chiras@nxp.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 009/266] drm/bridge: nwl-dsi: Force a full modeset when crtc_state->active is changed to be true
-Date:   Thu, 15 Jul 2021 20:36:04 +0200
-Message-Id: <20210715182615.524107494@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 010/266] drm/imx: Add 8 pixel alignment fix
+Date:   Thu, 15 Jul 2021 20:36:05 +0200
+Message-Id: <20210715182615.701212657@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -49,153 +42,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit 3afb2a28fa2404d11cce1956a003f2aaca4da421 ]
+[ Upstream commit 94dfec48fca756cef90263a03e81f24dae24a5c6 ]
 
-This patch replaces ->mode_fixup() with ->atomic_check() so that
-a full modeset can be requested from there when crtc_state->active
-is changed to be true(which implies only connector's DPMS is brought
-out of "Off" status, though not necessarily).  Bridge functions are
-added or changed to accommodate the ->atomic_check() callback.  That
-full modeset is needed by the up-coming patch which gets MIPI DSI
-controller and PHY ready in ->mode_set(), because it makes sure
-->mode_set() and ->atomic_disable() are called in pairs.
+Some standard resolutions like 1366x768 do not work properly with
+i.MX6 SoCs, since the horizontal resolution needs to be aligned
+to 8 pixels (so 1360x768 or 1368x768 would work).
 
-Cc: Andrzej Hajda <a.hajda@samsung.com>
-Cc: Neil Armstrong <narmstrong@baylibre.com>
-Cc: Robert Foss <robert.foss@linaro.org>
-Cc: Laurent Pinchart <Laurent.pinchart@ideasonboard.com>
-Cc: Jonas Karlman <jonas@kwiboo.se>
-Cc: Jernej Skrabec <jernej.skrabec@siol.net>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: Guido Günther <agx@sigxcpu.org>
-Cc: Robert Chiras <robert.chiras@nxp.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1619170003-4817-2-git-send-email-victor.liu@nxp.com
+This patch allocates framebuffers allocated to 8 pixels. The extra
+time required to send the extra pixels are removed from the blank
+time. In order to expose the correct display size to userspace,
+the stride is increased without increasing the width.
+
+Without this patch systems with this display resolution hang
+indefinitely during boot up.
+
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Link: https://lore.kernel.org/r/20210428222953.235280-3-sebastian.reichel@collabora.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/nwl-dsi.c | 61 ++++++++++++++++++++------------
- 1 file changed, 39 insertions(+), 22 deletions(-)
+ drivers/gpu/drm/imx/imx-drm-core.c | 19 ++++++++++++++++++-
+ drivers/gpu/drm/imx/imx-ldb.c      |  5 +++++
+ drivers/gpu/drm/imx/ipuv3-crtc.c   | 11 ++++++++++-
+ drivers/gpu/drm/imx/ipuv3-plane.c  | 19 +++++++++++++++----
+ drivers/gpu/ipu-v3/ipu-dc.c        |  5 +++++
+ drivers/gpu/ipu-v3/ipu-di.c        |  7 +++++++
+ 6 files changed, 60 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/nwl-dsi.c b/drivers/gpu/drm/bridge/nwl-dsi.c
-index 66b67402f1ac..c65ca860712d 100644
---- a/drivers/gpu/drm/bridge/nwl-dsi.c
-+++ b/drivers/gpu/drm/bridge/nwl-dsi.c
-@@ -21,6 +21,7 @@
- #include <linux/sys_soc.h>
- #include <linux/time64.h>
- 
-+#include <drm/drm_atomic_state_helper.h>
- #include <drm/drm_bridge.h>
- #include <drm/drm_mipi_dsi.h>
- #include <drm/drm_of.h>
-@@ -742,7 +743,9 @@ static int nwl_dsi_disable(struct nwl_dsi *dsi)
- 	return 0;
- }
- 
--static void nwl_dsi_bridge_disable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_disable(struct drm_bridge *bridge,
-+			      struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -803,17 +806,6 @@ static int nwl_dsi_get_dphy_params(struct nwl_dsi *dsi,
- 	return 0;
- }
- 
--static bool nwl_dsi_bridge_mode_fixup(struct drm_bridge *bridge,
--				      const struct drm_display_mode *mode,
--				      struct drm_display_mode *adjusted_mode)
--{
--	/* At least LCDIF + NWL needs active high sync */
--	adjusted_mode->flags |= (DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC);
--	adjusted_mode->flags &= ~(DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC);
--
--	return true;
--}
--
- static enum drm_mode_status
- nwl_dsi_bridge_mode_valid(struct drm_bridge *bridge,
- 			  const struct drm_display_info *info,
-@@ -831,6 +823,24 @@ nwl_dsi_bridge_mode_valid(struct drm_bridge *bridge,
- 	return MODE_OK;
- }
- 
-+static int nwl_dsi_bridge_atomic_check(struct drm_bridge *bridge,
-+				       struct drm_bridge_state *bridge_state,
-+				       struct drm_crtc_state *crtc_state,
-+				       struct drm_connector_state *conn_state)
-+{
-+	struct drm_display_mode *adjusted_mode = &crtc_state->adjusted_mode;
-+
-+	/* At least LCDIF + NWL needs active high sync */
-+	adjusted_mode->flags |= (DRM_MODE_FLAG_PHSYNC | DRM_MODE_FLAG_PVSYNC);
-+	adjusted_mode->flags &= ~(DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC);
-+
-+	/* Do a full modeset if crtc_state->active is changed to be true. */
-+	if (crtc_state->active_changed && crtc_state->active)
-+		crtc_state->mode_changed = true;
-+
-+	return 0;
-+}
-+
- static void
- nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 			const struct drm_display_mode *mode,
-@@ -862,7 +872,9 @@ nwl_dsi_bridge_mode_set(struct drm_bridge *bridge,
- 	drm_mode_debug_printmodeline(adjusted_mode);
- }
- 
--static void nwl_dsi_bridge_pre_enable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_pre_enable(struct drm_bridge *bridge,
-+				 struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -897,7 +909,9 @@ static void nwl_dsi_bridge_pre_enable(struct drm_bridge *bridge)
- 	}
- }
- 
--static void nwl_dsi_bridge_enable(struct drm_bridge *bridge)
-+static void
-+nwl_dsi_bridge_atomic_enable(struct drm_bridge *bridge,
-+			     struct drm_bridge_state *old_bridge_state)
- {
- 	struct nwl_dsi *dsi = bridge_to_dsi(bridge);
- 	int ret;
-@@ -942,14 +956,17 @@ static void nwl_dsi_bridge_detach(struct drm_bridge *bridge)
- }
- 
- static const struct drm_bridge_funcs nwl_dsi_bridge_funcs = {
--	.pre_enable = nwl_dsi_bridge_pre_enable,
--	.enable     = nwl_dsi_bridge_enable,
--	.disable    = nwl_dsi_bridge_disable,
--	.mode_fixup = nwl_dsi_bridge_mode_fixup,
--	.mode_set   = nwl_dsi_bridge_mode_set,
--	.mode_valid = nwl_dsi_bridge_mode_valid,
--	.attach	    = nwl_dsi_bridge_attach,
--	.detach	    = nwl_dsi_bridge_detach,
-+	.atomic_duplicate_state	= drm_atomic_helper_bridge_duplicate_state,
-+	.atomic_destroy_state	= drm_atomic_helper_bridge_destroy_state,
-+	.atomic_reset		= drm_atomic_helper_bridge_reset,
-+	.atomic_check		= nwl_dsi_bridge_atomic_check,
-+	.atomic_pre_enable	= nwl_dsi_bridge_atomic_pre_enable,
-+	.atomic_enable		= nwl_dsi_bridge_atomic_enable,
-+	.atomic_disable		= nwl_dsi_bridge_atomic_disable,
-+	.mode_set		= nwl_dsi_bridge_mode_set,
-+	.mode_valid		= nwl_dsi_bridge_mode_valid,
-+	.attach			= nwl_dsi_bridge_attach,
-+	.detach			= nwl_dsi_bridge_detach,
+diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
+index e6a88c8cbd69..8457b9788cda 100644
+--- a/drivers/gpu/drm/imx/imx-drm-core.c
++++ b/drivers/gpu/drm/imx/imx-drm-core.c
+@@ -145,9 +145,26 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
+ 	/* none so far */
  };
  
- static int nwl_dsi_parse_dt(struct nwl_dsi *dsi)
++static int imx_drm_dumb_create(struct drm_file *file_priv,
++			       struct drm_device *drm,
++			       struct drm_mode_create_dumb *args)
++{
++	u32 width = args->width;
++	int ret;
++
++	args->width = ALIGN(width, 8);
++
++	ret = drm_gem_cma_dumb_create(file_priv, drm, args);
++	if (ret)
++		return ret;
++
++	args->width = width;
++	return ret;
++}
++
+ static const struct drm_driver imx_drm_driver = {
+ 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+-	DRM_GEM_CMA_DRIVER_OPS,
++	DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE(imx_drm_dumb_create),
+ 	.ioctls			= imx_drm_ioctls,
+ 	.num_ioctls		= ARRAY_SIZE(imx_drm_ioctls),
+ 	.fops			= &imx_drm_driver_fops,
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index ffdc492c5bc5..53132ddf9587 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -274,6 +274,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
+ 			 "%s: mode exceeds 85 MHz pixel clock\n", __func__);
+ 	}
+ 
++	if (!IS_ALIGNED(mode->hdisplay, 8)) {
++		dev_warn(ldb->dev,
++			 "%s: hdisplay does not align to 8 byte\n", __func__);
++	}
++
+ 	if (dual) {
+ 		serial_clk = 3500UL * mode->clock;
+ 		imx_ldb_set_clock(ldb, mux, 0, serial_clk, di_clk);
+diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
+index e6431a227feb..9c8829f945b2 100644
+--- a/drivers/gpu/drm/imx/ipuv3-crtc.c
++++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
+@@ -305,10 +305,19 @@ static void ipu_crtc_mode_set_nofb(struct drm_crtc *crtc)
+ 	sig_cfg.vsync_pin = imx_crtc_state->di_vsync_pin;
+ 
+ 	drm_display_mode_to_videomode(mode, &sig_cfg.mode);
++	if (!IS_ALIGNED(sig_cfg.mode.hactive, 8)) {
++		unsigned int new_hactive = ALIGN(sig_cfg.mode.hactive, 8);
++
++		dev_warn(ipu_crtc->dev, "8-pixel align hactive %d -> %d\n",
++			 sig_cfg.mode.hactive, new_hactive);
++
++		sig_cfg.mode.hfront_porch = new_hactive - sig_cfg.mode.hactive;
++		sig_cfg.mode.hactive = new_hactive;
++	}
+ 
+ 	ipu_dc_init_sync(ipu_crtc->dc, ipu_crtc->di,
+ 			 mode->flags & DRM_MODE_FLAG_INTERLACE,
+-			 imx_crtc_state->bus_format, mode->hdisplay);
++			 imx_crtc_state->bus_format, sig_cfg.mode.hactive);
+ 	ipu_di_init_sync_panel(ipu_crtc->di, &sig_cfg);
+ }
+ 
+diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
+index 233310712deb..886de0f80b4e 100644
+--- a/drivers/gpu/drm/imx/ipuv3-plane.c
++++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+@@ -30,6 +30,11 @@ to_ipu_plane_state(struct drm_plane_state *p)
+ 	return container_of(p, struct ipu_plane_state, base);
+ }
+ 
++static unsigned int ipu_src_rect_width(const struct drm_plane_state *state)
++{
++	return ALIGN(drm_rect_width(&state->src) >> 16, 8);
++}
++
+ static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
+ {
+ 	return container_of(p, struct ipu_plane, base);
+@@ -441,6 +446,12 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
+ 	if (old_fb && fb->pitches[0] != old_fb->pitches[0])
+ 		crtc_state->mode_changed = true;
+ 
++	if (ALIGN(fb->width, 8) * fb->format->cpp[0] >
++	    fb->pitches[0] + fb->offsets[0]) {
++		dev_warn(dev, "pitch is not big enough for 8 pixels alignment");
++		return -EINVAL;
++	}
++
+ 	switch (fb->format->format) {
+ 	case DRM_FORMAT_YUV420:
+ 	case DRM_FORMAT_YVU420:
+@@ -616,7 +627,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 	if (ipu_state->use_pre) {
+ 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
+ 		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
+-					  drm_rect_width(&new_state->src) >> 16,
++					  ipu_src_rect_width(new_state),
+ 					  drm_rect_height(&new_state->src) >> 16,
+ 					  fb->pitches[0], fb->format->format,
+ 					  fb->modifier, &eba);
+@@ -649,9 +660,9 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 		break;
+ 	}
+ 
+-	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, drm_rect_width(dst));
++	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
+ 
+-	width = drm_rect_width(&new_state->src) >> 16;
++	width = ipu_src_rect_width(new_state);
+ 	height = drm_rect_height(&new_state->src) >> 16;
+ 	info = drm_format_info(fb->format->format);
+ 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
+@@ -716,7 +727,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
+ 
+ 		ipu_cpmem_zero(ipu_plane->alpha_ch);
+ 		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
+-					 drm_rect_width(&new_state->src) >> 16,
++					 ipu_src_rect_width(new_state),
+ 					 drm_rect_height(&new_state->src) >> 16);
+ 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
+ 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
+diff --git a/drivers/gpu/ipu-v3/ipu-dc.c b/drivers/gpu/ipu-v3/ipu-dc.c
+index 34b4075a6a8e..ca96b235491a 100644
+--- a/drivers/gpu/ipu-v3/ipu-dc.c
++++ b/drivers/gpu/ipu-v3/ipu-dc.c
+@@ -167,6 +167,11 @@ int ipu_dc_init_sync(struct ipu_dc *dc, struct ipu_di *di, bool interlaced,
+ 
+ 	dc->di = ipu_di_get_num(di);
+ 
++	if (!IS_ALIGNED(width, 8)) {
++		dev_warn(priv->dev,
++			 "%s: hactive does not align to 8 byte\n", __func__);
++	}
++
+ 	map = ipu_bus_format_to_map(bus_format);
+ 
+ 	/*
+diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
+index e617f60afeea..666223c6bec4 100644
+--- a/drivers/gpu/ipu-v3/ipu-di.c
++++ b/drivers/gpu/ipu-v3/ipu-di.c
+@@ -506,6 +506,13 @@ int ipu_di_adjust_videomode(struct ipu_di *di, struct videomode *mode)
+ {
+ 	u32 diff;
+ 
++	if (!IS_ALIGNED(mode->hactive, 8) &&
++	    mode->hfront_porch < ALIGN(mode->hactive, 8) - mode->hactive) {
++		dev_err(di->ipu->dev, "hactive %d is not aligned to 8 and front porch is too small to compensate\n",
++			mode->hactive);
++		return -EINVAL;
++	}
++
+ 	if (mode->vfront_porch >= 2)
+ 		return 0;
+ 
 -- 
 2.30.2
 
