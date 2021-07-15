@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE5B3CA991
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0FC3CAB3C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240198AbhGOTH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:07:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S244207AbhGOTST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242345AbhGOTGa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:06:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 831B0613F5;
-        Thu, 15 Jul 2021 19:02:41 +0000 (UTC)
+        id S244299AbhGOTQR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:16:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ECF2613D7;
+        Thu, 15 Jul 2021 19:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375762;
-        bh=kZo4fde+p3X2ftfMdEtwKCs+3ogPBCg1LLGIL/Cr07Y=;
+        s=korg; t=1626376346;
+        bh=SC0SrYxpAj381JD7DFm4xcmROiC9Ok/KwUycPC30xhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yx36Xp+DcalfixxvS6Qk+acfqbhyHUn0gkRW50MJ5Afkfn40NPdBIUWS4UK6PBLnT
-         v8T3wDSCbwWrFMDsiXILlqpMUMvQ3unhbBhmPiO80ynFOpPTEoq4zeiPjNtSnhkeqi
-         q+HYIkzI3VYgsxvcpTcqbVk16k3WgYjYk3Gx61sw=
+        b=sV75XKTi8r3If0rfC6cg36Ch/mluWKcXEk8DEzdcN5oW+8Mzycup5+4dEOJUC51ua
+         CUoEb1CNL2HZhhoZ6KEwsxPMiyeemPSIfS2HYsq016r8bra7RkW7JhQAOXAbfnbMon
+         wbde9nMXd41kf3sEEXgPO3aAVF4eTGTzqycfHs1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bernhard Wimmer <be.wimm@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 225/242] media: ccs: Fix the op_pll_multiplier address
+        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.13 232/266] seq_buf: Fix overflow in seq_buf_putmem_hex()
 Date:   Thu, 15 Jul 2021 20:39:47 +0200
-Message-Id: <20210715182632.551835739@linuxfoundation.org>
+Message-Id: <20210715182650.274192333@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernhard Wimmer <be.wimm@gmail.com>
+From: Yun Zhou <yun.zhou@windriver.com>
 
-commit 0e3e0c9369c822b7f1dd11504eeb98cfd4aabf24 upstream.
+commit d3b16034a24a112bb83aeb669ac5b9b01f744bb7 upstream.
 
-According to the CCS spec the op_pll_multiplier address is 0x030e,
-not 0x031e.
+There's two variables being increased in that loop (i and j), and i
+follows the raw data, and j follows what is being written into the buffer.
+We should compare 'i' to MAX_MEMHEX_BYTES or compare 'j' to HEX_CHARS.
+Otherwise, if 'j' goes bigger than HEX_CHARS, it will overflow the
+destination buffer.
 
-Signed-off-by: Bernhard Wimmer <be.wimm@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
+Link: https://lkml.kernel.org/r/20210626032156.47889-1-yun.zhou@windriver.com
+
 Cc: stable@vger.kernel.org
-Fixes: 6493c4b777c2 ("media: smiapp: Import CCS definitions")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 5e3ca0ec76fce ("ftrace: introduce the "hex" output method")
+Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/ccs/ccs-limits.c |    4 ++++
- drivers/media/i2c/ccs/ccs-limits.h |    4 ++++
- drivers/media/i2c/ccs/ccs-regs.h   |    6 +++++-
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ lib/seq_buf.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ccs/ccs-limits.c
-+++ b/drivers/media/i2c/ccs/ccs-limits.c
-@@ -1,5 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
+--- a/lib/seq_buf.c
++++ b/lib/seq_buf.c
+@@ -229,8 +229,10 @@ int seq_buf_putmem_hex(struct seq_buf *s
  
- #include "ccs-limits.h"
- #include "ccs-regs.h"
---- a/drivers/media/i2c/ccs/ccs-limits.h
-+++ b/drivers/media/i2c/ccs/ccs-limits.h
-@@ -1,5 +1,9 @@
- /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
+ 	WARN_ON(s->size == 0);
  
- #ifndef __CCS_LIMITS_H__
- #define __CCS_LIMITS_H__
---- a/drivers/media/i2c/ccs/ccs-regs.h
-+++ b/drivers/media/i2c/ccs/ccs-regs.h
-@@ -1,5 +1,9 @@
- /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
- 
- #ifndef __CCS_REGS_H__
- #define __CCS_REGS_H__
-@@ -202,7 +206,7 @@
- #define CCS_R_OP_PIX_CLK_DIV					(0x0308 | CCS_FL_16BIT)
- #define CCS_R_OP_SYS_CLK_DIV					(0x030a | CCS_FL_16BIT)
- #define CCS_R_OP_PRE_PLL_CLK_DIV				(0x030c | CCS_FL_16BIT)
--#define CCS_R_OP_PLL_MULTIPLIER					(0x031e | CCS_FL_16BIT)
-+#define CCS_R_OP_PLL_MULTIPLIER					(0x030e | CCS_FL_16BIT)
- #define CCS_R_PLL_MODE						0x0310
- #define CCS_PLL_MODE_SHIFT					0U
- #define CCS_PLL_MODE_MASK					0x1
++	BUILD_BUG_ON(MAX_MEMHEX_BYTES * 2 >= HEX_CHARS);
++
+ 	while (len) {
+-		start_len = min(len, HEX_CHARS - 1);
++		start_len = min(len, MAX_MEMHEX_BYTES);
+ #ifdef __BIG_ENDIAN
+ 		for (i = 0, j = 0; i < start_len; i++) {
+ #else
 
 
