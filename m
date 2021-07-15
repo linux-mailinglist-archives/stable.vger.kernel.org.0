@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0FCA3CA7B5
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A49003CA623
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241856AbhGOSz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
+        id S237890AbhGOSqV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240599AbhGOSyA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDCB9613D0;
-        Thu, 15 Jul 2021 18:51:06 +0000 (UTC)
+        id S237752AbhGOSqT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28565613D1;
+        Thu, 15 Jul 2021 18:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375067;
-        bh=PolS+7aZnFZs1pDZxZ9Fgg0SpLVGAqOvR8aCwenTItE=;
+        s=korg; t=1626374605;
+        bh=sDS4xYFrN19I2RaLQLZndO+ccpTbP57we6+77XKhu5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6JcmSufoRXvTOGmMSPsWrPuwa2VE+XtEACvx/JAs2BGOyj1RP8mfcZDMQ7f0bOeX
-         AaM5zsEijjJvUU0WsLooN8CW52mVCg4BklRtXWZLpCHiSbnLLbbdEss9BIteYVcN4C
-         pvXUVfrHQMo5dQSvhLnFJok31EmbtxyuKadSvMRk=
+        b=IMmmjsvN4rSOTLds8HX6gGH427jxr9qFqQ7ILE0+yt1zMpp33fnuNS8KzENEEWBB4
+         2uDPVqX61GkezOO02XcPt6wb/DzwRPf6BN5XKr+ycpM0h2ulGB6ZOjtB+8wHMWRoOB
+         XBNospwMQJBX6iqIxNnd8QWRAAQwMTCFvPjrRl+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Matthew Wilcox <willy@infradead.org>,
-        yangerkun <yangerkun@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Jens Axboe <axboe@kernel.dk>, Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH 5.10 143/215] io_uring: convert io_buffer_idr to XArray
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 068/122] sctp: validate from_addr_param return
 Date:   Thu, 15 Jul 2021 20:38:35 +0200
-Message-Id: <20210715182624.875109621@linuxfoundation.org>
+Message-Id: <20210715182507.479515675@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,133 +42,240 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit 9e15c3a0ced5a61f320b989072c24983cb1620c1 upstream.
+[ Upstream commit 0c5dc070ff3d6246d22ddd931f23a6266249e3db ]
 
-Like we did for the personality idr, convert the IO buffer idr to use
-XArray. This avoids a use-after-free on removal of entries, since idr
-doesn't like doing so from inside an iterator, and it nicely reduces
-the amount of code we need to support this feature.
+Ilja reported that, simply putting it, nothing was validating that
+from_addr_param functions were operating on initialized memory. That is,
+the parameter itself was being validated by sctp_walk_params, but it
+doesn't check for types and their specific sizes and it could be a 0-length
+one, causing from_addr_param to potentially work over the next parameter or
+even uninitialized memory.
 
-Fixes: 5a2e745d4d43 ("io_uring: buffer registration infrastructure")
-Cc: stable@vger.kernel.org
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: yangerkun <yangerkun@huawei.com>
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The fix here is to, in all calls to from_addr_param, check if enough space
+is there for the wanted IP address type.
+
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c |   43 +++++++++++++++----------------------------
- 1 file changed, 15 insertions(+), 28 deletions(-)
+ include/net/sctp/structs.h |  2 +-
+ net/sctp/bind_addr.c       | 19 +++++++++++--------
+ net/sctp/input.c           |  6 ++++--
+ net/sctp/ipv6.c            |  7 ++++++-
+ net/sctp/protocol.c        |  7 ++++++-
+ net/sctp/sm_make_chunk.c   | 29 ++++++++++++++++-------------
+ 6 files changed, 44 insertions(+), 26 deletions(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -344,7 +344,7 @@ struct io_ring_ctx {
- 	struct socket		*ring_sock;
- #endif
+diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
+index 3e8f87a3c52f..fd7c3f76040c 100644
+--- a/include/net/sctp/structs.h
++++ b/include/net/sctp/structs.h
+@@ -466,7 +466,7 @@ struct sctp_af {
+ 					 int saddr);
+ 	void		(*from_sk)	(union sctp_addr *,
+ 					 struct sock *sk);
+-	void		(*from_addr_param) (union sctp_addr *,
++	bool		(*from_addr_param) (union sctp_addr *,
+ 					    union sctp_addr_param *,
+ 					    __be16 port, int iif);
+ 	int		(*to_addr_param) (const union sctp_addr *,
+diff --git a/net/sctp/bind_addr.c b/net/sctp/bind_addr.c
+index 701c5a4e441d..a825e74d01fc 100644
+--- a/net/sctp/bind_addr.c
++++ b/net/sctp/bind_addr.c
+@@ -270,22 +270,19 @@ int sctp_raw_to_bind_addrs(struct sctp_bind_addr *bp, __u8 *raw_addr_list,
+ 		rawaddr = (union sctp_addr_param *)raw_addr_list;
  
--	struct idr		io_buffer_idr;
-+	struct xarray		io_buffers;
- 
- 	struct xarray		personalities;
- 	u32			pers_next;
-@@ -1212,7 +1212,7 @@ static struct io_ring_ctx *io_ring_ctx_a
- 	INIT_LIST_HEAD(&ctx->cq_overflow_list);
- 	init_completion(&ctx->ref_comp);
- 	init_completion(&ctx->sq_thread_comp);
--	idr_init(&ctx->io_buffer_idr);
-+	xa_init_flags(&ctx->io_buffers, XA_FLAGS_ALLOC1);
- 	xa_init_flags(&ctx->personalities, XA_FLAGS_ALLOC1);
- 	mutex_init(&ctx->uring_lock);
- 	init_waitqueue_head(&ctx->wait);
-@@ -2990,7 +2990,7 @@ static struct io_buffer *io_buffer_selec
- 
- 	lockdep_assert_held(&req->ctx->uring_lock);
- 
--	head = idr_find(&req->ctx->io_buffer_idr, bgid);
-+	head = xa_load(&req->ctx->io_buffers, bgid);
- 	if (head) {
- 		if (!list_empty(&head->list)) {
- 			kbuf = list_last_entry(&head->list, struct io_buffer,
-@@ -2998,7 +2998,7 @@ static struct io_buffer *io_buffer_selec
- 			list_del(&kbuf->list);
- 		} else {
- 			kbuf = head;
--			idr_remove(&req->ctx->io_buffer_idr, bgid);
-+			xa_erase(&req->ctx->io_buffers, bgid);
+ 		af = sctp_get_af_specific(param_type2af(param->type));
+-		if (unlikely(!af)) {
++		if (unlikely(!af) ||
++		    !af->from_addr_param(&addr, rawaddr, htons(port), 0)) {
+ 			retval = -EINVAL;
+-			sctp_bind_addr_clean(bp);
+-			break;
++			goto out_err;
  		}
- 		if (*len > kbuf->len)
- 			*len = kbuf->len;
-@@ -3960,7 +3960,7 @@ static int __io_remove_buffers(struct io
- 	}
- 	i++;
- 	kfree(buf);
--	idr_remove(&ctx->io_buffer_idr, bgid);
-+	xa_erase(&ctx->io_buffers, bgid);
  
- 	return i;
- }
-@@ -3978,7 +3978,7 @@ static int io_remove_buffers(struct io_k
- 	lockdep_assert_held(&ctx->uring_lock);
- 
- 	ret = -ENOENT;
--	head = idr_find(&ctx->io_buffer_idr, p->bgid);
-+	head = xa_load(&ctx->io_buffers, p->bgid);
- 	if (head)
- 		ret = __io_remove_buffers(ctx, head, p->bgid, p->nbufs);
- 	if (ret < 0)
-@@ -4069,21 +4069,14 @@ static int io_provide_buffers(struct io_
- 
- 	lockdep_assert_held(&ctx->uring_lock);
- 
--	list = head = idr_find(&ctx->io_buffer_idr, p->bgid);
-+	list = head = xa_load(&ctx->io_buffers, p->bgid);
- 
- 	ret = io_add_buffers(p, &head);
--	if (ret < 0)
--		goto out;
--
--	if (!list) {
--		ret = idr_alloc(&ctx->io_buffer_idr, head, p->bgid, p->bgid + 1,
--					GFP_KERNEL);
--		if (ret < 0) {
-+	if (ret >= 0 && !list) {
-+		ret = xa_insert(&ctx->io_buffers, p->bgid, head, GFP_KERNEL);
-+		if (ret < 0)
- 			__io_remove_buffers(ctx, head, p->bgid, -1U);
--			goto out;
+-		af->from_addr_param(&addr, rawaddr, htons(port), 0);
+ 		if (sctp_bind_addr_state(bp, &addr) != -1)
+ 			goto next;
+ 		retval = sctp_add_bind_addr(bp, &addr, sizeof(addr),
+ 					    SCTP_ADDR_SRC, gfp);
+-		if (retval) {
++		if (retval)
+ 			/* Can't finish building the list, clean up. */
+-			sctp_bind_addr_clean(bp);
+-			break;
 -		}
++			goto out_err;
+ 
+ next:
+ 		len = ntohs(param->length);
+@@ -294,6 +291,12 @@ next:
  	}
--out:
- 	if (ret < 0)
- 		req_set_fail_links(req);
  
-@@ -8411,19 +8404,13 @@ static int io_eventfd_unregister(struct
- 	return -ENXIO;
- }
- 
--static int __io_destroy_buffers(int id, void *p, void *data)
--{
--	struct io_ring_ctx *ctx = data;
--	struct io_buffer *buf = p;
--
--	__io_remove_buffers(ctx, buf, id, -1U);
--	return 0;
--}
--
- static void io_destroy_buffers(struct io_ring_ctx *ctx)
- {
--	idr_for_each(&ctx->io_buffer_idr, __io_destroy_buffers, ctx);
--	idr_destroy(&ctx->io_buffer_idr);
-+	struct io_buffer *buf;
-+	unsigned long index;
+ 	return retval;
 +
-+	xa_for_each(&ctx->io_buffers, index, buf)
-+		__io_remove_buffers(ctx, buf, index, -1U);
++out_err:
++	if (retval)
++		sctp_bind_addr_clean(bp);
++
++	return retval;
  }
  
- static void io_ring_ctx_free(struct io_ring_ctx *ctx)
+ /********************************************************************
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 7807754f69c5..a84523284777 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -1131,7 +1131,8 @@ static struct sctp_association *__sctp_rcv_init_lookup(struct net *net,
+ 		if (!af)
+ 			continue;
+ 
+-		af->from_addr_param(paddr, params.addr, sh->source, 0);
++		if (!af->from_addr_param(paddr, params.addr, sh->source, 0))
++			continue;
+ 
+ 		asoc = __sctp_lookup_association(net, laddr, paddr, transportp);
+ 		if (asoc)
+@@ -1174,7 +1175,8 @@ static struct sctp_association *__sctp_rcv_asconf_lookup(
+ 	if (unlikely(!af))
+ 		return NULL;
+ 
+-	af->from_addr_param(&paddr, param, peer_port, 0);
++	if (af->from_addr_param(&paddr, param, peer_port, 0))
++		return NULL;
+ 
+ 	return __sctp_lookup_association(net, laddr, &paddr, transportp);
+ }
+diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
+index 52c92b8d827f..fae6157e837a 100644
+--- a/net/sctp/ipv6.c
++++ b/net/sctp/ipv6.c
+@@ -530,15 +530,20 @@ static void sctp_v6_to_sk_daddr(union sctp_addr *addr, struct sock *sk)
+ }
+ 
+ /* Initialize a sctp_addr from an address parameter. */
+-static void sctp_v6_from_addr_param(union sctp_addr *addr,
++static bool sctp_v6_from_addr_param(union sctp_addr *addr,
+ 				    union sctp_addr_param *param,
+ 				    __be16 port, int iif)
+ {
++	if (ntohs(param->v6.param_hdr.length) < sizeof(struct sctp_ipv6addr_param))
++		return false;
++
+ 	addr->v6.sin6_family = AF_INET6;
+ 	addr->v6.sin6_port = port;
+ 	addr->v6.sin6_flowinfo = 0; /* BUG */
+ 	addr->v6.sin6_addr = param->v6.addr;
+ 	addr->v6.sin6_scope_id = iif;
++
++	return true;
+ }
+ 
+ /* Initialize an address parameter from a sctp_addr and return the length
+diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
+index 981c7cbca46a..7f8702abc7bf 100644
+--- a/net/sctp/protocol.c
++++ b/net/sctp/protocol.c
+@@ -253,14 +253,19 @@ static void sctp_v4_to_sk_daddr(union sctp_addr *addr, struct sock *sk)
+ }
+ 
+ /* Initialize a sctp_addr from an address parameter. */
+-static void sctp_v4_from_addr_param(union sctp_addr *addr,
++static bool sctp_v4_from_addr_param(union sctp_addr *addr,
+ 				    union sctp_addr_param *param,
+ 				    __be16 port, int iif)
+ {
++	if (ntohs(param->v4.param_hdr.length) < sizeof(struct sctp_ipv4addr_param))
++		return false;
++
+ 	addr->v4.sin_family = AF_INET;
+ 	addr->v4.sin_port = port;
+ 	addr->v4.sin_addr.s_addr = param->v4.addr.s_addr;
+ 	memset(addr->v4.sin_zero, 0, sizeof(addr->v4.sin_zero));
++
++	return true;
+ }
+ 
+ /* Initialize an address parameter from a sctp_addr and return the length
+diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+index 4ffb9116b6f2..38ca7ce8a44e 100644
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -2337,11 +2337,13 @@ int sctp_process_init(struct sctp_association *asoc, struct sctp_chunk *chunk,
+ 
+ 	/* Process the initialization parameters.  */
+ 	sctp_walk_params(param, peer_init, init_hdr.params) {
+-		if (!src_match && (param.p->type == SCTP_PARAM_IPV4_ADDRESS ||
+-		    param.p->type == SCTP_PARAM_IPV6_ADDRESS)) {
++		if (!src_match &&
++		    (param.p->type == SCTP_PARAM_IPV4_ADDRESS ||
++		     param.p->type == SCTP_PARAM_IPV6_ADDRESS)) {
+ 			af = sctp_get_af_specific(param_type2af(param.p->type));
+-			af->from_addr_param(&addr, param.addr,
+-					    chunk->sctp_hdr->source, 0);
++			if (!af->from_addr_param(&addr, param.addr,
++						 chunk->sctp_hdr->source, 0))
++				continue;
+ 			if (sctp_cmp_addr_exact(sctp_source(chunk), &addr))
+ 				src_match = 1;
+ 		}
+@@ -2522,7 +2524,8 @@ static int sctp_process_param(struct sctp_association *asoc,
+ 			break;
+ do_addr_param:
+ 		af = sctp_get_af_specific(param_type2af(param.p->type));
+-		af->from_addr_param(&addr, param.addr, htons(asoc->peer.port), 0);
++		if (!af->from_addr_param(&addr, param.addr, htons(asoc->peer.port), 0))
++			break;
+ 		scope = sctp_scope(peer_addr);
+ 		if (sctp_in_scope(net, &addr, scope))
+ 			if (!sctp_assoc_add_peer(asoc, &addr, gfp, SCTP_UNCONFIRMED))
+@@ -2623,15 +2626,13 @@ do_addr_param:
+ 		addr_param = param.v + sizeof(struct sctp_addip_param);
+ 
+ 		af = sctp_get_af_specific(param_type2af(addr_param->p.type));
+-		if (af == NULL)
++		if (!af)
+ 			break;
+ 
+-		af->from_addr_param(&addr, addr_param,
+-				    htons(asoc->peer.port), 0);
++		if (!af->from_addr_param(&addr, addr_param,
++					 htons(asoc->peer.port), 0))
++			break;
+ 
+-		/* if the address is invalid, we can't process it.
+-		 * XXX: see spec for what to do.
+-		 */
+ 		if (!af->addr_valid(&addr, NULL, NULL))
+ 			break;
+ 
+@@ -3045,7 +3046,8 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
+ 	if (unlikely(!af))
+ 		return SCTP_ERROR_DNS_FAILED;
+ 
+-	af->from_addr_param(&addr, addr_param, htons(asoc->peer.port), 0);
++	if (!af->from_addr_param(&addr, addr_param, htons(asoc->peer.port), 0))
++		return SCTP_ERROR_DNS_FAILED;
+ 
+ 	/* ADDIP 4.2.1  This parameter MUST NOT contain a broadcast
+ 	 * or multicast address.
+@@ -3322,7 +3324,8 @@ static void sctp_asconf_param_success(struct sctp_association *asoc,
+ 
+ 	/* We have checked the packet before, so we do not check again.	*/
+ 	af = sctp_get_af_specific(param_type2af(addr_param->p.type));
+-	af->from_addr_param(&addr, addr_param, htons(bp->port), 0);
++	if (!af->from_addr_param(&addr, addr_param, htons(bp->port), 0))
++		return;
+ 
+ 	switch (asconf_param->param_hdr.type) {
+ 	case SCTP_PARAM_ADD_IP:
+-- 
+2.30.2
+
 
 
