@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 263373CAB96
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C03C3CAB84
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242941AbhGOTU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58676 "EHLO mail.kernel.org"
+        id S244938AbhGOTUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244985AbhGOTTG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:19:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36BE0613CF;
-        Thu, 15 Jul 2021 19:13:41 +0000 (UTC)
+        id S244994AbhGOTTH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:19:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 841DA6127C;
+        Thu, 15 Jul 2021 19:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376421;
-        bh=YuweoZV+Q0HO9FtsgisyhkUx55eopAuEa8pRRSusLlA=;
+        s=korg; t=1626376424;
+        bh=FpFr9ycDBi/6VKXtoDCgB/CgKfcVxQkrwcZ8TP1CwTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I92hrAo5VmU3eWv1EaaoAwYhXtbQC5F1QXdDXbkIA4+G5dYDxJaWvHKj/48P4vB5z
-         ddBnvuLq/jZNOIBki2+EfYmkgPJngXttj/E88xhx8eEJDyqR9uJ5CMxPmhd1QUDtpK
-         In43M1FgAuC7K0ddGR9WT3TiGjJ9s4REa6eift/E=
+        b=V4FzL2QPO/ZYNZlwoY/WLL/DSycatlEUDExrEjooN8p0M6M2V1EchZ4jzWP8LtyKz
+         9iij65tIev4F7sMTITS929y5Fcj6f5//myFLVyzUQgQtYVEOA7NZBPR3cZEhbsc5mn
+         2FDkS8sWuaAGeQabCGctUXcfOjYq382RyVs1Hh0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 5.13 265/266] smackfs: restrict bytes count in smk_set_cipso()
-Date:   Thu, 15 Jul 2021 20:40:20 +0200
-Message-Id: <20210715182653.571022568@linuxfoundation.org>
+        syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.13 266/266] f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
+Date:   Thu, 15 Jul 2021 20:40:21 +0200
+Message-Id: <20210715182653.678075001@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,39 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 49ec114a6e62d8d320037ce71c1aaf9650b3cafd upstream.
+commit cad83c968c2ebe97905f900326988ed37146c347 upstream.
 
-Oops, I failed to update subject line.
+As syzbot reported, there is an use-after-free issue during f2fs recovery:
 
->From 07571157c91b98ce1a4aa70967531e64b78e8346 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 12 Apr 2021 22:25:06 +0900
-Subject: [PATCH 5.13 265/266] smackfs: restrict bytes count in smk_set_cipso()
+Use-after-free write at 0xffff88823bc16040 (in kfence-#10):
+ kmem_cache_destroy+0x1f/0x120 mm/slab_common.c:486
+ f2fs_recover_fsync_data+0x75b0/0x8380 fs/f2fs/recovery.c:869
+ f2fs_fill_super+0x9393/0xa420 fs/f2fs/super.c:3945
+ mount_bdev+0x26c/0x3a0 fs/super.c:1367
+ legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+ vfs_get_tree+0x86/0x270 fs/super.c:1497
+ do_new_mount fs/namespace.c:2905 [inline]
+ path_mount+0x196f/0x2be0 fs/namespace.c:3235
+ do_mount fs/namespace.c:3248 [inline]
+ __do_sys_mount fs/namespace.c:3456 [inline]
+ __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3433
+ do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Commit 7ef4c19d245f3dc2 ("smackfs: restrict bytes count in smackfs write
-functions") missed that count > SMK_CIPSOMAX check applies to only
-format == SMK_FIXED24_FMT case.
+The root cause is multi f2fs filesystem instances can race on accessing
+global fsync_entry_slab pointer, result in use-after-free issue of slab
+cache, fixes to init/destroy this slab cache only once during module
+init/destroy procedure to avoid this issue.
 
-Reported-by: syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Reported-by: syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smackfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/f2fs/f2fs.h     |    2 ++
+ fs/f2fs/recovery.c |   23 ++++++++++++++---------
+ fs/f2fs/super.c    |    8 +++++++-
+ 3 files changed, 23 insertions(+), 10 deletions(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -855,6 +855,8 @@ static ssize_t smk_set_cipso(struct file
- 	if (format == SMK_FIXED24_FMT &&
- 	    (count < SMK_CIPSOMIN || count > SMK_CIPSOMAX))
- 		return -EINVAL;
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3566,6 +3566,8 @@ void f2fs_destroy_garbage_collection_cac
+  */
+ int f2fs_recover_fsync_data(struct f2fs_sb_info *sbi, bool check_only);
+ bool f2fs_space_for_roll_forward(struct f2fs_sb_info *sbi);
++int __init f2fs_create_recovery_cache(void);
++void f2fs_destroy_recovery_cache(void);
  
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ /*
+  * debug.c
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -788,13 +788,6 @@ int f2fs_recover_fsync_data(struct f2fs_
+ 	quota_enabled = f2fs_enable_quota_files(sbi, s_flags & SB_RDONLY);
+ #endif
+ 
+-	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
+-			sizeof(struct fsync_inode_entry));
+-	if (!fsync_entry_slab) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	INIT_LIST_HEAD(&inode_list);
+ 	INIT_LIST_HEAD(&tmp_inode_list);
+ 	INIT_LIST_HEAD(&dir_list);
+@@ -867,8 +860,6 @@ skip:
+ 		}
+ 	}
+ 
+-	kmem_cache_destroy(fsync_entry_slab);
+-out:
+ #ifdef CONFIG_QUOTA
+ 	/* Turn quotas off */
+ 	if (quota_enabled)
+@@ -878,3 +869,17 @@ out:
+ 
+ 	return ret ? ret : err;
+ }
++
++int __init f2fs_create_recovery_cache(void)
++{
++	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
++					sizeof(struct fsync_inode_entry));
++	if (!fsync_entry_slab)
++		return -ENOMEM;
++	return 0;
++}
++
++void f2fs_destroy_recovery_cache(void)
++{
++	kmem_cache_destroy(fsync_entry_slab);
++}
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -4227,9 +4227,12 @@ static int __init init_f2fs_fs(void)
+ 	err = f2fs_create_checkpoint_caches();
+ 	if (err)
+ 		goto free_segment_manager_caches;
+-	err = f2fs_create_extent_cache();
++	err = f2fs_create_recovery_cache();
+ 	if (err)
+ 		goto free_checkpoint_caches;
++	err = f2fs_create_extent_cache();
++	if (err)
++		goto free_recovery_cache;
+ 	err = f2fs_create_garbage_collection_cache();
+ 	if (err)
+ 		goto free_extent_cache;
+@@ -4278,6 +4281,8 @@ free_garbage_collection_cache:
+ 	f2fs_destroy_garbage_collection_cache();
+ free_extent_cache:
+ 	f2fs_destroy_extent_cache();
++free_recovery_cache:
++	f2fs_destroy_recovery_cache();
+ free_checkpoint_caches:
+ 	f2fs_destroy_checkpoint_caches();
+ free_segment_manager_caches:
+@@ -4303,6 +4308,7 @@ static void __exit exit_f2fs_fs(void)
+ 	f2fs_exit_sysfs();
+ 	f2fs_destroy_garbage_collection_cache();
+ 	f2fs_destroy_extent_cache();
++	f2fs_destroy_recovery_cache();
+ 	f2fs_destroy_checkpoint_caches();
+ 	f2fs_destroy_segment_manager_caches();
+ 	f2fs_destroy_node_manager_caches();
 
 
