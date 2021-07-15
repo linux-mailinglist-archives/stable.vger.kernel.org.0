@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AE33CAB81
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBD23CAB9A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244902AbhGOTU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58958 "EHLO mail.kernel.org"
+        id S244890AbhGOTU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245059AbhGOTTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245064AbhGOTTP (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:19:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4FA361424;
-        Thu, 15 Jul 2021 19:13:59 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EAEA613F2;
+        Thu, 15 Jul 2021 19:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376440;
-        bh=eJrqTpZB7MccQSEJ6opiOVavQKwiB4rEjfRrhrDO7Mg=;
+        s=korg; t=1626376442;
+        bh=5JIVYpka/8B06HYh8T3fYIDyW9P6b7DJtITXlW+WJeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3ViFOn2pJOFNrB5pue+tS9QFE3R8YhuZC5CULK8TOHNhcnzGN6n7uoJkmSfT6bmE
-         KIa5nxbqdHOUGbjzBr4qNKUIQigMOeJOyVi0p40EPO1K6OG8NMngcsZOdE4bVEAYw+
-         OHs2vr7WCzNnTcsCA/OkFQTHwycxADrvRzb7DqWs=
+        b=EMkWkl/9B8DLjDz2ykB7x2Y01zoq55NhnrcXRy6+2vTAID/uB9iOgMR6q31aR0xrQ
+         93mYtjVcUhmdH745gcKB9sIXPif3Hy+pEv3Rq/fwrJycsfyogeHginNy+0QBLspigF
+         pLSVscQVkXo4QiIPMaFGlu91FVTxI7YMaviXoOR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
         Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.13 257/266] s390/vdso: add minimal compat vdso
-Date:   Thu, 15 Jul 2021 20:40:12 +0200
-Message-Id: <20210715182652.761086942@linuxfoundation.org>
+        Vasily Gorbik <gor@linux.ibm.com>, stable@kernel.org
+Subject: [PATCH 5.13 258/266] s390/signal: switch to using vdso for sigreturn and syscall restart
+Date:   Thu, 15 Jul 2021 20:40:13 +0200
+Message-Id: <20210715182652.859757404@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,583 +42,210 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 779df2248739b6308c03b354c99e4c352141e3bc upstream.
+commit df29a7440c4b5c65765c8f60396b3b13063e24e9 upstream.
 
-Add a small vdso for 31 bit compat application that provides
-trampolines for calls to sigreturn,rt_sigreturn,syscall_restart.
-This is requird for moving these syscalls away from the signal
-frame to the vdso. Note that this patch effectively disables
-CONFIG_COMPAT when using clang to compile the kernel. clang
-doesn't support 31 bit mode.
+with generic entry, there's a bug when it comes to restarting of signals.
+The failing sequence is:
 
-We want to redirect sigreturn and restart_syscall to the vdso. However,
-the kernel cannot parse the ELF vdso file, so we need to generate header
-files which contain the offsets of the syscall instructions in the vdso
-page.
+a) a signal is coming in, and no handler is registered, so the lower
+   part of arch_do_signal_or_restart() in arch/s390/kernel/signal.c
+   sets PIF_SYSCALL_RESTART.
 
+b) a second signal gets pending while the kernel is still in the exit
+   loop, and for that one, a handler exists.
+
+c) The first part of arch_do_signal_or_restart() is called. That part
+   calls handle_signal(), which sets up stack + registers for handling
+   the signal.
+
+d) __do_syscall() in arch/s390/kernel/syscall.c checks for
+   PIF_SYSCALL_RESTART right before leaving to userspace. If it is set,
+   it restart's the syscall. However, the registers are already setup
+   for handling a signal from c). The syscall is now restarted with the
+   wrong arguments.
+
+Change the code to:
+
+- use vdso for syscall_restart() instead of PIF_SYSCALL_RESTART because
+  we cannot rewind and go back to userspace on s390 because the system call
+  number might be encoded in the svc instruction.
+- for all other syscalls we rewind the PSW and return to userspace.
+
+Cc: <stable@kernel.org> # v5.12+ d57778feb987: s390/vdso: always enable vdso
+Cc: <stable@kernel.org> # v5.12+ 686341f2548b: s390/vdso64: add sigreturn,rt_sigreturn and restart_syscall
+Cc: <stable@kernel.org> # v5.12+ 43e1f76b0b69: s390/vdso: rename VDSO64_LBASE to VDSO_LBASE
+Cc: <stable@kernel.org> # v5.12+ 779df2248739: s390/vdso: add minimal compat vdso
+Cc: <stable@kernel.org> # v5.12+
 Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
 Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/Kconfig                           |    1 
- arch/s390/Makefile                          |   13 ++
- arch/s390/include/asm/elf.h                 |    2 
- arch/s390/include/asm/vdso.h                |   27 +++--
- arch/s390/include/asm/vdso/gettimeofday.h   |    1 
- arch/s390/kernel/Makefile                   |    1 
- arch/s390/kernel/vdso.c                     |   50 ++++++---
- arch/s390/kernel/vdso32/.gitignore          |    2 
- arch/s390/kernel/vdso32/Makefile            |   75 ++++++++++++++
- arch/s390/kernel/vdso32/gen_vdso_offsets.sh |   15 ++
- arch/s390/kernel/vdso32/note.S              |   13 ++
- arch/s390/kernel/vdso32/vdso32.lds.S        |  141 ++++++++++++++++++++++++++++
- arch/s390/kernel/vdso32/vdso32_wrapper.S    |   15 ++
- arch/s390/kernel/vdso32/vdso_user_wrapper.S |   21 ++++
- arch/s390/kernel/vdso64/Makefile            |    8 +
- arch/s390/kernel/vdso64/gen_vdso_offsets.sh |   15 ++
- 16 files changed, 373 insertions(+), 27 deletions(-)
- create mode 100644 arch/s390/kernel/vdso32/.gitignore
- create mode 100644 arch/s390/kernel/vdso32/Makefile
- create mode 100755 arch/s390/kernel/vdso32/gen_vdso_offsets.sh
- create mode 100644 arch/s390/kernel/vdso32/note.S
- create mode 100644 arch/s390/kernel/vdso32/vdso32.lds.S
- create mode 100644 arch/s390/kernel/vdso32/vdso32_wrapper.S
- create mode 100644 arch/s390/kernel/vdso32/vdso_user_wrapper.S
- create mode 100755 arch/s390/kernel/vdso64/gen_vdso_offsets.sh
+ arch/s390/kernel/compat_signal.c |   13 +++----------
+ arch/s390/kernel/process.c       |    6 ++++++
+ arch/s390/kernel/signal.c        |   39 ++++++++++++++++++---------------------
+ arch/s390/kernel/syscall.c       |    4 ++++
+ 4 files changed, 31 insertions(+), 31 deletions(-)
 
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -438,6 +438,7 @@ config COMPAT
- 	select COMPAT_OLD_SIGACTION
- 	select HAVE_UID16
- 	depends on MULTIUSER
-+	depends on !CC_IS_CLANG
- 	help
- 	  Select this option if you want to enable your system kernel to
- 	  handle system-calls from ELF binaries for 31 bit ESA.  This option
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -165,6 +165,19 @@ archheaders:
- archprepare:
- 	$(Q)$(MAKE) $(build)=$(syscalls) kapi
- 	$(Q)$(MAKE) $(build)=$(tools) kapi
-+ifeq ($(KBUILD_EXTMOD),)
-+# We need to generate vdso-offsets.h before compiling certain files in kernel/.
-+# In order to do that, we should use the archprepare target, but we can't since
-+# asm-offsets.h is included in some files used to generate vdso-offsets.h, and
-+# asm-offsets.h is built in prepare0, for which archprepare is a dependency.
-+# Therefore we need to generate the header after prepare0 has been made, hence
-+# this hack.
-+prepare: vdso_prepare
-+vdso_prepare: prepare0
-+	$(Q)$(MAKE) $(build)=arch/s390/kernel/vdso64 include/generated/vdso64-offsets.h
-+	$(if $(CONFIG_COMPAT),$(Q)$(MAKE) \
-+		$(build)=arch/s390/kernel/vdso32 include/generated/vdso32-offsets.h)
-+endif
+--- a/arch/s390/kernel/compat_signal.c
++++ b/arch/s390/kernel/compat_signal.c
+@@ -28,6 +28,7 @@
+ #include <linux/uaccess.h>
+ #include <asm/lowcore.h>
+ #include <asm/switch_to.h>
++#include <asm/vdso.h>
+ #include "compat_linux.h"
+ #include "compat_ptrace.h"
+ #include "entry.h"
+@@ -118,7 +119,6 @@ static int restore_sigregs32(struct pt_r
+ 	fpregs_load((_s390_fp_regs *) &user_sregs.fpregs, &current->thread.fpu);
  
- # Don't use tabs in echo arguments
- define archhelp
---- a/arch/s390/include/asm/elf.h
-+++ b/arch/s390/include/asm/elf.h
-@@ -144,8 +144,6 @@ typedef s390_compat_regs compat_elf_greg
- #include <linux/sched/mm.h>	/* for task_struct */
- #include <asm/mmu_context.h>
- 
--#include <asm/vdso.h>
--
- /*
-  * This is used to ensure we don't load something for the wrong architecture.
-  */
---- a/arch/s390/include/asm/vdso.h
-+++ b/arch/s390/include/asm/vdso.h
-@@ -4,18 +4,31 @@
- 
- #include <vdso/datapage.h>
- 
--/* Default link address for the vDSO */
--#define VDSO_LBASE	0
--
--#define __VVAR_PAGES	2
--
--#define VDSO_VERSION_STRING	LINUX_2.6.29
--
- #ifndef __ASSEMBLY__
- 
-+#include <generated/vdso64-offsets.h>
-+#ifdef CONFIG_COMPAT
-+#include <generated/vdso32-offsets.h>
-+#endif
-+
-+#define VDSO64_SYMBOL(tsk, name) ((tsk)->mm->context.vdso_base + (vdso64_offset_##name))
-+#ifdef CONFIG_COMPAT
-+#define VDSO32_SYMBOL(tsk, name) ((tsk)->mm->context.vdso_base + (vdso32_offset_##name))
-+#else
-+#define VDSO32_SYMBOL(tsk, name) (-1UL)
-+#endif
-+
- extern struct vdso_data *vdso_data;
- 
- int vdso_getcpu_init(void);
- 
- #endif /* __ASSEMBLY__ */
-+
-+/* Default link address for the vDSO */
-+#define VDSO_LBASE	0
-+
-+#define __VVAR_PAGES	2
-+
-+#define VDSO_VERSION_STRING	LINUX_2.6.29
-+
- #endif /* __S390_VDSO_H__ */
---- a/arch/s390/include/asm/vdso/gettimeofday.h
-+++ b/arch/s390/include/asm/vdso/gettimeofday.h
-@@ -8,7 +8,6 @@
- 
- #include <asm/timex.h>
- #include <asm/unistd.h>
--#include <asm/vdso.h>
- #include <linux/compiler.h>
- 
- #define vdso_calc_delta __arch_vdso_calc_delta
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -78,3 +78,4 @@ obj-$(findstring y, $(CONFIG_PROTECTED_V
- 
- # vdso
- obj-y				+= vdso64/
-+obj-$(CONFIG_COMPAT)		+= vdso32/
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -20,7 +20,7 @@
- #include <asm/vdso.h>
- 
- extern char vdso64_start[], vdso64_end[];
--static unsigned int vdso_pages;
-+extern char vdso32_start[], vdso32_end[];
- 
- static struct vm_special_mapping vvar_mapping;
- 
-@@ -143,7 +143,12 @@ static struct vm_special_mapping vvar_ma
- 	.fault = vvar_fault,
- };
- 
--static struct vm_special_mapping vdso_mapping = {
-+static struct vm_special_mapping vdso64_mapping = {
-+	.name = "[vdso]",
-+	.mremap = vdso_mremap,
-+};
-+
-+static struct vm_special_mapping vdso32_mapping = {
- 	.name = "[vdso]",
- 	.mremap = vdso_mremap,
- };
-@@ -159,16 +164,22 @@ int arch_setup_additional_pages(struct l
- {
- 	unsigned long vdso_text_len, vdso_mapping_len;
- 	unsigned long vvar_start, vdso_text_start;
-+	struct vm_special_mapping *vdso_mapping;
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	int rc;
- 
- 	BUILD_BUG_ON(VVAR_NR_PAGES != __VVAR_PAGES);
--	if (is_compat_task())
--		return 0;
- 	if (mmap_write_lock_killable(mm))
- 		return -EINTR;
--	vdso_text_len = vdso_pages << PAGE_SHIFT;
-+
-+	if (is_compat_task()) {
-+		vdso_text_len = vdso32_end - vdso32_start;
-+		vdso_mapping = &vdso32_mapping;
-+	} else {
-+		vdso_text_len = vdso64_end - vdso64_start;
-+		vdso_mapping = &vdso64_mapping;
-+	}
- 	vdso_mapping_len = vdso_text_len + VVAR_NR_PAGES * PAGE_SIZE;
- 	vvar_start = get_unmapped_area(NULL, 0, vdso_mapping_len, 0, 0);
- 	rc = vvar_start;
-@@ -186,7 +197,7 @@ int arch_setup_additional_pages(struct l
- 	vma = _install_special_mapping(mm, vdso_text_start, vdso_text_len,
- 				       VM_READ|VM_EXEC|
- 				       VM_MAYREAD|VM_MAYWRITE|VM_MAYEXEC,
--				       &vdso_mapping);
-+				       vdso_mapping);
- 	if (IS_ERR(vma)) {
- 		do_munmap(mm, vvar_start, PAGE_SIZE, NULL);
- 		rc = PTR_ERR(vma);
-@@ -199,20 +210,25 @@ out:
- 	return rc;
- }
- 
--static int __init vdso_init(void)
-+static struct page ** __init vdso_setup_pages(void *start, void *end)
- {
--	struct page **pages;
-+	int pages = (end - start) >> PAGE_SHIFT;
-+	struct page **pagelist;
- 	int i;
- 
--	vdso_pages = (vdso64_end - vdso64_start) >> PAGE_SHIFT;
--	pages = kcalloc(vdso_pages + 1, sizeof(struct page *), GFP_KERNEL);
--	if (!pages)
--		panic("failed to allocate VDSO pages");
--
--	for (i = 0; i < vdso_pages; i++)
--		pages[i] = virt_to_page(vdso64_start + i * PAGE_SIZE);
--	pages[vdso_pages] = NULL;
--	vdso_mapping.pages = pages;
-+	pagelist = kcalloc(pages + 1, sizeof(struct page *), GFP_KERNEL);
-+	if (!pagelist)
-+		panic("%s: Cannot allocate page list for VDSO", __func__);
-+	for (i = 0; i < pages; i++)
-+		pagelist[i] = virt_to_page(start + i * PAGE_SIZE);
-+	return pagelist;
-+}
-+
-+static int __init vdso_init(void)
-+{
-+	vdso64_mapping.pages = vdso_setup_pages(vdso64_start, vdso64_end);
-+	if (IS_ENABLED(CONFIG_COMPAT))
-+		vdso32_mapping.pages = vdso_setup_pages(vdso32_start, vdso32_end);
+ 	clear_pt_regs_flag(regs, PIF_SYSCALL); /* No longer in a system call */
+-	clear_pt_regs_flag(regs, PIF_SYSCALL_RESTART);
  	return 0;
  }
- arch_initcall(vdso_init);
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/.gitignore
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0-only
-+vdso32.lds
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -0,0 +1,75 @@
-+# SPDX-License-Identifier: GPL-2.0
-+# List of files in the vdso
-+
-+KCOV_INSTRUMENT := n
-+ARCH_REL_TYPE_ABS := R_390_COPY|R_390_GLOB_DAT|R_390_JMP_SLOT|R_390_RELATIVE
-+ARCH_REL_TYPE_ABS += R_390_GOT|R_390_PLT
-+
-+include $(srctree)/lib/vdso/Makefile
-+obj-vdso32 = vdso_user_wrapper-32.o note-32.o
-+
-+# Build rules
-+
-+targets := $(obj-vdso32) vdso32.so vdso32.so.dbg
-+obj-vdso32 := $(addprefix $(obj)/, $(obj-vdso32))
-+
-+KBUILD_AFLAGS += -DBUILD_VDSO
-+KBUILD_CFLAGS += -DBUILD_VDSO -DDISABLE_BRANCH_PROFILING
-+
-+KBUILD_AFLAGS_32 := $(filter-out -m64,$(KBUILD_AFLAGS))
-+KBUILD_AFLAGS_32 += -m31 -s
-+
-+KBUILD_CFLAGS_32 := $(filter-out -m64,$(KBUILD_CFLAGS))
-+KBUILD_CFLAGS_32 += -m31 -fPIC -shared -fno-common -fno-builtin
-+
-+LDFLAGS_vdso32.so.dbg += -fPIC -shared -nostdlib -soname=linux-vdso32.so.1 \
-+	--hash-style=both --build-id=sha1 -melf_s390 -T
-+
-+$(targets:%=$(obj)/%.dbg): KBUILD_CFLAGS = $(KBUILD_CFLAGS_32)
-+$(targets:%=$(obj)/%.dbg): KBUILD_AFLAGS = $(KBUILD_AFLAGS_32)
-+
-+obj-y += vdso32_wrapper.o
-+CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
-+
-+# Disable gcov profiling, ubsan and kasan for VDSO code
-+GCOV_PROFILE := n
-+UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
-+
-+# Force dependency (incbin is bad)
-+$(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
-+
-+$(obj)/vdso32.so.dbg: $(src)/vdso32.lds $(obj-vdso32) FORCE
-+	$(call if_changed,ld)
-+
-+# strip rule for the .so file
-+$(obj)/%.so: OBJCOPYFLAGS := -S
-+$(obj)/%.so: $(obj)/%.so.dbg FORCE
-+	$(call if_changed,objcopy)
-+
-+$(obj-vdso32): %-32.o: %.S FORCE
-+	$(call if_changed_dep,vdso32as)
-+
-+# actual build commands
-+quiet_cmd_vdso32as = VDSO32A $@
-+      cmd_vdso32as = $(CC) $(a_flags) -c -o $@ $<
-+quiet_cmd_vdso32cc = VDSO32C $@
-+      cmd_vdso32cc = $(CC) $(c_flags) -c -o $@ $<
-+
-+# install commands for the unstripped file
-+quiet_cmd_vdso_install = INSTALL $@
-+      cmd_vdso_install = cp $(obj)/$@.dbg $(MODLIB)/vdso/$@
-+
-+vdso32.so: $(obj)/vdso32.so.dbg
-+	@mkdir -p $(MODLIB)/vdso
-+	$(call cmd,vdso_install)
-+
-+vdso_install: vdso32.so
-+
-+# Generate VDSO offsets using helper script
-+gen-vdsosym := $(srctree)/$(src)/gen_vdso_offsets.sh
-+quiet_cmd_vdsosym = VDSOSYM $@
-+	cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
-+
-+include/generated/vdso32-offsets.h: $(obj)/vdso32.so.dbg FORCE
-+	$(call if_changed,vdsosym)
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/gen_vdso_offsets.sh
-@@ -0,0 +1,15 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+
-+#
-+# Match symbols in the DSO that look like VDSO_*; produce a header file
-+# of constant offsets into the shared object.
-+#
-+# Doing this inside the Makefile will break the $(filter-out) function,
-+# causing Kbuild to rebuild the vdso-offsets header file every time.
-+#
-+# Inspired by arm64 version.
-+#
-+
-+LC_ALL=C
-+sed -n 's/\([0-9a-f]*\) . __kernel_compat_\(.*\)/\#define vdso32_offset_\2\t0x\1/p'
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/note.S
-@@ -0,0 +1,13 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * This supplies .note.* sections to go into the PT_NOTE inside the vDSO text.
-+ * Here we can supply some information useful to userland.
-+ */
-+
-+#include <linux/uts.h>
-+#include <linux/version.h>
-+#include <linux/elfnote.h>
-+
-+ELFNOTE_START(Linux, 0, "a")
-+	.long LINUX_VERSION_CODE
-+ELFNOTE_END
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/vdso32.lds.S
-@@ -0,0 +1,141 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * This is the infamous ld script for the 64 bits vdso
-+ * library
-+ */
-+
-+#include <asm/page.h>
-+#include <asm/vdso.h>
-+
-+OUTPUT_FORMAT("elf32-s390", "elf32-s390", "elf32-s390")
-+OUTPUT_ARCH(s390:31-bit)
-+ENTRY(_start)
-+
-+SECTIONS
-+{
-+	PROVIDE(_vdso_data = . - __VVAR_PAGES * PAGE_SIZE);
-+#ifdef CONFIG_TIME_NS
-+	PROVIDE(_timens_data = _vdso_data + PAGE_SIZE);
-+#endif
-+	. = VDSO_LBASE + SIZEOF_HEADERS;
-+
-+	.hash		: { *(.hash) }			:text
-+	.gnu.hash	: { *(.gnu.hash) }
-+	.dynsym		: { *(.dynsym) }
-+	.dynstr		: { *(.dynstr) }
-+	.gnu.version	: { *(.gnu.version) }
-+	.gnu.version_d	: { *(.gnu.version_d) }
-+	.gnu.version_r	: { *(.gnu.version_r) }
-+
-+	.note		: { *(.note.*) }		:text	:note
-+
-+	. = ALIGN(16);
-+	.text		: {
-+		*(.text .stub .text.* .gnu.linkonce.t.*)
-+	} :text
-+	PROVIDE(__etext = .);
-+	PROVIDE(_etext = .);
-+	PROVIDE(etext = .);
-+
-+	/*
-+	 * Other stuff is appended to the text segment:
-+	 */
-+	.rodata		: { *(.rodata .rodata.* .gnu.linkonce.r.*) }
-+	.rodata1	: { *(.rodata1) }
-+
-+	.dynamic	: { *(.dynamic) }		:text	:dynamic
-+
-+	.eh_frame_hdr	: { *(.eh_frame_hdr) }		:text	:eh_frame_hdr
-+	.eh_frame	: { KEEP (*(.eh_frame)) }	:text
-+	.gcc_except_table : { *(.gcc_except_table .gcc_except_table.*) }
-+
-+	.rela.dyn ALIGN(8) : { *(.rela.dyn) }
-+	.got ALIGN(8)	: { *(.got .toc) }
-+
-+	_end = .;
-+	PROVIDE(end = .);
-+
-+	/*
-+	 * Stabs debugging sections are here too.
-+	 */
-+	.stab	       0 : { *(.stab) }
-+	.stabstr       0 : { *(.stabstr) }
-+	.stab.excl     0 : { *(.stab.excl) }
-+	.stab.exclstr  0 : { *(.stab.exclstr) }
-+	.stab.index    0 : { *(.stab.index) }
-+	.stab.indexstr 0 : { *(.stab.indexstr) }
-+	.comment       0 : { *(.comment) }
-+
-+	/*
-+	 * DWARF debug sections.
-+	 * Symbols in the DWARF debugging sections are relative to the
-+	 * beginning of the section so we begin them at 0.
-+	 */
-+	/* DWARF 1 */
-+	.debug		0 : { *(.debug) }
-+	.line		0 : { *(.line) }
-+	/* GNU DWARF 1 extensions */
-+	.debug_srcinfo	0 : { *(.debug_srcinfo) }
-+	.debug_sfnames	0 : { *(.debug_sfnames) }
-+	/* DWARF 1.1 and DWARF 2 */
-+	.debug_aranges	0 : { *(.debug_aranges) }
-+	.debug_pubnames 0 : { *(.debug_pubnames) }
-+	/* DWARF 2 */
-+	.debug_info	0 : { *(.debug_info .gnu.linkonce.wi.*) }
-+	.debug_abbrev	0 : { *(.debug_abbrev) }
-+	.debug_line	0 : { *(.debug_line) }
-+	.debug_frame	0 : { *(.debug_frame) }
-+	.debug_str	0 : { *(.debug_str) }
-+	.debug_loc	0 : { *(.debug_loc) }
-+	.debug_macinfo	0 : { *(.debug_macinfo) }
-+	/* SGI/MIPS DWARF 2 extensions */
-+	.debug_weaknames 0 : { *(.debug_weaknames) }
-+	.debug_funcnames 0 : { *(.debug_funcnames) }
-+	.debug_typenames 0 : { *(.debug_typenames) }
-+	.debug_varnames  0 : { *(.debug_varnames) }
-+	/* DWARF 3 */
-+	.debug_pubtypes 0 : { *(.debug_pubtypes) }
-+	.debug_ranges	0 : { *(.debug_ranges) }
-+	.gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
-+
-+	/DISCARD/	: {
-+		*(.note.GNU-stack)
-+		*(.branch_lt)
-+		*(.data .data.* .gnu.linkonce.d.* .sdata*)
-+		*(.bss .sbss .dynbss .dynsbss)
-+	}
-+}
-+
-+/*
-+ * Very old versions of ld do not recognize this name token; use the constant.
-+ */
-+#define PT_GNU_EH_FRAME	0x6474e550
-+
-+/*
-+ * We must supply the ELF program headers explicitly to get just one
-+ * PT_LOAD segment, and set the flags explicitly to make segments read-only.
-+ */
-+PHDRS
-+{
-+	text		PT_LOAD FILEHDR PHDRS FLAGS(5);	/* PF_R|PF_X */
-+	dynamic		PT_DYNAMIC FLAGS(4);		/* PF_R */
-+	note		PT_NOTE FLAGS(4);		/* PF_R */
-+	eh_frame_hdr	PT_GNU_EH_FRAME;
-+}
-+
-+/*
-+ * This controls what symbols we export from the DSO.
-+ */
-+VERSION
-+{
-+	VDSO_VERSION_STRING {
-+	global:
-+		/*
-+		 * Has to be there for the kernel to find
-+		 */
-+		__kernel_compat_restart_syscall;
-+		__kernel_compat_rt_sigreturn;
-+		__kernel_compat_sigreturn;
-+	local: *;
-+	};
-+}
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/vdso32_wrapper.S
-@@ -0,0 +1,15 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#include <linux/init.h>
-+#include <linux/linkage.h>
-+#include <asm/page.h>
-+
-+	__PAGE_ALIGNED_DATA
-+
-+	.globl vdso32_start, vdso32_end
-+	.balign PAGE_SIZE
-+vdso32_start:
-+	.incbin "arch/s390/kernel/vdso32/vdso32.so"
-+	.balign PAGE_SIZE
-+vdso32_end:
-+
-+	.previous
---- /dev/null
-+++ b/arch/s390/kernel/vdso32/vdso_user_wrapper.S
-@@ -0,0 +1,21 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+
-+#include <asm/unistd.h>
-+#include <asm/dwarf.h>
-+
-+.macro vdso_syscall func,syscall
-+	.globl __kernel_compat_\func
-+	.type  __kernel_compat_\func,@function
-+	.align 8
-+__kernel_compat_\func:
-+	CFI_STARTPROC
-+	svc	\syscall
-+	/* Make sure we notice when a syscall returns, which shouldn't happen */
-+	.word	0
-+	CFI_ENDPROC
-+	.size	__kernel_compat_\func,.-__kernel_compat_\func
-+.endm
-+
-+vdso_syscall restart_syscall,__NR_restart_syscall
-+vdso_syscall sigreturn,__NR_sigreturn
-+vdso_syscall rt_sigreturn,__NR_rt_sigreturn
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -74,3 +74,11 @@ vdso64.so: $(obj)/vdso64.so.dbg
- 	$(call cmd,vdso_install)
  
- vdso_install: vdso64.so
+@@ -304,11 +304,7 @@ static int setup_frame32(struct ksignal
+ 		restorer = (unsigned long __force)
+ 			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
+ 	} else {
+-		/* Signal frames without vectors registers are short ! */
+-		__u16 __user *svc = (void __user *) frame + frame_size - 2;
+-		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn, svc))
+-			return -EFAULT;
+-		restorer = (unsigned long __force) svc | PSW32_ADDR_AMODE;
++		restorer = VDSO32_SYMBOL(current, sigreturn);
+         }
+ 
+ 	/* Set up registers for signal handler */
+@@ -371,10 +367,7 @@ static int setup_rt_frame32(struct ksign
+ 		restorer = (unsigned long __force)
+ 			ksig->ka.sa.sa_restorer | PSW32_ADDR_AMODE;
+ 	} else {
+-		__u16 __user *svc = &frame->svc_insn;
+-		if (__put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn, svc))
+-			return -EFAULT;
+-		restorer = (unsigned long __force) svc | PSW32_ADDR_AMODE;
++		restorer = VDSO32_SYMBOL(current, rt_sigreturn);
+ 	}
+ 
+ 	/* Create siginfo on the signal stack */
+--- a/arch/s390/kernel/process.c
++++ b/arch/s390/kernel/process.c
+@@ -166,6 +166,12 @@ int copy_thread(unsigned long clone_flag
+ 			p->thread.acrs[1] = (unsigned int)tls;
+ 		}
+ 	}
++	/*
++	 * s390 stores the svc return address in arch_data when calling
++	 * sigreturn()/restart_syscall() via vdso. 1 means no valid address
++	 * stored.
++	 */
++	p->restart_block.arch_data = 1;
+ 	return 0;
+ }
+ 
+--- a/arch/s390/kernel/signal.c
++++ b/arch/s390/kernel/signal.c
+@@ -32,6 +32,7 @@
+ #include <linux/uaccess.h>
+ #include <asm/lowcore.h>
+ #include <asm/switch_to.h>
++#include <asm/vdso.h>
+ #include "entry.h"
+ 
+ /*
+@@ -171,7 +172,6 @@ static int restore_sigregs(struct pt_reg
+ 	fpregs_load(&user_sregs.fpregs, &current->thread.fpu);
+ 
+ 	clear_pt_regs_flag(regs, PIF_SYSCALL); /* No longer in a system call */
+-	clear_pt_regs_flag(regs, PIF_SYSCALL_RESTART);
+ 	return 0;
+ }
+ 
+@@ -334,15 +334,10 @@ static int setup_frame(int sig, struct k
+ 
+ 	/* Set up to return from userspace.  If provided, use a stub
+ 	   already in userspace.  */
+-	if (ka->sa.sa_flags & SA_RESTORER) {
++	if (ka->sa.sa_flags & SA_RESTORER)
+ 		restorer = (unsigned long) ka->sa.sa_restorer;
+-	} else {
+-		/* Signal frame without vector registers are short ! */
+-		__u16 __user *svc = (void __user *) frame + frame_size - 2;
+-		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn, svc))
+-			return -EFAULT;
+-		restorer = (unsigned long) svc;
+-	}
++	else
++		restorer = VDSO64_SYMBOL(current, sigreturn);
+ 
+ 	/* Set up registers for signal handler */
+ 	regs->gprs[14] = restorer;
+@@ -397,14 +392,10 @@ static int setup_rt_frame(struct ksignal
+ 
+ 	/* Set up to return from userspace.  If provided, use a stub
+ 	   already in userspace.  */
+-	if (ksig->ka.sa.sa_flags & SA_RESTORER) {
++	if (ksig->ka.sa.sa_flags & SA_RESTORER)
+ 		restorer = (unsigned long) ksig->ka.sa.sa_restorer;
+-	} else {
+-		__u16 __user *svc = &frame->svc_insn;
+-		if (__put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn, svc))
+-			return -EFAULT;
+-		restorer = (unsigned long) svc;
+-	}
++	else
++		restorer = VDSO64_SYMBOL(current, rt_sigreturn);
+ 
+ 	/* Create siginfo on the signal stack */
+ 	if (copy_siginfo_to_user(&frame->info, &ksig->info))
+@@ -501,7 +492,7 @@ void arch_do_signal_or_restart(struct pt
+ 		}
+ 		/* No longer in a system call */
+ 		clear_pt_regs_flag(regs, PIF_SYSCALL);
+-		clear_pt_regs_flag(regs, PIF_SYSCALL_RESTART);
 +
-+# Generate VDSO offsets using helper script
-+gen-vdsosym := $(srctree)/$(src)/gen_vdso_offsets.sh
-+quiet_cmd_vdsosym = VDSOSYM $@
-+	cmd_vdsosym = $(NM) $< | $(gen-vdsosym) | LC_ALL=C sort > $@
-+
-+include/generated/vdso64-offsets.h: $(obj)/vdso64.so.dbg FORCE
-+	$(call if_changed,vdsosym)
---- /dev/null
-+++ b/arch/s390/kernel/vdso64/gen_vdso_offsets.sh
-@@ -0,0 +1,15 @@
-+#!/bin/sh
-+# SPDX-License-Identifier: GPL-2.0
-+
-+#
-+# Match symbols in the DSO that look like VDSO_*; produce a header file
-+# of constant offsets into the shared object.
-+#
-+# Doing this inside the Makefile will break the $(filter-out) function,
-+# causing Kbuild to rebuild the vdso-offsets header file every time.
-+#
-+# Inspired by arm64 version.
-+#
-+
-+LC_ALL=C
-+sed -n 's/\([0-9a-f]*\) . __kernel_\(.*\)/\#define vdso64_offset_\2\t0x\1/p'
+ 		rseq_signal_deliver(&ksig, regs);
+ 		if (is_compat_task())
+ 			handle_signal32(&ksig, oldset, regs);
+@@ -517,14 +508,20 @@ void arch_do_signal_or_restart(struct pt
+ 		switch (regs->gprs[2]) {
+ 		case -ERESTART_RESTARTBLOCK:
+ 			/* Restart with sys_restart_syscall */
+-			regs->int_code = __NR_restart_syscall;
+-			fallthrough;
++			regs->gprs[2] = regs->orig_gpr2;
++			current->restart_block.arch_data = regs->psw.addr;
++			if (is_compat_task())
++				regs->psw.addr = VDSO32_SYMBOL(current, restart_syscall);
++			else
++				regs->psw.addr = VDSO64_SYMBOL(current, restart_syscall);
++			if (test_thread_flag(TIF_SINGLE_STEP))
++				clear_thread_flag(TIF_PER_TRAP);
++			break;
+ 		case -ERESTARTNOHAND:
+ 		case -ERESTARTSYS:
+ 		case -ERESTARTNOINTR:
+-			/* Restart system call with magic TIF bit. */
+ 			regs->gprs[2] = regs->orig_gpr2;
+-			set_pt_regs_flag(regs, PIF_SYSCALL_RESTART);
++			regs->psw.addr = __rewind_psw(regs->psw, regs->int_code >> 16);
+ 			if (test_thread_flag(TIF_SINGLE_STEP))
+ 				clear_thread_flag(TIF_PER_TRAP);
+ 			break;
+--- a/arch/s390/kernel/syscall.c
++++ b/arch/s390/kernel/syscall.c
+@@ -121,6 +121,10 @@ void do_syscall(struct pt_regs *regs)
+ 
+ 	regs->gprs[2] = nr;
+ 
++	if (nr == __NR_restart_syscall && !(current->restart_block.arch_data & 1)) {
++		regs->psw.addr = current->restart_block.arch_data;
++		current->restart_block.arch_data = 1;
++	}
+ 	nr = syscall_enter_from_user_mode_work(regs, nr);
+ 
+ 	/*
 
 
