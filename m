@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF633CA6AB
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 664503CA87A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231974AbhGOStv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:49:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
+        id S241920AbhGOTBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239623AbhGOStq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6228B613D7;
-        Thu, 15 Jul 2021 18:46:52 +0000 (UTC)
+        id S242355AbhGOS7i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59C78613DD;
+        Thu, 15 Jul 2021 18:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374812;
-        bh=TAJ0SnSUpJfc+Cqj1aFA6K5OlqU8tHyKbd/ynWD3xIA=;
+        s=korg; t=1626375400;
+        bh=XrNhZrT/so2mBc0pNO1Elrniy1r5sRuyCJAA5Pv1jJ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoIIRYOKshouCiZRG/H9H97Fs+1Io2etY+p+w+8v/QqF65VvLPcxBT/wKwVmAYCf0
-         NULvAiGg0m/gNmr2bFNHCgxypi3Z6KS0KBiFBH9YZOkFThR08k8/uMd+chE7yTUIqs
-         E+AQ6p8OZxwM6GgGYn6bo+i+ywAYMbDq+ogmDKFY=
+        b=SnRvS1UwZXKPeyTextWn4GW7oc+ldJvD+OjGKsvHt1Xe9WruqBpo7sbtrwJd3MfMC
+         Ks+YfgnXfCw/U7psycT+brhgDXHbn03B9F33G9ZGkmexJhYUmwA/ipnkXHI6MjljGy
+         WdiaoLXj/zXEbH8SPssEcXhxYY7vmr9yFXaKRROw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>, Jan Kara <jack@suse.cz>,
+        Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 019/215] reiserfs: add check for invalid 1st journal block
+Subject: [PATCH 5.12 029/242] drm/vc4: Fix clock source for VEC PixelValve on BCM2711
 Date:   Thu, 15 Jul 2021 20:36:31 +0200
-Message-Id: <20210715182602.131627037@linuxfoundation.org>
+Message-Id: <20210715182557.051336121@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
 
-[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
+[ Upstream commit fc7a8abcee2225d6279ff785d33e24d70c738c6e ]
 
-syzbot reported divide error in reiserfs.
-The problem was in incorrect journal 1st block.
+On the BCM2711 (Raspberry Pi 4), the VEC is actually connected to
+output 2 of pixelvalve3.
 
-Syzbot's reproducer manualy generated wrong superblock
-with incorrect 1st block. In journal_init() wasn't
-any checks about this particular case.
+NOTE: This contradicts the Broadcom docs, but has been empirically
+tested and confirmed by Raspberry Pi firmware devs.
 
-For example, if 1st journal block is before superblock
-1st block, it can cause zeroing important superblock members
-in do_journal_end().
-
-Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
-Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210520150344.273900-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/journal.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/vc4/vc4_crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
-index e98f99338f8f..df5fc12a6cee 100644
---- a/fs/reiserfs/journal.c
-+++ b/fs/reiserfs/journal.c
-@@ -2760,6 +2760,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
- 		goto free_and_return;
- 	}
+diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
+index 1f36b67cd6ce..e0fd9b74baae 100644
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -1035,7 +1035,7 @@ static const struct vc4_pv_data bcm2711_pv3_data = {
+ 	.fifo_depth = 64,
+ 	.pixels_per_clock = 1,
+ 	.encoder_types = {
+-		[0] = VC4_ENCODER_TYPE_VEC,
++		[PV_CONTROL_CLK_SELECT_VEC] = VC4_ENCODER_TYPE_VEC,
+ 	},
+ };
  
-+	/*
-+	 * Sanity check to see if journal first block is correct.
-+	 * If journal first block is invalid it can cause
-+	 * zeroing important superblock members.
-+	 */
-+	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
-+	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
-+		reiserfs_warning(sb, "journal-1393",
-+				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
-+				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
-+				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
-+		goto free_and_return;
-+	}
-+
- 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
- 		reiserfs_warning(sb, "sh-462",
- 				 "unable to initialize journal device");
 -- 
 2.30.2
 
