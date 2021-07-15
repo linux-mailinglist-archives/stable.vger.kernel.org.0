@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F0013CA94D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC09E3CAB00
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242910AbhGOTGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39500 "EHLO mail.kernel.org"
+        id S244409AbhGOTQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242638AbhGOTFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 290636141D;
-        Thu, 15 Jul 2021 19:01:15 +0000 (UTC)
+        id S244833AbhGOTPQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AC8961421;
+        Thu, 15 Jul 2021 19:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375675;
-        bh=mTUfbD5MVl4Nd0GYhQMLHXk0Dpo6nGARDrZOMGB3n4k=;
+        s=korg; t=1626376295;
+        bh=9CZYZH1IJIqZRfQ/cPp5d9YX2cUsPDo8NZVgJPiZQHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guB3YOYwNjV/tu7O6WrH5O0tkYV2A8Mn4NodgFSgK3+eAEKgCLPzWPvwFBFrzXc9p
-         u/AbGQxM+P4/5LPT3EsMSN8KCJIUHSY8kepG+bWkzhNKa2VG1jijk0CxqnVp54+3we
-         NnArspZshiKlhXYMy32mg0YzPnpea/wmyWK2I188=
+        b=quPoqpW7ENTCYAdfL286yy9ghNoCuHMwEXlHDIL4KZtEbXD29NSoDbgzvCG+DLZUl
+         DvPAnPP703Pe6mqc1vZhDp0bVB/dyt5QMyppK3693o0m2uJUqkWTn8J/UvxntTi7/l
+         vlVFfjmmBZuiyEXz6UJqw53HNNGVI1Tdy5bgbbWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 161/242] drm/amdgpu: add new dimgrey cavefish DID
+        stable@vger.kernel.org, Tim Jiang <tjiang@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 168/266] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
 Date:   Thu, 15 Jul 2021 20:38:43 +0200
-Message-Id: <20210715182621.475616609@linuxfoundation.org>
+Message-Id: <20210715182642.081204347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,30 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Tim Jiang <tjiang@codeaurora.org>
 
-commit 06ac9b6c736ac9da600b1782d7ac6d6e746286c4 upstream.
+[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
 
-Add new PCI device id.
+This is btsoc timing issue, after host start to downloading bt firmware,
+ep2 need time to switch from function acl to function dfu, so host add
+20ms delay as workaround.
 
-Reviewed-by: Guchun Chen <guchun.chen@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/bluetooth/btusb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -1123,6 +1123,7 @@ static const struct pci_device_id pciidl
- 	{0x1002, 0x73E0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
- 	{0x1002, 0x73E1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
- 	{0x1002, 0x73E2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
-+	{0x1002, 0x73E3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
- 	{0x1002, 0x73FF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 1cec9b2353c6..6d23308119d1 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -4071,6 +4071,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
+ 	sent += size;
+ 	count -= size;
  
- 	{0, 0, 0}
++	/* ep2 need time to switch from function acl to function dfu,
++	 * so we add 20ms delay here.
++	 */
++	msleep(20);
++
+ 	while (count) {
+ 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
+ 
+-- 
+2.30.2
+
 
 
