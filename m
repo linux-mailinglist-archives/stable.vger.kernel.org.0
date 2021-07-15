@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9760B3CA757
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE0A3CA75B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240138AbhGOSx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:53:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
+        id S239719AbhGOSxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240428AbhGOSwx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:52:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0168613DF;
-        Thu, 15 Jul 2021 18:49:58 +0000 (UTC)
+        id S240608AbhGOSw4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27F31610C7;
+        Thu, 15 Jul 2021 18:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374999;
-        bh=9JKt97iK4lECn7y3m5V2RLA8bI1vpaMigflUT8hvO7E=;
+        s=korg; t=1626375001;
+        bh=ueVVH8DOKHN69iucCynZ6oA8TK3YdrjL8DUN+XRL22c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpfsH3Sog93MLDzhmlQnVfYcYCgdCae2E/FoqOAV9QeRKdiklA05ZtFWI2X2i+C59
-         N9NQ8aKGVeKLxAF+44qKkUR7pNx21t2ifdDCftkCxc0FDimFJC+1KliVFAft+eF4Ax
-         RHqDb5nSeuvAg8GS7RyRvaEzN3sxCJ9CjVmtivaw=
+        b=vhxwo+FbPGjbqU9B4sy39E95psLza5q7NW6rUiG0w1zF1vU0xgF1DC8M+0+J9RST8
+         WWyfghbNfLo9NXBIKPtAGa0afU54vkBr95mmpm5j4iOnwhGun0sbJ6wrsNWFVkpIOz
+         OJlJ6drxhTmkXuk/P3Jbhv5OCyQMkMXR0MgkNGQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
-        Yu Liu <yudiliu@google.com>,
+        stable@vger.kernel.org, Kiran K <kiran.k@intel.com>,
+        Lokendra Singh <lokendra.singh@intel.com>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 117/215] Bluetooth: Fix the HCI to MGMT status conversion table
-Date:   Thu, 15 Jul 2021 20:38:09 +0200
-Message-Id: <20210715182620.205576554@linuxfoundation.org>
+Subject: [PATCH 5.10 118/215] Bluetooth: Fix alt settings for incoming SCO with transparent coding format
+Date:   Thu, 15 Jul 2021 20:38:10 +0200
+Message-Id: <20210715182620.395537382@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -41,42 +41,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liu <yudiliu@google.com>
+From: Kiran K <kiran.k@intel.com>
 
-[ Upstream commit 4ef36a52b0e47c80bbfd69c0cce61c7ae9f541ed ]
+[ Upstream commit 06d213d8a89a6f55b708422c3dda2b22add10748 ]
 
-0x2B, 0x31 and 0x33 are reserved for future use but were not present in
-the HCI to MGMT conversion table, this caused the conversion to be
-incorrect for the HCI status code greater than 0x2A.
+For incoming SCO connection with transparent coding format, alt setting
+of CVSD is getting applied instead of Transparent.
 
-Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
-Signed-off-by: Yu Liu <yudiliu@google.com>
+Before fix:
+< HCI Command: Accept Synchron.. (0x01|0x0029) plen 21  #2196 [hci0] 321.342548
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 13
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x003f
+          HV1 may be used
+          HV2 may be used
+          HV3 may be used
+          EV3 may be used
+          EV4 may be used
+          EV5 may be used
+> HCI Event: Command Status (0x0f) plen 4               #2197 [hci0] 321.343585
+      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Synchronous Connect Comp.. (0x2c) plen 17  #2198 [hci0] 321.351666
+        Status: Success (0x00)
+        Handle: 257
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x0c
+        Retransmission window: 0x04
+        RX packet length: 60
+        TX packet length: 60
+        Air mode: Transparent (0x03)
+........
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2336 [hci0] 321.383655
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2337 [hci0] 321.389558
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2338 [hci0] 321.393615
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2339 [hci0] 321.393618
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2340 [hci0] 321.393618
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2341 [hci0] 321.397070
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2342 [hci0] 321.403622
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2343 [hci0] 321.403625
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2344 [hci0] 321.403625
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2345 [hci0] 321.403625
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2346 [hci0] 321.404569
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2347 [hci0] 321.412091
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2348 [hci0] 321.413626
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2349 [hci0] 321.413630
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2350 [hci0] 321.413630
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2351 [hci0] 321.419674
+
+After fix:
+
+< HCI Command: Accept Synchronou.. (0x01|0x0029) plen 21  #309 [hci0] 49.439693
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 13
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x003f
+          HV1 may be used
+          HV2 may be used
+          HV3 may be used
+          EV3 may be used
+          EV4 may be used
+          EV5 may be used
+> HCI Event: Command Status (0x0f) plen 4                 #310 [hci0] 49.440308
+      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Synchronous Connect Complete (0x2c) plen 17  #311 [hci0] 49.449308
+        Status: Success (0x00)
+        Handle: 257
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x0c
+        Retransmission window: 0x04
+        RX packet length: 60
+        TX packet length: 60
+        Air mode: Transparent (0x03)
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #312 [hci0] 49.450421
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #313 [hci0] 49.457927
+> HCI Event: Max Slots Change (0x1b) plen 3               #314 [hci0] 49.460345
+        Handle: 256
+        Max slots: 5
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #315 [hci0] 49.465453
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #316 [hci0] 49.470502
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #317 [hci0] 49.470519
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #318 [hci0] 49.472996
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #319 [hci0] 49.480412
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #320 [hci0] 49.480492
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #321 [hci0] 49.487989
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #322 [hci0] 49.490303
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #323 [hci0] 49.495496
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #324 [hci0] 49.500304
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #325 [hci0] 49.500311
+
+Signed-off-by: Kiran K <kiran.k@intel.com>
+Signed-off-by: Lokendra Singh <lokendra.singh@intel.com>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/bluetooth/hci_event.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 13520c7b4f2f..7dfb96946220 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -247,12 +247,15 @@ static const u8 mgmt_status_table[] = {
- 	MGMT_STATUS_TIMEOUT,		/* Instant Passed */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Pairing Not Supported */
- 	MGMT_STATUS_FAILED,		/* Transaction Collision */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Unacceptable Parameter */
- 	MGMT_STATUS_REJECTED,		/* QoS Rejected */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Classification Not Supported */
- 	MGMT_STATUS_REJECTED,		/* Insufficient Security */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Parameter Out Of Range */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_BUSY,		/* Role Switch Pending */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_FAILED,		/* Slot Violation */
- 	MGMT_STATUS_FAILED,		/* Role Switch Failed */
- 	MGMT_STATUS_INVALID_PARAMS,	/* EIR Too Large */
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index d62ac4b73709..e59ae24a8f17 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4360,12 +4360,12 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
+ 
+ 	bt_dev_dbg(hdev, "SCO connected with air mode: %02x", ev->air_mode);
+ 
+-	switch (conn->setting & SCO_AIRMODE_MASK) {
+-	case SCO_AIRMODE_CVSD:
++	switch (ev->air_mode) {
++	case 0x02:
+ 		if (hdev->notify)
+ 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_CVSD);
+ 		break;
+-	case SCO_AIRMODE_TRANSP:
++	case 0x03:
+ 		if (hdev->notify)
+ 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_TRANSP);
+ 		break;
 -- 
 2.30.2
 
