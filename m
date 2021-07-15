@@ -2,121 +2,332 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4803CA178
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 17:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 471D33CA186
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 17:32:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232630AbhGOPcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 11:32:25 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40948 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232330AbhGOPcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 11:32:25 -0400
-From:   John Ogness <john.ogness@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1626362971;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=35CXobfY8CFmqTt4Bwc24NZBVuf8jY71PYlcrs1aoUA=;
-        b=IPlGbN2quQJzuVV69+X+jmjMFNyPW9sCjB0dJNENhIXKmmHqeJrcDTcLvQrWG9sdmb6Ngl
-        Z0ylHL+qNKLQwiqUIEMejKEQRKKjvduqLB+LSgL/J6YnLnZ+pH4RDxxAe5h8l+aRb8T9f6
-        NhefWjvXh14KKD9K/sARGN+xlQXtzPbidc/B9YsKHhCsBpYGWozYlsUcNoSpAmDfEYxfON
-        b+uGech+YRQpymDx24abNQpaMmjHy06kzV+pWD8deg9wBuKHvbw7R+zJp0xr3gpTPNbjjF
-        QqX0c8otmlhFWn/nFfB3oUpMzu7VC1biujL79WojNgm65EZxa2+/cAiO3wUPtg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1626362971;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=35CXobfY8CFmqTt4Bwc24NZBVuf8jY71PYlcrs1aoUA=;
-        b=oyKYgh4Sh9edL3MjsTq1m9hK2hxbHfTtE2GOeBTQeF2ZYwCXNsHzsChZO7+v/dr7/4RPcw
-        12s6IdDoZxJpy1AA==
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     Petr Mladek <pmladek@suse.com>, kernel test robot <lkp@intel.com>,
-        stable@vger.kernel.org,
-        Sergey Senozhatsky <senozhatsky@chromium.org>
-Subject: [PATCH tglx/in-place v1 03/21] printk/console: Check consistent sequence number when handling race in console_unlock()
-Date:   Thu, 15 Jul 2021 17:35:12 +0206
-Message-Id: <20210715152930.22959-4-john.ogness@linutronix.de>
-In-Reply-To: <20210715152930.22959-1-john.ogness@linutronix.de>
-References: <20210715152930.22959-1-john.ogness@linutronix.de>
+        id S238973AbhGOPfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 11:35:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237550AbhGOPfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 11:35:47 -0400
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A47C061760
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 08:32:54 -0700 (PDT)
+Received: by mail-pl1-x632.google.com with SMTP id b12so3538583plh.10
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 08:32:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=hXEn4SNZ8GVJhdZfy8rz6BNLG+94hXjpI/MzsAVSvWE=;
+        b=vAXzVp+qM2MUasjdk1fQmnFZjOVqD/nZFugZYOstHFadUTz76c+99r9E5RM8Dr8C+k
+         +M/hJvzq5UI2KS5+JDV0aztK49owEU8gnvXg6Dn4aKGcvnS2zaTqV+TODXVPa9DMdgqj
+         ozSxJLWcxASSFvQsZk/0/PqJR+Gl0Fk//RSPbrUTrn6RuR62c1r8rD1YkNgho+f7iYcw
+         fc1DT4jQVPCFSsBGfXlUFurH7o1ZIlCOEV5ecZ8AMbB3oE8QHdeAN+wcg60oJAP3h3mp
+         CqG1ZfKh5rBOjg6WlI64s9IWCOCUuqy3Fv0YU9NzqXMxDz52w7krEUyMs0S/b/Sxh98a
+         h28w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=hXEn4SNZ8GVJhdZfy8rz6BNLG+94hXjpI/MzsAVSvWE=;
+        b=jnf4XnLFTqMfiWhyCrpdoNtvo3f7fneIiAxd2dj62JFQu+yAQyPRPDW0za8zLxD+YR
+         cT0a6XDMFXwNEV2O5mjmVz8ybhi/PqGMCPH8r4z1IdWHEuB57ac54cLT8v9EhLQ29PrS
+         mD9S9uVVOeztfLlB5xW8FRL/FkTkm9GVy4zXeRhR/wKyJtfOryo33Gbw/pTZT0Kmvo8q
+         ynFg6ithSfBWaegP3q537OXFdRCjAqUUsfL173Fgzq4g2SOVbDlTnBL/G8J36X3wf07g
+         2j9lTxqqNc873sv1HrcNorNBhxAcm7hsQXfieOwmxOVIUVJaIyPdF+6YF3E+6m6TLRjb
+         b30g==
+X-Gm-Message-State: AOAM531+8JSGsANJXTZGhzOjGlpxE6gfdwrDMC4Rw/H5mE3KHN2JNRtr
+        CBCVHUl05GbQJwSHvTSOjJS1TiMkrz3uWUPQ
+X-Google-Smtp-Source: ABdhPJyC8YM0GGk7r3ZDFkRODrbbhkGf0OtU4JYNGoRv29ArL2eCLyQyuTCZpmnCBFufoyTIk612Sg==
+X-Received: by 2002:a17:902:c213:b029:12a:fb53:35cb with SMTP id 19-20020a170902c213b029012afb5335cbmr3971823pll.49.1626363173390;
+        Thu, 15 Jul 2021 08:32:53 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l6sm7098305pff.74.2021.07.15.08.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Jul 2021 08:32:53 -0700 (PDT)
+Message-ID: <60f05525.1c69fb81.22357.4b30@mx.google.com>
+Date:   Thu, 15 Jul 2021 08:32:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+X-Kernelci-Kernel: v4.19.197-279-g088e1d22d7f1
+Subject: stable-rc/queue/4.19 baseline: 159 runs,
+ 8 regressions (v4.19.197-279-g088e1d22d7f1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+stable-rc/queue/4.19 baseline: 159 runs, 8 regressions (v4.19.197-279-g088e=
+1d22d7f1)
 
-The standard printk() tries to flush the message to the console
-immediately. It tries to take the console lock. If the lock is
-already taken then the current owner is responsible for flushing
-even the new message.
+Regressions Summary
+-------------------
 
-There is a small race window between checking whether a new message is
-available and releasing the console lock. It is solved by re-checking
-the state after releasing the console lock. If the check is positive
-then console_unlock() tries to take the lock again and process the new
-message as well.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
 
-The commit 996e966640ddea7b535c ("printk: remove logbuf_lock") causes that
-console_seq is not longer read atomically. As a result, the re-check might
-be done with an inconsistent 64-bit index.
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Solve it by using the last sequence number that has been checked under
-the console lock. In the worst case, it will take the lock again only
-to realized that the new message has already been proceed. But it
-was possible even before.
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-The variable next_seq is marked as __maybe_unused to call down compiler
-warning when CONFIG_PRINTK is not defined.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Fixes: commit 996e966640ddea7b535c ("printk: remove logbuf_lock")
-Reported-by: kernel test robot <lkp@intel.com>  # unused next_seq warning
-Cc: stable@vger.kernel.org # 5.13
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Reviewed-by: John Ogness <john.ogness@linutronix.de>
-Link: https://lore.kernel.org/r/20210702150657.26760-1-pmladek@suse.com
----
- kernel/printk/printk.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 142a58d124d9..6dad7da8f383 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -2545,6 +2545,7 @@ void console_unlock(void)
- 	bool do_cond_resched, retry;
- 	struct printk_info info;
- 	struct printk_record r;
-+	u64 __maybe_unused next_seq;
- 
- 	if (console_suspended) {
- 		up_console_sem();
-@@ -2654,8 +2655,10 @@ void console_unlock(void)
- 			cond_resched();
- 	}
- 
--	console_locked = 0;
-+	/* Get consistent value of the next-to-be-used sequence number. */
-+	next_seq = console_seq;
- 
-+	console_locked = 0;
- 	up_console_sem();
- 
- 	/*
-@@ -2664,7 +2667,7 @@ void console_unlock(void)
- 	 * there's a new owner and the console_unlock() from them will do the
- 	 * flush, no worries.
- 	 */
--	retry = prb_read_valid(prb, console_seq, NULL);
-+	retry = prb_read_valid(prb, next_seq, NULL);
- 	printk_safe_exit_irqrestore(flags);
- 
- 	if (retry && console_trylock())
--- 
-2.20.1
+rk3288-veyron-jaq    | arm  | lab-collabora   | gcc-8    | multi_v7_defconf=
+ig  | 3          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.197-279-g088e1d22d7f1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.197-279-g088e1d22d7f1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      088e1d22d7f1d6cb4f582c2cdd0a041117668b66 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-baylibre    | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f01bccba8b65ffa98a93ad
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f01bccba8b65ffa98a9=
+3ae
+        failing since 243 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f01bcae9433428928a93bc
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
+arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f01bcae9433428928a9=
+3bd
+        failing since 243 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f01bdb0f029973c78a939c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
+versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f01bdb0f029973c78a9=
+39d
+        failing since 243 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f01b785e4d20e8978a93a6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
+u_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f01b785e4d20e8978a9=
+3a7
+        failing since 243 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f024a3a358bf7d858a93b5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
+emu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f024a3a358bf7d858a9=
+3b6
+        failing since 243 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
+t fail: v4.19.157-27-g5543cc2c41d55) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+rk3288-veyron-jaq    | arm  | lab-collabora   | gcc-8    | multi_v7_defconf=
+ig  | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f01fba0cce0001348a93b5
+
+  Results:     64 PASS, 6 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.197=
+-279-g088e1d22d7f1/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk32=
+88-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60f01fba0cce0001348a93c9
+        failing since 30 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-07-15T11:44:40.187830  /lava-4203198/1/../bin/lava-test-case
+    2021-07-15T11:44:40.203598  <8>[   17.656872] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60f01fba0cce0001348a93e2
+        failing since 30 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-07-15T11:44:37.746698  /lava-4203198/1/../bin/lava-test-case
+    2021-07-15T11:44:37.764332  <8>[   15.216411] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60f01fba0cce0001348a93e3
+        failing since 30 days (last pass: v4.19.194-28-g6098ecdead2c, first=
+ fail: v4.19.194-67-g1b5dea188d94)
+
+    2021-07-15T11:44:36.727843  /lava-4203198/1/../bin/lava-test-case
+    2021-07-15T11:44:36.733324  <8>[   14.197098] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
+
+ =20
