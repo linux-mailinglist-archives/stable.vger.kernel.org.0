@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1045B3C9F92
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A8F3C9F90
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:35:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237724AbhGONin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51600 "EHLO mail.kernel.org"
+        id S234994AbhGONii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:38:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232735AbhGONim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:38:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CF91613C3;
-        Thu, 15 Jul 2021 13:35:49 +0000 (UTC)
+        id S232735AbhGONii (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:38:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93B3A613C4;
+        Thu, 15 Jul 2021 13:35:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626356149;
-        bh=YeDEtsa/x9WXBLKB08pzouLdXRWCO80pU4GCDAqPkjE=;
+        s=korg; t=1626356145;
+        bh=wIBY1zAg97PTDY+RZcbvKtauKEd4xx8FTxgefBc2VOg=;
         h=Subject:To:Cc:From:Date:From;
-        b=UUSkdEdNZGfMK+sAsBwwWv0OrQThX8SZ59q93eRtMnYltks6OZG92YhhgSjdReoAN
-         k+sDtN1XMH8oHPHnURL/PzafJq63by9lZPq7g7ZeuvEVuibXsUTrOuNf2VYA9Pbm+l
-         gBtJfhnTCuGwRSAKDltwjHd1uKtKH9RJM2lR67GU=
-Subject: FAILED: patch "[PATCH] ubifs: Fix races between xattr_{set|get} and listxattr" failed to apply to 4.9-stable tree
+        b=EXwGrATFeq5ELayMUVNx9Mrtnek6zHzwqdSKN1thRWFl3PRXm598yWe1/8kMoAhb0
+         8UwwyP6c6XJRLKGtxU8F2a6Yxvrh9hyMWofvEbRyh7j3vlbP8Ox1Z0X/m/Q1Hq/rFY
+         J60ai6H/c/0QUBTL7Lx37dKamLkXmDmMUOHVjme8=
+Subject: FAILED: patch "[PATCH] ubifs: Fix races between xattr_{set|get} and listxattr" failed to apply to 4.14-stable tree
 To:     chengzhihao1@huawei.com, richard@nod.at, s.hauer@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 15 Jul 2021 15:35:35 +0200
-Message-ID: <162635613597139@kroah.com>
+Message-ID: <1626356135218199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
