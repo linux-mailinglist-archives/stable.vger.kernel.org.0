@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3DC3CA9B0
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3EB3CAB83
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241826AbhGOTIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S244936AbhGOTU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242520AbhGOTHZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A61B613D6;
-        Thu, 15 Jul 2021 19:03:23 +0000 (UTC)
+        id S245051AbhGOTTO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:19:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CC84613E5;
+        Thu, 15 Jul 2021 19:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375804;
-        bh=FMOqtWgbbmv0cWFZ5fXm/IuPiM7DSxYPeD36z7/IRaY=;
+        s=korg; t=1626376445;
+        bh=kZo4fde+p3X2ftfMdEtwKCs+3ogPBCg1LLGIL/Cr07Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bbmqnlQmdJUQ5DiRUG7ilyFz+hD+D9RYntv2SW5jNaaMy5mL/jj/KhhK+UqfNILoP
-         Nt17fpkviv08ODveScOPI0BaArLEtawgDEklMPbIDx8+sOPEHS5eFIgjw5IgZoFlPC
-         tYDkrwSQKmp6Ne16HPpWmCFmmslonmcVfSOT6/hg=
+        b=jgKggMADMskmk4ENIKjzMZDCz14HDqa1bhq6sm2/Smp+ZJrMGqQTRuPv6h04octwW
+         bAK3wzG2JVMQZVbMWb2hRMLvXlyHR+yuM7b6mnsjqopGJyzIF7AMOg3iqTyqOUe4w9
+         3UWw+YrUlQfSDWTaCunycy3V7efNOBY8KAyPoQ+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.12 242/242] f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
+        stable@vger.kernel.org, Bernhard Wimmer <be.wimm@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.13 249/266] media: ccs: Fix the op_pll_multiplier address
 Date:   Thu, 15 Jul 2021 20:40:04 +0200
-Message-Id: <20210715182635.467745499@linuxfoundation.org>
+Message-Id: <20210715182651.958503171@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,128 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Bernhard Wimmer <be.wimm@gmail.com>
 
-commit cad83c968c2ebe97905f900326988ed37146c347 upstream.
+commit 0e3e0c9369c822b7f1dd11504eeb98cfd4aabf24 upstream.
 
-As syzbot reported, there is an use-after-free issue during f2fs recovery:
+According to the CCS spec the op_pll_multiplier address is 0x030e,
+not 0x031e.
 
-Use-after-free write at 0xffff88823bc16040 (in kfence-#10):
- kmem_cache_destroy+0x1f/0x120 mm/slab_common.c:486
- f2fs_recover_fsync_data+0x75b0/0x8380 fs/f2fs/recovery.c:869
- f2fs_fill_super+0x9393/0xa420 fs/f2fs/super.c:3945
- mount_bdev+0x26c/0x3a0 fs/super.c:1367
- legacy_get_tree+0xea/0x180 fs/fs_context.c:592
- vfs_get_tree+0x86/0x270 fs/super.c:1497
- do_new_mount fs/namespace.c:2905 [inline]
- path_mount+0x196f/0x2be0 fs/namespace.c:3235
- do_mount fs/namespace.c:3248 [inline]
- __do_sys_mount fs/namespace.c:3456 [inline]
- __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3433
- do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is multi f2fs filesystem instances can race on accessing
-global fsync_entry_slab pointer, result in use-after-free issue of slab
-cache, fixes to init/destroy this slab cache only once during module
-init/destroy procedure to avoid this issue.
-
-Reported-by: syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Bernhard Wimmer <be.wimm@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 6493c4b777c2 ("media: smiapp: Import CCS definitions")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/f2fs.h     |    2 ++
- fs/f2fs/recovery.c |   23 ++++++++++++++---------
- fs/f2fs/super.c    |    8 +++++++-
- 3 files changed, 23 insertions(+), 10 deletions(-)
+ drivers/media/i2c/ccs/ccs-limits.c |    4 ++++
+ drivers/media/i2c/ccs/ccs-limits.h |    4 ++++
+ drivers/media/i2c/ccs/ccs-regs.h   |    6 +++++-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3560,6 +3560,8 @@ void f2fs_destroy_garbage_collection_cac
-  */
- int f2fs_recover_fsync_data(struct f2fs_sb_info *sbi, bool check_only);
- bool f2fs_space_for_roll_forward(struct f2fs_sb_info *sbi);
-+int __init f2fs_create_recovery_cache(void);
-+void f2fs_destroy_recovery_cache(void);
+--- a/drivers/media/i2c/ccs/ccs-limits.c
++++ b/drivers/media/i2c/ccs/ccs-limits.c
+@@ -1,5 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
  
- /*
-  * debug.c
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -787,13 +787,6 @@ int f2fs_recover_fsync_data(struct f2fs_
- 	quota_enabled = f2fs_enable_quota_files(sbi, s_flags & SB_RDONLY);
- #endif
+ #include "ccs-limits.h"
+ #include "ccs-regs.h"
+--- a/drivers/media/i2c/ccs/ccs-limits.h
++++ b/drivers/media/i2c/ccs/ccs-limits.h
+@@ -1,5 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
  
--	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
--			sizeof(struct fsync_inode_entry));
--	if (!fsync_entry_slab) {
--		err = -ENOMEM;
--		goto out;
--	}
--
- 	INIT_LIST_HEAD(&inode_list);
- 	INIT_LIST_HEAD(&tmp_inode_list);
- 	INIT_LIST_HEAD(&dir_list);
-@@ -866,8 +859,6 @@ skip:
- 		}
- 	}
+ #ifndef __CCS_LIMITS_H__
+ #define __CCS_LIMITS_H__
+--- a/drivers/media/i2c/ccs/ccs-regs.h
++++ b/drivers/media/i2c/ccs/ccs-regs.h
+@@ -1,5 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
  
--	kmem_cache_destroy(fsync_entry_slab);
--out:
- #ifdef CONFIG_QUOTA
- 	/* Turn quotas off */
- 	if (quota_enabled)
-@@ -877,3 +868,17 @@ out:
- 
- 	return ret ? ret: err;
- }
-+
-+int __init f2fs_create_recovery_cache(void)
-+{
-+	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
-+					sizeof(struct fsync_inode_entry));
-+	if (!fsync_entry_slab)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+void f2fs_destroy_recovery_cache(void)
-+{
-+	kmem_cache_destroy(fsync_entry_slab);
-+}
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -4187,9 +4187,12 @@ static int __init init_f2fs_fs(void)
- 	err = f2fs_create_checkpoint_caches();
- 	if (err)
- 		goto free_segment_manager_caches;
--	err = f2fs_create_extent_cache();
-+	err = f2fs_create_recovery_cache();
- 	if (err)
- 		goto free_checkpoint_caches;
-+	err = f2fs_create_extent_cache();
-+	if (err)
-+		goto free_recovery_cache;
- 	err = f2fs_create_garbage_collection_cache();
- 	if (err)
- 		goto free_extent_cache;
-@@ -4238,6 +4241,8 @@ free_garbage_collection_cache:
- 	f2fs_destroy_garbage_collection_cache();
- free_extent_cache:
- 	f2fs_destroy_extent_cache();
-+free_recovery_cache:
-+	f2fs_destroy_recovery_cache();
- free_checkpoint_caches:
- 	f2fs_destroy_checkpoint_caches();
- free_segment_manager_caches:
-@@ -4263,6 +4268,7 @@ static void __exit exit_f2fs_fs(void)
- 	f2fs_exit_sysfs();
- 	f2fs_destroy_garbage_collection_cache();
- 	f2fs_destroy_extent_cache();
-+	f2fs_destroy_recovery_cache();
- 	f2fs_destroy_checkpoint_caches();
- 	f2fs_destroy_segment_manager_caches();
- 	f2fs_destroy_node_manager_caches();
+ #ifndef __CCS_REGS_H__
+ #define __CCS_REGS_H__
+@@ -202,7 +206,7 @@
+ #define CCS_R_OP_PIX_CLK_DIV					(0x0308 | CCS_FL_16BIT)
+ #define CCS_R_OP_SYS_CLK_DIV					(0x030a | CCS_FL_16BIT)
+ #define CCS_R_OP_PRE_PLL_CLK_DIV				(0x030c | CCS_FL_16BIT)
+-#define CCS_R_OP_PLL_MULTIPLIER					(0x031e | CCS_FL_16BIT)
++#define CCS_R_OP_PLL_MULTIPLIER					(0x030e | CCS_FL_16BIT)
+ #define CCS_R_PLL_MODE						0x0310
+ #define CCS_PLL_MODE_SHIFT					0U
+ #define CCS_PLL_MODE_MASK					0x1
 
 
