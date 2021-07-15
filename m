@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2563CAA21
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E393CAA26
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242414AbhGOTMK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
+        id S242253AbhGOTMN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243413AbhGOTJt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:09:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF0006140E;
-        Thu, 15 Jul 2021 19:05:39 +0000 (UTC)
+        id S243490AbhGOTJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:09:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C99261158;
+        Thu, 15 Jul 2021 19:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375940;
-        bh=NKRBa+ZnalVf/of+MHcxQ4XWS/mH2Exv8L+GNaH1lEg=;
+        s=korg; t=1626375942;
+        bh=jkuEZkfL7lr8mk1AeV04Qf6U6eKhfHJ7PJkPe7AUo14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PH+nwvQWGpTgYbNziuPYGlOXm/7suOZ3WZMDGF8hfvQQKqXpdvlxGp8uO56xg9dUt
-         6VCb5zDCZdmfcA453rQhLw/7FHW5MLvLCZfAz83CLb40aBpTSQc5+zbviIaItTxTy2
-         G1KlVgNtK/7d/Z+r/TjbQbNIviDKDTWwUf1Fnra0=
+        b=ErFpI2YPXNa5yAEOs+7/u11TBgTkiHglM5GxIH2fpfhayZD9Kd24fus6hK3H+t38y
+         p5v94GFegpVWJGGj5JKWPlCmgMe4a3MBkGM06vQYkDX7V2GM40xC+M8949ZYDpoylE
+         /XjE/7GzwTjrwFYX+p27XSF/EYMCrBVIgkQ6nJXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 057/266] ipv6: use prandom_u32() for ID generation
-Date:   Thu, 15 Jul 2021 20:36:52 +0200
-Message-Id: <20210715182624.275316846@linuxfoundation.org>
+Subject: [PATCH 5.13 058/266] MIPS: cpu-probe: Fix FPU detection on Ingenic JZ4760(B)
+Date:   Thu, 15 Jul 2021 20:36:53 +0200
+Message-Id: <20210715182624.443104202@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,92 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
+[ Upstream commit fc52f92a653215fbd6bc522ac5311857b335e589 ]
 
-This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
-table for IP ID generation"), but focusing on some specific aspects
-of IPv6.
+Ingenic JZ4760 and JZ4760B do have a FPU, but the config registers don't
+report it. Force the FPU detection in case the processor ID match the
+JZ4760(B) one.
 
-Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
-minimum MTU of 1280, it's much less easy to force a remote peer to
-produce many fragments to explore its ID sequence. In addition packet
-IDs are 32-bit in IPv6, which further complicates their analysis. On
-the other hand, it is often easier to choose among plenty of possible
-source addresses and partially work around the bigger hash table the
-commit above permits, which leaves IPv6 partially exposed to some
-possibilities of remote analysis at the risk of weakening some
-protocols like DNS if some IDs can be predicted with a good enough
-probability.
-
-Given the wide range of permitted IDs, the risk of collision is extremely
-low so there's no need to rely on the positive increment algorithm that
-is shared with the IPv4 code via ip_idents_reserve(). We have a fast
-PRNG, so let's simply call prandom_u32() and be done with it.
-
-Performance measurements at 10 Gbps couldn't show any difference with
-the previous code, even when using a single core, because due to the
-large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
-of the random generation is completely offset by other operations and by
-the network transfer time. In addition, this change removes the need to
-update a shared entry in the idents table so it may even end up being
-slightly faster on large scale systems where this matters.
-
-The risk of at least one collision here is about 1/80 million among
-10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
-which remains very low compared to IPv4 where all IDs are reused
-every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
-
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/output_core.c | 28 +++++-----------------------
- 1 file changed, 5 insertions(+), 23 deletions(-)
+ arch/mips/kernel/cpu-probe.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
-index af36acc1a644..2880dc7d9a49 100644
---- a/net/ipv6/output_core.c
-+++ b/net/ipv6/output_core.c
-@@ -15,29 +15,11 @@ static u32 __ipv6_select_ident(struct net *net,
- 			       const struct in6_addr *dst,
- 			       const struct in6_addr *src)
- {
--	const struct {
--		struct in6_addr dst;
--		struct in6_addr src;
--	} __aligned(SIPHASH_ALIGNMENT) combined = {
--		.dst = *dst,
--		.src = *src,
--	};
--	u32 hash, id;
--
--	/* Note the following code is not safe, but this is okay. */
--	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
--		get_random_bytes(&net->ipv4.ip_id_key,
--				 sizeof(net->ipv4.ip_id_key));
--
--	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
--
--	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
--	 * set the hight order instead thus minimizing possible future
--	 * collisions.
--	 */
--	id = ip_idents_reserve(hash, 1);
--	if (unlikely(!id))
--		id = 1 << 31;
-+	u32 id;
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index 0ef240adefb5..630fcb4cb30e 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1840,6 +1840,11 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
+ 		 */
+ 		case PRID_COMP_INGENIC_D0:
+ 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
 +
-+	do {
-+		id = prandom_u32();
-+	} while (!id);
++			/* FPU is not properly detected on JZ4760(B). */
++			if (c->processor_id == 0x2ed0024f)
++				c->options |= MIPS_CPU_FPU;
++
+ 			fallthrough;
  
- 	return id;
- }
+ 		/*
 -- 
 2.30.2
 
