@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 881B53CA8AF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9CBC3CA6DA
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242865AbhGOTCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33970 "EHLO mail.kernel.org"
+        id S239999AbhGOSu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242296AbhGOS7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AF8D613E9;
-        Thu, 15 Jul 2021 18:56:17 +0000 (UTC)
+        id S240564AbhGOSuX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47847613CF;
+        Thu, 15 Jul 2021 18:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375377;
-        bh=6BREJ0k9L9mE1E4tZx8e9Dg/2tIQvEdSjFwZmz7JpRU=;
+        s=korg; t=1626374849;
+        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jS7JagA5a6DPzzdXtIe0OoCpPnQwyWWm6SIZ4K+i/9dPxVBvydiPEgNSGbVVeSypU
-         R+N/PcmZUy9DVYZNghTTFk2IlPim18US4GrZr6FQblGtj/5fB9dgETzeF7FK1EzJAj
-         CA0vsb82trsqNFmf+KM8x89uHAnNcv02IKQN1+q0=
+        b=0BiI1HZsjxQKoeLpobMA2YR0MqKgIWWa4h0G/H+mp3TFN9qYC5qV7a2+O1gimPhD2
+         hltitJxLr/c/4YrXO+/QXvfoiK2R+lpTFwfLpn45qwRzZ+KQ+vLFcrqPo013FAR2e5
+         Z/NRqSePLlkyXo0iZ56/5aqKaHm/Ts26D02mFiOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 060/242] net: bridge: mrp: Update ring transitions.
-Date:   Thu, 15 Jul 2021 20:37:02 +0200
-Message-Id: <20210715182603.002669275@linuxfoundation.org>
+Subject: [PATCH 5.10 051/215] dm space maps: dont reset space map allocation cursor when committing
+Date:   Thu, 15 Jul 2021 20:37:03 +0200
+Message-Id: <20210715182608.418689880@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit fcb34635854a5a5814227628867ea914a9805384 ]
+[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
 
-According to the standard IEC 62439-2, the number of transitions needs
-to be counted for each transition 'between' ring state open and ring
-state closed and not from open state to closed state.
+Current commit code resets the place where the search for free blocks
+will begin back to the start of the metadata device.  There are a couple
+of repercussions to this:
 
-Therefore fix this for both ring and interconnect ring.
+- The first allocation after the commit is likely to take longer than
+  normal as it searches for a free block in an area that is likely to
+  have very few free blocks (if any).
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- Any free blocks it finds will have been recently freed.  Reusing them
+  means we have fewer old copies of the metadata to aid recovery from
+  hardware error.
+
+Fix these issues by leaving the cursor alone, only resetting when the
+search hits the end of the metadata device.
+
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_mrp.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
+ drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index 12487f6fe9b4..58254fbfda85 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -620,8 +620,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
- 	if (!mrp)
- 		return -EINVAL;
+diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
+index bf4c5e2ccb6f..e0acae7a3815 100644
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smd->begin and the end of the metadata device.
++		 * We search before smd->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
--	if (mrp->ring_state == BR_MRP_RING_STATE_CLOSED &&
--	    state->ring_state != BR_MRP_RING_STATE_CLOSED)
-+	if (mrp->ring_state != state->ring_state)
- 		mrp->ring_transitions++;
+@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
+ 		return r;
  
- 	mrp->ring_state = state->ring_state;
-@@ -708,8 +707,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
- 	if (!mrp)
- 		return -EINVAL;
+ 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+-	smd->begin = 0;
+ 	smd->nr_allocated_this_transaction = 0;
  
--	if (mrp->in_state == BR_MRP_IN_STATE_CLOSED &&
--	    state->in_state != BR_MRP_IN_STATE_CLOSED)
-+	if (mrp->in_state != state->in_state)
- 		mrp->in_transitions++;
+ 	r = sm_disk_get_nr_free(sm, &nr_free);
+diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
+index 9e3c64ec2026..da439ac85796 100644
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smm->begin and the end of the metadata device.
++		 * We search before smm->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
- 	mrp->in_state = state->in_state;
+@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
+-	smm->begin = 0;
+ 	smm->allocated_this_transaction = 0;
+ 
+ 	return 0;
 -- 
 2.30.2
 
