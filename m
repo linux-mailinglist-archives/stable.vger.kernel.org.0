@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5D83CA798
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BA93CA616
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241229AbhGOSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57022 "EHLO mail.kernel.org"
+        id S237613AbhGOSqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240521AbhGOSxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:53:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41C13613E9;
-        Thu, 15 Jul 2021 18:50:50 +0000 (UTC)
+        id S237753AbhGOSqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0741613D7;
+        Thu, 15 Jul 2021 18:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375050;
-        bh=GxypP4UT325zqr4kTvvAIepMI0OmMlma2dxIYZxwOw4=;
+        s=korg; t=1626374589;
+        bh=yOtutcEAAnUNYtCF8vpg5yEMZ33aMVeFVytmFilJ1aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nq/5np+ojXDRvpq5AAxpwNXkFHIkOfSyyH3FzRtA/AjOMdEapkxWLfO4RpLO7vi6d
-         3CYM8guwaF0ypXyE0VwfWehggjAolG8XEM0DJNYh4iiii+X+Jy2RQCmTSNXJnjE/I/
-         uEej0MxTZrslG/cqwsT2tYYXfQf+TIKsWUcclApo=
+        b=xtuwygXMpgQOI7Sl6L4BfE77tv5unpkW+lLl1Jd3cb+x/GrQho+8Vkjrqxa/QYkM/
+         OzUBweNMQVSENCPBHndretozcKXL7M2MuYnsvJ0PDUtQoo3Qbpnl6nRn66fjOde4Jr
+         wNaLQCgwCU0GMl9JXf1T36tZhnj8MXbfN7Nmq2oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cameron Nemo <cnemo@tutanota.com>,
-        Chen-Yu Tsai <wens@csie.org>, Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.10 137/215] arm64: dts: rockchip: Enable USB3 for rk3328 Rock64
+        stable@vger.kernel.org, Dave Jones <dsj@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 062/122] net: ip: avoid OOM kills with large UDP sends over loopback
 Date:   Thu, 15 Jul 2021 20:38:29 +0200
-Message-Id: <20210715182623.781542019@linuxfoundation.org>
+Message-Id: <20210715182505.909309984@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +41,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cameron Nemo <cnemo@tutanota.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-commit bbac8bd65f5402281cb7b0452c1c5f367387b459 upstream.
+[ Upstream commit 6d123b81ac615072a8525c13c6c41b695270a15d ]
 
-Enable USB3 nodes for the rk3328-based PINE Rock64 board.
+Dave observed number of machines hitting OOM on the UDP send
+path. The workload seems to be sending large UDP packets over
+loopback. Since loopback has MTU of 64k kernel will try to
+allocate an skb with up to 64k of head space. This has a good
+chance of failing under memory pressure. What's worse if
+the message length is <32k the allocation may trigger an
+OOM killer.
 
-The separate power regulator is not added as it is controlled by the
-same GPIO line as the existing VBUS regulators, so it is already
-enabled. Also there is no port representation to tie the regulator to.
+This is entirely avoidable, we can use an skb with page frags.
 
-[wens@csie.org: Rebased onto v5.12]
+af_unix solves a similar problem by limiting the head
+length to SKB_MAX_ALLOC. This seems like a good and simple
+approach. It means that UDP messages > 16kB will now
+use fragments if underlying device supports SG, if extra
+allocator pressure causes regressions in real workloads
+we can switch to trying the large allocation first and
+falling back.
 
-Signed-off-by: Cameron Nemo <cnemo@tutanota.com>
-[wens@csie.org: Rewrote commit message]
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20210504083616.9654-2-wens@kernel.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+v4: pre-calculate all the additions to alloclen so
+    we can be sure it won't go over order-2
 
+Reported-by: Dave Jones <dsj@fb.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328-rock64.dts |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/ipv4/ip_output.c  | 32 ++++++++++++++++++--------------
+ net/ipv6/ip6_output.c | 32 +++++++++++++++++---------------
+ 2 files changed, 35 insertions(+), 29 deletions(-)
 
---- a/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-rock64.dts
-@@ -384,6 +384,11 @@
- 	status = "okay";
- };
+diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
+index 7a394479dd56..f52bc9c22e5b 100644
+--- a/net/ipv4/ip_output.c
++++ b/net/ipv4/ip_output.c
+@@ -1048,7 +1048,7 @@ static int __ip_append_data(struct sock *sk,
+ 			unsigned int datalen;
+ 			unsigned int fraglen;
+ 			unsigned int fraggap;
+-			unsigned int alloclen;
++			unsigned int alloclen, alloc_extra;
+ 			unsigned int pagedlen;
+ 			struct sk_buff *skb_prev;
+ alloc_new_skb:
+@@ -1068,35 +1068,39 @@ alloc_new_skb:
+ 			fraglen = datalen + fragheaderlen;
+ 			pagedlen = 0;
  
-+&usbdrd3 {
-+	dr_mode = "host";
-+	status = "okay";
-+};
++			alloc_extra = hh_len + 15;
++			alloc_extra += exthdrlen;
 +
- &usb_host0_ehci {
- 	status = "okay";
- };
++			/* The last fragment gets additional space at tail.
++			 * Note, with MSG_MORE we overallocate on fragments,
++			 * because we have no idea what fragment will be
++			 * the last.
++			 */
++			if (datalen == length + fraggap)
++				alloc_extra += rt->dst.trailer_len;
++
+ 			if ((flags & MSG_MORE) &&
+ 			    !(rt->dst.dev->features&NETIF_F_SG))
+ 				alloclen = mtu;
+-			else if (!paged)
++			else if (!paged &&
++				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
++				  !(rt->dst.dev->features & NETIF_F_SG)))
+ 				alloclen = fraglen;
+ 			else {
+ 				alloclen = min_t(int, fraglen, MAX_HEADER);
+ 				pagedlen = fraglen - alloclen;
+ 			}
+ 
+-			alloclen += exthdrlen;
+-
+-			/* The last fragment gets additional space at tail.
+-			 * Note, with MSG_MORE we overallocate on fragments,
+-			 * because we have no idea what fragment will be
+-			 * the last.
+-			 */
+-			if (datalen == length + fraggap)
+-				alloclen += rt->dst.trailer_len;
++			alloclen += alloc_extra;
+ 
+ 			if (transhdrlen) {
+-				skb = sock_alloc_send_skb(sk,
+-						alloclen + hh_len + 15,
++				skb = sock_alloc_send_skb(sk, alloclen,
+ 						(flags & MSG_DONTWAIT), &err);
+ 			} else {
+ 				skb = NULL;
+ 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
+ 				    2 * sk->sk_sndbuf)
+-					skb = alloc_skb(alloclen + hh_len + 15,
++					skb = alloc_skb(alloclen,
+ 							sk->sk_allocation);
+ 				if (unlikely(!skb))
+ 					err = -ENOBUFS;
+diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
+index 7a80c42fcce2..4dcbb1ccab25 100644
+--- a/net/ipv6/ip6_output.c
++++ b/net/ipv6/ip6_output.c
+@@ -1484,7 +1484,7 @@ emsgsize:
+ 			unsigned int datalen;
+ 			unsigned int fraglen;
+ 			unsigned int fraggap;
+-			unsigned int alloclen;
++			unsigned int alloclen, alloc_extra;
+ 			unsigned int pagedlen;
+ alloc_new_skb:
+ 			/* There's no room in the current skb */
+@@ -1511,17 +1511,28 @@ alloc_new_skb:
+ 			fraglen = datalen + fragheaderlen;
+ 			pagedlen = 0;
+ 
++			alloc_extra = hh_len;
++			alloc_extra += dst_exthdrlen;
++			alloc_extra += rt->dst.trailer_len;
++
++			/* We just reserve space for fragment header.
++			 * Note: this may be overallocation if the message
++			 * (without MSG_MORE) fits into the MTU.
++			 */
++			alloc_extra += sizeof(struct frag_hdr);
++
+ 			if ((flags & MSG_MORE) &&
+ 			    !(rt->dst.dev->features&NETIF_F_SG))
+ 				alloclen = mtu;
+-			else if (!paged)
++			else if (!paged &&
++				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
++				  !(rt->dst.dev->features & NETIF_F_SG)))
+ 				alloclen = fraglen;
+ 			else {
+ 				alloclen = min_t(int, fraglen, MAX_HEADER);
+ 				pagedlen = fraglen - alloclen;
+ 			}
+-
+-			alloclen += dst_exthdrlen;
++			alloclen += alloc_extra;
+ 
+ 			if (datalen != length + fraggap) {
+ 				/*
+@@ -1531,30 +1542,21 @@ alloc_new_skb:
+ 				datalen += rt->dst.trailer_len;
+ 			}
+ 
+-			alloclen += rt->dst.trailer_len;
+ 			fraglen = datalen + fragheaderlen;
+ 
+-			/*
+-			 * We just reserve space for fragment header.
+-			 * Note: this may be overallocation if the message
+-			 * (without MSG_MORE) fits into the MTU.
+-			 */
+-			alloclen += sizeof(struct frag_hdr);
+-
+ 			copy = datalen - transhdrlen - fraggap - pagedlen;
+ 			if (copy < 0) {
+ 				err = -EINVAL;
+ 				goto error;
+ 			}
+ 			if (transhdrlen) {
+-				skb = sock_alloc_send_skb(sk,
+-						alloclen + hh_len,
++				skb = sock_alloc_send_skb(sk, alloclen,
+ 						(flags & MSG_DONTWAIT), &err);
+ 			} else {
+ 				skb = NULL;
+ 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
+ 				    2 * sk->sk_sndbuf)
+-					skb = alloc_skb(alloclen + hh_len,
++					skb = alloc_skb(alloclen,
+ 							sk->sk_allocation);
+ 				if (unlikely(!skb))
+ 					err = -ENOBUFS;
+-- 
+2.30.2
+
 
 
