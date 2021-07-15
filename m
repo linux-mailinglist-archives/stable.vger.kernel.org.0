@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 975CC3CA88C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B01F3CA5B0
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242079AbhGOTBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37800 "EHLO mail.kernel.org"
+        id S229940AbhGOSn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:43:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241790AbhGOTA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF82F60D07;
-        Thu, 15 Jul 2021 18:57:33 +0000 (UTC)
+        id S229574AbhGOSn5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:43:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53F6D613CA;
+        Thu, 15 Jul 2021 18:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375454;
-        bh=6mBsYhaKeX18KySfiOE6BvBBbZKWlt1Zm/r2GZXHrm8=;
+        s=korg; t=1626374462;
+        bh=D0aqLcDHnyIhmX9cVux80w3kOxWK9bN3LSxoqo//I1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0v839DoEi1u7+OoD0Ex1W1TfqVh0ECm2wx7rrf3HxyPaLyTPCeIxp+rsOVxD33IdH
-         uf1O78UEPAXOvVo+KAJAPhFQqqvq691OF6MhZYG+9itHNDFax3HCM5N8dEaknH9HWh
-         iRR8AheFgFaJSLRYLUokL1Tx2cTZPaXe9JV0P9LU=
+        b=fdqvSTMUH9Lk2tKVNfjQYVMVDp8j8t/qVsyCX28bfe+iUqAp4fhV6x9wknvn2FZgk
+         MKyh0A2y6EDbiPrhIZU3oYcyiuQi4fP/GVSvjVchN87lNG6TR6aqaOLMM8i2XtftAl
+         hcvVRtWiNjkE4ImFD7t2zxwn7MIoMTKoKihSZIqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 094/242] ice: fix incorrect payload indicator on PTYPE
-Date:   Thu, 15 Jul 2021 20:37:36 +0200
-Message-Id: <20210715182609.631547073@linuxfoundation.org>
+Subject: [PATCH 5.4 010/122] atm: nicstar: Fix possible use-after-free in nicstar_cleanup()
+Date:   Thu, 15 Jul 2021 20:37:37 +0200
+Message-Id: <20210715182450.976392699@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 638a0c8c8861cb8a3b54203e632ea5dcc23d8ca5 ]
+[ Upstream commit 34e7434ba4e97f4b85c1423a59b2922ba7dff2ea ]
 
-The entry for PTYPE 90 indicates that the payload is layer 3. This does
-not match the specification in the datasheet which indicates the packet
-is a MAC, IPv6, UDP packet, with a payload in layer 4.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-Fix the lookup table to match the data sheet.
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h | 2 +-
+ drivers/atm/nicstar.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-index 4ec24c3e813f..98a7f27c532b 100644
---- a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
-@@ -722,7 +722,7 @@ static const struct ice_rx_ptype_decoded ice_ptype_lkup[] = {
- 	/* Non Tunneled IPv6 */
- 	ICE_PTT(88, IP, IPV6, FRG, NONE, NONE, NOF, NONE, PAY3),
- 	ICE_PTT(89, IP, IPV6, NOF, NONE, NONE, NOF, NONE, PAY3),
--	ICE_PTT(90, IP, IPV6, NOF, NONE, NONE, NOF, UDP,  PAY3),
-+	ICE_PTT(90, IP, IPV6, NOF, NONE, NONE, NOF, UDP,  PAY4),
- 	ICE_PTT_UNUSED_ENTRY(91),
- 	ICE_PTT(92, IP, IPV6, NOF, NONE, NONE, NOF, TCP,  PAY4),
- 	ICE_PTT(93, IP, IPV6, NOF, NONE, NONE, NOF, SCTP, PAY4),
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index bb9835c62641..5ec7b6a60145 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -297,7 +297,7 @@ static void __exit nicstar_cleanup(void)
+ {
+ 	XPRINTK("nicstar: nicstar_cleanup() called.\n");
+ 
+-	del_timer(&ns_timer);
++	del_timer_sync(&ns_timer);
+ 
+ 	pci_unregister_driver(&nicstar_driver);
+ 
 -- 
 2.30.2
 
