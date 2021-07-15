@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9E23CA90A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 691B13CAAAF
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242678AbhGOTFO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
+        id S243092AbhGOTPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242920AbhGOTDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43DA9613DB;
-        Thu, 15 Jul 2021 18:59:15 +0000 (UTC)
+        id S243279AbhGOTMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DD08613D6;
+        Thu, 15 Jul 2021 19:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375555;
-        bh=drRSMMOczOIlNGnzG5B9u47gbfQ5Sw5lRCrOnpd2odA=;
+        s=korg; t=1626376141;
+        bh=LrqA3Q5ctTV6K0harTnES9skPEHmU3d24hQ7WI8iNiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6q/Q2s4XtvxGWekhHPA4LZNn1r2zG2IBGF5heAVoy6WTqweuLDEI4U51EwFfVIGP
-         nWcblNsKd4DI/otjyKBcpEurJ9/kmbfCKtF9eQ/6cSTGJVoYOs8SDQ/4VkCbu+QM7h
-         rCcSFKimWblwOln7vE+dv36/zWV1wF48UJ9Vm41k=
+        b=PuGkTvF6K7+sUbYNPfaTTjIFBchy0wh+JnRAy4xiuJ4SaPjQ35iqsLqPj18HGk5G0
+         vEcB2NsD3rAcEmcevjSLDBcG88ND2OiqP3rRnN4IoZ3mqVsf/b1tw3VIquv+jSTNhJ
+         b0tBQsutU+gSYYvudzYB7bSkS+Sfpnp1NiPVqy/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kiran K <kiran.k@intel.com>,
-        Lokendra Singh <lokendra.singh@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Paul Szabo <psz2036@gmail.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 137/242] Bluetooth: Fix alt settings for incoming SCO with transparent coding format
+Subject: [PATCH 5.13 144/266] rtw88: add quirks to disable pci capabilities
 Date:   Thu, 15 Jul 2021 20:38:19 +0200
-Message-Id: <20210715182617.134874378@linuxfoundation.org>
+Message-Id: <20210715182639.085551726@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,143 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kiran K <kiran.k@intel.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 06d213d8a89a6f55b708422c3dda2b22add10748 ]
+[ Upstream commit 956c6d4f20c5446727e0c912dd8f527f2dc7b779 ]
 
-For incoming SCO connection with transparent coding format, alt setting
-of CVSD is getting applied instead of Transparent.
+8821CE with ASPM cannot work properly on Protempo Ltd L116HTN6SPW. Add a
+quirk to disable the cap.
 
-Before fix:
-< HCI Command: Accept Synchron.. (0x01|0x0029) plen 21  #2196 [hci0] 321.342548
-        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
-        Transmit bandwidth: 8000
-        Receive bandwidth: 8000
-        Max latency: 13
-        Setting: 0x0003
-          Input Coding: Linear
-          Input Data Format: 1's complement
-          Input Sample Size: 8-bit
-          # of bits padding at MSB: 0
-          Air Coding Format: Transparent Data
-        Retransmission effort: Optimize for link quality (0x02)
-        Packet type: 0x003f
-          HV1 may be used
-          HV2 may be used
-          HV3 may be used
-          EV3 may be used
-          EV4 may be used
-          EV5 may be used
-> HCI Event: Command Status (0x0f) plen 4               #2197 [hci0] 321.343585
-      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
-        Status: Success (0x00)
-> HCI Event: Synchronous Connect Comp.. (0x2c) plen 17  #2198 [hci0] 321.351666
-        Status: Success (0x00)
-        Handle: 257
-        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
-        Link type: eSCO (0x02)
-        Transmission interval: 0x0c
-        Retransmission window: 0x04
-        RX packet length: 60
-        TX packet length: 60
-        Air mode: Transparent (0x03)
-........
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2336 [hci0] 321.383655
-< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2337 [hci0] 321.389558
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2338 [hci0] 321.393615
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2339 [hci0] 321.393618
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2340 [hci0] 321.393618
-< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2341 [hci0] 321.397070
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2342 [hci0] 321.403622
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2343 [hci0] 321.403625
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2344 [hci0] 321.403625
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2345 [hci0] 321.403625
-< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2346 [hci0] 321.404569
-< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2347 [hci0] 321.412091
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2348 [hci0] 321.413626
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2349 [hci0] 321.413630
-> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2350 [hci0] 321.413630
-< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2351 [hci0] 321.419674
+The reporter describes the symptom is that this module (driver) causes
+frequent freezes, randomly but usually within a few minutes of running
+(thus very soon after boot): screen display remains frozen, no response
+to either keyboard or mouse input. All I can do is to hold the power
+button to power off, then reboot.
 
-After fix:
-
-< HCI Command: Accept Synchronou.. (0x01|0x0029) plen 21  #309 [hci0] 49.439693
-        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
-        Transmit bandwidth: 8000
-        Receive bandwidth: 8000
-        Max latency: 13
-        Setting: 0x0003
-          Input Coding: Linear
-          Input Data Format: 1's complement
-          Input Sample Size: 8-bit
-          # of bits padding at MSB: 0
-          Air Coding Format: Transparent Data
-        Retransmission effort: Optimize for link quality (0x02)
-        Packet type: 0x003f
-          HV1 may be used
-          HV2 may be used
-          HV3 may be used
-          EV3 may be used
-          EV4 may be used
-          EV5 may be used
-> HCI Event: Command Status (0x0f) plen 4                 #310 [hci0] 49.440308
-      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
-        Status: Success (0x00)
-> HCI Event: Synchronous Connect Complete (0x2c) plen 17  #311 [hci0] 49.449308
-        Status: Success (0x00)
-        Handle: 257
-        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
-        Link type: eSCO (0x02)
-        Transmission interval: 0x0c
-        Retransmission window: 0x04
-        RX packet length: 60
-        TX packet length: 60
-        Air mode: Transparent (0x03)
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #312 [hci0] 49.450421
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #313 [hci0] 49.457927
-> HCI Event: Max Slots Change (0x1b) plen 3               #314 [hci0] 49.460345
-        Handle: 256
-        Max slots: 5
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #315 [hci0] 49.465453
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #316 [hci0] 49.470502
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #317 [hci0] 49.470519
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #318 [hci0] 49.472996
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #319 [hci0] 49.480412
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #320 [hci0] 49.480492
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #321 [hci0] 49.487989
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #322 [hci0] 49.490303
-< SCO Data TX: Handle 257 flags 0x00 dlen 60              #323 [hci0] 49.495496
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #324 [hci0] 49.500304
-> SCO Data RX: Handle 257 flags 0x00 dlen 60              #325 [hci0] 49.500311
-
-Signed-off-by: Kiran K <kiran.k@intel.com>
-Signed-off-by: Lokendra Singh <lokendra.singh@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Paul Szabo <psz2036@gmail.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210607012254.6306-1-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_event.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/realtek/rtw88/pci.c | 32 ++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index c6f400b108d9..99c89f02a974 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4379,12 +4379,12 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index f59a4c462e3b..e7d17ab8f113 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -2,6 +2,7 @@
+ /* Copyright(c) 2018-2019  Realtek Corporation
+  */
  
- 	bt_dev_dbg(hdev, "SCO connected with air mode: %02x", ev->air_mode);
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include "main.h"
+@@ -1673,6 +1674,36 @@ static void rtw_pci_napi_deinit(struct rtw_dev *rtwdev)
+ 	netif_napi_del(&rtwpci->napi);
+ }
  
--	switch (conn->setting & SCO_AIRMODE_MASK) {
--	case SCO_AIRMODE_CVSD:
-+	switch (ev->air_mode) {
-+	case 0x02:
- 		if (hdev->notify)
- 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_CVSD);
- 		break;
--	case SCO_AIRMODE_TRANSP:
-+	case 0x03:
- 		if (hdev->notify)
- 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_TRANSP);
- 		break;
++enum rtw88_quirk_dis_pci_caps {
++	QUIRK_DIS_PCI_CAP_MSI,
++	QUIRK_DIS_PCI_CAP_ASPM,
++};
++
++static int disable_pci_caps(const struct dmi_system_id *dmi)
++{
++	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
++
++	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
++		rtw_disable_msi = true;
++	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_ASPM))
++		rtw_pci_disable_aspm = true;
++
++	return 1;
++}
++
++static const struct dmi_system_id rtw88_pci_quirks[] = {
++	{
++		.callback = disable_pci_caps,
++		.ident = "Protempo Ltd L116HTN6SPW",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
++		},
++		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
++	},
++	{}
++};
++
+ int rtw_pci_probe(struct pci_dev *pdev,
+ 		  const struct pci_device_id *id)
+ {
+@@ -1723,6 +1754,7 @@ int rtw_pci_probe(struct pci_dev *pdev,
+ 		goto err_destroy_pci;
+ 	}
+ 
++	dmi_check_system(rtw88_pci_quirks);
+ 	rtw_pci_phy_cfg(rtwdev);
+ 
+ 	ret = rtw_register_hw(rtwdev, hw);
 -- 
 2.30.2
 
