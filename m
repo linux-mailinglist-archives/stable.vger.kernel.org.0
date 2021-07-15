@@ -2,89 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B94D93C9E19
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 13:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C2F3C9E2F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:05:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231390AbhGOMCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:02:21 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47413 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231338AbhGOMCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 08:02:21 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.nyi.internal (Postfix) with ESMTP id BBF625C025D;
-        Thu, 15 Jul 2021 07:59:27 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Thu, 15 Jul 2021 07:59:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=APLneAKskgIRuWTFaSNVvav62Ld
-        iHrfIatCHo4V5EYY=; b=df4V4buKqqwTExvtHt9J4pjuh7Bdh/3TDSKnmwFgCSW
-        mdfsqPRCvlREI3ZtgOcwRG/EUOcic5cxoQn9UHjU2u+6dTHFd2EKzB8atW0yGQ9X
-        /RlsWpQ/y/Mk2wAFcvvu4+1YbvrRaJmvzjXd/PlchVTSWpQjGdXTndTXJjn14QJk
-        FeIyIehKvAn1ilDnpUY2KphdH3sQb7R55UphkfJVM+ww6hBavrPxylLOLMpu7k7Z
-        vUeXuqy6XVxAzsbXJ1s16oQETooP4k5mY3pU0bkM/lQ4pEFSPuqtUh/UNZO65JmX
-        dfyqvvlt4zHCg/kFNlEWY+G+zfSWGw+t09TKxZhoIPQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=APLneA
-        KskgIRuWTFaSNVvav62LdiHrfIatCHo4V5EYY=; b=j6nJCppgzgzZP7/EyzIDLW
-        xsUYd50rDQvqO/hPm6MidNsePx8ST2rohA3J028zAf793KpGFU835XxCgjjNEtb6
-        w83Tc00fLjDhGrvi7q87GO2hTroPTFI2LqgUYKzvNCWZMdfFtO2pqZeY9GeBNWZh
-        3LoItnZfDcv7ukiid0OvHTmmAmEpxnmGfr/7/23gkOigVsJ2S1iuKo5V52FqMkWx
-        w0V+8Xu4NDupMAZpzYMoJxYT2jHNBO6yhnOzJa5PowdyDf+ouVPT/G9t+bbOVCwl
-        5ZVcO/ySnlbS0cx/7Ii+Lgj6h+ipAxoH3bRxXFvpTipGMpiJZCyy0jc1dUV7hrkA
-        ==
-X-ME-Sender: <xms:HyPwYL_7EgVsLJmse6mp19KEAkXJ01PltZb9mHEnITaXBvkUOh-6EA>
-    <xme:HyPwYHvmTDUF3ZU3WpYbqB7wFBEAKVHXWK5yHLSiDyVanP4InwSeTXD9BzrO5udZ4
-    MRaHM7vKbqHBw>
-X-ME-Received: <xmr:HyPwYJD8lOMyDsm22mw2CAC_NkT4ZLqHH82bcREXumuGekzzVtsUN8YaSW4Q1CqtRcLs3uAFm7AvByzsHZnZn8RgqQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvddtgddvlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepueelledthe
-    ekleethfeludduvdfhffeuvdffudevgeehkeegieffveehgeeftefgnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:HyPwYHdV_LoH39GvKpvQKJMrHBNilxFz7h-A4QQWlPj6WEN8hjLK3g>
-    <xmx:HyPwYAMSMYpePQprfIJnywP7zr_oU03MccuuaQeQzZQF9yufqJUvfg>
-    <xmx:HyPwYJn5vaI5q2qT2Fxg2VasD8ChGcI6NEfHd5oB-koAJV1557i2vQ>
-    <xmx:HyPwYMDOws27VDx-hv1-zUoNIQF6b_NRjVV-w35MMirsgAxEsjJ5TA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 15 Jul 2021 07:59:27 -0400 (EDT)
-Date:   Thu, 15 Jul 2021 13:55:32 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Davis Mosenkovs <davis@mosenkovs.lv>
-Cc:     johannes@sipsolutions.net, linux-wireless@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.14] mac80211: fix memory corruption in EAPOL handling
-Message-ID: <YPAiNH03VHTgDwho@kroah.com>
-References: <20210710183807.5792-1-davis@mosenkovs.lv>
+        id S231804AbhGOMII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:08:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59858 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231689AbhGOMIH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:08:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C58761360;
+        Thu, 15 Jul 2021 12:05:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626350714;
+        bh=WSVDOXNMjrSxLDE+CFjPOlBKMuSeK1c9nWbvyN/53WI=;
+        h=Subject:To:Cc:From:Date:From;
+        b=K6BM51KNfRW8JN5Xk/jSAxZsJJ9NtJqasZ852dEW5iTklzmrApzvdoFBLSTesrUxE
+         dVkWLlP2EhxetbQ1+GMspuTjJmB2+qiLHp8e2mzkO7J/hItYVvn8t49E8nz/pcp+G7
+         kYNKoSPRyMW54zzea8mrKuwfqafX/9bIhXlGTXR8=
+Subject: FAILED: patch "[PATCH] powerpc/kprobes: Fix Oops by passing ppc_inst as a pointer to" failed to apply to 5.13-stable tree
+To:     naveen.n.rao@linux.vnet.ibm.com, christophe.leroy@csgroup.eu,
+        mpe@ellerman.id.au
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 15 Jul 2021 13:57:46 +0200
+Message-ID: <1626350266252156@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210710183807.5792-1-davis@mosenkovs.lv>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 10, 2021 at 09:38:07PM +0300, Davis Mosenkovs wrote:
-> Commit 557bb37533a3 ("mac80211: do not accept/forward invalid EAPOL
-> frames") uses skb_mac_header() before eth_type_trans() is called
-> leading to incorrect pointer, the pointer gets written to. This issue
-> has appeared during backporting to 4.4, 4.9 and 4.14.
-> 
-> Fixes: 557bb37533a3 ("mac80211: do not accept/forward invalid EAPOL frames")
-> Link: https://lore.kernel.org/r/CAHQn7pKcyC_jYmGyTcPCdk9xxATwW5QPNph=bsZV8d-HPwNsyA@mail.gmail.com
-> Cc: <stable@vger.kernel.org> # 4.14.x
-> Signed-off-by: Davis Mosenkovs <davis@mosenkovs.lv>
-> ---
->  net/mac80211/rx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
 
-Ah, see your other backports now, nice, all now is good.
+The patch below does not apply to the 5.13-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 511eea5e2ccdfdbf3d626bde0314e551f247dd18 Mon Sep 17 00:00:00 2001
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+Date: Wed, 23 Jun 2021 05:23:30 +0000
+Subject: [PATCH] powerpc/kprobes: Fix Oops by passing ppc_inst as a pointer to
+ emulate_step() on ppc32
+
+Trying to use a kprobe on ppc32 results in the below splat:
+    BUG: Unable to handle kernel data access on read at 0x7c0802a6
+    Faulting instruction address: 0xc002e9f0
+    Oops: Kernel access of bad area, sig: 11 [#1]
+    BE PAGE_SIZE=4K PowerPC 44x Platform
+    Modules linked in:
+    CPU: 0 PID: 89 Comm: sh Not tainted 5.13.0-rc1-01824-g3a81c0495fdb #7
+    NIP:  c002e9f0 LR: c0011858 CTR: 00008a47
+    REGS: c292fd50 TRAP: 0300   Not tainted  (5.13.0-rc1-01824-g3a81c0495fdb)
+    MSR:  00009000 <EE,ME>  CR: 24002002  XER: 20000000
+    DEAR: 7c0802a6 ESR: 00000000
+    <snip>
+    NIP [c002e9f0] emulate_step+0x28/0x324
+    LR [c0011858] optinsn_slot+0x128/0x10000
+    Call Trace:
+     opt_pre_handler+0x7c/0xb4 (unreliable)
+     optinsn_slot+0x128/0x10000
+     ret_from_syscall+0x0/0x28
+
+The offending instruction is:
+    81 24 00 00     lwz     r9,0(r4)
+
+Here, we are trying to load the second argument to emulate_step():
+struct ppc_inst, which is the instruction to be emulated. On ppc64,
+structures are passed in registers when passed by value. However, per
+the ppc32 ABI, structures are always passed to functions as pointers.
+This isn't being adhered to when setting up the call to emulate_step()
+in the optprobe trampoline. Fix the same.
+
+Fixes: eacf4c0202654a ("powerpc: Enable OPTPROBES on PPC32")
+Cc: stable@vger.kernel.org
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/5bdc8cbc9a95d0779e27c9ddbf42b40f51f883c0.1624425798.git.christophe.leroy@csgroup.eu
+
+diff --git a/arch/powerpc/kernel/optprobes.c b/arch/powerpc/kernel/optprobes.c
+index 8b9f82dc6ece..c79899abcec8 100644
+--- a/arch/powerpc/kernel/optprobes.c
++++ b/arch/powerpc/kernel/optprobes.c
+@@ -228,8 +228,12 @@ int arch_prepare_optimized_kprobe(struct optimized_kprobe *op, struct kprobe *p)
+ 	/*
+ 	 * 3. load instruction to be emulated into relevant register, and
+ 	 */
+-	temp = ppc_inst_read(p->ainsn.insn);
+-	patch_imm_load_insns(ppc_inst_as_ulong(temp), 4, buff + TMPL_INSN_IDX);
++	if (IS_ENABLED(CONFIG_PPC64)) {
++		temp = ppc_inst_read(p->ainsn.insn);
++		patch_imm_load_insns(ppc_inst_as_ulong(temp), 4, buff + TMPL_INSN_IDX);
++	} else {
++		patch_imm_load_insns((unsigned long)p->ainsn.insn, 4, buff + TMPL_INSN_IDX);
++	}
+ 
+ 	/*
+ 	 * 4. branch back from trampoline
+
