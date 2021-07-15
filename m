@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7EC93CA5C9
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 886AE3CA709
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233013AbhGOSoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:44:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44752 "EHLO mail.kernel.org"
+        id S239085AbhGOSwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233821AbhGOSob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:44:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84FB1613D0;
-        Thu, 15 Jul 2021 18:41:37 +0000 (UTC)
+        id S236817AbhGOSv3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:51:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A285613ED;
+        Thu, 15 Jul 2021 18:48:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374498;
-        bh=Ap6seHFC9EvvP5Nzay9N0cE1lV3orFF6mUXvZDgivYU=;
+        s=korg; t=1626374910;
+        bh=gQvJRFM6NdQV4GzQ2npWN1NIBM9y32kxi3ccaS/EeTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZG0nSTvfQIJ1jy6hFCHH/ASkZJK3Ir5l+CRhCmo6rQFEkleGuOkJrdve+CdaDafUB
-         BXO+wWCKCkQpU63TEBcO2bQtQ3HqLRu/A2yx+4JirMnlTid7pwgEtCd2q2HQmzETlR
-         /EiJcTZU0rP4EEesACvuSE7fKr/jLeORj9Solk/w=
+        b=fryMttX3gHB4EY6FnNqQsVgRpfOvjxFPLce3WiwcwdexmnQVsKGlDRq5TbcG8KVSh
+         65uTyByTgwIsmOS50J6GfRctuHxiqke9iNn9M7YIM80qHfCYVvdXeg2kHcZ0gZ157m
+         2zjhilhMeuLnaP8lyRauy8hTxH15JSpyRCn9CJ20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Zhang <Jack.Zhang1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Emily Deng <Emily.Deng@amd.com>
-Subject: [PATCH 5.4 003/122] drm/amd/amdgpu/sriov disable all ip hw status by default
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 078/215] dm writecache: commit just one block, not a full page
 Date:   Thu, 15 Jul 2021 20:37:30 +0200
-Message-Id: <20210715182449.488987781@linuxfoundation.org>
+Message-Id: <20210715182613.261923973@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Zhang <Jack.Zhang1@amd.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 95ea3dbc4e9548d35ab6fbf67675cef8c293e2f5 ]
+[ Upstream commit 991bd8d7bc78966b4dc427b53a144f276bffcd52 ]
 
-Disable all ip's hw status to false before any hw_init.
-Only set it to true until its hw_init is executed.
+Some architectures have pages larger than 4k and committing a full
+page causes needless overhead.
 
-The old 5.9 branch has this change but somehow the 5.11 kernrel does
-not have this fix.
+Fix this by writing a single block when committing the superblock.
 
-Without this change, sriov tdr have gfx IB test fail.
-
-Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
-Review-by: Emily Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-writecache.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 765f9a6c4640..d0e1fd011de5 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2291,7 +2291,7 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
- 		AMD_IP_BLOCK_TYPE_IH,
- 	};
+diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
+index 64c2980aaa54..894b58bbe56e 100644
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -532,11 +532,7 @@ static void ssd_commit_superblock(struct dm_writecache *wc)
  
--	for (i = 0; i < ARRAY_SIZE(ip_order); i++) {
-+	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		int j;
- 		struct amdgpu_ip_block *block;
+ 	region.bdev = wc->ssd_dev->bdev;
+ 	region.sector = 0;
+-	region.count = PAGE_SIZE >> SECTOR_SHIFT;
+-
+-	if (unlikely(region.sector + region.count > wc->metadata_sectors))
+-		region.count = wc->metadata_sectors - region.sector;
+-
++	region.count = wc->block_size >> SECTOR_SHIFT;
+ 	region.sector += wc->start_sector;
  
+ 	req.bi_op = REQ_OP_WRITE;
 -- 
 2.30.2
 
