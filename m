@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A8A3CA9BC
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFEEB3CA9BF
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242479AbhGOTIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
+        id S242664AbhGOTIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:08:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242381AbhGOTHw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CBD161404;
-        Thu, 15 Jul 2021 19:03:44 +0000 (UTC)
+        id S242292AbhGOTHv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:07:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E8A61408;
+        Thu, 15 Jul 2021 19:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375825;
-        bh=4Mt4v9bMCOudDyhdtrCCX0r/sixBGxI4RN+fVqB2L84=;
+        s=korg; t=1626375827;
+        bh=kOePZOHRo9BvJ0CHHj/gHiGfu6uvdzuatY7TU+xO2Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5BQehIYIJ7UEgqjGl02jnNW5hqWOxHfsMl1SL/BEVAfNWfvH06odQahcJMzCvDuH
-         GI2KmocYcg8+R73L/ji4TpqWh9AF5XoKp3of3cNFc0/Jc2IR4V+mz+iKUr1S3lFrsp
-         D/QpdBWRufc6jM6u7xHEe+Qmd4jroo+GQaUsb9fY=
+        b=NMMqrqiiulzKL+CgP1RSrZAaDRtIuo7k8EqqPuUh318vytHEhOnbpC14qe/Fweztd
+         PHQvtzCWnKgbOB/JaK8jDaKGwjVNnv/JZz4h6SzoyM8RuaghyEFIMF9xYCUMxecf9T
+         ZZ7Vu/KznVh04LpBmgQtUn47kj+ph1VxR6WVGs+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Flavio Suligoi <f.suligoi@asem.it>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 010/266] drm/imx: Add 8 pixel alignment fix
-Date:   Thu, 15 Jul 2021 20:36:05 +0200
-Message-Id: <20210715182615.701212657@linuxfoundation.org>
+Subject: [PATCH 5.13 011/266] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+Date:   Thu, 15 Jul 2021 20:36:06 +0200
+Message-Id: <20210715182615.876230367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,202 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Reichel <sebastian.reichel@collabora.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 94dfec48fca756cef90263a03e81f24dae24a5c6 ]
+[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
 
-Some standard resolutions like 1366x768 do not work properly with
-i.MX6 SoCs, since the horizontal resolution needs to be aligned
-to 8 pixels (so 1360x768 or 1368x768 would work).
+Sparse is not happy about handling of strict types in pch_ptp_match():
 
-This patch allocates framebuffers allocated to 8 pixels. The extra
-time required to send the extra pixels are removed from the blank
-time. In order to expose the correct display size to userspace,
-the stride is increased without increasing the width.
+  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
+  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
+  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
+  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
+  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
+  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
+  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
+  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
+  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
 
-Without this patch systems with this display resolution hang
-indefinitely during boot up.
+Fix that by switching to use proper accessors to BE data.
 
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Link: https://lore.kernel.org/r/20210428222953.235280-3-sebastian.reichel@collabora.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/imx/imx-drm-core.c | 19 ++++++++++++++++++-
- drivers/gpu/drm/imx/imx-ldb.c      |  5 +++++
- drivers/gpu/drm/imx/ipuv3-crtc.c   | 11 ++++++++++-
- drivers/gpu/drm/imx/ipuv3-plane.c  | 19 +++++++++++++++----
- drivers/gpu/ipu-v3/ipu-dc.c        |  5 +++++
- drivers/gpu/ipu-v3/ipu-di.c        |  7 +++++++
- 6 files changed, 60 insertions(+), 6 deletions(-)
+ .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
-index e6a88c8cbd69..8457b9788cda 100644
---- a/drivers/gpu/drm/imx/imx-drm-core.c
-+++ b/drivers/gpu/drm/imx/imx-drm-core.c
-@@ -145,9 +145,26 @@ static const struct drm_ioctl_desc imx_drm_ioctls[] = {
- 	/* none so far */
- };
- 
-+static int imx_drm_dumb_create(struct drm_file *file_priv,
-+			       struct drm_device *drm,
-+			       struct drm_mode_create_dumb *args)
-+{
-+	u32 width = args->width;
-+	int ret;
-+
-+	args->width = ALIGN(width, 8);
-+
-+	ret = drm_gem_cma_dumb_create(file_priv, drm, args);
-+	if (ret)
-+		return ret;
-+
-+	args->width = width;
-+	return ret;
-+}
-+
- static const struct drm_driver imx_drm_driver = {
- 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
--	DRM_GEM_CMA_DRIVER_OPS,
-+	DRM_GEM_CMA_DRIVER_OPS_WITH_DUMB_CREATE(imx_drm_dumb_create),
- 	.ioctls			= imx_drm_ioctls,
- 	.num_ioctls		= ARRAY_SIZE(imx_drm_ioctls),
- 	.fops			= &imx_drm_driver_fops,
-diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
-index ffdc492c5bc5..53132ddf9587 100644
---- a/drivers/gpu/drm/imx/imx-ldb.c
-+++ b/drivers/gpu/drm/imx/imx-ldb.c
-@@ -274,6 +274,11 @@ imx_ldb_encoder_atomic_mode_set(struct drm_encoder *encoder,
- 			 "%s: mode exceeds 85 MHz pixel clock\n", __func__);
- 	}
- 
-+	if (!IS_ALIGNED(mode->hdisplay, 8)) {
-+		dev_warn(ldb->dev,
-+			 "%s: hdisplay does not align to 8 byte\n", __func__);
-+	}
-+
- 	if (dual) {
- 		serial_clk = 3500UL * mode->clock;
- 		imx_ldb_set_clock(ldb, mux, 0, serial_clk, di_clk);
-diff --git a/drivers/gpu/drm/imx/ipuv3-crtc.c b/drivers/gpu/drm/imx/ipuv3-crtc.c
-index e6431a227feb..9c8829f945b2 100644
---- a/drivers/gpu/drm/imx/ipuv3-crtc.c
-+++ b/drivers/gpu/drm/imx/ipuv3-crtc.c
-@@ -305,10 +305,19 @@ static void ipu_crtc_mode_set_nofb(struct drm_crtc *crtc)
- 	sig_cfg.vsync_pin = imx_crtc_state->di_vsync_pin;
- 
- 	drm_display_mode_to_videomode(mode, &sig_cfg.mode);
-+	if (!IS_ALIGNED(sig_cfg.mode.hactive, 8)) {
-+		unsigned int new_hactive = ALIGN(sig_cfg.mode.hactive, 8);
-+
-+		dev_warn(ipu_crtc->dev, "8-pixel align hactive %d -> %d\n",
-+			 sig_cfg.mode.hactive, new_hactive);
-+
-+		sig_cfg.mode.hfront_porch = new_hactive - sig_cfg.mode.hactive;
-+		sig_cfg.mode.hactive = new_hactive;
-+	}
- 
- 	ipu_dc_init_sync(ipu_crtc->dc, ipu_crtc->di,
- 			 mode->flags & DRM_MODE_FLAG_INTERLACE,
--			 imx_crtc_state->bus_format, mode->hdisplay);
-+			 imx_crtc_state->bus_format, sig_cfg.mode.hactive);
- 	ipu_di_init_sync_panel(ipu_crtc->di, &sig_cfg);
- }
- 
-diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ipuv3-plane.c
-index 233310712deb..886de0f80b4e 100644
---- a/drivers/gpu/drm/imx/ipuv3-plane.c
-+++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-@@ -30,6 +30,11 @@ to_ipu_plane_state(struct drm_plane_state *p)
- 	return container_of(p, struct ipu_plane_state, base);
- }
- 
-+static unsigned int ipu_src_rect_width(const struct drm_plane_state *state)
-+{
-+	return ALIGN(drm_rect_width(&state->src) >> 16, 8);
-+}
-+
- static inline struct ipu_plane *to_ipu_plane(struct drm_plane *p)
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 3dc29b282a88..45b9ba1ec760 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -108,7 +108,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
  {
- 	return container_of(p, struct ipu_plane, base);
-@@ -441,6 +446,12 @@ static int ipu_plane_atomic_check(struct drm_plane *plane,
- 	if (old_fb && fb->pitches[0] != old_fb->pitches[0])
- 		crtc_state->mode_changed = true;
+ 	u8 *data = skb->data;
+ 	unsigned int offset;
+-	u16 *hi, *id;
++	u16 hi, id;
+ 	u32 lo;
  
-+	if (ALIGN(fb->width, 8) * fb->format->cpp[0] >
-+	    fb->pitches[0] + fb->offsets[0]) {
-+		dev_warn(dev, "pitch is not big enough for 8 pixels alignment");
-+		return -EINVAL;
-+	}
-+
- 	switch (fb->format->format) {
- 	case DRM_FORMAT_YUV420:
- 	case DRM_FORMAT_YVU420:
-@@ -616,7 +627,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 	if (ipu_state->use_pre) {
- 		axi_id = ipu_chan_assign_axi_id(ipu_plane->dma);
- 		ipu_prg_channel_configure(ipu_plane->ipu_ch, axi_id,
--					  drm_rect_width(&new_state->src) >> 16,
-+					  ipu_src_rect_width(new_state),
- 					  drm_rect_height(&new_state->src) >> 16,
- 					  fb->pitches[0], fb->format->format,
- 					  fb->modifier, &eba);
-@@ -649,9 +660,9 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 		break;
- 	}
- 
--	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, drm_rect_width(dst));
-+	ipu_dmfc_config_wait4eot(ipu_plane->dmfc, ALIGN(drm_rect_width(dst), 8));
- 
--	width = drm_rect_width(&new_state->src) >> 16;
-+	width = ipu_src_rect_width(new_state);
- 	height = drm_rect_height(&new_state->src) >> 16;
- 	info = drm_format_info(fb->format->format);
- 	ipu_calculate_bursts(width, info->cpp[0], fb->pitches[0],
-@@ -716,7 +727,7 @@ static void ipu_plane_atomic_update(struct drm_plane *plane,
- 
- 		ipu_cpmem_zero(ipu_plane->alpha_ch);
- 		ipu_cpmem_set_resolution(ipu_plane->alpha_ch,
--					 drm_rect_width(&new_state->src) >> 16,
-+					 ipu_src_rect_width(new_state),
- 					 drm_rect_height(&new_state->src) >> 16);
- 		ipu_cpmem_set_format_passthrough(ipu_plane->alpha_ch, 8);
- 		ipu_cpmem_set_high_priority(ipu_plane->alpha_ch);
-diff --git a/drivers/gpu/ipu-v3/ipu-dc.c b/drivers/gpu/ipu-v3/ipu-dc.c
-index 34b4075a6a8e..ca96b235491a 100644
---- a/drivers/gpu/ipu-v3/ipu-dc.c
-+++ b/drivers/gpu/ipu-v3/ipu-dc.c
-@@ -167,6 +167,11 @@ int ipu_dc_init_sync(struct ipu_dc *dc, struct ipu_di *di, bool interlaced,
- 
- 	dc->di = ipu_di_get_num(di);
- 
-+	if (!IS_ALIGNED(width, 8)) {
-+		dev_warn(priv->dev,
-+			 "%s: hactive does not align to 8 byte\n", __func__);
-+	}
-+
- 	map = ipu_bus_format_to_map(bus_format);
- 
- 	/*
-diff --git a/drivers/gpu/ipu-v3/ipu-di.c b/drivers/gpu/ipu-v3/ipu-di.c
-index e617f60afeea..666223c6bec4 100644
---- a/drivers/gpu/ipu-v3/ipu-di.c
-+++ b/drivers/gpu/ipu-v3/ipu-di.c
-@@ -506,6 +506,13 @@ int ipu_di_adjust_videomode(struct ipu_di *di, struct videomode *mode)
- {
- 	u32 diff;
- 
-+	if (!IS_ALIGNED(mode->hactive, 8) &&
-+	    mode->hfront_porch < ALIGN(mode->hactive, 8) - mode->hactive) {
-+		dev_err(di->ipu->dev, "hactive %d is not aligned to 8 and front porch is too small to compensate\n",
-+			mode->hactive);
-+		return -EINVAL;
-+	}
-+
- 	if (mode->vfront_porch >= 2)
+ 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
+@@ -119,14 +119,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
  		return 0;
  
+-	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
+-	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
++	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
++	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
++	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
+ 
+-	memcpy(&lo, &hi[1], sizeof(lo));
+-
+-	return (uid_hi == *hi &&
+-		uid_lo == lo &&
+-		seqid  == *id);
++	return (uid_hi == hi && uid_lo == lo && seqid == id);
+ }
+ 
+ static void
+@@ -136,7 +133,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	struct pci_dev *pdev;
+ 	u64 ns;
+ 	u32 hi, lo, val;
+-	u16 uid, seq;
+ 
+ 	if (!adapter->hwts_rx_en)
+ 		return;
+@@ -152,10 +148,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	lo = pch_src_uuid_lo_read(pdev);
+ 	hi = pch_src_uuid_hi_read(pdev);
+ 
+-	uid = hi & 0xffff;
+-	seq = (hi >> 16) & 0xffff;
+-
+-	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
++	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
+ 		goto out;
+ 
+ 	ns = pch_rx_snap_read(pdev);
 -- 
 2.30.2
 
