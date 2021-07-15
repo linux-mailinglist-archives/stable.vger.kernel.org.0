@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D3963CA5B4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDB733CA720
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230420AbhGOSoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44044 "EHLO mail.kernel.org"
+        id S238034AbhGOSwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230410AbhGOSoB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:44:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F8D613D0;
-        Thu, 15 Jul 2021 18:41:06 +0000 (UTC)
+        id S240263AbhGOSvu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:51:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E0A613E4;
+        Thu, 15 Jul 2021 18:48:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374467;
-        bh=dSmWd6JDaIXsyNmO6nukxpLK2YjQpLaYW/+Aqz8eNic=;
+        s=korg; t=1626374936;
+        bh=2eLy2KUJ9zJkmjnPAJBL7V7ulo8mLC0MD/u9tkNFPr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rILZona6aAozAZBmjVf3kmYOFff3ebPVNzzhUw3raYnwjUB4d2YflRdkGIqxcRWPJ
-         QPX8Mzx4oG1RMgNTF0muZOJaGkytKrL78yVjG97JXziS0S9Wtw5wvbtdx5qBotGpKY
-         T604Lo883lo+6bYcNczGMk5IvE6T2SyJ7HCTRAww=
+        b=z8F4B3vhySK47JYr64j5+F7sXvkaAJCYhsVGGztPWY/7SsT+Vjeo9rdS/aeNgg/VY
+         X5DsIGkYSo1cNmcyJaid8CeQSQ4dUt7O3X6ASmENNZ1PohAhi4+PUwayO65lY+6fDX
+         sPcHZkgdYkomn5BEtawwGr8jQh3yB/0zX3fxFOwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Li <wangli74@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 012/122] drm/mediatek: Fix PM reference leak in mtk_crtc_ddp_hw_init()
-Date:   Thu, 15 Jul 2021 20:37:39 +0200
-Message-Id: <20210715182452.162628326@linuxfoundation.org>
+Subject: [PATCH 5.10 088/215] net: fix mistake path for netdev_features_strings
+Date:   Thu, 15 Jul 2021 20:37:40 +0200
+Message-Id: <20210715182614.942657956@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Li <wangli74@huawei.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 69777e6ca396f0a7e1baff40fcad4a9d3d445b7a ]
+[ Upstream commit 2d8ea148e553e1dd4e80a87741abdfb229e2b323 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+Th_strings arrays netdev_features_strings, tunable_strings, and
+phy_tunable_strings has been moved to file net/ethtool/common.c.
+So fixes the comment.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Li <wangli74@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/netdev_features.h | 2 +-
+ include/uapi/linux/ethtool.h    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index f9455f2724d2..f370d41b3d04 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -240,7 +240,7 @@ static int mtk_crtc_ddp_hw_init(struct mtk_drm_crtc *mtk_crtc)
- 		drm_connector_list_iter_end(&conn_iter);
- 	}
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index 0b17c4322b09..f96b7f8d82e5 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -87,7 +87,7 @@ enum {
  
--	ret = pm_runtime_get_sync(crtc->dev->dev);
-+	ret = pm_runtime_resume_and_get(crtc->dev->dev);
- 	if (ret < 0) {
- 		DRM_ERROR("Failed to enable power domain: %d\n", ret);
- 		return ret;
+ 	/*
+ 	 * Add your fresh new feature above and remember to update
+-	 * netdev_features_strings[] in net/core/ethtool.c and maybe
++	 * netdev_features_strings[] in net/ethtool/common.c and maybe
+ 	 * some feature mask #defines below. Please also describe it
+ 	 * in Documentation/networking/netdev-features.rst.
+ 	 */
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index cde753bb2093..13772f039c8d 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -223,7 +223,7 @@ enum tunable_id {
+ 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+-	 * tunable_strings[] in net/core/ethtool.c
++	 * tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_TUNABLE_COUNT,
+ };
+@@ -287,7 +287,7 @@ enum phy_tunable_id {
+ 	ETHTOOL_PHY_EDPD,
+ 	/*
+ 	 * Add your fresh new phy tunable attribute above and remember to update
+-	 * phy_tunable_strings[] in net/core/ethtool.c
++	 * phy_tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_PHY_TUNABLE_COUNT,
+ };
 -- 
 2.30.2
 
