@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E84A3CA942
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3973CAAF4
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241745AbhGOTFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
+        id S243621AbhGOTQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241460AbhGOTEo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86CC761409;
-        Thu, 15 Jul 2021 19:00:58 +0000 (UTC)
+        id S244586AbhGOTO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CF7E61405;
+        Thu, 15 Jul 2021 19:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375659;
-        bh=WL4coB8igxkVHU+RhTg9k6iV3QdIlvvea6iAsOYIlDk=;
+        s=korg; t=1626376243;
+        bh=StkZ6aujY2PeZQgeVK7jPZd5eGIXph8XcoWYZQJF4bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ok6ImwqSEhzmmuA39YGo0lFRyBK+CkJ3yS7SO0qfG2kZcDGzLSid/7I8W7nWAkDsK
-         54mUHGezp3CA/W2gpSE7c8nNhVQviru9tJTe2o0HboAVMBmPbKHCXG122nKLTCSkky
-         Y1W6rf80dplXKDpXe5f0heaoIHUziEH08ZHRBa08=
+        b=Mwa1j/6CnuA1txeoyCsl1mBVDSp7NZQbTgMyp8qL1AOcBSUv3OIyQ95CvxN3xdxKE
+         CHacT2S8DdJmQ90BMySWwKFq8mPDReP3iDzjO0JoSQquwZJr/0JtM60PKClCX103Ub
+         iO3a9f3g0SoIYNcxG8E+UeOfwv1MRk8XjDTTlciU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Simon Ser <contact@emersion.fr>
-Subject: [PATCH 5.12 181/242] drm/ingenic: Switch IPU plane to type OVERLAY
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.13 188/266] drm/amdgpu: fix NAK-G generation during PCI-e link width switch
 Date:   Thu, 15 Jul 2021 20:39:03 +0200
-Message-Id: <20210715182625.173409561@linuxfoundation.org>
+Message-Id: <20210715182644.320727411@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Evan Quan <evan.quan@amd.com>
 
-commit 68b433fe6937cfa3f8975d18643d5956254edd6a upstream.
+commit 5a5da8ae9546031e43efd4fa5aa8baa481e83dfb upstream.
 
-It should have been an OVERLAY from the beginning. The documentation
-stipulates that there should be an unique PRIMARY plane per CRTC.
+A lot of NAK-G being generated when link widht switching is happening.
+WA for this issue is to program the SPC to 4 symbols per clock during
+bootup when the native PCIE width is x4.
 
-Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
-Cc: <stable@vger.kernel.org> # 5.8+
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Simon Ser <contact@emersion.fr>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210329175046.214629-2-paul@crapouillou.net
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c |   11 +++++------
- drivers/gpu/drm/ingenic/ingenic-ipu.c     |    2 +-
- 2 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_nbio.h |    1 +
+ drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c   |   28 ++++++++++++++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/nv.c          |    3 +++
+ 3 files changed, 32 insertions(+)
 
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -413,7 +413,7 @@ static void ingenic_drm_plane_enable(str
- 	unsigned int en_bit;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_nbio.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_nbio.h
+@@ -93,6 +93,7 @@ struct amdgpu_nbio_funcs {
+ 	void (*enable_aspm)(struct amdgpu_device *adev,
+ 			    bool enable);
+ 	void (*program_aspm)(struct amdgpu_device *adev);
++	void (*apply_lc_spc_mode_wa)(struct amdgpu_device *adev);
+ };
  
- 	if (priv->soc_info->has_osd) {
--		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
-+		if (plane != &priv->f0)
- 			en_bit = JZ_LCD_OSDC_F1EN;
- 		else
- 			en_bit = JZ_LCD_OSDC_F0EN;
-@@ -428,7 +428,7 @@ void ingenic_drm_plane_disable(struct de
- 	unsigned int en_bit;
+ struct amdgpu_nbio {
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v2_3.c
+@@ -51,6 +51,8 @@
+ #define mmBIF_MMSCH1_DOORBELL_RANGE		0x01d8
+ #define mmBIF_MMSCH1_DOORBELL_RANGE_BASE_IDX	2
  
- 	if (priv->soc_info->has_osd) {
--		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
-+		if (plane != &priv->f0)
- 			en_bit = JZ_LCD_OSDC_F1EN;
- 		else
- 			en_bit = JZ_LCD_OSDC_F0EN;
-@@ -455,8 +455,7 @@ void ingenic_drm_plane_config(struct dev
++#define smnPCIE_LC_LINK_WIDTH_CNTL		0x11140288
++
+ static void nbio_v2_3_remap_hdp_registers(struct amdgpu_device *adev)
+ {
+ 	WREG32_SOC15(NBIO, 0, mmREMAP_HDP_MEM_FLUSH_CNTL,
+@@ -463,6 +465,31 @@ static void nbio_v2_3_program_aspm(struc
+ 		WREG32_PCIE(smnPCIE_LC_CNTL3, data);
+ }
  
- 	ingenic_drm_plane_enable(priv, plane);
++static void nbio_v2_3_apply_lc_spc_mode_wa(struct amdgpu_device *adev)
++{
++	uint32_t reg_data = 0;
++	uint32_t link_width = 0;
++
++	if (!((adev->asic_type >= CHIP_NAVI10) &&
++	     (adev->asic_type <= CHIP_NAVI12)))
++		return;
++
++	reg_data = RREG32_PCIE(smnPCIE_LC_LINK_WIDTH_CNTL);
++	link_width = (reg_data & PCIE_LC_LINK_WIDTH_CNTL__LC_LINK_WIDTH_RD_MASK)
++		>> PCIE_LC_LINK_WIDTH_CNTL__LC_LINK_WIDTH_RD__SHIFT;
++
++	/*
++	 * Program PCIE_LC_CNTL6.LC_SPC_MODE_8GT to 0x2 (4 symbols per clock data)
++	 * if link_width is 0x3 (x4)
++	 */
++	if (0x3 == link_width) {
++		reg_data = RREG32_PCIE(smnPCIE_LC_CNTL6);
++		reg_data &= ~PCIE_LC_CNTL6__LC_SPC_MODE_8GT_MASK;
++		reg_data |= (0x2 << PCIE_LC_CNTL6__LC_SPC_MODE_8GT__SHIFT);
++		WREG32_PCIE(smnPCIE_LC_CNTL6, reg_data);
++	}
++}
++
+ const struct amdgpu_nbio_funcs nbio_v2_3_funcs = {
+ 	.get_hdp_flush_req_offset = nbio_v2_3_get_hdp_flush_req_offset,
+ 	.get_hdp_flush_done_offset = nbio_v2_3_get_hdp_flush_done_offset,
+@@ -484,4 +511,5 @@ const struct amdgpu_nbio_funcs nbio_v2_3
+ 	.remap_hdp_registers = nbio_v2_3_remap_hdp_registers,
+ 	.enable_aspm = nbio_v2_3_enable_aspm,
+ 	.program_aspm =  nbio_v2_3_program_aspm,
++	.apply_lc_spc_mode_wa = nbio_v2_3_apply_lc_spc_mode_wa,
+ };
+--- a/drivers/gpu/drm/amd/amdgpu/nv.c
++++ b/drivers/gpu/drm/amd/amdgpu/nv.c
+@@ -1194,6 +1194,9 @@ static int nv_common_hw_init(void *handl
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
--	if (priv->soc_info->has_osd &&
--	    plane->type == DRM_PLANE_TYPE_PRIMARY) {
-+	if (priv->soc_info->has_osd && plane != &priv->f0) {
- 		switch (fourcc) {
- 		case DRM_FORMAT_XRGB1555:
- 			ctrl |= JZ_LCD_OSDCTRL_RGB555;
-@@ -504,7 +503,7 @@ void ingenic_drm_plane_config(struct dev
- 	}
- 
- 	if (priv->soc_info->has_osd) {
--		if (plane->type == DRM_PLANE_TYPE_PRIMARY) {
-+		if (plane != &priv->f0) {
- 			xy_reg = JZ_REG_LCD_XYP1;
- 			size_reg = JZ_REG_LCD_SIZE1;
- 		} else {
-@@ -554,7 +553,7 @@ static void ingenic_drm_plane_atomic_upd
- 		height = state->src_h >> 16;
- 		cpp = state->fb->format->cpp[0];
- 
--		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
-+		if (!priv->soc_info->has_osd || plane == &priv->f0)
- 			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
- 		else
- 			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
---- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
-@@ -760,7 +760,7 @@ static int ingenic_ipu_bind(struct devic
- 
- 	err = drm_universal_plane_init(drm, plane, 1, &ingenic_ipu_plane_funcs,
- 				       soc_info->formats, soc_info->num_formats,
--				       NULL, DRM_PLANE_TYPE_PRIMARY, NULL);
-+				       NULL, DRM_PLANE_TYPE_OVERLAY, NULL);
- 	if (err) {
- 		dev_err(dev, "Failed to init plane: %i\n", err);
- 		return err;
++	if (adev->nbio.funcs->apply_lc_spc_mode_wa)
++		adev->nbio.funcs->apply_lc_spc_mode_wa(adev);
++
+ 	/* enable pcie gen2/3 link */
+ 	nv_pcie_gen3_enable(adev);
+ 	/* enable aspm */
 
 
