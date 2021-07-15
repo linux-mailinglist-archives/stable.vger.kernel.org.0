@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A7F33CA6D4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 480783CA6D9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239386AbhGOSuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
+        id S239899AbhGOSu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240300AbhGOSuU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FFD2613E7;
-        Thu, 15 Jul 2021 18:47:13 +0000 (UTC)
+        id S240310AbhGOSuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8027F613E9;
+        Thu, 15 Jul 2021 18:47:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374833;
-        bh=oiT+BAiA3TGhR/aJnvoJoBMTK3loyU8sH31J4fwOSCc=;
+        s=korg; t=1626374835;
+        bh=G2nzf0gXd2W5OSMmOy62iXfCIWuNGIizdeqqd4gYbWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mu1LPB2xOhyph4iXj36yrrwkU/oZ/aTwQYRM21zlwt49BbG2/YQLViFwDM8vB4Yfk
-         2Q+SbLv762NhcqBNDSrbZB5EUw04vwsZqhBt23ZSi7Gwt/PW5T6Bn+WkyIwN1QZGut
-         nct4dbjMoQVVWqe/CMLUq906w40DacvaUN98FWd0=
+        b=cs//9cDFwrfs/x4HzBldUuHfNw4IwVpeVNIWtQNlmiRYXZZBqoSAUFeMQ1GroZx1t
+         u2oDIaoudFOTe8YwfzC96npYaTPyr5gm0awKv6viDSYvGecZDc18t5ii8pYE0GSGSu
+         eWQm8i/CZv6I4015RuPmaG3k8peubG65Xt9DB7Bg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/215] MIPS: cpu-probe: Fix FPU detection on Ingenic JZ4760(B)
-Date:   Thu, 15 Jul 2021 20:36:57 +0200
-Message-Id: <20210715182607.315223946@linuxfoundation.org>
+Subject: [PATCH 5.10 046/215] MIPS: ingenic: Select CPU_SUPPORTS_CPUFREQ && MIPS_EXTERNAL_TIMER
+Date:   Thu, 15 Jul 2021 20:36:58 +0200
+Message-Id: <20210715182607.520293689@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -42,35 +42,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit fc52f92a653215fbd6bc522ac5311857b335e589 ]
+[ Upstream commit eb3849370ae32b571e1f9a63ba52c61adeaf88f7 ]
 
-Ingenic JZ4760 and JZ4760B do have a FPU, but the config registers don't
-report it. Force the FPU detection in case the processor ID match the
-JZ4760(B) one.
+The clock driving the XBurst CPUs in Ingenic SoCs is integer divided
+from the main PLL. As such, it is possible to control the frequency of
+the CPU, either by changing the divider, or by changing the rate of the
+main PLL.
+
+The XBurst CPUs also lack the CP0 timer; the TCU, a separate piece of
+hardware in the SoC, provides this functionality.
 
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/cpu-probe.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/mips/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
-index e6ae2bcdbeda..067cb3eb1614 100644
---- a/arch/mips/kernel/cpu-probe.c
-+++ b/arch/mips/kernel/cpu-probe.c
-@@ -1827,6 +1827,11 @@ static inline void cpu_probe_ingenic(struct cpuinfo_mips *c, unsigned int cpu)
- 		 */
- 		case PRID_COMP_INGENIC_D0:
- 			c->isa_level &= ~MIPS_CPU_ISA_M32R2;
-+
-+			/* FPU is not properly detected on JZ4760(B). */
-+			if (c->processor_id == 0x2ed0024f)
-+				c->options |= MIPS_CPU_FPU;
-+
- 			fallthrough;
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index 1917ccd39256..1a63f592034e 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -418,6 +418,8 @@ config MACH_INGENIC_SOC
+ 	select MIPS_GENERIC
+ 	select MACH_INGENIC
+ 	select SYS_SUPPORTS_ZBOOT_UART16550
++	select CPU_SUPPORTS_CPUFREQ
++	select MIPS_EXTERNAL_TIMER
  
- 		/*
+ config LANTIQ
+ 	bool "Lantiq based platforms"
 -- 
 2.30.2
 
