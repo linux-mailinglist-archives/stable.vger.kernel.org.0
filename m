@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 095E03CAAEF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819493CA958
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243437AbhGOTQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50134 "EHLO mail.kernel.org"
+        id S242998AbhGOTGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:06:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244673AbhGOTPC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0523161418;
-        Thu, 15 Jul 2021 19:11:11 +0000 (UTC)
+        id S241545AbhGOTFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFC26613CF;
+        Thu, 15 Jul 2021 19:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376271;
-        bh=rhRpncM7YAEI4dDuqLn6BK0a0nui5MB+JeBm0/VH770=;
+        s=korg; t=1626375687;
+        bh=V4JGcCcIve5zm2wBydiLP5y0SxYpXcftaSdlt/R27uI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zT5GnTMBlVEftOU+4pg4BeoshJn6sxQFpyNI2Dmq1aasZIeYEYTdF+w0jfXzV1EUK
-         UHPwdmExcjFBi3PJjtuUxMqtE+R3g8wrXwc3B1bMzJGhHWoydgSAYHK+opIRYU8inR
-         JV5X2YOw6++g0FgbuCbY+MVCUgX1hiftzwiG7fgc=
+        b=zH7d2ID+1u211w/FQ+MTcAcnLc49jyyaZa3/iiLSw0yn/iEk2MVB9V35YNi4kpG0o
+         8IuIJPCsZL1ASalDv/emVn8MeNcx+8L9f6syTKB0EbS0EOHgT6LAu9ySVP4gxvK9Ev
+         TbQc5jIV/8VS5yNDpbsoZRxwhELi6f2eR/C+tskw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
-        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
-        danny.wang@amd.com,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.13 199/266] drm/amd/display: Reject non-zero src_y and src_x for video planes
+        stable@vger.kernel.org, Russ Weight <russell.h.weight@intel.com>,
+        Xu Yilun <yilun.xu@intel.com>, Moritz Fischer <mdf@kernel.org>
+Subject: [PATCH 5.12 192/242] fpga: stratix10-soc: Add missing fpga_mgr_free() call
 Date:   Thu, 15 Jul 2021 20:39:14 +0200
-Message-Id: <20210715182645.487346639@linuxfoundation.org>
+Message-Id: <20210715182626.997307609@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Russ Weight <russell.h.weight@intel.com>
 
-commit c6c6a712199ab355ce333fa5764a59506bb107c1 upstream.
+commit d9ec9daa20eb8de1efe6abae78c9835ec8ed86f9 upstream.
 
-[Why]
-This hasn't been well tested and leads to complete system hangs on DCN1
-based systems, possibly others.
+The stratix10-soc driver uses fpga_mgr_create() function and is therefore
+responsible to call fpga_mgr_free() to release the class driver resources.
+Add a missing call to fpga_mgr_free in the s10_remove() function.
 
-The system hang can be reproduced by gesturing the video on the YouTube
-Android app on ChromeOS into full screen.
-
-[How]
-Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
-
-v2:
- - Add code comment describing the reason we're rejecting non-zero
-   src_x and src_y
- - Drop gerrit Change-Id
- - Add stable CC
- - Based on amd-staging-drm-next
-
-v3: removed trailing whitespace
-
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Cc: stable@vger.kernel.org
-Cc: nicholas.kazlauskas@amd.com
-Cc: amd-gfx@lists.freedesktop.org
-Cc: alexander.deucher@amd.com
-Cc: Roman.Li@amd.com
-Cc: hersenxs.wu@amd.com
-Cc: danny.wang@amd.com
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Russ Weight <russell.h.weight@intel.com>
+Reviewed-by: Xu Yilun <yilun.xu@intel.com>
+Signed-off-by: Moritz Fischer <mdf@kernel.org>
+Fixes: e7eef1d7633a ("fpga: add intel stratix10 soc fpga manager driver")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210614170909.232415-3-mdf@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/fpga/stratix10-soc.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -4049,6 +4049,23 @@ static int fill_dc_scaling_info(const st
- 	     scaling_info->src_rect.y != 0))
- 		return -EINVAL;
+--- a/drivers/fpga/stratix10-soc.c
++++ b/drivers/fpga/stratix10-soc.c
+@@ -454,6 +454,7 @@ static int s10_remove(struct platform_de
+ 	struct s10_priv *priv = mgr->priv;
  
-+	/*
-+	 * For reasons we don't (yet) fully understand a non-zero
-+	 * src_y coordinate into an NV12 buffer can cause a
-+	 * system hang. To avoid hangs (and maybe be overly cautious)
-+	 * let's reject both non-zero src_x and src_y.
-+	 *
-+	 * We currently know of only one use-case to reproduce a
-+	 * scenario with non-zero src_x and src_y for NV12, which
-+	 * is to gesture the YouTube Android app into full screen
-+	 * on ChromeOS.
-+	 */
-+	if (state->fb &&
-+	    state->fb->format->format == DRM_FORMAT_NV12 &&
-+	    (scaling_info->src_rect.x != 0 ||
-+	     scaling_info->src_rect.y != 0))
-+		return -EINVAL;
-+
- 	scaling_info->src_rect.width = state->src_w >> 16;
- 	if (scaling_info->src_rect.width == 0)
- 		return -EINVAL;
+ 	fpga_mgr_unregister(mgr);
++	fpga_mgr_free(mgr);
+ 	stratix10_svc_free_channel(priv->chan);
+ 
+ 	return 0;
 
 
