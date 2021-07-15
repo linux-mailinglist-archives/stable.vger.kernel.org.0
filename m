@@ -2,33 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7EB3C9F89
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:33:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6F533C9F8F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:35:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230211AbhGONg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51230 "EHLO mail.kernel.org"
+        id S233957AbhGONia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:38:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233957AbhGONg1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:36:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1218A613C3;
-        Thu, 15 Jul 2021 13:33:32 +0000 (UTC)
+        id S232735AbhGONia (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:38:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F37E361167;
+        Thu, 15 Jul 2021 13:35:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626356013;
-        bh=hKmn/T5Uh33oc2OlN0XwC1OiRU8hJsiWywFQGfkba88=;
+        s=korg; t=1626356136;
+        bh=Kt/0bC9LSS/ZzxkDpGGW/ctRr9juxjVN3/0HBuZtmmM=;
         h=Subject:To:Cc:From:Date:From;
-        b=LaVUP2l6i7sKlrSruqPqxyfzGwomiHBAO4Ze7EB4QTRkvs4T4JErxk6UBocAm6KM2
-         Qg0s154wTF5HZVlIfVAGi4QRa3oF3NFtOmdhFteIQclPTqqkBSXFBpno5yr8gIkI/9
-         Wev/qz4Efo7nVGMAfmXcLJsayf3DbXDVkZmkAXZE=
-Subject: FAILED: patch "[PATCH] xfrm: policy: Read seqcount outside of rcu-read side in" failed to apply to 4.9-stable tree
-To:     varad.gautam@suse.com, a.darwish@linutronix.de,
-        davem@davemloft.net, fw@strlen.de, herbert@gondor.apana.org.au,
-        kuba@kernel.org, linux-rt-users@vger.kernel.org,
-        steffen.klassert@secunet.com
+        b=dhKsWM1WXZ2w+s+04IyB7qdv/2Ci3TiptTcKCyKQv59zx2FMIJdb0ZQWuXfq2WeRA
+         SRaMKhkJQop3GBGEyt0mEFXzrOgNjh9V1Tf+nSwIJVqKRwMnFNXulu28nscQUpjwX0
+         pgF1NpVQ+QK8z/96MVhXmIOd+KiJHAkqtNL4PT44=
+Subject: FAILED: patch "[PATCH] ubifs: Fix races between xattr_{set|get} and listxattr" failed to apply to 4.4-stable tree
+To:     chengzhihao1@huawei.com, richard@nod.at, s.hauer@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:33:22 +0200
-Message-ID: <162635600214113@kroah.com>
+Date:   Thu, 15 Jul 2021 15:35:34 +0200
+Message-ID: <162635613425347@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -48,101 +45,221 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d7b0408934c749f546b01f2b33d07421a49b6f3e Mon Sep 17 00:00:00 2001
-From: Varad Gautam <varad.gautam@suse.com>
-Date: Fri, 28 May 2021 18:04:06 +0200
-Subject: [PATCH] xfrm: policy: Read seqcount outside of rcu-read side in
- xfrm_policy_lookup_bytype
+From f4e3634a3b642225a530c292fdb1e8a4007507f5 Mon Sep 17 00:00:00 2001
+From: Zhihao Cheng <chengzhihao1@huawei.com>
+Date: Mon, 31 May 2021 20:52:09 +0800
+Subject: [PATCH] ubifs: Fix races between xattr_{set|get} and listxattr
+ operations
 
-xfrm_policy_lookup_bytype loops on seqcount mutex xfrm_policy_hash_generation
-within an RCU read side critical section. Although ill advised, this is fine if
-the loop is bounded.
+UBIFS may occur some problems with concurrent xattr_{set|get} and
+listxattr operations, such as assertion failure, memory corruption,
+stale xattr value[1].
 
-xfrm_policy_hash_generation wraps mutex hash_resize_mutex, which is used to
-serialize writers (xfrm_hash_resize, xfrm_hash_rebuild). This is fine too.
+Fix it by importing a new rw-lock in @ubifs_inode to serilize write
+operations on xattr, concurrent read operations are still effective,
+just like ext4.
 
-On PREEMPT_RT=y, the read_seqcount_begin call within xfrm_policy_lookup_bytype
-emits a mutex lock/unlock for hash_resize_mutex. Mutex locking is fine, since
-RCU read side critical sections are allowed to sleep with PREEMPT_RT.
+[1] https://lore.kernel.org/linux-mtd/20200630130438.141649-1-houtao1@huawei.com
 
-xfrm_hash_resize can, however, block on synchronize_rcu while holding
-hash_resize_mutex.
+Fixes: 1e51764a3c2ac05a23 ("UBIFS: add new flash file system")
+Cc: stable@vger.kernel.org  # v2.6+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 
-This leads to the following situation on PREEMPT_RT, where the writer is
-blocked on RCU grace period expiry, while the reader is blocked on a lock held
-by the writer:
-
-Thead 1 (xfrm_hash_resize)	Thread 2 (xfrm_policy_lookup_bytype)
-
-				rcu_read_lock();
-mutex_lock(&hash_resize_mutex);
-				read_seqcount_begin(&xfrm_policy_hash_generation);
-				mutex_lock(&hash_resize_mutex); // block
-xfrm_bydst_resize();
-synchronize_rcu(); // block
-		<RCU stalls in xfrm_policy_lookup_bytype>
-
-Move the read_seqcount_begin call outside of the RCU read side critical section,
-and do an rcu_read_unlock/retry if we got stale data within the critical section.
-
-On non-PREEMPT_RT, this shortens the time spent within RCU read side critical
-section in case the seqcount needs a retry, and avoids unbounded looping.
-
-Fixes: 77cc278f7b20 ("xfrm: policy: Use sequence counters with associated lock")
-Signed-off-by: Varad Gautam <varad.gautam@suse.com>
-Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.9
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Acked-by: Ahmed S. Darwish <a.darwish@linutronix.de>
-
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index b74f28cabe24..8c56e3e59c3c 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -2092,12 +2092,15 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
- 	if (unlikely(!daddr || !saddr))
- 		return NULL;
+diff --git a/fs/ubifs/super.c b/fs/ubifs/super.c
+index 7b572e1414ba..e279a069a26b 100644
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -275,6 +275,7 @@ static struct inode *ubifs_alloc_inode(struct super_block *sb)
+ 	memset((void *)ui + sizeof(struct inode), 0,
+ 	       sizeof(struct ubifs_inode) - sizeof(struct inode));
+ 	mutex_init(&ui->ui_mutex);
++	init_rwsem(&ui->xattr_sem);
+ 	spin_lock_init(&ui->ui_lock);
+ 	return &ui->vfs_inode;
+ };
+diff --git a/fs/ubifs/ubifs.h b/fs/ubifs/ubifs.h
+index b65c599a386a..7e978f421430 100644
+--- a/fs/ubifs/ubifs.h
++++ b/fs/ubifs/ubifs.h
+@@ -356,6 +356,7 @@ struct ubifs_gced_idx_leb {
+  * @ui_mutex: serializes inode write-back with the rest of VFS operations,
+  *            serializes "clean <-> dirty" state changes, serializes bulk-read,
+  *            protects @dirty, @bulk_read, @ui_size, and @xattr_size
++ * @xattr_sem: serilizes write operations (remove|set|create) on xattr
+  * @ui_lock: protects @synced_i_size
+  * @synced_i_size: synchronized size of inode, i.e. the value of inode size
+  *                 currently stored on the flash; used only for regular file
+@@ -409,6 +410,7 @@ struct ubifs_inode {
+ 	unsigned int bulk_read:1;
+ 	unsigned int compr_type:2;
+ 	struct mutex ui_mutex;
++	struct rw_semaphore xattr_sem;
+ 	spinlock_t ui_lock;
+ 	loff_t synced_i_size;
+ 	loff_t ui_size;
+diff --git a/fs/ubifs/xattr.c b/fs/ubifs/xattr.c
+index 6b1e9830b274..1fce27e9b769 100644
+--- a/fs/ubifs/xattr.c
++++ b/fs/ubifs/xattr.c
+@@ -285,6 +285,7 @@ int ubifs_xattr_set(struct inode *host, const char *name, const void *value,
+ 	if (!xent)
+ 		return -ENOMEM;
  
--	rcu_read_lock();
-  retry:
--	do {
--		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
--		chain = policy_hash_direct(net, daddr, saddr, family, dir);
--	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
-+	sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
-+	rcu_read_lock();
-+
-+	chain = policy_hash_direct(net, daddr, saddr, family, dir);
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
-+		goto retry;
-+	}
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	/*
+ 	 * The extended attribute entries are stored in LNC, so multiple
+ 	 * look-ups do not involve reading the flash.
+@@ -319,6 +320,7 @@ int ubifs_xattr_set(struct inode *host, const char *name, const void *value,
+ 	iput(inode);
  
- 	ret = NULL;
- 	hlist_for_each_entry_rcu(pol, chain, bydst) {
-@@ -2128,11 +2131,15 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
+ out_free:
++	up_write(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
+@@ -341,18 +343,19 @@ ssize_t ubifs_xattr_get(struct inode *host, const char *name, void *buf,
+ 	if (!xent)
+ 		return -ENOMEM;
+ 
++	down_read(&ubifs_inode(host)->xattr_sem);
+ 	xent_key_init(c, &key, host->i_ino, &nm);
+ 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
+ 	if (err) {
+ 		if (err == -ENOENT)
+ 			err = -ENODATA;
+-		goto out_unlock;
++		goto out_cleanup;
  	}
  
- skip_inexact:
--	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
- 		goto retry;
+ 	inode = iget_xattr(c, le64_to_cpu(xent->inum));
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+-		goto out_unlock;
++		goto out_cleanup;
+ 	}
+ 
+ 	ui = ubifs_inode(inode);
+@@ -374,7 +377,8 @@ ssize_t ubifs_xattr_get(struct inode *host, const char *name, void *buf,
+ out_iput:
+ 	mutex_unlock(&ui->ui_mutex);
+ 	iput(inode);
+-out_unlock:
++out_cleanup:
++	up_read(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
+@@ -406,16 +410,21 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+ 	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
+ 		dentry, size);
+ 
++	down_read(&host_ui->xattr_sem);
+ 	len = host_ui->xattr_names + host_ui->xattr_cnt;
+-	if (!buffer)
++	if (!buffer) {
+ 		/*
+ 		 * We should return the minimum buffer size which will fit a
+ 		 * null-terminated list of all the extended attribute names.
+ 		 */
+-		return len;
++		err = len;
++		goto out_err;
 +	}
  
--	if (ret && !xfrm_pol_hold_rcu(ret))
-+	if (ret && !xfrm_pol_hold_rcu(ret)) {
-+		rcu_read_unlock();
- 		goto retry;
+-	if (len > size)
+-		return -ERANGE;
++	if (len > size) {
++		err = -ERANGE;
++		goto out_err;
 +	}
- fail:
- 	rcu_read_unlock();
  
+ 	lowest_xent_key(c, &key, host->i_ino);
+ 	while (1) {
+@@ -437,8 +446,9 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+ 		pxent = xent;
+ 		key_read(c, &xent->key, &key);
+ 	}
+-
+ 	kfree(pxent);
++	up_read(&host_ui->xattr_sem);
++
+ 	if (err != -ENOENT) {
+ 		ubifs_err(c, "cannot find next direntry, error %d", err);
+ 		return err;
+@@ -446,6 +456,10 @@ ssize_t ubifs_listxattr(struct dentry *dentry, char *buffer, size_t size)
+ 
+ 	ubifs_assert(c, written <= size);
+ 	return written;
++
++out_err:
++	up_read(&host_ui->xattr_sem);
++	return err;
+ }
+ 
+ static int remove_xattr(struct ubifs_info *c, struct inode *host,
+@@ -504,6 +518,7 @@ int ubifs_purge_xattrs(struct inode *host)
+ 	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
+ 		   host->i_ino);
+ 
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	lowest_xent_key(c, &key, host->i_ino);
+ 	while (1) {
+ 		xent = ubifs_tnc_next_ent(c, &key, &nm);
+@@ -523,7 +538,7 @@ int ubifs_purge_xattrs(struct inode *host)
+ 			ubifs_ro_mode(c, err);
+ 			kfree(pxent);
+ 			kfree(xent);
+-			return err;
++			goto out_err;
+ 		}
+ 
+ 		ubifs_assert(c, ubifs_inode(xino)->xattr);
+@@ -535,7 +550,7 @@ int ubifs_purge_xattrs(struct inode *host)
+ 			kfree(xent);
+ 			iput(xino);
+ 			ubifs_err(c, "cannot remove xattr, error %d", err);
+-			return err;
++			goto out_err;
+ 		}
+ 
+ 		iput(xino);
+@@ -544,14 +559,19 @@ int ubifs_purge_xattrs(struct inode *host)
+ 		pxent = xent;
+ 		key_read(c, &xent->key, &key);
+ 	}
+-
+ 	kfree(pxent);
++	up_write(&ubifs_inode(host)->xattr_sem);
++
+ 	if (err != -ENOENT) {
+ 		ubifs_err(c, "cannot find next direntry, error %d", err);
+ 		return err;
+ 	}
+ 
+ 	return 0;
++
++out_err:
++	up_write(&ubifs_inode(host)->xattr_sem);
++	return err;
+ }
+ 
+ /**
+@@ -594,6 +614,7 @@ static int ubifs_xattr_remove(struct inode *host, const char *name)
+ 	if (!xent)
+ 		return -ENOMEM;
+ 
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	xent_key_init(c, &key, host->i_ino, &nm);
+ 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
+ 	if (err) {
+@@ -618,6 +639,7 @@ static int ubifs_xattr_remove(struct inode *host, const char *name)
+ 	iput(inode);
+ 
+ out_free:
++	up_write(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
 
