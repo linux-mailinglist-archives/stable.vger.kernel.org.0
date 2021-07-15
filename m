@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A56903CA9B2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7D83CAB06
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239361AbhGOTIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S244521AbhGOTQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241077AbhGOTHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 46117613F9;
-        Thu, 15 Jul 2021 19:03:28 +0000 (UTC)
+        id S241982AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA09A613D8;
+        Thu, 15 Jul 2021 19:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375808;
-        bh=SC0SrYxpAj381JD7DFm4xcmROiC9Ok/KwUycPC30xhc=;
+        s=korg; t=1626376304;
+        bh=ga9rDqtOYP4wQU5Pni8aPHOc48dTY08A9TqBMp22c9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOq9UWkOGkjR6sEyZ5JGbIV8QfaF+n7zdHFgCXYEp9mCS5BUMQ+dBLnQT6L4ITd7A
-         KeErOCiGWUioSMDLLvAbAH2L1/dCunARm8jwy6l8q3r9NMWnw213PM1fxOdZqfk/RC
-         Dxo1SNeg5wk3TF20kHQo6bz7KmjV7Zdk/oyEfhQc=
+        b=tZlr0OpEDyRTYGJzVodLDt0rjAdX6Q3lu8FBLvsmV1KWZojdENZDnNn6nEwx2GcWE
+         JpfOaWF8UsKOqFxBYaBjkOQSWwdlyGoZLS/xK1ESIuZCuAtD9K+FE4miiGjunT97xL
+         VVQtTyz6mJBxaDWgsOYMdOangFgGBfP/iKfSB2U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.12 208/242] seq_buf: Fix overflow in seq_buf_putmem_hex()
+        stable@vger.kernel.org,
+        Roman Stratiienko <r.stratiienko@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.13 215/266] clocksource/arm_arch_timer: Improve Allwinner A64 timer workaround
 Date:   Thu, 15 Jul 2021 20:39:30 +0200
-Message-Id: <20210715182629.880367460@linuxfoundation.org>
+Message-Id: <20210715182647.525008798@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yun Zhou <yun.zhou@windriver.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit d3b16034a24a112bb83aeb669ac5b9b01f744bb7 upstream.
+commit 8b33dfe0ba1c84c1aab2456590b38195837f1e6e upstream.
 
-There's two variables being increased in that loop (i and j), and i
-follows the raw data, and j follows what is being written into the buffer.
-We should compare 'i' to MAX_MEMHEX_BYTES or compare 'j' to HEX_CHARS.
-Otherwise, if 'j' goes bigger than HEX_CHARS, it will overflow the
-destination buffer.
+Bad counter reads are experienced sometimes when bit 10 or greater rolls
+over. Originally, testing showed that at least 10 lower bits would be
+set to the same value during these bad reads. However, some users still
+reported time skips.
 
-Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
-Link: https://lkml.kernel.org/r/20210626032156.47889-1-yun.zhou@windriver.com
+Wider testing revealed that on some chips, occasionally only the lowest
+9 bits would read as the anomalous value. During these reads (which
+still happen only when bit 10), bit 9 would read as the correct value.
+
+Reduce the mask by one bit to cover these cases as well.
 
 Cc: stable@vger.kernel.org
-Fixes: 5e3ca0ec76fce ("ftrace: introduce the "hex" output method")
-Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: c950ca8c35ee ("clocksource/drivers/arch_timer: Workaround for Allwinner A64 timer instability")
+Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210515021439.55316-1-samuel@sholland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- lib/seq_buf.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/lib/seq_buf.c
-+++ b/lib/seq_buf.c
-@@ -229,8 +229,10 @@ int seq_buf_putmem_hex(struct seq_buf *s
- 
- 	WARN_ON(s->size == 0);
- 
-+	BUILD_BUG_ON(MAX_MEMHEX_BYTES * 2 >= HEX_CHARS);
-+
- 	while (len) {
--		start_len = min(len, HEX_CHARS - 1);
-+		start_len = min(len, MAX_MEMHEX_BYTES);
- #ifdef __BIG_ENDIAN
- 		for (i = 0, j = 0; i < start_len; i++) {
- #else
+---
+ drivers/clocksource/arm_arch_timer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -365,7 +365,7 @@ static u64 notrace arm64_858921_read_cnt
+ 	do {								\
+ 		_val = read_sysreg(reg);				\
+ 		_retries--;						\
+-	} while (((_val + 1) & GENMASK(9, 0)) <= 1 && _retries);	\
++	} while (((_val + 1) & GENMASK(8, 0)) <= 1 && _retries);	\
+ 									\
+ 	WARN_ON_ONCE(!_retries);					\
+ 	_val;								\
 
 
