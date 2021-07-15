@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 886AE3CA709
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF9BD3CA86A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239085AbhGOSwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
+        id S241844AbhGOTBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236817AbhGOSv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A285613ED;
-        Thu, 15 Jul 2021 18:48:30 +0000 (UTC)
+        id S243165AbhGOTAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:00:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA616601FE;
+        Thu, 15 Jul 2021 18:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374910;
-        bh=gQvJRFM6NdQV4GzQ2npWN1NIBM9y32kxi3ccaS/EeTw=;
+        s=korg; t=1626375440;
+        bh=iNcNQir2cRVMu562KVKOKY2dPsh8LJRdvfF8o5bwC1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fryMttX3gHB4EY6FnNqQsVgRpfOvjxFPLce3WiwcwdexmnQVsKGlDRq5TbcG8KVSh
-         65uTyByTgwIsmOS50J6GfRctuHxiqke9iNn9M7YIM80qHfCYVvdXeg2kHcZ0gZ157m
-         2zjhilhMeuLnaP8lyRauy8hTxH15JSpyRCn9CJ20=
+        b=FsidDSlBfvGgsDhRVY5EcljLpeuZ4w1voxTIgQM1ZuLea9nFsCMrYSJUaJh2hxGEw
+         CUXoab2ToIeNUd+on649u1fmLU8fYkMoYsmU6ROytEyIR6FEhcmPZiYyV+A9FQ7YB2
+         fK2WLGAhTa+DV7h2Z6NH3UVmGW2VvA8m03PlQwpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Lee Gibson <leegib@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 078/215] dm writecache: commit just one block, not a full page
+Subject: [PATCH 5.12 088/242] wl1251: Fix possible buffer overflow in wl1251_cmd_scan
 Date:   Thu, 15 Jul 2021 20:37:30 +0200
-Message-Id: <20210715182613.261923973@linuxfoundation.org>
+Message-Id: <20210715182608.532399056@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Lee Gibson <leegib@gmail.com>
 
-[ Upstream commit 991bd8d7bc78966b4dc427b53a144f276bffcd52 ]
+[ Upstream commit d10a87a3535cce2b890897914f5d0d83df669c63 ]
 
-Some architectures have pages larger than 4k and committing a full
-page causes needless overhead.
+Function wl1251_cmd_scan calls memcpy without checking the length.
+Harden by checking the length is within the maximum allowed size.
 
-Fix this by writing a single block when committing the superblock.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Lee Gibson <leegib@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210428115508.25624-1-leegib@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-writecache.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/wireless/ti/wl1251/cmd.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 64c2980aaa54..894b58bbe56e 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -532,11 +532,7 @@ static void ssd_commit_superblock(struct dm_writecache *wc)
+diff --git a/drivers/net/wireless/ti/wl1251/cmd.c b/drivers/net/wireless/ti/wl1251/cmd.c
+index 498c8db2eb48..d7a869106782 100644
+--- a/drivers/net/wireless/ti/wl1251/cmd.c
++++ b/drivers/net/wireless/ti/wl1251/cmd.c
+@@ -454,9 +454,12 @@ int wl1251_cmd_scan(struct wl1251 *wl, u8 *ssid, size_t ssid_len,
+ 		cmd->channels[i].channel = channels[i]->hw_value;
+ 	}
  
- 	region.bdev = wc->ssd_dev->bdev;
- 	region.sector = 0;
--	region.count = PAGE_SIZE >> SECTOR_SHIFT;
--
--	if (unlikely(region.sector + region.count > wc->metadata_sectors))
--		region.count = wc->metadata_sectors - region.sector;
--
-+	region.count = wc->block_size >> SECTOR_SHIFT;
- 	region.sector += wc->start_sector;
+-	cmd->params.ssid_len = ssid_len;
+-	if (ssid)
+-		memcpy(cmd->params.ssid, ssid, ssid_len);
++	if (ssid) {
++		int len = clamp_val(ssid_len, 0, IEEE80211_MAX_SSID_LEN);
++
++		cmd->params.ssid_len = len;
++		memcpy(cmd->params.ssid, ssid, len);
++	}
  
- 	req.bi_op = REQ_OP_WRITE;
+ 	ret = wl1251_cmd_send(wl, CMD_SCAN, cmd, sizeof(*cmd));
+ 	if (ret < 0) {
 -- 
 2.30.2
 
