@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6B63CA799
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 356C63CA5F3
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241251AbhGOSze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
+        id S236404AbhGOSpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240715AbhGOSxG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:53:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF7BA613C4;
-        Thu, 15 Jul 2021 18:50:12 +0000 (UTC)
+        id S235462AbhGOSpZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B78A3613CC;
+        Thu, 15 Jul 2021 18:42:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375013;
-        bh=bIznIDi8CkwwEjaikFaCvPgHDHQok3btZ9pSdMe2VCw=;
+        s=korg; t=1626374551;
+        bh=o8/SmWUqbQEyuMyc2gvCsZe1vXGfO6sLcc64P9UU7hg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+vubc3dwiu+WiXpqIZPE7DNQk0TKG/jXdB0xvtcET1D0OyGd1D4GI6pXHbfTNOj6
-         Zzra9HPsjmVjYsrz7te0sHcSFv1MrJgfzOLuBm0tU4d2TiS0gaI5xGq9k+U0Jo0ne4
-         lpPFWvJJX27NTIcSb7sE0/gNYP7vrC1KmMnl/syk=
+        b=ZR3lKVlxlroNdUNAxgGo/g1OD6mPm7gHT03pJ+6QcQGbE9L+KAz2cANGRGyuUhCKk
+         3d2w+/SBy87ZNFyJecNj643HDRcN94I5xXUtreQxVUsPrLN1ZmuHoPD15GaTlO4Alk
+         n/lFbUzdoXdNxM8+tjZNwUC7d1TphuTlLMz6fR/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 122/215] Bluetooth: L2CAP: Fix invalid access on ECRED Connection response
+Subject: [PATCH 5.4 047/122] net: sched: fix error return code in tcf_del_walker()
 Date:   Thu, 15 Jul 2021 20:38:14 +0200
-Message-Id: <20210715182621.054893225@linuxfoundation.org>
+Message-Id: <20210715182500.878480642@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit de895b43932cb47e69480540be7eca289af24f23 ]
+[ Upstream commit 55d96f72e8ddc0a294e0b9c94016edbb699537e1 ]
 
-The use of l2cap_chan_del is not safe under a loop using
-list_for_each_entry.
+When nla_put_u32() fails, 'ret' could be 0, it should
+return error code in tcf_del_walker().
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sched/act_api.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 17520133093a..0ddbc415ce15 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6055,7 +6055,7 @@ static inline int l2cap_ecred_conn_rsp(struct l2cap_conn *conn,
- 	struct l2cap_ecred_conn_rsp *rsp = (void *) data;
- 	struct hci_conn *hcon = conn->hcon;
- 	u16 mtu, mps, credits, result;
--	struct l2cap_chan *chan;
-+	struct l2cap_chan *chan, *tmp;
- 	int err = 0, sec_level;
- 	int i = 0;
+diff --git a/net/sched/act_api.c b/net/sched/act_api.c
+index 716cad677318..17e5cd9ebd89 100644
+--- a/net/sched/act_api.c
++++ b/net/sched/act_api.c
+@@ -316,7 +316,8 @@ static int tcf_del_walker(struct tcf_idrinfo *idrinfo, struct sk_buff *skb,
+ 	}
+ 	mutex_unlock(&idrinfo->lock);
  
-@@ -6074,7 +6074,7 @@ static inline int l2cap_ecred_conn_rsp(struct l2cap_conn *conn,
+-	if (nla_put_u32(skb, TCA_FCNT, n_i))
++	ret = nla_put_u32(skb, TCA_FCNT, n_i);
++	if (ret)
+ 		goto nla_put_failure;
+ 	nla_nest_end(skb, nest);
  
- 	cmd_len -= sizeof(*rsp);
- 
--	list_for_each_entry(chan, &conn->chan_l, list) {
-+	list_for_each_entry_safe(chan, tmp, &conn->chan_l, list) {
- 		u16 dcid;
- 
- 		if (chan->ident != cmd->ident ||
 -- 
 2.30.2
 
