@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04B633CA93F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D39973CAACD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242823AbhGOTFx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
+        id S244852AbhGOTPi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240256AbhGOTEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB8D3613E5;
-        Thu, 15 Jul 2021 19:00:46 +0000 (UTC)
+        id S244598AbhGOTO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 399D861400;
+        Thu, 15 Jul 2021 19:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375647;
-        bh=E1rfawRYE3YC1A6vcqcfifcrxN/c0o1AcCscCPZDZlc=;
+        s=korg; t=1626376236;
+        bh=u7pUWoNeu5lKcDgsOJt2XkyhoBWXBLAJbKCk+G1929A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oveI0Kf6iCURMd53xdRXi3aYfAePiLcV1EGArviCTdBAI4GJXVb5wZRH6A7+P94mv
-         fX3zTkUPKVHsOe9hou5B2ojqDj4TsS/Ir+3UfBAHzSfg3hyd9W7NtWO/1MWqivkBxm
-         73uDTog3qagLh+44SbvTuskfAO9nbIHgBjkPmICU=
+        b=fyLiUnCdsIFNCPHU6pVSg9bo4T08494LEhOXM6nNaTUWZOTztFG5cyBiz4zSd3hcA
+         VqolsxOWqw0i7HGR83kfsdJyBBCPOzWWUEgpPx4QUqWS/9F4c8LbOcxS5HxVXeKD7A
+         Yc1OPJ1hN7L3/G0RMi0cBCIZNO15Fxbpz9teKx1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH 5.12 177/242] drm/tegra: Dont set allow_fb_modifiers explicitly
-Date:   Thu, 15 Jul 2021 20:38:59 +0200
-Message-Id: <20210715182624.391118308@linuxfoundation.org>
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.13 185/266] drm/amdgpu: add new dimgrey cavefish DID
+Date:   Thu, 15 Jul 2021 20:39:00 +0200
+Message-Id: <20210715182644.012582491@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit be4306ad928fcf736cbe2616b6dd19d91f1bc083 upstream.
+commit 06ac9b6c736ac9da600b1782d7ac6d6e746286c4 upstream.
 
-Since
+Add new PCI device id.
 
-commit 890880ddfdbe256083170866e49c87618b706ac7
-Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Date:   Fri Jan 4 09:56:10 2019 +0100
-
-    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
-
-this is done automatically as part of plane init, if drivers set the
-modifier list correctly. Which is the case here.
-
-It was slightly inconsistently though, since planes with only linear
-modifier support haven't listed that explicitly. Fix that, and cc:
-stable to allow userspace to rely on this. Again don't backport
-further than where Paul's patch got added.
-
-Cc: stable@vger.kernel.org # v5.1 +
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: linux-tegra@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210413094904.3736372-10-daniel.vetter@ffwll.ch
+Reviewed-by: Guchun Chen <guchun.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/tegra/dc.c  |   10 ++++++++--
- drivers/gpu/drm/tegra/drm.c |    2 --
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -947,6 +947,11 @@ static const struct drm_plane_helper_fun
- 	.atomic_disable = tegra_cursor_atomic_disable,
- };
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1179,6 +1179,7 @@ static const struct pci_device_id pciidl
+ 	{0x1002, 0x73E0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
+ 	{0x1002, 0x73E1, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
+ 	{0x1002, 0x73E2, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
++	{0x1002, 0x73E3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
+ 	{0x1002, 0x73FF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, CHIP_DIMGREY_CAVEFISH},
  
-+static const uint64_t linear_modifiers[] = {
-+	DRM_FORMAT_MOD_LINEAR,
-+	DRM_FORMAT_MOD_INVALID
-+};
-+
- static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
- 						      struct tegra_dc *dc)
- {
-@@ -975,7 +980,7 @@ static struct drm_plane *tegra_dc_cursor
- 
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL,
-+				       num_formats, linear_modifiers,
- 				       DRM_PLANE_TYPE_CURSOR, NULL);
- 	if (err < 0) {
- 		kfree(plane);
-@@ -1094,7 +1099,8 @@ static struct drm_plane *tegra_dc_overla
- 
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL, type, NULL);
-+				       num_formats, linear_modifiers,
-+				       type, NULL);
- 	if (err < 0) {
- 		kfree(plane);
- 		return ERR_PTR(err);
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -1122,8 +1122,6 @@ static int host1x_drm_probe(struct host1
- 	drm->mode_config.max_width = 4096;
- 	drm->mode_config.max_height = 4096;
- 
--	drm->mode_config.allow_fb_modifiers = true;
--
- 	drm->mode_config.normalize_zpos = true;
- 
- 	drm->mode_config.funcs = &tegra_drm_mode_config_funcs;
+ 	/* Aldebaran */
 
 
