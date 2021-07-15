@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 201B13CAB95
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D0C73CAB94
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245453AbhGOTUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
+        id S245379AbhGOTUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244839AbhGOTSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:18:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9E8C613DC;
-        Thu, 15 Jul 2021 19:13:33 +0000 (UTC)
+        id S244835AbhGOTSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:18:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 494D9613F7;
+        Thu, 15 Jul 2021 19:13:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376414;
-        bh=OyQ4ERn12mp0E4LYqVJQ68GV9XctXcHpNAvUIaZqOoo=;
+        s=korg; t=1626376416;
+        bh=31ZrS06a1Aeqc3n+7vR4NdsKfG+zUQ9h3vFAyT/9evg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKS3HSGMs3gcwlbgWNfvix/2ZKI+wtv/hsPgk3S9AQqCuYDs9vCoke9TJBhUY4o3m
-         VSFJcINEIPhqEwfcv4EoQwezBjKoyPZxn7rA2/I8jhvrkjFWd+ee7rttTTLZ0yUtWd
-         Tj3293iDyEmSmHKIOdbjMj8sTZ8H4ZEyqBxi0YiI=
+        b=fbl9F9tmnHMPk56qMyoykjH52toUhYj7nozuAT6IV6bjsR6E3c4pki8WWTxXsZdxF
+         0LumSRDKiECxWhNXs1baXa5J3+aF6VcyDk6KylnEkpXhgX7K55dYvjV/W5SPv3OWMh
+         HQcU1407OLHqSzlnkxIY9GCNtJJfpFn/dkgNglHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.13 262/266] ext4: fix possible UAF when remounting r/o a mmp-protected file system
-Date:   Thu, 15 Jul 2021 20:40:17 +0200
-Message-Id: <20210715182653.279863842@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
+        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
+Subject: [PATCH 5.13 263/266] jfs: fix GPF in diFree
+Date:   Thu, 15 Jul 2021 20:40:18 +0200
+Message-Id: <20210715182653.379110370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -39,130 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Theodore Ts'o <tytso@mit.edu>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 61bb4a1c417e5b95d9edb4f887f131de32e419cb upstream.
+commit 9d574f985fe33efd6911f4d752de6f485a1ea732 upstream.
 
-After commit 618f003199c6 ("ext4: fix memory leak in
-ext4_fill_super"), after the file system is remounted read-only, there
-is a race where the kmmpd thread can exit, causing sbi->s_mmp_tsk to
-point at freed memory, which the call to ext4_stop_mmpd() can trip
-over.
+Avoid passing inode with
+JFS_SBI(inode->i_sb)->ipimap == NULL to
+diFree()[1]. GFP will appear:
 
-Fix this by only allowing kmmpd() to exit when it is stopped via
-ext4_stop_mmpd().
+	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
+	struct inomap *imap = JFS_IP(ipimap)->i_imap;
 
-Link: https://lore.kernel.org/r/20210707002433.3719773-1-tytso@mit.edu
-Reported-by: Ye Bin <yebin10@huawei.com>
-Bug-Report-Link: <20210629143603.2166962-1-yebin10@huawei.com>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Jan Kara <jack@suse.cz>
+JFS_IP() will return invalid pointer when ipimap == NULL
+
+Call Trace:
+ diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
+ jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
+ evict+0x2ed/0x750 fs/inode.c:578
+ iput_final fs/inode.c:1654 [inline]
+ iput.part.0+0x3fe/0x820 fs/inode.c:1680
+ iput+0x58/0x70 fs/inode.c:1670
+
+Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mmp.c   |   31 +++++++++++++++----------------
- fs/ext4/super.c |    6 +++++-
- 2 files changed, 20 insertions(+), 17 deletions(-)
+ fs/jfs/inode.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -156,7 +156,12 @@ static int kmmpd(void *data)
- 	memcpy(mmp->mmp_nodename, init_utsname()->nodename,
- 	       sizeof(mmp->mmp_nodename));
+--- a/fs/jfs/inode.c
++++ b/fs/jfs/inode.c
+@@ -151,7 +151,8 @@ void jfs_evict_inode(struct inode *inode
+ 			if (test_cflag(COMMIT_Freewmap, inode))
+ 				jfs_free_zero_link(inode);
  
--	while (!kthread_should_stop()) {
-+	while (!kthread_should_stop() && !sb_rdonly(sb)) {
-+		if (!ext4_has_feature_mmp(sb)) {
-+			ext4_warning(sb, "kmmpd being stopped since MMP feature"
-+				     " has been disabled.");
-+			goto wait_to_exit;
-+		}
- 		if (++seq > EXT4_MMP_SEQ_MAX)
- 			seq = 1;
+-			diFree(inode);
++			if (JFS_SBI(inode->i_sb)->ipimap)
++				diFree(inode);
  
-@@ -177,16 +182,6 @@ static int kmmpd(void *data)
- 			failed_writes++;
- 		}
- 
--		if (!(le32_to_cpu(es->s_feature_incompat) &
--		    EXT4_FEATURE_INCOMPAT_MMP)) {
--			ext4_warning(sb, "kmmpd being stopped since MMP feature"
--				     " has been disabled.");
--			goto exit_thread;
--		}
--
--		if (sb_rdonly(sb))
--			break;
--
- 		diff = jiffies - last_update_time;
- 		if (diff < mmp_update_interval * HZ)
- 			schedule_timeout_interruptible(mmp_update_interval *
-@@ -207,7 +202,7 @@ static int kmmpd(void *data)
- 				ext4_error_err(sb, -retval,
- 					       "error reading MMP data: %d",
- 					       retval);
--				goto exit_thread;
-+				goto wait_to_exit;
- 			}
- 
- 			mmp_check = (struct mmp_struct *)(bh_check->b_data);
-@@ -221,7 +216,7 @@ static int kmmpd(void *data)
- 				ext4_error_err(sb, EBUSY, "abort");
- 				put_bh(bh_check);
- 				retval = -EBUSY;
--				goto exit_thread;
-+				goto wait_to_exit;
- 			}
- 			put_bh(bh_check);
- 		}
-@@ -244,7 +239,13 @@ static int kmmpd(void *data)
- 
- 	retval = write_mmp_block(sb, bh);
- 
--exit_thread:
-+wait_to_exit:
-+	while (!kthread_should_stop()) {
-+		set_current_state(TASK_INTERRUPTIBLE);
-+		if (!kthread_should_stop())
-+			schedule();
-+	}
-+	set_current_state(TASK_RUNNING);
- 	return retval;
- }
- 
-@@ -391,5 +392,3 @@ failed:
- 	brelse(bh);
- 	return 1;
- }
--
--
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5996,7 +5996,6 @@ static int ext4_remount(struct super_blo
- 				 */
- 				ext4_mark_recovery_complete(sb, es);
- 			}
--			ext4_stop_mmpd(sbi);
- 		} else {
- 			/* Make sure we can mount this feature set readwrite */
- 			if (ext4_has_feature_readonly(sb) ||
-@@ -6110,6 +6109,9 @@ static int ext4_remount(struct super_blo
- 	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
- 		ext4_release_system_zone(sb);
- 
-+	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
-+		ext4_stop_mmpd(sbi);
-+
- 	/*
- 	 * Some options can be enabled by ext4 and/or by VFS mount flag
- 	 * either way we need to make sure it matches in both *flags and
-@@ -6143,6 +6145,8 @@ restore_opts:
- 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
- 		kfree(to_free[i]);
- #endif
-+	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
-+		ext4_stop_mmpd(sbi);
- 	kfree(orig_data);
- 	return err;
- }
+ 			/*
+ 			 * Free the inode from the quota allocation.
 
 
