@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 226AD3CA7BE
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 722EA3CA66F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242451AbhGOS4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
+        id S239013AbhGOSry (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:47:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239944AbhGOSzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B700613DA;
-        Thu, 15 Jul 2021 18:52:21 +0000 (UTC)
+        id S238906AbhGOSrd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3EB613D2;
+        Thu, 15 Jul 2021 18:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375142;
-        bh=+eZ0yTPFBqX/+7MawF+ewYY+p2odJue09D667njTbPw=;
+        s=korg; t=1626374679;
+        bh=SeriLztVEZSO4MnAK7lhv7P7uFNZ7GXLsYC/VB6qCTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MzfqFH0GCh4xhoYQxC7+UEwlerbzyJy0iyilFRleDYvhjlPIRn1bLKu30P/6Qm2Vo
-         80g2p+wZiI0OaxZIrBW0SQYfUP+CF7TW87asH7dRPlNmj+frAmJ65yerkf4fqFEtxl
-         FVH+PFBH5601CuoOc1LbcGKLYXwp6PWu0gqvx7Xo=
+        b=wQkb97F2YLfZWl1B9/9s16LgKQSWN4ShTVnsmIxlxa4zCIaxwZgubP9xZUrFXqIqA
+         /5KJFiNmen8DF3AqCEScUvbVjY0DQ0pGWAebt90266ktm9fVzTY5f93/pbos1QbRYG
+         UZyhoSTRd68k+X4YA4HATW6tf8U10JvWn3w1uGc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Sergeev <asergeev@carbonrobotics.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 176/215] i40e: fix PTP on 5Gb links
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.4 101/122] nvmem: core: add a missing of_node_put
 Date:   Thu, 15 Jul 2021 20:39:08 +0200
-Message-Id: <20210715182630.580341150@linuxfoundation.org>
+Message-Id: <20210715182518.898251816@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 26b0ce8dd3dd704393dbace4dc416adfeffe531f upstream.
+commit 63879e2964bceee2aa5bbe8b99ea58bba28bb64f upstream.
 
-As reported by Alex Sergeev, the i40e driver is incrementing the PTP
-clock at 40Gb speeds when linked at 5Gb. Fix this bug by making
-sure that the right multiplier is selected when linked at 5Gb.
+'for_each_child_of_node' performs an of_node_get on each iteration, so a
+return from the middle of the loop requires an of_node_put.
 
-Fixes: 3dbdd6c2f70a ("i40e: Add support for 5Gbps cards")
-Cc: stable@vger.kernel.org
-Reported-by: Alex Sergeev <asergeev@carbonrobotics.com>
-Suggested-by: Alex Sergeev <asergeev@carbonrobotics.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: e888d445ac33 ("nvmem: resolve cells from DT at registration time")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210611102321.11509-1-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/net/ethernet/intel/i40e/i40e_ptp.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/nvmem/core.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-@@ -11,13 +11,14 @@
-  * operate with the nanosecond field directly without fear of overflow.
-  *
-  * Much like the 82599, the update period is dependent upon the link speed:
-- * At 40Gb link or no link, the period is 1.6ns.
-- * At 10Gb link, the period is multiplied by 2. (3.2ns)
-+ * At 40Gb, 25Gb, or no link, the period is 1.6ns.
-+ * At 10Gb or 5Gb link, the period is multiplied by 2. (3.2ns)
-  * At 1Gb link, the period is multiplied by 20. (32ns)
-  * 1588 functionality is not supported at 100Mbps.
-  */
- #define I40E_PTP_40GB_INCVAL		0x0199999999ULL
- #define I40E_PTP_10GB_INCVAL_MULT	2
-+#define I40E_PTP_5GB_INCVAL_MULT	2
- #define I40E_PTP_1GB_INCVAL_MULT	20
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -318,15 +318,17 @@ static int nvmem_add_cells_from_of(struc
+ 			continue;
+ 		if (len < 2 * sizeof(u32)) {
+ 			dev_err(dev, "nvmem: invalid reg on %pOF\n", child);
++			of_node_put(child);
+ 			return -EINVAL;
+ 		}
  
- #define I40E_PRTTSYN_CTL1_TSYNTYPE_V1  BIT(I40E_PRTTSYN_CTL1_TSYNTYPE_SHIFT)
-@@ -465,6 +466,9 @@ void i40e_ptp_set_increment(struct i40e_
- 	case I40E_LINK_SPEED_10GB:
- 		mult = I40E_PTP_10GB_INCVAL_MULT;
- 		break;
-+	case I40E_LINK_SPEED_5GB:
-+		mult = I40E_PTP_5GB_INCVAL_MULT;
-+		break;
- 	case I40E_LINK_SPEED_1GB:
- 		mult = I40E_PTP_1GB_INCVAL_MULT;
- 		break;
+ 		cell = kzalloc(sizeof(*cell), GFP_KERNEL);
+-		if (!cell)
++		if (!cell) {
++			of_node_put(child);
+ 			return -ENOMEM;
++		}
+ 
+ 		cell->nvmem = nvmem;
+-		cell->np = of_node_get(child);
+ 		cell->offset = be32_to_cpup(addr++);
+ 		cell->bytes = be32_to_cpup(addr);
+ 		cell->name = kasprintf(GFP_KERNEL, "%pOFn", child);
+@@ -347,11 +349,12 @@ static int nvmem_add_cells_from_of(struc
+ 				cell->name, nvmem->stride);
+ 			/* Cells already added will be freed later. */
+ 			kfree_const(cell->name);
+-			of_node_put(cell->np);
+ 			kfree(cell);
++			of_node_put(child);
+ 			return -EINVAL;
+ 		}
+ 
++		cell->np = of_node_get(child);
+ 		nvmem_cell_add(cell);
+ 	}
+ 
 
 
