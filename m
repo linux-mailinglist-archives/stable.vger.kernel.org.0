@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC2B3CAB24
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE7C3CAB29
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244187AbhGOTRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:17:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
+        id S244373AbhGOTR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:17:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243330AbhGOTPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6A45610C7;
-        Thu, 15 Jul 2021 19:12:09 +0000 (UTC)
+        id S243838AbhGOTP6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16DE061370;
+        Thu, 15 Jul 2021 19:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376330;
-        bh=ZnShKhnKx7U28so4TBiNlozoEwrVKGgiIzuBSsmiHnw=;
+        s=korg; t=1626376332;
+        bh=oeHtHu3SOTnq8xDXXFlMf7eT9quDwllg4ho5H1FEKSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSiHZRuqLvO2YUzUVIPVK+dcgBbD+Xdw+t+SJCBt29S4tExPa/shq4Efx24m+ZO1b
-         ASBVFDLuMOtNMhDyjGfmlll5JJB0knvDvt0LAVSfvLkFC3DcQsdJAr14VwP/88J3D2
-         19IAekleaGKWsz8RSOkY/kd4tgqHZnntgVVXdtFk=
+        b=olqwvRaregawMTHlxlcWVNpwm7n+mFE4P4caGJG8V2p6usMEJOWag79+SVkECh+00
+         wO2UwYQIjkHg7oDLPn1r24Izf6SSY2Po2cGfsDvuMC+alzinRZHXURtF37LUkM4kSH
+         ASV6qxw1kD0YzF9GsxCiCLPrSmwWTcIsYZMBGql4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Marcus Cooper <codekipper@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.13 225/266] power: supply: ab8500: Fix an old bug
-Date:   Thu, 15 Jul 2021 20:39:40 +0200
-Message-Id: <20210715182648.864429638@linuxfoundation.org>
+        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
+        Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 5.13 226/266] mfd: syscon: Free the allocated name field of struct regmap_config
+Date:   Thu, 15 Jul 2021 20:39:41 +0200
+Message-Id: <20210715182648.972371678@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,38 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Limeng <Meng.Li@windriver.com>
 
-commit f1c74a6c07e76fcb31a4bcc1f437c4361a2674ce upstream.
+commit 56a1188159cb2b87fbcb5a7a7afb38a4dd9db0c1 upstream.
 
-Trying to get the AB8500 charging driver working I ran into a bit
-of bitrot: we haven't used the driver for a while so errors in
-refactorings won't be noticed.
-
-This one is pretty self evident: use argument to the macro or we
-end up with a random pointer to something else.
+The commit 529a1101212a("mfd: syscon: Don't free allocated name
+for regmap_config") doesn't free the allocated name field of struct
+regmap_config, but introduce a memory leak. There is another
+commit 94cc89eb8fa5("regmap: debugfs: Fix handling of name string
+for debugfs init delays") fixing this debugfs init issue from root
+cause. With this fixing, the name field in struct regmap_debugfs_node
+is removed. When initialize debugfs for syscon driver, the name
+field of struct regmap_config is not used anymore. So, the allocated
+name field of struct regmap_config is need to be freed directly after
+regmap initialization to avoid memory leak.
 
 Cc: stable@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Marcus Cooper <codekipper@gmail.com>
-Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 529a1101212a("mfd: syscon: Don't free allocated name for regmap_config")
+Signed-off-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/supply/ab8500-chargalg.h |    2 +-
+ drivers/mfd/syscon.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/power/supply/ab8500-chargalg.h
-+++ b/drivers/power/supply/ab8500-chargalg.h
-@@ -15,7 +15,7 @@
-  * - POWER_SUPPLY_TYPE_USB,
-  * because only them store as drv_data pointer to struct ux500_charger.
-  */
--#define psy_to_ux500_charger(x) power_supply_get_drvdata(psy)
-+#define psy_to_ux500_charger(x) power_supply_get_drvdata(x)
+--- a/drivers/mfd/syscon.c
++++ b/drivers/mfd/syscon.c
+@@ -108,6 +108,7 @@ static struct syscon *of_syscon_register
+ 	syscon_config.max_register = resource_size(&res) - reg_io_width;
  
- /* Forward declaration */
- struct ux500_charger;
+ 	regmap = regmap_init_mmio(NULL, base, &syscon_config);
++	kfree(syscon_config.name);
+ 	if (IS_ERR(regmap)) {
+ 		pr_err("regmap init failed\n");
+ 		ret = PTR_ERR(regmap);
+@@ -144,7 +145,6 @@ err_clk:
+ 	regmap_exit(regmap);
+ err_regmap:
+ 	iounmap(base);
+-	kfree(syscon_config.name);
+ err_map:
+ 	kfree(syscon);
+ 	return ERR_PTR(ret);
 
 
