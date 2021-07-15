@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BFE3CA5E1
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BAA73CA753
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235472AbhGOSpH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
+        id S240596AbhGOSxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236538AbhGOSpG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44CEA61396;
-        Thu, 15 Jul 2021 18:42:12 +0000 (UTC)
+        id S239831AbhGOSws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3052C613D9;
+        Thu, 15 Jul 2021 18:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374532;
-        bh=2i22KCHVi/5HW7v/5PYOSKt8E72zDw5l4Ce16zyEpSs=;
+        s=korg; t=1626374994;
+        bh=YG0qm79BroaI6CylnQisfmeMk0+lZCDIprASKU7iuVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IR6Ejp+fkWOgBg+AHnTdWK12LgRwHZDiLL+ABAzo+ZMI4hW6gwJmo7wGO0jpEJfkR
-         EPBiL5aIaTVc/GgolYyHnxRHcCvmplcGBzulKxCcxoKjnY88hMQAneI6W6QLZXhLNE
-         oyHvERlikiaPYUbKtwo8DYZE34MSccXjTpD5czz8=
+        b=kY2rXex2LS47ZeLTsfscP3XjO03S9oSSlbONiXrkcD1nnTUPfh44S1WfkFqGMaBx1
+         /t7DgBT+ogy1HLIIyFrUEWxPdQApvem0uQO473HXgTNVqDWVacQmJpGZx8cSU5ZNLT
+         y9pejqJFfnqMSHcT3q4eyawtEMV0cImGxJhzyVCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Gerd Rausch <gerd.rausch@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 040/122] xfrm: Fix error reporting in xfrm_state_construct.
+Subject: [PATCH 5.10 115/215] RDMA/cma: Fix rdma_resolve_route() memory leak
 Date:   Thu, 15 Jul 2021 20:38:07 +0200
-Message-Id: <20210715182459.106158485@linuxfoundation.org>
+Message-Id: <20210715182619.899457746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
+[ Upstream commit 74f160ead74bfe5f2b38afb4fcf86189f9ff40c9 ]
 
-When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
-the error will not be reported because the -ENOMEM assignment
-to the err variable is overwritten before. Fix this by moving
-these two in front of the function so that memory allocation
-failures will be reported.
+Fix a memory leak when "mda_resolve_route() is called more than once on
+the same "rdma_cm_id".
 
-Reported-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+This is possible if cma_query_handler() triggers the
+RDMA_CM_EVENT_ROUTE_ERROR flow which puts the state machine back and
+allows rdma_resolve_route() to be called again.
+
+Link: https://lore.kernel.org/r/f6662b7b-bdb7-2706-1e12-47c61d3474b6@oracle.com
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index fbb7d9d06478..0cee2d3c6e45 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -580,6 +580,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 0c879e40bd18..34b94e525390 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2793,7 +2793,8 @@ static int cma_resolve_ib_route(struct rdma_id_private *id_priv,
  
- 	copy_from_user_state(x, p);
+ 	cma_init_resolve_route_work(work, id_priv);
  
-+	if (attrs[XFRMA_ENCAP]) {
-+		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-+				   sizeof(*x->encap), GFP_KERNEL);
-+		if (x->encap == NULL)
-+			goto error;
-+	}
-+
-+	if (attrs[XFRMA_COADDR]) {
-+		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
-+				    sizeof(*x->coaddr), GFP_KERNEL);
-+		if (x->coaddr == NULL)
-+			goto error;
-+	}
-+
- 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
- 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
- 
-@@ -600,23 +614,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
- 				   attrs[XFRMA_ALG_COMP])))
- 		goto error;
- 
--	if (attrs[XFRMA_ENCAP]) {
--		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
--				   sizeof(*x->encap), GFP_KERNEL);
--		if (x->encap == NULL)
--			goto error;
--	}
--
- 	if (attrs[XFRMA_TFCPAD])
- 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
- 
--	if (attrs[XFRMA_COADDR]) {
--		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
--				    sizeof(*x->coaddr), GFP_KERNEL);
--		if (x->coaddr == NULL)
--			goto error;
--	}
--
- 	xfrm_mark_get(attrs, &x->mark);
- 
- 	xfrm_smark_init(attrs, &x->props.smark);
+-	route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
++	if (!route->path_rec)
++		route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
+ 	if (!route->path_rec) {
+ 		ret = -ENOMEM;
+ 		goto err1;
 -- 
 2.30.2
 
