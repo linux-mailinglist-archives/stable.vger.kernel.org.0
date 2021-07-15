@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8E123CA7E6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 844F53CA7EB
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240518AbhGOS45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33088 "EHLO mail.kernel.org"
+        id S241461AbhGOS5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:57:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241133AbhGOS4e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:56:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B111613DB;
-        Thu, 15 Jul 2021 18:53:31 +0000 (UTC)
+        id S241669AbhGOS4f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:56:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE48E613DF;
+        Thu, 15 Jul 2021 18:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375211;
-        bh=gh1Dokpg8mc+rBHS3TG5+qodz7kuClBqeYXQe00w4Rs=;
+        s=korg; t=1626375214;
+        bh=INyJeFAVFCMDDxPWIB66WGq+MIN1r+ZSRaBmZN4dAmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjks87YodjBtZqCUA/T9PUTVzults7WCANLIq6m/DtOsyTOW943lyDoX67MLGj71Q
-         de4wf7b4HArG4jkZh/D1f3kQRPXU71Q5bqxfW8+Wvewz1dkytD0lOApFz88lluH+Ym
-         Rj0TMzX33ckevcUcz/C3iDoBMGec4B+hk3bZuuy0=
+        b=MicLsVEkcOolqrgPDJ9KziNi5gaC8U5HP3hVY4QSf5sT2i2kbQeAcx2n733ycjPVy
+         sLp1OByj6R8xJ8U/z0GNUX0r9KD2YRhOZjWvxLo8OdM9Cw50wc013OSVRlzoHp5dSC
+         dXu0VJ5By+upWYlau6oLM+kGlvvMxWS9eQJpfx/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>
-Subject: [PATCH 5.10 208/215] io_uring: fix clear IORING_SETUP_R_DISABLED in wrong function
-Date:   Thu, 15 Jul 2021 20:39:40 +0200
-Message-Id: <20210715182635.947795275@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.10 209/215] dm writecache: write at least 4k when committing
+Date:   Thu, 15 Jul 2021 20:39:41 +0200
+Message-Id: <20210715182636.125429718@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -38,37 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-In commit 3ebba796fa25 ("io_uring: ensure that SQPOLL thread is started for exit"),
-the IORING_SETUP_R_DISABLED is cleared in io_sq_offload_start(), but when backport
-it to stable-5.10, IORING_SETUP_R_DISABLED is cleared in __io_req_task_submit(),
-move clearing IORING_SETUP_R_DISABLED to io_sq_offload_start() to fix this.
+commit 867de40c4c23e6d7f89f9ce4272a5d1b1484c122 upstream.
 
-Fixes: 6cae8095490ca ("io_uring: ensure that SQPOLL thread is started for exit")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+SSDs perform badly with sub-4k writes (because they perfrorm
+read-modify-write internally), so make sure writecache writes at least
+4k when committing.
+
+Fixes: 991bd8d7bc78 ("dm writecache: commit just one block, not a full page")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-writecache.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2087,7 +2087,6 @@ static void __io_req_task_submit(struct
- 		__io_req_task_cancel(req, -EFAULT);
- 	mutex_unlock(&ctx->uring_lock);
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -532,7 +532,11 @@ static void ssd_commit_superblock(struct
  
--	ctx->flags &= ~IORING_SETUP_R_DISABLED;
- 	if (ctx->flags & IORING_SETUP_SQPOLL)
- 		io_sq_thread_drop_mm();
- }
-@@ -7992,6 +7991,7 @@ static void io_sq_offload_start(struct i
- {
- 	struct io_sq_data *sqd = ctx->sq_data;
+ 	region.bdev = wc->ssd_dev->bdev;
+ 	region.sector = 0;
+-	region.count = wc->block_size >> SECTOR_SHIFT;
++	region.count = max(4096U, wc->block_size) >> SECTOR_SHIFT;
++
++	if (unlikely(region.sector + region.count > wc->metadata_sectors))
++		region.count = wc->metadata_sectors - region.sector;
++
+ 	region.sector += wc->start_sector;
  
-+	ctx->flags &= ~IORING_SETUP_R_DISABLED;
- 	if ((ctx->flags & IORING_SETUP_SQPOLL) && sqd->thread)
- 		wake_up_process(sqd->thread);
- }
+ 	req.bi_op = REQ_OP_WRITE;
 
 
