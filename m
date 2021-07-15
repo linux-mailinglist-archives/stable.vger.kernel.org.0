@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5584E3CA89B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A752D3CA5B8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242308AbhGOTBv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
+        id S231285AbhGOSoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241665AbhGOTBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59B96613D6;
-        Thu, 15 Jul 2021 18:57:50 +0000 (UTC)
+        id S231216AbhGOSoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 332E9613CC;
+        Thu, 15 Jul 2021 18:41:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375470;
-        bh=fKUD4iN2+LvMxirRuESye6PTUzOC5Oed4ow7L8huVTo=;
+        s=korg; t=1626374474;
+        bh=M6GNRjaiGoU075Gb/3SUC/E2uZ2SyiNzb2Ji1eBbKpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uX+tgGhMm11ibF3DehshCvbFrqQTo/pvk7Xo4LEQStiPrQzlXINrYLWDv/Uw+UqFa
-         UDTv1RGTIu+Ev7oRM4qzaY4gm/FYIgsyXYzOiPxzz8oF2tVKYH+n/b3G8Qa+qRbfD6
-         XPqdx4INV9z+TzRPDmu/MSC6nES19vjR39HJ/d9I=
+        b=ZOsR6+cqW3AysfqCvmPKMdT8suIMB7IfCh4Nwc436GqdlDfmQQPrxu/rbZF0Zvb/S
+         oMKquimVoJNoJyizTswpT+3wHshrvtsiJ0xlM+EHkDwFk/YQ0A14qUDo+p1jT8DBI1
+         wrGaB5w1gZfWC2dLltQNu78CyohBACjBDNHYrr64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 100/242] net: sched: fix error return code in tcf_del_walker()
+Subject: [PATCH 5.4 015/122] drm/sched: Avoid data corruptions
 Date:   Thu, 15 Jul 2021 20:37:42 +0200
-Message-Id: <20210715182610.666317012@linuxfoundation.org>
+Message-Id: <20210715182453.207055368@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 
-[ Upstream commit 55d96f72e8ddc0a294e0b9c94016edbb699537e1 ]
+[ Upstream commit 0b10ab80695d61422337ede6ff496552d8ace99d ]
 
-When nla_put_u32() fails, 'ret' could be 0, it should
-return error code in tcf_del_walker().
+Wait for all dependencies of a job  to complete before
+killing it to avoid data corruptions.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210519141407.88444-1-andrey.grodzovsky@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/act_api.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/scheduler/sched_entity.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/sched/act_api.c b/net/sched/act_api.c
-index f6d5755d669e..d17a66aab8ee 100644
---- a/net/sched/act_api.c
-+++ b/net/sched/act_api.c
-@@ -381,7 +381,8 @@ static int tcf_del_walker(struct tcf_idrinfo *idrinfo, struct sk_buff *skb,
- 	}
- 	mutex_unlock(&idrinfo->lock);
+diff --git a/drivers/gpu/drm/scheduler/sched_entity.c b/drivers/gpu/drm/scheduler/sched_entity.c
+index 1a5153197fe9..57f9baad9e36 100644
+--- a/drivers/gpu/drm/scheduler/sched_entity.c
++++ b/drivers/gpu/drm/scheduler/sched_entity.c
+@@ -235,11 +235,16 @@ static void drm_sched_entity_kill_jobs_cb(struct dma_fence *f,
+ static void drm_sched_entity_kill_jobs(struct drm_sched_entity *entity)
+ {
+ 	struct drm_sched_job *job;
++	struct dma_fence *f;
+ 	int r;
  
--	if (nla_put_u32(skb, TCA_FCNT, n_i))
-+	ret = nla_put_u32(skb, TCA_FCNT, n_i);
-+	if (ret)
- 		goto nla_put_failure;
- 	nla_nest_end(skb, nest);
+ 	while ((job = to_drm_sched_job(spsc_queue_pop(&entity->job_queue)))) {
+ 		struct drm_sched_fence *s_fence = job->s_fence;
+ 
++		/* Wait for all dependencies to avoid data corruptions */
++		while ((f = job->sched->ops->dependency(job, entity)))
++			dma_fence_wait(f, false);
++
+ 		drm_sched_fence_scheduled(s_fence);
+ 		dma_fence_set_error(&s_fence->finished, -ESRCH);
  
 -- 
 2.30.2
