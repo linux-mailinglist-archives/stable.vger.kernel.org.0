@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E7123CA935
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE883CA933
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236333AbhGOTFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S236357AbhGOTFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243677AbhGOTEi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A1BA6140A;
-        Thu, 15 Jul 2021 19:00:32 +0000 (UTC)
+        id S243687AbhGOTEj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:04:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6261861408;
+        Thu, 15 Jul 2021 19:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375633;
-        bh=g5KchM9DXxcv9S6mGCD25XdSLy+DyVBq9Kh+7G1R5mI=;
+        s=korg; t=1626375635;
+        bh=bt7xYdT3o41wmLlK6OKXwu3KBxgrFKysomVDbmPufA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PpL3GVWV3mRRraartscZAtj6dugmzkJDRf2Zq2ag8I0iOaHS97BGYENwckwH5Hu/2
-         Xvx9l81VKysiWGkj1iBQ1gf6W8FN7o/HSd0hVaatlVHs0MWdeSbY1NWI8g5MAsdaz0
-         MkRYNWw0XlH48Mu0xU3AKPNX9qQht9zhZHfCU5eI=
+        b=VtoynqVQe7GNRDBr03hlUyHeVqBibfv6VdsGEdqbXSxdeENhA62W8zJbgATi+19Kd
+         tw4FP6jKhKDVe3E6Hi5+mdfnq8zLknMBd9po8q2FPyRlCwpAa5oHUXPBvqBST78t/M
+         Xwobrp7Oon3ld61nYmWXDLYt7OPmgmbm9Dy+8GJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20de=20Bretagne?= 
-        <jerome.debretagne@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 5.12 171/242] drm/dp: Handle zeroed port counts in drm_dp_read_downstream_info()
-Date:   Thu, 15 Jul 2021 20:38:53 +0200
-Message-Id: <20210715182623.324295260@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.12 172/242] drm/rockchip: dsi: remove extra component_del() call
+Date:   Thu, 15 Jul 2021 20:38:54 +0200
+Message-Id: <20210715182623.491971242@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
 References: <20210715182551.731989182@linuxfoundation.org>
@@ -42,47 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit 205bb69a90363541a634a662a599fddb95956524 upstream.
+commit b354498bbe65c917d521b3b56317ddc9ab217425 upstream.
 
-While the DP specification isn't entirely clear on if this should be
-allowed or not, some branch devices report having downstream ports present
-while also reporting a downstream port count of 0. So to avoid breaking
-those devices, we need to handle this in drm_dp_read_downstream_info().
+commit cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support") added
+this devcnt field and call to component_del(). However, these both
+appear to be erroneous changes left over from an earlier version of the
+patch. In the version merged, nothing ever modifies devcnt, meaning
+component_del() runs unconditionally and in addition to the
+component_del() calls in dw_mipi_dsi_rockchip_host_detach(). The second
+call fails to delete anything and produces a warning in dmesg.
 
-So, to do this we assume there's no downstream port info when the
-downstream port count is 0.
+If we look at the previous version of the patch[1], however, we see that
+it had logic to calculate devcnt and call component_add() in certain
+situations. This was removed in v6, and the fact that the deletion code
+was not appears to have been an oversight.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Tested-by: Jérôme de Bretagne <jerome.debretagne@gmail.com>
-Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/3416
-Fixes: 3d3721ccb18a ("drm/i915/dp: Extract drm_dp_read_downstream_info()")
-Cc: <stable@vger.kernel.org> # v5.10+
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210430223428.10514-1-lyude@redhat.com
+[1] https://patchwork.kernel.org/project/dri-devel/patch/20180821140515.22246-8-heiko@sntech.de/
+
+Fixes: cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/201385acb0eeb5dfb037afdc6a94bfbcdab97f99.1618797778.git.tommyhebb@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_dp_helper.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_helper.c
-+++ b/drivers/gpu/drm/drm_dp_helper.c
-@@ -679,7 +679,14 @@ int drm_dp_read_downstream_info(struct d
- 	    !(dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DWN_STRM_PORT_PRESENT))
- 		return 0;
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -243,7 +243,6 @@ struct dw_mipi_dsi_rockchip {
+ 	struct dw_mipi_dsi *dmd;
+ 	const struct rockchip_dw_dsi_chip_data *cdata;
+ 	struct dw_mipi_dsi_plat_data pdata;
+-	int devcnt;
+ };
  
-+	/* Some branches advertise having 0 downstream ports, despite also advertising they have a
-+	 * downstream port present. The DP spec isn't clear on if this is allowed or not, but since
-+	 * some branches do it we need to handle it regardless.
-+	 */
- 	len = drm_dp_downstream_port_count(dpcd);
-+	if (!len)
-+		return 0;
-+
- 	if (dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DETAILED_CAP_INFO_AVAILABLE)
- 		len *= 4;
+ struct dphy_pll_parameter_map {
+@@ -1141,9 +1140,6 @@ static int dw_mipi_dsi_rockchip_remove(s
+ {
+ 	struct dw_mipi_dsi_rockchip *dsi = platform_get_drvdata(pdev);
  
+-	if (dsi->devcnt == 0)
+-		component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
+-
+ 	dw_mipi_dsi_remove(dsi->dmd);
+ 
+ 	return 0;
 
 
