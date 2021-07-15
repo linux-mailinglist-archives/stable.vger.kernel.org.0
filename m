@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A7233CA851
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1CF43CA6E9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240600AbhGOTAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:00:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
+        id S238233AbhGOSvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242336AbhGOS7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:59:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 739CB613F1;
-        Thu, 15 Jul 2021 18:56:26 +0000 (UTC)
+        id S231285AbhGOSu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD3D3613D8;
+        Thu, 15 Jul 2021 18:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375386;
-        bh=C7Rzfp8K1bV0ynqw4Sn0i4znooGYpddfWTaz+sNZ0c0=;
+        s=korg; t=1626374854;
+        bh=XTHGgfCtlB80EBeLshK0W/9LLK0O1nil14S3ALd6SGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MAd7ihCuo7bQM+wo6dYD9Lib8ivWGOcfYVaEviH+HVsT1RAxwxRsHRvLzeEG4N4rK
-         XVu/YPjVBbj8y7NphgMn0RqI+JlOxPiDyExFwFpldrIigT1PR5TvO0n9KOpinsrG46
-         8cXUt76XI0CKAga4cl/Tw2Gv4ZKcs7k/jqQlvXbk=
+        b=gmYBUwMwvX/TFxmUZKoM3UWQKKeD+Vk+tQjQo7ZBWwg9RY0D7QPnOHtZHvrvrYcu8
+         IaQAtk9DxSKtvtegxasX9hKRvE7LTXERE2JsBfXUrpbsg3i7tojTfJ4tts5Wg7qcyG
+         A+RpdG9g0Sdsh4bhjlF44o+/daPJP++Yr1AZPp+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 063/242] ice: fix clang warning regarding deadcode.DeadStores
+Subject: [PATCH 5.10 053/215] dm: Fix dm_accept_partial_bio() relative to zone management commands
 Date:   Thu, 15 Jul 2021 20:37:05 +0200
-Message-Id: <20210715182603.648679967@linuxfoundation.org>
+Message-Id: <20210715182608.779324304@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+From: Damien Le Moal <damien.lemoal@wdc.com>
 
-[ Upstream commit 7e94090ae13e1ae5fe8bd3a9cd08136260bb7039 ]
+[ Upstream commit 6842d264aa5205da338b6dcc6acfa2a6732558f1 ]
 
-clang generates deadcode.DeadStores warnings when a variable
-is used to read a value, but then that value isn't used later
-in the code. Fix this warning.
+Fix dm_accept_partial_bio() to actually check that zone management
+commands are not passed as explained in the function documentation
+comment. Also, since a zone append operation cannot be split, add
+REQ_OP_ZONE_APPEND as a forbidden command.
 
-Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+White lines are added around the group of BUG_ON() calls to make the
+code more legible.
+
+Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/md/dm.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index f80fff97d8dc..0d136708f960 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3492,13 +3492,9 @@ static int
- ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
- 		    struct ice_ring_container *rc)
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 638c04f9e832..19a70f434029 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1230,8 +1230,8 @@ static int dm_dax_zero_page_range(struct dax_device *dax_dev, pgoff_t pgoff,
+ 
+ /*
+  * A target may call dm_accept_partial_bio only from the map routine.  It is
+- * allowed for all bio types except REQ_PREFLUSH, REQ_OP_ZONE_RESET,
+- * REQ_OP_ZONE_OPEN, REQ_OP_ZONE_CLOSE and REQ_OP_ZONE_FINISH.
++ * allowed for all bio types except REQ_PREFLUSH, REQ_OP_ZONE_* zone management
++ * operations and REQ_OP_ZONE_APPEND (zone append writes).
+  *
+  * dm_accept_partial_bio informs the dm that the target only wants to process
+  * additional n_sectors sectors of the bio and the rest of the data should be
+@@ -1261,9 +1261,13 @@ void dm_accept_partial_bio(struct bio *bio, unsigned n_sectors)
  {
--	struct ice_pf *pf;
--
- 	if (!rc->ring)
- 		return -EINVAL;
- 
--	pf = rc->ring->vsi->back;
--
- 	switch (c_type) {
- 	case ICE_RX_CONTAINER:
- 		ec->use_adaptive_rx_coalesce = ITR_IS_DYNAMIC(rc->itr_setting);
-@@ -3510,7 +3506,7 @@ ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
- 		ec->tx_coalesce_usecs = rc->itr_setting & ~ICE_ITR_DYNAMIC;
- 		break;
- 	default:
--		dev_dbg(ice_pf_to_dev(pf), "Invalid c_type %d\n", c_type);
-+		dev_dbg(ice_pf_to_dev(rc->ring->vsi->back), "Invalid c_type %d\n", c_type);
- 		return -EINVAL;
- 	}
- 
+ 	struct dm_target_io *tio = container_of(bio, struct dm_target_io, clone);
+ 	unsigned bi_size = bio->bi_iter.bi_size >> SECTOR_SHIFT;
++
+ 	BUG_ON(bio->bi_opf & REQ_PREFLUSH);
++	BUG_ON(op_is_zone_mgmt(bio_op(bio)));
++	BUG_ON(bio_op(bio) == REQ_OP_ZONE_APPEND);
+ 	BUG_ON(bi_size > *tio->len_ptr);
+ 	BUG_ON(n_sectors > bi_size);
++
+ 	*tio->len_ptr -= bi_size - n_sectors;
+ 	bio->bi_iter.bi_size = n_sectors << SECTOR_SHIFT;
+ }
 -- 
 2.30.2
 
