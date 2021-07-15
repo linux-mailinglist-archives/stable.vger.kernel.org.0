@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 767273CA8A7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C4303CA706
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242651AbhGOTCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35104 "EHLO mail.kernel.org"
+        id S236719AbhGOSv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242840AbhGOTAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DECB613CC;
-        Thu, 15 Jul 2021 18:57:08 +0000 (UTC)
+        id S237020AbhGOSvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:51:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76F7A613DB;
+        Thu, 15 Jul 2021 18:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375428;
-        bh=Epu5Df6xEQfp3jQIPeK2nKJRr9rVgUOibI+mTwuHG74=;
+        s=korg; t=1626374898;
+        bh=gD93Bd/J9PwIC6ylbhcrcIv0gxefV7yCn5BZu7DNqXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvA2mQMXJFSCx+4jlJfviooPImb7/M1mM5fw0a6goOX2q1VwuebEDOVtdQy1h08KT
-         Bcrcc+yz0+tL/jZlRr4KF8JOhYfhYI0Prm1PbRMvvhc01am9UFo49hyHxR3/a4zBIW
-         JE8kVGmuQ80+Vt8HE7NbqJY3r3rUf57B5LxXx9ns=
+        b=zgs/muBWaBEb6mzqjKxFdWgv3c6oYqLC8y3q5v+9AbRcwjNk27p0xRrpS/onn19Eq
+         JoDYLAzTWl5c7RS19PEF9KQ0gobS/je/8PUwJlBqr9ClnHQUuEbhpJy9kGBY96aHYd
+         yntVfNqWwU0WOd9wefYJdaOdrFld0F+nTtff6yr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 084/242] ibmvnic: fix kernel build warnings in build_hdr_descs_arr
+Subject: [PATCH 5.10 074/215] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
 Date:   Thu, 15 Jul 2021 20:37:26 +0200
-Message-Id: <20210715182607.822210170@linuxfoundation.org>
+Message-Id: <20210715182612.538923578@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Pan <lijunp213@gmail.com>
+From: Minchan Kim <minchan@kernel.org>
 
-[ Upstream commit 73214a690c50a134bd364e1a4430e0e7ac81a8d8 ]
+[ Upstream commit 648f2c6100cfa18e7dfe43bc0b9c3b73560d623c ]
 
-Fix the following kernel build warnings:
-drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Function parameter or member 'skb' not described in 'build_hdr_descs_arr'
-drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Function parameter or member 'indir_arr' not described in 'build_hdr_descs_arr'
-drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Excess function parameter 'txbuff' description in 'build_hdr_descs_arr'
+In the field, we have seen lots of allocation failure from the call
+path below.
 
-Signed-off-by: Lijun Pan <lijunp213@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+06-03 13:29:12.999 1010315 31557 31557 W Binder  : 31542_2: page allocation failure: order:0, mode:0x800(GFP_NOWAIT), nodemask=(null),cpuset=background,mems_allowed=0
+...
+...
+06-03 13:29:12.999 1010315 31557 31557 W Call trace:
+06-03 13:29:12.999 1010315 31557 31557 W         : dump_backtrace.cfi_jt+0x0/0x8
+06-03 13:29:12.999 1010315 31557 31557 W         : dump_stack+0xc8/0x14c
+06-03 13:29:12.999 1010315 31557 31557 W         : warn_alloc+0x158/0x1c8
+06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_slowpath+0x9d8/0xb80
+06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_nodemask+0x1c4/0x430
+06-03 13:29:12.999 1010315 31557 31557 W         : allocate_slab+0xb4/0x390
+06-03 13:29:12.999 1010315 31557 31557 W         : ___slab_alloc+0x12c/0x3a4
+06-03 13:29:12.999 1010315 31557 31557 W         : kmem_cache_alloc+0x358/0x5e4
+06-03 13:29:12.999 1010315 31557 31557 W         : avc_alloc_node+0x30/0x184
+06-03 13:29:12.999 1010315 31557 31557 W         : avc_update_node+0x54/0x4f0
+06-03 13:29:12.999 1010315 31557 31557 W         : avc_has_extended_perms+0x1a4/0x460
+06-03 13:29:12.999 1010315 31557 31557 W         : selinux_file_ioctl+0x320/0x3d0
+06-03 13:29:12.999 1010315 31557 31557 W         : __arm64_sys_ioctl+0xec/0x1fc
+06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc_common+0xc0/0x24c
+06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc+0x28/0x88
+06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync_handler+0x8c/0xf0
+06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync+0x1a4/0x1c0
+..
+..
+06-03 13:29:12.999 1010315 31557 31557 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:12.999 1010315 31557 31557 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:12.999 1010315 31557 31557 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+06-03 13:29:13.000 10230 30892 30892 W node 0  : slabs: 57, objs: 2907, free: 0
+06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
+06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+
+Based on [1], selinux is tolerate for failure of memory allocation.
+Then, use __GFP_NOWARN together.
+
+[1] 476accbe2f6e ("selinux: use GFP_NOWAIT in the AVC kmem_caches")
+
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+[PM: subj fix, line wraps, normalized commit refs]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ibm/ibmvnic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/avc.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
-index 3c77897b3f31..df10b87ca0f8 100644
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -1528,7 +1528,8 @@ static int create_hdr_descs(u8 hdr_field, u8 *hdr_data, int len, int *hdr_len,
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 3c05827608b6..884a014ce2b8 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -297,26 +297,27 @@ static struct avc_xperms_decision_node
+ 	struct avc_xperms_decision_node *xpd_node;
+ 	struct extended_perms_decision *xpd;
  
- /**
-  * build_hdr_descs_arr - build a header descriptor array
-- * @txbuff: tx buffer
-+ * @skb: tx socket buffer
-+ * @indir_arr: indirect array
-  * @num_entries: number of descriptors to be sent
-  * @hdr_field: bit field determining which headers will be sent
-  *
+-	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep, GFP_NOWAIT);
++	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
++				     GFP_NOWAIT | __GFP_NOWARN);
+ 	if (!xpd_node)
+ 		return NULL;
+ 
+ 	xpd = &xpd_node->xpd;
+ 	if (which & XPERMS_ALLOWED) {
+ 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT);
++						GFP_NOWAIT | __GFP_NOWARN);
+ 		if (!xpd->allowed)
+ 			goto error;
+ 	}
+ 	if (which & XPERMS_AUDITALLOW) {
+ 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT);
++						GFP_NOWAIT | __GFP_NOWARN);
+ 		if (!xpd->auditallow)
+ 			goto error;
+ 	}
+ 	if (which & XPERMS_DONTAUDIT) {
+ 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
+-						GFP_NOWAIT);
++						GFP_NOWAIT | __GFP_NOWARN);
+ 		if (!xpd->dontaudit)
+ 			goto error;
+ 	}
+@@ -344,7 +345,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
+ {
+ 	struct avc_xperms_node *xp_node;
+ 
+-	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
++	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
+ 	if (!xp_node)
+ 		return xp_node;
+ 	INIT_LIST_HEAD(&xp_node->xpd_head);
+@@ -500,7 +501,7 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
+ {
+ 	struct avc_node *node;
+ 
+-	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
++	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
+ 	if (!node)
+ 		goto out;
+ 
 -- 
 2.30.2
 
