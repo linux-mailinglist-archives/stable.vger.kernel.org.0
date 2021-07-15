@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9EE13CA65F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6B53CA7A1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232740AbhGOSr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49360 "EHLO mail.kernel.org"
+        id S235924AbhGOSzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238617AbhGOSrV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0476613D1;
-        Thu, 15 Jul 2021 18:44:27 +0000 (UTC)
+        id S242345AbhGOSzD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD46C613C4;
+        Thu, 15 Jul 2021 18:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374668;
-        bh=GLC8YvqTeDMAKwXFZl0ygxyY4LPNVjrarme30m8Id4M=;
+        s=korg; t=1626375130;
+        bh=z5VAaCN//t6D1rGf7JEjGoZ5GirbsmHOsqPiy8wjwQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyiU0DD/sIv2993WA/e/mEcyrwXL+b3tgaVvHTB146WtYR04gnB0oVRPh8lLpHpue
-         S707WhrHNnnfK7c2uHS9DF8l5E3uvo/nZkWKxVFmg0ZL9mC0gT/AIeSDkBtbXPlfv/
-         kG44DVC0fRAZdxYqnssoguX+kV1NYmQhzU6VYBJ0=
+        b=aeQaizZZ5sY1GK4SUNaeZI3QRsBODDPGpScB4VDdLScexkQPBXr1Wt9ooDID9sUXj
+         9pYsEjSpU7kjaoNm3clRC/h8Bc/+d2R6J69Hy/RwSbZaa2/Be8iKz6ADq6ggFIEsKc
+         Nug5LBJNd88axScykFfSQ9r6x+t2rg6EJZMfSsX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varad Gautam <varad.gautam@suse.com>,
-        linux-rt-users <linux-rt-users@vger.kernel.org>,
-        netdev@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 5.4 097/122] xfrm: policy: Read seqcount outside of rcu-read side in xfrm_policy_lookup_bytype
+        stable@vger.kernel.org, Alexey Klimov <aklimov@redhat.com>,
+        Joshua Baker <jobaker@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.10 172/215] cpu/hotplug: Cure the cpusets trainwreck
 Date:   Thu, 15 Jul 2021 20:39:04 +0200
-Message-Id: <20210715182517.994942248@linuxfoundation.org>
+Message-Id: <20210715182629.937643721@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,102 +40,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varad Gautam <varad.gautam@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit d7b0408934c749f546b01f2b33d07421a49b6f3e upstream.
+commit b22afcdf04c96ca58327784e280e10288cfd3303 upstream.
 
-xfrm_policy_lookup_bytype loops on seqcount mutex xfrm_policy_hash_generation
-within an RCU read side critical section. Although ill advised, this is fine if
-the loop is bounded.
+Alexey and Joshua tried to solve a cpusets related hotplug problem which is
+user space visible and results in unexpected behaviour for some time after
+a CPU has been plugged in and the corresponding uevent was delivered.
 
-xfrm_policy_hash_generation wraps mutex hash_resize_mutex, which is used to
-serialize writers (xfrm_hash_resize, xfrm_hash_rebuild). This is fine too.
+cpusets delegate the hotplug work (rebuilding cpumasks etc.) to a
+workqueue. This is done because the cpusets code has already a lock
+nesting of cgroups_mutex -> cpu_hotplug_lock. A synchronous callback or
+waiting for the work to finish with cpu_hotplug_lock held can and will
+deadlock because that results in the reverse lock order.
 
-On PREEMPT_RT=y, the read_seqcount_begin call within xfrm_policy_lookup_bytype
-emits a mutex lock/unlock for hash_resize_mutex. Mutex locking is fine, since
-RCU read side critical sections are allowed to sleep with PREEMPT_RT.
+As a consequence the uevent can be delivered before cpusets have consistent
+state which means that a user space invocation of sched_setaffinity() to
+move a task to the plugged CPU fails up to the point where the scheduled
+work has been processed.
 
-xfrm_hash_resize can, however, block on synchronize_rcu while holding
-hash_resize_mutex.
+The same is true for CPU unplug, but that does not create user observable
+failure (yet).
 
-This leads to the following situation on PREEMPT_RT, where the writer is
-blocked on RCU grace period expiry, while the reader is blocked on a lock held
-by the writer:
+It's still inconsistent to claim that an operation is finished before it
+actually is and that's the real issue at hand. uevents just make it
+reliably observable.
 
-Thead 1 (xfrm_hash_resize)	Thread 2 (xfrm_policy_lookup_bytype)
+Obviously the problem should be fixed in cpusets/cgroups, but untangling
+that is pretty much impossible because according to the changelog of the
+commit which introduced this 8 years ago:
 
-				rcu_read_lock();
-mutex_lock(&hash_resize_mutex);
-				read_seqcount_begin(&xfrm_policy_hash_generation);
-				mutex_lock(&hash_resize_mutex); // block
-xfrm_bydst_resize();
-synchronize_rcu(); // block
-		<RCU stalls in xfrm_policy_lookup_bytype>
+ 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
 
-Move the read_seqcount_begin call outside of the RCU read side critical section,
-and do an rcu_read_unlock/retry if we got stale data within the critical section.
+the lock order cgroups_mutex -> cpu_hotplug_lock is a design decision and
+the whole code is built around that.
 
-On non-PREEMPT_RT, this shortens the time spent within RCU read side critical
-section in case the seqcount needs a retry, and avoids unbounded looping.
+So bite the bullet and invoke the relevant cpuset function, which waits for
+the work to finish, in _cpu_up/down() after dropping cpu_hotplug_lock and
+only when tasks are not frozen by suspend/hibernate because that would
+obviously wait forever.
 
-Fixes: 77cc278f7b20 ("xfrm: policy: Use sequence counters with associated lock")
-Signed-off-by: Varad Gautam <varad.gautam@suse.com>
-Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.9
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Acked-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Waiting there with cpu_add_remove_lock, which is protecting the present
+and possible CPU maps, held is not a problem at all because neither work
+queues nor cpusets/cgroups have any lockchains related to that lock.
+
+Waiting in the hotplug machinery is not problematic either because there
+are already state callbacks which wait for hardware queues to drain. It
+makes the operations slightly slower, but hotplug is slow anyway.
+
+This ensures that state is consistent before returning from a hotplug
+up/down operation. It's still inconsistent during the operation, but that's
+a different story.
+
+Add a large comment which explains why this is done and why this is not a
+dump ground for the hack of the day to work around half thought out locking
+schemes. Document also the implications vs. hotplug operations and
+serialization or the lack of it.
+
+Thanks to Alexy and Joshua for analyzing why this temporary
+sched_setaffinity() failure happened.
+
+Fixes: 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
+Reported-by: Alexey Klimov <aklimov@redhat.com>
+Reported-by: Joshua Baker <jobaker@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Alexey Klimov <aklimov@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tuowcnv3.ffs@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/xfrm/xfrm_policy.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -2089,12 +2089,15 @@ static struct xfrm_policy *xfrm_policy_l
- 	if (unlikely(!daddr || !saddr))
- 		return NULL;
+---
+ kernel/cpu.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -32,6 +32,7 @@
+ #include <linux/relay.h>
+ #include <linux/slab.h>
+ #include <linux/percpu-rwsem.h>
++#include <linux/cpuset.h>
  
--	rcu_read_lock();
-  retry:
--	do {
--		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
--		chain = policy_hash_direct(net, daddr, saddr, family, dir);
--	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
-+	sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
-+	rcu_read_lock();
+ #include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+@@ -814,6 +815,52 @@ void __init cpuhp_threads_init(void)
+ 	kthread_unpark(this_cpu_read(cpuhp_state.thread));
+ }
+ 
++/*
++ *
++ * Serialize hotplug trainwrecks outside of the cpu_hotplug_lock
++ * protected region.
++ *
++ * The operation is still serialized against concurrent CPU hotplug via
++ * cpu_add_remove_lock, i.e. CPU map protection.  But it is _not_
++ * serialized against other hotplug related activity like adding or
++ * removing of state callbacks and state instances, which invoke either the
++ * startup or the teardown callback of the affected state.
++ *
++ * This is required for subsystems which are unfixable vs. CPU hotplug and
++ * evade lock inversion problems by scheduling work which has to be
++ * completed _before_ cpu_up()/_cpu_down() returns.
++ *
++ * Don't even think about adding anything to this for any new code or even
++ * drivers. It's only purpose is to keep existing lock order trainwrecks
++ * working.
++ *
++ * For cpu_down() there might be valid reasons to finish cleanups which are
++ * not required to be done under cpu_hotplug_lock, but that's a different
++ * story and would be not invoked via this.
++ */
++static void cpu_up_down_serialize_trainwrecks(bool tasks_frozen)
++{
++	/*
++	 * cpusets delegate hotplug operations to a worker to "solve" the
++	 * lock order problems. Wait for the worker, but only if tasks are
++	 * _not_ frozen (suspend, hibernate) as that would wait forever.
++	 *
++	 * The wait is required because otherwise the hotplug operation
++	 * returns with inconsistent state, which could even be observed in
++	 * user space when a new CPU is brought up. The CPU plug uevent
++	 * would be delivered and user space reacting on it would fail to
++	 * move tasks to the newly plugged CPU up to the point where the
++	 * work has finished because up to that point the newly plugged CPU
++	 * is not assignable in cpusets/cgroups. On unplug that's not
++	 * necessarily a visible issue, but it is still inconsistent state,
++	 * which is the real problem which needs to be "fixed". This can't
++	 * prevent the transient state between scheduling the work and
++	 * returning from waiting for it.
++	 */
++	if (!tasks_frozen)
++		cpuset_wait_for_hotplug();
++}
 +
-+	chain = policy_hash_direct(net, daddr, saddr, family, dir);
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
-+		goto retry;
-+	}
+ #ifdef CONFIG_HOTPLUG_CPU
+ #ifndef arch_clear_mm_cpumask_cpu
+ #define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
+@@ -1051,6 +1098,7 @@ out:
+ 	 */
+ 	lockup_detector_cleanup();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
  
- 	ret = NULL;
- 	hlist_for_each_entry_rcu(pol, chain, bydst) {
-@@ -2125,11 +2128,15 @@ static struct xfrm_policy *xfrm_policy_l
- 	}
- 
- skip_inexact:
--	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
- 		goto retry;
-+	}
- 
--	if (ret && !xfrm_pol_hold_rcu(ret))
-+	if (ret && !xfrm_pol_hold_rcu(ret)) {
-+		rcu_read_unlock();
- 		goto retry;
-+	}
- fail:
- 	rcu_read_unlock();
+@@ -1247,6 +1295,7 @@ static int _cpu_up(unsigned int cpu, int
+ out:
+ 	cpus_write_unlock();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
  
 
 
