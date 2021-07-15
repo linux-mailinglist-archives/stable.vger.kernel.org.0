@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1DD3CAAFB
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 827D73CA917
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244246AbhGOTQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
+        id S241804AbhGOTFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243764AbhGOTMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:12:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8528613ED;
-        Thu, 15 Jul 2021 19:09:23 +0000 (UTC)
+        id S242400AbhGOTDk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:03:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6D2B613D7;
+        Thu, 15 Jul 2021 18:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376164;
-        bh=9oZV2sweLG7QNjxJq5lidgr3AufUJfafWyGDoLTwjao=;
+        s=korg; t=1626375579;
+        bh=qkBu6LtwSHW6e9gJ6y7H1ZaKH79w7EKUPovML+t5HBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lhkm/AU8K40GYLqnvXe7qNae0qFqH6QZ1V1VSxOf/fMK8fNtFFD73bw8w2F8ao3UR
-         NmBpXepI3ZotNqua4VESiDyI75N0byerFEWL9/v2ti35fuY/Lp7aRkAH4ocehML4rQ
-         wL6Co3/PgIABJeD+hZAYEmIc+Y/Qj2ePS1Ey48Is=
+        b=lkuBn3fGf2zFK3zEHgRDuE2jHSrJd5LyAmNaWo6vtEHwrMYagSCgcO9V15aEdOqSk
+         tUzfpfP6lG7v8vetacGXifuZX8D0r6paZqYKBY2MVNfDMl+RD/IM47rhpSsGfPwsiS
+         X/3WzHju2KgJ3xUvlvDuRtwzy6amSBlM269cwBxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 153/266] media, bpf: Do not copy more entries than user space requested
+Subject: [PATCH 5.12 146/242] sched/fair: Ensure _sum and _avg values stay consistent
 Date:   Thu, 15 Jul 2021 20:38:28 +0200
-Message-Id: <20210715182640.194869366@linuxfoundation.org>
+Message-Id: <20210715182618.902752060@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit 647d446d66e493d23ca1047fa8492b0269674530 ]
+[ Upstream commit 1c35b07e6d3986474e5635be566e7bc79d97c64d ]
 
-The syscall bpf(BPF_PROG_QUERY, &attr) should use the prog_cnt field to
-see how many entries user space provided and return ENOSPC if there are
-more programs than that. Before this patch, this is not checked and
-ENOSPC is never returned.
+The _sum and _avg values are in general sync together with the PELT
+divider. They are however not always completely in perfect sync,
+resulting in situations where _sum gets to zero while _avg stays
+positive. Such situations are undesirable.
 
-Note that one lirc device is limited to 64 bpf programs, and user space
-I'm aware of -- ir-keytable -- always gives enough space for 64 entries
-already. However, we should not copy program ids than are requested.
+This comes from the fact that PELT will increase period_contrib, also
+increasing the PELT divider, without updating _sum and _avg values to
+stay in perfect sync where (_sum == _avg * divider). However, such PELT
+change will never lower _sum, making it impossible to end up in a
+situation where _sum is zero and _avg is not.
 
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210623213754.632-1-sean@mess.org
+Therefore, we need to ensure that when subtracting load outside PELT,
+that when _sum is zero, _avg is also set to zero. This occurs when
+(_sum < _avg * divider), and the subtracted (_avg * divider) is bigger
+or equal to the current _sum, while the subtracted _avg is smaller than
+the current _avg.
+
+Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
+Link: https://lore.kernel.org/r/20210624111815.57937-1-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/bpf-lirc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/rc/bpf-lirc.c b/drivers/media/rc/bpf-lirc.c
-index 3fe3edd80876..afae0afe3f81 100644
---- a/drivers/media/rc/bpf-lirc.c
-+++ b/drivers/media/rc/bpf-lirc.c
-@@ -326,7 +326,8 @@ int lirc_prog_query(const union bpf_attr *attr, union bpf_attr __user *uattr)
- 	}
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 20ac5dff9a0c..572f312cc803 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3665,15 +3665,15 @@ update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
  
- 	if (attr->query.prog_cnt != 0 && prog_ids && cnt)
--		ret = bpf_prog_array_copy_to_user(progs, prog_ids, cnt);
-+		ret = bpf_prog_array_copy_to_user(progs, prog_ids,
-+						  attr->query.prog_cnt);
+ 		r = removed_load;
+ 		sub_positive(&sa->load_avg, r);
+-		sub_positive(&sa->load_sum, r * divider);
++		sa->load_sum = sa->load_avg * divider;
  
- unlock:
- 	mutex_unlock(&ir_raw_handler_lock);
+ 		r = removed_util;
+ 		sub_positive(&sa->util_avg, r);
+-		sub_positive(&sa->util_sum, r * divider);
++		sa->util_sum = sa->util_avg * divider;
+ 
+ 		r = removed_runnable;
+ 		sub_positive(&sa->runnable_avg, r);
+-		sub_positive(&sa->runnable_sum, r * divider);
++		sa->runnable_sum = sa->runnable_avg * divider;
+ 
+ 		/*
+ 		 * removed_runnable is the unweighted version of removed_load so we
 -- 
 2.30.2
 
