@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48A8D3CA790
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6FC3CA645
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240826AbhGOSz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
+        id S238411AbhGOSq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241729AbhGOSyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A43F613CF;
-        Thu, 15 Jul 2021 18:51:41 +0000 (UTC)
+        id S238502AbhGOSqz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01AAC613CF;
+        Thu, 15 Jul 2021 18:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375101;
-        bh=tB9n9DecfNlZ8D3SRM40CXHbkxGOBPpWXf2po1dV+kg=;
+        s=korg; t=1626374640;
+        bh=5IiToUDRb38uhPgFxBttNfP2oB1OOQOdhLarlt4TAcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j1OblpDdKfSJZHz2qNm7CUIIbXrkLWaMBbkgzX9g2iMtKL4X5wJ9HHrpdk3CSu2gt
-         5sSavOHNpsRMRM58WwN0qIZT9YHUV/VWdWjttsiOagE3qR4Ga4hiiUrDg+KYHBoht2
-         lzd0vG025CRJW4nJ0BQbat78JC5qneP+TC5YoEbo=
+        b=RMWSWjNYIusfjYX53cl8SXNN91QVbS978y7dBJ74XnMhaOrSW7AE1/oXN0CUDeKVa
+         F6xZFuGUGyBDghTmacvda8z2KF+bHqjzbHZtwVWPgpqPgx+fPWwCy76ppao0vNnpjb
+         OugQcC455+mNjJ080C2jo4ZUbHaF15PAZN1BM7cc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH 5.10 161/215] drm/tegra: Dont set allow_fb_modifiers explicitly
+        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.4 086/122] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
 Date:   Thu, 15 Jul 2021 20:38:53 +0200
-Message-Id: <20210715182627.992575303@linuxfoundation.org>
+Message-Id: <20210715182513.720639330@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit be4306ad928fcf736cbe2616b6dd19d91f1bc083 upstream.
+commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
 
-Since
+When an eMMC device is being run in HS400 mode, any access to the
+RPMB device will cause the error message "mmc1: Invalid UHS-I mode
+selected". This happens as a result of tuning being disabled before
+RPMB access and then re-enabled after the RPMB access is complete.
+When tuning is re-enabled, the system has to switch from HS400
+to HS200 to do the tuning and then back to HS400. As part of
+sequence to switch from HS400 to HS200 the system is temporarily
+put into HS mode. When switching to HS mode, sdhci_get_preset_value()
+is called and does not have support for HS mode and prints the warning
+message and returns the preset for SDR12. The fix is to add support
+for MMC and SD HS modes to sdhci_get_preset_value().
 
-commit 890880ddfdbe256083170866e49c87618b706ac7
-Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Date:   Fri Jan 4 09:56:10 2019 +0100
+This can be reproduced on any system running eMMC in HS400 mode
+(not HS400ES) by using the "mmc" utility to run the following
+command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
 
-    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
-
-this is done automatically as part of plane init, if drivers set the
-modifier list correctly. Which is the case here.
-
-It was slightly inconsistently though, since planes with only linear
-modifier support haven't listed that explicitly. Fix that, and cc:
-stable to allow userspace to rely on this. Again don't backport
-further than where Paul's patch got added.
-
-Cc: stable@vger.kernel.org # v5.1 +
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Thierry Reding <thierry.reding@gmail.com>
-Cc: Jonathan Hunter <jonathanh@nvidia.com>
-Cc: linux-tegra@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210413094904.3736372-10-daniel.vetter@ffwll.ch
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/tegra/dc.c  |   10 ++++++++--
- drivers/gpu/drm/tegra/drm.c |    2 --
- 2 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci.c |    4 ++++
+ drivers/mmc/host/sdhci.h |    1 +
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/tegra/dc.c
-+++ b/drivers/gpu/drm/tegra/dc.c
-@@ -947,6 +947,11 @@ static const struct drm_plane_helper_fun
- 	.atomic_disable = tegra_cursor_atomic_disable,
- };
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1511,6 +1511,10 @@ static u16 sdhci_get_preset_value(struct
+ 	u16 preset = 0;
  
-+static const uint64_t linear_modifiers[] = {
-+	DRM_FORMAT_MOD_LINEAR,
-+	DRM_FORMAT_MOD_INVALID
-+};
-+
- static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
- 						      struct tegra_dc *dc)
- {
-@@ -975,7 +980,7 @@ static struct drm_plane *tegra_dc_cursor
+ 	switch (host->timing) {
++	case MMC_TIMING_MMC_HS:
++	case MMC_TIMING_SD_HS:
++		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
++		break;
+ 	case MMC_TIMING_UHS_SDR12:
+ 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
+ 		break;
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -261,6 +261,7 @@
  
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL,
-+				       num_formats, linear_modifiers,
- 				       DRM_PLANE_TYPE_CURSOR, NULL);
- 	if (err < 0) {
- 		kfree(plane);
-@@ -1094,7 +1099,8 @@ static struct drm_plane *tegra_dc_overla
+ /* 60-FB reserved */
  
- 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
- 				       &tegra_plane_funcs, formats,
--				       num_formats, NULL, type, NULL);
-+				       num_formats, linear_modifiers,
-+				       type, NULL);
- 	if (err < 0) {
- 		kfree(plane);
- 		return ERR_PTR(err);
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -1127,8 +1127,6 @@ static int host1x_drm_probe(struct host1
- 	drm->mode_config.max_width = 4096;
- 	drm->mode_config.max_height = 4096;
- 
--	drm->mode_config.allow_fb_modifiers = true;
--
- 	drm->mode_config.normalize_zpos = true;
- 
- 	drm->mode_config.funcs = &tegra_drm_mode_config_funcs;
++#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
+ #define SDHCI_PRESET_FOR_SDR12 0x66
+ #define SDHCI_PRESET_FOR_SDR25 0x68
+ #define SDHCI_PRESET_FOR_SDR50 0x6A
 
 
