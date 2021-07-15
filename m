@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 563183CAAB7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 144B93CA8CC
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243752AbhGOTPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:15:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51362 "EHLO mail.kernel.org"
+        id S243127AbhGOTDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242071AbhGOTMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:12:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DDFE61158;
-        Thu, 15 Jul 2021 19:09:28 +0000 (UTC)
+        id S241580AbhGOTBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2376F613E6;
+        Thu, 15 Jul 2021 18:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376169;
-        bh=HhaYMKe+gYvr5fouIoEMZDfS7Qqzvf/gvr/BR7jO6tM=;
+        s=korg; t=1626375515;
+        bh=vKFXiCr46NNPCg9fxGbJwGsIJ4mRWhdYKbX8fbdZOLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DhgGl/bZE0C/7Tgh5Mxo1WhmWlRSgKHPIcAVcijrCa7ASW22j6Jyu0RqLJa049gaj
-         gUWPOMYhaobYDQyeMuZ+wLR8T50y6XUUdxh5GZnNfMeTT/hq8mse80UjRP3pqAZh2q
-         9U8zFOMuO27cfz4PyluivheoXcvjtb3vypxPMQ1k=
+        b=1WA11gSoe+rFx18LnldLBgPGalR+8RgQcc7OWyefh5o3d+UZ9jz5IGO9+7P+oAgdK
+         YBXmm+bgl0Hbuk0y+D2UxCaOfTIZ8JWJmbBfxdKj6sNOUDL07Y7MzNnifzzfnx/2fc
+         ZEHUbUR3zRg50uAydPP/QFkNxjdnvc+waeRphfok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Stanley.Yang" <Stanley.Yang@amd.com>,
-        Hawking Zhang <Hawking.Zhang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Andra Paraschiv <andraprs@amazon.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        David Brazdil <dbrazdil@google.com>,
+        Alexander Popov <alex.popov@linux.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        lixianming <lixianming5@huawei.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 119/266] drm/amdgpu: fix bad address translation for sienna_cichlid
-Date:   Thu, 15 Jul 2021 20:37:54 +0200
-Message-Id: <20210715182634.909727446@linuxfoundation.org>
+Subject: [PATCH 5.12 113/242] vsock: notify server to shutdown when client has pending signal
+Date:   Thu, 15 Jul 2021 20:37:55 +0200
+Message-Id: <20210715182613.008811068@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanley.Yang <Stanley.Yang@amd.com>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-[ Upstream commit 6ec598cc9dfbf40433e94a2ed1a622e3ef80268b ]
+[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
 
-Signed-off-by: Stanley.Yang <Stanley.Yang@amd.com>
-Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The client's sk_state will be set to TCP_ESTABLISHED if the server
+replay the client's connect request.
+
+However, if the client has pending signal, its sk_state will be set
+to TCP_CLOSE without notify the server, so the server will hold the
+corrupt connection.
+
+            client                        server
+
+1. sk_state=TCP_SYN_SENT         |
+2. call ->connect()              |
+3. wait reply                    |
+                                 | 4. sk_state=TCP_ESTABLISHED
+                                 | 5. insert to connected list
+                                 | 6. reply to the client
+7. sk_state=TCP_ESTABLISHED      |
+8. insert to connected list      |
+9. *signal pending* <--------------------- the user kill client
+10. sk_state=TCP_CLOSE           |
+client is exiting...             |
+11. call ->release()             |
+     virtio_transport_close
+      if (!(sk->sk_state == TCP_ESTABLISHED ||
+	      sk->sk_state == TCP_CLOSING))
+		return true; *return at here, the server cannot notice the connection is corrupt*
+
+So the client should notify the peer in this case.
+
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Andra Paraschiv <andraprs@amazon.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: David Brazdil <dbrazdil@google.com>
+Cc: Alexander Popov <alex.popov@linux.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lkml.org/lkml/2021/5/17/418
+Signed-off-by: lixianming <lixianming5@huawei.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_umc.h | 5 +++++
- drivers/gpu/drm/amd/amdgpu/umc_v8_7.c   | 2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_umc.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_umc.h
-index bbcccf53080d..e5a75fb788dd 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_umc.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_umc.h
-@@ -21,6 +21,11 @@
- #ifndef __AMDGPU_UMC_H__
- #define __AMDGPU_UMC_H__
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index bc7fb9bf3351..2a82fbf32ccc 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
  
-+/*
-+ * (addr / 256) * 4096, the higher 26 bits in ErrorAddr
-+ * is the index of 4KB block
-+ */
-+#define ADDR_OF_4KB_BLOCK(addr)			(((addr) & ~0xffULL) << 4)
- /*
-  * (addr / 256) * 8192, the higher 26 bits in ErrorAddr
-  * is the index of 8KB block
-diff --git a/drivers/gpu/drm/amd/amdgpu/umc_v8_7.c b/drivers/gpu/drm/amd/amdgpu/umc_v8_7.c
-index 89d20adfa001..af59a35788e3 100644
---- a/drivers/gpu/drm/amd/amdgpu/umc_v8_7.c
-+++ b/drivers/gpu/drm/amd/amdgpu/umc_v8_7.c
-@@ -234,7 +234,7 @@ static void umc_v8_7_query_error_address(struct amdgpu_device *adev,
- 		err_addr &= ~((0x1ULL << lsb) - 1);
- 
- 		/* translate umc channel address to soc pa, 3 parts are included */
--		retired_page = ADDR_OF_8KB_BLOCK(err_addr) |
-+		retired_page = ADDR_OF_4KB_BLOCK(err_addr) |
- 				ADDR_OF_256B_BLOCK(channel_index) |
- 				OFFSET_IN_256B_BLOCK(err_addr);
- 
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+-			sk->sk_state = TCP_CLOSE;
++			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
+ 			goto out_wait;
 -- 
 2.30.2
 
