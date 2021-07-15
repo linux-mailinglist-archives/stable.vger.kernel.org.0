@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DB7C3CA8B6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0127B3CA5CA
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241998AbhGOTCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38428 "EHLO mail.kernel.org"
+        id S233282AbhGOSoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243141AbhGOTBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB2ED613C4;
-        Thu, 15 Jul 2021 18:58:11 +0000 (UTC)
+        id S233494AbhGOSob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39F0D613CA;
+        Thu, 15 Jul 2021 18:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375492;
-        bh=3vY8jkLEb5T5wUhD3hW2OPPBQIV5VgHI3/oaBlcpP+M=;
+        s=korg; t=1626374495;
+        bh=2g26Vk6QNuhtTORIS8h3Ef8DZC+9jHgt4jhYen7ARNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dn0kMN4NGkFKY68V5CqSoKgJcYvWzmnd8TkgXgehJwBLA7N6kPgapCBx+2Ozw9Egz
-         uODciY8ZOa2RyHasWI8UzpzZMBzpImgQLj2hfbDeTz5CMXkz6mxCzbqTbjXg6fp4oP
-         IEBJlz1EUVy4j7cuW9HS52kKvh00hJBvT1LwW63k=
+        b=CDNH8AtpPBBKlNhrjuMuCKQtMFo6PV2Qs3Fni4dhujoubF3/IkygOziHDcKti18PP
+         M6f6VT0lyENEDlh0dra8LxKlsNpq3O7vxcS353JS970SKeLdQK7YQmqwlpgLL4BQbc
+         9UCGYRIiTzP3kdzhv89jxmLydNzkPeWCV1gEQQW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 108/242] MIPS: add PMD table accounting into MIPSpmd_alloc_one
+Subject: [PATCH 5.4 023/122] RDMA/cxgb4: Fix missing error code in create_qp()
 Date:   Thu, 15 Jul 2021 20:37:50 +0200
-Message-Id: <20210715182612.070677812@linuxfoundation.org>
+Message-Id: <20210715182455.096766651@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
+[ Upstream commit aeb27bb76ad8197eb47890b1ff470d5faf8ec9a5 ]
 
-This fixes Page Table accounting bug.
+The error code is missing in this code scenario so 0 will be returned. Add
+the error code '-EINVAL' to the return value 'ret'.
 
-MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
-Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
-"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
-in MIPS without PMD table accounting causes PageTable accounting number
-negative, which read by global_zone_page_state(), always returns 0.
+Eliminates the follow smatch warning:
 
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+drivers/infiniband/hw/cxgb4/qp.c:298 create_qp() warn: missing error code 'ret'.
+
+Link: https://lore.kernel.org/r/1622545669-20625-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/pgalloc.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/cxgb4/qp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 8b18424b3120..d0cf997b4ba8 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -59,11 +59,15 @@ do {							\
- 
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *pmd;
-+	pmd_t *pmd = NULL;
-+	struct page *pg;
- 
--	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
--	if (pmd)
-+	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
-+	if (pg) {
-+		pgtable_pmd_page_ctor(pg);
-+		pmd = (pmd_t *)page_address(pg);
- 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
-+	}
- 	return pmd;
- }
+diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
+index e7472f0da59d..3ac08f47a8ce 100644
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -295,6 +295,7 @@ static int create_qp(struct c4iw_rdev *rdev, struct t4_wq *wq,
+ 	if (user && (!wq->sq.bar2_pa || (need_rq && !wq->rq.bar2_pa))) {
+ 		pr_warn("%s: sqid %u or rqid %u not in BAR2 range\n",
+ 			pci_name(rdev->lldi.pdev), wq->sq.qid, wq->rq.qid);
++		ret = -EINVAL;
+ 		goto free_dma;
+ 	}
  
 -- 
 2.30.2
