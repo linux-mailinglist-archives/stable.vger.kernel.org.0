@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D363CA8D0
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DBE3CAA74
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240898AbhGOTDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
+        id S241999AbhGOTNT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:13:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242056AbhGOTBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C62C261158;
-        Thu, 15 Jul 2021 18:58:39 +0000 (UTC)
+        id S243120AbhGOTLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:11:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D10C5613DD;
+        Thu, 15 Jul 2021 19:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375520;
-        bh=+8rqQbAuVd7Yc+LWivSX8JFw1Pu4KMR5sP8kZhHQ84g=;
+        s=korg; t=1626376108;
+        bh=2ozA3x8WpznmspZinYc9ZWSLYqnmg4yNP8tlXOX0c2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBYTWAnvrAq41JyyXhrijG8UteE4rrHktPToojDZIuicyQO79LnaagCbR56+OCaDM
-         Jg4B8unbyaDc8bb2UjatIT6IUQYH69m+7znARBsMbO4rT0NF5Q8e6WhHXqZUShaL9b
-         ezOfZhSj10QQ8/1LdCPTJSBoGn/eWnt2AGhnb9jo=
+        b=cNdW2voCZabZVRkJ0wle4W4Z8pL9pOdh0xbCu3YBqV87+7OdnXDsknziZzoWI1riV
+         pUfoZT7UGxUqw/FPy9lhOAtm6plc1UNf6RFxqHJIpFV56Ce4bdJymJ+lJv8GkpT6qK
+         5RhTsWeiA/+dQrO3TrnUvHCltXsRHA5a5tQmmHU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 123/242] sfc: avoid double pci_remove of VFs
-Date:   Thu, 15 Jul 2021 20:38:05 +0200
-Message-Id: <20210715182614.725416421@linuxfoundation.org>
+Subject: [PATCH 5.13 131/266] net: fec: add FEC_QUIRK_HAS_MULTI_QUEUES represents i.MX6SX ENET IP
+Date:   Thu, 15 Jul 2021 20:38:06 +0200
+Message-Id: <20210715182636.973092440@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,92 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
+[ Upstream commit 471ff4455d61c9929ae912328859921708e1eafc ]
 
-If pci_remove was called for a PF with VFs, the removal of the VFs was
-called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
-and another implicit by calling pci_disable_sriov, which also perform
-the VFs remove. This was leading to crashing the kernel on the second
-attempt.
+Frieder Schrempf reported a TX throuthput issue [1], it happens quite often
+that the measured bandwidth in TX direction drops from its expected/nominal
+value to something like ~50% (for 100M) or ~67% (for 1G) connections.
 
-Given that pci_disable_sriov already calls to pci remove function, get
-rid of the direct call to pci_driver->remove from the driver.
+[1] https://lore.kernel.org/linux-arm-kernel/421cc86c-b66f-b372-32f7-21e59f9a98bc@kontron.de/
 
-2 different ways to trigger the bug:
-- Create one or more VFs, then attach the PF to a virtual machine (at
-  least with qemu/KVM)
-- Create one or more VFs, then remove the PF with:
-  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
+The issue becomes clear after digging into it, Net core would select
+queues when transmitting packets. Since FEC have not impletemented
+ndo_select_queue callback yet, so it will call netdev_pick_tx to select
+queues randomly.
 
-Removing sfc module does not trigger the error, at least for me, because
-it removes the VF first, and then the PF.
+For i.MX6SX ENET IP with AVB support, driver default enables this
+feature. According to the setting of QOS/RCMRn/DMAnCFG registers, AVB
+configured to Credit-based scheme, 50% bandwidth of each queue 1&2.
 
-Example of a log with the error:
-    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
-    ------------[ cut here ]------------
-    kernel BUG at lib/list_debug.c:47!
-    [...trimmed...]
-    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
-    [...trimmed...]
-    Call Trace:
-    efx_dissociate+0x1f/0x140 [sfc]
-    efx_pci_remove+0x27/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    pci_stop_bus_device+0x69/0x90
-    pci_stop_and_remove_bus_device+0xe/0x20
-    pci_iov_remove_virtfn+0xba/0x120
-    sriov_disable+0x2f/0xe0
-    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
-    ? pcie_aer_is_native+0x12/0x40
-    efx_ef10_sriov_fini+0x72/0x110 [sfc]
-    efx_pci_remove+0x62/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    unbind_store+0xf6/0x130
-    kernfs_fop_write+0x116/0x190
-    vfs_write+0xa5/0x1a0
-    ksys_write+0x4f/0xb0
-    do_syscall_64+0x5b/0x1a0
-    entry_SYSCALL_64_after_hwframe+0x65/0xca
+With below tests let me think more:
+1) With FEC_QUIRK_HAS_AVB quirk, can reproduce TX bandwidth fluctuations issue.
+2) Without FEC_QUIRK_HAS_AVB quirk, can't reproduce TX bandwidth fluctuations issue.
 
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+The related difference with or w/o FEC_QUIRK_HAS_AVB quirk is that, whether we
+program FTYPE field of TxBD or not. As I describe above, AVB feature is
+enabled by default. With FEC_QUIRK_HAS_AVB quirk, frames in queue 0
+marked as non-AVB, and frames in queue 1&2 marked as AVB Class A&B. It's
+unreasonable if frames in queue 1&2 are not required to be time-sensitive.
+So when Net core select tx queues ramdomly, Credit-based scheme would work
+and lead to TX bandwidth fluctuated. On the other hand, w/o
+FEC_QUIRK_HAS_AVB quirk, frames in queue 1&2 are all marked as non-AVB, so
+Credit-based scheme would not work.
+
+Till now, how can we fix this TX throughput issue? Yes, please remove
+FEC_QUIRK_HAS_AVB quirk if you suffer it from time-nonsensitive networking.
+However, this quirk is used to indicate i.MX6SX, other setting depends
+on it. So this patch adds a new quirk FEC_QUIRK_HAS_MULTI_QUEUES to
+represent i.MX6SX, it is safe for us remove FEC_QUIRK_HAS_AVB quirk
+now.
+
+FEC_QUIRK_HAS_AVB quirk is set by default in the driver, and users may
+not know much about driver details, they would waste effort to find the
+root cause, that is not we want. The following patch is a implementation
+to fix it and users don't need to modify the driver.
+
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ drivers/net/ethernet/freescale/fec.h      |  5 +++++
+ drivers/net/ethernet/freescale/fec_main.c | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index 21fa6c0e8873..a5d28b0f75ba 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -439,7 +439,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
- void efx_ef10_sriov_fini(struct efx_nic *efx)
- {
- 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
--	unsigned int i;
- 	int rc;
+diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
+index 0602d5d5d2ee..2e002e4b4b4a 100644
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -467,6 +467,11 @@ struct bufdesc_ex {
+  */
+ #define FEC_QUIRK_NO_HARD_RESET		(1 << 18)
  
- 	if (!nic_data->vf) {
-@@ -449,14 +448,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
- 		return;
++/* i.MX6SX ENET IP supports multiple queues (3 queues), use this quirk to
++ * represents this ENET IP.
++ */
++#define FEC_QUIRK_HAS_MULTI_QUEUES	(1 << 19)
++
+ struct bufdesc_prop {
+ 	int qid;
+ 	/* Address of Rx and Tx buffers */
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index ad82cffc6f3f..98cd38379275 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -122,7 +122,7 @@ static const struct fec_devinfo fec_imx6x_info = {
+ 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+ 		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+ 		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+-		  FEC_QUIRK_CLEAR_SETUP_MII,
++		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES,
+ };
+ 
+ static const struct fec_devinfo fec_imx6ul_info = {
+@@ -421,6 +421,7 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
+ 				estatus |= FEC_TX_BD_FTYPE(txq->bd.qid);
+ 			if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 				estatus |= BD_ENET_TX_PINS | BD_ENET_TX_IINS;
++
+ 			ebdp->cbd_bdu = 0;
+ 			ebdp->cbd_esc = cpu_to_fec32(estatus);
+ 		}
+@@ -954,7 +955,7 @@ fec_restart(struct net_device *ndev)
+ 	 * For i.MX6SX SOC, enet use AXI bus, we use disable MAC
+ 	 * instead of reset MAC itself.
+ 	 */
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB ||
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES ||
+ 	    ((fep->quirks & FEC_QUIRK_NO_HARD_RESET) && fep->link)) {
+ 		writel(0, fep->hwp + FEC_ECNTRL);
+ 	} else {
+@@ -1165,7 +1166,7 @@ fec_stop(struct net_device *ndev)
+ 	 * instead of reset MAC itself.
+ 	 */
+ 	if (!(fep->wol_flag & FEC_WOL_FLAG_SLEEP_ON)) {
+-		if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++		if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 			writel(0, fep->hwp + FEC_ECNTRL);
+ 		} else {
+ 			writel(1, fep->hwp + FEC_ECNTRL);
+@@ -2570,7 +2571,7 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
+ 
+ 	writel(tx_itr, fep->hwp + FEC_TXIC0);
+ 	writel(rx_itr, fep->hwp + FEC_RXIC0);
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		writel(tx_itr, fep->hwp + FEC_TXIC1);
+ 		writel(rx_itr, fep->hwp + FEC_RXIC1);
+ 		writel(tx_itr, fep->hwp + FEC_TXIC2);
+@@ -3371,7 +3372,7 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fep->csum_flags |= FLAG_RX_CSUM_ENABLED;
  	}
  
--	/* Remove any VFs in the host */
--	for (i = 0; i < efx->vf_count; ++i) {
--		struct efx_nic *vf_efx = nic_data->vf[i].efx;
--
--		if (vf_efx)
--			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
--	}
--
-+	/* Disable SRIOV and remove any VFs in the host */
- 	rc = efx_ef10_pci_sriov_disable(efx, true);
- 	if (rc)
- 		netif_dbg(efx, drv, efx->net_dev,
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		fep->tx_align = 0;
+ 		fep->rx_align = 0x3f;
+ 	}
 -- 
 2.30.2
 
