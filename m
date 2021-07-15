@@ -2,169 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B923C9F34
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7633C9F40
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237112AbhGONR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232518AbhGONR4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:17:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DDF601FA;
-        Thu, 15 Jul 2021 13:15:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626354903;
-        bh=l8wtw3//OYPaMXzaUtWbQln8EyKiEk/lQQCd4D/CfuM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=EH34JH26vu15x0IxnDJj/j8RN1mV3iXQRqZa5Iy+pvxK9jhYlvd+Va6+JAs0BpGqv
-         8SXWVkXyU9aLQ2G8jL+GtlUP6p7kNDuy12q2zWTwrIdifOO1nBXsUW7dOSSsb08jkV
-         0Ry9QlT+h38r3ZK6Y9hiiS5imf0VEbdzPFItR5uI=
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Do not set proposed vcpi directly" failed to apply to 5.13-stable tree
-To:     Wayne.Lin@amd.com, lyude@redhat.com,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        stable@vger.kernel.org, tzimmermann@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:15:01 +0200
-Message-ID: <16263549018978@kroah.com>
+        id S237063AbhGONSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:18:52 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:11319 "EHLO
+        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232518AbhGONSw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 09:18:52 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GQZWd6lPsz7tfB;
+        Thu, 15 Jul 2021 21:11:25 +0800 (CST)
+Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Thu, 15 Jul 2021 21:15:55 +0800
+Received: from huawei.com (10.175.103.91) by dggpeml500017.china.huawei.com
+ (7.185.36.243) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Thu, 15 Jul
+ 2021 21:15:55 +0800
+From:   Yang Yingliang <yangyingliang@huawei.com>
+To:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>
+CC:     <gregkh@linuxfoundation.org>, <axboe@kernel.dk>
+Subject: [PATCH stable-5.10] io_uring: fix clear IORING_SETUP_R_DISABLED in wrong function
+Date:   Thu, 15 Jul 2021 21:18:25 +0800
+Message-ID: <20210715131825.2410912-1-yangyingliang@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.103.91]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpeml500017.china.huawei.com (7.185.36.243)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In commit 3ebba796fa25 ("io_uring: ensure that SQPOLL thread is started for exit"),
+the IORING_SETUP_R_DISABLED is cleared in io_sq_offload_start(), but when backport
+it to stable-5.10, IORING_SETUP_R_DISABLED is cleared in __io_req_task_submit(),
+move clearing IORING_SETUP_R_DISABLED to io_sq_offload_start() to fix this.
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Fixes: 6cae8095490ca ("io_uring: ensure that SQPOLL thread is started for exit")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+---
+ fs/io_uring.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 35d3e8cb35e75450f87f87e3d314e2d418b6954b Mon Sep 17 00:00:00 2001
-From: Wayne Lin <Wayne.Lin@amd.com>
-Date: Wed, 16 Jun 2021 11:55:00 +0800
-Subject: [PATCH] drm/dp_mst: Do not set proposed vcpi directly
-
-[Why]
-When we receive CSN message to notify one port is disconnected, we will
-implicitly set its corresponding num_slots to 0. Later on, we will
-eventually call drm_dp_update_payload_part1() to arrange down streams.
-
-In drm_dp_update_payload_part1(), we iterate over all proposed_vcpis[]
-to do the update. Not specific to a target sink only. For example, if we
-light up 2 monitors, Monitor_A and Monitor_B, and then we unplug
-Monitor_B. Later on, when we call drm_dp_update_payload_part1() to try
-to update payload for Monitor_A, we'll also implicitly clean payload for
-Monitor_B at the same time. And finally, when we try to call
-drm_dp_update_payload_part1() to clean payload for Monitor_B, we will do
-nothing at this time since payload for Monitor_B has been cleaned up
-previously.
-
-For StarTech 1to3 DP hub, it seems like if we didn't update DPCD payload
-ID table then polling for "ACT Handled"(BIT_1 of DPCD 002C0h) will fail
-and this polling will last for 3 seconds.
-
-Therefore, guess the best way is we don't set the proposed_vcpi[]
-diretly. Let user of these herlper functions to set the proposed_vcpi
-directly.
-
-[How]
-1. Revert commit 7617e9621bf2 ("drm/dp_mst: clear time slots for ports
-invalid")
-2. Tackle the issue in previous commit by skipping those trasient
-proposed VCPIs. These stale VCPIs shoulde be explicitly cleared by
-user later on.
-
-Changes since v1:
-* Change debug macro to use drm_dbg_kms() instead
-* Amend the commit message to add Fixed & Cc tags
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Fixes: 7617e9621bf2 ("drm/dp_mst: clear time slots for ports invalid")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-2-Wayne.Lin@amd.com
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-
-diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index 32b7f8983b94..b41b837db66d 100644
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2501,7 +2501,7 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fdbaaf579cc60..57db1dfc35829 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -2086,7 +2086,6 @@ static void __io_req_task_submit(struct io_kiocb *req)
+ 		__io_req_task_cancel(req, -EFAULT);
+ 	mutex_unlock(&ctx->uring_lock);
+ 
+-	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+ 	if (ctx->flags & IORING_SETUP_SQPOLL)
+ 		io_sq_thread_drop_mm();
+ }
+@@ -7998,6 +7997,7 @@ static void io_sq_offload_start(struct io_ring_ctx *ctx)
  {
- 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
- 	struct drm_dp_mst_port *port;
--	int old_ddps, old_input, ret, i;
-+	int old_ddps, ret;
- 	u8 new_pdt;
- 	bool new_mcs;
- 	bool dowork = false, create_connector = false;
-@@ -2533,7 +2533,6 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
- 	}
+ 	struct io_sq_data *sqd = ctx->sq_data;
  
- 	old_ddps = port->ddps;
--	old_input = port->input;
- 	port->input = conn_stat->input_port;
- 	port->ldps = conn_stat->legacy_device_plug_status;
- 	port->ddps = conn_stat->displayport_device_plug_status;
-@@ -2555,28 +2554,6 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
- 		dowork = false;
- 	}
- 
--	if (!old_input && old_ddps != port->ddps && !port->ddps) {
--		for (i = 0; i < mgr->max_payloads; i++) {
--			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
--			struct drm_dp_mst_port *port_validated;
--
--			if (!vcpi)
--				continue;
--
--			port_validated =
--				container_of(vcpi, struct drm_dp_mst_port, vcpi);
--			port_validated =
--				drm_dp_mst_topology_get_port_validated(mgr, port_validated);
--			if (!port_validated) {
--				mutex_lock(&mgr->payload_lock);
--				vcpi->num_slots = 0;
--				mutex_unlock(&mgr->payload_lock);
--			} else {
--				drm_dp_mst_topology_put_port(port_validated);
--			}
--		}
--	}
--
- 	if (port->connector)
- 		drm_modeset_unlock(&mgr->base.lock);
- 	else if (create_connector)
-@@ -3410,8 +3387,15 @@ int drm_dp_update_payload_part1(struct drm_dp_mst_topology_mgr *mgr)
- 				port = drm_dp_mst_topology_get_port_validated(
- 				    mgr, port);
- 				if (!port) {
--					mutex_unlock(&mgr->payload_lock);
--					return -EINVAL;
-+					if (vcpi->num_slots == payload->num_slots) {
-+						cur_slots += vcpi->num_slots;
-+						payload->start_slot = req_payload.start_slot;
-+						continue;
-+					} else {
-+						drm_dbg_kms("Fail:set payload to invalid sink");
-+						mutex_unlock(&mgr->payload_lock);
-+						return -EINVAL;
-+					}
- 				}
- 				put_port = true;
- 			}
++	ctx->flags &= ~IORING_SETUP_R_DISABLED;
+ 	if ((ctx->flags & IORING_SETUP_SQPOLL) && sqd->thread)
+ 		wake_up_process(sqd->thread);
+ }
+-- 
+2.25.1
 
