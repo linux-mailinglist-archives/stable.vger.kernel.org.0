@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB5C3CA607
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA193CA772
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:52:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237020AbhGOSpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46704 "EHLO mail.kernel.org"
+        id S241051AbhGOSx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231970AbhGOSpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27E55613CA;
-        Thu, 15 Jul 2021 18:42:54 +0000 (UTC)
+        id S239873AbhGOSxa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 532E9613D7;
+        Thu, 15 Jul 2021 18:50:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374575;
-        bh=4LmJWgL/muoqZnm+hiqG7C9JHTI+SucHZIlgDvXTwww=;
+        s=korg; t=1626375036;
+        bh=GptNHRxt4NSFEH5/XvLFiuhi1vJsblNqdlsj4pppnKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1tZeSGicWgQutt+KSXmO3DljxHsrDvz0Huda8yg3b37xEozo3Z4br5VwcyfPgkIP
-         xz0FEOKfuEMQIj1HpfhFMu6v1RaS+h0Hd+TJnqShYhkSbk/y0AG9bktDJZUPkYWp0f
-         7lC/N9rix/QDOhD1RgV3JJj9AMb9ZK5A8Ts3NGm0=
+        b=GF9nD/nUm9gddXEUv0XPHlfH8i5iRpN/7z8Bv3/jhPwEUFs+b5s3wCrLu9YT89Xtr
+         1tQR39A1IVIc1Wy0Ysdfic+WX3L5YtQrkypqOFszNA5RN5iIktLRM1L1QXoTjT6Vds
+         07/ajePffoiK5skGe+UTKMZMiA5zWwWkzh6rZC0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, zhanglianjie <zhanglianjie@uniontech.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 056/122] iwlwifi: pcie: free IML DMA memory allocation
+Subject: [PATCH 5.10 131/215] MIPS: loongsoon64: Reserve memory below starting pfn to prevent Oops
 Date:   Thu, 15 Jul 2021 20:38:23 +0200
-Message-Id: <20210715182504.043487237@linuxfoundation.org>
+Message-Id: <20210715182622.760276781@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,89 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: zhanglianjie <zhanglianjie@uniontech.com>
 
-[ Upstream commit 310f60f53a86eba680d9bc20a371e13b06a5f903 ]
+[ Upstream commit 6817c944430d00f71ccaa9c99ff5b0096aeb7873 ]
 
-In the case of gen3 devices with image loader (IML) support,
-we were leaking the IML DMA allocation and never freeing it.
-Fix that.
+The cause of the problem is as follows:
+1. when cat /sys/devices/system/memory/memory0/valid_zones,
+   test_pages_in_a_zone() will be called.
+2. test_pages_in_a_zone() finds the zone according to stat_pfn = 0.
+   The smallest pfn of the numa node in the mips architecture is 128,
+   and the page corresponding to the previous 0~127 pfn is not
+   initialized (page->flags is 0xFFFFFFFF)
+3. The nid and zonenum obtained using page_zone(pfn_to_page(0)) are out
+   of bounds in the corresponding array,
+   &NODE_DATA(page_to_nid(page))->node_zones[page_zonenum(page)],
+   access to the out-of-bounds zone member variables appear abnormal,
+   resulting in Oops.
+Therefore, it is necessary to keep the page between 0 and the minimum
+pfn to prevent Oops from appearing.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618105614.07e117dbedb7.I7bb9ebbe0617656986c2a598ea5e827b533bd3b9@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: zhanglianjie <zhanglianjie@uniontech.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c  | 15 ++++++++++-----
- .../net/wireless/intel/iwlwifi/pcie/internal.h    |  3 +++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ arch/mips/loongson64/numa.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-index eab159205e48..f6b43cd87d5d 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-@@ -63,7 +63,6 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	struct iwl_prph_scratch *prph_scratch;
- 	struct iwl_prph_scratch_ctrl_cfg *prph_sc_ctrl;
- 	struct iwl_prph_info *prph_info;
--	void *iml_img;
- 	u32 control_flags = 0;
- 	int ret;
- 	int cmdq_size = max_t(u32, IWL_CMD_QUEUE_SIZE,
-@@ -162,14 +161,15 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	trans_pcie->prph_scratch = prph_scratch;
- 
- 	/* Allocate IML */
--	iml_img = dma_alloc_coherent(trans->dev, trans->iml_len,
--				     &trans_pcie->iml_dma_addr, GFP_KERNEL);
--	if (!iml_img) {
-+	trans_pcie->iml = dma_alloc_coherent(trans->dev, trans->iml_len,
-+					     &trans_pcie->iml_dma_addr,
-+					     GFP_KERNEL);
-+	if (!trans_pcie->iml) {
- 		ret = -ENOMEM;
- 		goto err_free_ctxt_info;
- 	}
- 
--	memcpy(iml_img, trans->iml, trans->iml_len);
-+	memcpy(trans_pcie->iml, trans->iml, trans->iml_len);
- 
- 	iwl_enable_fw_load_int_ctx_info(trans);
- 
-@@ -242,6 +242,11 @@ void iwl_pcie_ctxt_info_gen3_free(struct iwl_trans *trans)
- 	trans_pcie->ctxt_info_dma_addr = 0;
- 	trans_pcie->ctxt_info_gen3 = NULL;
- 
-+	dma_free_coherent(trans->dev, trans->iml_len, trans_pcie->iml,
-+			  trans_pcie->iml_dma_addr);
-+	trans_pcie->iml_dma_addr = 0;
-+	trans_pcie->iml = NULL;
+diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
+index cf9459f79f9b..e4c461df3ee6 100644
+--- a/arch/mips/loongson64/numa.c
++++ b/arch/mips/loongson64/numa.c
+@@ -182,6 +182,9 @@ static void __init node_mem_init(unsigned int node)
+ 		if (node_end_pfn(0) >= (0xffffffff >> PAGE_SHIFT))
+ 			memblock_reserve((node_addrspace_offset | 0xfe000000),
+ 					 32 << 20);
 +
- 	iwl_pcie_ctxt_info_free_fw_img(trans);
++		/* Reserve pfn range 0~node[0]->node_start_pfn */
++		memblock_reserve(0, PAGE_SIZE * start_pfn);
+ 	}
+ }
  
- 	dma_free_coherent(trans->dev, sizeof(*trans_pcie->prph_scratch),
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-index 9b5b96e34456..553164f06a6b 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-@@ -475,6 +475,8 @@ struct cont_rec {
-  *	Context information addresses will be taken from here.
-  *	This is driver's local copy for keeping track of size and
-  *	count for allocating and freeing the memory.
-+ * @iml: image loader image virtual address
-+ * @iml_dma_addr: image loader image DMA address
-  * @trans: pointer to the generic transport area
-  * @scd_base_addr: scheduler sram base address in SRAM
-  * @scd_bc_tbls: pointer to the byte count table of the scheduler
-@@ -522,6 +524,7 @@ struct iwl_trans_pcie {
- 	};
- 	struct iwl_prph_info *prph_info;
- 	struct iwl_prph_scratch *prph_scratch;
-+	void *iml;
- 	dma_addr_t ctxt_info_dma_addr;
- 	dma_addr_t prph_info_dma_addr;
- 	dma_addr_t prph_scratch_dma_addr;
 -- 
 2.30.2
 
