@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 260273CA90E
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 151BF3CAAB0
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241026AbhGOTFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
+        id S241827AbhGOTPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243182AbhGOTDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8204613F2;
-        Thu, 15 Jul 2021 18:59:19 +0000 (UTC)
+        id S243464AbhGOTMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC10613CF;
+        Thu, 15 Jul 2021 19:09:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375560;
-        bh=kXDM29sv0EVV85K0UGbIqr00ds/QrKFu9y7q4BCgMqA=;
+        s=korg; t=1626376148;
+        bh=I3uMaH+VaCwt5rAUvLlpeXRhPaNL4gm4eDiwWCOwxY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xr+Hzs/sIkaYnR0qgoIsDs1wxuUrI+vj3Etwi1/skr8BIqDwBjZY5bxhdTN2fnzGS
-         sdxNeAtR4a1VW857GMX6MgSpn6WNPcGz/WrwL1FzuOJDaoSukv8sbAzy1YusUEC/oi
-         Vd1eT1uh7X5EP1W6YzHmqLFnpca+3pQgxRJMi/H8=
+        b=BKykWT9KGtWTtW1fkmq9qTnOokNRoj+bo5D/svjzF0OvhFEfLEFB8OaXI4EhQjn8H
+         irkfJrxhL5e1xy0L2K5pgYwvGjm1izM8wu4rmQE1qWoGqxNV5fexH0VYO7fHv98/mN
+         ai9wo+/46r0ZHIzAfggHR7M31luD0Nn5PQMiVvSI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lenski <dlenski@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 139/242] Bluetooth: btusb: Add a new QCA_ROME device (0cf3:e500)
+Subject: [PATCH 5.13 146/266] sfc: error code if SRIOV cannot be disabled
 Date:   Thu, 15 Jul 2021 20:38:21 +0200
-Message-Id: <20210715182617.491553183@linuxfoundation.org>
+Message-Id: <20210715182639.349852415@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,71 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lenski <dlenski@gmail.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 0324d19cb99804d99e42c990b8b1e191575a091b ]
+[ Upstream commit 1ebe4feb8b442884f5a28d2437040096723dd1ea ]
 
-This patch adds the 0cf3:e500 Bluetooth device (from a QCA9377 board) as a
-QCA_ROME device.  It appears to be functionally identical to another device
-ID, also from a QCA9377 board, which was previously marked as QCA_ROME in
-0a03f98b98c201191e3ba15a0e33f46d8660e1fd
-("Bluetooth: Add a new 04ca:3015 QCA_ROME device").
+If SRIOV cannot be disabled during device removal or module unloading,
+return error code so it can be logged properly in the calling function.
 
-Without this patch, the WiFi side of the QCA9377 board is slow or unusable
-when the Bluetooth side is in use.
+Note that this can only happen if any VF is currently attached to a
+guest using Xen, but not with vfio/KVM. Despite that in that case the
+VFs won't work properly with PF removed and/or the module unloaded, I
+have let it as is because I don't know what side effects may have
+changing it, and also it seems to be the same that other drivers are
+doing in this situation.
 
-See https://askubuntu.com/a/1137852 for another report of QCA_ROME fixing
-this issue for this device ID.
+In the case of being called during SRIOV reconfiguration, the behavior
+hasn't changed because the function is called with force=false.
 
-/sys/kernel/debug/usb/devices:
-
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.01 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0cf3 ProdID=e500 Rev= 0.01
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Signed-off-by: Daniel Lenski <dlenski@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/sfc/ef10_sriov.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index b3ba5a9dc5fc..12f05093c46d 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -270,6 +270,8 @@ static const struct usb_device_id blacklist_table[] = {
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0cf3, 0xe360), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
-+	{ USB_DEVICE(0x0cf3, 0xe500), .driver_info = BTUSB_QCA_ROME |
-+						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe092), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe09f), .driver_info = BTUSB_QCA_ROME |
+diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
+index a5d28b0f75ba..84041cd587d7 100644
+--- a/drivers/net/ethernet/sfc/ef10_sriov.c
++++ b/drivers/net/ethernet/sfc/ef10_sriov.c
+@@ -402,12 +402,17 @@ fail1:
+ 	return rc;
+ }
+ 
++/* Disable SRIOV and remove VFs
++ * If some VFs are attached to a guest (using Xen, only) nothing is
++ * done if force=false, and vports are freed if force=true (for the non
++ * attachedc ones, only) but SRIOV is not disabled and VFs are not
++ * removed in either case.
++ */
+ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
+ {
+ 	struct pci_dev *dev = efx->pci_dev;
+-	unsigned int vfs_assigned = 0;
+-
+-	vfs_assigned = pci_vfs_assigned(dev);
++	unsigned int vfs_assigned = pci_vfs_assigned(dev);
++	int rc = 0;
+ 
+ 	if (vfs_assigned && !force) {
+ 		netif_info(efx, drv, efx->net_dev, "VFs are assigned to guests; "
+@@ -417,10 +422,12 @@ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
+ 
+ 	if (!vfs_assigned)
+ 		pci_disable_sriov(dev);
++	else
++		rc = -EBUSY;
+ 
+ 	efx_ef10_sriov_free_vf_vswitching(efx);
+ 	efx->vf_count = 0;
+-	return 0;
++	return rc;
+ }
+ 
+ int efx_ef10_sriov_configure(struct efx_nic *efx, int num_vfs)
 -- 
 2.30.2
 
