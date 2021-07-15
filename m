@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DF5F3CA9F0
+	by mail.lfdr.de (Postfix) with ESMTP id BB33C3CA9F1
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241164AbhGOTLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:11:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S243040AbhGOTLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:11:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241819AbhGOTIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:08:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 907AE613EE;
-        Thu, 15 Jul 2021 19:04:12 +0000 (UTC)
+        id S242086AbhGOTId (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:08:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E16B2613F1;
+        Thu, 15 Jul 2021 19:04:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375853;
-        bh=pTdXuTegRiLLYwpB7TVilPlD4Q92JQ1noO5D+eow+qc=;
+        s=korg; t=1626375855;
+        bh=ATMVMNovce+DZWv4rOeX61fMwsj/XRM8LRWc5mjksmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2PVyxsguN8nGjr3UcIq+H4/UNlRvKXDpjlU/Ar00LnpDC1vqQsdwgxnwkgi055uw
-         5a0k49R9vCXUqV+/t+eNxZkGkXbaNJuEa+9iYvvZfSzursMMP8YaeRigH9tSlj3BPv
-         QO++jIE4PJTj1BEyxr1KABJ4IjT1uxqZsnVH7/ak=
+        b=2F1kg5P8oEfQyvqoU67myY0KxfNJFYddjoYQgdXxHeDBwzfC61fpl0w7FCGCmUTr5
+         JbGmV/Mjz69Pbz1WGRkKxwVW4oed4cqS/nhCfMWqiO6m70cWDDa5nro8iVNZ90EedR
+         1wX69pRtt/gU9Z81lVkWwPicOtxyZw7zyw+v/aGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Li <wangli74@huawei.com>,
+        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 021/266] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
-Date:   Thu, 15 Jul 2021 20:36:16 +0200
-Message-Id: <20210715182617.671758071@linuxfoundation.org>
+Subject: [PATCH 5.13 022/266] drm/mediatek: Fix PM reference leak in mtk_crtc_ddp_hw_init()
+Date:   Thu, 15 Jul 2021 20:36:17 +0200
+Message-Id: <20210715182617.875771380@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,62 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Wang Li <wangli74@huawei.com>
 
-[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
+[ Upstream commit 69777e6ca396f0a7e1baff40fcad4a9d3d445b7a ]
 
-__napi_schedule_irqoff() is an optimized version of __napi_schedule()
-which can be used where it is known that interrupts are disabled,
-e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
-callbacks.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-On PREEMPT_RT enabled kernels this assumptions is not true. Force-
-threaded interrupt handlers and spinlocks are not disabling interrupts
-and the NAPI hrtimer callback is forced into softirq context which runs
-with interrupts enabled as well.
-
-Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
-game so make __napi_schedule_irqoff() invoke __napi_schedule() for
-PREEMPT_RT kernels.
-
-The callers of ____napi_schedule() in the networking core have been
-audited and are correct on PREEMPT_RT kernels as well.
-
-Reported-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Li <wangli74@huawei.com>
+Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index ef8cf7619baf..50531a2d0b20 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -6520,11 +6520,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
-  * __napi_schedule_irqoff - schedule for receive
-  * @n: entry to schedule
-  *
-- * Variant of __napi_schedule() assuming hard irqs are masked
-+ * Variant of __napi_schedule() assuming hard irqs are masked.
-+ *
-+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
-+ * because the interrupt disabled assumption might not be true
-+ * due to force-threaded interrupts and spinlock substitution.
-  */
- void __napi_schedule_irqoff(struct napi_struct *n)
- {
--	____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	else
-+		__napi_schedule(n);
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
+diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+index 40df2c823187..474efb844249 100644
+--- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
++++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
+@@ -260,7 +260,7 @@ static int mtk_crtc_ddp_hw_init(struct mtk_drm_crtc *mtk_crtc)
+ 		drm_connector_list_iter_end(&conn_iter);
+ 	}
  
+-	ret = pm_runtime_get_sync(crtc->dev->dev);
++	ret = pm_runtime_resume_and_get(crtc->dev->dev);
+ 	if (ret < 0) {
+ 		DRM_ERROR("Failed to enable power domain: %d\n", ret);
+ 		return ret;
 -- 
 2.30.2
 
