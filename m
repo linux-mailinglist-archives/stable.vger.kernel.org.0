@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C69F83CA6A8
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F063CA847
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239362AbhGOStp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:49:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51896 "EHLO mail.kernel.org"
+        id S240328AbhGOTAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:00:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240521AbhGOSta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7C3613CF;
-        Thu, 15 Jul 2021 18:46:35 +0000 (UTC)
+        id S241845AbhGOS6V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 897EF613DF;
+        Thu, 15 Jul 2021 18:55:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374796;
-        bh=KIbEhNWMydI6SQGBDF9LHhWBX6rUno1XaXp/Wg9nNw0=;
+        s=korg; t=1626375327;
+        bh=fkdniDa+xDCETYQggD9oaebwsk6k8b5LwB+FE25nR24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13f3iTKBajBvRo8lj6m1d2V6iA4KcQFxixY+KUsdJp5zJQAh3kdad7HULNOUK8p51
-         JMpZg/CEXiOR52PmLI/FEkBiu1U9qX5FCgSHTmln15YwN2TXSpifoT1h4zJAlffnZv
-         3qaPnx17BkCB+e21Ji+CCuJNmsnYYf9xYKAAFJsU=
+        b=X/dERHbWTMMVNgfLaJsP0+zWdXeimipbsqeyn7+XTr8TNt8HiQZTCBDKb/gGTiv+E
+         XLR/GzSEIIo+s61wHqQh+Ag/2R0r+B8iuvwQZKXUMGbvZ/yGmG25pVB5yWpDEhRVmX
+         II6K4ZNb98qwaWaO4VeRLXF2QFDRrugupbzlW6ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/215] igb: handle vlan types with checker enabled
+Subject: [PATCH 5.12 040/242] drm: rockchip: add missing registers for RK3066
 Date:   Thu, 15 Jul 2021 20:36:42 +0200
-Message-Id: <20210715182604.289886452@linuxfoundation.org>
+Message-Id: <20210715182559.093608165@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Alex Bee <knaerzche@gmail.com>
 
-[ Upstream commit c7cbfb028b95360403d579c47aaaeef1ff140964 ]
+[ Upstream commit 742203cd56d150eb7884eb45abb7d9dbc2bdbf04 ]
 
-The sparse build (C=2) finds some issues with how the driver
-dealt with the (very difficult) hardware that in some generations
-uses little-endian, and in others uses big endian, for the VLAN
-field. The code as written picks __le16 as a type and for some
-hardware revisions we override it to __be16 as done in this
-patch. This impacted the VF driver as well so fix it there too.
+Add dither_up, dsp_lut_en and data_blank registers to enable their
+respective functionality for RK3066's VOP.
 
-Also change the vlan_tci assignment to override the sparse
-warning without changing functionality.
+While at that also fix .rb_swap and .format registers for all windows,
+which have to be set though RK3066_SYS_CTRL1 register.
+Also remove .scl from win1: Scaling is only supported on the primary
+plane.
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210528130554.72191-4-knaerzche@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 5 +++--
- drivers/net/ethernet/intel/igbvf/netdev.c | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 5c87c0a7ce3d..157683fbf61c 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -2643,7 +2643,8 @@ static int igb_parse_cls_flower(struct igb_adapter *adapter,
- 			}
+diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+index b8dcee64a1f7..a6fe03c3748a 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
++++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+@@ -349,8 +349,8 @@ static const struct vop_win_phy rk3066_win0_data = {
+ 	.nformats = ARRAY_SIZE(formats_win_full),
+ 	.format_modifiers = format_modifiers_win_full,
+ 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 0),
+-	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 4),
+-	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 19),
++	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 4),
++	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 19),
+ 	.act_info = VOP_REG(RK3066_WIN0_ACT_INFO, 0x1fff1fff, 0),
+ 	.dsp_info = VOP_REG(RK3066_WIN0_DSP_INFO, 0x0fff0fff, 0),
+ 	.dsp_st = VOP_REG(RK3066_WIN0_DSP_ST, 0x1fff1fff, 0),
+@@ -361,13 +361,12 @@ static const struct vop_win_phy rk3066_win0_data = {
+ };
  
- 			input->filter.match_flags |= IGB_FILTER_FLAG_VLAN_TCI;
--			input->filter.vlan_tci = match.key->vlan_priority;
-+			input->filter.vlan_tci =
-+				(__force __be16)match.key->vlan_priority;
- 		}
- 	}
+ static const struct vop_win_phy rk3066_win1_data = {
+-	.scl = &rk3066_win_scl,
+ 	.data_formats = formats_win_full,
+ 	.nformats = ARRAY_SIZE(formats_win_full),
+ 	.format_modifiers = format_modifiers_win_full,
+ 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 1),
+-	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 7),
+-	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 23),
++	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 7),
++	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 23),
+ 	.act_info = VOP_REG(RK3066_WIN1_ACT_INFO, 0x1fff1fff, 0),
+ 	.dsp_info = VOP_REG(RK3066_WIN1_DSP_INFO, 0x0fff0fff, 0),
+ 	.dsp_st = VOP_REG(RK3066_WIN1_DSP_ST, 0x1fff1fff, 0),
+@@ -382,8 +381,8 @@ static const struct vop_win_phy rk3066_win2_data = {
+ 	.nformats = ARRAY_SIZE(formats_win_lite),
+ 	.format_modifiers = format_modifiers_win_lite,
+ 	.enable = VOP_REG(RK3066_SYS_CTRL1, 0x1, 2),
+-	.format = VOP_REG(RK3066_SYS_CTRL0, 0x7, 10),
+-	.rb_swap = VOP_REG(RK3066_SYS_CTRL0, 0x1, 27),
++	.format = VOP_REG(RK3066_SYS_CTRL1, 0x7, 10),
++	.rb_swap = VOP_REG(RK3066_SYS_CTRL1, 0x1, 27),
+ 	.dsp_info = VOP_REG(RK3066_WIN2_DSP_INFO, 0x0fff0fff, 0),
+ 	.dsp_st = VOP_REG(RK3066_WIN2_DSP_ST, 0x1fff1fff, 0),
+ 	.yrgb_mst = VOP_REG(RK3066_WIN2_MST, 0xffffffff, 0),
+@@ -408,6 +407,9 @@ static const struct vop_common rk3066_common = {
+ 	.dither_down_en = VOP_REG(RK3066_DSP_CTRL0, 0x1, 11),
+ 	.dither_down_mode = VOP_REG(RK3066_DSP_CTRL0, 0x1, 10),
+ 	.dsp_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 24),
++	.dither_up = VOP_REG(RK3066_DSP_CTRL0, 0x1, 9),
++	.dsp_lut_en = VOP_REG(RK3066_SYS_CTRL1, 0x1, 31),
++	.data_blank = VOP_REG(RK3066_DSP_CTRL1, 0x1, 25),
+ };
  
-@@ -8617,7 +8618,7 @@ static void igb_process_skb_fields(struct igb_ring *rx_ring,
- 
- 		if (igb_test_staterr(rx_desc, E1000_RXDEXT_STATERR_LB) &&
- 		    test_bit(IGB_RING_FLAG_RX_LB_VLAN_BSWAP, &rx_ring->flags))
--			vid = be16_to_cpu(rx_desc->wb.upper.vlan);
-+			vid = be16_to_cpu((__force __be16)rx_desc->wb.upper.vlan);
- 		else
- 			vid = le16_to_cpu(rx_desc->wb.upper.vlan);
- 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index ee9f8c1dca83..07c9e9e0546f 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -83,14 +83,14 @@ static int igbvf_desc_unused(struct igbvf_ring *ring)
- static void igbvf_receive_skb(struct igbvf_adapter *adapter,
- 			      struct net_device *netdev,
- 			      struct sk_buff *skb,
--			      u32 status, u16 vlan)
-+			      u32 status, __le16 vlan)
- {
- 	u16 vid;
- 
- 	if (status & E1000_RXD_STAT_VP) {
- 		if ((adapter->flags & IGBVF_FLAG_RX_LB_VLAN_BSWAP) &&
- 		    (status & E1000_RXDEXT_STATERR_LB))
--			vid = be16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
-+			vid = be16_to_cpu((__force __be16)vlan) & E1000_RXD_SPC_VLAN_MASK;
- 		else
- 			vid = le16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
- 		if (test_bit(vid, adapter->active_vlans))
+ static const struct vop_win_data rk3066_vop_win_data[] = {
 -- 
 2.30.2
 
