@@ -2,128 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BBC43CAEBD
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 23:49:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C6F3CAECF
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 23:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbhGOVwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 17:52:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229597AbhGOVwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 17:52:23 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAE7C06175F
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 14:49:29 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id o17-20020a9d76510000b02903eabfc221a9so7851642otl.0
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 14:49:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Y1dOBgdQ3hrMd+YVDQYEcotLu5Ehk6yTJpr5uXkQiOs=;
-        b=iQM8Bbsa6+s5E31gAFFr7UnEL02zPynbH+oJVKIfdE/w5PXSRGOY5IpTLQB36/Rue3
-         CfnUUmeBKhb7NhQ3u62Etz6zwZdiHR0EW3+vFtPtH6tPeAUS/BVGSKStPXwfyriIoPc6
-         dNg+UvgqHkp/Cbjsip5RQ0LdueHIubC+AActWEJN3EbJi0s6f1rhqseKLZ1E9zlZiqZK
-         Qunf5j3kS6fHQ2oXf/arN2PbmT9vTAmJ0jrSL48OKe1EFXdVx39qh07e6ly3fjvFXFY5
-         JYvR0v5Mmz4Z6oOXocxoY4mJ+SPgxrXLnpx2EXiSgZKPO8va5XWG3CogmbUUj9cLl9R/
-         X8ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Y1dOBgdQ3hrMd+YVDQYEcotLu5Ehk6yTJpr5uXkQiOs=;
-        b=thvF7T3j/kJh880/CpzNxuz1HlAVP6OiSX5b8ILy6PU8eNnInEU/Itrj67cFyyNw14
-         DV+fA1R4DDfp1wt1SgLjixLy81ygiKeULED3iIPHQsXehovlrsbHWWYS3fBA7j9kF3cX
-         hrtwwM/zPi/RiiTxEn26HGgGCtzu7CjMUaLfBkI7cFd7Uu0jcA8KSZl66Aax3G+4iwi1
-         U3YFvPXo+prV9wJcfCNoOy3SGxcZ8f4v53yODl2mfdinNecEw1D8DyGOHQ3Jnl9O8+mZ
-         04rPVueRNYgpoxUooVmXOcP7asHqFfLwbGKQkh9W0yn5deBpiKLRtq3OjTV1DDSwneDO
-         GFuA==
-X-Gm-Message-State: AOAM533+7dJyv385c09xJ93orQxANMeh6YR/24CDthXEDJbn2BP1zUbq
-        DLkYMU4VX/SPNWoJvOX5akSKMX+dfTO2wr2O93iEAw==
-X-Google-Smtp-Source: ABdhPJwrWuaKEX9nwRs+pv2yfk6eK+BGu8O2umTt+v/GV+qUh7yeiLdmOcKZ392NOumnyeV9/q+YC9bv7rYcQkx2hIo=
-X-Received: by 2002:a9d:3e06:: with SMTP id a6mr5463289otd.50.1626385769016;
- Thu, 15 Jul 2021 14:49:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210715182551.731989182@linuxfoundation.org>
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-From:   =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>
-Date:   Thu, 15 Jul 2021 16:49:16 -0500
-Message-ID: <CAEUSe7_+8fQZ=1+jcxJVTRw0DYttGmR-aBdobZ0GWYQi3Vg97w@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/242] 5.12.18-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        linux- stable <stable@vger.kernel.org>, svens@linux.ibm.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+        id S231144AbhGOV5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 17:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46550 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230186AbhGOV5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 17:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B37E560240;
+        Thu, 15 Jul 2021 21:54:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1626386065;
+        bh=646ahfG3jhDxYLk0CC8856PKvypiCWSUKO3eYEJTTqM=;
+        h=Date:From:To:Subject:From;
+        b=aGn0zkMLeIOTctklmvr+mNjFWuzTTxh31JQaQ0sS79ugEYuTsgF+5hhLLlQllL/43
+         Aovrcr2s+ryNLLOOi5iLgguvFJF4Lg2GUbVe0+WScjpx6qLBGL8ubdyWTFpuTQzUO+
+         P3qw31soqoDl5tbjLAflsY7B4dtjtg2kJG58CzSs=
+Date:   Thu, 15 Jul 2021 14:54:25 -0700
+From:   akpm@linux-foundation.org
+To:     david@redhat.com, groug@kaod.org, mm-commits@vger.kernel.org,
+        rppt@linux.ibm.com, stable@vger.kernel.org
+Subject:  +
+ memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
+ added to -mm tree
+Message-ID: <20210715215425.yyWz_WYbj%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
 
-On Thu, 15 Jul 2021 at 13:56, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.12.18 release.
-> There are 242 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.18-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The patch titled
+     Subject: memblock: make for_each_mem_range() traverse MEMBLOCK_HOTPLUG regions
+has been added to the -mm tree.  Its filename is
+     memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
 
-Build regressions have been found on this release candidate (and on 5.13-rc=
-).
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
 
-## Regressions (compared to v5.12.17)
-* s390, build
-  - clang-10-allnoconfig
-  - clang-10-defconfig
-  - clang-10-tinyconfig
-  - clang-11-allnoconfig
-  - clang-11-defconfig
-  - clang-11-tinyconfig
-  - clang-12-allnoconfig
-  - clang-12-defconfig
-  - clang-12-tinyconfig
-  - gcc-8-allnoconfig
-  - gcc-8-defconfig
-  - gcc-8-tinyconfig
-  - gcc-9-allnoconfig
-  - gcc-9-defconfig
-  - gcc-9-tinyconfig
-  - gcc-10-allnoconfig
-  - gcc-10-defconfig
-  - gcc-10-tinyconfig
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-[...]
-> Sven Schnelle <svens@linux.ibm.com>
->     s390/signal: switch to using vdso for sigreturn and syscall restart
-[...]
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Our bisections pointed to this commit. Reverting it made the build pass aga=
-in.
+------------------------------------------------------
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: memblock: make for_each_mem_range() traverse MEMBLOCK_HOTPLUG regions
 
-Greetings!
+Commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
+for_each_mem_range()") didn't take into account that when there is
+movable_node parameter in the kernel command line, for_each_mem_range()
+would skip ranges marked with MEMBLOCK_HOTPLUG.
 
-Daniel D=C3=ADaz
-daniel.diaz@linaro.org
+The page table setup code in POWER uses for_each_mem_range() to create the
+linear mapping of the physical memory and since the regions marked as
+MEMORY_HOTPLUG are skipped, they never make it to the linear map.
+
+A later access to the memory in those ranges will fail:
+
+[    2.271743] BUG: Unable to handle kernel data access on write at 0xc000000400000000
+[    2.271984] Faulting instruction address: 0xc00000000008a3c0
+[    2.272568] Oops: Kernel access of bad area, sig: 11 [#1]
+[    2.272683] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
+[    2.273063] Modules linked in:
+[    2.273435] CPU: 0 PID: 53 Comm: kworker/u2:0 Not tainted 5.13.0 #7
+[    2.273832] NIP:  c00000000008a3c0 LR: c0000000003c1ed8 CTR: 0000000000000040
+[    2.273918] REGS: c000000008a57770 TRAP: 0300   Not tainted  (5.13.0)
+[    2.274036] MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 84222202  XER: 20040000
+[    2.274454] CFAR: c0000000003c1ed4 DAR: c000000400000000 DSISR: 42000000 IRQMASK: 0
+[    2.274454] GPR00: c0000000003c1ed8 c000000008a57a10 c0000000019da700 c000000400000000
+[    2.274454] GPR04: 0000000000000280 0000000000000180 0000000000000400 0000000000000200
+[    2.274454] GPR08: 0000000000000100 0000000000000080 0000000000000040 0000000000000300
+[    2.274454] GPR12: 0000000000000380 c000000001bc0000 c0000000001660c8 c000000006337e00
+[    2.274454] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+[    2.274454] GPR20: 0000000040000000 0000000020000000 c000000001a81990 c000000008c30000
+[    2.274454] GPR24: c000000008c20000 c000000001a81998 000fffffffff0000 c000000001a819a0
+[    2.274454] GPR28: c000000001a81908 c00c000001000000 c000000008c40000 c000000008a64680
+[    2.275520] NIP [c00000000008a3c0] clear_user_page+0x50/0x80
+[    2.276333] LR [c0000000003c1ed8] __handle_mm_fault+0xc88/0x1910
+[    2.276688] Call Trace:
+[    2.276839] [c000000008a57a10] [c0000000003c1e94] __handle_mm_fault+0xc44/0x1910 (unreliable)
+[    2.277142] [c000000008a57af0] [c0000000003c2c90] handle_mm_fault+0x130/0x2a0
+[    2.277331] [c000000008a57b40] [c0000000003b5f08] __get_user_pages+0x248/0x610
+[    2.277541] [c000000008a57c40] [c0000000003b848c] __get_user_pages_remote+0x12c/0x3e0
+[    2.277768] [c000000008a57cd0] [c000000000473f24] get_arg_page+0x54/0xf0
+[    2.277959] [c000000008a57d10] [c000000000474a7c] copy_string_kernel+0x11c/0x210
+[    2.278159] [c000000008a57d80] [c00000000047663c] kernel_execve+0x16c/0x220
+[    2.278361] [c000000008a57dd0] [c000000000166270] call_usermodehelper_exec_async+0x1b0/0x2f0
+[    2.278543] [c000000008a57e10] [c00000000000d5ec] ret_from_kernel_thread+0x5c/0x70
+[    2.278870] Instruction dump:
+[    2.279214] 79280fa4 79271764 79261f24 794ae8e2 7ca94214 7d683a14 7c893a14 7d893050
+[    2.279416] 7d4903a6 60000000 60000000 60000000 <7c001fec> 7c091fec 7c081fec 7c051fec
+[    2.280193] ---[ end trace 490b8c67e6075e09 ]---
+
+Making for_each_mem_range() include MEMBLOCK_HOTPLUG regions in the
+traversal fixes this issue.
+
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1976100
+Link: https://lkml.kernel.org/r/20210712071132.20902-1-rppt@kernel.org
+Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Tested-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>	[5.10+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ include/linux/memblock.h |    4 ++--
+ mm/memblock.c            |    3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+--- a/include/linux/memblock.h~memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions
++++ a/include/linux/memblock.h
+@@ -209,7 +209,7 @@ static inline void __next_physmem_range(
+  */
+ #define for_each_mem_range(i, p_start, p_end) \
+ 	__for_each_mem_range(i, &memblock.memory, NULL, NUMA_NO_NODE,	\
+-			     MEMBLOCK_NONE, p_start, p_end, NULL)
++			     MEMBLOCK_HOTPLUG, p_start, p_end, NULL)
+ 
+ /**
+  * for_each_mem_range_rev - reverse iterate through memblock areas from
+@@ -220,7 +220,7 @@ static inline void __next_physmem_range(
+  */
+ #define for_each_mem_range_rev(i, p_start, p_end)			\
+ 	__for_each_mem_range_rev(i, &memblock.memory, NULL, NUMA_NO_NODE, \
+-				 MEMBLOCK_NONE, p_start, p_end, NULL)
++				 MEMBLOCK_HOTPLUG, p_start, p_end, NULL)
+ 
+ /**
+  * for_each_reserved_mem_range - iterate over all reserved memblock areas
+--- a/mm/memblock.c~memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions
++++ a/mm/memblock.c
+@@ -947,7 +947,8 @@ static bool should_skip_region(struct me
+ 		return true;
+ 
+ 	/* skip hotpluggable memory regions if needed */
+-	if (movable_node_is_enabled() && memblock_is_hotpluggable(m))
++	if (movable_node_is_enabled() && memblock_is_hotpluggable(m) &&
++	    !(flags & MEMBLOCK_HOTPLUG))
+ 		return true;
+ 
+ 	/* if we want mirror memory skip non-mirror memory regions */
+_
+
+Patches currently in -mm which might be from rppt@linux.ibm.com are
+
+memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
+mm-page_alloc-always-initialize-memory-map-for-the-holes.patch
+microblaze-simplify-pte_alloc_one_kernel.patch
+mm-introduce-memmap_alloc-to-unify-memory-map-allocation.patch
+memblock-stop-poisoning-raw-allocations.patch
+mm-remove-pfn_valid_within-and-config_holes_in_zone.patch
+mm-memory_hotplug-cleanup-after-removal-of-pfn_valid_within.patch
+
