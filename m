@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 847A03CAA80
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B954B3CAA83
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243081AbhGOTN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
+        id S241835AbhGOTN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243350AbhGOTLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:11:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BE5D613DA;
-        Thu, 15 Jul 2021 19:08:39 +0000 (UTC)
+        id S243399AbhGOTLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:11:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0DED613E7;
+        Thu, 15 Jul 2021 19:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376119;
-        bh=tytnmXerQIt1RPYDn2rY2jpf+S/K6nIdFbmYASoy5C4=;
+        s=korg; t=1626376122;
+        bh=mXwlMuW0g/A827FHrU+Qjyu7yJ5jVBo9vfc3hkHvuwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zDOk+JVYjb24N8H160dVSHGCHwHLrqD5W7KKbzk/8/wKhxuwyh6hHQFGZGU7Z5frp
-         gwANMZeuSMMkyefGkkAs8YiR85qjy2WagiYyuT9Jf2BK//cIr8vU2q3k15h69Frsc8
-         rNDTRXyzDxXQXXDnVbmTzQ+6UtIlqd8K93rf/d6c=
+        b=ftOw4fzojVulSE/ZD//bITwwXiH4OAHriQGkygD8gfA96fTWpN1IdOrU9z/WaYSlW
+         vMLlI5DH2nUdcup458fF2A39SM0fK12Fo9+XMgnbb6WPsD/rjF2LNpUWcXtgEJ80yP
+         dAXqTtr9exR0fH2fd9AvrZTCXmVEbI6OYcHjvxag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Andra Paraschiv <andraprs@amazon.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        David Brazdil <dbrazdil@google.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        lixianming <lixianming5@huawei.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
+        stable@vger.kernel.org, Logush Oliver <ollogush@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 135/266] vsock: notify server to shutdown when client has pending signal
-Date:   Thu, 15 Jul 2021 20:38:10 +0200
-Message-Id: <20210715182637.652430446@linuxfoundation.org>
+Subject: [PATCH 5.13 136/266] drm/amd/display: Fix edp_bootup_bl_level initialization issue
+Date:   Thu, 15 Jul 2021 20:38:11 +0200
+Message-Id: <20210715182637.789248039@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -49,70 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Logush Oliver <ollogush@amd.com>
 
-[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
+[ Upstream commit eeb90e26ed05dd44553d557057bf35f08f853af8 ]
 
-The client's sk_state will be set to TCP_ESTABLISHED if the server
-replay the client's connect request.
+[why]
+Updating the file to fix the missing line
 
-However, if the client has pending signal, its sk_state will be set
-to TCP_CLOSE without notify the server, so the server will hold the
-corrupt connection.
-
-            client                        server
-
-1. sk_state=TCP_SYN_SENT         |
-2. call ->connect()              |
-3. wait reply                    |
-                                 | 4. sk_state=TCP_ESTABLISHED
-                                 | 5. insert to connected list
-                                 | 6. reply to the client
-7. sk_state=TCP_ESTABLISHED      |
-8. insert to connected list      |
-9. *signal pending* <--------------------- the user kill client
-10. sk_state=TCP_CLOSE           |
-client is exiting...             |
-11. call ->release()             |
-     virtio_transport_close
-      if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true; *return at here, the server cannot notice the connection is corrupt*
-
-So the client should notify the peer in this case.
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Andra Paraschiv <andraprs@amazon.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: David Brazdil <dbrazdil@google.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lkml.org/lkml/2021/5/17/418
-Signed-off-by: lixianming <lixianming5@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Logush Oliver <ollogush@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 92a72f0e0d94..ae11311807fd 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+index d79f4fe06c47..4812a72f8aad 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -2131,7 +2131,7 @@ static enum bp_result get_integrated_info_v2_1(
+ 		info_v2_1->edp1_info.edp_pwr_down_bloff_to_vary_bloff;
+ 	info->edp1_info.edp_panel_bpc =
+ 		info_v2_1->edp1_info.edp_panel_bpc;
+-	info->edp1_info.edp_bootup_bl_level =
++	info->edp1_info.edp_bootup_bl_level = info_v2_1->edp1_info.edp_bootup_bl_level;
  
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = TCP_CLOSE;
-+			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
- 			goto out_wait;
+ 	info->edp2_info.edp_backlight_pwm_hz =
+ 	le16_to_cpu(info_v2_1->edp2_info.edp_backlight_pwm_hz);
 -- 
 2.30.2
 
