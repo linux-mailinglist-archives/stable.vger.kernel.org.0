@@ -2,75 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30A1B3C975B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 06:27:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A953C9769
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 06:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236492AbhGOEaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 00:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36468 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236439AbhGOEaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 00:30:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 716DC613B2;
-        Thu, 15 Jul 2021 04:27:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1626323231;
-        bh=9m0k110N20kOAoP/o62BcYLkYEF1k7ZEGkRxpN1LxW4=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=Jxns9f0nh5iFonmRirk9p1rMWpQ+Q8m7zXlPLCYUGL//VCSWxpTAJiEJmFPXEioiC
-         KP+PVX0tU8FukAljXxcH4D3djtQiklr87Z4NLuNEjiMj0U+YhMDbdfxm/3KsyAhyPD
-         odUbbxsCY7f7uj5pKTT21j3IYnMNvUrfi/cmwNeA=
-Date:   Wed, 14 Jul 2021 21:27:11 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, joao.m.martins@oracle.com,
-        linux-mm@kvack.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 13/13] mm/hugetlb: fix refs calculation from
- unaligned @vaddr
-Message-ID: <20210715042711.DQ8aY7BZt%akpm@linux-foundation.org>
-In-Reply-To: <20210714212609.fad116e584ba1194981a6294@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S233490AbhGOEbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 00:31:44 -0400
+Received: from mailgw01.mediatek.com ([60.244.123.138]:34522 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S231979AbhGOEbm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 00:31:42 -0400
+X-UUID: 6a5194aa3284485ba1add1daf7b6ab64-20210715
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+        h=Content-Transfer-Encoding:MIME-Version:Content-Type:Date:CC:To:From:Subject:Message-ID; bh=FlJW4bMYIdDzSfoxFCdD9ZdvL9adkU6NtqycME8tAaU=;
+        b=hZYdqdv6jWmqityXaKrWkMiyxbB36kYRbxOfsXEJrdKZriw4e988BX/3grOIgjMpW+uDOOtqIjLuKnvTJkcB9x5WlyUgUhsSUc0t1uIW+ofG/27MutZPoLMhjJZu2656XoAEIlTIBSwtt81xq1P2crgofiGaVdkfuLd1I1SNdWw=;
+X-UUID: 6a5194aa3284485ba1add1daf7b6ab64-20210715
+Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 1326285351; Thu, 15 Jul 2021 12:28:46 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Thu, 15 Jul 2021 12:28:39 +0800
+Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Thu, 15 Jul 2021 12:28:39 +0800
+Message-ID: <1626323319.18118.17.camel@mtkswgap22>
+Subject: Fix: Please help to cherry-pick patch "bdi: Do not use freezable
+ workqueue" to stable tree
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-stable <stable@vger.kernel.org>
+CC:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Ainge Hsu <ainge.hsu@mediatek.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Miles Chen <miles.chen@mediatek.com>,
+        Kuohong Wang <kuohong.wang@mediatek.com>,
+        linux-mediatek <linux-mediatek@lists.infradead.org>,
+        Macpaul Lin <macpaul.lin@gmail.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        linux-usb <linux-usb@vger.kernel.org>,
+        AceLan Kao <acelan.kao@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Mediatek WSD Upstream <wsd_upstream@mediatek.com>
+Date:   Thu, 15 Jul 2021 12:28:39 +0800
+Content-Type: text/plain; charset="ISO-8859-1"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
+MIME-Version: 1.0
+X-MTK:  N
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Martins <joao.m.martins@oracle.com>
-Subject: mm/hugetlb: fix refs calculation from unaligned @vaddr
+RGVhciBHcmVnLA0KDQpPdXIgY3VzdG9tZXJzIGhhdmUgZmVlZGJhY2sgc29tZSBzaW1pbGFyIGlz
+c3VlcyBhcyBiZWxvdyBsaW5rIG9uIEFuZHJvaWQNCmtlcm5lbC00LjE0IGFuZCBrZXJuZWwtNC4x
+OS4NCiAgTGluazogaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgta2VybmVsJm09MTM4Njk1Njk4
+NTE2NDg3DQoNClRoZXkndmUgcmVwb3J0ZWQgc3lzdGVtIGJlY29tZSBhYm5vcm1hbCB3aGVuIE9U
+RyBVLWRpc2sgaGFzIGJlZW4gcGx1Z2dlZA0Kb3V0IGFmdGVyIHRoZSBzeXN0ZW0gaGFzIGJlZW4g
+c3VzcGVuZGVkLg0KQWZ0ZXIgZGVidWdnaW5nLCB3ZSd2ZSBmb3VuZCB0aGUgcm9vdCBjYXVzZSBp
+cyB0aGUgc2FtZSBvZiB0aGUgaXNzdWUNCihsaW5rKSBoYXMgYmVlbiByZXBvcnRlZC4gV2UndmUg
+YWxzbyB0ZXN0ZWQgdGhlIHBhdGNoICJiZGk6IERvIG5vdCB1c2UNCmZyZWV6YWJsZSB3b3JrcXVl
+dWUiIGlzIHdvcmtlZC4NCiAgTGluazogaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTkvMTAvNC8x
+NzYNCiAgY29tbWl0IGlkIGluIExpbnVzIHRyZWU6IGEyYjkwZjExMjE3NzkwZWMwOTY0YmE5Yzkz
+YTRhYmIzNjk3NThjMjYNCg0KSG93ZXZlciwgd2UndmUgY2hlY2tlZCB0aGF0IHBhdGNoIHNlZW1z
+IGhhc24ndCBiZWVuIGFwcGxpZWQgdG8gc3RhYmxlDQp0cmVlIChXZSd2ZSBjaGVja2VkIDQuMTQg
+YW5kIDQuMTkpLiBXb3VsZCB5b3UgcGxlYXNlIGhlbHAgdG8gY2hlcnJ5LXBpY2sNCnRoaXMgcGF0
+Y2ggdG8gc3RhYmxlIHRyZWVzIChhbmQgdG8gQW5kcm9pZCB0cmVlcyk/DQoNClRoYW5rcyENCk1h
+Y3BhdWwgTGluDQo=
 
-commit 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording") refactored
-the count of subpages but missed an edge case when @vaddr is not aligned
-to PAGE_SIZE e.g.  when close to vma->vm_end.  It would then errousnly set
-@refs to 0 and record_subpages_vmas() wouldn't set the @pages array
-element to its value, consequently causing the reported null-deref by
-syzbot.
-
-Fix it by aligning down @vaddr by PAGE_SIZE in @refs calculation.
-
-Link: https://lkml.kernel.org/r/20210713152440.28650-1-joao.m.martins@oracle.com
-Fixes: 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording")
-Reported-by: syzbot+a3fcd59df1b372066f5a@syzkaller.appspotmail.com
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-fix-refs-calculation-from-unaligned-vaddr
-+++ a/mm/hugetlb.c
-@@ -5440,8 +5440,9 @@ long follow_hugetlb_page(struct mm_struc
- 			continue;
- 		}
- 
--		refs = min3(pages_per_huge_page(h) - pfn_offset,
--			    (vma->vm_end - vaddr) >> PAGE_SHIFT, remainder);
-+		/* vaddr may not be aligned to PAGE_SIZE */
-+		refs = min3(pages_per_huge_page(h) - pfn_offset, remainder,
-+		    (vma->vm_end - ALIGN_DOWN(vaddr, PAGE_SIZE)) >> PAGE_SHIFT);
- 
- 		if (pages || vmas)
- 			record_subpages_vmas(mem_map_offset(page, pfn_offset),
-_
