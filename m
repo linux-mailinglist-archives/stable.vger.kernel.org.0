@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2214D3CA8BF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C52FF3CA6A9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239966AbhGOTCp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
+        id S235059AbhGOStq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:49:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239588AbhGOS6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14751613D0;
-        Thu, 15 Jul 2021 18:55:37 +0000 (UTC)
+        id S234996AbhGOStk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E73C613D4;
+        Thu, 15 Jul 2021 18:46:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375338;
-        bh=J9jzMF9UE8azGOzNI1ZPfuhQllO46jyFP0pJ2whawEw=;
+        s=korg; t=1626374805;
+        bh=Q7YHZ8lgypYxsJA0zloefrl5aRgHOuk5uYKn2bWJ8pg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kZsly+QaX37dGnZ4iXG+RD5py9geV8mNRbF8kxOBRrKhObLiRNgwY4HUbhwMgnos
-         VVBJfvEgXg9pN2D/A34xxZiiO+d/FgbaozzeuJdwM3U3SXalSOu79qeiJmAIvTxW+W
-         eamX5wEmkWtWyFusocnRXDTE7lm4OeXvT+xGRZS4=
+        b=X4Z3gqpx1ohJV7VQP6Zh+hInCaOcDYPcqFM5pM13H39O0Rrl2pRdCCybe+m8WMTqQ
+         0Yh8tBxeYrKD/mNxnBTjjzrSD9lL3RfEbdtwais8tcKLM+Zkdgm90haQ/Tgk8qsF6d
+         kFgnt7vAEEZ02CRyCUGuLfCfgx8Tqv1xsD3QHcQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Huy Nguyen <huyn@nvidia.com>,
+        Raed Salem <raeds@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 044/242] clk: tegra: Ensure that PLLU configuration is applied properly
+Subject: [PATCH 5.10 034/215] net/mlx5e: IPsec/rep_tc: Fix rep_tc_update_skb drops IPsec packet
 Date:   Thu, 15 Jul 2021 20:36:46 +0200
-Message-Id: <20210715182559.841361106@linuxfoundation.org>
+Message-Id: <20210715182605.004175391@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Huy Nguyen <huyn@nvidia.com>
 
-[ Upstream commit a7196048cd5168096c2c4f44a3939d7a6dcd06b9 ]
+[ Upstream commit c07274ab1ab2c38fb128e32643c22c89cb319384 ]
 
-The PLLU (USB) consists of the PLL configuration itself and configuration
-of the PLLU outputs. The PLLU programming is inconsistent on T30 vs T114,
-where T114 immediately bails out if PLLU is enabled and T30 re-enables
-a potentially already enabled PLL (left after bootloader) and then fully
-reprograms it, which could be unsafe to do. The correct way should be to
-skip enabling of the PLL if it's already enabled and then apply
-configuration to the outputs. This patch doesn't fix any known problems,
-it's a minor improvement.
+rep_tc copy REG_C1 to REG_B. IPsec crypto utilizes the whole REG_B
+register with BIT31 as IPsec marker. rep_tc_update_skb drops
+IPsec because it thought REG_B contains bad value.
 
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+In previous patch, BIT 31 of REG_C1 is reserved for IPsec.
+Skip the rep_tc_update_skb if BIT31 of REG_B is set.
+
+Signed-off-by: Huy Nguyen <huyn@nvidia.com>
+Signed-off-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-pll.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
-index c5cc0a2dac6f..d709ecb7d8d7 100644
---- a/drivers/clk/tegra/clk-pll.c
-+++ b/drivers/clk/tegra/clk-pll.c
-@@ -1131,7 +1131,8 @@ static int clk_pllu_enable(struct clk_hw *hw)
- 	if (pll->lock)
- 		spin_lock_irqsave(pll->lock, flags);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+index 7e1f8660dfec..f327b78261ec 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+@@ -1318,7 +1318,8 @@ static void mlx5e_handle_rx_cqe_rep(struct mlx5e_rq *rq, struct mlx5_cqe64 *cqe)
+ 	if (rep->vlan && skb_vlan_tag_present(skb))
+ 		skb_vlan_pop(skb);
  
--	_clk_pll_enable(hw);
-+	if (!clk_pll_is_enabled(hw))
-+		_clk_pll_enable(hw);
- 
- 	ret = clk_pll_wait_for_lock(pll);
- 	if (ret < 0)
-@@ -1748,15 +1749,13 @@ static int clk_pllu_tegra114_enable(struct clk_hw *hw)
- 		return -EINVAL;
+-	if (!mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv)) {
++	if (unlikely(!mlx5_ipsec_is_rx_flow(cqe) &&
++		     !mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv))) {
+ 		dev_kfree_skb_any(skb);
+ 		goto free_wqe;
  	}
+@@ -1375,7 +1376,8 @@ static void mlx5e_handle_rx_cqe_mpwrq_rep(struct mlx5e_rq *rq, struct mlx5_cqe64
  
--	if (clk_pll_is_enabled(hw))
--		return 0;
--
- 	input_rate = clk_hw_get_rate(__clk_get_hw(osc));
+ 	mlx5e_complete_rx_cqe(rq, cqe, cqe_bcnt, skb);
  
- 	if (pll->lock)
- 		spin_lock_irqsave(pll->lock, flags);
- 
--	_clk_pll_enable(hw);
-+	if (!clk_pll_is_enabled(hw))
-+		_clk_pll_enable(hw);
- 
- 	ret = clk_pll_wait_for_lock(pll);
- 	if (ret < 0)
+-	if (!mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv)) {
++	if (unlikely(!mlx5_ipsec_is_rx_flow(cqe) &&
++		     !mlx5e_rep_tc_update_skb(cqe, skb, &tc_priv))) {
+ 		dev_kfree_skb_any(skb);
+ 		goto mpwrq_cqe_out;
+ 	}
 -- 
 2.30.2
 
