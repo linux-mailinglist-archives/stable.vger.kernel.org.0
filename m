@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A203C9F31
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1B923C9F34
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:15:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237397AbhGONRE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:17:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
+        id S237112AbhGONR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232518AbhGONRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:17:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A928A613BB;
-        Thu, 15 Jul 2021 13:14:09 +0000 (UTC)
+        id S232518AbhGONR4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:17:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DDF601FA;
+        Thu, 15 Jul 2021 13:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626354850;
-        bh=J3P1H9U7RCmrT6W59ug3BjOQ7ZFW3JyNiSkOYwf2Hv8=;
+        s=korg; t=1626354903;
+        bh=l8wtw3//OYPaMXzaUtWbQln8EyKiEk/lQQCd4D/CfuM=;
         h=Subject:To:Cc:From:Date:From;
-        b=eJ7d58VzfzIH0CZr9WQxBMdkp4d2lqbmT7aAghkG4sV36vqLkeF0SX5Sbr8cAoHxO
-         MoRUyAdJgQH/a/p7MwbmB8/v38n5TIvwJNlfJv/SvHONUJsweeOPJueGd1t7TgODT0
-         YBLeBvw6HBS+DYkwUSQwlS99MdiY/dBw7UQPyUNU=
-Subject: FAILED: patch "[PATCH] drm/dp_mst: Do not set proposed vcpi directly" failed to apply to 5.12-stable tree
+        b=EH34JH26vu15x0IxnDJj/j8RN1mV3iXQRqZa5Iy+pvxK9jhYlvd+Va6+JAs0BpGqv
+         8SXWVkXyU9aLQ2G8jL+GtlUP6p7kNDuy12q2zWTwrIdifOO1nBXsUW7dOSSsb08jkV
+         0Ry9QlT+h38r3ZK6Y9hiiS5imf0VEbdzPFItR5uI=
+Subject: FAILED: patch "[PATCH] drm/dp_mst: Do not set proposed vcpi directly" failed to apply to 5.13-stable tree
 To:     Wayne.Lin@amd.com, lyude@redhat.com,
         maarten.lankhorst@linux.intel.com, mripard@kernel.org,
         stable@vger.kernel.org, tzimmermann@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:14:07 +0200
-Message-ID: <1626354847203238@kroah.com>
+Date:   Thu, 15 Jul 2021 15:15:01 +0200
+Message-ID: <16263549018978@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
