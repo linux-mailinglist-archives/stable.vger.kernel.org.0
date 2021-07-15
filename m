@@ -2,36 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C703CA8E2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 847A03CAA80
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240968AbhGOTDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
+        id S243081AbhGOTN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:13:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243311AbhGOTBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 649AE613E5;
-        Thu, 15 Jul 2021 18:58:51 +0000 (UTC)
+        id S243350AbhGOTLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:11:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BE5D613DA;
+        Thu, 15 Jul 2021 19:08:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375531;
-        bh=nP3mtyz7F5FpWz32cAPZQ9QENhpUR4neuolM53baSrU=;
+        s=korg; t=1626376119;
+        bh=tytnmXerQIt1RPYDn2rY2jpf+S/K6nIdFbmYASoy5C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDlWTyagqkv/EUp54S2W0bGJXWYhUs07iddJfbQD9qhc8f9s/s6wMWxJhDjXQbxEz
-         l1DLWAE/whJUscS65DYgcLTf5c2fcUC0PnX1ofWgLlDWldVWHki3keHE71934vLV7Y
-         CEd76N/lhYwYI8z0cTepUgGucZHSCjZ4jFICZ+AU=
+        b=zDOk+JVYjb24N8H160dVSHGCHwHLrqD5W7KKbzk/8/wKhxuwyh6hHQFGZGU7Z5frp
+         gwANMZeuSMMkyefGkkAs8YiR85qjy2WagiYyuT9Jf2BK//cIr8vU2q3k15h69Frsc8
+         rNDTRXyzDxXQXXDnVbmTzQ+6UtIlqd8K93rf/d6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weilun Du <wdu@google.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Andra Paraschiv <andraprs@amazon.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        David Brazdil <dbrazdil@google.com>,
+        Alexander Popov <alex.popov@linux.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        lixianming <lixianming5@huawei.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 128/242] mac80211_hwsim: add concurrent channels scanning support over virtio
+Subject: [PATCH 5.13 135/266] vsock: notify server to shutdown when client has pending signal
 Date:   Thu, 15 Jul 2021 20:38:10 +0200
-Message-Id: <20210715182615.570019439@linuxfoundation.org>
+Message-Id: <20210715182637.652430446@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,171 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weilun Du <wdu@google.com>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-[ Upstream commit 626c30f9e77354301ff9162c3bdddaf92d9b5cf3 ]
+[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
 
-This fixed the crash when setting channels to 2 or more when
-communicating over virtio.
+The client's sk_state will be set to TCP_ESTABLISHED if the server
+replay the client's connect request.
 
-Signed-off-by: Weilun Du <wdu@google.com>
-Link: https://lore.kernel.org/r/20210506180530.3418576-1-wdu@google.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+However, if the client has pending signal, its sk_state will be set
+to TCP_CLOSE without notify the server, so the server will hold the
+corrupt connection.
+
+            client                        server
+
+1. sk_state=TCP_SYN_SENT         |
+2. call ->connect()              |
+3. wait reply                    |
+                                 | 4. sk_state=TCP_ESTABLISHED
+                                 | 5. insert to connected list
+                                 | 6. reply to the client
+7. sk_state=TCP_ESTABLISHED      |
+8. insert to connected list      |
+9. *signal pending* <--------------------- the user kill client
+10. sk_state=TCP_CLOSE           |
+client is exiting...             |
+11. call ->release()             |
+     virtio_transport_close
+      if (!(sk->sk_state == TCP_ESTABLISHED ||
+	      sk->sk_state == TCP_CLOSING))
+		return true; *return at here, the server cannot notice the connection is corrupt*
+
+So the client should notify the peer in this case.
+
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Andra Paraschiv <andraprs@amazon.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: David Brazdil <dbrazdil@google.com>
+Cc: Alexander Popov <alex.popov@linux.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lkml.org/lkml/2021/5/17/418
+Signed-off-by: lixianming <lixianming5@huawei.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 48 +++++++++++++++++++++------
- 1 file changed, 38 insertions(+), 10 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 30b39cb4056a..1005bef16b61 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -626,6 +626,7 @@ struct mac80211_hwsim_data {
- 	u32 ciphers[ARRAY_SIZE(hwsim_ciphers)];
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 92a72f0e0d94..ae11311807fd 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
  
- 	struct mac_address addresses[2];
-+	struct ieee80211_chanctx_conf *chanctx;
- 	int channels, idx;
- 	bool use_chanctx;
- 	bool destroy_on_close;
-@@ -1257,7 +1258,8 @@ static inline u16 trans_tx_rate_flags_ieee2hwsim(struct ieee80211_tx_rate *rate)
- 
- static void mac80211_hwsim_tx_frame_nl(struct ieee80211_hw *hw,
- 				       struct sk_buff *my_skb,
--				       int dst_portid)
-+				       int dst_portid,
-+				       struct ieee80211_channel *channel)
- {
- 	struct sk_buff *skb;
- 	struct mac80211_hwsim_data *data = hw->priv;
-@@ -1312,7 +1314,7 @@ static void mac80211_hwsim_tx_frame_nl(struct ieee80211_hw *hw,
- 	if (nla_put_u32(skb, HWSIM_ATTR_FLAGS, hwsim_flags))
- 		goto nla_put_failure;
- 
--	if (nla_put_u32(skb, HWSIM_ATTR_FREQ, data->channel->center_freq))
-+	if (nla_put_u32(skb, HWSIM_ATTR_FREQ, channel->center_freq))
- 		goto nla_put_failure;
- 
- 	/* We get the tx control (rate and retries) info*/
-@@ -1659,7 +1661,7 @@ static void mac80211_hwsim_tx(struct ieee80211_hw *hw,
- 	_portid = READ_ONCE(data->wmediumd);
- 
- 	if (_portid || hwsim_virtio_enabled)
--		return mac80211_hwsim_tx_frame_nl(hw, skb, _portid);
-+		return mac80211_hwsim_tx_frame_nl(hw, skb, _portid, channel);
- 
- 	/* NO wmediumd detected, perfect medium simulation */
- 	data->tx_pkts++;
-@@ -1775,7 +1777,7 @@ static void mac80211_hwsim_tx_frame(struct ieee80211_hw *hw,
- 	mac80211_hwsim_monitor_rx(hw, skb, chan);
- 
- 	if (_pid || hwsim_virtio_enabled)
--		return mac80211_hwsim_tx_frame_nl(hw, skb, _pid);
-+		return mac80211_hwsim_tx_frame_nl(hw, skb, _pid, chan);
- 
- 	mac80211_hwsim_tx_frame_no_nl(hw, skb, chan);
- 	dev_kfree_skb(skb);
-@@ -2514,6 +2516,11 @@ static int mac80211_hwsim_croc(struct ieee80211_hw *hw,
- static int mac80211_hwsim_add_chanctx(struct ieee80211_hw *hw,
- 				      struct ieee80211_chanctx_conf *ctx)
- {
-+	struct mac80211_hwsim_data *hwsim = hw->priv;
-+
-+	mutex_lock(&hwsim->mutex);
-+	hwsim->chanctx = ctx;
-+	mutex_unlock(&hwsim->mutex);
- 	hwsim_set_chanctx_magic(ctx);
- 	wiphy_dbg(hw->wiphy,
- 		  "add channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
-@@ -2525,6 +2532,11 @@ static int mac80211_hwsim_add_chanctx(struct ieee80211_hw *hw,
- static void mac80211_hwsim_remove_chanctx(struct ieee80211_hw *hw,
- 					  struct ieee80211_chanctx_conf *ctx)
- {
-+	struct mac80211_hwsim_data *hwsim = hw->priv;
-+
-+	mutex_lock(&hwsim->mutex);
-+	hwsim->chanctx = NULL;
-+	mutex_unlock(&hwsim->mutex);
- 	wiphy_dbg(hw->wiphy,
- 		  "remove channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
- 		  ctx->def.chan->center_freq, ctx->def.width,
-@@ -2537,6 +2549,11 @@ static void mac80211_hwsim_change_chanctx(struct ieee80211_hw *hw,
- 					  struct ieee80211_chanctx_conf *ctx,
- 					  u32 changed)
- {
-+	struct mac80211_hwsim_data *hwsim = hw->priv;
-+
-+	mutex_lock(&hwsim->mutex);
-+	hwsim->chanctx = ctx;
-+	mutex_unlock(&hwsim->mutex);
- 	hwsim_check_chanctx_magic(ctx);
- 	wiphy_dbg(hw->wiphy,
- 		  "change channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
-@@ -3129,6 +3146,7 @@ static int mac80211_hwsim_new_radio(struct genl_info *info,
- 		hw->wiphy->max_remain_on_channel_duration = 1000;
- 		data->if_combination.radar_detect_widths = 0;
- 		data->if_combination.num_different_channels = data->channels;
-+		data->chanctx = NULL;
- 	} else {
- 		data->if_combination.num_different_channels = 1;
- 		data->if_combination.radar_detect_widths =
-@@ -3638,6 +3656,7 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
- 	int frame_data_len;
- 	void *frame_data;
- 	struct sk_buff *skb = NULL;
-+	struct ieee80211_channel *channel = NULL;
- 
- 	if (!info->attrs[HWSIM_ATTR_ADDR_RECEIVER] ||
- 	    !info->attrs[HWSIM_ATTR_FRAME] ||
-@@ -3664,6 +3683,17 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
- 	if (!data2)
- 		goto out;
- 
-+	if (data2->use_chanctx) {
-+		if (data2->tmp_chan)
-+			channel = data2->tmp_chan;
-+		else if (data2->chanctx)
-+			channel = data2->chanctx->def.chan;
-+	} else {
-+		channel = data2->channel;
-+	}
-+	if (!channel)
-+		goto out;
-+
- 	if (!hwsim_virtio_enabled) {
- 		if (hwsim_net_get_netgroup(genl_info_net(info)) !=
- 		    data2->netgroup)
-@@ -3675,7 +3705,7 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
- 
- 	/* check if radio is configured properly */
- 
--	if (data2->idle || !data2->started)
-+	if ((data2->idle && !data2->tmp_chan) || !data2->started)
- 		goto out;
- 
- 	/* A frame is received from user space */
-@@ -3688,18 +3718,16 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
- 		mutex_lock(&data2->mutex);
- 		rx_status.freq = nla_get_u32(info->attrs[HWSIM_ATTR_FREQ]);
- 
--		if (rx_status.freq != data2->channel->center_freq &&
--		    (!data2->tmp_chan ||
--		     rx_status.freq != data2->tmp_chan->center_freq)) {
-+		if (rx_status.freq != channel->center_freq) {
- 			mutex_unlock(&data2->mutex);
- 			goto out;
- 		}
- 		mutex_unlock(&data2->mutex);
- 	} else {
--		rx_status.freq = data2->channel->center_freq;
-+		rx_status.freq = channel->center_freq;
- 	}
- 
--	rx_status.band = data2->channel->band;
-+	rx_status.band = channel->band;
- 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
- 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
- 
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+-			sk->sk_state = TCP_CLOSE;
++			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
+ 			goto out_wait;
 -- 
 2.30.2
 
