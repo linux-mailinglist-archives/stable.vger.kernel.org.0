@@ -2,73 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7516D3C9D3C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:48:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5D53C9D44
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240656AbhGOKvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 06:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238693AbhGOKvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 06:51:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BC9461380;
-        Thu, 15 Jul 2021 10:48:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626346122;
-        bh=ulKsHw6GlZ6s1kRpL+Qcq9OClUQjFQtzTWFe+7+Dr3s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iLd8sw25g0H+uooHvbjEgSQcRaOlLoo2XDMNS7h7D7sQx1CtmhfrHrtCna0xyLifI
-         BQbYp6moOoufSOVfHx10oWgizNnt592jr+iPdzOIidL8pvJzy7zXJspADxgVRwZFEX
-         I+WKvPnPN74QqmsgxG6m3uJxqfrsyXkD9B3Toxd8=
-Date:   Thu, 15 Jul 2021 12:48:36 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Xiaochen Shen <xiaochen.shen@intel.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org, shuah@kernel.org,
-        tony.luck@intel.com, fenghua.yu@intel.com,
-        reinette.chatre@intel.com, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org, pei.p.jia@intel.com
-Subject: Re: [PATCH 5.12] selftests/resctrl: Fix incorrect parsing of option
- "-t"
-Message-ID: <YPAShFw2BkuYYzlq@kroah.com>
-References: <16260087708135@kroah.com>
- <1626076523-924-1-git-send-email-xiaochen.shen@intel.com>
+        id S241716AbhGOKxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 06:53:03 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:56941 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S241715AbhGOKxD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 06:53:03 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 0E57F5C0276;
+        Thu, 15 Jul 2021 06:50:10 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Thu, 15 Jul 2021 06:50:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=VXXNnZWQeRfhZDJT3wISjtqUs8k
+        n/PPDTkCsEYUw/r4=; b=B7/EVaMmWM7rmxPGoTT1FdG5VUrQ4y1QneKcktN4B4r
+        i6xrDQPdDSst75iSft3zmHFl3u6EkrmPk0ONhE+kk4s7fN8ieB/Zl6IBnMuZYNJX
+        bJ6aY7tSE3JQnAayeVRkz0NCC6uv6G2u1oZH94DGnfZmXk48aT9Je1lwGjDLoiQC
+        msjny78vDHNOQiwZGWubdssHe2xjUpy6wTbgpGgpbkYwH/QNfibqwnP0AOaNL6Wq
+        A7kHa3VT2vvppVLqPOzjv1PA+fGWlmxlKNaWplW/uTTzQoEgBAI2hRmbGgQG1I2e
+        1fFwg6Ksp6YVPuR6W0hljLeLo5CBEVEMV+5hOzpXXlw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=VXXNnZ
+        WQeRfhZDJT3wISjtqUs8kn/PPDTkCsEYUw/r4=; b=lqrHlMPnOaJwCu0hEcWxGi
+        ZTzvC9SVZa0bRzNN8494ESu2L5WBl4SNvz+jkDXqbeCasWeMsPBwAemttfWOB+zS
+        LdE/GMW3ItidNCk3OVuK9Etd+/8eCwgbLns6WGYLvGGVyLzrD5ytpwVV1QKS92oa
+        g6GbxPetmWGxK7/MQPlAzbmXoZwq01mJHA0tmNhdbhpnOHsx+80GuoNEhHDJVvGe
+        /UhUutzPKyq65gkDUtRMGYEGRrRe0qHsa7mg9UGxda3U+xH4S0wFoVq9+oFJFzes
+        /qbp1fOcknOO7cBPElEO5W4hHtQBk5JUqZC1gM9mFJ+NgIjf4ugrv+xpod5XoWTw
+        ==
+X-ME-Sender: <xms:4RLwYPJ9jCxNlcaLvhqh1tUwJH79vsvIMTDJ3fEWhVzE6m9gJyC92A>
+    <xme:4RLwYDIoB3AQJCFKK5q6JOwUvLE5Q_AH5G8vKaT2Xl72S6APRRM4icTiUm_iHedlb
+    hTj2T3EzJOyIA>
+X-ME-Received: <xmr:4RLwYHthoYKEYR2d11wvY7hb_29HDd8AQhm-p-6BPQ4LMa5os2ia1o3y2xqLcA40Qb3xa0NY-FTzNE9CUGp55W7gyg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrvddtgddvvdcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:4RLwYIZvkmiSWcpWOn9oWHuM2XwYhLte52TRhquyax2wIPcoR0rt8Q>
+    <xmx:4RLwYGakV1bgMoyFhwAZppVsrGt4CLQJRVtseNSb9qiCpbMJLaSyNw>
+    <xmx:4RLwYMA_8wMX2W9M4M8SnsHjLSpLQOPMnsJq6V1tcIcQ5mw1LqiEFA>
+    <xmx:4hLwYNUHAjNtekyUf8VBl9RLcLdWZ2gcC5GKpUCFj_5ZeiJbBVWCyA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 15 Jul 2021 06:50:09 -0400 (EDT)
+Date:   Thu, 15 Jul 2021 12:50:04 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-fscrypt@vger.kernel.org
+Subject: Re: [PATCH 5.4/4.19/4.14] fscrypt: don't ignore minor_hash when hash
+ is 0
+Message-ID: <YPAS3GbIhMKKjRWT@kroah.com>
+References: <20210712152717.6480-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1626076523-924-1-git-send-email-xiaochen.shen@intel.com>
+In-Reply-To: <20210712152717.6480-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 03:55:23PM +0800, Xiaochen Shen wrote:
-> commit 1421ec684a43379b2aa3cfda20b03d38282dc990 upstream.
+On Mon, Jul 12, 2021 at 10:27:17AM -0500, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> Resctrl test suite accepts command line argument "-t" to specify the
-> unit tests to run in the test list (e.g., -t mbm,mba,cmt,cat) as
-> documented in the help.
-> 
-> When calling strtok() to parse the option, the incorrect delimiters
-> argument ":\t" is used. As a result, passing "-t mbm,mba,cmt,cat" throws
-> an invalid option error.
-> 
-> Fix this by using delimiters argument "," instead of ":\t" for parsing
-> of unit tests list. At the same time, remove the unnecessary "spaces"
-> between the unit tests in help documentation to prevent confusion.
-> 
-> Fixes: 790bf585b0ee ("selftests/resctrl: Add Cache Allocation Technology (CAT) selftest")
-> Fixes: 78941183d1b1 ("selftests/resctrl: Add Cache QoS Monitoring (CQM) selftest")
-> Fixes: ecdbb911f22d ("selftests/resctrl: Add MBM test")
-> Fixes: 034c7678dd2c ("selftests/resctrl: Add README for resctrl tests")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
-> Reviewed-by: Tony Luck <tony.luck@intel.com>
-> Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-> ---
->  tools/testing/selftests/resctrl/README          | 2 +-
->  tools/testing/selftests/resctrl/resctrl_tests.c | 4 ++--
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
+> commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+> [Please apply to 5.4-stable, 4.19-stable, and 4.14-stable.]
 
-Both now queued up, thanks.
+Now queued up.  Do we also need this for 4.9?
+
+thanks,
 
 greg k-h
