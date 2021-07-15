@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 144B93CA8CC
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FA13CAABF
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243127AbhGOTDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:03:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
+        id S241978AbhGOTPa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241580AbhGOTBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2376F613E6;
-        Thu, 15 Jul 2021 18:58:35 +0000 (UTC)
+        id S241663AbhGOTN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:13:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 848F561285;
+        Thu, 15 Jul 2021 19:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375515;
-        bh=vKFXiCr46NNPCg9fxGbJwGsIJ4mRWhdYKbX8fbdZOLU=;
+        s=korg; t=1626376183;
+        bh=IloEIHZ6H7uEgqGDO3TXEOTuOxpsyBiUrf0vYoTrYxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WA11gSoe+rFx18LnldLBgPGalR+8RgQcc7OWyefh5o3d+UZ9jz5IGO9+7P+oAgdK
-         YBXmm+bgl0Hbuk0y+D2UxCaOfTIZ8JWJmbBfxdKj6sNOUDL07Y7MzNnifzzfnx/2fc
-         ZEHUbUR3zRg50uAydPP/QFkNxjdnvc+waeRphfok=
+        b=jCkRrcyzvVjKe+7KOcVgEY90k62pyPdwxwR5RpIh4w2R3kRGMthOxg9wBBb7ylZ5Z
+         iprlWRncDBCIaoG4TZeO0gV42XwEDAR7GAn8pNHa7hfssT0LHm/K97Kk2+yz3wbn8n
+         nSe2JvFmiu0SyiSltMpAz94FxkcHIpeYd6eUisio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Andra Paraschiv <andraprs@amazon.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        David Brazdil <dbrazdil@google.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        lixianming <lixianming5@huawei.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
+        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 113/242] vsock: notify server to shutdown when client has pending signal
+Subject: [PATCH 5.13 120/266] drm/amdkfd: Walk through list with dqm lock hold
 Date:   Thu, 15 Jul 2021 20:37:55 +0200
-Message-Id: <20210715182613.008811068@linuxfoundation.org>
+Message-Id: <20210715182635.087282383@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,70 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
+[ Upstream commit 56f221b6389e7ab99c30bbf01c71998ae92fc584 ]
 
-The client's sk_state will be set to TCP_ESTABLISHED if the server
-replay the client's connect request.
+To avoid any list corruption.
 
-However, if the client has pending signal, its sk_state will be set
-to TCP_CLOSE without notify the server, so the server will hold the
-corrupt connection.
-
-            client                        server
-
-1. sk_state=TCP_SYN_SENT         |
-2. call ->connect()              |
-3. wait reply                    |
-                                 | 4. sk_state=TCP_ESTABLISHED
-                                 | 5. insert to connected list
-                                 | 6. reply to the client
-7. sk_state=TCP_ESTABLISHED      |
-8. insert to connected list      |
-9. *signal pending* <--------------------- the user kill client
-10. sk_state=TCP_CLOSE           |
-client is exiting...             |
-11. call ->release()             |
-     virtio_transport_close
-      if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true; *return at here, the server cannot notice the connection is corrupt*
-
-So the client should notify the peer in this case.
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Andra Paraschiv <andraprs@amazon.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: David Brazdil <dbrazdil@google.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lkml.org/lkml/2021/5/17/418
-Signed-off-by: lixianming <lixianming5@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../drm/amd/amdkfd/kfd_device_queue_manager.c | 22 ++++++++++---------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index bc7fb9bf3351..2a82fbf32ccc 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1369,7 +1369,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index e9b3e2e32bf8..f0bad74af230 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -1709,7 +1709,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 		struct qcm_process_device *qpd)
+ {
+ 	int retval;
+-	struct queue *q, *next;
++	struct queue *q;
+ 	struct kernel_queue *kq, *kq_next;
+ 	struct mqd_manager *mqd_mgr;
+ 	struct device_process_node *cur, *next_dpn;
+@@ -1766,24 +1766,26 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 		qpd->reset_wavefronts = false;
+ 	}
  
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = TCP_CLOSE;
-+			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
- 			goto out_wait;
+-	dqm_unlock(dqm);
+-
+-	/* Outside the DQM lock because under the DQM lock we can't do
+-	 * reclaim or take other locks that others hold while reclaiming.
+-	 */
+-	if (found)
+-		kfd_dec_compute_active(dqm->dev);
+-
+ 	/* Lastly, free mqd resources.
+ 	 * Do free_mqd() after dqm_unlock to avoid circular locking.
+ 	 */
+-	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
++	while (!list_empty(&qpd->queues_list)) {
++		q = list_first_entry(&qpd->queues_list, struct queue, list);
+ 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
+ 				q->properties.type)];
+ 		list_del(&q->list);
+ 		qpd->queue_count--;
++		dqm_unlock(dqm);
+ 		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
++		dqm_lock(dqm);
+ 	}
++	dqm_unlock(dqm);
++
++	/* Outside the DQM lock because under the DQM lock we can't do
++	 * reclaim or take other locks that others hold while reclaiming.
++	 */
++	if (found)
++		kfd_dec_compute_active(dqm->dev);
+ 
+ 	return retval;
+ }
 -- 
 2.30.2
 
