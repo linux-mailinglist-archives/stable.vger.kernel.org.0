@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F1143CA912
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4E593CAAB6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241415AbhGOTFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39758 "EHLO mail.kernel.org"
+        id S243247AbhGOTPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235732AbhGOTDS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B987E613F6;
-        Thu, 15 Jul 2021 18:59:24 +0000 (UTC)
+        id S241276AbhGOTMt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 873DE613DB;
+        Thu, 15 Jul 2021 19:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375565;
-        bh=sV4H0VfzjMn7DSrTOt9uibCBgTCNZPAAO5h3SmG5Krc=;
+        s=korg; t=1626376155;
+        bh=9VgLUQBs92xOKfCw9yNr7isD9zAUSEpSnUkmlmOKwBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dk3+OWMGbUH5Lqzn05omzwJ19/puu5mRHRIv7fcftq13K16bzuQOqTJnkg3Q/ThaV
-         /rZX5JZny0PPoEcI2M+idMAB7XIJgdQ15mRRWgC1fUrlVEoNRxcRJe1SNYd5UJ2rQc
-         vZ9clDL28iUwBY09kdo3qxw0FClzSQTNWf1+y0Eg=
+        b=OGrvNo36e6jd4pPQGuQNu3bFwSvMct17/Wycp0lEzNt+FIEN5OD3HvwUcf4xgYJ/g
+         Os6Sr+YvpdxxsiX+4TvSNhRMRkMbU4dQykyDXidVfkOJkFFhgsBSP3ZaBRdQONhD6t
+         LEv5QZKTYJitQTtxIFUFOr/8b86LT2Sgpw1q4ah8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        Thiraviyam Mariyappan <tmariyap@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 141/242] Bluetooth: L2CAP: Fix invalid access on ECRED Connection response
-Date:   Thu, 15 Jul 2021 20:38:23 +0200
-Message-Id: <20210715182617.877790629@linuxfoundation.org>
+Subject: [PATCH 5.13 149/266] mac80211: consider per-CPU statistics if present
+Date:   Thu, 15 Jul 2021 20:38:24 +0200
+Message-Id: <20210715182639.745551813@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit de895b43932cb47e69480540be7eca289af24f23 ]
+[ Upstream commit d656a4c6ead6c3f252b2f2532bc9735598f7e317 ]
 
-The use of l2cap_chan_del is not safe under a loop using
-list_for_each_entry.
+If we have been keeping per-CPU statistics, consider them
+regardless of USES_RSS, because we may not actually fill
+those, for example in non-fast-RX cases when the connection
+is not compatible with fast-RX. If we didn't fill them, the
+additional data will be zero and not affect anything, and
+if we did fill them then it's more correct to consider them.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This fixes an issue in mesh mode where some statistics are
+not updated due to USES_RSS being set, but fast-RX isn't
+used.
+
+Reported-by: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+Link: https://lore.kernel.org/r/20210610220814.13b35f5797c5.I511e9b33c5694e0d6cef4b6ae755c873d7c22124@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/sta_info.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 015f9ecadd0a..b1f4d5505bba 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6062,7 +6062,7 @@ static inline int l2cap_ecred_conn_rsp(struct l2cap_conn *conn,
- 	struct l2cap_ecred_conn_rsp *rsp = (void *) data;
- 	struct hci_conn *hcon = conn->hcon;
- 	u16 mtu, mps, credits, result;
--	struct l2cap_chan *chan;
-+	struct l2cap_chan *chan, *tmp;
- 	int err = 0, sec_level;
- 	int i = 0;
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 13250cadb420..e18c3855f616 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2088,10 +2088,9 @@ static struct ieee80211_sta_rx_stats *
+ sta_get_last_rx_stats(struct sta_info *sta)
+ {
+ 	struct ieee80211_sta_rx_stats *stats = &sta->rx_stats;
+-	struct ieee80211_local *local = sta->local;
+ 	int cpu;
  
-@@ -6081,7 +6081,7 @@ static inline int l2cap_ecred_conn_rsp(struct l2cap_conn *conn,
+-	if (!ieee80211_hw_check(&local->hw, USES_RSS))
++	if (!sta->pcpu_rx_stats)
+ 		return stats;
  
- 	cmd_len -= sizeof(*rsp);
+ 	for_each_possible_cpu(cpu) {
+@@ -2191,9 +2190,7 @@ static void sta_set_tidstats(struct sta_info *sta,
+ 	int cpu;
  
--	list_for_each_entry(chan, &conn->chan_l, list) {
-+	list_for_each_entry_safe(chan, tmp, &conn->chan_l, list) {
- 		u16 dcid;
+ 	if (!(tidstats->filled & BIT(NL80211_TID_STATS_RX_MSDU))) {
+-		if (!ieee80211_hw_check(&local->hw, USES_RSS))
+-			tidstats->rx_msdu +=
+-				sta_get_tidstats_msdu(&sta->rx_stats, tid);
++		tidstats->rx_msdu += sta_get_tidstats_msdu(&sta->rx_stats, tid);
  
- 		if (chan->ident != cmd->ident ||
+ 		if (sta->pcpu_rx_stats) {
+ 			for_each_possible_cpu(cpu) {
+@@ -2272,7 +2269,6 @@ void sta_set_sinfo(struct sta_info *sta, struct station_info *sinfo,
+ 		sinfo->rx_beacon = sdata->u.mgd.count_beacon_signal;
+ 
+ 	drv_sta_statistics(local, sdata, &sta->sta, sinfo);
+-
+ 	sinfo->filled |= BIT_ULL(NL80211_STA_INFO_INACTIVE_TIME) |
+ 			 BIT_ULL(NL80211_STA_INFO_STA_FLAGS) |
+ 			 BIT_ULL(NL80211_STA_INFO_BSS_PARAM) |
+@@ -2307,8 +2303,7 @@ void sta_set_sinfo(struct sta_info *sta, struct station_info *sinfo,
+ 
+ 	if (!(sinfo->filled & (BIT_ULL(NL80211_STA_INFO_RX_BYTES64) |
+ 			       BIT_ULL(NL80211_STA_INFO_RX_BYTES)))) {
+-		if (!ieee80211_hw_check(&local->hw, USES_RSS))
+-			sinfo->rx_bytes += sta_get_stats_bytes(&sta->rx_stats);
++		sinfo->rx_bytes += sta_get_stats_bytes(&sta->rx_stats);
+ 
+ 		if (sta->pcpu_rx_stats) {
+ 			for_each_possible_cpu(cpu) {
 -- 
 2.30.2
 
