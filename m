@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 522F33CA8C2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E37F3CA7AE
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241487AbhGOTCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
+        id S242102AbhGOSzy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243148AbhGOTBd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C13D613E3;
-        Thu, 15 Jul 2021 18:58:14 +0000 (UTC)
+        id S241316AbhGOSyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00529613CA;
+        Thu, 15 Jul 2021 18:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375494;
-        bh=QMZEI62nhCdbNul2Cz9sgO1rwB/vHYVKqfZ+XxwfKW8=;
+        s=korg; t=1626375083;
+        bh=ER+4bD/vunxJqkQKnXeTDr5uBL5TVosOn9YfNpSjaHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WAHhEt1j5/CNEQ9pE85o1mWfEhRvh+LKnXf8U67dN+ZKpuO0dgxmzRvgNIIPqs2X2
-         71OTK4jXpF6OEl5WPIeRc1Sq/kvOiE0kUf0M1rqT10fW2gt4FsgCGZJgURpUaqznUG
-         chE9NhNKgNg5mT0TEqEpn7U/8l5iNW+/yf9zQ0s4=
+        b=I/h4vD5Tr/K+Cf1GKA683iY/anL0dwY46ji6gXrDM3k3uMDic6cWQjeDZvEnL+CEB
+         5VbBWGYXjHjT7I4aoCqG4dKo/4KB1SMKsEO4rh9qWFnb29bMS/ZVM1VYUfzC9yuXi0
+         W1Pv6ejDHiymtzh2JNoJNduJaPo2UWAz3FB9vUfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Andra Paraschiv <andraprs@amazon.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        David Brazdil <dbrazdil@google.com>,
+        Alexander Popov <alex.popov@linux.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        lixianming <lixianming5@huawei.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 109/242] net: fec: add FEC_QUIRK_HAS_MULTI_QUEUES represents i.MX6SX ENET IP
-Date:   Thu, 15 Jul 2021 20:37:51 +0200
-Message-Id: <20210715182612.265323361@linuxfoundation.org>
+Subject: [PATCH 5.10 100/215] vsock: notify server to shutdown when client has pending signal
+Date:   Thu, 15 Jul 2021 20:37:52 +0200
+Message-Id: <20210715182616.987395747@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,134 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-[ Upstream commit 471ff4455d61c9929ae912328859921708e1eafc ]
+[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
 
-Frieder Schrempf reported a TX throuthput issue [1], it happens quite often
-that the measured bandwidth in TX direction drops from its expected/nominal
-value to something like ~50% (for 100M) or ~67% (for 1G) connections.
+The client's sk_state will be set to TCP_ESTABLISHED if the server
+replay the client's connect request.
 
-[1] https://lore.kernel.org/linux-arm-kernel/421cc86c-b66f-b372-32f7-21e59f9a98bc@kontron.de/
+However, if the client has pending signal, its sk_state will be set
+to TCP_CLOSE without notify the server, so the server will hold the
+corrupt connection.
 
-The issue becomes clear after digging into it, Net core would select
-queues when transmitting packets. Since FEC have not impletemented
-ndo_select_queue callback yet, so it will call netdev_pick_tx to select
-queues randomly.
+            client                        server
 
-For i.MX6SX ENET IP with AVB support, driver default enables this
-feature. According to the setting of QOS/RCMRn/DMAnCFG registers, AVB
-configured to Credit-based scheme, 50% bandwidth of each queue 1&2.
+1. sk_state=TCP_SYN_SENT         |
+2. call ->connect()              |
+3. wait reply                    |
+                                 | 4. sk_state=TCP_ESTABLISHED
+                                 | 5. insert to connected list
+                                 | 6. reply to the client
+7. sk_state=TCP_ESTABLISHED      |
+8. insert to connected list      |
+9. *signal pending* <--------------------- the user kill client
+10. sk_state=TCP_CLOSE           |
+client is exiting...             |
+11. call ->release()             |
+     virtio_transport_close
+      if (!(sk->sk_state == TCP_ESTABLISHED ||
+	      sk->sk_state == TCP_CLOSING))
+		return true; *return at here, the server cannot notice the connection is corrupt*
 
-With below tests let me think more:
-1) With FEC_QUIRK_HAS_AVB quirk, can reproduce TX bandwidth fluctuations issue.
-2) Without FEC_QUIRK_HAS_AVB quirk, can't reproduce TX bandwidth fluctuations issue.
+So the client should notify the peer in this case.
 
-The related difference with or w/o FEC_QUIRK_HAS_AVB quirk is that, whether we
-program FTYPE field of TxBD or not. As I describe above, AVB feature is
-enabled by default. With FEC_QUIRK_HAS_AVB quirk, frames in queue 0
-marked as non-AVB, and frames in queue 1&2 marked as AVB Class A&B. It's
-unreasonable if frames in queue 1&2 are not required to be time-sensitive.
-So when Net core select tx queues ramdomly, Credit-based scheme would work
-and lead to TX bandwidth fluctuated. On the other hand, w/o
-FEC_QUIRK_HAS_AVB quirk, frames in queue 1&2 are all marked as non-AVB, so
-Credit-based scheme would not work.
-
-Till now, how can we fix this TX throughput issue? Yes, please remove
-FEC_QUIRK_HAS_AVB quirk if you suffer it from time-nonsensitive networking.
-However, this quirk is used to indicate i.MX6SX, other setting depends
-on it. So this patch adds a new quirk FEC_QUIRK_HAS_MULTI_QUEUES to
-represent i.MX6SX, it is safe for us remove FEC_QUIRK_HAS_AVB quirk
-now.
-
-FEC_QUIRK_HAS_AVB quirk is set by default in the driver, and users may
-not know much about driver details, they would waste effort to find the
-root cause, that is not we want. The following patch is a implementation
-to fix it and users don't need to modify the driver.
-
-Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Andra Paraschiv <andraprs@amazon.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: David Brazdil <dbrazdil@google.com>
+Cc: Alexander Popov <alex.popov@linux.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lkml.org/lkml/2021/5/17/418
+Signed-off-by: lixianming <lixianming5@huawei.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec.h      |  5 +++++
- drivers/net/ethernet/freescale/fec_main.c | 11 ++++++-----
- 2 files changed, 11 insertions(+), 5 deletions(-)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
-index 0602d5d5d2ee..2e002e4b4b4a 100644
---- a/drivers/net/ethernet/freescale/fec.h
-+++ b/drivers/net/ethernet/freescale/fec.h
-@@ -467,6 +467,11 @@ struct bufdesc_ex {
-  */
- #define FEC_QUIRK_NO_HARD_RESET		(1 << 18)
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index cf86c1376b1a..326250513570 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1352,7 +1352,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
  
-+/* i.MX6SX ENET IP supports multiple queues (3 queues), use this quirk to
-+ * represents this ENET IP.
-+ */
-+#define FEC_QUIRK_HAS_MULTI_QUEUES	(1 << 19)
-+
- struct bufdesc_prop {
- 	int qid;
- 	/* Address of Rx and Tx buffers */
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 89393fbc726f..15c9cffa8735 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -121,7 +121,7 @@ static const struct fec_devinfo fec_imx6x_info = {
- 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
- 		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
- 		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
--		  FEC_QUIRK_CLEAR_SETUP_MII,
-+		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES,
- };
- 
- static const struct fec_devinfo fec_imx6ul_info = {
-@@ -420,6 +420,7 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
- 				estatus |= FEC_TX_BD_FTYPE(txq->bd.qid);
- 			if (skb->ip_summed == CHECKSUM_PARTIAL)
- 				estatus |= BD_ENET_TX_PINS | BD_ENET_TX_IINS;
-+
- 			ebdp->cbd_bdu = 0;
- 			ebdp->cbd_esc = cpu_to_fec32(estatus);
- 		}
-@@ -953,7 +954,7 @@ fec_restart(struct net_device *ndev)
- 	 * For i.MX6SX SOC, enet use AXI bus, we use disable MAC
- 	 * instead of reset MAC itself.
- 	 */
--	if (fep->quirks & FEC_QUIRK_HAS_AVB ||
-+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES ||
- 	    ((fep->quirks & FEC_QUIRK_NO_HARD_RESET) && fep->link)) {
- 		writel(0, fep->hwp + FEC_ECNTRL);
- 	} else {
-@@ -1164,7 +1165,7 @@ fec_stop(struct net_device *ndev)
- 	 * instead of reset MAC itself.
- 	 */
- 	if (!(fep->wol_flag & FEC_WOL_FLAG_SLEEP_ON)) {
--		if (fep->quirks & FEC_QUIRK_HAS_AVB) {
-+		if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
- 			writel(0, fep->hwp + FEC_ECNTRL);
- 		} else {
- 			writel(1, fep->hwp + FEC_ECNTRL);
-@@ -2559,7 +2560,7 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
- 
- 	writel(tx_itr, fep->hwp + FEC_TXIC0);
- 	writel(rx_itr, fep->hwp + FEC_RXIC0);
--	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
-+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
- 		writel(tx_itr, fep->hwp + FEC_TXIC1);
- 		writel(rx_itr, fep->hwp + FEC_RXIC1);
- 		writel(tx_itr, fep->hwp + FEC_TXIC2);
-@@ -3356,7 +3357,7 @@ static int fec_enet_init(struct net_device *ndev)
- 		fep->csum_flags |= FLAG_RX_CSUM_ENABLED;
- 	}
- 
--	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
-+	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
- 		fep->tx_align = 0;
- 		fep->rx_align = 0x3f;
- 	}
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+-			sk->sk_state = TCP_CLOSE;
++			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
+ 			goto out_wait;
 -- 
 2.30.2
 
