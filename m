@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635493CA7CA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE53A3CA68A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231278AbhGOS4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60434 "EHLO mail.kernel.org"
+        id S239201AbhGOSsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241673AbhGOSzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CB33613D9;
-        Thu, 15 Jul 2021 18:52:51 +0000 (UTC)
+        id S239420AbhGOSsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05EC3613D6;
+        Thu, 15 Jul 2021 18:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375172;
-        bh=SC0SrYxpAj381JD7DFm4xcmROiC9Ok/KwUycPC30xhc=;
+        s=korg; t=1626374712;
+        bh=nA0u2vSnDAToGgwNOLeswbRytUAFyY7uC47mcXzBRyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NSOgOM/uPHJA4CevAiovD9VeQfqnDfrBFGui1EMe9rmSDefVpCoIt1sAbJXFbl35G
-         u577RFH95oRt/FWR6yRsG9gIpq5oQqEQ8ELVQ4ffi/IBtet0fPsZLpd2poG0FmbaGj
-         q6RBvMp01yUOvkgWgiUZiJ7EKYzbGyVCyYBbcXPs=
+        b=cOyxvgiL1IsQKqqtCJ7jrWisTElk9r+q062Q9xmMOHgXiJV7ipSWoCqS7ndBdTcJw
+         UOa9XG1wIhxHB1QW8ZjUFb3jyRWpNRAv79gTDTWYBZHx81HXRc5mF/uoWhLNKR8Pys
+         hjYiJgBdwLLxahoMS0xOeJ85unoNDUeUrUbjffig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 188/215] seq_buf: Fix overflow in seq_buf_putmem_hex()
-Date:   Thu, 15 Jul 2021 20:39:20 +0200
-Message-Id: <20210715182632.450301578@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 114/122] media: dtv5100: fix control-request directions
+Date:   Thu, 15 Jul 2021 20:39:21 +0200
+Message-Id: <20210715182521.782588327@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yun Zhou <yun.zhou@windriver.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit d3b16034a24a112bb83aeb669ac5b9b01f744bb7 upstream.
+commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
 
-There's two variables being increased in that loop (i and j), and i
-follows the raw data, and j follows what is being written into the buffer.
-We should compare 'i' to MAX_MEMHEX_BYTES or compare 'j' to HEX_CHARS.
-Otherwise, if 'j' goes bigger than HEX_CHARS, it will overflow the
-destination buffer.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
-Link: https://lkml.kernel.org/r/20210626032156.47889-1-yun.zhou@windriver.com
+Fix the control requests which erroneously used usb_rcvctrlpipe().
 
-Cc: stable@vger.kernel.org
-Fixes: 5e3ca0ec76fce ("ftrace: introduce the "hex" output method")
-Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
+Cc: stable@vger.kernel.org      # 2.6.28
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/seq_buf.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/lib/seq_buf.c
-+++ b/lib/seq_buf.c
-@@ -229,8 +229,10 @@ int seq_buf_putmem_hex(struct seq_buf *s
+--- a/drivers/media/usb/dvb-usb/dtv5100.c
++++ b/drivers/media/usb/dvb-usb/dtv5100.c
+@@ -26,6 +26,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+ {
+ 	struct dtv5100_state *st = d->priv;
++	unsigned int pipe;
+ 	u8 request;
+ 	u8 type;
+ 	u16 value;
+@@ -34,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 	switch (wlen) {
+ 	case 1:
+ 		/* write { reg }, read { value } */
++		pipe = usb_rcvctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
+ 							DTV5100_TUNER_READ);
+ 		type = USB_TYPE_VENDOR | USB_DIR_IN;
+@@ -41,6 +43,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 		break;
+ 	case 2:
+ 		/* write { reg, value } */
++		pipe = usb_sndctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
+ 							DTV5100_TUNER_WRITE);
+ 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
+@@ -54,7 +57,7 @@ static int dtv5100_i2c_msg(struct dvb_us
  
- 	WARN_ON(s->size == 0);
+ 	memcpy(st->data, rbuf, rlen);
+ 	msleep(1); /* avoid I2C errors */
+-	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
++	return usb_control_msg(d->udev, pipe, request,
+ 			       type, value, index, st->data, rlen,
+ 			       DTV5100_USB_TIMEOUT);
+ }
+@@ -141,7 +144,7 @@ static int dtv5100_probe(struct usb_inte
  
-+	BUILD_BUG_ON(MAX_MEMHEX_BYTES * 2 >= HEX_CHARS);
-+
- 	while (len) {
--		start_len = min(len, HEX_CHARS - 1);
-+		start_len = min(len, MAX_MEMHEX_BYTES);
- #ifdef __BIG_ENDIAN
- 		for (i = 0, j = 0; i < start_len; i++) {
- #else
+ 	/* initialize non qt1010/zl10353 part? */
+ 	for (i = 0; dtv5100_init[i].request; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      dtv5100_init[i].request,
+ 				      USB_TYPE_VENDOR | USB_DIR_OUT,
+ 				      dtv5100_init[i].value,
 
 
