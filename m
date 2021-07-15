@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FA13CAABF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DBC93CA902
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241978AbhGOTPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:15:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
+        id S241899AbhGOTFJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241663AbhGOTN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:13:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 848F561285;
-        Thu, 15 Jul 2021 19:09:42 +0000 (UTC)
+        id S239159AbhGOTCn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:02:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF806613DD;
+        Thu, 15 Jul 2021 18:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376183;
-        bh=IloEIHZ6H7uEgqGDO3TXEOTuOxpsyBiUrf0vYoTrYxk=;
+        s=korg; t=1626375541;
+        bh=yQK+7EMPW+anCuBOtmGBLrgSUk/BCsTb+VKx6gKoMiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCkRrcyzvVjKe+7KOcVgEY90k62pyPdwxwR5RpIh4w2R3kRGMthOxg9wBBb7ylZ5Z
-         iprlWRncDBCIaoG4TZeO0gV42XwEDAR7GAn8pNHa7hfssT0LHm/K97Kk2+yz3wbn8n
-         nSe2JvFmiu0SyiSltMpAz94FxkcHIpeYd6eUisio=
+        b=pnxD3/8aQIGE834AehmNd0JM37HS2KsCyO3akBiSpdiabW/aBmlKyF+X2MlIZrcPZ
+         2b5d1HWBInBO6+2E5x8QESBvTH/uFTLL52oXmj+7eEmrMd0CEmPaf1CXu8Q/1k02IT
+         EDD2uUosdStqrDIJm94aEGMJTwCu3ecHJHYJx9D8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
+        stable@vger.kernel.org, Logush Oliver <ollogush@amd.com>,
+        Charlene Liu <Charlene.Liu@amd.com>,
+        Bindu Ramamurthy <bindu.r@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 120/266] drm/amdkfd: Walk through list with dqm lock hold
-Date:   Thu, 15 Jul 2021 20:37:55 +0200
-Message-Id: <20210715182635.087282383@linuxfoundation.org>
+Subject: [PATCH 5.12 114/242] drm/amd/display: Fix edp_bootup_bl_level initialization issue
+Date:   Thu, 15 Jul 2021 20:37:56 +0200
+Message-Id: <20210715182613.192400413@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Logush Oliver <ollogush@amd.com>
 
-[ Upstream commit 56f221b6389e7ab99c30bbf01c71998ae92fc584 ]
+[ Upstream commit eeb90e26ed05dd44553d557057bf35f08f853af8 ]
 
-To avoid any list corruption.
+[why]
+Updating the file to fix the missing line
 
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Logush Oliver <ollogush@amd.com>
+Reviewed-by: Charlene Liu <Charlene.Liu@amd.com>
+Acked-by: Bindu Ramamurthy <bindu.r@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index e9b3e2e32bf8..f0bad74af230 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -1709,7 +1709,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 		struct qcm_process_device *qpd)
- {
- 	int retval;
--	struct queue *q, *next;
-+	struct queue *q;
- 	struct kernel_queue *kq, *kq_next;
- 	struct mqd_manager *mqd_mgr;
- 	struct device_process_node *cur, *next_dpn;
-@@ -1766,24 +1766,26 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 		qpd->reset_wavefronts = false;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+index 9f9fda3118d1..500bcd0ecf4d 100644
+--- a/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
++++ b/drivers/gpu/drm/amd/display/dc/bios/bios_parser2.c
+@@ -1944,7 +1944,7 @@ static enum bp_result get_integrated_info_v2_1(
+ 		info_v2_1->edp1_info.edp_pwr_down_bloff_to_vary_bloff;
+ 	info->edp1_info.edp_panel_bpc =
+ 		info_v2_1->edp1_info.edp_panel_bpc;
+-	info->edp1_info.edp_bootup_bl_level =
++	info->edp1_info.edp_bootup_bl_level = info_v2_1->edp1_info.edp_bootup_bl_level;
  
--	dqm_unlock(dqm);
--
--	/* Outside the DQM lock because under the DQM lock we can't do
--	 * reclaim or take other locks that others hold while reclaiming.
--	 */
--	if (found)
--		kfd_dec_compute_active(dqm->dev);
--
- 	/* Lastly, free mqd resources.
- 	 * Do free_mqd() after dqm_unlock to avoid circular locking.
- 	 */
--	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
-+	while (!list_empty(&qpd->queues_list)) {
-+		q = list_first_entry(&qpd->queues_list, struct queue, list);
- 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
- 				q->properties.type)];
- 		list_del(&q->list);
- 		qpd->queue_count--;
-+		dqm_unlock(dqm);
- 		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+		dqm_lock(dqm);
- 	}
-+	dqm_unlock(dqm);
-+
-+	/* Outside the DQM lock because under the DQM lock we can't do
-+	 * reclaim or take other locks that others hold while reclaiming.
-+	 */
-+	if (found)
-+		kfd_dec_compute_active(dqm->dev);
- 
- 	return retval;
- }
+ 	info->edp2_info.edp_backlight_pwm_hz =
+ 	le16_to_cpu(info_v2_1->edp2_info.edp_backlight_pwm_hz);
 -- 
 2.30.2
 
