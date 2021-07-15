@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C6B3CAB90
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 201B13CAB95
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243880AbhGOTUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59042 "EHLO mail.kernel.org"
+        id S245453AbhGOTUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244770AbhGOTSM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:18:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 986C4613EB;
-        Thu, 15 Jul 2021 19:13:31 +0000 (UTC)
+        id S244839AbhGOTSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:18:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9E8C613DC;
+        Thu, 15 Jul 2021 19:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376412;
-        bh=LcNL+hWRmsP7dl5Pm/XW7pnFZsSnmwQz0WjmeYEgdL0=;
+        s=korg; t=1626376414;
+        bh=OyQ4ERn12mp0E4LYqVJQ68GV9XctXcHpNAvUIaZqOoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foEnumCmMkz2smauFQU99wkyYgGXL+bdesKxR5dl2p1lRGAyueWDOCe1A2/L8+Eab
-         0jUnizcuDYjCvH1zc70Zi1Xszo5GaFIUd3kIj57a9bw8doQeMSThgL1OrvJbQXSm9W
-         ePK8bH2gYppgBSR7tPi/3EwZbNht9cSBj+L3U4rg=
+        b=jKS3HSGMs3gcwlbgWNfvix/2ZKI+wtv/hsPgk3S9AQqCuYDs9vCoke9TJBhUY4o3m
+         VSFJcINEIPhqEwfcv4EoQwezBjKoyPZxn7rA2/I8jhvrkjFWd+ee7rttTTLZ0yUtWd
+         Tj3293iDyEmSmHKIOdbjMj8sTZ8H4ZEyqBxi0YiI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
-        kernel test robot <lkp@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.13 261/266] drm/ast: Remove reference to struct drm_device.pdev
-Date:   Thu, 15 Jul 2021 20:40:16 +0200
-Message-Id: <20210715182653.185690342@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.13 262/266] ext4: fix possible UAF when remounting r/o a mmp-protected file system
+Date:   Thu, 15 Jul 2021 20:40:17 +0200
+Message-Id: <20210715182653.279863842@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -43,50 +39,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 0ecb51824e838372e01330752503ddf9c0430ef7 upstream.
+commit 61bb4a1c417e5b95d9edb4f887f131de32e419cb upstream.
 
-Using struct drm_device.pdev is deprecated. Upcast with to_pci_dev()
-from struct drm_device.dev to get the PCI device structure.
+After commit 618f003199c6 ("ext4: fix memory leak in
+ext4_fill_super"), after the file system is remounted read-only, there
+is a race where the kmmpd thread can exit, causing sbi->s_mmp_tsk to
+point at freed memory, which the call to ext4_stop_mmpd() can trip
+over.
 
-v9:
-	* fix remaining pdev references
+Fix this by only allowing kmmpd() to exit when it is stopped via
+ext4_stop_mmpd().
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Fixes: ba4e0339a6a3 ("drm/ast: Fixed CVE for DP501")
-Cc: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
-Cc: kernel test robot <lkp@intel.com>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: dri-devel@lists.freedesktop.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210429105101.25667-2-tzimmermann@suse.de
+Link: https://lore.kernel.org/r/20210707002433.3719773-1-tytso@mit.edu
+Reported-by: Ye Bin <yebin10@huawei.com>
+Bug-Report-Link: <20210629143603.2166962-1-yebin10@huawei.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/ast/ast_main.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ fs/ext4/mmp.c   |   31 +++++++++++++++----------------
+ fs/ext4/super.c |    6 +++++-
+ 2 files changed, 20 insertions(+), 17 deletions(-)
 
---- a/drivers/gpu/drm/ast/ast_main.c
-+++ b/drivers/gpu/drm/ast/ast_main.c
-@@ -411,7 +411,6 @@ struct ast_private *ast_device_create(co
- 		return ast;
- 	dev = &ast->base;
+--- a/fs/ext4/mmp.c
++++ b/fs/ext4/mmp.c
+@@ -156,7 +156,12 @@ static int kmmpd(void *data)
+ 	memcpy(mmp->mmp_nodename, init_utsname()->nodename,
+ 	       sizeof(mmp->mmp_nodename));
  
--	dev->pdev = pdev;
- 	pci_set_drvdata(pdev, dev);
+-	while (!kthread_should_stop()) {
++	while (!kthread_should_stop() && !sb_rdonly(sb)) {
++		if (!ext4_has_feature_mmp(sb)) {
++			ext4_warning(sb, "kmmpd being stopped since MMP feature"
++				     " has been disabled.");
++			goto wait_to_exit;
++		}
+ 		if (++seq > EXT4_MMP_SEQ_MAX)
+ 			seq = 1;
  
- 	ast->regs = pcim_iomap(pdev, 1, 0);
-@@ -453,8 +452,8 @@ struct ast_private *ast_device_create(co
+@@ -177,16 +182,6 @@ static int kmmpd(void *data)
+ 			failed_writes++;
+ 		}
  
- 	/* map reserved buffer */
- 	ast->dp501_fw_buf = NULL;
--	if (dev->vram_mm->vram_size < pci_resource_len(dev->pdev, 0)) {
--		ast->dp501_fw_buf = pci_iomap_range(dev->pdev, 0, dev->vram_mm->vram_size, 0);
-+	if (dev->vram_mm->vram_size < pci_resource_len(pdev, 0)) {
-+		ast->dp501_fw_buf = pci_iomap_range(pdev, 0, dev->vram_mm->vram_size, 0);
- 		if (!ast->dp501_fw_buf)
- 			drm_info(dev, "failed to map reserved buffer!\n");
- 	}
+-		if (!(le32_to_cpu(es->s_feature_incompat) &
+-		    EXT4_FEATURE_INCOMPAT_MMP)) {
+-			ext4_warning(sb, "kmmpd being stopped since MMP feature"
+-				     " has been disabled.");
+-			goto exit_thread;
+-		}
+-
+-		if (sb_rdonly(sb))
+-			break;
+-
+ 		diff = jiffies - last_update_time;
+ 		if (diff < mmp_update_interval * HZ)
+ 			schedule_timeout_interruptible(mmp_update_interval *
+@@ -207,7 +202,7 @@ static int kmmpd(void *data)
+ 				ext4_error_err(sb, -retval,
+ 					       "error reading MMP data: %d",
+ 					       retval);
+-				goto exit_thread;
++				goto wait_to_exit;
+ 			}
+ 
+ 			mmp_check = (struct mmp_struct *)(bh_check->b_data);
+@@ -221,7 +216,7 @@ static int kmmpd(void *data)
+ 				ext4_error_err(sb, EBUSY, "abort");
+ 				put_bh(bh_check);
+ 				retval = -EBUSY;
+-				goto exit_thread;
++				goto wait_to_exit;
+ 			}
+ 			put_bh(bh_check);
+ 		}
+@@ -244,7 +239,13 @@ static int kmmpd(void *data)
+ 
+ 	retval = write_mmp_block(sb, bh);
+ 
+-exit_thread:
++wait_to_exit:
++	while (!kthread_should_stop()) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		if (!kthread_should_stop())
++			schedule();
++	}
++	set_current_state(TASK_RUNNING);
+ 	return retval;
+ }
+ 
+@@ -391,5 +392,3 @@ failed:
+ 	brelse(bh);
+ 	return 1;
+ }
+-
+-
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5996,7 +5996,6 @@ static int ext4_remount(struct super_blo
+ 				 */
+ 				ext4_mark_recovery_complete(sb, es);
+ 			}
+-			ext4_stop_mmpd(sbi);
+ 		} else {
+ 			/* Make sure we can mount this feature set readwrite */
+ 			if (ext4_has_feature_readonly(sb) ||
+@@ -6110,6 +6109,9 @@ static int ext4_remount(struct super_blo
+ 	if (!test_opt(sb, BLOCK_VALIDITY) && sbi->s_system_blks)
+ 		ext4_release_system_zone(sb);
+ 
++	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
++		ext4_stop_mmpd(sbi);
++
+ 	/*
+ 	 * Some options can be enabled by ext4 and/or by VFS mount flag
+ 	 * either way we need to make sure it matches in both *flags and
+@@ -6143,6 +6145,8 @@ restore_opts:
+ 	for (i = 0; i < EXT4_MAXQUOTAS; i++)
+ 		kfree(to_free[i]);
+ #endif
++	if (!ext4_has_feature_mmp(sb) || sb_rdonly(sb))
++		ext4_stop_mmpd(sbi);
+ 	kfree(orig_data);
+ 	return err;
+ }
 
 
