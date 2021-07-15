@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6F8C3CA632
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DFE3CA5DC
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238189AbhGOSqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
+        id S235506AbhGOSoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238016AbhGOSqd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2515C613CA;
-        Thu, 15 Jul 2021 18:43:38 +0000 (UTC)
+        id S235232AbhGOSow (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48296613CF;
+        Thu, 15 Jul 2021 18:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374619;
-        bh=nl0DIImT8XlHzu5yGB3APvkIojxXpccarwhQqQydqms=;
+        s=korg; t=1626374518;
+        bh=iEXuc2D8om0atvMRk10gMHiPfJTXx2mXNvzdvpuYWCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LycOKTYbGT5lA3+ER9I6XvadGC2ophKLP4ZtP4iVv4m18HbroNCwsjxSHkX1IxgPT
-         ORS9miX2J27XDAgIG1B4C7LfSyzYmqwM9zXH4lb8AWX6/U70sG1g8h6sPo73lOn9qU
-         cAkrmeBaLpa8gNlkW9BTWd80JvgqGXRpSJU+BzpQ=
+        b=RQXeqqy4TUhNXTlDXINii7QN4vy4qXKZad3gay7NVnZNeEmlUxU8u4Ze30VdQ6N5Q
+         W4ItzaX1f1/TRZYZSkIYu0KhggHyTHqBas+N2wW28BrMZXYCGZ218AcgY7nIWddlIr
+         Ht5aRPYsjpIo2i6aBvwL6CwTvQ1nbBWEvjpCgROM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Stempen <vladimir.stempen@amd.com>,
-        Wenjing Liu <Wenjing.Liu@amd.com>,
+        stable@vger.kernel.org, Wesley Chalmers <Wesley.Chalmers@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
         Stylon Wang <stylon.wang@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 033/122] drm/amd/display: Release MST resources on switch from MST to SST
-Date:   Thu, 15 Jul 2021 20:38:00 +0200
-Message-Id: <20210715182457.334338449@linuxfoundation.org>
+Subject: [PATCH 5.4 034/122] drm/amd/display: Set DISPCLK_MAX_ERRDET_CYCLES to 7
+Date:   Thu, 15 Jul 2021 20:38:01 +0200
+Message-Id: <20210715182457.525197166@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
 References: <20210715182448.393443551@linuxfoundation.org>
@@ -44,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Stempen <vladimir.stempen@amd.com>
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
 
-[ Upstream commit 3f8518b60c10aa96f3efa38a967a0b4eb9211ac0 ]
+[ Upstream commit 3577e1678772ce3ede92af3a75b44a4b76f9b4ad ]
 
-[why]
-When OS overrides training link training parameters
-for MST device to SST mode, MST resources are not
-released and leak of the resource may result crash and
-incorrect MST discovery during following hot plugs.
+[WHY]
+DISPCLK_MAX_ERRDET_CYCLES must be 7 to prevent connection loss when
+changing DENTIST_DISPCLK_WDIVIDER from 126 to 127 and back.
 
-[how]
-Retaining sink object to be reused by SST link and
-releasing MST  resources.
-
-Signed-off-by: Vladimir Stempen <vladimir.stempen@amd.com>
-Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
 Acked-by: Stylon Wang <stylon.wang@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-index c18f39271b03..4bc95e9075e9 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
-@@ -1284,6 +1284,8 @@ static void set_dp_mst_mode(struct dc_link *link, bool mst_enable)
- 		link->type = dc_connection_single;
- 		link->local_sink = link->remote_sinks[0];
- 		link->local_sink->sink_signal = SIGNAL_TYPE_DISPLAY_PORT;
-+		dc_sink_retain(link->local_sink);
-+		dm_helpers_dp_mst_stop_top_mgr(link->ctx, link);
- 	} else if (mst_enable == true &&
- 			link->type == dc_connection_single &&
- 			link->remote_sinks[0] != NULL) {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+index 083c42e521f5..03a2e1d7f067 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
+@@ -126,7 +126,7 @@ void dcn20_dccg_init(struct dce_hwseq *hws)
+ 	REG_WRITE(MILLISECOND_TIME_BASE_DIV, 0x1186a0);
+ 
+ 	/* This value is dependent on the hardware pipeline delay so set once per SOC */
+-	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0x801003c);
++	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0xe01003c);
+ }
+ void dcn20_display_init(struct dc *dc)
+ {
 -- 
 2.30.2
 
