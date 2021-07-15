@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C293CAB0A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:14:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA04D3CA9B6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243180AbhGOTQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
+        id S241965AbhGOTIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:08:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241084AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA3561158;
-        Thu, 15 Jul 2021 19:11:48 +0000 (UTC)
+        id S242077AbhGOTHk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:07:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31AAA613FD;
+        Thu, 15 Jul 2021 19:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376309;
-        bh=jWZGCnsAY9L7zigkpJsKBGOJiuu91rRo/tR1JLcJN4U=;
+        s=korg; t=1626375815;
+        bh=/78tR4B/mEjVOyODfMvQ/9lxrCVMkbU4yif0dtaFrJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1h/AKKBMAEEP1hcUifd68AstLAr5rAjNE0j9LmHRFfhz3cUEkfa7A8be04UYdmiM/
-         YLuLvri/jwgW0mXQxEo6HKJjpwjHWXWLE+S4zTkpSgeJOKxCxdxm2zFEK5YXnofQPy
-         ckinZe0f83IWvsp9aCh29k+z1k/FX8sXA8dha8nE=
+        b=avMMRVr5apSf+Qx1sARKbRtGwd9OhXIQdci5qIrU38Kc7C89YRdNHRKpFlS2c8EPA
+         X7oJBkjStD7QZqaFV5rX7VkMFAkq1o/FQUbbPMSsMnkOiyafKasdU2JtGgIDClqTIx
+         aqPMBOHkktcN4fJ1xB4VmOROKFFcHrwk6MrfLiAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.13 217/266] ASoC: tegra: Set driver_name=tegra for all machine drivers
-Date:   Thu, 15 Jul 2021 20:39:32 +0200
-Message-Id: <20210715182647.815696813@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.12 211/242] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
+Date:   Thu, 15 Jul 2021 20:39:33 +0200
+Message-Id: <20210715182630.360785408@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,131 +41,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Paul Burton <paulburton@google.com>
 
-commit f6eb84fa596abf28959fc7e0b626f925eb1196c7 upstream.
+commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
 
-The driver_name="tegra" is now required by the newer ALSA UCMs, otherwise
-Tegra UCMs don't match by the path/name.
+Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
+on systems where pid_max is configured higher than PID_MAX_DEFAULT the
+ftrace record-tgid option doesn't work so well. Any tasks with PIDs
+higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
+don't show up in the saved_tgids file.
 
-All Tegra machine drivers are specifying the card's name, but it has no
-effect if model name is specified in the device-tree since it overrides
-the card's name. We need to set the driver_name to "tegra" in order to
-get a usable lookup path for the updated ALSA UCMs. The new UCM lookup
-path has a form of driver_name/card_name.
+In particular since systemd v243 & above configure pid_max to its
+highest possible 1<<22 value by default on 64 bit systems this renders
+the record-tgids option of little use.
 
-The old lookup paths that are based on driver module name continue to
-work as before. Note that UCM matching never worked for Tegra ASoC drivers
-if they were compiled as built-in, this is fixed by supporting the new
-naming scheme.
+Increase the size of tgid_map to the configured pid_max instead,
+allowing it to cover the full range of PIDs up to the maximum value of
+PID_MAX_LIMIT if the system is configured that way.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210529154649.25936-2-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
+size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
+memory overhead sounds significant 64 bit systems are presumably best
+placed to accommodate it, and since tgid_map is only allocated when the
+record-tgid option is actually used presumably the user would rather it
+spends sufficient memory to actually record the tgids they expect.
+
+The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
+configurations, but these seem unlikely to be systems upon which people
+are both configuring a large pid_max and running ftrace with record-tgid
+anyway.
+
+Of note is that we only allocate tgid_map once, the first time that the
+record-tgid option is enabled. Therefore its size is only set once, to
+the value of pid_max at the time the record-tgid option is first
+enabled. If a user increases pid_max after that point, the saved_tgids
+file will not contain entries for any tasks with pids beyond the earlier
+value of pid_max.
+
+Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+[ Fixed comment coding style ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/soc/tegra/tegra_alc5632.c  |    1 +
- sound/soc/tegra/tegra_max98090.c |    1 +
- sound/soc/tegra/tegra_rt5640.c   |    1 +
- sound/soc/tegra/tegra_rt5677.c   |    1 +
- sound/soc/tegra/tegra_sgtl5000.c |    1 +
- sound/soc/tegra/tegra_wm8753.c   |    1 +
- sound/soc/tegra/tegra_wm8903.c   |    1 +
- sound/soc/tegra/tegra_wm9712.c   |    1 +
- sound/soc/tegra/trimslice.c      |    1 +
- 9 files changed, 9 insertions(+)
+ kernel/trace/trace.c |   63 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 47 insertions(+), 16 deletions(-)
 
---- a/sound/soc/tegra/tegra_alc5632.c
-+++ b/sound/soc/tegra/tegra_alc5632.c
-@@ -139,6 +139,7 @@ static struct snd_soc_dai_link tegra_alc
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2184,8 +2184,15 @@ void tracing_reset_all_online_cpus(void)
+ 	}
+ }
  
- static struct snd_soc_card snd_soc_tegra_alc5632 = {
- 	.name = "tegra-alc5632",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_alc5632_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_max98090.c
-+++ b/sound/soc/tegra/tegra_max98090.c
-@@ -182,6 +182,7 @@ static struct snd_soc_dai_link tegra_max
++/*
++ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
++ * is the tgid last observed corresponding to pid=i.
++ */
+ static int *tgid_map;
  
- static struct snd_soc_card snd_soc_tegra_max98090 = {
- 	.name = "tegra-max98090",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_max98090_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_rt5640.c
-+++ b/sound/soc/tegra/tegra_rt5640.c
-@@ -132,6 +132,7 @@ static struct snd_soc_dai_link tegra_rt5
++/* The maximum valid index into tgid_map. */
++static size_t tgid_map_max;
++
+ #define SAVED_CMDLINES_DEFAULT 128
+ #define NO_CMDLINE_MAP UINT_MAX
+ static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
+@@ -2458,24 +2465,41 @@ void trace_find_cmdline(int pid, char co
+ 	preempt_enable();
+ }
  
- static struct snd_soc_card snd_soc_tegra_rt5640 = {
- 	.name = "tegra-rt5640",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_rt5640_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_rt5677.c
-+++ b/sound/soc/tegra/tegra_rt5677.c
-@@ -175,6 +175,7 @@ static struct snd_soc_dai_link tegra_rt5
++static int *trace_find_tgid_ptr(int pid)
++{
++	/*
++	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
++	 * if we observe a non-NULL tgid_map then we also observe the correct
++	 * tgid_map_max.
++	 */
++	int *map = smp_load_acquire(&tgid_map);
++
++	if (unlikely(!map || pid > tgid_map_max))
++		return NULL;
++
++	return &map[pid];
++}
++
+ int trace_find_tgid(int pid)
+ {
+-	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
+-		return 0;
++	int *ptr = trace_find_tgid_ptr(pid);
  
- static struct snd_soc_card snd_soc_tegra_rt5677 = {
- 	.name = "tegra-rt5677",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_rt5677_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_sgtl5000.c
-+++ b/sound/soc/tegra/tegra_sgtl5000.c
-@@ -97,6 +97,7 @@ static struct snd_soc_dai_link tegra_sgt
+-	return tgid_map[pid];
++	return ptr ? *ptr : 0;
+ }
  
- static struct snd_soc_card snd_soc_tegra_sgtl5000 = {
- 	.name = "tegra-sgtl5000",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_sgtl5000_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm8753.c
-+++ b/sound/soc/tegra/tegra_wm8753.c
-@@ -101,6 +101,7 @@ static struct snd_soc_dai_link tegra_wm8
+ static int trace_save_tgid(struct task_struct *tsk)
+ {
++	int *ptr;
++
+ 	/* treat recording of idle task as a success */
+ 	if (!tsk->pid)
+ 		return 1;
  
- static struct snd_soc_card snd_soc_tegra_wm8753 = {
- 	.name = "tegra-wm8753",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8753_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm8903.c
-+++ b/sound/soc/tegra/tegra_wm8903.c
-@@ -235,6 +235,7 @@ static struct snd_soc_dai_link tegra_wm8
+-	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
++	ptr = trace_find_tgid_ptr(tsk->pid);
++	if (!ptr)
+ 		return 0;
  
- static struct snd_soc_card snd_soc_tegra_wm8903 = {
- 	.name = "tegra-wm8903",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8903_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm9712.c
-+++ b/sound/soc/tegra/tegra_wm9712.c
-@@ -54,6 +54,7 @@ static struct snd_soc_dai_link tegra_wm9
+-	tgid_map[tsk->pid] = tsk->tgid;
++	*ptr = tsk->tgid;
+ 	return 1;
+ }
  
- static struct snd_soc_card snd_soc_tegra_wm9712 = {
- 	.name = "tegra-wm9712",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm9712_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/trimslice.c
-+++ b/sound/soc/tegra/trimslice.c
-@@ -94,6 +94,7 @@ static struct snd_soc_dai_link trimslice
+@@ -4915,6 +4939,8 @@ int trace_keep_overwrite(struct tracer *
  
- static struct snd_soc_card snd_soc_trimslice = {
- 	.name = "tegra-trimslice",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &trimslice_tlv320aic23_dai,
- 	.num_links = 1,
+ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
+ {
++	int *map;
++
+ 	if ((mask == TRACE_ITER_RECORD_TGID) ||
+ 	    (mask == TRACE_ITER_RECORD_CMD))
+ 		lockdep_assert_held(&event_mutex);
+@@ -4937,10 +4963,19 @@ int set_tracer_flag(struct trace_array *
+ 		trace_event_enable_cmd_record(enabled);
+ 
+ 	if (mask == TRACE_ITER_RECORD_TGID) {
+-		if (!tgid_map)
+-			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
+-					   sizeof(*tgid_map),
+-					   GFP_KERNEL);
++		if (!tgid_map) {
++			tgid_map_max = pid_max;
++			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
++				       GFP_KERNEL);
++
++			/*
++			 * Pairs with smp_load_acquire() in
++			 * trace_find_tgid_ptr() to ensure that if it observes
++			 * the tgid_map we just allocated then it also observes
++			 * the corresponding tgid_map_max value.
++			 */
++			smp_store_release(&tgid_map, map);
++		}
+ 		if (!tgid_map) {
+ 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
+ 			return -ENOMEM;
+@@ -5354,18 +5389,14 @@ static void *saved_tgids_next(struct seq
+ {
+ 	int pid = ++(*pos);
+ 
+-	if (pid > PID_MAX_DEFAULT)
+-		return NULL;
+-
+-	return &tgid_map[pid];
++	return trace_find_tgid_ptr(pid);
+ }
+ 
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+-		return NULL;
++	int pid = *pos;
+ 
+-	return &tgid_map[*pos];
++	return trace_find_tgid_ptr(pid);
+ }
+ 
+ static void saved_tgids_stop(struct seq_file *m, void *v)
 
 
