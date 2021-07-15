@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D320C3CA687
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E946A3CA7D6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238093AbhGOSsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
+        id S241006AbhGOS4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238374AbhGOSsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:48:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54DF1613D2;
-        Thu, 15 Jul 2021 18:45:28 +0000 (UTC)
+        id S240120AbhGOS4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:56:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65032613D1;
+        Thu, 15 Jul 2021 18:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374728;
-        bh=Mjf4HxiQbo/+SU70ssid65t4QSYTJdd0JJdJXbHjkRU=;
+        s=korg; t=1626375190;
+        bh=dyshn5kvxDEI0SM2myXYKNppDxlJZf63QS5mPCGGb8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQ1yTpu/tKulEJmI2g4bE3iIcj0PSZHkmpRv+5qhm2lKXk5k9gc1jf2UhjXw5vWwD
-         00dzlrhmnCnpofJiyvLIuOK3P5uT9fQW+bqaEYyzB1WJgIci/uyykEGe3ncq8x70o1
-         s0pGaax3ppBIn9tQ7ncrWL30kgZUAtI5DKO4w4QY=
+        b=GmPfx9DVbmXFryobMV/UeDc8143EwZ+AAeI2vkcr/gHfFK6Pd5wYW3cd4n9cRcdxN
+         NJmN/q8dHUprKpLbzEVx6FY9WGF3oFhn2fU8q1OnzQQAkMPScq1JYC95NDhfpeF9DD
+         vICvaUss/H7DFCVnp07HNHmuBfLKCOyFIVZ5oV+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhanglianjie <zhanglianjie@uniontech.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 070/122] MIPS: loongsoon64: Reserve memory below starting pfn to prevent Oops
+        Gulam Mohamed <gulam.mohamed@oracle.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 5.10 145/215] scsi: iscsi: Fix iSCSI cls conn state
 Date:   Thu, 15 Jul 2021 20:38:37 +0200
-Message-Id: <20210715182508.148278788@linuxfoundation.org>
+Message-Id: <20210715182625.263662643@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhanglianjie <zhanglianjie@uniontech.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 6817c944430d00f71ccaa9c99ff5b0096aeb7873 ]
+commit 0dcf8febcb7b9d42bec98bc068e01d1a6ea578b8 upstream.
 
-The cause of the problem is as follows:
-1. when cat /sys/devices/system/memory/memory0/valid_zones,
-   test_pages_in_a_zone() will be called.
-2. test_pages_in_a_zone() finds the zone according to stat_pfn = 0.
-   The smallest pfn of the numa node in the mips architecture is 128,
-   and the page corresponding to the previous 0~127 pfn is not
-   initialized (page->flags is 0xFFFFFFFF)
-3. The nid and zonenum obtained using page_zone(pfn_to_page(0)) are out
-   of bounds in the corresponding array,
-   &NODE_DATA(page_to_nid(page))->node_zones[page_zonenum(page)],
-   access to the out-of-bounds zone member variables appear abnormal,
-   resulting in Oops.
-Therefore, it is necessary to keep the page between 0 and the minimum
-pfn to prevent Oops from appearing.
+In commit 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and
+sync thread") I missed that libiscsi was now setting the iSCSI class state,
+and that patch ended up resetting the state during conn stoppage and using
+the wrong state value during ep_disconnect. This patch moves the setting of
+the class state to the class module and then fixes the two issues above.
 
-Signed-off-by: zhanglianjie <zhanglianjie@uniontech.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20210406171746.5016-1-michael.christie@oracle.com
+Fixes: 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and sync thread")
+Cc: Gulam Mohamed <gulam.mohamed@oracle.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/loongson64/loongson-3/numa.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/libiscsi.c             |   26 +++-----------------------
+ drivers/scsi/scsi_transport_iscsi.c |   18 +++++++++++++++---
+ 2 files changed, 18 insertions(+), 26 deletions(-)
 
-diff --git a/arch/mips/loongson64/loongson-3/numa.c b/arch/mips/loongson64/loongson-3/numa.c
-index 8f20d2cb3767..7e7376cc94b1 100644
---- a/arch/mips/loongson64/loongson-3/numa.c
-+++ b/arch/mips/loongson64/loongson-3/numa.c
-@@ -200,6 +200,9 @@ static void __init node_mem_init(unsigned int node)
- 		if (node_end_pfn(0) >= (0xffffffff >> PAGE_SHIFT))
- 			memblock_reserve((node_addrspace_offset | 0xfe000000),
- 					 32 << 20);
-+
-+		/* Reserve pfn range 0~node[0]->node_start_pfn */
-+		memblock_reserve(0, PAGE_SIZE * start_pfn);
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -3089,9 +3089,10 @@ fail_mgmt_tasks(struct iscsi_session *se
  	}
  }
  
--- 
-2.30.2
-
+-static void iscsi_start_session_recovery(struct iscsi_session *session,
+-					 struct iscsi_conn *conn, int flag)
++void iscsi_conn_stop(struct iscsi_cls_conn *cls_conn, int flag)
+ {
++	struct iscsi_conn *conn = cls_conn->dd_data;
++	struct iscsi_session *session = conn->session;
+ 	int old_stop_stage;
+ 
+ 	mutex_lock(&session->eh_mutex);
+@@ -3149,27 +3150,6 @@ static void iscsi_start_session_recovery
+ 	spin_unlock_bh(&session->frwd_lock);
+ 	mutex_unlock(&session->eh_mutex);
+ }
+-
+-void iscsi_conn_stop(struct iscsi_cls_conn *cls_conn, int flag)
+-{
+-	struct iscsi_conn *conn = cls_conn->dd_data;
+-	struct iscsi_session *session = conn->session;
+-
+-	switch (flag) {
+-	case STOP_CONN_RECOVER:
+-		cls_conn->state = ISCSI_CONN_FAILED;
+-		break;
+-	case STOP_CONN_TERM:
+-		cls_conn->state = ISCSI_CONN_DOWN;
+-		break;
+-	default:
+-		iscsi_conn_printk(KERN_ERR, conn,
+-				  "invalid stop flag %d\n", flag);
+-		return;
+-	}
+-
+-	iscsi_start_session_recovery(session, conn, flag);
+-}
+ EXPORT_SYMBOL_GPL(iscsi_conn_stop);
+ 
+ int iscsi_conn_bind(struct iscsi_cls_session *cls_session,
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2479,10 +2479,22 @@ static void iscsi_if_stop_conn(struct is
+ 	 * it works.
+ 	 */
+ 	mutex_lock(&conn_mutex);
++	switch (flag) {
++	case STOP_CONN_RECOVER:
++		conn->state = ISCSI_CONN_FAILED;
++		break;
++	case STOP_CONN_TERM:
++		conn->state = ISCSI_CONN_DOWN;
++		break;
++	default:
++		iscsi_cls_conn_printk(KERN_ERR, conn,
++				      "invalid stop flag %d\n", flag);
++		goto unlock;
++	}
++
+ 	conn->transport->stop_conn(conn, flag);
+-	conn->state = ISCSI_CONN_DOWN;
++unlock:
+ 	mutex_unlock(&conn_mutex);
+-
+ }
+ 
+ static void stop_conn_work_fn(struct work_struct *work)
+@@ -2973,7 +2985,7 @@ static int iscsi_if_ep_disconnect(struct
+ 		mutex_lock(&conn->ep_mutex);
+ 		conn->ep = NULL;
+ 		mutex_unlock(&conn->ep_mutex);
+-		conn->state = ISCSI_CONN_DOWN;
++		conn->state = ISCSI_CONN_FAILED;
+ 	}
+ 
+ 	transport->ep_disconnect(ep);
 
 
