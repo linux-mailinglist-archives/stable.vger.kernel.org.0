@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1597F3CA7F2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9B13CA6A1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241216AbhGOS5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:57:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60992 "EHLO mail.kernel.org"
+        id S236646AbhGOStk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241309AbhGOS4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:56:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4D9610C7;
-        Thu, 15 Jul 2021 18:53:52 +0000 (UTC)
+        id S239153AbhGOSsa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B98E613D7;
+        Thu, 15 Jul 2021 18:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375233;
-        bh=aZ9laoDe8kfkKFfmxAmGXyb2IvLtQ0l11vkX5eFxUqM=;
+        s=korg; t=1626374735;
+        bh=GmKKiOyw77r0CD+Z7TsMw8WnLS9v1jPTTdYpMxr1rCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcg9CykxHxjAXIpMXz4ZMEpMP7McBni19+Pdb4zJTC/ddH9JL5CyXMAKoOFFwNDrf
-         00O2ttbdgWHJi4OljRYt8nULijdNurfOj3huFgV29BinNlvhD7IQe5bBMEWTu3xnlr
-         goOXoKXWMpxomeKaGnHW9lVPaYzDsah5sVZYCeXI=
+        b=dq5IziUcxJCf/oRvppxPzBIszRzZkYdvbFwPAEskUBOzioFHLmg6Wfens6hSS1gY9
+         ZTdRm2OA0F4JLV96lx9HQVCuOWwPYaK+v3nU2O0cVzeQf88crsPzCQFj4XVJt+s4Cr
+         3oJ/wY7a7PuOVbkp3mT+5bONFQH/e+ul8bWezF/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.10 194/215] coresight: tmc-etf: Fix global-out-of-bounds in tmc_update_etf_buffer()
+        stable@vger.kernel.org, Benjamin Drung <bdrung@posteo.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 119/122] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
 Date:   Thu, 15 Jul 2021 20:39:26 +0200
-Message-Id: <20210715182633.432686972@linuxfoundation.org>
+Message-Id: <20210715182522.889447877@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +40,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Benjamin Drung <bdrung@posteo.de>
 
-commit 5fae8a946ac2df879caf3f79a193d4766d00239b upstream.
+commit 4c6e0976295add7f0ed94d276c04a3d6f1ea8f83 upstream.
 
-commit 6f755e85c332 ("coresight: Add helper for inserting synchronization
-packets") removed trailing '\0' from barrier_pkt array and updated the
-call sites like etb_update_buffer() to have proper checks for barrier_pkt
-size before read but missed updating tmc_update_etf_buffer() which still
-reads barrier_pkt past the array size resulting in KASAN out-of-bounds
-bug. Fix this by adding a check for barrier_pkt size before accessing
-like it is done in etb_update_buffer().
+The Elgato Cam Link 4K HDMI video capture card reports to support three
+different pixel formats, where the first format depends on the connected
+HDMI device.
 
- BUG: KASAN: global-out-of-bounds in tmc_update_etf_buffer+0x4b8/0x698
- Read of size 4 at addr ffffffd05b7d1030 by task perf/2629
+```
+$ v4l2-ctl -d /dev/video0 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture
 
- Call trace:
-  dump_backtrace+0x0/0x27c
-  show_stack+0x20/0x2c
-  dump_stack+0x11c/0x188
-  print_address_description+0x3c/0x4a4
-  __kasan_report+0x140/0x164
-  kasan_report+0x10/0x18
-  __asan_report_load4_noabort+0x1c/0x24
-  tmc_update_etf_buffer+0x4b8/0x698
-  etm_event_stop+0x248/0x2d8
-  etm_event_del+0x20/0x2c
-  event_sched_out+0x214/0x6f0
-  group_sched_out+0xd0/0x270
-  ctx_sched_out+0x2ec/0x518
-  __perf_event_task_sched_out+0x4fc/0xe6c
-  __schedule+0x1094/0x16a0
-  preempt_schedule_irq+0x88/0x170
-  arm64_preempt_schedule_irq+0xf0/0x18c
-  el1_irq+0xe8/0x180
-  perf_event_exec+0x4d8/0x56c
-  setup_new_exec+0x204/0x400
-  load_elf_binary+0x72c/0x18c0
-  search_binary_handler+0x13c/0x420
-  load_script+0x500/0x6c4
-  search_binary_handler+0x13c/0x420
-  exec_binprm+0x118/0x654
-  __do_execve_file+0x77c/0xba4
-  __arm64_compat_sys_execve+0x98/0xac
-  el0_svc_common+0x1f8/0x5e0
-  el0_svc_compat_handler+0x84/0xb0
-  el0_svc_compat+0x10/0x50
+	[0]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[1]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[2]: 'YU12' (Planar YUV 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+```
 
- The buggy address belongs to the variable:
-  barrier_pkt+0x10/0x40
+Changing the pixel format to anything besides the first pixel format
+does not work:
 
- Memory state around the buggy address:
-  ffffffd05b7d0f00: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 00 00
-  ffffffd05b7d0f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- >ffffffd05b7d1000: 00 00 00 00 00 00 fa fa fa fa fa fa 00 00 00 03
-                                      ^
-  ffffffd05b7d1080: fa fa fa fa 00 02 fa fa fa fa fa fa 03 fa fa fa
-  ffffffd05b7d1100: fa fa fa fa 00 00 00 00 05 fa fa fa fa fa fa fa
- ==================================================================
+```
+$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
+Format Video Capture:
+	Width/Height      : 3840/2160
+	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
+	Field             : None
+	Bytes per Line    : 3840
+	Size Image        : 12441600
+	Colorspace        : sRGB
+	Transfer Function : Rec. 709
+	YCbCr/HSV Encoding: Rec. 709
+	Quantization      : Default (maps to Limited Range)
+	Flags             :
+```
 
-Link: https://lore.kernel.org/r/20210505093430.18445-1-saiprakash.ranjan@codeaurora.org
-Fixes: 0c3fc4d5fa26 ("coresight: Add barrier packet for synchronisation")
+User space applications like VLC might show an error message on the
+terminal in that case:
+
+```
+libv4l2: error set_fmt gave us a different result than try_fmt!
+```
+
+Depending on the error handling of the user space applications, they
+might display a distorted video, because they use the wrong pixel format
+for decoding the stream.
+
+The Elgato Cam Link 4K responds to the USB video probe
+VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
+second byte contains bFormatIndex (instead of being the second byte of
+bmHint). The first byte is always zero. The third byte is always 1.
+
+The firmware bug was reported to Elgato on 2020-12-01 and it was
+forwarded by the support team to the developers as feature request.
+There is no firmware update available since then. The latest firmware
+for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
+
+Therefore correct the malformed data structure for this device. The
+change was successfully tested with VLC, OBS, and Chromium using
+different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
+1920x1080), and frame rates (29.970 and 59.940 fps).
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210614175901.532683-6-mathieu.poirier@linaro.org
+Signed-off-by: Benjamin Drung <bdrung@posteo.de>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-tmc-etf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_video.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -528,7 +528,7 @@ static unsigned long tmc_update_etf_buff
- 		buf_ptr = buf->data_pages[cur] + offset;
- 		*buf_ptr = readl_relaxed(drvdata->base + TMC_RRD);
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -124,10 +124,37 @@ int uvc_query_ctrl(struct uvc_device *de
+ static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
+ 	struct uvc_streaming_control *ctrl)
+ {
++	static const struct usb_device_id elgato_cam_link_4k = {
++		USB_DEVICE(0x0fd9, 0x0066)
++	};
+ 	struct uvc_format *format = NULL;
+ 	struct uvc_frame *frame = NULL;
+ 	unsigned int i;
  
--		if (lost && *barrier) {
-+		if (lost && i < CORESIGHT_BARRIER_PKT_SIZE) {
- 			*buf_ptr = *barrier;
- 			barrier++;
- 		}
++	/*
++	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
++	 * contains bFormatIndex (instead of being the second byte of bmHint).
++	 * The first byte is always zero. The third byte is always 1.
++	 *
++	 * The UVC 1.5 class specification defines the first five bits in the
++	 * bmHint bitfield. The remaining bits are reserved and should be zero.
++	 * Therefore a valid bmHint will be less than 32.
++	 *
++	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
++	 * MCU: 20.02.19, FPGA: 67
++	 */
++	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) &&
++	    ctrl->bmHint > 255) {
++		u8 corrected_format_index = ctrl->bmHint >> 8;
++
++		/* uvc_dbg(stream->dev, VIDEO,
++			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
++			ctrl->bmHint, ctrl->bFormatIndex,
++			1, corrected_format_index); */
++		ctrl->bmHint = 1;
++		ctrl->bFormatIndex = corrected_format_index;
++	}
++
+ 	for (i = 0; i < stream->nformats; ++i) {
+ 		if (stream->format[i].index == ctrl->bFormatIndex) {
+ 			format = &stream->format[i];
 
 
