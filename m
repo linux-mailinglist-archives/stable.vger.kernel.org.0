@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4123CA5DA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 256103CA8C8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235256AbhGOSow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:44:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45268 "EHLO mail.kernel.org"
+        id S242748AbhGOTC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235030AbhGOSou (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:44:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF94661396;
-        Thu, 15 Jul 2021 18:41:55 +0000 (UTC)
+        id S243225AbhGOTBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DDAC613E4;
+        Thu, 15 Jul 2021 18:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374516;
-        bh=FlMvHtQsuOPJncd+fzNsujxC2o2xRhcZN14NdAJ0cRc=;
+        s=korg; t=1626375497;
+        bh=AWt8MtIwfOEkzII2XUPUR49DdZGO10IyoYUx105z1Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZOhvA3YFITFDXibmxOH8ypJfzaEQiSaTvjMjkCaUhUEmNAhtjfuLDBlIuXU7rdSa
-         CIjeepMZpSJkeKl7Nvmv7E2anm5Ga0aWbp+sxWI/IgMEhMUAwth7DoEwHSgPO/Leio
-         lWpbZE+mbi7v6jUBLKymPHA1VfRXYZU4Scjbec78=
+        b=LuaYtun+M6M28UiLUo+cBgjS8XmZyi1c07E5qeGOTIfR2KbdG5YeMB5pHQoKmpCBz
+         kqHRWoRyINTsgzTX9QeFhPYWV/U5qUNxvZwJ0Q3XGbEXhrLmeT01UqwABkMLkU0FHk
+         zymsl2IWGekpXdF+gtTDRFkWSlYDJrGJA8zxe85Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Radim Pavlik <radim.pavlik@tbs-biometrics.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        kernel test robot <lkp@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 025/122] pinctrl: mcp23s08: fix race condition in irq handler
+Subject: [PATCH 5.12 110/242] net: fec: add ndo_select_queue to fix TX bandwidth fluctuations
 Date:   Thu, 15 Jul 2021 20:37:52 +0200
-Message-Id: <20210715182455.523370505@linuxfoundation.org>
+Message-Id: <20210715182612.437598271@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,57 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 897120d41e7afd9da435cb00041a142aeeb53c07 ]
+[ Upstream commit 52c4a1a85f4b346c39c896c0168f4a843b3385ff ]
 
-Checking value of MCP_INTF in mcp23s08_irq suggests that the handler may be
-called even when there is no interrupt pending.
+As we know that AVB is enabled by default, and the ENET IP design is
+queue 0 for best effort, queue 1&2 for AVB Class A&B. Bandwidth of each
+queue 1&2 set in driver is 50%, TX bandwidth fluctuated when selecting
+tx queues randomly with FEC_QUIRK_HAS_AVB quirk available.
 
-But the actual interrupt could happened between reading MCP_INTF and MCP_GPIO.
-In this situation we got nothing from MCP_INTF, but the event gets acknowledged
-on the expander by reading MCP_GPIO. This leads to losing events.
+This patch adds ndo_select_queue callback to select queues for
+transmitting to fix this issue. It will always return queue 0 if this is
+not a vlan packet, and return queue 1 or 2 based on priority of vlan
+packet.
 
-Fix the problem by not reading any register until we see something in MCP_INTF.
+You may complain that in fact we only use single queue for trasmitting
+if we are not targeted to VLAN. Yes, but seems we have no choice, since
+AVB is enabled when the driver probed, we can't switch this feature
+dynamicly. After compare multiple queues to single queue, TX throughput
+almost no improvement.
 
-The error was reproduced and fix tested on MCP23017.
+One way we can implemet is to configure the driver to multiple queues
+with Round-robin scheme by default. Then add ndo_setup_tc callback to
+enable/disable AVB feature for users. Unfortunately, ENET AVB IP seems
+not follow the standard 802.1Qav spec. We only can program
+DMAnCFG[IDLE_SLOPE] field to calculate bandwidth fraction. And idle
+slope is restricted to certain valus (a total of 19). It's far away from
+CBS QDisc implemented in Linux TC framework. If you strongly suggest to do
+this, I think we only can support limited numbers of bandwidth and reject
+others, but it's really urgly and wried.
 
-Signed-off-by: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
-Link: https://lore.kernel.org/r/AM7PR06MB6769E1183F68DEBB252F665ABA3E9@AM7PR06MB6769.eurprd06.prod.outlook.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+With this patch, VLAN tagged packets route to queue 0/1/2 based on vlan
+priority; VLAN untagged packets route to queue 0.
+
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 32 +++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
-index d8bcbefcba89..9d5e2d9b6b93 100644
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -459,6 +459,11 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
- 	if (mcp_read(mcp, MCP_INTF, &intf))
- 		goto unlock;
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 15c9cffa8735..6c097ae3bac5 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -75,6 +75,8 @@ static void fec_enet_itr_coal_init(struct net_device *ndev);
  
-+	if (intf == 0) {
-+		/* There is no interrupt pending */
-+		return IRQ_HANDLED;
+ #define DRIVER_NAME	"fec"
+ 
++static const u16 fec_enet_vlan_pri_to_queue[8] = {0, 0, 1, 1, 1, 2, 2, 2};
++
+ /* Pause frame feild and FIFO threshold */
+ #define FEC_ENET_FCE	(1 << 5)
+ #define FEC_ENET_RSEM_V	0x84
+@@ -3228,10 +3230,40 @@ static int fec_set_features(struct net_device *netdev,
+ 	return 0;
+ }
+ 
++static u16 fec_enet_get_raw_vlan_tci(struct sk_buff *skb)
++{
++	struct vlan_ethhdr *vhdr;
++	unsigned short vlan_TCI = 0;
++
++	if (skb->protocol == htons(ETH_P_ALL)) {
++		vhdr = (struct vlan_ethhdr *)(skb->data);
++		vlan_TCI = ntohs(vhdr->h_vlan_TCI);
 +	}
 +
- 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
- 		goto unlock;
- 
-@@ -476,11 +481,6 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
- 	mcp->cached_gpio = gpio;
- 	mutex_unlock(&mcp->lock);
- 
--	if (intf == 0) {
--		/* There is no interrupt pending */
--		return IRQ_HANDLED;
--	}
--
- 	dev_dbg(mcp->chip.parent,
- 		"intcap 0x%04X intf 0x%04X gpio_orig 0x%04X gpio 0x%04X\n",
- 		intcap, intf, gpio_orig, gpio);
++	return vlan_TCI;
++}
++
++static u16 fec_enet_select_queue(struct net_device *ndev, struct sk_buff *skb,
++				 struct net_device *sb_dev)
++{
++	struct fec_enet_private *fep = netdev_priv(ndev);
++	u16 vlan_tag;
++
++	if (!(fep->quirks & FEC_QUIRK_HAS_AVB))
++		return netdev_pick_tx(ndev, skb, NULL);
++
++	vlan_tag = fec_enet_get_raw_vlan_tci(skb);
++	if (!vlan_tag)
++		return vlan_tag;
++
++	return fec_enet_vlan_pri_to_queue[vlan_tag >> 13];
++}
++
+ static const struct net_device_ops fec_netdev_ops = {
+ 	.ndo_open		= fec_enet_open,
+ 	.ndo_stop		= fec_enet_close,
+ 	.ndo_start_xmit		= fec_enet_start_xmit,
++	.ndo_select_queue       = fec_enet_select_queue,
+ 	.ndo_set_rx_mode	= set_multicast_list,
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_tx_timeout		= fec_timeout,
 -- 
 2.30.2
 
