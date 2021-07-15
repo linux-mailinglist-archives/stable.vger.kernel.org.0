@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119C03CAB20
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83CC3CA97C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244366AbhGOTRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:17:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
+        id S241775AbhGOTG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:06:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242980AbhGOTPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:15:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B047601FE;
-        Thu, 15 Jul 2021 19:12:04 +0000 (UTC)
+        id S241771AbhGOTFv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:05:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDFAB613E5;
+        Thu, 15 Jul 2021 19:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376325;
-        bh=mdd8nG0Bg6TD979N9NBC1X5WKlKBM9Z20I4hsuHlpaU=;
+        s=korg; t=1626375743;
+        bh=6mgecr9hT2o3vUpA0ZgxGUAH2GB6BHXEW9m2waH4tms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZNxmBG04YztcqS+38eMYk4UIWxzN/g6fXbJf68r1p2o/g1TD/p1aJhraSfaKk+eY
-         PAk/rOv5GFbmvCcZpifLkCD/8zPSE9CqYayXvzw2InMyDRN2+xK93gyY9tgMb7bgZh
-         ePUUtBFl/nzpOv/ASX/thM7VgUxDuDgra18Nk8oU=
+        b=zqXS4PeLR4oeR5Awh0jnYwR3XzgRZcHfc1OZAYvwwArT0+e/J21mlykoEKMVZPXcA
+         D312FbNqvpD89hvX3aWNX2DqKUA2w5Sa7UGDR0IgLxQRhaRW1k7D/KW3GbrfmWDK9S
+         arBfxy8ENlWtuC4duGuO8q8b69KUsU71u4JLGVl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.13 224/266] ubifs: Fix races between xattr_{set|get} and listxattr operations
-Date:   Thu, 15 Jul 2021 20:39:39 +0200
-Message-Id: <20210715182648.761288713@linuxfoundation.org>
+        stable@vger.kernel.org, Konstantin Kharlamov <Hi-Angel@yandex.ru>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.12 218/242] PCI: Leave Apple Thunderbolt controllers on for s2idle or standby
+Date:   Thu, 15 Jul 2021 20:39:40 +0200
+Message-Id: <20210715182631.461806493@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,220 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Konstantin Kharlamov <Hi-Angel@yandex.ru>
 
-commit f4e3634a3b642225a530c292fdb1e8a4007507f5 upstream.
+commit 4694ae373dc2114f9a82f6ae15737e65af0c6dea upstream.
 
-UBIFS may occur some problems with concurrent xattr_{set|get} and
-listxattr operations, such as assertion failure, memory corruption,
-stale xattr value[1].
+On Macbook 2013, resuming from suspend-to-idle or standby resulted in the
+external monitor no longer being detected, a stacktrace, and errors like
+this in dmesg:
 
-Fix it by importing a new rw-lock in @ubifs_inode to serilize write
-operations on xattr, concurrent read operations are still effective,
-just like ext4.
+  pcieport 0000:06:00.0: can't change power state from D3hot to D0 (config space inaccessible)
 
-[1] https://lore.kernel.org/linux-mtd/20200630130438.141649-1-houtao1@huawei.com
+The reason is that we know how to turn power to the Thunderbolt controller
+*off* via the SXIO/SXFP/SXLF methods, but we don't know how to turn power
+back on.  We have to rely on firmware to turn the power back on.
 
-Fixes: 1e51764a3c2ac05a23 ("UBIFS: add new flash file system")
-Cc: stable@vger.kernel.org  # v2.6+
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+When going to the "suspend-to-idle" or "standby" system sleep states,
+firmware is not involved either on the suspend side or the resume side, so
+we can't use SXIO/SXFP/SXLF to turn the power off.
+
+Skip SXIO/SXFP/SXLF when firmware isn't involved in suspend, e.g., when
+we're going to the "suspend-to-idle" or "standby" system sleep states.
+
+Fixes: 1df5172c5c25 ("PCI: Suspend/resume quirks for Apple thunderbolt")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212767
+Link: https://lore.kernel.org/r/20210520235501.917397-1-Hi-Angel@yandex.ru
+Signed-off-by: Konstantin Kharlamov <Hi-Angel@yandex.ru>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/super.c |    1 +
- fs/ubifs/ubifs.h |    2 ++
- fs/ubifs/xattr.c |   44 +++++++++++++++++++++++++++++++++-----------
- 3 files changed, 36 insertions(+), 11 deletions(-)
+ drivers/pci/quirks.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -275,6 +275,7 @@ static struct inode *ubifs_alloc_inode(s
- 	memset((void *)ui + sizeof(struct inode), 0,
- 	       sizeof(struct ubifs_inode) - sizeof(struct inode));
- 	mutex_init(&ui->ui_mutex);
-+	init_rwsem(&ui->xattr_sem);
- 	spin_lock_init(&ui->ui_lock);
- 	return &ui->vfs_inode;
- };
---- a/fs/ubifs/ubifs.h
-+++ b/fs/ubifs/ubifs.h
-@@ -356,6 +356,7 @@ struct ubifs_gced_idx_leb {
-  * @ui_mutex: serializes inode write-back with the rest of VFS operations,
-  *            serializes "clean <-> dirty" state changes, serializes bulk-read,
-  *            protects @dirty, @bulk_read, @ui_size, and @xattr_size
-+ * @xattr_sem: serilizes write operations (remove|set|create) on xattr
-  * @ui_lock: protects @synced_i_size
-  * @synced_i_size: synchronized size of inode, i.e. the value of inode size
-  *                 currently stored on the flash; used only for regular file
-@@ -409,6 +410,7 @@ struct ubifs_inode {
- 	unsigned int bulk_read:1;
- 	unsigned int compr_type:2;
- 	struct mutex ui_mutex;
-+	struct rw_semaphore xattr_sem;
- 	spinlock_t ui_lock;
- 	loff_t synced_i_size;
- 	loff_t ui_size;
---- a/fs/ubifs/xattr.c
-+++ b/fs/ubifs/xattr.c
-@@ -285,6 +285,7 @@ int ubifs_xattr_set(struct inode *host,
- 	if (!xent)
- 		return -ENOMEM;
- 
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	/*
- 	 * The extended attribute entries are stored in LNC, so multiple
- 	 * look-ups do not involve reading the flash.
-@@ -319,6 +320,7 @@ int ubifs_xattr_set(struct inode *host,
- 	iput(inode);
- 
- out_free:
-+	up_write(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
- }
-@@ -341,18 +343,19 @@ ssize_t ubifs_xattr_get(struct inode *ho
- 	if (!xent)
- 		return -ENOMEM;
- 
-+	down_read(&ubifs_inode(host)->xattr_sem);
- 	xent_key_init(c, &key, host->i_ino, &nm);
- 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
- 	if (err) {
- 		if (err == -ENOENT)
- 			err = -ENODATA;
--		goto out_unlock;
-+		goto out_cleanup;
- 	}
- 
- 	inode = iget_xattr(c, le64_to_cpu(xent->inum));
- 	if (IS_ERR(inode)) {
- 		err = PTR_ERR(inode);
--		goto out_unlock;
-+		goto out_cleanup;
- 	}
- 
- 	ui = ubifs_inode(inode);
-@@ -374,7 +377,8 @@ ssize_t ubifs_xattr_get(struct inode *ho
- out_iput:
- 	mutex_unlock(&ui->ui_mutex);
- 	iput(inode);
--out_unlock:
-+out_cleanup:
-+	up_read(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
- }
-@@ -406,16 +410,21 @@ ssize_t ubifs_listxattr(struct dentry *d
- 	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
- 		dentry, size);
- 
-+	down_read(&host_ui->xattr_sem);
- 	len = host_ui->xattr_names + host_ui->xattr_cnt;
--	if (!buffer)
-+	if (!buffer) {
- 		/*
- 		 * We should return the minimum buffer size which will fit a
- 		 * null-terminated list of all the extended attribute names.
- 		 */
--		return len;
-+		err = len;
-+		goto out_err;
-+	}
- 
--	if (len > size)
--		return -ERANGE;
-+	if (len > size) {
-+		err = -ERANGE;
-+		goto out_err;
-+	}
- 
- 	lowest_xent_key(c, &key, host->i_ino);
- 	while (1) {
-@@ -437,8 +446,9 @@ ssize_t ubifs_listxattr(struct dentry *d
- 		pxent = xent;
- 		key_read(c, &xent->key, &key);
- 	}
--
- 	kfree(pxent);
-+	up_read(&host_ui->xattr_sem);
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -27,6 +27,7 @@
+ #include <linux/nvme.h>
+ #include <linux/platform_data/x86/apple.h>
+ #include <linux/pm_runtime.h>
++#include <linux/suspend.h>
+ #include <linux/switchtec.h>
+ #include <asm/dma.h>	/* isa_dma_bridge_buggy */
+ #include "pci.h"
+@@ -3668,6 +3669,16 @@ static void quirk_apple_poweroff_thunder
+ 		return;
+ 	if (pci_pcie_type(dev) != PCI_EXP_TYPE_UPSTREAM)
+ 		return;
 +
- 	if (err != -ENOENT) {
- 		ubifs_err(c, "cannot find next direntry, error %d", err);
- 		return err;
-@@ -446,6 +456,10 @@ ssize_t ubifs_listxattr(struct dentry *d
- 
- 	ubifs_assert(c, written <= size);
- 	return written;
++	/*
++	 * SXIO/SXFP/SXLF turns off power to the Thunderbolt controller.
++	 * We don't know how to turn it back on again, but firmware does,
++	 * so we can only use SXIO/SXFP/SXLF if we're suspending via
++	 * firmware.
++	 */
++	if (!pm_suspend_via_firmware())
++		return;
 +
-+out_err:
-+	up_read(&host_ui->xattr_sem);
-+	return err;
- }
- 
- static int remove_xattr(struct ubifs_info *c, struct inode *host,
-@@ -504,6 +518,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
- 		   host->i_ino);
- 
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	lowest_xent_key(c, &key, host->i_ino);
- 	while (1) {
- 		xent = ubifs_tnc_next_ent(c, &key, &nm);
-@@ -523,7 +538,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 			ubifs_ro_mode(c, err);
- 			kfree(pxent);
- 			kfree(xent);
--			return err;
-+			goto out_err;
- 		}
- 
- 		ubifs_assert(c, ubifs_inode(xino)->xattr);
-@@ -535,7 +550,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 			kfree(xent);
- 			iput(xino);
- 			ubifs_err(c, "cannot remove xattr, error %d", err);
--			return err;
-+			goto out_err;
- 		}
- 
- 		iput(xino);
-@@ -544,14 +559,19 @@ int ubifs_purge_xattrs(struct inode *hos
- 		pxent = xent;
- 		key_read(c, &xent->key, &key);
- 	}
--
- 	kfree(pxent);
-+	up_write(&ubifs_inode(host)->xattr_sem);
-+
- 	if (err != -ENOENT) {
- 		ubifs_err(c, "cannot find next direntry, error %d", err);
- 		return err;
- 	}
- 
- 	return 0;
-+
-+out_err:
-+	up_write(&ubifs_inode(host)->xattr_sem);
-+	return err;
- }
- 
- /**
-@@ -594,6 +614,7 @@ static int ubifs_xattr_remove(struct ino
- 	if (!xent)
- 		return -ENOMEM;
- 
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	xent_key_init(c, &key, host->i_ino, &nm);
- 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
- 	if (err) {
-@@ -618,6 +639,7 @@ static int ubifs_xattr_remove(struct ino
- 	iput(inode);
- 
- out_free:
-+	up_write(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
- }
+ 	bridge = ACPI_HANDLE(&dev->dev);
+ 	if (!bridge)
+ 		return;
 
 
