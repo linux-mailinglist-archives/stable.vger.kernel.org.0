@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E203B3CAA38
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 185823CA8D1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243241AbhGOTMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
+        id S241440AbhGOTDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243735AbhGOTKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:10:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AD15601FE;
-        Thu, 15 Jul 2021 19:06:26 +0000 (UTC)
+        id S243230AbhGOTBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 989E2613D0;
+        Thu, 15 Jul 2021 18:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375986;
-        bh=1xZbz8SnTsF8urNq0nGOSLHQcaxDLJdxa782w9S3ugk=;
+        s=korg; t=1626375504;
+        bh=7Qs1r0aFeYfdkTLkkZFBrLjt20yzUE/Pmdvn8MSeMxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEF1I1MF3oDxSDB9WW/tWw+Yqg9IUaRRZh71nzi1mmpVmjOtQ7VGfcjqEtgVJChiH
-         qH2aqg+FS+eeExGyXPRPjKZF7YZXt+klCFL4UO8RBvB5C89YKiTpTIN30/UoQ4DIcu
-         I6HytYAExAsO3uXoWWpK92Jj1sHNCUM6gJklkKmQ=
+        b=wQQxbljLjx+y2aLU9kVFZvWiORlTxpV+vos08mkl7+qyBjsBCtq15//qKinBLjxZ8
+         zXP/RbRjyypIbOOGJwT0aUtt21yFKB0xHD7T+zgT3ckapr2miVVq5OpdGrYreKgiB/
+         le4pxtxomCgq9iOvBuU+rVrYZty8xDijY3w+GPSw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Vladimir Stempen <vladimir.stempen@amd.com>,
+        Wenjing Liu <Wenjing.Liu@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 079/266] net: mvpp2: check return value after calling platform_get_resource()
+Subject: [PATCH 5.12 072/242] drm/amd/display: Release MST resources on switch from MST to SST
 Date:   Thu, 15 Jul 2021 20:37:14 +0200
-Message-Id: <20210715182628.129988339@linuxfoundation.org>
+Message-Id: <20210715182605.689863923@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Vladimir Stempen <vladimir.stempen@amd.com>
 
-[ Upstream commit 0bb51a3a385790a4be20085494cf78f70dadf646 ]
+[ Upstream commit 3f8518b60c10aa96f3efa38a967a0b4eb9211ac0 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+[why]
+When OS overrides training link training parameters
+for MST device to SST mode, MST resources are not
+released and leak of the resource may result crash and
+incorrect MST discovery during following hot plugs.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[how]
+Retaining sink object to be reused by SST link and
+releasing MST  resources.
+
+Signed-off-by: Vladimir Stempen <vladimir.stempen@amd.com>
+Reviewed-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index b3041fe6c0ae..42cc27ef7378 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -7387,6 +7387,10 @@ static int mvpp2_probe(struct platform_device *pdev)
- 			return PTR_ERR(priv->lms_base);
- 	} else {
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		if (!res) {
-+			dev_err(&pdev->dev, "Invalid resource\n");
-+			return -EINVAL;
-+		}
- 		if (has_acpi_companion(&pdev->dev)) {
- 			/* In case the MDIO memory region is declared in
- 			 * the ACPI, it can already appear as 'in-use'
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index b85f67341a9a..c957d7d055ba 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1726,6 +1726,8 @@ static void set_dp_mst_mode(struct dc_link *link, bool mst_enable)
+ 		link->type = dc_connection_single;
+ 		link->local_sink = link->remote_sinks[0];
+ 		link->local_sink->sink_signal = SIGNAL_TYPE_DISPLAY_PORT;
++		dc_sink_retain(link->local_sink);
++		dm_helpers_dp_mst_stop_top_mgr(link->ctx, link);
+ 	} else if (mst_enable == true &&
+ 			link->type == dc_connection_single &&
+ 			link->remote_sinks[0] != NULL) {
 -- 
 2.30.2
 
