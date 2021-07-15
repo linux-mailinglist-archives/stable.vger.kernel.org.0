@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 849663CA925
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CE8B3CAB08
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242270AbhGOTFb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39762 "EHLO mail.kernel.org"
+        id S244560AbhGOTQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243372AbhGOTEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDA4D613F9;
-        Thu, 15 Jul 2021 18:59:57 +0000 (UTC)
+        id S239838AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A3C61424;
+        Thu, 15 Jul 2021 19:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375598;
-        bh=6JATwP12G/64FbgrNsJhSq7lJ8aC9o29Lv6SkZrlzBc=;
+        s=korg; t=1626376299;
+        bh=IXkuYAabWRJHpwf5MDCY35igdDZJX3mR1zTfFBs4XKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MguIofEP+Imbew8odYHMip7NBqbooqoN7bQPx3PKWFrgD5I04k4eSVUtR17o5wZ3y
-         wxzsZu99KHpKb6O8GW80gNzxl6WH1CG+MkC2BjUEY0tPKFuSA3kR+VT1AWC5en1IsL
-         f2XfsEaElJYqpKDunH521YAslqqabZs+KfO4Bb2E=
+        b=IC5Ro4P6YXnkd3/t/k3dWERDmriJv+/TfefCrwz3w7AvuxrQ8nDFtCRNredf/b59Q
+         KYMWPUWjY4V8hV/fCihRkpWfcIJ44FPKktcN0V5maVO91NtqaF942OiT5meheZJhFh
+         aAu6XzkgIxHKw4vzrMSHeBLzjUp6WzkclaMCbD5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolaus Schaller <hns@goldelico.com>,
-        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
-        <zhouyanjie@wanyeetech.com>, Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Kiran K <kiran.k@intel.com>,
+        Lokendra Singh <lokendra.singh@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 153/242] MIPS: CI20: Reduce clocksource to 750 kHz.
+Subject: [PATCH 5.13 160/266] Bluetooth: Fix alt settings for incoming SCO with transparent coding format
 Date:   Thu, 15 Jul 2021 20:38:35 +0200
-Message-Id: <20210715182620.181549345@linuxfoundation.org>
+Message-Id: <20210715182641.012462490@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+From: Kiran K <kiran.k@intel.com>
 
-[ Upstream commit 23c64447b3538a6f34cb38aae3bc19dc1ec53436 ]
+[ Upstream commit 06d213d8a89a6f55b708422c3dda2b22add10748 ]
 
-The original clock (3 MHz) is too fast for the clocksource,
-there will be a chance that the system may get stuck.
+For incoming SCO connection with transparent coding format, alt setting
+of CVSD is getting applied instead of Transparent.
 
-Reported-by: Nikolaus Schaller <hns@goldelico.com>
-Tested-by: Nikolaus Schaller <hns@goldelico.com> # on CI20
-Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
-Acked-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Before fix:
+< HCI Command: Accept Synchron.. (0x01|0x0029) plen 21  #2196 [hci0] 321.342548
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 13
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x003f
+          HV1 may be used
+          HV2 may be used
+          HV3 may be used
+          EV3 may be used
+          EV4 may be used
+          EV5 may be used
+> HCI Event: Command Status (0x0f) plen 4               #2197 [hci0] 321.343585
+      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Synchronous Connect Comp.. (0x2c) plen 17  #2198 [hci0] 321.351666
+        Status: Success (0x00)
+        Handle: 257
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x0c
+        Retransmission window: 0x04
+        RX packet length: 60
+        TX packet length: 60
+        Air mode: Transparent (0x03)
+........
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2336 [hci0] 321.383655
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2337 [hci0] 321.389558
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2338 [hci0] 321.393615
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2339 [hci0] 321.393618
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2340 [hci0] 321.393618
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2341 [hci0] 321.397070
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2342 [hci0] 321.403622
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2343 [hci0] 321.403625
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2344 [hci0] 321.403625
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2345 [hci0] 321.403625
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2346 [hci0] 321.404569
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2347 [hci0] 321.412091
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2348 [hci0] 321.413626
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2349 [hci0] 321.413630
+> SCO Data RX: Handle 257 flags 0x00 dlen 48            #2350 [hci0] 321.413630
+< SCO Data TX: Handle 257 flags 0x00 dlen 60            #2351 [hci0] 321.419674
+
+After fix:
+
+< HCI Command: Accept Synchronou.. (0x01|0x0029) plen 21  #309 [hci0] 49.439693
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Transmit bandwidth: 8000
+        Receive bandwidth: 8000
+        Max latency: 13
+        Setting: 0x0003
+          Input Coding: Linear
+          Input Data Format: 1's complement
+          Input Sample Size: 8-bit
+          # of bits padding at MSB: 0
+          Air Coding Format: Transparent Data
+        Retransmission effort: Optimize for link quality (0x02)
+        Packet type: 0x003f
+          HV1 may be used
+          HV2 may be used
+          HV3 may be used
+          EV3 may be used
+          EV4 may be used
+          EV5 may be used
+> HCI Event: Command Status (0x0f) plen 4                 #310 [hci0] 49.440308
+      Accept Synchronous Connection Request (0x01|0x0029) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Synchronous Connect Complete (0x2c) plen 17  #311 [hci0] 49.449308
+        Status: Success (0x00)
+        Handle: 257
+        Address: 1C:CC:D6:E2:EA:80 (Xiaomi Communications Co Ltd)
+        Link type: eSCO (0x02)
+        Transmission interval: 0x0c
+        Retransmission window: 0x04
+        RX packet length: 60
+        TX packet length: 60
+        Air mode: Transparent (0x03)
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #312 [hci0] 49.450421
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #313 [hci0] 49.457927
+> HCI Event: Max Slots Change (0x1b) plen 3               #314 [hci0] 49.460345
+        Handle: 256
+        Max slots: 5
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #315 [hci0] 49.465453
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #316 [hci0] 49.470502
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #317 [hci0] 49.470519
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #318 [hci0] 49.472996
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #319 [hci0] 49.480412
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #320 [hci0] 49.480492
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #321 [hci0] 49.487989
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #322 [hci0] 49.490303
+< SCO Data TX: Handle 257 flags 0x00 dlen 60              #323 [hci0] 49.495496
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #324 [hci0] 49.500304
+> SCO Data RX: Handle 257 flags 0x00 dlen 60              #325 [hci0] 49.500311
+
+Signed-off-by: Kiran K <kiran.k@intel.com>
+Signed-off-by: Lokendra Singh <lokendra.singh@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/dts/ingenic/ci20.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/bluetooth/hci_event.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
-index 8877c62609de..3a4eaf1f3f48 100644
---- a/arch/mips/boot/dts/ingenic/ci20.dts
-+++ b/arch/mips/boot/dts/ingenic/ci20.dts
-@@ -525,10 +525,10 @@
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index b077d150ac52..62c99e015609 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4404,12 +4404,12 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev,
  
- &tcu {
- 	/*
--	 * 750 kHz for the system timer and 3 MHz for the clocksource,
-+	 * 750 kHz for the system timer and clocksource,
- 	 * use channel #0 for the system timer, #1 for the clocksource.
- 	 */
- 	assigned-clocks = <&tcu TCU_CLK_TIMER0>, <&tcu TCU_CLK_TIMER1>,
- 					  <&tcu TCU_CLK_OST>;
--	assigned-clock-rates = <750000>, <3000000>, <3000000>;
-+	assigned-clock-rates = <750000>, <750000>, <3000000>;
- };
+ 	bt_dev_dbg(hdev, "SCO connected with air mode: %02x", ev->air_mode);
+ 
+-	switch (conn->setting & SCO_AIRMODE_MASK) {
+-	case SCO_AIRMODE_CVSD:
++	switch (ev->air_mode) {
++	case 0x02:
+ 		if (hdev->notify)
+ 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_CVSD);
+ 		break;
+-	case SCO_AIRMODE_TRANSP:
++	case 0x03:
+ 		if (hdev->notify)
+ 			hdev->notify(hdev, HCI_NOTIFY_ENABLE_SCO_TRANSP);
+ 		break;
 -- 
 2.30.2
 
