@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37E1C3CA821
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E003CA826
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240673AbhGOS6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:58:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
+        id S238299AbhGOS6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241650AbhGOS5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:57:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8201613DA;
-        Thu, 15 Jul 2021 18:54:46 +0000 (UTC)
+        id S241632AbhGOS5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:57:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47342613C4;
+        Thu, 15 Jul 2021 18:54:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375287;
-        bh=43o12DKparZTph3QHIxzT2RGZNQMhr45ctVvpCSwr1E=;
+        s=korg; t=1626375289;
+        bh=LlINakK7vPhAHS2AjT7/SVE6Zsa9OiC3yVd1oojOPFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKQjbiPFboQ1SUrcE+rIPx94CW3AqXXL49O7tUgNe09M88U25IO/ypTvHyJhpdhOE
-         APHCRtS9SZS+XlUbEiHQAXpzTkheU7zJ6++0LodHKS2n/sgHvE5ixVBRsNhDNsuJyp
-         gyUKTpcOcAOHmnbAk2D0yYRUP+j+1ShIgsEUxRW8=
+        b=zmBKtigEAtKipCWaHZtbVRrcl/wTJepzqA1aiXYEPyEhgrOGkQXy1yOZPDs8wOFSm
+         ZvGFck8kVXGQ+NQAcCEa/Uc7K0pyN+mDNrGJP/qDNw7prlHk/7MdwcA7ObawdNOT0A
+         F3yfEO7Hej/PpgCvF9r1IHuHkwOGMe6XF+q5uJ2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Zhang <Jack.Zhang1@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Emily Deng <Emily.Deng@amd.com>
-Subject: [PATCH 5.12 005/242] drm/amd/amdgpu/sriov disable all ip hw status by default
-Date:   Thu, 15 Jul 2021 20:36:07 +0200
-Message-Id: <20210715182552.717060921@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 006/242] drm/vc4: fix argument ordering in vc4_crtc_get_margins()
+Date:   Thu, 15 Jul 2021 20:36:08 +0200
+Message-Id: <20210715182552.886505356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
 References: <20210715182551.731989182@linuxfoundation.org>
@@ -41,39 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Zhang <Jack.Zhang1@amd.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 95ea3dbc4e9548d35ab6fbf67675cef8c293e2f5 ]
+[ Upstream commit e590c2b03a6143ba93ddad306bc9eaafa838c020 ]
 
-Disable all ip's hw status to false before any hw_init.
-Only set it to true until its hw_init is executed.
+Cppcheck complains that the declaration doesn't match the function
+definition.  Obviously "left" should come before "right".  The caller
+and the function implementation are done this way, it's just the
+declaration which is wrong so this doesn't affect runtime.
 
-The old 5.9 branch has this change but somehow the 5.11 kernrel does
-not have this fix.
-
-Without this change, sriov tdr have gfx IB test fail.
-
-Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
-Review-by: Emily Deng <Emily.Deng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/YH/720FD978TPhHp@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 +-
+ drivers/gpu/drm/vc4/vc4_drv.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 85d90e857693..a32b41e4c24e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -2818,7 +2818,7 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
- 		AMD_IP_BLOCK_TYPE_IH,
- 	};
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
+index a7500716cf3f..5dceadc61600 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.h
++++ b/drivers/gpu/drm/vc4/vc4_drv.h
+@@ -825,7 +825,7 @@ void vc4_crtc_destroy_state(struct drm_crtc *crtc,
+ void vc4_crtc_reset(struct drm_crtc *crtc);
+ void vc4_crtc_handle_vblank(struct vc4_crtc *crtc);
+ void vc4_crtc_get_margins(struct drm_crtc_state *state,
+-			  unsigned int *right, unsigned int *left,
++			  unsigned int *left, unsigned int *right,
+ 			  unsigned int *top, unsigned int *bottom);
  
--	for (i = 0; i < ARRAY_SIZE(ip_order); i++) {
-+	for (i = 0; i < adev->num_ip_blocks; i++) {
- 		int j;
- 		struct amdgpu_ip_block *block;
- 
+ /* vc4_debugfs.c */
 -- 
 2.30.2
 
