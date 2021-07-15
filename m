@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0B13CA78F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 084AF3CA644
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240773AbhGOSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
+        id S231997AbhGOSqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241609AbhGOSyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CFE0613CC;
-        Thu, 15 Jul 2021 18:51:39 +0000 (UTC)
+        id S238388AbhGOSqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D6F613DC;
+        Thu, 15 Jul 2021 18:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375099;
-        bh=MgamP868/Zj+DqI7rtnk4hFbHLVm/gY445+0wZNPZlE=;
+        s=korg; t=1626374638;
+        bh=jSKqkZ+UU4PmhEyzCaosrPO3qLRJWJGjTNDb4ZWQLdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L83WaBE1fxFqp7f5n3GPnO4Z8owkNbSDhsfoO3zGVJoLZosv2R/vwE2exLiUJOALh
-         qXrATmQ5nT17dgxzt2aIvjft89pLm8qWbB99yjV/nHA3cgz/eaVjecgb7gIGlX6cqI
-         vBbUvc1aIVirYAnd8WuzNNFD92fQn+9x0JRDr7h0=
+        b=GHjC4vgRiCEU+td/EZdEgaRVnu8u5FxsFT0NAQr5A/axGIRyahOMPGifWRrbT/6yr
+         Vg761GhLxPciPhbIWJEhZ7/RSjIuGhVkvIBP071yzcYPWc5oupkyKYlw1Q/r/no2Xi
+         rruDH1t1gWTmCJJpAvJWMtxj6pBhLfQ1SJjPvQ3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
-        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
-        danny.wang@amd.com,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.10 160/215] drm/amd/display: Reject non-zero src_y and src_x for video planes
+        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Brian Starkey <brian.starkey@arm.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 5.4 085/122] drm/arm/malidp: Always list modifiers
 Date:   Thu, 15 Jul 2021 20:38:52 +0200
-Message-Id: <20210715182627.809638053@linuxfoundation.org>
+Message-Id: <20210715182513.526263732@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,72 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit c6c6a712199ab355ce333fa5764a59506bb107c1 upstream.
+commit 26c3e7fd5a3499e408915dadae5d5360790aae9a upstream.
 
-[Why]
-This hasn't been well tested and leads to complete system hangs on DCN1
-based systems, possibly others.
+Even when all we support is linear, make that explicit. Otherwise the
+uapi is rather confusing.
 
-The system hang can be reproduced by gesturing the video on the YouTube
-Android app on ChromeOS into full screen.
-
-[How]
-Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
-
-v2:
- - Add code comment describing the reason we're rejecting non-zero
-   src_x and src_y
- - Drop gerrit Change-Id
- - Add stable CC
- - Based on amd-staging-drm-next
-
-v3: removed trailing whitespace
-
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: nicholas.kazlauskas@amd.com
-Cc: amd-gfx@lists.freedesktop.org
-Cc: alexander.deucher@amd.com
-Cc: Roman.Li@amd.com
-Cc: hersenxs.wu@amd.com
-Cc: danny.wang@amd.com
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Brian Starkey <brian.starkey@arm.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-2-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/gpu/drm/arm/malidp_planes.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3702,6 +3702,23 @@ static int fill_dc_scaling_info(const st
- 	     scaling_info->src_rect.y != 0))
- 		return -EINVAL;
+--- a/drivers/gpu/drm/arm/malidp_planes.c
++++ b/drivers/gpu/drm/arm/malidp_planes.c
+@@ -922,6 +922,11 @@ static const struct drm_plane_helper_fun
+ 	.atomic_disable = malidp_de_plane_disable,
+ };
  
-+	/*
-+	 * For reasons we don't (yet) fully understand a non-zero
-+	 * src_y coordinate into an NV12 buffer can cause a
-+	 * system hang. To avoid hangs (and maybe be overly cautious)
-+	 * let's reject both non-zero src_x and src_y.
-+	 *
-+	 * We currently know of only one use-case to reproduce a
-+	 * scenario with non-zero src_x and src_y for NV12, which
-+	 * is to gesture the YouTube Android app into full screen
-+	 * on ChromeOS.
-+	 */
-+	if (state->fb &&
-+	    state->fb->format->format == DRM_FORMAT_NV12 &&
-+	    (scaling_info->src_rect.x != 0 ||
-+	     scaling_info->src_rect.y != 0))
-+		return -EINVAL;
++static const uint64_t linear_only_modifiers[] = {
++	DRM_FORMAT_MOD_LINEAR,
++	DRM_FORMAT_MOD_INVALID
++};
 +
- 	scaling_info->src_rect.width = state->src_w >> 16;
- 	if (scaling_info->src_rect.width == 0)
- 		return -EINVAL;
+ int malidp_de_planes_init(struct drm_device *drm)
+ {
+ 	struct malidp_drm *malidp = drm->dev_private;
+@@ -985,8 +990,8 @@ int malidp_de_planes_init(struct drm_dev
+ 		 */
+ 		ret = drm_universal_plane_init(drm, &plane->base, crtcs,
+ 				&malidp_de_plane_funcs, formats, n,
+-				(id == DE_SMART) ? NULL : modifiers, plane_type,
+-				NULL);
++				(id == DE_SMART) ? linear_only_modifiers : modifiers,
++				plane_type, NULL);
+ 
+ 		if (ret < 0)
+ 			goto cleanup;
 
 
