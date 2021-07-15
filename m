@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CA483CAA85
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B10803CA905
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242562AbhGOTN3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
+        id S241702AbhGOTFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243591AbhGOTLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3AC1613F2;
-        Thu, 15 Jul 2021 19:08:48 +0000 (UTC)
+        id S240660AbhGOTCz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:02:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52D62613CF;
+        Thu, 15 Jul 2021 18:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376129;
-        bh=3cAvlyliElTdZCBJoTGyt2k+dShk1FBrC6SP8aQZuwo=;
+        s=korg; t=1626375543;
+        bh=KSZ7rKJwOjkrmzpOVQugWhLbgtTy/OWflm3K4vutGBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1nuifqUw+VYHQ/DOQjFmmKsTScZDRoegfqUNT8dXg+HNjJoWSGUG+Y9W5Gsm34nL
-         bSHgYNbnOaYj7BTmpfNEVoUqtXQRP6ZU6Zbi1Sv91RNYXkSEVtERihk8XuFJTJmgM9
-         Ue9cQ6F/9Isylm46D9Tjo2lCbGTv42Uk1sx0Jkr8=
+        b=kiuEluO31vpQLGXBNnTBrSbNH+6wGmMP1RF/4yfiPeBojmOx1DmrjtigcT2hlsP1W
+         1fM3yMLX4GV6nEX3HmyJIHu46EVA+ZDp8Kv0EsqqFDkjQERBa16aFBb5zYZEX1pwVz
+         /6XbnJnsdOKl1n2XaoIZiNoeSWjO/JYOSVbaivOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Lorenz Bauer <lmb@cloudflare.com>,
+        Martynas Pumputis <m@lambda.lt>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 139/266] iwlwifi: mvm: apply RX diversity per PHY context
+Subject: [PATCH 5.12 132/242] net: retrieve netns cookie via getsocketopt
 Date:   Thu, 15 Jul 2021 20:38:14 +0200
-Message-Id: <20210715182638.223992086@linuxfoundation.org>
+Message-Id: <20210715182616.262612399@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,183 +42,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Martynas Pumputis <m@lambda.lt>
 
-[ Upstream commit a171399fd687a7d2fa56a10c9a2d7084a647677d ]
+[ Upstream commit e8b9eab99232c4e62ada9d7976c80fd5e8118289 ]
 
-SMPS requests may differ per interfaces due to e.g. Bluetooth
-only interfering on 2.4 GHz, so if that's the case we should,
-in the case of multiple PHY contexts, still allow RX diversity
-on PHY context that have no interfaces with SMPS requests.
+It's getting more common to run nested container environments for
+testing cloud software. One of such examples is Kind [1] which runs a
+Kubernetes cluster in Docker containers on a single host. Each container
+acts as a Kubernetes node, and thus can run any Pod (aka container)
+inside the former. This approach simplifies testing a lot, as it
+eliminates complicated VM setups.
 
-Fix the code to pass through the PHY context in question and
-skip interfaces with non-matching PHY context while iterating.
+Unfortunately, such a setup breaks some functionality when cgroupv2 BPF
+programs are used for load-balancing. The load-balancer BPF program
+needs to detect whether a request originates from the host netns or a
+container netns in order to allow some access, e.g. to a service via a
+loopback IP address. Typically, the programs detect this by comparing
+netns cookies with the one of the init ns via a call to
+bpf_get_netns_cookie(NULL). However, in nested environments the latter
+cannot be used given the Kubernetes node's netns is outside the init ns.
+To fix this, we need to pass the Kubernetes node netns cookie to the
+program in a different way: by extending getsockopt() with a
+SO_NETNS_COOKIE option, the orchestrator which runs in the Kubernetes
+node netns can retrieve the cookie and pass it to the program instead.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210617100544.123c6b05809d.I992e3d1c6a29850d02eeec01712b5b685b963a87@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Thus, this is following up on Eric's commit 3d368ab87cf6 ("net:
+initialize net->net_cookie at netns setup") to allow retrieval via
+SO_NETNS_COOKIE.  This is also in line in how we retrieve socket cookie
+via SO_COOKIE.
+
+  [1] https://kind.sigs.k8s.io/
+
+Signed-off-by: Lorenz Bauer <lmb@cloudflare.com>
+Signed-off-by: Martynas Pumputis <m@lambda.lt>
+Cc: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/mvm.h  |  3 +-
- .../net/wireless/intel/iwlwifi/mvm/phy-ctxt.c | 15 ++++++----
- .../net/wireless/intel/iwlwifi/mvm/utils.c    | 28 ++++++++++++++-----
- 3 files changed, 32 insertions(+), 14 deletions(-)
+ arch/alpha/include/uapi/asm/socket.h  | 2 ++
+ arch/mips/include/uapi/asm/socket.h   | 2 ++
+ arch/parisc/include/uapi/asm/socket.h | 2 ++
+ arch/sparc/include/uapi/asm/socket.h  | 2 ++
+ include/uapi/asm-generic/socket.h     | 2 ++
+ net/core/sock.c                       | 7 +++++++
+ 6 files changed, 17 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-index 4d9d4d6892fc..02cf52133857 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mvm.h
-@@ -1827,7 +1827,8 @@ int iwl_mvm_disable_beacon_filter(struct iwl_mvm *mvm,
- void iwl_mvm_update_smps(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
- 				enum iwl_mvm_smps_type_request req_type,
- 				enum ieee80211_smps_mode smps_request);
--bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm);
-+bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm,
-+				  struct iwl_mvm_phy_ctxt *ctxt);
+diff --git a/arch/alpha/include/uapi/asm/socket.h b/arch/alpha/include/uapi/asm/socket.h
+index 57420356ce4c..6b3daba60987 100644
+--- a/arch/alpha/include/uapi/asm/socket.h
++++ b/arch/alpha/include/uapi/asm/socket.h
+@@ -127,6 +127,8 @@
+ #define SO_PREFER_BUSY_POLL	69
+ #define SO_BUSY_POLL_BUDGET	70
  
- /* Low latency */
- int iwl_mvm_update_low_latency(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c b/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
-index 0fd51f6aa206..4ed2338027d1 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/phy-ctxt.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
- /*
-- * Copyright (C) 2012-2014, 2018-2020 Intel Corporation
-+ * Copyright (C) 2012-2014, 2018-2021 Intel Corporation
-  * Copyright (C) 2013-2014 Intel Mobile Communications GmbH
-  * Copyright (C) 2017 Intel Deutschland GmbH
-  */
-@@ -76,6 +76,7 @@ static void iwl_mvm_phy_ctxt_cmd_hdr(struct iwl_mvm_phy_ctxt *ctxt,
- }
- 
- static void iwl_mvm_phy_ctxt_set_rxchain(struct iwl_mvm *mvm,
-+					 struct iwl_mvm_phy_ctxt *ctxt,
- 					 __le32 *rxchain_info,
- 					 u8 chains_static,
- 					 u8 chains_dynamic)
-@@ -93,7 +94,7 @@ static void iwl_mvm_phy_ctxt_set_rxchain(struct iwl_mvm *mvm,
- 	 * between the two antennas is sufficiently different to impact
- 	 * performance.
- 	 */
--	if (active_cnt == 1 && iwl_mvm_rx_diversity_allowed(mvm)) {
-+	if (active_cnt == 1 && iwl_mvm_rx_diversity_allowed(mvm, ctxt)) {
- 		idle_cnt = 2;
- 		active_cnt = 2;
- 	}
-@@ -113,6 +114,7 @@ static void iwl_mvm_phy_ctxt_set_rxchain(struct iwl_mvm *mvm,
-  * Add the phy configuration to the PHY context command
-  */
- static void iwl_mvm_phy_ctxt_cmd_data_v1(struct iwl_mvm *mvm,
-+					 struct iwl_mvm_phy_ctxt *ctxt,
- 					 struct iwl_phy_context_cmd_v1 *cmd,
- 					 struct cfg80211_chan_def *chandef,
- 					 u8 chains_static, u8 chains_dynamic)
-@@ -123,7 +125,7 @@ static void iwl_mvm_phy_ctxt_cmd_data_v1(struct iwl_mvm *mvm,
- 	/* Set the channel info data */
- 	iwl_mvm_set_chan_info_chandef(mvm, &cmd->ci, chandef);
- 
--	iwl_mvm_phy_ctxt_set_rxchain(mvm, &tail->rxchain_info,
-+	iwl_mvm_phy_ctxt_set_rxchain(mvm, ctxt, &tail->rxchain_info,
- 				     chains_static, chains_dynamic);
- 
- 	tail->txchain_info = cpu_to_le32(iwl_mvm_get_valid_tx_ant(mvm));
-@@ -133,6 +135,7 @@ static void iwl_mvm_phy_ctxt_cmd_data_v1(struct iwl_mvm *mvm,
-  * Add the phy configuration to the PHY context command
-  */
- static void iwl_mvm_phy_ctxt_cmd_data(struct iwl_mvm *mvm,
-+				      struct iwl_mvm_phy_ctxt *ctxt,
- 				      struct iwl_phy_context_cmd *cmd,
- 				      struct cfg80211_chan_def *chandef,
- 				      u8 chains_static, u8 chains_dynamic)
-@@ -143,7 +146,7 @@ static void iwl_mvm_phy_ctxt_cmd_data(struct iwl_mvm *mvm,
- 	/* Set the channel info data */
- 	iwl_mvm_set_chan_info_chandef(mvm, &cmd->ci, chandef);
- 
--	iwl_mvm_phy_ctxt_set_rxchain(mvm, &cmd->rxchain_info,
-+	iwl_mvm_phy_ctxt_set_rxchain(mvm, ctxt, &cmd->rxchain_info,
- 				     chains_static, chains_dynamic);
- }
- 
-@@ -170,7 +173,7 @@ static int iwl_mvm_phy_ctxt_apply(struct iwl_mvm *mvm,
- 		iwl_mvm_phy_ctxt_cmd_hdr(ctxt, &cmd, action);
- 
- 		/* Set the command data */
--		iwl_mvm_phy_ctxt_cmd_data(mvm, &cmd, chandef,
-+		iwl_mvm_phy_ctxt_cmd_data(mvm, ctxt, &cmd, chandef,
- 					  chains_static,
- 					  chains_dynamic);
- 
-@@ -186,7 +189,7 @@ static int iwl_mvm_phy_ctxt_apply(struct iwl_mvm *mvm,
- 					 action);
- 
- 		/* Set the command data */
--		iwl_mvm_phy_ctxt_cmd_data_v1(mvm, &cmd, chandef,
-+		iwl_mvm_phy_ctxt_cmd_data_v1(mvm, ctxt, &cmd, chandef,
- 					     chains_static,
- 					     chains_dynamic);
- 		ret = iwl_mvm_send_cmd_pdu(mvm, PHY_CONTEXT_CMD,
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-index c566be99a4c7..a89eb7c40ee7 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/utils.c
-@@ -683,23 +683,37 @@ void iwl_mvm_accu_radio_stats(struct iwl_mvm *mvm)
- 	mvm->accu_radio_stats.on_time_scan += mvm->radio_stats.on_time_scan;
- }
- 
-+struct iwl_mvm_diversity_iter_data {
-+	struct iwl_mvm_phy_ctxt *ctxt;
-+	bool result;
-+};
++#define SO_NETNS_COOKIE		71
 +
- static void iwl_mvm_diversity_iter(void *_data, u8 *mac,
- 				   struct ieee80211_vif *vif)
- {
- 	struct iwl_mvm_vif *mvmvif = iwl_mvm_vif_from_mac80211(vif);
--	bool *result = _data;
-+	struct iwl_mvm_diversity_iter_data *data = _data;
- 	int i;
+ #if !defined(__KERNEL__)
  
-+	if (mvmvif->phy_ctxt != data->ctxt)
-+		return;
+ #if __BITS_PER_LONG == 64
+diff --git a/arch/mips/include/uapi/asm/socket.h b/arch/mips/include/uapi/asm/socket.h
+index 2d949969313b..cdf404a831b2 100644
+--- a/arch/mips/include/uapi/asm/socket.h
++++ b/arch/mips/include/uapi/asm/socket.h
+@@ -138,6 +138,8 @@
+ #define SO_PREFER_BUSY_POLL	69
+ #define SO_BUSY_POLL_BUDGET	70
+ 
++#define SO_NETNS_COOKIE		71
 +
- 	for (i = 0; i < NUM_IWL_MVM_SMPS_REQ; i++) {
- 		if (mvmvif->smps_requests[i] == IEEE80211_SMPS_STATIC ||
--		    mvmvif->smps_requests[i] == IEEE80211_SMPS_DYNAMIC)
--			*result = false;
-+		    mvmvif->smps_requests[i] == IEEE80211_SMPS_DYNAMIC) {
-+			data->result = false;
-+			break;
-+		}
- 	}
- }
+ #if !defined(__KERNEL__)
  
--bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
-+bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm,
-+				  struct iwl_mvm_phy_ctxt *ctxt)
- {
--	bool result = true;
-+	struct iwl_mvm_diversity_iter_data data = {
-+		.ctxt = ctxt,
-+		.result = true,
-+	};
+ #if __BITS_PER_LONG == 64
+diff --git a/arch/parisc/include/uapi/asm/socket.h b/arch/parisc/include/uapi/asm/socket.h
+index f60904329bbc..5b5351cdcb33 100644
+--- a/arch/parisc/include/uapi/asm/socket.h
++++ b/arch/parisc/include/uapi/asm/socket.h
+@@ -119,6 +119,8 @@
+ #define SO_PREFER_BUSY_POLL	0x4043
+ #define SO_BUSY_POLL_BUDGET	0x4044
  
- 	lockdep_assert_held(&mvm->mutex);
++#define SO_NETNS_COOKIE		0x4045
++
+ #if !defined(__KERNEL__)
  
-@@ -711,9 +725,9 @@ bool iwl_mvm_rx_diversity_allowed(struct iwl_mvm *mvm)
+ #if __BITS_PER_LONG == 64
+diff --git a/arch/sparc/include/uapi/asm/socket.h b/arch/sparc/include/uapi/asm/socket.h
+index 848a22fbac20..92675dc380fa 100644
+--- a/arch/sparc/include/uapi/asm/socket.h
++++ b/arch/sparc/include/uapi/asm/socket.h
+@@ -120,6 +120,8 @@
+ #define SO_PREFER_BUSY_POLL	 0x0048
+ #define SO_BUSY_POLL_BUDGET	 0x0049
  
- 	ieee80211_iterate_active_interfaces_atomic(
- 			mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
--			iwl_mvm_diversity_iter, &result);
-+			iwl_mvm_diversity_iter, &data);
++#define SO_NETNS_COOKIE          0x0050
++
+ #if !defined(__KERNEL__)
  
--	return result;
-+	return data.result;
- }
  
- void iwl_mvm_send_low_latency_cmd(struct iwl_mvm *mvm,
+diff --git a/include/uapi/asm-generic/socket.h b/include/uapi/asm-generic/socket.h
+index 4dcd13d097a9..d588c244ec2f 100644
+--- a/include/uapi/asm-generic/socket.h
++++ b/include/uapi/asm-generic/socket.h
+@@ -122,6 +122,8 @@
+ #define SO_PREFER_BUSY_POLL	69
+ #define SO_BUSY_POLL_BUDGET	70
+ 
++#define SO_NETNS_COOKIE		71
++
+ #if !defined(__KERNEL__)
+ 
+ #if __BITS_PER_LONG == 64 || (defined(__x86_64__) && defined(__ILP32__))
+diff --git a/net/core/sock.c b/net/core/sock.c
+index a266760cd65e..60750f9ae32d 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1622,6 +1622,13 @@ int sock_getsockopt(struct socket *sock, int level, int optname,
+ 		v.val = sk->sk_bound_dev_if;
+ 		break;
+ 
++	case SO_NETNS_COOKIE:
++		lv = sizeof(u64);
++		if (len != lv)
++			return -EINVAL;
++		v.val64 = sock_net(sk)->net_cookie;
++		break;
++
+ 	default:
+ 		/* We implement the SO_SNDLOWAT etc to not be settable
+ 		 * (1003.1g 7).
 -- 
 2.30.2
 
