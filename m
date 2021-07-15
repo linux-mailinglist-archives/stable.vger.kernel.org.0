@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28AA43CAA7A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75EF23CA928
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242824AbhGOTNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+        id S240732AbhGOTFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242938AbhGOTLI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:11:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B774461285;
-        Thu, 15 Jul 2021 19:08:13 +0000 (UTC)
+        id S243418AbhGOTEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:04:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CED2A613D0;
+        Thu, 15 Jul 2021 19:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376094;
-        bh=WW0f6yr/kmOY2VFZsN6kWkCwtZSc7Qxz13BLP8ROPGU=;
+        s=korg; t=1626375612;
+        bh=r8kwZdWEjeJQgavL3sZHDfFvoV3qOI6K31qBnTF5WkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZovDURrVPptnomtEzx5SYb8YHsA/49YbQzbRMeYnM2C4YY47cXQE2Bo2e5JaBGIf5
-         PWFUisfKk3uiz0hLmsY4uTUF7LrIwXc+jDA/XlkXJuw1h6eX1IgQ0Omx1rW4dNb1fa
-         gal4u3dmV+xI6GCkJ/kmqZMO/6xFu4MZ/kgyBFeQ=
+        b=t2sdkKWCIpGOOSnt3CNIhOggP/Pbo7J8RB5hw8qjeNpC6DUTX7SquRpc1g/U2i1+u
+         HzLN/P6mmxOJOcueCe0uTlxw4CeYxzkrb/yvfMkahS8Dl/lSAtwXw1wzhPFT0IqNXY
+         AoL9lTDBsDCB+ECZG571cD3nVEvtQu4wtb8AXTWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 125/266] mt76: connac: fix UC entry is being overwritten
+        stable@vger.kernel.org, Shaul Triebitz <shaul.triebitz@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 118/242] iwlwifi: mvm: fix error print when session protection ends
 Date:   Thu, 15 Jul 2021 20:38:00 +0200
-Message-Id: <20210715182635.978178798@linuxfoundation.org>
+Message-Id: <20210715182613.890885891@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,108 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Shaul Triebitz <shaul.triebitz@intel.com>
 
-[ Upstream commit 82453b1cbf9ef166364c12b5464251f16bac5f51 ]
+[ Upstream commit 976ac0af7ba2c5424bc305b926c0807d96fdcc83 ]
 
-Fix UC entry is being overwritten by BC entry
+When the session protection ends and the Driver is not
+associated or a beacon was not heard, the Driver
+prints "No beacons heard...".
+That's confusing for the case where not associated.
+Change the print when not associated to "Not associated...".
 
-Tested-by: Deren Wu <deren.wu@mediatek.com>
-Co-developed-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Shaul Triebitz <shaul.triebitz@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210617100544.41a5a5a894fa.I9eabb76e7a3a7f4abbed8f2ef918f1df8e825726@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mcu.c      |  8 +++++---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 10 ++++++----
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h |  1 +
- drivers/net/wireless/mediatek/mt76/mt7921/mcu.c      |  1 +
- 4 files changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-index ae2191371f51..257a2c4ddf36 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
-@@ -1123,12 +1123,14 @@ mt7615_mcu_sta_rx_ba(struct mt7615_dev *dev,
- 
- static int
- __mt7615_mcu_add_sta(struct mt76_phy *phy, struct ieee80211_vif *vif,
--		     struct ieee80211_sta *sta, bool enable, int cmd)
-+		     struct ieee80211_sta *sta, bool enable, int cmd,
-+		     bool offload_fw)
- {
- 	struct mt7615_vif *mvif = (struct mt7615_vif *)vif->drv_priv;
- 	struct mt76_sta_cmd_info info = {
- 		.sta = sta,
- 		.vif = vif,
-+		.offload_fw = offload_fw,
- 		.enable = enable,
- 		.cmd = cmd,
- 	};
-@@ -1142,7 +1144,7 @@ mt7615_mcu_add_sta(struct mt7615_phy *phy, struct ieee80211_vif *vif,
- 		   struct ieee80211_sta *sta, bool enable)
- {
- 	return __mt7615_mcu_add_sta(phy->mt76, vif, sta, enable,
--				    MCU_EXT_CMD_STA_REC_UPDATE);
-+				    MCU_EXT_CMD_STA_REC_UPDATE, false);
- }
- 
- static const struct mt7615_mcu_ops sta_update_ops = {
-@@ -1283,7 +1285,7 @@ mt7615_mcu_uni_add_sta(struct mt7615_phy *phy, struct ieee80211_vif *vif,
- 		       struct ieee80211_sta *sta, bool enable)
- {
- 	return __mt7615_mcu_add_sta(phy->mt76, vif, sta, enable,
--				    MCU_UNI_CMD_STA_REC_UPDATE);
-+				    MCU_UNI_CMD_STA_REC_UPDATE, true);
- }
- 
- static int
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index eb19721f9d79..e5721603586f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -841,10 +841,12 @@ int mt76_connac_mcu_add_sta_cmd(struct mt76_phy *phy,
- 	if (IS_ERR(skb))
- 		return PTR_ERR(skb);
- 
--	mt76_connac_mcu_sta_basic_tlv(skb, info->vif, info->sta, info->enable);
--	if (info->enable && info->sta)
--		mt76_connac_mcu_sta_tlv(phy, skb, info->sta, info->vif,
--					info->rcpi);
-+	if (info->sta || !info->offload_fw)
-+		mt76_connac_mcu_sta_basic_tlv(skb, info->vif, info->sta,
-+					      info->enable);
-+	if (info->sta && info->enable)
-+		mt76_connac_mcu_sta_tlv(phy, skb, info->sta,
-+					info->vif, info->rcpi);
- 
- 	sta_wtbl = mt76_connac_mcu_add_tlv(skb, STA_REC_WTBL,
- 					   sizeof(struct tlv));
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-index 3bcae732872e..0450d8c1c181 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
-@@ -899,6 +899,7 @@ struct mt76_sta_cmd_info {
- 
- 	struct ieee80211_vif *vif;
- 
-+	bool offload_fw;
- 	bool enable;
- 	int cmd;
- 	u8 rcpi;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-index 06209d58ce27..9bc35ce80153 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
-@@ -1289,6 +1289,7 @@ int mt7921_mcu_sta_add(struct mt7921_dev *dev, struct ieee80211_sta *sta,
- 		.vif = vif,
- 		.enable = enable,
- 		.cmd = MCU_UNI_CMD_STA_REC_UPDATE,
-+		.offload_fw = true,
- 		.rcpi = to_rcpi(rssi),
- 	};
- 	struct mt7921_sta *msta;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+index 0b012f8c9eb2..9a4a1b363254 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
+@@ -289,6 +289,8 @@ static void iwl_mvm_te_handle_notif(struct iwl_mvm *mvm,
+ 			 * and know the dtim period.
+ 			 */
+ 			iwl_mvm_te_check_disconnect(mvm, te_data->vif,
++				!te_data->vif->bss_conf.assoc ?
++				"Not associated and the time event is over already..." :
+ 				"No beacon heard and the time event is over already...");
+ 			break;
+ 		default:
+@@ -787,6 +789,8 @@ void iwl_mvm_rx_session_protect_notif(struct iwl_mvm *mvm,
+ 			 * and know the dtim period.
+ 			 */
+ 			iwl_mvm_te_check_disconnect(mvm, vif,
++						    !vif->bss_conf.assoc ?
++						    "Not associated and the session protection is over already..." :
+ 						    "No beacon heard and the session protection is over already...");
+ 			spin_lock_bh(&mvm->time_event_lock);
+ 			iwl_mvm_te_clear_data(mvm, te_data);
 -- 
 2.30.2
 
