@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C673CAB2F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B357D3CA98D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243252AbhGOTSI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:18:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50954 "EHLO mail.kernel.org"
+        id S242023AbhGOTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:07:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244210AbhGOTQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:16:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6106F613D1;
-        Thu, 15 Jul 2021 19:12:21 +0000 (UTC)
+        id S239286AbhGOTGW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:06:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6B36141E;
+        Thu, 15 Jul 2021 19:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376341;
-        bh=2wcLH/MjR6vnjHJ+bCuMtovL+XwRk6NvzTwRJB2jEXI=;
+        s=korg; t=1626375757;
+        bh=nA0u2vSnDAToGgwNOLeswbRytUAFyY7uC47mcXzBRyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6lXnQB3D/QbS8wHw1OTaOGyrK3GgqTAMAa1iEqJIXpEj8nmZltM3U8PAeV66UWej
-         VKXLIjAXJ8ji9AeawSmjo4T+GgOPzVSASeXwEVty7bTSLk7vnz4QEw7ntLSrCrz2MH
-         9pXpJgIHeskKmKkrxu7YRRQ0McRgGqJ9B/3MIruI=
+        b=KRvGWvKqLA5dI+QQrxVg+yApIQ3kqEdffETBzS9Y/zzJg9RbTvYghgiwpG77uGECI
+         SLJYTfnzeQcap+SiEptXeUu0xfBPqr6AVH5se0ycrwQht9vByh9cg90y39+iIpDdn5
+         6MQ5po5L9YMgYVSAAN5Ei4ZsgvGQabGkx6wIqyrU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ferry Toth <ftoth@exalondelft.nl>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 5.13 230/266] extcon: intel-mrfld: Sync hardware and software state on init
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.12 223/242] media: dtv5100: fix control-request directions
 Date:   Thu, 15 Jul 2021 20:39:45 +0200
-Message-Id: <20210715182650.151022390@linuxfoundation.org>
+Message-Id: <20210715182632.248506194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Johan Hovold <johan@kernel.org>
 
-commit ecb5bdff901139850fb3ca3ae2d0cccac045bc52 upstream.
+commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
 
-extcon driver for Basin Cove PMIC shadows the switch status used for dwc3
-DRD to detect a change in the switch position. This change initializes the
-status at probe time.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Cc: stable@vger.kernel.org
-Fixes: 492929c54791 ("extcon: mrfld: Introduce extcon driver for Basin Cove PMIC")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fix the control requests which erroneously used usb_rcvctrlpipe().
+
+Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
+Cc: stable@vger.kernel.org      # 2.6.28
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/extcon/extcon-intel-mrfld.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/extcon/extcon-intel-mrfld.c
-+++ b/drivers/extcon/extcon-intel-mrfld.c
-@@ -197,6 +197,7 @@ static int mrfld_extcon_probe(struct pla
- 	struct intel_soc_pmic *pmic = dev_get_drvdata(dev->parent);
- 	struct regmap *regmap = pmic->regmap;
- 	struct mrfld_extcon_data *data;
-+	unsigned int status;
- 	unsigned int id;
- 	int irq, ret;
+--- a/drivers/media/usb/dvb-usb/dtv5100.c
++++ b/drivers/media/usb/dvb-usb/dtv5100.c
+@@ -26,6 +26,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+ {
+ 	struct dtv5100_state *st = d->priv;
++	unsigned int pipe;
+ 	u8 request;
+ 	u8 type;
+ 	u16 value;
+@@ -34,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 	switch (wlen) {
+ 	case 1:
+ 		/* write { reg }, read { value } */
++		pipe = usb_rcvctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
+ 							DTV5100_TUNER_READ);
+ 		type = USB_TYPE_VENDOR | USB_DIR_IN;
+@@ -41,6 +43,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 		break;
+ 	case 2:
+ 		/* write { reg, value } */
++		pipe = usb_sndctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
+ 							DTV5100_TUNER_WRITE);
+ 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
+@@ -54,7 +57,7 @@ static int dtv5100_i2c_msg(struct dvb_us
  
-@@ -244,6 +245,14 @@ static int mrfld_extcon_probe(struct pla
- 	/* Get initial state */
- 	mrfld_extcon_role_detect(data);
+ 	memcpy(st->data, rbuf, rlen);
+ 	msleep(1); /* avoid I2C errors */
+-	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
++	return usb_control_msg(d->udev, pipe, request,
+ 			       type, value, index, st->data, rlen,
+ 			       DTV5100_USB_TIMEOUT);
+ }
+@@ -141,7 +144,7 @@ static int dtv5100_probe(struct usb_inte
  
-+	/*
-+	 * Cached status value is used for cable detection, see comments
-+	 * in mrfld_extcon_cable_detect(), we need to sync cached value
-+	 * with a real state of the hardware.
-+	 */
-+	regmap_read(regmap, BCOVE_SCHGRIRQ1, &status);
-+	data->status = status;
-+
- 	mrfld_extcon_clear(data, BCOVE_MIRQLVL1, BCOVE_LVL1_CHGR);
- 	mrfld_extcon_clear(data, BCOVE_MCHGRIRQ1, BCOVE_CHGRIRQ_ALL);
- 
+ 	/* initialize non qt1010/zl10353 part? */
+ 	for (i = 0; dtv5100_init[i].request; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      dtv5100_init[i].request,
+ 				      USB_TYPE_VENDOR | USB_DIR_OUT,
+ 				      dtv5100_init[i].value,
 
 
