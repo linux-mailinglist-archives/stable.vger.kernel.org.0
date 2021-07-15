@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340EE3C9F98
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:39:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 191D53C9FDA
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231941AbhGONm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:42:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52116 "EHLO mail.kernel.org"
+        id S237737AbhGONne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:43:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231327AbhGONm0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:42:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 096BB61167;
-        Thu, 15 Jul 2021 13:39:32 +0000 (UTC)
+        id S232769AbhGONnP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:43:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D8C161167;
+        Thu, 15 Jul 2021 13:40:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626356373;
-        bh=88CSbjAcCch0fdyjinFn1v7DBk1PG0ftyesxoV7TIHc=;
+        s=korg; t=1626356421;
+        bh=DMnpQS8P9EMb009B/5EvzPzqeCvpYn2cHaL3ESM0bnc=;
         h=Subject:To:Cc:From:Date:From;
-        b=rJhuTFldYY3JwGbN2lkuEV/sdoMldGU2CqlnlcVuxVuTkmyufln9u71+9dZoU1LOo
-         GIVaNwSEXceYK3+VnW9LwNLtxrx1Y2bBJws10srsdoF5alt7tGf7WjzeGUAnYzypO9
-         5sko5Ji0VQsTcV7t/ndg+OOmocWZsihBZzRaTbdY=
-Subject: FAILED: patch "[PATCH] selftests/lkdtm: Fix expected text for CR4 pinning" failed to apply to 5.4-stable tree
+        b=DNRmUiP3SQLdrNoO7fdjnm+hnn7M4/ZOZKrO5XI7AsTyWxVYUb3VulrYB4KxwLKiq
+         BFRE+O5D5c41N5yvPCMICPZBG0r2qfq6by4i2yegqxxpBtuV+r4WzSQ2arPTqENGAv
+         obm5JuUWbixKzwjQPty+U8vO+aQIbRtjVfXo2dj0=
+Subject: FAILED: patch "[PATCH] lkdtm: Enable DOUBLE_FAULT on all architectures" failed to apply to 5.4-stable tree
 To:     keescook@chromium.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:39:31 +0200
-Message-ID: <16263563716527@kroah.com>
+Date:   Thu, 15 Jul 2021 15:40:11 +0200
+Message-ID: <162635641113242@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,30 +45,33 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c2eb472bbe25b3f360990f23b293b3fbadfa4bc0 Mon Sep 17 00:00:00 2001
+From f123c42bbeff26bfe8bdb08a01307e92d51eec39 Mon Sep 17 00:00:00 2001
 From: Kees Cook <keescook@chromium.org>
-Date: Wed, 23 Jun 2021 13:39:29 -0700
-Subject: [PATCH] selftests/lkdtm: Fix expected text for CR4 pinning
+Date: Wed, 23 Jun 2021 13:39:33 -0700
+Subject: [PATCH] lkdtm: Enable DOUBLE_FAULT on all architectures
 
-The error text for CR4 pinning changed. Update the test to match.
+Where feasible, I prefer to have all tests visible on all architectures,
+but to have them wired to XFAIL. DOUBLE_FAIL was set up to XFAIL, but
+wasn't actually being added to the test list.
 
-Fixes: a13b9d0b9721 ("x86/cpu: Use pinning mask for CR4 bits needing to be 0")
+Fixes: cea23efb4de2 ("lkdtm/bugs: Make double-fault test always available")
 Cc: stable@vger.kernel.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20210623203936.3151093-3-keescook@chromium.org
+Link: https://lore.kernel.org/r/20210623203936.3151093-7-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/tools/testing/selftests/lkdtm/tests.txt b/tools/testing/selftests/lkdtm/tests.txt
-index 11ef159be0fd..a5fce7fd4520 100644
---- a/tools/testing/selftests/lkdtm/tests.txt
-+++ b/tools/testing/selftests/lkdtm/tests.txt
-@@ -11,7 +11,7 @@ CORRUPT_LIST_ADD list_add corruption
- CORRUPT_LIST_DEL list_del corruption
- STACK_GUARD_PAGE_LEADING
- STACK_GUARD_PAGE_TRAILING
--UNSET_SMEP CR4 bits went missing
-+UNSET_SMEP pinned CR4 bits changed:
- DOUBLE_FAULT
- CORRUPT_PAC
- UNALIGNED_LOAD_STORE_WRITE
+diff --git a/drivers/misc/lkdtm/core.c b/drivers/misc/lkdtm/core.c
+index 645b31e98c77..2c89fc18669f 100644
+--- a/drivers/misc/lkdtm/core.c
++++ b/drivers/misc/lkdtm/core.c
+@@ -178,9 +178,7 @@ static const struct crashtype crashtypes[] = {
+ 	CRASHTYPE(STACKLEAK_ERASING),
+ 	CRASHTYPE(CFI_FORWARD_PROTO),
+ 	CRASHTYPE(FORTIFIED_STRSCPY),
+-#ifdef CONFIG_X86_32
+ 	CRASHTYPE(DOUBLE_FAULT),
+-#endif
+ #ifdef CONFIG_PPC_BOOK3S_64
+ 	CRASHTYPE(PPC_SLB_MULTIHIT),
+ #endif
 
