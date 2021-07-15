@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 459213CA9C3
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B123CA9E8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242712AbhGOTIz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46412 "EHLO mail.kernel.org"
+        id S242574AbhGOTLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241614AbhGOTHx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42C8D61400;
-        Thu, 15 Jul 2021 19:03:56 +0000 (UTC)
+        id S242533AbhGOTH4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:07:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 977DB6140A;
+        Thu, 15 Jul 2021 19:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375836;
-        bh=4WLk7xslN4QJLfFAgeeGGRJMsiwnd0T7uFKjsNRSBk8=;
+        s=korg; t=1626375839;
+        bh=+ZbkuVJEHJBuzO5PpuUSnc0YNDHUydqlwvn1ED6Y+ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmJbTvaLf0LTzV5xN/IbEJ/2wa3yYQYgYMdaZtW7u1w5U9Alqd6/a4Iy1RESDxaPz
-         qu9BntvP32E1ZxhK/yedBpFdmqeUHlA+TItKmEx5rKjeetPAL/PC+iyNtMhuAketMF
-         XwNkK6AO/zh53Ji6yUs7uMg6V2gD0huHwJecYw3Y=
+        b=RKn0niwvMgaDx8uOlK+r+33fnBz+FFARwT9qLwSftvxU5QxFXUbtTODR6Fi8otDfb
+         VGCeB2mhm4aJ8Zdo/Nq5iGuDNVKjOt+oLfqMJXu8E08AowMUOz7J6R2e9S7tSXGW4f
+         Vz4pw9gSBepELtT/PX8fV4GgMFBfQHn+91CtaSos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Youling Tang <tangyouling@loongson.cn>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 015/266] clk: renesas: rcar-usb2-clock-sel: Fix error handling in .probe()
-Date:   Thu, 15 Jul 2021 20:36:10 +0200
-Message-Id: <20210715182616.532025460@linuxfoundation.org>
+Subject: [PATCH 5.13 016/266] MIPS: Loongson64: Fix build error secondary_kexec_args undeclared under !SMP
+Date:   Thu, 15 Jul 2021 20:36:11 +0200
+Message-Id: <20210715182616.704279907@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -40,81 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Youling Tang <tangyouling@loongson.cn>
 
-[ Upstream commit a20a40a8bbc2cf4b29d7248ea31e974e9103dd7f ]
+[ Upstream commit 6a73022ee3fdf7e60f2ba0a3a835dd421c05b5b5 ]
 
-The error handling paths after pm_runtime_get_sync() have no refcount
-decrement, which leads to refcount leak.
+On the Loongson64 platform, if CONFIG_SMP is not set, the following build
+error will occur:
+arch/mips/loongson64/reset.c:133:2: error:'secondary_kexec_args' undeclared
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20210415073338.22287-1-dinghao.liu@zju.edu.cn
-[geert: Remove now unused variable priv]
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Because the definition and declaration of secondary_kexec_args are in the
+CONFIG_SMP, the secondary_kexec_args variable should be used in CONFIG_SMP.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/rcar-usb2-clock-sel.c | 24 ++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ arch/mips/loongson64/reset.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/rcar-usb2-clock-sel.c b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-index 34a85dc95beb..9fb79bd79435 100644
---- a/drivers/clk/renesas/rcar-usb2-clock-sel.c
-+++ b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-@@ -128,10 +128,8 @@ static int rcar_usb2_clock_sel_resume(struct device *dev)
- static int rcar_usb2_clock_sel_remove(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
--	struct usb2_clock_sel_priv *priv = platform_get_drvdata(pdev);
- 
- 	of_clk_del_provider(dev->of_node);
--	clk_hw_unregister(&priv->hw);
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
- 
-@@ -164,9 +162,6 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->rsts))
- 		return PTR_ERR(priv->rsts);
- 
--	pm_runtime_enable(dev);
--	pm_runtime_get_sync(dev);
--
- 	clk = devm_clk_get(dev, "usb_extal");
- 	if (!IS_ERR(clk) && !clk_prepare_enable(clk)) {
- 		priv->extal = !!clk_get_rate(clk);
-@@ -183,6 +178,8 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
- 
-+	pm_runtime_enable(dev);
-+	pm_runtime_get_sync(dev);
- 	platform_set_drvdata(pdev, priv);
- 	dev_set_drvdata(dev, priv);
- 
-@@ -190,11 +187,20 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	init.ops = &usb2_clock_sel_clock_ops;
- 	priv->hw.init = &init;
- 
--	clk = clk_register(NULL, &priv->hw);
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
-+	ret = devm_clk_hw_register(NULL, &priv->hw);
-+	if (ret)
-+		goto pm_put;
+diff --git a/arch/mips/loongson64/reset.c b/arch/mips/loongson64/reset.c
+index c97bfdc8c922..758d5d26aaaa 100644
+--- a/arch/mips/loongson64/reset.c
++++ b/arch/mips/loongson64/reset.c
+@@ -126,11 +126,12 @@ static void loongson_kexec_shutdown(void)
+ 	for_each_possible_cpu(cpu)
+ 		if (!cpu_online(cpu))
+ 			cpu_device_up(get_cpu_device(cpu));
 +
-+	ret = of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+	if (ret)
-+		goto pm_put;
-+
-+	return 0;
- 
--	return of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+pm_put:
-+	pm_runtime_put(dev);
-+	pm_runtime_disable(dev);
-+	return ret;
++	secondary_kexec_args[0] = TO_UNCAC(0x3ff01000);
+ #endif
+ 	kexec_args[0] = kexec_argc;
+ 	kexec_args[1] = fw_arg1;
+ 	kexec_args[2] = fw_arg2;
+-	secondary_kexec_args[0] = TO_UNCAC(0x3ff01000);
+ 	memcpy((void *)fw_arg1, kexec_argv, KEXEC_ARGV_SIZE);
+ 	memcpy((void *)fw_arg2, kexec_envp, KEXEC_ENVP_SIZE);
  }
- 
- static const struct dev_pm_ops rcar_usb2_clock_sel_pm_ops = {
+@@ -141,7 +142,9 @@ static void loongson_crash_shutdown(struct pt_regs *regs)
+ 	kexec_args[0] = kdump_argc;
+ 	kexec_args[1] = fw_arg1;
+ 	kexec_args[2] = fw_arg2;
++#ifdef CONFIG_SMP
+ 	secondary_kexec_args[0] = TO_UNCAC(0x3ff01000);
++#endif
+ 	memcpy((void *)fw_arg1, kdump_argv, KEXEC_ARGV_SIZE);
+ 	memcpy((void *)fw_arg2, kexec_envp, KEXEC_ENVP_SIZE);
+ }
 -- 
 2.30.2
 
