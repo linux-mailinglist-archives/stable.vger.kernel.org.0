@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A19913CA7C3
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B03383CA68F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238243AbhGOS4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
+        id S237503AbhGOSsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241803AbhGOSzu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 488CA613D1;
-        Thu, 15 Jul 2021 18:52:49 +0000 (UTC)
+        id S239331AbhGOSsB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B7E8613D0;
+        Thu, 15 Jul 2021 18:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375169;
-        bh=2wcLH/MjR6vnjHJ+bCuMtovL+XwRk6NvzTwRJB2jEXI=;
+        s=korg; t=1626374707;
+        bh=YLvMeZgML27z001Ivd15EcAZngsxhTD5qonkMYCvLFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s3pDV7LptHn+IhFhKpmLvwQV1sxhbIP/vT2FszhldnD4mlKMIqkJ+XFnzsJHQRsQk
-         vIbMt+Sep6MQJoy7SGcB8VW7glvUg7lNve1u87jY1tghqV/cDJahPubb/aefIYrr4F
-         OYXFkYy0nrqkG14pH/PWgjHyOxZg2t13nMcnNMlA=
+        b=qs4TTg0z32FjlsQbsvF5g1KkoqV/NBsbac3g3YQ7OME7OjjXhf1Y6f/iddE2d4AwS
+         K+mNRi6LpMXIPIpej7Fe7PKaTVojMLI1z+PKurD06xc4yOBzOLMBcaeMMNfubPLMDt
+         5KaQhNQ350TW4fvmEngzFrFXFzg9aDenHZxc00Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ferry Toth <ftoth@exalondelft.nl>,
-        Chanwoo Choi <cw00.choi@samsung.com>
-Subject: [PATCH 5.10 187/215] extcon: intel-mrfld: Sync hardware and software state on init
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.4 112/122] PCI: aardvark: Implement workaround for the readback value of VEND_ID
 Date:   Thu, 15 Jul 2021 20:39:19 +0200
-Message-Id: <20210715182632.285294831@linuxfoundation.org>
+Message-Id: <20210715182521.292790967@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Pali Rohár <pali@kernel.org>
 
-commit ecb5bdff901139850fb3ca3ae2d0cccac045bc52 upstream.
+commit 7f71a409fe3d9358da07c77f15bb5b7960f12253 upstream.
 
-extcon driver for Basin Cove PMIC shadows the switch status used for dwc3
-DRD to detect a change in the switch position. This change initializes the
-status at probe time.
+Marvell Armada 3700 Functional Errata, Guidelines, and Restrictions
+document describes in erratum 4.1 PCIe value of vendor ID (Ref #: 243):
 
+    The readback value of VEND_ID (RD0070000h [15:0]) is 1B4Bh, while it
+    should read 11ABh.
+
+    The firmware can write the correct value, 11ABh, through VEND_ID
+    (RD0076044h [15:0]).
+
+Implement this workaround in aardvark driver for both PCI vendor id and PCI
+subsystem vendor id.
+
+This change affects and fixes PCI vendor id of emulated PCIe root bridge.
+After this change emulated PCIe root bridge has correct vendor id.
+
+Link: https://lore.kernel.org/r/20210624222621.4776-5-pali@kernel.org
+Fixes: 8a3ebd8de328 ("PCI: aardvark: Implement emulated root PCI bridge config space")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 492929c54791 ("extcon: mrfld: Introduce extcon driver for Basin Cove PMIC")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/extcon/extcon-intel-mrfld.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/extcon/extcon-intel-mrfld.c
-+++ b/drivers/extcon/extcon-intel-mrfld.c
-@@ -197,6 +197,7 @@ static int mrfld_extcon_probe(struct pla
- 	struct intel_soc_pmic *pmic = dev_get_drvdata(dev->parent);
- 	struct regmap *regmap = pmic->regmap;
- 	struct mrfld_extcon_data *data;
-+	unsigned int status;
- 	unsigned int id;
- 	int irq, ret;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -127,6 +127,7 @@
+ #define     LTSSM_MASK				0x3f
+ #define     LTSSM_L0				0x10
+ #define     RC_BAR_CONFIG			0x300
++#define VENDOR_ID_REG				(LMI_BASE_ADDR + 0x44)
  
-@@ -244,6 +245,14 @@ static int mrfld_extcon_probe(struct pla
- 	/* Get initial state */
- 	mrfld_extcon_role_detect(data);
+ /* PCIe core controller registers */
+ #define CTRL_CORE_BASE_ADDR			0x18000
+@@ -268,6 +269,16 @@ static void advk_pcie_setup_hw(struct ad
+ 	reg |= (IS_RC_MSK << IS_RC_SHIFT);
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL0_REG);
  
 +	/*
-+	 * Cached status value is used for cable detection, see comments
-+	 * in mrfld_extcon_cable_detect(), we need to sync cached value
-+	 * with a real state of the hardware.
++	 * Replace incorrect PCI vendor id value 0x1b4b by correct value 0x11ab.
++	 * VENDOR_ID_REG contains vendor id in low 16 bits and subsystem vendor
++	 * id in high 16 bits. Updating this register changes readback value of
++	 * read-only vendor id bits in PCIE_CORE_DEV_ID_REG register. Workaround
++	 * for erratum 4.1: "The value of device and vendor ID is incorrect".
 +	 */
-+	regmap_read(regmap, BCOVE_SCHGRIRQ1, &status);
-+	data->status = status;
++	reg = (PCI_VENDOR_ID_MARVELL << 16) | PCI_VENDOR_ID_MARVELL;
++	advk_writel(pcie, reg, VENDOR_ID_REG);
 +
- 	mrfld_extcon_clear(data, BCOVE_MIRQLVL1, BCOVE_LVL1_CHGR);
- 	mrfld_extcon_clear(data, BCOVE_MCHGRIRQ1, BCOVE_CHGRIRQ_ALL);
- 
+ 	/* Set Advanced Error Capabilities and Control PF0 register */
+ 	reg = PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX |
+ 		PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN |
 
 
