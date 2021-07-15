@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3AC63CA7FE
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 496393CA7D7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241659AbhGOS5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34066 "EHLO mail.kernel.org"
+        id S236973AbhGOS4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231933AbhGOS5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:57:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08A83613D6;
-        Thu, 15 Jul 2021 18:54:08 +0000 (UTC)
+        id S231997AbhGOS4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:56:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B37AC613D7;
+        Thu, 15 Jul 2021 18:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375249;
-        bh=iiwu6uUKvyYli5PVfLw3WWN1Oaeo1gZ/niOnYIkNBVM=;
+        s=korg; t=1626375193;
+        bh=oDj4QzskaiCbEtmnzszlg04IE4Xh1gAq207OnqONIEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rLe0nQid//YpoYvHhTEhjtOc0GKRiXELlIvoTkMMMRdqotIXX6N1OxKftkHEA0JOM
-         GrH6UgFWWZEJy0YV0gXNY8+yND4eFjPTO4tOeEU7mwUpMt33PXG90l3/SthRgFi6Rc
-         50vjpwa8nsHqZChE3utxORqiI90MwudPQDIzpREA=
+        b=u7itaj3HXwZ42i8NcvSeFJBww/pptc9/wOmbHsEevAitWYwTnY5S+IX3gXobfuzRu
+         tzkqRULsybaynxSdZ8nX3DmxmFxT1AtJ1bwlVS3spXb0JlGsrqVaGTLvdQ9mrHFAzJ
+         PsV/+2T1R0+2H/I6Qi9ytNU11nVdBBYPi1lAhfxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 191/215] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
-Date:   Thu, 15 Jul 2021 20:39:23 +0200
-Message-Id: <20210715182632.924136252@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Subject: [PATCH 5.10 192/215] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
+Date:   Thu, 15 Jul 2021 20:39:24 +0200
+Message-Id: <20210715182633.088187912@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -41,176 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
+commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
 
-Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
-on systems where pid_max is configured higher than PID_MAX_DEFAULT the
-ftrace record-tgid option doesn't work so well. Any tasks with PIDs
-higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
-don't show up in the saved_tgids file.
+In the out_err_bus_register error branch of tpci200_pci_probe,
+tpci200->info->cfg_regs is freed by tpci200_uninstall()->
+tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
+in the first time.
 
-In particular since systemd v243 & above configure pid_max to its
-highest possible 1<<22 value by default on 64 bit systems this renders
-the record-tgids option of little use.
+But later, iounmap() is called to free tpci200->info->cfg_regs
+again.
 
-Increase the size of tgid_map to the configured pid_max instead,
-allowing it to cover the full range of PIDs up to the maximum value of
-PID_MAX_LIMIT if the system is configured that way.
+My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
+to avoid the double free.
 
-On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
-size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
-memory overhead sounds significant 64 bit systems are presumably best
-placed to accommodate it, and since tgid_map is only allocated when the
-record-tgid option is actually used presumably the user would rather it
-spends sufficient memory to actually record the tgids they expect.
-
-The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
-configurations, but these seem unlikely to be systems upon which people
-are both configuring a large pid_max and running ftrace with record-tgid
-anyway.
-
-Of note is that we only allocate tgid_map once, the first time that the
-record-tgid option is enabled. Therefore its size is only set once, to
-the value of pid_max at the time the record-tgid option is first
-enabled. If a user increases pid_max after that point, the saved_tgids
-file will not contain entries for any tasks with pids beyond the earlier
-value of pid_max.
-
-Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-[ Fixed comment coding style ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   63 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 47 insertions(+), 16 deletions(-)
+ drivers/ipack/carriers/tpci200.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2181,8 +2181,15 @@ void tracing_reset_all_online_cpus(void)
- 	}
- }
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -596,8 +596,11 @@ static int tpci200_pci_probe(struct pci_
  
-+/*
-+ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
-+ * is the tgid last observed corresponding to pid=i.
-+ */
- static int *tgid_map;
- 
-+/* The maximum valid index into tgid_map. */
-+static size_t tgid_map_max;
-+
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
-@@ -2455,24 +2462,41 @@ void trace_find_cmdline(int pid, char co
- 	preempt_enable();
- }
- 
-+static int *trace_find_tgid_ptr(int pid)
-+{
-+	/*
-+	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
-+	 * if we observe a non-NULL tgid_map then we also observe the correct
-+	 * tgid_map_max.
-+	 */
-+	int *map = smp_load_acquire(&tgid_map);
-+
-+	if (unlikely(!map || pid > tgid_map_max))
-+		return NULL;
-+
-+	return &map[pid];
-+}
-+
- int trace_find_tgid(int pid)
- {
--	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
--		return 0;
-+	int *ptr = trace_find_tgid_ptr(pid);
- 
--	return tgid_map[pid];
-+	return ptr ? *ptr : 0;
- }
- 
- static int trace_save_tgid(struct task_struct *tsk)
- {
-+	int *ptr;
-+
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
- 
--	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
-+	ptr = trace_find_tgid_ptr(tsk->pid);
-+	if (!ptr)
- 		return 0;
- 
--	tgid_map[tsk->pid] = tsk->tgid;
-+	*ptr = tsk->tgid;
- 	return 1;
- }
- 
-@@ -4847,6 +4871,8 @@ int trace_keep_overwrite(struct tracer *
- 
- int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
- {
-+	int *map;
-+
- 	if ((mask == TRACE_ITER_RECORD_TGID) ||
- 	    (mask == TRACE_ITER_RECORD_CMD))
- 		lockdep_assert_held(&event_mutex);
-@@ -4869,10 +4895,19 @@ int set_tracer_flag(struct trace_array *
- 		trace_event_enable_cmd_record(enabled);
- 
- 	if (mask == TRACE_ITER_RECORD_TGID) {
--		if (!tgid_map)
--			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
--					   sizeof(*tgid_map),
--					   GFP_KERNEL);
-+		if (!tgid_map) {
-+			tgid_map_max = pid_max;
-+			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
-+				       GFP_KERNEL);
-+
-+			/*
-+			 * Pairs with smp_load_acquire() in
-+			 * trace_find_tgid_ptr() to ensure that if it observes
-+			 * the tgid_map we just allocated then it also observes
-+			 * the corresponding tgid_map_max value.
-+			 */
-+			smp_store_release(&tgid_map, map);
-+		}
- 		if (!tgid_map) {
- 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
- 			return -ENOMEM;
-@@ -5286,18 +5321,14 @@ static void *saved_tgids_next(struct seq
- {
- 	int pid = ++(*pos);
- 
--	if (pid > PID_MAX_DEFAULT)
--		return NULL;
--
--	return &tgid_map[pid];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	if (!tgid_map || *pos > PID_MAX_DEFAULT)
--		return NULL;
-+	int pid = *pos;
- 
--	return &tgid_map[*pos];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void saved_tgids_stop(struct seq_file *m, void *v)
+ out_err_bus_register:
+ 	tpci200_uninstall(tpci200);
++	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
++	tpci200->info->cfg_regs = NULL;
+ out_err_install:
+-	iounmap(tpci200->info->cfg_regs);
++	if (tpci200->info->cfg_regs)
++		iounmap(tpci200->info->cfg_regs);
+ out_err_ioremap:
+ 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
+ out_err_pci_request:
 
 
