@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D21A93CA66D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DF393CA7D9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231648AbhGOSrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49824 "EHLO mail.kernel.org"
+        id S241224AbhGOS4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238643AbhGOSrn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABCBB613D3;
-        Thu, 15 Jul 2021 18:44:48 +0000 (UTC)
+        id S240734AbhGOSz1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C8DA613CC;
+        Thu, 15 Jul 2021 18:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374689;
-        bh=Xh8zxHu7LFpPea9lmFpgKjXXfpGgPzqv7e2hWzzBjho=;
+        s=korg; t=1626375151;
+        bh=UhnBenFuO5eAzLlR9NLxfqYX1m7d7gtKMWKDHnFn80U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=llQZCCpjKY0QB9fnCQxOKIC1NevVdBgO4r/YNIVTstJHSz1+9wA3TIZ7KGlVoJS65
-         Zn8kWcZ1GKpeDGl486Fi+8g4/YCERiNJpGMoA8SxVr9UlhzZLNvYd+secFN3YO7mHO
-         Cf1Ggy6nGztyaWoHxaRtkwmIGuFgbGoo9Vghsl74=
+        b=O5p59UL8Q4VCWd9mzdbhJH0PKQ6v+CGu0fjTf7D2K/rnpNHe8qmXke22GwDTcgcjG
+         YCizUSnWLqvEMERdIxsPqnNKn4TkrWdOGsnFL9pN7vo+Nnuns/iO1B/5eTJ+y94Bi3
+         YaOFnS+9OvTwZ4rzGfhY9PEH7tVfdR83izikfL6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 105/122] tracing: Simplify & fix saved_tgids logic
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.10 180/215] thermal/drivers/int340x/processor_thermal: Fix tcc setting
 Date:   Thu, 15 Jul 2021 20:39:12 +0200
-Message-Id: <20210715182519.845516367@linuxfoundation.org>
+Message-Id: <20210715182631.185482556@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +41,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
+commit fe6a6de6692e7f7159c1ff42b07ecd737df712b4 upstream.
 
-The tgid_map array records a mapping from pid to tgid, where the index
-of an entry within the array is the pid & the value stored at that index
-is the tgid.
+The following fixes are done for tcc sysfs interface:
+- TCC is 6 bits only from bit 29-24
+- TCC of 0 is valid
+- When BIT(31) is set, this register is read only
+- Check for invalid tcc value
+- Error for negative values
 
-The saved_tgids_next() function iterates over pointers into the tgid_map
-array & dereferences the pointers which results in the tgid, but then it
-passes that dereferenced value to trace_find_tgid() which treats it as a
-pid & does a further lookup within the tgid_map array. It seems likely
-that the intent here was to skip over entries in tgid_map for which the
-recorded tgid is zero, but instead we end up skipping over entries for
-which the thread group leader hasn't yet had its own tgid recorded in
-tgid_map.
-
-A minimal fix would be to remove the call to trace_find_tgid, turning:
-
-  if (trace_find_tgid(*ptr))
-
-into:
-
-  if (*ptr)
-
-..but it seems like this logic can be much simpler if we simply let
-seq_read() iterate over the whole tgid_map array & filter out empty
-entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
-approach, removing the incorrect logic here entirely.
-
-Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: fdf4f2fb8e899 ("drivers: thermal: processor_thermal_device: Export sysfs interface for TCC offset")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org
+Acked-by: Zhang Rui <rui.zhang@intel.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210628215803.75038-1-srinivas.pandruvada@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   38 +++++++++++++-------------------------
- 1 file changed, 13 insertions(+), 25 deletions(-)
+ drivers/thermal/intel/int340x_thermal/processor_thermal_device.c |   20 ++++++----
+ 1 file changed, 12 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -5013,37 +5013,20 @@ static const struct file_operations trac
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.c
+@@ -156,24 +156,27 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (err)
+ 		return err;
  
- static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
- {
--	int *ptr = v;
-+	int pid = ++(*pos);
- 
--	if (*pos || m->count)
--		ptr++;
--
--	(*pos)++;
--
--	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
--		if (trace_find_tgid(*ptr))
--			return ptr;
--	}
-+	if (pid > PID_MAX_DEFAULT)
-+		return NULL;
- 
--	return NULL;
-+	return &tgid_map[pid];
+-	val = (val >> 24) & 0xff;
++	val = (val >> 24) & 0x3f;
+ 	return sprintf(buf, "%d\n", (int)val);
  }
  
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+-static int tcc_offset_update(int tcc)
++static int tcc_offset_update(unsigned int tcc)
  {
--	void *v;
--	loff_t l = 0;
--
--	if (!tgid_map)
-+	if (!tgid_map || *pos > PID_MAX_DEFAULT)
- 		return NULL;
+ 	u64 val;
+ 	int err;
  
--	v = &tgid_map[0];
--	while (l <= *pos) {
--		v = saved_tgids_next(m, v, &l);
--		if (!v)
--			return NULL;
--	}
--
--	return v;
-+	return &tgid_map[*pos];
- }
+-	if (!tcc)
++	if (tcc > 63)
+ 		return -EINVAL;
  
- static void saved_tgids_stop(struct seq_file *m, void *v)
-@@ -5052,9 +5035,14 @@ static void saved_tgids_stop(struct seq_
+ 	err = rdmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, &val);
+ 	if (err)
+ 		return err;
  
- static int saved_tgids_show(struct seq_file *m, void *v)
- {
--	int pid = (int *)v - tgid_map;
-+	int *entry = (int *)v;
-+	int pid = entry - tgid_map;
-+	int tgid = *entry;
+-	val &= ~GENMASK_ULL(31, 24);
+-	val |= (tcc & 0xff) << 24;
++	if (val & BIT(31))
++		return -EPERM;
 +
-+	if (tgid == 0)
-+		return SEQ_SKIP;
++	val &= ~GENMASK_ULL(29, 24);
++	val |= (tcc & 0x3f) << 24;
  
--	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
-+	seq_printf(m, "%d %d\n", pid, tgid);
+ 	err = wrmsrl_safe(MSR_IA32_TEMPERATURE_TARGET, val);
+ 	if (err)
+@@ -182,14 +185,15 @@ static int tcc_offset_update(int tcc)
  	return 0;
  }
  
+-static int tcc_offset_save;
++static unsigned int tcc_offset_save;
+ 
+ static ssize_t tcc_offset_degree_celsius_store(struct device *dev,
+ 				struct device_attribute *attr, const char *buf,
+ 				size_t count)
+ {
++	unsigned int tcc;
+ 	u64 val;
+-	int tcc, err;
++	int err;
+ 
+ 	err = rdmsrl_safe(MSR_PLATFORM_INFO, &val);
+ 	if (err)
+@@ -198,7 +202,7 @@ static ssize_t tcc_offset_degree_celsius
+ 	if (!(val & BIT(30)))
+ 		return -EACCES;
+ 
+-	if (kstrtoint(buf, 0, &tcc))
++	if (kstrtouint(buf, 0, &tcc))
+ 		return -EINVAL;
+ 
+ 	err = tcc_offset_update(tcc);
 
 
