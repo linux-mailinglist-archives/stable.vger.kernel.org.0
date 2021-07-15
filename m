@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496393CA7D7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40F723CA68E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236973AbhGOS4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60884 "EHLO mail.kernel.org"
+        id S239740AbhGOSsj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231997AbhGOS4H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:56:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B37AC613D7;
-        Thu, 15 Jul 2021 18:53:12 +0000 (UTC)
+        id S236870AbhGOSsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6135613D4;
+        Thu, 15 Jul 2021 18:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375193;
-        bh=oDj4QzskaiCbEtmnzszlg04IE4Xh1gAq207OnqONIEU=;
+        s=korg; t=1626374731;
+        bh=g82bctk938ScfdJINpkIncGH+nIC5VosejmaIJZh80I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7itaj3HXwZ42i8NcvSeFJBww/pptc9/wOmbHsEevAitWYwTnY5S+IX3gXobfuzRu
-         tzkqRULsybaynxSdZ8nX3DmxmFxT1AtJ1bwlVS3spXb0JlGsrqVaGTLvdQ9mrHFAzJ
-         PsV/+2T1R0+2H/I6Qi9ytNU11nVdBBYPi1lAhfxQ=
+        b=IgxbdmLAuI0GnFZam7nE76BgnODQg+UonkEHlBiSqYELLDHgjWi/o6b93Z8J6yMv3
+         erMCdNPXgkkg7p4PI7PIQKyhXRkNXkQoaUdM44t3mTlMhZrtV1irK0bRMg0Z0CbJy0
+         eeHYu76l2EPeyOEBbYRuxLJtI5sqxAKiYnFPsGqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Subject: [PATCH 5.10 192/215] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 117/122] media: gspca/sunplus: fix zero-length control requests
 Date:   Thu, 15 Jul 2021 20:39:24 +0200
-Message-Id: <20210715182633.088187912@linuxfoundation.org>
+Message-Id: <20210715182522.407353530@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Johan Hovold <johan@kernel.org>
 
-commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
+commit b4bb4d425b7b02424afea2dfdcd77b3b4794175e upstream.
 
-In the out_err_bus_register error branch of tpci200_pci_probe,
-tpci200->info->cfg_regs is freed by tpci200_uninstall()->
-tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
-in the first time.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-But later, iounmap() is called to free tpci200->info->cfg_regs
-again.
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
 
-My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
-to avoid the double free.
+Fix the single zero-length control request which was using the
+read-register helper, and update the helper so that zero-length reads
+fail with an error message instead.
 
-Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
+Fixes: 6a7eba24e4f0 ("V4L/DVB (8157): gspca: all subdrivers")
+Cc: stable@vger.kernel.org      # 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ipack/carriers/tpci200.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/usb/gspca/sunplus.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -596,8 +596,11 @@ static int tpci200_pci_probe(struct pci_
- 
- out_err_bus_register:
- 	tpci200_uninstall(tpci200);
-+	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
-+	tpci200->info->cfg_regs = NULL;
- out_err_install:
--	iounmap(tpci200->info->cfg_regs);
-+	if (tpci200->info->cfg_regs)
-+		iounmap(tpci200->info->cfg_regs);
- out_err_ioremap:
- 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
- out_err_pci_request:
+--- a/drivers/media/usb/gspca/sunplus.c
++++ b/drivers/media/usb/gspca/sunplus.c
+@@ -242,6 +242,10 @@ static void reg_r(struct gspca_dev *gspc
+ 		gspca_err(gspca_dev, "reg_r: buffer overflow\n");
+ 		return;
+ 	}
++	if (len == 0) {
++		gspca_err(gspca_dev, "reg_r: zero-length read\n");
++		return;
++	}
+ 	if (gspca_dev->usb_err < 0)
+ 		return;
+ 	ret = usb_control_msg(gspca_dev->dev,
+@@ -250,7 +254,7 @@ static void reg_r(struct gspca_dev *gspc
+ 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 			0,		/* value */
+ 			index,
+-			len ? gspca_dev->usb_buf : NULL, len,
++			gspca_dev->usb_buf, len,
+ 			500);
+ 	if (ret < 0) {
+ 		pr_err("reg_r err %d\n", ret);
+@@ -727,7 +731,7 @@ static int sd_start(struct gspca_dev *gs
+ 		case MegaImageVI:
+ 			reg_w_riv(gspca_dev, 0xf0, 0, 0);
+ 			spca504B_WaitCmdStatus(gspca_dev);
+-			reg_r(gspca_dev, 0xf0, 4, 0);
++			reg_w_riv(gspca_dev, 0xf0, 4, 0);
+ 			spca504B_WaitCmdStatus(gspca_dev);
+ 			break;
+ 		default:
 
 
