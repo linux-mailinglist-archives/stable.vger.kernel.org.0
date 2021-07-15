@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83DB43CAA5B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DD7E3CAA57
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241893AbhGOTND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46196 "EHLO mail.kernel.org"
+        id S241486AbhGOTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243958AbhGOTK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243959AbhGOTK0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:10:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27176601FE;
-        Thu, 15 Jul 2021 19:07:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8289361158;
+        Thu, 15 Jul 2021 19:07:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376040;
-        bh=cbkPRo7+rmemS45wzv8CpoNtvxdeDeakDfFzCFdruQM=;
+        s=korg; t=1626376043;
+        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aX9zF+WhLzDTsGZGbwat+TDdjtbRmiQoAxMX5HQ1RTWQ04E910mKJf0QTV9Dal9+4
-         ljozfpiSKNKdLxW4hHgI23OeusNoWu2ZBqkoqz0JbJxq4DVoIK2NJRCOMRigX6euYa
-         odOSygQAE4GaO2R/SWvxnWENU6gmZ2asS2Wci9w4=
+        b=qHFh+Y26oC9M1uy8oiPLNQCgXeOHwtbiOB65WL8xQCIGkFBD+hbUTODV34XwMK0Ug
+         DfYgowtYasmUxpw/vUrNptEt34l0JR66KvrpRC+8Y2gVZVJKf7BLiZ4N6fbkM3i91f
+         xOR6rnizshWAMyqSX4mD2BPcaeZZXOgmHdKbxm/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Tony Lindgren <tony@atomide.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 100/266] dm writecache: commit just one block, not a full page
-Date:   Thu, 15 Jul 2021 20:37:35 +0200
-Message-Id: <20210715182631.681005995@linuxfoundation.org>
+Subject: [PATCH 5.13 101/266] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
+Date:   Thu, 15 Jul 2021 20:37:36 +0200
+Message-Id: <20210715182631.843668500@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -40,39 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 991bd8d7bc78966b4dc427b53a144f276bffcd52 ]
+[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
 
-Some architectures have pages larger than 4k and committing a full
-page causes needless overhead.
+At least on wl12xx, reading the MAC after boot can fail with a warning
+at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
+The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
+after request_firmware_work_func().
 
-Fix this by writing a single block when committing the superblock.
+After the error, no wireless interface is created. Reloading the wl12xx
+module makes the interface work.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Turns out the wlan controller can be in a low-power ELP state after the
+boot from the bootloader or kexec, and needs to be woken up first.
+
+Let's wake the hardware and add a sleep after that similar to
+wl12xx_pre_boot() is already doing.
+
+Note that a similar issue could exist for wl18xx, but I have not seen it
+so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
+produce similar errors.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-writecache.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index a44007297e63..0e3a6c4bd5e3 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -532,11 +532,7 @@ static void ssd_commit_superblock(struct dm_writecache *wc)
+diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
+index 9d7dbfe7fe0c..c6da0cfb4afb 100644
+--- a/drivers/net/wireless/ti/wl12xx/main.c
++++ b/drivers/net/wireless/ti/wl12xx/main.c
+@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
+ 	u32 mac1, mac2;
+ 	int ret;
  
- 	region.bdev = wc->ssd_dev->bdev;
- 	region.sector = 0;
--	region.count = PAGE_SIZE >> SECTOR_SHIFT;
--
--	if (unlikely(region.sector + region.count > wc->metadata_sectors))
--		region.count = wc->metadata_sectors - region.sector;
--
-+	region.count = wc->block_size >> SECTOR_SHIFT;
- 	region.sector += wc->start_sector;
- 
- 	req.bi_op = REQ_OP_WRITE;
++	/* Device may be in ELP from the bootloader or kexec */
++	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
++	if (ret < 0)
++		goto out;
++
++	usleep_range(500000, 700000);
++
+ 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
+ 	if (ret < 0)
+ 		goto out;
 -- 
 2.30.2
 
