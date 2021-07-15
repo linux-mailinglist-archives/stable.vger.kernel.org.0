@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 752263CA92E
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9FA3CAB04
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241244AbhGOTFi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38158 "EHLO mail.kernel.org"
+        id S244263AbhGOTQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243521AbhGOTE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2BD261405;
-        Thu, 15 Jul 2021 19:00:23 +0000 (UTC)
+        id S241580AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39AA46141E;
+        Thu, 15 Jul 2021 19:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375624;
-        bh=WnfKwdefcVhKmY+SMQ457/yqAt2i1E6NF6MSh8EUvak=;
+        s=korg; t=1626376292;
+        bh=1BuftYxYlodzTTWsccJ8mb6qMW4RWaRgd+qRmstKHp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQRLyvxdEIl2G19PCFcuNhPizJJhs82KtFdvnmWlTfUjKQYEkYfOip9NdYDtYIfcK
-         VQhQSrYG7fmNLavWF3yZCoPvn74uNBNthYPxpiy/u9L0DPWCt46NZPX4ecB/yD1cjI
-         MOZrgTmFaqEH/xZOpdEnGR7K8sf4LIrXFZy53zBI=
+        b=EQj9lABbJpBwH+3raszi2Ae57/Mc1ZQDf8XY4hGGrJ2aY0c1Hid0UqLv+EFkAxIya
+         EWZrFSzTnV75CX53BsS+z+dKX6e+nHLzM1i6aZ3YaJ24W6ndJPMQ3SH2jetqJCZQ7s
+         TK4odHiJjfsCVLnD/d9F0WcdZGXAkKNmBpDoNSVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 159/242] powerpc/barrier: Avoid collision with clangs __lwsync macro
-Date:   Thu, 15 Jul 2021 20:38:41 +0200
-Message-Id: <20210715182621.137400799@linuxfoundation.org>
+        stable@vger.kernel.org, Tim Jiang <tjiang@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 167/266] Bluetooth: btusb: use default nvm if boardID is 0 for wcn6855.
+Date:   Thu, 15 Jul 2021 20:38:42 +0200
+Message-Id: <20210715182641.949068003@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Tim Jiang <tjiang@codeaurora.org>
 
-commit 015d98149b326e0f1f02e44413112ca8b4330543 upstream.
+[ Upstream commit ca17a5cccf8b6d35dab4729bea8f4350bc0b4caf ]
 
-A change in clang 13 results in the __lwsync macro being defined as
-__builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
-the target supports. This breaks the build because of -Werror in
-arch/powerpc, along with thousands of warnings:
+if boardID is 0, will use the default nvm file without surfix.
 
- In file included from arch/powerpc/kernel/pmc.c:12:
- In file included from include/linux/bug.h:5:
- In file included from arch/powerpc/include/asm/bug.h:109:
- In file included from include/asm-generic/bug.h:20:
- In file included from include/linux/kernel.h:12:
- In file included from include/linux/bitops.h:32:
- In file included from arch/powerpc/include/asm/bitops.h:62:
- arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
- #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
-        ^
- <built-in>:308:9: note: previous definition is here
- #define __lwsync __builtin_ppc_lwsync
-        ^
- 1 error generated.
-
-Undefine this macro so that the runtime patching introduced by
-commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
-work properly with clang and the build no longer breaks.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1386
-Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
-Link: https://lore.kernel.org/r/20210528182752.1852002-1-nathan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/barrier.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bluetooth/btusb.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/include/asm/barrier.h
-+++ b/arch/powerpc/include/asm/barrier.h
-@@ -46,6 +46,8 @@
- #    define SMPWMB      eieio
- #endif
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 4c18a85a1070..1cec9b2353c6 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -4163,9 +4163,15 @@ static int btusb_setup_qca_load_nvm(struct hci_dev *hdev,
+ 	int err;
  
-+/* clang defines this macro for a builtin, which will not work with runtime patching */
-+#undef __lwsync
- #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
- #define dma_rmb()	__lwsync()
- #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
+ 	if (((ver->flag >> 8) & 0xff) == QCA_FLAG_MULTI_NVM) {
+-		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
+-			 le32_to_cpu(ver->rom_version),
+-			 le16_to_cpu(ver->board_id));
++		/* if boardid equal 0, use default nvm without surfix */
++		if (le16_to_cpu(ver->board_id) == 0x0) {
++			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
++				 le32_to_cpu(ver->rom_version));
++		} else {
++			snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x_%04x.bin",
++				le32_to_cpu(ver->rom_version),
++				le16_to_cpu(ver->board_id));
++		}
+ 	} else {
+ 		snprintf(fwname, sizeof(fwname), "qca/nvm_usb_%08x.bin",
+ 			 le32_to_cpu(ver->rom_version));
+-- 
+2.30.2
+
 
 
