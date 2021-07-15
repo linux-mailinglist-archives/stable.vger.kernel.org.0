@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084AF3CA644
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48A8D3CA790
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231997AbhGOSqz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48470 "EHLO mail.kernel.org"
+        id S240826AbhGOSz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238388AbhGOSqw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4D6F613DC;
-        Thu, 15 Jul 2021 18:43:57 +0000 (UTC)
+        id S241729AbhGOSyg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A43F613CF;
+        Thu, 15 Jul 2021 18:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374638;
-        bh=jSKqkZ+UU4PmhEyzCaosrPO3qLRJWJGjTNDb4ZWQLdQ=;
+        s=korg; t=1626375101;
+        bh=tB9n9DecfNlZ8D3SRM40CXHbkxGOBPpWXf2po1dV+kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHjC4vgRiCEU+td/EZdEgaRVnu8u5FxsFT0NAQr5A/axGIRyahOMPGifWRrbT/6yr
-         Vg761GhLxPciPhbIWJEhZ7/RSjIuGhVkvIBP071yzcYPWc5oupkyKYlw1Q/r/no2Xi
-         rruDH1t1gWTmCJJpAvJWMtxj6pBhLfQ1SJjPvQ3I=
+        b=j1OblpDdKfSJZHz2qNm7CUIIbXrkLWaMBbkgzX9g2iMtKL4X5wJ9HHrpdk3CSu2gt
+         5sSavOHNpsRMRM58WwN0qIZT9YHUV/VWdWjttsiOagE3qR4Ga4hiiUrDg+KYHBoht2
+         lzd0vG025CRJW4nJ0BQbat78JC5qneP+TC5YoEbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        stable@vger.kernel.org,
         Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 5.4 085/122] drm/arm/malidp: Always list modifiers
-Date:   Thu, 15 Jul 2021 20:38:52 +0200
-Message-Id: <20210715182513.526263732@linuxfoundation.org>
+        Thierry Reding <treding@nvidia.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH 5.10 161/215] drm/tegra: Dont set allow_fb_modifiers explicitly
+Date:   Thu, 15 Jul 2021 20:38:53 +0200
+Message-Id: <20210715182627.992575303@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +46,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 26c3e7fd5a3499e408915dadae5d5360790aae9a upstream.
+commit be4306ad928fcf736cbe2616b6dd19d91f1bc083 upstream.
 
-Even when all we support is linear, make that explicit. Otherwise the
-uapi is rather confusing.
+Since
 
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
+commit 890880ddfdbe256083170866e49c87618b706ac7
+Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Date:   Fri Jan 4 09:56:10 2019 +0100
+
+    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
+
+this is done automatically as part of plane init, if drivers set the
+modifier list correctly. Which is the case here.
+
+It was slightly inconsistently though, since planes with only linear
+modifier support haven't listed that explicitly. Fix that, and cc:
+stable to allow userspace to rely on this. Again don't backport
+further than where Paul's patch got added.
+
+Cc: stable@vger.kernel.org # v5.1 +
 Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Cc: Liviu Dudau <liviu.dudau@arm.com>
-Cc: Brian Starkey <brian.starkey@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-2-daniel.vetter@ffwll.ch
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: linux-tegra@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20210413094904.3736372-10-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/arm/malidp_planes.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/tegra/dc.c  |   10 ++++++++--
+ drivers/gpu/drm/tegra/drm.c |    2 --
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/arm/malidp_planes.c
-+++ b/drivers/gpu/drm/arm/malidp_planes.c
-@@ -922,6 +922,11 @@ static const struct drm_plane_helper_fun
- 	.atomic_disable = malidp_de_plane_disable,
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -947,6 +947,11 @@ static const struct drm_plane_helper_fun
+ 	.atomic_disable = tegra_cursor_atomic_disable,
  };
  
-+static const uint64_t linear_only_modifiers[] = {
++static const uint64_t linear_modifiers[] = {
 +	DRM_FORMAT_MOD_LINEAR,
 +	DRM_FORMAT_MOD_INVALID
 +};
 +
- int malidp_de_planes_init(struct drm_device *drm)
+ static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
+ 						      struct tegra_dc *dc)
  {
- 	struct malidp_drm *malidp = drm->dev_private;
-@@ -985,8 +990,8 @@ int malidp_de_planes_init(struct drm_dev
- 		 */
- 		ret = drm_universal_plane_init(drm, &plane->base, crtcs,
- 				&malidp_de_plane_funcs, formats, n,
--				(id == DE_SMART) ? NULL : modifiers, plane_type,
--				NULL);
-+				(id == DE_SMART) ? linear_only_modifiers : modifiers,
-+				plane_type, NULL);
+@@ -975,7 +980,7 @@ static struct drm_plane *tegra_dc_cursor
  
- 		if (ret < 0)
- 			goto cleanup;
+ 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+ 				       &tegra_plane_funcs, formats,
+-				       num_formats, NULL,
++				       num_formats, linear_modifiers,
+ 				       DRM_PLANE_TYPE_CURSOR, NULL);
+ 	if (err < 0) {
+ 		kfree(plane);
+@@ -1094,7 +1099,8 @@ static struct drm_plane *tegra_dc_overla
+ 
+ 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+ 				       &tegra_plane_funcs, formats,
+-				       num_formats, NULL, type, NULL);
++				       num_formats, linear_modifiers,
++				       type, NULL);
+ 	if (err < 0) {
+ 		kfree(plane);
+ 		return ERR_PTR(err);
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -1127,8 +1127,6 @@ static int host1x_drm_probe(struct host1
+ 	drm->mode_config.max_width = 4096;
+ 	drm->mode_config.max_height = 4096;
+ 
+-	drm->mode_config.allow_fb_modifiers = true;
+-
+ 	drm->mode_config.normalize_zpos = true;
+ 
+ 	drm->mode_config.funcs = &tegra_drm_mode_config_funcs;
 
 
