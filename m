@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B357D3CA98D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 650113CAB3B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242023AbhGOTH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:07:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
+        id S243896AbhGOTSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239286AbhGOTGW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:06:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF6B36141E;
-        Thu, 15 Jul 2021 19:02:36 +0000 (UTC)
+        id S244301AbhGOTQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:16:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A07613ED;
+        Thu, 15 Jul 2021 19:12:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375757;
-        bh=nA0u2vSnDAToGgwNOLeswbRytUAFyY7uC47mcXzBRyw=;
+        s=korg; t=1626376344;
+        bh=2M7JojDu52S5+PbtEO65Idqxw6cb7+62V046UCki0XI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRvGWvKqLA5dI+QQrxVg+yApIQ3kqEdffETBzS9Y/zzJg9RbTvYghgiwpG77uGECI
-         SLJYTfnzeQcap+SiEptXeUu0xfBPqr6AVH5se0ycrwQht9vByh9cg90y39+iIpDdn5
-         6MQ5po5L9YMgYVSAAN5Ei4ZsgvGQabGkx6wIqyrU=
+        b=1HHDpM0aKZUWRJTE3rzzyv7TpgmdoeCeXlyW1R3gQZ4oBpS1dlzLDGJVs0N+91/8V
+         oUPQHvFn8eGCPvZA5jXdC7CQLchXIknFDwCas49AxYDPzEd+ZMEjX1daRA4WwmPiIz
+         j4cPZEhkNF4PSqce4I+26rWqp3qPb4fOlEZL+EP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 223/242] media: dtv5100: fix control-request directions
-Date:   Thu, 15 Jul 2021 20:39:45 +0200
-Message-Id: <20210715182632.248506194@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.13 231/266] lkdtm: Enable DOUBLE_FAULT on all architectures
+Date:   Thu, 15 Jul 2021 20:39:46 +0200
+Message-Id: <20210715182650.217658895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +38,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
+commit f123c42bbeff26bfe8bdb08a01307e92d51eec39 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+Where feasible, I prefer to have all tests visible on all architectures,
+but to have them wired to XFAIL. DOUBLE_FAIL was set up to XFAIL, but
+wasn't actually being added to the test list.
 
-Fix the control requests which erroneously used usb_rcvctrlpipe().
-
-Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
-Cc: stable@vger.kernel.org      # 2.6.28
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: cea23efb4de2 ("lkdtm/bugs: Make double-fault test always available")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210623203936.3151093-7-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/misc/lkdtm/core.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/dtv5100.c
-+++ b/drivers/media/usb/dvb-usb/dtv5100.c
-@@ -26,6 +26,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
- {
- 	struct dtv5100_state *st = d->priv;
-+	unsigned int pipe;
- 	u8 request;
- 	u8 type;
- 	u16 value;
-@@ -34,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 	switch (wlen) {
- 	case 1:
- 		/* write { reg }, read { value } */
-+		pipe = usb_rcvctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
- 							DTV5100_TUNER_READ);
- 		type = USB_TYPE_VENDOR | USB_DIR_IN;
-@@ -41,6 +43,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 		break;
- 	case 2:
- 		/* write { reg, value } */
-+		pipe = usb_sndctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
- 							DTV5100_TUNER_WRITE);
- 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
-@@ -54,7 +57,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 
- 	memcpy(st->data, rbuf, rlen);
- 	msleep(1); /* avoid I2C errors */
--	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
-+	return usb_control_msg(d->udev, pipe, request,
- 			       type, value, index, st->data, rlen,
- 			       DTV5100_USB_TIMEOUT);
- }
-@@ -141,7 +144,7 @@ static int dtv5100_probe(struct usb_inte
- 
- 	/* initialize non qt1010/zl10353 part? */
- 	for (i = 0; dtv5100_init[i].request; i++) {
--		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				      dtv5100_init[i].request,
- 				      USB_TYPE_VENDOR | USB_DIR_OUT,
- 				      dtv5100_init[i].value,
+--- a/drivers/misc/lkdtm/core.c
++++ b/drivers/misc/lkdtm/core.c
+@@ -177,9 +177,7 @@ static const struct crashtype crashtypes
+ 	CRASHTYPE(STACKLEAK_ERASING),
+ 	CRASHTYPE(CFI_FORWARD_PROTO),
+ 	CRASHTYPE(FORTIFIED_STRSCPY),
+-#ifdef CONFIG_X86_32
+ 	CRASHTYPE(DOUBLE_FAULT),
+-#endif
+ #ifdef CONFIG_PPC_BOOK3S_64
+ 	CRASHTYPE(PPC_SLB_MULTIHIT),
+ #endif
 
 
