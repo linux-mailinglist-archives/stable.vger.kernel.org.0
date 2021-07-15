@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0B613CA697
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E59A33CA816
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239426AbhGOSs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
+        id S242057AbhGOS6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:58:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239761AbhGOSsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:48:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37604613D4;
-        Thu, 15 Jul 2021 18:45:49 +0000 (UTC)
+        id S241834AbhGOS5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:57:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65499613CF;
+        Thu, 15 Jul 2021 18:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374749;
-        bh=l98UumLjQANUw6mZMLJC464/eEz4GzVb3MFkIc5GbkI=;
+        s=korg; t=1626375279;
+        bh=TAJ0SnSUpJfc+Cqj1aFA6K5OlqU8tHyKbd/ynWD3xIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4tj26Odj880yCbU5/c8nGuguYUfZ96fVCdWqOceEDfhWyzj2OtwKyJeRzSfJGqv9
-         6vYbzbVoT4nzc+Q0hYTCfFkl0SctOPrcxUrx+iWsWsneRtfDNCqcx5e4C+uEYqvHYn
-         XZbw4sw+bO1yC2cJv1OhVzvbaCUiDitZQnnXuYsY=
+        b=myVBYTjkikRMjEpdYiYM1rpfoMoFzIQ5Jg+640eCe229IkGzXrm9c5fsFSNhC7uYX
+         oi602T3Am+pjrtZt0Dalk9JeGmYVodhIJnES63usGYaWWEOi2VVvjGKnHaczifN8A5
+         nqL3p/WjousVGpRFc2o14eWlxlBpKak2uMiTFWzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org,
+        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/215] clk: renesas: rcar-usb2-clock-sel: Fix error handling in .probe()
+Subject: [PATCH 5.12 020/242] reiserfs: add check for invalid 1st journal block
 Date:   Thu, 15 Jul 2021 20:36:22 +0200
-Message-Id: <20210715182600.429009456@linuxfoundation.org>
+Message-Id: <20210715182555.293599963@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit a20a40a8bbc2cf4b29d7248ea31e974e9103dd7f ]
+[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
 
-The error handling paths after pm_runtime_get_sync() have no refcount
-decrement, which leads to refcount leak.
+syzbot reported divide error in reiserfs.
+The problem was in incorrect journal 1st block.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Link: https://lore.kernel.org/r/20210415073338.22287-1-dinghao.liu@zju.edu.cn
-[geert: Remove now unused variable priv]
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Syzbot's reproducer manualy generated wrong superblock
+with incorrect 1st block. In journal_init() wasn't
+any checks about this particular case.
+
+For example, if 1st journal block is before superblock
+1st block, it can cause zeroing important superblock members
+in do_journal_end().
+
+Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
+Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/rcar-usb2-clock-sel.c | 24 ++++++++++++++---------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ fs/reiserfs/journal.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/clk/renesas/rcar-usb2-clock-sel.c b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-index d4c02986c34e..0ccc6e709a38 100644
---- a/drivers/clk/renesas/rcar-usb2-clock-sel.c
-+++ b/drivers/clk/renesas/rcar-usb2-clock-sel.c
-@@ -128,10 +128,8 @@ static int rcar_usb2_clock_sel_resume(struct device *dev)
- static int rcar_usb2_clock_sel_remove(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
--	struct usb2_clock_sel_priv *priv = platform_get_drvdata(pdev);
- 
- 	of_clk_del_provider(dev->of_node);
--	clk_hw_unregister(&priv->hw);
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
- 
-@@ -164,9 +162,6 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->rsts))
- 		return PTR_ERR(priv->rsts);
- 
--	pm_runtime_enable(dev);
--	pm_runtime_get_sync(dev);
--
- 	clk = devm_clk_get(dev, "usb_extal");
- 	if (!IS_ERR(clk) && !clk_prepare_enable(clk)) {
- 		priv->extal = !!clk_get_rate(clk);
-@@ -183,6 +178,8 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 		return -ENOENT;
+diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+index e98f99338f8f..df5fc12a6cee 100644
+--- a/fs/reiserfs/journal.c
++++ b/fs/reiserfs/journal.c
+@@ -2760,6 +2760,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
+ 		goto free_and_return;
  	}
  
-+	pm_runtime_enable(dev);
-+	pm_runtime_get_sync(dev);
- 	platform_set_drvdata(pdev, priv);
- 	dev_set_drvdata(dev, priv);
- 
-@@ -193,11 +190,20 @@ static int rcar_usb2_clock_sel_probe(struct platform_device *pdev)
- 	init.num_parents = 0;
- 	priv->hw.init = &init;
- 
--	clk = clk_register(NULL, &priv->hw);
--	if (IS_ERR(clk))
--		return PTR_ERR(clk);
-+	ret = devm_clk_hw_register(NULL, &priv->hw);
-+	if (ret)
-+		goto pm_put;
++	/*
++	 * Sanity check to see if journal first block is correct.
++	 * If journal first block is invalid it can cause
++	 * zeroing important superblock members.
++	 */
++	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
++	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
++		reiserfs_warning(sb, "journal-1393",
++				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
++				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
++				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
++		goto free_and_return;
++	}
 +
-+	ret = of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+	if (ret)
-+		goto pm_put;
-+
-+	return 0;
- 
--	return of_clk_add_hw_provider(np, of_clk_hw_simple_get, &priv->hw);
-+pm_put:
-+	pm_runtime_put(dev);
-+	pm_runtime_disable(dev);
-+	return ret;
- }
- 
- static const struct dev_pm_ops rcar_usb2_clock_sel_pm_ops = {
+ 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
+ 		reiserfs_warning(sb, "sh-462",
+ 				 "unable to initialize journal device");
 -- 
 2.30.2
 
