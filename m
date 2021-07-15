@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 118C33CA5B2
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0993CA891
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbhGOSn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:43:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
+        id S241091AbhGOTBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229574AbhGOSn6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:43:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B63A9613CF;
-        Thu, 15 Jul 2021 18:41:04 +0000 (UTC)
+        id S240709AbhGOTAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:00:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4F9613D1;
+        Thu, 15 Jul 2021 18:57:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374465;
-        bh=ppceDNdzdKWA3ASmqleqCUSg/GjatIfNhTui98Vl9wk=;
+        s=korg; t=1626375461;
+        bh=LvIRND0UqDC3dQhNJ2Rr52UaAl5IGAeej3QyKJteXq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmcg10CpmMq1sDpnGPvr66WjVO3Bd0jg/vIBQ7Jf8lfUhEnSJmL2gbU4JbjEaiAs5
-         xJdGs4Bv3s5idi0YGulj3vE1WoV//nSmtJxuIFipuyWygDtz9zulL3tH/GHxSJCRvo
-         uBczyppbmzmIlw42EnvqoAYa6n6BJt5wkInz0XRE=
+        b=bg1Z7RFbnNNPlq0OcA7xxf6rUjZJ+Kqdc6xn2/RqKPjVln6sEb7+8OWpRMT9sP6sg
+         ZimX9FCCMbHXX/ilRt3KdPCAUSywFNl7FySeHKQEonn14fA8QvGnrSF/o44ghJxrOq
+         pLVefAD4me0Ei96AIi9NEc7uS0SARKo7ZHGM4ZRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 011/122] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
+Subject: [PATCH 5.12 096/242] mt76: mt7615: fix fixed-rate tx status reporting
 Date:   Thu, 15 Jul 2021 20:37:38 +0200
-Message-Id: <20210715182451.396021896@linuxfoundation.org>
+Message-Id: <20210715182609.992005742@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
+[ Upstream commit ec8f1a90d006f7cedcf86ef19fd034a406a213d6 ]
 
-__napi_schedule_irqoff() is an optimized version of __napi_schedule()
-which can be used where it is known that interrupts are disabled,
-e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
-callbacks.
+Rely on the txs fixed-rate bit instead of info->control.rates
 
-On PREEMPT_RT enabled kernels this assumptions is not true. Force-
-threaded interrupt handlers and spinlocks are not disabling interrupts
-and the NAPI hrtimer callback is forced into softirq context which runs
-with interrupts enabled as well.
-
-Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
-game so make __napi_schedule_irqoff() invoke __napi_schedule() for
-PREEMPT_RT kernels.
-
-The callers of ____napi_schedule() in the networking core have been
-audited and are correct on PREEMPT_RT kernels as well.
-
-Reported-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index e226f266da9e..3810eaf89b26 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5972,11 +5972,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
-  * __napi_schedule_irqoff - schedule for receive
-  * @n: entry to schedule
-  *
-- * Variant of __napi_schedule() assuming hard irqs are masked
-+ * Variant of __napi_schedule() assuming hard irqs are masked.
-+ *
-+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
-+ * because the interrupt disabled assumption might not be true
-+ * due to force-threaded interrupts and spinlock substitution.
-  */
- void __napi_schedule_irqoff(struct napi_struct *n)
- {
--	____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	else
-+		__napi_schedule(n);
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index d06e61cadc41..7fd293b4dcf7 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -1194,22 +1194,20 @@ static bool mt7615_fill_txs(struct mt7615_dev *dev, struct mt7615_sta *sta,
+ 	int first_idx = 0, last_idx;
+ 	int i, idx, count;
+ 	bool fixed_rate, ack_timeout;
+-	bool probe, ampdu, cck = false;
++	bool ampdu, cck = false;
+ 	bool rs_idx;
+ 	u32 rate_set_tsf;
+ 	u32 final_rate, final_rate_flags, final_nss, txs;
  
+-	fixed_rate = info->status.rates[0].count;
+-	probe = !!(info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE);
+-
+ 	txs = le32_to_cpu(txs_data[1]);
+-	ampdu = !fixed_rate && (txs & MT_TXS1_AMPDU);
++	ampdu = txs & MT_TXS1_AMPDU;
+ 
+ 	txs = le32_to_cpu(txs_data[3]);
+ 	count = FIELD_GET(MT_TXS3_TX_COUNT, txs);
+ 	last_idx = FIELD_GET(MT_TXS3_LAST_TX_RATE, txs);
+ 
+ 	txs = le32_to_cpu(txs_data[0]);
++	fixed_rate = txs & MT_TXS0_FIXED_RATE;
+ 	final_rate = FIELD_GET(MT_TXS0_TX_RATE, txs);
+ 	ack_timeout = txs & MT_TXS0_ACK_TIMEOUT;
+ 
+@@ -1231,7 +1229,7 @@ static bool mt7615_fill_txs(struct mt7615_dev *dev, struct mt7615_sta *sta,
+ 
+ 	first_idx = max_t(int, 0, last_idx - (count - 1) / MT7615_RATE_RETRY);
+ 
+-	if (fixed_rate && !probe) {
++	if (fixed_rate) {
+ 		info->status.rates[0].count = count;
+ 		i = 0;
+ 		goto out;
 -- 
 2.30.2
 
