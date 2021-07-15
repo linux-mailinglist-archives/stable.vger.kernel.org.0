@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE53A3CA68A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5D733CA7C5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239201AbhGOSsg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50386 "EHLO mail.kernel.org"
+        id S241996AbhGOS4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239420AbhGOSsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:48:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05EC3613D6;
-        Thu, 15 Jul 2021 18:45:11 +0000 (UTC)
+        id S241819AbhGOSzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF721613D8;
+        Thu, 15 Jul 2021 18:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374712;
-        bh=nA0u2vSnDAToGgwNOLeswbRytUAFyY7uC47mcXzBRyw=;
+        s=korg; t=1626375174;
+        bh=EjWV6Zy+VWuv5XJpAE9Di1/rWJ7BMDp9LT34EJC8Xa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOyxvgiL1IsQKqqtCJ7jrWisTElk9r+q062Q9xmMOHgXiJV7ipSWoCqS7ndBdTcJw
-         UOa9XG1wIhxHB1QW8ZjUFb3jyRWpNRAv79gTDTWYBZHx81HXRc5mF/uoWhLNKR8Pys
-         hjYiJgBdwLLxahoMS0xOeJ85unoNDUeUrUbjffig=
+        b=PPzPE+IxqPyKAAzp/DZGBzVqgcvWX3Gpd7p9QC9ckNgu3x/WxSGZW4Kzl+Aa3O6lD
+         sEZ83/NKgJvZR3eYdHdeCUY83ZXZGFBoNL230tUBa85Zel5u92J2IXrDGBCPsls3tD
+         SZYFik26txfy3lWYfI7r7xETjSqIdfmctR9bjjus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 114/122] media: dtv5100: fix control-request directions
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 189/215] rq-qos: fix missed wake-ups in rq_qos_throttle try two
 Date:   Thu, 15 Jul 2021 20:39:21 +0200
-Message-Id: <20210715182521.782588327@linuxfoundation.org>
+Message-Id: <20210715182632.616737642@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
+commit 11c7aa0ddea8611007768d3e6b58d45dc60a19e1 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
+tried to fix a problem that a process could be sleeping in rq_qos_wait()
+without anyone to wake it up. However the fix is not complete and the
+following can still happen:
 
-Fix the control requests which erroneously used usb_rcvctrlpipe().
+CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
+rq_qos_wait()		rq_qos_wait()
+  acquire_inflight_cb() -> fails
+			  acquire_inflight_cb() -> fails
 
-Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
-Cc: stable@vger.kernel.org      # 2.6.28
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+						completes IOs, inflight
+						  decreased
+  prepare_to_wait_exclusive()
+			  prepare_to_wait_exclusive()
+  has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
+			  has_sleeper = !wq_has_single_sleeper() -> true
+  io_schedule()		  io_schedule()
+
+Deadlock as now there's nobody to wakeup the two waiters. The logic
+automatically blocking when there are already sleepers is really subtle
+and the only way to make it work reliably is that we check whether there
+are some waiters in the queue when adding ourselves there. That way, we
+are guaranteed that at least the first process to enter the wait queue
+will recheck the waiting condition before going to sleep and thus
+guarantee forward progress.
+
+Fixes: 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210607112613.25344-1-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ block/blk-rq-qos.c   |    4 ++--
+ include/linux/wait.h |    2 +-
+ kernel/sched/wait.c  |    9 +++++++--
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/dtv5100.c
-+++ b/drivers/media/usb/dvb-usb/dtv5100.c
-@@ -26,6 +26,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
- {
- 	struct dtv5100_state *st = d->priv;
-+	unsigned int pipe;
- 	u8 request;
- 	u8 type;
- 	u16 value;
-@@ -34,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 	switch (wlen) {
- 	case 1:
- 		/* write { reg }, read { value } */
-+		pipe = usb_rcvctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
- 							DTV5100_TUNER_READ);
- 		type = USB_TYPE_VENDOR | USB_DIR_IN;
-@@ -41,6 +43,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 		break;
- 	case 2:
- 		/* write { reg, value } */
-+		pipe = usb_sndctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
- 							DTV5100_TUNER_WRITE);
- 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
-@@ -54,7 +57,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+--- a/block/blk-rq-qos.c
++++ b/block/blk-rq-qos.c
+@@ -266,8 +266,8 @@ void rq_qos_wait(struct rq_wait *rqw, vo
+ 	if (!has_sleeper && acquire_inflight_cb(rqw, private_data))
+ 		return;
  
- 	memcpy(st->data, rbuf, rlen);
- 	msleep(1); /* avoid I2C errors */
--	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
-+	return usb_control_msg(d->udev, pipe, request,
- 			       type, value, index, st->data, rlen,
- 			       DTV5100_USB_TIMEOUT);
+-	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
+-	has_sleeper = !wq_has_single_sleeper(&rqw->wait);
++	has_sleeper = !prepare_to_wait_exclusive(&rqw->wait, &data.wq,
++						 TASK_UNINTERRUPTIBLE);
+ 	do {
+ 		/* The memory barrier in set_task_state saves us here. */
+ 		if (data.got_token)
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -1126,7 +1126,7 @@ do {										\
+  * Waitqueues which are removed from the waitqueue_head at wakeup time
+  */
+ void prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+-void prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
++bool prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+ long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+ void finish_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry);
+ long wait_woken(struct wait_queue_entry *wq_entry, unsigned mode, long timeout);
+--- a/kernel/sched/wait.c
++++ b/kernel/sched/wait.c
+@@ -249,17 +249,22 @@ prepare_to_wait(struct wait_queue_head *
  }
-@@ -141,7 +144,7 @@ static int dtv5100_probe(struct usb_inte
+ EXPORT_SYMBOL(prepare_to_wait);
  
- 	/* initialize non qt1010/zl10353 part? */
- 	for (i = 0; dtv5100_init[i].request; i++) {
--		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				      dtv5100_init[i].request,
- 				      USB_TYPE_VENDOR | USB_DIR_OUT,
- 				      dtv5100_init[i].value,
+-void
++/* Returns true if we are the first waiter in the queue, false otherwise. */
++bool
+ prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
+ {
+ 	unsigned long flags;
++	bool was_empty = false;
+ 
+ 	wq_entry->flags |= WQ_FLAG_EXCLUSIVE;
+ 	spin_lock_irqsave(&wq_head->lock, flags);
+-	if (list_empty(&wq_entry->entry))
++	if (list_empty(&wq_entry->entry)) {
++		was_empty = list_empty(&wq_head->head);
+ 		__add_wait_queue_entry_tail(wq_head, wq_entry);
++	}
+ 	set_current_state(state);
+ 	spin_unlock_irqrestore(&wq_head->lock, flags);
++	return was_empty;
+ }
+ EXPORT_SYMBOL(prepare_to_wait_exclusive);
+ 
 
 
