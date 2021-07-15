@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B4C03CA010
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:50:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0981C3CA011
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbhGONxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:53:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55096 "EHLO mail.kernel.org"
+        id S233076AbhGONxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:53:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232091AbhGONxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:53:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C3B061374;
-        Thu, 15 Jul 2021 13:50:26 +0000 (UTC)
+        id S232091AbhGONxW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:53:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9ED61289;
+        Thu, 15 Jul 2021 13:50:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626357026;
-        bh=aSkN+Ij+wQXqWvcxBZTcABrUG41nO3y5HLuhKuNuERM=;
+        s=korg; t=1626357029;
+        bh=dz/BCFERFzPNTrtC+HwCPgzzMBFZKFeGYqPtGS1tTes=;
         h=Subject:To:Cc:From:Date:From;
-        b=wtUgFgeLcEp9UP5l6JGwE084lZX5Z65PptMjtfvBnJRw3TlTgftqPNFwg3PJIARQe
-         KB1e+XY970Seq5W5unsse5d1LSgmlbk4xpAm4k2PHaPKzGRn/C4GOdw5zAxNM5aW3j
-         Sj6cMSrn2XLqLZx4THLNpsgg/THXTmN0hZvenGvA=
-Subject: FAILED: patch "[PATCH] PCI: Suspend/resume quirks for Apple thunderbolt" failed to apply to 4.9-stable tree
+        b=SpijcL1ZyRCbB0kIaNzqX4b1/vtvDk29rToYmFxLQ7de9ny70UUaXmwGrluHQb9ay
+         qQBV1vW5j22G2SQ1aG8bLScWRyf2l7CWqfKNuRCxUdKT+DGjSUm3ueHv7nL3+X4s0G
+         nCJhN/W2RG3/grG4OVpMxU3lSnDQHC7e3r1KLATE=
+Subject: FAILED: patch "[PATCH] PCI: Suspend/resume quirks for Apple thunderbolt" failed to apply to 4.14-stable tree
 To:     andreas.noever@gmail.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:50:16 +0200
-Message-ID: <162635701612934@kroah.com>
+Date:   Thu, 15 Jul 2021 15:50:17 +0200
+Message-ID: <16263570170188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
