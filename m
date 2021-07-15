@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99E53CA7DA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 837473CA672
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240945AbhGOS4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59840 "EHLO mail.kernel.org"
+        id S238836AbhGOSsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239252AbhGOSz1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB9D0613C4;
-        Thu, 15 Jul 2021 18:52:32 +0000 (UTC)
+        id S239044AbhGOSrq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A53613CF;
+        Thu, 15 Jul 2021 18:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375153;
-        bh=mdd8nG0Bg6TD979N9NBC1X5WKlKBM9Z20I4hsuHlpaU=;
+        s=korg; t=1626374691;
+        bh=Kiivy61omhBEQeoV6HlFj1BPa6I5TbBykIYGTUxF0e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s9zY7B1bWYQE+jOtWwb8VZY/Uat8L7NuyAUVJY6QPTUqVcjgVGpAJnVBjnw3p3WNk
-         10AlfWzXLnIPsrqc/n3AllbOo002/+6qyAuWpFoc48lsRnBWyekvHH4PU8t0tkInyQ
-         yQd2ipqRMoXKGFqlaCkEv3ylOPqGynsrqxGCsK8w=
+        b=Z//85EIFZ7MtEysTB7v7wO2Jk4oj3GGXJZREo6pVVIJn6ahsxCAaqL7+VKla3eJSP
+         BNnOLu63MEzvY5us/p+GKl4s6JPCqEQ1esJhvaPT/iEtjWNULLZ8x/Sh1PR7sknDCs
+         JrJKq8HTsPtu76+lXme6xjZcBV7sPAuE8X1cBbJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 5.10 181/215] ubifs: Fix races between xattr_{set|get} and listxattr operations
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 106/122] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
 Date:   Thu, 15 Jul 2021 20:39:13 +0200
-Message-Id: <20210715182631.327745911@linuxfoundation.org>
+Message-Id: <20210715182520.017839347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,220 +41,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Paul Burton <paulburton@google.com>
 
-commit f4e3634a3b642225a530c292fdb1e8a4007507f5 upstream.
+commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
 
-UBIFS may occur some problems with concurrent xattr_{set|get} and
-listxattr operations, such as assertion failure, memory corruption,
-stale xattr value[1].
+Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
+on systems where pid_max is configured higher than PID_MAX_DEFAULT the
+ftrace record-tgid option doesn't work so well. Any tasks with PIDs
+higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
+don't show up in the saved_tgids file.
 
-Fix it by importing a new rw-lock in @ubifs_inode to serilize write
-operations on xattr, concurrent read operations are still effective,
-just like ext4.
+In particular since systemd v243 & above configure pid_max to its
+highest possible 1<<22 value by default on 64 bit systems this renders
+the record-tgids option of little use.
 
-[1] https://lore.kernel.org/linux-mtd/20200630130438.141649-1-houtao1@huawei.com
+Increase the size of tgid_map to the configured pid_max instead,
+allowing it to cover the full range of PIDs up to the maximum value of
+PID_MAX_LIMIT if the system is configured that way.
 
-Fixes: 1e51764a3c2ac05a23 ("UBIFS: add new flash file system")
-Cc: stable@vger.kernel.org  # v2.6+
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
+size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
+memory overhead sounds significant 64 bit systems are presumably best
+placed to accommodate it, and since tgid_map is only allocated when the
+record-tgid option is actually used presumably the user would rather it
+spends sufficient memory to actually record the tgids they expect.
+
+The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
+configurations, but these seem unlikely to be systems upon which people
+are both configuring a large pid_max and running ftrace with record-tgid
+anyway.
+
+Of note is that we only allocate tgid_map once, the first time that the
+record-tgid option is enabled. Therefore its size is only set once, to
+the value of pid_max at the time the record-tgid option is first
+enabled. If a user increases pid_max after that point, the saved_tgids
+file will not contain entries for any tasks with pids beyond the earlier
+value of pid_max.
+
+Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+[ Fixed comment coding style ]
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/super.c |    1 +
- fs/ubifs/ubifs.h |    2 ++
- fs/ubifs/xattr.c |   44 +++++++++++++++++++++++++++++++++-----------
- 3 files changed, 36 insertions(+), 11 deletions(-)
+ kernel/trace/trace.c |   63 ++++++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 47 insertions(+), 16 deletions(-)
 
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -275,6 +275,7 @@ static struct inode *ubifs_alloc_inode(s
- 	memset((void *)ui + sizeof(struct inode), 0,
- 	       sizeof(struct ubifs_inode) - sizeof(struct inode));
- 	mutex_init(&ui->ui_mutex);
-+	init_rwsem(&ui->xattr_sem);
- 	spin_lock_init(&ui->ui_lock);
- 	return &ui->vfs_inode;
- };
---- a/fs/ubifs/ubifs.h
-+++ b/fs/ubifs/ubifs.h
-@@ -356,6 +356,7 @@ struct ubifs_gced_idx_leb {
-  * @ui_mutex: serializes inode write-back with the rest of VFS operations,
-  *            serializes "clean <-> dirty" state changes, serializes bulk-read,
-  *            protects @dirty, @bulk_read, @ui_size, and @xattr_size
-+ * @xattr_sem: serilizes write operations (remove|set|create) on xattr
-  * @ui_lock: protects @synced_i_size
-  * @synced_i_size: synchronized size of inode, i.e. the value of inode size
-  *                 currently stored on the flash; used only for regular file
-@@ -409,6 +410,7 @@ struct ubifs_inode {
- 	unsigned int bulk_read:1;
- 	unsigned int compr_type:2;
- 	struct mutex ui_mutex;
-+	struct rw_semaphore xattr_sem;
- 	spinlock_t ui_lock;
- 	loff_t synced_i_size;
- 	loff_t ui_size;
---- a/fs/ubifs/xattr.c
-+++ b/fs/ubifs/xattr.c
-@@ -285,6 +285,7 @@ int ubifs_xattr_set(struct inode *host,
- 	if (!xent)
- 		return -ENOMEM;
- 
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	/*
- 	 * The extended attribute entries are stored in LNC, so multiple
- 	 * look-ups do not involve reading the flash.
-@@ -319,6 +320,7 @@ int ubifs_xattr_set(struct inode *host,
- 	iput(inode);
- 
- out_free:
-+	up_write(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -1934,8 +1934,15 @@ void tracing_reset_all_online_cpus(void)
+ 	}
  }
-@@ -341,18 +343,19 @@ ssize_t ubifs_xattr_get(struct inode *ho
- 	if (!xent)
- 		return -ENOMEM;
  
-+	down_read(&ubifs_inode(host)->xattr_sem);
- 	xent_key_init(c, &key, host->i_ino, &nm);
- 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
- 	if (err) {
- 		if (err == -ENOENT)
- 			err = -ENODATA;
--		goto out_unlock;
-+		goto out_cleanup;
- 	}
++/*
++ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
++ * is the tgid last observed corresponding to pid=i.
++ */
+ static int *tgid_map;
  
- 	inode = iget_xattr(c, le64_to_cpu(xent->inum));
- 	if (IS_ERR(inode)) {
- 		err = PTR_ERR(inode);
--		goto out_unlock;
-+		goto out_cleanup;
- 	}
- 
- 	ui = ubifs_inode(inode);
-@@ -374,7 +377,8 @@ ssize_t ubifs_xattr_get(struct inode *ho
- out_iput:
- 	mutex_unlock(&ui->ui_mutex);
- 	iput(inode);
--out_unlock:
-+out_cleanup:
-+	up_read(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
++/* The maximum valid index into tgid_map. */
++static size_t tgid_map_max;
++
+ #define SAVED_CMDLINES_DEFAULT 128
+ #define NO_CMDLINE_MAP UINT_MAX
+ static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
+@@ -2208,24 +2215,41 @@ void trace_find_cmdline(int pid, char co
+ 	preempt_enable();
  }
-@@ -406,16 +410,21 @@ ssize_t ubifs_listxattr(struct dentry *d
- 	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
- 		dentry, size);
  
-+	down_read(&host_ui->xattr_sem);
- 	len = host_ui->xattr_names + host_ui->xattr_cnt;
--	if (!buffer)
-+	if (!buffer) {
- 		/*
- 		 * We should return the minimum buffer size which will fit a
- 		 * null-terminated list of all the extended attribute names.
- 		 */
--		return len;
-+		err = len;
-+		goto out_err;
-+	}
++static int *trace_find_tgid_ptr(int pid)
++{
++	/*
++	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
++	 * if we observe a non-NULL tgid_map then we also observe the correct
++	 * tgid_map_max.
++	 */
++	int *map = smp_load_acquire(&tgid_map);
++
++	if (unlikely(!map || pid > tgid_map_max))
++		return NULL;
++
++	return &map[pid];
++}
++
+ int trace_find_tgid(int pid)
+ {
+-	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
+-		return 0;
++	int *ptr = trace_find_tgid_ptr(pid);
  
--	if (len > size)
--		return -ERANGE;
-+	if (len > size) {
-+		err = -ERANGE;
-+		goto out_err;
-+	}
+-	return tgid_map[pid];
++	return ptr ? *ptr : 0;
+ }
  
- 	lowest_xent_key(c, &key, host->i_ino);
- 	while (1) {
-@@ -437,8 +446,9 @@ ssize_t ubifs_listxattr(struct dentry *d
- 		pxent = xent;
- 		key_read(c, &xent->key, &key);
- 	}
+ static int trace_save_tgid(struct task_struct *tsk)
+ {
++	int *ptr;
++
+ 	/* treat recording of idle task as a success */
+ 	if (!tsk->pid)
+ 		return 1;
+ 
+-	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
++	ptr = trace_find_tgid_ptr(tsk->pid);
++	if (!ptr)
+ 		return 0;
+ 
+-	tgid_map[tsk->pid] = tsk->tgid;
++	*ptr = tsk->tgid;
+ 	return 1;
+ }
+ 
+@@ -4583,6 +4607,8 @@ int trace_keep_overwrite(struct tracer *
+ 
+ int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
+ {
++	int *map;
++
+ 	if ((mask == TRACE_ITER_RECORD_TGID) ||
+ 	    (mask == TRACE_ITER_RECORD_CMD))
+ 		lockdep_assert_held(&event_mutex);
+@@ -4605,10 +4631,19 @@ int set_tracer_flag(struct trace_array *
+ 		trace_event_enable_cmd_record(enabled);
+ 
+ 	if (mask == TRACE_ITER_RECORD_TGID) {
+-		if (!tgid_map)
+-			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
+-					   sizeof(*tgid_map),
+-					   GFP_KERNEL);
++		if (!tgid_map) {
++			tgid_map_max = pid_max;
++			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
++				       GFP_KERNEL);
++
++			/*
++			 * Pairs with smp_load_acquire() in
++			 * trace_find_tgid_ptr() to ensure that if it observes
++			 * the tgid_map we just allocated then it also observes
++			 * the corresponding tgid_map_max value.
++			 */
++			smp_store_release(&tgid_map, map);
++		}
+ 		if (!tgid_map) {
+ 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
+ 			return -ENOMEM;
+@@ -5015,18 +5050,14 @@ static void *saved_tgids_next(struct seq
+ {
+ 	int pid = ++(*pos);
+ 
+-	if (pid > PID_MAX_DEFAULT)
+-		return NULL;
 -
- 	kfree(pxent);
-+	up_read(&host_ui->xattr_sem);
-+
- 	if (err != -ENOENT) {
- 		ubifs_err(c, "cannot find next direntry, error %d", err);
- 		return err;
-@@ -446,6 +456,10 @@ ssize_t ubifs_listxattr(struct dentry *d
- 
- 	ubifs_assert(c, written <= size);
- 	return written;
-+
-+out_err:
-+	up_read(&host_ui->xattr_sem);
-+	return err;
+-	return &tgid_map[pid];
++	return trace_find_tgid_ptr(pid);
  }
  
- static int remove_xattr(struct ubifs_info *c, struct inode *host,
-@@ -504,6 +518,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
- 		   host->i_ino);
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+-		return NULL;
++	int pid = *pos;
  
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	lowest_xent_key(c, &key, host->i_ino);
- 	while (1) {
- 		xent = ubifs_tnc_next_ent(c, &key, &nm);
-@@ -523,7 +538,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 			ubifs_ro_mode(c, err);
- 			kfree(pxent);
- 			kfree(xent);
--			return err;
-+			goto out_err;
- 		}
- 
- 		ubifs_assert(c, ubifs_inode(xino)->xattr);
-@@ -535,7 +550,7 @@ int ubifs_purge_xattrs(struct inode *hos
- 			kfree(xent);
- 			iput(xino);
- 			ubifs_err(c, "cannot remove xattr, error %d", err);
--			return err;
-+			goto out_err;
- 		}
- 
- 		iput(xino);
-@@ -544,14 +559,19 @@ int ubifs_purge_xattrs(struct inode *hos
- 		pxent = xent;
- 		key_read(c, &xent->key, &key);
- 	}
--
- 	kfree(pxent);
-+	up_write(&ubifs_inode(host)->xattr_sem);
-+
- 	if (err != -ENOENT) {
- 		ubifs_err(c, "cannot find next direntry, error %d", err);
- 		return err;
- 	}
- 
- 	return 0;
-+
-+out_err:
-+	up_write(&ubifs_inode(host)->xattr_sem);
-+	return err;
+-	return &tgid_map[*pos];
++	return trace_find_tgid_ptr(pid);
  }
  
- /**
-@@ -594,6 +614,7 @@ static int ubifs_xattr_remove(struct ino
- 	if (!xent)
- 		return -ENOMEM;
- 
-+	down_write(&ubifs_inode(host)->xattr_sem);
- 	xent_key_init(c, &key, host->i_ino, &nm);
- 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
- 	if (err) {
-@@ -618,6 +639,7 @@ static int ubifs_xattr_remove(struct ino
- 	iput(inode);
- 
- out_free:
-+	up_write(&ubifs_inode(host)->xattr_sem);
- 	kfree(xent);
- 	return err;
- }
+ static void saved_tgids_stop(struct seq_file *m, void *v)
 
 
