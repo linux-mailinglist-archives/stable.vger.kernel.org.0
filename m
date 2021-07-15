@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA04D3CA9B6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D54D93CAB07
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241965AbhGOTIj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:08:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46196 "EHLO mail.kernel.org"
+        id S244534AbhGOTQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242077AbhGOTHk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:07:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31AAA613FD;
-        Thu, 15 Jul 2021 19:03:35 +0000 (UTC)
+        id S241618AbhGOTPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6FED6115B;
+        Thu, 15 Jul 2021 19:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375815;
-        bh=/78tR4B/mEjVOyODfMvQ/9lxrCVMkbU4yif0dtaFrJU=;
+        s=korg; t=1626376311;
+        bh=XDEpYC+/jsEmStfFqNjejNaDqAnpPzqBIw5yUVgK4kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avMMRVr5apSf+Qx1sARKbRtGwd9OhXIQdci5qIrU38Kc7C89YRdNHRKpFlS2c8EPA
-         X7oJBkjStD7QZqaFV5rX7VkMFAkq1o/FQUbbPMSsMnkOiyafKasdU2JtGgIDClqTIx
-         aqPMBOHkktcN4fJ1xB4VmOROKFFcHrwk6MrfLiAA=
+        b=ZbFUUaAPRroc45bNHXkItvqxpmOiP6T51pKBFBR0e/fV4ujEb1BI+SD9nBxtWjU6L
+         bDVTjmRsv+RFXkWvLkZdB09Nqth+mStdMAsJqgMY9n1jPk+Zh9eY5BSFrbR4iMSxeh
+         7w/tJXKhAwd7viyY4Z1XcqR9+ZSvx0nufww287As=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.12 211/242] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        dave@bewaar.me, Johannes Berg <johannes@sipsolutions.net>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.13 218/266] mwifiex: bring down link before deleting interface
 Date:   Thu, 15 Jul 2021 20:39:33 +0200
-Message-Id: <20210715182630.360785408@linuxfoundation.org>
+Message-Id: <20210715182647.945088420@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,176 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
+commit 1f9482aa8d412b4ba06ce6ab8e333fb8ca29a06e upstream.
 
-Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
-on systems where pid_max is configured higher than PID_MAX_DEFAULT the
-ftrace record-tgid option doesn't work so well. Any tasks with PIDs
-higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
-don't show up in the saved_tgids file.
+We can deadlock when rmmod'ing the driver or going through firmware
+reset, because the cfg80211_unregister_wdev() has to bring down the link
+for us, ... which then grab the same wiphy lock.
 
-In particular since systemd v243 & above configure pid_max to its
-highest possible 1<<22 value by default on 64 bit systems this renders
-the record-tgids option of little use.
+nl80211_del_interface() already handles a very similar case, with a nice
+description:
 
-Increase the size of tgid_map to the configured pid_max instead,
-allowing it to cover the full range of PIDs up to the maximum value of
-PID_MAX_LIMIT if the system is configured that way.
+        /*
+         * We hold RTNL, so this is safe, without RTNL opencount cannot
+         * reach 0, and thus the rdev cannot be deleted.
+         *
+         * We need to do it for the dev_close(), since that will call
+         * the netdev notifiers, and we need to acquire the mutex there
+         * but don't know if we get there from here or from some other
+         * place (e.g. "ip link set ... down").
+         */
+        mutex_unlock(&rdev->wiphy.mtx);
+...
 
-On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
-size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
-memory overhead sounds significant 64 bit systems are presumably best
-placed to accommodate it, and since tgid_map is only allocated when the
-record-tgid option is actually used presumably the user would rather it
-spends sufficient memory to actually record the tgids they expect.
+Do similarly for mwifiex teardown, by ensuring we bring the link down
+first.
 
-The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
-configurations, but these seem unlikely to be systems upon which people
-are both configuring a large pid_max and running ftrace with record-tgid
-anyway.
+Sample deadlock trace:
 
-Of note is that we only allocate tgid_map once, the first time that the
-record-tgid option is enabled. Therefore its size is only set once, to
-the value of pid_max at the time the record-tgid option is first
-enabled. If a user increases pid_max after that point, the saved_tgids
-file will not contain entries for any tasks with pids beyond the earlier
-value of pid_max.
+[  247.103516] INFO: task rmmod:2119 blocked for more than 123 seconds.
+[  247.110630]       Not tainted 5.12.4 #5
+[  247.115796] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+[  247.124557] task:rmmod           state:D stack:    0 pid: 2119 ppid:  2114 flags:0x00400208
+[  247.133905] Call trace:
+[  247.136644]  __switch_to+0x130/0x170
+[  247.140643]  __schedule+0x714/0xa0c
+[  247.144548]  schedule_preempt_disabled+0x88/0xf4
+[  247.149714]  __mutex_lock_common+0x43c/0x750
+[  247.154496]  mutex_lock_nested+0x5c/0x68
+[  247.158884]  cfg80211_netdev_notifier_call+0x280/0x4e0 [cfg80211]
+[  247.165769]  raw_notifier_call_chain+0x4c/0x78
+[  247.170742]  call_netdevice_notifiers_info+0x68/0xa4
+[  247.176305]  __dev_close_many+0x7c/0x138
+[  247.180693]  dev_close_many+0x7c/0x10c
+[  247.184893]  unregister_netdevice_many+0xfc/0x654
+[  247.190158]  unregister_netdevice_queue+0xb4/0xe0
+[  247.195424]  _cfg80211_unregister_wdev+0xa4/0x204 [cfg80211]
+[  247.201816]  cfg80211_unregister_wdev+0x20/0x2c [cfg80211]
+[  247.208016]  mwifiex_del_virtual_intf+0xc8/0x188 [mwifiex]
+[  247.214174]  mwifiex_uninit_sw+0x158/0x1b0 [mwifiex]
+[  247.219747]  mwifiex_remove_card+0x38/0xa0 [mwifiex]
+[  247.225316]  mwifiex_pcie_remove+0xd0/0xe0 [mwifiex_pcie]
+[  247.231451]  pci_device_remove+0x50/0xe0
+[  247.235849]  device_release_driver_internal+0x110/0x1b0
+[  247.241701]  driver_detach+0x5c/0x9c
+[  247.245704]  bus_remove_driver+0x84/0xb8
+[  247.250095]  driver_unregister+0x3c/0x60
+[  247.254486]  pci_unregister_driver+0x2c/0x90
+[  247.259267]  cleanup_module+0x18/0xcdc [mwifiex_pcie]
 
-Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-[ Fixed comment coding style ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: a05829a7222e ("cfg80211: avoid holding the RTNL when calling the driver")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/linux-wireless/98392296-40ee-6300-369c-32e16cff3725@gmail.com/
+Link: https://lore.kernel.org/linux-wireless/ab4d00ce52f32bd8e45ad0448a44737e@bewaar.me/
+Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
+Reported-by: dave@bewaar.me
+Cc: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
+Tested-by: Dave Olsthoorn <dave@bewaar.me>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210515024227.2159311-1-briannorris@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- kernel/trace/trace.c |   63 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 47 insertions(+), 16 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2184,8 +2184,15 @@ void tracing_reset_all_online_cpus(void)
- 	}
- }
- 
-+/*
-+ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
-+ * is the tgid last observed corresponding to pid=i.
-+ */
- static int *tgid_map;
- 
-+/* The maximum valid index into tgid_map. */
-+static size_t tgid_map_max;
-+
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
-@@ -2458,24 +2465,41 @@ void trace_find_cmdline(int pid, char co
- 	preempt_enable();
- }
- 
-+static int *trace_find_tgid_ptr(int pid)
-+{
-+	/*
-+	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
-+	 * if we observe a non-NULL tgid_map then we also observe the correct
-+	 * tgid_map_max.
-+	 */
-+	int *map = smp_load_acquire(&tgid_map);
-+
-+	if (unlikely(!map || pid > tgid_map_max))
-+		return NULL;
-+
-+	return &map[pid];
-+}
-+
- int trace_find_tgid(int pid)
- {
--	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
--		return 0;
-+	int *ptr = trace_find_tgid_ptr(pid);
- 
--	return tgid_map[pid];
-+	return ptr ? *ptr : 0;
- }
- 
- static int trace_save_tgid(struct task_struct *tsk)
- {
-+	int *ptr;
-+
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
- 
--	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
-+	ptr = trace_find_tgid_ptr(tsk->pid);
-+	if (!ptr)
- 		return 0;
- 
--	tgid_map[tsk->pid] = tsk->tgid;
-+	*ptr = tsk->tgid;
- 	return 1;
- }
- 
-@@ -4915,6 +4939,8 @@ int trace_keep_overwrite(struct tracer *
- 
- int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
- {
-+	int *map;
-+
- 	if ((mask == TRACE_ITER_RECORD_TGID) ||
- 	    (mask == TRACE_ITER_RECORD_CMD))
- 		lockdep_assert_held(&event_mutex);
-@@ -4937,10 +4963,19 @@ int set_tracer_flag(struct trace_array *
- 		trace_event_enable_cmd_record(enabled);
- 
- 	if (mask == TRACE_ITER_RECORD_TGID) {
--		if (!tgid_map)
--			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
--					   sizeof(*tgid_map),
--					   GFP_KERNEL);
-+		if (!tgid_map) {
-+			tgid_map_max = pid_max;
-+			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
-+				       GFP_KERNEL);
-+
+---
+ drivers/net/wireless/marvell/mwifiex/main.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+--- a/drivers/net/wireless/marvell/mwifiex/main.c
++++ b/drivers/net/wireless/marvell/mwifiex/main.c
+@@ -1445,11 +1445,18 @@ static void mwifiex_uninit_sw(struct mwi
+ 		if (!priv)
+ 			continue;
+ 		rtnl_lock();
+-		wiphy_lock(adapter->wiphy);
+ 		if (priv->netdev &&
+-		    priv->wdev.iftype != NL80211_IFTYPE_UNSPECIFIED)
++		    priv->wdev.iftype != NL80211_IFTYPE_UNSPECIFIED) {
 +			/*
-+			 * Pairs with smp_load_acquire() in
-+			 * trace_find_tgid_ptr() to ensure that if it observes
-+			 * the tgid_map we just allocated then it also observes
-+			 * the corresponding tgid_map_max value.
++			 * Close the netdev now, because if we do it later, the
++			 * netdev notifiers will need to acquire the wiphy lock
++			 * again --> deadlock.
 +			 */
-+			smp_store_release(&tgid_map, map);
++			dev_close(priv->wdev.netdev);
++			wiphy_lock(adapter->wiphy);
+ 			mwifiex_del_virtual_intf(adapter->wiphy, &priv->wdev);
+-		wiphy_unlock(adapter->wiphy);
++			wiphy_unlock(adapter->wiphy);
 +		}
- 		if (!tgid_map) {
- 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
- 			return -ENOMEM;
-@@ -5354,18 +5389,14 @@ static void *saved_tgids_next(struct seq
- {
- 	int pid = ++(*pos);
+ 		rtnl_unlock();
+ 	}
  
--	if (pid > PID_MAX_DEFAULT)
--		return NULL;
--
--	return &tgid_map[pid];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	if (!tgid_map || *pos > PID_MAX_DEFAULT)
--		return NULL;
-+	int pid = *pos;
- 
--	return &tgid_map[*pos];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void saved_tgids_stop(struct seq_file *m, void *v)
 
 
