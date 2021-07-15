@@ -2,163 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F0C3C9D07
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9347D3C9D2F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241580AbhGOKpW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 06:45:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52166 "EHLO mail.kernel.org"
+        id S240344AbhGOKtd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 06:49:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241577AbhGOKpW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 06:45:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 991E361360;
-        Thu, 15 Jul 2021 10:42:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626345749;
-        bh=6SvJdTyDLxPXM39RN4GTu1nso3QzjXVBQKML1UEPpm0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MM/spXA5pvWtxFAcuJsv7mMtvPtMZ6yPW7U2qULoxWPdU1CocKxzPIkTisKCUbmjR
-         sXkTDYUBLSF4yr0Qjjo8JD2pv80aVOA32QHu/znPEFYrzonbZQCTu+YlF6j3g1/eGd
-         GKavOu8bV+YAxk5qKR5qOaBYQ+PdXUCptH04UZZWomaHRvFxocOTy90Lagi+EBWzjw
-         Pb3hsbfzYKawK6F9dbDpVaYMN8wIAnBhRG8gRA5D5ZK1eSNHKeczbRJfx6aLsnQlBA
-         LvL84GGQWj+uZ3zJphInzWsuRTilL8Zm4Ep1tb5EM9pwGQtVg+4uQR1WTreJU6erqM
-         FgRGVwzJTZxlA==
-From:   Frederic Weisbecker <frederic@kernel.org>
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] timers: Fix get_next_timer_interrupt() with no timers pending
-Date:   Thu, 15 Jul 2021 12:42:18 +0200
-Message-Id: <20210715104218.81276-3-frederic@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210715104218.81276-1-frederic@kernel.org>
-References: <20210715104218.81276-1-frederic@kernel.org>
+        id S232055AbhGOKtd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 06:49:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30C5C61380;
+        Thu, 15 Jul 2021 10:46:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626345999;
+        bh=DG3LveTVAU6PEbDuGHpdRTy1eY78W4ev4Y4ViSg12X8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=DWnIO3kmhnVuKJw4p6WLmqkpE8Pgqv2yTuzK6P+ux+cfORUTE9Vo6+UGuOlPgVtao
+         VdY28fLTSlIf8l2YrnwamxkP+dc8poqf1T91RLOJLtcYjZvMidL0yQCgv0n+SgrRmt
+         WKHfD4L/d7HqmC0MglaQ4MmDKtKv33oZduzKIjRE=
+Date:   Thu, 15 Jul 2021 12:46:33 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Thara Gopinath <thara.gopinath@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 129/593] crypto: qce: skcipher: Fix incorrect sg
+ count for dma transfers
+Message-ID: <YPASCTljJFr07jcU@kroah.com>
+References: <20210712060843.180606720@linuxfoundation.org>
+ <20210712060857.335221127@linuxfoundation.org>
+ <20210714194028.GA15200@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210714194028.GA15200@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
+On Wed, Jul 14, 2021 at 09:40:28PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > [ Upstream commit 1339a7c3ba05137a2d2fe75f602311bbfc6fab33 ]
+> > 
+> > Use the sg count returned by dma_map_sg to call into
+> > dmaengine_prep_slave_sg rather than using the original sg count. dma_map_sg
+> > can merge consecutive sglist entries, thus making the original sg count
+> > wrong. This is a fix for memory coruption issues observed while testing
+> > encryption/decryption of large messages using libkcapi framework.
+> > 
+> > Patch has been tested further by running full suite of tcrypt.ko tests
+> > including fuzz tests.
+> 
+> This still needs more work AFAICT.
+> 
+> > index a2d3da0ad95f..5a6559131eac 100644
+> > --- a/drivers/crypto/qce/skcipher.c
+> > +++ b/drivers/crypto/qce/skcipher.c
+> > @@ -122,21 +122,22 @@ qce_skcipher_async_req_handle(struct crypto_async_request *async_req)
+> >  	sg_mark_end(sg);
+> >  	rctx->dst_sg = rctx->dst_tbl.sgl;
+> 
+> ret is == 0 at this point.
+> 
+> > -	ret = dma_map_sg(qce->dev, rctx->dst_sg, rctx->dst_nents, dir_dst);
+> > -	if (ret < 0)
+> > +	dst_nents = dma_map_sg(qce->dev, rctx->dst_sg, rctx->dst_nents, dir_dst);
+> > +	if (dst_nents < 0)
+> >  		goto error_free;
+> 
+> And we go to the error path, and return ret... instead of returning failure.
+> 
+> >  	if (diff_dst) {
+> > -		ret = dma_map_sg(qce->dev, req->src, rctx->src_nents, dir_src);
+> > -		if (ret < 0)
+> > +		src_nents = dma_map_sg(qce->dev, req->src, rctx->src_nents, dir_src);
+> > +		if (src_nents < 0)
+> >  			goto error_unmap_dst;
+> >  		rctx->src_sg = req->src;
+> 
+> Same problem happens here.
+> 
+> The problem is already fixed in the mainline; I believe we want that
+> in 5.10-stable at least.
+> 
+> commit a8bc4f5e7a72e4067f5afd7e98b61624231713ca
+> Author: Wei Yongjun <weiyongjun1@huawei.com>
+> Date:   Wed Jun 2 11:36:45 2021 +0000
+> 
+>     crypto: qce - fix error return code in qce_skcipher_async_req_handle()
+> 
+>     Fix to return a negative error code from the error handling
+>         case instead of 0, as done elsewhere in this function.
+> 
+>     Fixes: 1339a7c3ba05 ("crypto: qce: skcipher: Fix incorrect sg
+>     count for dma transfers")
+>         Reported-by: Hulk Robot <hulkci@huawei.com>
+> 	    Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> 	    
+> 
 
-31cd0e119d50 ("timers: Recalculate next timer interrupt only when
-necessary") subtly altered get_next_timer_interrupt()'s behaviour. The
-function no longer consistently returns KTIME_MAX with no timers
-pending.
+This is also already in this 5.10.50 release.
 
-In order to decide if there are any timers pending we check whether the
-next expiry will happen NEXT_TIMER_MAX_DELTA jiffies from now.
-Unfortunately, the next expiry time and the timer base clock are no
-longer updated in unison. The former changes upon certain timer
-operations (enqueue, expire, detach), whereas the latter keeps track of
-jiffies as they move forward. Ultimately breaking the logic above.
+thanks,
 
-A simplified example:
-
-- Upon entering get_next_timer_interrupt() with:
-
-	jiffies = 1
-	base->clk = 0;
-	base->next_expiry = NEXT_TIMER_MAX_DELTA;
-
-  'base->next_expiry == base->clk + NEXT_TIMER_MAX_DELTA', the function
-  returns KTIME_MAX.
-
-- 'base->clk' is updated to the jiffies value.
-
-- The next time we enter get_next_timer_interrupt(), taking into account
-  no timer operations happened:
-
-	base->clk = 1;
-	base->next_expiry = NEXT_TIMER_MAX_DELTA;
-
-  'base->next_expiry != base->clk + NEXT_TIMER_MAX_DELTA', the function
-  returns a valid expire time, which is incorrect.
-
-This ultimately might unnecessarily rearm sched's timer on nohz_full
-setups, and add latency to the system[1].
-
-So, introduce 'base->timers_pending'[2], update it every time
-'base->next_expiry' changes, and use it in get_next_timer_interrupt().
-
-[1] See tick_nohz_stop_tick().
-[2] A quick pahole check on x86_64 and arm64 shows it doesn't make
-    'struct timer_base' any bigger.
-
-Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
-Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
----
- kernel/time/timer.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-diff --git a/kernel/time/timer.c b/kernel/time/timer.c
-index 3fadb58fc9d7..9eb11c2209e5 100644
---- a/kernel/time/timer.c
-+++ b/kernel/time/timer.c
-@@ -207,6 +207,7 @@ struct timer_base {
- 	unsigned int		cpu;
- 	bool			next_expiry_recalc;
- 	bool			is_idle;
-+	bool			timers_pending;
- 	DECLARE_BITMAP(pending_map, WHEEL_SIZE);
- 	struct hlist_head	vectors[WHEEL_SIZE];
- } ____cacheline_aligned;
-@@ -595,6 +596,7 @@ static void enqueue_timer(struct timer_base *base, struct timer_list *timer,
- 		 * can reevaluate the wheel:
- 		 */
- 		base->next_expiry = bucket_expiry;
-+		base->timers_pending = true;
- 		base->next_expiry_recalc = false;
- 		trigger_dyntick_cpu(base, timer);
- 	}
-@@ -1582,6 +1584,7 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
- 	}
- 
- 	base->next_expiry_recalc = false;
-+	base->timers_pending = !(next == base->clk + NEXT_TIMER_MAX_DELTA);
- 
- 	return next;
- }
-@@ -1633,7 +1636,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
- 	u64 expires = KTIME_MAX;
- 	unsigned long nextevt;
--	bool is_max_delta;
- 
- 	/*
- 	 * Pretend that there is no timer pending if the cpu is offline.
-@@ -1646,7 +1648,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 	if (base->next_expiry_recalc)
- 		base->next_expiry = __next_timer_interrupt(base);
- 	nextevt = base->next_expiry;
--	is_max_delta = (nextevt == base->clk + NEXT_TIMER_MAX_DELTA);
- 
- 	/*
- 	 * We have a fresh next event. Check whether we can forward the
-@@ -1664,7 +1665,7 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
- 		expires = basem;
- 		base->is_idle = false;
- 	} else {
--		if (!is_max_delta)
-+		if (base->timers_pending)
- 			expires = basem + (u64)(nextevt - basej) * TICK_NSEC;
- 		/*
- 		 * If we expect to sleep more than a tick, mark the base idle.
-@@ -1947,6 +1948,7 @@ int timers_prepare_cpu(unsigned int cpu)
- 		base = per_cpu_ptr(&timer_bases[b], cpu);
- 		base->clk = jiffies;
- 		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
-+		base->timers_pending = false;
- 		base->is_idle = false;
- 	}
- 	return 0;
--- 
-2.25.1
-
+greg k-h
