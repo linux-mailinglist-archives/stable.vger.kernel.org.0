@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE7F3CA6E3
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A7233CA851
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:58:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239611AbhGOSvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52636 "EHLO mail.kernel.org"
+        id S240600AbhGOTAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:00:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239773AbhGOSuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F1F2613D0;
-        Thu, 15 Jul 2021 18:47:31 +0000 (UTC)
+        id S242336AbhGOS7h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 739CB613F1;
+        Thu, 15 Jul 2021 18:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374852;
-        bh=zIOGho+xru4zoi4b+B/R8U5ZpRrPePcpzgoepV2FLus=;
+        s=korg; t=1626375386;
+        bh=C7Rzfp8K1bV0ynqw4Sn0i4znooGYpddfWTaz+sNZ0c0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMhEINag088GwdseXLKFW3wsWefAKEO7DnfzV5LK6AheI3yc2DwhTti3ZItRySIEU
-         O+MCadchNe53oWdT5sAH+y+0oxan5STujXADPWeQxbKHQBKjYkTH0mkmekehzTYV4s
-         NWCI9dZSPTvaoSnS/MTAUjf8Plh41K/VysIm+RuY=
+        b=MAd7ihCuo7bQM+wo6dYD9Lib8ivWGOcfYVaEviH+HVsT1RAxwxRsHRvLzeEG4N4rK
+         XVu/YPjVBbj8y7NphgMn0RqI+JlOxPiDyExFwFpldrIigT1PR5TvO0n9KOpinsrG46
+         8cXUt76XI0CKAga4cl/Tw2Gv4ZKcs7k/jqQlvXbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/215] dm writecache: dont split bios when overwriting contiguous cache content
-Date:   Thu, 15 Jul 2021 20:37:04 +0200
-Message-Id: <20210715182608.597407892@linuxfoundation.org>
+Subject: [PATCH 5.12 063/242] ice: fix clang warning regarding deadcode.DeadStores
+Date:   Thu, 15 Jul 2021 20:37:05 +0200
+Message-Id: <20210715182603.648679967@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-[ Upstream commit ee50cc19d80e9b9a8283d1fb517a778faf2f6899 ]
+[ Upstream commit 7e94090ae13e1ae5fe8bd3a9cd08136260bb7039 ]
 
-If dm-writecache overwrites existing cached data, it splits the
-incoming bio into many block-sized bios. The I/O scheduler does merge
-these bios into one large request but this needless splitting and
-merging causes performance degradation.
+clang generates deadcode.DeadStores warnings when a variable
+is used to read a value, but then that value isn't used later
+in the code. Fix this warning.
 
-Fix this by avoiding bio splitting if the cache target area that is
-being overwritten is contiguous.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-writecache.c | 38 ++++++++++++++++++++++++++++++--------
- 1 file changed, 30 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 8628c4aa2e85..64c2980aaa54 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -1360,14 +1360,18 @@ read_next_block:
- 	} else {
- 		do {
- 			bool found_entry = false;
-+			bool search_used = false;
- 			if (writecache_has_error(wc))
- 				goto unlock_error;
- 			e = writecache_find_entry(wc, bio->bi_iter.bi_sector, 0);
- 			if (e) {
--				if (!writecache_entry_is_committed(wc, e))
-+				if (!writecache_entry_is_committed(wc, e)) {
-+					search_used = true;
- 					goto bio_copy;
-+				}
- 				if (!WC_MODE_PMEM(wc) && !e->write_in_progress) {
- 					wc->overwrote_committed = true;
-+					search_used = true;
- 					goto bio_copy;
- 				}
- 				found_entry = true;
-@@ -1404,13 +1408,31 @@ bio_copy:
- 				sector_t current_cache_sec = start_cache_sec + (bio_size >> SECTOR_SHIFT);
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index f80fff97d8dc..0d136708f960 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -3492,13 +3492,9 @@ static int
+ ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
+ 		    struct ice_ring_container *rc)
+ {
+-	struct ice_pf *pf;
+-
+ 	if (!rc->ring)
+ 		return -EINVAL;
  
- 				while (bio_size < bio->bi_iter.bi_size) {
--					struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
--					if (!f)
--						break;
--					write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
--									(bio_size >> SECTOR_SHIFT), wc->seq_count);
--					writecache_insert_entry(wc, f);
--					wc->uncommitted_blocks++;
-+					if (!search_used) {
-+						struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
-+						if (!f)
-+							break;
-+						write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
-+										(bio_size >> SECTOR_SHIFT), wc->seq_count);
-+						writecache_insert_entry(wc, f);
-+						wc->uncommitted_blocks++;
-+					} else {
-+						struct wc_entry *f;
-+						struct rb_node *next = rb_next(&e->rb_node);
-+						if (!next)
-+							break;
-+						f = container_of(next, struct wc_entry, rb_node);
-+						if (f != e + 1)
-+							break;
-+						if (read_original_sector(wc, f) !=
-+						    read_original_sector(wc, e) + (wc->block_size >> SECTOR_SHIFT))
-+							break;
-+						if (unlikely(f->write_in_progress))
-+							break;
-+						if (writecache_entry_is_committed(wc, f))
-+							wc->overwrote_committed = true;
-+						e = f;
-+					}
- 					bio_size += wc->block_size;
- 					current_cache_sec += wc->block_size >> SECTOR_SHIFT;
- 				}
+-	pf = rc->ring->vsi->back;
+-
+ 	switch (c_type) {
+ 	case ICE_RX_CONTAINER:
+ 		ec->use_adaptive_rx_coalesce = ITR_IS_DYNAMIC(rc->itr_setting);
+@@ -3510,7 +3506,7 @@ ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
+ 		ec->tx_coalesce_usecs = rc->itr_setting & ~ICE_ITR_DYNAMIC;
+ 		break;
+ 	default:
+-		dev_dbg(ice_pf_to_dev(pf), "Invalid c_type %d\n", c_type);
++		dev_dbg(ice_pf_to_dev(rc->ring->vsi->back), "Invalid c_type %d\n", c_type);
+ 		return -EINVAL;
+ 	}
+ 
 -- 
 2.30.2
 
