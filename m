@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348493CA921
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C85A3CA91D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241407AbhGOTF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38802 "EHLO mail.kernel.org"
+        id S242619AbhGOTF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243370AbhGOTEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243371AbhGOTEU (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:04:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91736613FD;
-        Thu, 15 Jul 2021 18:59:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BAFA61402;
+        Thu, 15 Jul 2021 18:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375591;
-        bh=Ww0TzZHtaUT5LYnKFZ3fmFAe+pRCnhdhpKfT7Z/wy+0=;
+        s=korg; t=1626375595;
+        bh=gHjxUE6q5q2kLdGweCLT5/Xb1aBBzr5wP0DdDKZxUEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZpKcpo0Qcd2vJJbC7w57r4Tid2FQb4LfuTEnicefxXvqIY6J7vFlKfLyluN42P2s
-         xwNdpdDSZ3PqZ3r0NUM7QEcxnt6mHjOTkkWmMFDMufc0bcQ9PMeD8NwWlxlAWYmwEw
-         QvGJnIKuQXa6L5dlL/hn+0L8vBs+mnbFi5iFw0ps=
+        b=L51JosaaAplxxQbZ0F44V47yGY2yyrBsPWnJxbeaRtJYZqglJv3AtnGqum5giaQTo
+         EF23Yn0SvDt9vY3t7CtBtaxmKHph/BRrKLvqpzhNdgRzO835+kwiELXCBqNO5m8zU0
+         NObg4f2PAkylgK5fng97StxHV0zeLGUlDrDLvFcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhanglianjie <zhanglianjie@uniontech.com>,
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 151/242] MIPS: loongsoon64: Reserve memory below starting pfn to prevent Oops
-Date:   Thu, 15 Jul 2021 20:38:33 +0200
-Message-Id: <20210715182619.836639834@linuxfoundation.org>
+Subject: [PATCH 5.12 152/242] MIPS: set mips32r5 for virt extensions
+Date:   Thu, 15 Jul 2021 20:38:34 +0200
+Message-Id: <20210715182620.017148023@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
 References: <20210715182551.731989182@linuxfoundation.org>
@@ -40,46 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhanglianjie <zhanglianjie@uniontech.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 6817c944430d00f71ccaa9c99ff5b0096aeb7873 ]
+[ Upstream commit c994a3ec7ecc8bd2a837b2061e8a76eb8efc082b ]
 
-The cause of the problem is as follows:
-1. when cat /sys/devices/system/memory/memory0/valid_zones,
-   test_pages_in_a_zone() will be called.
-2. test_pages_in_a_zone() finds the zone according to stat_pfn = 0.
-   The smallest pfn of the numa node in the mips architecture is 128,
-   and the page corresponding to the previous 0~127 pfn is not
-   initialized (page->flags is 0xFFFFFFFF)
-3. The nid and zonenum obtained using page_zone(pfn_to_page(0)) are out
-   of bounds in the corresponding array,
-   &NODE_DATA(page_to_nid(page))->node_zones[page_zonenum(page)],
-   access to the out-of-bounds zone member variables appear abnormal,
-   resulting in Oops.
-Therefore, it is necessary to keep the page between 0 and the minimum
-pfn to prevent Oops from appearing.
+Clang's integrated assembler only accepts these instructions when the
+cpu is set to mips32r5. With this change, we can assemble
+malta_defconfig with Clang via `make LLVM_IAS=1`.
 
-Signed-off-by: zhanglianjie <zhanglianjie@uniontech.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/763
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/loongson64/numa.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/include/asm/mipsregs.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/loongson64/numa.c b/arch/mips/loongson64/numa.c
-index a8f57bf01285..a791863ed352 100644
---- a/arch/mips/loongson64/numa.c
-+++ b/arch/mips/loongson64/numa.c
-@@ -118,6 +118,9 @@ static void __init node_mem_init(unsigned int node)
- 		if (node_end_pfn(0) >= (0xffffffff >> PAGE_SHIFT))
- 			memblock_reserve((node_addrspace_offset | 0xfe000000),
- 					 32 << 20);
-+
-+		/* Reserve pfn range 0~node[0]->node_start_pfn */
-+		memblock_reserve(0, PAGE_SIZE * start_pfn);
- 	}
- }
- 
+diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
+index 9c8099a6ffed..acdf8c69220b 100644
+--- a/arch/mips/include/asm/mipsregs.h
++++ b/arch/mips/include/asm/mipsregs.h
+@@ -2077,7 +2077,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ ({ int __res;								\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips32r2\n\t"					\
++		".set\tmips32r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"mfgc0\t%0, " #source ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2090,7 +2090,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ ({ unsigned long long __res;						\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips64r2\n\t"					\
++		".set\tmips64r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"dmfgc0\t%0, " #source ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2103,7 +2103,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ do {									\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips32r2\n\t"					\
++		".set\tmips32r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"mtgc0\t%z0, " #register ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2115,7 +2115,7 @@ do {									\
+ do {									\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips64r2\n\t"					\
++		".set\tmips64r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"dmtgc0\t%z0, " #register ", %1\n\t"			\
+ 		".set\tpop"						\
 -- 
 2.30.2
 
