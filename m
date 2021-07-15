@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 077513CA77A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071A03CA5FD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240845AbhGOSyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:54:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
+        id S236963AbhGOSpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240196AbhGOSxT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:53:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C616613CF;
-        Thu, 15 Jul 2021 18:50:24 +0000 (UTC)
+        id S236870AbhGOSpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9919961396;
+        Thu, 15 Jul 2021 18:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375025;
-        bh=DtX/bfoIb8yS1vHs2Tw3r89uJfmPjrYLb1lWwESbjZA=;
+        s=korg; t=1626374564;
+        bh=S9/1Mhag0nYqUV5sfUsnw3wO1xIjF0pQqhHhMh67ZvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UgSnp477CBdzmqNVVH9erTJfyel0UEtqm/J4Nb1GCYUoFTdAFc4gyITt6aMAa1fV7
-         FLcMZlsW8VMg9wtihZ0D8omb8ReZnciwzVmSnmfAizW7n3hqjz08+gJmG+fCR4TAlS
-         TPhbDQT10gt1BtD2kkFG56o8GNVAToxnEFwrO2AM=
+        b=khJb31vMy1pdPnFhQvtglr62Hsla11L8f0lGEm6aRCmJtYljybOu9z72daXpdYg4o
+         nnc57NyoY970guxgZL0nyf9hqBKk4qpK1MN+8EONQDCJtj5Z5wvJTRV9Goif4XFjWk
+         8HUPgXNaryjb6z+UpQjeqCy0sp+4OVsG/4FpAGhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com,
-        Rustam Kovhaev <rkovhaev@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 127/215] bpf: Fix false positive kmemleak report in bpf_ringbuf_area_alloc()
+Subject: [PATCH 5.4 052/122] atm: nicstar: register the interrupt handler in the right place
 Date:   Thu, 15 Jul 2021 20:38:19 +0200
-Message-Id: <20210715182621.923134617@linuxfoundation.org>
+Message-Id: <20210715182502.677716152@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,108 +40,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rustam Kovhaev <rkovhaev@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit ccff81e1d028bbbf8573d3364a87542386c707bf ]
+[ Upstream commit 70b639dc41ad499384e41e106fce72e36805c9f2 ]
 
-kmemleak scans struct page, but it does not scan the page content. If we
-allocate some memory with kmalloc(), then allocate page with alloc_page(),
-and if we put kmalloc pointer somewhere inside that page, kmemleak will
-report kmalloc pointer as a false positive.
+Because the error handling is sequential, the application of resources
+should be carried out in the order of error handling, so the operation
+of registering the interrupt handler should be put in front, so as not
+to free the unregistered interrupt handler during error handling.
 
-We can instruct kmemleak to scan the memory area by calling kmemleak_alloc()
-and kmemleak_free(), but part of struct bpf_ringbuf is mmaped to user space,
-and if struct bpf_ringbuf changes we would have to revisit and review size
-argument in kmemleak_alloc(), because we do not want kmemleak to scan the
-user space memory. Let's simplify things and use kmemleak_not_leak() here.
+This log reveals it:
 
-For posterity, also adding additional prior analysis from Andrii:
+[    3.438724] Trying to free already-free IRQ 23
+[    3.439060] WARNING: CPU: 5 PID: 1 at kernel/irq/manage.c:1825 free_irq+0xfb/0x480
+[    3.440039] Modules linked in:
+[    3.440257] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
+[    3.440793] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.441561] RIP: 0010:free_irq+0xfb/0x480
+[    3.441845] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
+[    3.443121] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
+[    3.443483] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
+[    3.443972] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
+[    3.444462] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
+[    3.444950] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
+[    3.444994] FS:  0000000000000000(0000) GS:ffff88817bd40000(0000) knlGS:0000000000000000
+[    3.444994] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.444994] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.444994] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.444994] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.444994] Call Trace:
+[    3.444994]  ns_init_card_error+0x18e/0x250
+[    3.444994]  nicstar_init_one+0x10d2/0x1130
+[    3.444994]  local_pci_probe+0x4a/0xb0
+[    3.444994]  pci_device_probe+0x126/0x1d0
+[    3.444994]  ? pci_device_remove+0x100/0x100
+[    3.444994]  really_probe+0x27e/0x650
+[    3.444994]  driver_probe_device+0x84/0x1d0
+[    3.444994]  ? mutex_lock_nested+0x16/0x20
+[    3.444994]  device_driver_attach+0x63/0x70
+[    3.444994]  __driver_attach+0x117/0x1a0
+[    3.444994]  ? device_driver_attach+0x70/0x70
+[    3.444994]  bus_for_each_dev+0xb6/0x110
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  driver_attach+0x22/0x30
+[    3.444994]  bus_add_driver+0x1e6/0x2a0
+[    3.444994]  driver_register+0xa4/0x180
+[    3.444994]  __pci_register_driver+0x77/0x80
+[    3.444994]  ? uPD98402_module_init+0xd/0xd
+[    3.444994]  nicstar_init+0x1f/0x75
+[    3.444994]  do_one_initcall+0x7a/0x3d0
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  kernel_init+0x13/0x180
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ret_from_fork+0x1f/0x30
+[    3.444994] Kernel panic - not syncing: panic_on_warn set ...
+[    3.444994] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
+[    3.444994] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.444994] Call Trace:
+[    3.444994]  dump_stack+0xba/0xf5
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  panic+0x155/0x3ed
+[    3.444994]  ? __warn+0xed/0x150
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  __warn+0x103/0x150
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  report_bug+0x119/0x1c0
+[    3.444994]  handle_bug+0x3b/0x80
+[    3.444994]  exc_invalid_op+0x18/0x70
+[    3.444994]  asm_exc_invalid_op+0x12/0x20
+[    3.444994] RIP: 0010:free_irq+0xfb/0x480
+[    3.444994] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
+[    3.444994] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
+[    3.444994] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
+[    3.444994] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
+[    3.444994] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
+[    3.444994] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
+[    3.444994]  ? vprintk_func+0x71/0x110
+[    3.444994]  ns_init_card_error+0x18e/0x250
+[    3.444994]  nicstar_init_one+0x10d2/0x1130
+[    3.444994]  local_pci_probe+0x4a/0xb0
+[    3.444994]  pci_device_probe+0x126/0x1d0
+[    3.444994]  ? pci_device_remove+0x100/0x100
+[    3.444994]  really_probe+0x27e/0x650
+[    3.444994]  driver_probe_device+0x84/0x1d0
+[    3.444994]  ? mutex_lock_nested+0x16/0x20
+[    3.444994]  device_driver_attach+0x63/0x70
+[    3.444994]  __driver_attach+0x117/0x1a0
+[    3.444994]  ? device_driver_attach+0x70/0x70
+[    3.444994]  bus_for_each_dev+0xb6/0x110
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  driver_attach+0x22/0x30
+[    3.444994]  bus_add_driver+0x1e6/0x2a0
+[    3.444994]  driver_register+0xa4/0x180
+[    3.444994]  __pci_register_driver+0x77/0x80
+[    3.444994]  ? uPD98402_module_init+0xd/0xd
+[    3.444994]  nicstar_init+0x1f/0x75
+[    3.444994]  do_one_initcall+0x7a/0x3d0
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  kernel_init+0x13/0x180
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ret_from_fork+0x1f/0x30
+[    3.444994] Dumping ftrace buffer:
+[    3.444994]    (ftrace buffer empty)
+[    3.444994] Kernel Offset: disabled
+[    3.444994] Rebooting in 1 seconds..
 
-  I think either kmemleak or syzbot are misreporting this. I've added a
-  bunch of printks around all allocations performed by BPF ringbuf. [...]
-  On repro side I get these two warnings:
-
-  [vmuser@archvm bpf]$ sudo ./repro
-  BUG: memory leak
-  unreferenced object 0xffff88810d538c00 (size 64):
-    comm "repro", pid 2140, jiffies 4294692933 (age 14.540s)
-    hex dump (first 32 bytes):
-      00 af 19 04 00 ea ff ff c0 ae 19 04 00 ea ff ff  ................
-      80 ae 19 04 00 ea ff ff c0 29 2e 04 00 ea ff ff  .........)......
-    backtrace:
-      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
-      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
-      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
-      [<00000000f601d565>] do_syscall_64+0x2d/0x40
-      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-  BUG: memory leak
-  unreferenced object 0xffff88810d538c80 (size 64):
-    comm "repro", pid 2143, jiffies 4294699025 (age 8.448s)
-    hex dump (first 32 bytes):
-      80 aa 19 04 00 ea ff ff 00 ab 19 04 00 ea ff ff  ................
-      c0 ab 19 04 00 ea ff ff 80 44 28 04 00 ea ff ff  .........D(.....
-    backtrace:
-      [<0000000077bfbfbd>] __bpf_map_area_alloc+0x31/0xc0
-      [<00000000587fa522>] ringbuf_map_alloc.cold.4+0x48/0x218
-      [<0000000044d49e96>] __do_sys_bpf+0x359/0x1d90
-      [<00000000f601d565>] do_syscall_64+0x2d/0x40
-      [<0000000043d3112a>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-  Note that both reported leaks (ffff88810d538c80 and ffff88810d538c00)
-  correspond to pages array bpf_ringbuf is allocating and tracking properly
-  internally. Note also that syzbot repro doesn't close FD of created BPF
-  ringbufs, and even when ./repro itself exits with error, there are still
-  two forked processes hanging around in my system. So clearly ringbuf maps
-  are alive at that point. So reporting any memory leak looks weird at that
-  point, because that memory is being used by active referenced BPF ringbuf.
-
-  It's also a question why repro doesn't clean up its forks. But if I do a
-  `pkill repro`, I do see that all the allocated memory is /properly/ cleaned
-  up [and the] "leaks" are deallocated properly.
-
-  BTW, if I add close() right after bpf() syscall in syzbot repro, I see that
-  everything is immediately deallocated, like designed. And no memory leak
-  is reported. So I don't think the problem is anywhere in bpf_ringbuf code,
-  rather in the leak detection and/or repro itself.
-
-Reported-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
-Signed-off-by: Rustam Kovhaev <rkovhaev@gmail.com>
-[ Daniel: also included analysis from Andrii to the commit log ]
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: syzbot+5d895828587f49e7fe9b@syzkaller.appspotmail.com
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/CAEf4BzYk+dqs+jwu6VKXP-RttcTEGFe+ySTGWT9CRNkagDiJVA@mail.gmail.com
-Link: https://lore.kernel.org/lkml/YNTAqiE7CWJhOK2M@nuc10
-Link: https://lore.kernel.org/lkml/20210615101515.GC26027@arm.com
-Link: https://syzkaller.appspot.com/bug?extid=5d895828587f49e7fe9b
-Link: https://lore.kernel.org/bpf/20210626181156.1873604-1-rkovhaev@gmail.com
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/ringbuf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/atm/nicstar.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/bpf/ringbuf.c b/kernel/bpf/ringbuf.c
-index add0b34f2b34..f9913bc65ef8 100644
---- a/kernel/bpf/ringbuf.c
-+++ b/kernel/bpf/ringbuf.c
-@@ -8,6 +8,7 @@
- #include <linux/vmalloc.h>
- #include <linux/wait.h>
- #include <linux/poll.h>
-+#include <linux/kmemleak.h>
- #include <uapi/linux/btf.h>
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index f1e8aa26d284..f9d29de537b6 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -525,6 +525,15 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
+ 	/* Set the VPI/VCI MSb mask to zero so we can receive OAM cells */
+ 	writel(0x00000000, card->membase + VPM);
  
- #define RINGBUF_CREATE_FLAG_MASK (BPF_F_NUMA_NODE)
-@@ -109,6 +110,7 @@ static struct bpf_ringbuf *bpf_ringbuf_area_alloc(size_t data_sz, int numa_node)
- 	rb = vmap(pages, nr_meta_pages + 2 * nr_data_pages,
- 		  VM_ALLOC | VM_USERMAP, PAGE_KERNEL);
- 	if (rb) {
-+		kmemleak_not_leak(pages);
- 		rb->pages = pages;
- 		rb->nr_pages = nr_pages;
- 		return rb;
++	card->intcnt = 0;
++	if (request_irq
++	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
++		pr_err("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
++		error = 9;
++		ns_init_card_error(card, error);
++		return error;
++	}
++
+ 	/* Initialize TSQ */
+ 	card->tsq.org = dma_alloc_coherent(&card->pcidev->dev,
+ 					   NS_TSQSIZE + NS_TSQ_ALIGNMENT,
+@@ -751,15 +760,6 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
+ 
+ 	card->efbie = 1;
+ 
+-	card->intcnt = 0;
+-	if (request_irq
+-	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
+-		printk("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
+-		error = 9;
+-		ns_init_card_error(card, error);
+-		return error;
+-	}
+-
+ 	/* Register device */
+ 	card->atmdev = atm_dev_register("nicstar", &card->pcidev->dev, &atm_ops,
+ 					-1, NULL);
 -- 
 2.30.2
 
