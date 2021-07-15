@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 191D53C9FDA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93FEE3C9F9B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:40:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237737AbhGONne (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237582AbhGONne (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 15 Jul 2021 09:43:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232769AbhGONnP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:43:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D8C161167;
-        Thu, 15 Jul 2021 13:40:21 +0000 (UTC)
+        id S232712AbhGONnH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:43:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4DE1611AB;
+        Thu, 15 Jul 2021 13:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626356421;
-        bh=DMnpQS8P9EMb009B/5EvzPzqeCvpYn2cHaL3ESM0bnc=;
+        s=korg; t=1626356413;
+        bh=12LN1oFAMuHQSVZGqETzu93tvI9c2mUoFufn0zXymfQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=DNRmUiP3SQLdrNoO7fdjnm+hnn7M4/ZOZKrO5XI7AsTyWxVYUb3VulrYB4KxwLKiq
-         BFRE+O5D5c41N5yvPCMICPZBG0r2qfq6by4i2yegqxxpBtuV+r4WzSQ2arPTqENGAv
-         obm5JuUWbixKzwjQPty+U8vO+aQIbRtjVfXo2dj0=
-Subject: FAILED: patch "[PATCH] lkdtm: Enable DOUBLE_FAULT on all architectures" failed to apply to 5.4-stable tree
+        b=FGXJRMWorc4Q86m8+Zm+gZB+K85eVUO2WPZFPFEeNLXvafX3e37s0Se58y9Eu5wns
+         F4/nOb8muqjnHB0piUsCs+6uJMf7Wvf3xSlDCaXPSW/yOYxJhLerdD/dcnmz/exFdT
+         7/x1dgSbysQk77MRzZWsBwiKx2AmHrZFkhy+K3rg=
+Subject: FAILED: patch "[PATCH] lkdtm: Enable DOUBLE_FAULT on all architectures" failed to apply to 5.10-stable tree
 To:     keescook@chromium.org, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 15 Jul 2021 15:40:11 +0200
-Message-ID: <162635641113242@kroah.com>
+Message-ID: <162635641192154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
