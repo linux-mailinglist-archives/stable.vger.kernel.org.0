@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0703CA7C7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982B13CA680
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241985AbhGOS4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
+        id S234795AbhGOSs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:48:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240754AbhGOSzx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A77AE610C7;
-        Thu, 15 Jul 2021 18:52:58 +0000 (UTC)
+        id S231909AbhGOSsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4053613DC;
+        Thu, 15 Jul 2021 18:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375179;
-        bh=hiFfcImKXdb4KrxusaWyGhEjB14sFU6NBWrhsb2lHu4=;
+        s=korg; t=1626374717;
+        bh=rRgGUBtC8e5iWP6z2UuSrbfBofkMNhqD5H2aRwgKGOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U6Mz5HkvYabgnF5Csy0onMry9wDO4auNbKL8Rnq3ETSdSSvnEOevv/ExNM+vivMjI
-         qECm68VuwPS0u7wo/pdlupc3fXYwgQ+vBj+wVpTDtIvzhDUbT7Vag9H44AbQFU2SUa
-         sZrA10OtXhwFLRwZVdk7D6CJa816Py7Ac3QRVvv0=
+        b=e5hvPNOK+3C7DDzS51GpdNAFGnPyMY19nuEhRVduP5KvHxXH2PIueuNlnmV+I0qm6
+         q7QnRtu+M5YvMs/UcTud6gt/LFIALRWdIjqXlAUYKg5W9Y46+HrVNBGwIxuxIfL1bN
+         H6BHx+SCU95MOA5WrwlRCfq7woIESXOuuaB6iA3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
-        Luben Tuikov <luben.tuikov@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 150/215] drm/amdgpu: enable sdma0 tmz for Raven/Renoir(V2)
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.4 075/122] powerpc/mm: Fix lockup on kernel exec fault
 Date:   Thu, 15 Jul 2021 20:38:42 +0200
-Message-Id: <20210715182626.125702032@linuxfoundation.org>
+Message-Id: <20210715182509.668484209@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Liu <aaron.liu@amd.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit e2329e74a615cc58b25c42b7aa1477a5e3f6a435 upstream.
+commit cd5d5e602f502895e47e18cd46804d6d7014e65c upstream.
 
-Without driver loaded, SDMA0_UTCL1_PAGE.TMZ_ENABLE is set to 1
-by default for all asic. On Raven/Renoir, the sdma goldsetting
-changes SDMA0_UTCL1_PAGE.TMZ_ENABLE to 0.
-This patch restores SDMA0_UTCL1_PAGE.TMZ_ENABLE to 1.
+The powerpc kernel is not prepared to handle exec faults from kernel.
+Especially, the function is_exec_fault() will return 'false' when an
+exec fault is taken by kernel, because the check is based on reading
+current->thread.regs->trap which contains the trap from user.
 
-Signed-off-by: Aaron Liu <aaron.liu@amd.com>
-Acked-by: Luben Tuikov <luben.tuikov@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+For instance, when provoking a LKDTM EXEC_USERSPACE test,
+current->thread.regs->trap is set to SYSCALL trap (0xc00), and
+the fault taken by the kernel is not seen as an exec fault by
+set_access_flags_filter().
+
+Commit d7df2443cd5f ("powerpc/mm: Fix spurious segfaults on radix
+with autonuma") made it clear and handled it properly. But later on
+commit d3ca587404b3 ("powerpc/mm: Fix reporting of kernel execute
+faults") removed that handling, introducing test based on error_code.
+And here is the problem, because on the 603 all upper bits of SRR1
+get cleared when the TLB instruction miss handler bails out to ISI.
+
+Until commit cbd7e6ca0210 ("powerpc/fault: Avoid heavy
+search_exception_tables() verification"), an exec fault from kernel
+at a userspace address was indirectly caught by the lack of entry for
+that address in the exception tables. But after that commit the
+kernel mainly relies on KUAP or on core mm handling to catch wrong
+user accesses. Here the access is not wrong, so mm handles it.
+It is a minor fault because PAGE_EXEC is not set,
+set_access_flags_filter() should set PAGE_EXEC and voila.
+But as is_exec_fault() returns false as explained in the beginning,
+set_access_flags_filter() bails out without setting PAGE_EXEC flag,
+which leads to a forever minor exec fault.
+
+As the kernel is not prepared to handle such exec faults, the thing to
+do is to fire in bad_kernel_fault() for any exec fault taken by the
+kernel, as it was prior to commit d3ca587404b3.
+
+Fixes: d3ca587404b3 ("powerpc/mm: Fix reporting of kernel execute faults")
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/024bb05105050f704743a0083fe3548702be5706.1625138205.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/mm/fault.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v4_0.c
-@@ -143,7 +143,7 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC0_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_IB_CNTL, 0x800f0111, 0x00000100),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
--	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003c0),
-+	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003e0),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_WATERMK, 0xfc000000, 0x00000000)
- };
+--- a/arch/powerpc/mm/fault.c
++++ b/arch/powerpc/mm/fault.c
+@@ -204,9 +204,7 @@ static bool bad_kernel_fault(struct pt_r
+ {
+ 	int is_exec = TRAP(regs) == 0x400;
  
-@@ -269,7 +269,7 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_POWER_CNTL, 0x003fff07, 0x40000051),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC0_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_RLC1_RB_WPTR_POLL_CNTL, 0xfffffff7, 0x00403000),
--	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003c0),
-+	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_PAGE, 0x000003ff, 0x000003e0),
- 	SOC15_REG_GOLDEN_VALUE(SDMA0, 0, mmSDMA0_UTCL1_WATERMK, 0xfc000000, 0x03fbe1fe)
- };
- 
+-	/* NX faults set DSISR_PROTFAULT on the 8xx, DSISR_NOEXEC_OR_G on others */
+-	if (is_exec && (error_code & (DSISR_NOEXEC_OR_G | DSISR_KEYFAULT |
+-				      DSISR_PROTFAULT))) {
++	if (is_exec) {
+ 		pr_crit_ratelimited("kernel tried to execute %s page (%lx) - exploit attempt? (uid: %d)\n",
+ 				    address >= TASK_SIZE ? "exec-protected" : "user",
+ 				    address,
 
 
