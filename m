@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6728B3CA634
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 522F33CA8C2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:01:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238243AbhGOSqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48072 "EHLO mail.kernel.org"
+        id S241487AbhGOTCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238166AbhGOSqf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 756CB613CC;
-        Thu, 15 Jul 2021 18:43:41 +0000 (UTC)
+        id S243148AbhGOTBd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C13D613E3;
+        Thu, 15 Jul 2021 18:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374621;
-        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
+        s=korg; t=1626375494;
+        bh=QMZEI62nhCdbNul2Cz9sgO1rwB/vHYVKqfZ+XxwfKW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt96Wzdkbe52Y4MC/WVB9xTZGdHXAv9hrYlrRPlX4VaN8QbINVgR3u8QBckx34kaP
-         cZagEZBBOAKfGdBiMptJE1HrCqIMIkesGWWqmcCMpQ0m4U8b9bITgg8Dtj28QI4eAK
-         c4jQd0eMMcOzmaTpVE+IyvP+ZUzK2jDevrx4NyK8=
+        b=WAHhEt1j5/CNEQ9pE85o1mWfEhRvh+LKnXf8U67dN+ZKpuO0dgxmzRvgNIIPqs2X2
+         71OTK4jXpF6OEl5WPIeRc1Sq/kvOiE0kUf0M1rqT10fW2gt4FsgCGZJgURpUaqznUG
+         chE9NhNKgNg5mT0TEqEpn7U/8l5iNW+/yf9zQ0s4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/122] dm space maps: dont reset space map allocation cursor when committing
+Subject: [PATCH 5.12 109/242] net: fec: add FEC_QUIRK_HAS_MULTI_QUEUES represents i.MX6SX ENET IP
 Date:   Thu, 15 Jul 2021 20:37:51 +0200
-Message-Id: <20210715182455.316419757@linuxfoundation.org>
+Message-Id: <20210715182612.265323361@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +42,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
+[ Upstream commit 471ff4455d61c9929ae912328859921708e1eafc ]
 
-Current commit code resets the place where the search for free blocks
-will begin back to the start of the metadata device.  There are a couple
-of repercussions to this:
+Frieder Schrempf reported a TX throuthput issue [1], it happens quite often
+that the measured bandwidth in TX direction drops from its expected/nominal
+value to something like ~50% (for 100M) or ~67% (for 1G) connections.
 
-- The first allocation after the commit is likely to take longer than
-  normal as it searches for a free block in an area that is likely to
-  have very few free blocks (if any).
+[1] https://lore.kernel.org/linux-arm-kernel/421cc86c-b66f-b372-32f7-21e59f9a98bc@kontron.de/
 
-- Any free blocks it finds will have been recently freed.  Reusing them
-  means we have fewer old copies of the metadata to aid recovery from
-  hardware error.
+The issue becomes clear after digging into it, Net core would select
+queues when transmitting packets. Since FEC have not impletemented
+ndo_select_queue callback yet, so it will call netdev_pick_tx to select
+queues randomly.
 
-Fix these issues by leaving the cursor alone, only resetting when the
-search hits the end of the metadata device.
+For i.MX6SX ENET IP with AVB support, driver default enables this
+feature. According to the setting of QOS/RCMRn/DMAnCFG registers, AVB
+configured to Credit-based scheme, 50% bandwidth of each queue 1&2.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+With below tests let me think more:
+1) With FEC_QUIRK_HAS_AVB quirk, can reproduce TX bandwidth fluctuations issue.
+2) Without FEC_QUIRK_HAS_AVB quirk, can't reproduce TX bandwidth fluctuations issue.
+
+The related difference with or w/o FEC_QUIRK_HAS_AVB quirk is that, whether we
+program FTYPE field of TxBD or not. As I describe above, AVB feature is
+enabled by default. With FEC_QUIRK_HAS_AVB quirk, frames in queue 0
+marked as non-AVB, and frames in queue 1&2 marked as AVB Class A&B. It's
+unreasonable if frames in queue 1&2 are not required to be time-sensitive.
+So when Net core select tx queues ramdomly, Credit-based scheme would work
+and lead to TX bandwidth fluctuated. On the other hand, w/o
+FEC_QUIRK_HAS_AVB quirk, frames in queue 1&2 are all marked as non-AVB, so
+Credit-based scheme would not work.
+
+Till now, how can we fix this TX throughput issue? Yes, please remove
+FEC_QUIRK_HAS_AVB quirk if you suffer it from time-nonsensitive networking.
+However, this quirk is used to indicate i.MX6SX, other setting depends
+on it. So this patch adds a new quirk FEC_QUIRK_HAS_MULTI_QUEUES to
+represent i.MX6SX, it is safe for us remove FEC_QUIRK_HAS_AVB quirk
+now.
+
+FEC_QUIRK_HAS_AVB quirk is set by default in the driver, and users may
+not know much about driver details, they would waste effort to find the
+root cause, that is not we want. The following patch is a implementation
+to fix it and users don't need to modify the driver.
+
+Tested-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Reported-by: Frieder Schrempf <frieder.schrempf@kontron.de>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
- drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec.h      |  5 +++++
+ drivers/net/ethernet/freescale/fec_main.c | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
-index bf4c5e2ccb6f..e0acae7a3815 100644
---- a/drivers/md/persistent-data/dm-space-map-disk.c
-+++ b/drivers/md/persistent-data/dm-space-map-disk.c
-@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smd->begin and the end of the metadata device.
-+		 * We search before smd->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
-+	}
+diff --git a/drivers/net/ethernet/freescale/fec.h b/drivers/net/ethernet/freescale/fec.h
+index 0602d5d5d2ee..2e002e4b4b4a 100644
+--- a/drivers/net/ethernet/freescale/fec.h
++++ b/drivers/net/ethernet/freescale/fec.h
+@@ -467,6 +467,11 @@ struct bufdesc_ex {
+  */
+ #define FEC_QUIRK_NO_HARD_RESET		(1 << 18)
+ 
++/* i.MX6SX ENET IP supports multiple queues (3 queues), use this quirk to
++ * represents this ENET IP.
++ */
++#define FEC_QUIRK_HAS_MULTI_QUEUES	(1 << 19)
 +
- 	if (r)
- 		return r;
+ struct bufdesc_prop {
+ 	int qid;
+ 	/* Address of Rx and Tx buffers */
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 89393fbc726f..15c9cffa8735 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -121,7 +121,7 @@ static const struct fec_devinfo fec_imx6x_info = {
+ 		  FEC_QUIRK_HAS_VLAN | FEC_QUIRK_HAS_AVB |
+ 		  FEC_QUIRK_ERR007885 | FEC_QUIRK_BUG_CAPTURE |
+ 		  FEC_QUIRK_HAS_RACC | FEC_QUIRK_HAS_COALESCE |
+-		  FEC_QUIRK_CLEAR_SETUP_MII,
++		  FEC_QUIRK_CLEAR_SETUP_MII | FEC_QUIRK_HAS_MULTI_QUEUES,
+ };
  
-@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
- 		return r;
- 
- 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
--	smd->begin = 0;
- 	smd->nr_allocated_this_transaction = 0;
- 
- 	r = sm_disk_get_nr_free(sm, &nr_free);
-diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
-index 9e3c64ec2026..da439ac85796 100644
---- a/drivers/md/persistent-data/dm-space-map-metadata.c
-+++ b/drivers/md/persistent-data/dm-space-map-metadata.c
-@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
- 	 * Any block we allocate has to be free in both the old and current ll.
- 	 */
- 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
-+	if (r == -ENOSPC) {
-+		/*
-+		 * There's no free block between smm->begin and the end of the metadata device.
-+		 * We search before smm->begin in case something has been freed.
-+		 */
-+		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
-+	}
+ static const struct fec_devinfo fec_imx6ul_info = {
+@@ -420,6 +420,7 @@ fec_enet_txq_submit_frag_skb(struct fec_enet_priv_tx_q *txq,
+ 				estatus |= FEC_TX_BD_FTYPE(txq->bd.qid);
+ 			if (skb->ip_summed == CHECKSUM_PARTIAL)
+ 				estatus |= BD_ENET_TX_PINS | BD_ENET_TX_IINS;
 +
- 	if (r)
- 		return r;
+ 			ebdp->cbd_bdu = 0;
+ 			ebdp->cbd_esc = cpu_to_fec32(estatus);
+ 		}
+@@ -953,7 +954,7 @@ fec_restart(struct net_device *ndev)
+ 	 * For i.MX6SX SOC, enet use AXI bus, we use disable MAC
+ 	 * instead of reset MAC itself.
+ 	 */
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB ||
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES ||
+ 	    ((fep->quirks & FEC_QUIRK_NO_HARD_RESET) && fep->link)) {
+ 		writel(0, fep->hwp + FEC_ECNTRL);
+ 	} else {
+@@ -1164,7 +1165,7 @@ fec_stop(struct net_device *ndev)
+ 	 * instead of reset MAC itself.
+ 	 */
+ 	if (!(fep->wol_flag & FEC_WOL_FLAG_SLEEP_ON)) {
+-		if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++		if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 			writel(0, fep->hwp + FEC_ECNTRL);
+ 		} else {
+ 			writel(1, fep->hwp + FEC_ECNTRL);
+@@ -2559,7 +2560,7 @@ static void fec_enet_itr_coal_set(struct net_device *ndev)
  
-@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
- 		return r;
+ 	writel(tx_itr, fep->hwp + FEC_TXIC0);
+ 	writel(rx_itr, fep->hwp + FEC_RXIC0);
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		writel(tx_itr, fep->hwp + FEC_TXIC1);
+ 		writel(rx_itr, fep->hwp + FEC_RXIC1);
+ 		writel(tx_itr, fep->hwp + FEC_TXIC2);
+@@ -3356,7 +3357,7 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fep->csum_flags |= FLAG_RX_CSUM_ENABLED;
+ 	}
  
- 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
--	smm->begin = 0;
- 	smm->allocated_this_transaction = 0;
- 
- 	return 0;
+-	if (fep->quirks & FEC_QUIRK_HAS_AVB) {
++	if (fep->quirks & FEC_QUIRK_HAS_MULTI_QUEUES) {
+ 		fep->tx_align = 0;
+ 		fep->rx_align = 0x3f;
+ 	}
 -- 
 2.30.2
 
