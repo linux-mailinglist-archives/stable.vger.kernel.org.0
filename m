@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 897503CA61D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A482F3CA786
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:52:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237561AbhGOSqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47322 "EHLO mail.kernel.org"
+        id S239147AbhGOSzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231997AbhGOSqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79250613D1;
-        Thu, 15 Jul 2021 18:43:20 +0000 (UTC)
+        id S240342AbhGOSx6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BCF6613CC;
+        Thu, 15 Jul 2021 18:51:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374600;
-        bh=rT9wNcVPytoVKg8/uB8qIQ9874cAuAClI4Rh2f3OUgU=;
+        s=korg; t=1626375062;
+        bh=ntoSeY1may51ety/atua3izw2+UANxCK4CoOIwGTNRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BFRZQ1iZQKon9iFA6UR4hiAWWspuS5JCqDm0321wQYJxvhqnGlMAQhApR/SSTQgX2
-         9OyTmFOx9Ns7YCfA+eQQgc5Lq0UCQKm5jF1R7XWxksg1k7wod8Xoj1RV89hyKqqYv3
-         hfQSgm8aFCo8L41guGerxq1IlZqr4cGZqPeQkWmA=
+        b=0Uf8J9jJpxQ9ICepmaznyxkVeTiDaXFhHrvTca+S2jySp04WuAbhlvZ/NJOZXWI0J
+         4I8RQjYcMkFxP49+GN8MJL86bqZXY19CNeHC9E+ONGHT1Nzo4A01pZW/V8O+suHj6w
+         WU8coyBWNFaOAPfp8STAxOp9JapkfcdO0ILo7HPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 066/122] Bluetooth: Shutdown controller after workqueues are flushed or cancelled
+        Yejune Deng <yejune.deng@gmail.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 5.10 141/215] io_uring: simplify io_remove_personalities()
 Date:   Thu, 15 Jul 2021 20:38:33 +0200
-Message-Id: <20210715182507.017588135@linuxfoundation.org>
+Message-Id: <20210715182624.489114043@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,115 +40,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Yejune Deng <yejune.deng@gmail.com>
 
-[ Upstream commit 0ea9fd001a14ebc294f112b0361a4e601551d508 ]
+commit 0bead8cd39b9c9c7c4e902018ccf129107ac50ef upstream.
 
-Rfkill block and unblock Intel USB Bluetooth [8087:0026] may make it
-stops working:
-[  509.691509] Bluetooth: hci0: HCI reset during shutdown failed
-[  514.897584] Bluetooth: hci0: MSFT filter_enable is already on
-[  530.044751] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
-[  545.660350] usb 3-10: device descriptor read/64, error -110
-[  561.283530] usb 3-10: device descriptor read/64, error -110
-[  561.519682] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
-[  566.686650] Bluetooth: hci0: unexpected event for opcode 0x0500
-[  568.752452] Bluetooth: hci0: urb 0000000096cd309b failed to resubmit (113)
-[  578.797955] Bluetooth: hci0: Failed to read MSFT supported features (-110)
-[  586.286565] Bluetooth: hci0: urb 00000000c522f633 failed to resubmit (113)
-[  596.215302] Bluetooth: hci0: Failed to read MSFT supported features (-110)
+The function io_remove_personalities() is very similar to
+io_unregister_personality(),so implement io_remove_personalities()
+calling io_unregister_personality().
 
-Or kernel panics because other workqueues already freed skb:
-[ 2048.663763] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[ 2048.663775] #PF: supervisor read access in kernel mode
-[ 2048.663779] #PF: error_code(0x0000) - not-present page
-[ 2048.663782] PGD 0 P4D 0
-[ 2048.663787] Oops: 0000 [#1] SMP NOPTI
-[ 2048.663793] CPU: 3 PID: 4491 Comm: rfkill Tainted: G        W         5.13.0-rc1-next-20210510+ #20
-[ 2048.663799] Hardware name: HP HP EliteBook 850 G8 Notebook PC/8846, BIOS T76 Ver. 01.01.04 12/02/2020
-[ 2048.663801] RIP: 0010:__skb_ext_put+0x6/0x50
-[ 2048.663814] Code: 8b 1b 48 85 db 75 db 5b 41 5c 5d c3 be 01 00 00 00 e8 de 13 c0 ff eb e7 be 02 00 00 00 e8 d2 13 c0 ff eb db 0f 1f 44 00 00 55 <8b> 07 48 89 e5 83 f8 01 74 14 b8 ff ff ff ff f0 0f c1
-07 83 f8 01
-[ 2048.663819] RSP: 0018:ffffc1d105b6fd80 EFLAGS: 00010286
-[ 2048.663824] RAX: 0000000000000000 RBX: ffff9d9ac5649000 RCX: 0000000000000000
-[ 2048.663827] RDX: ffffffffc0d1daf6 RSI: 0000000000000206 RDI: 0000000000000000
-[ 2048.663830] RBP: ffffc1d105b6fd98 R08: 0000000000000001 R09: ffff9d9ace8ceac0
-[ 2048.663834] R10: ffff9d9ace8ceac0 R11: 0000000000000001 R12: ffff9d9ac5649000
-[ 2048.663838] R13: 0000000000000000 R14: 00007ffe0354d650 R15: 0000000000000000
-[ 2048.663843] FS:  00007fe02ab19740(0000) GS:ffff9d9e5f8c0000(0000) knlGS:0000000000000000
-[ 2048.663849] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2048.663853] CR2: 0000000000000000 CR3: 0000000111a52004 CR4: 0000000000770ee0
-[ 2048.663856] PKRU: 55555554
-[ 2048.663859] Call Trace:
-[ 2048.663865]  ? skb_release_head_state+0x5e/0x80
-[ 2048.663873]  kfree_skb+0x2f/0xb0
-[ 2048.663881]  btusb_shutdown_intel_new+0x36/0x60 [btusb]
-[ 2048.663905]  hci_dev_do_close+0x48c/0x5e0 [bluetooth]
-[ 2048.663954]  ? __cond_resched+0x1a/0x50
-[ 2048.663962]  hci_rfkill_set_block+0x56/0xa0 [bluetooth]
-[ 2048.664007]  rfkill_set_block+0x98/0x170
-[ 2048.664016]  rfkill_fop_write+0x136/0x1e0
-[ 2048.664022]  vfs_write+0xc7/0x260
-[ 2048.664030]  ksys_write+0xb1/0xe0
-[ 2048.664035]  ? exit_to_user_mode_prepare+0x37/0x1c0
-[ 2048.664042]  __x64_sys_write+0x1a/0x20
-[ 2048.664048]  do_syscall_64+0x40/0xb0
-[ 2048.664055]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 2048.664060] RIP: 0033:0x7fe02ac23c27
-[ 2048.664066] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
-[ 2048.664070] RSP: 002b:00007ffe0354d638 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[ 2048.664075] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007fe02ac23c27
-[ 2048.664078] RDX: 0000000000000008 RSI: 00007ffe0354d650 RDI: 0000000000000003
-[ 2048.664081] RBP: 0000000000000000 R08: 0000559b05998440 R09: 0000559b05998440
-[ 2048.664084] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
-[ 2048.664086] R13: 0000000000000000 R14: ffffffff00000000 R15: 00000000ffffffff
-
-So move the shutdown callback to a place where workqueues are either
-flushed or cancelled to resolve the issue.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Yejune Deng <yejune.deng@gmail.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ fs/io_uring.c |   28 +++++++++++-----------------
+ 1 file changed, 11 insertions(+), 17 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 21a7ea9b70c8..37b585c9e857 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1672,14 +1672,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -8505,9 +8505,8 @@ static int io_uring_fasync(int fd, struc
+ 	return fasync_helper(fd, file, on, &ctx->cq_fasync);
+ }
  
- 	BT_DBG("%s %p", hdev->name, hdev);
+-static int io_remove_personalities(int id, void *p, void *data)
++static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
+ {
+-	struct io_ring_ctx *ctx = data;
+ 	struct io_identity *iod;
  
--	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
--	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
--	    test_bit(HCI_UP, &hdev->flags)) {
--		/* Execute vendor specific shutdown routine */
--		if (hdev->shutdown)
--			hdev->shutdown(hdev);
+ 	iod = idr_remove(&ctx->personality_idr, id);
+@@ -8515,7 +8514,17 @@ static int io_remove_personalities(int i
+ 		put_cred(iod->creds);
+ 		if (refcount_dec_and_test(&iod->count))
+ 			kfree(iod);
++		return 0;
+ 	}
++
++	return -EINVAL;
++}
++
++static int io_remove_personalities(int id, void *p, void *data)
++{
++	struct io_ring_ctx *ctx = data;
++
++	io_unregister_personality(ctx, id);
+ 	return 0;
+ }
+ 
+@@ -9606,21 +9615,6 @@ static int io_register_personality(struc
+ 	return ret;
+ }
+ 
+-static int io_unregister_personality(struct io_ring_ctx *ctx, unsigned id)
+-{
+-	struct io_identity *iod;
+-
+-	iod = idr_remove(&ctx->personality_idr, id);
+-	if (iod) {
+-		put_cred(iod->creds);
+-		if (refcount_dec_and_test(&iod->count))
+-			kfree(iod);
+-		return 0;
 -	}
 -
- 	cancel_delayed_work(&hdev->power_off);
- 
- 	hci_request_cancel_all(hdev);
-@@ -1753,6 +1745,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
- 		clear_bit(HCI_INIT, &hdev->flags);
- 	}
- 
-+	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-+	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+	    test_bit(HCI_UP, &hdev->flags)) {
-+		/* Execute vendor specific shutdown routine */
-+		if (hdev->shutdown)
-+			hdev->shutdown(hdev);
-+	}
-+
- 	/* flush cmd  work */
- 	flush_work(&hdev->cmd_work);
- 
--- 
-2.30.2
-
+-	return -EINVAL;
+-}
+-
+ static int io_register_restrictions(struct io_ring_ctx *ctx, void __user *arg,
+ 				    unsigned int nr_args)
+ {
 
 
