@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E5F63CA8D3
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B673CAA7B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241694AbhGOTDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:03:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
+        id S240935AbhGOTNY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:13:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243238AbhGOTBq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7714561404;
-        Thu, 15 Jul 2021 18:58:37 +0000 (UTC)
+        id S243169AbhGOTLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:11:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3032B613C4;
+        Thu, 15 Jul 2021 19:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375517;
-        bh=u8Ivap6Yz4KRmQsyQWImKIcEhtJI8QScwssbNbl8UkA=;
+        s=korg; t=1626376103;
+        bh=HGekkCC/ze57AUR8GofCif+vLEiHASe+rnbp3h+2LsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pO5cRRVRSaYvivihq89xeN53KI55uSJra8GK1v3AogrequZwT6wjoN+8qL1iy9lcU
-         jfss9gmdgFBRTe/sa8IrUEPnCl0Eo+OT+z+wCaxK/kQi42peAp2rMy7j180aJQstWH
-         kTll0dL9SbKZ7W7r9AQyLaOOJI9p6L05uZSsIIgE=
+        b=aPa9gdbmX2t1AzHCw2VhrXYnqnuzgO4It1wmYqTeFs2hJLGsO25jFHFQg5Ec5+p2A
+         Zh28839QpWnz51JuPdqAb5I8OLWZqv2dF6CTv0KTKy2SkLat5iblkID/SKXYALFosJ
+         sAPGTplxNbfw4X8rxyJT/ibfRO5FxcZmAoe8QvaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Szabo <psz2036@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        stable@vger.kernel.org, Pascal Terjan <pterjan@google.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 122/242] rtw88: add quirks to disable pci capabilities
+Subject: [PATCH 5.13 129/266] rtl8xxxu: Fix device info for RTL8192EU devices
 Date:   Thu, 15 Jul 2021 20:38:04 +0200
-Message-Id: <20210715182614.539447350@linuxfoundation.org>
+Message-Id: <20210715182636.610984775@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,85 +40,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Pascal Terjan <pterjan@google.com>
 
-[ Upstream commit 956c6d4f20c5446727e0c912dd8f527f2dc7b779 ]
+[ Upstream commit c240b044edefa3c3af4014a4030e017dd95b59a1 ]
 
-8821CE with ASPM cannot work properly on Protempo Ltd L116HTN6SPW. Add a
-quirk to disable the cap.
+Based on 2001:3319 and 2357:0109 which I used to test the fix and
+0bda:818b and 2357:0108 for which I found efuse dumps online.
 
-The reporter describes the symptom is that this module (driver) causes
-frequent freezes, randomly but usually within a few minutes of running
-(thus very soon after boot): screen display remains frozen, no response
-to either keyboard or mouse input. All I can do is to hold the power
-button to power off, then reboot.
+== 2357:0109 ==
+=== Before ===
+Vendor: Realtek
+Product: \x03802.11n NI
+Serial:
+=== After ===
+Vendor: Realtek
+Product: 802.11n NIC
+Serial not available.
 
-Reported-by: Paul Szabo <psz2036@gmail.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+== 2001:3319 ==
+=== Before ===
+Vendor: Realtek
+Product: Wireless N
+Serial: no USB Adap
+=== After ===
+Vendor: Realtek
+Product: Wireless N Nano USB Adapter
+Serial not available.
+
+Signed-off-by: Pascal Terjan <pterjan@google.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210607012254.6306-1-pkshih@realtek.com
+Link: https://lore.kernel.org/r/20210424172959.1559890-1-pterjan@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/pci.c | 32 ++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu.h  | 11 +---
+ .../realtek/rtl8xxxu/rtl8xxxu_8192e.c         | 59 +++++++++++++++++--
+ 2 files changed, 56 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index 6b5c885798a4..e5110d2cbc1d 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -2,6 +2,7 @@
- /* Copyright(c) 2018-2019  Realtek Corporation
-  */
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+index d1a566cc0c9e..01735776345a 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu.h
+@@ -853,15 +853,10 @@ struct rtl8192eu_efuse {
+ 	u8 usb_optional_function;
+ 	u8 res9[2];
+ 	u8 mac_addr[ETH_ALEN];		/* 0xd7 */
+-	u8 res10[2];
+-	u8 vendor_name[7];
+-	u8 res11[2];
+-	u8 device_name[0x0b];		/* 0xe8 */
+-	u8 res12[2];
+-	u8 serial[0x0b];		/* 0xf5 */
+-	u8 res13[0x30];
++	u8 device_info[80];
++	u8 res11[3];
+ 	u8 unknown[0x0d];		/* 0x130 */
+-	u8 res14[0xc3];
++	u8 res12[0xc3];
+ };
  
-+#include <linux/dmi.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include "main.h"
-@@ -1598,6 +1599,36 @@ static void rtw_pci_napi_deinit(struct rtw_dev *rtwdev)
- 	netif_napi_del(&rtwpci->napi);
+ struct rtl8xxxu_reg8val {
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
+index cfe2dfdae928..b06508d0cdf8 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_8192e.c
+@@ -554,9 +554,43 @@ rtl8192e_set_tx_power(struct rtl8xxxu_priv *priv, int channel, bool ht40)
+ 	}
  }
  
-+enum rtw88_quirk_dis_pci_caps {
-+	QUIRK_DIS_PCI_CAP_MSI,
-+	QUIRK_DIS_PCI_CAP_ASPM,
-+};
-+
-+static int disable_pci_caps(const struct dmi_system_id *dmi)
++static void rtl8192eu_log_next_device_info(struct rtl8xxxu_priv *priv,
++					   char *record_name,
++					   char *device_info,
++					   unsigned int *record_offset)
 +{
-+	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
++	char *record = device_info + *record_offset;
 +
-+	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
-+		rtw_disable_msi = true;
-+	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_ASPM))
-+		rtw_pci_disable_aspm = true;
++	/* A record is [ total length | 0x03 | value ] */
++	unsigned char l = record[0];
 +
-+	return 1;
++	/*
++	 * The whole device info section seems to be 80 characters, make sure
++	 * we don't read further.
++	 */
++	if (*record_offset + l > 80) {
++		dev_warn(&priv->udev->dev,
++			 "invalid record length %d while parsing \"%s\" at offset %u.\n",
++			 l, record_name, *record_offset);
++		return;
++	}
++
++	if (l >= 2) {
++		char value[80];
++
++		memcpy(value, &record[2], l - 2);
++		value[l - 2] = '\0';
++		dev_info(&priv->udev->dev, "%s: %s\n", record_name, value);
++		*record_offset = *record_offset + l;
++	} else {
++		dev_info(&priv->udev->dev, "%s not available.\n", record_name);
++	}
 +}
 +
-+static const struct dmi_system_id rtw88_pci_quirks[] = {
-+	{
-+		.callback = disable_pci_caps,
-+		.ident = "Protempo Ltd L116HTN6SPW",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
-+		},
-+		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
-+	},
-+	{}
-+};
-+
- int rtw_pci_probe(struct pci_dev *pdev,
- 		  const struct pci_device_id *id)
+ static int rtl8192eu_parse_efuse(struct rtl8xxxu_priv *priv)
  {
-@@ -1648,6 +1679,7 @@ int rtw_pci_probe(struct pci_dev *pdev,
- 		goto err_destroy_pci;
- 	}
+ 	struct rtl8192eu_efuse *efuse = &priv->efuse_wifi.efuse8192eu;
++	unsigned int record_offset;
+ 	int i;
  
-+	dmi_check_system(rtw88_pci_quirks);
- 	rtw_pci_phy_cfg(rtwdev);
+ 	if (efuse->rtl_id != cpu_to_le16(0x8129))
+@@ -604,12 +638,25 @@ static int rtl8192eu_parse_efuse(struct rtl8xxxu_priv *priv)
+ 	priv->has_xtalk = 1;
+ 	priv->xtalk = priv->efuse_wifi.efuse8192eu.xtal_k & 0x3f;
  
- 	ret = rtw_register_hw(rtwdev, hw);
+-	dev_info(&priv->udev->dev, "Vendor: %.7s\n", efuse->vendor_name);
+-	dev_info(&priv->udev->dev, "Product: %.11s\n", efuse->device_name);
+-	if (memchr_inv(efuse->serial, 0xff, 11))
+-		dev_info(&priv->udev->dev, "Serial: %.11s\n", efuse->serial);
+-	else
+-		dev_info(&priv->udev->dev, "Serial not available.\n");
++	/*
++	 * device_info section seems to be laid out as records
++	 * [ total length | 0x03 | value ] so:
++	 * - vendor length + 2
++	 * - 0x03
++	 * - vendor string (not null terminated)
++	 * - product length + 2
++	 * - 0x03
++	 * - product string (not null terminated)
++	 * Then there is one or 2 0x00 on all the 4 devices I own or found
++	 * dumped online.
++	 * As previous version of the code handled an optional serial
++	 * string, I now assume there may be a third record if the
++	 * length is not 0.
++	 */
++	record_offset = 0;
++	rtl8192eu_log_next_device_info(priv, "Vendor", efuse->device_info, &record_offset);
++	rtl8192eu_log_next_device_info(priv, "Product", efuse->device_info, &record_offset);
++	rtl8192eu_log_next_device_info(priv, "Serial", efuse->device_info, &record_offset);
+ 
+ 	if (rtl8xxxu_debug & RTL8XXXU_DEBUG_EFUSE) {
+ 		unsigned char *raw = priv->efuse_wifi.raw;
 -- 
 2.30.2
 
