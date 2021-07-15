@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D8E3CAA25
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC5A3CAA24
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239728AbhGOTMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45710 "EHLO mail.kernel.org"
+        id S242537AbhGOTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243491AbhGOTJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243517AbhGOTJx (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:09:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81781613C0;
-        Thu, 15 Jul 2021 19:05:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D087E613CC;
+        Thu, 15 Jul 2021 19:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375945;
-        bh=yF3Xfk587sd+A00D3s6oJyfhF4EB3WXKxWmJ+VimC3M=;
+        s=korg; t=1626375947;
+        bh=FGDvieCdZUvRXaq+SoPPGIBddDqrEwFMckzntCzx+sA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OCnjcKt7+tsMm1GW/GOIkO3h4BC4EuyEoDC/wgR7RZT9KTJVp0/XGMI8Rcll/8ENu
-         Rj/EZzFUowPXxXrgXLwduwJEKORE+kyX06k8PD6G1LBAFsexBWlcM6WM9Cv+DwDSia
-         PTKHQaB4j3W0pB+MNeWWc2NTc0M7z5jBWtSCJ4Bs=
+        b=L0OsFmZ/EF3kSjqW3ryWzX+b1ym44Gyf6SNOZPu9CRXVSr0hAi1+XobYXANXt8C2F
+         ElYjgSYpDfhMqczl8XKwvh5lZmuOJrPdAbYGvp+dkOxy/JSDVOOITplWS9GJPgca1T
+         Yo5rod3Dz0MzsOptTAOrrTCmlhDtj6nnmJXBbruU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Shiwu Zhang <shiwu.zhang@amd.com>,
+        Nirmoy Das <nirmoy.das@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 059/266] MIPS: ingenic: Select CPU_SUPPORTS_CPUFREQ && MIPS_EXTERNAL_TIMER
-Date:   Thu, 15 Jul 2021 20:36:54 +0200
-Message-Id: <20210715182624.645494169@linuxfoundation.org>
+Subject: [PATCH 5.13 060/266] drm/amdgpu: fix metadata_size for ubo ioctl queries
+Date:   Thu, 15 Jul 2021 20:36:55 +0200
+Message-Id: <20210715182624.814720144@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -40,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Shiwu Zhang <shiwu.zhang@amd.com>
 
-[ Upstream commit eb3849370ae32b571e1f9a63ba52c61adeaf88f7 ]
+[ Upstream commit eba98523724be7ad3539f2c975de1527e0c99dd6 ]
 
-The clock driving the XBurst CPUs in Ingenic SoCs is integer divided
-from the main PLL. As such, it is possible to control the frequency of
-the CPU, either by changing the divider, or by changing the rate of the
-main PLL.
+Although the kfd_ioctl_get_dmabuf_info() still fail it will indicate
+the caller right metadat_size useful for the same kfd ioctl next time.
 
-The XBurst CPUs also lack the CP0 timer; the TCU, a separate piece of
-hardware in the SoC, provides this functionality.
-
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Shiwu Zhang <shiwu.zhang@amd.com>
+Reviewed-by: Nirmoy Das <nirmoy.das@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index ed51970c08e7..344e6c622efd 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -428,6 +428,8 @@ config MACH_INGENIC_SOC
- 	select MIPS_GENERIC
- 	select MACH_INGENIC
- 	select SYS_SUPPORTS_ZBOOT_UART16550
-+	select CPU_SUPPORTS_CPUFREQ
-+	select MIPS_EXTERNAL_TIMER
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index f9434bc2f9b2..db00de33caa3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -1246,6 +1246,9 @@ int amdgpu_bo_get_metadata(struct amdgpu_bo *bo, void *buffer,
  
- config LANTIQ
- 	bool "Lantiq based platforms"
+ 	BUG_ON(bo->tbo.type == ttm_bo_type_kernel);
+ 	ubo = to_amdgpu_bo_user(bo);
++	if (metadata_size)
++		*metadata_size = ubo->metadata_size;
++
+ 	if (buffer) {
+ 		if (buffer_size < ubo->metadata_size)
+ 			return -EINVAL;
+@@ -1254,8 +1257,6 @@ int amdgpu_bo_get_metadata(struct amdgpu_bo *bo, void *buffer,
+ 			memcpy(buffer, ubo->metadata, ubo->metadata_size);
+ 	}
+ 
+-	if (metadata_size)
+-		*metadata_size = ubo->metadata_size;
+ 	if (flags)
+ 		*flags = ubo->metadata_flags;
+ 
 -- 
 2.30.2
 
