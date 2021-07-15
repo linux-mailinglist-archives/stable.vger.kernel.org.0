@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F293CA6BD
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57FD63CA80B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240313AbhGOSuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
+        id S240621AbhGOS6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240126AbhGOStO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58C60613D9;
-        Thu, 15 Jul 2021 18:46:19 +0000 (UTC)
+        id S241755AbhGOS51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:57:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BA4C61158;
+        Thu, 15 Jul 2021 18:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374779;
-        bh=idGe8S9zZMYTLJ11eds0ZckkKuSOThds4gTjGfiUB3k=;
+        s=korg; t=1626375272;
+        bh=dT8hcCxhperB/T+8aYy1wP8AerwINrRNIYBFnfhjs7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSwuDCraEhAnx4uMAVzZNBza6YqsxRqsVCNEJ7ziAx6aOKxhyhhJEMYfFkTOhiurr
-         CV7+OcRfsLER6QEMsNmAF4p2lXS74cu/xVl31hJOXWlFqFomlJr2ndzzr876XydLyP
-         x+s0VxQYCdpJ9pTsQxMcoljnAuN0kp5rrmFpSjUs=
+        b=D87a8IhyhoRByih5sDluCxjAwZ2/wu0fVhwhSzn9BcCzHE86kEFk6nDqFcOMW4zGD
+         osIZ+0JacHXlXas7T14kaak318KxJNikCyaQJ/Zb+Kvv8dlCJg2y3nhNUPdnasJRNf
+         Y6yU44gPsb3DIqXlfTZ9eEZUlV74BhYWBoetLCdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
+        stable@vger.kernel.org, Ansuel Smith <ansuelsmth@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/215] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+Subject: [PATCH 5.12 018/242] net: mdio: ipq8064: add regmap config to disable REGCACHE
 Date:   Thu, 15 Jul 2021 20:36:20 +0200
-Message-Id: <20210715182600.033803020@linuxfoundation.org>
+Message-Id: <20210715182554.939231878@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ansuel Smith <ansuelsmth@gmail.com>
 
-[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
+[ Upstream commit b097bea10215315e8ee17f88b4c1bbb521b1878c ]
 
-Sparse is not happy about handling of strict types in pch_ptp_match():
+mdio drivers should not use REGCHACHE. Also disable locking since it's
+handled by the mdio users and regmap is always accessed atomically.
 
-  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
-  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
-  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
-  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
-  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
-  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
-  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
-  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
-  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
-
-Fix that by switching to use proper accessors to BE data.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: Ansuel Smith <ansuelsmth@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/net/mdio/mdio-ipq8064.c | 33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 9a0870dc2f03..2942102efd48 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -107,7 +107,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- {
- 	u8 *data = skb->data;
- 	unsigned int offset;
--	u16 *hi, *id;
-+	u16 hi, id;
- 	u32 lo;
+diff --git a/drivers/net/mdio/mdio-ipq8064.c b/drivers/net/mdio/mdio-ipq8064.c
+index 1bd18857e1c5..f0a6bfa61645 100644
+--- a/drivers/net/mdio/mdio-ipq8064.c
++++ b/drivers/net/mdio/mdio-ipq8064.c
+@@ -10,7 +10,7 @@
+ #include <linux/module.h>
+ #include <linux/regmap.h>
+ #include <linux/of_mdio.h>
+-#include <linux/phy.h>
++#include <linux/of_address.h>
+ #include <linux/platform_device.h>
+ #include <linux/mfd/syscon.h>
  
- 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
-@@ -118,14 +118,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
- 		return 0;
- 
--	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
--	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
-+	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
-+	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
-+	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
- 
--	memcpy(&lo, &hi[1], sizeof(lo));
--
--	return (uid_hi == *hi &&
--		uid_lo == lo &&
--		seqid  == *id);
-+	return (uid_hi == hi && uid_lo == lo && seqid == id);
+@@ -96,14 +96,34 @@ ipq8064_mdio_write(struct mii_bus *bus, int phy_addr, int reg_offset, u16 data)
+ 	return ipq8064_mdio_wait_busy(priv);
  }
  
- static void
-@@ -135,7 +132,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	struct pci_dev *pdev;
- 	u64 ns;
- 	u32 hi, lo, val;
--	u16 uid, seq;
++static const struct regmap_config ipq8064_mdio_regmap_config = {
++	.reg_bits = 32,
++	.reg_stride = 4,
++	.val_bits = 32,
++	.can_multi_write = false,
++	/* the mdio lock is used by any user of this mdio driver */
++	.disable_locking = true,
++
++	.cache_type = REGCACHE_NONE,
++};
++
+ static int
+ ipq8064_mdio_probe(struct platform_device *pdev)
+ {
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct ipq8064_mdio *priv;
++	struct resource res;
+ 	struct mii_bus *bus;
++	void __iomem *base;
+ 	int ret;
  
- 	if (!adapter->hwts_rx_en)
- 		return;
-@@ -151,10 +147,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	lo = pch_src_uuid_lo_read(pdev);
- 	hi = pch_src_uuid_hi_read(pdev);
++	if (of_address_to_resource(np, 0, &res))
++		return -ENOMEM;
++
++	base = ioremap(res.start, resource_size(&res));
++	if (!base)
++		return -ENOMEM;
++
+ 	bus = devm_mdiobus_alloc_size(&pdev->dev, sizeof(*priv));
+ 	if (!bus)
+ 		return -ENOMEM;
+@@ -115,15 +135,10 @@ ipq8064_mdio_probe(struct platform_device *pdev)
+ 	bus->parent = &pdev->dev;
  
--	uid = hi & 0xffff;
--	seq = (hi >> 16) & 0xffff;
+ 	priv = bus->priv;
+-	priv->base = device_node_to_regmap(np);
+-	if (IS_ERR(priv->base)) {
+-		if (priv->base == ERR_PTR(-EPROBE_DEFER))
+-			return -EPROBE_DEFER;
 -
--	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
-+	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
- 		goto out;
+-		dev_err(&pdev->dev, "error getting device regmap, error=%pe\n",
+-			priv->base);
++	priv->base = devm_regmap_init_mmio(&pdev->dev, base,
++					   &ipq8064_mdio_regmap_config);
++	if (IS_ERR(priv->base))
+ 		return PTR_ERR(priv->base);
+-	}
  
- 	ns = pch_rx_snap_read(pdev);
+ 	ret = of_mdiobus_register(bus, np);
+ 	if (ret)
 -- 
 2.30.2
 
