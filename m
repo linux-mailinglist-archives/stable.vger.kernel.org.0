@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3583CA70C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 363BF3CA87C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231407AbhGOSwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54446 "EHLO mail.kernel.org"
+        id S240667AbhGOTBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231933AbhGOSvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7482613DF;
-        Thu, 15 Jul 2021 18:48:20 +0000 (UTC)
+        id S242459AbhGOS7m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 534F1613C4;
+        Thu, 15 Jul 2021 18:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374901;
-        bh=+EjrSCLm7Socqe+OOWOjIGaOHL39kZtz9vJx6xZ1JIc=;
+        s=korg; t=1626375407;
+        bh=/yC14/bLIYawGdWQBX+LwAKQx0fPeLZdc8PO3V4x3SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqgwTljVbQjAGk/yl/1FFzEoISz6jK9adjNOBOI7dmy5iIQ1b5Pv+tLhaQBuSZ5CK
-         8suO0b0zmIievY2ZOxj26F6GDMjVX8XlvWlSURJapifxbx69ywTlNImtMSgq0milDH
-         N8vz/wYJjDMyNZ44OGw4GjmRyL4Fz40yUkfo59Rg=
+        b=cE9RIfR2ko9AlQYhdoBFRAIEmam3ZrfVCOayeeYmpHTuS/zN0xTgMww0OAg4KfFVB
+         D+jvMLCLmTxuNtZUYtHGk6jpevBCx93Nlh48KoALd+DwF8t4zo/0rQmR47BvUWtu8X
+         2asrF9w5BR/9cs1eJ8v7AaMi+vqbw+oUIGfVuDR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/215] ice: fix clang warning regarding deadcode.DeadStores
+Subject: [PATCH 5.12 067/242] net: mvpp2: check return value after calling platform_get_resource()
 Date:   Thu, 15 Jul 2021 20:37:09 +0200
-Message-Id: <20210715182609.520475877@linuxfoundation.org>
+Message-Id: <20210715182604.353415174@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 7e94090ae13e1ae5fe8bd3a9cd08136260bb7039 ]
+[ Upstream commit 0bb51a3a385790a4be20085494cf78f70dadf646 ]
 
-clang generates deadcode.DeadStores warnings when a variable
-is used to read a value, but then that value isn't used later
-in the code. Fix this warning.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index a7975afecf70..14eba9bc174d 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -3492,13 +3492,9 @@ static int
- ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
- 		    struct ice_ring_container *rc)
- {
--	struct ice_pf *pf;
--
- 	if (!rc->ring)
- 		return -EINVAL;
- 
--	pf = rc->ring->vsi->back;
--
- 	switch (c_type) {
- 	case ICE_RX_CONTAINER:
- 		ec->use_adaptive_rx_coalesce = ITR_IS_DYNAMIC(rc->itr_setting);
-@@ -3510,7 +3506,7 @@ ice_get_rc_coalesce(struct ethtool_coalesce *ec, enum ice_container_type c_type,
- 		ec->tx_coalesce_usecs = rc->itr_setting & ~ICE_ITR_DYNAMIC;
- 		break;
- 	default:
--		dev_dbg(ice_pf_to_dev(pf), "Invalid c_type %d\n", c_type);
-+		dev_dbg(ice_pf_to_dev(rc->ring->vsi->back), "Invalid c_type %d\n", c_type);
- 		return -EINVAL;
- 	}
- 
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index bf06f2d785db..fbee581d02b4 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -7388,6 +7388,10 @@ static int mvpp2_probe(struct platform_device *pdev)
+ 			return PTR_ERR(priv->lms_base);
+ 	} else {
+ 		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
++		if (!res) {
++			dev_err(&pdev->dev, "Invalid resource\n");
++			return -EINVAL;
++		}
+ 		if (has_acpi_companion(&pdev->dev)) {
+ 			/* In case the MDIO memory region is declared in
+ 			 * the ACPI, it can already appear as 'in-use'
 -- 
 2.30.2
 
