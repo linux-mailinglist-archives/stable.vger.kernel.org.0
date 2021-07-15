@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49B643CA94C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDD33CAAE7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241464AbhGOTGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38430 "EHLO mail.kernel.org"
+        id S242532AbhGOTP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242628AbhGOTFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB1656141F;
-        Thu, 15 Jul 2021 19:01:19 +0000 (UTC)
+        id S244666AbhGOTPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DAB561417;
+        Thu, 15 Jul 2021 19:11:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375680;
-        bh=VaSw8eXxJwYqDAsNRRTpRkjq+fkc9jcRrS0A8LIPC8g=;
+        s=korg; t=1626376264;
+        bh=bt7xYdT3o41wmLlK6OKXwu3KBxgrFKysomVDbmPufA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0sewmnYiH3qIu6GaTb5DBDURekAxubQZO+4nPPuqECCUksxqhAeXwmX40eVCVSTp
-         ClmYqUZrJqgASYGcdcK96+qLqbBozJ2pxlnemQgBEFVfWDYvmGdlP7V9x7SHSnSXZA
-         /xnHONGZS4IfL6Oy2Qy9OFrQ5wAChUIvadmvTvds=
+        b=NzqBTKyQbfo4wkIlbSo5sTeV1VcFX5ughhzDkeYRGp1PSSKpeSXSUCpLYiOg5JFIr
+         O3SGaYSMr9v8Y5/ZLQTMJNTfOsqSH/QMR2ZDCnF1BUewhUMYAXMMQ4LXwlv4+2Newy
+         KxO20grin6yVOReK9AZqkleztoKL4JCiyw5lG7K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        ZhuRui <zhurui3@huawei.com>, Zhenyu Ye <yezhenyu2@huawei.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.12 189/242] arm64: tlb: fix the TTL value of tlb_get_level
+        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.13 196/266] drm/rockchip: dsi: remove extra component_del() call
 Date:   Thu, 15 Jul 2021 20:39:11 +0200
-Message-Id: <20210715182626.512411535@linuxfoundation.org>
+Message-Id: <20210715182645.189552399@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenyu Ye <yezhenyu2@huawei.com>
+From: Thomas Hebb <tommyhebb@gmail.com>
 
-commit 52218fcd61cb42bde0d301db4acb3ffdf3463cc7 upstream.
+commit b354498bbe65c917d521b3b56317ddc9ab217425 upstream.
 
-The TTL field indicates the level of page table walk holding the *leaf*
-entry for the address being invalidated. But currently, the TTL field
-may be set to an incorrent value in the following stack:
+commit cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support") added
+this devcnt field and call to component_del(). However, these both
+appear to be erroneous changes left over from an earlier version of the
+patch. In the version merged, nothing ever modifies devcnt, meaning
+component_del() runs unconditionally and in addition to the
+component_del() calls in dw_mipi_dsi_rockchip_host_detach(). The second
+call fails to delete anything and produces a warning in dmesg.
 
-pte_free_tlb
-    __pte_free_tlb
-        tlb_remove_table
-            tlb_table_invalidate
-                tlb_flush_mmu_tlbonly
-                    tlb_flush
+If we look at the previous version of the patch[1], however, we see that
+it had logic to calculate devcnt and call component_add() in certain
+situations. This was removed in v6, and the fact that the deletion code
+was not appears to have been an oversight.
 
-In this case, we just want to flush a PTE page, but the tlb->cleared_pmds
-is set and we get tlb_level = 2 in the tlb_get_level() function. This may
-cause some unexpected problems.
+[1] https://patchwork.kernel.org/project/dri-devel/patch/20180821140515.22246-8-heiko@sntech.de/
 
-This patch set the TTL field to 0 if tlb->freed_tables is set. The
-tlb->freed_tables indicates page table pages are freed, not the leaf
-entry.
-
-Cc: <stable@vger.kernel.org> # 5.9.x
-Fixes: c4ab2cbc1d87 ("arm64: tlb: Set the TTL field in flush_tlb_range")
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Reported-by: ZhuRui <zhurui3@huawei.com>
-Signed-off-by: Zhenyu Ye <yezhenyu2@huawei.com>
-Link: https://lore.kernel.org/r/b80ead47-1f88-3a00-18e1-cacc22f54cc4@huawei.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/201385acb0eeb5dfb037afdc6a94bfbcdab97f99.1618797778.git.tommyhebb@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/tlb.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/arch/arm64/include/asm/tlb.h
-+++ b/arch/arm64/include/asm/tlb.h
-@@ -28,6 +28,10 @@ static void tlb_flush(struct mmu_gather
-  */
- static inline int tlb_get_level(struct mmu_gather *tlb)
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -243,7 +243,6 @@ struct dw_mipi_dsi_rockchip {
+ 	struct dw_mipi_dsi *dmd;
+ 	const struct rockchip_dw_dsi_chip_data *cdata;
+ 	struct dw_mipi_dsi_plat_data pdata;
+-	int devcnt;
+ };
+ 
+ struct dphy_pll_parameter_map {
+@@ -1141,9 +1140,6 @@ static int dw_mipi_dsi_rockchip_remove(s
  {
-+	/* The TTL field is only valid for the leaf entry. */
-+	if (tlb->freed_tables)
-+		return 0;
-+
- 	if (tlb->cleared_ptes && !(tlb->cleared_pmds ||
- 				   tlb->cleared_puds ||
- 				   tlb->cleared_p4ds))
+ 	struct dw_mipi_dsi_rockchip *dsi = platform_get_drvdata(pdev);
+ 
+-	if (dsi->devcnt == 0)
+-		component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
+-
+ 	dw_mipi_dsi_remove(dsi->dmd);
+ 
+ 	return 0;
 
 
