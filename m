@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625DE3CA99F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 372E03CAB33
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242321AbhGOTHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:07:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
+        id S244661AbhGOTSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242261AbhGOTGx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:06:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF806140F;
-        Thu, 15 Jul 2021 19:02:53 +0000 (UTC)
+        id S244646AbhGOTQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:16:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62244613DF;
+        Thu, 15 Jul 2021 19:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375773;
-        bh=36uWLMfmCtfxLVMGxi41DWgaM+LISYVe+Ya879sk9tY=;
+        s=korg; t=1626376362;
+        bh=X4unYPdD9aUiCg4rzQrQVd7fpH13JNuuUM4b9Qpnxyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wsSta3MEprn3ABad0faG9QZdEQwHhgw01hSWszgkGmu2ijahwA/qwOc+JGEiuB8F2
-         7MaCOax3+Xpq9nJKfmWGCCkeS7sXLWqoT5mzFhwRoxJSm9D9dIOV7gn8ZDosquA7Wy
-         qO4ZX7RmVuVqX3mATCTFahwIO197HSo0nQNhuIRo=
+        b=lTDZnnSW9JJ4f/jf9HJfjdy7wQTXWCmvQ6b02NWXRZmPXue7G5Reyn+QbXooD2bvS
+         Y7h4xp1CIPwPWxsolokirfxQBsuX4uNf25nXyESCAEyOan7DHqZvIo+b0SD38EVydq
+         dwwLrC53/Gi8PUjyMtLtstwjK8xtQVGKFycGNHFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>
-Subject: [PATCH 5.12 230/242] s390/vdso: always enable vdso
-Date:   Thu, 15 Jul 2021 20:39:52 +0200
-Message-Id: <20210715182633.356307910@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.13 238/266] coresight: tmc-etf: Fix global-out-of-bounds in tmc_update_etf_buffer()
+Date:   Thu, 15 Jul 2021 20:39:53 +0200
+Message-Id: <20210715182650.807768183@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,92 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
 
-commit d57778feb9878aa6b79c615fd029c2112d40a747 upstream.
+commit 5fae8a946ac2df879caf3f79a193d4766d00239b upstream.
 
-With the upcoming move of the svc sigreturn instruction from
-the signal frame to vdso we need to have vdso always enabled.
+commit 6f755e85c332 ("coresight: Add helper for inserting synchronization
+packets") removed trailing '\0' from barrier_pkt array and updated the
+call sites like etb_update_buffer() to have proper checks for barrier_pkt
+size before read but missed updating tmc_update_etf_buffer() which still
+reads barrier_pkt past the array size resulting in KASAN out-of-bounds
+bug. Fix this by adding a check for barrier_pkt size before accessing
+like it is done in etb_update_buffer().
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+ BUG: KASAN: global-out-of-bounds in tmc_update_etf_buffer+0x4b8/0x698
+ Read of size 4 at addr ffffffd05b7d1030 by task perf/2629
+
+ Call trace:
+  dump_backtrace+0x0/0x27c
+  show_stack+0x20/0x2c
+  dump_stack+0x11c/0x188
+  print_address_description+0x3c/0x4a4
+  __kasan_report+0x140/0x164
+  kasan_report+0x10/0x18
+  __asan_report_load4_noabort+0x1c/0x24
+  tmc_update_etf_buffer+0x4b8/0x698
+  etm_event_stop+0x248/0x2d8
+  etm_event_del+0x20/0x2c
+  event_sched_out+0x214/0x6f0
+  group_sched_out+0xd0/0x270
+  ctx_sched_out+0x2ec/0x518
+  __perf_event_task_sched_out+0x4fc/0xe6c
+  __schedule+0x1094/0x16a0
+  preempt_schedule_irq+0x88/0x170
+  arm64_preempt_schedule_irq+0xf0/0x18c
+  el1_irq+0xe8/0x180
+  perf_event_exec+0x4d8/0x56c
+  setup_new_exec+0x204/0x400
+  load_elf_binary+0x72c/0x18c0
+  search_binary_handler+0x13c/0x420
+  load_script+0x500/0x6c4
+  search_binary_handler+0x13c/0x420
+  exec_binprm+0x118/0x654
+  __do_execve_file+0x77c/0xba4
+  __arm64_compat_sys_execve+0x98/0xac
+  el0_svc_common+0x1f8/0x5e0
+  el0_svc_compat_handler+0x84/0xb0
+  el0_svc_compat+0x10/0x50
+
+ The buggy address belongs to the variable:
+  barrier_pkt+0x10/0x40
+
+ Memory state around the buggy address:
+  ffffffd05b7d0f00: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 00 00
+  ffffffd05b7d0f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ >ffffffd05b7d1000: 00 00 00 00 00 00 fa fa fa fa fa fa 00 00 00 03
+                                      ^
+  ffffffd05b7d1080: fa fa fa fa 00 02 fa fa fa fa fa fa 03 fa fa fa
+  ffffffd05b7d1100: fa fa fa fa 00 00 00 00 05 fa fa fa fa fa fa fa
+ ==================================================================
+
+Link: https://lore.kernel.org/r/20210505093430.18445-1-saiprakash.ranjan@codeaurora.org
+Fixes: 0c3fc4d5fa26 ("coresight: Add barrier packet for synchronisation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20210614175901.532683-6-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/include/asm/elf.h |   11 ++++-------
- arch/s390/kernel/vdso.c     |   21 ++++-----------------
- 2 files changed, 8 insertions(+), 24 deletions(-)
+ drivers/hwtracing/coresight/coresight-tmc-etf.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/include/asm/elf.h
-+++ b/arch/s390/include/asm/elf.h
-@@ -146,8 +146,6 @@ typedef s390_compat_regs compat_elf_greg
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -530,7 +530,7 @@ static unsigned long tmc_update_etf_buff
+ 		buf_ptr = buf->data_pages[cur] + offset;
+ 		*buf_ptr = readl_relaxed(drvdata->base + TMC_RRD);
  
- #include <asm/vdso.h>
- 
--extern unsigned int vdso_enabled;
--
- /*
-  * This is used to ensure we don't load something for the wrong architecture.
-  */
-@@ -268,11 +266,10 @@ do {								\
- #define STACK_RND_MASK	MMAP_RND_MASK
- 
- /* update AT_VECTOR_SIZE_ARCH if the number of NEW_AUX_ENT entries changes */
--#define ARCH_DLINFO							    \
--do {									    \
--	if (vdso_enabled)						    \
--		NEW_AUX_ENT(AT_SYSINFO_EHDR,				    \
--			    (unsigned long)current->mm->context.vdso_base); \
-+#define ARCH_DLINFO							\
-+do {									\
-+	NEW_AUX_ENT(AT_SYSINFO_EHDR,					\
-+		    (unsigned long)current->mm->context.vdso_base);	\
- } while (0)
- 
- struct linux_binprm;
---- a/arch/s390/kernel/vdso.c
-+++ b/arch/s390/kernel/vdso.c
-@@ -37,18 +37,6 @@ enum vvar_pages {
- 	VVAR_NR_PAGES,
- };
- 
--unsigned int __read_mostly vdso_enabled = 1;
--
--static int __init vdso_setup(char *str)
--{
--	bool enabled;
--
--	if (!kstrtobool(str, &enabled))
--		vdso_enabled = enabled;
--	return 1;
--}
--__setup("vdso=", vdso_setup);
--
- #ifdef CONFIG_TIME_NS
- struct vdso_data *arch_get_vdso_data(void *vvar_page)
- {
-@@ -176,7 +164,7 @@ int arch_setup_additional_pages(struct l
- 	int rc;
- 
- 	BUILD_BUG_ON(VVAR_NR_PAGES != __VVAR_PAGES);
--	if (!vdso_enabled || is_compat_task())
-+	if (is_compat_task())
- 		return 0;
- 	if (mmap_write_lock_killable(mm))
- 		return -EINTR;
-@@ -218,10 +206,9 @@ static int __init vdso_init(void)
- 
- 	vdso_pages = (vdso64_end - vdso64_start) >> PAGE_SHIFT;
- 	pages = kcalloc(vdso_pages + 1, sizeof(struct page *), GFP_KERNEL);
--	if (!pages) {
--		vdso_enabled = 0;
--		return -ENOMEM;
--	}
-+	if (!pages)
-+		panic("failed to allocate VDSO pages");
-+
- 	for (i = 0; i < vdso_pages; i++)
- 		pages[i] = virt_to_page(vdso64_start + i * PAGE_SIZE);
- 	pages[vdso_pages] = NULL;
+-		if (lost && *barrier) {
++		if (lost && i < CORESIGHT_BARRIER_PKT_SIZE) {
+ 			*buf_ptr = *barrier;
+ 			barrier++;
+ 		}
 
 
