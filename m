@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A88A53CA755
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4BFE3CA5E1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240587AbhGOSxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:53:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52350 "EHLO mail.kernel.org"
+        id S235472AbhGOSpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240088AbhGOSwq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:52:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3CBF613D8;
-        Thu, 15 Jul 2021 18:49:51 +0000 (UTC)
+        id S236538AbhGOSpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44CEA61396;
+        Thu, 15 Jul 2021 18:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374992;
-        bh=dkS18s5cDxGv15dyZ3WKlW9c2mmTEejltcA51Aq8ebw=;
+        s=korg; t=1626374532;
+        bh=2i22KCHVi/5HW7v/5PYOSKt8E72zDw5l4Ce16zyEpSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mb4Cd53F7My1YCinweDpswF8ovhkcbNReAK7khbklVCw9BW4QzGFsgtQ/en3dgOxc
-         k4Jhi9UpMnu2kWTD3IZrAylBcb5P9jBrLL9KK1bNbfwlqqrLZJl5Et18HN9HIJ/x5o
-         PEKvqdJlg6OT/zyKZ0pfr6xeGd3b4zGvjssKRKGs=
+        b=IR6Ejp+fkWOgBg+AHnTdWK12LgRwHZDiLL+ABAzo+ZMI4hW6gwJmo7wGO0jpEJfkR
+         EPBiL5aIaTVc/GgolYyHnxRHcCvmplcGBzulKxCcxoKjnY88hMQAneI6W6QLZXhLNE
+         oyHvERlikiaPYUbKtwo8DYZE34MSccXjTpD5czz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Jones <dsj@fb.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 114/215] net: ip: avoid OOM kills with large UDP sends over loopback
-Date:   Thu, 15 Jul 2021 20:38:06 +0200
-Message-Id: <20210715182619.702719256@linuxfoundation.org>
+Subject: [PATCH 5.4 040/122] xfrm: Fix error reporting in xfrm_state_construct.
+Date:   Thu, 15 Jul 2021 20:38:07 +0200
+Message-Id: <20210715182459.106158485@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,184 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 6d123b81ac615072a8525c13c6c41b695270a15d ]
+[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
 
-Dave observed number of machines hitting OOM on the UDP send
-path. The workload seems to be sending large UDP packets over
-loopback. Since loopback has MTU of 64k kernel will try to
-allocate an skb with up to 64k of head space. This has a good
-chance of failing under memory pressure. What's worse if
-the message length is <32k the allocation may trigger an
-OOM killer.
+When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
+the error will not be reported because the -ENOMEM assignment
+to the err variable is overwritten before. Fix this by moving
+these two in front of the function so that memory allocation
+failures will be reported.
 
-This is entirely avoidable, we can use an skb with page frags.
-
-af_unix solves a similar problem by limiting the head
-length to SKB_MAX_ALLOC. This seems like a good and simple
-approach. It means that UDP messages > 16kB will now
-use fragments if underlying device supports SG, if extra
-allocator pressure causes regressions in real workloads
-we can switch to trying the large allocation first and
-falling back.
-
-v4: pre-calculate all the additions to alloclen so
-    we can be sure it won't go over order-2
-
-Reported-by: Dave Jones <dsj@fb.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Tobias Brunner <tobias@strongswan.org>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_output.c  | 32 ++++++++++++++++++--------------
- net/ipv6/ip6_output.c | 32 +++++++++++++++++---------------
- 2 files changed, 35 insertions(+), 29 deletions(-)
+ net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/net/ipv4/ip_output.c b/net/ipv4/ip_output.c
-index 97975bed491a..560d5dc43562 100644
---- a/net/ipv4/ip_output.c
-+++ b/net/ipv4/ip_output.c
-@@ -1053,7 +1053,7 @@ static int __ip_append_data(struct sock *sk,
- 			unsigned int datalen;
- 			unsigned int fraglen;
- 			unsigned int fraggap;
--			unsigned int alloclen;
-+			unsigned int alloclen, alloc_extra;
- 			unsigned int pagedlen;
- 			struct sk_buff *skb_prev;
- alloc_new_skb:
-@@ -1073,35 +1073,39 @@ alloc_new_skb:
- 			fraglen = datalen + fragheaderlen;
- 			pagedlen = 0;
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index fbb7d9d06478..0cee2d3c6e45 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -580,6 +580,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
  
-+			alloc_extra = hh_len + 15;
-+			alloc_extra += exthdrlen;
-+
-+			/* The last fragment gets additional space at tail.
-+			 * Note, with MSG_MORE we overallocate on fragments,
-+			 * because we have no idea what fragment will be
-+			 * the last.
-+			 */
-+			if (datalen == length + fraggap)
-+				alloc_extra += rt->dst.trailer_len;
-+
- 			if ((flags & MSG_MORE) &&
- 			    !(rt->dst.dev->features&NETIF_F_SG))
- 				alloclen = mtu;
--			else if (!paged)
-+			else if (!paged &&
-+				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
-+				  !(rt->dst.dev->features & NETIF_F_SG)))
- 				alloclen = fraglen;
- 			else {
- 				alloclen = min_t(int, fraglen, MAX_HEADER);
- 				pagedlen = fraglen - alloclen;
- 			}
+ 	copy_from_user_state(x, p);
  
--			alloclen += exthdrlen;
++	if (attrs[XFRMA_ENCAP]) {
++		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
++				   sizeof(*x->encap), GFP_KERNEL);
++		if (x->encap == NULL)
++			goto error;
++	}
++
++	if (attrs[XFRMA_COADDR]) {
++		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
++				    sizeof(*x->coaddr), GFP_KERNEL);
++		if (x->coaddr == NULL)
++			goto error;
++	}
++
+ 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
+ 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
+ 
+@@ -600,23 +614,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+ 				   attrs[XFRMA_ALG_COMP])))
+ 		goto error;
+ 
+-	if (attrs[XFRMA_ENCAP]) {
+-		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
+-				   sizeof(*x->encap), GFP_KERNEL);
+-		if (x->encap == NULL)
+-			goto error;
+-	}
 -
--			/* The last fragment gets additional space at tail.
--			 * Note, with MSG_MORE we overallocate on fragments,
--			 * because we have no idea what fragment will be
--			 * the last.
--			 */
--			if (datalen == length + fraggap)
--				alloclen += rt->dst.trailer_len;
-+			alloclen += alloc_extra;
+ 	if (attrs[XFRMA_TFCPAD])
+ 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
  
- 			if (transhdrlen) {
--				skb = sock_alloc_send_skb(sk,
--						alloclen + hh_len + 15,
-+				skb = sock_alloc_send_skb(sk, alloclen,
- 						(flags & MSG_DONTWAIT), &err);
- 			} else {
- 				skb = NULL;
- 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
- 				    2 * sk->sk_sndbuf)
--					skb = alloc_skb(alloclen + hh_len + 15,
-+					skb = alloc_skb(alloclen,
- 							sk->sk_allocation);
- 				if (unlikely(!skb))
- 					err = -ENOBUFS;
-diff --git a/net/ipv6/ip6_output.c b/net/ipv6/ip6_output.c
-index 077d43af8226..e889655ca0e2 100644
---- a/net/ipv6/ip6_output.c
-+++ b/net/ipv6/ip6_output.c
-@@ -1554,7 +1554,7 @@ emsgsize:
- 			unsigned int datalen;
- 			unsigned int fraglen;
- 			unsigned int fraggap;
--			unsigned int alloclen;
-+			unsigned int alloclen, alloc_extra;
- 			unsigned int pagedlen;
- alloc_new_skb:
- 			/* There's no room in the current skb */
-@@ -1581,17 +1581,28 @@ alloc_new_skb:
- 			fraglen = datalen + fragheaderlen;
- 			pagedlen = 0;
- 
-+			alloc_extra = hh_len;
-+			alloc_extra += dst_exthdrlen;
-+			alloc_extra += rt->dst.trailer_len;
-+
-+			/* We just reserve space for fragment header.
-+			 * Note: this may be overallocation if the message
-+			 * (without MSG_MORE) fits into the MTU.
-+			 */
-+			alloc_extra += sizeof(struct frag_hdr);
-+
- 			if ((flags & MSG_MORE) &&
- 			    !(rt->dst.dev->features&NETIF_F_SG))
- 				alloclen = mtu;
--			else if (!paged)
-+			else if (!paged &&
-+				 (fraglen + alloc_extra < SKB_MAX_ALLOC ||
-+				  !(rt->dst.dev->features & NETIF_F_SG)))
- 				alloclen = fraglen;
- 			else {
- 				alloclen = min_t(int, fraglen, MAX_HEADER);
- 				pagedlen = fraglen - alloclen;
- 			}
+-	if (attrs[XFRMA_COADDR]) {
+-		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
+-				    sizeof(*x->coaddr), GFP_KERNEL);
+-		if (x->coaddr == NULL)
+-			goto error;
+-	}
 -
--			alloclen += dst_exthdrlen;
-+			alloclen += alloc_extra;
+ 	xfrm_mark_get(attrs, &x->mark);
  
- 			if (datalen != length + fraggap) {
- 				/*
-@@ -1601,30 +1612,21 @@ alloc_new_skb:
- 				datalen += rt->dst.trailer_len;
- 			}
- 
--			alloclen += rt->dst.trailer_len;
- 			fraglen = datalen + fragheaderlen;
- 
--			/*
--			 * We just reserve space for fragment header.
--			 * Note: this may be overallocation if the message
--			 * (without MSG_MORE) fits into the MTU.
--			 */
--			alloclen += sizeof(struct frag_hdr);
--
- 			copy = datalen - transhdrlen - fraggap - pagedlen;
- 			if (copy < 0) {
- 				err = -EINVAL;
- 				goto error;
- 			}
- 			if (transhdrlen) {
--				skb = sock_alloc_send_skb(sk,
--						alloclen + hh_len,
-+				skb = sock_alloc_send_skb(sk, alloclen,
- 						(flags & MSG_DONTWAIT), &err);
- 			} else {
- 				skb = NULL;
- 				if (refcount_read(&sk->sk_wmem_alloc) + wmem_alloc_delta <=
- 				    2 * sk->sk_sndbuf)
--					skb = alloc_skb(alloclen + hh_len,
-+					skb = alloc_skb(alloclen,
- 							sk->sk_allocation);
- 				if (unlikely(!skb))
- 					err = -ENOBUFS;
+ 	xfrm_smark_init(attrs, &x->props.smark);
 -- 
 2.30.2
 
