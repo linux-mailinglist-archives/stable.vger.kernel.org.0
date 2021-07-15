@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3F03CAA04
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEB003CAA05
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243589AbhGOTLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239252AbhGOTLn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 15 Jul 2021 15:11:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46434 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242841AbhGOTJS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:09:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC738613E5;
-        Thu, 15 Jul 2021 19:04:47 +0000 (UTC)
+        id S242874AbhGOTJU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:09:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03504613F7;
+        Thu, 15 Jul 2021 19:04:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375888;
-        bh=XrNhZrT/so2mBc0pNO1Elrniy1r5sRuyCJAA5Pv1jJ4=;
+        s=korg; t=1626375890;
+        bh=MbgXbctIS4MN5Fco/wMzsI2RvzamO0gMcpHWVPZjc5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CtpFSyVZSY5qr22nSgjlxHWEHjOX4nAGg5i34z9Ha8t2Tb6uSBQwpH64CVPTR6Qk2
-         t1P6TXErSOGlLosJ4W7/wOqfk9NyezPbRg55D1RMc1OR37CbdViKkuZ1LQSguo6VTc
-         bDap1a2g04CclqaK1zy0CJub0LPBdU61Hweo4cRY=
+        b=mdMhFRItCuDJ2GywIWf/hUphGMBQ8ZCZQKtJzDIyaAyhLSmB6FDM32CBS7/weyv5G
+         TpcisCukmFhO4PKoyf3KLarrZ6x4MfkAXOJrTv4xum05P/SmCKeMAkqC1TWgIOgG3p
+         GefNmOr74CgMvJa3xPdqPQFsNcKg7d9cGmnJl5sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
         Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 037/266] drm/vc4: Fix clock source for VEC PixelValve on BCM2711
-Date:   Thu, 15 Jul 2021 20:36:32 +0200
-Message-Id: <20210715182620.848875607@linuxfoundation.org>
+Subject: [PATCH 5.13 038/266] drm/vc4: hdmi: Fix PM reference leak in vc4_hdmi_encoder_pre_crtc_co()
+Date:   Thu, 15 Jul 2021 20:36:33 +0200
+Message-Id: <20210715182621.019296620@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,38 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit fc7a8abcee2225d6279ff785d33e24d70c738c6e ]
+[ Upstream commit 5e4322a8b266bc9f5ee7ea4895f661c01dbd7cb3 ]
 
-On the BCM2711 (Raspberry Pi 4), the VEC is actually connected to
-output 2 of pixelvalve3.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-NOTE: This contradicts the Broadcom docs, but has been empirically
-tested and confirmed by Raspberry Pi firmware devs.
-
-Signed-off-by: Mateusz Kwiatkowski <kfyatek+publicgit@gmail.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210520150344.273900-2-maxime@cerno.tech
+Link: https://patchwork.freedesktop.org/patch/msgid/1621840854-105978-1-git-send-email-zou_wei@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c | 2 +-
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_crtc.c b/drivers/gpu/drm/vc4/vc4_crtc.c
-index 1f36b67cd6ce..e0fd9b74baae 100644
---- a/drivers/gpu/drm/vc4/vc4_crtc.c
-+++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -1035,7 +1035,7 @@ static const struct vc4_pv_data bcm2711_pv3_data = {
- 	.fifo_depth = 64,
- 	.pixels_per_clock = 1,
- 	.encoder_types = {
--		[0] = VC4_ENCODER_TYPE_VEC,
-+		[PV_CONTROL_CLK_SELECT_VEC] = VC4_ENCODER_TYPE_VEC,
- 	},
- };
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index e94730beb15b..23e7cfd987bb 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -745,7 +745,7 @@ static void vc4_hdmi_encoder_pre_crtc_configure(struct drm_encoder *encoder,
+ 	unsigned long pixel_rate, hsm_rate;
+ 	int ret;
  
+-	ret = pm_runtime_get_sync(&vc4_hdmi->pdev->dev);
++	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
+ 	if (ret < 0) {
+ 		DRM_ERROR("Failed to retain power domain: %d\n", ret);
+ 		return;
 -- 
 2.30.2
 
