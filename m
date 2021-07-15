@@ -2,166 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C03C3CAB84
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3BA3CABFD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:34:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244938AbhGOTUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
+        id S242674AbhGOT1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:27:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244994AbhGOTTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:19:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 841DA6127C;
-        Thu, 15 Jul 2021 19:13:43 +0000 (UTC)
+        id S244203AbhGOTXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:23:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2C3D613DC;
+        Thu, 15 Jul 2021 19:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376424;
-        bh=FpFr9ycDBi/6VKXtoDCgB/CgKfcVxQkrwcZ8TP1CwTQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V4FzL2QPO/ZYNZlwoY/WLL/DSycatlEUDExrEjooN8p0M6M2V1EchZ4jzWP8LtyKz
-         9iij65tIev4F7sMTITS929y5Fcj6f5//myFLVyzUQgQtYVEOA7NZBPR3cZEhbsc5mn
-         2FDkS8sWuaAGeQabCGctUXcfOjYq382RyVs1Hh0s=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.13 266/266] f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
-Date:   Thu, 15 Jul 2021 20:40:21 +0200
-Message-Id: <20210715182653.678075001@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
-User-Agent: quilt/0.66
+        s=korg; t=1626376860;
+        bh=uJGxSGR+v8g9jHlGE9PXxCJ9FMZvJnkOaWKAGpa/1jk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=lKFcUKp0wEzKKqEA+bjtVhCdyiOdD/BJtfjW1QgTPWSOaNlHezncq4POFoxTydD04
+         9bDrH4Mb7bxoOZe3ADClS2pfpwdkJmmmmh25+ZYG6DRVoH4UlU6ToRwM55U8Fh+YvS
+         N3K4IubwLv4gZUF22iy97WWYEJaT0PQdMqiHztRQ=
+Subject: FAILED: patch "[PATCH] coresight: tmc-etf: Fix global-out-of-bounds in" failed to apply to 4.14-stable tree
+To:     saiprakash.ranjan@codeaurora.org, gregkh@linuxfoundation.org,
+        mathieu.poirier@linaro.org, suzuki.poulose@arm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 15 Jul 2021 20:54:33 +0200
+Message-ID: <1626375273624@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
 
-commit cad83c968c2ebe97905f900326988ed37146c347 upstream.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-As syzbot reported, there is an use-after-free issue during f2fs recovery:
+thanks,
 
-Use-after-free write at 0xffff88823bc16040 (in kfence-#10):
- kmem_cache_destroy+0x1f/0x120 mm/slab_common.c:486
- f2fs_recover_fsync_data+0x75b0/0x8380 fs/f2fs/recovery.c:869
- f2fs_fill_super+0x9393/0xa420 fs/f2fs/super.c:3945
- mount_bdev+0x26c/0x3a0 fs/super.c:1367
- legacy_get_tree+0xea/0x180 fs/fs_context.c:592
- vfs_get_tree+0x86/0x270 fs/super.c:1497
- do_new_mount fs/namespace.c:2905 [inline]
- path_mount+0x196f/0x2be0 fs/namespace.c:3235
- do_mount fs/namespace.c:3248 [inline]
- __do_sys_mount fs/namespace.c:3456 [inline]
- __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3433
- do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+greg k-h
 
-The root cause is multi f2fs filesystem instances can race on accessing
-global fsync_entry_slab pointer, result in use-after-free issue of slab
-cache, fixes to init/destroy this slab cache only once during module
-init/destroy procedure to avoid this issue.
+------------------ original commit in Linus's tree ------------------
 
-Reported-by: syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+From 5fae8a946ac2df879caf3f79a193d4766d00239b Mon Sep 17 00:00:00 2001
+From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Date: Mon, 14 Jun 2021 11:59:00 -0600
+Subject: [PATCH] coresight: tmc-etf: Fix global-out-of-bounds in
+ tmc_update_etf_buffer()
+
+commit 6f755e85c332 ("coresight: Add helper for inserting synchronization
+packets") removed trailing '\0' from barrier_pkt array and updated the
+call sites like etb_update_buffer() to have proper checks for barrier_pkt
+size before read but missed updating tmc_update_etf_buffer() which still
+reads barrier_pkt past the array size resulting in KASAN out-of-bounds
+bug. Fix this by adding a check for barrier_pkt size before accessing
+like it is done in etb_update_buffer().
+
+ BUG: KASAN: global-out-of-bounds in tmc_update_etf_buffer+0x4b8/0x698
+ Read of size 4 at addr ffffffd05b7d1030 by task perf/2629
+
+ Call trace:
+  dump_backtrace+0x0/0x27c
+  show_stack+0x20/0x2c
+  dump_stack+0x11c/0x188
+  print_address_description+0x3c/0x4a4
+  __kasan_report+0x140/0x164
+  kasan_report+0x10/0x18
+  __asan_report_load4_noabort+0x1c/0x24
+  tmc_update_etf_buffer+0x4b8/0x698
+  etm_event_stop+0x248/0x2d8
+  etm_event_del+0x20/0x2c
+  event_sched_out+0x214/0x6f0
+  group_sched_out+0xd0/0x270
+  ctx_sched_out+0x2ec/0x518
+  __perf_event_task_sched_out+0x4fc/0xe6c
+  __schedule+0x1094/0x16a0
+  preempt_schedule_irq+0x88/0x170
+  arm64_preempt_schedule_irq+0xf0/0x18c
+  el1_irq+0xe8/0x180
+  perf_event_exec+0x4d8/0x56c
+  setup_new_exec+0x204/0x400
+  load_elf_binary+0x72c/0x18c0
+  search_binary_handler+0x13c/0x420
+  load_script+0x500/0x6c4
+  search_binary_handler+0x13c/0x420
+  exec_binprm+0x118/0x654
+  __do_execve_file+0x77c/0xba4
+  __arm64_compat_sys_execve+0x98/0xac
+  el0_svc_common+0x1f8/0x5e0
+  el0_svc_compat_handler+0x84/0xb0
+  el0_svc_compat+0x10/0x50
+
+ The buggy address belongs to the variable:
+  barrier_pkt+0x10/0x40
+
+ Memory state around the buggy address:
+  ffffffd05b7d0f00: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 00 00
+  ffffffd05b7d0f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ >ffffffd05b7d1000: 00 00 00 00 00 00 fa fa fa fa fa fa 00 00 00 03
+                                      ^
+  ffffffd05b7d1080: fa fa fa fa 00 02 fa fa fa fa fa fa 03 fa fa fa
+  ffffffd05b7d1100: fa fa fa fa 00 00 00 00 05 fa fa fa fa fa fa fa
+ ==================================================================
+
+Link: https://lore.kernel.org/r/20210505093430.18445-1-saiprakash.ranjan@codeaurora.org
+Fixes: 0c3fc4d5fa26 ("coresight: Add barrier packet for synchronisation")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20210614175901.532683-6-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/f2fs/f2fs.h     |    2 ++
- fs/f2fs/recovery.c |   23 ++++++++++++++---------
- fs/f2fs/super.c    |    8 +++++++-
- 3 files changed, 23 insertions(+), 10 deletions(-)
 
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -3566,6 +3566,8 @@ void f2fs_destroy_garbage_collection_cac
-  */
- int f2fs_recover_fsync_data(struct f2fs_sb_info *sbi, bool check_only);
- bool f2fs_space_for_roll_forward(struct f2fs_sb_info *sbi);
-+int __init f2fs_create_recovery_cache(void);
-+void f2fs_destroy_recovery_cache(void);
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index 45b85edfc690..cd0fb7bfba68 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -530,7 +530,7 @@ static unsigned long tmc_update_etf_buffer(struct coresight_device *csdev,
+ 		buf_ptr = buf->data_pages[cur] + offset;
+ 		*buf_ptr = readl_relaxed(drvdata->base + TMC_RRD);
  
- /*
-  * debug.c
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -788,13 +788,6 @@ int f2fs_recover_fsync_data(struct f2fs_
- 	quota_enabled = f2fs_enable_quota_files(sbi, s_flags & SB_RDONLY);
- #endif
- 
--	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
--			sizeof(struct fsync_inode_entry));
--	if (!fsync_entry_slab) {
--		err = -ENOMEM;
--		goto out;
--	}
--
- 	INIT_LIST_HEAD(&inode_list);
- 	INIT_LIST_HEAD(&tmp_inode_list);
- 	INIT_LIST_HEAD(&dir_list);
-@@ -867,8 +860,6 @@ skip:
+-		if (lost && *barrier) {
++		if (lost && i < CORESIGHT_BARRIER_PKT_SIZE) {
+ 			*buf_ptr = *barrier;
+ 			barrier++;
  		}
- 	}
- 
--	kmem_cache_destroy(fsync_entry_slab);
--out:
- #ifdef CONFIG_QUOTA
- 	/* Turn quotas off */
- 	if (quota_enabled)
-@@ -878,3 +869,17 @@ out:
- 
- 	return ret ? ret : err;
- }
-+
-+int __init f2fs_create_recovery_cache(void)
-+{
-+	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
-+					sizeof(struct fsync_inode_entry));
-+	if (!fsync_entry_slab)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+void f2fs_destroy_recovery_cache(void)
-+{
-+	kmem_cache_destroy(fsync_entry_slab);
-+}
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -4227,9 +4227,12 @@ static int __init init_f2fs_fs(void)
- 	err = f2fs_create_checkpoint_caches();
- 	if (err)
- 		goto free_segment_manager_caches;
--	err = f2fs_create_extent_cache();
-+	err = f2fs_create_recovery_cache();
- 	if (err)
- 		goto free_checkpoint_caches;
-+	err = f2fs_create_extent_cache();
-+	if (err)
-+		goto free_recovery_cache;
- 	err = f2fs_create_garbage_collection_cache();
- 	if (err)
- 		goto free_extent_cache;
-@@ -4278,6 +4281,8 @@ free_garbage_collection_cache:
- 	f2fs_destroy_garbage_collection_cache();
- free_extent_cache:
- 	f2fs_destroy_extent_cache();
-+free_recovery_cache:
-+	f2fs_destroy_recovery_cache();
- free_checkpoint_caches:
- 	f2fs_destroy_checkpoint_caches();
- free_segment_manager_caches:
-@@ -4303,6 +4308,7 @@ static void __exit exit_f2fs_fs(void)
- 	f2fs_exit_sysfs();
- 	f2fs_destroy_garbage_collection_cache();
- 	f2fs_destroy_extent_cache();
-+	f2fs_destroy_recovery_cache();
- 	f2fs_destroy_checkpoint_caches();
- 	f2fs_destroy_segment_manager_caches();
- 	f2fs_destroy_node_manager_caches();
-
 
