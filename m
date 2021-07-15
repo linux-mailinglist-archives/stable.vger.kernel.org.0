@@ -2,168 +2,391 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165D33CADFD
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 22:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30BD23CADFE
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 22:34:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230515AbhGOUgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 16:36:21 -0400
-Received: from mout02.posteo.de ([185.67.36.66]:49059 "EHLO mout02.posteo.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231285AbhGOUgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 16:36:21 -0400
-Received: from submission (posteo.de [89.146.220.130]) 
-        by mout02.posteo.de (Postfix) with ESMTPS id 1DA9D240104
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 22:33:25 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
-        t=1626381205; bh=L3Mrm0RIbAzYf998TOSRz98G5f6mvYrU79OoWVC2iGU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=blD2AU7Z9MJNBmD5dZgG4JO0cDUvJLW4K+/S6/VKbh87h9JmnxqZbGLFqkLYfyK9i
-         u7vkjN9EWfHEFampLB4xGprNShleCqYts5F6cIMKE5M08FY2/vMo11rLNU8Ku1xVvW
-         nOaacNN7pYO4Pmn2FOrlBuo3nRDc5ZFMGWhvmqWtpFHNhEeXpSX4eb9HZ8x7ckSXgY
-         Eb1wX2yBK4lozPTKtXDlnigwWBvm1aG2qYzqyNkoTfVI1y4/LevshfEsSXtIcRFRKt
-         hwoVxANzo59T3IGFy/9QNvEaL7UNHtIVkvJ46wHUq/v5HIli8NIk4sZfcInGyFQChA
-         rCHqf5DZH0NYQ==
-Received: from customer (localhost [127.0.0.1])
-        by submission (posteo.de) with ESMTPSA id 4GQmKc3g8wz9rxT;
-        Thu, 15 Jul 2021 22:33:24 +0200 (CEST)
-From:   Benjamin Drung <bdrung@posteo.de>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        stable@vger.kernel.org, Benjamin Drung <bdrung@posteo.de>
-Subject: [PATCH] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
-Date:   Thu, 15 Jul 2021 20:32:55 +0000
-Message-Id: <20210715203254.31085-1-bdrung@posteo.de>
-In-Reply-To: <YPB78NYzwIl6ERWs@kroah.com>
-References: <YPB78NYzwIl6ERWs@kroah.com>
+        id S231285AbhGOUhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 16:37:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53880 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231250AbhGOUhI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 16:37:08 -0400
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D22C06175F
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 13:34:14 -0700 (PDT)
+Received: by mail-pg1-x532.google.com with SMTP id o4so3104197pgs.6
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 13:34:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=QKX9Ve6JKXcXqAFHdvPF9OAhGiCZIqHztuYo5P372fA=;
+        b=FwP5Q2uWCEOEc52qET7nsNj4d5mTiBQCUu0Dm5qVKkqlQvLkNZwNxoZpgx9to3F0EI
+         QT1BkVJNXiM7b9ziVdXFdvF7oow2sHFA8LwESfY2JL074OKh1Icn4f9ei51wkI8lZ2y4
+         fZeIwXdQRpy9nKTzN31TRQwWbHSTkljfHApiQgfLZKVkJwytJ+zomzSOViM2LcVInMtB
+         Nmbe5ks2w5cB23ZkbKK52bD0RhRSGCXjJbytbxfQmySJOmoS3NauWsM9N/rvurtnEH6y
+         bDkAfFK+nER0gY49kP0nZ4O2WWuXy4AzDIgmGQRryoDuUtGVFT1YhocCSgT2LLQS5LfH
+         tsuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=QKX9Ve6JKXcXqAFHdvPF9OAhGiCZIqHztuYo5P372fA=;
+        b=l/IpW+EIH8yDTKnKRPVVMlsmiOtux0FYNoHHm6UWdrO9x99uI4C9tWYtkeqVkldiUD
+         yJbv5JP238oKQUilDwu/hjgg95lnnFPErfmvypImOQ5TRAmD/yRBcGeqwZ00LRAVJYAR
+         0CBB26jrD5MwELVZO44uMomZoeE6gJfbmxn3TpUNvGL259ccmkSXHQeTt6+6gya/iiMQ
+         EiHLmxCTPnw7o09kH//jRC0XaVyl6z7ZyQqM8cnZvbVdfeDuazYrJzQpneOzSxhPYd/3
+         +EvW28GYRr+KXh1ZTzytbVpBzgi075AdE79mKen1rWXC1Dz0E3yJD3SkuJK3kNZcNO/n
+         SQGg==
+X-Gm-Message-State: AOAM530MqoWgz0QLOPDUiyiksnJjH7yXtcyu1/nRCjtDw0MDeoiH2tz7
+        EgVsgwoNsapvRH4Pcuz3ceNz+VSS7TMlZOM0
+X-Google-Smtp-Source: ABdhPJxpVosLFn/XOSHtV93j40hjdt0/BXYSBp/3sjIDZ5MieAxa/8NNTHKKVeq7vSnyw5h+BSsMdg==
+X-Received: by 2002:a62:b502:0:b029:2ec:a539:e29b with SMTP id y2-20020a62b5020000b02902eca539e29bmr6584405pfe.37.1626381253210;
+        Thu, 15 Jul 2021 13:34:13 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o134sm7809860pfg.62.2021.07.15.13.34.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 15 Jul 2021 13:34:12 -0700 (PDT)
+Message-ID: <60f09bc4.1c69fb81.fb262.7cb7@mx.google.com>
+Date:   Thu, 15 Jul 2021 13:34:12 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.12
+X-Kernelci-Kernel: v5.12.17-229-g894263ece741
+Subject: stable-rc/queue/5.12 baseline: 199 runs,
+ 10 regressions (v5.12.17-229-g894263ece741)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 4c6e0976295add7f0ed94d276c04a3d6f1ea8f83 upstream.
+stable-rc/queue/5.12 baseline: 199 runs, 10 regressions (v5.12.17-229-g8942=
+63ece741)
 
-The Elgato Cam Link 4K HDMI video capture card reports to support three
-different pixel formats, where the first format depends on the connected
-HDMI device.
+Regressions Summary
+-------------------
 
-```
-$ v4l2-ctl -d /dev/video0 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+bcm2837-rpi-3-b-32 | arm    | lab-baylibre  | gcc-8    | bcm2835_defconfig =
+ | 2          =
 
-	[0]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[1]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[2]: 'YU12' (Planar YUV 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-```
+beagle-xm          | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfig=
+ | 1          =
 
-Changing the pixel format to anything besides the first pixel format
-does not work:
+d2500cc            | x86_64 | lab-clabbe    | gcc-8    | x86_64_defconfig  =
+ | 1          =
 
-```
-$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
-Format Video Capture:
-	Width/Height      : 3840/2160
-	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
-	Field             : None
-	Bytes per Line    : 3840
-	Size Image        : 12441600
-	Colorspace        : sRGB
-	Transfer Function : Rec. 709
-	YCbCr/HSV Encoding: Rec. 709
-	Quantization      : Default (maps to Limited Range)
-	Flags             :
-```
+hip07-d05          | arm64  | lab-collabora | gcc-8    | defconfig         =
+ | 1          =
 
-User space applications like VLC might show an error message on the
-terminal in that case:
+imx8mp-evk         | arm64  | lab-nxp       | gcc-8    | defconfig         =
+ | 1          =
 
-```
-libv4l2: error set_fmt gave us a different result than try_fmt!
-```
+meson-gxm-q200     | arm64  | lab-baylibre  | gcc-8    | defconfig         =
+ | 1          =
 
-Depending on the error handling of the user space applications, they
-might display a distorted video, because they use the wrong pixel format
-for decoding the stream.
+rk3288-veyron-jaq  | arm    | lab-collabora | gcc-8    | multi_v7_defconfig=
+ | 3          =
 
-The Elgato Cam Link 4K responds to the USB video probe
-VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
-second byte contains bFormatIndex (instead of being the second byte of
-bmHint). The first byte is always zero. The third byte is always 1.
 
-The firmware bug was reported to Elgato on 2020-12-01 and it was
-forwarded by the support team to the developers as feature request.
-There is no firmware update available since then. The latest firmware
-for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.17-229-g894263ece741/plan/baseline/
 
-Therefore correct the malformed data structure for this device. The
-change was successfully tested with VLC, OBS, and Chromium using
-different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
-1920x1080), and frame rates (29.970 and 59.940 fps).
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.17-229-g894263ece741
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      894263ece741b09e9c0961f29715e86cbbd17b13 =
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Drung <bdrung@posteo.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-(backported from commit 4c6e0976295add7f0ed94d276c04a3d6f1ea8f83 upstream)
-Signed-off-by: Benjamin Drung <bdrung@posteo.de>
----
- drivers/media/usb/uvc/uvc_video.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
 
-The debug message does't matter much, but I am a perfectionist.
 
-This patch is for kernel <= 5.11.
+Test Regressions
+---------------- =
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index a6a441d92b94..70b0d0f8026b 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -124,10 +124,37 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
- static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
- 	struct uvc_streaming_control *ctrl)
- {
-+	static const struct usb_device_id elgato_cam_link_4k = {
-+		USB_DEVICE(0x0fd9, 0x0066)
-+	};
- 	struct uvc_format *format = NULL;
- 	struct uvc_frame *frame = NULL;
- 	unsigned int i;
- 
-+	/*
-+	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
-+	 * contains bFormatIndex (instead of being the second byte of bmHint).
-+	 * The first byte is always zero. The third byte is always 1.
-+	 *
-+	 * The UVC 1.5 class specification defines the first five bits in the
-+	 * bmHint bitfield. The remaining bits are reserved and should be zero.
-+	 * Therefore a valid bmHint will be less than 32.
-+	 *
-+	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
-+	 * MCU: 20.02.19, FPGA: 67
-+	 */
-+	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) &&
-+	    ctrl->bmHint > 255) {
-+		u8 corrected_format_index = ctrl->bmHint >> 8;
-+
-+		uvc_trace(UVC_TRACE_VIDEO,
-+			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
-+			ctrl->bmHint, ctrl->bFormatIndex,
-+			1, corrected_format_index);
-+		ctrl->bmHint = 1;
-+		ctrl->bFormatIndex = corrected_format_index;
-+	}
-+
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (stream->format[i].index == ctrl->bFormatIndex) {
- 			format = &stream->format[i];
--- 
-2.30.2
 
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+bcm2837-rpi-3-b-32 | arm    | lab-baylibre  | gcc-8    | bcm2835_defconfig =
+ | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f0673090c07f722c8a93b8
+
+  Results:     2 PASS, 2 FAIL, 0 SKIP
+  Full config: bcm2835_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
+-rpi-3-b-32.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837=
+-rpi-3-b-32.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/60f0673190c07f7=
+22c8a93bc
+        new failure (last pass: v5.12.17-153-ga65b3f168efa)
+        4 lines
+
+    2021-07-15T16:49:39.282647  kern  :alert : 8<--- cut here ---
+    2021-07-15T16:49:39.284239  kern  :alert : Unable to handle kernel NULL=
+ pointer dereference at virtual address 00000024
+    2021-07-15T16:49:39.285060  kern  :alert : pgd =3D 6e7d78b9
+    2021-07-15T16:49:39.285802  kern  :alert : [00000024] *pgd=3D04170835, =
+*pte=3D00000000, *ppte=3D00000000
+    2021-07-15T16:49:39.286910  <8>[   43.521943] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60f0673190c07f7=
+22c8a93bd
+        new failure (last pass: v5.12.17-153-ga65b3f168efa)
+        28 lines
+
+    2021-07-15T16:49:39.358168  kern  :emerg : Internal error: Oops: 17 [#1=
+] ARM
+    2021-07-15T16:49:39.359763  kern  :emerg : Process start-stop-daem (pid=
+: 140, stack limit =3D 0x1b7ba70a)
+    2021-07-15T16:49:39.360537  kern  :emerg : Stack: (0xc42add80 to 0xc42a=
+e000)
+    2021-07-15T16:49:39.361304  kern  :emerg : dd80: 00000000 c42ade60 ffff=
+ffff c42add9<8>[   43.595150] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Demerg RE=
+SULT=3Dfail UNITS=3Dlines MEASUREMENT=3D28>   =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+beagle-xm          | arm    | lab-baylibre  | gcc-8    | multi_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f06c288c1ce74ccd8a93ba
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle=
+-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f06c288c1ce74ccd8a9=
+3bb
+        failing since 0 day (last pass: v5.12.16-704-g811a519d7fbbb, first =
+fail: v5.12.16-702-gf996b03ef63d7) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+d2500cc            | x86_64 | lab-clabbe    | gcc-8    | x86_64_defconfig  =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f068323c4ed6f48f8a93a7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f068323c4ed6f48f8a9=
+3a8
+        failing since 3 days (last pass: v5.12.15-11-g1a88438d15d2, first f=
+ail: v5.12.16-682-g36eea3662e2d) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+hip07-d05          | arm64  | lab-collabora | gcc-8    | defconfig         =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f06c1d8c1ce74ccd8a93b4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-collabora/baseline-hip07-d05.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f06c1d8c1ce74ccd8a9=
+3b5
+        failing since 14 days (last pass: v5.12.13-109-g5add6842f3ea, first=
+ fail: v5.12.13-109-g47e1fda87919) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+imx8mp-evk         | arm64  | lab-nxp       | gcc-8    | defconfig         =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f06ad66aaaafdb7b8a93be
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f06ad66aaaafdb7b8a9=
+3bf
+        failing since 0 day (last pass: v5.12.16-702-gf996b03ef63d7, first =
+fail: v5.12.17-153-ga65b3f168efa) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+meson-gxm-q200     | arm64  | lab-baylibre  | gcc-8    | defconfig         =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f0696f0c25856aba8a939d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f0696f0c25856aba8a9=
+39e
+        new failure (last pass: v5.12.17-153-ga65b3f168efa) =
+
+ =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+ | regressions
+-------------------+--------+---------------+----------+-------------------=
+-+------------
+rk3288-veyron-jaq  | arm    | lab-collabora | gcc-8    | multi_v7_defconfig=
+ | 3          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f06b51757cc217a48a93cb
+
+  Results:     67 PASS, 3 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.17-=
+229-g894263ece741/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk328=
+8-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
+/case/id/60f06b52757cc217a48a93e3
+        failing since 30 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-15T17:06:52.039823  /lava-4204601/1/../bin/lava-test-case
+    2021-07-15T17:06:52.056807  <8>[   13.487907] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
+    2021-07-15T17:06:52.057034  /lava-4204601/1/../bin/lava-test-case   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
+case/id/60f06b52757cc217a48a93fb
+        failing since 30 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-15T17:06:50.602126  /lava-4204601/1/../bin/lava-test-case
+    2021-07-15T17:06:50.611641  <8>[   12.058498] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
+
+
+  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
+case/id/60f06b52757cc217a48a93fc
+        failing since 30 days (last pass: v5.12.10-48-g5e97c6651365, first =
+fail: v5.12.10-173-gfd0b35fa0b0c)
+
+    2021-07-15T17:06:49.596138  /lava-4204601/1/../bin/lava-test-case<8>[  =
+ 11.038731] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Ddwmmc_rockchip-sdmmc-probe=
+d RESULT=3Dfail>
+    2021-07-15T17:06:49.596442     =
+
+ =20
