@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 237323CA74F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F033CA5E3
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239338AbhGOSxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:53:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56532 "EHLO mail.kernel.org"
+        id S236388AbhGOSpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239159AbhGOSwn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:52:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 88BA6613D1;
-        Thu, 15 Jul 2021 18:49:49 +0000 (UTC)
+        id S236328AbhGOSpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E869B613CC;
+        Thu, 15 Jul 2021 18:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374990;
-        bh=9oZV2sweLG7QNjxJq5lidgr3AufUJfafWyGDoLTwjao=;
+        s=korg; t=1626374530;
+        bh=ufUr61OH30M4Hxk7SL0COsncKi5k41MsTd6RCQQpcUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKyJ+n19YfzubNDrYBbWsNWRQ7baEAmU8PDAkbLYUJQB94LoZLM7W1eNVQDNY6uhU
-         aZhV7B8FG2J2JzWvtKqI7K8IJJRy/P/LEmDO5W3NmVbjA8Adw7PcuWBQSYXZSjUQ6t
-         kecD00KCwcw54O4K+rVeae8ElVIrVdtYZmNqOGu0=
+        b=kyO3X0AdHRWq++eqQDsJAl8MGVrX1zch0SS09OIR9eceqNfoSJhJ3i8x4VDaQtJ1H
+         D++r4vDkQugtfdlyO3nL3Ju42JmWSz3bzxPDFGcwHPz38vFie5P+EVA/0WadnZHnqy
+         rSlRN1ACb9aZnqR21YAAcPf6sNUy4mViAEN3Q95s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Mark Yacoub <markyacoub@chromium.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 113/215] media, bpf: Do not copy more entries than user space requested
-Date:   Thu, 15 Jul 2021 20:38:05 +0200
-Message-Id: <20210715182619.516039030@linuxfoundation.org>
+Subject: [PATCH 5.4 039/122] drm/amd/display: Verify Gamma & Degamma LUT sizes in amdgpu_dm_atomic_check
+Date:   Thu, 15 Jul 2021 20:38:06 +0200
+Message-Id: <20210715182458.820614428@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Mark Yacoub <markyacoub@chromium.org>
 
-[ Upstream commit 647d446d66e493d23ca1047fa8492b0269674530 ]
+[ Upstream commit 03fc4cf45d30533d54f0f4ebc02aacfa12f52ce2 ]
 
-The syscall bpf(BPF_PROG_QUERY, &attr) should use the prog_cnt field to
-see how many entries user space provided and return ENOSPC if there are
-more programs than that. Before this patch, this is not checked and
-ENOSPC is never returned.
+For each CRTC state, check the size of Gamma and Degamma LUTs  so
+unexpected and larger sizes wouldn't slip through.
 
-Note that one lirc device is limited to 64 bpf programs, and user space
-I'm aware of -- ir-keytable -- always gives enough space for 64 entries
-already. However, we should not copy program ids than are requested.
+TEST: IGT:kms_color::pipe-invalid-gamma-lut-sizes
 
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20210623213754.632-1-sean@mess.org
+v2: fix assignments in if clauses, Mark's email.
+
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Mark Yacoub <markyacoub@chromium.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/bpf-lirc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  4 ++
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |  1 +
+ .../amd/display/amdgpu_dm/amdgpu_dm_color.c   | 41 ++++++++++++++++---
+ 3 files changed, 40 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/rc/bpf-lirc.c b/drivers/media/rc/bpf-lirc.c
-index 3fe3edd80876..afae0afe3f81 100644
---- a/drivers/media/rc/bpf-lirc.c
-+++ b/drivers/media/rc/bpf-lirc.c
-@@ -326,7 +326,8 @@ int lirc_prog_query(const union bpf_attr *attr, union bpf_attr __user *uattr)
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index fca466d4806b..11da904fcb7e 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7407,6 +7407,10 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 		    old_crtc_state->vrr_enabled == new_crtc_state->vrr_enabled)
+ 			continue;
  
- 	if (attr->query.prog_cnt != 0 && prog_ids && cnt)
--		ret = bpf_prog_array_copy_to_user(progs, prog_ids, cnt);
-+		ret = bpf_prog_array_copy_to_user(progs, prog_ids,
-+						  attr->query.prog_cnt);
++		ret = amdgpu_dm_verify_lut_sizes(new_crtc_state);
++		if (ret)
++			goto fail;
++
+ 		if (!new_crtc_state->enable)
+ 			continue;
  
- unlock:
- 	mutex_unlock(&ir_raw_handler_lock);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+index c8c525a2b505..54163c970e7a 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
+@@ -387,6 +387,7 @@ void amdgpu_dm_update_freesync_caps(struct drm_connector *connector,
+ #define MAX_COLOR_LEGACY_LUT_ENTRIES 256
+ 
+ void amdgpu_dm_init_color_mod(void);
++int amdgpu_dm_verify_lut_sizes(const struct drm_crtc_state *crtc_state);
+ int amdgpu_dm_update_crtc_color_mgmt(struct dm_crtc_state *crtc);
+ int amdgpu_dm_update_plane_color_mgmt(struct dm_crtc_state *crtc,
+ 				      struct dc_plane_state *dc_plane_state);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
+index 2233d293a707..6acc460a3e98 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
+@@ -277,6 +277,37 @@ static int __set_input_tf(struct dc_transfer_func *func,
+ 	return res ? 0 : -ENOMEM;
+ }
+ 
++/**
++ * Verifies that the Degamma and Gamma LUTs attached to the |crtc_state| are of
++ * the expected size.
++ * Returns 0 on success.
++ */
++int amdgpu_dm_verify_lut_sizes(const struct drm_crtc_state *crtc_state)
++{
++	const struct drm_color_lut *lut = NULL;
++	uint32_t size = 0;
++
++	lut = __extract_blob_lut(crtc_state->degamma_lut, &size);
++	if (lut && size != MAX_COLOR_LUT_ENTRIES) {
++		DRM_DEBUG_DRIVER(
++			"Invalid Degamma LUT size. Should be %u but got %u.\n",
++			MAX_COLOR_LUT_ENTRIES, size);
++		return -EINVAL;
++	}
++
++	lut = __extract_blob_lut(crtc_state->gamma_lut, &size);
++	if (lut && size != MAX_COLOR_LUT_ENTRIES &&
++	    size != MAX_COLOR_LEGACY_LUT_ENTRIES) {
++		DRM_DEBUG_DRIVER(
++			"Invalid Gamma LUT size. Should be %u (or %u for legacy) but got %u.\n",
++			MAX_COLOR_LUT_ENTRIES, MAX_COLOR_LEGACY_LUT_ENTRIES,
++			size);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ /**
+  * amdgpu_dm_update_crtc_color_mgmt: Maps DRM color management to DC stream.
+  * @crtc: amdgpu_dm crtc state
+@@ -311,14 +342,12 @@ int amdgpu_dm_update_crtc_color_mgmt(struct dm_crtc_state *crtc)
+ 	bool is_legacy;
+ 	int r;
+ 
+-	degamma_lut = __extract_blob_lut(crtc->base.degamma_lut, &degamma_size);
+-	if (degamma_lut && degamma_size != MAX_COLOR_LUT_ENTRIES)
+-		return -EINVAL;
++	r = amdgpu_dm_verify_lut_sizes(&crtc->base);
++	if (r)
++		return r;
+ 
++	degamma_lut = __extract_blob_lut(crtc->base.degamma_lut, &degamma_size);
+ 	regamma_lut = __extract_blob_lut(crtc->base.gamma_lut, &regamma_size);
+-	if (regamma_lut && regamma_size != MAX_COLOR_LUT_ENTRIES &&
+-	    regamma_size != MAX_COLOR_LEGACY_LUT_ENTRIES)
+-		return -EINVAL;
+ 
+ 	has_degamma =
+ 		degamma_lut && !__is_lut_linear(degamma_lut, degamma_size);
 -- 
 2.30.2
 
