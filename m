@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 187353CA810
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08AFE3CA6A3
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241400AbhGOS6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34342 "EHLO mail.kernel.org"
+        id S232655AbhGOStl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241614AbhGOS5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:57:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B780613CC;
-        Thu, 15 Jul 2021 18:54:22 +0000 (UTC)
+        id S240088AbhGOStH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 80050613DA;
+        Thu, 15 Jul 2021 18:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375263;
-        bh=9upz0cKdc/qYU4JjyOzTGWrs6l3cCYP97s9qfpHPtkc=;
+        s=korg; t=1626374773;
+        bh=fKQ7PvfjgHX7m9g6OkxTDJ25OnZOcDHQdz6K2NfupLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T3heFHEVwmRZpMSfPH63rklzbihZ5Nviq3TDb9WINEhexh7UDtgE4/hZGx+bzLaVh
-         xRxj4Esnvtfe61DnvDj21GFWD68X874Y4yLhV6pXIG0GD5zcyMFLNSfj2sZi7jck8Y
-         vOeRFpkMEcDLhEzQlJcdlmE5xkgphK1c7H2UochQ=
+        b=p2Dada8oFuvnPRR0oIgMljk6y40KmD++tOUInDvT7+zi1QKsfcVklHCegpzqswZ8/
+         VD9z+ppv3wsYs18pGgm/4O+f7z8OYcVpAlN8ALtad4PuhSiB+KZRlS5JkPhv2OXVYl
+         9VU6kXj3bg3ui/AMmPGVg8mP+4V4PvZUIhtcXUsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 014/242] mISDN: fix possible use-after-free in HFC_cleanup()
-Date:   Thu, 15 Jul 2021 20:36:16 +0200
-Message-Id: <20210715182554.266053843@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Zhang <Jack.Zhang1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Emily Deng <Emily.Deng@amd.com>
+Subject: [PATCH 5.10 005/215] drm/amd/amdgpu/sriov disable all ip hw status by default
+Date:   Thu, 15 Jul 2021 20:36:17 +0200
+Message-Id: <20210715182559.433937368@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-[ Upstream commit 009fc857c5f6fda81f2f7dd851b2d54193a8e733 ]
+[ Upstream commit 95ea3dbc4e9548d35ab6fbf67675cef8c293e2f5 ]
 
-This module's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+Disable all ip's hw status to false before any hw_init.
+Only set it to true until its hw_init is executed.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+The old 5.9 branch has this change but somehow the 5.11 kernrel does
+not have this fix.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Without this change, sriov tdr have gfx IB test fail.
+
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Review-by: Emily Deng <Emily.Deng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index 56bd2e9db6ed..e501cb03f211 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -2342,7 +2342,7 @@ static void __exit
- HFC_cleanup(void)
- {
- 	if (timer_pending(&hfc_tl))
--		del_timer(&hfc_tl);
-+		del_timer_sync(&hfc_tl);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 87c7c45f1bb7..6948ab3c0d99 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2760,7 +2760,7 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
+ 		AMD_IP_BLOCK_TYPE_IH,
+ 	};
  
- 	pci_unregister_driver(&hfc_driver);
- }
+-	for (i = 0; i < ARRAY_SIZE(ip_order); i++) {
++	for (i = 0; i < adev->num_ip_blocks; i++) {
+ 		int j;
+ 		struct amdgpu_ip_block *block;
+ 
 -- 
 2.30.2
 
