@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6713CA65D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CFA63CA79F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236792AbhGOSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
+        id S241401AbhGOSzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236817AbhGOSrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 905A861158;
-        Thu, 15 Jul 2021 18:44:25 +0000 (UTC)
+        id S242312AbhGOSzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CEF3613CC;
+        Thu, 15 Jul 2021 18:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374666;
-        bh=hyCIWKKZjngvuEMe5c7TdZ6aQySOfdGzqdDSWh/eYEQ=;
+        s=korg; t=1626375127;
+        bh=VaSw8eXxJwYqDAsNRRTpRkjq+fkc9jcRrS0A8LIPC8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SH9//T2vn1JVT/EIn+2UBV4YEpdywQ/U1osyj78rev2BkPnJ6pyjBpv5eArvSc4Dc
-         rz4xmsGcxpkZ4E3kLSaPCCIHv12CNj68hYHrRcQcsdAGBDtFEazL/Eha3AIM8EHm4F
-         QHWN54QltFykNgSAGXQoK3O7FvT4GhqbODZtwl7Q=
+        b=EZrgEfLB3+JBBLdkruBeMMd3IaOu1wmPCS0Nhl6v9gRtMRk9mQORqZSudYwKWkhqh
+         6JOwafpLrgqBYwmUHbDySid24PaawE3Qd/maFi1j8ts5ano73KY8+mrLw8+5wCPljw
+         MjAnX01yYOi3CzLZDZhWDoOB7tha2t78p9DFybZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.4 096/122] ipmi/watchdog: Stop watchdog timer when the current action is none
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        ZhuRui <zhurui3@huawei.com>, Zhenyu Ye <yezhenyu2@huawei.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.10 171/215] arm64: tlb: fix the TTL value of tlb_get_level
 Date:   Thu, 15 Jul 2021 20:39:03 +0200
-Message-Id: <20210715182517.797164056@linuxfoundation.org>
+Message-Id: <20210715182629.786403180@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Pavlu <petr.pavlu@suse.com>
+From: Zhenyu Ye <yezhenyu2@huawei.com>
 
-commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
+commit 52218fcd61cb42bde0d301db4acb3ffdf3463cc7 upstream.
 
-When an IPMI watchdog timer is being stopped in ipmi_close() or
-ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
-WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
-to install this action. The latter function ends up invoking
-__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
-request.
+The TTL field indicates the level of page table walk holding the *leaf*
+entry for the address being invalidated. But currently, the TTL field
+may be set to an incorrent value in the following stack:
 
-For IPMI 1.0, this operation results in fully stopping the watchdog timer.
-For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
-stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
-that the watchdog timer has its action correctly updated to 'none' but the
-timer continues to run. A problem is that IPMI firmware can then still log
-an expiration event when the configured timeout is reached, which is
-unexpected because the watchdog timer was requested to be stopped.
+pte_free_tlb
+    __pte_free_tlb
+        tlb_remove_table
+            tlb_table_invalidate
+                tlb_flush_mmu_tlbonly
+                    tlb_flush
 
-The patch fixes this problem by not setting the "don't stop" flag in
-__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
-results in stopping the watchdog timer. This makes the behaviour for
-IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
-__ipmi_heartbeat() which does not allow to reset the watchdog if the
-current action is WDOG_TIMEOUT_NONE as that would start the timer.
+In this case, we just want to flush a PTE page, but the tlb->cleared_pmds
+is set and we get tlb_level = 2 in the tlb_get_level() function. This may
+cause some unexpected problems.
 
-Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+This patch set the TTL field to 0 if tlb->freed_tables is set. The
+tlb->freed_tables indicates page table pages are freed, not the leaf
+entry.
+
+Cc: <stable@vger.kernel.org> # 5.9.x
+Fixes: c4ab2cbc1d87 ("arm64: tlb: Set the TTL field in flush_tlb_range")
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: ZhuRui <zhurui3@huawei.com>
+Signed-off-by: Zhenyu Ye <yezhenyu2@huawei.com>
+Link: https://lore.kernel.org/r/b80ead47-1f88-3a00-18e1-cacc22f54cc4@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ arch/arm64/include/asm/tlb.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -366,16 +366,18 @@ static int __ipmi_set_timeout(struct ipm
- 	data[0] = 0;
- 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
- 
--	if ((ipmi_version_major > 1)
--	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
--		/* This is an IPMI 1.5-only feature. */
--		data[0] |= WDOG_DONT_STOP_ON_SET;
--	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
--		/*
--		 * In ipmi 1.0, setting the timer stops the watchdog, we
--		 * need to start it back up again.
--		 */
--		hbnow = 1;
-+	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
-+		if ((ipmi_version_major > 1) ||
-+		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
-+			/* This is an IPMI 1.5-only feature. */
-+			data[0] |= WDOG_DONT_STOP_ON_SET;
-+		} else {
-+			/*
-+			 * In ipmi 1.0, setting the timer stops the watchdog, we
-+			 * need to start it back up again.
-+			 */
-+			hbnow = 1;
-+		}
- 	}
- 
- 	data[1] = 0;
+--- a/arch/arm64/include/asm/tlb.h
++++ b/arch/arm64/include/asm/tlb.h
+@@ -28,6 +28,10 @@ static void tlb_flush(struct mmu_gather
+  */
+ static inline int tlb_get_level(struct mmu_gather *tlb)
+ {
++	/* The TTL field is only valid for the leaf entry. */
++	if (tlb->freed_tables)
++		return 0;
++
+ 	if (tlb->cleared_ptes && !(tlb->cleared_pmds ||
+ 				   tlb->cleared_puds ||
+ 				   tlb->cleared_p4ds))
 
 
