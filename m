@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6D33CA80D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F293CA6BD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237422AbhGOS6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:58:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34548 "EHLO mail.kernel.org"
+        id S240313AbhGOSuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241813AbhGOS5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:57:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A2E7613D3;
-        Thu, 15 Jul 2021 18:54:29 +0000 (UTC)
+        id S240126AbhGOStO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58C60613D9;
+        Thu, 15 Jul 2021 18:46:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375270;
-        bh=nNXWJASWbqVzB4ij2p9OyJuCJirxGwfels93t9uK/8c=;
+        s=korg; t=1626374779;
+        bh=idGe8S9zZMYTLJ11eds0ZckkKuSOThds4gTjGfiUB3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1sujKCmC/jAqmyMBKCgWtk8/xTI+Vr2+qCyE3vbufW5c6khJmJmCHEEXDBPOi3nQY
-         Tb0PuAtLVvVMSERwrQeplQXv3IRj5hqgvj05h/1H2eqkrahTzBPcnO0NEd+hbgXmm+
-         Sfr1jdLMUN9sBUod+3C7FWcxIg1YMAeuDcEn1sPo=
+        b=KSwuDCraEhAnx4uMAVzZNBza6YqsxRqsVCNEJ7ziAx6aOKxhyhhJEMYfFkTOhiurr
+         CV7+OcRfsLER6QEMsNmAF4p2lXS74cu/xVl31hJOXWlFqFomlJr2ndzzr876XydLyP
+         x+s0VxQYCdpJ9pTsQxMcoljnAuN0kp5rrmFpSjUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Li <wangli74@huawei.com>,
-        Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Flavio Suligoi <f.suligoi@asem.it>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 017/242] drm/mediatek: Fix PM reference leak in mtk_crtc_ddp_hw_init()
-Date:   Thu, 15 Jul 2021 20:36:19 +0200
-Message-Id: <20210715182554.768249078@linuxfoundation.org>
+Subject: [PATCH 5.10 008/215] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+Date:   Thu, 15 Jul 2021 20:36:20 +0200
+Message-Id: <20210715182600.033803020@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Li <wangli74@huawei.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 69777e6ca396f0a7e1baff40fcad4a9d3d445b7a ]
+[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+Sparse is not happy about handling of strict types in pch_ptp_match():
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Li <wangli74@huawei.com>
-Signed-off-by: Chun-Kuang Hu <chunkuang.hu@kernel.org>
+  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
+  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
+  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
+  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
+  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
+  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
+  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
+  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
+  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
+
+Fix that by switching to use proper accessors to BE data.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/mediatek/mtk_drm_crtc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-index 8b0de90156c6..69d23ce56d2c 100644
---- a/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-+++ b/drivers/gpu/drm/mediatek/mtk_drm_crtc.c
-@@ -259,7 +259,7 @@ static int mtk_crtc_ddp_hw_init(struct mtk_drm_crtc *mtk_crtc)
- 		drm_connector_list_iter_end(&conn_iter);
- 	}
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 9a0870dc2f03..2942102efd48 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -107,7 +107,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ {
+ 	u8 *data = skb->data;
+ 	unsigned int offset;
+-	u16 *hi, *id;
++	u16 hi, id;
+ 	u32 lo;
  
--	ret = pm_runtime_get_sync(crtc->dev->dev);
-+	ret = pm_runtime_resume_and_get(crtc->dev->dev);
- 	if (ret < 0) {
- 		DRM_ERROR("Failed to enable power domain: %d\n", ret);
- 		return ret;
+ 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
+@@ -118,14 +118,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
+ 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
+ 		return 0;
+ 
+-	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
+-	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
++	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
++	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
++	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
+ 
+-	memcpy(&lo, &hi[1], sizeof(lo));
+-
+-	return (uid_hi == *hi &&
+-		uid_lo == lo &&
+-		seqid  == *id);
++	return (uid_hi == hi && uid_lo == lo && seqid == id);
+ }
+ 
+ static void
+@@ -135,7 +132,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	struct pci_dev *pdev;
+ 	u64 ns;
+ 	u32 hi, lo, val;
+-	u16 uid, seq;
+ 
+ 	if (!adapter->hwts_rx_en)
+ 		return;
+@@ -151,10 +147,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
+ 	lo = pch_src_uuid_lo_read(pdev);
+ 	hi = pch_src_uuid_hi_read(pdev);
+ 
+-	uid = hi & 0xffff;
+-	seq = (hi >> 16) & 0xffff;
+-
+-	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
++	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
+ 		goto out;
+ 
+ 	ns = pch_rx_snap_read(pdev);
 -- 
 2.30.2
 
