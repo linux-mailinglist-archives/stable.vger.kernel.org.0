@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D8A3CA5F4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F4393CA75F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236494AbhGOSpa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45832 "EHLO mail.kernel.org"
+        id S240615AbhGOSxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236341AbhGOSpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8EF6613CF;
-        Thu, 15 Jul 2021 18:42:23 +0000 (UTC)
+        id S240617AbhGOSw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BED7613E0;
+        Thu, 15 Jul 2021 18:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374544;
-        bh=Q1+V9yFNkYHvAYCbI2xaMJHtEndL/sHqN+QbrmAMWVw=;
+        s=korg; t=1626375004;
+        bh=VtYaThCNyltNmuOVNOdhyM/G03hpxwBF3WfsEHgyDtM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJbB83TXhQNAqfB66C8uKnFXqntMLwdq3lvpvHUaCr1gZK3NVlI/lLi5wikXtSezK
-         4QcLtS6Jyon+iDBcjuZdEI64KWQdjW4hxlXytcz0R6tNRC7m+awWt7w8KPgR1QnAdl
-         jj3BZi+NxOIQ5DUQ0oID88UgXT24ySu3927Zql3k=
+        b=BwxJFU/So4nLpQ7YyVPYpYuLRN/WA+XNiC3gmEf1/kMrZCf6Htm0GaPFOIepmKsx6
+         OxSoX2HTiqMbujYKHwJHG+6IoXQaH6TPTwCxw5QA8Ha8flZH+rBZ3XE4O6Yo3ErluN
+         gL8EE2d6Iq4xTZConFdGYHLVVT4YAP06JivxrozY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+bed360704c521841c85d@syzkaller.appspotmail.com,
-        Kurt Manucredo <fuzzybritches0@gmail.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Edward Cree <ecree.xilinx@gmail.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/122] bpf: Fix up register-based shifts in interpreter to silence KUBSAN
+Subject: [PATCH 5.10 119/215] Bluetooth: Shutdown controller after workqueues are flushed or cancelled
 Date:   Thu, 15 Jul 2021 20:38:11 +0200
-Message-Id: <20210715182459.878121482@linuxfoundation.org>
+Message-Id: <20210715182620.548196558@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,202 +41,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 28131e9d933339a92f78e7ab6429f4aaaa07061c ]
+[ Upstream commit 0ea9fd001a14ebc294f112b0361a4e601551d508 ]
 
-syzbot reported a shift-out-of-bounds that KUBSAN observed in the
-interpreter:
+Rfkill block and unblock Intel USB Bluetooth [8087:0026] may make it
+stops working:
+[  509.691509] Bluetooth: hci0: HCI reset during shutdown failed
+[  514.897584] Bluetooth: hci0: MSFT filter_enable is already on
+[  530.044751] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
+[  545.660350] usb 3-10: device descriptor read/64, error -110
+[  561.283530] usb 3-10: device descriptor read/64, error -110
+[  561.519682] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
+[  566.686650] Bluetooth: hci0: unexpected event for opcode 0x0500
+[  568.752452] Bluetooth: hci0: urb 0000000096cd309b failed to resubmit (113)
+[  578.797955] Bluetooth: hci0: Failed to read MSFT supported features (-110)
+[  586.286565] Bluetooth: hci0: urb 00000000c522f633 failed to resubmit (113)
+[  596.215302] Bluetooth: hci0: Failed to read MSFT supported features (-110)
 
-  [...]
-  UBSAN: shift-out-of-bounds in kernel/bpf/core.c:1420:2
-  shift exponent 255 is too large for 64-bit type 'long long unsigned int'
-  CPU: 1 PID: 11097 Comm: syz-executor.4 Not tainted 5.12.0-rc2-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  Call Trace:
-   __dump_stack lib/dump_stack.c:79 [inline]
-   dump_stack+0x141/0x1d7 lib/dump_stack.c:120
-   ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
-   __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
-   ___bpf_prog_run.cold+0x19/0x56c kernel/bpf/core.c:1420
-   __bpf_prog_run32+0x8f/0xd0 kernel/bpf/core.c:1735
-   bpf_dispatcher_nop_func include/linux/bpf.h:644 [inline]
-   bpf_prog_run_pin_on_cpu include/linux/filter.h:624 [inline]
-   bpf_prog_run_clear_cb include/linux/filter.h:755 [inline]
-   run_filter+0x1a1/0x470 net/packet/af_packet.c:2031
-   packet_rcv+0x313/0x13e0 net/packet/af_packet.c:2104
-   dev_queue_xmit_nit+0x7c2/0xa90 net/core/dev.c:2387
-   xmit_one net/core/dev.c:3588 [inline]
-   dev_hard_start_xmit+0xad/0x920 net/core/dev.c:3609
-   __dev_queue_xmit+0x2121/0x2e00 net/core/dev.c:4182
-   __bpf_tx_skb net/core/filter.c:2116 [inline]
-   __bpf_redirect_no_mac net/core/filter.c:2141 [inline]
-   __bpf_redirect+0x548/0xc80 net/core/filter.c:2164
-   ____bpf_clone_redirect net/core/filter.c:2448 [inline]
-   bpf_clone_redirect+0x2ae/0x420 net/core/filter.c:2420
-   ___bpf_prog_run+0x34e1/0x77d0 kernel/bpf/core.c:1523
-   __bpf_prog_run512+0x99/0xe0 kernel/bpf/core.c:1737
-   bpf_dispatcher_nop_func include/linux/bpf.h:644 [inline]
-   bpf_test_run+0x3ed/0xc50 net/bpf/test_run.c:50
-   bpf_prog_test_run_skb+0xabc/0x1c50 net/bpf/test_run.c:582
-   bpf_prog_test_run kernel/bpf/syscall.c:3127 [inline]
-   __do_sys_bpf+0x1ea9/0x4f00 kernel/bpf/syscall.c:4406
-   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-  [...]
+Or kernel panics because other workqueues already freed skb:
+[ 2048.663763] BUG: kernel NULL pointer dereference, address: 0000000000000000
+[ 2048.663775] #PF: supervisor read access in kernel mode
+[ 2048.663779] #PF: error_code(0x0000) - not-present page
+[ 2048.663782] PGD 0 P4D 0
+[ 2048.663787] Oops: 0000 [#1] SMP NOPTI
+[ 2048.663793] CPU: 3 PID: 4491 Comm: rfkill Tainted: G        W         5.13.0-rc1-next-20210510+ #20
+[ 2048.663799] Hardware name: HP HP EliteBook 850 G8 Notebook PC/8846, BIOS T76 Ver. 01.01.04 12/02/2020
+[ 2048.663801] RIP: 0010:__skb_ext_put+0x6/0x50
+[ 2048.663814] Code: 8b 1b 48 85 db 75 db 5b 41 5c 5d c3 be 01 00 00 00 e8 de 13 c0 ff eb e7 be 02 00 00 00 e8 d2 13 c0 ff eb db 0f 1f 44 00 00 55 <8b> 07 48 89 e5 83 f8 01 74 14 b8 ff ff ff ff f0 0f c1
+07 83 f8 01
+[ 2048.663819] RSP: 0018:ffffc1d105b6fd80 EFLAGS: 00010286
+[ 2048.663824] RAX: 0000000000000000 RBX: ffff9d9ac5649000 RCX: 0000000000000000
+[ 2048.663827] RDX: ffffffffc0d1daf6 RSI: 0000000000000206 RDI: 0000000000000000
+[ 2048.663830] RBP: ffffc1d105b6fd98 R08: 0000000000000001 R09: ffff9d9ace8ceac0
+[ 2048.663834] R10: ffff9d9ace8ceac0 R11: 0000000000000001 R12: ffff9d9ac5649000
+[ 2048.663838] R13: 0000000000000000 R14: 00007ffe0354d650 R15: 0000000000000000
+[ 2048.663843] FS:  00007fe02ab19740(0000) GS:ffff9d9e5f8c0000(0000) knlGS:0000000000000000
+[ 2048.663849] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 2048.663853] CR2: 0000000000000000 CR3: 0000000111a52004 CR4: 0000000000770ee0
+[ 2048.663856] PKRU: 55555554
+[ 2048.663859] Call Trace:
+[ 2048.663865]  ? skb_release_head_state+0x5e/0x80
+[ 2048.663873]  kfree_skb+0x2f/0xb0
+[ 2048.663881]  btusb_shutdown_intel_new+0x36/0x60 [btusb]
+[ 2048.663905]  hci_dev_do_close+0x48c/0x5e0 [bluetooth]
+[ 2048.663954]  ? __cond_resched+0x1a/0x50
+[ 2048.663962]  hci_rfkill_set_block+0x56/0xa0 [bluetooth]
+[ 2048.664007]  rfkill_set_block+0x98/0x170
+[ 2048.664016]  rfkill_fop_write+0x136/0x1e0
+[ 2048.664022]  vfs_write+0xc7/0x260
+[ 2048.664030]  ksys_write+0xb1/0xe0
+[ 2048.664035]  ? exit_to_user_mode_prepare+0x37/0x1c0
+[ 2048.664042]  __x64_sys_write+0x1a/0x20
+[ 2048.664048]  do_syscall_64+0x40/0xb0
+[ 2048.664055]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 2048.664060] RIP: 0033:0x7fe02ac23c27
+[ 2048.664066] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+[ 2048.664070] RSP: 002b:00007ffe0354d638 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[ 2048.664075] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007fe02ac23c27
+[ 2048.664078] RDX: 0000000000000008 RSI: 00007ffe0354d650 RDI: 0000000000000003
+[ 2048.664081] RBP: 0000000000000000 R08: 0000559b05998440 R09: 0000559b05998440
+[ 2048.664084] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
+[ 2048.664086] R13: 0000000000000000 R14: ffffffff00000000 R15: 00000000ffffffff
 
-Generally speaking, KUBSAN reports from the kernel should be fixed.
-However, in case of BPF, this particular report caused concerns since
-the large shift is not wrong from BPF point of view, just undefined.
-In the verifier, K-based shifts that are >= {64,32} (depending on the
-bitwidth of the instruction) are already rejected. The register-based
-cases were not given their content might not be known at verification
-time. Ideas such as verifier instruction rewrite with an additional
-AND instruction for the source register were brought up, but regularly
-rejected due to the additional runtime overhead they incur.
+So move the shutdown callback to a place where workqueues are either
+flushed or cancelled to resolve the issue.
 
-As Edward Cree rightly put it:
-
-  Shifts by more than insn bitness are legal in the BPF ISA; they are
-  implementation-defined behaviour [of the underlying architecture],
-  rather than UB, and have been made legal for performance reasons.
-  Each of the JIT backends compiles the BPF shift operations to machine
-  instructions which produce implementation-defined results in such a
-  case; the resulting contents of the register may be arbitrary but
-  program behaviour as a whole remains defined.
-
-  Guard checks in the fast path (i.e. affecting JITted code) will thus
-  not be accepted.
-
-  The case of division by zero is not truly analogous here, as division
-  instructions on many of the JIT-targeted architectures will raise a
-  machine exception / fault on division by zero, whereas (to the best
-  of my knowledge) none will do so on an out-of-bounds shift.
-
-Given the KUBSAN report only affects the BPF interpreter, but not JITs,
-one solution is to add the ANDs with 63 or 31 into ___bpf_prog_run().
-That would make the shifts defined, and thus shuts up KUBSAN, and the
-compiler would optimize out the AND on any CPU that interprets the shift
-amounts modulo the width anyway (e.g., confirmed from disassembly that
-on x86-64 and arm64 the generated interpreter code is the same before
-and after this fix).
-
-The BPF interpreter is slow path, and most likely compiled out anyway
-as distros select BPF_JIT_ALWAYS_ON to avoid speculative execution of
-BPF instructions by the interpreter. Given the main argument was to
-avoid sacrificing performance, the fact that the AND is optimized away
-from compiler for mainstream archs helps as well as a solution moving
-forward. Also add a comment on LSH/RSH/ARSH translation for JIT authors
-to provide guidance when they see the ___bpf_prog_run() interpreter
-code and use it as a model for a new JIT backend.
-
-Reported-by: syzbot+bed360704c521841c85d@syzkaller.appspotmail.com
-Reported-by: Kurt Manucredo <fuzzybritches0@gmail.com>
-Signed-off-by: Eric Biggers <ebiggers@kernel.org>
-Co-developed-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Tested-by: syzbot+bed360704c521841c85d@syzkaller.appspotmail.com
-Cc: Edward Cree <ecree.xilinx@gmail.com>
-Link: https://lore.kernel.org/bpf/0000000000008f912605bd30d5d7@google.com
-Link: https://lore.kernel.org/bpf/bac16d8d-c174-bdc4-91bd-bfa62b410190@gmail.com
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/core.c | 61 +++++++++++++++++++++++++++++++++--------------
- 1 file changed, 43 insertions(+), 18 deletions(-)
+ net/bluetooth/hci_core.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
-index 56bc96f5ad20..323913ba13b3 100644
---- a/kernel/bpf/core.c
-+++ b/kernel/bpf/core.c
-@@ -1321,29 +1321,54 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
- select_insn:
- 	goto *jumptable[insn->code];
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 86ebfc6ae698..0854f1b35683 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1713,14 +1713,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
  
--	/* ALU */
--#define ALU(OPCODE, OP)			\
--	ALU64_##OPCODE##_X:		\
--		DST = DST OP SRC;	\
--		CONT;			\
--	ALU_##OPCODE##_X:		\
--		DST = (u32) DST OP (u32) SRC;	\
--		CONT;			\
--	ALU64_##OPCODE##_K:		\
--		DST = DST OP IMM;		\
--		CONT;			\
--	ALU_##OPCODE##_K:		\
--		DST = (u32) DST OP (u32) IMM;	\
-+	/* Explicitly mask the register-based shift amounts with 63 or 31
-+	 * to avoid undefined behavior. Normally this won't affect the
-+	 * generated code, for example, in case of native 64 bit archs such
-+	 * as x86-64 or arm64, the compiler is optimizing the AND away for
-+	 * the interpreter. In case of JITs, each of the JIT backends compiles
-+	 * the BPF shift operations to machine instructions which produce
-+	 * implementation-defined results in such a case; the resulting
-+	 * contents of the register may be arbitrary, but program behaviour
-+	 * as a whole remains defined. In other words, in case of JIT backends,
-+	 * the AND must /not/ be added to the emitted LSH/RSH/ARSH translation.
-+	 */
-+	/* ALU (shifts) */
-+#define SHT(OPCODE, OP)					\
-+	ALU64_##OPCODE##_X:				\
-+		DST = DST OP (SRC & 63);		\
-+		CONT;					\
-+	ALU_##OPCODE##_X:				\
-+		DST = (u32) DST OP ((u32) SRC & 31);	\
-+		CONT;					\
-+	ALU64_##OPCODE##_K:				\
-+		DST = DST OP IMM;			\
-+		CONT;					\
-+	ALU_##OPCODE##_K:				\
-+		DST = (u32) DST OP (u32) IMM;		\
-+		CONT;
-+	/* ALU (rest) */
-+#define ALU(OPCODE, OP)					\
-+	ALU64_##OPCODE##_X:				\
-+		DST = DST OP SRC;			\
-+		CONT;					\
-+	ALU_##OPCODE##_X:				\
-+		DST = (u32) DST OP (u32) SRC;		\
-+		CONT;					\
-+	ALU64_##OPCODE##_K:				\
-+		DST = DST OP IMM;			\
-+		CONT;					\
-+	ALU_##OPCODE##_K:				\
-+		DST = (u32) DST OP (u32) IMM;		\
- 		CONT;
+ 	BT_DBG("%s %p", hdev->name, hdev);
+ 
+-	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
+-	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
+-	    test_bit(HCI_UP, &hdev->flags)) {
+-		/* Execute vendor specific shutdown routine */
+-		if (hdev->shutdown)
+-			hdev->shutdown(hdev);
+-	}
 -
- 	ALU(ADD,  +)
- 	ALU(SUB,  -)
- 	ALU(AND,  &)
- 	ALU(OR,   |)
--	ALU(LSH, <<)
--	ALU(RSH, >>)
- 	ALU(XOR,  ^)
- 	ALU(MUL,  *)
-+	SHT(LSH, <<)
-+	SHT(RSH, >>)
-+#undef SHT
- #undef ALU
- 	ALU_NEG:
- 		DST = (u32) -DST;
-@@ -1368,13 +1393,13 @@ select_insn:
- 		insn++;
- 		CONT;
- 	ALU_ARSH_X:
--		DST = (u64) (u32) (((s32) DST) >> SRC);
-+		DST = (u64) (u32) (((s32) DST) >> (SRC & 31));
- 		CONT;
- 	ALU_ARSH_K:
- 		DST = (u64) (u32) (((s32) DST) >> IMM);
- 		CONT;
- 	ALU64_ARSH_X:
--		(*(s64 *) &DST) >>= SRC;
-+		(*(s64 *) &DST) >>= (SRC & 63);
- 		CONT;
- 	ALU64_ARSH_K:
- 		(*(s64 *) &DST) >>= IMM;
+ 	cancel_delayed_work(&hdev->power_off);
+ 
+ 	hci_request_cancel_all(hdev);
+@@ -1796,6 +1788,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
+ 		clear_bit(HCI_INIT, &hdev->flags);
+ 	}
+ 
++	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
++	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
++	    test_bit(HCI_UP, &hdev->flags)) {
++		/* Execute vendor specific shutdown routine */
++		if (hdev->shutdown)
++			hdev->shutdown(hdev);
++	}
++
+ 	/* flush cmd  work */
+ 	flush_work(&hdev->cmd_work);
+ 
 -- 
 2.30.2
 
