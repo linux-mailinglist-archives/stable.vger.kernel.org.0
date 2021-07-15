@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DFF23CA90D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854933CAAAE
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240656AbhGOTFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
+        id S243923AbhGOTPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243180AbhGOTDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 452CA613F3;
-        Thu, 15 Jul 2021 18:59:22 +0000 (UTC)
+        id S244054AbhGOTMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36FBA613E6;
+        Thu, 15 Jul 2021 19:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375562;
-        bh=Z+g+ozLNpl3+4Xx8VSrAf65TzsuwM2aBXEWHnZ+Ugxs=;
+        s=korg; t=1626376152;
+        bh=AEFMNni0q72L8/+5niW7zEZN13RimeOt/iWZevfRFVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XE7LJo06xtETj+xTg4Tva//DjAPtBFHqKzSb4Og0885tVmtOiTwvaQkt1U9sQcOn7
-         Xu2vpY0Qqc1irJTLhsM6IfAonaw1jWRJP5oHpNB+ufzu2jUxQtvkOp3sZOUwTjQ+yv
-         zlVJXtNFdI4GQq3bBn3Uw78RV78xxGXJ26uu8oI0=
+        b=byFy2i6eGcPwPXDxhxtNkTeQrAyo9lZdK//lyrBpxwMtA37Az6VoLPZgLwKVe1HUq
+         lHAKH13LdOHOlFdwnekl1ZnU5aXY9Or7C8jJCNHwyIegRtyW6JAiut5qUsxlTO3UF9
+         dhTw76P0SWCBrZBOtVw4mrlAD65Gd47LIRe2gKvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 140/242] Bluetooth: L2CAP: Fix invalid access if ECRED Reconfigure fails
-Date:   Thu, 15 Jul 2021 20:38:22 +0200
-Message-Id: <20210715182617.689813482@linuxfoundation.org>
+Subject: [PATCH 5.13 148/266] cfg80211: fix default HE tx bitrate mask in 2G band
+Date:   Thu, 15 Jul 2021 20:38:23 +0200
+Message-Id: <20210715182639.621011292@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Ping-Ke Shih <pkshih@realtek.com>
 
-[ Upstream commit 1fa20d7d4aad02206e84b74915819fbe9f81dab3 ]
+[ Upstream commit 9df66d5b9f45c39b3925d16e8947cc10009b186d ]
 
-The use of l2cap_chan_del is not safe under a loop using
-list_for_each_entry.
+In 2G band, a HE sta can only supports HT and HE, but not supports VHT.
+In this case, default HE tx bitrate mask isn't filled, when we use iw to
+set bitrates without any parameter.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Link: https://lore.kernel.org/r/20210609075944.51130-1-pkshih@realtek.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/wireless/nl80211.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 53ddbee459b9..015f9ecadd0a 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6244,7 +6244,7 @@ static inline int l2cap_ecred_reconf_rsp(struct l2cap_conn *conn,
- 					 struct l2cap_cmd_hdr *cmd, u16 cmd_len,
- 					 u8 *data)
- {
--	struct l2cap_chan *chan;
-+	struct l2cap_chan *chan, *tmp;
- 	struct l2cap_ecred_conn_rsp *rsp = (void *) data;
- 	u16 result;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index fc9286afe3c9..912977bf3ec8 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -4781,11 +4781,10 @@ static int nl80211_parse_tx_bitrate_mask(struct genl_info *info,
+ 		       sband->ht_cap.mcs.rx_mask,
+ 		       sizeof(mask->control[i].ht_mcs));
  
-@@ -6258,7 +6258,7 @@ static inline int l2cap_ecred_reconf_rsp(struct l2cap_conn *conn,
- 	if (!result)
- 		return 0;
+-		if (!sband->vht_cap.vht_supported)
+-			continue;
+-
+-		vht_tx_mcs_map = le16_to_cpu(sband->vht_cap.vht_mcs.tx_mcs_map);
+-		vht_build_mcs_mask(vht_tx_mcs_map, mask->control[i].vht_mcs);
++		if (sband->vht_cap.vht_supported) {
++			vht_tx_mcs_map = le16_to_cpu(sband->vht_cap.vht_mcs.tx_mcs_map);
++			vht_build_mcs_mask(vht_tx_mcs_map, mask->control[i].vht_mcs);
++		}
  
--	list_for_each_entry(chan, &conn->chan_l, list) {
-+	list_for_each_entry_safe(chan, tmp, &conn->chan_l, list) {
- 		if (chan->ident != cmd->ident)
- 			continue;
- 
+ 		he_cap = ieee80211_get_he_iftype_cap(sband, wdev->iftype);
+ 		if (!he_cap)
 -- 
 2.30.2
 
