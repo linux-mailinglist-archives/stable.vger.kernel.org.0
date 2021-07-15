@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B27C93CA876
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE7E53CA6E4
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241182AbhGOTBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35104 "EHLO mail.kernel.org"
+        id S240131AbhGOSvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:51:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242328AbhGOS7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:59:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFF4B613F7;
-        Thu, 15 Jul 2021 18:56:28 +0000 (UTC)
+        id S238996AbhGOSua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3445F613DF;
+        Thu, 15 Jul 2021 18:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375389;
-        bh=9f4U18zgpgzwMfn2wNYwWW5+rtYiDiEiuDTIc+NA4i8=;
+        s=korg; t=1626374856;
+        bh=sODFjQzU3USHLt6BrmHeBwUgk5c78OeFL3+f/Hi8QAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVYPsktaFY2xXLLjpj79Gkj9E5S+KpkwBvcWkStdLnMp7A0eDLFwJJP9cHRY9xize
-         lPVVX/xGvOxoNbQ+cr/4vv9Il3zk3Ypq7RXVEJyXA33ADaFQ74MIdc8YpCdlmjAqE3
-         jmBpJH1P5AePUPS0MiafmXOwHkgC57GPA85u9rC8=
+        b=PPKBMGHYUuIprQK5QXYYW7dpzaMJxgs4fQg22TaF+rdoEO9rhHmq8IR1Osn9em0q9
+         dfSsDf1Kan4HY8xZqc5IPVYWfILO8xT5fMUwIonVjzdQ1JG9cKqLoxD2P3YTMeIYhk
+         NgRNZ9mNSDHTzDGHOpL5BJZ4KrAZf/4nNTkcmlN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Xianting Tian <xianting.tian@linux.alibaba.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 064/242] virtio_net: Remove BUG() to avoid machine dead
+Subject: [PATCH 5.10 054/215] net: bridge: mrp: Update ring transitions.
 Date:   Thu, 15 Jul 2021 20:37:06 +0200
-Message-Id: <20210715182603.811640740@linuxfoundation.org>
+Message-Id: <20210715182608.959219464@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 85eb1389458d134bdb75dad502cc026c3753a619 ]
+[ Upstream commit fcb34635854a5a5814227628867ea914a9805384 ]
 
-We should not directly BUG() when there is hdr error, it is
-better to output a print when such error happens. Currently,
-the caller of xmit_skb() already did it.
+According to the standard IEC 62439-2, the number of transitions needs
+to be counted for each transition 'between' ring state open and ring
+state closed and not from open state to closed state.
 
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Therefore fix this for both ring and interconnect ring.
+
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bridge/br_mrp.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 447582fa20a5..f7ce341bb328 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1558,7 +1558,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
- 				    virtio_is_little_endian(vi->vdev), false,
- 				    0))
--		BUG();
-+		return -EPROTO;
+diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
+index d1336a7ad7ff..3259f5480127 100644
+--- a/net/bridge/br_mrp.c
++++ b/net/bridge/br_mrp.c
+@@ -607,8 +607,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
+ 	if (!mrp)
+ 		return -EINVAL;
  
- 	if (vi->mergeable_rx_bufs)
- 		hdr->num_buffers = 0;
+-	if (mrp->ring_state == BR_MRP_RING_STATE_CLOSED &&
+-	    state->ring_state != BR_MRP_RING_STATE_CLOSED)
++	if (mrp->ring_state != state->ring_state)
+ 		mrp->ring_transitions++;
+ 
+ 	mrp->ring_state = state->ring_state;
+@@ -690,8 +689,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
+ 	if (!mrp)
+ 		return -EINVAL;
+ 
+-	if (mrp->in_state == BR_MRP_IN_STATE_CLOSED &&
+-	    state->in_state != BR_MRP_IN_STATE_CLOSED)
++	if (mrp->in_state != state->in_state)
+ 		mrp->in_transitions++;
+ 
+ 	mrp->in_state = state->in_state;
 -- 
 2.30.2
 
