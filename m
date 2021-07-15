@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D04053CA5DE
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BED03CA742
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235967AbhGOSpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45398 "EHLO mail.kernel.org"
+        id S240515AbhGOSxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234893AbhGOSoy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:44:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9624D613D0;
-        Thu, 15 Jul 2021 18:42:00 +0000 (UTC)
+        id S240121AbhGOSwg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FB06613DC;
+        Thu, 15 Jul 2021 18:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374521;
-        bh=laFIQBxXHEG2tastiDIRWTKgDObReRrZTYhZZFU7ZI4=;
+        s=korg; t=1626374983;
+        bh=9VgLUQBs92xOKfCw9yNr7isD9zAUSEpSnUkmlmOKwBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnuoBIW6lwC/4lfVNNZbulh3RZ1aZ5zNpbhySM923+5VwEZW7E63E1FUEi2rnU/pZ
-         6hvd7SsB8ojsenycEpnibGhuRRGnIuRZI6JdWFdGR4i17SImJsdqZE9/7aDYN2svDp
-         1++6YiBWlFH/33elxUg2MNKyEfusBccUwSTxavTk=
+        b=zyCt/e8NYItATzZ0gYotd/wjboDfZ3ep/FIvyg7ZZiyvjfs9WK9p/vzLabIVHxiPt
+         1OB92haa2RZ2a5M6epo6bDrxLAxSmy2sz9aKNOzGhKz880Ng4HeuGOUd+jb4rcOSJS
+         1pCk4p7ZE+o5DqGNk4oYe38F5Cf5gonF+eZzoyiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Thiraviyam Mariyappan <tmariyap@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/122] drm/amdkfd: use allowed domain for vmbo validation
+Subject: [PATCH 5.10 110/215] mac80211: consider per-CPU statistics if present
 Date:   Thu, 15 Jul 2021 20:38:02 +0200
-Message-Id: <20210715182457.675164477@linuxfoundation.org>
+Message-Id: <20210715182618.970578131@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,79 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@amd.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit bc05716d4fdd065013633602c5960a2bf1511b9c ]
+[ Upstream commit d656a4c6ead6c3f252b2f2532bc9735598f7e317 ]
 
-Fixes handling when page tables are in system memory.
+If we have been keeping per-CPU statistics, consider them
+regardless of USES_RSS, because we may not actually fill
+those, for example in non-fast-RX cases when the connection
+is not compatible with fast-RX. If we didn't fill them, the
+additional data will be zero and not affect anything, and
+if we did fill them then it's more correct to consider them.
 
-v3: remove struct amdgpu_vm_parser.
-v2: remove unwanted variable.
-    change amdgpu_amdkfd_validate instead of amdgpu_amdkfd_bo_validate.
+This fixes an issue in mesh mode where some statistics are
+not updated due to USES_RSS being set, but fast-RX isn't
+used.
 
-Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+Link: https://lore.kernel.org/r/20210610220814.13b35f5797c5.I511e9b33c5694e0d6cef4b6ae755c873d7c22124@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 21 ++++---------------
- 1 file changed, 4 insertions(+), 17 deletions(-)
+ net/mac80211/sta_info.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index f3fa271e3394..25af45adc03e 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -55,12 +55,6 @@ static struct {
- 	spinlock_t mem_limit_lock;
- } kfd_mem_limit;
- 
--/* Struct used for amdgpu_amdkfd_bo_validate */
--struct amdgpu_vm_parser {
--	uint32_t        domain;
--	bool            wait;
--};
--
- static const char * const domain_bit_to_string[] = {
- 		"CPU",
- 		"GTT",
-@@ -293,11 +287,9 @@ validate_fail:
- 	return ret;
- }
- 
--static int amdgpu_amdkfd_validate(void *param, struct amdgpu_bo *bo)
-+static int amdgpu_amdkfd_validate_vm_bo(void *_unused, struct amdgpu_bo *bo)
+diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
+index 13250cadb420..e18c3855f616 100644
+--- a/net/mac80211/sta_info.c
++++ b/net/mac80211/sta_info.c
+@@ -2088,10 +2088,9 @@ static struct ieee80211_sta_rx_stats *
+ sta_get_last_rx_stats(struct sta_info *sta)
  {
--	struct amdgpu_vm_parser *p = param;
+ 	struct ieee80211_sta_rx_stats *stats = &sta->rx_stats;
+-	struct ieee80211_local *local = sta->local;
+ 	int cpu;
+ 
+-	if (!ieee80211_hw_check(&local->hw, USES_RSS))
++	if (!sta->pcpu_rx_stats)
+ 		return stats;
+ 
+ 	for_each_possible_cpu(cpu) {
+@@ -2191,9 +2190,7 @@ static void sta_set_tidstats(struct sta_info *sta,
+ 	int cpu;
+ 
+ 	if (!(tidstats->filled & BIT(NL80211_TID_STATS_RX_MSDU))) {
+-		if (!ieee80211_hw_check(&local->hw, USES_RSS))
+-			tidstats->rx_msdu +=
+-				sta_get_tidstats_msdu(&sta->rx_stats, tid);
++		tidstats->rx_msdu += sta_get_tidstats_msdu(&sta->rx_stats, tid);
+ 
+ 		if (sta->pcpu_rx_stats) {
+ 			for_each_possible_cpu(cpu) {
+@@ -2272,7 +2269,6 @@ void sta_set_sinfo(struct sta_info *sta, struct station_info *sinfo,
+ 		sinfo->rx_beacon = sdata->u.mgd.count_beacon_signal;
+ 
+ 	drv_sta_statistics(local, sdata, &sta->sta, sinfo);
 -
--	return amdgpu_amdkfd_bo_validate(bo, p->domain, p->wait);
-+	return amdgpu_amdkfd_bo_validate(bo, bo->allowed_domains, false);
- }
+ 	sinfo->filled |= BIT_ULL(NL80211_STA_INFO_INACTIVE_TIME) |
+ 			 BIT_ULL(NL80211_STA_INFO_STA_FLAGS) |
+ 			 BIT_ULL(NL80211_STA_INFO_BSS_PARAM) |
+@@ -2307,8 +2303,7 @@ void sta_set_sinfo(struct sta_info *sta, struct station_info *sinfo,
  
- /* vm_validate_pt_pd_bos - Validate page table and directory BOs
-@@ -311,20 +303,15 @@ static int vm_validate_pt_pd_bos(struct amdgpu_vm *vm)
- {
- 	struct amdgpu_bo *pd = vm->root.base.bo;
- 	struct amdgpu_device *adev = amdgpu_ttm_adev(pd->tbo.bdev);
--	struct amdgpu_vm_parser param;
- 	int ret;
+ 	if (!(sinfo->filled & (BIT_ULL(NL80211_STA_INFO_RX_BYTES64) |
+ 			       BIT_ULL(NL80211_STA_INFO_RX_BYTES)))) {
+-		if (!ieee80211_hw_check(&local->hw, USES_RSS))
+-			sinfo->rx_bytes += sta_get_stats_bytes(&sta->rx_stats);
++		sinfo->rx_bytes += sta_get_stats_bytes(&sta->rx_stats);
  
--	param.domain = AMDGPU_GEM_DOMAIN_VRAM;
--	param.wait = false;
--
--	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate,
--					&param);
-+	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate_vm_bo, NULL);
- 	if (ret) {
- 		pr_err("amdgpu: failed to validate PT BOs\n");
- 		return ret;
- 	}
- 
--	ret = amdgpu_amdkfd_validate(&param, pd);
-+	ret = amdgpu_amdkfd_validate_vm_bo(NULL, pd);
- 	if (ret) {
- 		pr_err("amdgpu: failed to validate PD\n");
- 		return ret;
+ 		if (sta->pcpu_rx_stats) {
+ 			for_each_possible_cpu(cpu) {
 -- 
 2.30.2
 
