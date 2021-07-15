@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB043CA97B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 119C03CAB20
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:19:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241355AbhGOTGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38862 "EHLO mail.kernel.org"
+        id S244366AbhGOTRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:17:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242162AbhGOTFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:05:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4AAE601FE;
-        Thu, 15 Jul 2021 19:02:20 +0000 (UTC)
+        id S242980AbhGOTPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:15:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B047601FE;
+        Thu, 15 Jul 2021 19:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375741;
-        bh=C1ShubNXVTEITTM499ROiCEtSal1Awt21Bbup50aTP8=;
+        s=korg; t=1626376325;
+        bh=mdd8nG0Bg6TD979N9NBC1X5WKlKBM9Z20I4hsuHlpaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1kqboXutq3HjRjAMsByt+ZFgH7FMBj5C6Mu70t0uL1fAOoPe+W7cNNk8OaDxujo4
-         uRYSQmn7zhmUpfqMLHjOsAtAWPIpnVk3jKmkFMEWHtsPk++7XWHjFYmxHgPJDY4K6q
-         QHoJisUqvlr38WWVjoLCBiCJufjTGHInIydDzzAA=
+        b=tZNxmBG04YztcqS+38eMYk4UIWxzN/g6fXbJf68r1p2o/g1TD/p1aJhraSfaKk+eY
+         PAk/rOv5GFbmvCcZpifLkCD/8zPSE9CqYayXvzw2InMyDRN2+xK93gyY9tgMb7bgZh
+         ePUUtBFl/nzpOv/ASX/thM7VgUxDuDgra18Nk8oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.12 217/242] dm btree remove: assign new_root only when removal succeeds
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.13 224/266] ubifs: Fix races between xattr_{set|get} and listxattr operations
 Date:   Thu, 15 Jul 2021 20:39:39 +0200
-Message-Id: <20210715182631.301736460@linuxfoundation.org>
+Message-Id: <20210715182648.761288713@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-commit b6e58b5466b2959f83034bead2e2e1395cca8aeb upstream.
+commit f4e3634a3b642225a530c292fdb1e8a4007507f5 upstream.
 
-remove_raw() in dm_btree_remove() may fail due to IO read error
-(e.g. read the content of origin block fails during shadowing),
-and the value of shadow_spine::root is uninitialized, but
-the uninitialized value is still assign to new_root in the
-end of dm_btree_remove().
+UBIFS may occur some problems with concurrent xattr_{set|get} and
+listxattr operations, such as assertion failure, memory corruption,
+stale xattr value[1].
 
-For dm-thin, the value of pmd->details_root or pmd->root will become
-an uninitialized value, so if trying to read details_info tree again
-out-of-bound memory may occur as showed below:
+Fix it by importing a new rw-lock in @ubifs_inode to serilize write
+operations on xattr, concurrent read operations are still effective,
+just like ext4.
 
-  general protection fault, probably for non-canonical address 0x3fdcb14c8d7520
-  CPU: 4 PID: 515 Comm: dmsetup Not tainted 5.13.0-rc6
-  Hardware name: QEMU Standard PC
-  RIP: 0010:metadata_ll_load_ie+0x14/0x30
-  Call Trace:
-   sm_metadata_count_is_more_than_one+0xb9/0xe0
-   dm_tm_shadow_block+0x52/0x1c0
-   shadow_step+0x59/0xf0
-   remove_raw+0xb2/0x170
-   dm_btree_remove+0xf4/0x1c0
-   dm_pool_delete_thin_device+0xc3/0x140
-   pool_message+0x218/0x2b0
-   target_message+0x251/0x290
-   ctl_ioctl+0x1c4/0x4d0
-   dm_ctl_ioctl+0xe/0x20
-   __x64_sys_ioctl+0x7b/0xb0
-   do_syscall_64+0x40/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+[1] https://lore.kernel.org/linux-mtd/20200630130438.141649-1-houtao1@huawei.com
 
-Fixing it by only assign new_root when removal succeeds
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: 1e51764a3c2ac05a23 ("UBIFS: add new flash file system")
+Cc: stable@vger.kernel.org  # v2.6+
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/persistent-data/dm-btree-remove.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ubifs/super.c |    1 +
+ fs/ubifs/ubifs.h |    2 ++
+ fs/ubifs/xattr.c |   44 +++++++++++++++++++++++++++++++++-----------
+ 3 files changed, 36 insertions(+), 11 deletions(-)
 
---- a/drivers/md/persistent-data/dm-btree-remove.c
-+++ b/drivers/md/persistent-data/dm-btree-remove.c
-@@ -549,7 +549,8 @@ int dm_btree_remove(struct dm_btree_info
- 		delete_at(n, index);
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -275,6 +275,7 @@ static struct inode *ubifs_alloc_inode(s
+ 	memset((void *)ui + sizeof(struct inode), 0,
+ 	       sizeof(struct ubifs_inode) - sizeof(struct inode));
+ 	mutex_init(&ui->ui_mutex);
++	init_rwsem(&ui->xattr_sem);
+ 	spin_lock_init(&ui->ui_lock);
+ 	return &ui->vfs_inode;
+ };
+--- a/fs/ubifs/ubifs.h
++++ b/fs/ubifs/ubifs.h
+@@ -356,6 +356,7 @@ struct ubifs_gced_idx_leb {
+  * @ui_mutex: serializes inode write-back with the rest of VFS operations,
+  *            serializes "clean <-> dirty" state changes, serializes bulk-read,
+  *            protects @dirty, @bulk_read, @ui_size, and @xattr_size
++ * @xattr_sem: serilizes write operations (remove|set|create) on xattr
+  * @ui_lock: protects @synced_i_size
+  * @synced_i_size: synchronized size of inode, i.e. the value of inode size
+  *                 currently stored on the flash; used only for regular file
+@@ -409,6 +410,7 @@ struct ubifs_inode {
+ 	unsigned int bulk_read:1;
+ 	unsigned int compr_type:2;
+ 	struct mutex ui_mutex;
++	struct rw_semaphore xattr_sem;
+ 	spinlock_t ui_lock;
+ 	loff_t synced_i_size;
+ 	loff_t ui_size;
+--- a/fs/ubifs/xattr.c
++++ b/fs/ubifs/xattr.c
+@@ -285,6 +285,7 @@ int ubifs_xattr_set(struct inode *host,
+ 	if (!xent)
+ 		return -ENOMEM;
+ 
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	/*
+ 	 * The extended attribute entries are stored in LNC, so multiple
+ 	 * look-ups do not involve reading the flash.
+@@ -319,6 +320,7 @@ int ubifs_xattr_set(struct inode *host,
+ 	iput(inode);
+ 
+ out_free:
++	up_write(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
+@@ -341,18 +343,19 @@ ssize_t ubifs_xattr_get(struct inode *ho
+ 	if (!xent)
+ 		return -ENOMEM;
+ 
++	down_read(&ubifs_inode(host)->xattr_sem);
+ 	xent_key_init(c, &key, host->i_ino, &nm);
+ 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
+ 	if (err) {
+ 		if (err == -ENOENT)
+ 			err = -ENODATA;
+-		goto out_unlock;
++		goto out_cleanup;
  	}
  
--	*new_root = shadow_root(&spine);
-+	if (!r)
-+		*new_root = shadow_root(&spine);
- 	exit_shadow_spine(&spine);
+ 	inode = iget_xattr(c, le64_to_cpu(xent->inum));
+ 	if (IS_ERR(inode)) {
+ 		err = PTR_ERR(inode);
+-		goto out_unlock;
++		goto out_cleanup;
+ 	}
  
- 	return r;
+ 	ui = ubifs_inode(inode);
+@@ -374,7 +377,8 @@ ssize_t ubifs_xattr_get(struct inode *ho
+ out_iput:
+ 	mutex_unlock(&ui->ui_mutex);
+ 	iput(inode);
+-out_unlock:
++out_cleanup:
++	up_read(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
+@@ -406,16 +410,21 @@ ssize_t ubifs_listxattr(struct dentry *d
+ 	dbg_gen("ino %lu ('%pd'), buffer size %zd", host->i_ino,
+ 		dentry, size);
+ 
++	down_read(&host_ui->xattr_sem);
+ 	len = host_ui->xattr_names + host_ui->xattr_cnt;
+-	if (!buffer)
++	if (!buffer) {
+ 		/*
+ 		 * We should return the minimum buffer size which will fit a
+ 		 * null-terminated list of all the extended attribute names.
+ 		 */
+-		return len;
++		err = len;
++		goto out_err;
++	}
+ 
+-	if (len > size)
+-		return -ERANGE;
++	if (len > size) {
++		err = -ERANGE;
++		goto out_err;
++	}
+ 
+ 	lowest_xent_key(c, &key, host->i_ino);
+ 	while (1) {
+@@ -437,8 +446,9 @@ ssize_t ubifs_listxattr(struct dentry *d
+ 		pxent = xent;
+ 		key_read(c, &xent->key, &key);
+ 	}
+-
+ 	kfree(pxent);
++	up_read(&host_ui->xattr_sem);
++
+ 	if (err != -ENOENT) {
+ 		ubifs_err(c, "cannot find next direntry, error %d", err);
+ 		return err;
+@@ -446,6 +456,10 @@ ssize_t ubifs_listxattr(struct dentry *d
+ 
+ 	ubifs_assert(c, written <= size);
+ 	return written;
++
++out_err:
++	up_read(&host_ui->xattr_sem);
++	return err;
+ }
+ 
+ static int remove_xattr(struct ubifs_info *c, struct inode *host,
+@@ -504,6 +518,7 @@ int ubifs_purge_xattrs(struct inode *hos
+ 	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
+ 		   host->i_ino);
+ 
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	lowest_xent_key(c, &key, host->i_ino);
+ 	while (1) {
+ 		xent = ubifs_tnc_next_ent(c, &key, &nm);
+@@ -523,7 +538,7 @@ int ubifs_purge_xattrs(struct inode *hos
+ 			ubifs_ro_mode(c, err);
+ 			kfree(pxent);
+ 			kfree(xent);
+-			return err;
++			goto out_err;
+ 		}
+ 
+ 		ubifs_assert(c, ubifs_inode(xino)->xattr);
+@@ -535,7 +550,7 @@ int ubifs_purge_xattrs(struct inode *hos
+ 			kfree(xent);
+ 			iput(xino);
+ 			ubifs_err(c, "cannot remove xattr, error %d", err);
+-			return err;
++			goto out_err;
+ 		}
+ 
+ 		iput(xino);
+@@ -544,14 +559,19 @@ int ubifs_purge_xattrs(struct inode *hos
+ 		pxent = xent;
+ 		key_read(c, &xent->key, &key);
+ 	}
+-
+ 	kfree(pxent);
++	up_write(&ubifs_inode(host)->xattr_sem);
++
+ 	if (err != -ENOENT) {
+ 		ubifs_err(c, "cannot find next direntry, error %d", err);
+ 		return err;
+ 	}
+ 
+ 	return 0;
++
++out_err:
++	up_write(&ubifs_inode(host)->xattr_sem);
++	return err;
+ }
+ 
+ /**
+@@ -594,6 +614,7 @@ static int ubifs_xattr_remove(struct ino
+ 	if (!xent)
+ 		return -ENOMEM;
+ 
++	down_write(&ubifs_inode(host)->xattr_sem);
+ 	xent_key_init(c, &key, host->i_ino, &nm);
+ 	err = ubifs_tnc_lookup_nm(c, &key, xent, &nm);
+ 	if (err) {
+@@ -618,6 +639,7 @@ static int ubifs_xattr_remove(struct ino
+ 	iput(inode);
+ 
+ out_free:
++	up_write(&ubifs_inode(host)->xattr_sem);
+ 	kfree(xent);
+ 	return err;
+ }
 
 
