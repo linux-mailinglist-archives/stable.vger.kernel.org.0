@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61AA73CA914
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B40E63CAAB2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242237AbhGOTFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38160 "EHLO mail.kernel.org"
+        id S242326AbhGOTPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242356AbhGOTDi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:03:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3B3261406;
-        Thu, 15 Jul 2021 18:59:31 +0000 (UTC)
+        id S242373AbhGOTMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7147613F1;
+        Thu, 15 Jul 2021 19:09:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375572;
-        bh=7u9XNPOxI8rNQ621yv6IIIKnWaV8nYyvd7/1i3zXoNQ=;
+        s=korg; t=1626376157;
+        bh=y6mFcJdQccM5MhzGdGdi5K6I15C5XktbLFX0Z45HUwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8Z6TptgfD1n4TE75cE/ed9Dm6qKuCF4lADvWR5j+5MHkKCMF+UveRn9wTXgO0Pyo
-         B5hABqgY+++m4I8f4DLOJVEAtxZRuw9IvrM8oYg5F3wGV+HAUh52Kk9cHnFn+hz8xW
-         kEqtWOCXQ7lD3hIq2PKnVojKG/p1lFgYHHlBotuE=
+        b=YHlVe3JnBdg7BlfZtxiRs2/6kkK9iz3Fa4lGl2RXpNUxnGDsnVzSnF1hnrxIVy7m+
+         3fwOkIUiMdcBnSaytXzUsd5Y+tC5UJM7d8b/Ho6US5u/U/kVr+G8teFwJG5fxZVMmq
+         6bSWyuUViK6ojT2lMlKVt1m/QEi3fXwXcwaap1cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Weilun Du <wdu@google.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 143/242] Bluetooth: mgmt: Fix the command returns garbage parameter value
+Subject: [PATCH 5.13 150/266] mac80211_hwsim: add concurrent channels scanning support over virtio
 Date:   Thu, 15 Jul 2021 20:38:25 +0200
-Message-Id: <20210715182618.306931062@linuxfoundation.org>
+Message-Id: <20210715182639.850269673@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tedd Ho-Jeong An <tedd.an@intel.com>
+From: Weilun Du <wdu@google.com>
 
-[ Upstream commit 02ce2c2c24024aade65a8d91d6a596651eaf2d0a ]
+[ Upstream commit 626c30f9e77354301ff9162c3bdddaf92d9b5cf3 ]
 
-When the Get Device Flags command fails, it returns the error status
-with the parameters filled with the garbage values. Although the
-parameters are not used, it is better to fill with zero than the random
-values.
+This fixed the crash when setting channels to 2 or more when
+communicating over virtio.
 
-Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Weilun Du <wdu@google.com>
+Link: https://lore.kernel.org/r/20210506180530.3418576-1-wdu@google.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/mac80211_hwsim.c | 48 +++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 10 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 06e24b5e164d..b4f6773b1a5b 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -4056,6 +4056,8 @@ static int get_device_flags(struct sock *sk, struct hci_dev *hdev, void *data,
+diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
+index 7a6fd46d0c6e..ceb089e4a136 100644
+--- a/drivers/net/wireless/mac80211_hwsim.c
++++ b/drivers/net/wireless/mac80211_hwsim.c
+@@ -626,6 +626,7 @@ struct mac80211_hwsim_data {
+ 	u32 ciphers[ARRAY_SIZE(hwsim_ciphers)];
  
- 	hci_dev_lock(hdev);
+ 	struct mac_address addresses[2];
++	struct ieee80211_chanctx_conf *chanctx;
+ 	int channels, idx;
+ 	bool use_chanctx;
+ 	bool destroy_on_close;
+@@ -1257,7 +1258,8 @@ static inline u16 trans_tx_rate_flags_ieee2hwsim(struct ieee80211_tx_rate *rate)
  
-+	memset(&rp, 0, sizeof(rp));
+ static void mac80211_hwsim_tx_frame_nl(struct ieee80211_hw *hw,
+ 				       struct sk_buff *my_skb,
+-				       int dst_portid)
++				       int dst_portid,
++				       struct ieee80211_channel *channel)
+ {
+ 	struct sk_buff *skb;
+ 	struct mac80211_hwsim_data *data = hw->priv;
+@@ -1312,7 +1314,7 @@ static void mac80211_hwsim_tx_frame_nl(struct ieee80211_hw *hw,
+ 	if (nla_put_u32(skb, HWSIM_ATTR_FLAGS, hwsim_flags))
+ 		goto nla_put_failure;
+ 
+-	if (nla_put_u32(skb, HWSIM_ATTR_FREQ, data->channel->center_freq))
++	if (nla_put_u32(skb, HWSIM_ATTR_FREQ, channel->center_freq))
+ 		goto nla_put_failure;
+ 
+ 	/* We get the tx control (rate and retries) info*/
+@@ -1659,7 +1661,7 @@ static void mac80211_hwsim_tx(struct ieee80211_hw *hw,
+ 	_portid = READ_ONCE(data->wmediumd);
+ 
+ 	if (_portid || hwsim_virtio_enabled)
+-		return mac80211_hwsim_tx_frame_nl(hw, skb, _portid);
++		return mac80211_hwsim_tx_frame_nl(hw, skb, _portid, channel);
+ 
+ 	/* NO wmediumd detected, perfect medium simulation */
+ 	data->tx_pkts++;
+@@ -1775,7 +1777,7 @@ static void mac80211_hwsim_tx_frame(struct ieee80211_hw *hw,
+ 	mac80211_hwsim_monitor_rx(hw, skb, chan);
+ 
+ 	if (_pid || hwsim_virtio_enabled)
+-		return mac80211_hwsim_tx_frame_nl(hw, skb, _pid);
++		return mac80211_hwsim_tx_frame_nl(hw, skb, _pid, chan);
+ 
+ 	mac80211_hwsim_tx_frame_no_nl(hw, skb, chan);
+ 	dev_kfree_skb(skb);
+@@ -2514,6 +2516,11 @@ static int mac80211_hwsim_croc(struct ieee80211_hw *hw,
+ static int mac80211_hwsim_add_chanctx(struct ieee80211_hw *hw,
+ 				      struct ieee80211_chanctx_conf *ctx)
+ {
++	struct mac80211_hwsim_data *hwsim = hw->priv;
 +
- 	if (cp->addr.type == BDADDR_BREDR) {
- 		br_params = hci_bdaddr_list_lookup_with_flags(&hdev->whitelist,
- 							      &cp->addr.bdaddr,
++	mutex_lock(&hwsim->mutex);
++	hwsim->chanctx = ctx;
++	mutex_unlock(&hwsim->mutex);
+ 	hwsim_set_chanctx_magic(ctx);
+ 	wiphy_dbg(hw->wiphy,
+ 		  "add channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
+@@ -2525,6 +2532,11 @@ static int mac80211_hwsim_add_chanctx(struct ieee80211_hw *hw,
+ static void mac80211_hwsim_remove_chanctx(struct ieee80211_hw *hw,
+ 					  struct ieee80211_chanctx_conf *ctx)
+ {
++	struct mac80211_hwsim_data *hwsim = hw->priv;
++
++	mutex_lock(&hwsim->mutex);
++	hwsim->chanctx = NULL;
++	mutex_unlock(&hwsim->mutex);
+ 	wiphy_dbg(hw->wiphy,
+ 		  "remove channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
+ 		  ctx->def.chan->center_freq, ctx->def.width,
+@@ -2537,6 +2549,11 @@ static void mac80211_hwsim_change_chanctx(struct ieee80211_hw *hw,
+ 					  struct ieee80211_chanctx_conf *ctx,
+ 					  u32 changed)
+ {
++	struct mac80211_hwsim_data *hwsim = hw->priv;
++
++	mutex_lock(&hwsim->mutex);
++	hwsim->chanctx = ctx;
++	mutex_unlock(&hwsim->mutex);
+ 	hwsim_check_chanctx_magic(ctx);
+ 	wiphy_dbg(hw->wiphy,
+ 		  "change channel context control: %d MHz/width: %d/cfreqs:%d/%d MHz\n",
+@@ -3129,6 +3146,7 @@ static int mac80211_hwsim_new_radio(struct genl_info *info,
+ 		hw->wiphy->max_remain_on_channel_duration = 1000;
+ 		data->if_combination.radar_detect_widths = 0;
+ 		data->if_combination.num_different_channels = data->channels;
++		data->chanctx = NULL;
+ 	} else {
+ 		data->if_combination.num_different_channels = 1;
+ 		data->if_combination.radar_detect_widths =
+@@ -3638,6 +3656,7 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
+ 	int frame_data_len;
+ 	void *frame_data;
+ 	struct sk_buff *skb = NULL;
++	struct ieee80211_channel *channel = NULL;
+ 
+ 	if (!info->attrs[HWSIM_ATTR_ADDR_RECEIVER] ||
+ 	    !info->attrs[HWSIM_ATTR_FRAME] ||
+@@ -3664,6 +3683,17 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
+ 	if (!data2)
+ 		goto out;
+ 
++	if (data2->use_chanctx) {
++		if (data2->tmp_chan)
++			channel = data2->tmp_chan;
++		else if (data2->chanctx)
++			channel = data2->chanctx->def.chan;
++	} else {
++		channel = data2->channel;
++	}
++	if (!channel)
++		goto out;
++
+ 	if (!hwsim_virtio_enabled) {
+ 		if (hwsim_net_get_netgroup(genl_info_net(info)) !=
+ 		    data2->netgroup)
+@@ -3675,7 +3705,7 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
+ 
+ 	/* check if radio is configured properly */
+ 
+-	if (data2->idle || !data2->started)
++	if ((data2->idle && !data2->tmp_chan) || !data2->started)
+ 		goto out;
+ 
+ 	/* A frame is received from user space */
+@@ -3688,18 +3718,16 @@ static int hwsim_cloned_frame_received_nl(struct sk_buff *skb_2,
+ 		mutex_lock(&data2->mutex);
+ 		rx_status.freq = nla_get_u32(info->attrs[HWSIM_ATTR_FREQ]);
+ 
+-		if (rx_status.freq != data2->channel->center_freq &&
+-		    (!data2->tmp_chan ||
+-		     rx_status.freq != data2->tmp_chan->center_freq)) {
++		if (rx_status.freq != channel->center_freq) {
+ 			mutex_unlock(&data2->mutex);
+ 			goto out;
+ 		}
+ 		mutex_unlock(&data2->mutex);
+ 	} else {
+-		rx_status.freq = data2->channel->center_freq;
++		rx_status.freq = channel->center_freq;
+ 	}
+ 
+-	rx_status.band = data2->channel->band;
++	rx_status.band = channel->band;
+ 	rx_status.rate_idx = nla_get_u32(info->attrs[HWSIM_ATTR_RX_RATE]);
+ 	rx_status.signal = nla_get_u32(info->attrs[HWSIM_ATTR_SIGNAL]);
+ 
 -- 
 2.30.2
 
