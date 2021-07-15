@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5C03CAB6F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8AA3CAB7A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343492AbhGOTUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:20:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58962 "EHLO mail.kernel.org"
+        id S244791AbhGOTUX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244401AbhGOTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243578AbhGOTSJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:18:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C0B061421;
-        Thu, 15 Jul 2021 19:13:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FB8661413;
+        Thu, 15 Jul 2021 19:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376395;
-        bh=P3nul/DVQE1yucoSl3ntix5TE48M+uyV2iDO53DBZQU=;
+        s=korg; t=1626376397;
+        bh=VaSw8eXxJwYqDAsNRRTpRkjq+fkc9jcRrS0A8LIPC8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1b3N+ukzyX1addTobLMGNjqUYUmLM2aVnJQeVHW3kLAfSftSJyAzft6HSSvCNqr8r
-         i9HhovhcLt1IJ3JW1Sr/WaomprHmjPDPYcw2pC1P+8YT0DuCOljQpd3+FEAR0uHTh8
-         pxdQHYdaih/UCgfgGGQ90okmo5Zp4uzV0TG0/JQc=
+        b=wFx5tLWWZMd4iSX0BMqru0KUrNQ9tfEfkE1KPG4ApJqh69UNzgJpbFy2KtgsmsueW
+         6lqqoUAVlU+737H3cYtY13kORbOPn4AXtacxycHqrQ78v9JAa+wXihig8wLMxC/REs
+         N/7pFp6HrySHGV+pPvOTzLx+UVfAyrrta0O8Yh4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Timo Sigurdsson <public_timo.s@silentcreek.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.13 212/266] ata: ahci_sunxi: Disable DIPM
-Date:   Thu, 15 Jul 2021 20:39:27 +0200
-Message-Id: <20210715182647.159848335@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        ZhuRui <zhurui3@huawei.com>, Zhenyu Ye <yezhenyu2@huawei.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.13 213/266] arm64: tlb: fix the TTL value of tlb_get_level
+Date:   Thu, 15 Jul 2021 20:39:28 +0200
+Message-Id: <20210715182647.282771820@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -40,43 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Sigurdsson <public_timo.s@silentcreek.de>
+From: Zhenyu Ye <yezhenyu2@huawei.com>
 
-commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
+commit 52218fcd61cb42bde0d301db4acb3ffdf3463cc7 upstream.
 
-DIPM is unsupported or broken on sunxi. Trying to enable the power
-management policy med_power_with_dipm on an Allwinner A20 SoC based board
-leads to immediate I/O errors and the attached SATA disk disappears from
-the /dev filesystem. A reset (power cycle) is required to make the SATA
-controller or disk work again. The A10 and A20 SoC data sheets and manuals
-don't mention DIPM at all [1], so it's fair to assume that it's simply not
-supported. But even if it was, it should be considered broken and best be
-disabled in the ahci_sunxi driver.
+The TTL field indicates the level of page table walk holding the *leaf*
+entry for the address being invalidated. But currently, the TTL field
+may be set to an incorrent value in the following stack:
 
-[1] https://github.com/allwinner-zh/documents/tree/master/
+pte_free_tlb
+    __pte_free_tlb
+        tlb_remove_table
+            tlb_table_invalidate
+                tlb_flush_mmu_tlbonly
+                    tlb_flush
 
-Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
-Cc: stable@vger.kernel.org
-Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+In this case, we just want to flush a PTE page, but the tlb->cleared_pmds
+is set and we get tlb_level = 2 in the tlb_get_level() function. This may
+cause some unexpected problems.
+
+This patch set the TTL field to 0 if tlb->freed_tables is set. The
+tlb->freed_tables indicates page table pages are freed, not the leaf
+entry.
+
+Cc: <stable@vger.kernel.org> # 5.9.x
+Fixes: c4ab2cbc1d87 ("arm64: tlb: Set the TTL field in flush_tlb_range")
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: ZhuRui <zhurui3@huawei.com>
+Signed-off-by: Zhenyu Ye <yezhenyu2@huawei.com>
+Link: https://lore.kernel.org/r/b80ead47-1f88-3a00-18e1-cacc22f54cc4@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/ahci_sunxi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/include/asm/tlb.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/ata/ahci_sunxi.c
-+++ b/drivers/ata/ahci_sunxi.c
-@@ -200,7 +200,7 @@ static void ahci_sunxi_start_engine(stru
- }
- 
- static const struct ata_port_info ahci_sunxi_port_info = {
--	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
-+	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
- 	.pio_mask	= ATA_PIO4,
- 	.udma_mask	= ATA_UDMA6,
- 	.port_ops	= &ahci_platform_ops,
+--- a/arch/arm64/include/asm/tlb.h
++++ b/arch/arm64/include/asm/tlb.h
+@@ -28,6 +28,10 @@ static void tlb_flush(struct mmu_gather
+  */
+ static inline int tlb_get_level(struct mmu_gather *tlb)
+ {
++	/* The TTL field is only valid for the leaf entry. */
++	if (tlb->freed_tables)
++		return 0;
++
+ 	if (tlb->cleared_ptes && !(tlb->cleared_pmds ||
+ 				   tlb->cleared_puds ||
+ 				   tlb->cleared_p4ds))
 
 
