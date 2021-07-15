@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0563C9F88
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7EB3C9F89
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235859AbhGONgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:36:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51174 "EHLO mail.kernel.org"
+        id S230211AbhGONg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:36:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233957AbhGONgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5493613C4;
-        Thu, 15 Jul 2021 13:33:30 +0000 (UTC)
+        id S233957AbhGONg1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:36:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1218A613C3;
+        Thu, 15 Jul 2021 13:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626356011;
-        bh=IVP/s33scCUhAITuuMBnyFZ3AUfIr+z6Xyu4lroBTN0=;
+        s=korg; t=1626356013;
+        bh=hKmn/T5Uh33oc2OlN0XwC1OiRU8hJsiWywFQGfkba88=;
         h=Subject:To:Cc:From:Date:From;
-        b=lV9ctHL82d28Qp827O/fEE3dT82k1w3rZT79D5QOKwfFWa/5HM2XAGoWJy61BtUxw
-         emsh4Kg0+gCYYXp0SfTF7gRmFDg/WhA7vhtFPXFD2/+5wDxlqH61tAuSm8xa4Gjo2m
-         et+VpWN5DU0jtB1RR5LlpdkA1+oaPlrp/mLsUXRg=
-Subject: FAILED: patch "[PATCH] xfrm: policy: Read seqcount outside of rcu-read side in" failed to apply to 4.14-stable tree
+        b=LaVUP2l6i7sKlrSruqPqxyfzGwomiHBAO4Ze7EB4QTRkvs4T4JErxk6UBocAm6KM2
+         Qg0s154wTF5HZVlIfVAGi4QRa3oF3NFtOmdhFteIQclPTqqkBSXFBpno5yr8gIkI/9
+         Wev/qz4Efo7nVGMAfmXcLJsayf3DbXDVkZmkAXZE=
+Subject: FAILED: patch "[PATCH] xfrm: policy: Read seqcount outside of rcu-read side in" failed to apply to 4.9-stable tree
 To:     varad.gautam@suse.com, a.darwish@linutronix.de,
         davem@davemloft.net, fw@strlen.de, herbert@gondor.apana.org.au,
         kuba@kernel.org, linux-rt-users@vger.kernel.org,
         steffen.klassert@secunet.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:33:21 +0200
-Message-ID: <162635600118223@kroah.com>
+Date:   Thu, 15 Jul 2021 15:33:22 +0200
+Message-ID: <162635600214113@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +37,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
