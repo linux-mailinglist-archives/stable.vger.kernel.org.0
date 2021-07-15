@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E113CA89C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A78E93CA5B6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242340AbhGOTBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
+        id S231223AbhGOSoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241901AbhGOTBL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:01:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79798613D3;
-        Thu, 15 Jul 2021 18:57:45 +0000 (UTC)
+        id S231145AbhGOSoE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 640CF613CF;
+        Thu, 15 Jul 2021 18:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375466;
-        bh=3uC1IbFr2lkzY3C+U2Tiset1LD7mESzC9mOCdlJVX9Y=;
+        s=korg; t=1626374469;
+        bh=QPgQE2G1/gCeuN/4WN1kwXiMfVifxrdMfmmLcWoYOf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ATUG5PCUuC+uPAK9dhyWlMkoYHHdVpuoUcFze06HjHzcgk0557HVNUTIPxYuMTlVC
-         OzowW6vyiJLVMVkayUymeXQnw6VuB9H93CUF/FaylJnH57bTyGF1aRRnGXGFvxJp/p
-         5+0+6uzAA4ZzWrczw8Ii1M9wEexhhm3oWurwpt6U=
+        b=NPgGJ1pebMKdCeHFAEjX0QugYjKvB/maaLpKEraGlcXzCRbor3l983itn262lBGyi
+         md+V/LSKeLhw4XccP2GXBpaJdWp3SMkrrjwNPaqWcSmQW2U9OJboMNsNbz++Le1h+j
+         a32rClzIwSRPw0VbA7Jv4XXOu4Uxpq/ov9Gvlees=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 098/242] net: fix mistake path for netdev_features_strings
+Subject: [PATCH 5.4 013/122] reiserfs: add check for invalid 1st journal block
 Date:   Thu, 15 Jul 2021 20:37:40 +0200
-Message-Id: <20210715182610.338124181@linuxfoundation.org>
+Message-Id: <20210715182452.558874251@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 2d8ea148e553e1dd4e80a87741abdfb229e2b323 ]
+[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
 
-Th_strings arrays netdev_features_strings, tunable_strings, and
-phy_tunable_strings has been moved to file net/ethtool/common.c.
-So fixes the comment.
+syzbot reported divide error in reiserfs.
+The problem was in incorrect journal 1st block.
 
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Syzbot's reproducer manualy generated wrong superblock
+with incorrect 1st block. In journal_init() wasn't
+any checks about this particular case.
+
+For example, if 1st journal block is before superblock
+1st block, it can cause zeroing important superblock members
+in do_journal_end().
+
+Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
+Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdev_features.h | 2 +-
- include/uapi/linux/ethtool.h    | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/reiserfs/journal.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
-index 3de38d6a0aea..2c6b9e416225 100644
---- a/include/linux/netdev_features.h
-+++ b/include/linux/netdev_features.h
-@@ -93,7 +93,7 @@ enum {
+diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+index 4b3e3e73b512..09ad022a78a5 100644
+--- a/fs/reiserfs/journal.c
++++ b/fs/reiserfs/journal.c
+@@ -2763,6 +2763,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
+ 		goto free_and_return;
+ 	}
  
- 	/*
- 	 * Add your fresh new feature above and remember to update
--	 * netdev_features_strings[] in net/core/ethtool.c and maybe
-+	 * netdev_features_strings[] in net/ethtool/common.c and maybe
- 	 * some feature mask #defines below. Please also describe it
- 	 * in Documentation/networking/netdev-features.rst.
- 	 */
-diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
-index 5afea692a3f7..e36eee9132ec 100644
---- a/include/uapi/linux/ethtool.h
-+++ b/include/uapi/linux/ethtool.h
-@@ -233,7 +233,7 @@ enum tunable_id {
- 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
- 	/*
- 	 * Add your fresh new tunable attribute above and remember to update
--	 * tunable_strings[] in net/core/ethtool.c
-+	 * tunable_strings[] in net/ethtool/common.c
- 	 */
- 	__ETHTOOL_TUNABLE_COUNT,
- };
-@@ -297,7 +297,7 @@ enum phy_tunable_id {
- 	ETHTOOL_PHY_EDPD,
- 	/*
- 	 * Add your fresh new phy tunable attribute above and remember to update
--	 * phy_tunable_strings[] in net/core/ethtool.c
-+	 * phy_tunable_strings[] in net/ethtool/common.c
- 	 */
- 	__ETHTOOL_PHY_TUNABLE_COUNT,
- };
++	/*
++	 * Sanity check to see if journal first block is correct.
++	 * If journal first block is invalid it can cause
++	 * zeroing important superblock members.
++	 */
++	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
++	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
++		reiserfs_warning(sb, "journal-1393",
++				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
++				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
++				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
++		goto free_and_return;
++	}
++
+ 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
+ 		reiserfs_warning(sb, "sh-462",
+ 				 "unable to initialize journal device");
 -- 
 2.30.2
 
