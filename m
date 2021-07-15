@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 539AA3CA617
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46803CA7B7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237742AbhGOSqP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47128 "EHLO mail.kernel.org"
+        id S242416AbhGOS4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237813AbhGOSqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 351F361396;
-        Thu, 15 Jul 2021 18:43:11 +0000 (UTC)
+        id S240256AbhGOSxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E59C613ED;
+        Thu, 15 Jul 2021 18:50:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374591;
-        bh=eSSeVjX4tABcygdynp3aCwh5KTzk60SBxkDdrdVEiRs=;
+        s=korg; t=1626375055;
+        bh=uVE04i3VRKABrlOZWq05fkd587OP1AIH8sa9nrjJCBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hfcerTPBFtJEC3Q2ad4SgkmJprSGcLAe0euEjS1i36hgAWEnZHEnqkkm/ADzvZOiv
-         DIwIBetHqtmV4JQFtIWQ43J7Z7CY94pF/7tzGZJ6nAzi4YY8v0/Uky4V2HFytoHs++
-         zyBA/cPLn7+kmwJX4DT9ulN+RJEe4vOzCBTmbFzA=
+        b=2N6HPgzXULrEFGQahfmJjCe6XJFZLFM2H52VEIZn3XmykS1OceN/n4KMRFLoQQawW
+         leRRkvyqk5brnvzypZy+JzSKFN7REwI7ioBkGMq96yhQHuVs+LF0EJuNI2LxdGjWy0
+         16Laxw7SOTo1ZPUXcmObW6+VTwa9yZxazvJ3e4YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerd Rausch <gerd.rausch@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/122] RDMA/cma: Fix rdma_resolve_route() memory leak
-Date:   Thu, 15 Jul 2021 20:38:30 +0200
-Message-Id: <20210715182506.276275401@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eric Desrochers <eric.desrochers@canonical.com>,
+        Mauricio Faria de Oliveira <mfo@canonical.com>,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Hanjun Guo <guohanjun@huawei.com>
+Subject: [PATCH 5.10 139/215] loop: fix I/O error on fsync() in detached loop devices
+Date:   Thu, 15 Jul 2021 20:38:31 +0200
+Message-Id: <20210715182624.121950937@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Rausch <gerd.rausch@oracle.com>
+From: Mauricio Faria de Oliveira <mfo@canonical.com>
 
-[ Upstream commit 74f160ead74bfe5f2b38afb4fcf86189f9ff40c9 ]
+commit 4ceddce55eb35d15b0f87f5dcf6f0058fd15d3a4 upstream.
 
-Fix a memory leak when "mda_resolve_route() is called more than once on
-the same "rdma_cm_id".
+There's an I/O error on fsync() in a detached loop device
+if it has been previously attached.
 
-This is possible if cma_query_handler() triggers the
-RDMA_CM_EVENT_ROUTE_ERROR flow which puts the state machine back and
-allows rdma_resolve_route() to be called again.
+The issue is write cache is enabled in the attach path in
+loop_configure() but it isn't disabled in the detach path;
+thus it remains enabled in the block device regardless of
+whether it is attached or not.
 
-Link: https://lore.kernel.org/r/f6662b7b-bdb7-2706-1e12-47c61d3474b6@oracle.com
-Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Now fsync() can get an I/O request that will just be failed
+later in loop_queue_rq() as device's state is not 'Lo_bound'.
+
+So, disable write cache in the detach path.
+
+Do so based on the queue flag, not the loop device flag for
+read-only (used to enable) as the queue flag can be changed
+via sysfs even on read-only loop devices (e.g., losetup -r.)
+
+Test-case:
+
+    # DEV=/dev/loop7
+
+    # IMG=/tmp/image
+    # truncate --size 1M $IMG
+
+    # losetup $DEV $IMG
+    # losetup -d $DEV
+
+Before:
+
+    # strace -e fsync parted -s $DEV print 2>&1 | grep fsync
+    fsync(3)                                = -1 EIO (Input/output error)
+    Warning: Error fsyncing/closing /dev/loop7: Input/output error
+    [  982.529929] blk_update_request: I/O error, dev loop7, sector 0 op 0x1:(WRITE) flags 0x800 phys_seg 0 prio class 0
+
+After:
+
+    # strace -e fsync parted -s $DEV print 2>&1 | grep fsync
+    fsync(3)                                = 0
+
+Co-developed-by: Eric Desrochers <eric.desrochers@canonical.com>
+Signed-off-by: Eric Desrochers <eric.desrochers@canonical.com>
+Signed-off-by: Mauricio Faria de Oliveira <mfo@canonical.com>
+Tested-by: Gabriel Krisman Bertazi <krisman@collabora.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/loop.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 92428990f0cc..ec9e9598894f 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2719,7 +2719,8 @@ static int cma_resolve_ib_route(struct rdma_id_private *id_priv,
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1224,6 +1224,9 @@ static int __loop_clr_fd(struct loop_dev
+ 		goto out_unlock;
+ 	}
  
- 	cma_init_resolve_route_work(work, id_priv);
++	if (test_bit(QUEUE_FLAG_WC, &lo->lo_queue->queue_flags))
++		blk_queue_write_cache(lo->lo_queue, false, false);
++
+ 	/* freeze request queue during the transition */
+ 	blk_mq_freeze_queue(lo->lo_queue);
  
--	route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
-+	if (!route->path_rec)
-+		route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
- 	if (!route->path_rec) {
- 		ret = -ENOMEM;
- 		goto err1;
--- 
-2.30.2
-
 
 
