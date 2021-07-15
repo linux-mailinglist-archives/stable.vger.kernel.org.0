@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7463CA5F9
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D0FC3CA76B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235622AbhGOSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46216 "EHLO mail.kernel.org"
+        id S240987AbhGOSxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:53:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231193AbhGOSpd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA0D61396;
-        Thu, 15 Jul 2021 18:42:38 +0000 (UTC)
+        id S240575AbhGOSxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA4F1613EB;
+        Thu, 15 Jul 2021 18:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374559;
-        bh=SgchSdyMjIM8hkJyq6+OQX/R7CAhcXTq1tfjK5njyJA=;
+        s=korg; t=1626375020;
+        bh=weH4CNkH3qClIGicJA8ZV2exCFsK3zq5d/yVwQmLTII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6CaBwc+rqeDmwdKe21wfm7wc9JbNlia/vL+oq4AGYgNoCJFp+3YBXFJCNHdvfBjm
-         eajL2pKeRz51jwYLjYqu8TD/cgA5TD6zsQ2cX+HNjhdD7uGan2rPY76Cc9dquuYibM
-         tn5DhTTo5qZhIiWaQIhZuHU3czgza97QXR3GLxf0=
+        b=v56xocDE9/A9P29uB/cLFr8+imlJ3/C7xqyKie/r1D9Gy42JwyE26J8SBcB8UQBjI
+         ag+HskW2xCOv9GtktnvKAcOsUWh8Sm1qv8wcmilMskFj9P5G6yrOve5XsO+Q+eaETm
+         TKm56DewXGUyjNIND/cZnbQBUKQ9Zgcj4QQr6nPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Tim Jiang <tjiang@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/122] MIPS: add PMD table accounting into MIPSpmd_alloc_one
+Subject: [PATCH 5.10 125/215] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
 Date:   Thu, 15 Jul 2021 20:38:17 +0200
-Message-Id: <20210715182501.665585780@linuxfoundation.org>
+Message-Id: <20210715182621.546769828@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: Tim Jiang <tjiang@codeaurora.org>
 
-[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
+[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
 
-This fixes Page Table accounting bug.
+This is btsoc timing issue, after host start to downloading bt firmware,
+ep2 need time to switch from function acl to function dfu, so host add
+20ms delay as workaround.
 
-MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
-Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
-"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
-in MIPS without PMD table accounting causes PageTable accounting number
-negative, which read by global_zone_page_state(), always returns 0.
-
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/pgalloc.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btusb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 166842337eb2..dd10854321ca 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -62,11 +62,15 @@ do {							\
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index b3c63e06838d..afd2b1f12d49 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -3558,6 +3558,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
+ 	sent += size;
+ 	count -= size;
  
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *pmd;
-+	pmd_t *pmd = NULL;
-+	struct page *pg;
- 
--	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
--	if (pmd)
-+	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
-+	if (pg) {
-+		pgtable_pmd_page_ctor(pg);
-+		pmd = (pmd_t *)page_address(pg);
- 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
-+	}
- 	return pmd;
- }
++	/* ep2 need time to switch from function acl to function dfu,
++	 * so we add 20ms delay here.
++	 */
++	msleep(20);
++
+ 	while (count) {
+ 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
  
 -- 
 2.30.2
