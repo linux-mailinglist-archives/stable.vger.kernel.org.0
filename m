@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0A03CA647
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98B63CA7A7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238459AbhGOSq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48666 "EHLO mail.kernel.org"
+        id S241715AbhGOSzt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238435AbhGOSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D4EC613D1;
-        Thu, 15 Jul 2021 18:44:02 +0000 (UTC)
+        id S241900AbhGOSyl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FC68613CC;
+        Thu, 15 Jul 2021 18:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374642;
-        bh=zwBPlP15GbZeL7/OOSXPzt1lhHHQkIyK6HZoikE3Jt0=;
+        s=korg; t=1626375106;
+        bh=jSKqkZ+UU4PmhEyzCaosrPO3qLRJWJGjTNDb4ZWQLdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/Qa0I7LoJvx8OvTqDUJDzShNMfoGGI+yt6OpwkJ5vz7AwCYp8NxsFfg6ocUAL/1E
-         YyENBMzNiFkOHToudwTu0oJ0/SZlkULG8WEdgwdIUyAyE7KwQGaBo3MbwEWfqGsK0t
-         hMvW+H06CAGDxSqAGKQ4ToQcBMCmOMyODlcR2cu8=
+        b=ykMjRaW+a8NiPAofeM82UEcFHkg+S9B+WZClhuxP8O6L1+uLOpT+kCoZDhxBDs1UA
+         x7lmurF35M4Kfm7pfOeB2nKGtT8zq7j4CGkVUxJShpuTATTwUBynKWbe/Y09X1iEdA
+         0HfgrG6R2Ms7PCt3HaFHDEY+3N6kWoggC9b+Qesk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 087/122] mmc: core: clear flags before allowing to retune
-Date:   Thu, 15 Jul 2021 20:38:54 +0200
-Message-Id: <20210715182513.841034208@linuxfoundation.org>
+        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Brian Starkey <brian.starkey@arm.com>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 5.10 163/215] drm/arm/malidp: Always list modifiers
+Date:   Thu, 15 Jul 2021 20:38:55 +0200
+Message-Id: <20210715182628.344430770@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,56 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 77347eda64ed5c9383961d1de9165f9d0b7d8df6 upstream.
+commit 26c3e7fd5a3499e408915dadae5d5360790aae9a upstream.
 
-It might be that something goes wrong during tuning so the MMC core will
-immediately trigger a retune. In our case it was:
+Even when all we support is linear, make that explicit. Otherwise the
+uapi is rather confusing.
 
- - we sent a tuning block
- - there was an error so we need to send an abort cmd to the eMMC
- - the abort cmd had a CRC error
- - retune was set by the MMC core
-
-This lead to a vicious circle causing a performance regression of 75%.
-So, clear retuning flags before we enable retuning to start with a known
-cleared state.
-
-Reported-by Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Fixes: bd11e8bd03ca ("mmc: core: Flag re-tuning is needed on CRC errors")
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210624151616.38770-2-wsa+renesas@sang-engineering.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Brian Starkey <brian.starkey@arm.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-2-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/core.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/arm/malidp_planes.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/core/core.c
-+++ b/drivers/mmc/core/core.c
-@@ -953,11 +953,14 @@ int mmc_execute_tuning(struct mmc_card *
+--- a/drivers/gpu/drm/arm/malidp_planes.c
++++ b/drivers/gpu/drm/arm/malidp_planes.c
+@@ -922,6 +922,11 @@ static const struct drm_plane_helper_fun
+ 	.atomic_disable = malidp_de_plane_disable,
+ };
  
- 	err = host->ops->execute_tuning(host, opcode);
++static const uint64_t linear_only_modifiers[] = {
++	DRM_FORMAT_MOD_LINEAR,
++	DRM_FORMAT_MOD_INVALID
++};
++
+ int malidp_de_planes_init(struct drm_device *drm)
+ {
+ 	struct malidp_drm *malidp = drm->dev_private;
+@@ -985,8 +990,8 @@ int malidp_de_planes_init(struct drm_dev
+ 		 */
+ 		ret = drm_universal_plane_init(drm, &plane->base, crtcs,
+ 				&malidp_de_plane_funcs, formats, n,
+-				(id == DE_SMART) ? NULL : modifiers, plane_type,
+-				NULL);
++				(id == DE_SMART) ? linear_only_modifiers : modifiers,
++				plane_type, NULL);
  
--	if (err)
-+	if (err) {
- 		pr_err("%s: tuning execution failed: %d\n",
- 			mmc_hostname(host), err);
--	else
-+	} else {
-+		host->retune_now = 0;
-+		host->need_retune = 0;
- 		mmc_retune_enable(host);
-+	}
- 
- 	return err;
- }
+ 		if (ret < 0)
+ 			goto cleanup;
 
 
