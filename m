@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0981C3CA011
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8720F3CA017
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:50:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbhGONxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:53:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S238058AbhGONx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:53:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232091AbhGONxW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:53:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9ED61289;
-        Thu, 15 Jul 2021 13:50:28 +0000 (UTC)
+        id S238036AbhGONx3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:53:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D221613C3;
+        Thu, 15 Jul 2021 13:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626357029;
-        bh=dz/BCFERFzPNTrtC+HwCPgzzMBFZKFeGYqPtGS1tTes=;
+        s=korg; t=1626357035;
+        bh=T3sUQVitdog7mAFwCy5jHiPmnKQ5Dy/P3QoKIL1x8UE=;
         h=Subject:To:Cc:From:Date:From;
-        b=SpijcL1ZyRCbB0kIaNzqX4b1/vtvDk29rToYmFxLQ7de9ny70UUaXmwGrluHQb9ay
-         qQBV1vW5j22G2SQ1aG8bLScWRyf2l7CWqfKNuRCxUdKT+DGjSUm3ueHv7nL3+X4s0G
-         nCJhN/W2RG3/grG4OVpMxU3lSnDQHC7e3r1KLATE=
-Subject: FAILED: patch "[PATCH] PCI: Suspend/resume quirks for Apple thunderbolt" failed to apply to 4.14-stable tree
-To:     andreas.noever@gmail.com, gregkh@linuxfoundation.org
+        b=ytdkeynvsDlKwflML+sjBGlfxKOdMFh8Ngsu/pcO5hqFgIHGcIDASboiufHBF5tyo
+         xShDMjZt+iJAVR429TmUSiZEotT6HisoBqlFstCCfxB/CSOL00ojKW70T8RjINfXG7
+         MMmFLXxRQpB+yh2TvuaMzBy3dgc8vrL4XuxywOAg=
+Subject: FAILED: patch "[PATCH] media: subdev: disallow ioctl for saa6588/davinci" failed to apply to 4.9-stable tree
+To:     arnd@arndb.de, hverkuil-cisco@xs4all.nl,
+        laurent.pinchart@ideasonboard.com, mchehab+huawei@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:50:17 +0200
-Message-ID: <16263570170188@kroah.com>
+Date:   Thu, 15 Jul 2021 15:50:29 +0200
+Message-ID: <162635702983240@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,138 +46,172 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1df5172c5c251ec24a1bd0f44fe38c841f384330 Mon Sep 17 00:00:00 2001
-From: Andreas Noever <andreas.noever@gmail.com>
-Date: Tue, 3 Jun 2014 22:04:10 +0200
-Subject: [PATCH] PCI: Suspend/resume quirks for Apple thunderbolt
+From 0a7790be182d32b9b332a37cb4206e24fe94b728 Mon Sep 17 00:00:00 2001
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Mon, 14 Jun 2021 12:34:09 +0200
+Subject: [PATCH] media: subdev: disallow ioctl for saa6588/davinci
 
-Add two quirks to support thunderbolt suspend/resume on Apple systems.
-We need to perform two different actions during suspend and resume:
+The saa6588_ioctl() function expects to get called from other kernel
+functions with a 'saa6588_command' pointer, but I found nothing stops it
+from getting called from user space instead, which seems rather dangerous.
 
-The whole controller has to be powered down before suspend. If this is
-not done then the native host interface device will be gone after resume
-if a thunderbolt device was plugged in before suspending. The controller
-represents itself as multiple PCI devices/bridges. To power it down we
-hook into the upstream bridge of the controller and call the magic ACPI
-methods.  Power will be restored automatically during resume (by the
-firmware presumably).
+The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
+command.
 
-During resume we have to wait for the native host interface to
-reestablish all pci tunnels. Since there is no parent-child relationship
-between the NHI and the bridges we have to explicitly wait for them
-using device_pm_wait_for_dev. We do this in the resume_noirq phase of
-the downstream bridges of the controller (which lead into the
-thunderbolt tunnels).
+As a quick fix, add a separate .command() callback pointer for this
+driver and change the two callers over to that.  This change can easily
+get backported to stable kernels if necessary, but since there are only
+two drivers, we may want to eventually replace this with a set of more
+specialized callbacks in the long run.
 
-Signed-off-by: Andreas Noever <andreas.noever@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 03266af20d5f..ca8a171f9689 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -2986,6 +2986,103 @@ DECLARE_PCI_FIXUP_HEADER(0x1814, 0x0601, /* Ralink RT2800 802.11n PCI */
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_REALTEK, 0x8169,
- 			 quirk_broken_intx_masking);
+diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
+index ecb491d5f2ab..d1e0716bdfff 100644
+--- a/drivers/media/i2c/saa6588.c
++++ b/drivers/media/i2c/saa6588.c
+@@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
  
-+#ifdef CONFIG_ACPI
-+/*
-+ * Apple: Shutdown Cactus Ridge Thunderbolt controller.
-+ *
-+ * On Apple hardware the Cactus Ridge Thunderbolt controller needs to be
-+ * shutdown before suspend. Otherwise the native host interface (NHI) will not
-+ * be present after resume if a device was plugged in before suspend.
-+ *
-+ * The thunderbolt controller consists of a pcie switch with downstream
-+ * bridges leading to the NHI and to the tunnel pci bridges.
-+ *
-+ * This quirk cuts power to the whole chip. Therefore we have to apply it
-+ * during suspend_noirq of the upstream bridge.
-+ *
-+ * Power is automagically restored before resume. No action is needed.
-+ */
-+static void quirk_apple_poweroff_thunderbolt(struct pci_dev *dev)
-+{
-+	acpi_handle bridge, SXIO, SXFP, SXLV;
-+
-+	if (!dmi_match(DMI_BOARD_VENDOR, "Apple Inc."))
-+		return;
-+	if (pci_pcie_type(dev) != PCI_EXP_TYPE_UPSTREAM)
-+		return;
-+	bridge = ACPI_HANDLE(&dev->dev);
-+	if (!bridge)
-+		return;
-+	/*
-+	 * SXIO and SXLV are present only on machines requiring this quirk.
-+	 * TB bridges in external devices might have the same device id as those
-+	 * on the host, but they will not have the associated ACPI methods. This
-+	 * implicitly checks that we are at the right bridge.
-+	 */
-+	if (ACPI_FAILURE(acpi_get_handle(bridge, "DSB0.NHI0.SXIO", &SXIO))
-+	    || ACPI_FAILURE(acpi_get_handle(bridge, "DSB0.NHI0.SXFP", &SXFP))
-+	    || ACPI_FAILURE(acpi_get_handle(bridge, "DSB0.NHI0.SXLV", &SXLV)))
-+		return;
-+	dev_info(&dev->dev, "quirk: cutting power to thunderbolt controller...\n");
-+
-+	/* magic sequence */
-+	acpi_execute_simple_method(SXIO, NULL, 1);
-+	acpi_execute_simple_method(SXFP, NULL, 0);
-+	msleep(300);
-+	acpi_execute_simple_method(SXLV, NULL, 0);
-+	acpi_execute_simple_method(SXIO, NULL, 0);
-+	acpi_execute_simple_method(SXLV, NULL, 0);
-+}
-+DECLARE_PCI_FIXUP_SUSPEND_LATE(PCI_VENDOR_ID_INTEL, 0x1547,
-+			       quirk_apple_poweroff_thunderbolt);
-+
-+/*
-+ * Apple: Wait for the thunderbolt controller to reestablish pci tunnels.
-+ *
-+ * During suspend the thunderbolt controller is reset and all pci
-+ * tunnels are lost. The NHI driver will try to reestablish all tunnels
-+ * during resume. We have to manually wait for the NHI since there is
-+ * no parent child relationship between the NHI and the tunneled
-+ * bridges.
-+ */
-+static void quirk_apple_wait_for_thunderbolt(struct pci_dev *dev)
-+{
-+	struct pci_dev *sibling = NULL;
-+	struct pci_dev *nhi = NULL;
-+
-+	if (!dmi_match(DMI_BOARD_VENDOR, "Apple Inc."))
-+		return;
-+	if (pci_pcie_type(dev) != PCI_EXP_TYPE_DOWNSTREAM)
-+		return;
-+	/*
-+	 * Find the NHI and confirm that we are a bridge on the tb host
-+	 * controller and not on a tb endpoint.
-+	 */
-+	sibling = pci_get_slot(dev->bus, 0x0);
-+	if (sibling == dev)
-+		goto out; /* we are the downstream bridge to the NHI */
-+	if (!sibling || !sibling->subordinate)
-+		goto out;
-+	nhi = pci_get_slot(sibling->subordinate, 0x0);
-+	if (!nhi)
-+		goto out;
-+	if (nhi->vendor != PCI_VENDOR_ID_INTEL
-+			|| (nhi->device != 0x1547 && nhi->device != 0x156c)
-+			|| nhi->subsystem_vendor != 0x2222
-+			|| nhi->subsystem_device != 0x1111)
-+		goto out;
-+	dev_info(&dev->dev, "quirk: wating for thunderbolt to reestablish pci tunnels...\n");
-+	device_pm_wait_for_dev(&dev->dev, &nhi->dev);
-+out:
-+	pci_dev_put(nhi);
-+	pci_dev_put(sibling);
-+}
-+DECLARE_PCI_FIXUP_RESUME_EARLY(PCI_VENDOR_ID_INTEL, 0x1547,
-+			       quirk_apple_wait_for_thunderbolt);
-+DECLARE_PCI_FIXUP_RESUME_EARLY(PCI_VENDOR_ID_INTEL, 0x156d,
-+			       quirk_apple_wait_for_thunderbolt);
-+#endif
-+
- static void pci_do_fixups(struct pci_dev *dev, struct pci_fixup *f,
- 			  struct pci_fixup *end)
+ /* ---------------------------------------------------------------------- */
+ 
+-static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
++static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
  {
+ 	struct saa6588 *s = to_saa6588(sd);
+ 	struct saa6588_command *a = arg;
+@@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
+ /* ----------------------------------------------------------------------- */
+ 
+ static const struct v4l2_subdev_core_ops saa6588_core_ops = {
+-	.ioctl = saa6588_ioctl,
++	.command = saa6588_command,
+ };
+ 
+ static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
+diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
+index 1f62a9d8ea1d..0e9df8b35ac6 100644
+--- a/drivers/media/pci/bt8xx/bttv-driver.c
++++ b/drivers/media/pci/bt8xx/bttv-driver.c
+@@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
+ 
+ 	btv->radio_user--;
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 
+ 	if (btv->radio_user == 0)
+ 		btv->has_radio_tuner = 0;
+@@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 	radio_enable(btv);
+ 
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
+ 
+ 	return cmd.result;
+ }
+@@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.instance = file;
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = res;
+-	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
+ 
+ 	return cmd.poll_mask;
+ }
+diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
+index 0f9d6b9edb90..374c8e1087de 100644
+--- a/drivers/media/pci/saa7134/saa7134-video.c
++++ b/drivers/media/pci/saa7134/saa7134-video.c
+@@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
+ 
+ 	saa_call_all(dev, tuner, standby);
+ 	if (vdev->vfl_type == VFL_TYPE_RADIO)
+-		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
++		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return 0;
+@@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
+ 	cmd.result = -ENODEV;
+ 
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return cmd.result;
+@@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
+ 	cmd.event_list = wait;
+ 	cmd.poll_mask = 0;
+ 	mutex_lock(&dev->lock);
+-	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
++	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return rc | cmd.poll_mask;
+diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
+index d19bad997f30..bf3c3e76b921 100644
+--- a/drivers/media/platform/davinci/vpbe_display.c
++++ b/drivers/media/platform/davinci/vpbe_display.c
+@@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
+ 
+ 	ret = v4l2_subdev_call(vpbe_dev->venc,
+ 			       core,
+-			       ioctl,
++			       command,
+ 			       VENC_GET_FLD,
+ 			       &val);
+ 	if (ret < 0) {
+diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
+index 8caa084e5704..bde241c26d79 100644
+--- a/drivers/media/platform/davinci/vpbe_venc.c
++++ b/drivers/media/platform/davinci/vpbe_venc.c
+@@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
+ 	return ret;
+ }
+ 
+-static long venc_ioctl(struct v4l2_subdev *sd,
+-			unsigned int cmd,
+-			void *arg)
++static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
+ {
+ 	u32 val;
+ 
+@@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
+ }
+ 
+ static const struct v4l2_subdev_core_ops venc_core_ops = {
+-	.ioctl      = venc_ioctl,
++	.command      = venc_command,
+ };
+ 
+ static const struct v4l2_subdev_video_ops venc_video_ops = {
+diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
+index 89115ba4c0f2..95f8bfd63273 100644
+--- a/include/media/v4l2-subdev.h
++++ b/include/media/v4l2-subdev.h
+@@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
+  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
+  *	a direction argument if needed.
+  *
++ * @command: called by in-kernel drivers in order to call functions internal
++ *	   to subdev drivers driver that have a separate callback.
++ *
+  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
+  *	   used to provide support for private ioctls used on the driver.
+  *
+@@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
+ 	int (*load_fw)(struct v4l2_subdev *sd);
+ 	int (*reset)(struct v4l2_subdev *sd, u32 val);
+ 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
++	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
+ #ifdef CONFIG_COMPAT
+ 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd,
 
