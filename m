@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDB733CA720
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4E113CA89C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238034AbhGOSwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
+        id S242340AbhGOTBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240263AbhGOSvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E0A613E4;
-        Thu, 15 Jul 2021 18:48:55 +0000 (UTC)
+        id S241901AbhGOTBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 79798613D3;
+        Thu, 15 Jul 2021 18:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374936;
-        bh=2eLy2KUJ9zJkmjnPAJBL7V7ulo8mLC0MD/u9tkNFPr0=;
+        s=korg; t=1626375466;
+        bh=3uC1IbFr2lkzY3C+U2Tiset1LD7mESzC9mOCdlJVX9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8F4B3vhySK47JYr64j5+F7sXvkaAJCYhsVGGztPWY/7SsT+Vjeo9rdS/aeNgg/VY
-         X5DsIGkYSo1cNmcyJaid8CeQSQ4dUt7O3X6ASmENNZ1PohAhi4+PUwayO65lY+6fDX
-         sPcHZkgdYkomn5BEtawwGr8jQh3yB/0zX3fxFOwA=
+        b=ATUG5PCUuC+uPAK9dhyWlMkoYHHdVpuoUcFze06HjHzcgk0557HVNUTIPxYuMTlVC
+         OzowW6vyiJLVMVkayUymeXQnw6VuB9H93CUF/FaylJnH57bTyGF1aRRnGXGFvxJp/p
+         5+0+6uzAA4ZzWrczw8Ii1M9wEexhhm3oWurwpt6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/215] net: fix mistake path for netdev_features_strings
+Subject: [PATCH 5.12 098/242] net: fix mistake path for netdev_features_strings
 Date:   Thu, 15 Jul 2021 20:37:40 +0200
-Message-Id: <20210715182614.942657956@linuxfoundation.org>
+Message-Id: <20210715182610.338124181@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,10 +57,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
-index 0b17c4322b09..f96b7f8d82e5 100644
+index 3de38d6a0aea..2c6b9e416225 100644
 --- a/include/linux/netdev_features.h
 +++ b/include/linux/netdev_features.h
-@@ -87,7 +87,7 @@ enum {
+@@ -93,7 +93,7 @@ enum {
  
  	/*
  	 * Add your fresh new feature above and remember to update
@@ -70,10 +70,10 @@ index 0b17c4322b09..f96b7f8d82e5 100644
  	 * in Documentation/networking/netdev-features.rst.
  	 */
 diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
-index cde753bb2093..13772f039c8d 100644
+index 5afea692a3f7..e36eee9132ec 100644
 --- a/include/uapi/linux/ethtool.h
 +++ b/include/uapi/linux/ethtool.h
-@@ -223,7 +223,7 @@ enum tunable_id {
+@@ -233,7 +233,7 @@ enum tunable_id {
  	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
  	/*
  	 * Add your fresh new tunable attribute above and remember to update
@@ -82,7 +82,7 @@ index cde753bb2093..13772f039c8d 100644
  	 */
  	__ETHTOOL_TUNABLE_COUNT,
  };
-@@ -287,7 +287,7 @@ enum phy_tunable_id {
+@@ -297,7 +297,7 @@ enum phy_tunable_id {
  	ETHTOOL_PHY_EDPD,
  	/*
  	 * Add your fresh new phy tunable attribute above and remember to update
