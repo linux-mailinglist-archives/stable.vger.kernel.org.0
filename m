@@ -2,32 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E86693C9EA8
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BE33C9EA9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:31:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229741AbhGOMe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:34:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36596 "EHLO mail.kernel.org"
+        id S229679AbhGOMec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:34:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229707AbhGOMe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBCA61380;
-        Thu, 15 Jul 2021 12:31:34 +0000 (UTC)
+        id S229595AbhGOMec (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:34:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DBF56136E;
+        Thu, 15 Jul 2021 12:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626352295;
-        bh=WZjadpUPnUzwaJAeb9JRZozuUd/6VOusIk/PdR84wQA=;
+        s=korg; t=1626352298;
+        bh=7yFu7cJnENS+busAXR9D32G1Rfb1VXnBmFLqpXsCYoY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Mads0FlGQtu6dEyuJZ11VCtppYGKTEOMUIItTCCJbxykGAr8ITKhTkSQZpg6y6lVZ
-         mdK6YzJdQfCgu66IL6Rla9zcSJBaqDCyfK4fDJp45Erc/WTcHJXQJGwj6vzmH18BUE
-         s5qimVvEmqZJSV19hhkZfBBGQI2PjPvCbrF9YMrQ=
-Subject: FAILED: patch "[PATCH] drm/nouveau: Don't set allow_fb_modifiers explicitly" failed to apply to 5.4-stable tree
-To:     daniel.vetter@ffwll.ch, bskeggs@redhat.com,
-        daniel.vetter@intel.com, lyude@redhat.com,
-        paul.kocialkowski@bootlin.com, pekka.paalanen@collabora.com
+        b=g00PGcyw7+PHo+NM/yFAFK2yN2AgregPGSrOT2qW33re7BFFKNa6U+Xj6rFlmUdZA
+         fO8U2LahrFfInTPLoei5n1Fb1FmxCIGigJNYP8UygqC6XlFBd/mrPijJ0jZpObJvoy
+         3r0dOUxKoXwF/Y4jsPBROrstpjoXTOxncbBfqoTw=
+Subject: FAILED: patch "[PATCH] drm/ingenic: Switch IPU plane to type OVERLAY" failed to apply to 5.10-stable tree
+To:     paul@crapouillou.net, contact@emersion.fr, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:28:31 +0200
-Message-ID: <162635211117346@kroah.com>
+Date:   Thu, 15 Jul 2021 14:28:54 +0200
+Message-ID: <162635213442176@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -47,44 +45,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cee93c028288b9af02919f3bd8593ba61d1e610d Mon Sep 17 00:00:00 2001
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Date: Tue, 27 Apr 2021 11:20:16 +0200
-Subject: [PATCH] drm/nouveau: Don't set allow_fb_modifiers explicitly
+From 68b433fe6937cfa3f8975d18643d5956254edd6a Mon Sep 17 00:00:00 2001
+From: Paul Cercueil <paul@crapouillou.net>
+Date: Mon, 29 Mar 2021 18:50:45 +0100
+Subject: [PATCH] drm/ingenic: Switch IPU plane to type OVERLAY
 
-Since
+It should have been an OVERLAY from the beginning. The documentation
+stipulates that there should be an unique PRIMARY plane per CRTC.
 
-commit 890880ddfdbe256083170866e49c87618b706ac7
-Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Date:   Fri Jan 4 09:56:10 2019 +0100
+Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
+Cc: <stable@vger.kernel.org> # 5.8+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Acked-by: Simon Ser <contact@emersion.fr>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210329175046.214629-2-paul@crapouillou.net
 
-    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
-
-this is done automatically as part of plane init, if drivers set the
-modifier list correctly. Which is the case here.
-
-Note that this fixes an inconsistency: We've set the cap everywhere,
-but only nv50+ supports modifiers. Hence cc stable, but not further
-back then the patch from Paul.
-
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org # v5.1 +
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: nouveau@lists.freedesktop.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-6-daniel.vetter@ffwll.ch
-
-diff --git a/drivers/gpu/drm/nouveau/nouveau_display.c b/drivers/gpu/drm/nouveau/nouveau_display.c
-index 14101bd2a0ff..929de41c281f 100644
---- a/drivers/gpu/drm/nouveau/nouveau_display.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_display.c
-@@ -697,7 +697,6 @@ nouveau_display_create(struct drm_device *dev)
+diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+index 29742ec5ab95..09225b770bb8 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
++++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+@@ -419,7 +419,7 @@ static void ingenic_drm_plane_enable(struct ingenic_drm *priv,
+ 	unsigned int en_bit;
  
- 	dev->mode_config.preferred_depth = 24;
- 	dev->mode_config.prefer_shadow = 1;
--	dev->mode_config.allow_fb_modifiers = true;
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
++		if (plane != &priv->f0)
+ 			en_bit = JZ_LCD_OSDC_F1EN;
+ 		else
+ 			en_bit = JZ_LCD_OSDC_F0EN;
+@@ -434,7 +434,7 @@ void ingenic_drm_plane_disable(struct device *dev, struct drm_plane *plane)
+ 	unsigned int en_bit;
  
- 	if (drm->client.device.info.chipset < 0x11)
- 		dev->mode_config.async_page_flip = false;
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
++		if (plane != &priv->f0)
+ 			en_bit = JZ_LCD_OSDC_F1EN;
+ 		else
+ 			en_bit = JZ_LCD_OSDC_F0EN;
+@@ -461,8 +461,7 @@ void ingenic_drm_plane_config(struct device *dev,
+ 
+ 	ingenic_drm_plane_enable(priv, plane);
+ 
+-	if (priv->soc_info->has_osd &&
+-	    plane->type == DRM_PLANE_TYPE_PRIMARY) {
++	if (priv->soc_info->has_osd && plane != &priv->f0) {
+ 		switch (fourcc) {
+ 		case DRM_FORMAT_XRGB1555:
+ 			ctrl |= JZ_LCD_OSDCTRL_RGB555;
+@@ -510,7 +509,7 @@ void ingenic_drm_plane_config(struct device *dev,
+ 	}
+ 
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY) {
++		if (plane != &priv->f0) {
+ 			xy_reg = JZ_REG_LCD_XYP1;
+ 			size_reg = JZ_REG_LCD_SIZE1;
+ 		} else {
+@@ -561,7 +560,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+ 		height = newstate->src_h >> 16;
+ 		cpp = newstate->fb->format->cpp[0];
+ 
+-		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
++		if (!priv->soc_info->has_osd || plane == &priv->f0)
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f0;
+ 		else
+ 			hwdesc = &priv->dma_hwdescs->hwdesc_f1;
+diff --git a/drivers/gpu/drm/ingenic/ingenic-ipu.c b/drivers/gpu/drm/ingenic/ingenic-ipu.c
+index 5ae6adab8306..3b1091e7c0cd 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
++++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
+@@ -767,7 +767,7 @@ static int ingenic_ipu_bind(struct device *dev, struct device *master, void *d)
+ 
+ 	err = drm_universal_plane_init(drm, plane, 1, &ingenic_ipu_plane_funcs,
+ 				       soc_info->formats, soc_info->num_formats,
+-				       NULL, DRM_PLANE_TYPE_PRIMARY, NULL);
++				       NULL, DRM_PLANE_TYPE_OVERLAY, NULL);
+ 	if (err) {
+ 		dev_err(dev, "Failed to init plane: %i\n", err);
+ 		return err;
 
