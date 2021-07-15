@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E946A3CA7D6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFD0E3CA635
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241006AbhGOS4m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
+        id S238268AbhGOSql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240120AbhGOS4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:56:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65032613D1;
-        Thu, 15 Jul 2021 18:53:10 +0000 (UTC)
+        id S238211AbhGOSqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4ED7613D1;
+        Thu, 15 Jul 2021 18:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375190;
-        bh=dyshn5kvxDEI0SM2myXYKNppDxlJZf63QS5mPCGGb8c=;
+        s=korg; t=1626374624;
+        bh=jkkgK/DMr9+KGRAHYwhuLwbvLu3lURztjqyoiIDRyZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GmPfx9DVbmXFryobMV/UeDc8143EwZ+AAeI2vkcr/gHfFK6Pd5wYW3cd4n9cRcdxN
-         NJmN/q8dHUprKpLbzEVx6FY9WGF3oFhn2fU8q1OnzQQAkMPScq1JYC95NDhfpeF9DD
-         vICvaUss/H7DFCVnp07HNHmuBfLKCOyFIVZ5oV+g=
+        b=Vgu5b0V7D3dWZf9HRhtNJlqzghbO1KWakCEv99V3VWlBnGAKE8aT987CSpysTufAg
+         /y66EgBdQZgkGUuiLv3+NfrgpNMA/4Bdzrl/rJ0CxvCqoceuXKPtFDbP7smsjFtkES
+         vn1c7kxD8a+5PfoPL6zqSzRcFGCXwsMYHxPR5WCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Gulam Mohamed <gulam.mohamed@oracle.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH 5.10 145/215] scsi: iscsi: Fix iSCSI cls conn state
-Date:   Thu, 15 Jul 2021 20:38:37 +0200
-Message-Id: <20210715182625.263662643@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 071/122] MIPS: set mips32r5 for virt extensions
+Date:   Thu, 15 Jul 2021 20:38:38 +0200
+Message-Id: <20210715182508.561953031@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,106 +41,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-commit 0dcf8febcb7b9d42bec98bc068e01d1a6ea578b8 upstream.
+[ Upstream commit c994a3ec7ecc8bd2a837b2061e8a76eb8efc082b ]
 
-In commit 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and
-sync thread") I missed that libiscsi was now setting the iSCSI class state,
-and that patch ended up resetting the state during conn stoppage and using
-the wrong state value during ep_disconnect. This patch moves the setting of
-the class state to the class module and then fixes the two issues above.
+Clang's integrated assembler only accepts these instructions when the
+cpu is set to mips32r5. With this change, we can assemble
+malta_defconfig with Clang via `make LLVM_IAS=1`.
 
-Link: https://lore.kernel.org/r/20210406171746.5016-1-michael.christie@oracle.com
-Fixes: 9e67600ed6b8 ("scsi: iscsi: Fix race condition between login and sync thread")
-Cc: Gulam Mohamed <gulam.mohamed@oracle.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/763
+Reported-by: Dmitry Golovin <dima@golovin.in>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libiscsi.c             |   26 +++-----------------------
- drivers/scsi/scsi_transport_iscsi.c |   18 +++++++++++++++---
- 2 files changed, 18 insertions(+), 26 deletions(-)
+ arch/mips/include/asm/mipsregs.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -3089,9 +3089,10 @@ fail_mgmt_tasks(struct iscsi_session *se
- 	}
- }
- 
--static void iscsi_start_session_recovery(struct iscsi_session *session,
--					 struct iscsi_conn *conn, int flag)
-+void iscsi_conn_stop(struct iscsi_cls_conn *cls_conn, int flag)
- {
-+	struct iscsi_conn *conn = cls_conn->dd_data;
-+	struct iscsi_session *session = conn->session;
- 	int old_stop_stage;
- 
- 	mutex_lock(&session->eh_mutex);
-@@ -3149,27 +3150,6 @@ static void iscsi_start_session_recovery
- 	spin_unlock_bh(&session->frwd_lock);
- 	mutex_unlock(&session->eh_mutex);
- }
--
--void iscsi_conn_stop(struct iscsi_cls_conn *cls_conn, int flag)
--{
--	struct iscsi_conn *conn = cls_conn->dd_data;
--	struct iscsi_session *session = conn->session;
--
--	switch (flag) {
--	case STOP_CONN_RECOVER:
--		cls_conn->state = ISCSI_CONN_FAILED;
--		break;
--	case STOP_CONN_TERM:
--		cls_conn->state = ISCSI_CONN_DOWN;
--		break;
--	default:
--		iscsi_conn_printk(KERN_ERR, conn,
--				  "invalid stop flag %d\n", flag);
--		return;
--	}
--
--	iscsi_start_session_recovery(session, conn, flag);
--}
- EXPORT_SYMBOL_GPL(iscsi_conn_stop);
- 
- int iscsi_conn_bind(struct iscsi_cls_session *cls_session,
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2479,10 +2479,22 @@ static void iscsi_if_stop_conn(struct is
- 	 * it works.
- 	 */
- 	mutex_lock(&conn_mutex);
-+	switch (flag) {
-+	case STOP_CONN_RECOVER:
-+		conn->state = ISCSI_CONN_FAILED;
-+		break;
-+	case STOP_CONN_TERM:
-+		conn->state = ISCSI_CONN_DOWN;
-+		break;
-+	default:
-+		iscsi_cls_conn_printk(KERN_ERR, conn,
-+				      "invalid stop flag %d\n", flag);
-+		goto unlock;
-+	}
-+
- 	conn->transport->stop_conn(conn, flag);
--	conn->state = ISCSI_CONN_DOWN;
-+unlock:
- 	mutex_unlock(&conn_mutex);
--
- }
- 
- static void stop_conn_work_fn(struct work_struct *work)
-@@ -2973,7 +2985,7 @@ static int iscsi_if_ep_disconnect(struct
- 		mutex_lock(&conn->ep_mutex);
- 		conn->ep = NULL;
- 		mutex_unlock(&conn->ep_mutex);
--		conn->state = ISCSI_CONN_DOWN;
-+		conn->state = ISCSI_CONN_FAILED;
- 	}
- 
- 	transport->ep_disconnect(ep);
+diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
+index 3afdb39d092a..c28b892937fe 100644
+--- a/arch/mips/include/asm/mipsregs.h
++++ b/arch/mips/include/asm/mipsregs.h
+@@ -2007,7 +2007,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ ({ int __res;								\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips32r2\n\t"					\
++		".set\tmips32r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"mfgc0\t%0, " #source ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2020,7 +2020,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ ({ unsigned long long __res;						\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips64r2\n\t"					\
++		".set\tmips64r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"dmfgc0\t%0, " #source ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2033,7 +2033,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
+ do {									\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips32r2\n\t"					\
++		".set\tmips32r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"mtgc0\t%z0, " #register ", %1\n\t"			\
+ 		".set\tpop"						\
+@@ -2045,7 +2045,7 @@ do {									\
+ do {									\
+ 	__asm__ __volatile__(						\
+ 		".set\tpush\n\t"					\
+-		".set\tmips64r2\n\t"					\
++		".set\tmips64r5\n\t"					\
+ 		_ASM_SET_VIRT						\
+ 		"dmtgc0\t%z0, " #register ", %1\n\t"			\
+ 		".set\tpop"						\
+-- 
+2.30.2
+
 
 
