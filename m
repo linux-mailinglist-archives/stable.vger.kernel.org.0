@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 038DA3CA63B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F073CA78D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238299AbhGOSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
+        id S240601AbhGOSz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233469AbhGOSqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:46:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 773DF613CF;
-        Thu, 15 Jul 2021 18:43:48 +0000 (UTC)
+        id S241445AbhGOSyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7BD613CF;
+        Thu, 15 Jul 2021 18:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374628;
-        bh=k/MNo2DCIWZLt7nUdIvYgLh8ZEJ2MS7s9fTjJ9PVg7w=;
+        s=korg; t=1626375090;
+        bh=E1NXYw1yelaXlfpaQVT4j+Mkq7KtqvVHZqmCSpSwalY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcTd2IHO63HneEYa7N6J8h7JR74VRYbababPk8KpePvE/CimiBHvsXrxYH3R9sIzF
-         85th17dDiwLCcPi0YWbTK0RCesQnHAv1jJc6lGD6fwNyDxc9Wog/YSo2ctTSbCwr93
-         n83Dbt55I4pEVZcHNgpYe7c0E7R0NRr8Wvc6yfGQ=
+        b=GjJEu5O0AO9KDKYdoh0Rqag1kao05LHHvE0yCmzxSp5OdSrk32krgSofiovfEOyEH
+         yDmzY9M5OQ8qDsJmz2imP1gmOnKuZpD/G3/NBvrEiVfnWNxX1+8dkIFyr3iFF2fKze
+         KGMm3aDOcKE15UWZ4Q+6VSZvncYC4e6P1vx9l1uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 081/122] pinctrl/amd: Add device HID for new AMD GPIO controller
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20de=20Bretagne?= 
+        <jerome.debretagne@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 5.10 156/215] drm/dp: Handle zeroed port counts in drm_dp_read_downstream_info()
 Date:   Thu, 15 Jul 2021 20:38:48 +0200
-Message-Id: <20210715182511.788380389@linuxfoundation.org>
+Message-Id: <20210715182627.085216274@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 1ca46d3e43569186bd1decfb02a6b4c4ddb4304b upstream.
+commit 205bb69a90363541a634a662a599fddb95956524 upstream.
 
-Add device HID AMDI0031 to the AMD GPIO controller driver match table.
-This controller can be found on Microsoft Surface Laptop 4 devices and
-seems similar enough that we can just copy the existing AMDI0030 entry.
+While the DP specification isn't entirely clear on if this should be
+allowed or not, some branch devices report having downstream ports present
+while also reporting a downstream port count of 0. So to avoid breaking
+those devices, we need to handle this in drm_dp_read_downstream_info().
 
-Cc: <stable@vger.kernel.org> # 5.10+
-Tested-by: Sachi King <nakato@nakato.io>
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20210512210316.1982416-1-luzmaximilian@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+So, to do this we assume there's no downstream port info when the
+downstream port count is 0.
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Tested-by: Jérôme de Bretagne <jerome.debretagne@gmail.com>
+Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/3416
+Fixes: 3d3721ccb18a ("drm/i915/dp: Extract drm_dp_read_downstream_info()")
+Cc: <stable@vger.kernel.org> # v5.10+
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210430223428.10514-1-lyude@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/drm_dp_helper.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -958,6 +958,7 @@ static int amd_gpio_remove(struct platfo
- static const struct acpi_device_id amd_gpio_acpi_match[] = {
- 	{ "AMD0030", 0 },
- 	{ "AMDI0030", 0},
-+	{ "AMDI0031", 0},
- 	{ },
- };
- MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
+--- a/drivers/gpu/drm/drm_dp_helper.c
++++ b/drivers/gpu/drm/drm_dp_helper.c
+@@ -602,7 +602,14 @@ int drm_dp_read_downstream_info(struct d
+ 	    !(dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DWN_STRM_PORT_PRESENT))
+ 		return 0;
+ 
++	/* Some branches advertise having 0 downstream ports, despite also advertising they have a
++	 * downstream port present. The DP spec isn't clear on if this is allowed or not, but since
++	 * some branches do it we need to handle it regardless.
++	 */
+ 	len = drm_dp_downstream_port_count(dpcd);
++	if (!len)
++		return 0;
++
+ 	if (dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DETAILED_CAP_INFO_AVAILABLE)
+ 		len *= 4;
+ 
 
 
