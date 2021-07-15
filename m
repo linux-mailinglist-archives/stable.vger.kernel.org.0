@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A76F13CA6C4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAB423CA849
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237530AbhGOSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
+        id S241757AbhGOTA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:00:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238534AbhGOStx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F56F613D1;
-        Thu, 15 Jul 2021 18:46:59 +0000 (UTC)
+        id S241114AbhGOS6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91843610C7;
+        Thu, 15 Jul 2021 18:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374819;
-        bh=x1TvY+knuN5gDF07XZ/Q+PwYNswhi2uTCeBf1ReKKX8=;
+        s=korg; t=1626375350;
+        bh=lFRZNA2axd6y0gh1OLNz3qNQ8ml1pC4bSsvWlDJIezE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGWBbMP7YW8ZkhGZCERDX3QSdOTIstV2e7nsUyxdn0AlmN+l7kOp67jakO2ijh9oa
-         JgPKjETFNw36FsTQSyFKi/w+2wMBugSOdOeHZTWMfF2ymJPGfRwVF08dDodkSi1TYd
-         Vk7S8mZAc9eGyj402DbczKREZ4Rxi8kpBTmbRGl8=
+        b=qiDbD5rRpysRkTYtmiwyGBF+vXhE6FUBH95o/j8sud32Z9K6KqtYFWpxmJzB1bdY4
+         qjDTgavdGMbmOluc4nYaVkF4MsMqx1/3HZl6mKyNWcSKcnQZyJemDGQ3yKW5nnaYcL
+         2GWd2O5lor/SS/NUvKNcpZe2NBXZti13Amp3p4vQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gioh Kim <gi-oh.kim@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        kernel test robot <lkp@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/215] RDMA/rtrs: Change MAX_SESS_QUEUE_DEPTH
+Subject: [PATCH 5.12 049/242] MIPS: ingenic: Select CPU_SUPPORTS_CPUFREQ && MIPS_EXTERNAL_TIMER
 Date:   Thu, 15 Jul 2021 20:36:51 +0200
-Message-Id: <20210715182606.192472378@linuxfoundation.org>
+Message-Id: <20210715182600.838155220@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gioh Kim <gi-oh.kim@cloud.ionos.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 3a98ea7041b7d18ac356da64823c2ba2f8391b3e ]
+[ Upstream commit eb3849370ae32b571e1f9a63ba52c61adeaf88f7 ]
 
-Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
-and the minimum chunk size is 4096 (2^12).
-Therefore the maximum sess_queue_depth is 65536 (2^16).
+The clock driving the XBurst CPUs in Ingenic SoCs is integer divided
+from the main PLL. As such, it is possible to control the frequency of
+the CPU, either by changing the divider, or by changing the rate of the
+main PLL.
 
-Link: https://lore.kernel.org/r/20210528113018.52290-6-jinpu.wang@ionos.com
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The XBurst CPUs also lack the CP0 timer; the TCU, a separate piece of
+hardware in the SoC, provides this functionality.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-pri.h | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/mips/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-pri.h b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-index 8caad0a2322b..51c60f542876 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-pri.h
-@@ -47,12 +47,15 @@ enum {
- 	MAX_PATHS_NUM = 128,
+diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
+index e89d63cd92d1..ab73622b14dd 100644
+--- a/arch/mips/Kconfig
++++ b/arch/mips/Kconfig
+@@ -425,6 +425,8 @@ config MACH_INGENIC_SOC
+ 	select MIPS_GENERIC
+ 	select MACH_INGENIC
+ 	select SYS_SUPPORTS_ZBOOT_UART16550
++	select CPU_SUPPORTS_CPUFREQ
++	select MIPS_EXTERNAL_TIMER
  
- 	/*
--	 * With the size of struct rtrs_permit allocated on the client, 4K
--	 * is the maximum number of rtrs_permits we can allocate. This number is
--	 * also used on the client to allocate the IU for the user connection
--	 * to receive the RDMA addresses from the server.
-+	 * Max IB immediate data size is 2^28 (MAX_IMM_PAYL_BITS)
-+	 * and the minimum chunk size is 4096 (2^12).
-+	 * So the maximum sess_queue_depth is 65536 (2^16) in theory.
-+	 * But mempool_create, create_qp and ib_post_send fail with
-+	 * "cannot allocate memory" error if sess_queue_depth is too big.
-+	 * Therefore the pratical max value of sess_queue_depth is
-+	 * somewhere between 1 and 65536 and it depends on the system.
- 	 */
--	MAX_SESS_QUEUE_DEPTH = 4096,
-+	MAX_SESS_QUEUE_DEPTH = 65536,
- 
- 	RTRS_HB_INTERVAL_MS = 5000,
- 	RTRS_HB_MISSED_MAX = 5,
+ config LANTIQ
+ 	bool "Lantiq based platforms"
 -- 
 2.30.2
 
