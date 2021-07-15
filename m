@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DD7E3CAA57
+	by mail.lfdr.de (Postfix) with ESMTP id E570F3CAA59
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241486AbhGOTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
+        id S243997AbhGOTM5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243959AbhGOTK0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243962AbhGOTK0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:10:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8289361158;
-        Thu, 15 Jul 2021 19:07:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0C4E61285;
+        Thu, 15 Jul 2021 19:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376043;
-        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
+        s=korg; t=1626376045;
+        bh=8Uvy0ZR2VNDF31lYFpuwH6pxmHiXXDSje6pg83UwUio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHFh+Y26oC9M1uy8oiPLNQCgXeOHwtbiOB65WL8xQCIGkFBD+hbUTODV34XwMK0Ug
-         DfYgowtYasmUxpw/vUrNptEt34l0JR66KvrpRC+8Y2gVZVJKf7BLiZ4N6fbkM3i91f
-         xOR6rnizshWAMyqSX4mD2BPcaeZZXOgmHdKbxm/8=
+        b=m9jU7pAU3sU/C8tx5H4ld0JHgOKQnMCVf0Bhi8UTwOzkBinDmQcK2rXkCPSZHYZCg
+         3wOqDmvlh1thD8qx4a0rd9bmZ8JPIKCtuX5NyliZTjDrzRlr+vzd3FAIcPTKSO0lTT
+         cry5YuuKtx23qbpDWpl7YPMflV6nB/x2Fr0PSN7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Tony Lindgren <tony@atomide.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        "Radu Pirea (NXP OSS)" <radu-nicolae.pirea@oss.nxp.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 101/266] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
-Date:   Thu, 15 Jul 2021 20:37:36 +0200
-Message-Id: <20210715182631.843668500@linuxfoundation.org>
+Subject: [PATCH 5.13 102/266] net: phy: nxp-c45-tja11xx: enable MDIO write access to the master/slave registers
+Date:   Thu, 15 Jul 2021 20:37:37 +0200
+Message-Id: <20210715182632.006335242@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,55 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
+[ Upstream commit 0b5f0f29b118910c89fe249cdfbc11b400a86a18 ]
 
-At least on wl12xx, reading the MAC after boot can fail with a warning
-at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
-The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
-after request_firmware_work_func().
+The SJA1110 switch integrates TJA1103 PHYs, but in SJA1110 switch rev B
+silicon, there is a bug in that the registers for selecting the 100base-T1
+autoneg master/slave roles are not writable.
 
-After the error, no wireless interface is created. Reloading the wl12xx
-module makes the interface work.
+To enable write access to the master/slave registers, these additional
+PHY writes are necessary during initialization.
 
-Turns out the wlan controller can be in a low-power ELP state after the
-boot from the bootloader or kexec, and needs to be woken up first.
+The issue has been corrected in later SJA1110 silicon versions and is
+not present in the standalone PHY variants, but applying the workaround
+unconditionally in the driver should not do any harm.
 
-Let's wake the hardware and add a sleep after that similar to
-wl12xx_pre_boot() is already doing.
-
-Note that a similar issue could exist for wl18xx, but I have not seen it
-so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
-produce similar errors.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
+Suggested-by: Radu Pirea (NXP OSS) <radu-nicolae.pirea@oss.nxp.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/phy/nxp-c45-tja11xx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
-index 9d7dbfe7fe0c..c6da0cfb4afb 100644
---- a/drivers/net/wireless/ti/wl12xx/main.c
-+++ b/drivers/net/wireless/ti/wl12xx/main.c
-@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
- 	u32 mac1, mac2;
- 	int ret;
+diff --git a/drivers/net/phy/nxp-c45-tja11xx.c b/drivers/net/phy/nxp-c45-tja11xx.c
+index 26b9c0d7cb9d..b7ce0e737333 100644
+--- a/drivers/net/phy/nxp-c45-tja11xx.c
++++ b/drivers/net/phy/nxp-c45-tja11xx.c
+@@ -546,6 +546,12 @@ static int nxp_c45_config_init(struct phy_device *phydev)
+ 		return ret;
+ 	}
  
-+	/* Device may be in ELP from the bootloader or kexec */
-+	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
-+	if (ret < 0)
-+		goto out;
++	/* Bug workaround for SJA1110 rev B: enable write access
++	 * to MDIO_MMD_PMAPMD
++	 */
++	phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x01F8, 1);
++	phy_write_mmd(phydev, MDIO_MMD_VEND1, 0x01F9, 2);
 +
-+	usleep_range(500000, 700000);
-+
- 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
- 	if (ret < 0)
- 		goto out;
+ 	phy_set_bits_mmd(phydev, MDIO_MMD_VEND1, VEND1_PHY_CONFIG,
+ 			 PHY_CONFIG_AUTO);
+ 
 -- 
 2.30.2
 
