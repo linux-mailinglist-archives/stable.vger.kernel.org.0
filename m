@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2063CAA4F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20EA63CAA53
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243920AbhGOTMw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S240459AbhGOTMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243892AbhGOTKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C498B613D3;
-        Thu, 15 Jul 2021 19:07:10 +0000 (UTC)
+        id S243914AbhGOTKO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:10:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CA46613C0;
+        Thu, 15 Jul 2021 19:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376031;
-        bh=36scWzxnOhleVw0nlD7brhnNhM6GRAFZzLUvFN94PkQ=;
+        s=korg; t=1626376033;
+        bh=EqQNBl3CNqqZRBiml33T3vY8ViHrVfDUbE1/Zsy0Ars=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUIGBwWJXNKdJYoE3gg2sgkob+exvr7qW71eM4A1cpiOl1SBbrp0bkHknp0FABe6q
-         zsFRB2p0wV0Z/hqCE1GgI3fARpjsNhbw/wsES8WIeywmUYOVmPJwloLtVIVfJBJUOi
-         J9K5YcJsRhq/QocJTdoSOrvEDGyZQw/zwvc1M+SY=
+        b=O9XV9gK71EyKDOJzZW3m8FJ++UQrdgvM7HIUSOwyStLW1ssE+BQ6plWm8hvSlYdZB
+         wTAgYtJ6zZm6vYiQKiqTQE5ncAEhxVp738bCaZQMwAlj0gM7fyOj/kaatfIEH36apy
+         OZKsUwxXrmVuLQmamsZLV+uqGcJ0uXs8q9fuNmts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Mark Yacoub <markyacoub@chromium.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 097/266] drm/amd/display: Verify Gamma & Degamma LUT sizes in amdgpu_dm_atomic_check
-Date:   Thu, 15 Jul 2021 20:37:32 +0200
-Message-Id: <20210715182631.206095251@linuxfoundation.org>
+Subject: [PATCH 5.13 098/266] ibmvnic: fix kernel build warnings in build_hdr_descs_arr
+Date:   Thu, 15 Jul 2021 20:37:33 +0200
+Message-Id: <20210715182631.364601240@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,115 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Yacoub <markyacoub@chromium.org>
+From: Lijun Pan <lijunp213@gmail.com>
 
-[ Upstream commit 03fc4cf45d30533d54f0f4ebc02aacfa12f52ce2 ]
+[ Upstream commit 73214a690c50a134bd364e1a4430e0e7ac81a8d8 ]
 
-For each CRTC state, check the size of Gamma and Degamma LUTs  so
-unexpected and larger sizes wouldn't slip through.
+Fix the following kernel build warnings:
+drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Function parameter or member 'skb' not described in 'build_hdr_descs_arr'
+drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Function parameter or member 'indir_arr' not described in 'build_hdr_descs_arr'
+drivers/net/ethernet/ibm/ibmvnic.c:1516: warning: Excess function parameter 'txbuff' description in 'build_hdr_descs_arr'
 
-TEST: IGT:kms_color::pipe-invalid-gamma-lut-sizes
-
-v2: fix assignments in if clauses, Mark's email.
-
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Mark Yacoub <markyacoub@chromium.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  4 ++
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h |  1 +
- .../amd/display/amdgpu_dm/amdgpu_dm_color.c   | 41 ++++++++++++++++---
- 3 files changed, 40 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index b11d90ea8c37..f2866a625f80 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -10049,6 +10049,10 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
- 			dm_old_crtc_state->dsc_force_changed == false)
- 			continue;
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index ede65b32f821..efc98903c0b7 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -1554,7 +1554,8 @@ static int create_hdr_descs(u8 hdr_field, u8 *hdr_data, int len, int *hdr_len,
  
-+		ret = amdgpu_dm_verify_lut_sizes(new_crtc_state);
-+		if (ret)
-+			goto fail;
-+
- 		if (!new_crtc_state->enable)
- 			continue;
- 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-index b2f2ccfc20bb..c8e5bbbb8bce 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.h
-@@ -591,6 +591,7 @@ void amdgpu_dm_trigger_timing_sync(struct drm_device *dev);
- #define MAX_COLOR_LEGACY_LUT_ENTRIES 256
- 
- void amdgpu_dm_init_color_mod(void);
-+int amdgpu_dm_verify_lut_sizes(const struct drm_crtc_state *crtc_state);
- int amdgpu_dm_update_crtc_color_mgmt(struct dm_crtc_state *crtc);
- int amdgpu_dm_update_plane_color_mgmt(struct dm_crtc_state *crtc,
- 				      struct dc_plane_state *dc_plane_state);
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
-index 157fe4efbb59..a022e5bb30a5 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_color.c
-@@ -284,6 +284,37 @@ static int __set_input_tf(struct dc_transfer_func *func,
- 	return res ? 0 : -ENOMEM;
- }
- 
-+/**
-+ * Verifies that the Degamma and Gamma LUTs attached to the |crtc_state| are of
-+ * the expected size.
-+ * Returns 0 on success.
-+ */
-+int amdgpu_dm_verify_lut_sizes(const struct drm_crtc_state *crtc_state)
-+{
-+	const struct drm_color_lut *lut = NULL;
-+	uint32_t size = 0;
-+
-+	lut = __extract_blob_lut(crtc_state->degamma_lut, &size);
-+	if (lut && size != MAX_COLOR_LUT_ENTRIES) {
-+		DRM_DEBUG_DRIVER(
-+			"Invalid Degamma LUT size. Should be %u but got %u.\n",
-+			MAX_COLOR_LUT_ENTRIES, size);
-+		return -EINVAL;
-+	}
-+
-+	lut = __extract_blob_lut(crtc_state->gamma_lut, &size);
-+	if (lut && size != MAX_COLOR_LUT_ENTRIES &&
-+	    size != MAX_COLOR_LEGACY_LUT_ENTRIES) {
-+		DRM_DEBUG_DRIVER(
-+			"Invalid Gamma LUT size. Should be %u (or %u for legacy) but got %u.\n",
-+			MAX_COLOR_LUT_ENTRIES, MAX_COLOR_LEGACY_LUT_ENTRIES,
-+			size);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
  /**
-  * amdgpu_dm_update_crtc_color_mgmt: Maps DRM color management to DC stream.
-  * @crtc: amdgpu_dm crtc state
-@@ -317,14 +348,12 @@ int amdgpu_dm_update_crtc_color_mgmt(struct dm_crtc_state *crtc)
- 	bool is_legacy;
- 	int r;
- 
--	degamma_lut = __extract_blob_lut(crtc->base.degamma_lut, &degamma_size);
--	if (degamma_lut && degamma_size != MAX_COLOR_LUT_ENTRIES)
--		return -EINVAL;
-+	r = amdgpu_dm_verify_lut_sizes(&crtc->base);
-+	if (r)
-+		return r;
- 
-+	degamma_lut = __extract_blob_lut(crtc->base.degamma_lut, &degamma_size);
- 	regamma_lut = __extract_blob_lut(crtc->base.gamma_lut, &regamma_size);
--	if (regamma_lut && regamma_size != MAX_COLOR_LUT_ENTRIES &&
--	    regamma_size != MAX_COLOR_LEGACY_LUT_ENTRIES)
--		return -EINVAL;
- 
- 	has_degamma =
- 		degamma_lut && !__is_lut_linear(degamma_lut, degamma_size);
+  * build_hdr_descs_arr - build a header descriptor array
+- * @txbuff: tx buffer
++ * @skb: tx socket buffer
++ * @indir_arr: indirect array
+  * @num_entries: number of descriptors to be sent
+  * @hdr_field: bit field determining which headers will be sent
+  *
 -- 
 2.30.2
 
