@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 175633CA691
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:46:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E01C3CA7F7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239879AbhGOSss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+        id S235390AbhGOS5S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:57:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239647AbhGOSsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:48:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98F5E61396;
-        Thu, 15 Jul 2021 18:45:37 +0000 (UTC)
+        id S239976AbhGOS4v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:56:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4295F613D9;
+        Thu, 15 Jul 2021 18:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374738;
-        bh=Am8VHbEhpIaV4zBB6uKcUpM1v6CCZEVqBhj5BtzQ4dY=;
+        s=korg; t=1626375237;
+        bh=sVhJ9Ua9XktMFt+Jrg29u7/0hwbuCGE/h+8ziQOROd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyvtkXMIkbvb78sfRToPGYCQvVgzQxQ3rcPI1mWszkn1Dx4SKkumQsaJBSApNi+9J
-         L6KAHtwUd5WYqoovgez8qIDEujkY3WIiiP6EO9BP8uqKh3OwVLATKtnycGCzR0t9To
-         QkdnTFmoVlm/Q0WEUkL29HYtVn3I/etMT67Hq+mA=
+        b=nD+Yj6kO13zhtb7uRrjx5o4pDcCVv2iBm8VCowe3yArdQS/YqrnIR8etHB8A52k2U
+         UmNBvF1RObmIzjUACR26oFxqtfiVdv/j91DKZOFqSd0dG783g2vqbAxqTpxkv08jrv
+         PBcvK364RV2ENGLwiUXjhodK9ecvszX6Qtq7hkBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.4 120/122] pinctrl: mcp23s08: Fix missing unlock on error in mcp23s08_irq()
-Date:   Thu, 15 Jul 2021 20:39:27 +0200
-Message-Id: <20210715182523.107257630@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.10 196/215] dm writecache: flush origin device when writing and cache is full
+Date:   Thu, 15 Jul 2021 20:39:28 +0200
+Message-Id: <20210715182633.802741131@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 884af72c90016cfccd5717439c86b48702cbf184 upstream.
+commit ee55b92a7391bf871939330f662651b54be51b73 upstream.
 
-Add the missing unlock before return from function mcp23s08_irq()
-in the error handling case.
+Commit d53f1fafec9d086f1c5166436abefdaef30e0363 ("dm writecache: do
+direct write if the cache is full") changed dm-writecache, so that it
+writes directly to the origin device if the cache is full.
+Unfortunately, it doesn't forward flush requests to the origin device,
+so that there is a bug where flushes are being ignored.
 
-v1-->v2:
-   remove the "return IRQ_HANDLED" line
+Fix this by adding missing flush forwarding.
 
-Fixes: 897120d41e7a ("pinctrl: mcp23s08: fix race condition in irq handler")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1623134048-56051-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+For PMEM mode, we fix this bug by disabling direct writes to the origin
+device, because it performs better.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fixes: d53f1fafec9d ("dm writecache: do direct write if the cache is full")
+Cc: stable@vger.kernel.org # v5.7+
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-writecache.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -461,7 +461,7 @@ static irqreturn_t mcp23s08_irq(int irq,
- 
- 	if (intf == 0) {
- 		/* There is no interrupt pending */
--		return IRQ_HANDLED;
-+		goto unlock;
+--- a/drivers/md/dm-writecache.c
++++ b/drivers/md/dm-writecache.c
+@@ -1297,8 +1297,12 @@ static int writecache_map(struct dm_targ
+ 			writecache_flush(wc);
+ 			if (writecache_has_error(wc))
+ 				goto unlock_error;
++			if (unlikely(wc->cleaner))
++				goto unlock_remap_origin;
+ 			goto unlock_submit;
+ 		} else {
++			if (dm_bio_get_target_bio_nr(bio))
++				goto unlock_remap_origin;
+ 			writecache_offload_bio(wc, bio);
+ 			goto unlock_return;
+ 		}
+@@ -1377,7 +1381,7 @@ read_next_block:
+ 			}
+ 			e = writecache_pop_from_freelist(wc, (sector_t)-1);
+ 			if (unlikely(!e)) {
+-				if (!found_entry) {
++				if (!WC_MODE_PMEM(wc) && !found_entry) {
+ direct_write:
+ 					e = writecache_find_entry(wc, bio->bi_iter.bi_sector, WFE_RETURN_FOLLOWING);
+ 					if (e) {
+@@ -2483,7 +2487,7 @@ overflow:
+ 		goto bad;
  	}
  
- 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
+-	ti->num_flush_bios = 1;
++	ti->num_flush_bios = WC_MODE_PMEM(wc) ? 1 : 2;
+ 	ti->flush_supported = true;
+ 	ti->num_discard_bios = 1;
+ 
 
 
