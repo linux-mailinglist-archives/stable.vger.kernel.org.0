@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E1F3CA7AF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C593CA62F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242197AbhGOSzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58074 "EHLO mail.kernel.org"
+        id S238165AbhGOSqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241167AbhGOSyL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E82C613D8;
-        Thu, 15 Jul 2021 18:51:15 +0000 (UTC)
+        id S238150AbhGOSqa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3998613CA;
+        Thu, 15 Jul 2021 18:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375076;
-        bh=I3uMaH+VaCwt5rAUvLlpeXRhPaNL4gm4eDiwWCOwxY4=;
+        s=korg; t=1626374617;
+        bh=i+7VfnBAJHPyvgIzum+stAFwX+rBqBMLvA3Du6yopzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYHDtNSaxrnGoBXRe8/nXl8WIGh6kgd+1GrPDw1OPLQ8+x7v9iMzyA/al8xKEAxCP
-         buAQQKFYuRzcE1K8Gy6/S2qDLFptXO/xJj5aB6by5sD8AOLhVi3UDVFPLeICwhhV5j
-         Ctq1PRg6hRMSCvL/lVyo6+2c33EDqCeNuRTnEV+o=
+        b=VmPr171HlZOdU2czDPu92aigL7wI41x1gRwgOd88C6bmDoB9rkUeaOZmM7L+WyHEc
+         6zqWC2Jx797R5eFXJzVvZOXltvfDXbI1sRVcb2puuA9NM2SPJ26VSp7AqhmR3dnWqo
+         JXLVxRLKgRd8XLLTvkfvzobIbU5OhVDPiOH7oyqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Roman Li <roman.li@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/215] sfc: error code if SRIOV cannot be disabled
+Subject: [PATCH 5.4 032/122] drm/amd/display: Update scaling settings on modeset
 Date:   Thu, 15 Jul 2021 20:37:59 +0200
-Message-Id: <20210715182618.355446598@linuxfoundation.org>
+Message-Id: <20210715182457.044589964@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Roman Li <roman.li@amd.com>
 
-[ Upstream commit 1ebe4feb8b442884f5a28d2437040096723dd1ea ]
+[ Upstream commit c521fc316d12fb9ea7b7680e301d673bceda922e ]
 
-If SRIOV cannot be disabled during device removal or module unloading,
-return error code so it can be logged properly in the calling function.
+[Why]
+We update scaling settings when scaling mode has been changed.
+However when changing mode from native resolution the scaling mode previously
+set gets ignored.
 
-Note that this can only happen if any VF is currently attached to a
-guest using Xen, but not with vfio/KVM. Despite that in that case the
-VFs won't work properly with PF removed and/or the module unloaded, I
-have let it as is because I don't know what side effects may have
-changing it, and also it seems to be the same that other drivers are
-doing in this situation.
+[How]
+Perform scaling settings update on modeset.
 
-In the case of being called during SRIOV reconfiguration, the behavior
-hasn't changed because the function is called with force=false.
-
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Roman Li <roman.li@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index a5d28b0f75ba..84041cd587d7 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -402,12 +402,17 @@ fail1:
- 	return rc;
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 6e31e899192c..fca466d4806b 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -6832,7 +6832,8 @@ skip_modeset:
+ 	BUG_ON(dm_new_crtc_state->stream == NULL);
  
-+/* Disable SRIOV and remove VFs
-+ * If some VFs are attached to a guest (using Xen, only) nothing is
-+ * done if force=false, and vports are freed if force=true (for the non
-+ * attachedc ones, only) but SRIOV is not disabled and VFs are not
-+ * removed in either case.
-+ */
- static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
- {
- 	struct pci_dev *dev = efx->pci_dev;
--	unsigned int vfs_assigned = 0;
--
--	vfs_assigned = pci_vfs_assigned(dev);
-+	unsigned int vfs_assigned = pci_vfs_assigned(dev);
-+	int rc = 0;
+ 	/* Scaling or underscan settings */
+-	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state))
++	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state) ||
++				drm_atomic_crtc_needs_modeset(new_crtc_state))
+ 		update_stream_scaling_settings(
+ 			&new_crtc_state->mode, dm_new_conn_state, dm_new_crtc_state->stream);
  
- 	if (vfs_assigned && !force) {
- 		netif_info(efx, drv, efx->net_dev, "VFs are assigned to guests; "
-@@ -417,10 +422,12 @@ static int efx_ef10_pci_sriov_disable(struct efx_nic *efx, bool force)
- 
- 	if (!vfs_assigned)
- 		pci_disable_sriov(dev);
-+	else
-+		rc = -EBUSY;
- 
- 	efx_ef10_sriov_free_vf_vswitching(efx);
- 	efx->vf_count = 0;
--	return 0;
-+	return rc;
- }
- 
- int efx_ef10_sriov_configure(struct efx_nic *efx, int num_vfs)
 -- 
 2.30.2
 
