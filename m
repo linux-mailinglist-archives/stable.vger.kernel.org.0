@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 787EE3CA7ED
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AB053CA7F0
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241260AbhGOS5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:57:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59882 "EHLO mail.kernel.org"
+        id S241386AbhGOS5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:57:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241028AbhGOS4m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:56:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D4140613C4;
-        Thu, 15 Jul 2021 18:53:47 +0000 (UTC)
+        id S241018AbhGOS4o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:56:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 396A8613D1;
+        Thu, 15 Jul 2021 18:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375228;
-        bh=M/YarBLgGLZs5J4oVWxU+ihkCU8UuKy2p89D/jtlqE4=;
+        s=korg; t=1626375230;
+        bh=uTfMtEl8lNqdnF0HOgRYsgNEB8zxn1gq3kZz34x9N7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jffPUDN0GiVitqBqZznaWELhbHK8erYtE8WT+AT8Aw/Gty4GiTmwHzEG9DHkuGKvE
-         euJwRa/hpFM+Fo31DWYbAxlbmtiZQRk3PhIADnq6CvnPnyG5PzXQAazqR+AcwvIyro
-         vIOnTZ3xUDXOZIhkigpwVhp+1bnnT08Idx75UpDE=
+        b=gRrL9uAa1MaI7EVCkgC5nUHBZipo9AB77uNi5tITrHoBlGqOJbSpOAC0+h5DO9ybk
+         78X3R3+BB6H/UcMVcvQkEWAL+jXX/ovIRcNZQC26KHm0l+49EmhHSLuRcFi3wc0s9S
+         CXzjm4jyolLZichM9Wj99d3Ib4qL6A6wB9KOijUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+d9e482e303930fa4f6ff@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 214/215] ext4: fix memory leak in ext4_fill_super
-Date:   Thu, 15 Jul 2021 20:39:46 +0200
-Message-Id: <20210715182636.931701201@linuxfoundation.org>
+        syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 215/215] f2fs: fix to avoid racing on fsync_entry_slab by multi filesystem instances
+Date:   Thu, 15 Jul 2021 20:39:47 +0200
+Message-Id: <20210715182637.438443933@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -41,156 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 618f003199c6188e01472b03cdbba227f1dc5f24 upstream.
+commit cad83c968c2ebe97905f900326988ed37146c347 upstream.
 
-static int kthread(void *_create) will return -ENOMEM
-or -EINTR in case of internal failure or
-kthread_stop() call happens before threadfn call.
+As syzbot reported, there is an use-after-free issue during f2fs recovery:
 
-To prevent fancy error checking and make code
-more straightforward we moved all cleanup code out
-of kmmpd threadfn.
+Use-after-free write at 0xffff88823bc16040 (in kfence-#10):
+ kmem_cache_destroy+0x1f/0x120 mm/slab_common.c:486
+ f2fs_recover_fsync_data+0x75b0/0x8380 fs/f2fs/recovery.c:869
+ f2fs_fill_super+0x9393/0xa420 fs/f2fs/super.c:3945
+ mount_bdev+0x26c/0x3a0 fs/super.c:1367
+ legacy_get_tree+0xea/0x180 fs/fs_context.c:592
+ vfs_get_tree+0x86/0x270 fs/super.c:1497
+ do_new_mount fs/namespace.c:2905 [inline]
+ path_mount+0x196f/0x2be0 fs/namespace.c:3235
+ do_mount fs/namespace.c:3248 [inline]
+ __do_sys_mount fs/namespace.c:3456 [inline]
+ __se_sys_mount+0x2f9/0x3b0 fs/namespace.c:3433
+ do_syscall_64+0x3f/0xb0 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Also, dropped struct mmpd_data at all. Now struct super_block
-is a threadfn data and struct buffer_head embedded into
-struct ext4_sb_info.
+The root cause is multi f2fs filesystem instances can race on accessing
+global fsync_entry_slab pointer, result in use-after-free issue of slab
+cache, fixes to init/destroy this slab cache only once during module
+init/destroy procedure to avoid this issue.
 
-Reported-by: syzbot+d9e482e303930fa4f6ff@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210430185046.15742-1-paskripkin@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reported-by: syzbot+9d90dad32dd9727ed084@syzkaller.appspotmail.com
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h  |    4 ++++
- fs/ext4/mmp.c   |   28 +++++++++++++---------------
- fs/ext4/super.c |   10 ++++------
- 3 files changed, 21 insertions(+), 21 deletions(-)
+ fs/f2fs/f2fs.h     |    2 ++
+ fs/f2fs/recovery.c |   23 ++++++++++++++---------
+ fs/f2fs/super.c    |    8 +++++++-
+ 3 files changed, 23 insertions(+), 10 deletions(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1480,6 +1480,7 @@ struct ext4_sb_info {
- 	struct kobject s_kobj;
- 	struct completion s_kobj_unregister;
- 	struct super_block *s_sb;
-+	struct buffer_head *s_mmp_bh;
- 
- 	/* Journaling */
- 	struct journal_s *s_journal;
-@@ -3624,6 +3625,9 @@ extern struct ext4_io_end_vec *ext4_last
- /* mmp.c */
- extern int ext4_multi_mount_protect(struct super_block *, ext4_fsblk_t);
- 
-+/* mmp.c */
-+extern void ext4_stop_mmpd(struct ext4_sb_info *sbi);
-+
- /* verity.c */
- extern const struct fsverity_operations ext4_verityops;
- 
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -127,9 +127,9 @@ void __dump_mmp_msg(struct super_block *
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3462,6 +3462,8 @@ void f2fs_destroy_garbage_collection_cac
   */
- static int kmmpd(void *data)
- {
--	struct super_block *sb = ((struct mmpd_data *) data)->sb;
--	struct buffer_head *bh = ((struct mmpd_data *) data)->bh;
-+	struct super_block *sb = (struct super_block *) data;
- 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
-+	struct buffer_head *bh = EXT4_SB(sb)->s_mmp_bh;
- 	struct mmp_struct *mmp;
- 	ext4_fsblk_t mmp_block;
- 	u32 seq = 0;
-@@ -245,12 +245,18 @@ static int kmmpd(void *data)
- 	retval = write_mmp_block(sb, bh);
+ int f2fs_recover_fsync_data(struct f2fs_sb_info *sbi, bool check_only);
+ bool f2fs_space_for_roll_forward(struct f2fs_sb_info *sbi);
++int __init f2fs_create_recovery_cache(void);
++void f2fs_destroy_recovery_cache(void);
  
- exit_thread:
--	EXT4_SB(sb)->s_mmp_tsk = NULL;
--	kfree(data);
--	brelse(bh);
- 	return retval;
- }
- 
-+void ext4_stop_mmpd(struct ext4_sb_info *sbi)
-+{
-+	if (sbi->s_mmp_tsk) {
-+		kthread_stop(sbi->s_mmp_tsk);
-+		brelse(sbi->s_mmp_bh);
-+		sbi->s_mmp_tsk = NULL;
-+	}
-+}
-+
  /*
-  * Get a random new sequence number but make sure it is not greater than
-  * EXT4_MMP_SEQ_MAX.
-@@ -275,7 +281,6 @@ int ext4_multi_mount_protect(struct supe
- 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
- 	struct buffer_head *bh = NULL;
- 	struct mmp_struct *mmp = NULL;
--	struct mmpd_data *mmpd_data;
- 	u32 seq;
- 	unsigned int mmp_check_interval = le16_to_cpu(es->s_mmp_update_interval);
- 	unsigned int wait_time = 0;
-@@ -364,24 +369,17 @@ skip:
- 		goto failed;
+  * debug.c
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -777,13 +777,6 @@ int f2fs_recover_fsync_data(struct f2fs_
+ 	quota_enabled = f2fs_enable_quota_files(sbi, s_flags & SB_RDONLY);
+ #endif
+ 
+-	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
+-			sizeof(struct fsync_inode_entry));
+-	if (!fsync_entry_slab) {
+-		err = -ENOMEM;
+-		goto out;
+-	}
+-
+ 	INIT_LIST_HEAD(&inode_list);
+ 	INIT_LIST_HEAD(&tmp_inode_list);
+ 	INIT_LIST_HEAD(&dir_list);
+@@ -856,8 +849,6 @@ skip:
+ 		}
  	}
  
--	mmpd_data = kmalloc(sizeof(*mmpd_data), GFP_KERNEL);
--	if (!mmpd_data) {
--		ext4_warning(sb, "not enough memory for mmpd_data");
--		goto failed;
--	}
--	mmpd_data->sb = sb;
--	mmpd_data->bh = bh;
-+	EXT4_SB(sb)->s_mmp_bh = bh;
+-	kmem_cache_destroy(fsync_entry_slab);
+-out:
+ #ifdef CONFIG_QUOTA
+ 	/* Turn quotas off */
+ 	if (quota_enabled)
+@@ -867,3 +858,17 @@ out:
  
- 	/*
- 	 * Start a kernel thread to update the MMP block periodically.
- 	 */
--	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%.*s",
-+	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, sb, "kmmpd-%.*s",
- 					     (int)sizeof(mmp->mmp_bdevname),
- 					     bdevname(bh->b_bdev,
- 						      mmp->mmp_bdevname));
- 	if (IS_ERR(EXT4_SB(sb)->s_mmp_tsk)) {
- 		EXT4_SB(sb)->s_mmp_tsk = NULL;
--		kfree(mmpd_data);
- 		ext4_warning(sb, "Unable to create kmmpd thread for %s.",
- 			     sb->s_id);
- 		goto failed;
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1260,8 +1260,8 @@ static void ext4_put_super(struct super_
- 	ext4_xattr_destroy_cache(sbi->s_ea_block_cache);
- 	sbi->s_ea_block_cache = NULL;
- 
--	if (sbi->s_mmp_tsk)
--		kthread_stop(sbi->s_mmp_tsk);
-+	ext4_stop_mmpd(sbi);
+ 	return ret ? ret: err;
+ }
 +
- 	brelse(sbi->s_sbh);
- 	sb->s_fs_info = NULL;
- 	/*
-@@ -5173,8 +5173,7 @@ failed_mount3a:
- 	ext4_es_unregister_shrinker(sbi);
- failed_mount3:
- 	del_timer_sync(&sbi->s_err_report);
--	if (sbi->s_mmp_tsk)
--		kthread_stop(sbi->s_mmp_tsk);
-+	ext4_stop_mmpd(sbi);
- failed_mount2:
- 	rcu_read_lock();
- 	group_desc = rcu_dereference(sbi->s_group_desc);
-@@ -5927,8 +5926,7 @@ static int ext4_remount(struct super_blo
- 				 */
- 				ext4_mark_recovery_complete(sb, es);
- 			}
--			if (sbi->s_mmp_tsk)
--				kthread_stop(sbi->s_mmp_tsk);
-+			ext4_stop_mmpd(sbi);
- 		} else {
- 			/* Make sure we can mount this feature set readwrite */
- 			if (ext4_has_feature_readonly(sb) ||
++int __init f2fs_create_recovery_cache(void)
++{
++	fsync_entry_slab = f2fs_kmem_cache_create("f2fs_fsync_inode_entry",
++					sizeof(struct fsync_inode_entry));
++	if (!fsync_entry_slab)
++		return -ENOMEM;
++	return 0;
++}
++
++void f2fs_destroy_recovery_cache(void)
++{
++	kmem_cache_destroy(fsync_entry_slab);
++}
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -4027,9 +4027,12 @@ static int __init init_f2fs_fs(void)
+ 	err = f2fs_create_checkpoint_caches();
+ 	if (err)
+ 		goto free_segment_manager_caches;
+-	err = f2fs_create_extent_cache();
++	err = f2fs_create_recovery_cache();
+ 	if (err)
+ 		goto free_checkpoint_caches;
++	err = f2fs_create_extent_cache();
++	if (err)
++		goto free_recovery_cache;
+ 	err = f2fs_create_garbage_collection_cache();
+ 	if (err)
+ 		goto free_extent_cache;
+@@ -4078,6 +4081,8 @@ free_garbage_collection_cache:
+ 	f2fs_destroy_garbage_collection_cache();
+ free_extent_cache:
+ 	f2fs_destroy_extent_cache();
++free_recovery_cache:
++	f2fs_destroy_recovery_cache();
+ free_checkpoint_caches:
+ 	f2fs_destroy_checkpoint_caches();
+ free_segment_manager_caches:
+@@ -4103,6 +4108,7 @@ static void __exit exit_f2fs_fs(void)
+ 	f2fs_exit_sysfs();
+ 	f2fs_destroy_garbage_collection_cache();
+ 	f2fs_destroy_extent_cache();
++	f2fs_destroy_recovery_cache();
+ 	f2fs_destroy_checkpoint_caches();
+ 	f2fs_destroy_segment_manager_caches();
+ 	f2fs_destroy_node_manager_caches();
 
 
