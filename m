@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 793A03CA6FA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6EE3CA87F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239785AbhGOSvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53926 "EHLO mail.kernel.org"
+        id S241582AbhGOTBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239810AbhGOSu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8ED4613C4;
-        Thu, 15 Jul 2021 18:48:01 +0000 (UTC)
+        id S242546AbhGOS7q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2DE9613CF;
+        Thu, 15 Jul 2021 18:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374882;
-        bh=7QlEAfIR48X5g9ahb8H+jZ/laF635VDdUwllnzq05wo=;
+        s=korg; t=1626375412;
+        bh=KbOjLmQKIvqAb446ria5iDg2+gk0WS2ruQ9pR6jeksI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IWciX+qadVQjHsMA9XbLsAEshVUpQsWgX2K+fAv3zIwBLeGqOV32puKKHOptVJiAb
-         fsYWyCUy1JAKVyLVvOFFJDaaIuyQhWCvxYA1RnW/IgJPcrz44vVVd+ssh8ye4urNWe
-         CD7fvwG7Oxsx0xh9gIO09wh8SBWy2e/0ZZO1OnNQ=
+        b=gfH22+siwy0pNL841c6u0Ew5h52UrbGxkSRv7RVVHG37CFEzB5kARMU5fcZFxsyZd
+         YsomcXX+++iieXIsn368sPFc+jdUiCJWV6o2S9/CJbQUdSsIkki4J1S8keqcugIMcj
+         A8e5MwT5YnerBNFyFWcJGma/KKq2vVE0vCVvirC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Chalmers <Wesley.Chalmers@amd.com>,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Amit Cohen <amcohen@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 067/215] drm/amd/display: Set DISPCLK_MAX_ERRDET_CYCLES to 7
+Subject: [PATCH 5.12 077/242] selftests: Clean forgotten resources as part of cleanup()
 Date:   Thu, 15 Jul 2021 20:37:19 +0200
-Message-Id: <20210715182611.222518119@linuxfoundation.org>
+Message-Id: <20210715182606.464245890@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +42,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Chalmers <Wesley.Chalmers@amd.com>
+From: Amit Cohen <amcohen@nvidia.com>
 
-[ Upstream commit 3577e1678772ce3ede92af3a75b44a4b76f9b4ad ]
+[ Upstream commit e67dfb8d15deb33c425d0b0ee22f2e5eef54c162 ]
 
-[WHY]
-DISPCLK_MAX_ERRDET_CYCLES must be 7 to prevent connection loss when
-changing DENTIST_DISPCLK_WDIVIDER from 126 to 127 and back.
+Several tests do not set some ports down as part of their cleanup(),
+resulting in IPv6 link-local addresses and associated routes not being
+deleted.
 
-Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+These leaks were found using a BPF tool that monitors ASIC resources.
+
+Solve this by setting the ports down at the end of the tests.
+
+Signed-off-by: Amit Cohen <amcohen@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/drivers/net/mlxsw/devlink_trap_l3_drops.sh       | 3 +++
+ .../selftests/drivers/net/mlxsw/devlink_trap_l3_exceptions.sh  | 3 +++
+ tools/testing/selftests/drivers/net/mlxsw/qos_dscp_bridge.sh   | 2 ++
+ tools/testing/selftests/net/forwarding/pedit_dsfield.sh        | 2 ++
+ tools/testing/selftests/net/forwarding/pedit_l4port.sh         | 2 ++
+ tools/testing/selftests/net/forwarding/skbedit_priority.sh     | 2 ++
+ 6 files changed, 14 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-index f1e9b3b06b92..9d3ccdd35582 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn20/dcn20_hwseq.c
-@@ -243,7 +243,7 @@ void dcn20_dccg_init(struct dce_hwseq *hws)
- 	REG_WRITE(MILLISECOND_TIME_BASE_DIV, 0x1186a0);
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_drops.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_drops.sh
+index 4029833f7e27..160891dcb4bc 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_drops.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_drops.sh
+@@ -109,6 +109,9 @@ router_destroy()
+ 	__addr_add_del $rp1 del 192.0.2.2/24 2001:db8:1::2/64
  
- 	/* This value is dependent on the hardware pipeline delay so set once per SOC */
--	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0x801003c);
-+	REG_WRITE(DISPCLK_FREQ_CHANGE_CNTL, 0xe01003c);
+ 	tc qdisc del dev $rp2 clsact
++
++	ip link set dev $rp2 down
++	ip link set dev $rp1 down
  }
  
- void dcn20_disable_vga(
+ setup_prepare()
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_exceptions.sh b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_exceptions.sh
+index 1fedfc9da434..1d157b1bd838 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_exceptions.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/devlink_trap_l3_exceptions.sh
+@@ -111,6 +111,9 @@ router_destroy()
+ 	__addr_add_del $rp1 del 192.0.2.2/24 2001:db8:1::2/64
+ 
+ 	tc qdisc del dev $rp2 clsact
++
++	ip link set dev $rp2 down
++	ip link set dev $rp1 down
+ }
+ 
+ setup_prepare()
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/qos_dscp_bridge.sh b/tools/testing/selftests/drivers/net/mlxsw/qos_dscp_bridge.sh
+index 5cbff8038f84..28a570006d4d 100755
+--- a/tools/testing/selftests/drivers/net/mlxsw/qos_dscp_bridge.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/qos_dscp_bridge.sh
+@@ -93,7 +93,9 @@ switch_destroy()
+ 	lldptool -T -i $swp1 -V APP -d $(dscp_map 10) >/dev/null
+ 	lldpad_app_wait_del
+ 
++	ip link set dev $swp2 down
+ 	ip link set dev $swp2 nomaster
++	ip link set dev $swp1 down
+ 	ip link set dev $swp1 nomaster
+ 	ip link del dev br1
+ }
+diff --git a/tools/testing/selftests/net/forwarding/pedit_dsfield.sh b/tools/testing/selftests/net/forwarding/pedit_dsfield.sh
+index 55eeacf59241..64fbd211d907 100755
+--- a/tools/testing/selftests/net/forwarding/pedit_dsfield.sh
++++ b/tools/testing/selftests/net/forwarding/pedit_dsfield.sh
+@@ -75,7 +75,9 @@ switch_destroy()
+ 	tc qdisc del dev $swp2 clsact
+ 	tc qdisc del dev $swp1 clsact
+ 
++	ip link set dev $swp2 down
+ 	ip link set dev $swp2 nomaster
++	ip link set dev $swp1 down
+ 	ip link set dev $swp1 nomaster
+ 	ip link del dev br1
+ }
+diff --git a/tools/testing/selftests/net/forwarding/pedit_l4port.sh b/tools/testing/selftests/net/forwarding/pedit_l4port.sh
+index 5f20d289ee43..10e594c55117 100755
+--- a/tools/testing/selftests/net/forwarding/pedit_l4port.sh
++++ b/tools/testing/selftests/net/forwarding/pedit_l4port.sh
+@@ -71,7 +71,9 @@ switch_destroy()
+ 	tc qdisc del dev $swp2 clsact
+ 	tc qdisc del dev $swp1 clsact
+ 
++	ip link set dev $swp2 down
+ 	ip link set dev $swp2 nomaster
++	ip link set dev $swp1 down
+ 	ip link set dev $swp1 nomaster
+ 	ip link del dev br1
+ }
+diff --git a/tools/testing/selftests/net/forwarding/skbedit_priority.sh b/tools/testing/selftests/net/forwarding/skbedit_priority.sh
+index e3bd8a6bb8b4..bde11dc27873 100755
+--- a/tools/testing/selftests/net/forwarding/skbedit_priority.sh
++++ b/tools/testing/selftests/net/forwarding/skbedit_priority.sh
+@@ -72,7 +72,9 @@ switch_destroy()
+ 	tc qdisc del dev $swp2 clsact
+ 	tc qdisc del dev $swp1 clsact
+ 
++	ip link set dev $swp2 down
+ 	ip link set dev $swp2 nomaster
++	ip link set dev $swp1 down
+ 	ip link set dev $swp1 nomaster
+ 	ip link del dev br1
+ }
 -- 
 2.30.2
 
