@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2107A3CAA65
+	by mail.lfdr.de (Postfix) with ESMTP id B7E913CAA67
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242543AbhGOTNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242577AbhGOTNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 15 Jul 2021 15:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46122 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244124AbhGOTKk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:10:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2E5761370;
-        Thu, 15 Jul 2021 19:07:45 +0000 (UTC)
+        id S244165AbhGOTKm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:10:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0036C601FE;
+        Thu, 15 Jul 2021 19:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376066;
-        bh=Jqpmm8dYoDE00AYtJ1/Vfd85rotV2KoWrHtWr9EACEs=;
+        s=korg; t=1626376068;
+        bh=jm0JWmxGcpKQuILz7gY4zT/faOtsrR7J5SxL68SHXzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mpj2TXbPF0DP1B7DRp9SElNyGcr7ehCOyuLreaRHS1Ta/oluJA2fMIvT5LNbDxGQy
-         40BwZuIiH++GeXz+5lSpq1yMtAVXz2bBN+PA1dR1HTeUw7RNf3J0fz5rMxg8EAcjZV
-         PrQeKVE8SQYE2TsnEdFqIKRB4Xfy/JOId9PTAU9A=
+        b=N6uf6nVTveoAor14++dQ1/N1lm7J4c2WwM0N7T/iwHm3zXbwK7mJXfdoB/+n+SAR7
+         diqm1KUXfij30qPNoWCI8V/dGt/2cxV++9kaFjgZgAbE6RFTyqsSLtclxeRlxYoP20
+         IQp+eUkJh0Td5F6QQDHunCOVWhwGG6hNRacdbBhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d9e482e303930fa4f6ff@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 110/266] ext4: fix memory leak in ext4_fill_super
-Date:   Thu, 15 Jul 2021 20:37:45 +0200
-Message-Id: <20210715182633.320154234@linuxfoundation.org>
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 111/266] ice: fix incorrect payload indicator on PTYPE
+Date:   Thu, 15 Jul 2021 20:37:46 +0200
+Message-Id: <20210715182633.485461100@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,163 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 618f003199c6188e01472b03cdbba227f1dc5f24 ]
+[ Upstream commit 638a0c8c8861cb8a3b54203e632ea5dcc23d8ca5 ]
 
-static int kthread(void *_create) will return -ENOMEM
-or -EINTR in case of internal failure or
-kthread_stop() call happens before threadfn call.
+The entry for PTYPE 90 indicates that the payload is layer 3. This does
+not match the specification in the datasheet which indicates the packet
+is a MAC, IPv6, UDP packet, with a payload in layer 4.
 
-To prevent fancy error checking and make code
-more straightforward we moved all cleanup code out
-of kmmpd threadfn.
+Fix the lookup table to match the data sheet.
 
-Also, dropped struct mmpd_data at all. Now struct super_block
-is a threadfn data and struct buffer_head embedded into
-struct ext4_sb_info.
-
-Reported-by: syzbot+d9e482e303930fa4f6ff@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20210430185046.15742-1-paskripkin@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ext4.h  |  4 ++++
- fs/ext4/mmp.c   | 28 +++++++++++++---------------
- fs/ext4/super.c | 10 ++++------
- 3 files changed, 21 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/ext4.h b/fs/ext4/ext4.h
-index 37002663d521..a179c0bbc12e 100644
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1488,6 +1488,7 @@ struct ext4_sb_info {
- 	struct kobject s_kobj;
- 	struct completion s_kobj_unregister;
- 	struct super_block *s_sb;
-+	struct buffer_head *s_mmp_bh;
- 
- 	/* Journaling */
- 	struct journal_s *s_journal;
-@@ -3720,6 +3721,9 @@ extern struct ext4_io_end_vec *ext4_last_io_end_vec(ext4_io_end_t *io_end);
- /* mmp.c */
- extern int ext4_multi_mount_protect(struct super_block *, ext4_fsblk_t);
- 
-+/* mmp.c */
-+extern void ext4_stop_mmpd(struct ext4_sb_info *sbi);
-+
- /* verity.c */
- extern const struct fsverity_operations ext4_verityops;
- 
-diff --git a/fs/ext4/mmp.c b/fs/ext4/mmp.c
-index 68fbeedd627b..6cb598b549ca 100644
---- a/fs/ext4/mmp.c
-+++ b/fs/ext4/mmp.c
-@@ -127,9 +127,9 @@ void __dump_mmp_msg(struct super_block *sb, struct mmp_struct *mmp,
-  */
- static int kmmpd(void *data)
- {
--	struct super_block *sb = ((struct mmpd_data *) data)->sb;
--	struct buffer_head *bh = ((struct mmpd_data *) data)->bh;
-+	struct super_block *sb = (struct super_block *) data;
- 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
-+	struct buffer_head *bh = EXT4_SB(sb)->s_mmp_bh;
- 	struct mmp_struct *mmp;
- 	ext4_fsblk_t mmp_block;
- 	u32 seq = 0;
-@@ -245,12 +245,18 @@ static int kmmpd(void *data)
- 	retval = write_mmp_block(sb, bh);
- 
- exit_thread:
--	EXT4_SB(sb)->s_mmp_tsk = NULL;
--	kfree(data);
--	brelse(bh);
- 	return retval;
- }
- 
-+void ext4_stop_mmpd(struct ext4_sb_info *sbi)
-+{
-+	if (sbi->s_mmp_tsk) {
-+		kthread_stop(sbi->s_mmp_tsk);
-+		brelse(sbi->s_mmp_bh);
-+		sbi->s_mmp_tsk = NULL;
-+	}
-+}
-+
- /*
-  * Get a random new sequence number but make sure it is not greater than
-  * EXT4_MMP_SEQ_MAX.
-@@ -275,7 +281,6 @@ int ext4_multi_mount_protect(struct super_block *sb,
- 	struct ext4_super_block *es = EXT4_SB(sb)->s_es;
- 	struct buffer_head *bh = NULL;
- 	struct mmp_struct *mmp = NULL;
--	struct mmpd_data *mmpd_data;
- 	u32 seq;
- 	unsigned int mmp_check_interval = le16_to_cpu(es->s_mmp_update_interval);
- 	unsigned int wait_time = 0;
-@@ -364,24 +369,17 @@ skip:
- 		goto failed;
- 	}
- 
--	mmpd_data = kmalloc(sizeof(*mmpd_data), GFP_KERNEL);
--	if (!mmpd_data) {
--		ext4_warning(sb, "not enough memory for mmpd_data");
--		goto failed;
--	}
--	mmpd_data->sb = sb;
--	mmpd_data->bh = bh;
-+	EXT4_SB(sb)->s_mmp_bh = bh;
- 
- 	/*
- 	 * Start a kernel thread to update the MMP block periodically.
- 	 */
--	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, mmpd_data, "kmmpd-%.*s",
-+	EXT4_SB(sb)->s_mmp_tsk = kthread_run(kmmpd, sb, "kmmpd-%.*s",
- 					     (int)sizeof(mmp->mmp_bdevname),
- 					     bdevname(bh->b_bdev,
- 						      mmp->mmp_bdevname));
- 	if (IS_ERR(EXT4_SB(sb)->s_mmp_tsk)) {
- 		EXT4_SB(sb)->s_mmp_tsk = NULL;
--		kfree(mmpd_data);
- 		ext4_warning(sb, "Unable to create kmmpd thread for %s.",
- 			     sb->s_id);
- 		goto failed;
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index 736724ce86d7..3b6203543607 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1245,8 +1245,8 @@ static void ext4_put_super(struct super_block *sb)
- 	ext4_xattr_destroy_cache(sbi->s_ea_block_cache);
- 	sbi->s_ea_block_cache = NULL;
- 
--	if (sbi->s_mmp_tsk)
--		kthread_stop(sbi->s_mmp_tsk);
-+	ext4_stop_mmpd(sbi);
-+
- 	brelse(sbi->s_sbh);
- 	sb->s_fs_info = NULL;
- 	/*
-@@ -5194,8 +5194,7 @@ failed_mount3a:
- failed_mount3:
- 	flush_work(&sbi->s_error_work);
- 	del_timer_sync(&sbi->s_err_report);
--	if (sbi->s_mmp_tsk)
--		kthread_stop(sbi->s_mmp_tsk);
-+	ext4_stop_mmpd(sbi);
- failed_mount2:
- 	rcu_read_lock();
- 	group_desc = rcu_dereference(sbi->s_group_desc);
-@@ -5997,8 +5996,7 @@ static int ext4_remount(struct super_block *sb, int *flags, char *data)
- 				 */
- 				ext4_mark_recovery_complete(sb, es);
- 			}
--			if (sbi->s_mmp_tsk)
--				kthread_stop(sbi->s_mmp_tsk);
-+			ext4_stop_mmpd(sbi);
- 		} else {
- 			/* Make sure we can mount this feature set readwrite */
- 			if (ext4_has_feature_readonly(sb) ||
+diff --git a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+index 21329ed3087e..fc3b56c13786 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
++++ b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+@@ -744,7 +744,7 @@ static const struct ice_rx_ptype_decoded ice_ptype_lkup[] = {
+ 	/* Non Tunneled IPv6 */
+ 	ICE_PTT(88, IP, IPV6, FRG, NONE, NONE, NOF, NONE, PAY3),
+ 	ICE_PTT(89, IP, IPV6, NOF, NONE, NONE, NOF, NONE, PAY3),
+-	ICE_PTT(90, IP, IPV6, NOF, NONE, NONE, NOF, UDP,  PAY3),
++	ICE_PTT(90, IP, IPV6, NOF, NONE, NONE, NOF, UDP,  PAY4),
+ 	ICE_PTT_UNUSED_ENTRY(91),
+ 	ICE_PTT(92, IP, IPV6, NOF, NONE, NONE, NOF, TCP,  PAY4),
+ 	ICE_PTT(93, IP, IPV6, NOF, NONE, NONE, NOF, SCTP, PAY4),
 -- 
 2.30.2
 
