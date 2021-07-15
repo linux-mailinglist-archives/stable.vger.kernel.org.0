@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3AC3CAB36
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 625DE3CA99F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244445AbhGOTSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51430 "EHLO mail.kernel.org"
+        id S242321AbhGOTHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:07:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244642AbhGOTQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:16:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16642613DA;
-        Thu, 15 Jul 2021 19:12:39 +0000 (UTC)
+        id S242261AbhGOTGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:06:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF806140F;
+        Thu, 15 Jul 2021 19:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376360;
-        bh=kh6xMu0riarywR/8VQzC/9VScbXvZzz5mIprlgA/my0=;
+        s=korg; t=1626375773;
+        bh=36uWLMfmCtfxLVMGxi41DWgaM+LISYVe+Ya879sk9tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7IvsSsrm/ThKW879KyfzUVGRCeFJrcX391gGDu+OTIxIk8cSxMjxIoD/QIYvjdYm
-         2eypMy+qnsX6tAKW72bBzSDhJSyiFSix1Vc1f8SxgD1xSsM/HHq+eTvNdLplLPemnH
-         glD/lwrI/ovHDK0XFMfdiETwmKY2L9wtRFXeGY7A=
+        b=wsSta3MEprn3ABad0faG9QZdEQwHhgw01hSWszgkGmu2ijahwA/qwOc+JGEiuB8F2
+         7MaCOax3+Xpq9nJKfmWGCCkeS7sXLWqoT5mzFhwRoxJSm9D9dIOV7gn8ZDosquA7Wy
+         qO4ZX7RmVuVqX3mATCTFahwIO197HSo0nQNhuIRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeremy Linton <jeremy.linton@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.13 237/266] coresight: Propagate symlink failure
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.12 230/242] s390/vdso: always enable vdso
 Date:   Thu, 15 Jul 2021 20:39:52 +0200
-Message-Id: <20210715182650.691908855@linuxfoundation.org>
+Message-Id: <20210715182633.356307910@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 51dd19a7e9f8fbbb7cd92b8a357091911eae7f78 upstream.
+commit d57778feb9878aa6b79c615fd029c2112d40a747 upstream.
 
-If the symlink is unable to be created, the driver goes
-ahead and continues device creation. Instead lets propagate
-the failure, and fail the probe.
+With the upcoming move of the svc sigreturn instruction from
+the signal frame to vdso we need to have vdso always enabled.
 
-Link: https://lore.kernel.org/r/20210526204042.2681700-1-jeremy.linton@arm.com
-Fixes: 8a7365c2d418 ("coresight: Expose device connections via sysfs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210614175901.532683-7-mathieu.poirier@linaro.org
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/elf.h |   11 ++++-------
+ arch/s390/kernel/vdso.c     |   21 ++++-----------------
+ 2 files changed, 8 insertions(+), 24 deletions(-)
 
---- a/drivers/hwtracing/coresight/coresight-core.c
-+++ b/drivers/hwtracing/coresight/coresight-core.c
-@@ -1392,7 +1392,7 @@ static int coresight_fixup_device_conns(
- 		}
- 	}
+--- a/arch/s390/include/asm/elf.h
++++ b/arch/s390/include/asm/elf.h
+@@ -146,8 +146,6 @@ typedef s390_compat_regs compat_elf_greg
  
--	return 0;
-+	return ret;
- }
+ #include <asm/vdso.h>
  
- static int coresight_remove_match(struct device *dev, void *data)
+-extern unsigned int vdso_enabled;
+-
+ /*
+  * This is used to ensure we don't load something for the wrong architecture.
+  */
+@@ -268,11 +266,10 @@ do {								\
+ #define STACK_RND_MASK	MMAP_RND_MASK
+ 
+ /* update AT_VECTOR_SIZE_ARCH if the number of NEW_AUX_ENT entries changes */
+-#define ARCH_DLINFO							    \
+-do {									    \
+-	if (vdso_enabled)						    \
+-		NEW_AUX_ENT(AT_SYSINFO_EHDR,				    \
+-			    (unsigned long)current->mm->context.vdso_base); \
++#define ARCH_DLINFO							\
++do {									\
++	NEW_AUX_ENT(AT_SYSINFO_EHDR,					\
++		    (unsigned long)current->mm->context.vdso_base);	\
+ } while (0)
+ 
+ struct linux_binprm;
+--- a/arch/s390/kernel/vdso.c
++++ b/arch/s390/kernel/vdso.c
+@@ -37,18 +37,6 @@ enum vvar_pages {
+ 	VVAR_NR_PAGES,
+ };
+ 
+-unsigned int __read_mostly vdso_enabled = 1;
+-
+-static int __init vdso_setup(char *str)
+-{
+-	bool enabled;
+-
+-	if (!kstrtobool(str, &enabled))
+-		vdso_enabled = enabled;
+-	return 1;
+-}
+-__setup("vdso=", vdso_setup);
+-
+ #ifdef CONFIG_TIME_NS
+ struct vdso_data *arch_get_vdso_data(void *vvar_page)
+ {
+@@ -176,7 +164,7 @@ int arch_setup_additional_pages(struct l
+ 	int rc;
+ 
+ 	BUILD_BUG_ON(VVAR_NR_PAGES != __VVAR_PAGES);
+-	if (!vdso_enabled || is_compat_task())
++	if (is_compat_task())
+ 		return 0;
+ 	if (mmap_write_lock_killable(mm))
+ 		return -EINTR;
+@@ -218,10 +206,9 @@ static int __init vdso_init(void)
+ 
+ 	vdso_pages = (vdso64_end - vdso64_start) >> PAGE_SHIFT;
+ 	pages = kcalloc(vdso_pages + 1, sizeof(struct page *), GFP_KERNEL);
+-	if (!pages) {
+-		vdso_enabled = 0;
+-		return -ENOMEM;
+-	}
++	if (!pages)
++		panic("failed to allocate VDSO pages");
++
+ 	for (i = 0; i < vdso_pages; i++)
+ 		pages[i] = virt_to_page(vdso64_start + i * PAGE_SIZE);
+ 	pages[vdso_pages] = NULL;
 
 
