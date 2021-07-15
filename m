@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D0993CA891
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 718253CA71D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241091AbhGOTBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38428 "EHLO mail.kernel.org"
+        id S240487AbhGOSw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:52:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240709AbhGOTAz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4F9613D1;
-        Thu, 15 Jul 2021 18:57:40 +0000 (UTC)
+        id S236777AbhGOSvq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:51:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1493A613FE;
+        Thu, 15 Jul 2021 18:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375461;
-        bh=LvIRND0UqDC3dQhNJ2Rr52UaAl5IGAeej3QyKJteXq8=;
+        s=korg; t=1626374931;
+        bh=aAtpwhKuMZGDxNZ3FqxdQXfUEParfME5aHdCkcyIr3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bg1Z7RFbnNNPlq0OcA7xxf6rUjZJ+Kqdc6xn2/RqKPjVln6sEb7+8OWpRMT9sP6sg
-         ZimX9FCCMbHXX/ilRt3KdPCAUSywFNl7FySeHKQEonn14fA8QvGnrSF/o44ghJxrOq
-         pLVefAD4me0Ei96AIi9NEc7uS0SARKo7ZHGM4ZRw=
+        b=P0rp/CK/51mEhcUvFexeNuZgDagGQuYf2x+w+XdIjONi7MXGN4PXz9DLXQ4B/Dj3+
+         4otvPG5i3Ih/Qi+EdAV/umahW2+I3xfu+4VV4vz76rIuF/z92Mgaoj032EMifNmE8I
+         JUBnpM9z5i/GelESJ4LgH9TOt2HowCWArqUFKfVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 096/242] mt76: mt7615: fix fixed-rate tx status reporting
+Subject: [PATCH 5.10 086/215] ice: mark PTYPE 2 as reserved
 Date:   Thu, 15 Jul 2021 20:37:38 +0200
-Message-Id: <20210715182609.992005742@linuxfoundation.org>
+Message-Id: <20210715182614.607567535@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit ec8f1a90d006f7cedcf86ef19fd034a406a213d6 ]
+[ Upstream commit 0c526d440f76676733cb470b454db9d5507a3a50 ]
 
-Rely on the txs fixed-rate bit instead of info->control.rates
+The entry for PTYPE 2 in the ice_ptype_lkup table incorrectly states
+that this is an L2 packet with no payload. According to the datasheet,
+this PTYPE is actually unused and reserved.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fix the lookup entry to indicate this is an unused entry that is
+reserved.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index d06e61cadc41..7fd293b4dcf7 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -1194,22 +1194,20 @@ static bool mt7615_fill_txs(struct mt7615_dev *dev, struct mt7615_sta *sta,
- 	int first_idx = 0, last_idx;
- 	int i, idx, count;
- 	bool fixed_rate, ack_timeout;
--	bool probe, ampdu, cck = false;
-+	bool ampdu, cck = false;
- 	bool rs_idx;
- 	u32 rate_set_tsf;
- 	u32 final_rate, final_rate_flags, final_nss, txs;
- 
--	fixed_rate = info->status.rates[0].count;
--	probe = !!(info->flags & IEEE80211_TX_CTL_RATE_CTRL_PROBE);
--
- 	txs = le32_to_cpu(txs_data[1]);
--	ampdu = !fixed_rate && (txs & MT_TXS1_AMPDU);
-+	ampdu = txs & MT_TXS1_AMPDU;
- 
- 	txs = le32_to_cpu(txs_data[3]);
- 	count = FIELD_GET(MT_TXS3_TX_COUNT, txs);
- 	last_idx = FIELD_GET(MT_TXS3_LAST_TX_RATE, txs);
- 
- 	txs = le32_to_cpu(txs_data[0]);
-+	fixed_rate = txs & MT_TXS0_FIXED_RATE;
- 	final_rate = FIELD_GET(MT_TXS0_TX_RATE, txs);
- 	ack_timeout = txs & MT_TXS0_ACK_TIMEOUT;
- 
-@@ -1231,7 +1229,7 @@ static bool mt7615_fill_txs(struct mt7615_dev *dev, struct mt7615_sta *sta,
- 
- 	first_idx = max_t(int, 0, last_idx - (count - 1) / MT7615_RATE_RETRY);
- 
--	if (fixed_rate && !probe) {
-+	if (fixed_rate) {
- 		info->status.rates[0].count = count;
- 		i = 0;
- 		goto out;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+index 98a7f27c532b..c0ee0541e53f 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
++++ b/drivers/net/ethernet/intel/ice/ice_lan_tx_rx.h
+@@ -608,7 +608,7 @@ static const struct ice_rx_ptype_decoded ice_ptype_lkup[] = {
+ 	/* L2 Packet types */
+ 	ICE_PTT_UNUSED_ENTRY(0),
+ 	ICE_PTT(1, L2, NONE, NOF, NONE, NONE, NOF, NONE, PAY2),
+-	ICE_PTT(2, L2, NONE, NOF, NONE, NONE, NOF, NONE, NONE),
++	ICE_PTT_UNUSED_ENTRY(2),
+ 	ICE_PTT_UNUSED_ENTRY(3),
+ 	ICE_PTT_UNUSED_ENTRY(4),
+ 	ICE_PTT_UNUSED_ENTRY(5),
 -- 
 2.30.2
 
