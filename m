@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BD663CA722
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACEE63CA89E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238150AbhGOSwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
+        id S241411AbhGOTBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237428AbhGOSvx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C72613CF;
-        Thu, 15 Jul 2021 18:48:58 +0000 (UTC)
+        id S241663AbhGOTBL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09830613DA;
+        Thu, 15 Jul 2021 18:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374938;
-        bh=qarjEZJNnjlvLPUP3ffhPcY4y2NFpZUcIFKS3921EC4=;
+        s=korg; t=1626375468;
+        bh=UcI2nQ0dRPY6zF58aNhzWINc4a8QNy6Vta0vXQPrW2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n8ErQf6quIOpaQdSO0lkW/8S/UjSiws8ORchkvVZY2MM8A8VEwn2dYapZHxIekG/N
-         WAvPPK+JOVzGSOs+g8F3O4dsrFuLmhnk84rXeA5g12pX26UZtCEdAMBRVJtTiepFBf
-         /lkSUOt5gF+eAAswQtEV67N1A0Ipl78whIBMQ4dU=
+        b=QTZmdzt74BKfTRG9PQ0JiKl9mPicggxN9npGdjs5tx/yMEWBNYlARz5qHVL0mEiqO
+         5CbZcd/7k06aI/5j2xwtS9TZdhci98w4PpdbIW/SDI/dcW7lu3m8pc2F7EvdpwkJm3
+         QkqkSE2+p+kINsNv8iHrgHevLJasDcoJV+UaPm4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alex Elder <elder@linaro.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 089/215] net: ipa: Add missing of_node_put() in ipa_firmware_load()
+Subject: [PATCH 5.12 099/242] net: ipa: Add missing of_node_put() in ipa_firmware_load()
 Date:   Thu, 15 Jul 2021 20:37:41 +0200
-Message-Id: <20210715182615.110683266@linuxfoundation.org>
+Message-Id: <20210715182610.491621107@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,10 +60,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/ipa/ipa_main.c b/drivers/net/ipa/ipa_main.c
-index cd4d993b0bbb..4162a608a3bf 100644
+index 97c1b55405cb..ba27bcde901e 100644
 --- a/drivers/net/ipa/ipa_main.c
 +++ b/drivers/net/ipa/ipa_main.c
-@@ -589,6 +589,7 @@ static int ipa_firmware_load(struct device *dev)
+@@ -679,6 +679,7 @@ static int ipa_firmware_load(struct device *dev)
  	}
  
  	ret = of_address_to_resource(node, 0, &res);
