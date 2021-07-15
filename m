@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DBAD3CA8BA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCFC3CA6D1
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236817AbhGOTCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34266 "EHLO mail.kernel.org"
+        id S238855AbhGOSut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241087AbhGOS6v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FF47613E5;
-        Thu, 15 Jul 2021 18:55:54 +0000 (UTC)
+        id S239976AbhGOSsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:48:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89B63613CF;
+        Thu, 15 Jul 2021 18:45:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375354;
-        bh=vndnttYoHsnm8GQI8rEdEV7PDDJB8KqOPwOmFM5vV2k=;
+        s=korg; t=1626374759;
+        bh=aVsF5TqeEP6L4jFnKmkKziYg4+Fbo0vpv3fxH2svI/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rolBMTiDdiKuJsOnw0G9xl0P02+JNLha56tv7mx67W3M+qS5IogWZy08ufl25FNq+
-         pPO3MXl7VF5Nk195pxiBsYJHA6svtrjV9kVkRq6NalYPsJrIEBsl5QCtWBEM1XFG2z
-         +f3fOph/bPQLSY5IZ75m9PmFG3iJMg9dQpx1eX6o=
+        b=KLlWfX2qRERcNMM9N/GjJazWLYCJABFD1cUPHqCNczzggTKvLfz/JxfI8LZmp9JDO
+         lkrewXiSuW3pFIEM8PR/IAE3oybDgF4v0adyc1E0EwvK3QRBNqJh+N23f29gw1VGik
+         jEIRLRLxjpAz28x9pxJRnIC2wPSSnA74kPoOxb3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Zou Wei <zou_wei@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 024/242] pinctrl: equilibrium: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 5.10 014/215] atm: nicstar: Fix possible use-after-free in nicstar_cleanup()
 Date:   Thu, 15 Jul 2021 20:36:26 +0200
-Message-Id: <20210715182556.053771489@linuxfoundation.org>
+Message-Id: <20210715182601.203051164@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit d7f444499d6faf9a6ae3b27ec094109528d2b9a7 ]
+[ Upstream commit 34e7434ba4e97f4b85c1423a59b2922ba7dff2ea ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
+
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Link: https://lore.kernel.org/r/20210508031502.53637-1-cuibixuan@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-equilibrium.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/atm/nicstar.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-equilibrium.c b/drivers/pinctrl/pinctrl-equilibrium.c
-index 067271b7d35a..ac1c47f542c1 100644
---- a/drivers/pinctrl/pinctrl-equilibrium.c
-+++ b/drivers/pinctrl/pinctrl-equilibrium.c
-@@ -929,6 +929,7 @@ static const struct of_device_id eqbr_pinctrl_dt_match[] = {
- 	{ .compatible = "intel,lgm-io" },
- 	{}
- };
-+MODULE_DEVICE_TABLE(of, eqbr_pinctrl_dt_match);
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index 09ad73361879..1351b05a3097 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -297,7 +297,7 @@ static void __exit nicstar_cleanup(void)
+ {
+ 	XPRINTK("nicstar: nicstar_cleanup() called.\n");
  
- static struct platform_driver eqbr_pinctrl_driver = {
- 	.probe	= eqbr_pinctrl_probe,
+-	del_timer(&ns_timer);
++	del_timer_sync(&ns_timer);
+ 
+ 	pci_unregister_driver(&nicstar_driver);
+ 
 -- 
 2.30.2
 
