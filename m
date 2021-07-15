@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E09343CA79D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3843CA79E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240360AbhGOSzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59176 "EHLO mail.kernel.org"
+        id S241399AbhGOSzh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242212AbhGOSy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A80B8613C4;
-        Thu, 15 Jul 2021 18:52:02 +0000 (UTC)
+        id S242263AbhGOSy7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:54:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08E6D610C7;
+        Thu, 15 Jul 2021 18:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375123;
-        bh=ABPESi/tvCvsDdS+Q26E3nZ0CcXREcFW90/hodmz2z0=;
+        s=korg; t=1626375125;
+        bh=P3nul/DVQE1yucoSl3ntix5TE48M+uyV2iDO53DBZQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwjE8jSWtHAB/HfoQTccCDNSjNFFrs5lbIUGPtylMD6nD9Hl51nwIWihA9NEsqTKK
-         VS06c9N/NbFT8eCM8BdEQI839QR/n6FiwGJ/tPD7+BeRd73ZaamkrTt6vI/vHScS0r
-         kQEnnGe1JQKXp6+NBB4ZfbJbPGKfCEHqyoLw+Ccc=
+        b=G6Xr/VMV+g0+CGbtuovGdBY6wk45TSzzp8czDkmH4miULBW9FemXJMCXTk6YF7u17
+         o+EVshl4k2il98xwG9l/jiJh47S820N8bf2UZQo860s1+/oPQaMVRd91nFULZHNzlB
+         BhEza/Upub6t47yZr1ffkrUz0dJfC2lThcvU6da8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 169/215] mmc: core: Allow UHS-I voltage switch for SDSC cards if supported
-Date:   Thu, 15 Jul 2021 20:39:01 +0200
-Message-Id: <20210715182629.456022986@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Timo Sigurdsson <public_timo.s@silentcreek.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 170/215] ata: ahci_sunxi: Disable DIPM
+Date:   Thu, 15 Jul 2021 20:39:02 +0200
+Message-Id: <20210715182629.611367855@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -39,57 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Löhle <CLoehle@hyperstone.com>
+From: Timo Sigurdsson <public_timo.s@silentcreek.de>
 
-commit 09247e110b2efce3a104e57e887c373e0a57a412 upstream.
+commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
 
-While initializing an UHS-I SD card, the mmc core first tries to switch to
-1.8V I/O voltage, before it continues to change the settings for the bus
-speed mode.
+DIPM is unsupported or broken on sunxi. Trying to enable the power
+management policy med_power_with_dipm on an Allwinner A20 SoC based board
+leads to immediate I/O errors and the attached SATA disk disappears from
+the /dev filesystem. A reset (power cycle) is required to make the SATA
+controller or disk work again. The A10 and A20 SoC data sheets and manuals
+don't mention DIPM at all [1], so it's fair to assume that it's simply not
+supported. But even if it was, it should be considered broken and best be
+disabled in the ahci_sunxi driver.
 
-However, the current behaviour in the mmc core is inconsistent and doesn't
-conform to the SD spec. More precisely, an SD card that supports UHS-I must
-set both the SD_OCR_CCS bit and the SD_OCR_S18R bit in the OCR register
-response. When switching to 1.8V I/O the mmc core correctly checks both of
-the bits, but only the SD_OCR_S18R bit when changing the settings for bus
-speed mode.
+[1] https://github.com/allwinner-zh/documents/tree/master/
 
-Rather than actually fixing the code to confirm to the SD spec, let's
-deliberately deviate from it by requiring only the SD_OCR_S18R bit for both
-parts. This enables us to support UHS-I for SDSC cards (outside spec),
-which is actually being supported by some existing SDSC cards. Moreover,
-this fixes the inconsistent behaviour.
-
-Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-Link: https://lore.kernel.org/r/CWXP265MB26803AE79E0AD5ED083BF2A6C4529@CWXP265MB2680.GBRP265.PROD.OUTLOOK.COM
+Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
 Cc: stable@vger.kernel.org
-[Ulf: Rewrote commit message and comments to clarify the changes]
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/sd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/ata/ahci_sunxi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -847,11 +847,13 @@ try_again:
- 		return err;
+--- a/drivers/ata/ahci_sunxi.c
++++ b/drivers/ata/ahci_sunxi.c
+@@ -200,7 +200,7 @@ static void ahci_sunxi_start_engine(stru
+ }
  
- 	/*
--	 * In case CCS and S18A in the response is set, start Signal Voltage
--	 * Switch procedure. SPI mode doesn't support CMD11.
-+	 * In case the S18A bit is set in the response, let's start the signal
-+	 * voltage switch procedure. SPI mode doesn't support CMD11.
-+	 * Note that, according to the spec, the S18A bit is not valid unless
-+	 * the CCS bit is set as well. We deliberately deviate from the spec in
-+	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr &&
--	   ((*rocr & 0x41000000) == 0x41000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+ static const struct ata_port_info ahci_sunxi_port_info = {
+-	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
++	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
+ 	.pio_mask	= ATA_PIO4,
+ 	.udma_mask	= ATA_UDMA6,
+ 	.port_ops	= &ahci_platform_ops,
 
 
