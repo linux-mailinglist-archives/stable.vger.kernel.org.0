@@ -2,216 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF8893CA018
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9893CA01D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238046AbhGONxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 09:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55290 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238036AbhGONxb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 09:53:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C0B61278;
-        Thu, 15 Jul 2021 13:50:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626357038;
-        bh=pv8IeTq97iUmG0Qxuh4qElW7CK/3tw1QLIei8D3SJcs=;
-        h=Subject:To:Cc:From:Date:From;
-        b=CRygnjtLnlAs1GODbkxwdv26tlKEmB6LQMvi2MkuGGzoajUgHOL4y0nJrf3SCQyDh
-         e4N8TcEoyG29K6FS4pEE/IahfQT0E/GHIlLVhDrCne67Z/+Gil4VlFv8/VBz8nM85I
-         IOQDZDOJEATUGYAATDttIcEhwM4o5tdqlUT+GueA=
-Subject: FAILED: patch "[PATCH] media: subdev: disallow ioctl for saa6588/davinci" failed to apply to 4.14-stable tree
-To:     arnd@arndb.de, hverkuil-cisco@xs4all.nl,
-        laurent.pinchart@ideasonboard.com, mchehab+huawei@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 15:50:30 +0200
-Message-ID: <162635703016161@kroah.com>
+        id S238108AbhGONzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232091AbhGONzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 09:55:01 -0400
+Received: from mail-qk1-x732.google.com (mail-qk1-x732.google.com [IPv6:2607:f8b0:4864:20::732])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30384C061760
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 06:52:08 -0700 (PDT)
+Received: by mail-qk1-x732.google.com with SMTP id z9so5218864qkg.5
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 06:52:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WOtIhKC8RiEkmTHieDAq65Q6AwB2yFROggAg00dRKkM=;
+        b=tn9DXcZyImRQ8THOHjHdmchVy6sVIphjB/5uYXBlbeZ49Ar37cBAVay+11DpsytbzQ
+         v7jTYspsZ4YHn4eP8QT/o7qCEnJkpVPMUhmHLVvGMfx5uKIaLv489uckXff9vFxxLs1V
+         8iBNuP4oqFGocy4IXcig1JXvsrssco8xkL8u9kfLCmAnXFFGSPtyv8mKHfSBgX3NMtwP
+         2uzqZX/IktknMDFVa/DoasN82+BOG1Z2z26BzfbZyQB6b0DvA0DSAyY0tOoMbKUmlAgT
+         73hzvXAvKaCYVBHmgZTLM3Xvs2SM09KTR6aS2m6cQVDTPUfz9PSwGIZ0bUZ3wlvc97Z0
+         uUTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WOtIhKC8RiEkmTHieDAq65Q6AwB2yFROggAg00dRKkM=;
+        b=ffbYBjdPxNOzAasnDV3+WOUOt7T3aMIrwN3cf5h4NN+0cCole6EGb2TRY/+Nz7Fznj
+         qTv9w4VVAJ4s2SnD1EaKrVMOf6YqKL/w8XXLZXmFlIMQyQiXRNcWLA7ous8V/50HH2dQ
+         Mmzx7taJralukGzn3FRw3d6uFcqaxTN2vc3Nr0Zhs/0enOcr3eGsDm3V2FqeKPVNlYqu
+         4nrAkbmFbs1ZGl0FHcSD/HlAFekZkSkhkX+vtLnvhDFKF/WcVvuD38hn+JQJ+TLQyDzM
+         DaaACZaCGpa+e/50mwI1VHB1yYgiByRdwr0wrg4R2ycJk3923qtfVXBZbLbhIRiuH538
+         Y+Mw==
+X-Gm-Message-State: AOAM53147+8Q3mtIxvnX2+3qm8OvNnFGyjmPkhfd9XMtCzp5BlOq3/Rx
+        TG2sYToJY1OITm7eg7U0qvDMkP0/HM0h8M1+8YlfXQ==
+X-Google-Smtp-Source: ABdhPJxHitSu7kv7K8vYpfCwFPk+39nnv4juqPbD0x0NVPHWy4GnXiZVwu0zLQxNJWq7PBHwpToLlY8umBXyAWdzjOU=
+X-Received: by 2002:a37:a5ca:: with SMTP id o193mr4090068qke.352.1626357126991;
+ Thu, 15 Jul 2021 06:52:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20210714224225.Gmo7sht2E%akpm@linux-foundation.org>
+In-Reply-To: <20210714224225.Gmo7sht2E%akpm@linux-foundation.org>
+From:   Alexander Potapenko <glider@google.com>
+Date:   Thu, 15 Jul 2021 15:51:30 +0200
+Message-ID: <CAG_fn=U1U2b4Q_rvT8MzkdaAW0cqWkEyjmeE2BiZE=vymEKe9w@mail.gmail.com>
+Subject: Re: + kfence-skip-all-gfp_zonemask-allocations.patch added to -mm tree
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Dmitriy Vyukov <dvyukov@google.com>,
+        Marco Elver <elver@google.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jul 15, 2021 at 12:42 AM <akpm@linux-foundation.org> wrote:
+>
+>
+> The patch titled
+>      Subject: kfence: skip all GFP_ZONEMASK allocations
+> has been added to the -mm tree.  Its filename is
+>      kfence-skip-all-gfp_zonemask-allocations.patch
+>
+> This patch should soon appear at
+>     https://ozlabs.org/~akpm/mmots/broken-out/kfence-skip-all-gfp_zonemask-allocations.patch
+> and later at
+>     https://ozlabs.org/~akpm/mmotm/broken-out/kfence-skip-all-gfp_zonemask-allocations.patch
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Hi Andrew,
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 0a7790be182d32b9b332a37cb4206e24fe94b728 Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 14 Jun 2021 12:34:09 +0200
-Subject: [PATCH] media: subdev: disallow ioctl for saa6588/davinci
-
-The saa6588_ioctl() function expects to get called from other kernel
-functions with a 'saa6588_command' pointer, but I found nothing stops it
-from getting called from user space instead, which seems rather dangerous.
-
-The same thing happens in the davinci vpbe driver with its VENC_GET_FLD
-command.
-
-As a quick fix, add a separate .command() callback pointer for this
-driver and change the two callers over to that.  This change can easily
-get backported to stable kernels if necessary, but since there are only
-two drivers, we may want to eventually replace this with a set of more
-specialized callbacks in the long run.
-
-Fixes: c3fda7f835b0 ("V4L/DVB (10537): saa6588: convert to v4l2_subdev.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
-diff --git a/drivers/media/i2c/saa6588.c b/drivers/media/i2c/saa6588.c
-index ecb491d5f2ab..d1e0716bdfff 100644
---- a/drivers/media/i2c/saa6588.c
-+++ b/drivers/media/i2c/saa6588.c
-@@ -380,7 +380,7 @@ static void saa6588_configure(struct saa6588 *s)
- 
- /* ---------------------------------------------------------------------- */
- 
--static long saa6588_ioctl(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
-+static long saa6588_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
- {
- 	struct saa6588 *s = to_saa6588(sd);
- 	struct saa6588_command *a = arg;
-@@ -433,7 +433,7 @@ static int saa6588_s_tuner(struct v4l2_subdev *sd, const struct v4l2_tuner *vt)
- /* ----------------------------------------------------------------------- */
- 
- static const struct v4l2_subdev_core_ops saa6588_core_ops = {
--	.ioctl = saa6588_ioctl,
-+	.command = saa6588_command,
- };
- 
- static const struct v4l2_subdev_tuner_ops saa6588_tuner_ops = {
-diff --git a/drivers/media/pci/bt8xx/bttv-driver.c b/drivers/media/pci/bt8xx/bttv-driver.c
-index 1f62a9d8ea1d..0e9df8b35ac6 100644
---- a/drivers/media/pci/bt8xx/bttv-driver.c
-+++ b/drivers/media/pci/bt8xx/bttv-driver.c
-@@ -3179,7 +3179,7 @@ static int radio_release(struct file *file)
- 
- 	btv->radio_user--;
- 
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_CLOSE, &cmd);
- 
- 	if (btv->radio_user == 0)
- 		btv->has_radio_tuner = 0;
-@@ -3260,7 +3260,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
- 	cmd.result = -ENODEV;
- 	radio_enable(btv);
- 
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_READ, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_READ, &cmd);
- 
- 	return cmd.result;
- }
-@@ -3281,7 +3281,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
- 	cmd.instance = file;
- 	cmd.event_list = wait;
- 	cmd.poll_mask = res;
--	bttv_call_all(btv, core, ioctl, SAA6588_CMD_POLL, &cmd);
-+	bttv_call_all(btv, core, command, SAA6588_CMD_POLL, &cmd);
- 
- 	return cmd.poll_mask;
- }
-diff --git a/drivers/media/pci/saa7134/saa7134-video.c b/drivers/media/pci/saa7134/saa7134-video.c
-index 0f9d6b9edb90..374c8e1087de 100644
---- a/drivers/media/pci/saa7134/saa7134-video.c
-+++ b/drivers/media/pci/saa7134/saa7134-video.c
-@@ -1181,7 +1181,7 @@ static int video_release(struct file *file)
- 
- 	saa_call_all(dev, tuner, standby);
- 	if (vdev->vfl_type == VFL_TYPE_RADIO)
--		saa_call_all(dev, core, ioctl, SAA6588_CMD_CLOSE, &cmd);
-+		saa_call_all(dev, core, command, SAA6588_CMD_CLOSE, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return 0;
-@@ -1200,7 +1200,7 @@ static ssize_t radio_read(struct file *file, char __user *data,
- 	cmd.result = -ENODEV;
- 
- 	mutex_lock(&dev->lock);
--	saa_call_all(dev, core, ioctl, SAA6588_CMD_READ, &cmd);
-+	saa_call_all(dev, core, command, SAA6588_CMD_READ, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return cmd.result;
-@@ -1216,7 +1216,7 @@ static __poll_t radio_poll(struct file *file, poll_table *wait)
- 	cmd.event_list = wait;
- 	cmd.poll_mask = 0;
- 	mutex_lock(&dev->lock);
--	saa_call_all(dev, core, ioctl, SAA6588_CMD_POLL, &cmd);
-+	saa_call_all(dev, core, command, SAA6588_CMD_POLL, &cmd);
- 	mutex_unlock(&dev->lock);
- 
- 	return rc | cmd.poll_mask;
-diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
-index d19bad997f30..bf3c3e76b921 100644
---- a/drivers/media/platform/davinci/vpbe_display.c
-+++ b/drivers/media/platform/davinci/vpbe_display.c
-@@ -47,7 +47,7 @@ static int venc_is_second_field(struct vpbe_display *disp_dev)
- 
- 	ret = v4l2_subdev_call(vpbe_dev->venc,
- 			       core,
--			       ioctl,
-+			       command,
- 			       VENC_GET_FLD,
- 			       &val);
- 	if (ret < 0) {
-diff --git a/drivers/media/platform/davinci/vpbe_venc.c b/drivers/media/platform/davinci/vpbe_venc.c
-index 8caa084e5704..bde241c26d79 100644
---- a/drivers/media/platform/davinci/vpbe_venc.c
-+++ b/drivers/media/platform/davinci/vpbe_venc.c
-@@ -521,9 +521,7 @@ static int venc_s_routing(struct v4l2_subdev *sd, u32 input, u32 output,
- 	return ret;
- }
- 
--static long venc_ioctl(struct v4l2_subdev *sd,
--			unsigned int cmd,
--			void *arg)
-+static long venc_command(struct v4l2_subdev *sd, unsigned int cmd, void *arg)
- {
- 	u32 val;
- 
-@@ -542,7 +540,7 @@ static long venc_ioctl(struct v4l2_subdev *sd,
- }
- 
- static const struct v4l2_subdev_core_ops venc_core_ops = {
--	.ioctl      = venc_ioctl,
-+	.command      = venc_command,
- };
- 
- static const struct v4l2_subdev_video_ops venc_video_ops = {
-diff --git a/include/media/v4l2-subdev.h b/include/media/v4l2-subdev.h
-index 89115ba4c0f2..95f8bfd63273 100644
---- a/include/media/v4l2-subdev.h
-+++ b/include/media/v4l2-subdev.h
-@@ -162,6 +162,9 @@ struct v4l2_subdev_io_pin_config {
-  * @s_gpio: set GPIO pins. Very simple right now, might need to be extended with
-  *	a direction argument if needed.
-  *
-+ * @command: called by in-kernel drivers in order to call functions internal
-+ *	   to subdev drivers driver that have a separate callback.
-+ *
-  * @ioctl: called at the end of ioctl() syscall handler at the V4L2 core.
-  *	   used to provide support for private ioctls used on the driver.
-  *
-@@ -193,6 +196,7 @@ struct v4l2_subdev_core_ops {
- 	int (*load_fw)(struct v4l2_subdev *sd);
- 	int (*reset)(struct v4l2_subdev *sd, u32 val);
- 	int (*s_gpio)(struct v4l2_subdev *sd, u32 val);
-+	long (*command)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
- 	long (*ioctl)(struct v4l2_subdev *sd, unsigned int cmd, void *arg);
- #ifdef CONFIG_COMPAT
- 	long (*compat_ioctl32)(struct v4l2_subdev *sd, unsigned int cmd,
-
+mmotm and mmots were last updated on 2021-06-25, did some automation break?
