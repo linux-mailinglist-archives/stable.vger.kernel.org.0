@@ -2,167 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C6F3CAECF
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 23:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 267293CAED4
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 00:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231144AbhGOV5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 17:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46550 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230186AbhGOV5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 17:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B37E560240;
-        Thu, 15 Jul 2021 21:54:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1626386065;
-        bh=646ahfG3jhDxYLk0CC8856PKvypiCWSUKO3eYEJTTqM=;
-        h=Date:From:To:Subject:From;
-        b=aGn0zkMLeIOTctklmvr+mNjFWuzTTxh31JQaQ0sS79ugEYuTsgF+5hhLLlQllL/43
-         Aovrcr2s+ryNLLOOi5iLgguvFJF4Lg2GUbVe0+WScjpx6qLBGL8ubdyWTFpuTQzUO+
-         P3qw31soqoDl5tbjLAflsY7B4dtjtg2kJG58CzSs=
-Date:   Thu, 15 Jul 2021 14:54:25 -0700
-From:   akpm@linux-foundation.org
-To:     david@redhat.com, groug@kaod.org, mm-commits@vger.kernel.org,
-        rppt@linux.ibm.com, stable@vger.kernel.org
-Subject:  +
- memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
- added to -mm tree
-Message-ID: <20210715215425.yyWz_WYbj%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229597AbhGOWCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 18:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45758 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229462AbhGOWCx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 18:02:53 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F4F4C06175F;
+        Thu, 15 Jul 2021 14:59:59 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id jx7-20020a17090b46c7b02901757deaf2c8so5245516pjb.0;
+        Thu, 15 Jul 2021 14:59:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=LgRikEli+/avgIwH+NnboKsPZ+6R8HRC38xPaFWuCr8=;
+        b=kZh3vAl+f0WgVsJMzR3pTx+dCgm5ZY0V7NIvxKOo/9+zAFrZcWDKt/YKDLZk2L9aHH
+         pCiWTIazb6gHurbAMF6fSru/NgMUcXH6BK917dDzZo6kzw1/C9z5+VHUK9kzOvZxiYSc
+         I08vnMj3cOjvYKwPCLhbWOsdSbPMSGBFXLLPeCvUxSUV7xnH6EFmjcQLiIzXf0g5/FVL
+         PvKMSwLRFtibMtBLb23jY6v6D7srwOkN2DplfomTa00AKLOZaBoZNN9UnBS2wjuWJPS/
+         ANZwqMEhNb90TMsM4F7qjwku1EMusD9LUDXPm9lgQWlM+S2Zj9sWFt20hiSD1diR3mET
+         L5NA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=LgRikEli+/avgIwH+NnboKsPZ+6R8HRC38xPaFWuCr8=;
+        b=YDU5MiAcTZeGxxueHxvjbxJ8zeN64r8cal20Yx4x9Hp18FazSPVWih5ku0FESd1Nxx
+         Trvq6HepBl5LexG8NfIfrJHMbEpmcf9tjPZiYXAjA+V8FYz7B7Kc7dzmsI9sUfshg9uc
+         38aUll52CEPVbBqC1OkaoWi79Pw9IfgRqBL9U0njxKkE4H0HIAEAgXescizlZ11ijw/z
+         DCrjQsVueBSgI3yPpZBdVsHmvJuCBCuVeZ9l5vl+9zakrpmk5/uhh6LDZ3ScoKuLEsul
+         PWZGm01bnEW0kzWwTqNfePQMPK2/0BKHNLO0UaLxYkCVVm+83aoGtNROc6xFNZTvuwoR
+         LI2Q==
+X-Gm-Message-State: AOAM531V5oxRhaeGm6r8GGV9/7gVTScbqgd/icRfLPGvUYVmomwr1+W5
+        pYLcULio6/OdQNz2BoR8A724/cp+6s+dGA==
+X-Google-Smtp-Source: ABdhPJw3Ur/laHKM7WbDvH73mC0otoELe44/BziYWh8+aatVmT6XIxwugf3d2DQnNM38Cv7kH/jBWA==
+X-Received: by 2002:a17:90a:74c5:: with SMTP id p5mr6184164pjl.117.1626386398106;
+        Thu, 15 Jul 2021 14:59:58 -0700 (PDT)
+Received: from [10.67.49.104] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id f5sm7647886pfn.134.2021.07.15.14.59.43
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 15 Jul 2021 14:59:57 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/122] 5.4.133-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210715182448.393443551@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <8dbe6ac8-a655-22ad-8af4-2323c3ea9379@gmail.com>
+Date:   Thu, 15 Jul 2021 14:59:30 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
+MIME-Version: 1.0
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 7/15/21 11:37 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.133 release.
+> There are 122 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.133-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The patch titled
-     Subject: memblock: make for_each_mem_range() traverse MEMBLOCK_HOTPLUG regions
-has been added to the -mm tree.  Its filename is
-     memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Mike Rapoport <rppt@linux.ibm.com>
-Subject: memblock: make for_each_mem_range() traverse MEMBLOCK_HOTPLUG regions
-
-Commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
-for_each_mem_range()") didn't take into account that when there is
-movable_node parameter in the kernel command line, for_each_mem_range()
-would skip ranges marked with MEMBLOCK_HOTPLUG.
-
-The page table setup code in POWER uses for_each_mem_range() to create the
-linear mapping of the physical memory and since the regions marked as
-MEMORY_HOTPLUG are skipped, they never make it to the linear map.
-
-A later access to the memory in those ranges will fail:
-
-[    2.271743] BUG: Unable to handle kernel data access on write at 0xc000000400000000
-[    2.271984] Faulting instruction address: 0xc00000000008a3c0
-[    2.272568] Oops: Kernel access of bad area, sig: 11 [#1]
-[    2.272683] LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
-[    2.273063] Modules linked in:
-[    2.273435] CPU: 0 PID: 53 Comm: kworker/u2:0 Not tainted 5.13.0 #7
-[    2.273832] NIP:  c00000000008a3c0 LR: c0000000003c1ed8 CTR: 0000000000000040
-[    2.273918] REGS: c000000008a57770 TRAP: 0300   Not tainted  (5.13.0)
-[    2.274036] MSR:  8000000002009033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 84222202  XER: 20040000
-[    2.274454] CFAR: c0000000003c1ed4 DAR: c000000400000000 DSISR: 42000000 IRQMASK: 0
-[    2.274454] GPR00: c0000000003c1ed8 c000000008a57a10 c0000000019da700 c000000400000000
-[    2.274454] GPR04: 0000000000000280 0000000000000180 0000000000000400 0000000000000200
-[    2.274454] GPR08: 0000000000000100 0000000000000080 0000000000000040 0000000000000300
-[    2.274454] GPR12: 0000000000000380 c000000001bc0000 c0000000001660c8 c000000006337e00
-[    2.274454] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-[    2.274454] GPR20: 0000000040000000 0000000020000000 c000000001a81990 c000000008c30000
-[    2.274454] GPR24: c000000008c20000 c000000001a81998 000fffffffff0000 c000000001a819a0
-[    2.274454] GPR28: c000000001a81908 c00c000001000000 c000000008c40000 c000000008a64680
-[    2.275520] NIP [c00000000008a3c0] clear_user_page+0x50/0x80
-[    2.276333] LR [c0000000003c1ed8] __handle_mm_fault+0xc88/0x1910
-[    2.276688] Call Trace:
-[    2.276839] [c000000008a57a10] [c0000000003c1e94] __handle_mm_fault+0xc44/0x1910 (unreliable)
-[    2.277142] [c000000008a57af0] [c0000000003c2c90] handle_mm_fault+0x130/0x2a0
-[    2.277331] [c000000008a57b40] [c0000000003b5f08] __get_user_pages+0x248/0x610
-[    2.277541] [c000000008a57c40] [c0000000003b848c] __get_user_pages_remote+0x12c/0x3e0
-[    2.277768] [c000000008a57cd0] [c000000000473f24] get_arg_page+0x54/0xf0
-[    2.277959] [c000000008a57d10] [c000000000474a7c] copy_string_kernel+0x11c/0x210
-[    2.278159] [c000000008a57d80] [c00000000047663c] kernel_execve+0x16c/0x220
-[    2.278361] [c000000008a57dd0] [c000000000166270] call_usermodehelper_exec_async+0x1b0/0x2f0
-[    2.278543] [c000000008a57e10] [c00000000000d5ec] ret_from_kernel_thread+0x5c/0x70
-[    2.278870] Instruction dump:
-[    2.279214] 79280fa4 79271764 79261f24 794ae8e2 7ca94214 7d683a14 7c893a14 7d893050
-[    2.279416] 7d4903a6 60000000 60000000 60000000 <7c001fec> 7c091fec 7c081fec 7c051fec
-[    2.280193] ---[ end trace 490b8c67e6075e09 ]---
-
-Making for_each_mem_range() include MEMBLOCK_HOTPLUG regions in the
-traversal fixes this issue.
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1976100
-Link: https://lkml.kernel.org/r/20210712071132.20902-1-rppt@kernel.org
-Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Tested-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: <stable@vger.kernel.org>	[5.10+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- include/linux/memblock.h |    4 ++--
- mm/memblock.c            |    3 ++-
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
---- a/include/linux/memblock.h~memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions
-+++ a/include/linux/memblock.h
-@@ -209,7 +209,7 @@ static inline void __next_physmem_range(
-  */
- #define for_each_mem_range(i, p_start, p_end) \
- 	__for_each_mem_range(i, &memblock.memory, NULL, NUMA_NO_NODE,	\
--			     MEMBLOCK_NONE, p_start, p_end, NULL)
-+			     MEMBLOCK_HOTPLUG, p_start, p_end, NULL)
- 
- /**
-  * for_each_mem_range_rev - reverse iterate through memblock areas from
-@@ -220,7 +220,7 @@ static inline void __next_physmem_range(
-  */
- #define for_each_mem_range_rev(i, p_start, p_end)			\
- 	__for_each_mem_range_rev(i, &memblock.memory, NULL, NUMA_NO_NODE, \
--				 MEMBLOCK_NONE, p_start, p_end, NULL)
-+				 MEMBLOCK_HOTPLUG, p_start, p_end, NULL)
- 
- /**
-  * for_each_reserved_mem_range - iterate over all reserved memblock areas
---- a/mm/memblock.c~memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions
-+++ a/mm/memblock.c
-@@ -947,7 +947,8 @@ static bool should_skip_region(struct me
- 		return true;
- 
- 	/* skip hotpluggable memory regions if needed */
--	if (movable_node_is_enabled() && memblock_is_hotpluggable(m))
-+	if (movable_node_is_enabled() && memblock_is_hotpluggable(m) &&
-+	    !(flags & MEMBLOCK_HOTPLUG))
- 		return true;
- 
- 	/* if we want mirror memory skip non-mirror memory regions */
-_
-
-Patches currently in -mm which might be from rppt@linux.ibm.com are
-
-memblock-make-for_each_mem_range-traverse-memblock_hotplug-regions.patch
-mm-page_alloc-always-initialize-memory-map-for-the-holes.patch
-microblaze-simplify-pte_alloc_one_kernel.patch
-mm-introduce-memmap_alloc-to-unify-memory-map-allocation.patch
-memblock-stop-poisoning-raw-allocations.patch
-mm-remove-pfn_valid_within-and-config_holes_in_zone.patch
-mm-memory_hotplug-cleanup-after-removal-of-pfn_valid_within.patch
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
