@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 357413CA7B1
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A363B3CA640
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241746AbhGOSz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
+        id S238427AbhGOSqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241460AbhGOSy0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 516B3613D0;
-        Thu, 15 Jul 2021 18:51:32 +0000 (UTC)
+        id S231679AbhGOSqr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F24A6613D1;
+        Thu, 15 Jul 2021 18:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375092;
-        bh=bt7xYdT3o41wmLlK6OKXwu3KBxgrFKysomVDbmPufA4=;
+        s=korg; t=1626374633;
+        bh=T6B42xJXCvzxyS1Yyia+GXBfJd7XvG9BGKMmjXmNc3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVUe1hhBhQI1lG8os/rTRU0cgFgwjnvwJ+ZYNPXcSzhef4ZD9qeze/np43SGjeKRB
-         vMcDKAKJ7FCgC8QzwEd+vpwYjey1KnDQLRJ5Yn5HCb0ggpG7esQwh++K2Dnv6cwjv4
-         nnQEIi6eg8S+dCHaIFJBvZ+etbtAvA2YAfc1gOu4=
+        b=bm8Z13mPfVE9NpYlAkgxnCXU7zyoyt/9FERQijTYanOY17i2AE8MvBl/JPX2kFhRa
+         DZccrML9nUwNhW3yk6TYzMOVz3rHFuhtXNUgEzmGEL5o+D+WWK11Oj9SHlsFdWKXdH
+         WgWarE8QN1aKthJd31C39DedHrZ26vBY1cKZs6ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hebb <tommyhebb@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.10 157/215] drm/rockchip: dsi: remove extra component_del() call
-Date:   Thu, 15 Jul 2021 20:38:49 +0200
-Message-Id: <20210715182627.285847411@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH 5.4 083/122] drm/tegra: Dont set allow_fb_modifiers explicitly
+Date:   Thu, 15 Jul 2021 20:38:50 +0200
+Message-Id: <20210715182512.573693683@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hebb <tommyhebb@gmail.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit b354498bbe65c917d521b3b56317ddc9ab217425 upstream.
+commit be4306ad928fcf736cbe2616b6dd19d91f1bc083 upstream.
 
-commit cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support") added
-this devcnt field and call to component_del(). However, these both
-appear to be erroneous changes left over from an earlier version of the
-patch. In the version merged, nothing ever modifies devcnt, meaning
-component_del() runs unconditionally and in addition to the
-component_del() calls in dw_mipi_dsi_rockchip_host_detach(). The second
-call fails to delete anything and produces a warning in dmesg.
+Since
 
-If we look at the previous version of the patch[1], however, we see that
-it had logic to calculate devcnt and call component_add() in certain
-situations. This was removed in v6, and the fact that the deletion code
-was not appears to have been an oversight.
+commit 890880ddfdbe256083170866e49c87618b706ac7
+Author: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Date:   Fri Jan 4 09:56:10 2019 +0100
 
-[1] https://patchwork.kernel.org/project/dri-devel/patch/20180821140515.22246-8-heiko@sntech.de/
+    drm: Auto-set allow_fb_modifiers when given modifiers at plane init
 
-Fixes: cf6d100dd238 ("drm/rockchip: dsi: add dual mipi support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Thomas Hebb <tommyhebb@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/201385acb0eeb5dfb037afdc6a94bfbcdab97f99.1618797778.git.tommyhebb@gmail.com
+this is done automatically as part of plane init, if drivers set the
+modifier list correctly. Which is the case here.
+
+It was slightly inconsistently though, since planes with only linear
+modifier support haven't listed that explicitly. Fix that, and cc:
+stable to allow userspace to rely on this. Again don't backport
+further than where Paul's patch got added.
+
+Cc: stable@vger.kernel.org # v5.1 +
+Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: linux-tegra@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20210413094904.3736372-10-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpu/drm/tegra/dc.c  |   10 ++++++++--
+ drivers/gpu/drm/tegra/drm.c |    2 --
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -243,7 +243,6 @@ struct dw_mipi_dsi_rockchip {
- 	struct dw_mipi_dsi *dmd;
- 	const struct rockchip_dw_dsi_chip_data *cdata;
- 	struct dw_mipi_dsi_plat_data pdata;
--	int devcnt;
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -919,6 +919,11 @@ static const struct drm_plane_helper_fun
+ 	.atomic_disable = tegra_cursor_atomic_disable,
  };
  
- struct dphy_pll_parameter_map {
-@@ -1141,9 +1140,6 @@ static int dw_mipi_dsi_rockchip_remove(s
++static const uint64_t linear_modifiers[] = {
++	DRM_FORMAT_MOD_LINEAR,
++	DRM_FORMAT_MOD_INVALID
++};
++
+ static struct drm_plane *tegra_dc_cursor_plane_create(struct drm_device *drm,
+ 						      struct tegra_dc *dc)
  {
- 	struct dw_mipi_dsi_rockchip *dsi = platform_get_drvdata(pdev);
+@@ -947,7 +952,7 @@ static struct drm_plane *tegra_dc_cursor
  
--	if (dsi->devcnt == 0)
--		component_del(dsi->dev, &dw_mipi_dsi_rockchip_ops);
+ 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+ 				       &tegra_plane_funcs, formats,
+-				       num_formats, NULL,
++				       num_formats, linear_modifiers,
+ 				       DRM_PLANE_TYPE_CURSOR, NULL);
+ 	if (err < 0) {
+ 		kfree(plane);
+@@ -1065,7 +1070,8 @@ static struct drm_plane *tegra_dc_overla
+ 
+ 	err = drm_universal_plane_init(drm, &plane->base, possible_crtcs,
+ 				       &tegra_plane_funcs, formats,
+-				       num_formats, NULL, type, NULL);
++				       num_formats, linear_modifiers,
++				       type, NULL);
+ 	if (err < 0) {
+ 		kfree(plane);
+ 		return ERR_PTR(err);
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -122,8 +122,6 @@ static int tegra_drm_load(struct drm_dev
+ 	drm->mode_config.max_width = 4096;
+ 	drm->mode_config.max_height = 4096;
+ 
+-	drm->mode_config.allow_fb_modifiers = true;
 -
- 	dw_mipi_dsi_remove(dsi->dmd);
+ 	drm->mode_config.normalize_zpos = true;
  
- 	return 0;
+ 	drm->mode_config.funcs = &tegra_drm_mode_config_funcs;
 
 
