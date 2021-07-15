@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8534C3CAA42
+	by mail.lfdr.de (Postfix) with ESMTP id D5ACD3CAA43
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241369AbhGOTMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45860 "EHLO mail.kernel.org"
+        id S243612AbhGOTMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243807AbhGOTKH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243805AbhGOTKH (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:10:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B07A7613DD;
-        Thu, 15 Jul 2021 19:06:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C25960FF4;
+        Thu, 15 Jul 2021 19:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375996;
-        bh=Nje1VY87Mw8n/VyptInx2sozSQq7QStzqy3xJAt1djg=;
+        s=korg; t=1626375998;
+        bh=Jrj/oNRxWRzbfGv5+CZMyT1dHbGRYqmymnt8oIPIms8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KR805WtzL4pqg7oGO00e7++nVlwIHDPMBQcyQamYISCMw9zbceKep3qX63k60uW34
-         LnfWPv8kDUvscnoQSC8/NAujzH/1T2TMBFRFRSAeEomFogpMrEFx0evkj9OICcFaO3
-         Jb4cb7CNNqRjHKal05C4vC2jIJJ39dJfJjTEHwOs=
+        b=D/VfAUai3GNTmtmL5WATL9f4uyEPhVWrElxzF+nVklHbIklhoUE6ecDwRcW8Stc46
+         +e5yya7iK4gcw9PoOI5Cwtr8VjuPnJVKe3wYV/w9fgPuf85d0QLv0nmM768kVlxJWT
+         xb5HnEv+B+wTSEtRH4wXc4noUQdgbT3gWsIjlEIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Bakoulin <Ilya.Bakoulin@amd.com>,
-        Sung Lee <Sung.Lee@amd.com>, Stylon Wang <stylon.wang@amd.com>,
+        stable@vger.kernel.org, Roman Li <roman.li@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
         Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 083/266] drm/amd/display: Revert "Fix clock table filling logic"
-Date:   Thu, 15 Jul 2021 20:37:18 +0200
-Message-Id: <20210715182628.888176227@linuxfoundation.org>
+Subject: [PATCH 5.13 084/266] drm/amd/display: Update scaling settings on modeset
+Date:   Thu, 15 Jul 2021 20:37:19 +0200
+Message-Id: <20210715182629.068273708@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,203 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
+From: Roman Li <roman.li@amd.com>
 
-[ Upstream commit ae88357c7966ec2a52cb1e70fd42f74a40c9dfcb ]
+[ Upstream commit c521fc316d12fb9ea7b7680e301d673bceda922e ]
 
 [Why]
-This change was found to break some high-refresh modes. Reverting
-to unblock mainline.
+We update scaling settings when scaling mode has been changed.
+However when changing mode from native resolution the scaling mode previously
+set gets ignored.
 
-Signed-off-by: Ilya Bakoulin <Ilya.Bakoulin@amd.com>
-Reviewed-by: Sung Lee <Sung.Lee@amd.com>
+[How]
+Perform scaling settings update on modeset.
+
+Signed-off-by: Roman Li <roman.li@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
 Acked-by: Stylon Wang <stylon.wang@amd.com>
 Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c | 78 +++++++------------
- .../drm/amd/display/dc/dcn21/dcn21_resource.c | 33 +++-----
- 2 files changed, 39 insertions(+), 72 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-index 1f56ceab5922..75ba86f951f8 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn21/rn_clk_mgr.c
-@@ -835,66 +835,47 @@ static struct wm_table lpddr4_wm_table_rn = {
- 	}
- };
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 2b2d7b9f26f1..b11d90ea8c37 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9481,7 +9481,8 @@ skip_modeset:
+ 	BUG_ON(dm_new_crtc_state->stream == NULL);
  
--static unsigned int find_max_fclk_for_voltage(struct dpm_clocks *clock_table,
--		unsigned int voltage)
-+static unsigned int find_socclk_for_voltage(struct dpm_clocks *clock_table, unsigned int voltage)
- {
- 	int i;
--	uint32_t max_clk = 0;
- 
--	for (i = 0; i < PP_SMU_NUM_FCLK_DPM_LEVELS; i++) {
--		if (clock_table->FClocks[i].Vol <= voltage) {
--			max_clk = clock_table->FClocks[i].Freq > max_clk ?
--				clock_table->FClocks[i].Freq : max_clk;
--		}
--	}
--
--	return max_clk;
--}
--
--static unsigned int find_max_memclk_for_voltage(struct dpm_clocks *clock_table,
--		unsigned int voltage)
--{
--	int i;
--	uint32_t max_clk = 0;
--
--	for (i = 0; i < PP_SMU_NUM_MEMCLK_DPM_LEVELS; i++) {
--		if (clock_table->MemClocks[i].Vol <= voltage) {
--			max_clk = clock_table->MemClocks[i].Freq > max_clk ?
--				clock_table->MemClocks[i].Freq : max_clk;
--		}
-+	for (i = 0; i < PP_SMU_NUM_SOCCLK_DPM_LEVELS; i++) {
-+		if (clock_table->SocClocks[i].Vol == voltage)
-+			return clock_table->SocClocks[i].Freq;
- 	}
- 
--	return max_clk;
-+	ASSERT(0);
-+	return 0;
- }
- 
--static unsigned int find_max_socclk_for_voltage(struct dpm_clocks *clock_table,
--		unsigned int voltage)
-+static unsigned int find_dcfclk_for_voltage(struct dpm_clocks *clock_table, unsigned int voltage)
- {
- 	int i;
--	uint32_t max_clk = 0;
- 
--	for (i = 0; i < PP_SMU_NUM_SOCCLK_DPM_LEVELS; i++) {
--		if (clock_table->SocClocks[i].Vol <= voltage) {
--			max_clk = clock_table->SocClocks[i].Freq > max_clk ?
--				clock_table->SocClocks[i].Freq : max_clk;
--		}
-+	for (i = 0; i < PP_SMU_NUM_DCFCLK_DPM_LEVELS; i++) {
-+		if (clock_table->DcfClocks[i].Vol == voltage)
-+			return clock_table->DcfClocks[i].Freq;
- 	}
- 
--	return max_clk;
-+	ASSERT(0);
-+	return 0;
- }
- 
- static void rn_clk_mgr_helper_populate_bw_params(struct clk_bw_params *bw_params, struct dpm_clocks *clock_table, struct integrated_info *bios_info)
- {
- 	int i, j = 0;
--	unsigned int volt;
- 
- 	j = -1;
- 
--	/* Find max DPM */
--	for (i = 0; i < PP_SMU_NUM_DCFCLK_DPM_LEVELS; ++i) {
--		if (clock_table->DcfClocks[i].Freq != 0 &&
--				clock_table->DcfClocks[i].Vol != 0)
-+	ASSERT(PP_SMU_NUM_FCLK_DPM_LEVELS <= MAX_NUM_DPM_LVL);
-+
-+	/* Find lowest DPM, FCLK is filled in reverse order*/
-+
-+	for (i = PP_SMU_NUM_FCLK_DPM_LEVELS - 1; i >= 0; i--) {
-+		if (clock_table->FClocks[i].Freq != 0 && clock_table->FClocks[i].Vol != 0) {
- 			j = i;
-+			break;
-+		}
- 	}
- 
- 	if (j == -1) {
-@@ -905,18 +886,13 @@ static void rn_clk_mgr_helper_populate_bw_params(struct clk_bw_params *bw_params
- 
- 	bw_params->clk_table.num_entries = j + 1;
- 
--	for (i = 0; i < bw_params->clk_table.num_entries; i++) {
--		volt = clock_table->DcfClocks[i].Vol;
--
--		bw_params->clk_table.entries[i].voltage = volt;
--		bw_params->clk_table.entries[i].dcfclk_mhz =
--			clock_table->DcfClocks[i].Freq;
--		bw_params->clk_table.entries[i].fclk_mhz =
--			find_max_fclk_for_voltage(clock_table, volt);
--		bw_params->clk_table.entries[i].memclk_mhz =
--			find_max_memclk_for_voltage(clock_table, volt);
--		bw_params->clk_table.entries[i].socclk_mhz =
--			find_max_socclk_for_voltage(clock_table, volt);
-+	for (i = 0; i < bw_params->clk_table.num_entries; i++, j--) {
-+		bw_params->clk_table.entries[i].fclk_mhz = clock_table->FClocks[j].Freq;
-+		bw_params->clk_table.entries[i].memclk_mhz = clock_table->MemClocks[j].Freq;
-+		bw_params->clk_table.entries[i].voltage = clock_table->FClocks[j].Vol;
-+		bw_params->clk_table.entries[i].dcfclk_mhz = find_dcfclk_for_voltage(clock_table, clock_table->FClocks[j].Vol);
-+		bw_params->clk_table.entries[i].socclk_mhz = find_socclk_for_voltage(clock_table,
-+									bw_params->clk_table.entries[i].voltage);
- 	}
- 
- 	bw_params->vram_type = bios_info->memory_type;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-index 38a2aa87f5f5..8e3f1d0b4cc3 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
-@@ -1575,12 +1575,10 @@ static struct _vcs_dpi_voltage_scaling_st construct_low_pstate_lvl(struct clk_li
- 	low_pstate_lvl.phyclk_d18_mhz = dcn2_1_soc.clock_limits[high_voltage_lvl].phyclk_d18_mhz;
- 	low_pstate_lvl.phyclk_mhz = dcn2_1_soc.clock_limits[high_voltage_lvl].phyclk_mhz;
- 
--	if (clk_table->num_entries < MAX_NUM_DPM_LVL) {
--		for (i = clk_table->num_entries; i > 1; i--)
--			clk_table->entries[i] = clk_table->entries[i-1];
--		clk_table->entries[1] = clk_table->entries[0];
--		clk_table->num_entries++;
--	}
-+	for (i = clk_table->num_entries; i > 1; i--)
-+		clk_table->entries[i] = clk_table->entries[i-1];
-+	clk_table->entries[1] = clk_table->entries[0];
-+	clk_table->num_entries++;
- 
- 	return low_pstate_lvl;
- }
-@@ -1612,6 +1610,10 @@ static void update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_param
- 			}
- 		}
- 
-+		/* clk_table[1] is reserved for min DF PState.  skip here to fill in later. */
-+		if (i == 1)
-+			k++;
-+
- 		clock_limits[k].state = k;
- 		clock_limits[k].dcfclk_mhz = clk_table->entries[i].dcfclk_mhz;
- 		clock_limits[k].fabricclk_mhz = clk_table->entries[i].fclk_mhz;
-@@ -1628,25 +1630,14 @@ static void update_bw_bounding_box(struct dc *dc, struct clk_bw_params *bw_param
- 
- 		k++;
- 	}
--
--	if (clk_table->num_entries >= MAX_NUM_DPM_LVL) {
--		for (i = 0; i < clk_table->num_entries + 1; i++)
--			dcn2_1_soc.clock_limits[i] = clock_limits[i];
--	} else {
--		dcn2_1_soc.clock_limits[0] = clock_limits[0];
--		for (i = 2; i < clk_table->num_entries + 1; i++) {
--			dcn2_1_soc.clock_limits[i] = clock_limits[i - 1];
--			dcn2_1_soc.clock_limits[i].state = i;
--		}
--	}
--
-+	for (i = 0; i < clk_table->num_entries + 1; i++)
-+		dcn2_1_soc.clock_limits[i] = clock_limits[i];
- 	if (clk_table->num_entries) {
-+		dcn2_1_soc.num_states = clk_table->num_entries + 1;
- 		/* fill in min DF PState */
- 		dcn2_1_soc.clock_limits[1] = construct_low_pstate_lvl(clk_table, closest_clk_lvl);
--		dcn2_1_soc.num_states = clk_table->num_entries;
- 		/* duplicate last level */
--		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states] =
--			dcn2_1_soc.clock_limits[dcn2_1_soc.num_states - 1];
-+		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states] = dcn2_1_soc.clock_limits[dcn2_1_soc.num_states - 1];
- 		dcn2_1_soc.clock_limits[dcn2_1_soc.num_states].state = dcn2_1_soc.num_states;
- 	}
+ 	/* Scaling or underscan settings */
+-	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state))
++	if (is_scaling_state_different(dm_old_conn_state, dm_new_conn_state) ||
++				drm_atomic_crtc_needs_modeset(new_crtc_state))
+ 		update_stream_scaling_settings(
+ 			&new_crtc_state->mode, dm_new_conn_state, dm_new_crtc_state->stream);
  
 -- 
 2.30.2
