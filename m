@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FF9E3CA65B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6713CA65D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238625AbhGOSrX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49216 "EHLO mail.kernel.org"
+        id S236792AbhGOSrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:47:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49282 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231321AbhGOSrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A1D8613D0;
-        Thu, 15 Jul 2021 18:44:23 +0000 (UTC)
+        id S236817AbhGOSrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 905A861158;
+        Thu, 15 Jul 2021 18:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374663;
-        bh=olyDjE2D53U+4YbHBN/EaMbR1X0nVqz1klnU62fx4Zk=;
+        s=korg; t=1626374666;
+        bh=hyCIWKKZjngvuEMe5c7TdZ6aQySOfdGzqdDSWh/eYEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MODSMuZlstmC6Dbc5dp0tQ2/HA/8oGNkwyytLcDggxcf8NrLKXoZ6aq7Z91WmGhsH
-         lK6op5mi9HW06U98Vjki6ePEIbZ0FV5yIrH2C+nFk/b29BckOtmuyC00/H/oSnY8dw
-         2qgZQ2G0vUNG7JLhdv/0uprUU7pSd1IFBDpR1fUU=
+        b=SH9//T2vn1JVT/EIn+2UBV4YEpdywQ/U1osyj78rev2BkPnJ6pyjBpv5eArvSc4Dc
+         rz4xmsGcxpkZ4E3kLSaPCCIHv12CNj68hYHrRcQcsdAGBDtFEazL/Eha3AIM8EHm4F
+         QHWN54QltFykNgSAGXQoK3O7FvT4GhqbODZtwl7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 095/122] qemu_fw_cfg: Make fw_cfg_rev_attr a proper kobj_attribute
-Date:   Thu, 15 Jul 2021 20:39:02 +0200
-Message-Id: <20210715182517.397691644@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 5.4 096/122] ipmi/watchdog: Stop watchdog timer when the current action is none
+Date:   Thu, 15 Jul 2021 20:39:03 +0200
+Message-Id: <20210715182517.797164056@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
 References: <20210715182448.393443551@linuxfoundation.org>
@@ -42,62 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-commit fca41af18e10318e4de090db47d9fa7169e1bf2f upstream.
+commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
 
-fw_cfg_showrev() is called by an indirect call in kobj_attr_show(),
-which violates clang's CFI checking because fw_cfg_showrev()'s second
-parameter is 'struct attribute', whereas the ->show() member of 'struct
-kobj_structure' expects the second parameter to be of type 'struct
-kobj_attribute'.
+When an IPMI watchdog timer is being stopped in ipmi_close() or
+ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
+WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
+to install this action. The latter function ends up invoking
+__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
+request.
 
-$ cat /sys/firmware/qemu_fw_cfg/rev
-3
+For IPMI 1.0, this operation results in fully stopping the watchdog timer.
+For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
+stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
+that the watchdog timer has its action correctly updated to 'none' but the
+timer continues to run. A problem is that IPMI firmware can then still log
+an expiration event when the configured timeout is reached, which is
+unexpected because the watchdog timer was requested to be stopped.
 
-$ dmesg | grep "CFI failure"
-[   26.016832] CFI failure (target: fw_cfg_showrev+0x0/0x8):
+The patch fixes this problem by not setting the "don't stop" flag in
+__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
+results in stopping the watchdog timer. This makes the behaviour for
+IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
+__ipmi_heartbeat() which does not allow to reset the watchdog if the
+current action is WDOG_TIMEOUT_NONE as that would start the timer.
 
-Fix this by converting fw_cfg_rev_attr to 'struct kobj_attribute' where
-this would have been caught automatically by the incompatible pointer
-types compiler warning. Update fw_cfg_showrev() accordingly.
-
-Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1299
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210211194258.4137998-1-nathan@kernel.org
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/firmware/qemu_fw_cfg.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -296,15 +296,13 @@ static int fw_cfg_do_platform_probe(stru
- 	return 0;
- }
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -366,16 +366,18 @@ static int __ipmi_set_timeout(struct ipm
+ 	data[0] = 0;
+ 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
  
--static ssize_t fw_cfg_showrev(struct kobject *k, struct attribute *a, char *buf)
-+static ssize_t fw_cfg_showrev(struct kobject *k, struct kobj_attribute *a,
-+			      char *buf)
- {
- 	return sprintf(buf, "%u\n", fw_cfg_rev);
- }
+-	if ((ipmi_version_major > 1)
+-	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
+-		/* This is an IPMI 1.5-only feature. */
+-		data[0] |= WDOG_DONT_STOP_ON_SET;
+-	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
+-		/*
+-		 * In ipmi 1.0, setting the timer stops the watchdog, we
+-		 * need to start it back up again.
+-		 */
+-		hbnow = 1;
++	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
++		if ((ipmi_version_major > 1) ||
++		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
++			/* This is an IPMI 1.5-only feature. */
++			data[0] |= WDOG_DONT_STOP_ON_SET;
++		} else {
++			/*
++			 * In ipmi 1.0, setting the timer stops the watchdog, we
++			 * need to start it back up again.
++			 */
++			hbnow = 1;
++		}
+ 	}
  
--static const struct {
--	struct attribute attr;
--	ssize_t (*show)(struct kobject *k, struct attribute *a, char *buf);
--} fw_cfg_rev_attr = {
-+static const struct kobj_attribute fw_cfg_rev_attr = {
- 	.attr = { .name = "rev", .mode = S_IRUSR },
- 	.show = fw_cfg_showrev,
- };
+ 	data[1] = 0;
 
 
