@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3643CAADA
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF2CF3CA91E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244281AbhGOTPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51510 "EHLO mail.kernel.org"
+        id S241810AbhGOTF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244325AbhGOTOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06AAE613E9;
-        Thu, 15 Jul 2021 19:10:21 +0000 (UTC)
+        id S243363AbhGOTEU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:04:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B564613DF;
+        Thu, 15 Jul 2021 19:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376222;
-        bh=uukFyebvLjMkKGfyTL+jcY1K9MuCKoKq1HHkshqZF1s=;
+        s=korg; t=1626375603;
+        bh=gWwBBg4a6xmnU0NOxAxZXtYOk15quw5sP7AcEnJZ1rg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xs3rOsc6siZulsrhviqFxLDdi7GQodNgcLyFc82UUCdgEyAGR36nnU86SRzWfG+xn
-         +E/5ZA/4ftgasMerNZWvMfO1hhlFT3s2RD04hl7UJwATXbagrKrSGR7rB9Fg0fqLF2
-         nQVbzhXaleOeuuDmY42h2MhGK6aEJ9Cq5UvjMBp8=
+        b=gwFkPODqthd0p6OMfzQHDYCDy7GI9l284PYBP+/v//DTuQbFyvS85jBibgt3OOQDf
+         jiht0/ob/bySs+0UQaWInb/i8FrQs4FlcFLpOowVPLn/cOhbwItHIgK1m+d3hm6la3
+         fLwj+xklE3PijC09MHhW9Kr1VgZjKyRRouvDOJUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Lenski <dlenski@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 162/266] Bluetooth: btusb: Add a new QCA_ROME device (0cf3:e500)
+        stable@vger.kernel.org, Xiaochen Shen <xiaochen.shen@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 5.12 155/242] selftests/resctrl: Fix incorrect parsing of option "-t"
 Date:   Thu, 15 Jul 2021 20:38:37 +0200
-Message-Id: <20210715182641.257702671@linuxfoundation.org>
+Message-Id: <20210715182620.485014708@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lenski <dlenski@gmail.com>
+From: Xiaochen Shen <xiaochen.shen@intel.com>
 
-[ Upstream commit 0324d19cb99804d99e42c990b8b1e191575a091b ]
+commit 1421ec684a43379b2aa3cfda20b03d38282dc990 upstream.
 
-This patch adds the 0cf3:e500 Bluetooth device (from a QCA9377 board) as a
-QCA_ROME device.  It appears to be functionally identical to another device
-ID, also from a QCA9377 board, which was previously marked as QCA_ROME in
-0a03f98b98c201191e3ba15a0e33f46d8660e1fd
-("Bluetooth: Add a new 04ca:3015 QCA_ROME device").
+Resctrl test suite accepts command line argument "-t" to specify the
+unit tests to run in the test list (e.g., -t mbm,mba,cmt,cat) as
+documented in the help.
 
-Without this patch, the WiFi side of the QCA9377 board is slow or unusable
-when the Bluetooth side is in use.
+When calling strtok() to parse the option, the incorrect delimiters
+argument ":\t" is used. As a result, passing "-t mbm,mba,cmt,cat" throws
+an invalid option error.
 
-See https://askubuntu.com/a/1137852 for another report of QCA_ROME fixing
-this issue for this device ID.
+Fix this by using delimiters argument "," instead of ":\t" for parsing
+of unit tests list. At the same time, remove the unnecessary "spaces"
+between the unit tests in help documentation to prevent confusion.
 
-/sys/kernel/debug/usb/devices:
+Fixes: 790bf585b0ee ("selftests/resctrl: Add Cache Allocation Technology (CAT) selftest")
+Fixes: 78941183d1b1 ("selftests/resctrl: Add Cache QoS Monitoring (CQM) selftest")
+Fixes: ecdbb911f22d ("selftests/resctrl: Add MBM test")
+Fixes: 034c7678dd2c ("selftests/resctrl: Add README for resctrl tests")
+Cc: stable@vger.kernel.org
+Signed-off-by: Xiaochen Shen <xiaochen.shen@intel.com>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
-D:  Ver= 2.01 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0cf3 ProdID=e500 Rev= 0.01
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Signed-off-by: Daniel Lenski <dlenski@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/resctrl/README          |    2 +-
+ tools/testing/selftests/resctrl/resctrl_tests.c |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 99fd88f7653d..90872099d9c3 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -270,6 +270,8 @@ static const struct usb_device_id blacklist_table[] = {
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0cf3, 0xe360), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
-+	{ USB_DEVICE(0x0cf3, 0xe500), .driver_info = BTUSB_QCA_ROME |
-+						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe092), .driver_info = BTUSB_QCA_ROME |
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0489, 0xe09f), .driver_info = BTUSB_QCA_ROME |
--- 
-2.30.2
-
+--- a/tools/testing/selftests/resctrl/README
++++ b/tools/testing/selftests/resctrl/README
+@@ -47,7 +47,7 @@ Parameter '-h' shows usage information.
+ 
+ usage: resctrl_tests [-h] [-b "benchmark_cmd [options]"] [-t test list] [-n no_of_bits]
+         -b benchmark_cmd [options]: run specified benchmark for MBM, MBA and CQM default benchmark is builtin fill_buf
+-        -t test list: run tests specified in the test list, e.g. -t mbm, mba, cqm, cat
++        -t test list: run tests specified in the test list, e.g. -t mbm,mba,cqm,cat
+         -n no_of_bits: run cache tests using specified no of bits in cache bit mask
+         -p cpu_no: specify CPU number to run the test. 1 is default
+         -h: help
+--- a/tools/testing/selftests/resctrl/resctrl_tests.c
++++ b/tools/testing/selftests/resctrl/resctrl_tests.c
+@@ -40,7 +40,7 @@ static void cmd_help(void)
+ 	printf("\t-b benchmark_cmd [options]: run specified benchmark for MBM, MBA and CQM");
+ 	printf("\t default benchmark is builtin fill_buf\n");
+ 	printf("\t-t test list: run tests specified in the test list, ");
+-	printf("e.g. -t mbm, mba, cqm, cat\n");
++	printf("e.g. -t mbm,mba,cqm,cat\n");
+ 	printf("\t-n no_of_bits: run cache tests using specified no of bits in cache bit mask\n");
+ 	printf("\t-p cpu_no: specify CPU number to run the test. 1 is default\n");
+ 	printf("\t-h: help\n");
+@@ -98,7 +98,7 @@ int main(int argc, char **argv)
+ 
+ 					return -1;
+ 				}
+-				token = strtok(NULL, ":\t");
++				token = strtok(NULL, ",");
+ 			}
+ 			break;
+ 		case 'p':
 
 
