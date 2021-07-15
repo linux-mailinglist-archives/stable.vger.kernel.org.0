@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D150A3CA769
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F7463CA5F9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:42:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240321AbhGOSxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57294 "EHLO mail.kernel.org"
+        id S235622AbhGOSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240298AbhGOSxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:53:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70C6F613E4;
-        Thu, 15 Jul 2021 18:50:17 +0000 (UTC)
+        id S231193AbhGOSpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:45:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA0D61396;
+        Thu, 15 Jul 2021 18:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375017;
-        bh=u0mrxMtT0pAjepPKhzlaRe7yawDwWHyahoAGghvsErs=;
+        s=korg; t=1626374559;
+        bh=SgchSdyMjIM8hkJyq6+OQX/R7CAhcXTq1tfjK5njyJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lj0Uu0FhpFnT+cRPxZJupZJ4jnEnB29V9dtC7P+ICgrstG7gMQCI/iO6gdWfDaBH0
-         DyGLYEdp3lZsSZv6yp+5voT+jKtS2o/wThgc5rYndRiy1tSKj447ebDEXzakbM8Zzz
-         fmWClvCJ668Isx3cyz/Pd3SVckGBWQBcGTfIvtfI=
+        b=V6CaBwc+rqeDmwdKe21wfm7wc9JbNlia/vL+oq4AGYgNoCJFp+3YBXFJCNHdvfBjm
+         eajL2pKeRz51jwYLjYqu8TD/cgA5TD6zsQ2cX+HNjhdD7uGan2rPY76Cc9dquuYibM
+         tn5DhTTo5qZhIiWaQIhZuHU3czgza97QXR3GLxf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tedd Ho-Jeong An <tedd.an@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 124/215] Bluetooth: mgmt: Fix the command returns garbage parameter value
-Date:   Thu, 15 Jul 2021 20:38:16 +0200
-Message-Id: <20210715182621.397724261@linuxfoundation.org>
+Subject: [PATCH 5.4 050/122] MIPS: add PMD table accounting into MIPSpmd_alloc_one
+Date:   Thu, 15 Jul 2021 20:38:17 +0200
+Message-Id: <20210715182501.665585780@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tedd Ho-Jeong An <tedd.an@intel.com>
+From: Huang Pei <huangpei@loongson.cn>
 
-[ Upstream commit 02ce2c2c24024aade65a8d91d6a596651eaf2d0a ]
+[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
 
-When the Get Device Flags command fails, it returns the error status
-with the parameters filled with the garbage values. Although the
-parameters are not used, it is better to fill with zero than the random
-values.
+This fixes Page Table accounting bug.
 
-Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
+Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
+"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
+in MIPS without PMD table accounting causes PageTable accounting number
+negative, which read by global_zone_page_state(), always returns 0.
+
+Signed-off-by: Huang Pei <huangpei@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/include/asm/pgalloc.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index 7dfb96946220..31a585fe0c7c 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -4038,6 +4038,8 @@ static int get_device_flags(struct sock *sk, struct hci_dev *hdev, void *data,
+diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
+index 166842337eb2..dd10854321ca 100644
+--- a/arch/mips/include/asm/pgalloc.h
++++ b/arch/mips/include/asm/pgalloc.h
+@@ -62,11 +62,15 @@ do {							\
  
- 	hci_dev_lock(hdev);
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+-	pmd_t *pmd;
++	pmd_t *pmd = NULL;
++	struct page *pg;
  
-+	memset(&rp, 0, sizeof(rp));
-+
- 	if (cp->addr.type == BDADDR_BREDR) {
- 		br_params = hci_bdaddr_list_lookup_with_flags(&hdev->whitelist,
- 							      &cp->addr.bdaddr,
+-	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
+-	if (pmd)
++	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
++	if (pg) {
++		pgtable_pmd_page_ctor(pg);
++		pmd = (pmd_t *)page_address(pg);
+ 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
++	}
+ 	return pmd;
+ }
+ 
 -- 
 2.30.2
 
