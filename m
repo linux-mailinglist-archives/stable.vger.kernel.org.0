@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56BEA3CA846
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C69F83CA6A8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240014AbhGOTAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35680 "EHLO mail.kernel.org"
+        id S239362AbhGOStp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241013AbhGOS6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C747613DC;
-        Thu, 15 Jul 2021 18:55:24 +0000 (UTC)
+        id S240521AbhGOSta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:49:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7C3613CF;
+        Thu, 15 Jul 2021 18:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375324;
-        bh=4Fu4G4b/XGeKu5EbAcyA0kyrm0McafbQWyb4+B87B1E=;
+        s=korg; t=1626374796;
+        bh=KIbEhNWMydI6SQGBDF9LHhWBX6rUno1XaXp/Wg9nNw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8Pv8Zl9ojI9fXgToGqGdf5KJRA/2948UTsZU1rCY0YHWdKwbsM7ft+TD3gJ5vyeg
-         Pw1q1yE3UBB/ekoy58qdrkFkmdpubS8YXxmHyS/9DjZQlgZD+yQ7yasnxcNxJm+H3+
-         2Nz3eRjQA9Z616elAvdiYdLJdlcgGsIbJeEvZ5Xg=
+        b=13f3iTKBajBvRo8lj6m1d2V6iA4KcQFxixY+KUsdJp5zJQAh3kdad7HULNOUK8p51
+         JMpZg/CEXiOR52PmLI/FEkBiu1U9qX5FCgSHTmln15YwN2TXSpifoT1h4zJAlffnZv
+         3qaPnx17BkCB+e21Ji+CCuJNmsnYYf9xYKAAFJsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 039/242] drm: rockchip: add missing registers for RK3188
-Date:   Thu, 15 Jul 2021 20:36:41 +0200
-Message-Id: <20210715182558.914035025@linuxfoundation.org>
+Subject: [PATCH 5.10 030/215] igb: handle vlan types with checker enabled
+Date:   Thu, 15 Jul 2021 20:36:42 +0200
+Message-Id: <20210715182604.289886452@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Bee <knaerzche@gmail.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit ab64b448a175b8a5a4bd323b8f74758c2574482c ]
+[ Upstream commit c7cbfb028b95360403d579c47aaaeef1ff140964 ]
 
-Add dither_up, dsp_lut_en and data_blank registers to enable their
-respective functionality for RK3188's VOP.
-While at that also fix .dsp_blank register which is (only) set with
-BIT24 (same as RK3066)
+The sparse build (C=2) finds some issues with how the driver
+dealt with the (very difficult) hardware that in some generations
+uses little-endian, and in others uses big endian, for the VLAN
+field. The code as written picks __le16 as a type and for some
+hardware revisions we override it to __be16 as done in this
+patch. This impacted the VF driver as well so fix it there too.
 
-Signed-off-by: Alex Bee <knaerzche@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210528130554.72191-3-knaerzche@gmail.com
+Also change the vlan_tci assignment to override the sparse
+warning without changing functionality.
+
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 5 +++--
+ drivers/net/ethernet/intel/igbvf/netdev.c | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-index 80053d91a301..b8dcee64a1f7 100644
---- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
-@@ -505,7 +505,10 @@ static const struct vop_common rk3188_common = {
- 	.dither_down_sel = VOP_REG(RK3188_DSP_CTRL0, 0x1, 27),
- 	.dither_down_en = VOP_REG(RK3188_DSP_CTRL0, 0x1, 11),
- 	.dither_down_mode = VOP_REG(RK3188_DSP_CTRL0, 0x1, 10),
--	.dsp_blank = VOP_REG(RK3188_DSP_CTRL1, 0x3, 24),
-+	.dsp_blank = VOP_REG(RK3188_DSP_CTRL1, 0x1, 24),
-+	.dither_up = VOP_REG(RK3188_DSP_CTRL0, 0x1, 9),
-+	.dsp_lut_en = VOP_REG(RK3188_SYS_CTRL, 0x1, 28),
-+	.data_blank = VOP_REG(RK3188_DSP_CTRL1, 0x1, 25),
- };
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 5c87c0a7ce3d..157683fbf61c 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -2643,7 +2643,8 @@ static int igb_parse_cls_flower(struct igb_adapter *adapter,
+ 			}
  
- static const struct vop_win_data rk3188_vop_win_data[] = {
+ 			input->filter.match_flags |= IGB_FILTER_FLAG_VLAN_TCI;
+-			input->filter.vlan_tci = match.key->vlan_priority;
++			input->filter.vlan_tci =
++				(__force __be16)match.key->vlan_priority;
+ 		}
+ 	}
+ 
+@@ -8617,7 +8618,7 @@ static void igb_process_skb_fields(struct igb_ring *rx_ring,
+ 
+ 		if (igb_test_staterr(rx_desc, E1000_RXDEXT_STATERR_LB) &&
+ 		    test_bit(IGB_RING_FLAG_RX_LB_VLAN_BSWAP, &rx_ring->flags))
+-			vid = be16_to_cpu(rx_desc->wb.upper.vlan);
++			vid = be16_to_cpu((__force __be16)rx_desc->wb.upper.vlan);
+ 		else
+ 			vid = le16_to_cpu(rx_desc->wb.upper.vlan);
+ 
+diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
+index ee9f8c1dca83..07c9e9e0546f 100644
+--- a/drivers/net/ethernet/intel/igbvf/netdev.c
++++ b/drivers/net/ethernet/intel/igbvf/netdev.c
+@@ -83,14 +83,14 @@ static int igbvf_desc_unused(struct igbvf_ring *ring)
+ static void igbvf_receive_skb(struct igbvf_adapter *adapter,
+ 			      struct net_device *netdev,
+ 			      struct sk_buff *skb,
+-			      u32 status, u16 vlan)
++			      u32 status, __le16 vlan)
+ {
+ 	u16 vid;
+ 
+ 	if (status & E1000_RXD_STAT_VP) {
+ 		if ((adapter->flags & IGBVF_FLAG_RX_LB_VLAN_BSWAP) &&
+ 		    (status & E1000_RXDEXT_STATERR_LB))
+-			vid = be16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
++			vid = be16_to_cpu((__force __be16)vlan) & E1000_RXD_SPC_VLAN_MASK;
+ 		else
+ 			vid = le16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
+ 		if (test_bit(vid, adapter->active_vlans))
 -- 
 2.30.2
 
