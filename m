@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F9DE3CA88A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7D33CA5D2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240780AbhGOTB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37638 "EHLO mail.kernel.org"
+        id S234430AbhGOSop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241484AbhGOTAY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B649610C7;
-        Thu, 15 Jul 2021 18:57:29 +0000 (UTC)
+        id S234548AbhGOSol (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9BF3613D0;
+        Thu, 15 Jul 2021 18:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375449;
-        bh=F8SCln3H5NJmbHRZxsNE5Xd1u4tOGt+zaQc9RTcTxI4=;
+        s=korg; t=1626374507;
+        bh=010x7vKbI2pvOTPycUOPxyKTSv6WaO3IorHBzGXHO/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRtyLVVqwkjVqMj0IOWFHbLYHJDHWthQ6OyfTtLeDT7yUnrmnZrPGpsCQ4A1ej6nk
-         tl0/JoyXdU9KjjzNq4dB/28+d3MiearoeDIgs2j35PluerRk7oM51gSIPwTM6Mc2fV
-         n3hxMsmbzmQIdudzqsy3sUYWv2r8Bjdv+GK678dc=
+        b=Rv1D9irGhpMOdeFpboB9exCWZjnqSm45aOg2b9/9Y01Zjzdu122C3RUTMLwdh8r40
+         tgEe3tKdlcci2+zGw3TvJJIRUaEELzetNwi3e1k+JdHfF24P9EN922iRGel6wLWP3c
+         yrTBT3ggc1DzjRXsd67o5XXBZD39vXmFzok0mF9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        George McCollister <george.mccollister@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bibo Mao <maobibo@loongson.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 092/242] net: hsr: dont check sequence number if tag removal is offloaded
+Subject: [PATCH 5.4 007/122] hugetlb: clear huge pte during flush function on mips platform
 Date:   Thu, 15 Jul 2021 20:37:34 +0200
-Message-Id: <20210715182609.261915869@linuxfoundation.org>
+Message-Id: <20210715182450.162533095@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George McCollister <george.mccollister@gmail.com>
+From: Bibo Mao <maobibo@loongson.cn>
 
-[ Upstream commit c2ae34a7deaff463ecafb7db627b77faaca8e159 ]
+[ Upstream commit 33ae8f801ad8bec48e886d368739feb2816478f2 ]
 
-Don't check the sequence number when deciding when to update time_in in
-the node table if tag removal is offloaded since the sequence number is
-part of the tag. This fixes a problem where the times in the node table
-wouldn't update when 0 appeared to be before or equal to seq_out when
-tag removal was offloaded.
+If multiple threads are accessing the same huge page at the same
+time, hugetlb_cow will be called if one thread write the COW huge
+page. And function huge_ptep_clear_flush is called to notify other
+threads to clear the huge pte tlb entry. The other threads clear
+the huge pte tlb entry and reload it from page table, the reload
+huge pte entry may be old.
 
-Signed-off-by: George McCollister <george.mccollister@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch fixes this issue on mips platform, and it clears huge
+pte entry before notifying other threads to flush current huge
+page entry, it is similar with other architectures.
+
+Signed-off-by: Bibo Mao <maobibo@loongson.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_framereg.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/hugetlb.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/net/hsr/hsr_framereg.c b/net/hsr/hsr_framereg.c
-index bb1351c38397..e31949479305 100644
---- a/net/hsr/hsr_framereg.c
-+++ b/net/hsr/hsr_framereg.c
-@@ -397,7 +397,8 @@ void hsr_register_frame_in(struct hsr_node *node, struct hsr_port *port,
- 	 * ensures entries of restarted nodes gets pruned so that they can
- 	 * re-register and resume communications.
- 	 */
--	if (seq_nr_before(sequence_nr, node->seq_out[port->type]))
-+	if (!(port->dev->features & NETIF_F_HW_HSR_TAG_RM) &&
-+	    seq_nr_before(sequence_nr, node->seq_out[port->type]))
- 		return;
+diff --git a/arch/mips/include/asm/hugetlb.h b/arch/mips/include/asm/hugetlb.h
+index 425bb6fc3bda..bf1bf8c7c332 100644
+--- a/arch/mips/include/asm/hugetlb.h
++++ b/arch/mips/include/asm/hugetlb.h
+@@ -53,7 +53,13 @@ static inline pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
+ static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
+ 					 unsigned long addr, pte_t *ptep)
+ {
+-	flush_tlb_page(vma, addr & huge_page_mask(hstate_vma(vma)));
++	/*
++	 * clear the huge pte entry firstly, so that the other smp threads will
++	 * not get old pte entry after finishing flush_tlb_page and before
++	 * setting new huge pte entry
++	 */
++	huge_ptep_get_and_clear(vma->vm_mm, addr, ptep);
++	flush_tlb_page(vma, addr);
+ }
  
- 	node->time_in[port->type] = jiffies;
+ #define __HAVE_ARCH_HUGE_PTE_NONE
 -- 
 2.30.2
 
