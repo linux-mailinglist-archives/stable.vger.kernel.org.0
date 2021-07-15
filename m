@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 722EA3CA66F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 756533CA7BD
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239013AbhGOSry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49704 "EHLO mail.kernel.org"
+        id S242449AbhGOS4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238906AbhGOSrd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3EB613D2;
-        Thu, 15 Jul 2021 18:44:39 +0000 (UTC)
+        id S239383AbhGOSzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D10AD613C4;
+        Thu, 15 Jul 2021 18:52:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374679;
-        bh=SeriLztVEZSO4MnAK7lhv7P7uFNZ7GXLsYC/VB6qCTk=;
+        s=korg; t=1626375144;
+        bh=s5hHcSw2lwzQd6yShPQcB+bG5BiV+Y/+hfnpVyQMXp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wQkb97F2YLfZWl1B9/9s16LgKQSWN4ShTVnsmIxlxa4zCIaxwZgubP9xZUrFXqIqA
-         /5KJFiNmen8DF3AqCEScUvbVjY0DQ0pGWAebt90266ktm9fVzTY5f93/pbos1QbRYG
-         UZyhoSTRd68k+X4YA4HATW6tf8U10JvWn3w1uGc0=
+        b=Yldtm+BaJCIdKUMfouxyfaV1GTXb9ovDEPH/rnaKr6+w3MKrJuA034moQVIMNrNSQ
+         eSzSB9xjVXBot9z48okrZCn3a+uwIHHoB3oUUJP+PorZ1jnQwodW6Iz9JIyTQn94C0
+         yx2byEMjo4QwrIcNBMe9vVPze7qI0Yr3ilo/j8W0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.4 101/122] nvmem: core: add a missing of_node_put
-Date:   Thu, 15 Jul 2021 20:39:08 +0200
-Message-Id: <20210715182518.898251816@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <philmd@redhat.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 177/215] qemu_fw_cfg: Make fw_cfg_rev_attr a proper kobj_attribute
+Date:   Thu, 15 Jul 2021 20:39:09 +0200
+Message-Id: <20210715182630.728413546@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 63879e2964bceee2aa5bbe8b99ea58bba28bb64f upstream.
+commit fca41af18e10318e4de090db47d9fa7169e1bf2f upstream.
 
-'for_each_child_of_node' performs an of_node_get on each iteration, so a
-return from the middle of the loop requires an of_node_put.
+fw_cfg_showrev() is called by an indirect call in kobj_attr_show(),
+which violates clang's CFI checking because fw_cfg_showrev()'s second
+parameter is 'struct attribute', whereas the ->show() member of 'struct
+kobj_structure' expects the second parameter to be of type 'struct
+kobj_attribute'.
 
-Fixes: e888d445ac33 ("nvmem: resolve cells from DT at registration time")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210611102321.11509-1-srinivas.kandagatla@linaro.org
+$ cat /sys/firmware/qemu_fw_cfg/rev
+3
+
+$ dmesg | grep "CFI failure"
+[   26.016832] CFI failure (target: fw_cfg_showrev+0x0/0x8):
+
+Fix this by converting fw_cfg_rev_attr to 'struct kobj_attribute' where
+this would have been caught automatically by the incompatible pointer
+types compiler warning. Update fw_cfg_showrev() accordingly.
+
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1299
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Philippe Mathieu-Daudé <philmd@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210211194258.4137998-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/nvmem/core.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -318,15 +318,17 @@ static int nvmem_add_cells_from_of(struc
- 			continue;
- 		if (len < 2 * sizeof(u32)) {
- 			dev_err(dev, "nvmem: invalid reg on %pOF\n", child);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
+---
+ drivers/firmware/qemu_fw_cfg.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -299,15 +299,13 @@ static int fw_cfg_do_platform_probe(stru
+ 	return 0;
+ }
  
- 		cell = kzalloc(sizeof(*cell), GFP_KERNEL);
--		if (!cell)
-+		if (!cell) {
-+			of_node_put(child);
- 			return -ENOMEM;
-+		}
+-static ssize_t fw_cfg_showrev(struct kobject *k, struct attribute *a, char *buf)
++static ssize_t fw_cfg_showrev(struct kobject *k, struct kobj_attribute *a,
++			      char *buf)
+ {
+ 	return sprintf(buf, "%u\n", fw_cfg_rev);
+ }
  
- 		cell->nvmem = nvmem;
--		cell->np = of_node_get(child);
- 		cell->offset = be32_to_cpup(addr++);
- 		cell->bytes = be32_to_cpup(addr);
- 		cell->name = kasprintf(GFP_KERNEL, "%pOFn", child);
-@@ -347,11 +349,12 @@ static int nvmem_add_cells_from_of(struc
- 				cell->name, nvmem->stride);
- 			/* Cells already added will be freed later. */
- 			kfree_const(cell->name);
--			of_node_put(cell->np);
- 			kfree(cell);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
-+		cell->np = of_node_get(child);
- 		nvmem_cell_add(cell);
- 	}
- 
+-static const struct {
+-	struct attribute attr;
+-	ssize_t (*show)(struct kobject *k, struct attribute *a, char *buf);
+-} fw_cfg_rev_attr = {
++static const struct kobj_attribute fw_cfg_rev_attr = {
+ 	.attr = { .name = "rev", .mode = S_IRUSR },
+ 	.show = fw_cfg_showrev,
+ };
 
 
