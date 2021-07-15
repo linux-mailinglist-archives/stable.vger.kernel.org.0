@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE7E53CA6E4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96FFF3CA740
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240131AbhGOSvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53352 "EHLO mail.kernel.org"
+        id S240635AbhGOSw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238996AbhGOSua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3445F613DF;
-        Thu, 15 Jul 2021 18:47:36 +0000 (UTC)
+        id S232870AbhGOSwc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3351613CC;
+        Thu, 15 Jul 2021 18:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374856;
-        bh=sODFjQzU3USHLt6BrmHeBwUgk5c78OeFL3+f/Hi8QAs=;
+        s=korg; t=1626374978;
+        bh=+DqxFN9ITQT8/uYsw9hTN5wttBWimqS6cfsrA3DFqjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPKBMGHYUuIprQK5QXYYW7dpzaMJxgs4fQg22TaF+rdoEO9rhHmq8IR1Osn9em0q9
-         dfSsDf1Kan4HY8xZqc5IPVYWfILO8xT5fMUwIonVjzdQ1JG9cKqLoxD2P3YTMeIYhk
-         NgRNZ9mNSDHTzDGHOpL5BJZ4KrAZf/4nNTkcmlN0=
+        b=hg8WMorwf0EJfTRtWUTYuT/iVG/dIJT4gu7bU4JqG+7ijhruwdp1GCzSm9Jc2byN/
+         f5VDhvJNCv3YpN3W7SASLAeG5FilEwdr8D9zZ7ciRoqJwGA+5bfC5TRNPSEZ5zWJvR
+         9hemA32tSsWxOCVPSki8FyvuxI8XFD6BaDXvZiUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Radim Pavlik <radim.pavlik@tbs-biometrics.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/215] net: bridge: mrp: Update ring transitions.
-Date:   Thu, 15 Jul 2021 20:37:06 +0200
-Message-Id: <20210715182608.959219464@linuxfoundation.org>
+Subject: [PATCH 5.10 055/215] pinctrl: mcp23s08: fix race condition in irq handler
+Date:   Thu, 15 Jul 2021 20:37:07 +0200
+Message-Id: <20210715182609.157349779@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -41,47 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
 
-[ Upstream commit fcb34635854a5a5814227628867ea914a9805384 ]
+[ Upstream commit 897120d41e7afd9da435cb00041a142aeeb53c07 ]
 
-According to the standard IEC 62439-2, the number of transitions needs
-to be counted for each transition 'between' ring state open and ring
-state closed and not from open state to closed state.
+Checking value of MCP_INTF in mcp23s08_irq suggests that the handler may be
+called even when there is no interrupt pending.
 
-Therefore fix this for both ring and interconnect ring.
+But the actual interrupt could happened between reading MCP_INTF and MCP_GPIO.
+In this situation we got nothing from MCP_INTF, but the event gets acknowledged
+on the expander by reading MCP_GPIO. This leads to losing events.
 
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the problem by not reading any register until we see something in MCP_INTF.
+
+The error was reproduced and fix tested on MCP23017.
+
+Signed-off-by: Radim Pavlik <radim.pavlik@tbs-biometrics.com>
+Link: https://lore.kernel.org/r/AM7PR06MB6769E1183F68DEBB252F665ABA3E9@AM7PR06MB6769.eurprd06.prod.outlook.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_mrp.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/pinctrl/pinctrl-mcp23s08.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/bridge/br_mrp.c b/net/bridge/br_mrp.c
-index d1336a7ad7ff..3259f5480127 100644
---- a/net/bridge/br_mrp.c
-+++ b/net/bridge/br_mrp.c
-@@ -607,8 +607,7 @@ int br_mrp_set_ring_state(struct net_bridge *br,
- 	if (!mrp)
- 		return -EINVAL;
+diff --git a/drivers/pinctrl/pinctrl-mcp23s08.c b/drivers/pinctrl/pinctrl-mcp23s08.c
+index ce2d8014b7e0..799d596a1a4b 100644
+--- a/drivers/pinctrl/pinctrl-mcp23s08.c
++++ b/drivers/pinctrl/pinctrl-mcp23s08.c
+@@ -351,6 +351,11 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
+ 	if (mcp_read(mcp, MCP_INTF, &intf))
+ 		goto unlock;
  
--	if (mrp->ring_state == BR_MRP_RING_STATE_CLOSED &&
--	    state->ring_state != BR_MRP_RING_STATE_CLOSED)
-+	if (mrp->ring_state != state->ring_state)
- 		mrp->ring_transitions++;
++	if (intf == 0) {
++		/* There is no interrupt pending */
++		return IRQ_HANDLED;
++	}
++
+ 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
+ 		goto unlock;
  
- 	mrp->ring_state = state->ring_state;
-@@ -690,8 +689,7 @@ int br_mrp_set_in_state(struct net_bridge *br, struct br_mrp_in_state *state)
- 	if (!mrp)
- 		return -EINVAL;
+@@ -368,11 +373,6 @@ static irqreturn_t mcp23s08_irq(int irq, void *data)
+ 	mcp->cached_gpio = gpio;
+ 	mutex_unlock(&mcp->lock);
  
--	if (mrp->in_state == BR_MRP_IN_STATE_CLOSED &&
--	    state->in_state != BR_MRP_IN_STATE_CLOSED)
-+	if (mrp->in_state != state->in_state)
- 		mrp->in_transitions++;
- 
- 	mrp->in_state = state->in_state;
+-	if (intf == 0) {
+-		/* There is no interrupt pending */
+-		return IRQ_HANDLED;
+-	}
+-
+ 	dev_dbg(mcp->chip.parent,
+ 		"intcap 0x%04X intf 0x%04X gpio_orig 0x%04X gpio 0x%04X\n",
+ 		intcap, intf, gpio_orig, gpio);
 -- 
 2.30.2
 
