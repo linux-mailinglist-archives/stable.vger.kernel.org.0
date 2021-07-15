@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 250603CA9A7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E83D3CAB67
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242281AbhGOTHz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:07:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46432 "EHLO mail.kernel.org"
+        id S245751AbhGOTUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242378AbhGOTGy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:06:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DD1A610C7;
-        Thu, 15 Jul 2021 19:03:09 +0000 (UTC)
+        id S243767AbhGOTRw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:17:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A1756141F;
+        Thu, 15 Jul 2021 19:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375790;
-        bh=6dYphgOo2THbfEUnJoMnC1dpOKDYDO6E0Xo8s0leiS8=;
+        s=korg; t=1626376374;
+        bh=VCbkn5xnj6I8I39UGSdZSENyID19O7Gl0jTqClZXik8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoMb9eb2yW1mUFMC85LU+t9lCYyOJoKnh82b5VYtWpBOwX7SPhxxz3cAzplqGOklA
-         QFx2vT4KEWMucU0F7YoYkjbykJllS/LBU4WpMMyMb0KaySYCnOMvU+E6TjUp3xOxwl
-         fBDjedkINd25bamft7FEAJLzrQ9wGm/raY75Tpf4=
+        b=VaqJIWYPMsKG2OQcLL5H54GgercYomCba23M7Hh2Tka4RbzVWGwaPpvl7g+uu3uNy
+         QQJMNvmAbT/ll4F8hbekyUAo90ssVavuHuWQnFpghWYgYzldpleZ6jhVyYg6XWpj/n
+         SGFE4bBWVnW85B3/YA5DrLA3isqRFHKLSZKpikog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.12 236/242] pinctrl: mcp23s08: Fix missing unlock on error in mcp23s08_irq()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 5.13 243/266] PCI: aardvark: Fix checking for PIO Non-posted Request
 Date:   Thu, 15 Jul 2021 20:39:58 +0200
-Message-Id: <20210715182634.410790697@linuxfoundation.org>
+Message-Id: <20210715182651.330583704@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 884af72c90016cfccd5717439c86b48702cbf184 upstream.
+commit 8ceeac307a79f68c0d0c72d6e48b82fa424204ec upstream.
 
-Add the missing unlock before return from function mcp23s08_irq()
-in the error handling case.
+PIO_NON_POSTED_REQ for PIO_STAT register is incorrectly defined. Bit 10 in
+register PIO_STAT indicates the response is to a non-posted request.
 
-v1-->v2:
-   remove the "return IRQ_HANDLED" line
-
-Fixes: 897120d41e7a ("pinctrl: mcp23s08: fix race condition in irq handler")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1623134048-56051-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://lore.kernel.org/r/20210624213345.3617-2-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-mcp23s08.c |    2 +-
+ drivers/pci/controller/pci-aardvark.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pinctrl/pinctrl-mcp23s08.c
-+++ b/drivers/pinctrl/pinctrl-mcp23s08.c
-@@ -353,7 +353,7 @@ static irqreturn_t mcp23s08_irq(int irq,
- 
- 	if (intf == 0) {
- 		/* There is no interrupt pending */
--		return IRQ_HANDLED;
-+		goto unlock;
- 	}
- 
- 	if (mcp_read(mcp, MCP_INTCAP, &intcap))
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -57,7 +57,7 @@
+ #define   PIO_COMPLETION_STATUS_UR		1
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+-#define   PIO_NON_POSTED_REQ			BIT(0)
++#define   PIO_NON_POSTED_REQ			BIT(10)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
 
 
