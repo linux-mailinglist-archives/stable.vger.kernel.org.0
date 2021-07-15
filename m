@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EFCF3CAA8A
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28A2C3CA906
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243229AbhGOTNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:13:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
+        id S242572AbhGOTFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:05:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241108AbhGOTMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:12:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4061613D7;
-        Thu, 15 Jul 2021 19:08:55 +0000 (UTC)
+        id S242600AbhGOTC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:02:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D8DB613E0;
+        Thu, 15 Jul 2021 18:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376136;
-        bh=1h/US809T4PNXkRghgU+cb23Xj2bAUs7vWSKKlNecV4=;
+        s=korg; t=1626375550;
+        bh=e3dKGtKDjP2RJubC27CF+muWmmyyf6t8niXEfy2LrOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=byw6F/v8E5/LOc1S7R5tk+4iGpJMWa4HU8K4oLmaxTXPNE7zSVpjhLhbW8LdqbkZZ
-         Bs+qJ2PzNe0P0cP4H/suhdFw/vEqgh9Yvrk0/9QnjPusC0/K9a98xIPGTop0Hn2Guh
-         xjVIzSMn03sP+7npIbbNdE0/MqyG+9Zb7HSFLU2I=
+        b=jcdE2uQZLN9yoS8C5VITnDzx4dnFEWLBTNPBNdCyk9x3a9xont8KeBke5KGufjLqY
+         Z+BcBmUWUb5Iz0XVxfrNU6yI7kOQMuopYaa5cu+ztHVPbC1tSJyYT477MvNo0R62eV
+         FJfOKtD0Jqkpynu1I5WFqEDiSf01+wR4EHxMJPd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 142/266] iwlwifi: pcie: fix context info freeing
+Subject: [PATCH 5.12 135/242] Bluetooth: btusb: Fixed too many in-token issue for Mediatek Chip.
 Date:   Thu, 15 Jul 2021 20:38:17 +0200
-Message-Id: <20210715182638.731993878@linuxfoundation.org>
+Message-Id: <20210715182616.782295134@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: mark-yw.chen <mark-yw.chen@mediatek.com>
 
-[ Upstream commit 26d18c75a7496c4c52b0b6789e713dc76ebfbc87 ]
+[ Upstream commit 8454ed9ff9647e31e061fb5eb2e39ce79bc5e960 ]
 
-After firmware alive, iwl_trans_pcie_gen2_fw_alive() is called
-to free the context info. However, on gen3 that will then free
-the context info with the wrong size.
+This patch reduce in-token during download patch procedure.
+Don't submit urb for polling event before sending hci command.
 
-Since we free this allocation later, let it stick around until
-the device is stopped for now, freeing some of it earlier is a
-separate change.
-
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618105614.afb63fb8cbc1.If4968db8e09f4ce2a1d27a6d750bca3d132d7d70@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-index 1bcd36e9e008..9ce195d80c51 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
-@@ -254,7 +254,8 @@ void iwl_trans_pcie_gen2_fw_alive(struct iwl_trans *trans, u32 scd_addr)
- 	/* now that we got alive we can free the fw image & the context info.
- 	 * paging memory cannot be freed included since FW will still use it
- 	 */
--	iwl_pcie_ctxt_info_free(trans);
-+	if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210)
-+		iwl_pcie_ctxt_info_free(trans);
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index ddc7b86725cd..b3ba5a9dc5fc 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -3377,11 +3377,6 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
+ 	struct btmtk_wmt_hdr *hdr;
+ 	int err;
  
- 	/*
- 	 * Re-enable all the interrupts, including the RF-Kill one, now that
+-	/* Submit control IN URB on demand to process the WMT event */
+-	err = btusb_mtk_submit_wmt_recv_urb(hdev);
+-	if (err < 0)
+-		return err;
+-
+ 	/* Send the WMT command and wait until the WMT event returns */
+ 	hlen = sizeof(*hdr) + wmt_params->dlen;
+ 	if (hlen > 255)
+@@ -3407,6 +3402,11 @@ static int btusb_mtk_hci_wmt_sync(struct hci_dev *hdev,
+ 		goto err_free_wc;
+ 	}
+ 
++	/* Submit control IN URB on demand to process the WMT event */
++	err = btusb_mtk_submit_wmt_recv_urb(hdev);
++	if (err < 0)
++		return err;
++
+ 	/* The vendor specific WMT commands are all answered by a vendor
+ 	 * specific event and will have the Command Status or Command
+ 	 * Complete as with usual HCI command flow control.
 -- 
 2.30.2
 
