@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 372E03CAB33
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CE9E3CA9A2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244661AbhGOTSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:18:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
+        id S242444AbhGOTHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:07:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244646AbhGOTQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:16:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62244613DF;
-        Thu, 15 Jul 2021 19:12:42 +0000 (UTC)
+        id S242394AbhGOTGx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:06:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82237613FE;
+        Thu, 15 Jul 2021 19:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376362;
-        bh=X4unYPdD9aUiCg4rzQrQVd7fpH13JNuuUM4b9Qpnxyk=;
+        s=korg; t=1626375776;
+        bh=qYwvKRZxDsClmqX/CnzXKCt+vvf788CcY/7PJ+WeTLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lTDZnnSW9JJ4f/jf9HJfjdy7wQTXWCmvQ6b02NWXRZmPXue7G5Reyn+QbXooD2bvS
-         Y7h4xp1CIPwPWxsolokirfxQBsuX4uNf25nXyESCAEyOan7DHqZvIo+b0SD38EVydq
-         dwwLrC53/Gi8PUjyMtLtstwjK8xtQVGKFycGNHFQ=
+        b=GdCHtxXcfeLLUECxYQVI6fzBlLQPqCaoUi9PanzH6tmJQl/laV6k/l4brtnIiz8k9
+         qPb6mNiiMhNfK/3V6hLBfV+Oe7zFbBYwp5Yn3g6vwK+LEQimgUjEwaN5wZTkM8E0N7
+         DSodWsWh/zb4JNurqcksA5qPDAGLYBvwTsVk+5ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.13 238/266] coresight: tmc-etf: Fix global-out-of-bounds in tmc_update_etf_buffer()
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 5.12 231/242] s390/vdso64: add sigreturn,rt_sigreturn and restart_syscall
 Date:   Thu, 15 Jul 2021 20:39:53 +0200
-Message-Id: <20210715182650.807768183@linuxfoundation.org>
+Message-Id: <20210715182633.531536608@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 5fae8a946ac2df879caf3f79a193d4766d00239b upstream.
+commit 686341f2548b5a4c4ab1ee22427e046027ae1c9c upstream.
 
-commit 6f755e85c332 ("coresight: Add helper for inserting synchronization
-packets") removed trailing '\0' from barrier_pkt array and updated the
-call sites like etb_update_buffer() to have proper checks for barrier_pkt
-size before read but missed updating tmc_update_etf_buffer() which still
-reads barrier_pkt past the array size resulting in KASAN out-of-bounds
-bug. Fix this by adding a check for barrier_pkt size before accessing
-like it is done in etb_update_buffer().
+Add minimalistic trampolines to vdso64 so we can return from signal
+without using the stack which requires pgm check handler hacks when
+NX is enabled.
 
- BUG: KASAN: global-out-of-bounds in tmc_update_etf_buffer+0x4b8/0x698
- Read of size 4 at addr ffffffd05b7d1030 by task perf/2629
+restart_syscall will be called from vdso to work around the architectural
+limitation that the syscall number might be encoded in the svc instruction,
+and therefore can not be changed.
 
- Call trace:
-  dump_backtrace+0x0/0x27c
-  show_stack+0x20/0x2c
-  dump_stack+0x11c/0x188
-  print_address_description+0x3c/0x4a4
-  __kasan_report+0x140/0x164
-  kasan_report+0x10/0x18
-  __asan_report_load4_noabort+0x1c/0x24
-  tmc_update_etf_buffer+0x4b8/0x698
-  etm_event_stop+0x248/0x2d8
-  etm_event_del+0x20/0x2c
-  event_sched_out+0x214/0x6f0
-  group_sched_out+0xd0/0x270
-  ctx_sched_out+0x2ec/0x518
-  __perf_event_task_sched_out+0x4fc/0xe6c
-  __schedule+0x1094/0x16a0
-  preempt_schedule_irq+0x88/0x170
-  arm64_preempt_schedule_irq+0xf0/0x18c
-  el1_irq+0xe8/0x180
-  perf_event_exec+0x4d8/0x56c
-  setup_new_exec+0x204/0x400
-  load_elf_binary+0x72c/0x18c0
-  search_binary_handler+0x13c/0x420
-  load_script+0x500/0x6c4
-  search_binary_handler+0x13c/0x420
-  exec_binprm+0x118/0x654
-  __do_execve_file+0x77c/0xba4
-  __arm64_compat_sys_execve+0x98/0xac
-  el0_svc_common+0x1f8/0x5e0
-  el0_svc_compat_handler+0x84/0xb0
-  el0_svc_compat+0x10/0x50
-
- The buggy address belongs to the variable:
-  barrier_pkt+0x10/0x40
-
- Memory state around the buggy address:
-  ffffffd05b7d0f00: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 00 00
-  ffffffd05b7d0f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- >ffffffd05b7d1000: 00 00 00 00 00 00 fa fa fa fa fa fa 00 00 00 03
-                                      ^
-  ffffffd05b7d1080: fa fa fa fa 00 02 fa fa fa fa fa fa 03 fa fa fa
-  ffffffd05b7d1100: fa fa fa fa 00 00 00 00 05 fa fa fa fa fa fa fa
- ==================================================================
-
-Link: https://lore.kernel.org/r/20210505093430.18445-1-saiprakash.ranjan@codeaurora.org
-Fixes: 0c3fc4d5fa26 ("coresight: Add barrier packet for synchronisation")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210614175901.532683-6-mathieu.poirier@linaro.org
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-tmc-etf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kernel/vdso64/vdso64.lds.S        |    3 +++
+ arch/s390/kernel/vdso64/vdso_user_wrapper.S |   17 +++++++++++++++++
+ 2 files changed, 20 insertions(+)
 
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -530,7 +530,7 @@ static unsigned long tmc_update_etf_buff
- 		buf_ptr = buf->data_pages[cur] + offset;
- 		*buf_ptr = readl_relaxed(drvdata->base + TMC_RRD);
- 
--		if (lost && *barrier) {
-+		if (lost && i < CORESIGHT_BARRIER_PKT_SIZE) {
- 			*buf_ptr = *barrier;
- 			barrier++;
- 		}
+--- a/arch/s390/kernel/vdso64/vdso64.lds.S
++++ b/arch/s390/kernel/vdso64/vdso64.lds.S
+@@ -137,6 +137,9 @@ VERSION
+ 		__kernel_clock_gettime;
+ 		__kernel_clock_getres;
+ 		__kernel_getcpu;
++		__kernel_restart_syscall;
++		__kernel_rt_sigreturn;
++		__kernel_sigreturn;
+ 	local: *;
+ 	};
+ }
+--- a/arch/s390/kernel/vdso64/vdso_user_wrapper.S
++++ b/arch/s390/kernel/vdso64/vdso_user_wrapper.S
+@@ -37,3 +37,20 @@ vdso_func gettimeofday
+ vdso_func clock_getres
+ vdso_func clock_gettime
+ vdso_func getcpu
++
++.macro vdso_syscall func,syscall
++	.globl __kernel_\func
++	.type  __kernel_\func,@function
++	.align 8
++__kernel_\func:
++	CFI_STARTPROC
++	svc	\syscall
++	/* Make sure we notice when a syscall returns, which shouldn't happen */
++	.word	0
++	CFI_ENDPROC
++	.size	__kernel_\func,.-__kernel_\func
++.endm
++
++vdso_syscall restart_syscall,__NR_restart_syscall
++vdso_syscall sigreturn,__NR_sigreturn
++vdso_syscall rt_sigreturn,__NR_rt_sigreturn
 
 
