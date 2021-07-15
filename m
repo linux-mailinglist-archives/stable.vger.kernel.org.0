@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB9CB3CA873
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F0143CA6DB
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241456AbhGOTBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
+        id S240023AbhGOSu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242168AbhGOS7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C739613E0;
-        Thu, 15 Jul 2021 18:56:10 +0000 (UTC)
+        id S240509AbhGOSuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CE2613DB;
+        Thu, 15 Jul 2021 18:47:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375370;
-        bh=Ha6iwkdER5TDXSFcRtZXKp/qqNsAzSDivxMn88c7pf4=;
+        s=korg; t=1626374840;
+        bh=kCdTWq7fWYA1GEGr+aSKfE6tn0rSyjfSV023TumUpz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g4/RZBspk6aN1wH3pqCxg4A0NocBfwiWosAJB995R4Zju2aOhw50EyiMijWNI3d7G
-         CT1pYk0bfxdlW5beHPfOb24DMAZR4/uFKbj3sLT3XIZ3ZJzQ7O3L/eA578I2voaV3S
-         GrSfF3G1VvCLTGI39ehrS/Q3G7OWmv1RiWsc2y14=
+        b=FxdVvwQoJ7+xIeQNJoM3eX+g5Ol5bA+oNr5XeRW4CZe6M0LPM1FR+x3/K+zBufPlm
+         T0UDCFDwZfE5S92TTfh+XgBlIcswDTYtwnHA/iT8UPJRBNS+Y/qOiWxWyhu3+fD1uW
+         ZC920FJcyeTzUQSFyTgph6Ms6tz8+XHB6SBhOg9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 057/242] dm writecache: dont split bios when overwriting contiguous cache content
+Subject: [PATCH 5.10 047/215] drm/amd/display: Avoid HDCP over-read and corruption
 Date:   Thu, 15 Jul 2021 20:36:59 +0200
-Message-Id: <20210715182602.431384098@linuxfoundation.org>
+Message-Id: <20210715182607.713417088@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,88 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit ee50cc19d80e9b9a8283d1fb517a778faf2f6899 ]
+[ Upstream commit 06888d571b513cbfc0b41949948def6cb81021b2 ]
 
-If dm-writecache overwrites existing cached data, it splits the
-incoming bio into many block-sized bios. The I/O scheduler does merge
-these bios into one large request but this needless splitting and
-merging causes performance degradation.
+Instead of reading the desired 5 bytes of the actual target field,
+the code was reading 8. This could result in a corrupted value if the
+trailing 3 bytes were non-zero, so instead use an appropriately sized
+and zero-initialized bounce buffer, and read only 5 bytes before casting
+to u64.
 
-Fix this by avoiding bio splitting if the cache target area that is
-being overwritten is contiguous.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-writecache.c | 38 ++++++++++++++++++++++++++++++--------
- 1 file changed, 30 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/modules/hdcp/hdcp1_execution.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 4f72b6f66c3a..7bb4d83e90cc 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -1360,14 +1360,18 @@ read_next_block:
- 	} else {
- 		do {
- 			bool found_entry = false;
-+			bool search_used = false;
- 			if (writecache_has_error(wc))
- 				goto unlock_error;
- 			e = writecache_find_entry(wc, bio->bi_iter.bi_sector, 0);
- 			if (e) {
--				if (!writecache_entry_is_committed(wc, e))
-+				if (!writecache_entry_is_committed(wc, e)) {
-+					search_used = true;
- 					goto bio_copy;
-+				}
- 				if (!WC_MODE_PMEM(wc) && !e->write_in_progress) {
- 					wc->overwrote_committed = true;
-+					search_used = true;
- 					goto bio_copy;
- 				}
- 				found_entry = true;
-@@ -1404,13 +1408,31 @@ bio_copy:
- 				sector_t current_cache_sec = start_cache_sec + (bio_size >> SECTOR_SHIFT);
+diff --git a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp1_execution.c b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp1_execution.c
+index f244b72e74e0..53eab2b8e2c8 100644
+--- a/drivers/gpu/drm/amd/display/modules/hdcp/hdcp1_execution.c
++++ b/drivers/gpu/drm/amd/display/modules/hdcp/hdcp1_execution.c
+@@ -29,8 +29,10 @@ static inline enum mod_hdcp_status validate_bksv(struct mod_hdcp *hdcp)
+ {
+ 	uint64_t n = 0;
+ 	uint8_t count = 0;
++	u8 bksv[sizeof(n)] = { };
  
- 				while (bio_size < bio->bi_iter.bi_size) {
--					struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
--					if (!f)
--						break;
--					write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
--									(bio_size >> SECTOR_SHIFT), wc->seq_count);
--					writecache_insert_entry(wc, f);
--					wc->uncommitted_blocks++;
-+					if (!search_used) {
-+						struct wc_entry *f = writecache_pop_from_freelist(wc, current_cache_sec);
-+						if (!f)
-+							break;
-+						write_original_sector_seq_count(wc, f, bio->bi_iter.bi_sector +
-+										(bio_size >> SECTOR_SHIFT), wc->seq_count);
-+						writecache_insert_entry(wc, f);
-+						wc->uncommitted_blocks++;
-+					} else {
-+						struct wc_entry *f;
-+						struct rb_node *next = rb_next(&e->rb_node);
-+						if (!next)
-+							break;
-+						f = container_of(next, struct wc_entry, rb_node);
-+						if (f != e + 1)
-+							break;
-+						if (read_original_sector(wc, f) !=
-+						    read_original_sector(wc, e) + (wc->block_size >> SECTOR_SHIFT))
-+							break;
-+						if (unlikely(f->write_in_progress))
-+							break;
-+						if (writecache_entry_is_committed(wc, f))
-+							wc->overwrote_committed = true;
-+						e = f;
-+					}
- 					bio_size += wc->block_size;
- 					current_cache_sec += wc->block_size >> SECTOR_SHIFT;
- 				}
+-	memcpy(&n, hdcp->auth.msg.hdcp1.bksv, sizeof(uint64_t));
++	memcpy(bksv, hdcp->auth.msg.hdcp1.bksv, sizeof(hdcp->auth.msg.hdcp1.bksv));
++	n = *(uint64_t *)bksv;
+ 
+ 	while (n) {
+ 		count++;
 -- 
 2.30.2
 
