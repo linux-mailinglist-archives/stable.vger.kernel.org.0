@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E49743CA681
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 324C43CA7C8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238985AbhGOSs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:48:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S241636AbhGOS4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239492AbhGOSsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:48:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F003061396;
-        Thu, 15 Jul 2021 18:45:18 +0000 (UTC)
+        id S241769AbhGOSzz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:55:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D222613D0;
+        Thu, 15 Jul 2021 18:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374719;
-        bh=lxo5OpBggpjvMAzCMAYvT0FbGUxzwNEToMFBodGRDhg=;
+        s=korg; t=1626375181;
+        bh=gNsi4EIxhYmRpvHNddMeznVhuB3sZHL0WArFcs/Ycwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIY+LOdUTyyQ14y+AJ9FZPtI+c0/3DofJbaxOEW8/wD3UVK0jUhJ2bAhW0Jl9VeJv
-         NqC30q8ECCWTUebuxqPB76Z0RBDC3FRI9/8jxqF86+X55qQ7SOZATpBbDSKAhW3mjF
-         KrkF4N3BCDZeaJHVKX7EU765svkd5eMcK2XymFPk=
+        b=VFwG8utkogu6eshh+jb/UDmkuA80WcCxACNNgmONdC12A+IvSB7WCa3jq6kjvt+um
+         3V0xRyvVd+hdqg6uk86FJJhzxYIIYYFbzR9VNXAUN/hq6Caesv1zkHgQaktSeE+C1i
+         ubg34OYUQaV3hjHaKQecJdVTtUxoq6VG62qT/l2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 076/122] powerpc/barrier: Avoid collision with clangs __lwsync macro
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 151/215] drm/radeon: Add the missed drm_gem_object_put() in radeon_user_framebuffer_create()
 Date:   Thu, 15 Jul 2021 20:38:43 +0200
-Message-Id: <20210715182510.027484730@linuxfoundation.org>
+Message-Id: <20210715182626.291774548@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,57 +41,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-commit 015d98149b326e0f1f02e44413112ca8b4330543 upstream.
+commit 9ba85914c36c8fed9bf3e8b69c0782908c1247b7 upstream.
 
-A change in clang 13 results in the __lwsync macro being defined as
-__builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
-the target supports. This breaks the build because of -Werror in
-arch/powerpc, along with thousands of warnings:
+radeon_user_framebuffer_create() misses to call drm_gem_object_put() in
+an error path. Add the missed function call to fix it.
 
- In file included from arch/powerpc/kernel/pmc.c:12:
- In file included from include/linux/bug.h:5:
- In file included from arch/powerpc/include/asm/bug.h:109:
- In file included from include/asm-generic/bug.h:20:
- In file included from include/linux/kernel.h:12:
- In file included from include/linux/bitops.h:32:
- In file included from arch/powerpc/include/asm/bitops.h:62:
- arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
- #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
-        ^
- <built-in>:308:9: note: previous definition is here
- #define __lwsync __builtin_ppc_lwsync
-        ^
- 1 error generated.
-
-Undefine this macro so that the runtime patching introduced by
-commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
-work properly with clang and the build no longer breaks.
-
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1386
-Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
-Link: https://lore.kernel.org/r/20210528182752.1852002-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/barrier.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/radeon/radeon_display.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/include/asm/barrier.h
-+++ b/arch/powerpc/include/asm/barrier.h
-@@ -44,6 +44,8 @@
- #    define SMPWMB      eieio
- #endif
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -1334,6 +1334,7 @@ radeon_user_framebuffer_create(struct dr
+ 	/* Handle is imported dma-buf, so cannot be migrated to VRAM for scanout */
+ 	if (obj->import_attach) {
+ 		DRM_DEBUG_KMS("Cannot create framebuffer from imported dma_buf\n");
++		drm_gem_object_put(obj);
+ 		return ERR_PTR(-EINVAL);
+ 	}
  
-+/* clang defines this macro for a builtin, which will not work with runtime patching */
-+#undef __lwsync
- #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
- #define dma_rmb()	__lwsync()
- #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
 
 
