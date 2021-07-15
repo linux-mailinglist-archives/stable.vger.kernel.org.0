@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4038F3CAA3C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2A93CA8D8
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243973AbhGOTMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45710 "EHLO mail.kernel.org"
+        id S240699AbhGOTDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:03:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243773AbhGOTKE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:10:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 115726140A;
-        Thu, 15 Jul 2021 19:06:30 +0000 (UTC)
+        id S242192AbhGOTBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4400E613E9;
+        Thu, 15 Jul 2021 18:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375991;
-        bh=3J42CBELgmoeC8IW0L8kt4ewMtWxXKYKwnqbF9mZGDw=;
+        s=korg; t=1626375508;
+        bh=HzkaqJ8ahqU9OYMbMKA/VgYQ5vYmkdZj/qJKBcpRqV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SecMYuebWu7j8c9CI5ygGNIzLeiicTKe++thewtfVK6pEq96UBtkOVi+CF4bfuZo/
-         8mMsndKd4xA5q2WK49irfElLKw5dWxVTtSLVTiDfkSd/jGLUhFGPpGtJjY3FcKp2zj
-         oozyHBeA3E2yzcqPLKyNc/bmS4gVqlF0axoaVZpI=
+        b=jvJlObj7mSBW4JCRIpLCH9iZ0UC3+ZDv/Gk4ncNASJVl5jrc1+XqOA9wpX1FuLL6s
+         JXw+t5n7/AzS/05PPCee9dOwKnG8EtlKOk0xTYeepAnlnJkTBriDohuQ/Y3POswFSu
+         ExEaCYlaJtJKVziUVu8NExRiCGzguUzKnDQ/cHgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Wesley Chalmers <Wesley.Chalmers@amd.com>,
+        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 081/266] net: moxa: Use devm_platform_get_and_ioremap_resource()
+Subject: [PATCH 5.12 074/242] drm/amd/display: Fix off-by-one error in DML
 Date:   Thu, 15 Jul 2021 20:37:16 +0200
-Message-Id: <20210715182628.497385195@linuxfoundation.org>
+Message-Id: <20210715182605.983697745@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-References: <20210715182613.933608881@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Wesley Chalmers <Wesley.Chalmers@amd.com>
 
-[ Upstream commit 35cba15a504bf4f585bb9d78f47b22b28a1a06b2 ]
+[ Upstream commit e4e3678260e9734f6f41b4325aac0b171833a618 ]
 
-Use devm_platform_get_and_ioremap_resource() to simplify
-code and avoid a null-ptr-deref by checking 'res' in it.
+[WHY]
+For DCN30 and later, there is no data in DML arrays indexed by state at
+index num_states.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
+Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ .../amd/display/dc/dml/dcn30/display_mode_vba_30.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index b85733942053..5249b64f4fc5 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -481,13 +481,12 @@ static int moxart_mac_probe(struct platform_device *pdev)
- 	priv->ndev = ndev;
- 	priv->pdev = pdev;
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ndev->base_addr = res->start;
--	priv->base = devm_ioremap_resource(p_dev, res);
-+	priv->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(priv->base)) {
- 		ret = PTR_ERR(priv->base);
- 		goto init_fail;
- 	}
-+	ndev->base_addr = res->start;
- 
- 	spin_lock_init(&priv->txlock);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+index da93694ec7cf..6e326290f214 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_mode_vba_30.c
+@@ -2053,7 +2053,7 @@ static void DISPCLKDPPCLKDCFCLKDeepSleepPrefetchParametersWatermarksAndPerforman
+ 			v->DISPCLKWithoutRamping,
+ 			v->DISPCLKDPPCLKVCOSpeed);
+ 	v->MaxDispclkRoundedToDFSGranularity = RoundToDFSGranularityDown(
+-			v->soc.clock_limits[mode_lib->soc.num_states].dispclk_mhz,
++			v->soc.clock_limits[mode_lib->soc.num_states - 1].dispclk_mhz,
+ 			v->DISPCLKDPPCLKVCOSpeed);
+ 	if (v->DISPCLKWithoutRampingRoundedToDFSGranularity
+ 			> v->MaxDispclkRoundedToDFSGranularity) {
+@@ -3958,20 +3958,20 @@ void dml30_ModeSupportAndSystemConfigurationFull(struct display_mode_lib *mode_l
+ 			for (k = 0; k <= v->NumberOfActivePlanes - 1; k++) {
+ 				v->PlaneRequiredDISPCLKWithoutODMCombine = v->PixelClock[k] * (1.0 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
+ 						* (1.0 + v->DISPCLKRampingMargin / 100.0);
+-				if ((v->PlaneRequiredDISPCLKWithoutODMCombine >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
+-						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
++				if ((v->PlaneRequiredDISPCLKWithoutODMCombine >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
++						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
+ 					v->PlaneRequiredDISPCLKWithoutODMCombine = v->PixelClock[k] * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
+ 				}
+ 				v->PlaneRequiredDISPCLKWithODMCombine2To1 = v->PixelClock[k] / 2 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
+ 						* (1 + v->DISPCLKRampingMargin / 100.0);
+-				if ((v->PlaneRequiredDISPCLKWithODMCombine2To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
+-						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
++				if ((v->PlaneRequiredDISPCLKWithODMCombine2To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
++						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
+ 					v->PlaneRequiredDISPCLKWithODMCombine2To1 = v->PixelClock[k] / 2 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
+ 				}
+ 				v->PlaneRequiredDISPCLKWithODMCombine4To1 = v->PixelClock[k] / 4 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0)
+ 						* (1 + v->DISPCLKRampingMargin / 100.0);
+-				if ((v->PlaneRequiredDISPCLKWithODMCombine4To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states]
+-						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states])) {
++				if ((v->PlaneRequiredDISPCLKWithODMCombine4To1 >= v->MaxDispclk[i] && v->MaxDispclk[i] == v->MaxDispclk[mode_lib->soc.num_states - 1]
++						&& v->MaxDppclk[i] == v->MaxDppclk[mode_lib->soc.num_states - 1])) {
+ 					v->PlaneRequiredDISPCLKWithODMCombine4To1 = v->PixelClock[k] / 4 * (1 + v->DISPCLKDPPCLKDSCCLKDownSpreading / 100.0);
+ 				}
  
 -- 
 2.30.2
