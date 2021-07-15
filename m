@@ -2,127 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C623C9EF6
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:51:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9A83C9F19
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 15:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230291AbhGOMys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:54:48 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:57976 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229973AbhGOMys (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 08:54:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626353514;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=My/TV9wPXXC9bA3vgWEHH+ODPTum/Ve84OOkWp1OwdU=;
-        b=VBfGva2glK1iVMMVxFQU+9NwaJva5d0roYw/Fqk4EZJLRczunHSkh2+3dmmuHS9a8rv3Yc
-        ohRgi9/Wc57z/nbzpZMeX4oMSIceKOfObGfHgDmoH6wHXlMB917U3I3NUejVTOdnMOh7PE
-        cbS6p618FTryiAtJN9NfsMNEWrRuaMo=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-556-Q3Dg6Oz0Ol6VyYNkrApSdg-1; Thu, 15 Jul 2021 08:51:53 -0400
-X-MC-Unique: Q3Dg6Oz0Ol6VyYNkrApSdg-1
-Received: by mail-lf1-f69.google.com with SMTP id x5-20020a0565121305b029032696702876so1449939lfu.5
-        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 05:51:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=My/TV9wPXXC9bA3vgWEHH+ODPTum/Ve84OOkWp1OwdU=;
-        b=KKG/obH4NCsSqKucw9UrzvO0ee+ndzNz7mtNDVc0Qtyk9Oh1oN7UwWULs1xeScHnfV
-         mCfyLUCM1Dmdx+mBnnUVgHoo6GtRCjO6zNeG0ZRE9YwKJ1lQtVMxb9+DuDKAyN3EEbxG
-         2AGOU91l6OwhzoHwxyxZHFQMLCvYqK5WWi7vPzkTmZwhR6hf5CJfQByVGv1YeVTHGOlQ
-         G3B3zZXRHT5t1gn1QyRIzrgWAt95zfQbUqDUvjhYUFX1upc8Pe+yb5PzQqzzJOc6+oj1
-         +Ih3VPbzDRFrMNh708UaVUSyKfQePKFrbaRikikA/41Va1Fl9RaO1Jdgscnl6pG3/hp/
-         9rCQ==
-X-Gm-Message-State: AOAM532yVornDsrVQ6xLwachBNyEoXNxbSU6waRYu4n177CFakja1W6E
-        xC3YobuMfRA2uH/HR2KSLC78UV9uZmh6M1FXQLSwpGAxtTTyQClzZu4s7tk/g0Fdf3JbbYsTgOw
-        j+bLWIwh9xac5OIdPtGTE0rLThoKFIFsD
-X-Received: by 2002:a19:8642:: with SMTP id i63mr3489515lfd.156.1626353511885;
-        Thu, 15 Jul 2021 05:51:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxvJVggyb6prCf12pV1ULs/MfDj/PiKhRZb82xUWUuhinxppKB+KoPlYJKiTj9p+eGvgvSpdl2ONHbJmYCUocc=
-X-Received: by 2002:a19:8642:: with SMTP id i63mr3489504lfd.156.1626353511703;
- Thu, 15 Jul 2021 05:51:51 -0700 (PDT)
+        id S232265AbhGONJx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 09:09:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47718 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229624AbhGONJw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 09:09:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 352EB613C4;
+        Thu, 15 Jul 2021 13:06:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626354419;
+        bh=6f93Qyz7TatzFLNNdICtO24cj/QiivXwnorMniZD5aY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=C3womNCwGX7T38B94tLBNHsU1T59lcB4G6b7HKOzl/Ez1LnN3wALJxcA170pkA9cL
+         5su5kqtDMRdbQ6SuPxUAiX+ATshJK43FywTfruioFYUAI+6ewiKWrKS0/A6xV4bMl6
+         nN3L7EMJVYUhNu4rVVjkuDfRlOLYGnxtZf3xC0W4=
+Date:   Thu, 15 Jul 2021 15:06:57 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jan Kara <jack@suse.cz>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
+Message-ID: <YPAy8ZTyzS3nCbZk@kroah.com>
+References: <20210712060912.995381202@linuxfoundation.org>
+ <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de>
+ <YO56HTE3k95JLeje@kroah.com>
+ <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
+ <df63b875-f140-606a-862a-73b102345cd@praktifix.dwd.de>
+ <YO7nHhW2t4wEiI9G@kroah.com>
+ <CA+G9fYuhbE6sY3ykoiyqZqYSG=+V0r3z0TiaVL8LptbXWw=duQ@mail.gmail.com>
+ <CA+G9fYtWkOLVVKB0xYfAXWS57G1C2xV-Zbtp5i4dAJDJqwLQhg@mail.gmail.com>
+ <YO70LLnTE6LxcBnt@kroah.com>
+ <20210715122758.GB31920@quack2.suse.cz>
 MIME-Version: 1.0
-References: <cki.8AA4B7C8B2.MU36FLBY8R@redhat.com>
-In-Reply-To: <cki.8AA4B7C8B2.MU36FLBY8R@redhat.com>
-From:   Veronika Kabatova <vkabatov@redhat.com>
-Date:   Thu, 15 Jul 2021 14:51:15 +0200
-Message-ID: <CA+tGwnmVdw=B5rnz3QmHeu3jGdHr36yf4MJHR5c11w09tP9Amw@mail.gmail.com>
-Subject: =?UTF-8?Q?Re=3A_=E2=9D=8C_FAIL=3A_Test_report_for_kernel_5=2E13=2E2_=28stable=2D?=
-        =?UTF-8?Q?queue=2C_ee00910f=29?=
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210715122758.GB31920@quack2.suse.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 2:50 PM CKI Project <cki-project@redhat.com> wrote:
->
->
-> Hello,
->
-> We ran automated tests on a recent commit from this kernel tree:
->
->        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->             Commit: ee00910f75ff - powerpc/powernv/vas: Release reference to tgid during window close
->
-> The results of these automated tests are provided below.
->
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: FAILED
->
-> All kernel binaries, config files, and logs are available for download here:
->
->   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefix=datawarehouse-public/2021/07/15/337656806
->
-> We attempted to compile the kernel for multiple architectures, but the compile
-> failed on one or more architectures:
->
->            ppc64le: FAILED (see build-ppc64le.log.xz attachment)
->             x86_64: FAILED (see build-x86_64.log.xz attachment)
->
+On Thu, Jul 15, 2021 at 02:27:58PM +0200, Jan Kara wrote:
+> On Wed 14-07-21 16:26:52, Greg Kroah-Hartman wrote:
+> > On Wed, Jul 14, 2021 at 07:29:26PM +0530, Naresh Kamboju wrote:
+> > > On Wed, 14 Jul 2021 at 19:22, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> > > >
+> > > > On Wed, 14 Jul 2021 at 19:01, Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > 
+> > > <trim>
+> > > 
+> > > > My two cents,
+> > > > While running ssuite long running stress testing we have noticed deadlock.
+> > > >
+> > > > > So if you drop that, all works well?  I'll go drop that from the queues
+> > > > > now.
+> > > >
+> > > > Let me drop that patch and test it again.
+> > > >
+> > > > Crash log,
+> > > >
+> > > > [ 1957.278399] ============================================
+> > > > [ 1957.283717] WARNING: possible recursive locking detected
+> > > > [ 1957.289031] 5.13.2-rc1 #1 Not tainted
+> > > > [ 1957.292703] --------------------------------------------
+> > > > [ 1957.298016] kworker/u8:7/236 is trying to acquire lock:
+> > > > [ 1957.303241] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> > > > bfq_finish_requeue_request+0x55/0x500 [bfq]
+> > > > [ 1957.312643]
+> > > > [ 1957.312643] but task is already holding lock:
+> > > > [ 1957.318467] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> > > > bfq_insert_requests+0x81/0x1750 [bfq]
+> > > > [ 1957.327334]
+> > > > [ 1957.327334] other info that might help us debug this:
+> > > > [ 1957.333852]  Possible unsafe locking scenario:
+> > > > [ 1957.333852]
+> > > > [ 1957.339762]        CPU0
+> > > > [ 1957.342206]        ----
+> > > > [ 1957.344651]   lock(&bfqd->lock);
+> > > > [ 1957.347873]   lock(&bfqd->lock);
+> > > > [ 1957.351097]
+> > > > [ 1957.351097]  *** DEADLOCK ***
+> > > > [ 1957.351097]
+> > > 
+> > > Also noticed on stable-rc 5.12.17-rc1.
+> > 
+> > I dropped the same patch from there as well already, thanks.
+> 
+> OK, when you dropped this patch, please also drop upstream commit
+> fd2ef39cc9a6b ("blk: Fix lock inversion between ioc lock and bfqd lock").
 
-Hi, looks to be introduced by
+That commit did not end up in the tree either, so all should be good.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.13&id=07d407cc1259634b3334dd47519ecd64e6818617
+thanks,
 
-
-Veronika
-
-> We hope that these logs can help you find the problem quickly. For the full
-> detail on our testing procedures, please scroll to the bottom of this message.
->
-> Please reply to this email if you have any questions about the tests that we
-> ran or if you have any suggestions on how to make future tests more effective.
->
->         ,-.   ,-.
->        ( C ) ( K )  Continuous
->         `-',-.`-'   Kernel
->           ( I )     Integration
->            `-'
-> ______________________________________________________________________________
->
-> Compile testing
-> ---------------
->
-> We compiled the kernel for 4 architectures:
->
->     aarch64:
->       make options: make -j24 INSTALL_MOD_STRIP=1 targz-pkg
->
->     ppc64le:
->       make options: make -j24 INSTALL_MOD_STRIP=1 targz-pkg
->
->     s390x:
->       make options: make -j24 INSTALL_MOD_STRIP=1 targz-pkg
->
->     x86_64:
->       make options: make -j24 INSTALL_MOD_STRIP=1 targz-pkg
->
->
-
+greg k-h
