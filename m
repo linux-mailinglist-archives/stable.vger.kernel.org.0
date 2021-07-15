@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D45FC3CA887
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7EC93CA5C9
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:41:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243132AbhGOTBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34728 "EHLO mail.kernel.org"
+        id S233013AbhGOSoe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:44:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243092AbhGOTAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9820D60D07;
-        Thu, 15 Jul 2021 18:57:17 +0000 (UTC)
+        id S233821AbhGOSob (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:44:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84FB1613D0;
+        Thu, 15 Jul 2021 18:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375438;
-        bh=NQy8nTnLvXU/vhv4B5FMdCwgkqRgd+S+GC6IS4N4NfY=;
+        s=korg; t=1626374498;
+        bh=Ap6seHFC9EvvP5Nzay9N0cE1lV3orFF6mUXvZDgivYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boCjb+OOCfVihCPrN1Q3T7CgB4D0vvr5wllfzVUBjH4eAMLIy5lai93LbZ2sGe4tR
-         0Bpfci1Peh5R86SKHJSezcb0Og90xulLDgr95OmEtt7LwbRbRhtmLolWhTrWihMEFL
-         mGqeWn6J3Kqb8t1x6WiYmNh0u4/vV5g+2vNVmXu0=
+        b=ZG0nSTvfQIJ1jy6hFCHH/ASkZJK3Ir5l+CRhCmo6rQFEkleGuOkJrdve+CdaDafUB
+         BXO+wWCKCkQpU63TEBcO2bQtQ3HqLRu/A2yx+4JirMnlTid7pwgEtCd2q2HQmzETlR
+         /EiJcTZU0rP4EEesACvuSE7fKr/jLeORj9Solk/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Tony Lindgren <tony@atomide.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 087/242] wlcore/wl12xx: Fix wl12xx get_mac error if device is in ELP
-Date:   Thu, 15 Jul 2021 20:37:29 +0200
-Message-Id: <20210715182608.344023654@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Zhang <Jack.Zhang1@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Emily Deng <Emily.Deng@amd.com>
+Subject: [PATCH 5.4 003/122] drm/amd/amdgpu/sriov disable all ip hw status by default
+Date:   Thu, 15 Jul 2021 20:37:30 +0200
+Message-Id: <20210715182449.488987781@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jack Zhang <Jack.Zhang1@amd.com>
 
-[ Upstream commit 11ef6bc846dcdce838f0b00c5f6a562c57e5d43b ]
+[ Upstream commit 95ea3dbc4e9548d35ab6fbf67675cef8c293e2f5 ]
 
-At least on wl12xx, reading the MAC after boot can fail with a warning
-at drivers/net/wireless/ti/wlcore/sdio.c:78 wl12xx_sdio_raw_read.
-The failed call comes from wl12xx_get_mac() that wlcore_nvs_cb() calls
-after request_firmware_work_func().
+Disable all ip's hw status to false before any hw_init.
+Only set it to true until its hw_init is executed.
 
-After the error, no wireless interface is created. Reloading the wl12xx
-module makes the interface work.
+The old 5.9 branch has this change but somehow the 5.11 kernrel does
+not have this fix.
 
-Turns out the wlan controller can be in a low-power ELP state after the
-boot from the bootloader or kexec, and needs to be woken up first.
+Without this change, sriov tdr have gfx IB test fail.
 
-Let's wake the hardware and add a sleep after that similar to
-wl12xx_pre_boot() is already doing.
-
-Note that a similar issue could exist for wl18xx, but I have not seen it
-so far. And a search for wl18xx_get_mac and wl12xx_sdio_raw_read did not
-produce similar errors.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210603062814.19464-1-tony@atomide.com
+Signed-off-by: Jack Zhang <Jack.Zhang1@amd.com>
+Review-by: Emily Deng <Emily.Deng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wl12xx/main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ti/wl12xx/main.c b/drivers/net/wireless/ti/wl12xx/main.c
-index 9d7dbfe7fe0c..c6da0cfb4afb 100644
---- a/drivers/net/wireless/ti/wl12xx/main.c
-+++ b/drivers/net/wireless/ti/wl12xx/main.c
-@@ -1503,6 +1503,13 @@ static int wl12xx_get_fuse_mac(struct wl1271 *wl)
- 	u32 mac1, mac2;
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 765f9a6c4640..d0e1fd011de5 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -2291,7 +2291,7 @@ static int amdgpu_device_ip_reinit_early_sriov(struct amdgpu_device *adev)
+ 		AMD_IP_BLOCK_TYPE_IH,
+ 	};
  
-+	/* Device may be in ELP from the bootloader or kexec */
-+	ret = wlcore_write32(wl, WL12XX_WELP_ARM_COMMAND, WELP_ARM_COMMAND_VAL);
-+	if (ret < 0)
-+		goto out;
-+
-+	usleep_range(500000, 700000);
-+
- 	ret = wlcore_set_partition(wl, &wl->ptable[PART_DRPW]);
- 	if (ret < 0)
- 		goto out;
+-	for (i = 0; i < ARRAY_SIZE(ip_order); i++) {
++	for (i = 0; i < adev->num_ip_blocks; i++) {
+ 		int j;
+ 		struct amdgpu_ip_block *block;
+ 
 -- 
 2.30.2
 
