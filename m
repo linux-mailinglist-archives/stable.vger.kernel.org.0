@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 476793CA716
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F913CA88B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238667AbhGOSwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53924 "EHLO mail.kernel.org"
+        id S241081AbhGOTB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239745AbhGOSvg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1133613DA;
-        Thu, 15 Jul 2021 18:48:41 +0000 (UTC)
+        id S241710AbhGOTA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:00:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72CFE613CA;
+        Thu, 15 Jul 2021 18:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374922;
-        bh=1qZ0Qc8pmNVIaeeD9OYZgaU7VuI/iQtl0zsaTI3flzY=;
+        s=korg; t=1626375451;
+        bh=Whd2o8r8+zAHpZ7UXfBOadFP3oX2zqNxugwvs7Y9Sps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkeVFH4crwkFV0BD5BR0kkoo08XaZU0kZF4CxeUUY5bSz/9xvPtKFbBxmqpozWfBC
-         75N2c7c1TqC9UhVrHL//BjIixlVVGUahhsSkG+T6gFz/wCLgjmm6ciTVjvFzvSSYNd
-         ci40I1Zl29j/wemobRxhs+Xa6kuNMvJGg51dvhjM=
+        b=0MRI/iTOHHzAXVo5y/As0iQOsqmXhnWj0qLPhSwbwfa5pdgkbBY53jycMjF8I3eYG
+         HiTTMG0UYdzjAEDuW/uvQn3381qUfkHjH4FfBrlURB4oxVPo99mCLD4YvBz1ox7wnf
+         HP+ndA8dhV00ALoA7i0hsVRWtb1iw/X6TIdCA5CI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amber Lin <Amber.Lin@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        syzbot+bed360704c521841c85d@syzkaller.appspotmail.com,
+        Kurt Manucredo <fuzzybritches0@gmail.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Edward Cree <ecree.xilinx@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/215] drm/amdkfd: Fix circular lock in nocpsch path
+Subject: [PATCH 5.12 093/242] bpf: Fix up register-based shifts in interpreter to silence KUBSAN
 Date:   Thu, 15 Jul 2021 20:37:35 +0200
-Message-Id: <20210715182614.108260458@linuxfoundation.org>
+Message-Id: <20210715182609.439785212@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,88 +46,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amber Lin <Amber.Lin@amd.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit a7b2451d31cfa2e8aeccf3b35612ce33f02371fc ]
+[ Upstream commit 28131e9d933339a92f78e7ab6429f4aaaa07061c ]
 
-Calling free_mqd inside of destroy_queue_nocpsch_locked can cause a
-circular lock. destroy_queue_nocpsch_locked is called under a DQM lock,
-which is taken in MMU notifiers, potentially in FS reclaim context.
-Taking another lock, which is BO reservation lock from free_mqd, while
-causing an FS reclaim inside the DQM lock creates a problematic circular
-lock dependency. Therefore move free_mqd out of
-destroy_queue_nocpsch_locked and call it after unlocking DQM.
+syzbot reported a shift-out-of-bounds that KUBSAN observed in the
+interpreter:
 
-Signed-off-by: Amber Lin <Amber.Lin@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+  [...]
+  UBSAN: shift-out-of-bounds in kernel/bpf/core.c:1420:2
+  shift exponent 255 is too large for 64-bit type 'long long unsigned int'
+  CPU: 1 PID: 11097 Comm: syz-executor.4 Not tainted 5.12.0-rc2-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  Call Trace:
+   __dump_stack lib/dump_stack.c:79 [inline]
+   dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+   ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
+   __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
+   ___bpf_prog_run.cold+0x19/0x56c kernel/bpf/core.c:1420
+   __bpf_prog_run32+0x8f/0xd0 kernel/bpf/core.c:1735
+   bpf_dispatcher_nop_func include/linux/bpf.h:644 [inline]
+   bpf_prog_run_pin_on_cpu include/linux/filter.h:624 [inline]
+   bpf_prog_run_clear_cb include/linux/filter.h:755 [inline]
+   run_filter+0x1a1/0x470 net/packet/af_packet.c:2031
+   packet_rcv+0x313/0x13e0 net/packet/af_packet.c:2104
+   dev_queue_xmit_nit+0x7c2/0xa90 net/core/dev.c:2387
+   xmit_one net/core/dev.c:3588 [inline]
+   dev_hard_start_xmit+0xad/0x920 net/core/dev.c:3609
+   __dev_queue_xmit+0x2121/0x2e00 net/core/dev.c:4182
+   __bpf_tx_skb net/core/filter.c:2116 [inline]
+   __bpf_redirect_no_mac net/core/filter.c:2141 [inline]
+   __bpf_redirect+0x548/0xc80 net/core/filter.c:2164
+   ____bpf_clone_redirect net/core/filter.c:2448 [inline]
+   bpf_clone_redirect+0x2ae/0x420 net/core/filter.c:2420
+   ___bpf_prog_run+0x34e1/0x77d0 kernel/bpf/core.c:1523
+   __bpf_prog_run512+0x99/0xe0 kernel/bpf/core.c:1737
+   bpf_dispatcher_nop_func include/linux/bpf.h:644 [inline]
+   bpf_test_run+0x3ed/0xc50 net/bpf/test_run.c:50
+   bpf_prog_test_run_skb+0xabc/0x1c50 net/bpf/test_run.c:582
+   bpf_prog_test_run kernel/bpf/syscall.c:3127 [inline]
+   __do_sys_bpf+0x1ea9/0x4f00 kernel/bpf/syscall.c:4406
+   do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [...]
+
+Generally speaking, KUBSAN reports from the kernel should be fixed.
+However, in case of BPF, this particular report caused concerns since
+the large shift is not wrong from BPF point of view, just undefined.
+In the verifier, K-based shifts that are >= {64,32} (depending on the
+bitwidth of the instruction) are already rejected. The register-based
+cases were not given their content might not be known at verification
+time. Ideas such as verifier instruction rewrite with an additional
+AND instruction for the source register were brought up, but regularly
+rejected due to the additional runtime overhead they incur.
+
+As Edward Cree rightly put it:
+
+  Shifts by more than insn bitness are legal in the BPF ISA; they are
+  implementation-defined behaviour [of the underlying architecture],
+  rather than UB, and have been made legal for performance reasons.
+  Each of the JIT backends compiles the BPF shift operations to machine
+  instructions which produce implementation-defined results in such a
+  case; the resulting contents of the register may be arbitrary but
+  program behaviour as a whole remains defined.
+
+  Guard checks in the fast path (i.e. affecting JITted code) will thus
+  not be accepted.
+
+  The case of division by zero is not truly analogous here, as division
+  instructions on many of the JIT-targeted architectures will raise a
+  machine exception / fault on division by zero, whereas (to the best
+  of my knowledge) none will do so on an out-of-bounds shift.
+
+Given the KUBSAN report only affects the BPF interpreter, but not JITs,
+one solution is to add the ANDs with 63 or 31 into ___bpf_prog_run().
+That would make the shifts defined, and thus shuts up KUBSAN, and the
+compiler would optimize out the AND on any CPU that interprets the shift
+amounts modulo the width anyway (e.g., confirmed from disassembly that
+on x86-64 and arm64 the generated interpreter code is the same before
+and after this fix).
+
+The BPF interpreter is slow path, and most likely compiled out anyway
+as distros select BPF_JIT_ALWAYS_ON to avoid speculative execution of
+BPF instructions by the interpreter. Given the main argument was to
+avoid sacrificing performance, the fact that the AND is optimized away
+from compiler for mainstream archs helps as well as a solution moving
+forward. Also add a comment on LSH/RSH/ARSH translation for JIT authors
+to provide guidance when they see the ___bpf_prog_run() interpreter
+code and use it as a model for a new JIT backend.
+
+Reported-by: syzbot+bed360704c521841c85d@syzkaller.appspotmail.com
+Reported-by: Kurt Manucredo <fuzzybritches0@gmail.com>
+Signed-off-by: Eric Biggers <ebiggers@kernel.org>
+Co-developed-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Tested-by: syzbot+bed360704c521841c85d@syzkaller.appspotmail.com
+Cc: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/bpf/0000000000008f912605bd30d5d7@google.com
+Link: https://lore.kernel.org/bpf/bac16d8d-c174-bdc4-91bd-bfa62b410190@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c  | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ kernel/bpf/core.c | 61 +++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 43 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index b971532e69eb..ffb3d37881a8 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -486,9 +486,6 @@ static int destroy_queue_nocpsch_locked(struct device_queue_manager *dqm,
- 	if (retval == -ETIME)
- 		qpd->reset_wavefronts = true;
+diff --git a/kernel/bpf/core.c b/kernel/bpf/core.c
+index 75244ecb2389..952d98beda63 100644
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1399,29 +1399,54 @@ static u64 ___bpf_prog_run(u64 *regs, const struct bpf_insn *insn, u64 *stack)
+ select_insn:
+ 	goto *jumptable[insn->code];
  
+-	/* ALU */
+-#define ALU(OPCODE, OP)			\
+-	ALU64_##OPCODE##_X:		\
+-		DST = DST OP SRC;	\
+-		CONT;			\
+-	ALU_##OPCODE##_X:		\
+-		DST = (u32) DST OP (u32) SRC;	\
+-		CONT;			\
+-	ALU64_##OPCODE##_K:		\
+-		DST = DST OP IMM;		\
+-		CONT;			\
+-	ALU_##OPCODE##_K:		\
+-		DST = (u32) DST OP (u32) IMM;	\
++	/* Explicitly mask the register-based shift amounts with 63 or 31
++	 * to avoid undefined behavior. Normally this won't affect the
++	 * generated code, for example, in case of native 64 bit archs such
++	 * as x86-64 or arm64, the compiler is optimizing the AND away for
++	 * the interpreter. In case of JITs, each of the JIT backends compiles
++	 * the BPF shift operations to machine instructions which produce
++	 * implementation-defined results in such a case; the resulting
++	 * contents of the register may be arbitrary, but program behaviour
++	 * as a whole remains defined. In other words, in case of JIT backends,
++	 * the AND must /not/ be added to the emitted LSH/RSH/ARSH translation.
++	 */
++	/* ALU (shifts) */
++#define SHT(OPCODE, OP)					\
++	ALU64_##OPCODE##_X:				\
++		DST = DST OP (SRC & 63);		\
++		CONT;					\
++	ALU_##OPCODE##_X:				\
++		DST = (u32) DST OP ((u32) SRC & 31);	\
++		CONT;					\
++	ALU64_##OPCODE##_K:				\
++		DST = DST OP IMM;			\
++		CONT;					\
++	ALU_##OPCODE##_K:				\
++		DST = (u32) DST OP (u32) IMM;		\
++		CONT;
++	/* ALU (rest) */
++#define ALU(OPCODE, OP)					\
++	ALU64_##OPCODE##_X:				\
++		DST = DST OP SRC;			\
++		CONT;					\
++	ALU_##OPCODE##_X:				\
++		DST = (u32) DST OP (u32) SRC;		\
++		CONT;					\
++	ALU64_##OPCODE##_K:				\
++		DST = DST OP IMM;			\
++		CONT;					\
++	ALU_##OPCODE##_K:				\
++		DST = (u32) DST OP (u32) IMM;		\
+ 		CONT;
 -
--	mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
--
- 	list_del(&q->list);
- 	if (list_empty(&qpd->queues_list)) {
- 		if (qpd->reset_wavefronts) {
-@@ -523,6 +520,8 @@ static int destroy_queue_nocpsch(struct device_queue_manager *dqm,
- 	int retval;
- 	uint64_t sdma_val = 0;
- 	struct kfd_process_device *pdd = qpd_to_pdd(qpd);
-+	struct mqd_manager *mqd_mgr =
-+		dqm->mqd_mgrs[get_mqd_type_from_queue_type(q->properties.type)];
- 
- 	/* Get the SDMA queue stats */
- 	if ((q->properties.type == KFD_QUEUE_TYPE_SDMA) ||
-@@ -540,6 +539,8 @@ static int destroy_queue_nocpsch(struct device_queue_manager *dqm,
- 		pdd->sdma_past_activity_counter += sdma_val;
- 	dqm_unlock(dqm);
- 
-+	mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+
- 	return retval;
- }
- 
-@@ -1632,7 +1633,7 @@ static int set_trap_handler(struct device_queue_manager *dqm,
- static int process_termination_nocpsch(struct device_queue_manager *dqm,
- 		struct qcm_process_device *qpd)
- {
--	struct queue *q, *next;
-+	struct queue *q;
- 	struct device_process_node *cur, *next_dpn;
- 	int retval = 0;
- 	bool found = false;
-@@ -1640,12 +1641,19 @@ static int process_termination_nocpsch(struct device_queue_manager *dqm,
- 	dqm_lock(dqm);
- 
- 	/* Clear all user mode queues */
--	list_for_each_entry_safe(q, next, &qpd->queues_list, list) {
-+	while (!list_empty(&qpd->queues_list)) {
-+		struct mqd_manager *mqd_mgr;
- 		int ret;
- 
-+		q = list_first_entry(&qpd->queues_list, struct queue, list);
-+		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
-+				q->properties.type)];
- 		ret = destroy_queue_nocpsch_locked(dqm, qpd, q);
- 		if (ret)
- 			retval = ret;
-+		dqm_unlock(dqm);
-+		mqd_mgr->free_mqd(mqd_mgr, q->mqd, q->mqd_mem_obj);
-+		dqm_lock(dqm);
- 	}
- 
- 	/* Unregister process */
+ 	ALU(ADD,  +)
+ 	ALU(SUB,  -)
+ 	ALU(AND,  &)
+ 	ALU(OR,   |)
+-	ALU(LSH, <<)
+-	ALU(RSH, >>)
+ 	ALU(XOR,  ^)
+ 	ALU(MUL,  *)
++	SHT(LSH, <<)
++	SHT(RSH, >>)
++#undef SHT
+ #undef ALU
+ 	ALU_NEG:
+ 		DST = (u32) -DST;
+@@ -1446,13 +1471,13 @@ select_insn:
+ 		insn++;
+ 		CONT;
+ 	ALU_ARSH_X:
+-		DST = (u64) (u32) (((s32) DST) >> SRC);
++		DST = (u64) (u32) (((s32) DST) >> (SRC & 31));
+ 		CONT;
+ 	ALU_ARSH_K:
+ 		DST = (u64) (u32) (((s32) DST) >> IMM);
+ 		CONT;
+ 	ALU64_ARSH_X:
+-		(*(s64 *) &DST) >>= SRC;
++		(*(s64 *) &DST) >>= (SRC & 63);
+ 		CONT;
+ 	ALU64_ARSH_K:
+ 		(*(s64 *) &DST) >>= IMM;
 -- 
 2.30.2
 
