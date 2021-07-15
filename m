@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8F073CA78D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967BE3CA63D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240601AbhGOSz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58696 "EHLO mail.kernel.org"
+        id S238223AbhGOSqx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241445AbhGOSyZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7BD613CF;
-        Thu, 15 Jul 2021 18:51:29 +0000 (UTC)
+        id S238169AbhGOSqq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EB21613D0;
+        Thu, 15 Jul 2021 18:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375090;
-        bh=E1NXYw1yelaXlfpaQVT4j+Mkq7KtqvVHZqmCSpSwalY=;
+        s=korg; t=1626374631;
+        bh=Lv3lxuGyJeuLMJTWI4YcPDocwK7dkQEidDuVLf0rJRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjJEu5O0AO9KDKYdoh0Rqag1kao05LHHvE0yCmzxSp5OdSrk32krgSofiovfEOyEH
-         yDmzY9M5OQ8qDsJmz2imP1gmOnKuZpD/G3/NBvrEiVfnWNxX1+8dkIFyr3iFF2fKze
-         KGMm3aDOcKE15UWZ4Q+6VSZvncYC4e6P1vx9l1uc=
+        b=CdaToz6SvdQRv0A1gvsTzwPA46m5tWU0loNqH65bN7Pm5g5uX6BYkMcPlO4TBlpb9
+         ++qQpx+6P9q3BwdunaGRSKFG6W76QXXhDQQzQvV71qBPDPlryPl5mz18j8WTActai2
+         IOIlNt58WC+nqicFpqUwCWYd0JjfGXByPcVvQVUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20de=20Bretagne?= 
-        <jerome.debretagne@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 5.10 156/215] drm/dp: Handle zeroed port counts in drm_dp_read_downstream_info()
-Date:   Thu, 15 Jul 2021 20:38:48 +0200
-Message-Id: <20210715182627.085216274@linuxfoundation.org>
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        nicholas.kazlauskas@amd.com, amd-gfx@lists.freedesktop.org,
+        alexander.deucher@amd.com, Roman.Li@amd.com, hersenxs.wu@amd.com,
+        danny.wang@amd.com,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.4 082/122] drm/amd/display: Reject non-zero src_y and src_x for video planes
+Date:   Thu, 15 Jul 2021 20:38:49 +0200
+Message-Id: <20210715182512.371332105@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +42,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Harry Wentland <harry.wentland@amd.com>
 
-commit 205bb69a90363541a634a662a599fddb95956524 upstream.
+commit c6c6a712199ab355ce333fa5764a59506bb107c1 upstream.
 
-While the DP specification isn't entirely clear on if this should be
-allowed or not, some branch devices report having downstream ports present
-while also reporting a downstream port count of 0. So to avoid breaking
-those devices, we need to handle this in drm_dp_read_downstream_info().
+[Why]
+This hasn't been well tested and leads to complete system hangs on DCN1
+based systems, possibly others.
 
-So, to do this we assume there's no downstream port info when the
-downstream port count is 0.
+The system hang can be reproduced by gesturing the video on the YouTube
+Android app on ChromeOS into full screen.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Tested-by: Jérôme de Bretagne <jerome.debretagne@gmail.com>
-Bugzilla: https://gitlab.freedesktop.org/drm/intel/-/issues/3416
-Fixes: 3d3721ccb18a ("drm/i915/dp: Extract drm_dp_read_downstream_info()")
-Cc: <stable@vger.kernel.org> # v5.10+
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210430223428.10514-1-lyude@redhat.com
+[How]
+Reject atomic commits with non-zero drm_plane_state.src_x or src_y values.
+
+v2:
+ - Add code comment describing the reason we're rejecting non-zero
+   src_x and src_y
+ - Drop gerrit Change-Id
+ - Add stable CC
+ - Based on amd-staging-drm-next
+
+v3: removed trailing whitespace
+
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Cc: stable@vger.kernel.org
+Cc: nicholas.kazlauskas@amd.com
+Cc: amd-gfx@lists.freedesktop.org
+Cc: alexander.deucher@amd.com
+Cc: Roman.Li@amd.com
+Cc: hersenxs.wu@amd.com
+Cc: danny.wang@amd.com
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Hersen Wu <hersenxs.wu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_dp_helper.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/gpu/drm/drm_dp_helper.c
-+++ b/drivers/gpu/drm/drm_dp_helper.c
-@@ -602,7 +602,14 @@ int drm_dp_read_downstream_info(struct d
- 	    !(dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DWN_STRM_PORT_PRESENT))
- 		return 0;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -2649,6 +2649,23 @@ static int fill_dc_scaling_info(const st
+ 	     scaling_info->src_rect.y != 0))
+ 		return -EINVAL;
  
-+	/* Some branches advertise having 0 downstream ports, despite also advertising they have a
-+	 * downstream port present. The DP spec isn't clear on if this is allowed or not, but since
-+	 * some branches do it we need to handle it regardless.
++	/*
++	 * For reasons we don't (yet) fully understand a non-zero
++	 * src_y coordinate into an NV12 buffer can cause a
++	 * system hang. To avoid hangs (and maybe be overly cautious)
++	 * let's reject both non-zero src_x and src_y.
++	 *
++	 * We currently know of only one use-case to reproduce a
++	 * scenario with non-zero src_x and src_y for NV12, which
++	 * is to gesture the YouTube Android app into full screen
++	 * on ChromeOS.
 +	 */
- 	len = drm_dp_downstream_port_count(dpcd);
-+	if (!len)
-+		return 0;
++	if (state->fb &&
++	    state->fb->format->format == DRM_FORMAT_NV12 &&
++	    (scaling_info->src_rect.x != 0 ||
++	     scaling_info->src_rect.y != 0))
++		return -EINVAL;
 +
- 	if (dpcd[DP_DOWNSTREAMPORT_PRESENT] & DP_DETAILED_CAP_INFO_AVAILABLE)
- 		len *= 4;
- 
+ 	scaling_info->src_rect.width = state->src_w >> 16;
+ 	if (scaling_info->src_rect.width == 0)
+ 		return -EINVAL;
 
 
