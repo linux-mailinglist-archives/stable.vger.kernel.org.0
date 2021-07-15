@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAE83CA6C1
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:47:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 790293CA8BB
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235765AbhGOSuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:50:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
+        id S237084AbhGOTCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239648AbhGOStz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:49:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A51F8613CF;
-        Thu, 15 Jul 2021 18:47:01 +0000 (UTC)
+        id S241256AbhGOS6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:58:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DE812613DA;
+        Thu, 15 Jul 2021 18:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374822;
-        bh=9xVSFwSdGvi+MG5/iZ3T4N9Ju40mVHzCL+79qf0SEa0=;
+        s=korg; t=1626375352;
+        bh=P923ERhE2scix0Bmb5FE8KAJFqLGlHL+1sVq8aBO464=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KcV610yc2EPU5QXMOhMhhFZ6mIB/ZWjIfrOU18h9L8bdjLquLQZAO5BBl0nFQeNbF
-         PlcU4xaoJe7wYxIjvJYyOhyTboSc5g+Pu1T8QZ5FTh7Zox8WZhN3G3FjFYTp9P+QU/
-         TY/TT3b0xKYvtIbQM2/EUBEgiXnNgRMsS1ItmGBs=
+        b=Q2wwJU2SwmMXjJafs04APfh4//Gb2h3w07pwMO6w7buulR1BBiaBhYC2lskjVjZ5e
+         fZRP0rGPjmTIIeHx3adIG6usf29CfSsLyR95LLqm8yhiJaJX0Qk39vAAn+eOQqGsmg
+         duXo3vmDw7C5S+45PWil2jks4J/ALlJeNNzAI+gQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
+        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
+        "Stanley.Yang" <Stanley.Yang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/215] clk: tegra: Fix refcounting of gate clocks
+Subject: [PATCH 5.12 050/242] drm/amdgpu: fix sdma firmware version error in sriov
 Date:   Thu, 15 Jul 2021 20:36:52 +0200
-Message-Id: <20210715182606.361284619@linuxfoundation.org>
+Message-Id: <20210715182601.022136033@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,188 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-[ Upstream commit c592c8a28f5821e880ac6675781cd8a151b0737c ]
+[ Upstream commit 2b8f731849800e3948763ccaff31cceac526789b ]
 
-The refcounting of the gate clocks has a bug causing the enable_refcnt
-to underflow when unused clocks are disabled. This happens because clk
-provider erroneously bumps the refcount if clock is enabled at a boot
-time, which it shouldn't be doing, and it does this only for the gate
-clocks, while peripheral clocks are using the same gate ops and the
-peripheral clocks are missing the initial bump. Hence the refcount of
-the peripheral clocks is 0 when unused clocks are disabled and then the
-counter is decremented further by the gate ops, causing the integer
-underflow.
+Re-adjust the function return order to avoid empty sdma version in the
+sriov environment. (read amdgpu_firmware_info)
 
-Fix this problem by removing the erroneous bump and by implementing the
-disable_unused() callback, which disables the unused gates properly.
-
-The visible effect of the bug is such that the unused clocks are never
-gated if a loaded kernel module grabs the unused clocks and starts to use
-them. In practice this shouldn't cause any real problems for the drivers
-and boards supported by the kernel today.
-
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Stanley.Yang <Stanley.Yang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/tegra/clk-periph-gate.c | 72 +++++++++++++++++++----------
- drivers/clk/tegra/clk-periph.c      | 11 +++++
- 2 files changed, 58 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/tegra/clk-periph-gate.c b/drivers/clk/tegra/clk-periph-gate.c
-index 4b31beefc9fc..dc3f92678407 100644
---- a/drivers/clk/tegra/clk-periph-gate.c
-+++ b/drivers/clk/tegra/clk-periph-gate.c
-@@ -48,18 +48,9 @@ static int clk_periph_is_enabled(struct clk_hw *hw)
- 	return state;
- }
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+index 32c6aa03d267..f884d43d4ff0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+@@ -145,9 +145,6 @@ static int sdma_v5_2_init_microcode(struct amdgpu_device *adev)
+ 	struct amdgpu_firmware_info *info = NULL;
+ 	const struct common_firmware_header *header = NULL;
  
--static int clk_periph_enable(struct clk_hw *hw)
-+static void clk_periph_enable_locked(struct clk_hw *hw)
- {
- 	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
--	unsigned long flags = 0;
--
--	spin_lock_irqsave(&periph_ref_lock, flags);
--
--	gate->enable_refcnt[gate->clk_num]++;
--	if (gate->enable_refcnt[gate->clk_num] > 1) {
--		spin_unlock_irqrestore(&periph_ref_lock, flags);
+-	if (amdgpu_sriov_vf(adev) && (adev->asic_type == CHIP_SIENNA_CICHLID))
 -		return 0;
--	}
- 
- 	write_enb_set(periph_clk_to_bit(gate), gate);
- 	udelay(2);
-@@ -78,6 +69,32 @@ static int clk_periph_enable(struct clk_hw *hw)
- 		udelay(1);
- 		writel_relaxed(0, gate->clk_base + LVL2_CLK_GATE_OVRE);
- 	}
-+}
-+
-+static void clk_periph_disable_locked(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+
-+	/*
-+	 * If peripheral is in the APB bus then read the APB bus to
-+	 * flush the write operation in apb bus. This will avoid the
-+	 * peripheral access after disabling clock
-+	 */
-+	if (gate->flags & TEGRA_PERIPH_ON_APB)
-+		tegra_read_chipid();
-+
-+	write_enb_clr(periph_clk_to_bit(gate), gate);
-+}
-+
-+static int clk_periph_enable(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+	unsigned long flags = 0;
-+
-+	spin_lock_irqsave(&periph_ref_lock, flags);
-+
-+	if (!gate->enable_refcnt[gate->clk_num]++)
-+		clk_periph_enable_locked(hw);
- 
- 	spin_unlock_irqrestore(&periph_ref_lock, flags);
- 
-@@ -91,21 +108,28 @@ static void clk_periph_disable(struct clk_hw *hw)
- 
- 	spin_lock_irqsave(&periph_ref_lock, flags);
- 
--	gate->enable_refcnt[gate->clk_num]--;
--	if (gate->enable_refcnt[gate->clk_num] > 0) {
--		spin_unlock_irqrestore(&periph_ref_lock, flags);
--		return;
--	}
-+	WARN_ON(!gate->enable_refcnt[gate->clk_num]);
-+
-+	if (--gate->enable_refcnt[gate->clk_num] == 0)
-+		clk_periph_disable_locked(hw);
-+
-+	spin_unlock_irqrestore(&periph_ref_lock, flags);
-+}
-+
-+static void clk_periph_disable_unused(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph_gate *gate = to_clk_periph_gate(hw);
-+	unsigned long flags = 0;
-+
-+	spin_lock_irqsave(&periph_ref_lock, flags);
- 
- 	/*
--	 * If peripheral is in the APB bus then read the APB bus to
--	 * flush the write operation in apb bus. This will avoid the
--	 * peripheral access after disabling clock
-+	 * Some clocks are duplicated and some of them are marked as critical,
-+	 * like fuse and fuse_burn for example, thus the enable_refcnt will
-+	 * be non-zero here if the "unused" duplicate is disabled by CCF.
- 	 */
--	if (gate->flags & TEGRA_PERIPH_ON_APB)
--		tegra_read_chipid();
 -
--	write_enb_clr(periph_clk_to_bit(gate), gate);
-+	if (!gate->enable_refcnt[gate->clk_num])
-+		clk_periph_disable_locked(hw);
+ 	DRM_DEBUG("\n");
  
- 	spin_unlock_irqrestore(&periph_ref_lock, flags);
- }
-@@ -114,6 +138,7 @@ const struct clk_ops tegra_clk_periph_gate_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- };
+ 	switch (adev->asic_type) {
+@@ -182,6 +179,9 @@ static int sdma_v5_2_init_microcode(struct amdgpu_device *adev)
+ 		       (void *)&adev->sdma.instance[0],
+ 		       sizeof(struct amdgpu_sdma_instance));
  
- struct clk *tegra_clk_register_periph_gate(const char *name,
-@@ -148,9 +173,6 @@ struct clk *tegra_clk_register_periph_gate(const char *name,
- 	gate->enable_refcnt = enable_refcnt;
- 	gate->regs = pregs;
- 
--	if (read_enb(gate) & periph_clk_to_bit(gate))
--		enable_refcnt[clk_num]++;
--
- 	/* Data in .init is copied by clk_register(), so stack variable OK */
- 	gate->hw.init = &init;
- 
-diff --git a/drivers/clk/tegra/clk-periph.c b/drivers/clk/tegra/clk-periph.c
-index 67620c7ecd9e..79ca3aa072b7 100644
---- a/drivers/clk/tegra/clk-periph.c
-+++ b/drivers/clk/tegra/clk-periph.c
-@@ -100,6 +100,15 @@ static void clk_periph_disable(struct clk_hw *hw)
- 	gate_ops->disable(gate_hw);
- }
- 
-+static void clk_periph_disable_unused(struct clk_hw *hw)
-+{
-+	struct tegra_clk_periph *periph = to_clk_periph(hw);
-+	const struct clk_ops *gate_ops = periph->gate_ops;
-+	struct clk_hw *gate_hw = &periph->gate.hw;
++	if (amdgpu_sriov_vf(adev) && (adev->asic_type == CHIP_SIENNA_CICHLID))
++		return 0;
 +
-+	gate_ops->disable_unused(gate_hw);
-+}
-+
- static void clk_periph_restore_context(struct clk_hw *hw)
- {
- 	struct tegra_clk_periph *periph = to_clk_periph(hw);
-@@ -126,6 +135,7 @@ const struct clk_ops tegra_clk_periph_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- 	.restore_context = clk_periph_restore_context,
- };
- 
-@@ -135,6 +145,7 @@ static const struct clk_ops tegra_clk_periph_nodiv_ops = {
- 	.is_enabled = clk_periph_is_enabled,
- 	.enable = clk_periph_enable,
- 	.disable = clk_periph_disable,
-+	.disable_unused = clk_periph_disable_unused,
- 	.restore_context = clk_periph_restore_context,
- };
+ 	DRM_DEBUG("psp_load == '%s'\n",
+ 		  adev->firmware.load_type == AMDGPU_FW_LOAD_PSP ? "true" : "false");
  
 -- 
 2.30.2
