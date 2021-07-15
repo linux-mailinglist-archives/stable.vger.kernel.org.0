@@ -2,104 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 533BD3C995D
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 09:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A603C997C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 09:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238623AbhGOHKL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 03:10:11 -0400
-Received: from smtp-out1.suse.de ([195.135.220.28]:44002 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230310AbhGOHKL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 03:10:11 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id EBF172292F;
-        Thu, 15 Jul 2021 07:07:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1626332837; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=DFsUtJ17KHHtWxUVtx62qG9GY1yWDatZDs8op1OeviY=;
-        b=DahMB1c2Od0W5CpVg1fAErr8ZKmk2R8ZjPIdFOjX3c+UeGXdgROruf1h5cmLzw8k9nkG5V
-        5tFlXzemgUIR6Xk75QNuoul8ZJS7ze/CdN2ECNeOL7ype9A+mhpCNpAhEl/BqoNhuBsPlX
-        O6TlQ6tnRZPF/KMW6iW8EzpvCFHhl1w=
-Received: from suse.cz (unknown [10.100.201.86])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id BA3C1A3B9D;
-        Thu, 15 Jul 2021 07:07:16 +0000 (UTC)
-Date:   Thu, 15 Jul 2021 09:07:16 +0200
-From:   Michal Hocko <mhocko@suse.com>
+        id S240281AbhGOHUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 03:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239659AbhGOHT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 03:19:59 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0BFC061760
+        for <stable@vger.kernel.org>; Thu, 15 Jul 2021 00:17:07 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1m3vcE-00052b-0e; Thu, 15 Jul 2021 09:17:02 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1m3vcD-0007wJ-Cc; Thu, 15 Jul 2021 09:17:01 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1m3vcD-0006U3-BJ; Thu, 15 Jul 2021 09:17:01 +0200
+Date:   Thu, 15 Jul 2021 09:16:58 +0200
+From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
 To:     Sasha Levin <sashal@kernel.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hugh Dickins <hughd@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: 5.13.2-rc and others have many not for stable
-Message-ID: <YO/epN5unwgoQPdf@dhcp22.suse.cz>
-References: <2b1b798e-8449-11e-e2a1-daf6a341409b@google.com>
- <YO0zXVX9Bx9QZCTs@kroah.com>
- <20210713182813.2fdd57075a732c229f901140@linux-foundation.org>
- <YO6X2og4mzqAEwJn@dhcp22.suse.cz>
- <YO8DJkVzHFmPv6vz@sashalap>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Shawn Guo <shawnguo@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 5.13 024/108] ARM: dts: imx25-pinfunc: Fix gpio
+ function name for pads GPIO_[A-F]
+Message-ID: <20210715071658.mwcve4wghdoalspk@pengutronix.de>
+References: <20210714193800.52097-1-sashal@kernel.org>
+ <20210714193800.52097-24-sashal@kernel.org>
+ <20210714203550.zlbvfh6rfnah6iir@pengutronix.de>
+ <YO9QKRUOT0Kg0jZ9@sashalap>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="yqkwbe5xcciyc3ar"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <YO8DJkVzHFmPv6vz@sashalap>
+In-Reply-To: <YO9QKRUOT0Kg0jZ9@sashalap>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed 14-07-21 11:30:46, Sasha Levin wrote:
-> On Wed, Jul 14, 2021 at 09:52:58AM +0200, Michal Hocko wrote:
-> > On Tue 13-07-21 18:28:13, Andrew Morton wrote:
-> > > At present this -stable
-> > > promiscuity is overriding the (sometime carefully) considered decisions
-> > > of the MM developers, and that's a bit scary.
-> > 
-> > Not only scary, it is also a waste of precious time of those who
-> > carefuly evaluate stable tree backports.
-> 
-> I'm just as concerned with the other direction: we end up missing quite
-> a lot of patches that are needed in practice, and no one is circling
-> back to make sure that we have everything we need.
-> 
-> I took a peek at SUSE's tree to see how things work there, and looking
-> at the very latest mm/ commit:
-> 
-> commit c8c7b321edcf7a7e8c22dc66e0366f72aa2390f0
-> Author: Michal Koutný <mkoutny@suse.com>
-> Date:   Tue May 4 11:12:10 2021 +0200
-> 
->     mm: memcontrol: fix cpuhotplug statistics flushing
->     (bsc#1185606).
->     suse-commit: 3bba386a33fac144abf2507554cb21552acb16af
-> 
-> This seems to be commit a3d4c05a4474 ("mm: memcontrol: fix cpuhotplug
-> statistics flushing") upstream, and I assume that it was picked because
-> it fixed a real bug someone cares about.
 
-Nope. It has been identified as potentially useful/nice to have. There
-was no actual bug report requiring it. We do that a lot. In fact we do
-have a full infrastructure around git fixes and backport fixes
-proactively. Mostly because stable tree, which we used to track in the
-past, has turned out to be overwhelming with questionable/risky
-backports. The thing, though, is that those fixes are carefully reviewed
-by a domain expert before backporting. 
+--yqkwbe5xcciyc3ar
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I can maybe understand that at the time that the patch was
-> written/committed it didn't seem like stable@ material and thus there
-> was no cc to stable.
-> 
-> But once someone realized it needs to be backported, why weren't we told
-> to take it into stable too?
+On Wed, Jul 14, 2021 at 04:59:21PM -0400, Sasha Levin wrote:
+> On Wed, Jul 14, 2021 at 10:35:50PM +0200, Uwe Kleine-K=F6nig wrote:
+> > On Wed, Jul 14, 2021 at 03:36:36PM -0400, Sasha Levin wrote:
+> > > From: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > >=20
+> > > [ Upstream commit e0cdd26af8eb9001689a4cde4f72c61c1c4b06be ]
+> > >=20
+> > > The pinfunc definitions used GPIO_A as function instead of GPIO_1_0 as
+> > > done for all the other pins with GPIO functionality. Fix for consiste=
+ncy.
+> > >=20
+> > > There are no mainline users that needs adaption.
+> > >=20
+> > > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
+> > > Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> >=20
+> > I'm not convinced it's a good idea to take this patch for stable.
+> > in-tree users are unaffected and the only effect this can have on
+> > out-of-tree users is to break them. So the gain of having this is not
+> > positive.
+> >=20
+> > Am I missing something?
+>=20
+> Hm, if those definitions don't have an in-tree users, why are they still
+> around to begin with?
 
-We tend to do that for many real bug reports.
--- 
-Michal Hocko
-SUSE Labs
+It's hardware description and out-of-tree dts might make use of it. Even
+if no in-tree user benefits, it's IMO better to have this included, but
+I admit you could judge differently here.
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | https://www.pengutronix.de/ |
+
+--yqkwbe5xcciyc3ar
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmDv4OcACgkQwfwUeK3K
+7An2Fgf/ddo/to5QAC9EOSvn7Cfd5AFD82Soed00daFgBCoCP3tGH3gbYVV3kzh3
+ChYWoYMQCN1e6GZ8qYIC3vNm0iSuJSbrosMcIqJnowjOwitM8eTyykGLSXlqrArI
+qOnQMgqc1pEma07mjoJDaMTEWSHssncYLcbAEe+I+ygXDrcb4r/ApV6+Ag3502iW
+kA7YEJRZPaGCzN2+pCtoYF3ZyCC7zytQewW0gWV5eSKvwFlEks6UunzY7koQGfGL
+XTjKypKN5u/dqgmk+RSFYNYMZTv2Sr01skvf1V5RkIpTs/UsQSopZPCMJbIHgZH+
+Th37WM7QEP+1Qg7qKZA7lDtHdGujXg==
+=moso
+-----END PGP SIGNATURE-----
+
+--yqkwbe5xcciyc3ar--
