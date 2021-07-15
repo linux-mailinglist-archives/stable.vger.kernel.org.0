@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 280123CA66E
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21A93CA66D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231193AbhGOSrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
+        id S231648AbhGOSrv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:47:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237256AbhGOSrl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:47:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3FD601FF;
-        Thu, 15 Jul 2021 18:44:46 +0000 (UTC)
+        id S238643AbhGOSrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABCBB613D3;
+        Thu, 15 Jul 2021 18:44:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374686;
-        bh=heIKjzrVWDCz5r4LnpqUSfigJCY+N0dJARnlDFNZtsc=;
+        s=korg; t=1626374689;
+        bh=Xh8zxHu7LFpPea9lmFpgKjXXfpGgPzqv7e2hWzzBjho=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQ3AMKIuixo1LzfoB9prz4756bUOJP/0G5gFZfg46HyPhW3c8dyHEqV1sRgXGk+t6
-         LdD/BYggv2ObH2BfksFKA3UfvgoFMnAr0mDXjbvZJv9y8EDoYY5bHf+5cKYguNlmqc
-         N9AX5yn7WAkFPy/tgJGGqMorDMnb8/eElDqF+bCc=
+        b=llQZCCpjKY0QB9fnCQxOKIC1NevVdBgO4r/YNIVTstJHSz1+9wA3TIZ7KGlVoJS65
+         Zn8kWcZ1GKpeDGl486Fi+8g4/YCERiNJpGMoA8SxVr9UlhzZLNvYd+secFN3YO7mHO
+         Cf1Ggy6nGztyaWoHxaRtkwmIGuFgbGoo9Vghsl74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 104/122] rq-qos: fix missed wake-ups in rq_qos_throttle try two
-Date:   Thu, 15 Jul 2021 20:39:11 +0200
-Message-Id: <20210715182519.612194347@linuxfoundation.org>
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 105/122] tracing: Simplify & fix saved_tgids logic
+Date:   Thu, 15 Jul 2021 20:39:12 +0200
+Message-Id: <20210715182519.845516367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
 References: <20210715182448.393443551@linuxfoundation.org>
@@ -39,98 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Paul Burton <paulburton@google.com>
 
-commit 11c7aa0ddea8611007768d3e6b58d45dc60a19e1 upstream.
+commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
 
-Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
-tried to fix a problem that a process could be sleeping in rq_qos_wait()
-without anyone to wake it up. However the fix is not complete and the
-following can still happen:
+The tgid_map array records a mapping from pid to tgid, where the index
+of an entry within the array is the pid & the value stored at that index
+is the tgid.
 
-CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
-rq_qos_wait()		rq_qos_wait()
-  acquire_inflight_cb() -> fails
-			  acquire_inflight_cb() -> fails
+The saved_tgids_next() function iterates over pointers into the tgid_map
+array & dereferences the pointers which results in the tgid, but then it
+passes that dereferenced value to trace_find_tgid() which treats it as a
+pid & does a further lookup within the tgid_map array. It seems likely
+that the intent here was to skip over entries in tgid_map for which the
+recorded tgid is zero, but instead we end up skipping over entries for
+which the thread group leader hasn't yet had its own tgid recorded in
+tgid_map.
 
-						completes IOs, inflight
-						  decreased
-  prepare_to_wait_exclusive()
-			  prepare_to_wait_exclusive()
-  has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
-			  has_sleeper = !wq_has_single_sleeper() -> true
-  io_schedule()		  io_schedule()
+A minimal fix would be to remove the call to trace_find_tgid, turning:
 
-Deadlock as now there's nobody to wakeup the two waiters. The logic
-automatically blocking when there are already sleepers is really subtle
-and the only way to make it work reliably is that we check whether there
-are some waiters in the queue when adding ourselves there. That way, we
-are guaranteed that at least the first process to enter the wait queue
-will recheck the waiting condition before going to sleep and thus
-guarantee forward progress.
+  if (trace_find_tgid(*ptr))
 
-Fixes: 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210607112613.25344-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+into:
+
+  if (*ptr)
+
+..but it seems like this logic can be much simpler if we simply let
+seq_read() iterate over the whole tgid_map array & filter out empty
+entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
+approach, removing the incorrect logic here entirely.
+
+Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-rq-qos.c   |    4 ++--
- include/linux/wait.h |    2 +-
- kernel/sched/wait.c  |    9 +++++++--
- 3 files changed, 10 insertions(+), 5 deletions(-)
+ kernel/trace/trace.c |   38 +++++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 25 deletions(-)
 
---- a/block/blk-rq-qos.c
-+++ b/block/blk-rq-qos.c
-@@ -266,8 +266,8 @@ void rq_qos_wait(struct rq_wait *rqw, vo
- 	if (!has_sleeper && acquire_inflight_cb(rqw, private_data))
- 		return;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5013,37 +5013,20 @@ static const struct file_operations trac
  
--	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
--	has_sleeper = !wq_has_single_sleeper(&rqw->wait);
-+	has_sleeper = !prepare_to_wait_exclusive(&rqw->wait, &data.wq,
-+						 TASK_UNINTERRUPTIBLE);
- 	do {
- 		/* The memory barrier in set_task_state saves us here. */
- 		if (data.got_token)
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -1121,7 +1121,7 @@ do {										\
-  * Waitqueues which are removed from the waitqueue_head at wakeup time
-  */
- void prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
--void prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
-+bool prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
- long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
- void finish_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry);
- long wait_woken(struct wait_queue_entry *wq_entry, unsigned mode, long timeout);
---- a/kernel/sched/wait.c
-+++ b/kernel/sched/wait.c
-@@ -232,17 +232,22 @@ prepare_to_wait(struct wait_queue_head *
- }
- EXPORT_SYMBOL(prepare_to_wait);
- 
--void
-+/* Returns true if we are the first waiter in the queue, false otherwise. */
-+bool
- prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
+ static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
  {
- 	unsigned long flags;
-+	bool was_empty = false;
+-	int *ptr = v;
++	int pid = ++(*pos);
  
- 	wq_entry->flags |= WQ_FLAG_EXCLUSIVE;
- 	spin_lock_irqsave(&wq_head->lock, flags);
--	if (list_empty(&wq_entry->entry))
-+	if (list_empty(&wq_entry->entry)) {
-+		was_empty = list_empty(&wq_head->head);
- 		__add_wait_queue_entry_tail(wq_head, wq_entry);
-+	}
- 	set_current_state(state);
- 	spin_unlock_irqrestore(&wq_head->lock, flags);
-+	return was_empty;
+-	if (*pos || m->count)
+-		ptr++;
+-
+-	(*pos)++;
+-
+-	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
+-		if (trace_find_tgid(*ptr))
+-			return ptr;
+-	}
++	if (pid > PID_MAX_DEFAULT)
++		return NULL;
+ 
+-	return NULL;
++	return &tgid_map[pid];
  }
- EXPORT_SYMBOL(prepare_to_wait_exclusive);
+ 
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	void *v;
+-	loff_t l = 0;
+-
+-	if (!tgid_map)
++	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+ 		return NULL;
+ 
+-	v = &tgid_map[0];
+-	while (l <= *pos) {
+-		v = saved_tgids_next(m, v, &l);
+-		if (!v)
+-			return NULL;
+-	}
+-
+-	return v;
++	return &tgid_map[*pos];
+ }
+ 
+ static void saved_tgids_stop(struct seq_file *m, void *v)
+@@ -5052,9 +5035,14 @@ static void saved_tgids_stop(struct seq_
+ 
+ static int saved_tgids_show(struct seq_file *m, void *v)
+ {
+-	int pid = (int *)v - tgid_map;
++	int *entry = (int *)v;
++	int pid = entry - tgid_map;
++	int tgid = *entry;
++
++	if (tgid == 0)
++		return SEQ_SKIP;
+ 
+-	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
++	seq_printf(m, "%d %d\n", pid, tgid);
+ 	return 0;
+ }
  
 
 
