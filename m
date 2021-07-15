@@ -2,72 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3A953C9769
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 06:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397663C98A2
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 08:05:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233490AbhGOEbo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 00:31:44 -0400
-Received: from mailgw01.mediatek.com ([60.244.123.138]:34522 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S231979AbhGOEbm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 00:31:42 -0400
-X-UUID: 6a5194aa3284485ba1add1daf7b6ab64-20210715
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Transfer-Encoding:MIME-Version:Content-Type:Date:CC:To:From:Subject:Message-ID; bh=FlJW4bMYIdDzSfoxFCdD9ZdvL9adkU6NtqycME8tAaU=;
-        b=hZYdqdv6jWmqityXaKrWkMiyxbB36kYRbxOfsXEJrdKZriw4e988BX/3grOIgjMpW+uDOOtqIjLuKnvTJkcB9x5WlyUgUhsSUc0t1uIW+ofG/27MutZPoLMhjJZu2656XoAEIlTIBSwtt81xq1P2crgofiGaVdkfuLd1I1SNdWw=;
-X-UUID: 6a5194aa3284485ba1add1daf7b6ab64-20210715
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
-        (envelope-from <macpaul.lin@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 1326285351; Thu, 15 Jul 2021 12:28:46 +0800
-Received: from mtkcas07.mediatek.inc (172.21.101.84) by
- mtkmbs01n1.mediatek.inc (172.21.101.68) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Thu, 15 Jul 2021 12:28:39 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Thu, 15 Jul 2021 12:28:39 +0800
-Message-ID: <1626323319.18118.17.camel@mtkswgap22>
-Subject: Fix: Please help to cherry-pick patch "bdi: Do not use freezable
- workqueue" to stable tree
-From:   Macpaul Lin <macpaul.lin@mediatek.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-stable <stable@vger.kernel.org>
-CC:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Ainge Hsu <ainge.hsu@mediatek.com>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Miles Chen <miles.chen@mediatek.com>,
-        Kuohong Wang <kuohong.wang@mediatek.com>,
-        linux-mediatek <linux-mediatek@lists.infradead.org>,
-        Macpaul Lin <macpaul.lin@gmail.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        linux-usb <linux-usb@vger.kernel.org>,
-        AceLan Kao <acelan.kao@canonical.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Mediatek WSD Upstream <wsd_upstream@mediatek.com>
-Date:   Thu, 15 Jul 2021 12:28:39 +0800
-Content-Type: text/plain; charset="ISO-8859-1"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
+        id S231494AbhGOGIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 02:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50834 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230495AbhGOGIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 02:08:37 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183E8C06175F;
+        Wed, 14 Jul 2021 23:05:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=cDlqF8S6ChV6yjNpdP/3Zdy0rMuV9VvhrElTzLJdMA8=; b=BC1fQlfXce00Iy/0IY+O6VVg3C
+        NOZdv0+/segOoof4YTh/Jf/5UCiV2t4GPc1xgr2oZ9D2AFZSVkdGloVgI/HZjQyyh4dN7QTx0DpTE
+        vodclCXFLc5MNal+pNG1bphwT5Bg/A6Dzpzuy9/I9OPnua6gv4/sQ8c0NNW1nZz6crJlSnm584a9l
+        0aDcZRh3E6GnowFZ41G/jMRCCO6rj/X2g8kcjrrd6Oc0JBpFdBqb6ksXc5x0YWNQKve3f0wbOq2eE
+        vsG04rIY47XaFuDdQjGfES5MZ6fIjvasZFkPBMw4BSMGMHz4i1RMTEJPsJI32MI0ZT3oGhBPgJA8X
+        obQOnN8g==;
+Received: from [2601:1c0:6280:3f0::aefb] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1m3uVB-00HEA7-UF; Thu, 15 Jul 2021 06:05:42 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac@vger.kernel.org,
+        bowsingbetee <bowsingbetee@protonmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] EDAC/igen6: fix core dependency AGAIN
+Date:   Wed, 14 Jul 2021 23:05:39 -0700
+Message-Id: <20210715060539.28173-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-X-MTK:  N
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RGVhciBHcmVnLA0KDQpPdXIgY3VzdG9tZXJzIGhhdmUgZmVlZGJhY2sgc29tZSBzaW1pbGFyIGlz
-c3VlcyBhcyBiZWxvdyBsaW5rIG9uIEFuZHJvaWQNCmtlcm5lbC00LjE0IGFuZCBrZXJuZWwtNC4x
-OS4NCiAgTGluazogaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgta2VybmVsJm09MTM4Njk1Njk4
-NTE2NDg3DQoNClRoZXkndmUgcmVwb3J0ZWQgc3lzdGVtIGJlY29tZSBhYm5vcm1hbCB3aGVuIE9U
-RyBVLWRpc2sgaGFzIGJlZW4gcGx1Z2dlZA0Kb3V0IGFmdGVyIHRoZSBzeXN0ZW0gaGFzIGJlZW4g
-c3VzcGVuZGVkLg0KQWZ0ZXIgZGVidWdnaW5nLCB3ZSd2ZSBmb3VuZCB0aGUgcm9vdCBjYXVzZSBp
-cyB0aGUgc2FtZSBvZiB0aGUgaXNzdWUNCihsaW5rKSBoYXMgYmVlbiByZXBvcnRlZC4gV2UndmUg
-YWxzbyB0ZXN0ZWQgdGhlIHBhdGNoICJiZGk6IERvIG5vdCB1c2UNCmZyZWV6YWJsZSB3b3JrcXVl
-dWUiIGlzIHdvcmtlZC4NCiAgTGluazogaHR0cHM6Ly9sa21sLm9yZy9sa21sLzIwMTkvMTAvNC8x
-NzYNCiAgY29tbWl0IGlkIGluIExpbnVzIHRyZWU6IGEyYjkwZjExMjE3NzkwZWMwOTY0YmE5Yzkz
-YTRhYmIzNjk3NThjMjYNCg0KSG93ZXZlciwgd2UndmUgY2hlY2tlZCB0aGF0IHBhdGNoIHNlZW1z
-IGhhc24ndCBiZWVuIGFwcGxpZWQgdG8gc3RhYmxlDQp0cmVlIChXZSd2ZSBjaGVja2VkIDQuMTQg
-YW5kIDQuMTkpLiBXb3VsZCB5b3UgcGxlYXNlIGhlbHAgdG8gY2hlcnJ5LXBpY2sNCnRoaXMgcGF0
-Y2ggdG8gc3RhYmxlIHRyZWVzIChhbmQgdG8gQW5kcm9pZCB0cmVlcyk/DQoNClRoYW5rcyENCk1h
-Y3BhdWwgTGluDQo=
+My previous patch had a typo/thinko which prevents this driver
+from being enabled: change X64_64 to X86_64.
 
+Fixes: 0a9ece9ba154 ("EDAC/igen6: fix core dependency")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac@vger.kernel.org
+Cc: bowsingbetee <bowsingbetee@protonmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/edac/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-next-20210714.orig/drivers/edac/Kconfig
++++ linux-next-20210714/drivers/edac/Kconfig
+@@ -271,7 +271,7 @@ config EDAC_PND2
+ config EDAC_IGEN6
+ 	tristate "Intel client SoC Integrated MC"
+ 	depends on PCI && PCI_MMCONFIG && ARCH_HAVE_NMI_SAFE_CMPXCHG
+-	depends on X64_64 && X86_MCE_INTEL
++	depends on X86_64 && X86_MCE_INTEL
+ 	help
+ 	  Support for error detection and correction on the Intel
+ 	  client SoC Integrated Memory Controller using In-Band ECC IP.
