@@ -2,197 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 707EE3C9EC5
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:37:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 499273C9ED6
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbhGOMkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:40:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37642 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229635AbhGOMkW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:40:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39A2D6136E;
-        Thu, 15 Jul 2021 12:37:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626352648;
-        bh=LQGzeloZuj+oZzezPx2uaslCGSI66xsTtg2/tSp0glg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=dPsCIbeaONmv67ykW4uf7M2Q4qVHh9QMRkSpBpkuYtdWmaFGzN5QAiaVMbC94jaes
-         BqdTPbR3qWF3yTYVn9hAcOzVhoEWAKJlhHD6cpZKrffhXyEgEXVsYgoxRPBRqvbAaS
-         2R7XYW2/GBRKugIz/sddi7l6R4CmT+nMkfzLQDF0=
-Subject: FAILED: patch "[PATCH] cpu/hotplug: Cure the cpusets trainwreck" failed to apply to 4.9-stable tree
-To:     tglx@linutronix.de, aklimov@redhat.com, jobaker@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:37:26 +0200
-Message-ID: <1626352646130111@kroah.com>
+        id S237413AbhGOMop (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:44:45 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:46124 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234549AbhGOMop (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 08:44:45 -0400
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 0C6491FE20;
+        Thu, 15 Jul 2021 12:41:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1626352911; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qt2mIxvW9VEXRTw9mZpJtc7bEQkk/f9nExFHMeH2U7U=;
+        b=x7akm8O3ZjI4XVD+qJWwnQrJYpI9hO4uz9HZwuoCSm7zJJJHmQ7lkOh5lnBpJLwNEJz2+V
+        nTA0p4i2DYmFeP67Vi/1hAm20o2q9fZ5UHAM2Nt1s/VzUAttuMiCp5FxbwU02NMQ3ynexK
+        CfMNoiwmrf9o3yBlVXE46IryyCU9FQo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1626352911;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=qt2mIxvW9VEXRTw9mZpJtc7bEQkk/f9nExFHMeH2U7U=;
+        b=TZo8rJqylSJ4OL9WRdpyWC9ghKxrT2QHcfk/XjMZJcn6b07FWxDLLtDiAaaHcVAntrUpRY
+        tZ+cJ8wqcOhqTjBw==
+Received: from quack2.suse.cz (unknown [10.100.200.198])
+        by relay2.suse.de (Postfix) with ESMTP id E6B2AA3B99;
+        Thu, 15 Jul 2021 12:41:50 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id C48241E0BF2; Thu, 15 Jul 2021 14:41:50 +0200 (CEST)
+Date:   Thu, 15 Jul 2021 14:41:50 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Holger Kiehl <Holger.Kiehl@dwd.de>, Jan Kara <jack@suse.cz>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: Re: [PATCH 5.13 000/800] 5.13.2-rc1 review
+Message-ID: <20210715124150.GC31920@quack2.suse.cz>
+References: <20210712060912.995381202@linuxfoundation.org>
+ <68b6051-09c-9dc8-4b52-c4e766fee5@praktifix.dwd.de>
+ <YO56HTE3k95JLeje@kroah.com>
+ <50fb4713-6b5d-b5e0-786a-6ece57896d2f@praktifix.dwd.de>
+ <df63b875-f140-606a-862a-73b102345cd@praktifix.dwd.de>
+ <YO7nHhW2t4wEiI9G@kroah.com>
+ <CA+G9fYuhbE6sY3ykoiyqZqYSG=+V0r3z0TiaVL8LptbXWw=duQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYuhbE6sY3ykoiyqZqYSG=+V0r3z0TiaVL8LptbXWw=duQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Naresh!
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Wed 14-07-21 19:22:59, Naresh Kamboju wrote:
+> My two cents,
+> While running ssuite long running stress testing we have noticed deadlock.
+> 
+> > So if you drop that, all works well?  I'll go drop that from the queues
+> > now.
+> 
+> Let me drop that patch and test it again.
+> 
+> Crash log,
+> 
+> [ 1957.278399] ============================================
+> [ 1957.283717] WARNING: possible recursive locking detected
+> [ 1957.289031] 5.13.2-rc1 #1 Not tainted
+> [ 1957.292703] --------------------------------------------
+> [ 1957.298016] kworker/u8:7/236 is trying to acquire lock:
+> [ 1957.303241] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> bfq_finish_requeue_request+0x55/0x500 [bfq]
+> [ 1957.312643]
+> [ 1957.312643] but task is already holding lock:
+> [ 1957.318467] ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> bfq_insert_requests+0x81/0x1750 [bfq]
+> [ 1957.327334]
+> [ 1957.327334] other info that might help us debug this:
+> [ 1957.333852]  Possible unsafe locking scenario:
+> [ 1957.333852]
+> [ 1957.339762]        CPU0
+> [ 1957.342206]        ----
+> [ 1957.344651]   lock(&bfqd->lock);
+> [ 1957.347873]   lock(&bfqd->lock);
+> [ 1957.351097]
+> [ 1957.351097]  *** DEADLOCK ***
+> [ 1957.351097]
+> [ 1957.357008]  May be due to missing lock nesting notation
+> [ 1957.357008]
+> [ 1957.363783] 3 locks held by kworker/u8:7/236:
+> [ 1957.368136]  #0: ffff8cc2009c5938
+> ((wq_completion)writeback){+.+.}-{0:0}, at:
+> process_one_work+0x207/0x5e0
+> [ 1957.377782]  #1: ffff9ba980d57e68
+> ((work_completion)(&(&wb->dwork)->work)){+.+.}-{0:0}, at:
+> process_one_work+0x207/0x5e0
+> [ 1957.388640]  #2: ffff8cc203f92c38 (&bfqd->lock){-.-.}-{2:2}, at:
+> bfq_insert_requests+0x81/0x1750 [bfq]
+> [ 1957.397938]
+> [ 1957.397938] stack backtrace:
+> [ 1957.402291] CPU: 1 PID: 236 Comm: kworker/u8:7 Not tainted 5.13.2-rc1 #1
+> [ 1957.408989] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
+> 2.2 05/23/2018
+> [ 1957.416374] Workqueue: writeback wb_workfn (flush-8:0)
+> [ 1957.421513] Call Trace:
+> [ 1957.423966]  dump_stack+0x76/0x95
+> [ 1957.427283]  __lock_acquire+0xb70/0x1a50
+> [ 1957.431203]  ? lock_is_held_type+0xa0/0x110
+> [ 1957.435388]  ? bfq_init_rq+0x30e/0x1140 [bfq]
+> [ 1957.439748]  lock_acquire+0x258/0x2e0
+> [ 1957.443413]  ? bfq_finish_requeue_request+0x55/0x500 [bfq]
+> [ 1957.448923]  ? __lock_acquire+0x4a6/0x1a50
+> [ 1957.453016]  ? __lock_acquire+0x3e0/0x1a50
+> [ 1957.457107]  _raw_spin_lock_irqsave+0x3f/0x60
+> [ 1957.461466]  ? bfq_finish_requeue_request+0x55/0x500 [bfq]
+> [ 1957.466950]  bfq_finish_requeue_request+0x55/0x500 [bfq]
+> [ 1957.472256]  ? rcu_read_lock_sched_held+0x4f/0x80
+> [ 1957.476960]  blk_mq_free_request+0x3e/0x140
+> [ 1957.481146]  blk_put_request+0xe/0x10
+> [ 1957.484804]  blk_attempt_req_merge+0x1d/0x30
+> [ 1957.489075]  elv_attempt_insert_merge+0x34/0x90
+> [ 1957.493599]  blk_mq_sched_try_insert_merge+0x2c/0x50
+> [ 1957.498556]  bfq_insert_requests+0x8d/0x1750 [bfq]
+> [ 1957.503342]  ? find_held_lock+0x35/0xa0
+> [ 1957.507180]  ? writeback_sb_inodes+0x35a/0x550
+> [ 1957.511618]  blk_mq_sched_insert_requests+0xd9/0x2a0
+> [ 1957.516580]  blk_mq_flush_plug_list+0x138/0x270
+> [ 1957.521110]  blk_flush_plug_list+0xd1/0x100
+> [ 1957.525295]  blk_finish_plug+0x2c/0x40
+> [ 1957.529045]  wb_writeback+0x1ab/0x430
+> [ 1957.532702]  ? _raw_spin_unlock_bh+0x30/0x40
+> [ 1957.536970]  wb_workfn+0xcb/0x660
+> [ 1957.540286]  ? wb_workfn+0xcb/0x660
+> [ 1957.543770]  ? lock_acquire+0x258/0x2e0
+> [ 1957.547600]  ? process_one_work+0x207/0x5e0
+> [ 1957.551778]  process_one_work+0x289/0x5e0
+> [ 1957.555782]  ? inode_wait_for_writeback+0x40/0x40
+> [ 1957.560477]  ? process_one_work+0x289/0x5e0
+> [ 1957.564656]  worker_thread+0x3c/0x3f0
+> [ 1957.568315]  ? process_one_work+0x5e0/0x5e0
+> [ 1957.572500]  kthread+0x14c/0x170
+> [ 1957.575733]  ? set_kthread_struct+0x40/0x40
+> [ 1957.579921]  ret_from_fork+0x22/0x30
+> Waiting for transitory to terminate: 5[0KWaiting for transitory to
+> terminate: 4[0K[ 2106.390977] systemd[1]: systemd-resolved.service:
+> Watchdog timeout (limit 3min)!
+> [ 2106.398454] systemd[1]: systemd-resolved.service: Killing process
+> 349 (systemd-resolve) with signal SIGABRT.
 
-thanks,
+Thanks for testing and the report! So this looks like you didn't have
+commit fd2ef39cc9a ("blk: Fix lock inversion between ioc lock and bfqd
+lock") applied. As I was looking into BFQ code indeed commit a921c655f2
+("bfq: Remove merged request already in bfq_requests_merged()") on its own
+would introduce this deadlock which then gets fixed up by commit
+fd2ef39cc9a (I didn't realize this when writing the series). So we either
+need to apply both commits or none of them. Do you see some problems with
+both commits applied?
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From b22afcdf04c96ca58327784e280e10288cfd3303 Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Sat, 27 Mar 2021 22:01:36 +0100
-Subject: [PATCH] cpu/hotplug: Cure the cpusets trainwreck
-
-Alexey and Joshua tried to solve a cpusets related hotplug problem which is
-user space visible and results in unexpected behaviour for some time after
-a CPU has been plugged in and the corresponding uevent was delivered.
-
-cpusets delegate the hotplug work (rebuilding cpumasks etc.) to a
-workqueue. This is done because the cpusets code has already a lock
-nesting of cgroups_mutex -> cpu_hotplug_lock. A synchronous callback or
-waiting for the work to finish with cpu_hotplug_lock held can and will
-deadlock because that results in the reverse lock order.
-
-As a consequence the uevent can be delivered before cpusets have consistent
-state which means that a user space invocation of sched_setaffinity() to
-move a task to the plugged CPU fails up to the point where the scheduled
-work has been processed.
-
-The same is true for CPU unplug, but that does not create user observable
-failure (yet).
-
-It's still inconsistent to claim that an operation is finished before it
-actually is and that's the real issue at hand. uevents just make it
-reliably observable.
-
-Obviously the problem should be fixed in cpusets/cgroups, but untangling
-that is pretty much impossible because according to the changelog of the
-commit which introduced this 8 years ago:
-
- 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
-
-the lock order cgroups_mutex -> cpu_hotplug_lock is a design decision and
-the whole code is built around that.
-
-So bite the bullet and invoke the relevant cpuset function, which waits for
-the work to finish, in _cpu_up/down() after dropping cpu_hotplug_lock and
-only when tasks are not frozen by suspend/hibernate because that would
-obviously wait forever.
-
-Waiting there with cpu_add_remove_lock, which is protecting the present
-and possible CPU maps, held is not a problem at all because neither work
-queues nor cpusets/cgroups have any lockchains related to that lock.
-
-Waiting in the hotplug machinery is not problematic either because there
-are already state callbacks which wait for hardware queues to drain. It
-makes the operations slightly slower, but hotplug is slow anyway.
-
-This ensures that state is consistent before returning from a hotplug
-up/down operation. It's still inconsistent during the operation, but that's
-a different story.
-
-Add a large comment which explains why this is done and why this is not a
-dump ground for the hack of the day to work around half thought out locking
-schemes. Document also the implications vs. hotplug operations and
-serialization or the lack of it.
-
-Thanks to Alexy and Joshua for analyzing why this temporary
-sched_setaffinity() failure happened.
-
-Fixes: 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
-Reported-by: Alexey Klimov <aklimov@redhat.com>
-Reported-by: Joshua Baker <jobaker@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Alexey Klimov <aklimov@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87tuowcnv3.ffs@nanos.tec.linutronix.de
-
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index e538518556f4..d2e1692d7bdf 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -32,6 +32,7 @@
- #include <linux/relay.h>
- #include <linux/slab.h>
- #include <linux/percpu-rwsem.h>
-+#include <linux/cpuset.h>
- 
- #include <trace/events/power.h>
- #define CREATE_TRACE_POINTS
-@@ -873,6 +874,52 @@ void __init cpuhp_threads_init(void)
- 	kthread_unpark(this_cpu_read(cpuhp_state.thread));
- }
- 
-+/*
-+ *
-+ * Serialize hotplug trainwrecks outside of the cpu_hotplug_lock
-+ * protected region.
-+ *
-+ * The operation is still serialized against concurrent CPU hotplug via
-+ * cpu_add_remove_lock, i.e. CPU map protection.  But it is _not_
-+ * serialized against other hotplug related activity like adding or
-+ * removing of state callbacks and state instances, which invoke either the
-+ * startup or the teardown callback of the affected state.
-+ *
-+ * This is required for subsystems which are unfixable vs. CPU hotplug and
-+ * evade lock inversion problems by scheduling work which has to be
-+ * completed _before_ cpu_up()/_cpu_down() returns.
-+ *
-+ * Don't even think about adding anything to this for any new code or even
-+ * drivers. It's only purpose is to keep existing lock order trainwrecks
-+ * working.
-+ *
-+ * For cpu_down() there might be valid reasons to finish cleanups which are
-+ * not required to be done under cpu_hotplug_lock, but that's a different
-+ * story and would be not invoked via this.
-+ */
-+static void cpu_up_down_serialize_trainwrecks(bool tasks_frozen)
-+{
-+	/*
-+	 * cpusets delegate hotplug operations to a worker to "solve" the
-+	 * lock order problems. Wait for the worker, but only if tasks are
-+	 * _not_ frozen (suspend, hibernate) as that would wait forever.
-+	 *
-+	 * The wait is required because otherwise the hotplug operation
-+	 * returns with inconsistent state, which could even be observed in
-+	 * user space when a new CPU is brought up. The CPU plug uevent
-+	 * would be delivered and user space reacting on it would fail to
-+	 * move tasks to the newly plugged CPU up to the point where the
-+	 * work has finished because up to that point the newly plugged CPU
-+	 * is not assignable in cpusets/cgroups. On unplug that's not
-+	 * necessarily a visible issue, but it is still inconsistent state,
-+	 * which is the real problem which needs to be "fixed". This can't
-+	 * prevent the transient state between scheduling the work and
-+	 * returning from waiting for it.
-+	 */
-+	if (!tasks_frozen)
-+		cpuset_wait_for_hotplug();
-+}
-+
- #ifdef CONFIG_HOTPLUG_CPU
- #ifndef arch_clear_mm_cpumask_cpu
- #define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
-@@ -1108,6 +1155,7 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
- 	 */
- 	lockup_detector_cleanup();
- 	arch_smt_update();
-+	cpu_up_down_serialize_trainwrecks(tasks_frozen);
- 	return ret;
- }
- 
-@@ -1302,6 +1350,7 @@ static int _cpu_up(unsigned int cpu, int tasks_frozen, enum cpuhp_state target)
- out:
- 	cpus_write_unlock();
- 	arch_smt_update();
-+	cpu_up_down_serialize_trainwrecks(tasks_frozen);
- 	return ret;
- }
- 
-
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
