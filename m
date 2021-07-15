@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A21513CA907
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:02:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EFCF3CAA8A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242621AbhGOTFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38832 "EHLO mail.kernel.org"
+        id S243229AbhGOTNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:13:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242677AbhGOTC5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:02:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16D60613EB;
-        Thu, 15 Jul 2021 18:59:07 +0000 (UTC)
+        id S241108AbhGOTMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:12:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4061613D7;
+        Thu, 15 Jul 2021 19:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375548;
-        bh=LEb2Bs3wCYJs84G3awPLv8h4ima8q0QSZGPBFsyY92E=;
+        s=korg; t=1626376136;
+        bh=1h/US809T4PNXkRghgU+cb23Xj2bAUs7vWSKKlNecV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRN+W6yW3IwjGbXS0GJDY8k1G3o2xKDEgnjkBe0K2eURMQgc4rf76ZCQKexHEvy0B
-         D8k8+tF3JBqs8Dl0JbMOdI8VRTEdrvru9tVwACX5ZQoRPK9El55+ILdLkgH1A1SxWG
-         5ucCHIGXXKR1BASM2Bv8Q2aO20mc24IgUcDouulQ=
+        b=byw6F/v8E5/LOc1S7R5tk+4iGpJMWa4HU8K4oLmaxTXPNE7zSVpjhLhbW8LdqbkZZ
+         Bs+qJ2PzNe0P0cP4H/suhdFw/vEqgh9Yvrk0/9QnjPusC0/K9a98xIPGTop0Hn2Guh
+         xjVIzSMn03sP+7npIbbNdE0/MqyG+9Zb7HSFLU2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gerd Rausch <gerd.rausch@oracle.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 134/242] RDMA/cma: Fix rdma_resolve_route() memory leak
-Date:   Thu, 15 Jul 2021 20:38:16 +0200
-Message-Id: <20210715182616.602078122@linuxfoundation.org>
+Subject: [PATCH 5.13 142/266] iwlwifi: pcie: fix context info freeing
+Date:   Thu, 15 Jul 2021 20:38:17 +0200
+Message-Id: <20210715182638.731993878@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerd Rausch <gerd.rausch@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 74f160ead74bfe5f2b38afb4fcf86189f9ff40c9 ]
+[ Upstream commit 26d18c75a7496c4c52b0b6789e713dc76ebfbc87 ]
 
-Fix a memory leak when "mda_resolve_route() is called more than once on
-the same "rdma_cm_id".
+After firmware alive, iwl_trans_pcie_gen2_fw_alive() is called
+to free the context info. However, on gen3 that will then free
+the context info with the wrong size.
 
-This is possible if cma_query_handler() triggers the
-RDMA_CM_EVENT_ROUTE_ERROR flow which puts the state machine back and
-allows rdma_resolve_route() to be called again.
+Since we free this allocation later, let it stick around until
+the device is stopped for now, freeing some of it earlier is a
+separate change.
 
-Link: https://lore.kernel.org/r/f6662b7b-bdb7-2706-1e12-47c61d3474b6@oracle.com
-Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210618105614.afb63fb8cbc1.If4968db8e09f4ce2a1d27a6d750bca3d132d7d70@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 3 ++-
+ drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index bb46f794f324..8d94a6bfcac1 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -2793,7 +2793,8 @@ static int cma_resolve_ib_route(struct rdma_id_private *id_priv,
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
+index 1bcd36e9e008..9ce195d80c51 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/trans-gen2.c
+@@ -254,7 +254,8 @@ void iwl_trans_pcie_gen2_fw_alive(struct iwl_trans *trans, u32 scd_addr)
+ 	/* now that we got alive we can free the fw image & the context info.
+ 	 * paging memory cannot be freed included since FW will still use it
+ 	 */
+-	iwl_pcie_ctxt_info_free(trans);
++	if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210)
++		iwl_pcie_ctxt_info_free(trans);
  
- 	cma_init_resolve_route_work(work, id_priv);
- 
--	route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
-+	if (!route->path_rec)
-+		route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
- 	if (!route->path_rec) {
- 		ret = -ENOMEM;
- 		goto err1;
+ 	/*
+ 	 * Re-enable all the interrupts, including the RF-Kill one, now that
 -- 
 2.30.2
 
