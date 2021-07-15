@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B253CA6E7
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C67E3CA6EF
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239570AbhGOSvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
+        id S239180AbhGOSva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:51:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237917AbhGOSue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA78613E0;
-        Thu, 15 Jul 2021 18:47:40 +0000 (UTC)
+        id S239383AbhGOSuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2427F613EE;
+        Thu, 15 Jul 2021 18:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374861;
-        bh=vC2jNN6lJLLT6eGljA0ccjhw4SGacE5QaRnNIflnTyA=;
+        s=korg; t=1626374863;
+        bh=vndnttYoHsnm8GQI8rEdEV7PDDJB8KqOPwOmFM5vV2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTlN8Kc3Cy7i/S1rT3AN5N20P9tZmQ5x5xNuDbPYhp2kEKJsR2zboJ0pqJfHvtFP5
-         H/63pmqUuV3NCh24Or56fqOkTyItdLUpnaByAWULTpKcaO+YWJg1LTtGUCERX+CZGu
-         TCVZHVcu5jBDVgfHN31jQleUZBqkPZKqY0xEnmdw=
+        b=FfbkVUL7mmKAIMLXDUOJHErfFoTVeZrfzhBHcPjWwwa7/NMHQUQyUaqczkZvEh1AM
+         jXbzlj7Drg6uLGq8f4JwfxtRaN/WPq+9g5CKGG6msCSYGcKQjJCcFPkoCCqYq9AkgW
+         oqpjM433KyIt9u9/ogwKg+Gj8BaduQMXKfhoA9VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 022/215] net/sched: cls_api: increase max_reclassify_loop
-Date:   Thu, 15 Jul 2021 20:36:34 +0200
-Message-Id: <20210715182602.772139924@linuxfoundation.org>
+Subject: [PATCH 5.10 023/215] pinctrl: equilibrium: Add missing MODULE_DEVICE_TABLE
+Date:   Thu, 15 Jul 2021 20:36:35 +0200
+Message-Id: <20210715182602.950055269@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
 References: <20210715182558.381078833@linuxfoundation.org>
@@ -40,37 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 05ff8435e50569a0a6b95e5ceaea43696e8827ab ]
+[ Upstream commit d7f444499d6faf9a6ae3b27ec094109528d2b9a7 ]
 
-modern userspace applications, like OVN, can configure the TC datapath to
-"recirculate" packets several times. If more than 4 "recirculation" rules
-are configured, packets can be dropped by __tcf_classify().
-Changing the maximum number of reclassifications (from 4 to 16) should be
-sufficient to prevent drops in most use cases, and guard against loops at
-the same time.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Link: https://lore.kernel.org/r/20210508031502.53637-1-cuibixuan@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/cls_api.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-equilibrium.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index a281da07bb1d..30090794b791 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1532,7 +1532,7 @@ static inline int __tcf_classify(struct sk_buff *skb,
- 				 u32 *last_executed_chain)
- {
- #ifdef CONFIG_NET_CLS_ACT
--	const int max_reclassify_loop = 4;
-+	const int max_reclassify_loop = 16;
- 	const struct tcf_proto *first_tp;
- 	int limit = 0;
+diff --git a/drivers/pinctrl/pinctrl-equilibrium.c b/drivers/pinctrl/pinctrl-equilibrium.c
+index 067271b7d35a..ac1c47f542c1 100644
+--- a/drivers/pinctrl/pinctrl-equilibrium.c
++++ b/drivers/pinctrl/pinctrl-equilibrium.c
+@@ -929,6 +929,7 @@ static const struct of_device_id eqbr_pinctrl_dt_match[] = {
+ 	{ .compatible = "intel,lgm-io" },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, eqbr_pinctrl_dt_match);
  
+ static struct platform_driver eqbr_pinctrl_driver = {
+ 	.probe	= eqbr_pinctrl_probe,
 -- 
 2.30.2
 
