@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F93D3CA6FD
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD4B3CA8AB
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240041AbhGOSvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:51:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54034 "EHLO mail.kernel.org"
+        id S242844AbhGOTCR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:02:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240066AbhGOSvA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59D34613D6;
-        Thu, 15 Jul 2021 18:48:06 +0000 (UTC)
+        id S242668AbhGOS7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A039601FE;
+        Thu, 15 Jul 2021 18:56:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374886;
-        bh=4wq+6xr6u201ec9VCBKH650shM95NMLWgbAR6Iwvqsg=;
+        s=korg; t=1626375417;
+        bh=6Pe3Em6kE4JJlEwA3HTV1164fS7XY/99EINE0V7ZPww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVlWVgm68kPNGP3LvHrJ0aKZztHVfw4wRWByU3li16dNNwCXOckF0ofmJ9Gs86/m8
-         KX0SU/C+1ptI8s3mnWBseQB4FaYVQgSznPnzSb7UafRGz5BITvWnXsyuOHhgbfZpsu
-         STiq8rxZVL2r2TnkYGzXKJ9T0ZC9Q+zGmR0n4sdY=
+        b=dzgrHjStwqRte7+O+q3ca+6K4oaaYTPm/wr56FP7E7hcZ2KC2rY03W233RQem/qdp
+         WSxuJTtQJzIf+WOUfIrembK/Px0qGwiSi3SF5KJe0Ak0y0AhRje76xM2Ekb63kIbs3
+         5ofqW17DoRjJmPKsaz/aTvilLlt8bGnwgdgYctN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 069/215] net: phy: realtek: add delay to fix RXC generation issue
+Subject: [PATCH 5.12 079/242] drm/amdkfd: use allowed domain for vmbo validation
 Date:   Thu, 15 Jul 2021 20:37:21 +0200
-Message-Id: <20210715182611.595460325@linuxfoundation.org>
+Message-Id: <20210715182606.879659667@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +42,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joakim Zhang <qiangqing.zhang@nxp.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit 6813cc8cfdaf401476e1a007cec8ae338cefa573 ]
+[ Upstream commit bc05716d4fdd065013633602c5960a2bf1511b9c ]
 
-PHY will delay about 11.5ms to generate RXC clock when switching from
-power down to normal operation. Read/write registers would also cause RXC
-become unstable and stop for a while during this process. Realtek engineer
-suggests 15ms or more delay can workaround this issue.
+Fixes handling when page tables are in system memory.
 
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+v3: remove struct amdgpu_vm_parser.
+v2: remove unwanted variable.
+    change amdgpu_amdkfd_validate instead of amdgpu_amdkfd_bo_validate.
+
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/realtek.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ .../gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c  | 21 ++++---------------
+ 1 file changed, 4 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
-index 575580d3ffe0..b4879306bb8a 100644
---- a/drivers/net/phy/realtek.c
-+++ b/drivers/net/phy/realtek.c
-@@ -246,6 +246,19 @@ static int rtl8211f_config_init(struct phy_device *phydev)
- 	return 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+index ac0a432a9bf7..3c3f05d1f4da 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
+@@ -49,12 +49,6 @@ static struct {
+ 	spinlock_t mem_limit_lock;
+ } kfd_mem_limit;
+ 
+-/* Struct used for amdgpu_amdkfd_bo_validate */
+-struct amdgpu_vm_parser {
+-	uint32_t        domain;
+-	bool            wait;
+-};
+-
+ static const char * const domain_bit_to_string[] = {
+ 		"CPU",
+ 		"GTT",
+@@ -337,11 +331,9 @@ validate_fail:
+ 	return ret;
  }
  
-+static int rtl821x_resume(struct phy_device *phydev)
-+{
-+	int ret;
-+
-+	ret = genphy_resume(phydev);
-+	if (ret < 0)
-+		return ret;
-+
-+	msleep(20);
-+
-+	return 0;
-+}
-+
- static int rtl8211e_config_init(struct phy_device *phydev)
+-static int amdgpu_amdkfd_validate(void *param, struct amdgpu_bo *bo)
++static int amdgpu_amdkfd_validate_vm_bo(void *_unused, struct amdgpu_bo *bo)
  {
- 	int ret = 0, oldpage;
-@@ -624,7 +637,7 @@ static struct phy_driver realtek_drvs[] = {
- 		.ack_interrupt	= &rtl8211f_ack_interrupt,
- 		.config_intr	= &rtl8211f_config_intr,
- 		.suspend	= genphy_suspend,
--		.resume		= genphy_resume,
-+		.resume		= rtl821x_resume,
- 		.read_page	= rtl821x_read_page,
- 		.write_page	= rtl821x_write_page,
- 	}, {
+-	struct amdgpu_vm_parser *p = param;
+-
+-	return amdgpu_amdkfd_bo_validate(bo, p->domain, p->wait);
++	return amdgpu_amdkfd_bo_validate(bo, bo->allowed_domains, false);
+ }
+ 
+ /* vm_validate_pt_pd_bos - Validate page table and directory BOs
+@@ -355,20 +347,15 @@ static int vm_validate_pt_pd_bos(struct amdgpu_vm *vm)
+ {
+ 	struct amdgpu_bo *pd = vm->root.base.bo;
+ 	struct amdgpu_device *adev = amdgpu_ttm_adev(pd->tbo.bdev);
+-	struct amdgpu_vm_parser param;
+ 	int ret;
+ 
+-	param.domain = AMDGPU_GEM_DOMAIN_VRAM;
+-	param.wait = false;
+-
+-	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate,
+-					&param);
++	ret = amdgpu_vm_validate_pt_bos(adev, vm, amdgpu_amdkfd_validate_vm_bo, NULL);
+ 	if (ret) {
+ 		pr_err("failed to validate PT BOs\n");
+ 		return ret;
+ 	}
+ 
+-	ret = amdgpu_amdkfd_validate(&param, pd);
++	ret = amdgpu_amdkfd_validate_vm_bo(NULL, pd);
+ 	if (ret) {
+ 		pr_err("failed to validate PD\n");
+ 		return ret;
 -- 
 2.30.2
 
