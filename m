@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C28DF3CA60C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E4243CA79C
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237695AbhGOSp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46810 "EHLO mail.kernel.org"
+        id S241297AbhGOSzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:55:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236971AbhGOSpy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:45:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6C9561396;
-        Thu, 15 Jul 2021 18:42:59 +0000 (UTC)
+        id S240898AbhGOSxh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:53:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49741613E3;
+        Thu, 15 Jul 2021 18:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374580;
-        bh=pzV0TO+GBJ8LSqk5I/LiZ5KgXN2MACgT5QmQXiGibMc=;
+        s=korg; t=1626375043;
+        bh=EfF/j/9tYFALjllAB11e/KdjZIR9rz7LwCtzJFJiq8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQAhOuerGU99iRIcT1uurHtBzRdu3RDedLu9gVhEbSgx6W4JLbrssKiGKIHpN80SB
-         UcrP1ysiSsCYwjIaftEPDnik63n4j/40OnSq9HZ0gg1OKPBqe7ZEgzS+r/Zn5qjJ/i
-         1yna73gHMdOaLNnW2k7pstK5uUDSSD4GnCLXYz8o=
+        b=zc5DZ0ZIHy6t37jyL5UyHm5tfcaoEYzku6B7zesQoiUynLJb47v5EaEJ/ebx9EVH3
+         Z4Ql8O1JIBXD5dRLwajjcqWMNd+q64uGhRMYnwASf3ZyuoVco06lCbkyQno+XAiijT
+         N/6zX3+CgDgA+w9mb2g/sH9qZjWfKRl4KmUzbU70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/122] sfc: avoid double pci_remove of VFs
-Date:   Thu, 15 Jul 2021 20:38:25 +0200
-Message-Id: <20210715182504.678611891@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 134/215] MIPS: MT extensions are not available on MIPS32r1
+Date:   Thu, 15 Jul 2021 20:38:26 +0200
+Message-Id: <20210715182623.255659127@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
-References: <20210715182448.393443551@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,94 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
+commit cad065ed8d8831df67b9754cc4437ed55d8b48c0 upstream.
 
-If pci_remove was called for a PF with VFs, the removal of the VFs was
-called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
-and another implicit by calling pci_disable_sriov, which also perform
-the VFs remove. This was leading to crashing the kernel on the second
-attempt.
+MIPS MT extensions were added with the MIPS 34K processor, which was
+based on the MIPS32r2 ISA.
 
-Given that pci_disable_sriov already calls to pci remove function, get
-rid of the direct call to pci_driver->remove from the driver.
+This fixes a build error when building a generic kernel for a MIPS32r1
+CPU.
 
-2 different ways to trigger the bug:
-- Create one or more VFs, then attach the PF to a virtual machine (at
-  least with qemu/KVM)
-- Create one or more VFs, then remove the PF with:
-  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
+Fixes: c434b9f80b09 ("MIPS: Kconfig: add MIPS_GENERIC_KERNEL symbol")
+Cc: stable@vger.kernel.org # v5.9
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Removing sfc module does not trigger the error, at least for me, because
-it removes the VF first, and then the PF.
-
-Example of a log with the error:
-    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
-    ------------[ cut here ]------------
-    kernel BUG at lib/list_debug.c:47!
-    [...trimmed...]
-    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
-    [...trimmed...]
-    Call Trace:
-    efx_dissociate+0x1f/0x140 [sfc]
-    efx_pci_remove+0x27/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    pci_stop_bus_device+0x69/0x90
-    pci_stop_and_remove_bus_device+0xe/0x20
-    pci_iov_remove_virtfn+0xba/0x120
-    sriov_disable+0x2f/0xe0
-    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
-    ? pcie_aer_is_native+0x12/0x40
-    efx_ef10_sriov_fini+0x72/0x110 [sfc]
-    efx_pci_remove+0x62/0x150 [sfc]
-    pci_device_remove+0x3b/0xc0
-    device_release_driver_internal+0x103/0x1f0
-    unbind_store+0xf6/0x130
-    kernfs_fop_write+0x116/0x190
-    vfs_write+0xa5/0x1a0
-    ksys_write+0x4f/0xb0
-    do_syscall_64+0x5b/0x1a0
-    entry_SYSCALL_64_after_hwframe+0x65/0xca
-
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ arch/mips/include/asm/cpu-features.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
-index 52bd43f45761..695e3508b4d8 100644
---- a/drivers/net/ethernet/sfc/ef10_sriov.c
-+++ b/drivers/net/ethernet/sfc/ef10_sriov.c
-@@ -440,7 +440,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
- void efx_ef10_sriov_fini(struct efx_nic *efx)
- {
- 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
--	unsigned int i;
- 	int rc;
+--- a/arch/mips/include/asm/cpu-features.h
++++ b/arch/mips/include/asm/cpu-features.h
+@@ -64,6 +64,8 @@
+ 	((MIPS_ISA_REV >= (ge)) && (MIPS_ISA_REV < (lt)))
+ #define __isa_range_or_flag(ge, lt, flag) \
+ 	(__isa_range(ge, lt) || ((MIPS_ISA_REV < (lt)) && __isa(flag)))
++#define __isa_range_and_ase(ge, lt, ase) \
++	(__isa_range(ge, lt) && __ase(ase))
  
- 	if (!nic_data->vf) {
-@@ -450,14 +449,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
- 		return;
- 	}
+ /*
+  * SMP assumption: Options of CPU 0 are a superset of all processors.
+@@ -423,7 +425,7 @@
+ #endif
  
--	/* Remove any VFs in the host */
--	for (i = 0; i < efx->vf_count; ++i) {
--		struct efx_nic *vf_efx = nic_data->vf[i].efx;
--
--		if (vf_efx)
--			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
--	}
--
-+	/* Disable SRIOV and remove any VFs in the host */
- 	rc = efx_ef10_pci_sriov_disable(efx, true);
- 	if (rc)
- 		netif_dbg(efx, drv, efx->net_dev,
--- 
-2.30.2
-
+ #ifndef cpu_has_mipsmt
+-#define cpu_has_mipsmt		__isa_lt_and_ase(6, MIPS_ASE_MIPSMT)
++#define cpu_has_mipsmt		__isa_range_and_ase(2, 6, MIPS_ASE_MIPSMT)
+ #endif
+ 
+ #ifndef cpu_has_vp
 
 
