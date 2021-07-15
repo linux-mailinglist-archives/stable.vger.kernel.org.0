@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D777C3CA7BC
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 280123CA66E
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240494AbhGOS4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59776 "EHLO mail.kernel.org"
+        id S231193AbhGOSrw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:47:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238253AbhGOSzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:55:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CE3A613CA;
-        Thu, 15 Jul 2021 18:52:28 +0000 (UTC)
+        id S237256AbhGOSrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:47:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F3FD601FF;
+        Thu, 15 Jul 2021 18:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375148;
-        bh=m/i/HMsx2BkqaC2YrJ2TGwZdRfxs3GJ877IyQhux/hQ=;
+        s=korg; t=1626374686;
+        bh=heIKjzrVWDCz5r4LnpqUSfigJCY+N0dJARnlDFNZtsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UV0en/nWTx0RuDZu1yGPOoU1Mdc+KPTgi8jORoapj4ZfFGPycQe5LjoOVhfzrOhcI
-         0zk3gjKr/gVNqvRDmEalSWQj0jubP3F5qW1S4DHjUqjcn+NXya3B2ul5/4HAK5mdr0
-         cubOhNUAwZBIIFPGajRY373bowJatxHo+beftdKQ=
+        b=nQ3AMKIuixo1LzfoB9prz4756bUOJP/0G5gFZfg46HyPhW3c8dyHEqV1sRgXGk+t6
+         LdD/BYggv2ObH2BfksFKA3UfvgoFMnAr0mDXjbvZJv9y8EDoYY5bHf+5cKYguNlmqc
+         N9AX5yn7WAkFPy/tgJGGqMorDMnb8/eElDqF+bCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varad Gautam <varad.gautam@suse.com>,
-        linux-rt-users <linux-rt-users@vger.kernel.org>,
-        netdev@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Florian Westphal <fw@strlen.de>,
-        "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Subject: [PATCH 5.10 179/215] xfrm: policy: Read seqcount outside of rcu-read side in xfrm_policy_lookup_bytype
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 104/122] rq-qos: fix missed wake-ups in rq_qos_throttle try two
 Date:   Thu, 15 Jul 2021 20:39:11 +0200
-Message-Id: <20210715182631.028264823@linuxfoundation.org>
+Message-Id: <20210715182519.612194347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,103 +39,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varad Gautam <varad.gautam@suse.com>
+From: Jan Kara <jack@suse.cz>
 
-commit d7b0408934c749f546b01f2b33d07421a49b6f3e upstream.
+commit 11c7aa0ddea8611007768d3e6b58d45dc60a19e1 upstream.
 
-xfrm_policy_lookup_bytype loops on seqcount mutex xfrm_policy_hash_generation
-within an RCU read side critical section. Although ill advised, this is fine if
-the loop is bounded.
+Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
+tried to fix a problem that a process could be sleeping in rq_qos_wait()
+without anyone to wake it up. However the fix is not complete and the
+following can still happen:
 
-xfrm_policy_hash_generation wraps mutex hash_resize_mutex, which is used to
-serialize writers (xfrm_hash_resize, xfrm_hash_rebuild). This is fine too.
+CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
+rq_qos_wait()		rq_qos_wait()
+  acquire_inflight_cb() -> fails
+			  acquire_inflight_cb() -> fails
 
-On PREEMPT_RT=y, the read_seqcount_begin call within xfrm_policy_lookup_bytype
-emits a mutex lock/unlock for hash_resize_mutex. Mutex locking is fine, since
-RCU read side critical sections are allowed to sleep with PREEMPT_RT.
+						completes IOs, inflight
+						  decreased
+  prepare_to_wait_exclusive()
+			  prepare_to_wait_exclusive()
+  has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
+			  has_sleeper = !wq_has_single_sleeper() -> true
+  io_schedule()		  io_schedule()
 
-xfrm_hash_resize can, however, block on synchronize_rcu while holding
-hash_resize_mutex.
+Deadlock as now there's nobody to wakeup the two waiters. The logic
+automatically blocking when there are already sleepers is really subtle
+and the only way to make it work reliably is that we check whether there
+are some waiters in the queue when adding ourselves there. That way, we
+are guaranteed that at least the first process to enter the wait queue
+will recheck the waiting condition before going to sleep and thus
+guarantee forward progress.
 
-This leads to the following situation on PREEMPT_RT, where the writer is
-blocked on RCU grace period expiry, while the reader is blocked on a lock held
-by the writer:
-
-Thead 1 (xfrm_hash_resize)	Thread 2 (xfrm_policy_lookup_bytype)
-
-				rcu_read_lock();
-mutex_lock(&hash_resize_mutex);
-				read_seqcount_begin(&xfrm_policy_hash_generation);
-				mutex_lock(&hash_resize_mutex); // block
-xfrm_bydst_resize();
-synchronize_rcu(); // block
-		<RCU stalls in xfrm_policy_lookup_bytype>
-
-Move the read_seqcount_begin call outside of the RCU read side critical section,
-and do an rcu_read_unlock/retry if we got stale data within the critical section.
-
-On non-PREEMPT_RT, this shortens the time spent within RCU read side critical
-section in case the seqcount needs a retry, and avoids unbounded looping.
-
-Fixes: 77cc278f7b20 ("xfrm: policy: Use sequence counters with associated lock")
-Signed-off-by: Varad Gautam <varad.gautam@suse.com>
-Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.9
-Cc: Steffen Klassert <steffen.klassert@secunet.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Florian Westphal <fw@strlen.de>
-Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Acked-by: Ahmed S. Darwish <a.darwish@linutronix.de>
+Fixes: 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210607112613.25344-1-jack@suse.cz
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/xfrm/xfrm_policy.c |   21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ block/blk-rq-qos.c   |    4 ++--
+ include/linux/wait.h |    2 +-
+ kernel/sched/wait.c  |    9 +++++++--
+ 3 files changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -2092,12 +2092,15 @@ static struct xfrm_policy *xfrm_policy_l
- 	if (unlikely(!daddr || !saddr))
- 		return NULL;
+--- a/block/blk-rq-qos.c
++++ b/block/blk-rq-qos.c
+@@ -266,8 +266,8 @@ void rq_qos_wait(struct rq_wait *rqw, vo
+ 	if (!has_sleeper && acquire_inflight_cb(rqw, private_data))
+ 		return;
  
--	rcu_read_lock();
-  retry:
--	do {
--		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
--		chain = policy_hash_direct(net, daddr, saddr, family, dir);
--	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
-+	sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
-+	rcu_read_lock();
-+
-+	chain = policy_hash_direct(net, daddr, saddr, family, dir);
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
-+		goto retry;
+-	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
+-	has_sleeper = !wq_has_single_sleeper(&rqw->wait);
++	has_sleeper = !prepare_to_wait_exclusive(&rqw->wait, &data.wq,
++						 TASK_UNINTERRUPTIBLE);
+ 	do {
+ 		/* The memory barrier in set_task_state saves us here. */
+ 		if (data.got_token)
+--- a/include/linux/wait.h
++++ b/include/linux/wait.h
+@@ -1121,7 +1121,7 @@ do {										\
+  * Waitqueues which are removed from the waitqueue_head at wakeup time
+  */
+ void prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+-void prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
++bool prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+ long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
+ void finish_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry);
+ long wait_woken(struct wait_queue_entry *wq_entry, unsigned mode, long timeout);
+--- a/kernel/sched/wait.c
++++ b/kernel/sched/wait.c
+@@ -232,17 +232,22 @@ prepare_to_wait(struct wait_queue_head *
+ }
+ EXPORT_SYMBOL(prepare_to_wait);
+ 
+-void
++/* Returns true if we are the first waiter in the queue, false otherwise. */
++bool
+ prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
+ {
+ 	unsigned long flags;
++	bool was_empty = false;
+ 
+ 	wq_entry->flags |= WQ_FLAG_EXCLUSIVE;
+ 	spin_lock_irqsave(&wq_head->lock, flags);
+-	if (list_empty(&wq_entry->entry))
++	if (list_empty(&wq_entry->entry)) {
++		was_empty = list_empty(&wq_head->head);
+ 		__add_wait_queue_entry_tail(wq_head, wq_entry);
 +	}
- 
- 	ret = NULL;
- 	hlist_for_each_entry_rcu(pol, chain, bydst) {
-@@ -2128,11 +2131,15 @@ static struct xfrm_policy *xfrm_policy_l
- 	}
- 
- skip_inexact:
--	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
-+	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
-+		rcu_read_unlock();
- 		goto retry;
-+	}
- 
--	if (ret && !xfrm_pol_hold_rcu(ret))
-+	if (ret && !xfrm_pol_hold_rcu(ret)) {
-+		rcu_read_unlock();
- 		goto retry;
-+	}
- fail:
- 	rcu_read_unlock();
+ 	set_current_state(state);
+ 	spin_unlock_irqrestore(&wq_head->lock, flags);
++	return was_empty;
+ }
+ EXPORT_SYMBOL(prepare_to_wait_exclusive);
  
 
 
