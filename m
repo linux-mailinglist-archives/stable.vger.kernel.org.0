@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1AD3CAAD9
+	by mail.lfdr.de (Postfix) with ESMTP id 7D86C3CAAD8
 	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244176AbhGOTPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:15:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S244198AbhGOTPq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:15:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244290AbhGOTOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244292AbhGOTOl (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:14:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BE8B613F6;
-        Thu, 15 Jul 2021 19:10:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C49EC613E7;
+        Thu, 15 Jul 2021 19:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376211;
-        bh=gHjxUE6q5q2kLdGweCLT5/Xb1aBBzr5wP0DdDKZxUEg=;
+        s=korg; t=1626376213;
+        bh=6JATwP12G/64FbgrNsJhSq7lJ8aC9o29Lv6SkZrlzBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fWlgV4Vb8CyvMWkm+fW2EMRzOw+cBDJGlXojZHMzzk+ycsMBM/ryxuWZgiRZiEVKL
-         6tWnyBL1gjmA6SaUAilEaJBCyj/TR1lHPG7k8U4RLSzBLO0+ptYObGVxyWv6XUFUSk
-         ifLp+BkTrEjJ6+Yg2CcbP7xOVl0RirRH7NZkhaUY=
+        b=NRNml4EfeuuMepcf8Ddg+iSQfsisogeavWlogEFjsnsBHRnvMXm4I9YVN7gmyUK/1
+         +MFMN+b5FbQacwZ07wx9rA07XG3h8w4MHnwl3d1dwESW696WB67dA9sE4u3j078QVg
+         ELGhDwldinnton07iBt4if6qr1HFtliKP5l05ae8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Nikolaus Schaller <hns@goldelico.com>,
+        =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0=20 ?= 
+        <zhouyanjie@wanyeetech.com>, Paul Cercueil <paul@crapouillou.net>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 175/266] MIPS: set mips32r5 for virt extensions
-Date:   Thu, 15 Jul 2021 20:38:50 +0200
-Message-Id: <20210715182642.918387199@linuxfoundation.org>
+Subject: [PATCH 5.13 176/266] MIPS: CI20: Reduce clocksource to 750 kHz.
+Date:   Thu, 15 Jul 2021 20:38:51 +0200
+Message-Id: <20210715182643.011387382@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -41,63 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
 
-[ Upstream commit c994a3ec7ecc8bd2a837b2061e8a76eb8efc082b ]
+[ Upstream commit 23c64447b3538a6f34cb38aae3bc19dc1ec53436 ]
 
-Clang's integrated assembler only accepts these instructions when the
-cpu is set to mips32r5. With this change, we can assemble
-malta_defconfig with Clang via `make LLVM_IAS=1`.
+The original clock (3 MHz) is too fast for the clocksource,
+there will be a chance that the system may get stuck.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/763
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reported-by: Nikolaus Schaller <hns@goldelico.com>
+Tested-by: Nikolaus Schaller <hns@goldelico.com> # on CI20
+Signed-off-by: 周琰杰 (Zhou Yanjie) <zhouyanjie@wanyeetech.com>
+Acked-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mipsregs.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/boot/dts/ingenic/ci20.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
-index 9c8099a6ffed..acdf8c69220b 100644
---- a/arch/mips/include/asm/mipsregs.h
-+++ b/arch/mips/include/asm/mipsregs.h
-@@ -2077,7 +2077,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- ({ int __res;								\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips32r2\n\t"					\
-+		".set\tmips32r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"mfgc0\t%0, " #source ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -2090,7 +2090,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- ({ unsigned long long __res;						\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips64r2\n\t"					\
-+		".set\tmips64r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"dmfgc0\t%0, " #source ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -2103,7 +2103,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- do {									\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips32r2\n\t"					\
-+		".set\tmips32r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"mtgc0\t%z0, " #register ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -2115,7 +2115,7 @@ do {									\
- do {									\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips64r2\n\t"					\
-+		".set\tmips64r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"dmtgc0\t%z0, " #register ", %1\n\t"			\
- 		".set\tpop"						\
+diff --git a/arch/mips/boot/dts/ingenic/ci20.dts b/arch/mips/boot/dts/ingenic/ci20.dts
+index 8877c62609de..3a4eaf1f3f48 100644
+--- a/arch/mips/boot/dts/ingenic/ci20.dts
++++ b/arch/mips/boot/dts/ingenic/ci20.dts
+@@ -525,10 +525,10 @@
+ 
+ &tcu {
+ 	/*
+-	 * 750 kHz for the system timer and 3 MHz for the clocksource,
++	 * 750 kHz for the system timer and clocksource,
+ 	 * use channel #0 for the system timer, #1 for the clocksource.
+ 	 */
+ 	assigned-clocks = <&tcu TCU_CLK_TIMER0>, <&tcu TCU_CLK_TIMER1>,
+ 					  <&tcu TCU_CLK_OST>;
+-	assigned-clock-rates = <750000>, <3000000>, <3000000>;
++	assigned-clock-rates = <750000>, <750000>, <3000000>;
+ };
 -- 
 2.30.2
 
