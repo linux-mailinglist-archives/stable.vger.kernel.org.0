@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 279C73C9D05
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F0C3C9D07
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 12:42:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241569AbhGOKpU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 06:45:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        id S241580AbhGOKpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 06:45:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240920AbhGOKpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 06:45:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49D23613C0;
-        Thu, 15 Jul 2021 10:42:25 +0000 (UTC)
+        id S241577AbhGOKpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 06:45:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 991E361360;
+        Thu, 15 Jul 2021 10:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626345747;
-        bh=YclN/odYoP04lN50BJ4ZxjBFT2n0ds/xP7p7UpTSEh8=;
+        s=k20201202; t=1626345749;
+        bh=6SvJdTyDLxPXM39RN4GTu1nso3QzjXVBQKML1UEPpm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMoWj/RvhBTk6BUxeqajsC6nr1Jp0AzGp4wRZMbdYPofrDPhnr6miJjgxcWVEHAMp
-         C1Zcm5FYR+Mo4qF5Tc6d2+m/tgAhfnkpPEZFUmfvRG9aUNfq2bikOQqvPcZ7IzPVIS
-         2JCfdcXnby68hFwBTcws+QClYffivtgdsSEwcfzXnQa70uleI+LSKmnkKOUePzZZbS
-         UeivXfAzlj7YCzjJkba1EPdlMp3U73x0t45msRsYO7I5S91SmwFVQ8xX8izegYbHD6
-         9jQElbpiiRUQY5Ci0M/Iuh+NMCgBcpOhQxVPKOzEnaJEjtM9m47eo/Y40Fj6/NTjzi
-         Wqr10plvY0ITQ==
+        b=MM/spXA5pvWtxFAcuJsv7mMtvPtMZ6yPW7U2qULoxWPdU1CocKxzPIkTisKCUbmjR
+         sXkTDYUBLSF4yr0Qjjo8JD2pv80aVOA32QHu/znPEFYrzonbZQCTu+YlF6j3g1/eGd
+         GKavOu8bV+YAxk5qKR5qOaBYQ+PdXUCptH04UZZWomaHRvFxocOTy90Lagi+EBWzjw
+         Pb3hsbfzYKawK6F9dbDpVaYMN8wIAnBhRG8gRA5D5ZK1eSNHKeczbRJfx6aLsnQlBA
+         LvL84GGQWj+uZ3zJphInzWsuRTilL8Zm4Ep1tb5EM9pwGQtVg+4uQR1WTreJU6erqM
+         FgRGVwzJTZxlA==
 From:   Frederic Weisbecker <frederic@kernel.org>
 To:     Thomas Gleixner <tglx@linutronix.de>,
         Ingo Molnar <mingo@kernel.org>
 Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
+        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
-        Oleg Nesterov <oleg@redhat.com>, stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>
-Subject: [PATCH 1/2] posix-cpu-timers: Fix rearm racing against process tick
-Date:   Thu, 15 Jul 2021 12:42:17 +0200
-Message-Id: <20210715104218.81276-2-frederic@kernel.org>
+        Oleg Nesterov <oleg@redhat.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/2] timers: Fix get_next_timer_interrupt() with no timers pending
+Date:   Thu, 15 Jul 2021 12:42:18 +0200
+Message-Id: <20210715104218.81276-3-frederic@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210715104218.81276-1-frederic@kernel.org>
 References: <20210715104218.81276-1-frederic@kernel.org>
@@ -44,71 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the process wide cputime counter is started locklessly from
-posix_cpu_timer_rearm(), it can be concurrently stopped by operations
-on other timers from the same thread group, such as in the following
-unlucky scenario:
+From: Nicolas Saenz Julienne <nsaenzju@redhat.com>
 
-         CPU 0                                CPU 1
-         -----                                -----
-                                           timer_settime(TIMER B)
-   posix_cpu_timer_rearm(TIMER A)
-       cpu_clock_sample_group()
-           (pct->timers_active already true)
+31cd0e119d50 ("timers: Recalculate next timer interrupt only when
+necessary") subtly altered get_next_timer_interrupt()'s behaviour. The
+function no longer consistently returns KTIME_MAX with no timers
+pending.
 
-                                           handle_posix_cpu_timers()
-                                               check_process_timers()
-                                                   stop_process_timers()
-                                                       pct->timers_active = false
-       arm_timer(TIMER A)
+In order to decide if there are any timers pending we check whether the
+next expiry will happen NEXT_TIMER_MAX_DELTA jiffies from now.
+Unfortunately, the next expiry time and the timer base clock are no
+longer updated in unison. The former changes upon certain timer
+operations (enqueue, expire, detach), whereas the latter keeps track of
+jiffies as they move forward. Ultimately breaking the logic above.
 
-   tick -> run_posix_cpu_timers()
-       // sees !pct->timers_active, ignore
-       // our TIMER A
+A simplified example:
 
-Fix this with simply locking process wide cputime counting start and
-timer arm in the same block.
+- Upon entering get_next_timer_interrupt() with:
 
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+	jiffies = 1
+	base->clk = 0;
+	base->next_expiry = NEXT_TIMER_MAX_DELTA;
+
+  'base->next_expiry == base->clk + NEXT_TIMER_MAX_DELTA', the function
+  returns KTIME_MAX.
+
+- 'base->clk' is updated to the jiffies value.
+
+- The next time we enter get_next_timer_interrupt(), taking into account
+  no timer operations happened:
+
+	base->clk = 1;
+	base->next_expiry = NEXT_TIMER_MAX_DELTA;
+
+  'base->next_expiry != base->clk + NEXT_TIMER_MAX_DELTA', the function
+  returns a valid expire time, which is incorrect.
+
+This ultimately might unnecessarily rearm sched's timer on nohz_full
+setups, and add latency to the system[1].
+
+So, introduce 'base->timers_pending'[2], update it every time
+'base->next_expiry' changes, and use it in get_next_timer_interrupt().
+
+[1] See tick_nohz_stop_tick().
+[2] A quick pahole check on x86_64 and arm64 shows it doesn't make
+    'struct timer_base' any bigger.
+
+Fixes: 31cd0e119d50 ("timers: Recalculate next timer interrupt only when necessary")
+Signed-off-by: Nicolas Saenz Julienne <nsaenzju@redhat.com>
 Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Fixes: 60f2ceaa8111 ("posix-cpu-timers: Remove unnecessary locking around cpu_clock_sample_group")
-Cc: stable@vger.kernel.org
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
 ---
- kernel/time/posix-cpu-timers.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ kernel/time/timer.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 29a5e54e6e10..517be7fd175e 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -991,6 +991,11 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
- 	if (!p)
- 		goto out;
+diff --git a/kernel/time/timer.c b/kernel/time/timer.c
+index 3fadb58fc9d7..9eb11c2209e5 100644
+--- a/kernel/time/timer.c
++++ b/kernel/time/timer.c
+@@ -207,6 +207,7 @@ struct timer_base {
+ 	unsigned int		cpu;
+ 	bool			next_expiry_recalc;
+ 	bool			is_idle;
++	bool			timers_pending;
+ 	DECLARE_BITMAP(pending_map, WHEEL_SIZE);
+ 	struct hlist_head	vectors[WHEEL_SIZE];
+ } ____cacheline_aligned;
+@@ -595,6 +596,7 @@ static void enqueue_timer(struct timer_base *base, struct timer_list *timer,
+ 		 * can reevaluate the wheel:
+ 		 */
+ 		base->next_expiry = bucket_expiry;
++		base->timers_pending = true;
+ 		base->next_expiry_recalc = false;
+ 		trigger_dyntick_cpu(base, timer);
+ 	}
+@@ -1582,6 +1584,7 @@ static unsigned long __next_timer_interrupt(struct timer_base *base)
+ 	}
  
-+	/* Protect timer list r/w in arm_timer() */
-+	sighand = lock_task_sighand(p, &flags);
-+	if (unlikely(sighand == NULL))
-+		goto out;
-+
+ 	base->next_expiry_recalc = false;
++	base->timers_pending = !(next == base->clk + NEXT_TIMER_MAX_DELTA);
+ 
+ 	return next;
+ }
+@@ -1633,7 +1636,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 	struct timer_base *base = this_cpu_ptr(&timer_bases[BASE_STD]);
+ 	u64 expires = KTIME_MAX;
+ 	unsigned long nextevt;
+-	bool is_max_delta;
+ 
  	/*
- 	 * Fetch the current sample and update the timer's expiry time.
- 	 */
-@@ -1001,11 +1006,6 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
+ 	 * Pretend that there is no timer pending if the cpu is offline.
+@@ -1646,7 +1648,6 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 	if (base->next_expiry_recalc)
+ 		base->next_expiry = __next_timer_interrupt(base);
+ 	nextevt = base->next_expiry;
+-	is_max_delta = (nextevt == base->clk + NEXT_TIMER_MAX_DELTA);
  
- 	bump_cpu_timer(timer, now);
- 
--	/* Protect timer list r/w in arm_timer() */
--	sighand = lock_task_sighand(p, &flags);
--	if (unlikely(sighand == NULL))
--		goto out;
--
  	/*
- 	 * Now re-arm for the new expiry time.
- 	 */
+ 	 * We have a fresh next event. Check whether we can forward the
+@@ -1664,7 +1665,7 @@ u64 get_next_timer_interrupt(unsigned long basej, u64 basem)
+ 		expires = basem;
+ 		base->is_idle = false;
+ 	} else {
+-		if (!is_max_delta)
++		if (base->timers_pending)
+ 			expires = basem + (u64)(nextevt - basej) * TICK_NSEC;
+ 		/*
+ 		 * If we expect to sleep more than a tick, mark the base idle.
+@@ -1947,6 +1948,7 @@ int timers_prepare_cpu(unsigned int cpu)
+ 		base = per_cpu_ptr(&timer_bases[b], cpu);
+ 		base->clk = jiffies;
+ 		base->next_expiry = base->clk + NEXT_TIMER_MAX_DELTA;
++		base->timers_pending = false;
+ 		base->is_idle = false;
+ 	}
+ 	return 0;
 -- 
 2.25.1
 
