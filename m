@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 149853CA82B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:56:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B253CA6E7
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240317AbhGOS64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34230 "EHLO mail.kernel.org"
+        id S239570AbhGOSvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241276AbhGOS6E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:58:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B045F613E7;
-        Thu, 15 Jul 2021 18:55:05 +0000 (UTC)
+        id S237917AbhGOSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:50:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAA78613E0;
+        Thu, 15 Jul 2021 18:47:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375306;
-        bh=skqswtmKqrqAPY5m7IrXU75ApWqmW8CDHzvsnzp79pw=;
+        s=korg; t=1626374861;
+        bh=vC2jNN6lJLLT6eGljA0ccjhw4SGacE5QaRnNIflnTyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7aUbGJTp9WTJCovgTMNQuFjTyE5HzAThT+3q5VYydNATX+X5SJSitkXzMsRjuAI6
-         tbusOd3Ryf3GYeARiFp0keTkEtbHUAyJTgKkvWMc/NhfWelTpURp2dCW1DFwMD/gxt
-         tSDKNTIqY4y5vjG2bSDmgX8RuQnugJ4DFDqlmGIE=
+        b=CTlN8Kc3Cy7i/S1rT3AN5N20P9tZmQ5x5xNuDbPYhp2kEKJsR2zboJ0pqJfHvtFP5
+         H/63pmqUuV3NCh24Or56fqOkTyItdLUpnaByAWULTpKcaO+YWJg1LTtGUCERX+CZGu
+         TCVZHVcu5jBDVgfHN31jQleUZBqkPZKqY0xEnmdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Dave Switzer <david.switzer@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 032/242] igb: handle vlan types with checker enabled
+Subject: [PATCH 5.10 022/215] net/sched: cls_api: increase max_reclassify_loop
 Date:   Thu, 15 Jul 2021 20:36:34 +0200
-Message-Id: <20210715182557.595976094@linuxfoundation.org>
+Message-Id: <20210715182602.772139924@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,73 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit c7cbfb028b95360403d579c47aaaeef1ff140964 ]
+[ Upstream commit 05ff8435e50569a0a6b95e5ceaea43696e8827ab ]
 
-The sparse build (C=2) finds some issues with how the driver
-dealt with the (very difficult) hardware that in some generations
-uses little-endian, and in others uses big endian, for the VLAN
-field. The code as written picks __le16 as a type and for some
-hardware revisions we override it to __be16 as done in this
-patch. This impacted the VF driver as well so fix it there too.
+modern userspace applications, like OVN, can configure the TC datapath to
+"recirculate" packets several times. If more than 4 "recirculation" rules
+are configured, packets can be dropped by __tcf_classify().
+Changing the maximum number of reclassifications (from 4 to 16) should be
+sufficient to prevent drops in most use cases, and guard against loops at
+the same time.
 
-Also change the vlan_tci assignment to override the sparse
-warning without changing functionality.
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Dave Switzer <david.switzer@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 5 +++--
- drivers/net/ethernet/intel/igbvf/netdev.c | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ net/sched/cls_api.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index caa8929289ae..894b9b87dba1 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -2643,7 +2643,8 @@ static int igb_parse_cls_flower(struct igb_adapter *adapter,
- 			}
- 
- 			input->filter.match_flags |= IGB_FILTER_FLAG_VLAN_TCI;
--			input->filter.vlan_tci = match.key->vlan_priority;
-+			input->filter.vlan_tci =
-+				(__force __be16)match.key->vlan_priority;
- 		}
- 	}
- 
-@@ -8593,7 +8594,7 @@ static void igb_process_skb_fields(struct igb_ring *rx_ring,
- 
- 		if (igb_test_staterr(rx_desc, E1000_RXDEXT_STATERR_LB) &&
- 		    test_bit(IGB_RING_FLAG_RX_LB_VLAN_BSWAP, &rx_ring->flags))
--			vid = be16_to_cpu(rx_desc->wb.upper.vlan);
-+			vid = be16_to_cpu((__force __be16)rx_desc->wb.upper.vlan);
- 		else
- 			vid = le16_to_cpu(rx_desc->wb.upper.vlan);
- 
-diff --git a/drivers/net/ethernet/intel/igbvf/netdev.c b/drivers/net/ethernet/intel/igbvf/netdev.c
-index fb3fbcb13331..630c1155f196 100644
---- a/drivers/net/ethernet/intel/igbvf/netdev.c
-+++ b/drivers/net/ethernet/intel/igbvf/netdev.c
-@@ -83,14 +83,14 @@ static int igbvf_desc_unused(struct igbvf_ring *ring)
- static void igbvf_receive_skb(struct igbvf_adapter *adapter,
- 			      struct net_device *netdev,
- 			      struct sk_buff *skb,
--			      u32 status, u16 vlan)
-+			      u32 status, __le16 vlan)
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index a281da07bb1d..30090794b791 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -1532,7 +1532,7 @@ static inline int __tcf_classify(struct sk_buff *skb,
+ 				 u32 *last_executed_chain)
  {
- 	u16 vid;
+ #ifdef CONFIG_NET_CLS_ACT
+-	const int max_reclassify_loop = 4;
++	const int max_reclassify_loop = 16;
+ 	const struct tcf_proto *first_tp;
+ 	int limit = 0;
  
- 	if (status & E1000_RXD_STAT_VP) {
- 		if ((adapter->flags & IGBVF_FLAG_RX_LB_VLAN_BSWAP) &&
- 		    (status & E1000_RXDEXT_STATERR_LB))
--			vid = be16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
-+			vid = be16_to_cpu((__force __be16)vlan) & E1000_RXD_SPC_VLAN_MASK;
- 		else
- 			vid = le16_to_cpu(vlan) & E1000_RXD_SPC_VLAN_MASK;
- 		if (test_bit(vid, adapter->active_vlans))
 -- 
 2.30.2
 
