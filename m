@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF8643CA98B
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE7D3CAB3D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242312AbhGOTHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45622 "EHLO mail.kernel.org"
+        id S244208AbhGOTSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:18:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241811AbhGOTGU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:06:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AFE9613E6;
-        Thu, 15 Jul 2021 19:02:32 +0000 (UTC)
+        id S243965AbhGOTQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:16:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09C47613D0;
+        Thu, 15 Jul 2021 19:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375752;
-        bh=wJW9/bWdgGLuAi77N/GftS9RWl0VFrkxM6LNFtYqLTQ=;
+        s=korg; t=1626376339;
+        bh=sxeWXK9/YKizUNdUotgqt9AIZTxWnYMASNYAdk3TRhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S15XtuDi72S2L1UVQ40LrC0hd34b1a9Z4hTqAdjVIpvYejcKkG4kLCvA6z8G9Ubud
-         MF3skfDAWFAdukdoXr3VwtPA/G/OsgJLZDwnyDRK1ZjgzZYSSS9CecBqOdONSAJ1Vd
-         ZlOgdVEqBJ8xPD83hhrusZk1gygLq4ThoJsX34MI=
+        b=n87vHVpCTzyZHJ6FMfSnNLvLKxMWU6XuYKXFalc5hFJpRSi0ENaleLjEPBhkRyjgx
+         1tEV7FJB2iQyUsZoFaWq18Dc8EIVYxTgi6ifUl2zX6cAysZEGqTggNnyaolpnp6JRi
+         BrkJ6obD0pHCv9y2fWU77VPbFR2kF3fVE/WphaqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.12 222/242] media: i2c: ccs-core: fix pm_runtime_get_sync() usage count
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.13 229/266] selftests/lkdtm: Fix expected text for CR4 pinning
 Date:   Thu, 15 Jul 2021 20:39:44 +0200
-Message-Id: <20210715182632.093534439@linuxfoundation.org>
+Message-Id: <20210715182649.623039848@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,79 +38,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit da3a1858c3a37c09446e1470c48352897d59d11b upstream.
+commit c2eb472bbe25b3f360990f23b293b3fbadfa4bc0 upstream.
 
-The pm_runtime_get_sync() internally increments the
-dev->power.usage_count without decrementing it, even on errors.
+The error text for CR4 pinning changed. Update the test to match.
 
-There is a bug at ccs_pm_get_init(): when this function returns
-an error, the stream is not started, and RPM usage_count
-should not be incremented. However, if the calls to
-v4l2_ctrl_handler_setup() return errors, it will be kept
-incremented.
-
-At ccs_suspend() the best is to replace it by the new
-pm_runtime_resume_and_get(), introduced by:
-commit dd8088d5a896 ("PM: runtime: Add pm_runtime_resume_and_get to deal with usage counter")
-in order to properly decrement the usage counter automatically,
-in the case of errors.
-
-Fixes: 96e3a6b92f23 ("media: smiapp: Avoid maintaining power state information")
+Fixes: a13b9d0b9721 ("x86/cpu: Use pinning mask for CR4 bits needing to be 0")
 Cc: stable@vger.kernel.org
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210623203936.3151093-3-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/i2c/ccs/ccs-core.c |   32 ++++++++++++++++++++++----------
- 1 file changed, 22 insertions(+), 10 deletions(-)
+ tools/testing/selftests/lkdtm/tests.txt |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ccs/ccs-core.c
-+++ b/drivers/media/i2c/ccs/ccs-core.c
-@@ -1880,21 +1880,33 @@ static int ccs_pm_get_init(struct ccs_se
- 	struct i2c_client *client = v4l2_get_subdevdata(&sensor->src->sd);
- 	int rval;
- 
-+	/*
-+	 * It can't use pm_runtime_resume_and_get() here, as the driver
-+	 * relies at the returned value to detect if the device was already
-+	 * active or not.
-+	 */
- 	rval = pm_runtime_get_sync(&client->dev);
--	if (rval < 0) {
--		pm_runtime_put_noidle(&client->dev);
-+	if (rval < 0)
-+		goto error;
- 
--		return rval;
--	} else if (!rval) {
--		rval = v4l2_ctrl_handler_setup(&sensor->pixel_array->
--					       ctrl_handler);
--		if (rval)
--			return rval;
-+	/* Device was already active, so don't set controls */
-+	if (rval == 1)
-+		return 0;
- 
--		return v4l2_ctrl_handler_setup(&sensor->src->ctrl_handler);
--	}
-+	/* Restore V4L2 controls to the previously suspended device */
-+	rval = v4l2_ctrl_handler_setup(&sensor->pixel_array->ctrl_handler);
-+	if (rval)
-+		goto error;
- 
-+	rval = v4l2_ctrl_handler_setup(&sensor->src->ctrl_handler);
-+	if (rval)
-+		goto error;
-+
-+	/* Keep PM runtime usage_count incremented on success */
- 	return 0;
-+error:
-+	pm_runtime_put(&client->dev);
-+	return rval;
- }
- 
- static int ccs_set_stream(struct v4l2_subdev *subdev, int enable)
+--- a/tools/testing/selftests/lkdtm/tests.txt
++++ b/tools/testing/selftests/lkdtm/tests.txt
+@@ -11,7 +11,7 @@ CORRUPT_LIST_ADD list_add corruption
+ CORRUPT_LIST_DEL list_del corruption
+ STACK_GUARD_PAGE_LEADING
+ STACK_GUARD_PAGE_TRAILING
+-UNSET_SMEP CR4 bits went missing
++UNSET_SMEP pinned CR4 bits changed:
+ DOUBLE_FAULT
+ CORRUPT_PAC
+ UNALIGNED_LOAD_STORE_WRITE
 
 
