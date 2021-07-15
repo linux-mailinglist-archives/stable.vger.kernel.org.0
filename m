@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA0E3CA78C
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038DA3CA63B
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240798AbhGOSzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:55:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58838 "EHLO mail.kernel.org"
+        id S238299AbhGOSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:46:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241411AbhGOSyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:54:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CADC613C4;
-        Thu, 15 Jul 2021 18:51:27 +0000 (UTC)
+        id S233469AbhGOSqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:46:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 773DF613CF;
+        Thu, 15 Jul 2021 18:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375088;
-        bh=qAzSmzRgqxdjSgXLVK587y2x4m1SBF20Eo1KJUZnJgg=;
+        s=korg; t=1626374628;
+        bh=k/MNo2DCIWZLt7nUdIvYgLh8ZEJ2MS7s9fTjJ9PVg7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K3s/0QizNHlmyX8twM1he7gWBn9vM3U2+C+31oZFztBhsAY4PbV/1ydBbdqBLxlCn
-         gGLRsfwyJHxUWc2BITXIu8NsJJj0JdynsDEf2vQKH7Lknnv8XZ9QV1B4oqxZIIZwaw
-         rD+JN9Ht7zPDRdI+zafNzkdxi2VP0ZREP+h4A/Bo=
+        b=jcTd2IHO63HneEYa7N6J8h7JR74VRYbababPk8KpePvE/CimiBHvsXrxYH3R9sIzF
+         85th17dDiwLCcPi0YWbTK0RCesQnHAv1jJc6lGD6fwNyDxc9Wog/YSo2ctTSbCwr93
+         n83Dbt55I4pEVZcHNgpYe7c0E7R0NRr8Wvc6yfGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>
-Subject: [PATCH 5.10 155/215] drm/vc4: hdmi: Prevent clock unbalance
-Date:   Thu, 15 Jul 2021 20:38:47 +0200
-Message-Id: <20210715182626.903976297@linuxfoundation.org>
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.4 081/122] pinctrl/amd: Add device HID for new AMD GPIO controller
+Date:   Thu, 15 Jul 2021 20:38:48 +0200
+Message-Id: <20210715182511.788380389@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182448.393443551@linuxfoundation.org>
+References: <20210715182448.393443551@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 5b006000423667ef0f55721fc93e477b31f22d28 upstream.
+commit 1ca46d3e43569186bd1decfb02a6b4c4ddb4304b upstream.
 
-Since we fixed the hooks to disable the encoder at boot, we now have an
-unbalanced clk_disable call at boot since we never enabled them in the
-first place.
+Add device HID AMDI0031 to the AMD GPIO controller driver match table.
+This controller can be found on Microsoft Surface Laptop 4 devices and
+seems similar enough that we can just copy the existing AMDI0030 entry.
 
-Let's mimic the state of the hardware and enable the clocks at boot if
-the controller is enabled to get the use-count right.
-
-Cc: <stable@vger.kernel.org> # v5.10+
-Fixes: 09c438139b8f ("drm/vc4: hdmi: Implement finer-grained hooks")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210507150515.257424-7-maxime@cerno.tech
+Cc: <stable@vger.kernel.org> # 5.10+
+Tested-by: Sachi King <nakato@nakato.io>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20210512210316.1982416-1-luzmaximilian@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -1807,6 +1807,14 @@ static int vc4_hdmi_bind(struct device *
- 	if (vc4_hdmi->variant->reset)
- 		vc4_hdmi->variant->reset(vc4_hdmi);
- 
-+	if ((of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi0") ||
-+	     of_device_is_compatible(dev->of_node, "brcm,bcm2711-hdmi1")) &&
-+	    HDMI_READ(HDMI_VID_CTL) & VC4_HD_VID_CTL_ENABLE) {
-+		clk_prepare_enable(vc4_hdmi->pixel_clock);
-+		clk_prepare_enable(vc4_hdmi->hsm_clock);
-+		clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
-+	}
-+
- 	pm_runtime_enable(dev);
- 
- 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -958,6 +958,7 @@ static int amd_gpio_remove(struct platfo
+ static const struct acpi_device_id amd_gpio_acpi_match[] = {
+ 	{ "AMD0030", 0 },
+ 	{ "AMDI0030", 0},
++	{ "AMDI0031", 0},
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
 
 
