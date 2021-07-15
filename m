@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 382F43CAA50
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8853CAA4D
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241332AbhGOTMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46406 "EHLO mail.kernel.org"
+        id S243802AbhGOTMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243890AbhGOTKL (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243871AbhGOTKL (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 15 Jul 2021 15:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 521516127C;
-        Thu, 15 Jul 2021 19:07:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0EF561370;
+        Thu, 15 Jul 2021 19:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626376021;
-        bh=KZaRLMtRE0FWoJ0aN/q7uQVN7VWE0e1ynuofh4g/AEk=;
+        s=korg; t=1626376024;
+        bh=OUttnZfZ2XueT8ypLeni7GSulhpsz4hmA/8lKqb26xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NVrvCqpQt9VSN86NhrKb/5YDXb7Ou5RJoACxg1Gd/WzJsrqkj+qbzzsTeZw/gf7BI
-         9aGUg3fQPdz/DS6lUNfmK5Jhs6JjCkZNtSLvl5PAh45pkjL6nEbBNn7nRi8A0G4ZKx
-         Bu8z/LEu28oSo9qfTR2nHAYvYIWtmEOrRmFBcqEU=
+        b=F93gk/Pc/92n22Ydj+96OTcPh+kxwuTWMh+8wagzahtXJKFE9L7nFhFDaZlVAfwbr
+         wxxs9Y6N1oWvg8dtpyejQZLFfseu0AFPxxkMV3m5VeCeb06xoEvGNRy/kwZKukc+5e
+         cStzU8XACIjsoaKpyoBqtLNT/EyPuz6UoCU64bRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 093/266] fjes: check return value after calling platform_get_resource()
-Date:   Thu, 15 Jul 2021 20:37:28 +0200
-Message-Id: <20210715182630.547292659@linuxfoundation.org>
+Subject: [PATCH 5.13 094/266] net: mido: mdio-mux-bcm-iproc: Use devm_platform_get_and_ioremap_resource()
+Date:   Thu, 15 Jul 2021 20:37:29 +0200
+Message-Id: <20210715182630.712084685@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
 References: <20210715182613.933608881@linuxfoundation.org>
@@ -42,33 +42,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit f18c11812c949553d2b2481ecaa274dd51bed1e7 ]
+[ Upstream commit 8a55a73433e763c8aec4a3e8df5c28c821fc44b9 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Use devm_platform_get_and_ioremap_resource() to simplify
+code and avoid a null-ptr-deref by checking 'res' in it.
 
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fjes/fjes_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/mdio/mdio-mux-bcm-iproc.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
-index 466622664424..e449d9466122 100644
---- a/drivers/net/fjes/fjes_main.c
-+++ b/drivers/net/fjes/fjes_main.c
-@@ -1262,6 +1262,10 @@ static int fjes_probe(struct platform_device *plat_dev)
- 	adapter->interrupt_watch_enable = false;
+diff --git a/drivers/net/mdio/mdio-mux-bcm-iproc.c b/drivers/net/mdio/mdio-mux-bcm-iproc.c
+index 03261e6b9ceb..aa29d6bdbdf2 100644
+--- a/drivers/net/mdio/mdio-mux-bcm-iproc.c
++++ b/drivers/net/mdio/mdio-mux-bcm-iproc.c
+@@ -187,7 +187,9 @@ static int mdio_mux_iproc_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	md->dev = &pdev->dev;
  
- 	res = platform_get_resource(plat_dev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		err = -EINVAL;
-+		goto err_free_control_wq;
-+	}
- 	hw->hw_res.start = res->start;
- 	hw->hw_res.size = resource_size(res);
- 	hw->hw_res.irq = platform_get_irq(plat_dev, 0);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	md->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
++	if (IS_ERR(md->base))
++		return PTR_ERR(md->base);
+ 	if (res->start & 0xfff) {
+ 		/* For backward compatibility in case the
+ 		 * base address is specified with an offset.
+@@ -196,9 +198,6 @@ static int mdio_mux_iproc_probe(struct platform_device *pdev)
+ 		res->start &= ~0xfff;
+ 		res->end = res->start + MDIO_REG_ADDR_SPACE_SIZE - 1;
+ 	}
+-	md->base = devm_ioremap_resource(&pdev->dev, res);
+-	if (IS_ERR(md->base))
+-		return PTR_ERR(md->base);
+ 
+ 	md->mii_bus = devm_mdiobus_alloc(&pdev->dev);
+ 	if (!md->mii_bus) {
 -- 
 2.30.2
 
