@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 768B13C9EC4
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:37:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707EE3C9EC5
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 14:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231181AbhGOMkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 08:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37616 "EHLO mail.kernel.org"
+        id S231218AbhGOMkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 08:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229635AbhGOMkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 08:40:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C9BF61278;
-        Thu, 15 Jul 2021 12:37:23 +0000 (UTC)
+        id S229635AbhGOMkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 08:40:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39A2D6136E;
+        Thu, 15 Jul 2021 12:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626352644;
-        bh=nBhmFwBWBd9Qi0cFvLe8j+iZ7HXV5GgxjZ9Hq02rH5c=;
+        s=korg; t=1626352648;
+        bh=LQGzeloZuj+oZzezPx2uaslCGSI66xsTtg2/tSp0glg=;
         h=Subject:To:Cc:From:Date:From;
-        b=DGz3juCN3MY+DHc9Fu7JthJTz4glKbxdiPQ/a1G2Y0TVRq2Ps6VVOuCKQwpIA2st4
-         6z0eUSVeAyPWJ6/lmhRB6QmGhvg0egvlcS6apafBABQczy6Y+aBBNSGjH6c6hlmQUR
-         ijghZY1Gr6c9xccZCWurzyNFYfvX80IDYjHVCraY=
-Subject: FAILED: patch "[PATCH] cpu/hotplug: Cure the cpusets trainwreck" failed to apply to 4.4-stable tree
+        b=dPsCIbeaONmv67ykW4uf7M2Q4qVHh9QMRkSpBpkuYtdWmaFGzN5QAiaVMbC94jaes
+         BqdTPbR3qWF3yTYVn9hAcOzVhoEWAKJlhHD6cpZKrffhXyEgEXVsYgoxRPBRqvbAaS
+         2R7XYW2/GBRKugIz/sddi7l6R4CmT+nMkfzLQDF0=
+Subject: FAILED: patch "[PATCH] cpu/hotplug: Cure the cpusets trainwreck" failed to apply to 4.9-stable tree
 To:     tglx@linutronix.de, aklimov@redhat.com, jobaker@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 15 Jul 2021 14:37:21 +0200
-Message-ID: <162635264149153@kroah.com>
+Date:   Thu, 15 Jul 2021 14:37:26 +0200
+Message-ID: <1626352646130111@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
