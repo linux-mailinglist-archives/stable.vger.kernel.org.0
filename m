@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2141A3CA939
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:03:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 430043CAAEE
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:13:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241452AbhGOTFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:05:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
+        id S242978AbhGOTQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:16:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234996AbhGOTEn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:04:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E110C613F7;
-        Thu, 15 Jul 2021 19:00:53 +0000 (UTC)
+        id S244605AbhGOTO6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:14:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82055613D7;
+        Thu, 15 Jul 2021 19:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375654;
-        bh=jSKqkZ+UU4PmhEyzCaosrPO3qLRJWJGjTNDb4ZWQLdQ=;
+        s=korg; t=1626376239;
+        bh=eWt/Pgp9ZAHzb7tz++3SmyziJHNnYt8Y3CLGHrP1eRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1XEGRvK8Wgd0xkYcU4miEWro2hm2+jppMbsJ7Tp1R8m1LtZnbo+F/RYLp4U8cKdtL
-         GHVFclo1q35lXrYyPvM0Hf2/gEgSjsn7CteReGwCjuLmEp4Pn5opm8pTTWhvYPUvQh
-         U+bURhYGvPwESSt5NE0G3S7jtwtRvzrPGqrIAVnM=
+        b=EZCwPtMZr+VVg1mM/df3AO5Excr2duuFaxoB1p0NZSCEAwQcqyS+a1iIugr6K4IXP
+         UQc48aipzY23MRMGhUEDfZfy08WfyasALv6V6K2TWYkcRWQC8NPpdsCMzw106UnxGO
+         4jtMU8bj+jb6aPFSxtQ88BDHXp7xsxqRdVrbEZvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liviu Dudau <liviu.dudau@arm.com>,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 5.12 179/242] drm/arm/malidp: Always list modifiers
+        stable@vger.kernel.org,
+        Joseph Greathouse <Joseph.Greathouse@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>
+Subject: [PATCH 5.13 186/266] drm/amdgpu: Update NV SIMD-per-CU to 2
 Date:   Thu, 15 Jul 2021 20:39:01 +0200
-Message-Id: <20210715182624.784336851@linuxfoundation.org>
+Message-Id: <20210715182644.116970223@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
+References: <20210715182613.933608881@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,52 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Joseph Greathouse <Joseph.Greathouse@amd.com>
 
-commit 26c3e7fd5a3499e408915dadae5d5360790aae9a upstream.
+commit aa6158112645aae514982ad8d56df64428fcf203 upstream.
 
-Even when all we support is linear, make that explicit. Otherwise the
-uapi is rather confusing.
+Navi series GPUs have 2 SIMDs per CU (and then 2 CUs per WGP).
+The NV enum headers incorrectly listed this as 4, which later meant
+we were incorrectly reporting the number of SIMDs in the HSA
+topology. This could cause problems down the line for user-space
+applications that want to launch a fixed amount of work to each
+SIMD.
 
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Joseph Greathouse <Joseph.Greathouse@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Cc: Liviu Dudau <liviu.dudau@arm.com>
-Cc: Brian Starkey <brian.starkey@arm.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-2-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/arm/malidp_planes.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/include/navi10_enum.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/arm/malidp_planes.c
-+++ b/drivers/gpu/drm/arm/malidp_planes.c
-@@ -922,6 +922,11 @@ static const struct drm_plane_helper_fun
- 	.atomic_disable = malidp_de_plane_disable,
- };
+--- a/drivers/gpu/drm/amd/include/navi10_enum.h
++++ b/drivers/gpu/drm/amd/include/navi10_enum.h
+@@ -430,7 +430,7 @@ ARRAY_2D_DEPTH
+  */
  
-+static const uint64_t linear_only_modifiers[] = {
-+	DRM_FORMAT_MOD_LINEAR,
-+	DRM_FORMAT_MOD_INVALID
-+};
-+
- int malidp_de_planes_init(struct drm_device *drm)
- {
- 	struct malidp_drm *malidp = drm->dev_private;
-@@ -985,8 +990,8 @@ int malidp_de_planes_init(struct drm_dev
- 		 */
- 		ret = drm_universal_plane_init(drm, &plane->base, crtcs,
- 				&malidp_de_plane_funcs, formats, n,
--				(id == DE_SMART) ? NULL : modifiers, plane_type,
--				NULL);
-+				(id == DE_SMART) ? linear_only_modifiers : modifiers,
-+				plane_type, NULL);
+ typedef enum ENUM_NUM_SIMD_PER_CU {
+-NUM_SIMD_PER_CU                          = 0x00000004,
++NUM_SIMD_PER_CU                          = 0x00000002,
+ } ENUM_NUM_SIMD_PER_CU;
  
- 		if (ret < 0)
- 			goto cleanup;
+ /*
 
 
