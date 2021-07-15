@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B45B3CA726
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0227A3CA89F
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238785AbhGOSwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 14:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54386 "EHLO mail.kernel.org"
+        id S243269AbhGOTBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 15:01:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239587AbhGOSv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 14:51:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D51613E9;
-        Thu, 15 Jul 2021 18:49:02 +0000 (UTC)
+        id S241938AbhGOTBN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 15:01:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE657613DC;
+        Thu, 15 Jul 2021 18:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626374943;
-        bh=Ry1aG034I40ds9gCDxFiOmtRE8P3ZjPlXbEhpRWYn94=;
+        s=korg; t=1626375473;
+        bh=TRgNq0RCv+xZeGNXwvsLOUrnCmvhW5krvQzCnNyScIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eDJoYMBVGyqpzIcw/Yo8axz6v/9Fz0xrotygKMM70pif+6uFZZXXh/EsL8fjeju+I
-         nXJvXA20hsvf/C9uYmHOSwIIBE/sMOxc7VNrUV34oMl2VM8y/4UiqdYY3d8koEbaiz
-         fTTOnA1Q3/bQ6EGRggZNqRR0p6pW/KVHscrd+qMU=
+        b=awDBdnZftaudcAXsM7jw/uUFHKJyarLvCuhJ43248UE0pkGCo3KTdbRR/cn0kVbdM
+         cjNnlQ2NU2bFWnBkVydpt2J4zp7V1MUwv/P7+xLRPlJ2nCgoWsvOy8XNk4ud4X+Ngb
+         MNHpmaiuNK4GePnNO2MhprHYmGPYzFCeqGUqXLcs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot+ea2f1484cffe5109dc10@syzkaller.appspotmail.com,
         Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 091/215] io_uring: fix false WARN_ONCE
+Subject: [PATCH 5.12 101/242] io_uring: fix false WARN_ONCE
 Date:   Thu, 15 Jul 2021 20:37:43 +0200
-Message-Id: <20210715182615.451998955@linuxfoundation.org>
+Message-Id: <20210715182610.814803765@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
-References: <20210715182558.381078833@linuxfoundation.org>
+In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
+References: <20210715182551.731989182@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/fs/io-wq.c b/fs/io-wq.c
-index f72d53848dcb..8bb17b6d4de3 100644
+index 4eba531bea5a..b836737f96f3 100644
 --- a/fs/io-wq.c
 +++ b/fs/io-wq.c
-@@ -299,7 +299,8 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
+@@ -243,7 +243,8 @@ static void io_wqe_wake_worker(struct io_wqe *wqe, struct io_wqe_acct *acct)
  	 * Most likely an attempt to queue unbounded work on an io_wq that
  	 * wasn't setup with any unbounded workers.
  	 */
@@ -74,7 +74,7 @@ index f72d53848dcb..8bb17b6d4de3 100644
  
  	rcu_read_lock();
  	ret = io_wqe_activate_free_worker(wqe);
-@@ -1085,6 +1086,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
+@@ -991,6 +992,8 @@ struct io_wq *io_wq_create(unsigned bounded, struct io_wq_data *data)
  
  	if (WARN_ON_ONCE(!data->free_work || !data->do_work))
  		return ERR_PTR(-EINVAL);
