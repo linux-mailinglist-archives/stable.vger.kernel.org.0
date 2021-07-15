@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BEA3CA88F
-	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 21:00:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 148713CA72A
+	for <lists+stable@lfdr.de>; Thu, 15 Jul 2021 20:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243218AbhGOTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 15:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38160 "EHLO mail.kernel.org"
+        id S235562AbhGOSwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 14:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242135AbhGOTAl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 15 Jul 2021 15:00:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6972E613D0;
-        Thu, 15 Jul 2021 18:57:38 +0000 (UTC)
+        id S238823AbhGOSwG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 14:52:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21B2E613DB;
+        Thu, 15 Jul 2021 18:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626375458;
-        bh=oaC2icxJ1FzLUjUeegnixedcm9xmDZEyvww90mFno2k=;
+        s=korg; t=1626374952;
+        bh=pAh9sS9KTHjr0pvKpZxLQ/hvbf6Z1ptRKk+fyiUulUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwcp0s6vw4oZarxvsU0KV9xCGLJyFYr2yRYyl/tgy0u1lih5e1XMYqo6JdUfj+xd8
-         jMNY+lAsmvC4BUJ6baIJKDZ9BKGCLZsOZ8OlrQjq0Vh5USYlQKCS4xadOs197wXmdz
-         aZBXL58gcUflOUl+DaBW33X10aWOEpeuCAORNBR4=
+        b=ebr3WefdCffb07R2AFHEC/LtwFBnZ9gMZcIspeu1hUPpjfeBLq7qr/K2Ea8YH+OBI
+         mixeQWMel0yyTGnsjSSZdpaa2jTAfGZmE3fKtSVBh3wlWRyTiwJbnowzPctoE8ZnRQ
+         ZKr1R4E9h+gRsQetcHj1AColbTelvVF+VvSg7vLY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 069/242] net: moxa: Use devm_platform_get_and_ioremap_resource()
+Subject: [PATCH 5.10 059/215] net: mscc: ocelot: check return value after calling platform_get_resource()
 Date:   Thu, 15 Jul 2021 20:37:11 +0200
-Message-Id: <20210715182604.693120995@linuxfoundation.org>
+Message-Id: <20210715182609.888585912@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210715182551.731989182@linuxfoundation.org>
-References: <20210715182551.731989182@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+References: <20210715182558.381078833@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +43,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 35cba15a504bf4f585bb9d78f47b22b28a1a06b2 ]
+[ Upstream commit f1fe19c2cb3fdc92a614cf330ced1613f8f1a681 ]
 
-Use devm_platform_get_and_ioremap_resource() to simplify
-code and avoid a null-ptr-deref by checking 'res' in it.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/dsa/ocelot/seville_vsc9953.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index 49fd843c4c8a..a4380c45f668 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -481,14 +481,13 @@ static int moxart_mac_probe(struct platform_device *pdev)
- 	priv->ndev = ndev;
- 	priv->pdev = pdev;
+diff --git a/drivers/net/dsa/ocelot/seville_vsc9953.c b/drivers/net/dsa/ocelot/seville_vsc9953.c
+index ebbaf6817ec8..7026523f886c 100644
+--- a/drivers/net/dsa/ocelot/seville_vsc9953.c
++++ b/drivers/net/dsa/ocelot/seville_vsc9953.c
+@@ -1214,6 +1214,11 @@ static int seville_probe(struct platform_device *pdev)
+ 	felix->info = &seville_info_vsc9953;
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	ndev->base_addr = res->start;
--	priv->base = devm_ioremap_resource(p_dev, res);
-+	priv->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(priv->base)) {
- 		dev_err(p_dev, "devm_ioremap_resource failed\n");
- 		ret = PTR_ERR(priv->base);
- 		goto init_fail;
- 	}
-+	ndev->base_addr = res->start;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		err = -EINVAL;
++		dev_err(&pdev->dev, "Invalid resource\n");
++		goto err_alloc_felix;
++	}
+ 	felix->switch_base = res->start;
  
- 	spin_lock_init(&priv->txlock);
- 
+ 	ds = kzalloc(sizeof(struct dsa_switch), GFP_KERNEL);
 -- 
 2.30.2
 
