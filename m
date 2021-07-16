@@ -2,135 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2132C3CB973
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 17:09:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C8B73CB979
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 17:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240205AbhGPPME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 11:12:04 -0400
-Received: from mout.gmx.net ([212.227.17.22]:33033 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237211AbhGPPMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 11:12:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626448129;
-        bh=sL/vPV8V2S1SS05EJUeg1OhF8H9B92zX2u7/UMjHgtA=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=jEGepE8cAXXPL7zxhN3bHCLkmLrr1GS6FuSRDj815tx2FTXEdiT0aYrAbnYv1UXHi
-         py2XnPUBcglFYrJbbzpVpR7tbq9uPhSAPU2QA1Wdu3Fs2dQToJqHHOfXJYaHHlNBaa
-         HrQYGtn6PO2nsTgjmYFQTCf9GQBqh6HfdiKFhJAg=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from titan ([83.52.228.41]) by mail.gmx.net (mrgmx104
- [212.227.17.174]) with ESMTPSA (Nemesis) id 1MHG8m-1lrC3V2A4W-00DJQ3; Fri, 16
- Jul 2021 17:08:49 +0200
-Date:   Fri, 16 Jul 2021 17:08:32 +0200
-From:   Len Baker <len.baker@gmx.com>
-To:     Brian Norris <briannorris@chromium.org>,
-        Pkshih <pkshih@realtek.com>
-Cc:     Len Baker <len.baker@gmx.com>,
-        Yan-Hsuan Chuang <tony0620emma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislaw Gruszka <sgruszka@redhat.com>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] rtw88: Fix out-of-bounds write
-Message-ID: <20210716150832.GA3963@titan>
-References: <20210711141634.6133-1-len.baker@gmx.com>
- <b0811e08c4a04d2093f3251c55c0edb8@realtek.com>
- <CA+ASDXOC_dqhf84kP4LsbenJuqeDyKcNFj=EaemrvfJy1oZi_Q@mail.gmail.com>
+        id S237326AbhGPPPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 11:15:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52300 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233094AbhGPPPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 11:15:43 -0400
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46704C06175F
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 08:12:47 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id AD837C80092;
+        Fri, 16 Jul 2021 17:12:44 +0200 (CEST)
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id vuNQgeqHHRye; Fri, 16 Jul 2021 17:12:44 +0200 (CEST)
+Received: from [IPv6:2003:e3:7f20:9b00:b399:8628:5a95:572c] (p200300E37F209B00B39986285a95572c.dip0.t-ipconnect.de [IPv6:2003:e3:7f20:9b00:b399:8628:5a95:572c])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPSA id 38D95C8006F;
+        Fri, 16 Jul 2021 17:12:44 +0200 (CEST)
+Subject: Re: [SRU][H][PATCH v2 1/1] usb: pci-quirks: disable D3cold on xhci
+ suspend for s2idle on AMD Renoir
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     kernel-team@lists.ubuntu.com,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Prike Liang <Prike.Liang@amd.com>,
+        stable <stable@vger.kernel.org>
+References: <20210716104010.4889-1-wse@tuxedocomputers.com>
+ <20210716104010.4889-2-wse@tuxedocomputers.com> <YPGAq1zdem2QVTsb@kroah.com>
+From:   Werner Sembach <wse@tuxedocomputers.com>
+Message-ID: <b5ba1134-d557-565c-ba45-556984a66e7b@tuxedocomputers.com>
+Date:   Fri, 16 Jul 2021 17:12:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+ASDXOC_dqhf84kP4LsbenJuqeDyKcNFj=EaemrvfJy1oZi_Q@mail.gmail.com>
-X-Provags-ID: V03:K1:FL6qu4j5wqlHgHFdnywZE5ywx9Klh+8cxQfSpQdCnflRsOLnkAX
- 3x79fIQXKzWX/TOArPhOuW5/Gnf+ftRR3644uA+H5oICVs+w0R4sdmxzASoHM5hOoP6OChs
- ztiPnHIsI4oohN+AnhcqUVQz4l6mQmwFQXC0wC8tXfY66swuN3VLAcVarXeBvk5UCvpT91M
- fIzFKkTXwr/bh4bWd6l1g==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:bUASaPtJOP4=:9HHIghxNT6h204deC0zip6
- xmcF53QoWnFyNy0WQPKnTlZaSJ0Ga57bJMjEprvBNpEecxPoOu4NSthvGTZpA61gQK57CBMeD
- u+b/wP6Heq1qTLzOQtMpkSQpUyvgqn6D3SxPWqa6ZMLhzwgLojll8OobLHs+WIV+kwpQhB2pR
- gD6lPwORaR4lLVKkzT1FTIxM4juPJgW0eZRr7RvYuV/ep3ZzaWc28WvsURXqEMruAWR2cOgxp
- dyQdUigcv0Pm/FjTGeoaQ1XX55YEJDuuL53LdOm+ftYSl9oPvuGWjfPrxuuLrlPLe5mQM0GZl
- JeAKAIppHg2dpsJnnaDDgFnnb4ohUrv+5SedJAJbvfkvkpDi2Nantcqbw1Xnfp6DABWDuHbSI
- 0s52TRqxg++sLyxymJSWDEMXiAYKv3/fS8j1G2/OD7VlqCaCojSaQSfTGQfe5IY/HDSf+LcH/
- QbezTZ/Xh1WNfIYyHl1LNfsAjoF76iMK8kQBcpSKG/yAVcfnWmaBFSy1nE4Ts7iW1rNxXnivw
- 9njSIxC0SK3/JzECvaTS2/ukDXXJw8M/Slu6uuyKOjkmK7q8KzaA2wqMChhuDz+nMAhs8mKlJ
- 3NzmmZoB8sdiuh56J/1Rkmpz7lTq30PYMdaIykMr0GcwnVAJI3HX8YCilC+EKXqH3mB5eBf2M
- 1oV9fUIbvmM0l580VV6b25Z/pHTi5TRQiBussjerobwiOLQO3ZSfXOBG7N3LE18ZaP6Mj+NWT
- Rtxnci3cabTQJrp4Mh1Kocmvpbf32f2r8BYSuK3wB6s6p7fKfrfJKGv9K0nQTsezi2VNgSBj1
- DllNHNFcRiCsBo+/4gq/YGY4zLiUo5InjNtCDsRGQC3x4Tp40S9v+0Bzb5wyd3NEe0tZQ+6s2
- HS/rImag3Z3/rdyeR7J5//sx/g76Cz8nvvj8h5SP+2MS2AXuRqiD+NmEPxAZEHJNwwtVGFJ+C
- 92Gzt0dvuYv+S2lR1pmqSNiaZM2SUZtMcivECVF9EpuSPcAbAAlzxmdsdMcD5hDdtO92dMfxO
- EVGQhKVV/K/gIkEsl5ZFKCD2oo3fN0WK7oqAplHcoBJlK72/1WlbFIMZY2BoWejaJBjJ4/xm4
- yOAE5BHmskQxDYLauKWUyTu3q82cAUoW755
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <YPGAq1zdem2QVTsb@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: de-DE
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 12, 2021 at 11:38:43AM -0700, Brian Norris wrote:
-> On Sun, Jul 11, 2021 at 6:43 PM Pkshih <pkshih@realtek.com> wrote:
-> > > -----Original Message-----
-> > > From: Len Baker [mailto:len.baker@gmx.com]
-> > >
-> > > In the rtw_pci_init_rx_ring function the "if (len > TRX_BD_IDX_MASK)=
-"
-> > > statement guarantees that len is less than or equal to GENMASK(11, 0=
-) or
-> > > in other words that len is less than or equal to 4095. However the
-> > > rx_ring->buf has a size of RTK_MAX_RX_DESC_NUM (defined as 512). Thi=
-s
-> > > way it is possible an out-of-bounds write in the for statement due t=
-o
-> > > the i variable can exceed the rx_ring->buff size.
-> > >
-> > > Fix it using the ARRAY_SIZE macro.
-> > >
-> > > Cc: stable@vger.kernel.org
-> > > Addresses-Coverity-ID: 1461515 ("Out-of-bounds write")
+
+Am 16.07.21 um 14:50 schrieb Greg Kroah-Hartman:
+> On Fri, Jul 16, 2021 at 12:40:10PM +0200, Werner Sembach wrote:
+>> From: Mario Limonciello <mario.limonciello@amd.com>
+>>
+>> BugLink: https://bugs.launchpad.net/bugs/1936583
+>>
+>> The XHCI controller is required to enter D3hot rather than D3cold for AMD
+>> s2idle on this hardware generation.
+>>
+>> Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
+>> host in resume and eventually this results in xhci resume failures during
+>> the s2idle wakeup.
+>>
+>> Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
+>> Suggested-by: Prike Liang <Prike.Liang@amd.com>
+>> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+>> Cc: stable <stable@vger.kernel.org> # 5.11+
+>> Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> (cherry picked from commit d1658268e43980c071dbffc3d894f6f6c4b6732a)
+>> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+>> ---
+>>  drivers/usb/host/xhci-pci.c | 7 ++++++-
+>>  drivers/usb/host/xhci.h     | 1 +
+>>  2 files changed, 7 insertions(+), 1 deletion(-)
+>>
+> Any reason you resent us a patch that is already in a stable release?
 >
-> Coverity seems to be giving a false warning here. I presume it's
-> taking the |len| comparison as proof that |len| might be as large as
-> TRX_BD_IDX_MASK, but as noted below, that's not really true; the |len|
-> comparison is really just dead code.
-
-I agree.
-
-> > > Fixes: e3037485c68ec ("rtw88: new Realtek 802.11ac driver")
-> > > Signed-off-by: Len Baker <len.baker@gmx.com>
+> And why not just use the stable kernel trees as-is?  Why attempt to
+> cherry-pick random portions of them?
 >
-> > To prevent the 'len' argument from exceeding the array size of rx_ring=
-->buff, I
-> > suggest to add another checking statement, like
-> >
-> >         if (len > ARRAY_SIZE(rx_ring->buf)) {
-> >                 rtw_err(rtwdev, "len %d exceeds maximum RX ring buffer=
-\n", len);
-> >                 return -EINVAL;
-> >         }
+> thanks,
 >
-> That seems like a better idea, if we really need to patch anything.
+> greg k-h
 
-I think it is reasonable to protect any potencial overflow (for example, i=
-f
-this function is used in the future with a parameter greater than 512). It
-is better to be defensive in this case :)
+I didn't add the mailing list as recipent for my last replies so here again:
 
-> > But, I wonder if this a false alarm because 'len' is equal to ARRAY_SI=
-ZE(rx_ring->buf)
-> > for now.
->
-> Or to the point: rtw_pci_init_rx_ring() is only ever called with a
-> fixed constant -- RTK_MAX_RX_DESC_NUM (i.e., 512) -- so the alleged
-> overflow cannot happen.
->
-> Brian
+I only checked the Ubuntu 5.11 tree where the patch is actually missing.
 
-I will send a v2 for review.
+The 5.8 kernel has other issues because of outdated amdgpu, that's why we never checked the 5.4 kernel.
 
-Thanks,
-Len
+Testing for 5.4: often hangs on boot before display manager shows up
+
+5.4 + amdgpu-dkms from here: https://www.amd.com/en/support/kb/release-notes/rn-amdgpu-unified-linux-21-20 : Hang on
+boot issue gone, but does not suspend anymore, and has graphic glitches.
+
+Should I add these findings to the SRU?
+
