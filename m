@@ -2,95 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 424273CAF4D
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 00:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7380A3CB07D
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 03:37:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbhGOWpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 18:45:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55200 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229924AbhGOWpQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 18:45:16 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 960EDC06175F;
-        Thu, 15 Jul 2021 15:42:22 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id gp5-20020a17090adf05b0290175c085e7a5so478290pjb.0;
-        Thu, 15 Jul 2021 15:42:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=BVw7rlbdXsx2expzS3jO3rYzvYP2WBigJE1GsKn9KwE=;
-        b=b9UEeZqGzOBksShhEPzCyQ2Fc0et/7zj7p3ocT5jCbppaORm/qyo2RdGhF7YcnbZIZ
-         F34BYOxqh6ikBeOBJOljNoCcC2pYC+yZ41IzvXTPOz/KNFIpZ0oKwlPBwZIoldryUSCa
-         ccxOUTwJgVu0Rpcs+inu+1cCwf6jsPc+4J9zC4m0TrSPc39vkQSRWgyrsHlkOso49+Mj
-         schCNds35ZY94KG8PfrEbZVKDZEhCvCmQW63R0zdekInPMOP4OJxXFYm9nO9YYFDGuJY
-         UsUM7xIUouvr/dfEWWsurz63zdTkAAAf3BmUqC8bTLyh2O/f7rKAG8/kNR+2x/FxwjXw
-         acKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=BVw7rlbdXsx2expzS3jO3rYzvYP2WBigJE1GsKn9KwE=;
-        b=M3wcmHSeZ0u+DCISxwd/tZa29WgCkXMNyTuDDyvH/iuWxLbTVTk1XI0N1m+WvHJu7Y
-         BkecfynBkKz90a/gZZMS6Ulx67Se4ssx+QbJhhhR+hIkWDrUae/b5zDHhLgzT+qgInip
-         XMhKHpsd1c81p/7ua7LzYXHCuYjkTMbpbvWkcgxg5uF/LyS295MaeeDSxOAA25jeOMR8
-         Y6W/u/T/cJ5/xfTRvKtFsZ3fZ+B7UYuoW+R5RcJ1XJWUcEfAJCK41AEnQ0JaeNgaYo5h
-         PXUt1NYBIl2hipJyia36PNO/NLCZk0cNbM/7MVTxCWd7aF1Gv8pCscHnUjP8OTgz1IGM
-         zmIQ==
-X-Gm-Message-State: AOAM5316yq4UkP/2Yqracg7LpD6iu/5IWtAzvS9vguXbrzHIqXdgNIPS
-        2wlWsoCl8Fw+3xr5kStRoSGtiZ0D1ySUjg==
-X-Google-Smtp-Source: ABdhPJzszR91tpSpUt65aYswOXLeynPqcjp5jJfZirvB0pXJbppuX9YO3T7ZbXW1MXdp1Zpp0leZHw==
-X-Received: by 2002:a17:902:d50a:b029:12b:59a9:9586 with SMTP id b10-20020a170902d50ab029012b59a99586mr3071517plg.62.1626388941547;
-        Thu, 15 Jul 2021 15:42:21 -0700 (PDT)
-Received: from [10.67.49.104] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id w186sm7921536pfw.106.2021.07.15.15.42.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Jul 2021 15:42:21 -0700 (PDT)
-Subject: Re: [PATCH 5.13 000/266] 5.13.3-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210715182613.933608881@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <698aae7d-daa1-da76-2693-5a3488f5b493@gmail.com>
-Date:   Thu, 15 Jul 2021 15:42:19 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S231124AbhGPBkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 15 Jul 2021 21:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55592 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230315AbhGPBkH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 15 Jul 2021 21:40:07 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC750613C9;
+        Fri, 16 Jul 2021 01:37:13 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.94.2)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1m4Cmu-000ubj-UD; Thu, 15 Jul 2021 21:37:12 -0400
+Message-ID: <20210716013712.786933952@goodmis.org>
+User-Agent: quilt/0.66
+Date:   Thu, 15 Jul 2021 21:36:14 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>
+Subject: [for-linus][PATCH 1/2] tracing: Do not reference char * as a string in histograms
+References: <20210716013613.954877305@goodmis.org>
 MIME-Version: 1.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/15/21 11:35 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.3 release.
-> There are 266 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.3-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+The histogram logic was allowing events with char * pointers to be used as
+normal strings. But it was easy to crash the kernel with:
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+ # echo 'hist:keys=filename' > events/syscalls/sys_enter_openat/trigger
+
+And open some files, and boom!
+
+ BUG: unable to handle page fault for address: 00007f2ced0c3280
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 1173fa067 P4D 1173fa067 PUD 1171b6067 PMD 1171dd067 PTE 0
+ Oops: 0000 [#1] PREEMPT SMP
+ CPU: 6 PID: 1810 Comm: cat Not tainted 5.13.0-rc5-test+ #61
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01
+v03.03 07/14/2016
+ RIP: 0010:strlen+0x0/0x20
+ Code: f6 82 80 2a 0b a9 20 74 11 0f b6 50 01 48 83 c0 01 f6 82 80 2a 0b
+a9 20 75 ef c3 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 <80> 3f 00 74
+10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3
+
+ RSP: 0018:ffffbdbf81567b50 EFLAGS: 00010246
+ RAX: 0000000000000003 RBX: ffff93815cdb3800 RCX: ffff9382401a22d0
+ RDX: 0000000000000100 RSI: 0000000000000000 RDI: 00007f2ced0c3280
+ RBP: 0000000000000100 R08: ffff9382409ff074 R09: ffffbdbf81567c98
+ R10: ffff9382409ff074 R11: 0000000000000000 R12: ffff9382409ff074
+ R13: 0000000000000001 R14: ffff93815a744f00 R15: 00007f2ced0c3280
+ FS:  00007f2ced0f8580(0000) GS:ffff93825a800000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f2ced0c3280 CR3: 0000000107069005 CR4: 00000000001706e0
+ Call Trace:
+  event_hist_trigger+0x463/0x5f0
+  ? find_held_lock+0x32/0x90
+  ? sched_clock_cpu+0xe/0xd0
+  ? lock_release+0x155/0x440
+  ? kernel_init_free_pages+0x6d/0x90
+  ? preempt_count_sub+0x9b/0xd0
+  ? kernel_init_free_pages+0x6d/0x90
+  ? get_page_from_freelist+0x12c4/0x1680
+  ? __rb_reserve_next+0xe5/0x460
+  ? ring_buffer_lock_reserve+0x12a/0x3f0
+  event_triggers_call+0x52/0xe0
+  ftrace_syscall_enter+0x264/0x2c0
+  syscall_trace_enter.constprop.0+0x1ee/0x210
+  do_syscall_64+0x1c/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Where it triggered a fault on strlen(key) where key was the filename.
+
+The reason is that filename is a char * to user space, and the histogram
+code just blindly dereferenced it, with obvious bad results.
+
+I originally tried to use strncpy_from_user/kernel_nofault() but found
+that there's other places that its dereferenced and not worth the effort.
+
+Just do not allow "char *" to act like strings.
+
+Link: https://lkml.kernel.org/r/20210715000206.025df9d2@rorschach.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Tom Zanussi <zanussi@kernel.org>
+Fixes: 79e577cbce4c4 ("tracing: Support string type key properly")
+Fixes: 5967bd5c4239 ("tracing: Let filter_assign_type() detect FILTER_PTR_STRING")
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+---
+ kernel/trace/trace_events_hist.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index 0207aeed31e6..16a9dfc9fffc 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -1689,7 +1689,9 @@ static struct hist_field *create_hist_field(struct hist_trigger_data *hist_data,
+ 	if (WARN_ON_ONCE(!field))
+ 		goto out;
+ 
+-	if (is_string_field(field)) {
++	/* Pointers to strings are just pointers and dangerous to dereference */
++	if (is_string_field(field) &&
++	    (field->filter_type != FILTER_PTR_STRING)) {
+ 		flags |= HIST_FIELD_FL_STRING;
+ 
+ 		hist_field->size = MAX_FILTER_STR_VAL;
+@@ -4495,8 +4497,6 @@ static inline void add_to_key(char *compound_key, void *key,
+ 		field = key_field->field;
+ 		if (field->filter_type == FILTER_DYN_STRING)
+ 			size = *(u32 *)(rec + field->offset) >> 16;
+-		else if (field->filter_type == FILTER_PTR_STRING)
+-			size = strlen(key);
+ 		else if (field->filter_type == FILTER_STATIC_STRING)
+ 			size = field->size;
+ 
 -- 
-Florian
+2.30.2
