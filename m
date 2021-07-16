@@ -2,107 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDCD3CB3A0
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 09:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB3913CB478
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 10:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236984AbhGPH6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 03:58:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231482AbhGPH6H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 03:58:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 113FE613D0;
-        Fri, 16 Jul 2021 07:55:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626422113;
-        bh=NyskiDTy4SkfS11AN+jSm67E0nVKaGjdDDkssGi0kRI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=mB70bavcw3i38LIAdo74ezd3NJMxkyHg48y05ue0rR2T4yQ1cgTKCP3Hr7OYwq2HT
-         AT9JEhmBmupuhNy/uTGKwjCr8F/9XxzLgrop7qcmeaPsWQgEHiQ/1SyVnSfHnCQfPF
-         iwDriM5XCPXEaKbitTt1gbW4ARBiDbFjOwLf//j4iQFkKtpqcwCeVkMZ53PnLOwfuo
-         T0X8/j5/sFKrTKBL4sob5ktXJZvErjJJJY/MNGuG8GcqU1I2J53RHl1R3xaBBHzlon
-         3xIGYlPouCr28+757v1vwQheFNFsiIWcEHuXWIZxKii+vSVZnO8rGB4Twp1PmmwvH8
-         GMoszaqAOmrIw==
-Received: from johan by xi with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1m4IgL-0005tp-Kw; Fri, 16 Jul 2021 09:54:50 +0200
-Date:   Fri, 16 Jul 2021 09:54:49 +0200
-From:   Johan Hovold <johan@kernel.org>
+        id S237798AbhGPIiJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 04:38:09 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:45654 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237805AbhGPIiE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 04:38:04 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 3C1D71C0B82; Fri, 16 Jul 2021 10:35:08 +0200 (CEST)
+Date:   Fri, 16 Jul 2021 10:35:07 +0200
+From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        Antti Palosaari <crope@iki.fi>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: Re: [PATCH 5.13 252/266] media: rtl28xxu: fix zero-length control
- request
-Message-ID: <YPE7Se31LQnaikuy@hovoldconsulting.com>
-References: <20210715182613.933608881@linuxfoundation.org>
- <20210715182652.248759867@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 000/215] 5.10.51-rc1 review
+Message-ID: <20210716083507.GA21955@duo.ucw.cz>
+References: <20210715182558.381078833@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="uAKRQypu60I7Lcqm"
 Content-Disposition: inline
-In-Reply-To: <20210715182652.248759867@linuxfoundation.org>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 15, 2021 at 08:40:07PM +0200, Greg Kroah-Hartman wrote:
-> From: Johan Hovold <johan@kernel.org>
-> 
-> commit 25d5ce3a606a1eb23a9265d615a92a876ff9cb5f upstream.
-> 
-> The direction of the pipe argument must match the request-type direction
-> bit or control requests may fail depending on the host-controller-driver
-> implementation.
-> 
-> Control transfers without a data stage are treated as OUT requests by
-> the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-> will now trigger a warning.
-> 
-> Fix the zero-length i2c-read request used for type detection by
-> attempting to read a single byte instead.
-> 
-> Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-> Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-> Cc: stable@vger.kernel.org      # 4.0
-> Cc: Antti Palosaari <crope@iki.fi>
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Please drop this patch from all stable trees. 
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch causes a regression and a second version was sent almost two
-months ago, but I'm not getting any response whatsoever from the media
-maintainers. 
+Hi!
 
-I resent the correct fix and a revert of this one almost a month ago and
-the cover letter includes some further details:
+> This is the start of the stable review cycle for the 5.10.51 release.
+> There are 215 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-	https://lore.kernel.org/r/20210623084521.7105-1-johan@kernel.org
+CIP testing did not find any problems here:
 
-But this still hasn't been fixed in linux-next.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
 
-> ---
->  drivers/media/usb/dvb-usb-v2/rtl28xxu.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> --- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-> +++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-> @@ -612,8 +612,9 @@ static int rtl28xxu_read_config(struct d
->  static int rtl28xxu_identify_state(struct dvb_usb_device *d, const char **name)
->  {
->  	struct rtl28xxu_dev *dev = d_to_priv(d);
-> +	u8 buf[1];
->  	int ret;
-> -	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 0, NULL};
-> +	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 1, buf};
->  
->  	dev_dbg(&d->intf->dev, "\n");
->  
-> 
-> 
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-Johan
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--uAKRQypu60I7Lcqm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYPFEuwAKCRAw5/Bqldv6
+8qI+AJ0bvvTDIC3/6pH+mZnnmwRyYtbstgCgnuHji7TbD2QuvpuT04H1EzaBJyM=
+=w7bq
+-----END PGP SIGNATURE-----
+
+--uAKRQypu60I7Lcqm--
