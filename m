@@ -2,220 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 670F83CBB8F
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 20:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB913CBB90
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 20:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbhGPSEY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 14:04:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46054 "EHLO mail.kernel.org"
+        id S230376AbhGPSE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 14:04:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231397AbhGPSEY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 14:04:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30FA260FE7;
-        Fri, 16 Jul 2021 18:01:23 +0000 (UTC)
+        id S231397AbhGPSE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Jul 2021 14:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9049E613D3;
+        Fri, 16 Jul 2021 18:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626458485;
-        bh=7pMLKvDWehqCXP/DQ9v5oS8GIdR5yjURjaLDDBr3u0w=;
-        h=Subject:To:Cc:From:Date:From;
-        b=F6EojrWQ0NFHcE3OPP6osrJ/JfyR28fAXD+yZ+cPZKFJ3A1FCbpQNGRFqjI6n26Wo
-         x0+34qBORGnqDhL2yWOf4WP6ZV/2KeS6avn08ARm2xO2ZfpkzUrFwzVUAP3QqtGob5
-         pTwtJMOvlmi2Pjqk/5Mra3D/r0ONlckHAM6rhupU=
-Subject: FAILED: patch "[PATCH] drm/amd/display: Cover edge-case when changing DISPCLK" failed to apply to 5.13-stable tree
-To:     Wesley.Chalmers@amd.com, Anson.Jacob@amd.com,
-        Dmytro.Laktyushkin@amd.com, alexander.deucher@amd.com,
-        daniel.wheeler@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Jul 2021 20:01:21 +0200
-Message-ID: <1626458481158204@kroah.com>
+        s=korg; t=1626458493;
+        bh=E1EKMQQeWc+/Gvs/ODJCXt2BVLvvvGKp3Nl3lGt6ksA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=pdBu7gov+7E0hdd9FChutuB1lRmeDNPYmM9h9iGmlfJAM6P+hkOGj05e6UIpCw0ow
+         Sirtni1i+BPzljAftTjELxHiZMKuFZZzzjuLh0xhn3sB3QsxybDRzsE4wcpQl7tRUy
+         CaRGEiPB9dcpfJfkomce7iE441Mct44A6zAF9zSQ=
+Date:   Fri, 16 Jul 2021 20:01:22 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.13 000/266] 5.13.3-rc1 review
+Message-ID: <YPHJcsohJ/yklDhj@kroah.com>
+References: <20210715182613.933608881@linuxfoundation.org>
+ <2eeb4711-8ad3-9d87-23b9-ba298cd462dc@roeck-us.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <2eeb4711-8ad3-9d87-23b9-ba298cd462dc@roeck-us.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jul 16, 2021 at 08:26:32AM -0700, Guenter Roeck wrote:
+> On 7/15/21 11:35 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.13.3 release.
+> > There are 266 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
+> > Anything received after that time might be too late.
+> > 
+> 
+> This one is a bit surprising.
+> 
+> Build reference: v5.13.2-267-g7e5885d
+> Compiler version: x86_64-linux-gcc (GCC) 11.1.0
+> 
+> Building i386:allyesconfig ... failed
+> --------------
+> Error log:
+> drivers/gpu/drm/amd/amdgpu/../display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c: In function 'dcn20_update_clocks_update_dentist':
+> drivers/gpu/drm/amd/amdgpu/../display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c:154:47: error: 'const struct stream_encoder_funcs' has no member named 'get_fifo_cal_average_level'
+> 
+> Turns out that CONFIG_DRM_AMD_DC_DCN is only enabled with allyesconfig
+> for ARCH=i386 but not for ARCH=x86_64, and get_fifo_cal_average_level
+> is indeed not a member of struct stream_encoder_funcs in v5.13.y-queue.
+> This strongly suggests that commit a39c5ab96adc ("drm/amd/display: Cover
+> edge-case when changing DISPCLK WDIVIDER") either needs to be dropped
+> from v5.13.y, or it needs to be backported (and tested) properly.
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+I've now dropped this, thanks.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 78ebca321999699f30ea19029726d1a3908b395f Mon Sep 17 00:00:00 2001
-From: Wesley Chalmers <Wesley.Chalmers@amd.com>
-Date: Thu, 6 May 2021 17:43:42 -0400
-Subject: [PATCH] drm/amd/display: Cover edge-case when changing DISPCLK
- WDIVIDER
-
-[WHY]
-When changing the DISPCLK_WDIVIDER value from 126 to 127, the change in
-clock rate is too great for the FIFOs to handle. This can cause visible
-corruption during clock change.
-
-HW has handed down this register sequence to fix the issue.
-
-[HOW]
-The sequence, from HW:
-a.	127 -> 126
-Read  DIG_FIFO_CAL_AVERAGE_LEVEL
-FIFO level N = DIG_FIFO_CAL_AVERAGE_LEVEL / 4
-Set DCCG_FIFO_ERRDET_OVR_EN = 1
-Write 1 to OTGx_DROP_PIXEL for (N-4) times
-Set DCCG_FIFO_ERRDET_OVR_EN = 0
-Write DENTIST_DISPCLK_RDIVIDER = 126
-
-Because of frequency stepping, sequence a can be executed to change the
-divider from 127 to any other divider value.
-
-b.	126 -> 127
-Read  DIG_FIFO_CAL_AVERAGE_LEVEL
-FIFO level N = DIG_FIFO_CAL_AVERAGE_LEVEL / 4
-Set DCCG_FIFO_ERRDET_OVR_EN = 1
-Write 1 to OTGx_ADD_PIXEL for (12-N) times
-Set DCCG_FIFO_ERRDET_OVR_EN = 0
-Write DENTIST_DISPCLK_RDIVIDER = 127
-
-Because of frequency stepping, divider must first be set from any other
-divider value to 126 before executing sequence b.
-
-Signed-off-by: Wesley Chalmers <Wesley.Chalmers@amd.com>
-Reviewed-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Acked-by: Anson Jacob <Anson.Jacob@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-index 59d17195bc22..9d1db74de36d 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c
-@@ -123,7 +123,7 @@ void dcn20_update_clocks_update_dpp_dto(struct clk_mgr_internal *clk_mgr,
- 	}
- }
- 
--void dcn20_update_clocks_update_dentist(struct clk_mgr_internal *clk_mgr)
-+void dcn20_update_clocks_update_dentist(struct clk_mgr_internal *clk_mgr, struct dc_state *context)
- {
- 	int dpp_divider = DENTIST_DIVIDER_RANGE_SCALE_FACTOR
- 			* clk_mgr->base.dentist_vco_freq_khz / clk_mgr->base.clks.dppclk_khz;
-@@ -132,6 +132,68 @@ void dcn20_update_clocks_update_dentist(struct clk_mgr_internal *clk_mgr)
- 
- 	uint32_t dppclk_wdivider = dentist_get_did_from_divider(dpp_divider);
- 	uint32_t dispclk_wdivider = dentist_get_did_from_divider(disp_divider);
-+	uint32_t current_dispclk_wdivider;
-+	uint32_t i;
-+
-+	REG_GET(DENTIST_DISPCLK_CNTL,
-+			DENTIST_DISPCLK_WDIVIDER, &current_dispclk_wdivider);
-+
-+	/* When changing divider to or from 127, some extra programming is required to prevent corruption */
-+	if (current_dispclk_wdivider == 127 && dispclk_wdivider != 127) {
-+		for (i = 0; i < clk_mgr->base.ctx->dc->res_pool->pipe_count; i++) {
-+			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
-+			uint32_t fifo_level;
-+			struct dccg *dccg = clk_mgr->base.ctx->dc->res_pool->dccg;
-+			struct stream_encoder *stream_enc = pipe_ctx->stream_res.stream_enc;
-+			int32_t N;
-+			int32_t j;
-+
-+			if (!pipe_ctx->stream)
-+				continue;
-+			/* Virtual encoders don't have this function */
-+			if (!stream_enc->funcs->get_fifo_cal_average_level)
-+				continue;
-+			fifo_level = stream_enc->funcs->get_fifo_cal_average_level(
-+					stream_enc);
-+			N = fifo_level / 4;
-+			dccg->funcs->set_fifo_errdet_ovr_en(
-+					dccg,
-+					true);
-+			for (j = 0; j < N - 4; j++)
-+				dccg->funcs->otg_drop_pixel(
-+						dccg,
-+						pipe_ctx->stream_res.tg->inst);
-+			dccg->funcs->set_fifo_errdet_ovr_en(
-+					dccg,
-+					false);
-+		}
-+	} else if (dispclk_wdivider == 127 && current_dispclk_wdivider != 127) {
-+		REG_UPDATE(DENTIST_DISPCLK_CNTL,
-+				DENTIST_DISPCLK_WDIVIDER, 126);
-+		REG_WAIT(DENTIST_DISPCLK_CNTL, DENTIST_DISPCLK_CHG_DONE, 1, 50, 100);
-+		for (i = 0; i < clk_mgr->base.ctx->dc->res_pool->pipe_count; i++) {
-+			struct pipe_ctx *pipe_ctx = &context->res_ctx.pipe_ctx[i];
-+			struct dccg *dccg = clk_mgr->base.ctx->dc->res_pool->dccg;
-+			struct stream_encoder *stream_enc = pipe_ctx->stream_res.stream_enc;
-+			uint32_t fifo_level;
-+			int32_t N;
-+			int32_t j;
-+
-+			if (!pipe_ctx->stream)
-+				continue;
-+			/* Virtual encoders don't have this function */
-+			if (!stream_enc->funcs->get_fifo_cal_average_level)
-+				continue;
-+			fifo_level = stream_enc->funcs->get_fifo_cal_average_level(
-+					stream_enc);
-+			N = fifo_level / 4;
-+			dccg->funcs->set_fifo_errdet_ovr_en(dccg, true);
-+			for (j = 0; j < 12 - N; j++)
-+				dccg->funcs->otg_add_pixel(dccg,
-+						pipe_ctx->stream_res.tg->inst);
-+			dccg->funcs->set_fifo_errdet_ovr_en(dccg, false);
-+		}
-+	}
- 
- 	REG_UPDATE(DENTIST_DISPCLK_CNTL,
- 			DENTIST_DISPCLK_WDIVIDER, dispclk_wdivider);
-@@ -251,11 +313,11 @@ void dcn2_update_clocks(struct clk_mgr *clk_mgr_base,
- 		if (dpp_clock_lowered) {
- 			// if clock is being lowered, increase DTO before lowering refclk
- 			dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
--			dcn20_update_clocks_update_dentist(clk_mgr);
-+			dcn20_update_clocks_update_dentist(clk_mgr, context);
- 		} else {
- 			// if clock is being raised, increase refclk before lowering DTO
- 			if (update_dppclk || update_dispclk)
--				dcn20_update_clocks_update_dentist(clk_mgr);
-+				dcn20_update_clocks_update_dentist(clk_mgr, context);
- 			// always update dtos unless clock is lowered and not safe to lower
- 			dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
- 		}
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
-index 0b9c045b0c8e..d254d0b6fba1 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn20/dcn20_clk_mgr.h
-@@ -50,7 +50,8 @@ void dcn2_get_clock(struct clk_mgr *clk_mgr,
- 			enum dc_clock_type clock_type,
- 			struct dc_clock_config *clock_cfg);
- 
--void dcn20_update_clocks_update_dentist(struct clk_mgr_internal *clk_mgr);
-+void dcn20_update_clocks_update_dentist(struct clk_mgr_internal *clk_mgr,
-+					struct dc_state *context);
- 
- void dcn2_read_clocks_from_hw_dentist(struct clk_mgr *clk_mgr_base);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-index 652fa89fae5f..513676a6f52b 100644
---- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-+++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn30/dcn30_clk_mgr.c
-@@ -334,11 +334,11 @@ static void dcn3_update_clocks(struct clk_mgr *clk_mgr_base,
- 		if (dpp_clock_lowered) {
- 			/* if clock is being lowered, increase DTO before lowering refclk */
- 			dcn20_update_clocks_update_dpp_dto(clk_mgr, context, safe_to_lower);
--			dcn20_update_clocks_update_dentist(clk_mgr);
-+			dcn20_update_clocks_update_dentist(clk_mgr, context);
- 		} else {
- 			/* if clock is being raised, increase refclk before lowering DTO */
- 			if (update_dppclk || update_dispclk)
--				dcn20_update_clocks_update_dentist(clk_mgr);
-+				dcn20_update_clocks_update_dentist(clk_mgr, context);
- 			/* There is a check inside dcn20_update_clocks_update_dpp_dto which ensures
- 			 * that we do not lower dto when it is not safe to lower. We do not need to
- 			 * compare the current and new dppclk before calling this function.*/
-
