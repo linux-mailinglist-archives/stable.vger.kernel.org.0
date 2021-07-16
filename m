@@ -2,101 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D20CF3CB9CA
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 17:26:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96A283CB9DE
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 17:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240361AbhGPP3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 11:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241014AbhGPP3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 11:29:32 -0400
-Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C1DDC06175F;
-        Fri, 16 Jul 2021 08:26:36 -0700 (PDT)
-Received: by mail-ot1-x335.google.com with SMTP id f93-20020a9d03e60000b02904b1f1d7c5f4so10210571otf.9;
-        Fri, 16 Jul 2021 08:26:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:to:cc:references:from:subject:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=FQdR6op+7WBYNDUzA/PH4cP1TLkkwTedaU7CNoXH0K8=;
-        b=is23gRH3vT6ZrN6v0otpUpycO4RBmpGLjWUc82bGf5Pmt35OEJmdy7KO1RVbmrov/g
-         c3YgR91KO64xek+vwqKy4kNRDsvoFTmBjhdHeBk9tFc4B/eJ7Rh5TlXvgt/5ggo33/08
-         7Bae+SvDRhyC09Al4mkqlTDkvtGT3e2339tzOEvEEVxyw3AJ1kxziOzSFTqYWztwUDhD
-         UYQQoeG8j4DhW3y5E1R3awj1unI6Jbm66v1qZF3IPzVAvv6NG+YqRb55QbhmCd+INH2c
-         yBvXgdeDCXe3PydXgYgp5onbjp3qSD+tdKFbu8BcU82wyyvt3szS6APMx+a/OB04ewZ3
-         TcRg==
+        id S240494AbhGPPdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 11:33:47 -0400
+Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:57538
+        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S240361AbhGPPdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 11:33:46 -0400
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com [209.85.208.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPS id 1460740A01
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 15:30:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1626449446;
+        bh=lzDyQtqSG+wcmjlQ/yngTHyuRcJlXYVjVPj//xbU6UM=;
+        h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+         In-Reply-To:Content-Type;
+        b=G2iJbGHDSu50Aa8IFZd6UC/ntN+JmDLffa3IhgEaCJklrGJ8gmJazi8j88gJXk2MH
+         9wPaUEvI+570tSL6oU6M0RyUbRJ0YODTejxbuLl+HhgW2ZkAPZF8VNDZ3wqgUBRC38
+         G0oeXesV5waGXMFW0J45m2NsL/NfcQlPMJnAMD5+SsrH7JvIA6pjdx/haL/DKpv5xw
+         XNzSY1XZkuGRyGMSXs6SvWxOUhG3hLwV7xUNU7w5PATU0NBwZ94kOUO+7S3O1VazXq
+         178kK0/543kz7CDcMmEp/mNBo6x6YoGvDq3En74Psbf17HcvY+7PcALKmwWtSRx5ly
+         T7jIDsu40EYVw==
+Received: by mail-ed1-f72.google.com with SMTP id v4-20020a50a4440000b02903ab1f22e1dcso4994172edb.23
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 08:30:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:to:cc:references:from:subject:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=FQdR6op+7WBYNDUzA/PH4cP1TLkkwTedaU7CNoXH0K8=;
-        b=GNO23amslpOFc7FRzsJRf07ndsqZn8qjeId8KqOpvJNxZYf+tKLookWHmV1zXfIKxG
-         tUOZGbHP+zXcOTizSjrkSlCVI5QwdJLxLHCA4KFPm0SOGc8fXxD5KfSkrCwTyrtvwsRG
-         /EspoOi3gW96ivAWfja9oSiBLAmZzR0/mJs21KzXQIbc7pYnQC+yJ6bMlmX1c2ZDZxgC
-         4ZpkfnLMiTANDnKOtcP5FdnHNeXBw9WlylY0yQrwDvsn3LmQG8ZA9LTck7GK0c4I8KLp
-         y7xsHs6hB0rh2FrS1nUF3PuLV0B9ifsHyENCKy7HdHllNlaaBdebASZnU31dtgdwKxPh
-         RFqw==
-X-Gm-Message-State: AOAM530Fq3VPmmNUfDVm8CokIHH+1vBB2vPTaK3p/cFyjlHHP2vz8rF6
-        BNn+PySVmEDJ/JXqYuVs+7qMbk3ZjIA=
-X-Google-Smtp-Source: ABdhPJz5YgLyGmPFe0qN9DzV5hOPlVEkLbcG6cHQLfgEYZJ/KWbCTwZBeGesj+I2faoJ5h95bebMCA==
-X-Received: by 2002:a9d:1d7:: with SMTP id e81mr3716619ote.106.1626449195707;
-        Fri, 16 Jul 2021 08:26:35 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id c11sm1965155otm.37.2021.07.16.08.26.33
+        bh=lzDyQtqSG+wcmjlQ/yngTHyuRcJlXYVjVPj//xbU6UM=;
+        b=P3MMB2DZSfO/LjS4zoGBXCLRdfajVX0dKeuy8XzYmFpyARrV5VZf6OPzSq1WuFWG2d
+         U7RhdHBuqVHdqNRTWQTe3B3SjpM6Oxc9kUitZBkB162OabvKetPbv/mQpff+WUBNVZ50
+         SEXXRSRbRvkQadeDK9X2v75c6gy0BoAea5h2pkv/F85a3CN3BoRwVRcUMbkV8eL68FhL
+         toYbYfnDh1pgj7YBGPOoTOjFMfR+cUIwyg32UIAdAQHsbesWLGLsoOB6vOwm/pfRnF/5
+         PVqSmjvRbUxoC7PuDq+TXd+Kc9mGyVG1jEwidpW2tRkdoFPoo/4vTL3xsU6Vo5zrFXQu
+         VL9Q==
+X-Gm-Message-State: AOAM530k+UdwolE/zydLWzOmRDjW8aRp9Ro3FCV4YigACAnVhqHErEBm
+        KNurNqHGVncC3sGKBfbpI4LqNJoK4/1F58Zl/8zFEXoozyeTuGFz82PEcP1GTyw+jTG+kMgNPvt
+        dDHrw1qWT+MTKjJq8sKbGRjluqgAQt/cGMg==
+X-Received: by 2002:a17:906:f8da:: with SMTP id lh26mr12276255ejb.203.1626449445781;
+        Fri, 16 Jul 2021 08:30:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy3ZR6YnWdCijD+/urtHfcI6jlToLBCHTm2Ps4RlTgIkJGBVRrq5fffztq1qhaCEsSbr26unQ==
+X-Received: by 2002:a17:906:f8da:: with SMTP id lh26mr12276241ejb.203.1626449445598;
+        Fri, 16 Jul 2021 08:30:45 -0700 (PDT)
+Received: from [192.168.3.211] (xdsl-188-155-177-222.adslplus.ch. [188.155.177.222])
+        by smtp.gmail.com with ESMTPSA id a5sm3882632edj.20.2021.07.16.08.30.44
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 16 Jul 2021 08:26:35 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20210715182613.933608881@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 5.13 000/266] 5.13.3-rc1 review
-Message-ID: <2eeb4711-8ad3-9d87-23b9-ba298cd462dc@roeck-us.net>
-Date:   Fri, 16 Jul 2021 08:26:32 -0700
+        Fri, 16 Jul 2021 08:30:44 -0700 (PDT)
+Subject: Re: [SRU][H][PATCH v2 1/1] usb: pci-quirks: disable D3cold on xhci
+ suspend for s2idle on AMD Renoir
+To:     Werner Sembach <wse@tuxedocomputers.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable <stable@vger.kernel.org>, kernel-team@lists.ubuntu.com,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Prike Liang <Prike.Liang@amd.com>
+References: <20210716104010.4889-1-wse@tuxedocomputers.com>
+ <20210716104010.4889-2-wse@tuxedocomputers.com> <YPGAq1zdem2QVTsb@kroah.com>
+ <b5ba1134-d557-565c-ba45-556984a66e7b@tuxedocomputers.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Message-ID: <4b5dffd2-6966-f68e-5ec1-4dd946e81308@canonical.com>
+Date:   Fri, 16 Jul 2021 17:30:44 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210715182613.933608881@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <b5ba1134-d557-565c-ba45-556984a66e7b@tuxedocomputers.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/15/21 11:35 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.13.3 release.
-> There are 266 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 16/07/2021 17:12, Werner Sembach wrote:
 > 
-> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
-> Anything received after that time might be too late.
+> Am 16.07.21 um 14:50 schrieb Greg Kroah-Hartman:
+>> On Fri, Jul 16, 2021 at 12:40:10PM +0200, Werner Sembach wrote:
+>>> From: Mario Limonciello <mario.limonciello@amd.com>
+>>>
+>>> BugLink: https://bugs.launchpad.net/bugs/1936583
+>>>
+>>> The XHCI controller is required to enter D3hot rather than D3cold for AMD
+>>> s2idle on this hardware generation.
+>>>
+>>> Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
+>>> host in resume and eventually this results in xhci resume failures during
+>>> the s2idle wakeup.
+>>>
+>>> Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
+>>> Suggested-by: Prike Liang <Prike.Liang@amd.com>
+>>> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+>>> Cc: stable <stable@vger.kernel.org> # 5.11+
+>>> Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
+>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>>> (cherry picked from commit d1658268e43980c071dbffc3d894f6f6c4b6732a)
+>>> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+>>> ---
+>>>  drivers/usb/host/xhci-pci.c | 7 ++++++-
+>>>  drivers/usb/host/xhci.h     | 1 +
+>>>  2 files changed, 7 insertions(+), 1 deletion(-)
+>>>
+>> Any reason you resent us a patch that is already in a stable release?
+>>
+>> And why not just use the stable kernel trees as-is?  Why attempt to
+>> cherry-pick random portions of them?
+>>
+>> thanks,
+>>
+>> greg k-h
 > 
+> I didn't add the mailing list as recipent for my last replies so here again:
+> 
+> I only checked the Ubuntu 5.11 tree where the patch is actually missing.
+> 
+> The 5.8 kernel has other issues because of outdated amdgpu, that's why we never checked the 5.4 kernel.
+> 
+> Testing for 5.4: often hangs on boot before display manager shows up
+> 
+> 5.4 + amdgpu-dkms from here: https://www.amd.com/en/support/kb/release-notes/rn-amdgpu-unified-linux-21-20 : Hang on
+> boot issue gone, but does not suspend anymore, and has graphic glitches.
+> 
+> Should I add these findings to the SRU?
 
-This one is a bit surprising.
+Hi Werner,
 
-Build reference: v5.13.2-267-g7e5885d
-Compiler version: x86_64-linux-gcc (GCC) 11.1.0
+This patch is specific to Ubuntu so it should not have been sent to LKML
+(stable, Greg and others), which you did. I guess that's what Greg meant.
 
-Building i386:allyesconfig ... failed
---------------
-Error log:
-drivers/gpu/drm/amd/amdgpu/../display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c: In function 'dcn20_update_clocks_update_dentist':
-drivers/gpu/drm/amd/amdgpu/../display/dc/clk_mgr/dcn20/dcn20_clk_mgr.c:154:47: error: 'const struct stream_encoder_funcs' has no member named 'get_fifo_cal_average_level'
+When sending such backports from your tree, be sure to set
+"suppresscc=all" in your .git/config or use appropriate argument for git
+send-email.
 
-Turns out that CONFIG_DRM_AMD_DC_DCN is only enabled with allyesconfig
-for ARCH=i386 but not for ARCH=x86_64, and get_fifo_cal_average_level
-is indeed not a member of struct stream_encoder_funcs in v5.13.y-queue.
-This strongly suggests that commit a39c5ab96adc ("drm/amd/display: Cover
-edge-case when changing DISPCLK WDIVIDER") either needs to be dropped
-from v5.13.y, or it needs to be backported (and tested) properly.
-
-Guenter
+Best regards,
+Krzysztof
