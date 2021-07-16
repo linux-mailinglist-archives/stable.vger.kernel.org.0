@@ -2,112 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AAE23CBA28
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 17:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36A73CBAD6
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 18:58:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241022AbhGPP5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 11:57:43 -0400
-Received: from mout.gmx.net ([212.227.17.21]:36113 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235486AbhGPP5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 11:57:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626450862;
-        bh=ksXNeWjE9mhpCKojHZGUGRXqHprFXeYao0Gn/NsBK8U=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=i9P02b+kqG0pOmEn2zEjkJQdcLNp67BynztKujypNcVILLZ3O6Crhk6ucIGnpUceP
-         6MWHCw7leFwTBh0eV7ndUEr9Dv2lLVKbYIDCAY8Id0T0tD7KHxjoN1hGrcNvjXlx61
-         jxw49BlW3t9wHw7ft6RIycbUr1m3eXnHuvxITeug=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from localhost.localdomain ([83.52.228.41]) by mail.gmx.net
- (mrgmx104 [212.227.17.174]) with ESMTPSA (Nemesis) id
- 1M7sDq-1m0aQ32sx0-005368; Fri, 16 Jul 2021 17:54:21 +0200
-From:   Len Baker <len.baker@gmx.com>
-To:     Yan-Hsuan Chuang <tony0620emma@gmail.com>,
+        id S230269AbhGPRBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 13:01:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48000 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229803AbhGPRBQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 13:01:16 -0400
+Received: from mail-oi1-x235.google.com (mail-oi1-x235.google.com [IPv6:2607:f8b0:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B42FEC06175F
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 09:58:20 -0700 (PDT)
+Received: by mail-oi1-x235.google.com with SMTP id s23so11668010oij.0
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 09:58:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zF6RFynJImZVZ9iauRKVrADk1+eSALtVWbPASLHhoSw=;
+        b=CYfZq/00WLjjWY1y5nRSBmHv2gLKV/HPnda9tFP2NnVUU0Wmm+FGSaRVjx7ugR8Wu8
+         gVqOAn49/fcLFt2j5zQor/oTx+Jc8rdVjMNfSyuGOUUPuFt7FC/Ok1UjIuCgrVE4R1wQ
+         g97bIBeGzSYqzNZwtdBTzPpYJlV55FMfIxS5Y=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zF6RFynJImZVZ9iauRKVrADk1+eSALtVWbPASLHhoSw=;
+        b=Dx1jtGDpXWNtDw5XI8Hl9Ue4ziTsvwBTiqCyYPq47/BGCYaF2v5pUJthaAydT3WqQh
+         15+1RJe/76ut7OMDOte0V7BfqYW8Hy9ihX14NOCy6H7XJHfI58Rxmk+gMuetwx00UMOV
+         js+tHnTPNt2RLxZNOq3QFJxLwNCMxxubEjux5mhjdDPIlz9wkSItiPxlovf14w6W+k1K
+         4ytoIR7UK99MglPrTFwwAWACB61ixyrgSWbrkE8qDgCIaSJMLgxudLUXYENVQx2oDM3T
+         ErYdJ5c9lgQtt7xCW2GOIQJUm+9+C32ccpzto+zcrcZh1ctzFndAq3NNd7fmE5QexZFZ
+         sPAQ==
+X-Gm-Message-State: AOAM532+oNoEWj0eVjPII0RtOlXbtXizBlo0g4ArQPGQVW9kKCM0QAub
+        ztTiWfqv4I38nK9ZFBnZA6jYAjhlhSloqw==
+X-Google-Smtp-Source: ABdhPJxKP+Ch3usQGQ0fkwQThdP0TY1QQ+jhsAWa8Q0TrdaGtOdkENi5T5Xx/NDIjGpGWYBh0OJ7YA==
+X-Received: by 2002:aca:e107:: with SMTP id y7mr13162862oig.11.1626454699490;
+        Fri, 16 Jul 2021 09:58:19 -0700 (PDT)
+Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com. [209.85.167.170])
+        by smtp.gmail.com with ESMTPSA id o129sm2156936oif.21.2021.07.16.09.58.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Jul 2021 09:58:18 -0700 (PDT)
+Received: by mail-oi1-f170.google.com with SMTP id u15so11626720oiw.3
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 09:58:18 -0700 (PDT)
+X-Received: by 2002:aca:304f:: with SMTP id w76mr11034037oiw.77.1626454698098;
+ Fri, 16 Jul 2021 09:58:18 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210716155311.5570-1-len.baker@gmx.com>
+In-Reply-To: <20210716155311.5570-1-len.baker@gmx.com>
+From:   Brian Norris <briannorris@chromium.org>
+Date:   Fri, 16 Jul 2021 09:58:07 -0700
+X-Gmail-Original-Message-ID: <CA+ASDXPSL4bFpyjRYGEOG=Df8dOXc19LYBO06wdFN_k8OkiwKQ@mail.gmail.com>
+Message-ID: <CA+ASDXPSL4bFpyjRYGEOG=Df8dOXc19LYBO06wdFN_k8OkiwKQ@mail.gmail.com>
+Subject: Re: [PATCH v2] rtw88: Fix out-of-bounds write
+To:     Len Baker <len.baker@gmx.com>
+Cc:     Yan-Hsuan Chuang <tony0620emma@gmail.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Cc:     Len Baker <len.baker@gmx.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Stanislaw Gruszka <sgruszka@redhat.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Pkshih <pkshih@realtek.com>, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH v2] rtw88: Fix out-of-bounds write
-Date:   Fri, 16 Jul 2021 17:53:11 +0200
-Message-Id: <20210716155311.5570-1-len.baker@gmx.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:IjyohTEALGQ+L7Bvo6QDJsF/6QSuDrYezBtLbESGF0csYR5NTV1
- NHKHPwx93NIqHuaFGJK6Xxmba5c+bblv656SSXc3jYDWfZFLcyab2HAzJWRCp7PJKTP9UkV
- BoN9LXhGadp2OgHbRROuyjQWMzZ6FMCar3G+PvQy4AZiAoV2kPxoQaC8whYpst2wHD8zzME
- gt0E/C9LBYM1vHXPh+LDg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:JiOZJXCc/74=:eaIqEpLHflGIBNOan0ZdFj
- KEiyJRXY+KkmJfWFBEho7QEAYeq0e+lL1VMPwfidouDM5RYQPirB1Rg8srgbdWCyJ+nFPKWJv
- cVz871PMUU4NW4gTox5hKHvgJVqDMbORETcFOKeWRD7cTcbvEDxrAKnDqfChvQ5Z0+edjj1MG
- M3RhzAOIpouLAuG92pK/TS4IJNxPa1ScE7SumPPNfQOJXwi910yZVJswAQrm+aB8ZHSOWh/X+
- B+mJTy68igW99BfQmzCPYOzMqq6XUtWDT0mFDOCvA8xD31jU1lRaSTxut1R4zdaMLxAFc6CIu
- 9prVs2ya8CBLgPdYvnW4xwBo8HZYERDZEk3QpwzWWNdrw4ClwuV5VF9dJvVzi88EKnnbEh1ZX
- nXATaRUVMuoavJa7jLaYNyXCcWJij1nR7vfJBMo7otLqHsIW81bwksxoPyCHoHOjwJnWYMFKD
- kLkOwEH/mokutu3fWlxqgXM4SG0BpSQdKGvBiIG4v2S6qV3Q+cFQmmj5xyq7oBHy2MsqH9lws
- AAMbRNgfNUzEFPrpPc6Io82oZsRD+SRlCAtxADxBweMyjtlabSvmz8MtUgIN3xp2IjQB9dz9+
- Cbml35Yqh4e8cPvjYm9GanlZD3wEGQln5YdDX8FOmzz11bxmvueXrNDTf8uvmvAD2LmPVsWuX
- 5dEqwKeJebuNVRhB8voIvOJ/jQ7kWA/os+8U89J0o9rRe5c2AJWBOitNdWRBY67RQez57Bi0w
- GPxpG/yP52e7TOJm99LnJEuBoyrhqNQ3x6zl4XLlLMdUXudjIWEUxpAO4SOvt0+BZByk2y+Ll
- LdZjRA8U4tu4/bqQx0IkPVmPHWkmckeXbKaxwYBfajJYYI+yy6se621PuEx8lFi6iOE8sli0e
- IEaZILITreJux6HiLlPIdrYB7ABg//82xa7y7jQ6lBKcvV41Wrb2TiabQOViP5d3tIsyxmnyR
- Z8NwNu27xO5dTKIRfhVtWXIK9jxESuO09+EO8nKCYKz6aOUVwI+hj4pM9slW8aTxl80f1ysTK
- V0TGNuuRoSE8wjNqZnd80hlE1fB8bLNTB7wPg9Wde8z/giYFzfTU5GeYLGj3HYQMUpamTbRAE
- yd1SLkk3a3GDxYJJbnMtPCt+GEhdUHw4Ymp
+        Pkshih <pkshih@realtek.com>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        "<netdev@vger.kernel.org>" <netdev@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In the rtw_pci_init_rx_ring function the "if (len > TRX_BD_IDX_MASK)"
-statement guarantees that len is less than or equal to GENMASK(11, 0) or
-in other words that len is less than or equal to 4095. However the
-rx_ring->buf has a size of RTK_MAX_RX_DESC_NUM (defined as 512). This
-way it is possible an out-of-bounds write in the for statement due to
-the i variable can exceed the rx_ring->buff size.
+On Fri, Jul 16, 2021 at 8:54 AM Len Baker <len.baker@gmx.com> wrote:
+>
+> In the rtw_pci_init_rx_ring function the "if (len > TRX_BD_IDX_MASK)"
+> statement guarantees that len is less than or equal to GENMASK(11, 0) or
+> in other words that len is less than or equal to 4095. However the
+> rx_ring->buf has a size of RTK_MAX_RX_DESC_NUM (defined as 512). This
+> way it is possible an out-of-bounds write in the for statement due to
+> the i variable can exceed the rx_ring->buff size.
+>
+> However, this overflow never happens due to the rtw_pci_init_rx_ring is
+> only ever called with a fixed constant of RTK_MAX_RX_DESC_NUM. But it is
+> better to be defensive in this case and add a new check to avoid
+> overflows if this function is called in a future with a value greater
+> than 512.
+>
+> Cc: stable@vger.kernel.org
 
-However, this overflow never happens due to the rtw_pci_init_rx_ring is
-only ever called with a fixed constant of RTK_MAX_RX_DESC_NUM. But it is
-better to be defensive in this case and add a new check to avoid
-overflows if this function is called in a future with a value greater
-than 512.
+This kinda seems excessive, considering we absolutely know this is not
+currently a bug. But then, LWN nicely highlighted this thread, which
+reminds me that even without the Cc stable, this is likely to
+unnecessarily get picked up:
 
-Cc: stable@vger.kernel.org
-Addresses-Coverity-ID: 1461515 ("Out-of-bounds write")
-Fixes: e3037485c68ec ("rtw88: new Realtek 802.11ac driver")
-Signed-off-by: Len Baker <len.baker@gmx.com>
-=2D--
-Changelog v1 -> v2
-- Remove the macro ARRAY_SIZE from the for loop (Pkshih, Brian Norris).
-- Add a new check for the len variable (Pkshih, Brian Norris).
+https://lwn.net/ml/linux-kernel/YO0zXVX9Bx9QZCTs@kroah.com/
 
- drivers/net/wireless/realtek/rtw88/pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+And I guess silencing Coverity is a desirable goal in many cases, even
+if Coverity is being a bit trigger-happy.
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wirele=
-ss/realtek/rtw88/pci.c
-index e7d17ab8f113..53dc90276693 100644
-=2D-- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -273,6 +273,11 @@ static int rtw_pci_init_rx_ring(struct rtw_dev *rtwde=
-v,
- 		return -EINVAL;
- 	}
+So, *shrug*.
 
-+	if (len > ARRAY_SIZE(rx_ring->buf)) {
-+		rtw_err(rtwdev, "len %d exceeds maximum RX ring buffer\n", len);
-+		return -EINVAL;
-+	}
-+
- 	head =3D dma_alloc_coherent(&pdev->dev, ring_sz, &dma, GFP_KERNEL);
- 	if (!head) {
- 		rtw_err(rtwdev, "failed to allocate rx ring\n");
-=2D-
-2.25.1
+> Addresses-Coverity-ID: 1461515 ("Out-of-bounds write")
+> Fixes: e3037485c68ec ("rtw88: new Realtek 802.11ac driver")
+> Signed-off-by: Len Baker <len.baker@gmx.com>
+> ---
+> Changelog v1 -> v2
+> - Remove the macro ARRAY_SIZE from the for loop (Pkshih, Brian Norris).
+> - Add a new check for the len variable (Pkshih, Brian Norris).
 
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+
+Thanks.
