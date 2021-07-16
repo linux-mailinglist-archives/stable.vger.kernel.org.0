@@ -2,29 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFA93CB63E
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 12:45:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 329773CB635
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 12:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239169AbhGPKsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 06:48:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48542 "EHLO
+        id S238243AbhGPKnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 06:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239145AbhGPKsM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 06:48:12 -0400
+        with ESMTP id S237344AbhGPKnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 06:43:09 -0400
+X-Greylist: delayed 170 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 16 Jul 2021 03:40:14 PDT
 Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E02C06175F
-        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 03:45:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DDD6C06175F
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 03:40:14 -0700 (PDT)
 Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id A30D6C80089;
-        Fri, 16 Jul 2021 12:37:20 +0200 (CEST)
+        by srv6.fidu.org (Postfix) with ESMTP id 26527C80091;
+        Fri, 16 Jul 2021 12:40:13 +0200 (CEST)
 X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
 Received: from srv6.fidu.org ([127.0.0.1])
         by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id 6ItIr60bHv6m; Fri, 16 Jul 2021 12:37:20 +0200 (CEST)
-Received: from wsembach-tuxedo.fritz.box (p200300E37F209B006c872a2351999967.dip0.t-ipconnect.de [IPv6:2003:e3:7f20:9b00:6c87:2a23:5199:9967])
+        with LMTP id VqtQUU50jkfF; Fri, 16 Jul 2021 12:40:12 +0200 (CEST)
+Received: from wsembach-tuxedo.fritz.box (p200300E37F209b006c872a2351999967.dip0.t-ipconnect.de [IPv6:2003:e3:7f20:9b00:6c87:2a23:5199:9967])
         (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id 44817C8008A;
-        Fri, 16 Jul 2021 12:37:20 +0200 (CEST)
+        by srv6.fidu.org (Postfix) with ESMTPA id CB208C80092;
+        Fri, 16 Jul 2021 12:40:12 +0200 (CEST)
 From:   Werner Sembach <wse@tuxedocomputers.com>
 To:     kernel-team@lists.ubuntu.com
 Cc:     Mario Limonciello <mario.limonciello@amd.com>,
@@ -32,12 +33,12 @@ Cc:     Mario Limonciello <mario.limonciello@amd.com>,
         stable <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Werner Sembach <wse@tuxedocomputers.com>
-Subject: [SRU][H][PATCH 1/1] usb: pci-quirks: disable D3cold on xhci suspend for s2idle on AMD Renoir
-Date:   Fri, 16 Jul 2021 12:37:16 +0200
-Message-Id: <20210716103716.4473-2-wse@tuxedocomputers.com>
+Subject: [SRU][H][PATCH v2 1/1] usb: pci-quirks: disable D3cold on xhci suspend for s2idle on AMD Renoir
+Date:   Fri, 16 Jul 2021 12:40:10 +0200
+Message-Id: <20210716104010.4889-2-wse@tuxedocomputers.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20210716103716.4473-1-wse@tuxedocomputers.com>
-References: <20210716103716.4473-1-wse@tuxedocomputers.com>
+In-Reply-To: <20210716104010.4889-1-wse@tuxedocomputers.com>
+References: <20210716104010.4889-1-wse@tuxedocomputers.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -45,6 +46,8 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 From: Mario Limonciello <mario.limonciello@amd.com>
+
+BugLink: https://bugs.launchpad.net/bugs/1936583
 
 The XHCI controller is required to enter D3hot rather than D3cold for AMD
 s2idle on this hardware generation.
