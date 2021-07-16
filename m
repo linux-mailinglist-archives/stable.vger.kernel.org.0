@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 639823CBBA6
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 20:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DCE73CBBA7
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 20:07:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229534AbhGPSKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 14:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47134 "EHLO mail.kernel.org"
+        id S229611AbhGPSKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 14:10:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229462AbhGPSKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 14:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69C8C6109E;
-        Fri, 16 Jul 2021 18:07:03 +0000 (UTC)
+        id S229462AbhGPSKI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Jul 2021 14:10:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EBAF6109E;
+        Fri, 16 Jul 2021 18:07:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626458824;
-        bh=YrCmwbfgxGEial9IL2/y5h3KmZKOA5ycOq4sffW3Jkw=;
+        s=korg; t=1626458833;
+        bh=6rESp8CsXLOqLqEK9JdY4iMzhlqK5wi3gJtoI8ETHzk=;
         h=Subject:To:Cc:From:Date:From;
-        b=AzB1h3cBe2jhqgwp6IrJj3yzHdMQ3Xc2t2Kiq9Fg5PEnwWiQ/giV74c5aSVoXohSh
-         YSA0tzU9/kJrb9Nm9ry/qzTHJtCDjj/JjgvYcgRUtRyygzaffzWuHjEtjngpPHdVy8
-         nknfSgSto5evII7Lv0kx1JUm6/EPi53tWS9PN5so=
-Subject: FAILED: patch "[PATCH] s390/signal: switch to using vdso for sigreturn and syscall" failed to apply to 5.13-stable tree
+        b=CF5Au+7Cnn46Lia5VR+F1kVClnxO/X/8EhgQXW2l7QVBRfnzRrPGIn4Hayj8HfLAv
+         JnwZRjxbPAsTHfRYbRsb7FySsradoK4A5YHMlFyWSfA6DrSHZPeTYMsUCctJG/45ln
+         RH9oAYDpiB42whhJ32x87I0Jwm2ULGtSK0CPvXr8=
+Subject: FAILED: patch "[PATCH] s390/signal: switch to using vdso for sigreturn and syscall" failed to apply to 5.12-stable tree
 To:     svens@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com,
         stable@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 16 Jul 2021 20:07:00 +0200
-Message-ID: <1626458820150239@kroah.com>
+Date:   Fri, 16 Jul 2021 20:07:03 +0200
+Message-ID: <16264588237480@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 5.12-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
