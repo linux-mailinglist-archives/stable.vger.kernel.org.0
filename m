@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A85F23CB755
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 14:23:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEAA73CB758
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 14:25:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232478AbhGPM0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 08:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39446 "EHLO mail.kernel.org"
+        id S237493AbhGPM2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 08:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232024AbhGPM0C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 08:26:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C895E613E9
-        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 12:23:07 +0000 (UTC)
+        id S232024AbhGPM2D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Jul 2021 08:28:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C28F861370
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 12:25:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626438188;
-        bh=n3q6x5AwV1SogMQRQ7HNXDysgi+mIUaDgltmA2b7sHk=;
+        s=k20201202; t=1626438309;
+        bh=/lPLNid0llnqZDrRdP9kepnSaRcHOME+oTR9VGjlaNw=;
         h=From:To:Subject:Date:From;
-        b=S33lauYUaT/Hi/6NAnPnWEjwPTphJpWgTF8YK5CaIOEqA35OIUd3vIn8p4inC/hMK
-         C086F+nVqlKBh4zoDKHOwvUhybVr3IzYuKfiYioGo+Zs0uqOIdP4lnIA/PcrblxZdP
-         rYZnSRS9u54oup68Y0b+1Qqi5QqDKTLExWFSlYRIZT2T2CTsaeN3jQC1vDzLHsta4q
-         3e8mgP7IUvvN5Rdg0Df7lGSsEAn4DD0cSaPCU3dbee6fkmoElVTZZnIFwCqmnU/N4/
-         L7xJ0fuzeZnP7KLxZnmg7HnUx64613bC5r2xjBfSEYEbhZRfSJd1nN34WDJ2E26K53
-         4NLL3gjVOYD0Q==
+        b=sXKYSDC7EBW8jM4gG6eVNUzW6rYQqdBxaBqp9uiZ0oAoD78UFmNA3hnhGCMdujSoK
+         T90HCa2t7wqlrKkUyTGdCeEheVHQ6v+9HYMEp1wWkTct3OnECBDvwfNru7BTCZAqsw
+         5x4UqDqJy5anhP0E4OHvk+uXO/Lgv3uU+yyJwmj7lfirhDTsFNjRo0U8w2hU5sgsC5
+         ygimaZKO+ge/Mp4L6jv8Nvv3ngmxXgUGkzZRUsTfJb4iM/EL/SAcLEzRnSW7tpf0pS
+         Q5T8Nd8Cykrgx1r8iAc7WPROVKyN3zU2aglMjG/xu1tjhB4ZTZs/Kyx5tWJ9uT0Mjb
+         /TgsBTFNKJsvQ==
 Received: by pali.im (Postfix)
-        id 958AD735; Fri, 16 Jul 2021 14:23:05 +0200 (CEST)
+        id 6CF12735; Fri, 16 Jul 2021 14:25:06 +0200 (CEST)
 From:   =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>
 To:     stable@vger.kernel.org
-Subject: [PATCH] PCI: aardvark: Fix kernel panic during PIO transfer
-Date:   Fri, 16 Jul 2021 14:22:58 +0200
-Message-Id: <20210716122258.22778-1-pali@kernel.org>
+Subject: [PATCH stable-4.19] PCI: aardvark: Fix kernel panic during PIO transfer
+Date:   Fri, 16 Jul 2021 14:25:04 +0200
+Message-Id: <20210716122504.22976-1-pali@kernel.org>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -80,27 +80,29 @@ Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Reviewed-by: Marek Behún <kabel@kernel.org>
 Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
-[pali: Backported to 4.14 version]
+[pali: Backported to 4.19 version]
 ---
-This patch is backported to 4.14 version. It depends on commit
-7fbcb5da811b as presented on Cc: stable line. Backport for commit
-7fbcb5da811b to 4.14 was sent in previous email:
-https://lore.kernel.org/stable/20210716122033.22568-1-pali@kernel.org/
+This patch is backported to 4.19 version. It depends on commit
+7fbcb5da811b as presented on Cc: stable line.
 ---
- drivers/pci/host/pci-aardvark.c | 49 +++++++++++++++++++++++++++------
+ drivers/pci/controller/pci-aardvark.c | 49 ++++++++++++++++++++++-----
  1 file changed, 40 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pci/host/pci-aardvark.c b/drivers/pci/host/pci-aardvark.c
-index 5dbbf3d7de36..a3a28e38430a 100644
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -426,10 +426,39 @@ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 524e0fb3b062..947f60ba5b75 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -382,7 +382,7 @@ static int advk_pcie_wait_pio(struct advk_pcie *pcie)
  		udelay(PIO_RETRY_DELAY);
  	}
  
 -	dev_err(dev, "config read/write timed out\n");
 +	dev_err(dev, "PIO read/write transfer time out\n");
  	return -ETIMEDOUT;
+ }
+ 
+@@ -395,6 +395,35 @@ static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
+ 	return true;
  }
  
 +static bool advk_pcie_pio_is_running(struct advk_pcie *pcie)
@@ -135,7 +137,7 @@ index 5dbbf3d7de36..a3a28e38430a 100644
  static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
  			     int where, int size, u32 *val)
  {
-@@ -442,9 +471,10 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
+@@ -407,9 +436,10 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
  		return PCIBIOS_DEVICE_NOT_FOUND;
  	}
  
@@ -149,7 +151,7 @@ index 5dbbf3d7de36..a3a28e38430a 100644
  
  	/* Program the control register */
  	reg = advk_readl(pcie, PIO_CTRL);
-@@ -463,7 +493,8 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
+@@ -428,7 +458,8 @@ static int advk_pcie_rd_conf(struct pci_bus *bus, u32 devfn,
  	/* Program the data strobe */
  	advk_writel(pcie, 0xf, PIO_WR_DATA_STRB);
  
@@ -159,7 +161,7 @@ index 5dbbf3d7de36..a3a28e38430a 100644
  	advk_writel(pcie, 1, PIO_START);
  
  	ret = advk_pcie_wait_pio(pcie);
-@@ -497,9 +528,8 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+@@ -462,9 +493,8 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
  	if (where % size)
  		return PCIBIOS_SET_FAILED;
  
@@ -171,7 +173,7 @@ index 5dbbf3d7de36..a3a28e38430a 100644
  
  	/* Program the control register */
  	reg = advk_readl(pcie, PIO_CTRL);
-@@ -526,7 +556,8 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
+@@ -491,7 +521,8 @@ static int advk_pcie_wr_conf(struct pci_bus *bus, u32 devfn,
  	/* Program the data strobe */
  	advk_writel(pcie, data_strobe, PIO_WR_DATA_STRB);
  
