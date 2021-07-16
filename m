@@ -2,143 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A533CB0B3
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 04:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A35283CB2F1
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 09:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231700AbhGPCR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 15 Jul 2021 22:17:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231313AbhGPCR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 15 Jul 2021 22:17:27 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0AD5C06175F;
-        Thu, 15 Jul 2021 19:14:32 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id b13so12368496ybk.4;
-        Thu, 15 Jul 2021 19:14:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=bDpz3xiBhEz0ZZ2vw/9YGDuwg2vaRKleCOGcjaj3zg4=;
-        b=XaId+1qnRj2oNBeX0nz4OjboMoi0KPWUrc9e8pe/yfJdlg4lWqivxBZc2+1h4QdWbK
-         yswl4M0mPayEhwrTlL1pWmAt8UpG/rzL71rzXBqpJPt+xiU8GeKPRQbvS6kbltJiUdJa
-         b188EH4ApBzyF+jreycjfVEEHOIscxtViw0jQDBpG8mFWFyBGhJOHP7Kd9/cvmQuM5Jp
-         XgyW0dWFaEmpBZBK5NGTnUgFqq0UHgiZ2Q7yGqEHZj0k1RPbaCXFjbkaCrGgIRWk/Hrs
-         YG9nWZVh55IJJuS15fkNrnN/PytpMAPNWQybCGle4p/OfulLibTwplqNZTCVLQEDFx2e
-         oR7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bDpz3xiBhEz0ZZ2vw/9YGDuwg2vaRKleCOGcjaj3zg4=;
-        b=bO4a5XFjZ1MAa+PAKQ7gy4wQsGU9uYgTPyuCaPpJlbE0tjwODJMeBKbMVDNZPXp6Oq
-         elHLG+NoZSaAh/4w/iOJzl9/+zk/MWODJcu1rXUmqBSWwf+OoWB/xB0UObU2OuTnrNp7
-         PfB7vV2pCLwZDr0ZrHuVmFAzubaNgSou0mx+cqnjFTWQEKUZMOE4uduzYZYkqjG3m+de
-         +XCwHkD8wer32ytrZp9Uq8CD0L+e5TG5Gb24Bq85BTha4i9Ls1U4chf04MOIEJw+3p5z
-         x/+wbW0871kJe/3wemtTv4mrtUAGMD8rJSS2QJ9wMSpR7FzaYJwdDTsQdszi9pCAPGdc
-         MUzA==
-X-Gm-Message-State: AOAM532AF9LLb4YMYbpZVxhVOn3qPO68yYeneILqtoov2dJf0MTx7plE
-        Zc+qnWFl3WmuhKEfED1fSw895eRrinHITJi2JUI=
-X-Google-Smtp-Source: ABdhPJzw92hfvOr8tCGDvjfAYyHupxas+W5zP3mI0mOwj/Sbm57yeTdrS56J7ejmHTJIDHhU8zMdkIkAscRyeR4tmpM=
-X-Received: by 2002:a25:df11:: with SMTP id w17mr9327459ybg.314.1626401672149;
- Thu, 15 Jul 2021 19:14:32 -0700 (PDT)
+        id S235006AbhGPHHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 03:07:37 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:6942 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235393AbhGPHHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 03:07:36 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GR2Fs1FNdz7vRW;
+        Fri, 16 Jul 2021 15:01:05 +0800 (CST)
+Received: from dggpeml500012.china.huawei.com (7.185.36.15) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 16 Jul 2021 15:04:40 +0800
+Received: from localhost.localdomain (10.175.127.227) by
+ dggpeml500012.china.huawei.com (7.185.36.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2176.2; Fri, 16 Jul 2021 15:04:39 +0800
+From:   Zheng Yejian <zhengyejian1@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <Mathy.Vanhoef@kuleuven.be>,
+        <johannes.berg@intel.com>
+CC:     <stable@vger.kernel.org>, <yuehaibing@huawei.com>,
+        <zhangjinhao2@huawei.com>, <zhengyejian1@huawei.com>
+Subject: [RFC PATCH 4.4] mac80211: fix handling A-MSDUs that start with an RFC 1042 header
+Date:   Fri, 16 Jul 2021 15:11:26 +0800
+Message-ID: <20210716071126.672549-1-zhengyejian1@huawei.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210627135117.28641-1-bmeng.cn@gmail.com> <11706f7e-a53a-5640-d713-bc4562db71fa@huawei.com>
- <CAEUhbmV=h3nZ8Aa94_uyjrZ_NGe+9-xAorUMubSPJXu3y60PeQ@mail.gmail.com>
- <aa1f027c-bbc7-92f8-80a6-fe290cd1cdf8@huawei.com> <CAEUhbmXeqAsLxm+oCHRPHMZq2mQXPD6fJOFerwp_BRv1kCc7ow@mail.gmail.com>
- <CAEUhbmUvDSocWobb26PcrV6vi6kHjg8o6pNomt9AnGWGbvAuhw@mail.gmail.com>
- <94a92009-ce49-bbe4-794c-0631520e4c3d@huawei.com> <CAEUhbmX8a+rjc4=5QfR4MivMMx-T_7KDq-QHtmrGsVL2VqLQAA@mail.gmail.com>
- <CAEUhbmVQPYQSuYLaTRY112TpUB9g-KfCEREGODxNivHhnWNb_Q@mail.gmail.com>
-In-Reply-To: <CAEUhbmVQPYQSuYLaTRY112TpUB9g-KfCEREGODxNivHhnWNb_Q@mail.gmail.com>
-From:   Bin Meng <bmeng.cn@gmail.com>
-Date:   Fri, 16 Jul 2021 10:14:20 +0800
-Message-ID: <CAEUhbmVO_dV86LJLz3S4PFu9oFp4_5HWSkKLwqc-ZkQK=yYZfw@mail.gmail.com>
-Subject: Re: [PATCH] riscv: Fix 32-bit RISC-V boot failure
-To:     Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc:     Palmer Dabbelt <palmerdabbelt@google.com>,
-        Atish Patra <atish.patra@wdc.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.127.227]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggpeml500012.china.huawei.com (7.185.36.15)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 8, 2021 at 9:29 PM Bin Meng <bmeng.cn@gmail.com> wrote:
->
-> Hi Palmer,
->
-> On Thu, Jul 1, 2021 at 10:20 AM Bin Meng <bmeng.cn@gmail.com> wrote:
-> >
-> > On Thu, Jul 1, 2021 at 10:08 AM Kefeng Wang <wangkefeng.wang@huawei.com=
-> wrote:
-> > >
-> > >
-> > > On 2021/6/30 19:58, Bin Meng wrote:
-> > > > On Mon, Jun 28, 2021 at 11:21 AM Bin Meng <bmeng.cn@gmail.com> wrot=
-e:
-> > > >> On Mon, Jun 28, 2021 at 10:28 AM Kefeng Wang <wangkefeng.wang@huaw=
-ei.com> wrote:
-> > > >>>
-> > > >>> On 2021/6/28 9:15, Bin Meng wrote:
-> > > >>>> On Mon, Jun 28, 2021 at 8:53 AM Kefeng Wang <wangkefeng.wang@hua=
-wei.com> wrote:
-> > > >>>>> Hi=EF=BC=8C sorry for the mistake=EF=BC=8Cthe bug is fixed by
-> > > >>>>>
-> > > >>>>> https://lore.kernel.org/linux-riscv/20210602085517.127481-2-wan=
-gkefeng.wang@huawei.com/
-> > > >>>> What are we on the patch you mentioned?
-> > > >>>>
-> > > >>>> I don't see it applied in the linux/master.
-> > > >>>>
-> > > >>>> Also there should be a "Fixes" tag and stable@vger.kernel.org cc=
-'ed
-> > > >>>> because 32-bit is broken since v5.12.
-> > > >>> https://kernel.googlesource.com/pub/scm/linux/kernel/git/riscv/li=
-nux/+/c9811e379b211c67ba29fb09d6f644dd44cfcff2
-> > > >>>
-> > > >>> it's on Palmer' riscv-next.
-> > > >> Not sure riscv-next is for which release? This is a regression and
-> > > >> should be on 5.13.
-> > > >>
-> > > >>> Hi Palmer, should I resend or could you help me to add the fixes =
-tag?
-> > > > Your patch mixed 2 things (fix plus one feature) together, so it is
-> > > > not proper to back port your patch.
-> > >
-> > > "mem=3D" will change the range of memblock, so the fix part must be i=
-ncluded.
-> > >
-> >
-> > Yes, so you can rebase the "mem=3D" changes on top of my patch.
-> >
-> > The practice is that we should not mix 2 things in one patch. I can
-> > imagine that you wanted to add "mem=3D" to RISC-V and suddenly found th=
-e
-> > existing logic was broken, so you sent one patch to do both.
-> >
-> > >
-> > > >
-> > > > Here is my 2 cents:
-> > > >
-> > > > 1. Drop your patch from riscv-next
-> > > > 2. Apply my patch as it is a simple fix to previous commit. This
-> > > > allows stable kernel to cherry-pick the fix to v5.12 and v5.13.
-> > > > 3. Rebase your patch against mine, and resend v2
-> > > >
-> > > > Let me know if this makes sense.
-> > >
-> > > It is not a big problem for me, but I have no right abourt riscv-next=
-,
-> > >
-> > > let's wait Palmer's advise.
-> > >
-> >
-> > Sure. Palmer, let me know your thoughts.
->
-> Ping?
+In v4.4, commit e76511a6fbb5 ("mac80211: properly handle A-MSDUs that
+start with an RFC 1042 header") looks like an incomplete backport.
 
-Ping?
+There is no functional changes in the commit, since
+__ieee80211_data_to_8023() which defined in net/wireless/util.c is
+only called by ieee80211_data_to_8023() and parameter 'is_amsdu' is
+always input as false.
+
+By comparing with its upstream, I found that following snippet has not
+been backported:
+  > --- a/net/mac80211/rx.c
+  > +++ b/net/mac80211/rx.c
+  > @@ -2682,7 +2682,7 @@ __ieee80211_rx_h_amsdu(struct ieee80211_rx_data *rx, u8 data_offset)
+  >  	if (ieee80211_data_to_8023_exthdr(skb, &ethhdr,
+  >  					  rx->sdata->vif.addr,
+  >  					  rx->sdata->vif.type,
+  > -					  data_offset))
+  > +					  data_offset, true))
+  >  		return RX_DROP_UNUSABLE;
+
+I think that's where really causing changes and also needs to be
+backported, so I try to do it.
+
+Fixes: e76511a6fbb5 ("mac80211: properly handle A-MSDUs that start with an RFC 1042 header")
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
+---
+ net/wireless/util.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 84c0a96b3cb6d..a2b35e6619697 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -664,7 +664,7 @@ void ieee80211_amsdu_to_8023s(struct sk_buff *skb, struct sk_buff_head *list,
+ 	u8 dst[ETH_ALEN], src[ETH_ALEN];
+ 
+ 	if (has_80211_header) {
+-		err = ieee80211_data_to_8023(skb, addr, iftype);
++		err = __ieee80211_data_to_8023(skb, addr, iftype, true);
+ 		if (err)
+ 			goto out;
+ 
+-- 
+2.31.1
+
