@@ -2,75 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D9C3CB784
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 14:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 183AE3CB7E2
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 15:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232804AbhGPMxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 08:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47254 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232803AbhGPMxw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 08:53:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE1E6613F2;
-        Fri, 16 Jul 2021 12:50:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626439856;
-        bh=f5n1K0mFr3KGE4uLLcmzbieneKDB1GC/uHgiliqHzuI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=N0Getapco/f1FRRHD90VyIkaUGA1ypXJnxiKB62OTTZmoRf3MR/nsGHs4hakrxnyN
-         E/Ldv46ybP2xEBzS0gMR9VjpwbGPwa9nhenKMwzy1PjSJJKOK2wFZcIDt1NNg0rbM9
-         RamliJCABh6ozbNYyDZdBI74czR23irDmvTbZ6fA=
-Date:   Fri, 16 Jul 2021 14:50:51 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Werner Sembach <wse@tuxedocomputers.com>
-Cc:     kernel-team@lists.ubuntu.com,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Prike Liang <Prike.Liang@amd.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [SRU][H][PATCH v2 1/1] usb: pci-quirks: disable D3cold on xhci
- suspend for s2idle on AMD Renoir
-Message-ID: <YPGAq1zdem2QVTsb@kroah.com>
-References: <20210716104010.4889-1-wse@tuxedocomputers.com>
- <20210716104010.4889-2-wse@tuxedocomputers.com>
+        id S237892AbhGPNg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 09:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239904AbhGPNg0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 09:36:26 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A902C06175F;
+        Fri, 16 Jul 2021 06:33:31 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id h24-20020a9d64180000b029036edcf8f9a6so9879708otl.3;
+        Fri, 16 Jul 2021 06:33:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=J8zZyCyzqQ3uGMERkdBrsKlmNQvpnHyyK4MC4H/8Gs0=;
+        b=szOqrPYWTtGxAz3qMYwJfT8jxLNorrIF1OyeLWF+guxoNYtIffKOZfyNlnSxoDxeos
+         4kzbEIksSStV/JHdLtigogeK+o07bE1yhwf07IlirRLfWuma6YvXkpSYP0LL2A0xax2w
+         55u9ZAL4Zwt7VuqNWwE8CV7GZiR2U5nu1uxTGNjBfRVAJu+/8h7v+ZUquk7t/Yr/1+Nw
+         o4Q2uYGJJMi5EIayOSsyh7vU6vdzoBeYCSQeBqjPd88BZDal46TiuOCWxorBPtrK0/hd
+         lsVVeKQMV22rWaVxWHI/bxxLpdIj1iQIH2Bc7xsSt+WlqBWpbBsGNzSrgMqxZKiolTVa
+         ar2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=J8zZyCyzqQ3uGMERkdBrsKlmNQvpnHyyK4MC4H/8Gs0=;
+        b=SYqeIsGSsJa4Ct+HUN8SkB3SBMbRJF1MP78v9pyS5uxkGe/CsyUax91m4I/UIQwGq2
+         MtPWgRMBEnO97xvtVYn9E9XrFcLqFn8vOnaEs7DjFpPQLD9WK8I5zoc/m9LXaOb1F3p7
+         uqYy4ugDPn2qW0sTRHCqpeXpJTsyy2upxAysM65ufse+AQ6ptSQW/sBa7ikMy63G2DCI
+         uX0vrCcammF48Dv9ip4fSPBTjVTXq85XOD1ZJRh1Uiz1bbsnBlFTMrXckETykU4CEu8u
+         CNjXJEmp6ufqWr9XQ5jkOQjqKLrpdWAPIg1tVC4QD9BlVM/LNfv4+VcJdR6du2eZ1ur3
+         9S2A==
+X-Gm-Message-State: AOAM530nXbL6U+7ULWOVvV7guGNFbKhuO9od5TrDwpVgbLTieL5pbip8
+        CLbVOS/ZHhpaCmkC+PqO7RKE8y6sP54=
+X-Google-Smtp-Source: ABdhPJzKBqJehrxIeL0AH//yLbx/rhisEl//AMmq2eKqQCVcAO0Eevy3/h8BYIpeLMklbwM2KrRiVA==
+X-Received: by 2002:a05:6830:2783:: with SMTP id x3mr2678021otu.37.1626442410034;
+        Fri, 16 Jul 2021 06:33:30 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id t16sm868115otm.63.2021.07.16.06.33.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Jul 2021 06:33:29 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Subject: Re: [PATCH 5.10 000/215] 5.10.51-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20210715182558.381078833@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <53f95a72-996a-ace3-9d34-60f23f4813b3@roeck-us.net>
+Date:   Fri, 16 Jul 2021 06:33:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210716104010.4889-2-wse@tuxedocomputers.com>
+In-Reply-To: <20210715182558.381078833@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 16, 2021 at 12:40:10PM +0200, Werner Sembach wrote:
-> From: Mario Limonciello <mario.limonciello@amd.com>
+On 7/15/21 11:36 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.51 release.
+> There are 215 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> BugLink: https://bugs.launchpad.net/bugs/1936583
-> 
-> The XHCI controller is required to enter D3hot rather than D3cold for AMD
-> s2idle on this hardware generation.
-> 
-> Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
-> host in resume and eventually this results in xhci resume failures during
-> the s2idle wakeup.
-> 
-> Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
-> Suggested-by: Prike Liang <Prike.Liang@amd.com>
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> Cc: stable <stable@vger.kernel.org> # 5.11+
-> Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> (cherry picked from commit d1658268e43980c071dbffc3d894f6f6c4b6732a)
-> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-> ---
->  drivers/usb/host/xhci-pci.c | 7 ++++++-
->  drivers/usb/host/xhci.h     | 1 +
->  2 files changed, 7 insertions(+), 1 deletion(-)
+> Responses should be made by Sat, 17 Jul 2021 18:21:07 +0000.
+> Anything received after that time might be too late.
 > 
 
-Any reason you resent us a patch that is already in a stable release?
 
-And why not just use the stable kernel trees as-is?  Why attempt to
-cherry-pick random portions of them?
+Building ia64:defconfig ... failed
+--------------
+Error log:
+<stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+mm/page_alloc.c:6270:20: error: conflicting types for 'memmap_init'; have 'void(void)'
+  6270 | void __init __weak memmap_init(void)
+       |                    ^~~~~~~~~~~
+In file included from include/linux/pgtable.h:6,
+                  from include/linux/mm.h:33,
+                  from mm/page_alloc.c:19:
+arch/ia64/include/asm/pgtable.h:523:17: note: previous declaration of 'memmap_init' with type 'void(long unsigned int,  int,  long unsigned int,  long unsigned int)'
+   523 |     extern void memmap_init (unsigned long size, int nid, unsigned long zone,
+       |                 ^~~~~~~~~~~
 
-thanks,
+I'll send a complete summary later, after builds are complete.
 
-greg k-h
+Guenter
