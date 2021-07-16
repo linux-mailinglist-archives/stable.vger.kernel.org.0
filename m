@@ -2,61 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B51D3CB38F
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 09:51:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89EE73CB392
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 09:51:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236704AbhGPHyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 03:54:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35656 "EHLO
+        id S236862AbhGPHy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 03:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236757AbhGPHyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 03:54:23 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF7C4C061762
-        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 00:51:28 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id x16so4922613plg.3
-        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 00:51:28 -0700 (PDT)
+        with ESMTP id S236850AbhGPHy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 03:54:29 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFC9C061764
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 00:51:33 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id i16-20020a17090acf90b02901736d9d2218so6545924pju.1
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 00:51:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=3drlnqLci8b92FvhLSUmW1dM18kTxe4HZJWDZW845h8=;
-        b=Jdj9wk8b2VbsBv1/xEpWv+SR/MxQH9P6VEjUfs0n1DxUpd3I6H1opD1dIAsBSKGSVu
-         xeOJH1Sv4HM1ta6lO09VyrteUsmy7dEPpNojMlcaojxdmQHzd/0B1tIXYMylZaSpKyJG
-         qwIjcStYGt/uy+esecFXWnHUPHhLf6Blk8XIZ4zW8qVPuGAq93kWcdm9zLP8GRPWNtMp
-         BRJyhJKfPOZVd6Wj1WZ9iFF1qi6+LciVxiZyvOms6YJJ4Sj2EU8XNJKAynJAvOsB+9wl
-         tcKqqCNgbhw4d3fe5qJiCH+2u9QHa3oksL1q5GwZw+9LVUnJ/jOBw8VeJOu6SJ/35v8E
-         b7ig==
+        bh=7y1o6yqtjLQ46xl4Mz29qqqiixnPhzplTd0TzQ94aRg=;
+        b=tfpa7GBSViVK2gcM9PCAR1fkgHjvE6HDI85TLLUpapLIJ/DUKYyvZ30xL/g5+HZdSm
+         QpcxwO8T1lDn6mRwdsOEBvVpFETyrkMrXIuevBi+wXjK3R4sB3bRcqX149B2IxlEzNcX
+         2FH7anYDx/vxVvMXMGsJTPjYKE7+wPpNOzPA3Cu8J72n/3X/muPfkCkmP56nZS+s2zvF
+         DItFtkwKjB4rwKAAbI1jMSGK+Fpw2KY/jiWJoV9FKml6PbRN4VIBL3w/CxicA4IkbK9j
+         U5FRtoTUVeNwnFnirhTR+ZVHa8jxbragi4URzMLp+qnb+UDKYSv2E8b2s/w32awe0yUz
+         Pe6Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=3drlnqLci8b92FvhLSUmW1dM18kTxe4HZJWDZW845h8=;
-        b=o1Z+WyvOjhfgbYbflm1NF5PF9VoZoZ03mseI6JxcMblSD2N2KJWvRd7j3PZN+kuFTC
-         LfTL3yuS7HmYKY2DbV/WNJjrCuP3NkEV8qPSJS6Ae6FWTtanBHvnBa0yUYECK2cqWaa9
-         liWgpqRSRc51aEH7m+Vycfw7l3CUxgWZ/SemUKxUNylEOU/i/BPdSyiv0GBIdsmBW7OT
-         9ZCs/6CC0DyTlWU6ZJIdbZEPfzlaQUeLbpw2NIBBNdpYKuEkgWwuu3l3WuFY6ZVVIG9K
-         mblO0VPGiOCrri79imU8dZ9zT8vT+rOVFLcclRq8YClvuryLrSCrOCj+yKFSCUwCHoCZ
-         Z4AA==
-X-Gm-Message-State: AOAM531tsOUO+TVYu/U75waC8WC9qSMzb4ZIoA9E68v89qa4/olDUN+S
-        4pY97fadlYs81Xv7T1PeS7/4
-X-Google-Smtp-Source: ABdhPJyuWNdHtPtkcEZNiwF7MgRatrF5Q3VY/6wlMaJTtMaxlrPvDJylyd5ps6I+RPJAbDfG5NK3Cg==
-X-Received: by 2002:a17:90a:5204:: with SMTP id v4mr14324567pjh.147.1626421888238;
-        Fri, 16 Jul 2021 00:51:28 -0700 (PDT)
+        bh=7y1o6yqtjLQ46xl4Mz29qqqiixnPhzplTd0TzQ94aRg=;
+        b=keFn8usZ24V/3ngvmacm8OmTtUiJxiD9PdZCbzPAy/gHdB2glB6/BPzgYtrxufoVUY
+         fPjvY00umKyOzQrGGeUpA/yHWTNuWzTbyH7gYnSAvkmjgecd3YOiEuLVqhqk9+LDjSnU
+         HmqqC67QlaCDPCXhjUbvu9/AMfUBmWLAecg10AH93PksinXf5G6ZYk+0CooxucykZ4UJ
+         /hCzhI0E4PPcSt/oj8MmT2WXSavbqJBPvP3c0Nggq8/lRAJr9Ob7cb2xnBu7fRxD3j80
+         h/+SstyE408xf4fgPuAKHCaPBD5qdpfguiK/HfT9A4O7q2+Uv/OyPrCxgCNNItKQ7T9p
+         HJLw==
+X-Gm-Message-State: AOAM533V1sPi8ge4ILOWaAbfVy2MGh4v66GS/Q4EL6zrlL/ItDGOzSAm
+        EFjoCKGDnm7LHhUQhPV42LI6
+X-Google-Smtp-Source: ABdhPJzAdJ1prZlca+X3sHqmVx9UevaMHNtfD+6WQz3c0SLZAOVp6FpslGhylnz2JHfDFeQbmHXKaw==
+X-Received: by 2002:a17:902:ec06:b029:12b:55c9:3b51 with SMTP id l6-20020a170902ec06b029012b55c93b51mr6444777pld.4.1626421892881;
+        Fri, 16 Jul 2021 00:51:32 -0700 (PDT)
 Received: from localhost.localdomain ([120.138.12.214])
-        by smtp.gmail.com with ESMTPSA id 21sm9253357pfp.211.2021.07.16.00.51.24
+        by smtp.gmail.com with ESMTPSA id 21sm9253357pfp.211.2021.07.16.00.51.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 16 Jul 2021 00:51:27 -0700 (PDT)
+        Fri, 16 Jul 2021 00:51:32 -0700 (PDT)
 From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 To:     gregkh@linuxfoundation.org
 Cc:     hemantk@codeaurora.org, bbhatt@codeaurora.org,
         linux-arm-msm@vger.kernel.org, jhugo@codeaurora.org,
         linux-kernel@vger.kernel.org, loic.poulain@linaro.org,
         stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 1/3] bus: mhi: pci_generic: Apply no-op for wake using sideband wake boolean
-Date:   Fri, 16 Jul 2021 13:21:04 +0530
-Message-Id: <20210716075106.49938-2-manivannan.sadhasivam@linaro.org>
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Jeffrey Hugo <quic_jhugo@quicinc.com>
+Subject: [PATCH 2/3] bus: mhi: core: Validate channel ID when processing command completions
+Date:   Fri, 16 Jul 2021 13:21:05 +0530
+Message-Id: <20210716075106.49938-3-manivannan.sadhasivam@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20210716075106.49938-1-manivannan.sadhasivam@linaro.org>
 References: <20210716075106.49938-1-manivannan.sadhasivam@linaro.org>
@@ -68,110 +69,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bhaumik Bhatt <bbhatt@codeaurora.org>
 
-Devices such as SDX24 do not have the provision for inband wake
-doorbell in the form of channel 127 and instead have a sideband
-GPIO for it. Newer devices such as SDX55 or SDX65 support inband
-wake method by default. Ensure the functionality is used based on
-this such that device wake stays held when a client driver uses
-mhi_device_get() API or the equivalent debugfs entry.
+MHI reads the channel ID from the event ring element sent by the
+device which can be any value between 0 and 255. In order to
+prevent any out of bound accesses, add a check against the maximum
+number of channels supported by the controller and those channels
+not configured yet so as to skip processing of that event ring
+element.
 
-Cc: stable@vger.kernel.org #5.12
-Fixes: e3e5e6508fc1 ("bus: mhi: pci_generic: No-Op for device_wake operations")
+Cc: stable@vger.kernel.org #5.10
+Fixes: 1d3173a3bae7 ("bus: mhi: core: Add support for processing events from client device")
 Signed-off-by: Bhaumik Bhatt <bbhatt@codeaurora.org>
+Reviewed-by: Hemant Kumar <hemantk@codeaurora.org>
 Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/1624560809-30610-1-git-send-email-bbhatt@codeaurora.org
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+Link: https://lore.kernel.org/r/1624558141-11045-1-git-send-email-bbhatt@codeaurora.org
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 ---
- drivers/bus/mhi/pci_generic.c | 27 +++++++++++++++++++--------
- 1 file changed, 19 insertions(+), 8 deletions(-)
+ drivers/bus/mhi/core/main.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/bus/mhi/pci_generic.c b/drivers/bus/mhi/pci_generic.c
-index ca3bc40427f8..3396cb30ebec 100644
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -32,6 +32,8 @@
-  * @edl: emergency download mode firmware path (if any)
-  * @bar_num: PCI base address register to use for MHI MMIO register space
-  * @dma_data_width: DMA transfer word size (32 or 64 bits)
-+ * @sideband_wake: Devices using dedicated sideband GPIO for wakeup instead
-+ *		   of inband wake support (such as sdx24)
-  */
- struct mhi_pci_dev_info {
- 	const struct mhi_controller_config *config;
-@@ -40,6 +42,7 @@ struct mhi_pci_dev_info {
- 	const char *edl;
- 	unsigned int bar_num;
- 	unsigned int dma_data_width;
-+	bool sideband_wake;
- };
+diff --git a/drivers/bus/mhi/core/main.c b/drivers/bus/mhi/core/main.c
+index 22acde118bc3..fc9196f11cb7 100644
+--- a/drivers/bus/mhi/core/main.c
++++ b/drivers/bus/mhi/core/main.c
+@@ -773,11 +773,18 @@ static void mhi_process_cmd_completion(struct mhi_controller *mhi_cntrl,
+ 	cmd_pkt = mhi_to_virtual(mhi_ring, ptr);
  
- #define MHI_CHANNEL_CONFIG_UL(ch_num, ch_name, el_count, ev_ring) \
-@@ -242,7 +245,8 @@ static const struct mhi_pci_dev_info mhi_qcom_sdx65_info = {
- 	.edl = "qcom/sdx65m/edl.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct mhi_pci_dev_info mhi_qcom_sdx55_info = {
-@@ -251,7 +255,8 @@ static const struct mhi_pci_dev_info mhi_qcom_sdx55_info = {
- 	.edl = "qcom/sdx55m/edl.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct mhi_pci_dev_info mhi_qcom_sdx24_info = {
-@@ -259,7 +264,8 @@ static const struct mhi_pci_dev_info mhi_qcom_sdx24_info = {
- 	.edl = "qcom/prog_firehose_sdx24.mbn",
- 	.config = &modem_qcom_v1_mhiv_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = true,
- };
- 
- static const struct mhi_channel_config mhi_quectel_em1xx_channels[] = {
-@@ -301,7 +307,8 @@ static const struct mhi_pci_dev_info mhi_quectel_em1xx_info = {
- 	.edl = "qcom/prog_firehose_sdx24.mbn",
- 	.config = &modem_quectel_em1xx_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = true,
- };
- 
- static const struct mhi_channel_config mhi_foxconn_sdx55_channels[] = {
-@@ -339,7 +346,8 @@ static const struct mhi_pci_dev_info mhi_foxconn_sdx55_info = {
- 	.edl = "qcom/sdx55m/edl.mbn",
- 	.config = &modem_foxconn_sdx55_config,
- 	.bar_num = MHI_PCI_DEFAULT_BAR_NUM,
--	.dma_data_width = 32
-+	.dma_data_width = 32,
-+	.sideband_wake = false,
- };
- 
- static const struct pci_device_id mhi_pci_id_table[] = {
-@@ -640,9 +648,12 @@ static int mhi_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	mhi_cntrl->status_cb = mhi_pci_status_cb;
- 	mhi_cntrl->runtime_get = mhi_pci_runtime_get;
- 	mhi_cntrl->runtime_put = mhi_pci_runtime_put;
--	mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
--	mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
--	mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
+ 	chan = MHI_TRE_GET_CMD_CHID(cmd_pkt);
+-	mhi_chan = &mhi_cntrl->mhi_chan[chan];
+-	write_lock_bh(&mhi_chan->lock);
+-	mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
+-	complete(&mhi_chan->completion);
+-	write_unlock_bh(&mhi_chan->lock);
 +
-+	if (info->sideband_wake) {
-+		mhi_cntrl->wake_get = mhi_pci_wake_get_nop;
-+		mhi_cntrl->wake_put = mhi_pci_wake_put_nop;
-+		mhi_cntrl->wake_toggle = mhi_pci_wake_toggle_nop;
++	if (chan < mhi_cntrl->max_chan &&
++	    mhi_cntrl->mhi_chan[chan].configured) {
++		mhi_chan = &mhi_cntrl->mhi_chan[chan];
++		write_lock_bh(&mhi_chan->lock);
++		mhi_chan->ccs = MHI_TRE_GET_EV_CODE(tre);
++		complete(&mhi_chan->completion);
++		write_unlock_bh(&mhi_chan->lock);
++	} else {
++		dev_err(&mhi_cntrl->mhi_dev->dev,
++			"Completion packet for invalid channel ID: %d\n", chan);
 +	}
  
- 	err = mhi_pci_claim(mhi_cntrl, info->bar_num, DMA_BIT_MASK(info->dma_data_width));
- 	if (err)
+ 	mhi_del_ring_element(mhi_cntrl, mhi_ring);
+ }
 -- 
 2.25.1
 
