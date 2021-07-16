@@ -2,75 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B42363CB543
-	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 11:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64AE63CB57A
+	for <lists+stable@lfdr.de>; Fri, 16 Jul 2021 11:52:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbhGPJcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 05:32:53 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:6943 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232740AbhGPJcx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 05:32:53 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GR5TS5d4yz7vVS;
-        Fri, 16 Jul 2021 17:26:20 +0800 (CST)
-Received: from dggpeml500017.china.huawei.com (7.185.36.243) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Fri, 16 Jul 2021 17:29:53 +0800
-Received: from huawei.com (10.175.103.91) by dggpeml500017.china.huawei.com
- (7.185.36.243) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Fri, 16 Jul
- 2021 17:29:52 +0800
-From:   Yang Yingliang <yangyingliang@huawei.com>
-To:     <sudipm.mukherjee@gmail.com>, <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <davem@davemloft.net>, <sashal@kernel.org>
-Subject: [PATCH 5.4] net: moxa: Use devm_platform_get_and_ioremap_resource()
-Date:   Fri, 16 Jul 2021 17:32:45 +0800
-Message-ID: <20210716093245.315536-1-yangyingliang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S234603AbhGPJzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 05:55:40 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51600 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231386AbhGPJzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 05:55:40 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 7E9641C0B82; Fri, 16 Jul 2021 11:52:44 +0200 (CEST)
+Date:   Fri, 16 Jul 2021 11:52:43 +0200
+From:   Pavel Machek <pavel@ucw.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Oscar Salvador <osalvador@suse.de>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Hanjun Guo <guohanjun@huawei.com>
+Subject: Re: [PATCH 5.10 140/215] mm,hwpoison: return -EBUSY when migration
+ fails
+Message-ID: <20210716095243.GA12505@amd>
+References: <20210715182558.381078833@linuxfoundation.org>
+ <20210715182624.294004469@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.103.91]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpeml500017.china.huawei.com (7.185.36.243)
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
+Content-Disposition: inline
+In-Reply-To: <20210715182624.294004469@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 35cba15a504bf4f585bb9d78f47b22b28a1a06b2 ]
 
-Use devm_platform_get_and_ioremap_resource() to simplify
-code and avoid a null-ptr-deref by checking 'res' in it.
+--LZvS9be/3tNcYl/X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[yyl: since devm_platform_get_and_ioremap_resource() is introduced
-      in linux-5.7, so just check the return value after calling
-      platform_get_resource()]
+Hi!
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
- drivers/net/ethernet/moxa/moxart_ether.c | 4 ++++
- 1 file changed, 4 insertions(+)
+> From: Oscar Salvador <osalvador@suse.de>
+>=20
+> commit 3f4b815a439adfb8f238335612c4b28bc10084d8
 
-diff --git a/drivers/net/ethernet/moxa/moxart_ether.c b/drivers/net/ethernet/moxa/moxart_ether.c
-index f70bb81e1ed65..caf7051302725 100644
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -481,6 +481,10 @@ static int moxart_mac_probe(struct platform_device *pdev)
- 	priv->pdev = pdev;
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto init_fail;
-+	}
- 	ndev->base_addr = res->start;
- 	priv->base = devm_ioremap_resource(p_dev, res);
- 	if (IS_ERR(priv->base)) {
--- 
-2.25.1
+Another format of marking upstream commits. How are this is number 8
+or so. I have scripts trying to parse this, and I don't believe I'm
+the only one.
 
+> Link: https://lkml.kernel.org/r/20201209092818.30417-1-osalvador@suse.de
+> Signed-off-by: Oscar Salvador <osalvador@suse.de>
+> Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+> Acked-by: Vlastimil Babka <vbabka@suse.cz>
+> Cc: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+Could se simply place Upstream: <hash> tag here? That should
+discourage such "creativity"... plus it will make it clear who touched
+patch in mainline context and who in stable context.
+
+Best regards,
+								Pavel
+--=20
+http://www.livejournal.com/~pavelmachek
+
+--LZvS9be/3tNcYl/X
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmDxVusACgkQMOfwapXb+vL/ywCaA9AxmEi/0e539yr6i76sbWx0
+PTYAoJr3uwgDGvyh8EZtZtKkqxlbnvni
+=4+Fo
+-----END PGP SIGNATURE-----
+
+--LZvS9be/3tNcYl/X--
