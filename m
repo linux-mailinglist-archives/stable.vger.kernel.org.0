@@ -2,115 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3B843CC5F0
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 21:48:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093F43CC66C
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 23:03:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234719AbhGQTvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 15:51:51 -0400
-Received: from mail-pf1-f175.google.com ([209.85.210.175]:34669 "EHLO
-        mail-pf1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbhGQTvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Jul 2021 15:51:50 -0400
-Received: by mail-pf1-f175.google.com with SMTP id o201so12354698pfd.1;
-        Sat, 17 Jul 2021 12:48:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=XzqBX+hros9NGU/wG4gITs49J7cStdDidaUInx9C9QA=;
-        b=X+GjG4y468SyHYR1GU39g3wCulnk7J2SFTZNiosDGWcxWOTO0MYwpCobrc8VCTn11/
-         JcImSOVoBLmJOzsatnf44vB2ZtrpNab/njzWHopgkqoLRN+0tPfHv/30CNYjFL+SQ8gN
-         uA16kJwYxJ3bnGB1cio7sifkqaY/qImJxsMX0skKRmJsgIaw//kK+MqvzHhVrAV4xL33
-         8jwWY5aOpFpXPs6CohGWhwRzSgfspM5Wa4r9ciBabSGKNUXRIH64Jp2MXJxwdnZ8UYw3
-         k5n1YFBq+jiTFEuwHuNh2ualPfWgFNbuGSED/B80kNa4+WGDvwtMAVWXzfUeCyM98ssO
-         z/7A==
-X-Gm-Message-State: AOAM531CwBT8i6U/7qSn72AueWYb6k0OLMCI9/Ajix0RnhRQGsqz1/XG
-        6FlkuZQYPxfwMeumNUWXDvY=
-X-Google-Smtp-Source: ABdhPJybPMeS0UYdluDgqim9MHVrNXhvjV6ol0mK8qMV0fxClAyA+iqrKL8tfIPt2uGqzKjQe+beYA==
-X-Received: by 2002:a63:4f62:: with SMTP id p34mr16507883pgl.283.1626551332853;
-        Sat, 17 Jul 2021 12:48:52 -0700 (PDT)
-Received: from localhost ([24.4.24.239])
-        by smtp.gmail.com with ESMTPSA id w123sm14290136pfb.109.2021.07.17.12.48.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Jul 2021 12:48:51 -0700 (PDT)
-Date:   Sat, 17 Jul 2021 12:48:48 -0700
-From:   Moritz Fischer <mdf@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Justin Forbes <jmforbes@linuxtx.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Moritz Fischer <mdf@kernel.org>
-Subject: Re: [PATCH 5.13 024/800] usb: renesas-xhci: Fix handling of unknown
- ROM state
-Message-ID: <YPM0IE8U7oDSVbvd@epycbox.lan>
-References: <20210712060912.995381202@linuxfoundation.org>
- <20210712060916.499546891@linuxfoundation.org>
- <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
- <YPMUu+kNu0GZeQQ1@kroah.com>
+        id S233721AbhGQVGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Jul 2021 17:06:24 -0400
+Received: from mx-out.tlen.pl ([193.222.135.142]:7177 "EHLO mx-out.tlen.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233666AbhGQVGY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Jul 2021 17:06:24 -0400
+Received: (wp-smtpd smtp.tlen.pl 5205 invoked from network); 17 Jul 2021 23:03:24 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1626555805; bh=FE1IwLYa5+z5yzmsIhR39LquL2tIsRR2uaObII7BvVA=;
+          h=Subject:To:Cc:From;
+          b=ygOC+NOc0hGQ7EG6Nh3G74srrnc/sZW0C2/oQc642pfg9Y736/CRwAmqPfa9Il487
+           ktp8jjeqCTWatv0+93BmaJAQ22NSowkEujj8tEmrUMZ4AKPoCD2sNNlmS8z7who+3T
+           GjmJ4RODcNTR2J4womW73lpjzGO1WwI0y1873klA=
+Received: from aaff143.neoplus.adsl.tpnet.pl (HELO [192.168.1.22]) (mat.jonczyk@o2.pl@[83.4.135.143])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
+          for <linux-rtc@vger.kernel.org>; 17 Jul 2021 23:03:24 +0200
+Message-ID: <6357c8f3-e2b0-052e-0382-b5ed093a4bfa@o2.pl>
+Date:   Sat, 17 Jul 2021 23:03:16 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YPMUu+kNu0GZeQQ1@kroah.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:90.0) Gecko/20100101
+ Thunderbird/90.0
+Subject: Re: [PATCH] rtc: mc146818: Use hours for checking RTC availability
+Content-Language: en-GB
+To:     linux-rtc@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org
+References: <113c6933-28c8-91cf-f802-5a38417da749@o2.pl>
+ <20210707213844.115181-1-mat.jonczyk@o2.pl>
+From:   =?UTF-8?Q?Mateusz_Jo=c5=84czyk?= <mat.jonczyk@o2.pl>
+In-Reply-To: <20210707213844.115181-1-mat.jonczyk@o2.pl>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-WP-MailID: dfe76dec5e23ce83d35340ea05206901
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 0000000 [YVNE]                               
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 17, 2021 at 07:34:51PM +0200, Greg Kroah-Hartman wrote:
-> On Sat, Jul 17, 2021 at 08:39:19AM -0500, Justin Forbes wrote:
-> > On Mon, Jul 12, 2021 at 2:31 AM Greg Kroah-Hartman
-> > <gregkh@linuxfoundation.org> wrote:
-> > >
-> > > From: Moritz Fischer <mdf@kernel.org>
-> > >
-> > > commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
-> > >
-> > > The ROM load sometimes seems to return an unknown status
-> > > (RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
-> > >
-> > > If the ROM load indeed failed this leads to failures when trying to
-> > > communicate with the controller later on.
-> > >
-> > > Attempt to load firmware using RAM load in those cases.
-> > >
-> > > Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
-> > > Cc: stable@vger.kernel.org
-> > > Cc: Mathias Nyman <mathias.nyman@intel.com>
-> > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Cc: Vinod Koul <vkoul@kernel.org>
-> > > Tested-by: Vinod Koul <vkoul@kernel.org>
-> > > Reviewed-by: Vinod Koul <vkoul@kernel.org>
-> > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > > Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
-> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > >
-> > 
-> > After sending out 5.12.17 for testing, we had a user complain that all
-> > of their USB devices disappeared with the error:
-> > 
-> > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: Direct firmware load
-> > for renesas_usb_fw.mem failed with error -2
-> > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: request_firmware failed: -2
-> > Jul 15 23:18:53 kernel: xhci_hcd: probe of 0000:04:00.0 failed with error -2
-> > 
-> > After first assuming that something was missing in the backport to
-> > 5.12, I had the user try 5.13.2, and then 5.14-rc1. Both of those
-> > failed in the same way, so it is not working in the current Linus tree
-> > either.  Reverting this patch fixed the issue.
-> 
-> Can you send a revert for this so I can get that into Linus's tree and
-> then all stable releases as well?
-> 
-> thanks,
-> 
-> greg k-h
+Hello,
+Please do not apply this patch, it causes trouble on my Intel Kaby Lake laptop.
+(see below).
 
-Me or Justin? I can do it. This is annoying my system doesn't work
-without this :-(
+W dniu 07.07.2021 o 23:38, Mateusz Jończyk pisze:
+> To prevent an infinite loop, it is necessary to ascertain the RTC is
+> present. Previous code was checking if bit 6 in register 0x0D is
+> cleared. This caused a false negative on a motherboard with an AMD SB710
+> southbridge; according to the specification [1], bit 6 of register 0x0D
+> on this chipset is a scratchbit.
+>
+> Use the RTC_HOURS register instead, which is expected to contain a value
+> not larger then 24, in BCD format.
+>
+> Caveat: when I was playing with
+>         while true; do cat /sys/class/rtc/rtc0/time; done
+> I sometimes triggered this mechanism on my HP laptop. It appears that
+> CMOS_READ(RTC_VALID) was sometimes reading the number of seconds from
+> previous loop iteration. This happens very rarely, though, and this patch
+> does not make it any more likely.
 
-Back to the drawing board I guess ...
+According to Intel's documentation [2]:
 
-Justin, any idea if your customer had the eeprom populated and
-programmed or not, just as additional datapoint.
+    The update cycle [of CMOS RTC registers, which happens every second]
+    will start at least 488 μs after the UIP bit of register A is asserted, and
+    the entire cycle does not take more than 1984 μs to complete. The time and date RAM
+    locations (0–9) are disconnected from the external bus during this time.
 
-- Moritz
+Therefore, trying to access the RTC_HOURS register during the update time
+is undefined behavior. In my tests, it frequently returned values from the
+wrong register, such as the seconds or minutes register instead of the hours
+register and the values failed the "< 24" comparison.
+
+Indeed, the wrong readouts happen when the UIP bit is set.
+
+I was not aware of this and blamed my firmware for accessing the RTC clock independently.
+
+
+BTW, cmos_set_alarm() in drivers/rtc/rtc-cmos.c does not check for UIP bit.
+As it writes to registers in the 0-9 range, it may fail to set the alarm time.
+
+Greetings,
+
+Mateusz
+
+[2] 7th Generation Intel® Processor Family I/O for U/Y Platforms [...] Datasheet – Volume 1 of 2,
+page 209
+Intel's Document Number: 334658-006,
+https://www.intel.com/content/dam/www/public/us/en/documents/datasheets/7th-and-8th-gen-core-family-mobile-u-y-processor-lines-i-o-datasheet-vol-1.pdf
+
+> [1] AMD SB700/710/750 Register Reference Guide, page 308,
+> https://developer.amd.com/wordpress/media/2012/10/43009_sb7xx_rrg_pub_1.00.pdf
+>
+> Fixes: 211e5db19d15 ("rtc: mc146818: Detect and handle broken RTCs")
+> Fixes: ebb22a059436 ("rtc: mc146818: Dont test for bit 0-5 in Register D")
+> Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Alessandro Zummo <a.zummo@towertech.it>
+> Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+> Cc: stable@vger.kernel.org
+> ---
+>  drivers/rtc/rtc-cmos.c         |  6 +++---
+>  drivers/rtc/rtc-mc146818-lib.c | 10 ++++++++--
+>  2 files changed, 11 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+> index 670fd8a2970e..b0102fb31b3f 100644
+> --- a/drivers/rtc/rtc-cmos.c
+> +++ b/drivers/rtc/rtc-cmos.c
+> @@ -798,10 +798,10 @@ cmos_do_probe(struct device *dev, struct resource *ports, int rtc_irq)
+>  
+>  	spin_lock_irq(&rtc_lock);
+>  
+> -	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
+> -	if ((CMOS_READ(RTC_VALID) & 0x40) != 0) {
+> +	/* Ensure that the RTC is accessible (RTC_HOURS is in BCD format) */
+> +	if (CMOS_READ(RTC_HOURS) > 0x24) {
+>  		spin_unlock_irq(&rtc_lock);
+> -		dev_warn(dev, "not accessible\n");
+> +		dev_warn(dev, "not accessible or not working correctly\n");
+>  		retval = -ENXIO;
+>  		goto cleanup1;
+>  	}
+> diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+> index dcfaf09946ee..1d69c3c13257 100644
+> --- a/drivers/rtc/rtc-mc146818-lib.c
+> +++ b/drivers/rtc/rtc-mc146818-lib.c
+> @@ -21,9 +21,15 @@ unsigned int mc146818_get_time(struct rtc_time *time)
+>  
+>  again:
+>  	spin_lock_irqsave(&rtc_lock, flags);
+> -	/* Ensure that the RTC is accessible. Bit 6 must be 0! */
+> -	if (WARN_ON_ONCE((CMOS_READ(RTC_VALID) & 0x40) != 0)) {
+> +
+> +	/*
+> +	 * Ensure that the RTC is accessible, to avoid an infinite loop.
+> +	 * RTC_HOURS is in BCD format.
+> +	 */
+> +	if (CMOS_READ(RTC_HOURS) > 0x24) {
+>  		spin_unlock_irqrestore(&rtc_lock, flags);
+> +		pr_warn_once("Real-time clock is not accessible or not "
+> +				"working correctly\n");
+>  		memset(time, 0xff, sizeof(*time));
+>  		return 0;
+>  	}
+
+
