@@ -2,68 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD643CC500
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 19:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D7903CC507
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 19:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234046AbhGQRvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 13:51:40 -0400
-Received: from aposti.net ([89.234.176.197]:56892 "EHLO aposti.net"
+        id S234237AbhGQRvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Jul 2021 13:51:46 -0400
+Received: from aposti.net ([89.234.176.197]:56904 "EHLO aposti.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231253AbhGQRvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Jul 2021 13:51:39 -0400
+        id S234214AbhGQRvq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Jul 2021 13:51:46 -0400
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     Linus Walleij <linus.walleij@linaro.org>
 Cc:     =?UTF-8?q?=E5=91=A8=E7=90=B0=E6=9D=B0?= <zhouyanjie@wanyeetech.com>,
         linux-mips@vger.kernel.org, linux-gpio@vger.kernel.org,
         linux-kernel@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
         stable@vger.kernel.org
-Subject: [PATCH 1/3] pinctrl: ingenic: Fix incorrect pull up/down info
-Date:   Sat, 17 Jul 2021 18:48:34 +0100
-Message-Id: <20210717174836.14776-1-paul@crapouillou.net>
+Subject: [PATCH 2/3] pinctrl: ingenic: Fix bias config for X2000(E)
+Date:   Sat, 17 Jul 2021 18:48:35 +0100
+Message-Id: <20210717174836.14776-2-paul@crapouillou.net>
+In-Reply-To: <20210717174836.14776-1-paul@crapouillou.net>
+References: <20210717174836.14776-1-paul@crapouillou.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix the pull up/down info for both the JZ4760 and JZ4770 SoCs, as the
-previous values sometimes contradicted what's written in the programming
-manual.
+The ingenic_set_bias() function's "bias" argument is not a
+"enum pin_config_param", so its value should not be compared against
+values of that enum.
 
-Fixes: b5c23aa46537 ("pinctrl: add a pinctrl driver for the Ingenic jz47xx SoCs")
-Cc: <stable@vger.kernel.org> # v4.12
+This should fix the bias config not working on the X2000(E) SoCs.
+
+Fixes: 943e0da15370 ("pinctrl: Ingenic: Add pinctrl driver for X2000.")
+Cc: <stable@vger.kernel.org> # v5.12
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 ---
  drivers/pinctrl/pinctrl-ingenic.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index 983ba9865f77..126ca671c3cd 100644
+index 126ca671c3cd..263498be8e31 100644
 --- a/drivers/pinctrl/pinctrl-ingenic.c
 +++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -710,7 +710,7 @@ static const struct ingenic_chip_info jz4755_chip_info = {
- };
+@@ -3441,17 +3441,17 @@ static void ingenic_set_bias(struct ingenic_pinctrl *jzpc,
+ {
+ 	if (jzpc->info->version >= ID_X2000) {
+ 		switch (bias) {
+-		case PIN_CONFIG_BIAS_PULL_UP:
++		case GPIO_PULL_UP:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, true);
+ 			break;
  
- static const u32 jz4760_pull_ups[6] = {
--	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0xfffff00f,
-+	0xffffffff, 0xfffcf3ff, 0xffffffff, 0xffffcfff, 0xfffffb7c, 0x0000000f,
- };
+-		case PIN_CONFIG_BIAS_PULL_DOWN:
++		case GPIO_PULL_DOWN:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, true);
+ 			break;
  
- static const u32 jz4760_pull_downs[6] = {
-@@ -936,11 +936,11 @@ static const struct ingenic_chip_info jz4760_chip_info = {
- };
- 
- static const u32 jz4770_pull_ups[6] = {
--	0x3fffffff, 0xfff0030c, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0xffa7f00f,
-+	0x3fffffff, 0xfff0f3fc, 0xffffffff, 0xffff4fff, 0xfffffb7c, 0x0024f00f,
- };
- 
- static const u32 jz4770_pull_downs[6] = {
--	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x00580ff0,
-+	0x00000000, 0x000f0c03, 0x00000000, 0x0000b000, 0x00000483, 0x005b0ff0,
- };
- 
- static int jz4770_uart0_data_pins[] = { 0xa0, 0xa3, };
+-		case PIN_CONFIG_BIAS_DISABLE:
++		case GPIO_PULL_DIS:
+ 		default:
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPU, false);
+ 			ingenic_config_pin(jzpc, pin, X2000_GPIO_PEPD, false);
 -- 
 2.30.2
 
