@@ -2,117 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FC63CC6A9
-	for <lists+stable@lfdr.de>; Sun, 18 Jul 2021 00:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 085F93CC6D0
+	for <lists+stable@lfdr.de>; Sun, 18 Jul 2021 01:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229842AbhGQWgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 18:36:31 -0400
-Received: from mail-pf1-f174.google.com ([209.85.210.174]:34530 "EHLO
-        mail-pf1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229634AbhGQWgb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Jul 2021 18:36:31 -0400
-Received: by mail-pf1-f174.google.com with SMTP id o201so12643242pfd.1;
-        Sat, 17 Jul 2021 15:33:34 -0700 (PDT)
+        id S230363AbhGQXeL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Jul 2021 19:34:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54516 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230171AbhGQXeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Jul 2021 19:34:11 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB9BC061762;
+        Sat, 17 Jul 2021 16:31:13 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id o201so12720182pfd.1;
+        Sat, 17 Jul 2021 16:31:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=fxKIUXLbmRN8ueNsQhq3eLN6c3ekGbBfhVweDY7xvjY=;
+        b=OTXya9tvVbxwqG9UznvVyJwGzUxWNeneKvmr1IOcWsp8SwM9TsE+izZZFUBL1wfHYy
+         sC2w+X1nMAPFfBHB8V+qTJBL3MvgxcgwIKE5Hb7VhXiIIc1KlD7ZmFNAABjW4zQ3Br62
+         H2RnHm5l5abh/RxPrRIc3qafhVo5shXaVYPxkbFG2BBKZ9+4k92yX7x/v+lori515bLI
+         aYDeo/DJZzmkMiGD+f67AwYeHFJpp5QehK51UBvFxjSAH+5SQ6Nvs5df1UO10oxSxCB9
+         TLLFonFCFgdhkXzq4X910jg742J7UIAcSvpehodaC2Ujm29iO1w76KypnUTD+9I8R005
+         6wnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=leiLcAGlRO9EctZ5GZcN4ZTz5wyDhsmWRqazNx7hX4U=;
-        b=JzxdoTYFFD1sr7dGnniqB26DzsYqPGCwU0GZ25XNr/uL/+6J6Q3rINGYnKq8AdFQoa
-         xfTnFv3CmDZMIm64DapYADdTyP8fNL0TLwFX8Xqrwu/Ifg2x+OSl4nvjxcTAE9QhGIrK
-         EbTgllJ5VvyOHHwDnJ6zzxLeNXPK/9XYi8E+WDWS2njvG+A6TMzv8+DN1UxbZbYiMoco
-         1PMeVSbk4O4AdH+QrclDIXN6ilOdlFwbuWDXhBW4pAtMArJXME68jRikll3kar/FzG0D
-         gZ66LQ2BdK5ouvdM2t1uhofRJ0k5Xfwnk+GNujrGU66+05tS+Yd7tI3bp8r4XTLr/fRh
-         9+1A==
-X-Gm-Message-State: AOAM531o0vzmwo5EqJIUcpMDt9Ohhva8IGJO44dLxFZwM1dR5bUTgwsA
-        Qhlc2Vc0oPQYO0gKd3boMkI=
-X-Google-Smtp-Source: ABdhPJxbzuBLAjmXziU93pXHGW+ZR8OBrTOPyaFL8kbMl15cfbNWYEWLNkRW8AtVYWzywHQ59BLUiQ==
-X-Received: by 2002:aa7:98c6:0:b029:32e:608b:7e86 with SMTP id e6-20020aa798c60000b029032e608b7e86mr17212940pfm.68.1626561213778;
-        Sat, 17 Jul 2021 15:33:33 -0700 (PDT)
-Received: from localhost ([24.4.24.239])
-        by smtp.gmail.com with ESMTPSA id x14sm11475306pjc.4.2021.07.17.15.33.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 17 Jul 2021 15:33:33 -0700 (PDT)
-Date:   Sat, 17 Jul 2021 15:33:32 -0700
-From:   Moritz Fischer <mdf@kernel.org>
-To:     Justin Forbes <jmforbes@linuxtx.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Moritz Fischer <mdf@kernel.org>
-Subject: Re: [PATCH 5.13 024/800] usb: renesas-xhci: Fix handling of unknown
- ROM state
-Message-ID: <YPNavEl340mxcNVd@epycbox.lan>
-References: <20210712060912.995381202@linuxfoundation.org>
- <20210712060916.499546891@linuxfoundation.org>
- <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=fxKIUXLbmRN8ueNsQhq3eLN6c3ekGbBfhVweDY7xvjY=;
+        b=TOgTjncScDOrCa3EyLGzpnVuobXLJZp9VFuq4Ffc99rhAJnveLE7wgBpa8YM9MCGCN
+         J0wmfrv28M605EpHsAH/+Cm6J7EZkw/xCA9OSaurE9SOytHac/GJccwBN81ikDC++3L8
+         gu5itavMzlb2g3VRAL6DBrvM1CgeToazLno9Vbu17x4B29kXbeNB4+Vo8xhcqK3Bm56Z
+         DSSJobNPOj7uPCiGAvQQRNyZvdKE48sLibocM2KAcZ/KfuIUHFRHXapcjlUO5VmmwmJh
+         +Z2u6MVzOio9GbzpDDMdZwn0/joRXKh6msInE50N4JCL9wobJS1fcnZkzt87BkROxPNE
+         EVyw==
+X-Gm-Message-State: AOAM530Up8lto8yxSXhtedirKHay/IsOej0hEL72O0tcgwIFFnWNZFlH
+        XcCHin8lskGPO54ZoYRLq0VWgs7zgaM=
+X-Google-Smtp-Source: ABdhPJwHM9pvcBAPo4YUczQdqjuc5bP+LvvHYV6Uia2+FkAE/q//uJuGg76gZolJaf/A+IOQWQimvA==
+X-Received: by 2002:a62:8283:0:b029:336:6e7a:9c73 with SMTP id w125-20020a6282830000b02903366e7a9c73mr9404473pfd.45.1626564672761;
+        Sat, 17 Jul 2021 16:31:12 -0700 (PDT)
+Received: from [192.168.1.121] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id m24sm15794494pgv.24.2021.07.17.16.31.07
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 17 Jul 2021 16:31:12 -0700 (PDT)
+Subject: Re: [PATCH 5.4 000/119] 5.4.133-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210716182029.878765454@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <52aa0a43-3f55-1209-4237-0b66c6dbe094@gmail.com>
+Date:   Sat, 17 Jul 2021 16:31:04 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
+In-Reply-To: <20210716182029.878765454@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Justin,
 
-On Sat, Jul 17, 2021 at 08:39:19AM -0500, Justin Forbes wrote:
-> On Mon, Jul 12, 2021 at 2:31 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Moritz Fischer <mdf@kernel.org>
-> >
-> > commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
-> >
-> > The ROM load sometimes seems to return an unknown status
-> > (RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
-> >
-> > If the ROM load indeed failed this leads to failures when trying to
-> > communicate with the controller later on.
-> >
-> > Attempt to load firmware using RAM load in those cases.
-> >
-> > Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
-> > Cc: stable@vger.kernel.org
-> > Cc: Mathias Nyman <mathias.nyman@intel.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: Vinod Koul <vkoul@kernel.org>
-> > Tested-by: Vinod Koul <vkoul@kernel.org>
-> > Reviewed-by: Vinod Koul <vkoul@kernel.org>
-> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >
+
+On 7/16/2021 11:28 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.133 release.
+> There are 119 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> After sending out 5.12.17 for testing, we had a user complain that all
-> of their USB devices disappeared with the error:
+> Responses should be made by Sun, 18 Jul 2021 18:16:27 +0000.
+> Anything received after that time might be too late.
 > 
-> Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: Direct firmware load
-> for renesas_usb_fw.mem failed with error -2
-> Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: request_firmware failed: -2
-> Jul 15 23:18:53 kernel: xhci_hcd: probe of 0000:04:00.0 failed with error -2
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.133-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This looks like it fails finding the actual firmware file (ENOENT). Any
-chance you could give this a whirl on top of the original patch?
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-index 18c2bbddf080..cde8f6f1ec5d 100644
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -379,7 +379,11 @@ static int xhci_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
-        driver_data = (struct xhci_driver_data *)id->driver_data;
-        if (driver_data && driver_data->quirks & XHCI_RENESAS_FW_QUIRK) {
-                retval = renesas_xhci_check_request_fw(dev, id);
--               if (retval)
-+               /*
-+                * If firmware wasn't found there's still a chance this might work without
-+                * loading firmware on some systems, so let's try at least.
-+                */
-+               if (retval && retval != -ENOENT)
-                        return retval;
-        }
-
-
-Thanks,
-Moritz
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
