@@ -2,127 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A063E3CBF3E
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 00:25:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE713CC001
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 02:09:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236931AbhGPW2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 18:28:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235671AbhGPW2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 18:28:22 -0400
-Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24BD2C06175F
-        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 15:25:27 -0700 (PDT)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id 305C4C80092;
-        Sat, 17 Jul 2021 00:25:24 +0200 (CEST)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 0PBC5e6UM-Gr; Sat, 17 Jul 2021 00:25:23 +0200 (CEST)
-Received: from [IPv6:2003:e3:7f20:9b00:3cdc:d295:ae7e:bebe] (p200300e37F209B003cDCd295AE7eBEBE.dip0.t-ipconnect.de [IPv6:2003:e3:7f20:9b00:3cdc:d295:ae7e:bebe])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPSA id BE578C80082;
-        Sat, 17 Jul 2021 00:25:23 +0200 (CEST)
-Subject: Re: [SRU][H][PATCH v2 1/1] usb: pci-quirks: disable D3cold on xhci
- suspend for s2idle on AMD Renoir
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable <stable@vger.kernel.org>, kernel-team@lists.ubuntu.com,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Prike Liang <Prike.Liang@amd.com>
-References: <20210716104010.4889-1-wse@tuxedocomputers.com>
- <20210716104010.4889-2-wse@tuxedocomputers.com> <YPGAq1zdem2QVTsb@kroah.com>
- <b5ba1134-d557-565c-ba45-556984a66e7b@tuxedocomputers.com>
- <4b5dffd2-6966-f68e-5ec1-4dd946e81308@canonical.com>
-From:   Werner Sembach <wse@tuxedocomputers.com>
-Message-ID: <d526439e-79f6-4e84-b5c7-f56f57e5e1fd@tuxedocomputers.com>
-Date:   Sat, 17 Jul 2021 00:25:22 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S232084AbhGQAMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 20:12:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229665AbhGQAMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 16 Jul 2021 20:12:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C5B613EB;
+        Sat, 17 Jul 2021 00:09:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626480545;
+        bh=mQalqo4yX2/WFHAqcCR3M6bAckgMZv+GoQQVguZUojg=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Czdd4R2lKv9MIM/JhhYPTXjFLbxHS/3C8TFz1pqtME8vjlwZ9NRvoqylyHr2jab0P
+         +SVFWvEPUyuA4cY+/QN6ULoIcIYVyTipq0iG4JGxR2HKvKCVBSM/ja93Tn9DE04BEl
+         DmAojerbttD4YAoyHMjgo3Ev8CE8vyZHfZBKXO8tyflhjm5UHuy7UBjPxHn3p+dp/N
+         5PtlqH6gVxQnmW77akZG6PPdraU8FzEYObbGcHU0hYtVoSZPIvAgOo9IKU6MuMagIt
+         ZQ2rXQFYquYTcQ+kCCYvod+SXBNEJGrJ9QUqaWZo0Yvd0fw6NOlAcKSdGsesL7fZ2u
+         3hpOPiPJRcy0A==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     linux-fscrypt@vger.kernel.org
+Subject: [PATCH 4.9] fscrypt: don't ignore minor_hash when hash is 0
+Date:   Fri, 16 Jul 2021 19:05:57 -0500
+Message-Id: <20210717000557.60029-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <4b5dffd2-6966-f68e-5ec1-4dd946e81308@canonical.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Biggers <ebiggers@google.com>
 
-Am 16.07.21 um 17:30 schrieb Krzysztof Kozlowski:
-> On 16/07/2021 17:12, Werner Sembach wrote:
->> Am 16.07.21 um 14:50 schrieb Greg Kroah-Hartman:
->>> On Fri, Jul 16, 2021 at 12:40:10PM +0200, Werner Sembach wrote:
->>>> From: Mario Limonciello <mario.limonciello@amd.com>
->>>>
->>>> BugLink: https://bugs.launchpad.net/bugs/1936583
->>>>
->>>> The XHCI controller is required to enter D3hot rather than D3cold for AMD
->>>> s2idle on this hardware generation.
->>>>
->>>> Otherwise, the 'Controller Not Ready' (CNR) bit is not being cleared by
->>>> host in resume and eventually this results in xhci resume failures during
->>>> the s2idle wakeup.
->>>>
->>>> Link: https://lore.kernel.org/linux-usb/1612527609-7053-1-git-send-email-Prike.Liang@amd.com/
->>>> Suggested-by: Prike Liang <Prike.Liang@amd.com>
->>>> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
->>>> Cc: stable <stable@vger.kernel.org> # 5.11+
->>>> Link: https://lore.kernel.org/r/20210527154534.8900-1-mario.limonciello@amd.com
->>>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->>>> (cherry picked from commit d1658268e43980c071dbffc3d894f6f6c4b6732a)
->>>> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
->>>> ---
->>>>   drivers/usb/host/xhci-pci.c | 7 ++++++-
->>>>   drivers/usb/host/xhci.h     | 1 +
->>>>   2 files changed, 7 insertions(+), 1 deletion(-)
->>>>
->>> Any reason you resent us a patch that is already in a stable release?
->>>
->>> And why not just use the stable kernel trees as-is?  Why attempt to
->>> cherry-pick random portions of them?
->>>
->>> thanks,
->>>
->>> greg k-h
->> I didn't add the mailing list as recipent for my last replies so here again:
->>
->> I only checked the Ubuntu 5.11 tree where the patch is actually missing.
->>
->> The 5.8 kernel has other issues because of outdated amdgpu, that's why we never checked the 5.4 kernel.
->>
->> Testing for 5.4: often hangs on boot before display manager shows up
->>
->> 5.4 + amdgpu-dkms from here: https://www.amd.com/en/support/kb/release-notes/rn-amdgpu-unified-linux-21-20 : Hang on
->> boot issue gone, but does not suspend anymore, and has graphic glitches.
->>
->> Should I add these findings to the SRU?
-> Hi Werner,
->
-> This patch is specific to Ubuntu so it should not have been sent to LKML
-> (stable, Greg and others), which you did. I guess that's what Greg meant.
->
-> When sending such backports from your tree, be sure to set
-> "suppresscc=all" in your .git/config or use appropriate argument for git
-> send-email.
->
-> Best regards,
-> Krzysztof
+commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+[Please apply to 4.9-stable.]
 
-Hi,
+When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+minor_hash to 0 if the (major) hash is 0.
 
-now I see, thanks for spelling it out, I was a little bit slow today. I 
-didn't realize that git send-email added non Ubuntu mailings lists 
-because of the cc in the commit message (besides already should know 
-this because I did it once before by accident).
+This doesn't make sense because 0 is a valid hash code, so we shouldn't
+ignore the filesystem-provided minor_hash in that case.  Fix this by
+removing the special case for 'hash == 0'.
 
-I'm really really sorry, for all the confusion I caused.
+This is an old bug that appears to have originated when the encryption
+code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+f2fs code passed the hash by pointer instead of by value.  So
+'if (hash)' actually made sense then, as it was checking whether a
+pointer was NULL.  But now the hashes are passed by value, and
+filesystems just pass 0 for any hashes they don't have.  There is no
+need to handle this any differently from the hashes actually being 0.
 
-Kind regards
+It is difficult to reproduce this bug, as it only made a difference in
+the case where a filename's 32-bit major hash happened to be 0.
+However, it probably had the largest chance of causing problems on
+ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+a readdir cookie, and f2fs doesn't use minor_hash at all.
 
-Werner Sembach
+Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+Cc: <stable@vger.kernel.org> # v4.6+
+Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/crypto/fname.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/fs/crypto/fname.c b/fs/crypto/fname.c
+index e14bb7b67e9c..5136ea195934 100644
+--- a/fs/crypto/fname.c
++++ b/fs/crypto/fname.c
+@@ -294,12 +294,8 @@ int fscrypt_fname_disk_to_usr(struct inode *inode,
+ 					   oname->name);
+ 		return 0;
+ 	}
+-	if (hash) {
+-		memcpy(buf, &hash, 4);
+-		memcpy(buf + 4, &minor_hash, 4);
+-	} else {
+-		memset(buf, 0, 8);
+-	}
++	memcpy(buf, &hash, 4);
++	memcpy(buf + 4, &minor_hash, 4);
+ 	memcpy(buf + 8, iname->name + ((iname->len - 17) & ~15), 16);
+ 	oname->name[0] = '_';
+ 	oname->len = 1 + digest_encode(buf, 24, oname->name + 1);
+-- 
+2.32.0
 
