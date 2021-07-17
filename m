@@ -2,24 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38F63CC4FA
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 19:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEB033CC4FB
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 19:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233128AbhGQRsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 13:48:06 -0400
-Received: from aposti.net ([89.234.176.197]:56828 "EHLO aposti.net"
+        id S233227AbhGQRsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Jul 2021 13:48:12 -0400
+Received: from aposti.net ([89.234.176.197]:56838 "EHLO aposti.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231253AbhGQRsF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Jul 2021 13:48:05 -0400
+        id S231253AbhGQRsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Jul 2021 13:48:12 -0400
 From:   Paul Cercueil <paul@crapouillou.net>
 To:     gregkh <gregkh@linuxfoundation.org>
 Cc:     stable <stable@vger.kernel.org>,
         Paul Cercueil <paul@crapouillou.net>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 1/2] drm/ingenic: Fix non-OSD mode
-Date:   Sat, 17 Jul 2021 18:44:45 +0100
-Message-Id: <20210717174446.14455-2-paul@crapouillou.net>
+        Simon Ser <contact@emersion.fr>
+Subject: [PATCH 2/2] drm/ingenic: Switch IPU plane to type OVERLAY
+Date:   Sat, 17 Jul 2021 18:44:46 +0100
+Message-Id: <20210717174446.14455-3-paul@crapouillou.net>
 In-Reply-To: <1626352148199179@kroah.com>
 References: <1626352148199179@kroah.com>
 MIME-Version: 1.0
@@ -28,72 +27,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7b4957684e5d813fcbdc98144e3cc5c4467b3e2e upstream.
+commit 68b433fe6937cfa3f8975d18643d5956254edd6a upstream.
 
-Even though the JZ4740 did not have the OSD mode, it had (according to
-the documentation) two DMA channels, but there is absolutely no
-information about how to select the second DMA channel.
+It should have been an OVERLAY from the beginning. The documentation
+stipulates that there should be an unique PRIMARY plane per CRTC.
 
-Make the ingenic-drm driver work in non-OSD mode by using the
-foreground0 plane (which is bound to the DMA0 channel) as the primary
-plane, instead of the foreground1 plane, which is the primary plane
-when in OSD mode.
-
-Fixes: 3c9bea4ef32b ("drm/ingenic: Add support for OSD mode")
-Cc: <stable@vger.kernel.org> # v5.8+
+Fixes: fc1acf317b01 ("drm/ingenic: Add support for the IPU")
+Cc: <stable@vger.kernel.org> # 5.8+
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210124085552.29146-5-paul@crapouillou.net
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Simon Ser <contact@emersion.fr>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210329175046.214629-2-paul@crapouillou.net
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 11 +++++------
+ drivers/gpu/drm/ingenic/ingenic-ipu.c     |  2 +-
+ 2 files changed, 6 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-index a3d1617d7c67..3e839fc715d9 100644
+index 3e839fc715d9..b6bb5fc7d183 100644
 --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
 +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -455,7 +455,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
+@@ -347,7 +347,7 @@ static void ingenic_drm_plane_enable(struct ingenic_drm *priv,
+ 	unsigned int en_bit;
+ 
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
++		if (plane != &priv->f0)
+ 			en_bit = JZ_LCD_OSDC_F1EN;
+ 		else
+ 			en_bit = JZ_LCD_OSDC_F0EN;
+@@ -362,7 +362,7 @@ void ingenic_drm_plane_disable(struct device *dev, struct drm_plane *plane)
+ 	unsigned int en_bit;
+ 
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY)
++		if (plane != &priv->f0)
+ 			en_bit = JZ_LCD_OSDC_F1EN;
+ 		else
+ 			en_bit = JZ_LCD_OSDC_F0EN;
+@@ -389,8 +389,7 @@ void ingenic_drm_plane_config(struct device *dev,
+ 
+ 	ingenic_drm_plane_enable(priv, plane);
+ 
+-	if (priv->soc_info->has_osd &&
+-	    plane->type == DRM_PLANE_TYPE_PRIMARY) {
++	if (priv->soc_info->has_osd && plane != &priv->f0) {
+ 		switch (fourcc) {
+ 		case DRM_FORMAT_XRGB1555:
+ 			ctrl |= JZ_LCD_OSDCTRL_RGB555;
+@@ -423,7 +422,7 @@ void ingenic_drm_plane_config(struct device *dev,
+ 	}
+ 
+ 	if (priv->soc_info->has_osd) {
+-		if (plane->type == DRM_PLANE_TYPE_PRIMARY) {
++		if (plane != &priv->f0) {
+ 			xy_reg = JZ_REG_LCD_XYP1;
+ 			size_reg = JZ_REG_LCD_SIZE1;
+ 		} else {
+@@ -455,7 +454,7 @@ static void ingenic_drm_plane_atomic_update(struct drm_plane *plane,
  		height = state->src_h >> 16;
  		cpp = state->fb->format->cpp[0];
  
--		if (priv->soc_info->has_osd && plane->type == DRM_PLANE_TYPE_OVERLAY)
-+		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
+-		if (!priv->soc_info->has_osd || plane->type == DRM_PLANE_TYPE_OVERLAY)
++		if (!priv->soc_info->has_osd || plane == &priv->f0)
  			hwdesc = priv->dma_hwdesc_f0;
  		else
  			hwdesc = priv->dma_hwdesc_f1;
-@@ -692,6 +692,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
- 	const struct jz_soc_info *soc_info;
- 	struct ingenic_drm *priv;
- 	struct clk *parent_clk;
-+	struct drm_plane *primary;
- 	struct drm_bridge *bridge;
- 	struct drm_panel *panel;
- 	struct drm_encoder *encoder;
-@@ -784,9 +785,11 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
- 	if (soc_info->has_osd)
- 		priv->ipu_plane = drm_plane_from_index(drm, 0);
+diff --git a/drivers/gpu/drm/ingenic/ingenic-ipu.c b/drivers/gpu/drm/ingenic/ingenic-ipu.c
+index fc8c6e970ee3..06fd118b1444 100644
+--- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
++++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
+@@ -753,7 +753,7 @@ static int ingenic_ipu_bind(struct device *dev, struct device *master, void *d)
  
--	drm_plane_helper_add(&priv->f1, &ingenic_drm_plane_helper_funcs);
-+	primary = priv->soc_info->has_osd ? &priv->f1 : &priv->f0;
- 
--	ret = drm_universal_plane_init(drm, &priv->f1, 1,
-+	drm_plane_helper_add(primary, &ingenic_drm_plane_helper_funcs);
-+
-+	ret = drm_universal_plane_init(drm, primary, 1,
- 				       &ingenic_drm_primary_plane_funcs,
- 				       ingenic_drm_primary_formats,
- 				       ARRAY_SIZE(ingenic_drm_primary_formats),
-@@ -798,7 +801,7 @@ static int ingenic_drm_bind(struct device *dev, bool has_components)
- 
- 	drm_crtc_helper_add(&priv->crtc, &ingenic_drm_crtc_helper_funcs);
- 
--	ret = drm_crtc_init_with_planes(drm, &priv->crtc, &priv->f1,
-+	ret = drm_crtc_init_with_planes(drm, &priv->crtc, primary,
- 					NULL, &ingenic_drm_crtc_funcs, NULL);
- 	if (ret) {
- 		dev_err(dev, "Failed to init CRTC: %i\n", ret);
+ 	err = drm_universal_plane_init(drm, plane, 1, &ingenic_ipu_plane_funcs,
+ 				       soc_info->formats, soc_info->num_formats,
+-				       NULL, DRM_PLANE_TYPE_PRIMARY, NULL);
++				       NULL, DRM_PLANE_TYPE_OVERLAY, NULL);
+ 	if (err) {
+ 		dev_err(dev, "Failed to init plane: %i\n", err);
+ 		return err;
 -- 
 2.30.2
 
