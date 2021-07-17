@@ -2,94 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE713CC001
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 02:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F043CBFF6
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 02:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232084AbhGQAMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 16 Jul 2021 20:12:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37256 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229665AbhGQAMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 16 Jul 2021 20:12:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8C5B613EB;
-        Sat, 17 Jul 2021 00:09:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626480545;
-        bh=mQalqo4yX2/WFHAqcCR3M6bAckgMZv+GoQQVguZUojg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Czdd4R2lKv9MIM/JhhYPTXjFLbxHS/3C8TFz1pqtME8vjlwZ9NRvoqylyHr2jab0P
-         +SVFWvEPUyuA4cY+/QN6ULoIcIYVyTipq0iG4JGxR2HKvKCVBSM/ja93Tn9DE04BEl
-         DmAojerbttD4YAoyHMjgo3Ev8CE8vyZHfZBKXO8tyflhjm5UHuy7UBjPxHn3p+dp/N
-         5PtlqH6gVxQnmW77akZG6PPdraU8FzEYObbGcHU0hYtVoSZPIvAgOo9IKU6MuMagIt
-         ZQ2rXQFYquYTcQ+kCCYvod+SXBNEJGrJ9QUqaWZo0Yvd0fw6NOlAcKSdGsesL7fZ2u
-         3hpOPiPJRcy0A==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-fscrypt@vger.kernel.org
-Subject: [PATCH 4.9] fscrypt: don't ignore minor_hash when hash is 0
-Date:   Fri, 16 Jul 2021 19:05:57 -0500
-Message-Id: <20210717000557.60029-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.32.0
+        id S230348AbhGQAJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 16 Jul 2021 20:09:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59826 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229544AbhGQAJN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 16 Jul 2021 20:09:13 -0400
+Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD93C06175F
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 17:06:16 -0700 (PDT)
+Received: by mail-io1-xd2e.google.com with SMTP id v26so12601455iom.11
+        for <stable@vger.kernel.org>; Fri, 16 Jul 2021 17:06:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=NBMqm9QbgY8pXr43Ar0+BX9+G1u/HV8S3ltMcAtx8kU=;
+        b=Yx8gH1TC8ab7+WtnYQr1YUiMmbNltVYS+hGLaRZLV/Ft/0YQgoDiPbQTaBx4PxWFFM
+         spEto2zKosQevQO2QD2CmOn8bZ0WhC4tehQUWVQ+kZpLzuATthjzNvd7p6JC6OwMIKNX
+         m9CHbz7d+HD9id0MvqsD5PJZnCGR6Zlncak+w=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=NBMqm9QbgY8pXr43Ar0+BX9+G1u/HV8S3ltMcAtx8kU=;
+        b=qaNDj/M6oeORH3/4f/264s2409xMbdf1hjra7PFlK0WDerrVeMW58wUzvdMOgj2TMZ
+         tX5gF/axsCv3OHaMQdBNNvI2gD1reg3kjEnwtQQeLSdr/K3TRgKV26gJIdxTkKZgZa0M
+         OaCB/Kf8t266vZp3QCYjCTe9Ps63GCTgwoxR+4SPLCDScuFoj6YsYlixxs05c3iP+poc
+         pOkyx377nFy8pWuOcMkeA/QckadZVg3iAbHt9FPja7CsSIxsojdCo+d9ZXMooawkvE4h
+         73pH0Xjg0QNOCc5fEmUFjqteObcCU1ARGeIHoOPHJ1vGQmYxI4vGWlKISDwijI/DZYxk
+         NO9Q==
+X-Gm-Message-State: AOAM533DPu5VLkD1Bbz8jb5hXr0rKRpHTT4/JlW0qCHz9ScuSM852A3c
+        97X+R6RCXoS7EKAP57jVHnyAHQ==
+X-Google-Smtp-Source: ABdhPJwrPd85TTx0d5mLdbGd69KRJHwRqgQw4ejggbAGySxLdWlui281ODJm4kk8NyKpGXKhcK6ybw==
+X-Received: by 2002:a5d:914a:: with SMTP id y10mr9467052ioq.140.1626480375996;
+        Fri, 16 Jul 2021 17:06:15 -0700 (PDT)
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net. [24.9.64.241])
+        by smtp.gmail.com with ESMTPSA id h13sm4994982ila.44.2021.07.16.17.06.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 16 Jul 2021 17:06:15 -0700 (PDT)
+Subject: Re: [PATCH 5.13 000/258] 5.13.3-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20210716182150.239646976@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <dc5724fb-151d-429f-8a6e-0caba4ee8fb2@linuxfoundation.org>
+Date:   Fri, 16 Jul 2021 18:06:14 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210716182150.239646976@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On 7/16/21 12:29 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.13.3 release.
+> There are 258 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 18 Jul 2021 18:16:27 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.13.3-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.13.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
-[Please apply to 4.9-stable.]
+Compiled and booted on my test system. No dmesg regressions.
 
-When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
-minor_hash to 0 if the (major) hash is 0.
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-This doesn't make sense because 0 is a valid hash code, so we shouldn't
-ignore the filesystem-provided minor_hash in that case.  Fix this by
-removing the special case for 'hash == 0'.
-
-This is an old bug that appears to have originated when the encryption
-code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
-f2fs code passed the hash by pointer instead of by value.  So
-'if (hash)' actually made sense then, as it was checking whether a
-pointer was NULL.  But now the hashes are passed by value, and
-filesystems just pass 0 for any hashes they don't have.  There is no
-need to handle this any differently from the hashes actually being 0.
-
-It is difficult to reproduce this bug, as it only made a difference in
-the case where a filename's 32-bit major hash happened to be 0.
-However, it probably had the largest chance of causing problems on
-ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
-addition to using it as a readdir cookie.  ext4 only uses minor_hash as
-a readdir cookie, and f2fs doesn't use minor_hash at all.
-
-Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
-Cc: <stable@vger.kernel.org> # v4.6+
-Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/crypto/fname.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/fs/crypto/fname.c b/fs/crypto/fname.c
-index e14bb7b67e9c..5136ea195934 100644
---- a/fs/crypto/fname.c
-+++ b/fs/crypto/fname.c
-@@ -294,12 +294,8 @@ int fscrypt_fname_disk_to_usr(struct inode *inode,
- 					   oname->name);
- 		return 0;
- 	}
--	if (hash) {
--		memcpy(buf, &hash, 4);
--		memcpy(buf + 4, &minor_hash, 4);
--	} else {
--		memset(buf, 0, 8);
--	}
-+	memcpy(buf, &hash, 4);
-+	memcpy(buf + 4, &minor_hash, 4);
- 	memcpy(buf + 8, iname->name + ((iname->len - 17) & ~15), 16);
- 	oname->name[0] = '_';
- 	oname->len = 1 + digest_encode(buf, 24, oname->name + 1);
--- 
-2.32.0
+thanks,
+-- Shuah
 
