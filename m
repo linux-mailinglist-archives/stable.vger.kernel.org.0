@@ -2,135 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E34A03CC395
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 15:34:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 900133CC39F
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 15:39:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbhGQNhP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 09:37:15 -0400
-Received: from mout.gmx.net ([212.227.15.15]:59489 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229746AbhGQNhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 17 Jul 2021 09:37:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626528836;
-        bh=5faHKHYVx9kCTpkagsw8dkAx55M4pUI8xJe1C1N28ag=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=U8qUXFX/+guW1owffKHlzQa1YopPIQls/yHtdXUpxQY9WMz85EcSEF01TBbMhJKic
-         paaQEA59LZGL5PT0j97ZnUnoeRJk//WFk4iGL4V3djOcAdUEeQhakjtNi3PPBuWkHp
-         zB+yqlKRdAqFGV5m/3QWN2h4OfJLAlFl1Joi1qj4=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from titan ([83.52.228.41]) by mail.gmx.net (mrgmx004
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1M3UUy-1m4CUD334M-000Yfe; Sat, 17
- Jul 2021 15:33:55 +0200
-Date:   Sat, 17 Jul 2021 15:33:43 +0200
-From:   Len Baker <len.baker@gmx.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Brian Norris <briannorris@chromium.org>
-Cc:     Len Baker <len.baker@gmx.com>,
-        Yan-Hsuan Chuang <tony0620emma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislaw Gruszka <sgruszka@redhat.com>,
-        Pkshih <pkshih@realtek.com>, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] rtw88: Fix out-of-bounds write
-Message-ID: <20210717133343.GA2009@titan>
-References: <20210716155311.5570-1-len.baker@gmx.com>
- <YPG/8F7yYLm3vAlG@kroah.com>
+        id S233796AbhGQNm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 17 Jul 2021 09:42:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233483AbhGQNm3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 17 Jul 2021 09:42:29 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2E0C061762
+        for <stable@vger.kernel.org>; Sat, 17 Jul 2021 06:39:32 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id h4so16863753ljo.6
+        for <stable@vger.kernel.org>; Sat, 17 Jul 2021 06:39:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wMysod/FxYgvZzqmI+wGDhxKEpokYzXYS9Z8NQkl9ME=;
+        b=dx3rzI7bTiu4T3bOQldfOy1OsFPlkh8bBfCb9jy5V8APCP58TFHseMNd9H/okgmswf
+         hUKephRuwDpjGCW1EMdvDYrqArAsrkr0iOBqiPc/BNwsAcr63DSlQ8/fMJJKhjWoZTvJ
+         VeTfrx1L3pkh4TvaF7hs8xXw2oxYnqrN+/WH4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wMysod/FxYgvZzqmI+wGDhxKEpokYzXYS9Z8NQkl9ME=;
+        b=N6L63FQy7NJc/+R3ZSh7BgKYBpoK6x2d7ZqNz0jHuzrvxe8se0R1xy9NBFUhxa7axj
+         Z+UHKiwjQCoaHpRRfZCg0zdkjNxb0b5Eoivk1cFWCoAbXWFRcgg00yYvNUApA6YmKHwM
+         1EleArz8P2HjRTykQMcue6evVKHaUHhs70VQnyAXGv4VmmFznK2NHiPY6ADxzdKk8m3F
+         d1FZKdf17VGBfEAaFD5xzuvzfSwIRTM7xaXYMgfrOLosquYYXNOW0JjsEkzzAxM+90A5
+         EuG9XBt7uaPNG+FIHfXDiptPQBwFmnxA0P/od6YiYeCVnXODTY7JCG52a7v1zUvid5/o
+         WEXA==
+X-Gm-Message-State: AOAM531pMCt6epEHHCxl5zU7IZR0SU5tZL5ooEuT/abDHwAvS8FwcWKC
+        LPWDmjpPFlpukNpzmGJ+hYODYXQJS2tcG3u1QinqRA==
+X-Google-Smtp-Source: ABdhPJwrBJIk83MDhG8twlHGK2D602TuoBySGjD8NgUQYkCsFRJjpLsnWZmn20MwEw5AyXgT+h/L6Y637xngf2CDgJM=
+X-Received: by 2002:a2e:a90e:: with SMTP id j14mr8861414ljq.250.1626529170617;
+ Sat, 17 Jul 2021 06:39:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YPG/8F7yYLm3vAlG@kroah.com>
-X-Provags-ID: V03:K1:vljdN4kn+ro0ymxfW/qqodGQnXMgpyERHL28x2eV5d8VQeB8NbN
- qUCxTkm6e8XBhjZgAJ2X07qFMGOkDFwodJWVH7brjbzQsW599/zEDssz/zpaZxTBz5xFFEH
- sXU7Qu8awfQGbehGfgHFyXxl7IPTIV9mIAME8lNldi+PQuWxdrbiZZHjQcIfHuPBIjtMym0
- l0EajMfdYcHBVHR4d1ffQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:EYWrHxHOAEc=:2SZ+C1fTyRzy5fRD5BO4M0
- AVwg9wGDsxNakXzaAOySVUV2MyaLeVHl9h6TOUkXuXr1Yxte0aH6lBaw9gDogOso6rrOcgzVC
- f++reXrs9lE9E/+1vj8fXn/z/fHAnRiXkb292IqiN5w6NU+F5J/F9Hp5k3CI2Q//VYQoMCIam
- zUPtUncZFh/Pd3pwPhVcazNL23XjmUbA2PG/K8byGcIXTy/AeljvR5fVYTWxDMXq1n3UtJXz7
- 9gVaICXIFVQ54DU4n0+CuPM9Dy4bMuMTjYIM0YtGxKkSsSpDQvwUBNx2jHx1F7KzsJfQsHUa3
- R1hRdoc+02bAzuDmlQlhipKsXCwH1E7hjG7ko2vrRTUuCgh2OInKjN5vbNYTs6WZpo7q9dgKp
- RnHUUlq2gEk7TTJjTq4ec3vnYgOREWR79h8C34JiUXC513cliIoTubFh4sftO2twoVGkqUJer
- I+8kmMNh79eGkOOfk2jdUr1448f1Xs/4tUtPx39/Pgs4cezyO6ipva4PzI7/U5QAWJWn3Em0I
- 476XAVoCJYHX8RbnUWBD9DNA0Qptwa89SmnZpeNshxUWnSfUmyotE24ASyApapJGOdsHtrJe8
- OUHmkuFiuzWzusDzxxAoyHmIv70oblbhTfFGFcQSHmFKcJKq1VAl1RrFcZHyHDqFAWp4JNAg2
- mgTgzOKjvWIxlsHJzV/SR5I7rByGUt6Fk/Wd07+HMVSFdQ5bqY3v3cZIAJiDCrW1NlrLDq7Bi
- ACHUNbe/eQ0FQZuFmDeIs8a4KXUB6mh4jQrfW9REzt3I4w5vDZXXHC00s0IC0NT/rGKgE/9V+
- hgpqumS3x+hua1P74sz5MViSa1TKmY3xO0H2m1qy+yAANobbaxN6BwGtdAoY6uK5ZXoCn54Ze
- RBEK7zIUszVtdACrYflKbK1KRbWZAlqLS01UEr3Jhc5skLSY9BAuetQhKu8AY+8apFcBNfp4f
- UbmMhg6YumYbSuNH4L0toK8G2AKbhWCQT5CmOnKDEysUlBt/TDA6m3b5WbVRg6fCY6SMzCaXw
- 0JvBjSp0tXQSs8mLO9jxzVgSWBwMCcW7eY2CoLBMjTWk50z3BaRQQYzG/bdtXq5+yCqKQz+Hd
- VrVM29ClBE9nUQOvwVlBKdRxVhu1VGNglh7
-Content-Transfer-Encoding: quoted-printable
+References: <20210712060912.995381202@linuxfoundation.org> <20210712060916.499546891@linuxfoundation.org>
+In-Reply-To: <20210712060916.499546891@linuxfoundation.org>
+From:   Justin Forbes <jmforbes@linuxtx.org>
+Date:   Sat, 17 Jul 2021 08:39:19 -0500
+Message-ID: <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
+Subject: Re: [PATCH 5.13 024/800] usb: renesas-xhci: Fix handling of unknown
+ ROM state
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Moritz Fischer <mdf@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 16, 2021 at 07:20:48PM +0200, Greg KH wrote:
-> On Fri, Jul 16, 2021 at 05:53:11PM +0200, Len Baker wrote:
-> > In the rtw_pci_init_rx_ring function the "if (len > TRX_BD_IDX_MASK)"
-> > statement guarantees that len is less than or equal to GENMASK(11, 0) =
-or
-> > in other words that len is less than or equal to 4095. However the
-> > rx_ring->buf has a size of RTK_MAX_RX_DESC_NUM (defined as 512). This
-> > way it is possible an out-of-bounds write in the for statement due to
-> > the i variable can exceed the rx_ring->buff size.
-> >
-> > However, this overflow never happens due to the rtw_pci_init_rx_ring i=
-s
-> > only ever called with a fixed constant of RTK_MAX_RX_DESC_NUM. But it =
-is
-> > better to be defensive in this case and add a new check to avoid
-> > overflows if this function is called in a future with a value greater
-> > than 512.
+On Mon, Jul 12, 2021 at 2:31 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> If this can never happen, then no, this is not needed.
-
-Then, if this can never happen, the current check would not be necessary
-either.
-
-> Why would you check twice for the same thing?
-
-Ok, it makes no sense to double check the "len" variable twice. So, I
-propose to modify the current check as follows:
-
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wirele=
-ss/realtek/rtw88/pci.c
-index e7d17ab8f113..0fd140523868 100644
-=2D-- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -268,8 +268,8 @@ static int rtw_pci_init_rx_ring(struct rtw_dev *rtwdev=
-,
-        int i, allocated;
-        int ret =3D 0;
-
--       if (len > TRX_BD_IDX_MASK) {
--               rtw_err(rtwdev, "len %d exceeds maximum RX entries\n", len=
-);
-+       if (len > ARRAY_SIZE(rx_ring->buf)) {
-+               rtw_err(rtwdev, "len %d exceeds maximum RX ring buffer\n",=
- len);
-                return -EINVAL;
-        }
-
-This way the overflow can never happen with the current call to
-rtw_pci_init_rx_ring function or with a future call with a "len" parameter
-greater than 512. What do you think?
-
-If there are no objections I will send a v3 for review.
-
-Another question: If this can never happen should I include the "Fixes" ta=
-g,
-"Addresses-Coverity-ID" tag and Cc to stable?
-
-Thanks,
-Len
-
+> From: Moritz Fischer <mdf@kernel.org>
 >
-> thanks,
+> commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
 >
-> greg k-h
+> The ROM load sometimes seems to return an unknown status
+> (RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
+>
+> If the ROM load indeed failed this leads to failures when trying to
+> communicate with the controller later on.
+>
+> Attempt to load firmware using RAM load in those cases.
+>
+> Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
+> Cc: stable@vger.kernel.org
+> Cc: Mathias Nyman <mathias.nyman@intel.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Vinod Koul <vkoul@kernel.org>
+> Tested-by: Vinod Koul <vkoul@kernel.org>
+> Reviewed-by: Vinod Koul <vkoul@kernel.org>
+> Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>
+
+After sending out 5.12.17 for testing, we had a user complain that all
+of their USB devices disappeared with the error:
+
+Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: Direct firmware load
+for renesas_usb_fw.mem failed with error -2
+Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: request_firmware failed: -2
+Jul 15 23:18:53 kernel: xhci_hcd: probe of 0000:04:00.0 failed with error -2
+
+After first assuming that something was missing in the backport to
+5.12, I had the user try 5.13.2, and then 5.14-rc1. Both of those
+failed in the same way, so it is not working in the current Linus tree
+either.  Reverting this patch fixed the issue.
+
+Justin
+
+> ---
+>  drivers/usb/host/xhci-pci-renesas.c |   16 ++++++++--------
+>  1 file changed, 8 insertions(+), 8 deletions(-)
+>
+> --- a/drivers/usb/host/xhci-pci-renesas.c
+> +++ b/drivers/usb/host/xhci-pci-renesas.c
+> @@ -207,7 +207,8 @@ static int renesas_check_rom_state(struc
+>                         return 0;
+>
+>                 case RENESAS_ROM_STATUS_NO_RESULT: /* No result yet */
+> -                       return 0;
+> +                       dev_dbg(&pdev->dev, "Unknown ROM status ...\n");
+> +                       break;
+>
+>                 case RENESAS_ROM_STATUS_ERROR: /* Error State */
+>                 default: /* All other states are marked as "Reserved states" */
+> @@ -224,13 +225,12 @@ static int renesas_fw_check_running(stru
+>         u8 fw_state;
+>         int err;
+>
+> -       /* Check if device has ROM and loaded, if so skip everything */
+> -       err = renesas_check_rom(pdev);
+> -       if (err) { /* we have rom */
+> -               err = renesas_check_rom_state(pdev);
+> -               if (!err)
+> -                       return err;
+> -       }
+> +       /*
+> +        * Only if device has ROM and loaded FW we can skip loading and
+> +        * return success. Otherwise (even unknown state), attempt to load FW.
+> +        */
+> +       if (renesas_check_rom(pdev) && !renesas_check_rom_state(pdev))
+> +               return 0;
+>
+>         /*
+>          * Test if the device is actually needing the firmware. As most
+>
+>
