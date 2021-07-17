@@ -2,259 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C09223CC3F0
-	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 17:01:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBC33CC40B
+	for <lists+stable@lfdr.de>; Sat, 17 Jul 2021 17:29:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234458AbhGQPDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 17 Jul 2021 11:03:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55996 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234425AbhGQPDr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 17 Jul 2021 11:03:47 -0400
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E54C061762
-        for <stable@vger.kernel.org>; Sat, 17 Jul 2021 08:00:49 -0700 (PDT)
-Received: by mail-ed1-x529.google.com with SMTP id h2so16936559edt.3
-        for <stable@vger.kernel.org>; Sat, 17 Jul 2021 08:00:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=lKMibIsS9rT2fMwJ90ICX9C9VxJ1nvPaBmilinRidwY=;
-        b=ODbRE9y82G8vvp0wCrzGcMnwQsvmVPgW0YCvZ13DDasa+YYcjkFEJdKbWM45ZClJy6
-         Pb7C0rjVABX4T+s7fEF33DxjvxxM9vzVvz4STFSnzqwgzVcbBgH+jtXuegbbf9TY62JJ
-         u+FteOwA5LkLTljDRSiaVQ2ikfUzHgZWqjfOTPSKBa+xUOkYjAHZeG1MKjl1QvYe1hdL
-         ZXWP/RMkqRe2+OCzwxnRAjvPJRLZ3WF8iYyk4F5L9EvCTZfqHksQtrgud74fSwsTchO2
-         bZ0Bunr69/mMq2KiB5EqF1C7YUvi5Lg1EehVvfPMCYWTlKJ5CfRR2oHZfGUbsdAIGaNj
-         TQWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=lKMibIsS9rT2fMwJ90ICX9C9VxJ1nvPaBmilinRidwY=;
-        b=hstx5xttL1tMQi8rjXojh65PLuYxbjzmEsOfpHcdgFXxgguorf/7thqIS4DQpSoD6Z
-         wsiwNcWTOlBls+ZpSXvV67g4vL710vwSc5fuXz15EaXLdxni9qSe8AD1+Sld1s+ueePF
-         zL3cl9OBLZhTRE5QiVFEYZOmZs+nJdKpz16HG4COPM0hn/vPxo+17iUyPTwr9XxBCPn9
-         4bFcj9A5N37MtemkhrL1LDAF/u/QdMiN3Ixbz5cjIUgvEsIovOS2VHOCO7F0xI12pyLE
-         dFXmUm2d28ucf7xydUB3SGUBc6O4XU+42gSH7LVyCKJLIZACyXbI5CfQ0Cu4H+XAythc
-         OZIA==
-X-Gm-Message-State: AOAM533csPoplMzOADjGi5l77Kekfdy4cCPU5ZY3lb2AFXKiLJ3u5ZNQ
-        Y8GalJkLzquSVBZdTRfZDjYg1phhV09Vy2EvjXtXdg==
-X-Google-Smtp-Source: ABdhPJyinOuYsnSquwzBxkUya+jJtrGVKl1n0RGU49BT6E0ChyLqxGg9c/0Z108PYAMlW5De4zIYTSvnTrpMxOOUYeg=
-X-Received: by 2002:aa7:dc01:: with SMTP id b1mr22227345edu.239.1626534047968;
- Sat, 17 Jul 2021 08:00:47 -0700 (PDT)
+        id S234458AbhGQPcY convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 17 Jul 2021 11:32:24 -0400
+Received: from pegase1.c-s.fr ([93.17.236.30]:31512 "EHLO pegase1.c-s.fr"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234255AbhGQPcX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 17 Jul 2021 11:32:23 -0400
+Received: from localhost (mailhub3.si.c-s.fr [192.168.12.233])
+        by localhost (Postfix) with ESMTP id 4GRsTx3TnMzB6G4;
+        Sat, 17 Jul 2021 17:29:25 +0200 (CEST)
+X-Virus-Scanned: amavisd-new at c-s.fr
+Received: from pegase1.c-s.fr ([192.168.12.234])
+        by localhost (pegase1.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id CsnSEz9Ns0sb; Sat, 17 Jul 2021 17:29:25 +0200 (CEST)
+Received: from vm-hermes.si.c-s.fr (vm-hermes.si.c-s.fr [192.168.25.253])
+        by pegase1.c-s.fr (Postfix) with ESMTP id 4GRsTx2MlBzB6FJ;
+        Sat, 17 Jul 2021 17:29:25 +0200 (CEST)
+Received: by vm-hermes.si.c-s.fr (Postfix, from userid 33)
+        id C1C925EF; Sat, 17 Jul 2021 17:34:35 +0200 (CEST)
+Received: from 37-171-38-5.coucou-networks.fr
+ (37-171-38-5.coucou-networks.fr [37.171.38.5]) by messagerie.c-s.fr (Horde
+ Framework) with HTTP; Sat, 17 Jul 2021 17:34:35 +0200
+Date:   Sat, 17 Jul 2021 17:34:35 +0200
+Message-ID: <20210717173435.Horde.Yjk9m3mjnYfLI-Xv6-IIdg8@messagerie.c-s.fr>
+From:   Christophe Leroy <christophe.leroy@csgroup.eu>
+To:     Tyrel Datwyler <tyreld@linux.ibm.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, brking@linux.ibm.com,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org, martin.petersen@oracle.com,
+        james.bottomley@hansenpartnership.com
+Subject: Re: [PATCH] ibmvfc: fix command state accounting and stale response
+ detection
+In-Reply-To: <20210716205220.1101150-1-tyreld@linux.ibm.com>
+User-Agent: Internet Messaging Program (IMP) H5 (6.2.3)
+Content-Type: text/plain; charset=UTF-8; format=flowed; DelSp=Yes
 MIME-Version: 1.0
-References: <20210716182150.239646976@linuxfoundation.org>
-In-Reply-To: <20210716182150.239646976@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 17 Jul 2021 20:30:36 +0530
-Message-ID: <CA+G9fYsGZKxkOqWZJwcTr9mpnVE5WEUr5FG1wrh+KNHX9oZpWQ@mail.gmail.com>
-Subject: Re: [PATCH 5.13 000/258] 5.13.3-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 16 Jul 2021 at 23:59, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+Tyrel Datwyler <tyreld@linux.ibm.com> a écrit :
+
+> Prior to commit 1f4a4a19508d ("scsi: ibmvfc: Complete commands outside
+> the host/queue lock") responses to commands were completed sequentially
+> with the host lock held such that a command had a basic binary state of
+> active or free. It was therefore a simple affair of ensuring the
+> assocaiated ibmvfc_event to a VIOS response was valid by testing that it
+> was not already free. The lock relexation work to complete commands
+> outside the lock inadverdently made it a trinary command state such that
+> a command is either in flight, received and being completed, or
+> completed and now free. This breaks the stale command detection logic as
+> a command may be still marked active and been placed on the delayed
+> completion list when a second stale response for the same command
+> arrives. This can lead to double completions and list corruption. This
+> issue was exposed by a recent VIOS regression were a missing memory
+> barrier could occasionally result in the ibmvfc client receiveing a
+> duplicate response for the same command.
 >
-> This is the start of the stable review cycle for the 5.13.3 release.
-> There are 258 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> Fix the issue by introducing the atomic ibmvfc_event.active to track the
+> trinary state of a command. The state is explicitly set to 1 when a
+> command is successfully sent. The CRQ response handlers use
+> atomic_dec_if_positive() to test for stale responses and correctly
+> transition to the completion state when a active command is received.
+> Finally, atomic_dec_and_test() is used to sanity check transistions
+> when commands are freed as a result of a completion, or moved to the
+> purge list as a result of error handling or adapter reset.
 >
-> Responses should be made by Sun, 18 Jul 2021 18:16:27 +0000.
-> Anything received after that time might be too late.
+> Cc: stable@vger.kernel.org
+> Fixes: 1f4a4a19508d ("scsi: ibmvfc: Complete commands outside the  
+> host/queue lock")
+> Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+> ---
+>  drivers/scsi/ibmvscsi/ibmvfc.c | 19 +++++++++++++++++--
+>  drivers/scsi/ibmvscsi/ibmvfc.h |  1 +
+>  2 files changed, 18 insertions(+), 2 deletions(-)
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.13.3-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.13.y
-> and the diffstat can be found below.
+> diff --git a/drivers/scsi/ibmvscsi/ibmvfc.c b/drivers/scsi/ibmvscsi/ibmvfc.c
+> index bee1bec49c09..935b01ee44b7 100644
+> --- a/drivers/scsi/ibmvscsi/ibmvfc.c
+> +++ b/drivers/scsi/ibmvscsi/ibmvfc.c
+> @@ -807,6 +807,13 @@ static int ibmvfc_init_event_pool(struct  
+> ibmvfc_host *vhost,
+>  	for (i = 0; i < size; ++i) {
+>  		struct ibmvfc_event *evt = &pool->events[i];
 >
-> thanks,
+> +		/*
+> +		 * evt->active states
+> +		 *  1 = in flight
+> +		 *  0 = being completed
+> +		 * -1 = free/freed
+> +		 */
+> +		atomic_set(&evt->active, -1);
+>  		atomic_set(&evt->free, 1);
+>  		evt->crq.valid = 0x80;
+>  		evt->crq.ioba = cpu_to_be64(pool->iu_token + (sizeof(*evt->xfer_iu) * i));
+> @@ -1017,6 +1024,7 @@ static void ibmvfc_free_event(struct ibmvfc_event *evt)
 >
-> greg k-h
+>  	BUG_ON(!ibmvfc_valid_event(pool, evt));
+>  	BUG_ON(atomic_inc_return(&evt->free) != 1);
+> +	BUG_ON(atomic_dec_and_test(&evt->active));
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Avoid new BUG_ONs. See  
+https://www.kernel.org/doc/html/latest/process/deprecated.html
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+>
+>  	spin_lock_irqsave(&evt->queue->l_lock, flags);
+>  	list_add_tail(&evt->queue_list, &evt->queue->free);
+> @@ -1072,6 +1080,12 @@ static void ibmvfc_complete_purge(struct  
+> list_head *purge_list)
+>   **/
+>  static void ibmvfc_fail_request(struct ibmvfc_event *evt, int error_code)
+>  {
+> +	/*
+> +	 * Anything we are failing should still be active. Otherwise, it
+> +	 * implies we already got a response for the command and are doing
+> +	 * something bad like double completing it.
+> +	 */
+> +	BUG_ON(!atomic_dec_and_test(&evt->active));
 
-## Build
-* kernel: 5.13.3-rc2
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.13.y
-* git commit: df7d40fdca4b2ca46a7606a7e0b2107f2f82628a
-* git describe: v5.13.2-259-gdf7d40fdca4b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.13.y/build/v5.13=
-.2-259-gdf7d40fdca4b
-
-## No regressions (compared to v5.13.2-267-g7e5885df1870)
-
-## Fixes (compared to v5.13.2-267-g7e5885df1870)
-
-* s390, build
-  - clang-10-allnoconfig
-  - clang-10-defconfig
-  - clang-10-tinyconfig
-  - clang-11-allnoconfig
-  - clang-11-defconfig
-  - clang-11-tinyconfig
-  - clang-12-allnoconfig
-  - clang-12-defconfig
-  - clang-12-tinyconfig
-  - gcc-10-allnoconfig
-  - gcc-10-defconfig
-  - gcc-10-tinyconfig
-  - gcc-8-allnoconfig
-  - gcc-8-defconfig
-  - gcc-8-tinyconfig
-  - gcc-9-allnoconfig
-  - gcc-9-defconfig
-  - gcc-9-tinyconfig
+Same
 
 
-## Test result summary
- total: 79739, pass: 65308, fail: 2144, skip: 11035, xfail: 1252,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 0 passed, 1 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
