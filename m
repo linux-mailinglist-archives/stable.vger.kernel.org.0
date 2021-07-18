@@ -2,92 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 603753CC821
-	for <lists+stable@lfdr.de>; Sun, 18 Jul 2021 09:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 181683CC843
+	for <lists+stable@lfdr.de>; Sun, 18 Jul 2021 11:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230309AbhGRH45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Jul 2021 03:56:57 -0400
-Received: from mout.gmx.net ([212.227.15.15]:55591 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229578AbhGRH44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 18 Jul 2021 03:56:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1626594818;
-        bh=sSf1sanoNyOf1s8ToImMPkw6H4e74dn8eSrq/chg8Q0=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=QkiEAqWbOy8TBkMzD6dJ6iOxmbJNklBnmN5fmO5auXc39bOBUZNmCiMMq6BzSe3SL
-         JHlnNQq3lUG0HnHZh3kFx69V2wfElMn+LWVlmRU9AMyXD6X98DNztXI7iYaFJD8WVU
-         AzgwOEPvZWB6eThd5AW+lSxBnGfy2WPJ8pLOBjwM=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from titan ([83.52.228.41]) by mail.gmx.net (mrgmx005
- [212.227.17.184]) with ESMTPSA (Nemesis) id 1MSbxD-1lgVh247tR-00Swiu; Sun, 18
- Jul 2021 09:53:38 +0200
-Date:   Sun, 18 Jul 2021 09:53:24 +0200
-From:   Len Baker <len.baker@gmx.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Len Baker <len.baker@gmx.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Yan-Hsuan Chuang <tony0620emma@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Stanislaw Gruszka <sgruszka@redhat.com>,
-        Pkshih <pkshih@realtek.com>, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] rtw88: Fix out-of-bounds write
-Message-ID: <20210718075324.GA3118@titan>
-References: <20210716155311.5570-1-len.baker@gmx.com>
- <YPG/8F7yYLm3vAlG@kroah.com>
- <20210717133343.GA2009@titan>
- <YPMUfbDh3jnV8hRZ@kroah.com>
+        id S230461AbhGRJRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Jul 2021 05:17:07 -0400
+Received: from mxout02.lancloud.ru ([45.84.86.82]:35632 "EHLO
+        mxout02.lancloud.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229863AbhGRJRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Jul 2021 05:17:07 -0400
+Received: from LanCloud
+DKIM-Filter: OpenDKIM Filter v2.11.0 mxout02.lancloud.ru B137E2327E2A
+Received: from LanCloud
+Received: from LanCloud
+Received: from LanCloud
+Subject: Re: [PATCH AUTOSEL 4.19 05/39] scsi: hisi_sas: Propagate errors in
+ interrupt_init_v1_hw()
+To:     Sasha Levin <sashal@kernel.org>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        <linux-scsi@vger.kernel.org>
+References: <20210710023204.3171428-1-sashal@kernel.org>
+ <20210710023204.3171428-5-sashal@kernel.org>
+ <3e2af821-00e3-6db9-5820-696fdbe003d6@omp.ru> <YPOB8hs4jOBRyQsS@sashalap>
+From:   Sergey Shtylyov <s.shtylyov@omp.ru>
+Organization: Open Mobile Platform
+Message-ID: <24e2041e-8dab-dabf-2b74-5573e25ead6d@omp.ru>
+Date:   Sun, 18 Jul 2021 12:13:45 +0300
+User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YPMUfbDh3jnV8hRZ@kroah.com>
-X-Provags-ID: V03:K1:JhNSeBGs0zGSWWl5J6a1ocVLtAtD6Ugtat/wFNLVSUgDhgjxb5V
- 88TXcSkGduQlfyCmZIXMllL7WXSwL0iYJIw/HRkeXLaGkZt9TQA+F3lTwKSJ4PMEDZUBFVP
- FLriM5kbh8nenUg/RbsZH/EMXmeLuR5QD+0VVHlH2ej/P0J6aGKh1GeARjfWvPk9GjpaUWZ
- eYTCYljvuLwUa/GHZ3XOQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:3Gsqx7Fsm5s=:SUyH/zdppSSWWeT2atMcIU
- OJoajrmk7YOGbQc4atP37nheeL7mYoA/rCw2itbYprFYuOIOcvpG/uhtrhqt513ABup1wKihj
- aywtvxmPXkr3HjbD71jtoMaOUgwhUXTI5LrPGWV4Siatim/zgF8hBWSHRu8g6c1yvvzNScnvh
- YYCPLWk10iETYJ/pwWnqMfuKcyOje5409Q9Ck6AjL2vBqO57s4+UoewIdxxqxMC45D3W5Lt7e
- VtKnvWLaF0Ps68uSJZCH9fVBnj/YCZiePUTQWekXwDQPLq1IcF3Kmdvg8uDr2GotLf/cveiQF
- bhrtwI4IWT4vf94erqhnwMlGaQU83owU/+ynUZ7D1dQ3LNRaRe0v5R9OVrfBGIU+lquSqoJZ2
- 2Hkc/US8xqD46BAuvLgnfkP6/Br4TR0gRmqjwZo/4K1n8Ore8Ktn22a7N3bNp6W1/yAft7pTv
- otxrm/PtOb4jz4nebcLPeMb9nnspC1IqzzUApN8fRlNDvWriLbUpcUQsLFIHe3bFe6zjN9Q2K
- i35EiwD0le+aP45iaJkjeTZdWx4M+9Ft/edoIxSZ8FUEgE4hU7D9XDtDHUTG4nFK0FBe1n3Qf
- Kn+JuTihguTNaAQKz2LTYfsoUldZviCz6Fp6x+oqIKvN28tJ+jTb/v8w2BLF7TH0C9CGT6LYY
- 5KfLkwW5ou/BlZaXuL5z9+LzkDG98Yy/5fwoJ6Ucdv4NJA5iQwEaVVjC8ISNuy8iwLLY8n0KT
- lgBUBZWe+5h1TsGTKQobDbr8GdJT4hfTJtBZggyeU4KxkxjXZUNBCMjNtr6Yr7p5NzKxjVG5V
- y9o3DPzhuMhzAGWYRXXvUxiBLvfPsEPqEhn9EpnxJ78iQXBRGdlUsB0v03ZTWqKo/VgTXezPb
- GBWLKKnCn73OkJx6dAvP6h7sNXz4GZmbRMMqWMUlI9TgZx1dZcF78z7vYBTsTQkBta1YybX+m
- r3TDnmq8PAqjpYrI71CT+2KPP9xwak5lehy9uMSpkrPRAI52Vfzf2q6vpY86wy2MYiavE7gXA
- kvSO+HJ1k7SBrkgIMHEqRprmy8Yo6tqvQgh51nhH4lOhk0ClsilVBKuDJ1OTRn/FSJvTKSEob
- npgU56hW0Zg+ALy5mwXTqA/H3bqcmxIq9de
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <YPOB8hs4jOBRyQsS@sashalap>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [192.168.11.198]
+X-ClientProxiedBy: LFEXT02.lancloud.ru (fd00:f066::142) To
+ LFEX1907.lancloud.ru (fd00:f066::207)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jul 17, 2021 at 07:33:49PM +0200, Greg KH wrote:
-> On Sat, Jul 17, 2021 at 03:33:43PM +0200, Len Baker wrote:
-> > Another question: If this can never happen should I include the "Fixes=
-" tag,
-> > "Addresses-Coverity-ID" tag and Cc to stable?
->
-> If it can never happen, why have this check at all?
->
-> Looks like a Coverity false positive?
+Hello!
 
-Ok, then I will remove the check and I will send a patch for review.
+On 18.07.2021 4:20, Sasha Levin wrote:
 
->
-> thanks,
->
-> greg k-h
+[...]
+>>> [ Upstream commit ab17122e758ef68fb21033e25c041144067975f5 ]
+>>>
+>>> After commit 6c11dc060427 ("scsi: hisi_sas: Fix IRQ checks") we have the
+>>> error codes returned by platform_get_irq() ready for the propagation
+>>> upsream in interrupt_init_v1_hw() -- that will fix still broken deferred
+>>> probing. Let's propagate the error codes from devm_request_irq() as well
+>>> since I don't see the reason to override them with -ENOENT...
+>>>
+>>> Link: https://lore.kernel.org/r/49ba93a3-d427-7542-d85a-b74fe1a33a73@omp.ru
+>>> Acked-by: John Garry <john.garry@huawei.com>
+>>> Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+>>> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>> ---
+>>>  drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++++------
+>>>  1 file changed, 6 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c 
+>>> b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+>>> index 8aa3222fe486..5a777e48963b 100644
+>>> --- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+>>> +++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+>> [...]
+>>> @@ -1717,7 +1717,7 @@ static int interrupt_init_v1_hw(struct hisi_hba 
+>>> *hisi_hba)
+>>>          if (!irq) {
+>>>              dev_err(dev, "irq init: could not map cq interrupt %d\n",
+>>>                  idx);
+>>> -            return -ENOENT;
+>>> +            return irq;
+>>
+>>   This patch is borked too, we don't want to return 0 here...
+> 
+> Looks like it's broken on <=4.19, I'll drop it. Thanks!
 
-Regards,
-Len
+    You might to want backport the below patch (before this one),
+the same way yoo did for 5.x-stable):
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=6c11dc060427e07ca144eacaccd696106b361b06
+
+MBR, Sergei
