@@ -2,79 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6823CCBA3
+	by mail.lfdr.de (Postfix) with ESMTP id 92B4A3CCBA2
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 01:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233713AbhGRX57 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Jul 2021 19:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33116 "EHLO
+        id S233722AbhGRX56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Jul 2021 19:57:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232582AbhGRX54 (ORCPT
+        with ESMTP id S233713AbhGRX54 (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 18 Jul 2021 19:57:56 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6CCC061765
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 355FDC061762
         for <stable@vger.kernel.org>; Sun, 18 Jul 2021 16:54:56 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id c12so1618723wrt.3
+Received: by mail-wr1-x430.google.com with SMTP id i94so19623299wri.4
         for <stable@vger.kernel.org>; Sun, 18 Jul 2021 16:54:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7RvbFdwTjB3RgHhiockoPd8e4F9z8GNoiQcT8f0eKZA=;
-        b=axXBTMARAC5U3piEe9Az/waiqJjTAfiL7VN+ZNIcN/81PbO4Neyph/tgcG01H8j5EL
-         9VDu6YGISs3fw3hQ2ZdggZOmp4xY/pJUt5UK1Jlx/ssGwwbxwrtmWMREXm1LjYNnLevI
-         pJ+GJuvSCJ/i+TazsgtZvPUdHTlTxZfA460qLKN1+o0gT716rqF7vogVAjEUd9ms0beq
-         F50QaHneTJYBaCTiSvwV5/oPmUqX5aqKpYT3ZD2ID0TC3LTOdKeGbysjZ7RVqnr6LjW7
-         oqhyE9rEYId0EM/0N5iZjGhJ2R4EemafVJxFWJlhTFLROMrpkvB23TDf535nJtI2XPd4
-         VxnA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=UszeBgxH2DDSwH8vZaJMkXZPARX31U5GtujpEGVSoi4=;
+        b=fUyJGGhELRbPZIlpMeA7DSsV5kuWKwoU+9FqLiL4rt6xgzQiU+n/fb+yvKFDObdgeq
+         8PnUQHB0HkUXI1boZB7rZisw2P0YLNCWzIz73Jb5NSUpyiiKYVrtuGeqvV6T18IZztCX
+         U+LYfYqZ7X6iWiaBYjSal3QT4MbIQfKuhEZfBmH8dSEB0oX5cr+Gnskim//KwhPGzoGH
+         MHAzJB2mujEGyk72tCnFeX1LzfJwBz7bovX6XJWeFYqNoGXlFSxPXRXrNL4+TpuOzOJQ
+         cpViajV+XnRjFZVl2q9AtsPF0ogq5bKEvh78ORLEdUQBa+xYlZ7aHiLUl7ZbDzlTalH+
+         q1kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=7RvbFdwTjB3RgHhiockoPd8e4F9z8GNoiQcT8f0eKZA=;
-        b=CVCEcIuUq6a7F2HPI9shL9xj5ohMpaBjUdX8L7N3KqsPZbCkch0FDr+sgthbfsgFO/
-         R8iCdhZODSVob4NlfZhoSuyI6mBvVjCsx3wVHL33KCmJ2fcxC+n2Egp19/pptqA4TyO9
-         eVCsBpCuDXiYlJIpBsCM4wXkLsNNLlgMeLQ3x9xnF4LEfm0cloeIrNE5wulkaXvGQQ0y
-         clOh0TjJCcfbr4WJYwru5TkNSZoviHAUy3OEOla8wmbbKqOtiG0NmPwryQ5+3WdmJwLD
-         EYlHxTA6oHNq6vJVCKoJ3lgmHv2vlbf09kOKRG7OxXjRk4DE6XT7AyGrA59AexSJBCFJ
-         x7gw==
-X-Gm-Message-State: AOAM532zl5sp0VwkFIrkNHlXLPZY21pR0akRokWYIi8tTey7JnnUdpxf
-        Md8elb9JC0mAN9BK8yWOr70Xmrem3BpJdw==
-X-Google-Smtp-Source: ABdhPJxmUFrrVt3QK+CdJGhC/glfJqL4Ah/FGTSZtaCOE+sAzNNAabQAW2U4s8IKfQrOsLFgEbKsvg==
-X-Received: by 2002:a5d:50c7:: with SMTP id f7mr26352203wrt.126.1626652493913;
-        Sun, 18 Jul 2021 16:54:53 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=UszeBgxH2DDSwH8vZaJMkXZPARX31U5GtujpEGVSoi4=;
+        b=SLdvA37cRokDGXiF7DBMFpZgBGiu6LWdt0ck3Ejm1Sj74yfyW5gpwRjpjPPKfZv4FV
+         VU/Vos25Uu0zu31JEyG91tnPGYrZp+2rx/wHlh062ObAe1FVRXt8M0m1TMEPEve3m0CU
+         ZnCM5Vl56Kl0okjuAmiEPxp0//F6uz0KGWC3Ql3FVcmDICHwIRZ1sYdL4ZdRpOv1NDs5
+         qXVMKRKLeC9I7wCCKf/Kl6WY3zbbjpNyx7k2L5M9uSVsF6oO5Y3JGaWpbm0WbbzSMK4/
+         BLyoZCz78pBQGoRyjh3H47MVnDIyot2/w/keukR343QYGH6Fo2iuAeSWdQWuI1Vwli9b
+         GTPA==
+X-Gm-Message-State: AOAM533WPmDaSfez8OyTfWHJLVkjZ6hjrv0bxPsEupGqaCu+vpaeb91U
+        QM2GCbwUw4GkUqmjHq5jS2qqc1A8fTAUHA==
+X-Google-Smtp-Source: ABdhPJypvHj6+RT8cauaPpoYNLa10uytCmxY6gGOuV2c6zd+PoZ+0B0EuSJeGYlO/S526DJCjDQI7w==
+X-Received: by 2002:a5d:464b:: with SMTP id j11mr26746132wrs.356.1626652494659;
+        Sun, 18 Jul 2021 16:54:54 -0700 (PDT)
 Received: from localhost.localdomain ([148.252.129.101])
-        by smtp.gmail.com with ESMTPSA id p18sm18098200wmg.46.2021.07.18.16.54.52
+        by smtp.gmail.com with ESMTPSA id p18sm18098200wmg.46.2021.07.18.16.54.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 18 Jul 2021 16:54:53 -0700 (PDT)
+        Sun, 18 Jul 2021 16:54:54 -0700 (PDT)
 From:   Pavel Begunkov <asml.silence@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 0/2] stable-5.12 backport fixes
-Date:   Mon, 19 Jul 2021 00:54:21 +0100
-Message-Id: <cover.1626651114.git.asml.silence@gmail.com>
+Subject: [PATCH 1/2] io_uring: put link timeout req consistently
+Date:   Mon, 19 Jul 2021 00:54:22 +0100
+Message-Id: <6122708161f73ad0027ee2accd755cd848742dc8.1626651114.git.asml.silence@gmail.com>
 X-Mailer: git-send-email 2.32.0
+In-Reply-To: <cover.1626651114.git.asml.silence@gmail.com>
+References: <cover.1626651114.git.asml.silence@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-a298232ee6b9a1 ("io_uring: fix link timeout refs") was backported,
-however the second chunk of it got discarded, which breaks io_uring.
-It depends on another patch, so backport it first (patch 1/2) and
-then apply a298232ee6b9a1 again (patch 2/2).
+[ Upstream commit df9727affa058f4f18e388b30247650f8ae13cd8 ]
 
-It's a bit messy, the patch will be in the tree twice. Let me
-know if there is a better way.
+Don't put linked timeout req in io_async_find_and_cancel() but do it in
+io_link_timeout_fn(), so we have only one point for that and won't have
+to do it differently as it's now (put vs put_deferred). Btw, improve a
+bit io_async_find_and_cancel()'s locking.
 
-Pavel Begunkov (2):
-  io_uring: put link timeout req consistently
-  io_uring: fix link timeout refs
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/d75b70957f245275ab7cba83e0ac9c1b86aae78a.1617287883.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
- fs/io_uring.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
-
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 58ac04cca587..930c5d5a2b0b 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5727,12 +5727,9 @@ static void io_async_find_and_cancel(struct io_ring_ctx *ctx,
+ 	int ret;
+ 
+ 	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
+-	if (ret != -ENOENT) {
+-		spin_lock_irqsave(&ctx->completion_lock, flags);
+-		goto done;
+-	}
+-
+ 	spin_lock_irqsave(&ctx->completion_lock, flags);
++	if (ret != -ENOENT)
++		goto done;
+ 	ret = io_timeout_cancel(ctx, sqe_addr);
+ 	if (ret != -ENOENT)
+ 		goto done;
+@@ -5747,7 +5744,6 @@ static void io_async_find_and_cancel(struct io_ring_ctx *ctx,
+ 
+ 	if (ret < 0)
+ 		req_set_fail_links(req);
+-	io_put_req(req);
+ }
+ 
+ static int io_async_cancel_prep(struct io_kiocb *req,
+@@ -6310,8 +6306,8 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 		io_put_req_deferred(req, 1);
+ 	} else {
+ 		io_req_complete_post(req, -ETIME, 0);
+-		io_put_req_deferred(req, 1);
+ 	}
++	io_put_req_deferred(req, 1);
+ 	return HRTIMER_NORESTART;
+ }
+ 
 -- 
 2.32.0
 
