@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3829D3CE4C7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C3A83CE4CC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbhGSPqO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
+        id S241111AbhGSPqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348160AbhGSPm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:42:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B882F6128C;
-        Mon, 19 Jul 2021 16:22:04 +0000 (UTC)
+        id S241273AbhGSPm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:42:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4C96113A;
+        Mon, 19 Jul 2021 16:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711725;
-        bh=ZP9KQES+HDuOGeyqR9cpbVw/7pbTbMeag+0gntsBwL4=;
+        s=korg; t=1626711727;
+        bh=S8FyD6i2KZoQxaYSfpwYpugH0oeXfUDcS6wNKhOTYhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGhHRJHLI0TlendpBEpbSGqcGmdA4b8Ol8/uHAVnRcjV5k0uPS+K912rkxlwaUzG1
-         juO8e0tkNazefPy+FPntiqLLTpWGVvPLPm90wfP3THTUlWEcsRb5FejkXoBXy1kvQE
-         4p+UXmoal44zL8Bhbx9DcJvNERHVjx0HPWNjxAKo=
+        b=wHYLc0K1y7rLLBOIldBFvtDtFM6usTDygPdh58YSt0icLk+VX4CxBmBC1ZB/a4l65
+         8eVquPBugTrdvlykg1N5CmmGQZ+y7jF7uynBGAPT3TeTyBTJVx+c79xKldWwVmTA1v
+         XEPlMDGSNwMIZG54FKluFtjScftk9gIzNvK9ID14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 108/292] s390/mem_detect: fix diag260() program check new psw handling
-Date:   Mon, 19 Jul 2021 16:52:50 +0200
-Message-Id: <20210719144946.045831472@linuxfoundation.org>
+Subject: [PATCH 5.12 109/292] s390/mem_detect: fix tprot() program check new psw handling
+Date:   Mon, 19 Jul 2021 16:52:51 +0200
+Message-Id: <20210719144946.082584175@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,10 +42,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 86807f348f418a84970eebb8f9912a7eea16b497 ]
+[ Upstream commit da9057576785aaab52e706e76c0475c85b77ec14 ]
 
-The __diag260() inline asm temporarily changes the program check new
-psw to redirect a potential program check on the diag instruction.
+The tprot() inline asm temporarily changes the program check new psw
+to redirect a potential program check on the diag instruction.
 Restoring of the program check new psw is done in C code behind the
 inline asm.
 
@@ -62,47 +62,53 @@ Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/mem_detect.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ arch/s390/boot/mem_detect.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
 diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
-index 40168e59abd3..3f093556dc3b 100644
+index 3f093556dc3b..a0e980f57c02 100644
 --- a/arch/s390/boot/mem_detect.c
 +++ b/arch/s390/boot/mem_detect.c
-@@ -69,24 +69,27 @@ static int __diag260(unsigned long rx1, unsigned long rx2)
- 	register unsigned long _ry asm("4") = 0x10; /* storage configuration */
- 	int rc = -1;				    /* fail */
- 	unsigned long reg1, reg2;
+@@ -114,24 +114,30 @@ static int diag260(void)
+ 
+ static int tprot(unsigned long addr)
+ {
+-	unsigned long pgm_addr;
++	unsigned long reg1, reg2;
+ 	int rc = -EFAULT;
 -	psw_t old = S390_lowcore.program_new_psw;
 +	psw_t old;
  
+-	S390_lowcore.program_new_psw.mask = __extract_psw();
  	asm volatile(
+-		"	larl	%[pgm_addr],1f\n"
+-		"	stg	%[pgm_addr],%[psw_pgm_addr]\n"
 +		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
- 		"	epsw	%0,%1\n"
--		"	st	%0,%[psw_pgm]\n"
--		"	st	%1,%[psw_pgm]+4\n"
-+		"	st	%0,0(%[psw_pgm])\n"
-+		"	st	%1,4(%[psw_pgm])\n"
- 		"	larl	%0,1f\n"
--		"	stg	%0,%[psw_pgm]+8\n"
-+		"	stg	%0,8(%[psw_pgm])\n"
- 		"	diag	%[rx],%[ry],0x260\n"
++		"	epsw	%[reg1],%[reg2]\n"
++		"	st	%[reg1],0(%[psw_pgm])\n"
++		"	st	%[reg2],4(%[psw_pgm])\n"
++		"	larl	%[reg1],1f\n"
++		"	stg	%[reg1],8(%[psw_pgm])\n"
+ 		"	tprot	0(%[addr]),0\n"
  		"	ipm	%[rc]\n"
  		"	srl	%[rc],28\n"
 -		"1:\n"
+-		: [pgm_addr] "=&d"(pgm_addr),
+-		  [psw_pgm_addr] "=Q"(S390_lowcore.program_new_psw.addr),
+-		  [rc] "+&d"(rc)
+-		: [addr] "a"(addr)
 +		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
- 		: "=&d" (reg1), "=&a" (reg2),
--		  [psw_pgm] "=Q" (S390_lowcore.program_new_psw),
-+		  "+Q" (S390_lowcore.program_new_psw),
-+		  "=Q" (old),
- 		  [rc] "+&d" (rc), [ry] "+d" (_ry)
--		: [rx] "d" (_rx1), "d" (_rx2)
-+		: [rx] "d" (_rx1), "d" (_rx2),
-+		  [psw_old] "a" (&old),
-+		  [psw_pgm] "a" (&S390_lowcore.program_new_psw)
++		: [reg1] "=&d" (reg1),
++		  [reg2] "=&a" (reg2),
++		  [rc] "+&d" (rc),
++		  "=Q" (S390_lowcore.program_new_psw.addr),
++		  "=Q" (old)
++		: [psw_old] "a" (&old),
++		  [psw_pgm] "a" (&S390_lowcore.program_new_psw),
++		  [addr] "a" (addr)
  		: "cc", "memory");
 -	S390_lowcore.program_new_psw = old;
- 	return rc == 0 ? _ry : -1;
+ 	return rc;
  }
  
 -- 
