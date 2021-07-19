@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7A423CDC1B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B61C73CDC33
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238224AbhGSOvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
+        id S242893AbhGSOvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344294AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F420961357;
-        Mon, 19 Jul 2021 15:27:57 +0000 (UTC)
+        id S1344449AbhGSOst (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B0660249;
+        Mon, 19 Jul 2021 15:29:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708478;
-        bh=3WcOl2F11oKeEtJ+ojYPQK11j/yNj5HrX/b0jaZicnk=;
+        s=korg; t=1626708554;
+        bh=2F1YceAhOmYXRFojOCBKHxLzQN8yw3ihgUr5UtzfwjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JOLUBWyKC/6826KdXtn8GhVh0M7cYm3VvoWay+mH8gFfDAC2JGfb0QzsXgRsoTsRs
-         KzJ7ytttJ8yWst8psl6b5JVAhCd9T5hmyLUlAtuPFiqXAwSAhs8b+RnfiEBZ+JKu4+
-         2cVE+GFbniUPYAMjU+ugTsyqHg04SHtQ8FV/Hdpo=
+        b=ZTq8W2cJrAwKLn+ED3dBgKpvZwBA2vYxgwCkqDDvjVAUsKQgVenyHZvHZaIP04EsC
+         FPNVg82gVBpp13QMqK9oCzK8Yl77JagVxkMFb8+/N+/8ixJ6IdDlDgdsgcLch4jWd1
+         I7CASASlVeVmP9ExOyPEtmRCZ+WIiGsUa7ov8m/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Quat Le <quat.le@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 001/421] scsi: core: Retry I/O for Notify (Enable Spinup) Required error
-Date:   Mon, 19 Jul 2021 16:46:52 +0200
-Message-Id: <20210719144946.361149113@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 006/421] net: can: ems_usb: fix use-after-free in ems_usb_disconnect()
+Date:   Mon, 19 Jul 2021 16:46:57 +0200
+Message-Id: <20210719144946.523764807@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,35 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quat Le <quat.le@oracle.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 104739aca4488909175e9e31d5cd7d75b82a2046 upstream.
+commit ab4a0b8fcb9a95c02909b62049811bd2e586aaa4 upstream.
 
-If the device is power-cycled, it takes time for the initiator to transmit
-the periodic NOTIFY (ENABLE SPINUP) SAS primitive, and for the device to
-respond to the primitive to become ACTIVE. Retry the I/O request to allow
-the device time to become ACTIVE.
+In ems_usb_disconnect() dev pointer, which is netdev private data, is
+used after free_candev() call:
+| 	if (dev) {
+| 		unregister_netdev(dev->netdev);
+| 		free_candev(dev->netdev);
+|
+| 		unlink_all_urbs(dev);
+|
+| 		usb_free_urb(dev->intr_urb);
+|
+| 		kfree(dev->intr_in_buffer);
+| 		kfree(dev->tx_msg_buffer);
+| 	}
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210629155826.48441-1-quat.le@oracle.com
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Quat Le <quat.le@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fix it by simply moving free_candev() at the end of the block.
+
+Fail log:
+| BUG: KASAN: use-after-free in ems_usb_disconnect
+| Read of size 8 at addr ffff88804e041008 by task kworker/1:2/2895
+|
+| CPU: 1 PID: 2895 Comm: kworker/1:2 Not tainted 5.13.0-rc5+ #164
+| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.4
+| Workqueue: usb_hub_wq hub_event
+| Call Trace:
+|     dump_stack (lib/dump_stack.c:122)
+|     print_address_description.constprop.0.cold (mm/kasan/report.c:234)
+|     kasan_report.cold (mm/kasan/report.c:420 mm/kasan/report.c:436)
+|     ems_usb_disconnect (drivers/net/can/usb/ems_usb.c:683 drivers/net/can/usb/ems_usb.c:1058)
+
+Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
+Link: https://lore.kernel.org/r/20210617185130.5834-1-paskripkin@gmail.com
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/scsi_lib.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/can/usb/ems_usb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -872,6 +872,7 @@ static void scsi_io_completion_action(st
- 				case 0x07: /* operation in progress */
- 				case 0x08: /* Long write in progress */
- 				case 0x09: /* self test in progress */
-+				case 0x11: /* notify (enable spinup) required */
- 				case 0x14: /* space allocation in progress */
- 				case 0x1a: /* start stop unit in progress */
- 				case 0x1b: /* sanitize in progress */
+--- a/drivers/net/can/usb/ems_usb.c
++++ b/drivers/net/can/usb/ems_usb.c
+@@ -1065,7 +1065,6 @@ static void ems_usb_disconnect(struct us
+ 
+ 	if (dev) {
+ 		unregister_netdev(dev->netdev);
+-		free_candev(dev->netdev);
+ 
+ 		unlink_all_urbs(dev);
+ 
+@@ -1073,6 +1072,8 @@ static void ems_usb_disconnect(struct us
+ 
+ 		kfree(dev->intr_in_buffer);
+ 		kfree(dev->tx_msg_buffer);
++
++		free_candev(dev->netdev);
+ 	}
+ }
+ 
 
 
