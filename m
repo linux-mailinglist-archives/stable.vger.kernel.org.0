@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59FC53CDA69
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A7E3CDBD9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244953AbhGSOfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
+        id S232506AbhGSOuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245221AbhGSOe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0E5161279;
-        Mon, 19 Jul 2021 15:13:56 +0000 (UTC)
+        id S1344289AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F7306128E;
+        Mon, 19 Jul 2021 15:27:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707637;
-        bh=aE8rBFuYz3w5rOYaRyxgwOAw28bOE77csA3Aj7bsi9s=;
+        s=korg; t=1626708470;
+        bh=dI0pHhPcB160m+cv+0IezzUj6hvXNpfMeDRFZDsAkXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GzycPhdsW3dYLFSH2SPMNkPWGjQ5mpXHuh4gytd8vbREED6WBYMMgUMg8R6BlhfC3
-         gmM5NCOOsQb8CYZIIeL1t4s/cU1jqKU/4Gm0nL40tJJWAVzAdluilzOOY/is2g7ZUj
-         qOyqV3hLhhfYpuagPkmZESlpVcJkd1vSGEPN1OkM=
+        b=HYp4SVMsRbL7N4OtBPhSGApnCo2Xxz+5N0xOOv0hwNlFSLUwJofO3yZr+su2bbtBp
+         DObMrP7RACxBLJr1vfT/EfLHErD9aCT6fiHItqFTIWM9WheJim3sZIM8A0ZmjqR12y
+         NAfgQznqCmMuvqkUqujvALBng38Yxkl7/UiVHE1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 242/245] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
-Date:   Mon, 19 Jul 2021 16:53:04 +0200
-Message-Id: <20210719144948.187253369@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 296/315] ALSA: isa: Fix error return code in snd_cmi8330_probe()
+Date:   Mon, 19 Jul 2021 16:53:05 +0200
+Message-Id: <20210719144953.199255646@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
+[ Upstream commit 31028cbed26a8afa25533a10425ffa2ab794c76c ]
 
-If an error occurs after a pci_enable_pcie_error_reporting() call, it must
-be undone by a corresponding pci_disable_pcie_error_reporting() call, as
-already done in the remove function.
+When 'SB_HW_16' check fails, the error code -ENODEV instead of 0 should be
+returned, which is the same as that returned when 'WSS_HW_CMI8330' check
+fails.
 
-Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
-Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 43bcd973d6d0 ("[ALSA] Add snd_card_set_generic_dev() call to ISA drivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210707074051.2663-1-thunder.leizhen@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/isa/cmi8330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 741cc96379cb..628bf2e6a526 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5847,6 +5847,7 @@ hba_free:
- 		pci_disable_msix(phba->pcidev);
- 	pci_dev_put(phba->pcidev);
- 	iscsi_host_free(phba->shost);
-+	pci_disable_pcie_error_reporting(pcidev);
- 	pci_set_drvdata(pcidev, NULL);
- disable_pci:
- 	pci_release_regions(pcidev);
+diff --git a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
+index 6b8c46942efb..75b3d76eb852 100644
+--- a/sound/isa/cmi8330.c
++++ b/sound/isa/cmi8330.c
+@@ -564,7 +564,7 @@ static int snd_cmi8330_probe(struct snd_card *card, int dev)
+ 	}
+ 	if (acard->sb->hardware != SB_HW_16) {
+ 		snd_printk(KERN_ERR PFX "SB16 not found during probe\n");
+-		return err;
++		return -ENODEV;
+ 	}
+ 
+ 	snd_wss_out(acard->wss, CS4231_MISC_INFO, 0x40); /* switch on MODE2 */
 -- 
 2.30.2
 
