@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 635213CDE96
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317A23CDBEC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343945AbhGSPEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:04:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
+        id S232414AbhGSOue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345288AbhGSPCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:02:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D97DE6023D;
-        Mon, 19 Jul 2021 15:42:41 +0000 (UTC)
+        id S1343963AbhGSOsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B57C3613CF;
+        Mon, 19 Jul 2021 15:25:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709362;
-        bh=lAu+LTAR349mDL0w4BHlXProjoot0ns5zpTda0DaVLw=;
+        s=korg; t=1626708346;
+        bh=Qov3NdALQaJngH7UvnuSSQKyNioJNZNNRlHpZDfJudE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joqyQiVwVKvMAZJ6b/LLUpnxbrQzT/x81DDjMb578FxIg0wPERTLb0MtFMq34UCFD
-         rSOurWvHPLdooSKHZB6Jsk+SQMdu+q3l58Q5FG85Y/dO6dfy07F5ue1TKrGxerix/h
-         5cWAaYehAixDyyD7zdNg6tMaXJZ17WCq4VjQEY5U=
+        b=VC/8a1zHTl69GcIAWemXtiHaZ+wQN58djOEsk4e5ALpaYHLiLtJXI86qiTfvnawDy
+         mVwx/xyd9a73esLtqXPx39n6qya5gGhjajyTIa482uPWJkIFEK4RVAq6hC/ZGN/zfd
+         l3XuIVhq/7MO7WLjnkW2HK16E1Bz1FaS0K6VTov0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 353/421] backlight: lm3630a: Fix return code of .update_status() callback
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 275/315] x86/fpu: Return proper error codes from user access functions
 Date:   Mon, 19 Jul 2021 16:52:44 +0200
-Message-Id: <20210719144958.503392917@linuxfoundation.org>
+Message-Id: <20210719144952.464562001@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
+[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
 
-According to <linux/backlight.h> .update_status() is supposed to
-return 0 on success and a negative error code otherwise. Adapt
-lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
-actually do it.
+When *RSTOR from user memory raises an exception, there is no way to
+differentiate them. That's bad because it forces the slow path even when
+the failure was not a fault. If the operation raised eg. #GP then going
+through the slow path is pointless.
 
-While touching that also add the error code to the failure message.
+Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
+fixup return the negated trap number as error.
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+This allows to separate the fast path and let it handle faults directly and
+avoid the slow path for all other exceptions.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index ef2553f452ca..f17e5a8860fa 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -184,7 +184,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
- 
- 	/* disable sleep */
-@@ -204,8 +204,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index fa2c93cb42a2..b8c935033d21 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -103,6 +103,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
  }
+ extern void fpstate_sanitize_xstate(struct fpu *fpu);
  
- static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
-@@ -261,7 +261,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
++/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
+ #define user_insn(insn, output, input...)				\
+ ({									\
+ 	int err;							\
+@@ -110,14 +111,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
+ 	might_fault();							\
+ 									\
+ 	asm volatile(ASM_STAC "\n"					\
+-		     "1:" #insn "\n\t"					\
++		     "1: " #insn "\n"					\
+ 		     "2: " ASM_CLAC "\n"				\
+ 		     ".section .fixup,\"ax\"\n"				\
+-		     "3:  movl $-1,%[err]\n"				\
++		     "3:  negl %%eax\n"					\
+ 		     "    jmp  2b\n"					\
+ 		     ".previous\n"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err), output				\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err), output				\
+ 		     : "0"(0), input);					\
+ 	err;								\
+ })
+@@ -221,16 +222,20 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
+ #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
  
- 	/* disable sleep */
-@@ -281,8 +281,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	return 0;
++/*
++ * After this @err contains 0 on success or the negated trap number when
++ * the operation raises an exception. For faults this results in -EFAULT.
++ */
+ #define XSTATE_OP(op, st, lmask, hmask, err)				\
+ 	asm volatile("1:" op "\n\t"					\
+ 		     "xor %[err], %[err]\n"				\
+ 		     "2:\n\t"						\
+ 		     ".pushsection .fixup,\"ax\"\n\t"			\
+-		     "3: movl $-2,%[err]\n\t"				\
++		     "3: negl %%eax\n\t"				\
+ 		     "jmp 2b\n\t"					\
+ 		     ".popsection\n\t"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err)					\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err)					\
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
  
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
 -- 
 2.30.2
 
