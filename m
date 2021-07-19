@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4CE3CE167
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF55F3CE2B0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349202AbhGSPZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        id S1348616AbhGSPbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:31:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347709AbhGSPUM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:20:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20515613F7;
-        Mon, 19 Jul 2021 15:59:03 +0000 (UTC)
+        id S1347816AbhGSPVe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:21:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BC861289;
+        Mon, 19 Jul 2021 15:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710344;
-        bh=O1dqbL5v9Pk/htBaCbRsgljVqbpZTvU1GsfbxVTbALY=;
+        s=korg; t=1626710346;
+        bh=/CLhTyXPjjLRNb07GDJOFxKmUnEMQlQ76RxjoNskkSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gydYbcilQtNGxcfKbt9IiA1PA/QD0wRuymaSGuLzAd5+0C9wp3MIqbB85KbJ9welh
-         TzWbdRA5kuNCF+0gigomMNRvd7pFdliQ+BE4VxUVawyFN/WsCwa8bn3W9q/cjpbhp6
-         9gKqyLmakruvbaWQFUSWm6a5elDPX/PHyWn3SnME=
+        b=gB5Z7gwRCSAD/1w42W9UBx9RK5XP7XzUz7O4e5aPdtOhkWYQ8hGHdHKtdxlSDLS4h
+         fJHVEzjfQqL99697BWbR+GR4eRsSqJ4a4as3amB1/URuCrARc65PvpvXXaEsUo2mLl
+         tyvIVLUJofJVOkNusiVEuBmgIlwc3egBx0Y+pQ0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 176/243] virtio_net: move tx vq operation under tx queue lock
-Date:   Mon, 19 Jul 2021 16:53:25 +0200
-Message-Id: <20210719144946.586016208@linuxfoundation.org>
+        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 177/243] nvme-tcp: cant set sk_user_data without write_lock
+Date:   Mon, 19 Jul 2021 16:53:26 +0200
+Message-Id: <20210719144946.614584990@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -39,69 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 5a2f966d0f3fa0ef6dada7ab9eda74cacee96b8a ]
+[ Upstream commit 0755d3be2d9bb6ea38598ccd30d6bbaa1a5c3a50 ]
 
-It's unsafe to operate a vq from multiple threads.
-Unfortunately this is exactly what we do when invoking
-clean tx poll from rx napi.
-Same happens with napi-tx even without the
-opportunistic cleaning from the receive interrupt: that races
-with processing the vq in start_xmit.
+The sk_user_data pointer is supposed to be modified only while
+holding the write_lock "sk_callback_lock", otherwise
+we could race with other threads and crash the kernel.
 
-As a fix move everything that deals with the vq to under tx lock.
+we can't take the write_lock in nvmet_tcp_state_change()
+because it would cause a deadlock, but the release_work queue
+will set the pointer to NULL later so we can simply remove
+the assignment.
 
-Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: b5332a9f3f3d ("nvmet-tcp: fix incorrect locking in state_change sk callback")
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/nvme/target/tcp.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 345a0f51e8d7..7d1f609306f9 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1519,6 +1519,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	unsigned int index = vq2txq(sq->vq);
- 	struct netdev_queue *txq;
-+	int opaque;
-+	bool done;
- 
- 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
- 		/* We don't need to enable cb for XDP */
-@@ -1528,10 +1530,28 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
-+	virtqueue_disable_cb(sq->vq);
- 	free_old_xmit_skbs(sq, true);
-+
-+	opaque = virtqueue_enable_cb_prepare(sq->vq);
-+
-+	done = napi_complete_done(napi, 0);
-+
-+	if (!done)
-+		virtqueue_disable_cb(sq->vq);
-+
- 	__netif_tx_unlock(txq);
- 
--	virtqueue_napi_complete(napi, sq->vq, 0);
-+	if (done) {
-+		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
-+			if (napi_schedule_prep(napi)) {
-+				__netif_tx_lock(txq, raw_smp_processor_id());
-+				virtqueue_disable_cb(sq->vq);
-+				__netif_tx_unlock(txq);
-+				__napi_schedule(napi);
-+			}
-+		}
-+	}
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
+diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
+index 4df4f37e6b89..dedcb7aaf0d8 100644
+--- a/drivers/nvme/target/tcp.c
++++ b/drivers/nvme/target/tcp.c
+@@ -1467,7 +1467,6 @@ static void nvmet_tcp_state_change(struct sock *sk)
+ 	case TCP_CLOSE_WAIT:
+ 	case TCP_CLOSE:
+ 		/* FALLTHRU */
+-		sk->sk_user_data = NULL;
+ 		nvmet_tcp_schedule_release_queue(queue);
+ 		break;
+ 	default:
 -- 
 2.30.2
 
