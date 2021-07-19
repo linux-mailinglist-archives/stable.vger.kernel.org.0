@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E15CF3CD9E3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7459B3CD9B7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245318AbhGSOb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
+        id S244589AbhGSObW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243260AbhGSO2z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:28:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDD5F6113C;
-        Mon, 19 Jul 2021 15:08:31 +0000 (UTC)
+        id S243245AbhGSO24 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EAD8961242;
+        Mon, 19 Jul 2021 15:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707312;
-        bh=t9NECPz7Nz0z405eePNMuJD4AM3HotzLTkVBP5Emu4o=;
+        s=korg; t=1626707314;
+        bh=fvKy1X4vRSJubuRPvcduF5CfYzHb+OZ32u0JTjFbEKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aRp7df9tySd+iaVUxcZjGXsEW6zdvJqbppAe57y49b4w7BY+k6mNPU0nwH+Pd/ad6
-         FgPtW1l8Np1kqVc7nHfO9u/1ddzmGlJkUosZYXbFTbFV4LIQkmhGjAzqDkLvKlXtl4
-         Hpa3TP3b0fwN9cocgnlmd/s197wZo/id//00FXSw=
+        b=Da0ERFgWqDQ7EH+tzW+TeznZ6sLXZsBccSBfukqHMzozm/g0xWkbDrcMSZuf3PM9Z
+         FTBOqRAuhAJKedwn9F/QOpeJ53GmovlrSUtjDfjachX0nyyFXWCg4IufAKqWXL+jDj
+         fdywYAt1cVQYERwDZreWqC5imuK2evo9LOLEQFEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 110/245] s390: appldata depends on PROC_SYSCTL
-Date:   Mon, 19 Jul 2021 16:50:52 +0200
-Message-Id: <20210719144943.975482821@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 111/245] staging: gdm724x: check for buffer overflow in gdm_lte_multi_sdu_pkt()
+Date:   Mon, 19 Jul 2021 16:50:53 +0200
+Message-Id: <20210719144944.011705769@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -42,44 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
+[ Upstream commit 4a36e160856db8a8ddd6a3d2e5db5a850ab87f82 ]
 
-APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
-Building with PROC_FS but not PROC_SYSCTL causes a build error,
-since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
+There needs to be a check to verify that we don't read beyond the end
+of "buf".  This function is called from do_rx().  The "buf" is the USB
+transfer_buffer and "len" is "urb->actual_length".
 
-arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
-appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
-
-Fixes: c185b783b099 ("[S390] Remove config options.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: 61e121047645 ("staging: gdm7240: adding LTE USB driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YMcnl4zCwGWGDVMG@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/gdm724x/gdm_lte.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 1c4a595e8224..1dff52abc786 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -833,7 +833,7 @@ config CMM_IUCV
- config APPLDATA_BASE
- 	def_bool n
- 	prompt "Linux - VM Monitor Stream, base infrastructure"
--	depends on PROC_FS
-+	depends on PROC_SYSCTL
- 	help
- 	  This provides a kernel interface for creating and updating z/VM APPLDATA
- 	  monitor records. The monitor records are updated at certain time
+diff --git a/drivers/staging/gdm724x/gdm_lte.c b/drivers/staging/gdm724x/gdm_lte.c
+index e72dfa9699f3..1bc2b3365e32 100644
+--- a/drivers/staging/gdm724x/gdm_lte.c
++++ b/drivers/staging/gdm724x/gdm_lte.c
+@@ -689,6 +689,7 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 	struct multi_sdu *multi_sdu = (struct multi_sdu *)buf;
+ 	struct sdu *sdu = NULL;
+ 	u8 *data = (u8 *)multi_sdu->data;
++	int copied;
+ 	u16 i = 0;
+ 	u16 num_packet;
+ 	u16 hci_len;
+@@ -702,6 +703,12 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 				      multi_sdu->num_packet);
+ 
+ 	for (i = 0; i < num_packet; i++) {
++		copied = data - multi_sdu->data;
++		if (len < copied + sizeof(*sdu)) {
++			pr_err("rx prevent buffer overflow");
++			return;
++		}
++
+ 		sdu = (struct sdu *)data;
+ 
+ 		cmd_evt = gdm_dev16_to_cpu(phy_dev->
+@@ -715,7 +722,8 @@ static void gdm_lte_multi_sdu_pkt(struct phy_dev *phy_dev, char *buf, int len)
+ 			pr_err("rx sdu wrong hci %04x\n", cmd_evt);
+ 			return;
+ 		}
+-		if (hci_len < 12) {
++		if (hci_len < 12 ||
++		    len < copied + sizeof(*sdu) + (hci_len - 12)) {
+ 			pr_err("rx sdu invalid len %d\n", hci_len);
+ 			return;
+ 		}
 -- 
 2.30.2
 
