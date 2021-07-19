@@ -2,37 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 614283CE061
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7FC83CDE10
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346208AbhGSPQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
+        id S1345175AbhGSPBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346079AbhGSPNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:13:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A31F861222;
-        Mon, 19 Jul 2021 15:53:26 +0000 (UTC)
+        id S1344055AbhGSO72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DDC1613AA;
+        Mon, 19 Jul 2021 15:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710007;
-        bh=IW+kRm7y3/w5PDA1gPnsPSpm83DD9zwtepBPUsz8hoI=;
+        s=korg; t=1626709110;
+        bh=/NkhAXhQ2HHWRaiUh3uIDaEq56gCIBgjcXmfbG1PUhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfyrSFunvT/2Vpi7nHnp+OAtYksjqwSOjEf7WJ6P9dX89zhMDQNt7RJVCSUSRLLJK
-         dgnMwOL12Vem8NTXTAOYOu83mLKPJlrTkIUkVHO1Jz5xlnIaFzj47x+KTc7Jsqppab
-         pI3b2W1HmUIN/7aGAtV3/S14/VQrqjbEdg3pASKA=
+        b=UKpvQBhP3fVt6UXLhyUnSXpwKlhVG8BONXLj+84IC15NMYgHoAiXff6R7q5tMKdOA
+         B6/+s6BiN2oHxlpsv7+dztpT3QW6ECn5gDqmdchTRmV1NBlEx2PA0I1MA/qrsDVDVp
+         ML1YC1nR9EOGNly2BcP0aVMT6qB0GUfnLDEaSvRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 005/243] KVM: x86/mmu: Do not apply HPA (memory encryption) mask to GPAs
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Ram Pai <linuxram@us.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 223/421] selftests/vm/pkeys: fix alloc_random_pkey() to make it really, really random
 Date:   Mon, 19 Jul 2021 16:50:34 +0200
-Message-Id: <20210719144941.095751778@linuxfoundation.org>
+Message-Id: <20210719144954.065654793@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +53,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-commit fc9bf2e087efcd81bda2e52d09616d2a1bf982a8 upstream.
+[ Upstream commit f36ef407628835a7d7fb3d235b1f1aac7022d9a3 ]
 
-Ignore "dynamic" host adjustments to the physical address mask when
-generating the masks for guest PTEs, i.e. the guest PA masks.  The host
-physical address space and guest physical address space are two different
-beasts, e.g. even though SEV's C-bit is the same bit location for both
-host and guest, disabling SME in the host (which clears shadow_me_mask)
-does not affect the guest PTE->GPA "translation".
+Patch series "selftests/vm/pkeys: Bug fixes and a new test".
 
-For non-SEV guests, not dropping bits is the correct behavior.  Assuming
-KVM and userspace correctly enumerate/configure guest MAXPHYADDR, bits
-that are lost as collateral damage from memory encryption are treated as
-reserved bits, i.e. KVM will never get to the point where it attempts to
-generate a gfn using the affected bits.  And if userspace wants to create
-a bogus vCPU, then userspace gets to deal with the fallout of hardware
-doing odd things with bad GPAs.
+There has been a lot of activity on the x86 front around the XSAVE
+architecture which is used to context-switch processor state (among other
+things).  In addition, AMD has recently joined the protection keys club by
+adding processor support for PKU.
 
-For SEV guests, not dropping the C-bit is technically wrong, but it's a
-moot point because KVM can't read SEV guest's page tables in any case
-since they're always encrypted.  Not to mention that the current KVM code
-is also broken since sme_me_mask does not have to be non-zero for SEV to
-be supported by KVM.  The proper fix would be to teach all of KVM to
-correctly handle guest private memory, but that's a task for the future.
+The AMD implementation helped uncover a kernel bug around the PKRU "init
+state", which actually applied to Intel's implementation but was just
+harder to hit.  This series adds a test which is expected to help find
+this class of bug both on AMD and Intel.  All the work around pkeys on x86
+also uncovered a few bugs in the selftest.
 
-Fixes: d0ec49d4de90 ("kvm/x86/svm: Support Secure Memory Encryption within KVM")
-Cc: stable@vger.kernel.org
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210623230552.4027702-5-seanjc@google.com>
-[Use a new header instead of adding header guards to paging_tmpl.h. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch (of 4):
+
+The "random" pkey allocation code currently does the good old:
+
+	srand((unsigned int)time(NULL));
+
+*But*, it unfortunately does this on every random pkey allocation.
+
+There may be thousands of these a second.  time() has a one second
+resolution.  So, each time alloc_random_pkey() is called, the PRNG is
+*RESET* to time().  This is nasty.  Normally, if you do:
+
+	srand(<ANYTHING>);
+	foo = rand();
+	bar = rand();
+
+You'll be quite guaranteed that 'foo' and 'bar' are different.  But, if
+you do:
+
+	srand(1);
+	foo = rand();
+	srand(1);
+	bar = rand();
+
+You are quite guaranteed that 'foo' and 'bar' are the *SAME*.  The recent
+"fix" effectively forced the test case to use the same "random" pkey for
+the whole test, unless the test run crossed a second boundary.
+
+Only run srand() once at program startup.
+
+This explains some very odd and persistent test failures I've been seeing.
+
+Link: https://lkml.kernel.org/r/20210611164153.91B76FB8@viggo.jf.intel.com
+Link: https://lkml.kernel.org/r/20210611164155.192D00FF@viggo.jf.intel.com
+Fixes: 6e373263ce07 ("selftests/vm/pkeys: fix alloc_random_pkey() to make it really random")
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Ram Pai <linuxram@us.ibm.com>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c         |    2 ++
- arch/x86/kvm/mmu/paging.h      |   14 ++++++++++++++
- arch/x86/kvm/mmu/paging_tmpl.h |    4 ++--
- arch/x86/kvm/mmu/spte.h        |    6 ------
- 4 files changed, 18 insertions(+), 8 deletions(-)
- create mode 100644 arch/x86/kvm/mmu/paging.h
+ tools/testing/selftests/x86/protection_keys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -52,6 +52,8 @@
- #include <asm/kvm_page_track.h>
- #include "trace.h"
+diff --git a/tools/testing/selftests/x86/protection_keys.c b/tools/testing/selftests/x86/protection_keys.c
+index b8778960da10..27661302a698 100644
+--- a/tools/testing/selftests/x86/protection_keys.c
++++ b/tools/testing/selftests/x86/protection_keys.c
+@@ -613,7 +613,6 @@ int alloc_random_pkey(void)
+ 	int nr_alloced = 0;
+ 	int random_index;
+ 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
+-	srand((unsigned int)time(NULL));
  
-+#include "paging.h"
-+
- extern bool itlb_multihit_kvm_mitigation;
+ 	/* allocate every possible key and make a note of which ones we got */
+ 	max_nr_pkey_allocs = NR_PKEYS;
+@@ -1479,6 +1478,8 @@ int main(void)
+ {
+ 	int nr_iterations = 22;
  
- static int __read_mostly nx_huge_pages = -1;
---- /dev/null
-+++ b/arch/x86/kvm/mmu/paging.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/* Shadow paging constants/helpers that don't need to be #undef'd. */
-+#ifndef __KVM_X86_PAGING_H
-+#define __KVM_X86_PAGING_H
++	srand((unsigned int)time(NULL));
 +
-+#define GUEST_PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
-+#define PT64_LVL_ADDR_MASK(level) \
-+	(GUEST_PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
-+						* PT64_LEVEL_BITS))) - 1))
-+#define PT64_LVL_OFFSET_MASK(level) \
-+	(GUEST_PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
-+						* PT64_LEVEL_BITS))) - 1))
-+#endif /* __KVM_X86_PAGING_H */
-+
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -24,7 +24,7 @@
- 	#define pt_element_t u64
- 	#define guest_walker guest_walker64
- 	#define FNAME(name) paging##64_##name
--	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
-+	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
- 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
- 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
- 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
-@@ -57,7 +57,7 @@
- 	#define pt_element_t u64
- 	#define guest_walker guest_walkerEPT
- 	#define FNAME(name) ept_##name
--	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
-+	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
- 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
- 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
- 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
---- a/arch/x86/kvm/mmu/spte.h
-+++ b/arch/x86/kvm/mmu/spte.h
-@@ -23,12 +23,6 @@
- #else
- #define PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
- #endif
--#define PT64_LVL_ADDR_MASK(level) \
--	(PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
--						* PT64_LEVEL_BITS))) - 1))
--#define PT64_LVL_OFFSET_MASK(level) \
--	(PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
--						* PT64_LEVEL_BITS))) - 1))
+ 	setup_handlers();
  
- #define PT64_PERM_MASK (PT_PRESENT_MASK | PT_WRITABLE_MASK | shadow_user_mask \
- 			| shadow_x_mask | shadow_nx_mask | shadow_me_mask)
+ 	printf("has pku: %d\n", cpu_has_pku());
+-- 
+2.30.2
+
 
 
