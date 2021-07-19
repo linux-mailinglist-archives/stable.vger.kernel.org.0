@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D89D3CE36A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 574B93CE3ED
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244007AbhGSPhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S243480AbhGSPlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347894AbhGSPfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD1B96135C;
-        Mon, 19 Jul 2021 16:12:59 +0000 (UTC)
+        id S1347957AbhGSPfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AE62613FE;
+        Mon, 19 Jul 2021 16:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711180;
-        bh=CncNaedxXnOwbQJ0q50kQWZlFBc8IKmSql04qBmdFMY=;
+        s=korg; t=1626711183;
+        bh=Se2FGQeQKMIAe4ioQZzPDNU3Yh/0eNuWMcgFHWocCG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DxmIVcZJNi8q8NWm2V21aLO0MwkT7sK7hw86dGVow0BbrNqDmHNB08v1WfBzyeMWU
-         Qlz+Gg9EBcfmuelbcaXoAIFVlXosmSkuDmeM5ZlGfJzX+fQWi5k3Op03CTcph2L9Ne
-         NyURrkall1XJRhPgJSZwHQyREWLzfeJRWwxaoIu4=
+        b=ZytQ5C26g+bXfhpKqf9wGu8ykaqXvwUlGetT9c3bg8INMhO1IqxQq1m1khp1ky3u6
+         PQAse5Be+ZPZMlL025fYM6yvQstiu5ztpdL/4DlCweMMjn9zHDVle13oKEzd0bP7r6
+         50iqHMEbHW8CV5MI1htxN+uEIDhxBE0KWS0Aspq0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 257/351] nfsd: move fsnotify on client creation outside spinlock
-Date:   Mon, 19 Jul 2021 16:53:23 +0200
-Message-Id: <20210719144953.452061668@linuxfoundation.org>
+Subject: [PATCH 5.13 258/351] nfsd: Reduce contention for the nfsd_file nf_rwsem
+Date:   Mon, 19 Jul 2021 16:53:24 +0200
+Message-Id: <20210719144953.482922922@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -39,62 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 934bd07fae7e55232845f909f78873ab8678ca74 ]
+[ Upstream commit 474bc334698df98ce07c890f1898c7e7f389b0c7 ]
 
-This was causing a "sleeping function called from invalid context"
-warning.
+When flushing out the unstable file writes as part of a COMMIT call, try
+to perform most of of the data writes and waits outside the semaphore.
 
-I don't think we need the set_and_test_bit() here; clients move from
-unconfirmed to confirmed only once, under the client_lock.
+This means that if the client is sending the COMMIT as part of a memory
+reclaim operation, then it can continue performing I/O, with contention
+for the lock occurring only once the data sync is finished.
 
-The (conf == unconf) is a way to check whether we're in that confirming
-case, hopefully that's not too obscure.
-
-Fixes: 472d155a0631 "nfsd: report client confirmation status in "info" file"
+Fixes: 5011af4c698a ("nfsd: Fix stable writes")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+ Tested-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/nfsd/vfs.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 67ebb040bc5f..90e81f6491ff 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -2819,11 +2819,8 @@ move_to_confirmed(struct nfs4_client *clp)
- 	list_move(&clp->cl_idhash, &nn->conf_id_hashtbl[idhashval]);
- 	rb_erase(&clp->cl_namenode, &nn->unconf_name_tree);
- 	add_clp_to_name_tree(clp, &nn->conf_name_tree);
--	if (!test_and_set_bit(NFSD4_CLIENT_CONFIRMED, &clp->cl_flags)) {
--		trace_nfsd_clid_confirmed(&clp->cl_clientid);
--		if (clp->cl_nfsd_dentry && clp->cl_nfsd_info_dentry)
--			fsnotify_dentry(clp->cl_nfsd_info_dentry, FS_MODIFY);
--	}
-+	set_bit(NFSD4_CLIENT_CONFIRMED, &clp->cl_flags);
-+	trace_nfsd_clid_confirmed(&clp->cl_clientid);
- 	renew_client_locked(clp);
+diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
+index 15adf1f6ab21..46485c04740d 100644
+--- a/fs/nfsd/vfs.c
++++ b/fs/nfsd/vfs.c
+@@ -1123,6 +1123,19 @@ out:
  }
  
-@@ -3471,6 +3468,8 @@ nfsd4_create_session(struct svc_rqst *rqstp,
- 	/* cache solo and embedded create sessions under the client_lock */
- 	nfsd4_cache_create_session(cr_ses, cs_slot, status);
- 	spin_unlock(&nn->client_lock);
-+	if (conf == unconf)
-+		fsnotify_dentry(conf->cl_nfsd_info_dentry, FS_MODIFY);
- 	/* init connection and backchannel */
- 	nfsd4_init_conn(rqstp, conn, new);
- 	nfsd4_put_session(new);
-@@ -4071,6 +4070,8 @@ nfsd4_setclientid_confirm(struct svc_rqst *rqstp,
- 	}
- 	get_client_locked(conf);
- 	spin_unlock(&nn->client_lock);
-+	if (conf == unconf)
-+		fsnotify_dentry(conf->cl_nfsd_info_dentry, FS_MODIFY);
- 	nfsd4_probe_callback(conf);
- 	spin_lock(&nn->client_lock);
- 	put_client_renew_locked(conf);
+ #ifdef CONFIG_NFSD_V3
++static int
++nfsd_filemap_write_and_wait_range(struct nfsd_file *nf, loff_t offset,
++				  loff_t end)
++{
++	struct address_space *mapping = nf->nf_file->f_mapping;
++	int ret = filemap_fdatawrite_range(mapping, offset, end);
++
++	if (ret)
++		return ret;
++	filemap_fdatawait_range_keep_errors(mapping, offset, end);
++	return 0;
++}
++
+ /*
+  * Commit all pending writes to stable storage.
+  *
+@@ -1153,10 +1166,11 @@ nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
+ 	if (err)
+ 		goto out;
+ 	if (EX_ISSYNC(fhp->fh_export)) {
+-		int err2;
++		int err2 = nfsd_filemap_write_and_wait_range(nf, offset, end);
+ 
+ 		down_write(&nf->nf_rwsem);
+-		err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
++		if (!err2)
++			err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
+ 		switch (err2) {
+ 		case 0:
+ 			nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
 -- 
 2.30.2
 
