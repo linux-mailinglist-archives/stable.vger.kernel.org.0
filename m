@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1439F3CE5B4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C92CE3CE5BC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348907AbhGSPxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
+        id S1348766AbhGSPwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346791AbhGSPrt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:47:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 549D1613AE;
-        Mon, 19 Jul 2021 16:27:49 +0000 (UTC)
+        id S1347188AbhGSPru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DADA46157E;
+        Mon, 19 Jul 2021 16:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712069;
-        bh=20WlifpJYN8/1uGdi9S7ZN2mp4YSxe4fMkK1W23909g=;
+        s=korg; t=1626712072;
+        bh=8V5ILEgp/i4QUHCtrtRhfCKYKqAyhN6besTbWjG36hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2R1fc0GZMJFi4J02AC1jCHyYmtyqsTKSE5t1SFvnagYH9VeEVbe9cfq/3nB1itnRh
-         PFNaQ/cb/55TCVjuoTIJRxmSZfHQvHFtwRgN6j39tV9rNBkZ6s9cipcWwANaiyxCJ3
-         nAjFjM49lRpqxF4NHugVaDhcqYlCyaPfDqbz8eEg=
+        b=oWBZx1Ka/PWPWFlaK5xFUPXve0WoqfJDe2BiKVvVKev/4yFO3hgHdzdt0Terno7Qf
+         10MjqrgOtkb4s8DcVgbIN/rk1DIklGEWO1D9InqlTR02RkezxK3TTRE69lwhnzXrkc
+         Fsjr3RICjCCG9n75dKZ8AYXAxM5Qx1z3dC3EW/II=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Valentine Barshak <valentine.barshak@cogentembedded.com>,
         Geert Uytterhoeven <geert+renesas@glider.be>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 239/292] arm64: dts: renesas: v3msk: Fix memory size
-Date:   Mon, 19 Jul 2021 16:55:01 +0200
-Message-Id: <20210719144950.814746635@linuxfoundation.org>
+Subject: [PATCH 5.12 240/292] ARM: dts: r8a7779, marzen: Fix DU clock names
+Date:   Mon, 19 Jul 2021 16:55:02 +0200
+Message-Id: <20210719144950.850090470@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,35 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentine Barshak <valentine.barshak@cogentembedded.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit a422ec20caef6a50cf3c1efa93538888ebd576a6 ]
+[ Upstream commit 6ab8c23096a29b69044209a5925758a6f88bd450 ]
 
-The V3MSK board has 2 GiB RAM according to the datasheet and schematics.
+"make dtbs_check" complains:
 
-Signed-off-by: Valentine Barshak <valentine.barshak@cogentembedded.com>
-[geert: Verified schematics]
-Fixes: cc3e267e9bb0ce7f ("arm64: dts: renesas: initial V3MSK board device tree")
+    arch/arm/boot/dts/r8a7779-marzen.dt.yaml: display@fff80000: clock-names:0: 'du.0' was expected
+
+Change the first clock name to match the DT bindings.
+This has no effect on actual operation, as the Display Unit driver in
+Linux does not use the first clock name on R-Car H1, but just grabs the
+first clock.
+
+Fixes: 665d79aa47cb3983 ("ARM: shmobile: marzen: Add DU external pixel clock to DT")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20210326121050.1578460-1-geert+renesas@glider.be
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/9d5e1b371121883b3b3e10a3df43802a29c6a9da.1619699965.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/r8a7779-marzen.dts | 2 +-
+ arch/arm/boot/dts/r8a7779.dtsi       | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-index 7417cf5fea0f..2426e533128c 100644
---- a/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-+++ b/arch/arm64/boot/dts/renesas/r8a77970-v3msk.dts
-@@ -59,7 +59,7 @@
- 	memory@48000000 {
- 		device_type = "memory";
- 		/* first 128MB is reserved for secure area. */
--		reg = <0x0 0x48000000 0x0 0x38000000>;
-+		reg = <0x0 0x48000000 0x0 0x78000000>;
- 	};
+diff --git a/arch/arm/boot/dts/r8a7779-marzen.dts b/arch/arm/boot/dts/r8a7779-marzen.dts
+index d2240b89ee52..465845323495 100644
+--- a/arch/arm/boot/dts/r8a7779-marzen.dts
++++ b/arch/arm/boot/dts/r8a7779-marzen.dts
+@@ -145,7 +145,7 @@
+ 	status = "okay";
  
- 	osc5_clk: osc5-clock {
+ 	clocks = <&mstp1_clks R8A7779_CLK_DU>, <&x3_clk>;
+-	clock-names = "du", "dclkin.0";
++	clock-names = "du.0", "dclkin.0";
+ 
+ 	ports {
+ 		port@0 {
+diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
+index 74d7e9084eab..3c5fcdfe16b8 100644
+--- a/arch/arm/boot/dts/r8a7779.dtsi
++++ b/arch/arm/boot/dts/r8a7779.dtsi
+@@ -463,6 +463,7 @@
+ 		reg = <0xfff80000 0x40000>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp1_clks R8A7779_CLK_DU>;
++		clock-names = "du.0";
+ 		power-domains = <&sysc R8A7779_PD_ALWAYS_ON>;
+ 		status = "disabled";
+ 
 -- 
 2.30.2
 
