@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28EC13CDF3D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157B83CDE84
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344486AbhGSPId (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
+        id S1343804AbhGSPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344593AbhGSPGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:06:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6489611CE;
-        Mon, 19 Jul 2021 15:46:52 +0000 (UTC)
+        id S1344832AbhGSPBk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FDFE61002;
+        Mon, 19 Jul 2021 15:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709613;
-        bh=dHzZKRZ3FDowREux2qcPuORWFSKvSiAaYuR4hFegqZk=;
+        s=korg; t=1626709339;
+        bh=d6EQGkgGyrpJq9ds6IdFPR6K1C/BosQhMQd510J6wRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k2P/CzpM9P4ehBZuzuSDoh7U0FUrJa/9zRTieAUG8ZAR151jVV1lNAyVV6jY5mWQ5
-         YRIcCG4APDMhh3qU1gn7Cp+nvdKG/U58uxZD5Ra+wspMmguU672tz2jUvASTGKsaqC
-         kNMuSZvEH1PbZ0LcpItTDhItOa0Vjjc46GGvLq2s=
+        b=g9VL8bSs/4izjpxAhsrKGVEyUeOvVgedD+DxOU4oxESplUEqQ/02vo4Rnj+Ffr1JB
+         dqZHBw9g1TNkZrjokMW37regpHBgvgX/VLktmcht6A1w6mdbTFqq7MfOzqG6GJ7nsB
+         OWJP4W6+fHtrIEjhQuzoqgWu0TXJyLuSOk3IcniI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
-        Mike Christie <michael.christie@oracle.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 030/149] scsi: iscsi: Add iscsi_cls_conn refcount helpers
+Subject: [PATCH 4.19 327/421] scsi: lpfc: Fix "Unexpected timeout" error in direct attach topology
 Date:   Mon, 19 Jul 2021 16:52:18 +0200
-Message-Id: <20210719144908.646508736@linuxfoundation.org>
+Message-Id: <20210719144957.629993598@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,95 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit b1d19e8c92cfb0ded180ef3376c20e130414e067 ]
+[ Upstream commit e30d55137edef47434c40d7570276a0846fe922c ]
 
-There are a couple places where we could free the iscsi_cls_conn while it's
-still in use. This adds some helpers to get/put a refcount on the struct
-and converts an exiting user. Subsequent commits will then use the helpers
-to fix 2 bugs in the eh code.
+An 'unexpected timeout' message may be seen in a point-2-point topology.
+The message occurs when a PLOGI is received before the driver is notified
+of FLOGI completion. The FLOGI completion failure causes discovery to be
+triggered for a second time. The discovery timer is restarted but no new
+discovery activity is initiated, thus the timeout message eventually
+appears.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-11-michael.christie@oracle.com
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
+In point-2-point, when discovery has progressed before the FLOGI completion
+is processed, it is not a failure. Add code to FLOGI completion to detect
+that discovery has progressed and exit the FLOGI handling (noop'ing it).
+
+Link: https://lore.kernel.org/r/20210514195559.119853-4-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libiscsi.c             |  7 ++-----
- drivers/scsi/scsi_transport_iscsi.c | 12 ++++++++++++
- include/scsi/scsi_transport_iscsi.h |  2 ++
- 3 files changed, 16 insertions(+), 5 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index c5b7d18513b6..b9981078375d 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -1348,7 +1348,6 @@ void iscsi_session_failure(struct iscsi_session *session,
- 			   enum iscsi_err err)
- {
- 	struct iscsi_conn *conn;
--	struct device *dev;
- 
- 	spin_lock_bh(&session->frwd_lock);
- 	conn = session->leadconn;
-@@ -1357,10 +1356,8 @@ void iscsi_session_failure(struct iscsi_session *session,
- 		return;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 6a4b496081e4..c4428249d3d7 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1176,6 +1176,15 @@ stop_rr_fcf_flogi:
+ 			phba->fcf.fcf_redisc_attempted = 0; /* reset */
+ 			goto out;
+ 		}
++	} else if (vport->port_state > LPFC_FLOGI &&
++		   vport->fc_flag & FC_PT2PT) {
++		/*
++		 * In a p2p topology, it is possible that discovery has
++		 * already progressed, and this completion can be ignored.
++		 * Recheck the indicated topology.
++		 */
++		if (!sp->cmn.fPort)
++			goto out;
  	}
  
--	dev = get_device(&conn->cls_conn->dev);
-+	iscsi_get_conn(conn->cls_conn);
- 	spin_unlock_bh(&session->frwd_lock);
--	if (!dev)
--	        return;
- 	/*
- 	 * if the host is being removed bypass the connection
- 	 * recovery initialization because we are going to kill
-@@ -1370,7 +1367,7 @@ void iscsi_session_failure(struct iscsi_session *session,
- 		iscsi_conn_error_event(conn->cls_conn, err);
- 	else
- 		iscsi_conn_failure(conn, err);
--	put_device(dev);
-+	iscsi_put_conn(conn->cls_conn);
- }
- EXPORT_SYMBOL_GPL(iscsi_session_failure);
- 
-diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index a26df7d6d5d1..2f1553d0a10e 100644
---- a/drivers/scsi/scsi_transport_iscsi.c
-+++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2308,6 +2308,18 @@ int iscsi_destroy_conn(struct iscsi_cls_conn *conn)
- }
- EXPORT_SYMBOL_GPL(iscsi_destroy_conn);
- 
-+void iscsi_put_conn(struct iscsi_cls_conn *conn)
-+{
-+	put_device(&conn->dev);
-+}
-+EXPORT_SYMBOL_GPL(iscsi_put_conn);
-+
-+void iscsi_get_conn(struct iscsi_cls_conn *conn)
-+{
-+	get_device(&conn->dev);
-+}
-+EXPORT_SYMBOL_GPL(iscsi_get_conn);
-+
- /*
-  * iscsi interface functions
-  */
-diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
-index 325ae731d9ad..71c78410e6ab 100644
---- a/include/scsi/scsi_transport_iscsi.h
-+++ b/include/scsi/scsi_transport_iscsi.h
-@@ -423,6 +423,8 @@ extern void iscsi_remove_session(struct iscsi_cls_session *session);
- extern void iscsi_free_session(struct iscsi_cls_session *session);
- extern struct iscsi_cls_conn *iscsi_create_conn(struct iscsi_cls_session *sess,
- 						int dd_size, uint32_t cid);
-+extern void iscsi_put_conn(struct iscsi_cls_conn *conn);
-+extern void iscsi_get_conn(struct iscsi_cls_conn *conn);
- extern int iscsi_destroy_conn(struct iscsi_cls_conn *conn);
- extern void iscsi_unblock_session(struct iscsi_cls_session *session);
- extern void iscsi_block_session(struct iscsi_cls_session *session);
+ flogifail:
 -- 
 2.30.2
 
