@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE01F3CD8C4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DFCA3CDBB8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243117AbhGSOZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54960 "EHLO mail.kernel.org"
+        id S238433AbhGSOtm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:49:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242783AbhGSOXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:23:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02A836120E;
-        Mon, 19 Jul 2021 15:03:03 +0000 (UTC)
+        id S1343929AbhGSOsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84A0661249;
+        Mon, 19 Jul 2021 15:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706984;
-        bh=er0SduiRWDtUZFVT+JqXZo1go7bIbj2776gLF2zIl3U=;
+        s=korg; t=1626708331;
+        bh=ofUSPjF/yzLP/MLlyjcF+HuRo4cIJ3w1XQeSscxrtvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ni5Akvrbyl5wXVHDjITjj+gTdVKIlsHW+r3ARd9k15sAlnRefSaqxVkGuIeU1nKdB
-         iArs91niiDvz+3kCGbgquiVaTybxMN6iAfjJSPwM5yGPBvwH9xsDKhc/HoH62Xynww
-         7FgSFMh/arzeZLTUttGqZTOGOgAovNQfM4go2SW0=
+        b=loPWwSis47EBvjxTtxpJpj+GJtbHfOf+7IP7OpTN4xcgON8+K/zNUzD4xYcVRAwCn
+         rDqP2i687epqRsijZwbwUoshULpnUvmkKAKkd+ygKbRXFF1jJ0I05rSuD0oq3bvm2j
+         qKxgMenDhZpEFpK/+yqerZLor2+gEZQDRodkRxxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Jian Cai <jiancai@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 175/188] virtio_console: Assure used length from device is limited
+Subject: [PATCH 4.14 270/315] ARM: 9087/1: kprobes: test-thumb: fix for LLVM_IAS=1
 Date:   Mon, 19 Jul 2021 16:52:39 +0200
-Message-Id: <20210719144942.209087475@linuxfoundation.org>
+Message-Id: <20210719144952.300199182@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit d00d8da5869a2608e97cfede094dfc5e11462a46 ]
+[ Upstream commit 8b95a7d90ce8160ac5cffd5bace6e2eba01a871e ]
 
-The buf->len might come from an untrusted device. This
-ensures the value would not exceed the size of the buffer
-to avoid data corruption or loss.
+There's a few instructions that GAS infers operands but Clang doesn't;
+from what I can tell the Arm ARM doesn't say these are optional.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210525125622.1203-1-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+F5.1.257 TBB, TBH T1 Halfword variant
+F5.1.238 STREXD T1 variant
+F5.1.84 LDREXD T1 variant
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1309
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jian Cai <jiancai@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/probes/kprobes/test-thumb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 226ccb7891d4..c2f1c921cb2c 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -487,7 +487,7 @@ static struct port_buffer *get_inbuf(struct port *port)
+diff --git a/arch/arm/probes/kprobes/test-thumb.c b/arch/arm/probes/kprobes/test-thumb.c
+index b683b4517458..4254391f3906 100644
+--- a/arch/arm/probes/kprobes/test-thumb.c
++++ b/arch/arm/probes/kprobes/test-thumb.c
+@@ -444,21 +444,21 @@ void kprobe_thumb32_test_cases(void)
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
- 	buf = virtqueue_get_buf(port->in_vq, &len);
- 	if (buf) {
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
- 		port->stats.bytes_received += len;
- 	}
-@@ -1752,7 +1752,7 @@ static void control_work_handler(struct work_struct *work)
- 	while ((buf = virtqueue_get_buf(vq, &len))) {
- 		spin_unlock(&portdev->c_ivq_lock);
+-	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
++	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
+-	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
++	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
- 		handle_control_message(vq->vdev, portdev, buf);
+-	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
++	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+@@ -471,10 +471,10 @@ void kprobe_thumb32_test_cases(void)
+ 
+ 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
+ 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
+-	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
++	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
+ 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
+ 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
+-	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
++	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
+ 
+ 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
+ 
 -- 
 2.30.2
 
