@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB683CDC94
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F7CE3CDE0C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244719AbhGSOxE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33226 "EHLO mail.kernel.org"
+        id S1344622AbhGSPBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238180AbhGSOoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:44:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCF7161002;
-        Mon, 19 Jul 2021 15:23:02 +0000 (UTC)
+        id S1344464AbhGSO7l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E91560FE9;
+        Mon, 19 Jul 2021 15:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708183;
-        bh=o3YhNppgs1Vf8n0OZ/DJG5VdqmdqqGsiXviDSA7k8oA=;
+        s=korg; t=1626709220;
+        bh=wegrrj2M5Y+qYlIrcdG5oDviKj1PRHxI1vpOC93rO8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkLkEAEtB9Y8tUxhzv4nBWrboufLuMDFs2WpZKf3h27HVhbd7r6cGAsn43cfFyIY9
-         omWTgJcwmjHCAlvrOf6JgKGfcGc9YGkxoPEKFV29rEfebiBUWdOcCa1EeQnGJKFnAw
-         zz8AbHnvpfsnCj+8V98XWBPeY252G7v/oThhQcI4=
+        b=qtmtJmTbWKtraMVxfqHQoGyfNy/JwNfL8aGYTFAi/nUFwbYkRAS9rsDQ0EGC11Z6/
+         xpap3DhMqs8rKipiFFNvgY1bWLVwRc9drALocHiSqy6e4/bnTBc7V/Fn5G1fbAIrTb
+         hqSKY/UwmlSVP0WzHX/PUxvzzmke2u1k8nog2t1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Loehle <cloehle@hyperstone.com>,
+        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 212/315] mmc: core: Allow UHS-I voltage switch for SDSC cards if supported
+Subject: [PATCH 4.19 290/421] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
 Date:   Mon, 19 Jul 2021 16:51:41 +0200
-Message-Id: <20210719144950.396626830@linuxfoundation.org>
+Message-Id: <20210719144956.383077234@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Löhle <CLoehle@hyperstone.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit 09247e110b2efce3a104e57e887c373e0a57a412 upstream.
+commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
 
-While initializing an UHS-I SD card, the mmc core first tries to switch to
-1.8V I/O voltage, before it continues to change the settings for the bus
-speed mode.
+When an eMMC device is being run in HS400 mode, any access to the
+RPMB device will cause the error message "mmc1: Invalid UHS-I mode
+selected". This happens as a result of tuning being disabled before
+RPMB access and then re-enabled after the RPMB access is complete.
+When tuning is re-enabled, the system has to switch from HS400
+to HS200 to do the tuning and then back to HS400. As part of
+sequence to switch from HS400 to HS200 the system is temporarily
+put into HS mode. When switching to HS mode, sdhci_get_preset_value()
+is called and does not have support for HS mode and prints the warning
+message and returns the preset for SDR12. The fix is to add support
+for MMC and SD HS modes to sdhci_get_preset_value().
 
-However, the current behaviour in the mmc core is inconsistent and doesn't
-conform to the SD spec. More precisely, an SD card that supports UHS-I must
-set both the SD_OCR_CCS bit and the SD_OCR_S18R bit in the OCR register
-response. When switching to 1.8V I/O the mmc core correctly checks both of
-the bits, but only the SD_OCR_S18R bit when changing the settings for bus
-speed mode.
+This can be reproduced on any system running eMMC in HS400 mode
+(not HS400ES) by using the "mmc" utility to run the following
+command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
 
-Rather than actually fixing the code to confirm to the SD spec, let's
-deliberately deviate from it by requiring only the SD_OCR_S18R bit for both
-parts. This enables us to support UHS-I for SDSC cards (outside spec),
-which is actually being supported by some existing SDSC cards. Moreover,
-this fixes the inconsistent behaviour.
-
-Signed-off-by: Christian Loehle <cloehle@hyperstone.com>
-Link: https://lore.kernel.org/r/CWXP265MB26803AE79E0AD5ED083BF2A6C4529@CWXP265MB2680.GBRP265.PROD.OUTLOOK.COM
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
 Cc: stable@vger.kernel.org
-[Ulf: Rewrote commit message and comments to clarify the changes]
+Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/core/sd.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/mmc/host/sdhci.c |    4 ++++
+ drivers/mmc/host/sdhci.h |    1 +
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -787,11 +787,13 @@ try_again:
- 		return err;
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1371,6 +1371,10 @@ static u16 sdhci_get_preset_value(struct
+ 	u16 preset = 0;
  
- 	/*
--	 * In case CCS and S18A in the response is set, start Signal Voltage
--	 * Switch procedure. SPI mode doesn't support CMD11.
-+	 * In case the S18A bit is set in the response, let's start the signal
-+	 * voltage switch procedure. SPI mode doesn't support CMD11.
-+	 * Note that, according to the spec, the S18A bit is not valid unless
-+	 * the CCS bit is set as well. We deliberately deviate from the spec in
-+	 * regards to this, which allows UHS-I to be supported for SDSC cards.
- 	 */
--	if (!mmc_host_is_spi(host) && rocr &&
--	   ((*rocr & 0x41000000) == 0x41000000)) {
-+	if (!mmc_host_is_spi(host) && rocr && (*rocr & 0x01000000)) {
- 		err = mmc_set_uhs_voltage(host, pocr);
- 		if (err == -EAGAIN) {
- 			retries--;
+ 	switch (host->timing) {
++	case MMC_TIMING_MMC_HS:
++	case MMC_TIMING_SD_HS:
++		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
++		break;
+ 	case MMC_TIMING_UHS_SDR12:
+ 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
+ 		break;
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -252,6 +252,7 @@
+ 
+ /* 60-FB reserved */
+ 
++#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
+ #define SDHCI_PRESET_FOR_SDR12 0x66
+ #define SDHCI_PRESET_FOR_SDR25 0x68
+ #define SDHCI_PRESET_FOR_SDR50 0x6A
 
 
