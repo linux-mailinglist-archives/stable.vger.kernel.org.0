@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9D313CD9C8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6630B3CD9A0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245282AbhGSObk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
+        id S244509AbhGSObH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244524AbhGSO3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244525AbhGSO3u (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:29:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11A316124B;
-        Mon, 19 Jul 2021 15:09:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FA2F61364;
+        Mon, 19 Jul 2021 15:09:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707395;
-        bh=x/qr75BZpISVm3ePzidqNWyD0CuPqWVqf5goDwZx18g=;
+        s=korg; t=1626707397;
+        bh=E7wTSz+U1lpd+F+dd1pk3DvWWv9XGdvIxyggNW2n+N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbulzdfsb6SRS9A925E+ELm8JeG/PntMjAf0kjV3xz0oGMGsAG7kKvt0CRI02LyQW
-         s9sNj6xIfgXYCz2cAaQ1eCdkOR1gXcA1huKTLG2W5NxXVc1TLEOyArCCPg6WHyhOkF
-         w4Ip8a5gEKUYBwV2N30o0eO7srKv7+5bt5r5tino=
+        b=SpCk8FDtCH3skXVe8K/cY1X/UKbJvL9FqYVkDgTpQUCbMsE/fd9+GLwn+ORNQcqjp
+         pBwhkU20yAyPvLFeIKKdJPy84P83WvHdb4V0cgi1+XVFx1M3b1J/RzamcK/MEvKvfg
+         DJuA5A61fCUnnLeGWul4eA1zZ6urVEHUm/rxPf7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xiao Yang <yangx.jy@fujitsu.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 147/245] atm: nicstar: register the interrupt handler in the right place
-Date:   Mon, 19 Jul 2021 16:51:29 +0200
-Message-Id: <20210719144945.163162479@linuxfoundation.org>
+Subject: [PATCH 4.9 148/245] RDMA/rxe: Dont overwrite errno from ib_umem_get()
+Date:   Mon, 19 Jul 2021 16:51:30 +0200
+Message-Id: <20210719144945.197699602@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -40,164 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Xiao Yang <yangx.jy@fujitsu.com>
 
-[ Upstream commit 70b639dc41ad499384e41e106fce72e36805c9f2 ]
+[ Upstream commit 20ec0a6d6016aa28b9b3299be18baef1a0f91cd2 ]
 
-Because the error handling is sequential, the application of resources
-should be carried out in the order of error handling, so the operation
-of registering the interrupt handler should be put in front, so as not
-to free the unregistered interrupt handler during error handling.
+rxe_mr_init_user() always returns the fixed -EINVAL when ib_umem_get()
+fails so it's hard for user to know which actual error happens in
+ib_umem_get(). For example, ib_umem_get() will return -EOPNOTSUPP when
+trying to pin pages on a DAX file.
 
-This log reveals it:
+Return actual error as mlx4/mlx5 does.
 
-[    3.438724] Trying to free already-free IRQ 23
-[    3.439060] WARNING: CPU: 5 PID: 1 at kernel/irq/manage.c:1825 free_irq+0xfb/0x480
-[    3.440039] Modules linked in:
-[    3.440257] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
-[    3.440793] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    3.441561] RIP: 0010:free_irq+0xfb/0x480
-[    3.441845] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
-[    3.443121] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
-[    3.443483] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
-[    3.443972] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
-[    3.444462] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
-[    3.444950] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
-[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
-[    3.444994] FS:  0000000000000000(0000) GS:ffff88817bd40000(0000) knlGS:0000000000000000
-[    3.444994] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.444994] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
-[    3.444994] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[    3.444994] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[    3.444994] Call Trace:
-[    3.444994]  ns_init_card_error+0x18e/0x250
-[    3.444994]  nicstar_init_one+0x10d2/0x1130
-[    3.444994]  local_pci_probe+0x4a/0xb0
-[    3.444994]  pci_device_probe+0x126/0x1d0
-[    3.444994]  ? pci_device_remove+0x100/0x100
-[    3.444994]  really_probe+0x27e/0x650
-[    3.444994]  driver_probe_device+0x84/0x1d0
-[    3.444994]  ? mutex_lock_nested+0x16/0x20
-[    3.444994]  device_driver_attach+0x63/0x70
-[    3.444994]  __driver_attach+0x117/0x1a0
-[    3.444994]  ? device_driver_attach+0x70/0x70
-[    3.444994]  bus_for_each_dev+0xb6/0x110
-[    3.444994]  ? rdinit_setup+0x40/0x40
-[    3.444994]  driver_attach+0x22/0x30
-[    3.444994]  bus_add_driver+0x1e6/0x2a0
-[    3.444994]  driver_register+0xa4/0x180
-[    3.444994]  __pci_register_driver+0x77/0x80
-[    3.444994]  ? uPD98402_module_init+0xd/0xd
-[    3.444994]  nicstar_init+0x1f/0x75
-[    3.444994]  do_one_initcall+0x7a/0x3d0
-[    3.444994]  ? rdinit_setup+0x40/0x40
-[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
-[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  kernel_init+0x13/0x180
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  ret_from_fork+0x1f/0x30
-[    3.444994] Kernel panic - not syncing: panic_on_warn set ...
-[    3.444994] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
-[    3.444994] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-[    3.444994] Call Trace:
-[    3.444994]  dump_stack+0xba/0xf5
-[    3.444994]  ? free_irq+0xfb/0x480
-[    3.444994]  panic+0x155/0x3ed
-[    3.444994]  ? __warn+0xed/0x150
-[    3.444994]  ? free_irq+0xfb/0x480
-[    3.444994]  __warn+0x103/0x150
-[    3.444994]  ? free_irq+0xfb/0x480
-[    3.444994]  report_bug+0x119/0x1c0
-[    3.444994]  handle_bug+0x3b/0x80
-[    3.444994]  exc_invalid_op+0x18/0x70
-[    3.444994]  asm_exc_invalid_op+0x12/0x20
-[    3.444994] RIP: 0010:free_irq+0xfb/0x480
-[    3.444994] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
-[    3.444994] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
-[    3.444994] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
-[    3.444994] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
-[    3.444994] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
-[    3.444994] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
-[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
-[    3.444994]  ? vprintk_func+0x71/0x110
-[    3.444994]  ns_init_card_error+0x18e/0x250
-[    3.444994]  nicstar_init_one+0x10d2/0x1130
-[    3.444994]  local_pci_probe+0x4a/0xb0
-[    3.444994]  pci_device_probe+0x126/0x1d0
-[    3.444994]  ? pci_device_remove+0x100/0x100
-[    3.444994]  really_probe+0x27e/0x650
-[    3.444994]  driver_probe_device+0x84/0x1d0
-[    3.444994]  ? mutex_lock_nested+0x16/0x20
-[    3.444994]  device_driver_attach+0x63/0x70
-[    3.444994]  __driver_attach+0x117/0x1a0
-[    3.444994]  ? device_driver_attach+0x70/0x70
-[    3.444994]  bus_for_each_dev+0xb6/0x110
-[    3.444994]  ? rdinit_setup+0x40/0x40
-[    3.444994]  driver_attach+0x22/0x30
-[    3.444994]  bus_add_driver+0x1e6/0x2a0
-[    3.444994]  driver_register+0xa4/0x180
-[    3.444994]  __pci_register_driver+0x77/0x80
-[    3.444994]  ? uPD98402_module_init+0xd/0xd
-[    3.444994]  nicstar_init+0x1f/0x75
-[    3.444994]  do_one_initcall+0x7a/0x3d0
-[    3.444994]  ? rdinit_setup+0x40/0x40
-[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
-[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  kernel_init+0x13/0x180
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  ? rest_init+0x2c0/0x2c0
-[    3.444994]  ret_from_fork+0x1f/0x30
-[    3.444994] Dumping ftrace buffer:
-[    3.444994]    (ftrace buffer empty)
-[    3.444994] Kernel Offset: disabled
-[    3.444994] Rebooting in 1 seconds..
-
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210621071456.4259-1-ice_yangxiao@163.com
+Signed-off-by: Xiao Yang <yangx.jy@fujitsu.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/nicstar.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
-index 7c9544ac1849..8c675c4f6d54 100644
---- a/drivers/atm/nicstar.c
-+++ b/drivers/atm/nicstar.c
-@@ -526,6 +526,15 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
- 	/* Set the VPI/VCI MSb mask to zero so we can receive OAM cells */
- 	writel(0x00000000, card->membase + VPM);
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index 6d1ba75398a1..e23b322224ab 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -175,7 +175,7 @@ int rxe_mem_init_user(struct rxe_dev *rxe, struct rxe_pd *pd, u64 start,
+ 	if (IS_ERR(umem)) {
+ 		pr_warn("err %d from rxe_umem_get\n",
+ 			(int)PTR_ERR(umem));
+-		err = -EINVAL;
++		err = PTR_ERR(umem);
+ 		goto err1;
+ 	}
  
-+	card->intcnt = 0;
-+	if (request_irq
-+	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
-+		pr_err("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
-+		error = 9;
-+		ns_init_card_error(card, error);
-+		return error;
-+	}
-+
- 	/* Initialize TSQ */
- 	card->tsq.org = dma_alloc_coherent(&card->pcidev->dev,
- 					   NS_TSQSIZE + NS_TSQ_ALIGNMENT,
-@@ -752,15 +761,6 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
- 
- 	card->efbie = 1;
- 
--	card->intcnt = 0;
--	if (request_irq
--	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
--		printk("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
--		error = 9;
--		ns_init_card_error(card, error);
--		return error;
--	}
--
- 	/* Register device */
- 	card->atmdev = atm_dev_register("nicstar", &card->pcidev->dev, &atm_ops,
- 					-1, NULL);
 -- 
 2.30.2
 
