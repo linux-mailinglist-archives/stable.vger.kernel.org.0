@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F9C3CDA65
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FEB83CD8DC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244900AbhGSOfs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47094 "EHLO mail.kernel.org"
+        id S243539AbhGSOZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244123AbhGSOeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9190361181;
-        Mon, 19 Jul 2021 15:13:23 +0000 (UTC)
+        id S243674AbhGSOYU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE42D61221;
+        Mon, 19 Jul 2021 15:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707604;
-        bh=0MhgbH6QdC0c5kmzGdjW5OwP4rKEMVjEmrLTcINHv/E=;
+        s=korg; t=1626707037;
+        bh=TNFVtHoJc3PqwJwXyaoHT9IFm9G1RO35rNOmgMwLZag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5fX8Y7ehFw5dwXKbnVX1kRFyN7b5Jx6P7n0KFXj5aNqJxQs+qIc8FruqmsAYujWE
-         pp0rlvjRtUPNysjhDx9i55MAb/sx8WPwvDRbwfOMumunRMzPlK/JYmEyZFmr3b98vF
-         Kkk/9YYX9/Zy8ZEAddp6E5yty3ljBQJXoA5jkauQ=
+        b=BdESDIcChGQhFVdFBbSnFIkeNF9KMEjmVlOUXKQR4mSlB9WnikV5Nx33XWRglCKPh
+         qpJxoI6eqqkLtZ6N4UnFMnnMqkWzcIY5OqbFzW3XpHN1PvcFO4pYf8WvwE4SbjK0X1
+         NGAAElZhXl1ElpinUqeSkOewv+xtuIXUN8UQQLFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 230/245] ubifs: Set/Clear I_LINKABLE under i_lock for whiteout inode
+Subject: [PATCH 4.4 188/188] MIPS: vdso: Invalid GIC access through VDSO
 Date:   Mon, 19 Jul 2021 16:52:52 +0200
-Message-Id: <20210719144947.820522067@linuxfoundation.org>
+Message-Id: <20210719144942.638725545@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Martin Fäcknitz <faecknitz@hotsplots.de>
 
-[ Upstream commit a801fcfeef96702fa3f9b22ad56c5eb1989d9221 ]
+[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
 
-xfstests-generic/476 reports a warning message as below:
+Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
+doesn't return the correct time when using the GIC as clock source.
+The address of the GIC mapped page is in this case not calculated
+correctly. The GIC mapped page is calculated from the VDSO data by
+subtracting PAGE_SIZE:
 
-WARNING: CPU: 2 PID: 30347 at fs/inode.c:361 inc_nlink+0x52/0x70
-Call Trace:
-  do_rename+0x502/0xd40 [ubifs]
-  ubifs_rename+0x8b/0x180 [ubifs]
-  vfs_rename+0x476/0x1080
-  do_renameat2+0x67c/0x7b0
-  __x64_sys_renameat2+0x6e/0x90
-  do_syscall_64+0x66/0xe0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  void *get_gic(const struct vdso_data *data) {
+    return (void __iomem *)data - PAGE_SIZE;
+  }
 
-Following race case can cause this:
-         rename_whiteout(Thread 1)             wb_workfn(Thread 2)
-ubifs_rename
-  do_rename
-                                          __writeback_single_inode
-					    spin_lock(&inode->i_lock)
-    whiteout->i_state |= I_LINKABLE
-                                            inode->i_state &= ~dirty;
----- How race happens on i_state:
-    (tmp = whiteout->i_state | I_LINKABLE)
-		                           (tmp = inode->i_state & ~dirty)
-    (whiteout->i_state = tmp)
-		                           (inode->i_state = tmp)
-----
-					    spin_unlock(&inode->i_lock)
-    inc_nlink(whiteout)
-    WARN_ON(!(inode->i_state & I_LINKABLE)) !!!
+However, the data pointer is not page aligned for raw clock sources.
+This is because the VDSO data for raw clock sources (CS_RAW = 1) is
+stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
+Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
 
-Fix to add i_lock to avoid i_state update race condition.
+  +--------------------+
+  |                    |
+  | vd[CS_RAW]         | ---+
+  | vd[CS_HRES_COARSE] |    |
+  +--------------------+    | -PAGE_SIZE
+  |                    |    |
+  |  GIC mapped page   | <--+
+  |                    |
+  +--------------------+
 
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
+the wrong address (somewhere inside the GIC mapped page). The GIC counter
+values are not returned which results in an invalid time.
+
+Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
+Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/mips/vdso/vdso.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 87ab02e2d666..56eed54633cf 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1144,7 +1144,10 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			return err;
- 		}
+diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
+index cfb1be441dec..921589b45bc2 100644
+--- a/arch/mips/vdso/vdso.h
++++ b/arch/mips/vdso/vdso.h
+@@ -81,7 +81,7 @@ static inline const union mips_vdso_data *get_vdso_data(void)
  
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state |= I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		whiteout_ui = ubifs_inode(whiteout);
- 		whiteout_ui->data = dev;
- 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
-@@ -1239,7 +1242,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
+ static inline void __iomem *get_gic(const union mips_vdso_data *data)
+ {
+-	return (void __iomem *)data - PAGE_SIZE;
++	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+ }
  
- 		inc_nlink(whiteout);
- 		mark_inode_dirty(whiteout);
-+
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state &= ~I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		iput(whiteout);
- 	}
- 
+ #endif /* CONFIG_CLKSRC_MIPS_GIC */
 -- 
 2.30.2
 
