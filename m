@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E83A83CE5CF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64B953CE5E7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349792AbhGSPyG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:54:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47932 "EHLO mail.kernel.org"
+        id S242698AbhGSPz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350540AbhGSPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350541AbhGSPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:51:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B946128E;
-        Mon, 19 Jul 2021 16:30:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89415613B0;
+        Mon, 19 Jul 2021 16:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712219;
-        bh=lMXqqgo3Fi6EqGKVYChvs0Q6edpm5Mnt9CW+CR7CCnw=;
+        s=korg; t=1626712222;
+        bh=/4K0Bqp2C6DeGRLBbM6uAVcC0W+ZJfZ/D+wLlYlOnbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=crSYL2GPgedtYdawUh2J1YzJbk+TCC/t5ABDEUz+3Ek+L0gOA6jyxEpppXpQrKKyo
-         G0ZEHLOe0vgu2gqk01zBaQUkYV+9RvelpP/V0Uf+W3XximF4aMsAHXHn7ZqlVn8oWo
-         TOcpFI15JkZbAmP7PMRwLqE1T9m3Z7mfZBa1QoiM=
+        b=a1VfkE9OM8yJG1LDnTKmv5FLY1WCzvGu6BnAgnRUuF2z5vYGIJiaunH9GktzaethD
+         L9RXycSG6owYXk++ns2KKTZkzup+JZ7/sqjfisS+vYSpTavHU5xvoMbUB9zEB/eHlZ
+         Rft94oIZ0JMYLflU5yJFwwuZITa6UhkX9dkLhijk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gowtham Tammana <g-tammana@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 264/292] ARM: dts: dra7: Fix duplicate USB4 target module node
-Date:   Mon, 19 Jul 2021 16:55:26 +0200
-Message-Id: <20210719144951.606479275@linuxfoundation.org>
+Subject: [PATCH 5.12 265/292] ARM: dts: am335x: align ti,pindir-d0-out-d1-in property with dt-shema
+Date:   Mon, 19 Jul 2021 16:55:27 +0200
+Message-Id: <20210719144951.638885074@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,226 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gowtham Tammana <g-tammana@ti.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 78b4b165280d3d70e7a217599f0c06a4c0bb11f9 ]
+[ Upstream commit 414bfe1d26b60ef20b58e36efd5363188a694bab ]
 
-With [1] USB4 target-module node got defined in dra74x.dtsi file.
-However, the earlier definition in [2] was not removed, and this
-duplication of the target module is causing boot failure on dra74
-variant boards - dra7-evm, dra76-evm.
+ti,pindir-d0-out-d1-in property is expected to be of type boolean.
+Therefore, fix the property accordingly.
 
-USB4 is only present in DRA74x variants, so keeping the entry in
-dra74x.dtsi and removing it from the top level interconnect hierarchy
-dra7-l4.dtsi file. This change makes the USB4 target module no longer
-visible to AM5718, DRA71x and DRA72x so removing references to it in
-their respective dts files.
-
-[1]: commit c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for
-dra7 dwc3")
-[2]: commit 549fce068a311 ("ARM: dts: dra7: Add l4 interconnect
-hierarchy and ti-sysc data")
-
-Fixes: c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for dra7 dwc3")
-Signed-off-by: Gowtham Tammana <g-tammana@ti.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Fixes: 444d66fafab8 ("ARM: dts: add spi wifi support to cm-t335")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am5718.dtsi  |  6 +--
- arch/arm/boot/dts/dra7-l4.dtsi | 22 --------
- arch/arm/boot/dts/dra71x.dtsi  |  4 --
- arch/arm/boot/dts/dra72x.dtsi  |  4 --
- arch/arm/boot/dts/dra74x.dtsi  | 92 ++++++++++++++++++----------------
- 5 files changed, 50 insertions(+), 78 deletions(-)
+ arch/arm/boot/dts/am335x-cm-t335.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am5718.dtsi b/arch/arm/boot/dts/am5718.dtsi
-index ebf4d3cc1cfb..6d7530a48c73 100644
---- a/arch/arm/boot/dts/am5718.dtsi
-+++ b/arch/arm/boot/dts/am5718.dtsi
-@@ -17,17 +17,13 @@
-  * VCP1, VCP2
-  * MLB
-  * ISS
-- * USB3, USB4
-+ * USB3
-  */
- 
- &usb3_tm {
- 	status = "disabled";
- };
- 
--&usb4_tm {
--	status = "disabled";
--};
--
- &atl_tm {
- 	status = "disabled";
- };
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index a294a02f2d23..1dafce92fc76 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -4095,28 +4095,6 @@
- 			};
- 		};
- 
--		usb4_tm: target-module@140000 {		/* 0x48940000, ap 75 3c.0 */
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x140000 0x4>,
--			      <0x140010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x140000 0x20000>;
--		};
--
- 		target-module@170000 {			/* 0x48970000, ap 21 0a.0 */
- 			compatible = "ti,sysc-omap4", "ti,sysc";
- 			reg = <0x170010 0x4>;
-diff --git a/arch/arm/boot/dts/dra71x.dtsi b/arch/arm/boot/dts/dra71x.dtsi
-index cad0e4a2bd8d..9c270d8f75d5 100644
---- a/arch/arm/boot/dts/dra71x.dtsi
-+++ b/arch/arm/boot/dts/dra71x.dtsi
-@@ -11,7 +11,3 @@
- &rtctarget {
- 	status = "disabled";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
-index d403acc754b6..f3e934ef7d3e 100644
---- a/arch/arm/boot/dts/dra72x.dtsi
-+++ b/arch/arm/boot/dts/dra72x.dtsi
-@@ -108,7 +108,3 @@
- &pcie2_rc {
- 	compatible = "ti,dra726-pcie-rc", "ti,dra7-pcie";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
-index e1850d6c841a..b4e07d99ffde 100644
---- a/arch/arm/boot/dts/dra74x.dtsi
-+++ b/arch/arm/boot/dts/dra74x.dtsi
-@@ -49,49 +49,6 @@
- 			reg = <0x41500000 0x100>;
- 		};
- 
--		target-module@48940000 {
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x48940000 0x4>,
--			      <0x48940010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x48940000 0x20000>;
--
--			omap_dwc3_4: omap_dwc3_4@0 {
--				compatible = "ti,dwc3";
--				reg = <0 0x10000>;
--				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--				#address-cells = <1>;
--				#size-cells = <1>;
--				utmi-mode = <2>;
--				ranges;
--				status = "disabled";
--				usb4: usb@10000 {
--					compatible = "snps,dwc3";
--					reg = <0x10000 0x17000>;
--					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--					interrupt-names = "peripheral",
--							  "host",
--							  "otg";
--					maximum-speed = "high-speed";
--					dr_mode = "otg";
--				};
--			};
--		};
- 
- 		target-module@41501000 {
- 			compatible = "ti,sysc-omap2", "ti,sysc";
-@@ -224,3 +181,52 @@
- &pcie2_rc {
- 	compatible = "ti,dra746-pcie-rc", "ti,dra7-pcie";
- };
-+
-+&l4_per3 {
-+	segment@0 {
-+		usb4_tm: target-module@140000 {         /* 0x48940000, ap 75 3c.0 */
-+			compatible = "ti,sysc-omap4", "ti,sysc";
-+			reg = <0x140000 0x4>,
-+			      <0x140010 0x4>;
-+			reg-names = "rev", "sysc";
-+			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
-+			ti,sysc-midle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
-+			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
-+			clock-names = "fck";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ranges = <0x0 0x140000 0x20000>;
-+
-+			omap_dwc3_4: omap_dwc3_4@0 {
-+				compatible = "ti,dwc3";
-+				reg = <0 0x10000>;
-+				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+				#address-cells = <1>;
-+				#size-cells = <1>;
-+				utmi-mode = <2>;
-+				ranges;
-+				status = "disabled";
-+				usb4: usb@10000 {
-+					compatible = "snps,dwc3";
-+					reg = <0x10000 0x17000>;
-+					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupt-names = "peripheral",
-+							  "host",
-+							  "otg";
-+					maximum-speed = "high-speed";
-+					dr_mode = "otg";
-+				};
-+			};
-+		};
-+	};
-+};
+diff --git a/arch/arm/boot/dts/am335x-cm-t335.dts b/arch/arm/boot/dts/am335x-cm-t335.dts
+index 36d963db4026..ec4730c82d39 100644
+--- a/arch/arm/boot/dts/am335x-cm-t335.dts
++++ b/arch/arm/boot/dts/am335x-cm-t335.dts
+@@ -496,7 +496,7 @@ status = "okay";
+ 	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&spi0_pins>;
+-	ti,pindir-d0-out-d1-in = <1>;
++	ti,pindir-d0-out-d1-in;
+ 	/* WLS1271 WiFi */
+ 	wlcore: wlcore@1 {
+ 		compatible = "ti,wl1271";
 -- 
 2.30.2
 
