@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94AD33CDB42
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 168163CD8F1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242543AbhGSOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S243864AbhGSO0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245547AbhGSOjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3887A6113C;
-        Mon, 19 Jul 2021 15:18:36 +0000 (UTC)
+        id S243964AbhGSOYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72CA2610D2;
+        Mon, 19 Jul 2021 15:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707916;
-        bh=kTVddoRfG4DNgDSYwVJCYQv5jeIAYXyncwB1agdGmCs=;
+        s=korg; t=1626707075;
+        bh=doA43jU7VRwYOD5DuWNYzw0OlFolT1d59g5c6krnckY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1ISWxV6rYwi7nVXAtgB9Q3qQCirEc0bT82YEjFLBUqGVtalLleXEU3JO8WJJ5wII
-         u0HDqMKAmoDDHyYSa1KXF/H89mgaQv5JQepT0GyNrXcPEWZYPCYk1dM7hkqiVjqPei
-         hMxDj8eOv8KDHvLHUIHpWUEddKTy/vGfPL9PPzKc=
+        b=E5qIi0bNnME+2Scby3R4+PU0+YhswwaXc2RPZU1jg2fjUBCLgcZjVu0m38zFQ49nx
+         wJtxroWcFVW2vw9mxBRBeoJofzxnzZuDUuJHfYU67+mYsSS1nAsPOAMWds801IKhxC
+         LQDamcV3iTchCxhph0FBNuA1eYXY879LgsPc3CRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/315] HID: wacom: Correct base usage for capacitive ExpressKey status bits
+        stable@vger.kernel.org,
+        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Nikita Travkin <nikita@trvn.ru>
+Subject: [PATCH 4.9 020/245] iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
 Date:   Mon, 19 Jul 2021 16:49:22 +0200
-Message-Id: <20210719144945.269761311@linuxfoundation.org>
+Message-Id: <20210719144941.055104346@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
 
-[ Upstream commit 424d8237945c6c448c8b3f23885d464fb5685c97 ]
+commit 421a26f3d7a7c3ca43f3a9dc0f3cb0f562d5bd95 upstream.
 
-The capacitive status of ExpressKeys is reported with usages beginning
-at 0x940, not 0x950. Bring our driver into alignment with reality.
+The ltr559 chip uses only the lowest bit of the ALS_CONTR register to
+configure between active and stand-by mode. In the original driver
+BIT(1) is used, which does a software reset instead.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch fixes the problem by using BIT(0) as als_mode_active for
+the ltr559 chip.
+
+Fixes: 8592a7eefa54 ("iio: ltr501: Add support for ltr559 chip")
+Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-3-mkl@pengutronix.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/wacom_wac.h | 2 +-
+ drivers/iio/light/ltr501.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index d2fe7af2c152..55b542a6a66b 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -121,7 +121,7 @@
- #define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
- #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
--#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
-+#define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0940)
- #define WACOM_HID_WD_MODE_CHANGE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0980)
- #define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER | 0x0981)
- #define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
--- 
-2.30.2
-
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -1183,7 +1183,7 @@ static struct ltr501_chip_info ltr501_ch
+ 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
+ 		.ps_gain = ltr559_ps_gain_tbl,
+ 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
+-		.als_mode_active = BIT(1),
++		.als_mode_active = BIT(0),
+ 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
+ 		.als_gain_shift = 2,
+ 		.info = &ltr501_info,
 
 
