@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918B83CE349
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9305C3CE109
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236147AbhGSPhG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57466 "EHLO mail.kernel.org"
+        id S1347490AbhGSPTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:19:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237333AbhGSPcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5F861436;
-        Mon, 19 Jul 2021 16:10:48 +0000 (UTC)
+        id S1347349AbhGSPQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:16:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 56DEA601FD;
+        Mon, 19 Jul 2021 15:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711049;
-        bh=E8PP4NPDN52lu/PZw1ppmR3pD/CBiAQZQ6bMN2ZX5T8=;
+        s=korg; t=1626710199;
+        bh=HUMXNiWlr+lAzD0WDDX5+BAJHVe2ELrSxvY4d7GcbJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUXpi4aH7LazB/g3p+PhI/XdiIOGqat5qQrepALDevo4i+2ibKsqWhaJUSag62pUz
-         i7H9UzsfEY7M8yiOA+BgjON+fvbml6Wt82WRc45eUf9TZR2N2QNXOIXuqkFTXfrxV0
-         4c0RvkxXI5BPofrqHROoDDwRozXKVVIpZH0lziYc=
+        b=OnNsun9BhcAzzxZVUZt5ce2fnRt7nGR1tWIjeZ3PyepryrrtpOW5b03JCIlN4ud0r
+         0pyQqKzCXo4AI/W9vQaqJSdId3xtIOObn43neQtvCYpt4ykO9JLanSL+L+KYeSpM2P
+         /vKwQA2mzfABPQoW5FI38O6jdmtYrrM3S6iPMHV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wysochanski <dwysocha@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 201/351] NFSD: Fix TP_printk() format specifier in nfsd_clid_class
+Subject: [PATCH 5.10 118/243] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:27 +0200
-Message-Id: <20210719144951.613322428@linuxfoundation.org>
+Message-Id: <20210719144944.720268122@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,88 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-Since commit 9a6944fee68e ("tracing: Add a verifier to check string
-pointers for trace events"), which was merged in v5.13-rc1,
-TP_printk() no longer tacitly supports the "%.*s" format specifier.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-These are low value tracepoints, so just remove them.
-
-Reported-by: David Wysochanski <dwysocha@redhat.com>
-Fixes: dd5e3fbc1f47 ("NFSD: Add tracepoints to the NFSD state management code")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |  3 ---
- fs/nfsd/trace.h     | 29 -----------------------------
- 2 files changed, 32 deletions(-)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index b517a8794400..6abe48dee6ed 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7229,7 +7229,6 @@ nfs4_client_to_reclaim(struct xdr_netobj name, struct xdr_netobj princhash,
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp;
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index c5067eb75370..1c5af2fef142 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -90,6 +90,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
--	trace_nfsd_clid_reclaim(nn, name.len, name.data);
- 	crp = alloc_reclaim();
- 	if (crp) {
- 		strhashval = clientstr_hashval(name);
-@@ -7279,8 +7278,6 @@ nfsd4_find_reclaim_client(struct xdr_netobj name, struct nfsd_net *nn)
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp = NULL;
- 
--	trace_nfsd_clid_find(nn, name.len, name.data);
--
- 	strhashval = clientstr_hashval(name);
- 	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
- 		if (compare_blob(&crp->cr_name, &name) == 0) {
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index 27a93ebd1d80..42ad2a02f953 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -536,35 +536,6 @@ DEFINE_EVENT(nfsd_net_class, nfsd_##name, \
- DEFINE_NET_EVENT(grace_start);
- DEFINE_NET_EVENT(grace_complete);
- 
--DECLARE_EVENT_CLASS(nfsd_clid_class,
--	TP_PROTO(const struct nfsd_net *nn,
--		 unsigned int namelen,
--		 const unsigned char *namedata),
--	TP_ARGS(nn, namelen, namedata),
--	TP_STRUCT__entry(
--		__field(unsigned long long, boot_time)
--		__field(unsigned int, namelen)
--		__dynamic_array(unsigned char,  name, namelen)
--	),
--	TP_fast_assign(
--		__entry->boot_time = nn->boot_time;
--		__entry->namelen = namelen;
--		memcpy(__get_dynamic_array(name), namedata, namelen);
--	),
--	TP_printk("boot_time=%16llx nfs4_clientid=%.*s",
--		__entry->boot_time, __entry->namelen, __get_str(name))
--)
--
--#define DEFINE_CLID_EVENT(name) \
--DEFINE_EVENT(nfsd_clid_class, nfsd_clid_##name, \
--	TP_PROTO(const struct nfsd_net *nn, \
--		 unsigned int namelen, \
--		 const unsigned char *namedata), \
--	TP_ARGS(nn, namelen, namedata))
--
--DEFINE_CLID_EVENT(find);
--DEFINE_CLID_EVENT(reclaim);
--
- TRACE_EVENT(nfsd_clid_inuse_err,
- 	TP_PROTO(const struct nfs4_client *clp),
- 	TP_ARGS(clp),
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
