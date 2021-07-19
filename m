@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC92A3CDB2D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFEB83CD9E5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244891AbhGSOlg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54628 "EHLO mail.kernel.org"
+        id S243409AbhGSOcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343598AbhGSOjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58C0D6120E;
-        Mon, 19 Jul 2021 15:19:13 +0000 (UTC)
+        id S243631AbhGSO2u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7D8160551;
+        Mon, 19 Jul 2021 15:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707953;
-        bh=jZMdGmbOHjjGOtpYHIVxX4PkF25zCODcqZ43E09E8R0=;
+        s=korg; t=1626707299;
+        bh=LWgaDsjxuJiUaMVNUtyez3baQyH7MED6hRzLbuOOj3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oWG19Uo8sQPFFQTEA8BO8zyAO4Jgi/wbq+gRAcgUWhrD2UWFUkssKF80vWUMeFbVU
-         ipIjMmhJ4ERDDtXhAcwkxHtQfEFJL1jtq3E74vgvISgw4zrkAoc8lyq7/PVzWp2YA8
-         kCnRASQpKyVJXdHiOgJQbBWrUVJCeaXCmpUZ05zM=
+        b=JNXUq3dxmJjBHO13md8DlES2/EYZ3KREnYVETFYJQ1CPUvQWVD2JEIYRWAQBORsKk
+         d432IL4e4RviBHd+daQ4pOrB+26+xIPVhzlnTfTyIPzQmy+adkboguPdXlZgJdHNfo
+         40p8ugt2W7OLZWXovhpjhmWuYaLFHnXfLwq4Ndtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Mirko Vogt <mirko-dev|linux@nanl.de>,
+        Ralf Schlatterbeck <rsc@runtux.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 123/315] iio: accel: hid: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:12 +0200
-Message-Id: <20210719144946.918607875@linuxfoundation.org>
+Subject: [PATCH 4.9 071/245] spi: spi-sun6i: Fix chipselect/clock bug
+Date:   Mon, 19 Jul 2021 16:50:13 +0200
+Message-Id: <20210719144942.701040735@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Mirko Vogt <mirko-dev|linux@nanl.de>
 
-[ Upstream commit c6559bf796ccdb3a0c79db846af96c8f7046880b ]
+[ Upstream commit 0d7993b234c9fad8cb6bec6adfaa74694ba85ecb ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
-Note this matches what was done in all the other hid sensor drivers.
-This one was missed previously due to an extra level of indirection.
+The current sun6i SPI implementation initializes the transfer too early,
+resulting in SCK going high before the transfer. When using an additional
+(gpio) chipselect with sun6i, the chipselect is asserted at a time when
+clock is high, making the SPI transfer fail.
 
-Found during an audit of all calls of this function.
+This is due to SUN6I_GBL_CTL_BUS_ENABLE being written into
+SUN6I_GBL_CTL_REG at an early stage. Moving that to the transfer
+function, hence, right before the transfer starts, mitigates that
+problem.
 
-Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-4-jic23@kernel.org
+Fixes: 3558fe900e8af (spi: sunxi: Add Allwinner A31 SPI controller driver)
+Signed-off-by: Mirko Vogt <mirko-dev|linux@nanl.de>
+Signed-off-by: Ralf Schlatterbeck <rsc@runtux.com>
+Link: https://lore.kernel.org/r/20210614144507.y3udezjfbko7eavv@runtux.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/hid-sensor-accel-3d.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/spi/spi-sun6i.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index f573d9c61fc3..fc210d88bba9 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -42,8 +42,11 @@ struct accel_3d_state {
- 	struct hid_sensor_hub_callbacks callbacks;
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info accel[ACCEL_3D_CHANNEL_MAX];
--	/* Reserve for 3 channels + padding + timestamp */
--	u32 accel_val[ACCEL_3D_CHANNEL_MAX + 3];
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u32 accel_val[3];
-+		s64 timestamp __aligned(8);
-+	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
-@@ -255,8 +258,8 @@ static int accel_3d_proc_event(struct hid_sensor_hub_device *hsdev,
- 			accel_state->timestamp = iio_get_time_ns(indio_dev);
+diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
+index 17068e62e792..8c3f5a00fd9e 100644
+--- a/drivers/spi/spi-sun6i.c
++++ b/drivers/spi/spi-sun6i.c
+@@ -251,6 +251,10 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
+ 	}
  
- 		hid_sensor_push_data(indio_dev,
--				     accel_state->accel_val,
--				     sizeof(accel_state->accel_val),
-+				     &accel_state->scan,
-+				     sizeof(accel_state->scan),
- 				     accel_state->timestamp);
+ 	sun6i_spi_write(sspi, SUN6I_CLK_CTL_REG, reg);
++	/* Finally enable the bus - doing so before might raise SCK to HIGH */
++	reg = sun6i_spi_read(sspi, SUN6I_GBL_CTL_REG);
++	reg |= SUN6I_GBL_CTL_BUS_ENABLE;
++	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG, reg);
  
- 		accel_state->timestamp = 0;
-@@ -281,7 +284,7 @@ static int accel_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
- 	case HID_USAGE_SENSOR_ACCEL_Y_AXIS:
- 	case HID_USAGE_SENSOR_ACCEL_Z_AXIS:
- 		offset = usage_id - HID_USAGE_SENSOR_ACCEL_X_AXIS;
--		accel_state->accel_val[CHANNEL_SCAN_INDEX_X + offset] =
-+		accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =
- 						*(u32 *)raw_data;
- 		ret = 0;
- 	break;
+ 	/* Setup the transfer now... */
+ 	if (sspi->tx_buf)
+@@ -334,7 +338,7 @@ static int sun6i_spi_runtime_resume(struct device *dev)
+ 	}
+ 
+ 	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG,
+-			SUN6I_GBL_CTL_BUS_ENABLE | SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
++			SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
+ 
+ 	return 0;
+ 
 -- 
 2.30.2
 
