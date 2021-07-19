@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1DDE3CE3B4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14963CE197
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236600AbhGSPkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
+        id S1349358AbhGSP0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349034AbhGSPfl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9373B61287;
-        Mon, 19 Jul 2021 16:16:01 +0000 (UTC)
+        id S1348111AbhGSPYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23DA26143E;
+        Mon, 19 Jul 2021 16:01:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711362;
-        bh=gOWZPvUwpqkulmVjVCCAwQS+gJTvdhBIbHnGweJFv1w=;
+        s=korg; t=1626710502;
+        bh=43/x1/W8oa55JhLu6E58HoHNqnMOr2sHVb5/+N2+Da8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oqz/FJ4/GtT9wwRamOm8A/1Ykg0HK72A3DVZMcHiYDf5eK49VD4n6prXCGiTVq73G
-         QrGokrV3RY7YwQlL/T/FIoxx4xfG2ZxzU9lJR2K384yhwxSFrjxrFNLO/Cs7pk2e0r
-         lWRvHdL8IgFEWHPlRCTfTmDkHZa9sP0zSm4uWNho=
+        b=WCHOzCfmADVYjwa6Al8FhgrLxqDiKntFbi1kAHHtP/W04VvRXdQA0pZND1hU+9PUy
+         M3CTXtqXwQ9yCtqdB8SE0Nw5IFKFU4BHFIUUGgotdAmcqGHcYdb71vLTv5yV8rQbvm
+         IEarJTfT/clU7cDPWdpaE8/4KKcplwLB+I+NRYxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 326/351] arm64: dts: ti: k3-am642-main: fix ports mac properties
+        stable@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 243/243] scsi: scsi_dh_alua: Fix signedness bug in alua_rtpg()
 Date:   Mon, 19 Jul 2021 16:54:32 +0200
-Message-Id: <20210719144955.843945988@linuxfoundation.org>
+Message-Id: <20210719144948.766537290@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 50c9bfca1bfe9ffd56d8c5deecf9204d14e20bfd ]
+commit 80927822e8b6be46f488524cd7d5fe683de97fc4 upstream.
 
-The current device tree CPSW3g node adds non-zero "mac-address" property to
-the ports, which prevents random MAC address assignment to network devices
-if bootloader failed to update DT. This may cause more then one host to
-have the same MAC in the network.
+The "retval" variable needs to be signed for the error handling to work.
 
- mac-address = [00 00 de ad be ef];
- mac-address = [00 01 de ad be ef];
-
-In addition, there is one MAC address available in eFuse registers which
-can be used for default port 1.
-
-Hence, fix ports MAC properties by:
-- resetting "mac-address" property to 0
-- adding ti,syscon-efuse = <&main_conf 0x200> to Port 1
-
-Fixes: 3753b12877b6 ("arm64: dts: ti: k3-am64-main: Add CPSW DT node")
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210608184940.25934-1-grygorii.strashko@ti.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/YLjMEAFNxOas1mIp@mwanda
+Fixes: 7e26e3ea0287 ("scsi: scsi_dh_alua: Check for negative result value")
+Reviewed-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/ti/k3-am64-main.dtsi | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-index ca59d1f711f8..bcbf436a96b5 100644
---- a/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am64-main.dtsi
-@@ -489,7 +489,8 @@
- 				ti,mac-only;
- 				label = "port1";
- 				phys = <&phy_gmii_sel 1>;
--				mac-address = [00 00 de ad be ef];
-+				mac-address = [00 00 00 00 00 00];
-+				ti,syscon-efuse = <&main_conf 0x200>;
- 			};
- 
- 			cpsw_port2: port@2 {
-@@ -497,7 +498,7 @@
- 				ti,mac-only;
- 				label = "port2";
- 				phys = <&phy_gmii_sel 2>;
--				mac-address = [00 01 de ad be ef];
-+				mac-address = [00 00 00 00 00 00];
- 			};
- 		};
- 
--- 
-2.30.2
-
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -508,7 +508,8 @@ static int alua_rtpg(struct scsi_device
+ 	struct alua_port_group *tmp_pg;
+ 	int len, k, off, bufflen = ALUA_RTPG_SIZE;
+ 	unsigned char *desc, *buff;
+-	unsigned err, retval;
++	unsigned err;
++	int retval;
+ 	unsigned int tpg_desc_tbl_off;
+ 	unsigned char orig_transition_tmo;
+ 	unsigned long flags;
 
 
