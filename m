@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D213CDDA0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05A983CDD9E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245324AbhGSO7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S245735AbhGSO7C (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 10:59:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245314AbhGSO6N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:58:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A026761006;
-        Mon, 19 Jul 2021 15:35:47 +0000 (UTC)
+        id S245317AbhGSO6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:58:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65B9B613E3;
+        Mon, 19 Jul 2021 15:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708948;
-        bh=L9EOp0CMXoCBbI6VEQ3Nfa7kROKz0JsL2eqy9d/5u7s=;
+        s=korg; t=1626708950;
+        bh=YS150Zw3EMrfbg7HTU/kACgheRdPjXylbhg3QzhH4fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKSl/vx5qvWsa/3ZzU7wpqbqsrGdu1UvM+67Yjc2IE5TrdvU8MqTHdA5/6REWXdOQ
-         nIW+6maS0PTcnG6esywqg5rhXOgZ7eCSFNDVUqU9Y3AUNfFDrs6bWaCAg2wu+nc3KG
-         zEnnwNVX20f98wSXasuZbA/f2EVRz3ds9qJfGaiU=
+        b=hz9Ml3WAziLtrLzPwgnP4OHzbM1vYUtNu9ibEwQTqNZoPQ58P1J44MhL3AwQsANQ+
+         n9SU5J1gug3LWtJZUW3RGS5MJw+CbUn6/Ct/E5cY7mfwIcw+FLluyGTHkMmlYxl3QV
+         Rth7g7/xGFC4yiQed0PcmEqbKQ2GD/Kz9vtyMiVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joachim Fenkes <fenkes@de.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 194/421] fsi/sbefifo: Fix reset timeout
-Date:   Mon, 19 Jul 2021 16:50:05 +0200
-Message-Id: <20210719144953.126241054@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 195/421] visorbus: fix error return code in visorchipset_init()
+Date:   Mon, 19 Jul 2021 16:50:06 +0200
+Message-Id: <20210719144953.156227594@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -39,58 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joachim Fenkes <FENKES@de.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 9ab1428dfe2c66b51e0b41337cd0164da0ab6080 ]
+[ Upstream commit ce52ec5beecc1079c251f60e3973b3758f60eb59 ]
 
-On BMCs with lower timer resolution than 1ms, msleep(1) will take
-way longer than 1ms, so looping 10k times won't wait for 10s but
-significantly longer.
+Commit 1366a3db3dcf ("staging: unisys: visorbus: visorchipset_init clean
+up gotos") assigns the initial value -ENODEV to the local variable 'err',
+and the first several error branches will return this value after "goto
+error". But commit f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate
+controlvm channel creation.") overwrites 'err' in the middle of the way.
+As a result, some error branches do not successfully return the initial
+value -ENODEV of 'err', but return 0.
 
-Fix this by using jiffies like the rest of the code.
+In addition, when kzalloc() fails, -ENOMEM should be returned instead of
+-ENODEV.
 
-Fixes: 9f4a8a2d7f9d ("fsi/sbefifo: Add driver for the SBE FIFO")
-Signed-off-by: Joachim Fenkes <fenkes@de.ibm.com>
-Link: https://lore.kernel.org/r/20200724071518.430515-3-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate controlvm channel creation.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210528082614.9337-1-thunder.leizhen@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fsi/fsi-sbefifo.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/visorbus/visorchipset.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/fsi/fsi-sbefifo.c b/drivers/fsi/fsi-sbefifo.c
-index b43c2d424d00..ace42cd2915e 100644
---- a/drivers/fsi/fsi-sbefifo.c
-+++ b/drivers/fsi/fsi-sbefifo.c
-@@ -325,7 +325,8 @@ static int sbefifo_up_write(struct sbefifo *sbefifo, __be32 word)
- static int sbefifo_request_reset(struct sbefifo *sbefifo)
+diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
+index cb1eb7e05f87..5668cad86e37 100644
+--- a/drivers/visorbus/visorchipset.c
++++ b/drivers/visorbus/visorchipset.c
+@@ -1561,7 +1561,7 @@ schedule_out:
+ 
+ static int visorchipset_init(struct acpi_device *acpi_device)
  {
- 	struct device *dev = &sbefifo->fsi_dev->dev;
--	u32 status, timeout;
-+	unsigned long end_time;
-+	u32 status;
- 	int rc;
+-	int err = -ENODEV;
++	int err = -ENOMEM;
+ 	struct visorchannel *controlvm_channel;
  
- 	dev_dbg(dev, "Requesting FIFO reset\n");
-@@ -341,7 +342,8 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 	}
- 
- 	/* Wait for it to complete */
--	for (timeout = 0; timeout < SBEFIFO_RESET_TIMEOUT; timeout++) {
-+	end_time = jiffies + msecs_to_jiffies(SBEFIFO_RESET_TIMEOUT);
-+	while (!time_after(jiffies, end_time)) {
- 		rc = sbefifo_regr(sbefifo, SBEFIFO_UP | SBEFIFO_STS, &status);
- 		if (rc) {
- 			dev_err(dev, "Failed to read UP fifo status during reset"
-@@ -355,7 +357,7 @@ static int sbefifo_request_reset(struct sbefifo *sbefifo)
- 			return 0;
- 		}
- 
--		msleep(1);
-+		cond_resched();
- 	}
- 	dev_err(dev, "FIFO reset timed out\n");
- 
+ 	chipset_dev = kzalloc(sizeof(*chipset_dev), GFP_KERNEL);
+@@ -1584,8 +1584,10 @@ static int visorchipset_init(struct acpi_device *acpi_device)
+ 				 "controlvm",
+ 				 sizeof(struct visor_controlvm_channel),
+ 				 VISOR_CONTROLVM_CHANNEL_VERSIONID,
+-				 VISOR_CHANNEL_SIGNATURE))
++				 VISOR_CHANNEL_SIGNATURE)) {
++		err = -ENODEV;
+ 		goto error_delete_groups;
++	}
+ 	/* if booting in a crash kernel */
+ 	if (is_kdump_kernel())
+ 		INIT_DELAYED_WORK(&chipset_dev->periodic_controlvm_work,
 -- 
 2.30.2
 
