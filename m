@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CC793CDA55
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28B7C3CD8BA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242819AbhGSOfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
+        id S242693AbhGSOZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245577AbhGSOeq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3809F6135B;
-        Mon, 19 Jul 2021 15:14:20 +0000 (UTC)
+        id S242696AbhGSOWn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:22:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB5761242;
+        Mon, 19 Jul 2021 15:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707660;
-        bh=zW/+9TjAzUHJpOauq3MOoubO2rCelNtNxt/izos+Htw=;
+        s=korg; t=1626706963;
+        bh=ofUSPjF/yzLP/MLlyjcF+HuRo4cIJ3w1XQeSscxrtvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZmBXw/MJT/3JWWLH5ENmTaVF/QkNPlbNibxX8wqlHd4Xn6fY3j2ThoL6I7Qb1zCn
-         4MFqPy3Yppf5YQUSB5j8FLo3tnK/Mpxdqoy0dlVAs96vtSjKOCgg51qxzlv/wXmcDa
-         wNWkAiBqpx56+OSi/6sZhIkbqu1JX756Jf98FFhw=
+        b=ukSKFzxesVVc3Vsr0XcKi7kKo5OdyM+4qu3yDuqXH5b1GCSI6ikrZc0CnPGUEY9Cw
+         lxf5h9/GjsJB5qTI7mY3rrq1121DuGUgyBMN91do+z2lpvEOVlC2b9JiZaygy2D9S5
+         F4hdYf0PVaQvBJux0FRqWmJlt6/Pc/6hc3nB912Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Jian Cai <jiancai@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 209/245] power: supply: ab8500: Avoid NULL pointers
+Subject: [PATCH 4.4 167/188] ARM: 9087/1: kprobes: test-thumb: fix for LLVM_IAS=1
 Date:   Mon, 19 Jul 2021 16:52:31 +0200
-Message-Id: <20210719144947.159739095@linuxfoundation.org>
+Message-Id: <20210719144941.958876782@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
+[ Upstream commit 8b95a7d90ce8160ac5cffd5bace6e2eba01a871e ]
 
-Sometimes the code will crash because we haven't enabled
-AC or USB charging and thus not created the corresponding
-psy device. Fix it by checking that it is there before
-notifying.
+There's a few instructions that GAS infers operands but Clang doesn't;
+from what I can tell the Arm ARM doesn't say these are optional.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+F5.1.257 TBB, TBH T1 Halfword variant
+F5.1.238 STREXD T1 variant
+F5.1.84 LDREXD T1 variant
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1309
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jian Cai <jiancai@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_charger.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/arm/probes/kprobes/test-thumb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index 48a11fd86a7f..2d44a68b62c0 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -409,6 +409,14 @@ disable_otp:
- static void ab8500_power_supply_changed(struct ab8500_charger *di,
- 					struct power_supply *psy)
- {
-+	/*
-+	 * This happens if we get notifications or interrupts and
-+	 * the platform has been configured not to support one or
-+	 * other type of charging.
-+	 */
-+	if (!psy)
-+		return;
-+
- 	if (di->autopower_cfg) {
- 		if (!di->usb.charger_connected &&
- 		    !di->ac.charger_connected &&
-@@ -435,7 +443,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
- 		if (!connected)
- 			di->flags.vbus_drop_end = false;
+diff --git a/arch/arm/probes/kprobes/test-thumb.c b/arch/arm/probes/kprobes/test-thumb.c
+index b683b4517458..4254391f3906 100644
+--- a/arch/arm/probes/kprobes/test-thumb.c
++++ b/arch/arm/probes/kprobes/test-thumb.c
+@@ -444,21 +444,21 @@ void kprobe_thumb32_test_cases(void)
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
--		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
-+		/*
-+		 * Sometimes the platform is configured not to support
-+		 * USB charging and no psy has been created, but we still
-+		 * will get these notifications.
-+		 */
-+		if (di->usb_chg.psy) {
-+			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
-+				     "present");
-+		}
+-	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
++	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
- 		if (connected) {
- 			mutex_lock(&di->charger_attached_mutex);
+-	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
++	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
+ 
+-	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
++	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+@@ -471,10 +471,10 @@ void kprobe_thumb32_test_cases(void)
+ 
+ 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
+ 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
+-	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
++	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
+ 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
+ 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
+-	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
++	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
+ 
+ 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
+ 
 -- 
 2.30.2
 
