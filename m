@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF153CDE68
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E6D03CDFC6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344029AbhGSPDD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
+        id S1344757AbhGSPLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245702AbhGSPAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0D9660238;
-        Mon, 19 Jul 2021 15:41:30 +0000 (UTC)
+        id S1344091AbhGSPID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:08:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 995BE61283;
+        Mon, 19 Jul 2021 15:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709291;
-        bh=jubVaQRlhNSmiN+XmTt572cEjRXXkVgH+Bp7bvrT6Vg=;
+        s=korg; t=1626709690;
+        bh=YpocWr17IC73lrDXfQ8pQR21WQ1hbjgFYsS/FrqkNUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ne5x1uPgQ9PSIqYXNHBnIpzyRO8fhFWpEtDGKXpB+mq9URRojd8wVPUhpf5FjFv0C
-         IdFy9hdjtOjcgsLGGAiWKlGUwm4MW9W18gRy4jIn0p6zrtvrzdA6W9hTSKOheqydT5
-         JZt1qIvj02dcTydXl6zKwNYBTGlT99316teQb1eA=
+        b=YJDnrRger8EPOwx2nC+x6MJMRbZ6+LwKicBpRqpohdDOKHiq8Q+Vw4dCNpmuYetHi
+         Ne442WF+yodIbacaEwR7JUlOJacUFmmU9Iw0Ce0QjcIyvg6CpwsJiS/5nu85mBrGTA
+         Babc5UIn5m+P/ATmZM7EHEFLLNGnRiUpSufLdPOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 323/421] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
+Subject: [PATCH 5.4 026/149] fs/jfs: Fix missing error code in lmLogInit()
 Date:   Mon, 19 Jul 2021 16:52:14 +0200
-Message-Id: <20210719144957.503921919@linuxfoundation.org>
+Message-Id: <20210719144907.739937493@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit fcb10ee27fb91b25b68d7745db9817ecea9f1038 ]
+[ Upstream commit 492109333c29e1bb16d8732e1d597b02e8e0bf2e ]
 
-We should be very careful about the register values that will be used
-for division or modulo operations, althrough the possibility that the
-UARTBAUD register value is zero is very low, but we had better to deal
-with the "bad data" of hardware in advance to avoid division or modulo
-by zero leading to undefined kernel behavior.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'rc.
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20210427021226.27468-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Eliminate the follow smatch warning:
+
+fs/jfs/jfs_logmgr.c:1327 lmLogInit() warn: missing error code 'rc'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/jfs/jfs_logmgr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 4b9f42269477..deb9d4fa9cb0 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1992,6 +1992,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
- 
- 	bd = lpuart32_read(&sport->port, UARTBAUD);
- 	bd &= UARTBAUD_SBR_MASK;
-+	if (!bd)
-+		return;
-+
- 	sbr = bd;
- 	uartclk = clk_get_rate(sport->clk);
- 	/*
+diff --git a/fs/jfs/jfs_logmgr.c b/fs/jfs/jfs_logmgr.c
+index 9330eff210e0..78fd136ac13b 100644
+--- a/fs/jfs/jfs_logmgr.c
++++ b/fs/jfs/jfs_logmgr.c
+@@ -1324,6 +1324,7 @@ int lmLogInit(struct jfs_log * log)
+ 		} else {
+ 			if (!uuid_equal(&logsuper->uuid, &log->uuid)) {
+ 				jfs_warn("wrong uuid on JFS log device");
++				rc = -EINVAL;
+ 				goto errout20;
+ 			}
+ 			log->size = le32_to_cpu(logsuper->size);
 -- 
 2.30.2
 
