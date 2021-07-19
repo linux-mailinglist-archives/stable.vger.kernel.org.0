@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EC0E3CE2AC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F06E3CE3EC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232984AbhGSPbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:31:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
+        id S1344298AbhGSPlM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347817AbhGSPVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:21:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2615611F2;
-        Mon, 19 Jul 2021 15:59:08 +0000 (UTC)
+        id S1347973AbhGSPfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FA1D61494;
+        Mon, 19 Jul 2021 16:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710349;
-        bh=pxldUIXVyMuGTwFThAvisOSECtn2r7h0J3e2YPopYNc=;
+        s=korg; t=1626711190;
+        bh=uG/bOACiXnipF7frzN43OzvSqgdcFLXtJExWq0kHYQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xkd+1TMsLgXVtdPDxMN94DlQj8WdphBwhb+NTM/i+dgTI7KnmneI+HS4QgcL4yJtO
-         2vXpi10I5lOZF69rQjsYL+aZSAhf7ynrmASAD7sbF020fNJ2dme8TQsTFZ7fnY8xnq
-         /SwodfaxUCT6Uz8QorNS1ZuJE/1kKUfndqXlDBz4=
+        b=spRAbhF7ZVs6Efgg08wP5KEiSVCMO6JlaBLyP3ezcUxH52dmmf2FmrTl5NJ1QnNPT
+         EN0YMmw/Q2Gtdrduh6MbgiE/pGtgjzSQHJZyoMqbv/mt50NyWGdGhChHhcybyOsRI3
+         h4Fq807INn3f9LkmoWdxquJJRmmYXFP42kHSavro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/243] nfsd: Reduce contention for the nfsd_file nf_rwsem
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 261/351] ALSA: isa: Fix error return code in snd_cmi8330_probe()
 Date:   Mon, 19 Jul 2021 16:53:27 +0200
-Message-Id: <20210719144946.645601041@linuxfoundation.org>
+Message-Id: <20210719144953.582776699@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,64 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 474bc334698df98ce07c890f1898c7e7f389b0c7 ]
+[ Upstream commit 31028cbed26a8afa25533a10425ffa2ab794c76c ]
 
-When flushing out the unstable file writes as part of a COMMIT call, try
-to perform most of of the data writes and waits outside the semaphore.
+When 'SB_HW_16' check fails, the error code -ENODEV instead of 0 should be
+returned, which is the same as that returned when 'WSS_HW_CMI8330' check
+fails.
 
-This means that if the client is sending the COMMIT as part of a memory
-reclaim operation, then it can continue performing I/O, with contention
-for the lock occurring only once the data sync is finished.
-
-Fixes: 5011af4c698a ("nfsd: Fix stable writes")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
- Tested-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Fixes: 43bcd973d6d0 ("[ALSA] Add snd_card_set_generic_dev() call to ISA drivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210707074051.2663-1-thunder.leizhen@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/vfs.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ sound/isa/cmi8330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index 1ecaceebee13..011cd570b50d 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -1113,6 +1113,19 @@ out:
- }
+diff --git a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
+index bc112df10fc5..d1ac9fc99491 100644
+--- a/sound/isa/cmi8330.c
++++ b/sound/isa/cmi8330.c
+@@ -547,7 +547,7 @@ static int snd_cmi8330_probe(struct snd_card *card, int dev)
+ 	}
+ 	if (acard->sb->hardware != SB_HW_16) {
+ 		snd_printk(KERN_ERR PFX "SB16 not found during probe\n");
+-		return err;
++		return -ENODEV;
+ 	}
  
- #ifdef CONFIG_NFSD_V3
-+static int
-+nfsd_filemap_write_and_wait_range(struct nfsd_file *nf, loff_t offset,
-+				  loff_t end)
-+{
-+	struct address_space *mapping = nf->nf_file->f_mapping;
-+	int ret = filemap_fdatawrite_range(mapping, offset, end);
-+
-+	if (ret)
-+		return ret;
-+	filemap_fdatawait_range_keep_errors(mapping, offset, end);
-+	return 0;
-+}
-+
- /*
-  * Commit all pending writes to stable storage.
-  *
-@@ -1143,10 +1156,11 @@ nfsd_commit(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 	if (err)
- 		goto out;
- 	if (EX_ISSYNC(fhp->fh_export)) {
--		int err2;
-+		int err2 = nfsd_filemap_write_and_wait_range(nf, offset, end);
- 
- 		down_write(&nf->nf_rwsem);
--		err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
-+		if (!err2)
-+			err2 = vfs_fsync_range(nf->nf_file, offset, end, 0);
- 		switch (err2) {
- 		case 0:
- 			nfsd_copy_boot_verifier(verf, net_generic(nf->nf_net,
+ 	snd_wss_out(acard->wss, CS4231_MISC_INFO, 0x40); /* switch on MODE2 */
 -- 
 2.30.2
 
