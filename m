@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E25F33CD9B8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305513CDB6D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244347AbhGSObX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
+        id S244331AbhGSOmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244097AbhGSO3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF50761263;
-        Mon, 19 Jul 2021 15:08:46 +0000 (UTC)
+        id S244264AbhGSOkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:40:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEBF26120A;
+        Mon, 19 Jul 2021 15:21:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707327;
-        bh=XkaSEoRy3urnR+ZfBGZLVTD0IIwMaR9DMVQ2vHi6Aas=;
+        s=korg; t=1626708071;
+        bh=dVBJfQRirVoOIzRNPs88vxExJ0Go3B8dpqE3QDSy/mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEOVsO09FM6BYxV4qYNLAhSdVLyOnYBGp2uUVZeaVjaOKMi0Cy9HJJ1ElQGiqbwWB
-         ndZTbP/P1jyufP/UeeQrynQNZKLmUfwsTysw9B+LVMBnEiNJAnKWfwe7jbO1v2vf2S
-         8x/zqUj0zoILLTIqVnBD0IiHVpxOZ/5JN5b8xTB0=
+        b=MAKgDCB7pIFR6KJ8ss09KSjjuwKQ7eWng02FUkmTR52jppi0N+OOOR6Z8A1uzhWIE
+         ekg+9qdj3g/05zRtS/NPn905GmF9GqiQhPVtCHlgJ9wOml+ux3k1kbr81Ig1YFaMce
+         NYEZiPtMLdTTM4WK3DvxTG7He3yAmrCz1vnD5MLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org,
+        syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>, Jan Kara <jack@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 116/245] extcon: sm5502: Drop invalid register write in sm5502_reg_data
+Subject: [PATCH 4.14 169/315] reiserfs: add check for invalid 1st journal block
 Date:   Mon, 19 Jul 2021 16:50:58 +0200
-Message-Id: <20210719144944.161938886@linuxfoundation.org>
+Message-Id: <20210719144948.450052538@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit d25b224f8e5507879b36a769a6d1324cf163466c ]
+[ Upstream commit a149127be52fa7eaf5b3681a0317a2bbb772d5a9 ]
 
-When sm5502_init_dev_type() iterates over sm5502_reg_data to
-initialize the registers it is limited by ARRAY_SIZE(sm5502_reg_data).
-There is no need to add another empty element to sm5502_reg_data.
+syzbot reported divide error in reiserfs.
+The problem was in incorrect journal 1st block.
 
-Having the additional empty element in sm5502_reg_data will just
-result in writing 0xff to register 0x00, which does not really
-make sense.
+Syzbot's reproducer manualy generated wrong superblock
+with incorrect 1st block. In journal_init() wasn't
+any checks about this particular case.
 
-Fixes: 914b881f9452 ("extcon: sm5502: Add support new SM5502 extcon device driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+For example, if 1st journal block is before superblock
+1st block, it can cause zeroing important superblock members
+in do_journal_end().
+
+Link: https://lore.kernel.org/r/20210517121545.29645-1-paskripkin@gmail.com
+Reported-by: syzbot+0ba9909df31c6a36974d@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/reiserfs/journal.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 9d2d8a6673c8..dbe5fc278f09 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -92,7 +92,6 @@ static struct reg_data sm5502_reg_data[] = {
- 			| SM5502_REG_INTM2_MHL_MASK,
- 		.invert = true,
- 	},
--	{ }
- };
+diff --git a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
+index 2be907231375..1a6e6343fed3 100644
+--- a/fs/reiserfs/journal.c
++++ b/fs/reiserfs/journal.c
+@@ -2769,6 +2769,20 @@ int journal_init(struct super_block *sb, const char *j_dev_name,
+ 		goto free_and_return;
+ 	}
  
- /* List of detectable cables */
++	/*
++	 * Sanity check to see if journal first block is correct.
++	 * If journal first block is invalid it can cause
++	 * zeroing important superblock members.
++	 */
++	if (!SB_ONDISK_JOURNAL_DEVICE(sb) &&
++	    SB_ONDISK_JOURNAL_1st_BLOCK(sb) < SB_JOURNAL_1st_RESERVED_BLOCK(sb)) {
++		reiserfs_warning(sb, "journal-1393",
++				 "journal 1st super block is invalid: 1st reserved block %d, but actual 1st block is %d",
++				 SB_JOURNAL_1st_RESERVED_BLOCK(sb),
++				 SB_ONDISK_JOURNAL_1st_BLOCK(sb));
++		goto free_and_return;
++	}
++
+ 	if (journal_init_dev(sb, journal, j_dev_name) != 0) {
+ 		reiserfs_warning(sb, "sh-462",
+ 				 "unable to initialize journal device");
 -- 
 2.30.2
 
