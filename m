@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A5E3CE465
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 262783CE434
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347690AbhGSPnc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
+        id S1344756AbhGSPmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347854AbhGSPjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:39:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C62E6120C;
-        Mon, 19 Jul 2021 16:19:20 +0000 (UTC)
+        id S236731AbhGSPhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:37:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAA7F610FB;
+        Mon, 19 Jul 2021 16:17:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711561;
-        bh=IW+kRm7y3/w5PDA1gPnsPSpm83DD9zwtepBPUsz8hoI=;
+        s=korg; t=1626711471;
+        bh=zmOByIB8qMmfz787nQbKHYGg6IpOuowegXQdddHUonE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oEdw+RQu9p0dZB3RR33r/84tV3Jx/myhLLw3XHGSGKhNtK9aMvrZn6ROGNRiQ4yS7
-         irWIkJUI2ddJ468oXmrvqntmJZfOEXMXBUXCNPGx+aUT4HbkMOvpmUwFeQJWEAdVR2
-         Cr3rsRDl5M9bpG30oR19iIozdDq4tCTY6FSHyZuU=
+        b=vR6/u7RE7OUM0zbORhJAW141pTA1zIT7maZSWFkbsdi7yqESWD4Xnf3MMZx/EpJ+P
+         8kznpARsE/y9ReSw4UblWO2no4RZbKrPGaUnwvTuUzsBw1T7/TkwaglaHTNI34N4uQ
+         grtTH2RNo0SOWa20RGYICp5D2U9DVLl1NvFvIhbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Maxim Levitsky <mlevitsk@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 006/292] KVM: x86/mmu: Do not apply HPA (memory encryption) mask to GPAs
-Date:   Mon, 19 Jul 2021 16:51:08 +0200
-Message-Id: <20210719144942.727723302@linuxfoundation.org>
+Subject: [PATCH 5.12 007/292] KVM: nSVM: Check the value written to MSR_VM_HSAVE_PA
+Date:   Mon, 19 Jul 2021 16:51:09 +0200
+Message-Id: <20210719144942.758030410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,111 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit fc9bf2e087efcd81bda2e52d09616d2a1bf982a8 upstream.
+commit fce7e152ffc8f89d02a80617b16c7aa1527847c8 upstream.
 
-Ignore "dynamic" host adjustments to the physical address mask when
-generating the masks for guest PTEs, i.e. the guest PA masks.  The host
-physical address space and guest physical address space are two different
-beasts, e.g. even though SEV's C-bit is the same bit location for both
-host and guest, disabling SME in the host (which clears shadow_me_mask)
-does not affect the guest PTE->GPA "translation".
+APM states that #GP is raised upon write to MSR_VM_HSAVE_PA when
+the supplied address is not page-aligned or is outside of "maximum
+supported physical address for this implementation".
+page_address_valid() check seems suitable. Also, forcefully page-align
+the address when it's written from VMM.
 
-For non-SEV guests, not dropping bits is the correct behavior.  Assuming
-KVM and userspace correctly enumerate/configure guest MAXPHYADDR, bits
-that are lost as collateral damage from memory encryption are treated as
-reserved bits, i.e. KVM will never get to the point where it attempts to
-generate a gfn using the affected bits.  And if userspace wants to create
-a bogus vCPU, then userspace gets to deal with the fallout of hardware
-doing odd things with bad GPAs.
-
-For SEV guests, not dropping the C-bit is technically wrong, but it's a
-moot point because KVM can't read SEV guest's page tables in any case
-since they're always encrypted.  Not to mention that the current KVM code
-is also broken since sme_me_mask does not have to be non-zero for SEV to
-be supported by KVM.  The proper fix would be to teach all of KVM to
-correctly handle guest private memory, but that's a task for the future.
-
-Fixes: d0ec49d4de90 ("kvm/x86/svm: Support Secure Memory Encryption within KVM")
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210628104425.391276-2-vkuznets@redhat.com>
 Cc: stable@vger.kernel.org
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210623230552.4027702-5-seanjc@google.com>
-[Use a new header instead of adding header guards to paging_tmpl.h. - Paolo]
+Reviewed-by: Maxim Levitsky <mlevitsk@redhat.com>
+[Add comment about behavior for host-provided values. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c         |    2 ++
- arch/x86/kvm/mmu/paging.h      |   14 ++++++++++++++
- arch/x86/kvm/mmu/paging_tmpl.h |    4 ++--
- arch/x86/kvm/mmu/spte.h        |    6 ------
- 4 files changed, 18 insertions(+), 8 deletions(-)
- create mode 100644 arch/x86/kvm/mmu/paging.h
+ arch/x86/kvm/svm/svm.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -52,6 +52,8 @@
- #include <asm/kvm_page_track.h>
- #include "trace.h"
- 
-+#include "paging.h"
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2982,7 +2982,16 @@ static int svm_set_msr(struct kvm_vcpu *
+ 			svm_disable_lbrv(vcpu);
+ 		break;
+ 	case MSR_VM_HSAVE_PA:
+-		svm->nested.hsave_msr = data;
++		/*
++		 * Old kernels did not validate the value written to
++		 * MSR_VM_HSAVE_PA.  Allow KVM_SET_MSR to set an invalid
++		 * value to allow live migrating buggy or malicious guests
++		 * originating from those kernels.
++		 */
++		if (!msr->host_initiated && !page_address_valid(vcpu, data))
++			return 1;
 +
- extern bool itlb_multihit_kvm_mitigation;
- 
- static int __read_mostly nx_huge_pages = -1;
---- /dev/null
-+++ b/arch/x86/kvm/mmu/paging.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/* Shadow paging constants/helpers that don't need to be #undef'd. */
-+#ifndef __KVM_X86_PAGING_H
-+#define __KVM_X86_PAGING_H
-+
-+#define GUEST_PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
-+#define PT64_LVL_ADDR_MASK(level) \
-+	(GUEST_PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
-+						* PT64_LEVEL_BITS))) - 1))
-+#define PT64_LVL_OFFSET_MASK(level) \
-+	(GUEST_PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
-+						* PT64_LEVEL_BITS))) - 1))
-+#endif /* __KVM_X86_PAGING_H */
-+
---- a/arch/x86/kvm/mmu/paging_tmpl.h
-+++ b/arch/x86/kvm/mmu/paging_tmpl.h
-@@ -24,7 +24,7 @@
- 	#define pt_element_t u64
- 	#define guest_walker guest_walker64
- 	#define FNAME(name) paging##64_##name
--	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
-+	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
- 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
- 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
- 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
-@@ -57,7 +57,7 @@
- 	#define pt_element_t u64
- 	#define guest_walker guest_walkerEPT
- 	#define FNAME(name) ept_##name
--	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
-+	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
- 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
- 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
- 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
---- a/arch/x86/kvm/mmu/spte.h
-+++ b/arch/x86/kvm/mmu/spte.h
-@@ -23,12 +23,6 @@
- #else
- #define PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
- #endif
--#define PT64_LVL_ADDR_MASK(level) \
--	(PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
--						* PT64_LEVEL_BITS))) - 1))
--#define PT64_LVL_OFFSET_MASK(level) \
--	(PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
--						* PT64_LEVEL_BITS))) - 1))
- 
- #define PT64_PERM_MASK (PT_PRESENT_MASK | PT_WRITABLE_MASK | shadow_user_mask \
- 			| shadow_x_mask | shadow_nx_mask | shadow_me_mask)
++		svm->nested.hsave_msr = data & PAGE_MASK;
+ 		break;
+ 	case MSR_VM_CR:
+ 		return svm_set_vm_cr(vcpu, data);
 
 
