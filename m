@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A203CDD1A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06CA73CDD24
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:37:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238616AbhGSO4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:56:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45208 "EHLO mail.kernel.org"
+        id S238802AbhGSO4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:56:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238789AbhGSOyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:54:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7D661285;
-        Mon, 19 Jul 2021 15:33:06 +0000 (UTC)
+        id S239528AbhGSOyX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:54:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52BBC61287;
+        Mon, 19 Jul 2021 15:33:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708787;
-        bh=C0/WtTy7uGcfywJh/Bg7FSsNQVVNIIPRGXcN/8bDiWM=;
+        s=korg; t=1626708789;
+        bh=G1w7Ribej467G0ATbzr5R9z0kFoDhjcgg7I12WlsEfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YToZWnuTrOs4Y8nHDqW2J6Vj2ISczQGNE2FD6s9cVUjLvn+cSDdsBjpM735waIaFd
-         Lj3R+gBprqqJh4AyHI3ZHtydtR5TsxNUR+NNJQjGr30E9F952iBnWqW1t5MdDHeCTK
-         dlidLfje8/28uRdcAQzUQMvsjrw0BXrx3dj9+GR4=
+        b=ytit4gsCDoWRB2pfM+X1MgP+Zndkvwp6OogpWllKKovFcmSow0mXEDdXs6cETaBQ9
+         vxGTzhN655liVuAkn0Q9wZHYd4WdGezdgPtUkv4mlDd+i41NiBo6gNRXjsFE5pKcuU
+         VgUxWd7ewEKdN1jP5iKi2mLHtUJfAUJGqMWNvmLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        =?UTF-8?q?Michael=20B=C3=BCsch?= <m@bues.ch>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Alvin=20=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 130/421] ssb: Fix error return code in ssb_bus_scan()
-Date:   Mon, 19 Jul 2021 16:49:01 +0200
-Message-Id: <20210719144951.033376112@linuxfoundation.org>
+Subject: [PATCH 4.19 131/421] brcmfmac: fix setting of station info chains bitmask
+Date:   Mon, 19 Jul 2021 16:49:02 +0200
+Message-Id: <20210719144951.063896968@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,36 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Alvin Šipraga <ALSI@bang-olufsen.dk>
 
-[ Upstream commit 77a0989baa427dbd242c5784d05a53ca3d197d43 ]
+[ Upstream commit feb45643762172110cb3a44f99dd54304f33b711 ]
 
-Fix to return -EINVAL from the error handling case instead of 0, as done
-elsewhere in this function.
+The sinfo->chains field is a bitmask for filled values in chain_signal
+and chain_signal_avg, not a count. Treat it as such so that the driver
+can properly report per-chain RSSI information.
 
-Fixes: 61e115a56d1a ("[SSB]: add Sonics Silicon Backplane bus support")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-by: Michael Büsch <m@bues.ch>
+Before (MIMO mode):
+
+  $ iw dev wlan0 station dump
+      ...
+      signal: -51 [-51] dBm
+
+After (MIMO mode):
+
+  $ iw dev wlan0 station dump
+      ...
+      signal: -53 [-53, -54] dBm
+
+Fixes: cae355dc90db ("brcmfmac: Add RSSI information to get_station.")
+Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210515072949.7151-1-thunder.leizhen@huawei.com
+Link: https://lore.kernel.org/r/20210506132010.3964484-1-alsi@bang-olufsen.dk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ssb/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/ssb/scan.c b/drivers/ssb/scan.c
-index 6ceee98ed6ff..5c7e61cafd19 100644
---- a/drivers/ssb/scan.c
-+++ b/drivers/ssb/scan.c
-@@ -325,6 +325,7 @@ int ssb_bus_scan(struct ssb_bus *bus,
- 	if (bus->nr_devices > ARRAY_SIZE(bus->devices)) {
- 		pr_err("More than %d ssb cores found (%d)\n",
- 		       SSB_MAX_NR_CORES, bus->nr_devices);
-+		err = -EINVAL;
- 		goto err_unmap;
- 	}
- 	if (bus->bustype == SSB_BUSTYPE_SSB) {
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 96dc9e5ab23f..de8fd5780932 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -2614,6 +2614,7 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 		count_rssi = 0;
+ 		for (i = 0; i < BRCMF_ANT_MAX; i++) {
+ 			if (sta_info_le.rssi[i]) {
++				sinfo->chains |= BIT(count_rssi);
+ 				sinfo->chain_signal_avg[count_rssi] =
+ 					sta_info_le.rssi[i];
+ 				sinfo->chain_signal[count_rssi] =
+@@ -2624,8 +2625,6 @@ brcmf_cfg80211_get_station(struct wiphy *wiphy, struct net_device *ndev,
+ 		}
+ 		if (count_rssi) {
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_CHAIN_SIGNAL);
+-			sinfo->chains = count_rssi;
+-
+ 			sinfo->filled |= BIT_ULL(NL80211_STA_INFO_SIGNAL);
+ 			total_rssi /= count_rssi;
+ 			sinfo->signal = total_rssi;
 -- 
 2.30.2
 
