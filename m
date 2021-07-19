@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F913CD8EB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B7CC3CDAB1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243810AbhGSO0C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56408 "EHLO mail.kernel.org"
+        id S245147AbhGSOhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:37:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243959AbhGSOYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B5B260551;
-        Mon, 19 Jul 2021 15:04:31 +0000 (UTC)
+        id S244906AbhGSOfs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:35:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9322661073;
+        Mon, 19 Jul 2021 15:16:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707072;
-        bh=R8qY0z6JkzMhblgwHgW+VTVtDUxYZIArOVcdtloQ7Rw=;
+        s=korg; t=1626707788;
+        bh=rPD9mpr32J57dyxX2aHyxixkh9g8rEJEwDd4Ufn5pa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BH8aY1t2SHapaFseQq1HtOuUnTwLqVsN+X4ju+wQRveFpNDL1qNUtr1ry5eKFMqyR
-         HkE/cpab0Eupm0hee9UIIYs1RtLwpmfNnYsP/I6jTH3Ab5q1cLRTuLp1npr2OTwk3x
-         s2aUKj5JKSszgUa46HbMz0H63T5fU7MiIzrxbkes=
+        b=BoOnT+kW1Gs+nRUcz8p8r+NbYSY1L8V7e4179huB53j89i6LtilaVukJ4lviNWHIW
+         5kEt2TsFwLAMjZ0LnuTgEbC6+tJKPnc81IzEUKLo2rjRLZ7Lm8wV7EABw35F3/XWd7
+         03AIKYOvDM26FYnzU9bFBQKXhixR9YOEtKATNdek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 002/245] media: dvb-usb: fix wrong definition
-Date:   Mon, 19 Jul 2021 16:49:04 +0200
-Message-Id: <20210719144940.418394554@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 056/315] btrfs: fix error handling in __btrfs_update_delayed_inode
+Date:   Mon, 19 Jul 2021 16:49:05 +0200
+Message-Id: <20210719144944.701049112@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
+[ Upstream commit bb385bedded3ccbd794559600de4a09448810f4a ]
 
-syzbot reported WARNING in vmalloc. The problem
-was in zero size passed to vmalloc.
+If we get an error while looking up the inode item we'll simply bail
+without cleaning up the delayed node.  This results in this style of
+warning happening on commit:
 
-The root case was in wrong cxusb_bluebird_lgz201_properties
-definition. adapter array has only 1 entry, but num_adapters was
-2.
+  WARNING: CPU: 0 PID: 76403 at fs/btrfs/delayed-inode.c:1365 btrfs_assert_delayed_root_empty+0x5b/0x90
+  CPU: 0 PID: 76403 Comm: fsstress Tainted: G        W         5.13.0-rc1+ #373
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  RIP: 0010:btrfs_assert_delayed_root_empty+0x5b/0x90
+  RSP: 0018:ffffb8bb815a7e50 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: ffff95d6d07e1888 RCX: ffff95d6c0fa3000
+  RDX: 0000000000000002 RSI: 000000000029e91c RDI: ffff95d6c0fc8060
+  RBP: ffff95d6c0fc8060 R08: 00008d6d701a2c1d R09: 0000000000000000
+  R10: ffff95d6d1760ea0 R11: 0000000000000001 R12: ffff95d6c15a4d00
+  R13: ffff95d6c0fa3000 R14: 0000000000000000 R15: ffffb8bb815a7e90
+  FS:  00007f490e8dbb80(0000) GS:ffff95d73bc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f6e75555cb0 CR3: 00000001101ce001 CR4: 0000000000370ef0
+  Call Trace:
+   btrfs_commit_transaction+0x43c/0xb00
+   ? finish_wait+0x80/0x80
+   ? vfs_fsync_range+0x90/0x90
+   iterate_supers+0x8c/0x100
+   ksys_sync+0x50/0x90
+   __do_sys_sync+0xa/0x10
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Call Trace:
- __vmalloc_node mm/vmalloc.c:2963 [inline]
- vmalloc+0x67/0x80 mm/vmalloc.c:2996
- dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
- dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
- dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
- dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
- dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
- cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+Because the iref isn't dropped and this leaves an elevated node->count,
+so any release just re-queues it onto the delayed inodes list.  Fix this
+by going to the out label to handle the proper cleanup of the delayed
+node.
 
-Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/cxusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/delayed-inode.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/cxusb.c
-+++ b/drivers/media/usb/dvb-usb/cxusb.c
-@@ -1791,7 +1791,7 @@ static struct dvb_usb_device_properties
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index 416fb50a5378..3631154d8245 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1064,12 +1064,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
+ 	nofs_flag = memalloc_nofs_save();
+ 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
+ 	memalloc_nofs_restore(nofs_flag);
+-	if (ret > 0) {
+-		btrfs_release_path(path);
+-		return -ENOENT;
+-	} else if (ret < 0) {
+-		return ret;
+-	}
++	if (ret > 0)
++		ret = -ENOENT;
++	if (ret < 0)
++		goto out;
  
- 	.size_of_priv     = sizeof(struct cxusb_state),
- 
--	.num_adapters = 2,
-+	.num_adapters = 1,
- 	.adapter = {
- 		{
- 		.num_frontends = 1,
+ 	leaf = path->nodes[0];
+ 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
+-- 
+2.30.2
+
 
 
