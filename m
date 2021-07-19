@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DBD63CDB20
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67833CD958
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:09:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244845AbhGSOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
+        id S243451AbhGSO2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:28:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343913AbhGSOju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B3A0613AE;
-        Mon, 19 Jul 2021 15:19:51 +0000 (UTC)
+        id S243656AbhGSO1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:27:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47A4061245;
+        Mon, 19 Jul 2021 15:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707992;
-        bh=JvAO8tsgmqGtVkRSsjkDDkc4T4YTXP4Vct3TxBMM/PU=;
+        s=korg; t=1626707243;
+        bh=S79m0TmXjuywQgFCPipcQIRcCmH8FvNIsgjueqnZ13o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxKzT8I9AeliORoIqaYh1FFvQ8fKA5NjL1xeh5T2/lWyM+iGpJ83BHnVlXd0VrBXu
-         BmIcDLrY9tfTgCklo7TsZHDf71x1VR1sknWetBYa7e9uk6UThQoq86i2n7Yvu5ICzU
-         Q/OZc1ztuKe+fjvTTp/+4QNEMqAFlX4dJqAUoRbE=
+        b=JbEEnbA4PL0JZVWhR+f7gm3V+8hI/zPC6UG25As49GwTbYZTstdUcOgyTg6QxXqZ+
+         q+soJsyK6p2jW9/GlqgcrKj0HxSKqQW9AEtwOehxZKKX20AT8sDuN6i4Ke7ZmeIUEh
+         KxZAEeag67nFkrzERKcblU2h2XQQfA6RPsJkq5vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 136/315] iio: potentiostat: lmp91000: Fix alignment of buffer in iio_push_to_buffers_with_timestamp()
+Subject: [PATCH 4.9 083/245] netfilter: nft_exthdr: check for IPv6 packet before further processing
 Date:   Mon, 19 Jul 2021 16:50:25 +0200
-Message-Id: <20210719144947.353865816@linuxfoundation.org>
+Message-Id: <20210719144943.089377018@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 8979b67ec61abc232636400ee8c758a16a73c95f ]
+[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
+sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
+is passed for parsing.
 
-Here structure is not used, because this buffer is also used
-elsewhere in the driver.
-
-Fixes: 67e17300dc1d ("iio: potentiostat: add LMP91000 support")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Matt Ranostay <matt.ranostay@konsulko.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
-Link: https://lore.kernel.org/r/20210501171352.512953-8-jic23@kernel.org
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/potentiostat/lmp91000.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nft_exthdr.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/iio/potentiostat/lmp91000.c b/drivers/iio/potentiostat/lmp91000.c
-index afa8de3418d0..cb67edf53ab4 100644
---- a/drivers/iio/potentiostat/lmp91000.c
-+++ b/drivers/iio/potentiostat/lmp91000.c
-@@ -79,8 +79,8 @@ struct lmp91000_data {
+diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
+index 47beb3abcc9d..e2c815ee06d0 100644
+--- a/net/netfilter/nft_exthdr.c
++++ b/net/netfilter/nft_exthdr.c
+@@ -34,6 +34,9 @@ static void nft_exthdr_eval(const struct nft_expr *expr,
+ 	unsigned int offset = 0;
+ 	int err;
  
- 	struct completion completion;
- 	u8 chan_select;
--
--	u32 buffer[4]; /* 64-bit data + 64-bit timestamp */
-+	/* 64-bit data + 64-bit naturally aligned timestamp */
-+	u32 buffer[4] __aligned(8);
- };
- 
- static const struct iio_chan_spec lmp91000_channels[] = {
++	if (pkt->skb->protocol != htons(ETH_P_IPV6))
++		goto err;
++
+ 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
+ 	if (err < 0)
+ 		goto err;
 -- 
 2.30.2
 
