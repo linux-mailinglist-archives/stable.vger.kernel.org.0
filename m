@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 992263CD830
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 765023CD9A8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242830AbhGSOVI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57198 "EHLO mail.kernel.org"
+        id S244860AbhGSObM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242532AbhGSOUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01EEB6120D;
-        Mon, 19 Jul 2021 15:00:46 +0000 (UTC)
+        id S244999AbhGSOaM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:30:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D165E6008E;
+        Mon, 19 Jul 2021 15:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706847;
-        bh=WbcL+i6S3tY1ILvRu23MIZif/Sf3qDNosGsQi1SJUQM=;
+        s=korg; t=1626707451;
+        bh=DicTgpPqhZr/i6spxuOj5ERWvvj9fiLdAcdUwi3iu88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPyzoGGzondyPXM46q4Ehm/IiyL98wPWAVSy7r2OMaBiB+fmkzM6tMW3gMtS980pO
-         8ri/UNoTce6bSIGVaAukFOIv5NoGNVacx2Tskr4xU+5bBBVU2sP6xeUQqDRGJMOWmF
-         3WMNpKnOUQmRGMiQA7j6D6QJyM9nkzVASTKXMCr4=
+        b=ApHZTcK4MWrKtWq84BDWAQpzQw/KK8CsozOIzDEHk8I5byB6QyIVUJCM9Kdi/Kxuo
+         TIDN75DKxmGf5iKSR5QRgU3UF9tpjetujaEGdBJBbccoDRa/Yuh9rB3G1hxHyJqd/3
+         HrdFB0Fw9MZyKl/s6shA+8y8ITgS144Vabyl/il0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.4 125/188] can: bcm: delay release of struct bcm_op after synchronize_rcu()
-Date:   Mon, 19 Jul 2021 16:51:49 +0200
-Message-Id: <20210719144940.580390974@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 4.9 168/245] ipmi/watchdog: Stop watchdog timer when the current action is none
+Date:   Mon, 19 Jul 2021 16:51:50 +0200
+Message-Id: <20210719144945.836083769@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-commit d5f9023fa61ee8b94f37a93f08e94b136cf1e463 upstream.
+commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
 
-can_rx_register() callbacks may be called concurrently to the call to
-can_rx_unregister(). The callbacks and callback data, though, are
-protected by RCU and the struct sock reference count.
+When an IPMI watchdog timer is being stopped in ipmi_close() or
+ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
+WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
+to install this action. The latter function ends up invoking
+__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
+request.
 
-So the callback data is really attached to the life of sk, meaning
-that it should be released on sk_destruct. However, bcm_remove_op()
-calls tasklet_kill(), and RCU callbacks may be called under RCU
-softirq, so that cannot be used on kernels before the introduction of
-HRTIMER_MODE_SOFT.
+For IPMI 1.0, this operation results in fully stopping the watchdog timer.
+For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
+stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
+that the watchdog timer has its action correctly updated to 'none' but the
+timer continues to run. A problem is that IPMI firmware can then still log
+an expiration event when the configured timeout is reached, which is
+unexpected because the watchdog timer was requested to be stopped.
 
-However, bcm_rx_handler() is called under RCU protection, so after
-calling can_rx_unregister(), we may call synchronize_rcu() in order to
-wait for any RCU read-side critical sections to finish. That is,
-bcm_rx_handler() won't be called anymore for those ops. So, we only
-free them, after we do that synchronize_rcu().
+The patch fixes this problem by not setting the "don't stop" flag in
+__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
+results in stopping the watchdog timer. This makes the behaviour for
+IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
+__ipmi_heartbeat() which does not allow to reset the watchdog if the
+current action is WDOG_TIMEOUT_NONE as that would start the timer.
 
-Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
-Link: https://lore.kernel.org/r/20210619161813.2098382-1-cascardo@canonical.com
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- net/can/bcm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -813,6 +813,7 @@ static int bcm_delete_rx_op(struct list_
- 						  bcm_rx_handler, op);
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -393,16 +393,18 @@ static int i_ipmi_set_timeout(struct ipm
+ 	data[0] = 0;
+ 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
  
- 			list_del(&op->list);
-+			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
- 		}
-@@ -1538,9 +1539,13 @@ static int bcm_release(struct socket *so
- 					  REGMASK(op->can_id),
- 					  bcm_rx_handler, op);
- 
--		bcm_remove_op(op);
+-	if ((ipmi_version_major > 1)
+-	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
+-		/* This is an IPMI 1.5-only feature. */
+-		data[0] |= WDOG_DONT_STOP_ON_SET;
+-	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
+-		/*
+-		 * In ipmi 1.0, setting the timer stops the watchdog, we
+-		 * need to start it back up again.
+-		 */
+-		hbnow = 1;
++	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
++		if ((ipmi_version_major > 1) ||
++		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
++			/* This is an IPMI 1.5-only feature. */
++			data[0] |= WDOG_DONT_STOP_ON_SET;
++		} else {
++			/*
++			 * In ipmi 1.0, setting the timer stops the watchdog, we
++			 * need to start it back up again.
++			 */
++			hbnow = 1;
++		}
  	}
  
-+	synchronize_rcu();
-+
-+	list_for_each_entry_safe(op, next, &bo->rx_ops, list)
-+		bcm_remove_op(op);
-+
- 	/* remove procfs entry */
- 	if (proc_dir && bo->bcm_proc_read)
- 		remove_proc_entry(bo->procname, proc_dir);
+ 	data[1] = 0;
 
 
