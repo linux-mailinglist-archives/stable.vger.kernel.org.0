@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B62A23CDE37
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 759B83CDD94
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242262AbhGSPCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
+        id S232313AbhGSO6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343704AbhGSO7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E9BC61283;
-        Mon, 19 Jul 2021 15:37:02 +0000 (UTC)
+        id S237756AbhGSO57 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:57:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A6A36120C;
+        Mon, 19 Jul 2021 15:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709023;
-        bh=kH0ztzjTDpwSK5QeTbad/iCJMkXvG2jh8hJ0rTfdHhE=;
+        s=korg; t=1626708935;
+        bh=KIctiX+qkkb2JGot/CjdDUu0zcaztywjIL1hxxdO7nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQaZTylOk5gUi553BhmWVS9xFlXX8N4vmM0GM30OvQ09TS/qApS/FdQTJV7+97DpX
-         d58hCRtkq9l/LZigkV08XJx9g8XaStWrHtD+lN8Cbg7rmjcGo5QdMQKT54C0rpJ0dP
-         3BrrKswYDdvgrsyICTFywJvTiDPsWicvwPiRQipU=
+        b=Yc0P3jZdoWE/e8moGMIzqH0hHRRZ3c5A05rs0+JdEZleuOyXfv+lFNSB9mAIZpfSB
+         gHzcdcgk+ZGQKFLd72YkJtIz+K8uWKPo0dbrX7gEk3X2f6jsWZkavH5eZj+0NvbrWz
+         bJve63onUtgsP7/YtBj1r13tT9A6NuHSeyUHrOHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Matt Ranostay <matt.ranostay@konsulko.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/421] iio: prox: as3935: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:49:51 +0200
-Message-Id: <20210719144952.666978873@linuxfoundation.org>
+Subject: [PATCH 4.19 181/421] iio: light: isl29125: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:49:52 +0200
+Message-Id: <20210719144952.706487225@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -44,7 +43,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 37eb8d8c64f2ecb3a5521ba1cc1fad973adfae41 ]
+[ Upstream commit 3d4725194de6935dba2ad7c9cc075c885008f747 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
@@ -52,45 +51,45 @@ layout and ensure the timestamp is 8 byte aligned.
 Found during an audit of all calls of uses of
 iio_push_to_buffers_with_timestamp()
 
-Fixes: 37b1ba2c68cf ("iio: proximity: as3935: fix buffer stack trashing")
+Fixes: 6c25539cbc46 ("iio: Add Intersil isl29125 digital color light sensor driver")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Matt Ranostay <matt.ranostay@konsulko.com>
-Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-15-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-18-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/as3935.c | 10 +++++++---
+ drivers/iio/light/isl29125.c | 10 +++++++---
  1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/proximity/as3935.c b/drivers/iio/proximity/as3935.c
-index f130388a16a0..9069eec46093 100644
---- a/drivers/iio/proximity/as3935.c
-+++ b/drivers/iio/proximity/as3935.c
-@@ -61,7 +61,11 @@ struct as3935_state {
- 	unsigned long noise_tripped;
- 	u32 tune_cap;
- 	u32 nflwdth_reg;
--	u8 buffer[16]; /* 8-bit data + 56-bit padding + 64-bit timestamp */
+diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
+index ed38edcd5efe..d0f5fd42c0ec 100644
+--- a/drivers/iio/light/isl29125.c
++++ b/drivers/iio/light/isl29125.c
+@@ -54,7 +54,11 @@
+ struct isl29125_data {
+ 	struct i2c_client *client;
+ 	u8 conf1;
+-	u16 buffer[8]; /* 3x 16-bit, padding, 8 bytes timestamp */
 +	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		u8 chan;
++		u16 chans[3];
 +		s64 timestamp __aligned(8);
 +	} scan;
- 	u8 buf[2] ____cacheline_aligned;
  };
  
-@@ -227,8 +231,8 @@ static irqreturn_t as3935_trigger_handler(int irq, void *private)
- 	if (ret)
- 		goto err_read;
+ #define ISL29125_CHANNEL(_color, _si) { \
+@@ -187,10 +191,10 @@ static irqreturn_t isl29125_trigger_handler(int irq, void *p)
+ 		if (ret < 0)
+ 			goto done;
  
--	st->buffer[0] = val & AS3935_DATA_MASK;
--	iio_push_to_buffers_with_timestamp(indio_dev, &st->buffer,
-+	st->scan.chan = val & AS3935_DATA_MASK;
-+	iio_push_to_buffers_with_timestamp(indio_dev, &st->scan,
- 					   iio_get_time_ns(indio_dev));
- err_read:
- 	iio_trigger_notify_done(indio_dev->trig);
+-		data->buffer[j++] = ret;
++		data->scan.chans[j++] = ret;
+ 	}
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 		iio_get_time_ns(indio_dev));
+ 
+ done:
 -- 
 2.30.2
 
