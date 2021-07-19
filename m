@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FBDD3CDF9F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B95E23CDF0F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344062AbhGSPK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S245348AbhGSPHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345965AbhGSPJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:09:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 105BF6120A;
-        Mon, 19 Jul 2021 15:50:02 +0000 (UTC)
+        id S1345814AbhGSPFC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A83E2601FD;
+        Mon, 19 Jul 2021 15:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709803;
-        bh=hp1H/5T/RP4h9ODRFz/X7kY3dXN15hc+d/Z7mGRnFCQ=;
+        s=korg; t=1626709541;
+        bh=bbVd+2bxpCaXUxcAOnOAX0hB/3BAyItTF/C8oJeB/XM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4Ffn7wKOIards6nGwgLVTGRRW8pdWztDkXlYX9fdCvYyWgpm/4nchUGD8avI1hLQ
-         l7WshiZP3bxodVZiXXXsfFT2k80So3/NbvQtZuxnHPp//BnLecY22tho2DuLzLJ7+3
-         +GuOlC1FE0TWJ4XwLlbYkpUU/WMXL+RVpLKw+n1M=
+        b=JEwAfciXicvI1McHW1yNM1j0nwNmm7hR+IQ02wXOzjjmxTukEY4CGY6gVs32cRMrG
+         cKDalVp6LVawPXYBCLdwUGOBaqL7R5BahPchu03r3uIrIdXt9mQDM0CNMS/PfQzhO0
+         j1VwnsVWLzE/rVbW51vXF51fBa+Em9yvTVT5f75M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 105/149] ubifs: Set/Clear I_LINKABLE under i_lock for whiteout inode
+Subject: [PATCH 4.19 402/421] rtc: fix snprintf() checking in is_rtc_hctosys()
 Date:   Mon, 19 Jul 2021 16:53:33 +0200
-Message-Id: <20210719144926.273389830@linuxfoundation.org>
+Message-Id: <20210719145000.282930642@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a801fcfeef96702fa3f9b22ad56c5eb1989d9221 ]
+[ Upstream commit 54b909436ede47e0ee07f1765da27ec2efa41e84 ]
 
-xfstests-generic/476 reports a warning message as below:
+The scnprintf() function silently truncates the printf() and returns
+the number bytes that it was able to copy (not counting the NUL
+terminator).  Thus, the highest value it can return here is
+"NAME_SIZE - 1" and the overflow check is dead code.  Fix this by
+using the snprintf() function which returns the number of bytes that
+would have been copied if there was enough space and changing the
+condition from "> NAME_SIZE" to ">= NAME_SIZE".
 
-WARNING: CPU: 2 PID: 30347 at fs/inode.c:361 inc_nlink+0x52/0x70
-Call Trace:
-  do_rename+0x502/0xd40 [ubifs]
-  ubifs_rename+0x8b/0x180 [ubifs]
-  vfs_rename+0x476/0x1080
-  do_renameat2+0x67c/0x7b0
-  __x64_sys_renameat2+0x6e/0x90
-  do_syscall_64+0x66/0xe0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Following race case can cause this:
-         rename_whiteout(Thread 1)             wb_workfn(Thread 2)
-ubifs_rename
-  do_rename
-                                          __writeback_single_inode
-					    spin_lock(&inode->i_lock)
-    whiteout->i_state |= I_LINKABLE
-                                            inode->i_state &= ~dirty;
----- How race happens on i_state:
-    (tmp = whiteout->i_state | I_LINKABLE)
-		                           (tmp = inode->i_state & ~dirty)
-    (whiteout->i_state = tmp)
-		                           (inode->i_state = tmp)
-----
-					    spin_unlock(&inode->i_lock)
-    inc_nlink(whiteout)
-    WARN_ON(!(inode->i_state & I_LINKABLE)) !!!
-
-Fix to add i_lock to avoid i_state update race condition.
-
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 92589c986b33 ("rtc-proc: permit the /proc/driver/rtc device to use other devices")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/YJov/pcGmhLi2pEl@mwanda
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/rtc/rtc-proc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index a5e5e9b9d4e3..eeb93f009b28 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1343,7 +1343,10 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			goto out_release;
- 		}
+diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
+index a9dd9218fae2..b8c5b93102ce 100644
+--- a/drivers/rtc/rtc-proc.c
++++ b/drivers/rtc/rtc-proc.c
+@@ -26,8 +26,8 @@ static bool is_rtc_hctosys(struct rtc_device *rtc)
+ 	int size;
+ 	char name[NAME_SIZE];
  
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state |= I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		whiteout_ui = ubifs_inode(whiteout);
- 		whiteout_ui->data = dev;
- 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
-@@ -1436,7 +1439,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
+-	size = scnprintf(name, NAME_SIZE, "rtc%d", rtc->id);
+-	if (size > NAME_SIZE)
++	size = snprintf(name, NAME_SIZE, "rtc%d", rtc->id);
++	if (size >= NAME_SIZE)
+ 		return false;
  
- 		inc_nlink(whiteout);
- 		mark_inode_dirty(whiteout);
-+
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state &= ~I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		iput(whiteout);
- 	}
- 
+ 	return !strncmp(name, CONFIG_RTC_HCTOSYS_DEVICE, NAME_SIZE);
 -- 
 2.30.2
 
