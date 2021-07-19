@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9313CDE0E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D56D3CE059
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:57:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345059AbhGSPBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
+        id S1346002AbhGSPQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344044AbhGSO72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3259D61380;
-        Mon, 19 Jul 2021 15:38:24 +0000 (UTC)
+        id S1345535AbhGSPNS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:13:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3602F61363;
+        Mon, 19 Jul 2021 15:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709105;
-        bh=QexugMj5dFFmnzYoNcBzYlS0w0MzTJd5+Flu/vAN8lk=;
+        s=korg; t=1626709991;
+        bh=gkXu3sbTGyTrqtfgG5j2rg5rnTqyL/1tASBndj4S7fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEPQ0N+PhBRj3gFtNMJ8WCkFZvsUYkUEWNt9jwNM0E2eP36fPsQC3XRbJzDbycXfG
-         GXfGe3ZHJPhmAUOi8fGVpMcWyIydl42otiRdFTdG5pvoBtlSHXxUUlD+BqFMKakhVk
-         90gj1ZD+EPcLVF5CzQouwAow8Xvzr8QZFKnvXAhU=
+        b=UDIbpyhm4jdBzqB+QQBWG2papbxYjGSHsLhpim6uIxtFohTvtfMWd1Ah4ISB9ub0P
+         iVuOWCvTzSBdfkEBcQlU1qa2acII/58rkFrMn6cX3TZ4bva6h8XyM3fK1gsmnfdRLE
+         z7UD8mV+YK0tYmTGnCvueG/qcjb2/7K2UOA+ZdGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeng Tao <prime.zeng@hisilicon.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 221/421] vfio/pci: Handle concurrent vma faults
+        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        kvm@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>
+Subject: [PATCH 5.10 003/243] KVM: mmio: Fix use-after-free Read in kvm_vm_ioctl_unregister_coalesced_mmio
 Date:   Mon, 19 Jul 2021 16:50:32 +0200
-Message-Id: <20210719144953.998031396@linuxfoundation.org>
+Message-Id: <20210719144941.027466727@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,124 +40,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-[ Upstream commit 6a45ece4c9af473555f01f0f8b97eba56e3c7d0d ]
+commit 23fa2e46a5556f787ce2ea1a315d3ab93cced204 upstream.
 
-io_remap_pfn_range() will trigger a BUG_ON if it encounters a
-populated pte within the mapping range.  This can occur because we map
-the entire vma on fault and multiple faults can be blocked behind the
-vma_lock.  This leads to traces like the one reported below.
+BUG: KASAN: use-after-free in kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
+Read of size 8 at addr ffff0000c03a2500 by task syz-executor083/4269
 
-We can use our vma_list to test whether a given vma is mapped to avoid
-this issue.
+CPU: 5 PID: 4269 Comm: syz-executor083 Not tainted 5.10.0 #7
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
+ show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x110/0x164 lib/dump_stack.c:118
+ print_address_description+0x78/0x5c8 mm/kasan/report.c:385
+ __kasan_report mm/kasan/report.c:545 [inline]
+ kasan_report+0x148/0x1e4 mm/kasan/report.c:562
+ check_memory_region_inline mm/kasan/generic.c:183 [inline]
+ __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
+ kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
+ kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
 
-[ 1591.733256] kernel BUG at mm/memory.c:2177!
-[ 1591.739515] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[ 1591.747381] Modules linked in: vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O)
-[ 1591.760536] CPU: 2 PID: 227 Comm: lcore-worker-2 Tainted: G O 5.11.0-rc3+ #1
-[ 1591.770735] Hardware name:  , BIOS HixxxxFPGA 1P B600 V121-1
-[ 1591.778872] pstate: 40400009 (nZcv daif +PAN -UAO -TCO BTYPE=--)
-[ 1591.786134] pc : remap_pfn_range+0x214/0x340
-[ 1591.793564] lr : remap_pfn_range+0x1b8/0x340
-[ 1591.799117] sp : ffff80001068bbd0
-[ 1591.803476] x29: ffff80001068bbd0 x28: 0000042eff6f0000
-[ 1591.810404] x27: 0000001100910000 x26: 0000001300910000
-[ 1591.817457] x25: 0068000000000fd3 x24: ffffa92f1338e358
-[ 1591.825144] x23: 0000001140000000 x22: 0000000000000041
-[ 1591.832506] x21: 0000001300910000 x20: ffffa92f141a4000
-[ 1591.839520] x19: 0000001100a00000 x18: 0000000000000000
-[ 1591.846108] x17: 0000000000000000 x16: ffffa92f11844540
-[ 1591.853570] x15: 0000000000000000 x14: 0000000000000000
-[ 1591.860768] x13: fffffc0000000000 x12: 0000000000000880
-[ 1591.868053] x11: ffff0821bf3d01d0 x10: ffff5ef2abd89000
-[ 1591.875932] x9 : ffffa92f12ab0064 x8 : ffffa92f136471c0
-[ 1591.883208] x7 : 0000001140910000 x6 : 0000000200000000
-[ 1591.890177] x5 : 0000000000000001 x4 : 0000000000000001
-[ 1591.896656] x3 : 0000000000000000 x2 : 0168044000000fd3
-[ 1591.903215] x1 : ffff082126261880 x0 : fffffc2084989868
-[ 1591.910234] Call trace:
-[ 1591.914837]  remap_pfn_range+0x214/0x340
-[ 1591.921765]  vfio_pci_mmap_fault+0xac/0x130 [vfio_pci]
-[ 1591.931200]  __do_fault+0x44/0x12c
-[ 1591.937031]  handle_mm_fault+0xcc8/0x1230
-[ 1591.942475]  do_page_fault+0x16c/0x484
-[ 1591.948635]  do_translation_fault+0xbc/0xd8
-[ 1591.954171]  do_mem_abort+0x4c/0xc0
-[ 1591.960316]  el0_da+0x40/0x80
-[ 1591.965585]  el0_sync_handler+0x168/0x1b0
-[ 1591.971608]  el0_sync+0x174/0x180
-[ 1591.978312] Code: eb1b027f 540000c0 f9400022 b4fffe02 (d4210000)
+Allocated by task 4269:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
+ kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
+ kmem_cache_alloc_trace include/linux/slab.h:450 [inline]
+ kmalloc include/linux/slab.h:552 [inline]
+ kzalloc include/linux/slab.h:664 [inline]
+ kvm_vm_ioctl_register_coalesced_mmio+0x78/0x1cc arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:146
+ kvm_vm_ioctl+0x7e8/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3746
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
 
-Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
-Reported-by: Zeng Tao <prime.zeng@hisilicon.com>
-Suggested-by: Zeng Tao <prime.zeng@hisilicon.com>
-Link: https://lore.kernel.org/r/162497742783.3883260.3282953006487785034.stgit@omen
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Freed by task 4269:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track+0x38/0x6c mm/kasan/common.c:56
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
+ __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
+ kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
+ slab_free_hook mm/slub.c:1544 [inline]
+ slab_free_freelist_hook mm/slub.c:1577 [inline]
+ slab_free mm/slub.c:3142 [inline]
+ kfree+0x104/0x38c mm/slub.c:4124
+ coalesced_mmio_destructor+0x94/0xa4 arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:102
+ kvm_iodevice_destructor include/kvm/iodev.h:61 [inline]
+ kvm_io_bus_unregister_dev+0x248/0x280 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:4374
+ kvm_vm_ioctl_unregister_coalesced_mmio+0x158/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:186
+ kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
+ vfs_ioctl fs/ioctl.c:48 [inline]
+ __do_sys_ioctl fs/ioctl.c:753 [inline]
+ __se_sys_ioctl fs/ioctl.c:739 [inline]
+ __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+
+If kvm_io_bus_unregister_dev() return -ENOMEM, we already call kvm_iodevice_destructor()
+inside this function to delete 'struct kvm_coalesced_mmio_dev *dev' from list
+and free the dev, but kvm_iodevice_destructor() is called again, it will lead
+the above issue.
+
+Let's check the the return value of kvm_io_bus_unregister_dev(), only call
+kvm_iodevice_destructor() if the return value is 0.
+
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: kvm@vger.kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Message-Id: <20210626070304.143456-1-wangkefeng.wang@huawei.com>
+Cc: stable@vger.kernel.org
+Fixes: 5d3c4c79384a ("KVM: Stop looking for coalesced MMIO zones if the bus is destroyed", 2021-04-20)
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/vfio/pci/vfio_pci.c | 29 +++++++++++++++++++++--------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ virt/kvm/coalesced_mmio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index c48e1d84efb6..51b791c750f1 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -1359,6 +1359,7 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
- {
- 	struct vm_area_struct *vma = vmf->vma;
- 	struct vfio_pci_device *vdev = vma->vm_private_data;
-+	struct vfio_pci_mmap_vma *mmap_vma;
- 	vm_fault_t ret = VM_FAULT_NOPAGE;
+--- a/virt/kvm/coalesced_mmio.c
++++ b/virt/kvm/coalesced_mmio.c
+@@ -186,7 +186,6 @@ int kvm_vm_ioctl_unregister_coalesced_mm
+ 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
+ 			r = kvm_io_bus_unregister_dev(kvm,
+ 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
+-			kvm_iodevice_destructor(&dev->dev);
  
- 	mutex_lock(&vdev->vma_lock);
-@@ -1366,24 +1367,36 @@ static vm_fault_t vfio_pci_mmap_fault(struct vm_fault *vmf)
- 
- 	if (!__vfio_pci_memory_enabled(vdev)) {
- 		ret = VM_FAULT_SIGBUS;
--		mutex_unlock(&vdev->vma_lock);
- 		goto up_out;
+ 			/*
+ 			 * On failure, unregister destroys all devices on the
+@@ -196,6 +195,7 @@ int kvm_vm_ioctl_unregister_coalesced_mm
+ 			 */
+ 			if (r)
+ 				break;
++			kvm_iodevice_destructor(&dev->dev);
+ 		}
  	}
  
--	if (__vfio_pci_add_vma(vdev, vma)) {
--		ret = VM_FAULT_OOM;
--		mutex_unlock(&vdev->vma_lock);
--		goto up_out;
-+	/*
-+	 * We populate the whole vma on fault, so we need to test whether
-+	 * the vma has already been mapped, such as for concurrent faults
-+	 * to the same vma.  io_remap_pfn_range() will trigger a BUG_ON if
-+	 * we ask it to fill the same range again.
-+	 */
-+	list_for_each_entry(mmap_vma, &vdev->vma_list, vma_next) {
-+		if (mmap_vma->vma == vma)
-+			goto up_out;
- 	}
- 
--	mutex_unlock(&vdev->vma_lock);
--
- 	if (io_remap_pfn_range(vma, vma->vm_start, vma->vm_pgoff,
--			       vma->vm_end - vma->vm_start, vma->vm_page_prot))
-+			       vma->vm_end - vma->vm_start,
-+			       vma->vm_page_prot)) {
- 		ret = VM_FAULT_SIGBUS;
-+		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
-+		goto up_out;
-+	}
-+
-+	if (__vfio_pci_add_vma(vdev, vma)) {
-+		ret = VM_FAULT_OOM;
-+		zap_vma_ptes(vma, vma->vm_start, vma->vm_end - vma->vm_start);
-+	}
- 
- up_out:
- 	up_read(&vdev->memory_lock);
-+	mutex_unlock(&vdev->vma_lock);
- 	return ret;
- }
- 
--- 
-2.30.2
-
 
 
