@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC113CDE6D
+	by mail.lfdr.de (Postfix) with ESMTP id DCC333CDE6F
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344937AbhGSPDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
+        id S1344962AbhGSPDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344177AbhGSPA6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDECD61242;
-        Mon, 19 Jul 2021 15:41:35 +0000 (UTC)
+        id S1344259AbhGSPA7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4973461175;
+        Mon, 19 Jul 2021 15:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709296;
-        bh=aYmCmLwlanssdjfVPHfag2Uu6KXtTJuNJ4MyqSbVFVE=;
+        s=korg; t=1626709298;
+        bh=6OtXrGHr4ce1XSM7w3g05sCYjtCRiK7mYqJ/P7ORrOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EIZbBAvnAqKraAgZOhDnpM1Zq5j/JzGzffqIBt3h3eU3aPoQjkKvN3laVTqM5GKqF
-         rbi0+LqX/uSMENT+EoJ0mlGjhm67gZ6E4t7V/6787pSe2yM/cP62qBGJXUtUQEYbQP
-         T6huuWGhOrtEMeieAJkqftroBvtcGLnrQSxuJ9i4=
+        b=YyCVZokw1eHajaKAoxfEC4W2PM3dqXYv1QGN4Zry058/foi6QEEm/d3eI+HNU35VC
+         AQtpZJ4rOOFm6mM2J8l53hXBVIJsUBnhLagUvEGAnmYLSaR8RAhXRp1bSF6IYTyOg8
+         91vx5C5miXR1GN5uRD0FYB+xd9euqLtpheW3rje8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Timo Sigurdsson <public_timo.s@silentcreek.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 293/421] ata: ahci_sunxi: Disable DIPM
-Date:   Mon, 19 Jul 2021 16:51:44 +0200
-Message-Id: <20210719144956.478024252@linuxfoundation.org>
+        stable@vger.kernel.org, Alexey Klimov <aklimov@redhat.com>,
+        Joshua Baker <jobaker@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 294/421] cpu/hotplug: Cure the cpusets trainwreck
+Date:   Mon, 19 Jul 2021 16:51:45 +0200
+Message-Id: <20210719144956.518864431@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,43 +40,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Sigurdsson <public_timo.s@silentcreek.de>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
+commit b22afcdf04c96ca58327784e280e10288cfd3303 upstream.
 
-DIPM is unsupported or broken on sunxi. Trying to enable the power
-management policy med_power_with_dipm on an Allwinner A20 SoC based board
-leads to immediate I/O errors and the attached SATA disk disappears from
-the /dev filesystem. A reset (power cycle) is required to make the SATA
-controller or disk work again. The A10 and A20 SoC data sheets and manuals
-don't mention DIPM at all [1], so it's fair to assume that it's simply not
-supported. But even if it was, it should be considered broken and best be
-disabled in the ahci_sunxi driver.
+Alexey and Joshua tried to solve a cpusets related hotplug problem which is
+user space visible and results in unexpected behaviour for some time after
+a CPU has been plugged in and the corresponding uevent was delivered.
 
-[1] https://github.com/allwinner-zh/documents/tree/master/
+cpusets delegate the hotplug work (rebuilding cpumasks etc.) to a
+workqueue. This is done because the cpusets code has already a lock
+nesting of cgroups_mutex -> cpu_hotplug_lock. A synchronous callback or
+waiting for the work to finish with cpu_hotplug_lock held can and will
+deadlock because that results in the reverse lock order.
 
-Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
+As a consequence the uevent can be delivered before cpusets have consistent
+state which means that a user space invocation of sched_setaffinity() to
+move a task to the plugged CPU fails up to the point where the scheduled
+work has been processed.
+
+The same is true for CPU unplug, but that does not create user observable
+failure (yet).
+
+It's still inconsistent to claim that an operation is finished before it
+actually is and that's the real issue at hand. uevents just make it
+reliably observable.
+
+Obviously the problem should be fixed in cpusets/cgroups, but untangling
+that is pretty much impossible because according to the changelog of the
+commit which introduced this 8 years ago:
+
+ 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
+
+the lock order cgroups_mutex -> cpu_hotplug_lock is a design decision and
+the whole code is built around that.
+
+So bite the bullet and invoke the relevant cpuset function, which waits for
+the work to finish, in _cpu_up/down() after dropping cpu_hotplug_lock and
+only when tasks are not frozen by suspend/hibernate because that would
+obviously wait forever.
+
+Waiting there with cpu_add_remove_lock, which is protecting the present
+and possible CPU maps, held is not a problem at all because neither work
+queues nor cpusets/cgroups have any lockchains related to that lock.
+
+Waiting in the hotplug machinery is not problematic either because there
+are already state callbacks which wait for hardware queues to drain. It
+makes the operations slightly slower, but hotplug is slow anyway.
+
+This ensures that state is consistent before returning from a hotplug
+up/down operation. It's still inconsistent during the operation, but that's
+a different story.
+
+Add a large comment which explains why this is done and why this is not a
+dump ground for the hack of the day to work around half thought out locking
+schemes. Document also the implications vs. hotplug operations and
+serialization or the lack of it.
+
+Thanks to Alexy and Joshua for analyzing why this temporary
+sched_setaffinity() failure happened.
+
+Fixes: 3a5a6d0c2b03("cpuset: don't nest cgroup_mutex inside get_online_cpus()")
+Reported-by: Alexey Klimov <aklimov@redhat.com>
+Reported-by: Joshua Baker <jobaker@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Alexey Klimov <aklimov@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/r/87tuowcnv3.ffs@nanos.tec.linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/ahci_sunxi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cpu.c |   49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
 
---- a/drivers/ata/ahci_sunxi.c
-+++ b/drivers/ata/ahci_sunxi.c
-@@ -165,7 +165,7 @@ static void ahci_sunxi_start_engine(stru
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -31,6 +31,7 @@
+ #include <linux/relay.h>
+ #include <linux/slab.h>
+ #include <linux/percpu-rwsem.h>
++#include <linux/cpuset.h>
+ 
+ #include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+@@ -775,6 +776,52 @@ void __init cpuhp_threads_init(void)
+ 	kthread_unpark(this_cpu_read(cpuhp_state.thread));
  }
  
- static const struct ata_port_info ahci_sunxi_port_info = {
--	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
-+	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
- 	.pio_mask	= ATA_PIO4,
- 	.udma_mask	= ATA_UDMA6,
- 	.port_ops	= &ahci_platform_ops,
++/*
++ *
++ * Serialize hotplug trainwrecks outside of the cpu_hotplug_lock
++ * protected region.
++ *
++ * The operation is still serialized against concurrent CPU hotplug via
++ * cpu_add_remove_lock, i.e. CPU map protection.  But it is _not_
++ * serialized against other hotplug related activity like adding or
++ * removing of state callbacks and state instances, which invoke either the
++ * startup or the teardown callback of the affected state.
++ *
++ * This is required for subsystems which are unfixable vs. CPU hotplug and
++ * evade lock inversion problems by scheduling work which has to be
++ * completed _before_ cpu_up()/_cpu_down() returns.
++ *
++ * Don't even think about adding anything to this for any new code or even
++ * drivers. It's only purpose is to keep existing lock order trainwrecks
++ * working.
++ *
++ * For cpu_down() there might be valid reasons to finish cleanups which are
++ * not required to be done under cpu_hotplug_lock, but that's a different
++ * story and would be not invoked via this.
++ */
++static void cpu_up_down_serialize_trainwrecks(bool tasks_frozen)
++{
++	/*
++	 * cpusets delegate hotplug operations to a worker to "solve" the
++	 * lock order problems. Wait for the worker, but only if tasks are
++	 * _not_ frozen (suspend, hibernate) as that would wait forever.
++	 *
++	 * The wait is required because otherwise the hotplug operation
++	 * returns with inconsistent state, which could even be observed in
++	 * user space when a new CPU is brought up. The CPU plug uevent
++	 * would be delivered and user space reacting on it would fail to
++	 * move tasks to the newly plugged CPU up to the point where the
++	 * work has finished because up to that point the newly plugged CPU
++	 * is not assignable in cpusets/cgroups. On unplug that's not
++	 * necessarily a visible issue, but it is still inconsistent state,
++	 * which is the real problem which needs to be "fixed". This can't
++	 * prevent the transient state between scheduling the work and
++	 * returning from waiting for it.
++	 */
++	if (!tasks_frozen)
++		cpuset_wait_for_hotplug();
++}
++
+ #ifdef CONFIG_HOTPLUG_CPU
+ #ifndef arch_clear_mm_cpumask_cpu
+ #define arch_clear_mm_cpumask_cpu(cpu, mm) cpumask_clear_cpu(cpu, mm_cpumask(mm))
+@@ -1010,6 +1057,7 @@ out:
+ 	 */
+ 	lockup_detector_cleanup();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
+ 
+@@ -1145,6 +1193,7 @@ static int _cpu_up(unsigned int cpu, int
+ out:
+ 	cpus_write_unlock();
+ 	arch_smt_update();
++	cpu_up_down_serialize_trainwrecks(tasks_frozen);
+ 	return ret;
+ }
+ 
 
 
