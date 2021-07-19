@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F7263CE5CE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D2D63CE5D5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349761AbhGSPyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:54:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
+        id S1350192AbhGSPyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:54:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350510AbhGSPvH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:51:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A9BA6120C;
-        Mon, 19 Jul 2021 16:29:51 +0000 (UTC)
+        id S1350523AbhGSPvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:51:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F0FD61264;
+        Mon, 19 Jul 2021 16:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712192;
-        bh=Jjgvcw7VGv0GO8V2X1++bmwWsyFNXJB10ufQ5apiqfE=;
+        s=korg; t=1626712195;
+        bh=v7pWGtxDohJ7VY2sfL19nblJLcEcVeGV8U2O2jdQST8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNFW2JbX5pNASk3F1vnxKN584u1uKunpzWk2Rs6aTDIImvoeybTAaaYVnD+K94nla
-         KBR65fjWU/jO11j5CPdqWyly8/JN5K3W9VrwCZ+47/vrtVAg+xfj9B1nsi3GOJ5xsJ
-         gA+q3QzSb0HHAg92PEwVEEDsatuO+A78Z9WZfmAw=
+        b=ghwIxZRACQ8WV6CGcTPTzIe5yarKqddUJdfdb+FT5wtfo29SIfUTDkNTouAmXHlWF
+         64DRyKZ+xHqKHkbVftbgZ/v2Snf0gs8hy0gnyt9Tgs3jYYYqHVDulLsiYIjRjpWJTZ
+         ziUkDcqmGsf3do4HoYospEpCuSrNpy1li55bA3t4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
         Jiri Olsa <jolsa@redhat.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Paul Clarke <pc@us.ibm.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 285/292] perf report: Fix --task and --stat with pipe input
-Date:   Mon, 19 Jul 2021 16:55:47 +0200
-Message-Id: <20210719144952.287832094@linuxfoundation.org>
+Subject: [PATCH 5.12 286/292] perf script python: Fix buffer size to report iregs in perf script
+Date:   Mon, 19 Jul 2021 16:55:48 +0200
+Message-Id: <20210719144952.322441606@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -44,102 +47,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit 892ba7f18621a02af4428c58d97451f64685dba4 ]
+[ Upstream commit dea8cfcc33695f70f56023b416cf88ae44c8a45a ]
 
-Current 'perf report' fails to process a pipe input when --task or
---stat options are used.  This is because they reset all the tool
-callbacks and fails to find a matching event for a sample.
+Commit 48a1f565261d2ab1 ("perf script python: Add more PMU fields to
+event handler dict") added functionality to report fields like weight,
+iregs, uregs etc via perf report.  That commit predefined buffer size to
+512 bytes to print those fields.
 
-When pipe input is used, the event info is passed via ATTR records so it
-needs to handle that operation.  Otherwise the following error occurs.
-Note, -14 (= -EFAULT) comes from evlist__parse_sample():
+But in PowerPC, since we added extended regs support in:
 
-  # perf record -a -o- sleep 1 | perf report -i- --stat
-  Can't parse sample, err = -14
-  0x271044 [0x38]: failed to process type: 9
-  Error:
-  failed to process sample
-  #
+  068aeea3773a6f4c ("perf powerpc: Support exposing Performance Monitor Counter SPRs as part of extended regs")
+  d735599a069f6936 ("powerpc/perf: Add extended regs support for power10 platform")
 
-Committer testing:
+Now iregs can carry more bytes of data and this predefined buffer size
+can result to data loss in perf script output.
 
-Before:
+This patch resolves this issue by making the buffer size dynamic, based
+on the number of registers needed to print. It also changes the
+regs_map() return type from int to void, as it is not being used by the
+set_regs_in_dict(), its only caller.
 
-  $ perf record -o- sleep 1 | perf report -i- --stat
-  Can't parse sample, err = -14
-  [ perf record: Woken up 1 times to write data ]
-  0x1350 [0x30]: failed to process type: 9
-  Error:
-  failed to process sample
-  [ perf record: Captured and wrote 0.000 MB - ]
-  $
-
-After:
-
-  $ perf record -o- sleep 1 | perf report -i- --stat
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.000 MB - ]
-
-  Aggregated stats:
-             TOTAL events:         41
-              COMM events:          2  ( 4.9%)
-              EXIT events:          1  ( 2.4%)
-            SAMPLE events:          9  (22.0%)
-             MMAP2 events:          4  ( 9.8%)
-              ATTR events:          1  ( 2.4%)
-    FINISHED_ROUND events:          1  ( 2.4%)
-        THREAD_MAP events:          1  ( 2.4%)
-           CPU_MAP events:          1  ( 2.4%)
-      EVENT_UPDATE events:          1  ( 2.4%)
-         TIME_CONV events:          1  ( 2.4%)
-           FEATURE events:         19  (46.3%)
-  cycles:uhH stats:
-            SAMPLE events:          9
-  $
-
-Fixes: a4a4d0a7a2b20f78 ("perf report: Add --stats option to display quick data statistics")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210630043058.1131295-1-namhyung@kernel.org
+Fixes: 068aeea3773a6f4c ("perf powerpc: Support exposing Performance Monitor Counter SPRs as part of extended regs")
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Cc: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Paul Clarke <pc@us.ibm.com>
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Link: http://lore.kernel.org/lkml/20210628062341.155839-1-kjain@linux.ibm.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-report.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../util/scripting-engines/trace-event-python.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index 2a845d6cac09..71a31b8ac3f1 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -707,9 +707,14 @@ static void report__output_resort(struct report *rep)
- 	ui_progress__finish();
+diff --git a/tools/perf/util/scripting-engines/trace-event-python.c b/tools/perf/util/scripting-engines/trace-event-python.c
+index 23dc5014e711..a61be9c07565 100644
+--- a/tools/perf/util/scripting-engines/trace-event-python.c
++++ b/tools/perf/util/scripting-engines/trace-event-python.c
+@@ -687,7 +687,7 @@ static void set_sample_datasrc_in_dict(PyObject *dict,
+ 			_PyUnicode_FromString(decode));
  }
  
-+static int process_attr(struct perf_tool *tool __maybe_unused,
-+			union perf_event *event,
-+			struct evlist **pevlist);
-+
- static void stats_setup(struct report *rep)
+-static int regs_map(struct regs_dump *regs, uint64_t mask, char *bf, int size)
++static void regs_map(struct regs_dump *regs, uint64_t mask, char *bf, int size)
  {
- 	memset(&rep->tool, 0, sizeof(rep->tool));
-+	rep->tool.attr = process_attr;
- 	rep->tool.no_warn = true;
+ 	unsigned int i = 0, r;
+ 	int printed = 0;
+@@ -695,7 +695,7 @@ static int regs_map(struct regs_dump *regs, uint64_t mask, char *bf, int size)
+ 	bf[0] = 0;
+ 
+ 	if (!regs || !regs->regs)
+-		return 0;
++		return;
+ 
+ 	for_each_set_bit(r, (unsigned long *) &mask, sizeof(mask) * 8) {
+ 		u64 val = regs->regs[i++];
+@@ -704,8 +704,6 @@ static int regs_map(struct regs_dump *regs, uint64_t mask, char *bf, int size)
+ 				     "%5s:0x%" PRIx64 " ",
+ 				     perf_reg_name(r), val);
+ 	}
+-
+-	return printed;
  }
  
-@@ -729,6 +734,7 @@ static void tasks_setup(struct report *rep)
- 		rep->tool.mmap = perf_event__process_mmap;
- 		rep->tool.mmap2 = perf_event__process_mmap2;
- 	}
-+	rep->tool.attr = process_attr;
- 	rep->tool.comm = perf_event__process_comm;
- 	rep->tool.exit = perf_event__process_exit;
- 	rep->tool.fork = perf_event__process_fork;
+ static void set_regs_in_dict(PyObject *dict,
+@@ -713,7 +711,16 @@ static void set_regs_in_dict(PyObject *dict,
+ 			     struct evsel *evsel)
+ {
+ 	struct perf_event_attr *attr = &evsel->core.attr;
+-	char bf[512];
++
++	/*
++	 * Here value 28 is a constant size which can be used to print
++	 * one register value and its corresponds to:
++	 * 16 chars is to specify 64 bit register in hexadecimal.
++	 * 2 chars is for appending "0x" to the hexadecimal value and
++	 * 10 chars is for register name.
++	 */
++	int size = __sw_hweight64(attr->sample_regs_intr) * 28;
++	char bf[size];
+ 
+ 	regs_map(&sample->intr_regs, attr->sample_regs_intr, bf, sizeof(bf));
+ 
 -- 
 2.30.2
 
