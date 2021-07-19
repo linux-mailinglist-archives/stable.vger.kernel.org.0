@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0973B3CE14D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCF83CE352
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346875AbhGSPZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58058 "EHLO mail.kernel.org"
+        id S236747AbhGSPhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346033AbhGSPQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:16:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A564961222;
-        Mon, 19 Jul 2021 15:57:12 +0000 (UTC)
+        id S235289AbhGSPeK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:34:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44ABB61376;
+        Mon, 19 Jul 2021 16:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710233;
-        bh=9sHeRwrUUh9yPtTPlC8N358xe2XQYAzu9ijcoIe1FJA=;
+        s=korg; t=1626711062;
+        bh=6aTflyQFmFomlDwzDmPE7l9RTZTxsm8IuLC6j0pLP30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NzIRMxgjTq6UwzsN+6402V+esRq0dHts6rgIRCyVfTxM14Y0PvpjcUWcO5vSoi4Pn
-         52MCeXsGmQzlNHAEmg5x5/tamX37ywgzaTC3QyfVSTHRoIovX8lhP2vXq+qER/TfSY
-         b3BU8jWqjzJwOFcCiT1vyGdvjSV9/RAX5/vG7iMo=
+        b=yX9m3bZIojTNyQSUR9CC8SchiX1aBgIwZkYjUKH5/SFsV46JoliL1btBqDxEQLD9H
+         YKYOVc/vRDC9Y/7Monnpqyxds4gcgnYgbvu3kmPxaXYWoIk5qXX5H9EzUDFagkUYu6
+         aNTRFC1+fMcuYN2kFI1VHf/UpFnofYaRnwHjEUmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Marshall <hubcap@omnibond.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/243] orangefs: fix orangefs df output.
+Subject: [PATCH 5.13 214/351] NFSv4: Fix an Oops in pnfs_mark_request_commit() when doing O_DIRECT
 Date:   Mon, 19 Jul 2021 16:52:40 +0200
-Message-Id: <20210719144945.145343268@linuxfoundation.org>
+Message-Id: <20210719144952.040944342@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,32 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marshall <hubcap@omnibond.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0fdec1b3c9fbb5e856a40db5993c9eaf91c74a83 ]
+[ Upstream commit 3731d44bba8e0116b052b1b374476c5f6dd9a456 ]
 
-Orangefs df output is whacky. Walt Ligon suggested this might fix it.
-It seems way more in line with reality now...
+Fix an Oopsable condition in pnfs_mark_request_commit() when we're
+putting a set of writes on the commit list to reschedule them after a
+failed pNFS attempt.
 
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/orangefs/super.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/direct.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/fs/orangefs/super.c b/fs/orangefs/super.c
-index ee5efdc35cc1..2f2e430461b2 100644
---- a/fs/orangefs/super.c
-+++ b/fs/orangefs/super.c
-@@ -209,7 +209,7 @@ static int orangefs_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	buf->f_bavail = (sector_t) new_op->downcall.resp.statfs.blocks_avail;
- 	buf->f_files = (sector_t) new_op->downcall.resp.statfs.files_total;
- 	buf->f_ffree = (sector_t) new_op->downcall.resp.statfs.files_avail;
--	buf->f_frsize = sb->s_blocksize;
-+	buf->f_frsize = 0;
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 2d30a4da49fa..2e894fec036b 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -700,8 +700,8 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
+ {
+ 	struct nfs_direct_req *dreq = hdr->dreq;
+ 	struct nfs_commit_info cinfo;
+-	bool request_commit = false;
+ 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
++	int flags = NFS_ODIRECT_DONE;
  
- out_op_release:
- 	op_release(new_op);
+ 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
+ 
+@@ -713,15 +713,9 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
+ 
+ 	nfs_direct_count_bytes(dreq, hdr);
+ 	if (hdr->good_bytes != 0 && nfs_write_need_commit(hdr)) {
+-		switch (dreq->flags) {
+-		case 0:
++		if (!dreq->flags)
+ 			dreq->flags = NFS_ODIRECT_DO_COMMIT;
+-			request_commit = true;
+-			break;
+-		case NFS_ODIRECT_RESCHED_WRITES:
+-		case NFS_ODIRECT_DO_COMMIT:
+-			request_commit = true;
+-		}
++		flags = dreq->flags;
+ 	}
+ 	spin_unlock(&dreq->lock);
+ 
+@@ -729,12 +723,15 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
+ 
+ 		req = nfs_list_entry(hdr->pages.next);
+ 		nfs_list_remove_request(req);
+-		if (request_commit) {
++		if (flags == NFS_ODIRECT_DO_COMMIT) {
+ 			kref_get(&req->wb_kref);
+ 			memcpy(&req->wb_verf, &hdr->verf.verifier,
+ 			       sizeof(req->wb_verf));
+ 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
+ 				hdr->ds_commit_idx);
++		} else if (flags == NFS_ODIRECT_RESCHED_WRITES) {
++			kref_get(&req->wb_kref);
++			nfs_mark_request_commit(req, NULL, &cinfo, 0);
+ 		}
+ 		nfs_unlock_and_release_request(req);
+ 	}
 -- 
 2.30.2
 
