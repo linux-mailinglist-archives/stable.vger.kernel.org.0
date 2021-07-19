@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C63E3CE16C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C93E3CE172
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346508AbhGSP0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59754 "EHLO mail.kernel.org"
+        id S1346803AbhGSP0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347588AbhGSPTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:19:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94D2861418;
-        Mon, 19 Jul 2021 15:58:52 +0000 (UTC)
+        id S1347832AbhGSPVv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:21:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D55F6142F;
+        Mon, 19 Jul 2021 15:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710333;
-        bh=HOxSyPrt04JCbP6msvV7QklAOcAnbKgXxpTQnRh46tI=;
+        s=korg; t=1626710351;
+        bh=jZikTFUTv0AzTXuWcBdCDyBsPChwXYD3vXY8IpLsFXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qdxpu+ICOkkMnD2csJFsDlHLcfE6d1TmWS2yh5w1LmRaKojwPdUPiumZ0blHsXche
-         jksw59/NmKGKwiO1sKDov79R26br1RNBOs/g5t0zDhotqI6ghTvHsRLpmc5PBCsrf7
-         IHzSj5qw3xl1ECDceKsing/ULvvPLENRsH1weu8o=
+        b=LDgI8FxUULV3tYCefavPx1RX7S2UJvuXYwQ5TO/rXOFfQJoj/vIZ6dkZnAgZ6psXV
+         LBtkZB9HX1ja/MbznbC4BPTAg8RYQ89n09orxKtpQpcosWNErNKaB5mf9xcEkAxoje
+         QzXSqVQIEOCkEGp3ja/qt0EJyHeo7KSIhCWkMObg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Sahitya Tummala <stummala@codeaurora.org>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 145/243] virtio_console: Assure used length from device is limited
-Date:   Mon, 19 Jul 2021 16:52:54 +0200
-Message-Id: <20210719144945.591213011@linuxfoundation.org>
+Subject: [PATCH 5.10 146/243] f2fs: atgc: fix to set default age threshold
+Date:   Mon, 19 Jul 2021 16:52:55 +0200
+Message-Id: <20210719144945.620669055@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -41,45 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit d00d8da5869a2608e97cfede094dfc5e11462a46 ]
+[ Upstream commit 89e53ff1651a61cf2abef9356e2f60d0086215be ]
 
-The buf->len might come from an untrusted device. This
-ensures the value would not exceed the size of the buffer
-to avoid data corruption or loss.
+Default age threshold value is missed to set, fix it.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210525125622.1203-1-xieyongji@bytedance.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 093749e296e2 ("f2fs: support age threshold based garbage collection")
+Reported-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/gc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 1836cc56e357..673522874cec 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -475,7 +475,7 @@ static struct port_buffer *get_inbuf(struct port *port)
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index 9b38cef4d50f..e02affb5c0e7 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1801,6 +1801,7 @@ static void init_atgc_management(struct f2fs_sb_info *sbi)
+ 	am->candidate_ratio = DEF_GC_THREAD_CANDIDATE_RATIO;
+ 	am->max_candidate_count = DEF_GC_THREAD_MAX_CANDIDATE_COUNT;
+ 	am->age_weight = DEF_GC_THREAD_AGE_WEIGHT;
++	am->age_threshold = DEF_GC_THREAD_AGE_THRESHOLD;
+ }
  
- 	buf = virtqueue_get_buf(port->in_vq, &len);
- 	if (buf) {
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
- 		port->stats.bytes_received += len;
- 	}
-@@ -1712,7 +1712,7 @@ static void control_work_handler(struct work_struct *work)
- 	while ((buf = virtqueue_get_buf(vq, &len))) {
- 		spin_unlock(&portdev->c_ivq_lock);
- 
--		buf->len = len;
-+		buf->len = min_t(size_t, len, buf->size);
- 		buf->offset = 0;
- 
- 		handle_control_message(vq->vdev, portdev, buf);
+ void f2fs_build_gc_manager(struct f2fs_sb_info *sbi)
 -- 
 2.30.2
 
