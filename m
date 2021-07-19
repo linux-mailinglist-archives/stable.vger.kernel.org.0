@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A52143CE43E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CDA3CE445
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347186AbhGSPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
+        id S241846AbhGSPnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346192AbhGSPik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:38:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83B5C61205;
-        Mon, 19 Jul 2021 16:18:36 +0000 (UTC)
+        id S1346867AbhGSPjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:39:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F56761026;
+        Mon, 19 Jul 2021 16:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711517;
-        bh=puAnekTf2hAJhWf0A+GK1B8W5QV6MXoZdBG7iavATEM=;
+        s=korg; t=1626711519;
+        bh=ohu4GLdFZVFzF+SIykILYAGTNT0w1INs83PMAbFV1Tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VSHQl4o1Qt8w1sSoumsXtKN2d70DSPPzg2r02VAhQ1+cIbXd66SN8Kv3eZREPk8Vl
-         rxS5LQC4JjhY8RuAkIuvb8X+1EhSCrfS/w0gvHbplMlk+W26sEPQtus97ZhyihgLpO
-         kz7yMXBInDrS2ByD7oj2t++IjL9xW6EZrR30kMk4=
+        b=PtwK3XTTZaqS3kGhcQz9u0OotzOyr96SVKUOg/5qSnUzSWCeniXz1PvsSQYt3AEQm
+         7ZsM31q77OEGH008A98VRJWUjszJSfHuf8tNfdB4sir72ObEo59Sn5DcL3erYNo5jC
+         ZcvKwPK2Q5gQRRX9yHraCjP5SW88mWtHSAazdFeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.12 031/292] io_uring: fix link timeout refs
-Date:   Mon, 19 Jul 2021 16:51:33 +0200
-Message-Id: <20210719144943.553226991@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 032/292] net: bridge: multicast: fix PIM hello router port marking race
+Date:   Mon, 19 Jul 2021 16:51:34 +0200
+Message-Id: <20210719144943.584046434@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,49 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 upstream.
+commit 04bef83a3358946bfc98a5ecebd1b0003d83d882 upstream.
 
-WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-Call Trace:
- __refcount_sub_and_test include/linux/refcount.h:283 [inline]
- __refcount_dec_and_test include/linux/refcount.h:315 [inline]
- refcount_dec_and_test include/linux/refcount.h:333 [inline]
- io_put_req fs/io_uring.c:2140 [inline]
- io_queue_linked_timeout fs/io_uring.c:6300 [inline]
- __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
- io_submit_sqe fs/io_uring.c:6534 [inline]
- io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
- __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
- __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
+When a PIM hello packet is received on a bridge port with multicast
+snooping enabled, we mark it as a router port automatically, that
+includes adding that port the router port list. The multicast lock
+protects that list, but it is not acquired in the PIM message case
+leading to a race condition, we need to take it to fix the race.
 
-io_link_timeout_fn() should put only one reference of the linked timeout
-request, however in case of racing with the master request's completion
-first io_req_complete() puts one and then io_put_req_deferred() is
-called.
-
-Cc: stable@vger.kernel.org # 5.12+
-Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
-Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Fixes: 91b02d3d133b ("bridge: mcast: add router port on PIM hello message")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/bridge/br_multicast.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6307,7 +6307,6 @@ static enum hrtimer_restart io_link_time
- 	} else {
- 		io_req_complete_post(req, -ETIME, 0);
- 	}
--	io_put_req_deferred(req, 1);
- 	return HRTIMER_NORESTART;
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -3087,7 +3087,9 @@ static void br_multicast_pim(struct net_
+ 	    pim_hdr_type(pimhdr) != PIM_TYPE_HELLO)
+ 		return;
+ 
++	spin_lock(&br->multicast_lock);
+ 	br_multicast_mark_router(br, port);
++	spin_unlock(&br->multicast_lock);
  }
  
+ static int br_ip4_multicast_mrd_rcv(struct net_bridge *br,
 
 
