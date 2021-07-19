@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC4253CDF14
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332F13CDFB5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345043AbhGSPHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
+        id S1344049AbhGSPLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346038AbhGSPFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C13206023D;
-        Mon, 19 Jul 2021 15:45:50 +0000 (UTC)
+        id S1346060AbhGSPKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4955E61241;
+        Mon, 19 Jul 2021 15:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709551;
-        bh=HVAnDmf5mBzFTFIU5/PourG2v7nNC1fxLxf8dnzTuk8=;
+        s=korg; t=1626709815;
+        bh=6VI+H0xnqlJM+JgDKkrwBxzWYaGpPM5UawKrq2R/Mok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZAryqFPQC6dXzPnOcZFCETGC4UJY2MnpLMrO/mf3Ac9Zi0V3sSWd/VbwDspZxU8FU
-         kyIp7vbI/x8aVmZtQ26jRFFb2kXi8IPRpgYgY7EpOJM//NiJNjH3T/Of68z0gnI5nX
-         GMsfrWdCINxV1xuQuBk+wzxbCdrFqoRsEqQo29gM=
+        b=XmiVyJtaaIVJ4YUafvGvOjRv28OKRCoZoycQNnTkBQzb1sWgjsvrj4olYYERs3nOH
+         xuK9LxNicVe565tXGUlbL7ayzS70rsMSICiRTe3coG8g95NzD5OCMAAXvZunVh0BeY
+         2AV/9QzV0oXcA0qtpa8gY+Jbn1L5sTtvLfvPO5xA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 406/421] ARM: dts: BCM5301X: Fixup SPI binding
-Date:   Mon, 19 Jul 2021 16:53:37 +0200
-Message-Id: <20210719145000.408831082@linuxfoundation.org>
+Subject: [PATCH 5.4 110/149] virtio_net: move tx vq operation under tx queue lock
+Date:   Mon, 19 Jul 2021 16:53:38 +0200
+Message-Id: <20210719144927.436821051@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit d5aede3e6dd1b8ca574600a1ecafe1e580c53f2f ]
+[ Upstream commit 5a2f966d0f3fa0ef6dada7ab9eda74cacee96b8a ]
 
-1. Reorder interrupts
-2. Fix typo: s/spi_lr_overhead/spi_lr_overread/
-3. Rename node: s/spi-nor@0/flash@0/
+It's unsafe to operate a vq from multiple threads.
+Unfortunately this is exactly what we do when invoking
+clean tx poll from rx napi.
+Same happens with napi-tx even without the
+opportunistic cleaning from the receive interrupt: that races
+with processing the vq in start_xmit.
 
-This fixes:
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi@18029200: interrupt-names: 'oneOf' conditional failed, one must be fixed:
-        ['spi_lr_fullness_reached', 'spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted'] is too long
-        Additional items are not allowed ('spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted' were unexpected)
-        'mspi_done' was expected
-        'spi_l1_intr' was expected
-        'mspi_halted' was expected
-        'spi_lr_fullness_reached' was expected
-        'spi_lr_session_aborted' was expected
-        'spi_lr_impatient' was expected
-        'spi_lr_session_done' was expected
-        'spi_lr_overread' was expected
-        From schema: Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.yaml
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi-nor@0: $nodename:0: 'spi-nor@0' does not match '^flash(@.*)?$'
-        From schema: Documentation/devicetree/bindings/mtd/jedec,spi-nor.yaml
+As a fix move everything that deals with the vq to under tx lock.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/net/virtio_net.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index c91716d5980c..fa3422c4caec 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -451,27 +451,27 @@
- 		      <0x1811b408 0x004>,
- 		      <0x180293a0 0x01c>;
- 		reg-names = "mspi", "bspi", "intr_regs", "intr_status_reg";
--		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
-+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "spi_lr_fullness_reached",
-+			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-names = "mspi_done",
-+				  "mspi_halted",
-+				  "spi_lr_fullness_reached",
- 				  "spi_lr_session_aborted",
- 				  "spi_lr_impatient",
- 				  "spi_lr_session_done",
--				  "spi_lr_overhead",
--				  "mspi_done",
--				  "mspi_halted";
-+				  "spi_lr_overread";
- 		clocks = <&iprocmed>;
- 		clock-names = "iprocmed";
- 		num-cs = <2>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index af7d69719c4f..15453d6fcc23 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1504,6 +1504,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	struct virtnet_info *vi = sq->vq->vdev->priv;
+ 	unsigned int index = vq2txq(sq->vq);
+ 	struct netdev_queue *txq;
++	int opaque;
++	bool done;
  
--		spi_nor: spi-nor@0 {
-+		spi_nor: flash@0 {
- 			compatible = "jedec,spi-nor";
- 			reg = <0>;
- 			spi-max-frequency = <20000000>;
+ 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
+ 		/* We don't need to enable cb for XDP */
+@@ -1513,10 +1515,28 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
++	virtqueue_disable_cb(sq->vq);
+ 	free_old_xmit_skbs(sq, true);
++
++	opaque = virtqueue_enable_cb_prepare(sq->vq);
++
++	done = napi_complete_done(napi, 0);
++
++	if (!done)
++		virtqueue_disable_cb(sq->vq);
++
+ 	__netif_tx_unlock(txq);
+ 
+-	virtqueue_napi_complete(napi, sq->vq, 0);
++	if (done) {
++		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
++			if (napi_schedule_prep(napi)) {
++				__netif_tx_lock(txq, raw_smp_processor_id());
++				virtqueue_disable_cb(sq->vq);
++				__netif_tx_unlock(txq);
++				__napi_schedule(napi);
++			}
++		}
++	}
+ 
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
 -- 
 2.30.2
 
