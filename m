@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B3073CE4BA
+	by mail.lfdr.de (Postfix) with ESMTP id A53BE3CE4BC
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349600AbhGSPqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
+        id S1349629AbhGSPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347532AbhGSPli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:41:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32D456120F;
-        Mon, 19 Jul 2021 16:21:34 +0000 (UTC)
+        id S1347537AbhGSPlk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:41:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F117B61375;
+        Mon, 19 Jul 2021 16:21:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711695;
-        bh=xn8zvo5PmEO6AmZd5H31rEwXkj3zR4ZR3UbEHQBnKQA=;
+        s=korg; t=1626711698;
+        bh=7wFhkZ0IlNgtCAhPr5ZrgV3HSP2CLK9OONDhD4XycyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLwHL9guz9ySg+r/D9vQA//kvVWKIc8iVwUMB/pD+8652oRj7y7g+SyOjCv9RerJL
-         +j7h9thp6rGWydFIy5OuS8d5+MONSmTbDFsR7YT4jWeskeAsaMZAz1EH3V9DEoUSwX
-         XbWFlGMQmjpntsLtv8YQq/NJBUQiw7BcUYNZpo7k=
+        b=Y1kJikASfMVQaPh0aVjVGocxquY7u9L+UvFx1ti96ZSUj1784IoQ+uuWCzqWoYsox
+         WvIFZFmax7yAJoGUxAhrtH8iR6Pl2IVRIN/XO71zt6eeoACaoulGA+5crwH4cgyKAR
+         GPW9ZioSBViAo+ayzZMOzrjaqkopDT5Mu1VFmS6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 098/292] powerpc/mm/book3s64: Fix possible build error
-Date:   Mon, 19 Jul 2021 16:52:40 +0200
-Message-Id: <20210719144945.720196605@linuxfoundation.org>
+Subject: [PATCH 5.12 099/292] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
+Date:   Mon, 19 Jul 2021 16:52:41 +0200
+Message-Id: <20210719144945.750366195@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,86 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 07d8ad6fd8a3d47f50595ca4826f41dbf4f3a0c6 ]
+[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
 
-Update _tlbiel_pid() such that we can avoid build errors like below when
-using this function in other places.
+When devm_kcalloc() fails, the error code -ENOMEM should be returned
+instead of -EINVAL.
 
-arch/powerpc/mm/book3s64/radix_tlb.c: In function ‘__radix__flush_tlb_range_psize’:
-arch/powerpc/mm/book3s64/radix_tlb.c:114:2: warning: ‘asm’ operand 3 probably does not match constraints
-  114 |  asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
-      |  ^~~
-arch/powerpc/mm/book3s64/radix_tlb.c:114:2: error: impossible constraint in ‘asm’
-make[4]: *** [scripts/Makefile.build:271: arch/powerpc/mm/book3s64/radix_tlb.o] Error 1
-m
-
-With this fix, we can also drop the __always_inline in __radix_flush_tlb_range_psize
-which was added by commit e12d6d7d46a6 ("powerpc/mm/radix: mark __radix__flush_tlb_range_psize() as __always_inline")
-
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210610083639.387365-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_tlb.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ sound/soc/soc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-index 409e61210789..817a02ef6032 100644
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -291,22 +291,30 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
- /*
-  * We use 128 set in radix mode and 256 set in hpt mode.
-  */
--static __always_inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
-+static inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
- {
- 	int set;
- 
- 	asm volatile("ptesync": : :"memory");
- 
--	/*
--	 * Flush the first set of the TLB, and if we're doing a RIC_FLUSH_ALL,
--	 * also flush the entire Page Walk Cache.
--	 */
--	__tlbiel_pid(pid, 0, ric);
-+	switch (ric) {
-+	case RIC_FLUSH_PWC:
- 
--	/* For PWC, only one flush is needed */
--	if (ric == RIC_FLUSH_PWC) {
-+		/* For PWC, only one flush is needed */
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_PWC);
- 		ppc_after_tlbiel_barrier();
- 		return;
-+	case RIC_FLUSH_TLB:
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_TLB);
-+		break;
-+	case RIC_FLUSH_ALL:
-+	default:
-+		/*
-+		 * Flush the first set of the TLB, and if
-+		 * we're doing a RIC_FLUSH_ALL, also flush
-+		 * the entire Page Walk Cache.
-+		 */
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_ALL);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 6680c12716d4..6d4b08e918de 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2796,7 +2796,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
+ 	if (!routes) {
+ 		dev_err(card->dev,
+ 			"ASoC: Could not allocate DAPM route table\n");
+-		return -EINVAL;
++		return -ENOMEM;
  	}
  
- 	if (!cpu_has_feature(CPU_FTR_ARCH_31)) {
-@@ -1176,7 +1184,7 @@ void radix__tlb_flush(struct mmu_gather *tlb)
- 	}
- }
- 
--static __always_inline void __radix__flush_tlb_range_psize(struct mm_struct *mm,
-+static void __radix__flush_tlb_range_psize(struct mm_struct *mm,
- 				unsigned long start, unsigned long end,
- 				int psize, bool also_pwc)
- {
+ 	for (i = 0; i < num_routes; i++) {
 -- 
 2.30.2
 
