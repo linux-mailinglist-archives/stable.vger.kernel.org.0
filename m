@@ -2,45 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D60063CDE3F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 313693CDC87
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243346AbhGSPCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52466 "EHLO mail.kernel.org"
+        id S244520AbhGSOwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344155AbhGSO7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D50CD61363;
-        Mon, 19 Jul 2021 15:38:44 +0000 (UTC)
+        id S245446AbhGSOr1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:47:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77DE5613BB;
+        Mon, 19 Jul 2021 15:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709125;
-        bh=8HpQHPCkSzrADkTZ/pMXcY+Hsmpe2Aypku5O0/pmY0U=;
+        s=korg; t=1626708198;
+        bh=aGOBuTpCyBT/9YPbAH2QN7D0OjQUj74F9IAvV0an/SQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmPMavuEQ9pSF9nIJqh1iyI44p/hEhPxk0JAk2Xxa88PwKqLkRmk6y72t+mqlvIFe
-         6qlNe2qCxUHsxplpmbELjCypDx7e6Taq+6aOQlludAuzoGxc8fUR6HLhMwmVYsZXH5
-         cDaaVmWxJm0JEww4az1mjXX2Oe2p+XVroVoJ/Yvc=
+        b=n6drw4oOoT/N1LH+56S9kiRk+CEjQ8s4vjfU6mRcE25msb0AnYk2k4ddXnEP0QhbF
+         gWANzsGUdaStmQ5L18vQXiHjQ8GxO7syBSXBHqun6kH8TKmCdMkN7U9YvA0G4y5j0v
+         bNz6HDm3NWLiYZS70zE2g2Ylw+6YwI77FpytMUTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Jorgen Hansen <jhansen@vmware.com>,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Andra Paraschiv <andraprs@amazon.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        David Brazdil <dbrazdil@google.com>,
-        Alexander Popov <alex.popov@linux.com>,
-        Stefano Garzarella <sgarzare@redhat.com>,
-        lixianming <lixianming5@huawei.com>,
-        "Longpeng(Mike)" <longpeng2@huawei.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 263/421] vsock: notify server to shutdown when client has pending signal
-Date:   Mon, 19 Jul 2021 16:51:14 +0200
-Message-Id: <20210719144955.509022881@linuxfoundation.org>
+Subject: [PATCH 4.14 186/315] cw1200: add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:51:15 +0200
+Message-Id: <20210719144949.011471818@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,70 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
+[ Upstream commit dd778f89225cd258e8f0fed2b7256124982c8bb5 ]
 
-The client's sk_state will be set to TCP_ESTABLISHED if the server
-replay the client's connect request.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-However, if the client has pending signal, its sk_state will be set
-to TCP_CLOSE without notify the server, so the server will hold the
-corrupt connection.
-
-            client                        server
-
-1. sk_state=TCP_SYN_SENT         |
-2. call ->connect()              |
-3. wait reply                    |
-                                 | 4. sk_state=TCP_ESTABLISHED
-                                 | 5. insert to connected list
-                                 | 6. reply to the client
-7. sk_state=TCP_ESTABLISHED      |
-8. insert to connected list      |
-9. *signal pending* <--------------------- the user kill client
-10. sk_state=TCP_CLOSE           |
-client is exiting...             |
-11. call ->release()             |
-     virtio_transport_close
-      if (!(sk->sk_state == TCP_ESTABLISHED ||
-	      sk->sk_state == TCP_CLOSING))
-		return true; *return at here, the server cannot notice the connection is corrupt*
-
-So the client should notify the peer in this case.
-
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Jorgen Hansen <jhansen@vmware.com>
-Cc: Norbert Slusarek <nslusarek@gmx.net>
-Cc: Andra Paraschiv <andraprs@amazon.com>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: David Brazdil <dbrazdil@google.com>
-Cc: Alexander Popov <alex.popov@linux.com>
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Link: https://lkml.org/lkml/2021/5/17/418
-Signed-off-by: lixianming <lixianming5@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1620788714-14300-1-git-send-email-zou_wei@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/st/cw1200/cw1200_sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index aceafec612a8..2d31fce5c218 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1225,7 +1225,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+diff --git a/drivers/net/wireless/st/cw1200/cw1200_sdio.c b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
+index 1037ec62659d..ee86436bf152 100644
+--- a/drivers/net/wireless/st/cw1200/cw1200_sdio.c
++++ b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
+@@ -63,6 +63,7 @@ static const struct sdio_device_id cw1200_sdio_ids[] = {
+ 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
+ 	{ /* end: all zeroes */			},
+ };
++MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
  
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
--			sk->sk_state = TCP_CLOSE;
-+			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
- 			sock->state = SS_UNCONNECTED;
- 			vsock_transport_cancel_pkt(vsk);
- 			goto out_wait;
+ /* hwbus_ops implemetation */
+ 
 -- 
 2.30.2
 
