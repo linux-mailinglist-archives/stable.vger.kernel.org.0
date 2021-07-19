@@ -2,102 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A83F53CD4EF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD3A3CD4F6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:41:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237050AbhGSL7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 07:59:43 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:56513 "EHLO
+        id S236571AbhGSMBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 08:01:14 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:51731 "EHLO
         wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236571AbhGSL7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 07:59:43 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 514473200949;
-        Mon, 19 Jul 2021 08:40:22 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Mon, 19 Jul 2021 08:40:22 -0400
+        by vger.kernel.org with ESMTP id S231388AbhGSMBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:01:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id A5BA632008FC;
+        Mon, 19 Jul 2021 08:41:53 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 19 Jul 2021 08:41:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=5kfSZnZyxCfOqkxjBhPjwhVzpil
-        rAJAJf8pdfSBPjjs=; b=ZcGTp3w9ldiAlFTNXD5ABqqIQ4MOpFcaNMrvL8oNUZz
-        jFzh8ftxItpqNAuhQjcwhJwi1oHlwxHYZ1jPLhY4iVpQn7HWxODZn33HmzYeMgFd
-        fc+Zq7AUCDBeM9GUEN7pEYPA6U9O6KdEORITXWxQ1MxdjzIH/lteht8l8id/AmJH
-        ioMMtlbv+WlNwnMTBWp4oUoYbosYAPxK/Yk7hz98kqthFqUo7Yd0B/+6LMmN2ysj
-        agarMnivyeT7xAHYPnrdHT+/woQBUJDIFdWMh925GJ2D3/qTdskwH0nCbSEOwliG
-        THrMuLAeeKJrY997+u+34YAx+antwjsttd6A5qF7khA==
+        :content-type:in-reply-to; s=fm1; bh=amyQYpBvFYPfdNhUff4Z1cpZooE
+        dKlHEQeGTIIX5Fmw=; b=N0sADinJHO7mxz5NYCcQYGZmGNwnEiPTKLLuUIdILLD
+        JBrUhL18lDByVN2BCkWbKkX+8Q9M29OwD85hq4jg2aTMpqkaubDOYNi6+m/vZ/tX
+        HEvaM+7kZRv4MTkd8BkrvHlRPkRemgOtH3e2M5ItCzxqhN+R9NWCjLHlf2fzVpc8
+        i/YiuEq6Z05NVCM6JuIXEnxFLgs25CDT/Jw2iKYChtIMw9ksHk9hFo9d/1ME3rAP
+        Z8G6/MlZR3xNN31mt8NXzBgybSJnfcUE0FLJZCL1npHrk7zvYqe7E97feFDqB5kS
+        0clXYdATiJnFRqnvf1jLjhxlhp3ldYs1TeIM7fol+FA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5kfSZn
-        ZyxCfOqkxjBhPjwhVzpilrAJAJf8pdfSBPjjs=; b=l+L7wtwKaDRLzXIv/V4dca
-        9dDreQus2B7zcizkt5CftfAOQznQ4XGDw5ejuWz+BViYsfpNcyMhapLXPv6PHm9i
-        wAkzgN+w6BcWRTPi9vTEDqJufTyFtPYPdaxADO1Xgp6t9gfvGOO5hZN33k0LfHU9
-        AHW8yWSq8LuQi5oTb994IauMkushy/YIga9R65U+RR3fgSy1ST5J85ZGoGLJOLhv
-        r+MdSdY2LsMr4iify1nDIkdBBxc65UPrj28NBLLYcAB/GIjxABi2xgSKDOPqHwxo
-        5Kbz9gVLU5VtIlgn9bPzDy+4xWSa6sTvAo3JRJBpm3J0V4aKDcQ+s4DipCAavn0A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=amyQYp
+        BvFYPfdNhUff4Z1cpZooEdKlHEQeGTIIX5Fmw=; b=aBnQPma3qxo6s8TxLfsCxW
+        yLHRUe9QmaRpsq+Nu2M8XvO9mcm2NPaZfkn4i2+HOuOES/WTPUbKlS395mNEgBa3
+        JdXR32xk4bZrfTDsZEp9UervhU/vuDTKZ/B1ZdQKQzKykGaCopgI9i1z4bAgN1rV
+        DCZZqWhlLgiheZOTfOV7ut3MUxmDdqQFt/dZNljKArJlsZE3OlpT92bPoCDOkxVT
+        7KNlmPQ5uHiGonQPqIIa0vuljxmjPFhlYAc0kHrVDTXpyXhKL+oZ7X0vxrn2Kff7
+        +I0qbMEq+/jqAftrCekPUPLCwFjyRfm1g0ONoshtIlzXWeNlz61O/J2SysHVsdKQ
         ==
-X-ME-Sender: <xms:tXL1YCRUTvIGxOj4uefHygZYhQayWqNu4wEADS_EktClNPE3aom2yQ>
-    <xme:tXL1YHxHGJwC1LEy_7FMw0a15fvufUrPAt51QZ0wkMRr2VRvi3aId8kXHgIdQpYu2
-    vYSqRlu912ogw>
-X-ME-Received: <xmr:tXL1YP0vQKzebnQIxJaLVztXieiKMVhm918KbRjXUjABUFTOWI2qGrQo58MG3DBKQrHj2yBjjcwOdG0d_b_GWzsyVNTB1iA2>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrfedtgdehfecutefuodetggdotefrodftvf
+X-ME-Sender: <xms:EXP1YAAASJu_k5G9of7kmc9kMOzYUdP1AqFUtpAGu0QjXDNQt6XLzA>
+    <xme:EXP1YCgcnhUK4p2YHalMI51pdf0b92OOaHdzfOdliiwBZH5qqO_1DV1yLOCmQJjpV
+    0B0Oq9KINfbSA>
+X-ME-Received: <xmr:EXP1YDlF3t15E_7Lgp_0YMd9GIQOW_Y4IOF8YzGuDbI0u9ftyI38D3CPXcXylVeX0IzeCqVPLRuPaydPmBGZ9B2Sd5h4RqrK>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrfedtgdehgecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvuffkfhggtggujgesthdtrodttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepuddtiedvje
-    egudffgfdvhfdtjeeugffhhedvjeehgffgleduuefgfeekgedvlefhnecuffhomhgrihhn
-    pehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:tXL1YOAokeop6T_usNe4jvKGRpU_Np4SGj5twfOQqzk20JAhnDSnsg>
-    <xmx:tXL1YLhrS3UzBULRXIt6ctnntKqjgy9UVArp5WW40JGl8VlCrAEImg>
-    <xmx:tXL1YKrJahLiGNcbrHesosRyD8xQ8-utKsL2IFai-dletS_P0IML0Q>
-    <xmx:tXL1YGUKSW6e6_YxOO5buWUdWHF4qgzE62C-w7kM7U9x3ouAR3H5Eg>
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveehgfejie
+    dtffefhfdvgeelieegjeegieffkeeiffejfeelhfeigeethfdujeeunecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:EXP1YGwbRK3xXqCffXi7b-nzI1QSg6gWLrHXJ_WtfddNcSvfuiWx5Q>
+    <xmx:EXP1YFR5diLVz0T-lP6IFRFkfZD5JvlTMxjcG3I86wkf4CAThYvICg>
+    <xmx:EXP1YBa9yU9gI50sWedJivgwRZ58bMM8A1gUDXeNPAUgSZr4WK_szg>
+    <xmx:EXP1YDP_Q4T_e-M5nersHSv5rJG9fRq9FOW19frEYGWgfyn06R2Nfg>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 19 Jul 2021 08:40:20 -0400 (EDT)
-Date:   Mon, 19 Jul 2021 14:40:15 +0200
+ 19 Jul 2021 08:41:52 -0400 (EDT)
+Date:   Mon, 19 Jul 2021 14:41:45 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Davis <davis@mosenkovs.lv>
-Cc:     Johannes Berg <johannes@sipsolutions.net>,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.4] mac80211: fix memory corruption in EAPOL handling
-Message-ID: <YPVyrwvNnTGkZTdm@kroah.com>
-References: <20210710183710.5687-1-davis@mosenkovs.lv>
- <YPAiFsEncZ95Oomx@kroah.com>
- <CAHQn7p+dA3-FS+DGPqCvXJGtTZfWqg9hy1GUbtWFwtQFvKcnfg@mail.gmail.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-fscrypt@vger.kernel.org
+Subject: Re: [PATCH 4.9] fscrypt: don't ignore minor_hash when hash is 0
+Message-ID: <YPVzCTmfqbtjqMHh@kroah.com>
+References: <20210717000557.60029-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAHQn7p+dA3-FS+DGPqCvXJGtTZfWqg9hy1GUbtWFwtQFvKcnfg@mail.gmail.com>
+In-Reply-To: <20210717000557.60029-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 16, 2021 at 01:02:06AM +0300, Davis wrote:
-> On 2021-07-15 at 15:36 Greg KH (<greg@kroah.com>) wrote:
-> >
-> > On Sat, Jul 10, 2021 at 09:37:10PM +0300, Davis Mosenkovs wrote:
-> > > Commit e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL
-> > > frames") uses skb_mac_header() before eth_type_trans() is called
-> > > leading to incorrect pointer, the pointer gets written to. This issue
-> > > has appeared during backporting to 4.4, 4.9 and 4.14.
-> >
-> > So this is also needed in 4.9 and 4.14, right?  If so, now queued up
-> > everywhere.  If not, please let me know so I can drop it from the other
-> > trees.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Fri, Jul 16, 2021 at 07:05:57PM -0500, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> Thank you! Yes - this is needed in 4.4, 4.9 and 4.14.
-> Only line offsets and commit messages (they contain references to
-> backport commits introducing the issue) differ between kernel versions
-> and I see the patches are queued with correct line offsets.
-> Patches for 4.9
-> (https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-4.9/mac80211-fix-memory-corruption-in-eapol-handling.patch)
-> and 4.14 (https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-4.14/mac80211-fix-memory-corruption-in-eapol-handling.patch)
-> still contain 4.4 in the cc line in sign-off section. Also these
-> patches contain reference to commit e3d4030498c3 that is from 4.4
-> branch. Is this OK?
+> commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+> [Please apply to 4.9-stable.]
 
-It's fine :)
+Now queued up, thanks!
+
+greg k-h
