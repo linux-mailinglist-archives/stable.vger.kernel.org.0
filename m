@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61FFF3CDE45
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C613CDDEC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344655AbhGSPC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52440 "EHLO mail.kernel.org"
+        id S1345218AbhGSPBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344268AbhGSO7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344270AbhGSO7c (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0662A6120D;
-        Mon, 19 Jul 2021 15:39:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B443E6120E;
+        Mon, 19 Jul 2021 15:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709168;
-        bh=afVzWD8Ab8HPe3thKR/BGsH97KYhSX3SH4IIkde1rt0=;
+        s=korg; t=1626709171;
+        bh=r+uNq6xVPeeHYVlzTAA+XS2FUy5VsF2CtQiRgnyg8CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y8ZuU/c/tCBKgteWcDq/lbCUcHuFbx3Sm/4EAKtGolOfiDiXn4i81Rr4LmPqQPrEG
-         eFIc9kk5oieGpaHSF2cs4spDXy3YPZ4empzQlYi3tuLfGavGY5gXskPNaMwKdzPcGN
-         ijwlMLJhGI1xzSyXb0PNNo6cXZALXnvnWB6zfeCM=
+        b=DgY6ZYy6Gh+CoaCcTGojVpopEUBqCSQ26cxcRDe7lB+h3TOwPnDQwP1gJsYC+gtuh
+         vxALoQdsFceQ5C2RP4CYQIGm96fJRdqTDdivoKnfrJ8WZv7Yzh02ZRkjxH4w2LP3jQ
+         hW+DBViSY7b3ChQ8CYgvMJxOteULSNg9XZ/M1Pdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Golovin <dima@golovin.in>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 278/421] MIPS: set mips32r5 for virt extensions
-Date:   Mon, 19 Jul 2021 16:51:29 +0200
-Message-Id: <20210719144955.982622762@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 279/421] fscrypt: dont ignore minor_hash when hash is 0
+Date:   Mon, 19 Jul 2021 16:51:30 +0200
+Message-Id: <20210719144956.015619907@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -41,65 +38,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit c994a3ec7ecc8bd2a837b2061e8a76eb8efc082b ]
+commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
 
-Clang's integrated assembler only accepts these instructions when the
-cpu is set to mips32r5. With this change, we can assemble
-malta_defconfig with Clang via `make LLVM_IAS=1`.
+When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+minor_hash to 0 if the (major) hash is 0.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/763
-Reported-by: Dmitry Golovin <dima@golovin.in>
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This doesn't make sense because 0 is a valid hash code, so we shouldn't
+ignore the filesystem-provided minor_hash in that case.  Fix this by
+removing the special case for 'hash == 0'.
+
+This is an old bug that appears to have originated when the encryption
+code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+f2fs code passed the hash by pointer instead of by value.  So
+'if (hash)' actually made sense then, as it was checking whether a
+pointer was NULL.  But now the hashes are passed by value, and
+filesystems just pass 0 for any hashes they don't have.  There is no
+need to handle this any differently from the hashes actually being 0.
+
+It is difficult to reproduce this bug, as it only made a difference in
+the case where a filename's 32-bit major hash happened to be 0.
+However, it probably had the largest chance of causing problems on
+ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+a readdir cookie, and f2fs doesn't use minor_hash at all.
+
+Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+Cc: <stable@vger.kernel.org> # v4.6+
+Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/mips/include/asm/mipsregs.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/crypto/fname.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/arch/mips/include/asm/mipsregs.h b/arch/mips/include/asm/mipsregs.h
-index f9a7c137be9f..c8333782a670 100644
---- a/arch/mips/include/asm/mipsregs.h
-+++ b/arch/mips/include/asm/mipsregs.h
-@@ -1986,7 +1986,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- ({ int __res;								\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips32r2\n\t"					\
-+		".set\tmips32r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"mfgc0\t%0, " #source ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -1999,7 +1999,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- ({ unsigned long long __res;						\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips64r2\n\t"					\
-+		".set\tmips64r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"dmfgc0\t%0, " #source ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -2012,7 +2012,7 @@ _ASM_MACRO_0(tlbginvf, _ASM_INSN_IF_MIPS(0x4200000c)
- do {									\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips32r2\n\t"					\
-+		".set\tmips32r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"mtgc0\t%z0, " #register ", %1\n\t"			\
- 		".set\tpop"						\
-@@ -2024,7 +2024,7 @@ do {									\
- do {									\
- 	__asm__ __volatile__(						\
- 		".set\tpush\n\t"					\
--		".set\tmips64r2\n\t"					\
-+		".set\tmips64r5\n\t"					\
- 		_ASM_SET_VIRT						\
- 		"dmtgc0\t%z0, " #register ", %1\n\t"			\
- 		".set\tpop"						\
--- 
-2.30.2
-
+--- a/fs/crypto/fname.c
++++ b/fs/crypto/fname.c
+@@ -275,13 +275,8 @@ int fscrypt_fname_disk_to_usr(struct ino
+ 					   oname->name);
+ 		return 0;
+ 	}
+-	if (hash) {
+-		digested_name.hash = hash;
+-		digested_name.minor_hash = minor_hash;
+-	} else {
+-		digested_name.hash = 0;
+-		digested_name.minor_hash = 0;
+-	}
++	digested_name.hash = hash;
++	digested_name.minor_hash = minor_hash;
+ 	memcpy(digested_name.digest,
+ 	       FSCRYPT_FNAME_DIGEST(iname->name, iname->len),
+ 	       FSCRYPT_FNAME_DIGEST_SIZE);
 
 
