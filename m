@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 167473CE2AE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB7E3CE3DB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346979AbhGSPbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:31:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59504 "EHLO mail.kernel.org"
+        id S239963AbhGSPkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347823AbhGSPVu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:21:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B13161427;
-        Mon, 19 Jul 2021 15:59:13 +0000 (UTC)
+        id S1344181AbhGSPep (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:34:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6492B61450;
+        Mon, 19 Jul 2021 16:11:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710354;
-        bh=wsIh+jGczAMVFbBo4ONafmK+bREhMF5LDyj1DJOuSng=;
+        s=korg; t=1626711110;
+        bh=6Ys+UVkVtjEsDh0ZTm8CqykmSiIyf+3zE7emVSIuhvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJ4oIgnizIAKSw77I7wndxe5N+y/z7N/509xmJW3/hXj8Dm+pwDmpL2NC0FRTSuqc
-         rxm44m+yIEkmX7fY05j2ba+gn2Ouu05uRDfzv0r/JH0+5Bo1Jg5PLQiA5mXVxbQ3Xa
-         GaEskEKTC019ZmHzjHAmNS0YlcmNKoNli30F7uc8=
+        b=H9jwJBJB2VbqpZB8DkhMXdLc6qTBQ1A2iHMjyIUD23nz8C639JtWUr4tPt0LuA6dM
+         0u38J/iwZybljgQZ6tQYUQP/ZSCrMAPlZDVaMR4vK/NCILmavlZL3irbziC9i2JaQ2
+         Hfnbwb9Np7hLQF+/DCDw5Lk+QP04URrcmPpQ/bRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wysochanski <dwysocha@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 147/243] NFSD: Fix TP_printk() format specifier in nfsd_clid_class
+Subject: [PATCH 5.13 230/351] ubifs: Set/Clear I_LINKABLE under i_lock for whiteout inode
 Date:   Mon, 19 Jul 2021 16:52:56 +0200
-Message-Id: <20210719144945.657682587@linuxfoundation.org>
+Message-Id: <20210719144952.556774132@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,88 +40,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
+[ Upstream commit a801fcfeef96702fa3f9b22ad56c5eb1989d9221 ]
 
-Since commit 9a6944fee68e ("tracing: Add a verifier to check string
-pointers for trace events"), which was merged in v5.13-rc1,
-TP_printk() no longer tacitly supports the "%.*s" format specifier.
+xfstests-generic/476 reports a warning message as below:
 
-These are low value tracepoints, so just remove them.
+WARNING: CPU: 2 PID: 30347 at fs/inode.c:361 inc_nlink+0x52/0x70
+Call Trace:
+  do_rename+0x502/0xd40 [ubifs]
+  ubifs_rename+0x8b/0x180 [ubifs]
+  vfs_rename+0x476/0x1080
+  do_renameat2+0x67c/0x7b0
+  __x64_sys_renameat2+0x6e/0x90
+  do_syscall_64+0x66/0xe0
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reported-by: David Wysochanski <dwysocha@redhat.com>
-Fixes: dd5e3fbc1f47 ("NFSD: Add tracepoints to the NFSD state management code")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Following race case can cause this:
+         rename_whiteout(Thread 1)             wb_workfn(Thread 2)
+ubifs_rename
+  do_rename
+                                          __writeback_single_inode
+					    spin_lock(&inode->i_lock)
+    whiteout->i_state |= I_LINKABLE
+                                            inode->i_state &= ~dirty;
+---- How race happens on i_state:
+    (tmp = whiteout->i_state | I_LINKABLE)
+		                           (tmp = inode->i_state & ~dirty)
+    (whiteout->i_state = tmp)
+		                           (inode->i_state = tmp)
+----
+					    spin_unlock(&inode->i_lock)
+    inc_nlink(whiteout)
+    WARN_ON(!(inode->i_state & I_LINKABLE)) !!!
+
+Fix to add i_lock to avoid i_state update race condition.
+
+Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |  3 ---
- fs/nfsd/trace.h     | 29 -----------------------------
- 2 files changed, 32 deletions(-)
+ fs/ubifs/dir.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index ac20f79bbedd..80e394a2e3fd 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7158,7 +7158,6 @@ nfs4_client_to_reclaim(struct xdr_netobj name, struct xdr_netobj princhash,
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp;
+diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
+index 5bd8482e660a..7c61d0ec0159 100644
+--- a/fs/ubifs/dir.c
++++ b/fs/ubifs/dir.c
+@@ -1337,7 +1337,10 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
+ 			goto out_release;
+ 		}
  
--	trace_nfsd_clid_reclaim(nn, name.len, name.data);
- 	crp = alloc_reclaim();
- 	if (crp) {
- 		strhashval = clientstr_hashval(name);
-@@ -7208,8 +7207,6 @@ nfsd4_find_reclaim_client(struct xdr_netobj name, struct nfsd_net *nn)
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp = NULL;
++		spin_lock(&whiteout->i_lock);
+ 		whiteout->i_state |= I_LINKABLE;
++		spin_unlock(&whiteout->i_lock);
++
+ 		whiteout_ui = ubifs_inode(whiteout);
+ 		whiteout_ui->data = dev;
+ 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
+@@ -1430,7 +1433,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
  
--	trace_nfsd_clid_find(nn, name.len, name.data);
--
- 	strhashval = clientstr_hashval(name);
- 	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
- 		if (compare_blob(&crp->cr_name, &name) == 0) {
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index 99bf07800cd0..c8ca73d69ad0 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -368,35 +368,6 @@ DEFINE_EVENT(nfsd_net_class, nfsd_##name, \
- DEFINE_NET_EVENT(grace_start);
- DEFINE_NET_EVENT(grace_complete);
+ 		inc_nlink(whiteout);
+ 		mark_inode_dirty(whiteout);
++
++		spin_lock(&whiteout->i_lock);
+ 		whiteout->i_state &= ~I_LINKABLE;
++		spin_unlock(&whiteout->i_lock);
++
+ 		iput(whiteout);
+ 	}
  
--DECLARE_EVENT_CLASS(nfsd_clid_class,
--	TP_PROTO(const struct nfsd_net *nn,
--		 unsigned int namelen,
--		 const unsigned char *namedata),
--	TP_ARGS(nn, namelen, namedata),
--	TP_STRUCT__entry(
--		__field(unsigned long long, boot_time)
--		__field(unsigned int, namelen)
--		__dynamic_array(unsigned char,  name, namelen)
--	),
--	TP_fast_assign(
--		__entry->boot_time = nn->boot_time;
--		__entry->namelen = namelen;
--		memcpy(__get_dynamic_array(name), namedata, namelen);
--	),
--	TP_printk("boot_time=%16llx nfs4_clientid=%.*s",
--		__entry->boot_time, __entry->namelen, __get_str(name))
--)
--
--#define DEFINE_CLID_EVENT(name) \
--DEFINE_EVENT(nfsd_clid_class, nfsd_clid_##name, \
--	TP_PROTO(const struct nfsd_net *nn, \
--		 unsigned int namelen, \
--		 const unsigned char *namedata), \
--	TP_ARGS(nn, namelen, namedata))
--
--DEFINE_CLID_EVENT(find);
--DEFINE_CLID_EVENT(reclaim);
--
- TRACE_EVENT(nfsd_clid_inuse_err,
- 	TP_PROTO(const struct nfs4_client *clp),
- 	TP_ARGS(clp),
 -- 
 2.30.2
 
