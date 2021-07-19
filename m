@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE38B3CE0E0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B01E43CE347
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347087AbhGSPSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49554 "EHLO mail.kernel.org"
+        id S236102AbhGSPhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346636AbhGSPO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C156601FD;
-        Mon, 19 Jul 2021 15:55:26 +0000 (UTC)
+        id S235781AbhGSPcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC5B6142B;
+        Mon, 19 Jul 2021 16:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710127;
-        bh=gfmQPhuheg6CmzwqvqF1tZkKqQBYwpU926EpPpZX7Ws=;
+        s=korg; t=1626711043;
+        bh=xrdCy1QqxZg1UrPMNmOK+vwd06oX25X0tMQaTm+IQzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sa6uEgmHoNhldjkSGS4V4u+SI9xp/JPkthPm6qurpQ2Jl1kghVbQS3TH6YqOko10F
-         sLnhQOHUyA8YD6k+Ukd5nR88R9NdL9DrmVF0NiKw5M7ngWNBaF9mFTaGK/IgEf+2AZ
-         ZzzHyWagi7heH8vNhDw5WtsZRaDTlKRPXfVVMsVA=
+        b=kSkpH3C/SfZif3KkQvUCt/h96P4ZmECYVNSuJ6C3qp5SakwdgjdlSgRiQMznOiVGH
+         AnrK7mlUtiC2Srlh0s96XbwhqZEjp9kO8OCIpQw+3aPg8QHRCBHQjwRBKbD0qX4yrJ
+         scIQgHbOPfjPgWI8y48BL0cAhWiiP2Y5kX1m3CMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/243] s390/ipl_parm: fix program check new psw handling
-Date:   Mon, 19 Jul 2021 16:51:57 +0200
-Message-Id: <20210719144943.735407712@linuxfoundation.org>
+Subject: [PATCH 5.13 172/351] PCI: mediatek-gen3: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:51:58 +0200
+Message-Id: <20210719144950.661970418@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 88c2510cecb7e2b518e3c4fdf3cf0e13ebe9377c ]
+[ Upstream commit 3a2e476dc5d02af3422143b07d8db1eced475314 ]
 
-The __diag308() inline asm temporarily changes the program check new
-psw to redirect a potential program check on the diag instruction.
-Restoring of the program check new psw is done in C code behind the
-inline asm.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-This can be problematic, especially if the function is inlined, since
-the compiler can reorder instructions in such a way that a different
-instruction, which may result in a program check, might be executed
-before the program check new psw has been restored.
-
-To avoid such a scenario move restoring into the inline asm. For
-consistency reasons move also saving of the original program check new
-psw into the inline asm.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/1620717091-108691-1-git-send-email-zou_wei@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/ipl_parm.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/pci/controller/pcie-mediatek-gen3.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
-index f94b91d72620..c56bbf58a945 100644
---- a/arch/s390/boot/ipl_parm.c
-+++ b/arch/s390/boot/ipl_parm.c
-@@ -28,22 +28,25 @@ static inline int __diag308(unsigned long subcode, void *addr)
- 	register unsigned long _addr asm("0") = (unsigned long)addr;
- 	register unsigned long _rc asm("1") = 0;
- 	unsigned long reg1, reg2;
--	psw_t old = S390_lowcore.program_new_psw;
-+	psw_t old;
+diff --git a/drivers/pci/controller/pcie-mediatek-gen3.c b/drivers/pci/controller/pcie-mediatek-gen3.c
+index 3c5b97716d40..f3aeb8d4eaca 100644
+--- a/drivers/pci/controller/pcie-mediatek-gen3.c
++++ b/drivers/pci/controller/pcie-mediatek-gen3.c
+@@ -1012,6 +1012,7 @@ static const struct of_device_id mtk_pcie_of_match[] = {
+ 	{ .compatible = "mediatek,mt8192-pcie" },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, mtk_pcie_of_match);
  
- 	asm volatile(
-+		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
- 		"	epsw	%0,%1\n"
--		"	st	%0,%[psw_pgm]\n"
--		"	st	%1,%[psw_pgm]+4\n"
-+		"	st	%0,0(%[psw_pgm])\n"
-+		"	st	%1,4(%[psw_pgm])\n"
- 		"	larl	%0,1f\n"
--		"	stg	%0,%[psw_pgm]+8\n"
-+		"	stg	%0,8(%[psw_pgm])\n"
- 		"	diag	%[addr],%[subcode],0x308\n"
--		"1:	nopr	%%r7\n"
-+		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
- 		: "=&d" (reg1), "=&a" (reg2),
--		  [psw_pgm] "=Q" (S390_lowcore.program_new_psw),
-+		  "+Q" (S390_lowcore.program_new_psw),
-+		  "=Q" (old),
- 		  [addr] "+d" (_addr), "+d" (_rc)
--		: [subcode] "d" (subcode)
-+		: [subcode] "d" (subcode),
-+		  [psw_old] "a" (&old),
-+		  [psw_pgm] "a" (&S390_lowcore.program_new_psw)
- 		: "cc", "memory");
--	S390_lowcore.program_new_psw = old;
- 	return _rc;
- }
- 
+ static struct platform_driver mtk_pcie_driver = {
+ 	.probe = mtk_pcie_probe,
 -- 
 2.30.2
 
