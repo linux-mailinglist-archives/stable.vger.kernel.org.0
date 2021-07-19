@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4733CD854
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 845C33CDA32
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242734AbhGSOVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56618 "EHLO mail.kernel.org"
+        id S241725AbhGSOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242736AbhGSOUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9342C610D2;
-        Mon, 19 Jul 2021 15:01:18 +0000 (UTC)
+        id S245043AbhGSOcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:32:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 322C561242;
+        Mon, 19 Jul 2021 15:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706879;
-        bh=Qbe14ViApLo4BnwrGsChjVqOq0qVtB+nCq9Q2MjtzcI=;
+        s=korg; t=1626707560;
+        bh=+F2AKkXu3sRa0Uz4MWIoXqi3COI3oEG5L7TnWtHXnr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnfpsV1n3ul+HjmCwU8flFWGprY8CFVe1ZNlh9uaZtg8wfALS41ARZcUJCyoOKd7R
-         p8JgBoDMVbtqn5i7EfwzcXx6OhDjx9lMkFSQAIJPJqAG8dDpO/avNI1LCj8v3dbBe2
-         sUGQ9ScNSTC9SiMdcJQF4BRlHQuAR37LkYKeFJtQ=
+        b=u3WEpzZhNl8ovikZ69XBbNXjbcemLI+bdyoTQGOJ9Uy1FsqP/RVlfcRARIM6rjK3V
+         9XMveCfBce0rALkNqhp0wVRrBnB9Ac7hTS7nNiTe94o5cpfn+fhWf2vvrQF8gXKhzG
+         YUVGmSzNdnm9GbW/wnUD7gVxD2Dbf8Q2OXy9ug3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.4 136/188] media: zr364xx: fix memory leak in zr364xx_start_readpipe
-Date:   Mon, 19 Jul 2021 16:52:00 +0200
-Message-Id: <20210719144940.934426492@linuxfoundation.org>
+        syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Subject: [PATCH 4.9 179/245] smackfs: restrict bytes count in smk_set_cipso()
+Date:   Mon, 19 Jul 2021 16:52:01 +0200
+Message-Id: <20210719144946.192105342@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-commit 0a045eac8d0427b64577a24d74bb8347c905ac65 upstream.
+commit 49ec114a6e62d8d320037ce71c1aaf9650b3cafd upstream.
 
-syzbot reported memory leak in zr364xx driver.
-The problem was in non-freed urb in case of
-usb_submit_urb() fail.
+Oops, I failed to update subject line.
 
-backtrace:
-  [<ffffffff82baedf6>] kmalloc include/linux/slab.h:561 [inline]
-  [<ffffffff82baedf6>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
-  [<ffffffff82f7cce8>] zr364xx_start_readpipe+0x78/0x130 drivers/media/usb/zr364xx/zr364xx.c:1022
-  [<ffffffff84251dfc>] zr364xx_board_init drivers/media/usb/zr364xx/zr364xx.c:1383 [inline]
-  [<ffffffff84251dfc>] zr364xx_probe+0x6a3/0x851 drivers/media/usb/zr364xx/zr364xx.c:1516
-  [<ffffffff82bb6507>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-  [<ffffffff826018a9>] really_probe+0x159/0x500 drivers/base/dd.c:576
+>From 07571157c91b98ce1a4aa70967531e64b78e8346 Mon Sep 17 00:00:00 2001
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Date: Mon, 12 Apr 2021 22:25:06 +0900
+Subject: [PATCH 4.9 179/245] smackfs: restrict bytes count in smk_set_cipso()
 
-Fixes: ccbf035ae5de ("V4L/DVB (12278): zr364xx: implement V4L2_CAP_STREAMING")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Commit 7ef4c19d245f3dc2 ("smackfs: restrict bytes count in smackfs write
+functions") missed that count > SMK_CIPSOMAX check applies to only
+format == SMK_FIXED24_FMT case.
+
+Reported-by: syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/zr364xx/zr364xx.c |    1 +
- 1 file changed, 1 insertion(+)
+ security/smack/smackfs.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -1068,6 +1068,7 @@ static int zr364xx_start_readpipe(struct
- 	DBG("submitting URB %p\n", pipe_info->stream_urb);
- 	retval = usb_submit_urb(pipe_info->stream_urb, GFP_KERNEL);
- 	if (retval) {
-+		usb_free_urb(pipe_info->stream_urb);
- 		printk(KERN_ERR KBUILD_MODNAME ": start read pipe failed\n");
- 		return retval;
- 	}
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -878,6 +878,8 @@ static ssize_t smk_set_cipso(struct file
+ 	if (format == SMK_FIXED24_FMT &&
+ 	    (count < SMK_CIPSOMIN || count > SMK_CIPSOMAX))
+ 		return -EINVAL;
++	if (count > PAGE_SIZE)
++		return -EINVAL;
+ 
+ 	data = memdup_user_nul(buf, count);
+ 	if (IS_ERR(data))
 
 
