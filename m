@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4660C3CDC32
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9423CDC44
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242833AbhGSOvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
+        id S243493AbhGSOv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344451AbhGSOst (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344455AbhGSOst (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:48:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CB0560241;
-        Mon, 19 Jul 2021 15:29:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0181B610D2;
+        Mon, 19 Jul 2021 15:29:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708560;
-        bh=Vn2V99S3tKjCz2qHU4IrEN+n4Te0ZW8MTELd31wPxZw=;
+        s=korg; t=1626708562;
+        bh=8uW2yIttlVos/CWKSAFw8iPacEtABhNHqaphxNGb0qw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKquXlvRRadoPuNQuj7nl5M3mzJVhT6fwvAU8qm3GcPwWETBa/a9+czRsKye2HlUi
-         scbJCjlBmrrHYrGMPMpKBqFgsEY3WM77lcMEa1ZJWvu07/ydYpxcQGb7PxbXdJPgFA
-         Qp7GgmhrDtM8fsA5VHj2ZlHmfR+4Xdqo7SiW8aIM=
+        b=p+3+spJGaDrI8OGeUsgutmKLD3p3560u8bM4IQG5WZ1WvsAK2qVjKL8Lw5RrxThqV
+         bkwwUXqFGFS+6XAXvcAkrY4rUT+MiaZV1uAaGaxjq0z1By1ayMES+mP4LwF0fflBsE
+         tTfM/3KkYlZVWNDebG1HBJ9fc2z0wr4IIcKCpY6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannu Hartikainen <hannu@hrtk.in>
-Subject: [PATCH 4.19 008/421] USB: cdc-acm: blacklist Heimann USB Appset device
-Date:   Mon, 19 Jul 2021 16:46:59 +0200
-Message-Id: <20210719144946.588377448@linuxfoundation.org>
+        stable@vger.kernel.org, Jack Pham <jackp@codeaurora.org>,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Subject: [PATCH 4.19 009/421] usb: dwc3: Fix debugfs creation flow
+Date:   Mon, 19 Jul 2021 16:47:00 +0200
+Message-Id: <20210719144946.625712757@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -38,43 +39,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannu Hartikainen <hannu@hrtk.in>
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
 
-commit 4897807753e078655a78de39ed76044d784f3e63 upstream.
+commit 84524d1232ecca7cf8678e851b254f05cff4040a upstream.
 
-The device (32a7:0000 Heimann Sensor GmbH USB appset demo) claims to be
-a CDC-ACM device in its descriptors but in fact is not. If it is run
-with echo disabled it returns garbled data, probably due to something
-that happens in the TTY layer. And when run with echo enabled (the
-default), it will mess up the calibration data of the sensor the first
-time any data is sent to the device.
+Creation EP's debugfs called earlier than debugfs folder for dwc3
+device created. As result EP's debugfs are created in '/sys/kernel/debug'
+instead of '/sys/kernel/debug/usb/dwc3.1.auto'.
 
-In short, I had a bad time after connecting the sensor and trying to get
-it to work. I hope blacklisting it in the cdc-acm driver will save
-someone else a bit of trouble.
+Moved dwc3_debugfs_init() function call before calling
+dwc3_core_init_mode() to allow create dwc3 debugfs parent before
+creating EP's debugfs's.
 
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
+Fixes: 8d396bb0a5b6 ("usb: dwc3: debugfs: Add and remove endpoint dirs dynamically")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210622141454.337948-1-hannu@hrtk.in
+Reviewed-by: Jack Pham <jackp@codeaurora.org>
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/01fafb5b2d8335e98e6eadbac61fc796bdf3ec1a.1623948457.git.Minas.Harutyunyan@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc3/core.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -2000,6 +2000,11 @@ static const struct usb_device_id acm_id
- 	.driver_info = IGNORE_DEVICE,
- 	},
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1495,17 +1495,18 @@ static int dwc3_probe(struct platform_de
+ 	}
  
-+	/* Exclude Heimann Sensor GmbH USB appset demo */
-+	{ USB_DEVICE(0x32a7, 0x0000),
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+
- 	/* control interfaces without any protocol set */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
- 		USB_CDC_PROTO_NONE) },
+ 	dwc3_check_params(dwc);
++	dwc3_debugfs_init(dwc);
+ 
+ 	ret = dwc3_core_init_mode(dwc);
+ 	if (ret)
+ 		goto err5;
+ 
+-	dwc3_debugfs_init(dwc);
+ 	pm_runtime_put(dev);
+ 
+ 	return 0;
+ 
+ err5:
++	dwc3_debugfs_exit(dwc);
+ 	dwc3_event_buffers_cleanup(dwc);
+ 
+ 	usb_phy_shutdown(dwc->usb2_phy);
 
 
