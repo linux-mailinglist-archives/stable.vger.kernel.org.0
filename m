@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853EE3CDEE0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D92A73CDC4C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344712AbhGSPGh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32940 "EHLO mail.kernel.org"
+        id S238540AbhGSOv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345460AbhGSPE1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 36B3B6124B;
-        Mon, 19 Jul 2021 15:43:59 +0000 (UTC)
+        id S1344205AbhGSOsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C527261404;
+        Mon, 19 Jul 2021 15:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709439;
-        bh=xwVusAZo2l4+4OovzmQa90BurM6osiTiK5JpcBU55to=;
+        s=korg; t=1626708424;
+        bh=5Vm9SroC6Pz4gZU4MFr8NI77D5Eosnz8naixy5bI5sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EFZ5Kg5sEWkDoFVijcinDRpREzkW0hzzbAo8wbOl73UNoOpfdc+XLrXuZ4GB07vGQ
-         NtDUGkrUWngyrhwj5gp4ZpXS9qHYytOjcaM9VU4h+d/ea0NMbWXc9MxBtuxrohERrt
-         IEijgdQddrz7c4aMsHl9rHSvMbV3SkBOSKQhWrSA=
+        b=qKZvKSdBO1R4DOx6bq6vf7TqnIJCSsR3+IuwLB3fw9h4mCfczSx2PdKZ0yuob6mGV
+         sVnK/pqqz+MXQqIAmik7Q3KTDW4+BqUAiVjbeL4+eX+rvPYhBr0a7cueXFnN9kNYdn
+         foGZqCdSOEwxiJ7OBe1wdivGhReLeVZdRytK5Tmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michael Wakabayashi <mwakabayashi@vmware.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 384/421] NFSv4: Initialise connection to the server in nfs4_alloc_client()
+Subject: [PATCH 4.14 306/315] ARM: dts: BCM5301X: Fixup SPI binding
 Date:   Mon, 19 Jul 2021 16:53:15 +0200
-Message-Id: <20210719144959.693404606@linuxfoundation.org>
+Message-Id: <20210719144953.535533273@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit dd99e9f98fbf423ff6d365b37a98e8879170f17c ]
+[ Upstream commit d5aede3e6dd1b8ca574600a1ecafe1e580c53f2f ]
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+1. Reorder interrupts
+2. Fix typo: s/spi_lr_overhead/spi_lr_overread/
+3. Rename node: s/spi-nor@0/flash@0/
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles connection setup to the DS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This fixes:
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi@18029200: interrupt-names: 'oneOf' conditional failed, one must be fixed:
+        ['spi_lr_fullness_reached', 'spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted'] is too long
+        Additional items are not allowed ('spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted' were unexpected)
+        'mspi_done' was expected
+        'spi_l1_intr' was expected
+        'mspi_halted' was expected
+        'spi_lr_fullness_reached' was expected
+        'spi_lr_session_aborted' was expected
+        'spi_lr_impatient' was expected
+        'spi_lr_session_done' was expected
+        'spi_lr_overread' was expected
+        From schema: Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.yaml
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi-nor@0: $nodename:0: 'spi-nor@0' does not match '^flash(@.*)?$'
+        From schema: Documentation/devicetree/bindings/mtd/jedec,spi-nor.yaml
+
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ arch/arm/boot/dts/bcm5301x.dtsi | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index b5ce70c4ec87..43659326b519 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -191,8 +191,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index dffa8b9bd536..165fd1c1461a 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -432,27 +432,27 @@
+ 		      <0x1811b408 0x004>,
+ 		      <0x180293a0 0x01c>;
+ 		reg-names = "mspi", "bspi", "intr_regs", "intr_status_reg";
+-		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
++		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "spi_lr_fullness_reached",
++			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-names = "mspi_done",
++				  "mspi_halted",
++				  "spi_lr_fullness_reached",
+ 				  "spi_lr_session_aborted",
+ 				  "spi_lr_impatient",
+ 				  "spi_lr_session_done",
+-				  "spi_lr_overhead",
+-				  "mspi_done",
+-				  "mspi_halted";
++				  "spi_lr_overread";
+ 		clocks = <&iprocmed>;
+ 		clock-names = "iprocmed";
+ 		num-cs = <2>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
  
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *clp = nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
- 
-@@ -216,6 +219,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
- 	INIT_LIST_HEAD(&clp->pending_cb_stateids);
-+
-+	if (cl_init->minorversion != 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err == -EINVAL)
-+		err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr= option was specified, find a usable cb address */
-+	if (ip_addr == NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
-+
-+		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err = rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr = (const char *)buf;
-+	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
-+
-+	err = nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error = %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
- 
- error:
-@@ -368,8 +409,6 @@ static int nfs4_init_client_minor_version(struct nfs_client *clp)
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
- 
-@@ -377,43 +416,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 		/* the client is initialised already */
- 		return clp;
- 
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops = &nfs_v4_clientops;
--
--	if (clp->cl_minorversion != 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error == -EINVAL)
--		error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr= option was specified, find a usable cb address */
--	if (ip_addr == NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
--
--		error = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error = rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr = (const char *)buf;
--	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error = nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error = %d\n",
--			__func__, error);
--		goto error;
--	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error = nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+-		spi_nor: spi-nor@0 {
++		spi_nor: flash@0 {
+ 			compatible = "jedec,spi-nor";
+ 			reg = <0>;
+ 			spi-max-frequency = <20000000>;
 -- 
 2.30.2
 
