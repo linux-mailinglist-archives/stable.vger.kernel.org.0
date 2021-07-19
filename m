@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B359A3CD986
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B563CDB31
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243872AbhGSOah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S244974AbhGSOli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242702AbhGSO2w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:28:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DCAF86024A;
-        Mon, 19 Jul 2021 15:08:24 +0000 (UTC)
+        id S1343503AbhGSOj1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3640A6120C;
+        Mon, 19 Jul 2021 15:18:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707305;
-        bh=wMTwP9VUntLF0/YBkgyc02ptanDNWStciw6hvgUvzNY=;
+        s=korg; t=1626707937;
+        bh=XCIlvktbw64/to7yDfMXk9QRna2tJOsiYJd9MSczrIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+XZw1hJEyzaq0JAnEhDIdHzc0pnprDwFORFKSEu9R8WLZ8MW4L13K1woqsEz35Tr
-         6q31t9nPPvTKfOBAJG5A4r9H3F1Dwp4hcnUINySVfhCOwDu+AfCIQImR0zcwkAr5Pm
-         JMureH5l/lnlMcuXBY1Ou1DTM1QCLgHv534vi2rQ=
+        b=mzLxLKfEmjO6FIAjWIvP7a0MW/YWrDy/fJrd7TAlhlhYgFuzTORUQXqWL8Hus8kDv
+         e5KhvMxcf62nfek5GxyUgrjV5Mkhei9MfEwCG790HwBr15TuTnYYEwwm5yoVhAzpws
+         QHpNCJFm/KziMi2NjoRwPQ2yD//sQTAqFq+rt7Xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 063/245] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>, Tejun Heo <tj@kernel.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 116/315] writeback: fix obtain a reference to a freeing memcg css
 Date:   Mon, 19 Jul 2021 16:50:05 +0200
-Message-Id: <20210719144942.444705821@linuxfoundation.org>
+Message-Id: <20210719144946.687086635@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,43 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
+[ Upstream commit 8b0ed8443ae6458786580d36b7d5f8125535c5d4 ]
 
-Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
-has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
-parameter being non-NULL if the polling mode is selected.  Let's only set
-the pointer to the driver's IRQ handler if platform_get_irq() returns a
-valid IRQ # -- this should avoid the unnecessary WARN_ON()...
+The caller of wb_get_create() should pin the memcg, because
+wb_get_create() relies on this guarantee. The rcu read lock
+only can guarantee that the memcg css returned by css_from_id()
+cannot be released, but the reference of the memcg can be zero.
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+  rcu_read_lock()
+  memcg_css = css_from_id()
+  wb_get_create(memcg_css)
+      cgwb_create(memcg_css)
+          // css_get can change the ref counter from 0 back to 1
+          css_get(memcg_css)
+  rcu_read_unlock()
+
+Fix it by holding a reference to the css before calling
+wb_get_create(). This is not a problem I encountered in the
+real world. Just the result of a code review.
+
+Fixes: 682aa8e1a6a1 ("writeback: implement unlocked_inode_to_wb transaction and use it for stat updates")
+Link: https://lore.kernel.org/r/20210402091145.80635-1-songmuchun@bytedance.com
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_octeon_cf.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/fs-writeback.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index 475a00669427..7e6359e32ab6 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -908,10 +908,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					return -EINVAL;
- 				}
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 08fef9c2296b..1e583e24dd5d 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -512,9 +512,14 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+-	if (memcg_css)
+-		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	if (memcg_css && !css_tryget(memcg_css))
++		memcg_css = NULL;
+ 	rcu_read_unlock();
++	if (!memcg_css)
++		goto out_free;
++
++	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	css_put(memcg_css);
+ 	if (!isw->new_wb)
+ 		goto out_free;
  
--				irq_handler = octeon_cf_interrupt;
- 				i = platform_get_irq(dma_dev, 0);
--				if (i > 0)
-+				if (i > 0) {
- 					irq = i;
-+					irq_handler = octeon_cf_interrupt;
-+				}
- 			}
- 			of_node_put(dma_node);
- 		}
 -- 
 2.30.2
 
