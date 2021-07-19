@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C3A3CE429
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7E53CE20C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233560AbhGSPmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
+        id S1347373AbhGSP2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:28:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhGSPg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:36:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C58A61026;
-        Mon, 19 Jul 2021 16:17:36 +0000 (UTC)
+        id S1349215AbhGSP0O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:26:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9877608FC;
+        Mon, 19 Jul 2021 16:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711457;
-        bh=/W2RctiyWho+2IWMPdcHXQXviv+W/936yAW4DjQGAHE=;
+        s=korg; t=1626710814;
+        bh=lqt3SH4p4r111KwtXJpHwqGvKo1eeRBYvgubUMk13vA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d6c+da822t9fmsDQYtYcLsTAXiudMMcGkx+j6y97PiuS3eLZYcwl8EVYHqx/pAxwg
-         w9IJtwA3gUddlK/+4LJq1KkYBF8hLUuHUpq9ctWQMkuzhn+UoKg2TDadxrceKrwtRc
-         gdywwpncgpU6pLikSRY1pOikWXELk85G5PbaKvMI=
+        b=XJVyWAr95vi4M2avmSbVR3xYj3//KId1GkeaCYGNyqSTuNJYLCNTxyWItAf+Z2yEV
+         XFBclviD6I/T8AGsQnqV8twTTxJkrT0rhXaBb5p2eAZkDkhGUYfaS6uWHWqUQotklk
+         Zp7QpgG3vyKD4BcDES/bnoBEALn7EfAnvUdijmbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.12 002/292] cifs: handle reconnect of tcon when there is no cached dfs referral
+        stable@vger.kernel.org, Koby Elbaz <kelbaz@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 118/351] habanalabs: set rc as valid in case of intentional func exit
 Date:   Mon, 19 Jul 2021 16:51:04 +0200
-Message-Id: <20210719144942.595068898@linuxfoundation.org>
+Message-Id: <20210719144948.384582914@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
-References: <20210719144942.514164272@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Koby Elbaz <kelbaz@habana.ai>
 
-commit 507345b5ae6a57b7ecd7550ff39282ed20de7b8d upstream.
+[ Upstream commit 11d5cb8b95456e2432dfee2ffcebf0623998493a ]
 
-When there is no cached DFS referral of tcon->dfs_path, then reconnect
-to same share.
+fix the following smatch warnings:
+hl_fw_static_init_cpu() warn: missing error code 'rc'
 
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/connect.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/misc/habanalabs/common/device.c      | 5 +++--
+ drivers/misc/habanalabs/common/firmware_if.c | 5 ++++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -4185,7 +4185,8 @@ int cifs_tree_connect(const unsigned int
- 	if (!tree)
- 		return -ENOMEM;
+diff --git a/drivers/misc/habanalabs/common/device.c b/drivers/misc/habanalabs/common/device.c
+index 00e92b678828..eea0d3e35b88 100644
+--- a/drivers/misc/habanalabs/common/device.c
++++ b/drivers/misc/habanalabs/common/device.c
+@@ -1334,8 +1334,9 @@ int hl_device_init(struct hl_device *hdev, struct class *hclass)
+ 	}
  
--	if (!tcon->dfs_path) {
-+	/* If it is not dfs or there was no cached dfs referral, then reconnect to same share */
-+	if (!tcon->dfs_path || dfs_cache_noreq_find(tcon->dfs_path + 1, &ref, &tl)) {
- 		if (tcon->ipc) {
- 			scnprintf(tree, MAX_TREE_SIZE, "\\\\%s\\IPC$", server->hostname);
- 			rc = ops->tree_connect(xid, tcon->ses, tree, tcon, nlsc);
-@@ -4195,9 +4196,6 @@ int cifs_tree_connect(const unsigned int
+ 	/*
+-	 * From this point, in case of an error, add char devices and create
+-	 * sysfs nodes as part of the error flow, to allow debugging.
++	 * From this point, override rc (=0) in case of an error to allow
++	 * debugging (by adding char devices and create sysfs nodes as part of
++	 * the error flow).
+ 	 */
+ 	add_cdev_sysfs_on_err = true;
+ 
+diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
+index 0713b2c12d54..86efb9fa701c 100644
+--- a/drivers/misc/habanalabs/common/firmware_if.c
++++ b/drivers/misc/habanalabs/common/firmware_if.c
+@@ -1006,11 +1006,14 @@ int hl_fw_init_cpu(struct hl_device *hdev, u32 cpu_boot_status_reg,
+ 
+ 	if (!(hdev->fw_components & FW_TYPE_LINUX)) {
+ 		dev_info(hdev->dev, "Skip loading Linux F/W\n");
++		rc = 0;
  		goto out;
  	}
  
--	rc = dfs_cache_noreq_find(tcon->dfs_path + 1, &ref, &tl);
--	if (rc)
--		goto out;
- 	isroot = ref.server_type == DFS_TYPE_ROOT;
- 	free_dfs_info_param(&ref);
+-	if (status == CPU_BOOT_STATUS_SRAM_AVAIL)
++	if (status == CPU_BOOT_STATUS_SRAM_AVAIL) {
++		rc = 0;
+ 		goto out;
++	}
  
+ 	dev_info(hdev->dev,
+ 		"Loading firmware to device, may take some time...\n");
+-- 
+2.30.2
+
 
 
