@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C563CE024
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6B783CDE12
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345615AbhGSPOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:14:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
+        id S1345173AbhGSPBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345370AbhGSPNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:13:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0812360FD7;
-        Mon, 19 Jul 2021 15:53:01 +0000 (UTC)
+        id S1343985AbhGSO70 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53EF36128E;
+        Mon, 19 Jul 2021 15:38:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709982;
-        bh=XTrAhiCQBgv6zHFyOrAJmGwSLDcsHJ+tJxlfFIqk2VA=;
+        s=korg; t=1626709081;
+        bh=OM0QNoOAzXMgTPxuxyfZQkJXBzjgf6bYaRl08h2/2Kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/GTjhXxUiEldyUplsoQAjvy9IFRAio9cnhg6XGEjfNY6vFFQzx7XaOdme5lJGuc/
-         ldiihU9yFmWrU4OqtytuO/8Q+BygQ8xS8lTmsLcqqYjcT+robFGs9RSFEx9HKfLeAA
-         ew62bnUgVtDwuoJf4/oSMGn0xOkIAUTLSTFcAnuc=
+        b=uwaBAzpt1blOawNxJX5bYV0LQB2ip12geTMdLnqVisCwygOLYVooZvwH9FyMoOpZ5
+         710qGnyQFXGGelUOZss7bNBJtYxJ3j5UO9ptsndkus22n+88uFmOucOKkWdpX2ROzR
+         KbcSlZ8cfGmAlHLCQMsi56+9+VbvBV2E7j8iPRAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ching Huang <ching2048@areca.com.tw>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 026/243] scsi: arcmsr: Fix the wrong CDB payload report to IOP
-Date:   Mon, 19 Jul 2021 16:50:55 +0200
-Message-Id: <20210719144941.769904707@linuxfoundation.org>
+Subject: [PATCH 4.19 245/421] dm space maps: dont reset space map allocation cursor when committing
+Date:   Mon, 19 Jul 2021 16:50:56 +0200
+Message-Id: <20210719144954.902469317@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ching Huang <ching2048@areca.com.tw>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit 5b8644968d2ca85abb785e83efec36934974b0c2 ]
+[ Upstream commit 5faafc77f7de69147d1e818026b9a0cbf036a7b2 ]
 
-This patch fixes the wrong CDB payload report to IOP.
+Current commit code resets the place where the search for free blocks
+will begin back to the start of the metadata device.  There are a couple
+of repercussions to this:
 
-Link: https://lore.kernel.org/r/d2c97df3c817595c6faf582839316209022f70da.camel@areca.com.tw
-Signed-off-by: ching Huang <ching2048@areca.com.tw>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+- The first allocation after the commit is likely to take longer than
+  normal as it searches for a free block in an area that is likely to
+  have very few free blocks (if any).
+
+- Any free blocks it finds will have been recently freed.  Reusing them
+  means we have fewer old copies of the metadata to aid recovery from
+  hardware error.
+
+Fix these issues by leaving the cursor alone, only resetting when the
+search hits the end of the metadata device.
+
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arcmsr/arcmsr_hba.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/md/persistent-data/dm-space-map-disk.c     | 9 ++++++++-
+ drivers/md/persistent-data/dm-space-map-metadata.c | 9 ++++++++-
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
-index e4fdb473b990..4838f790dac7 100644
---- a/drivers/scsi/arcmsr/arcmsr_hba.c
-+++ b/drivers/scsi/arcmsr/arcmsr_hba.c
-@@ -1928,8 +1928,12 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
+diff --git a/drivers/md/persistent-data/dm-space-map-disk.c b/drivers/md/persistent-data/dm-space-map-disk.c
+index bf4c5e2ccb6f..e0acae7a3815 100644
+--- a/drivers/md/persistent-data/dm-space-map-disk.c
++++ b/drivers/md/persistent-data/dm-space-map-disk.c
+@@ -171,6 +171,14 @@ static int sm_disk_new_block(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, smd->begin, smd->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smd->begin and the end of the metadata device.
++		 * We search before smd->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smd->old_ll, &smd->ll, 0, smd->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
  
- 		if (ccb->arc_cdb_size <= 0x300)
- 			arc_cdb_size = (ccb->arc_cdb_size - 1) >> 6 | 1;
--		else
--			arc_cdb_size = (((ccb->arc_cdb_size + 0xff) >> 8) + 2) << 1 | 1;
-+		else {
-+			arc_cdb_size = ((ccb->arc_cdb_size + 0xff) >> 8) + 2;
-+			if (arc_cdb_size > 0xF)
-+				arc_cdb_size = 0xF;
-+			arc_cdb_size = (arc_cdb_size << 1) | 1;
-+		}
- 		ccb_post_stamp = (ccb->smid | arc_cdb_size);
- 		writel(0, &pmu->inbound_queueport_high);
- 		writel(ccb_post_stamp, &pmu->inbound_queueport_low);
+@@ -199,7 +207,6 @@ static int sm_disk_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smd->old_ll, &smd->ll, sizeof(smd->old_ll));
+-	smd->begin = 0;
+ 	smd->nr_allocated_this_transaction = 0;
+ 
+ 	r = sm_disk_get_nr_free(sm, &nr_free);
+diff --git a/drivers/md/persistent-data/dm-space-map-metadata.c b/drivers/md/persistent-data/dm-space-map-metadata.c
+index 9e3c64ec2026..da439ac85796 100644
+--- a/drivers/md/persistent-data/dm-space-map-metadata.c
++++ b/drivers/md/persistent-data/dm-space-map-metadata.c
+@@ -452,6 +452,14 @@ static int sm_metadata_new_block_(struct dm_space_map *sm, dm_block_t *b)
+ 	 * Any block we allocate has to be free in both the old and current ll.
+ 	 */
+ 	r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, smm->begin, smm->ll.nr_blocks, b);
++	if (r == -ENOSPC) {
++		/*
++		 * There's no free block between smm->begin and the end of the metadata device.
++		 * We search before smm->begin in case something has been freed.
++		 */
++		r = sm_ll_find_common_free_block(&smm->old_ll, &smm->ll, 0, smm->begin, b);
++	}
++
+ 	if (r)
+ 		return r;
+ 
+@@ -503,7 +511,6 @@ static int sm_metadata_commit(struct dm_space_map *sm)
+ 		return r;
+ 
+ 	memcpy(&smm->old_ll, &smm->ll, sizeof(smm->old_ll));
+-	smm->begin = 0;
+ 	smm->allocated_this_transaction = 0;
+ 
+ 	return 0;
 -- 
 2.30.2
 
