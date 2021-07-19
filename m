@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 937C83CE4C2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7809A3CE4C5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235748AbhGSPqH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37194 "EHLO mail.kernel.org"
+        id S236104AbhGSPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346547AbhGSPmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:42:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32B3E61408;
-        Mon, 19 Jul 2021 16:21:54 +0000 (UTC)
+        id S1348353AbhGSPmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:42:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA55B61404;
+        Mon, 19 Jul 2021 16:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711714;
-        bh=bTYqlpNdoAoSEPSHIyiL4RKxHJprX5EKA4dt7923Zoo=;
+        s=korg; t=1626711717;
+        bh=HhGH2nShtf085j9Q6EdZ9DG6ZWL1jEl8tbmBg7X1qpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGN4jeeMByawNi36zwtTMfjAPpO3P6aOTNAHird+4YLtZqf4cRtTqk52TshVBvVKN
-         9sCAdlbwI72jSoB45Ah0SuQ8YIWtefLhn0dMXM9/gFAaj1HnzVGckGSI6Ac+zFGY+o
-         12r8eq3nVs/ZoH/XPy78I7hO7JwxpZjAri5cG4jE=
+        b=tUyU5l2+QVzLZnRajUk6ixYHZoBrkuyRmtGDgutTQ5Vhn/WRUJL3A9/QEyilSYDM0
+         LFLiBym0xZsrnMjhRrAm4Ciu5b6Ld/q73fSQZL2yoh0SthYW85xv3AjURKrlqt40jj
+         rZ288awys396GeqIbbLt3AFbH82H7uOuwE4pohQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Koby Elbaz <kelbaz@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 105/292] habanalabs/gaudi: set the correct rc in case of err
-Date:   Mon, 19 Jul 2021 16:52:47 +0200
-Message-Id: <20210719144945.949262227@linuxfoundation.org>
+Subject: [PATCH 5.12 106/292] s390/processor: always inline stap() and __load_psw_mask()
+Date:   Mon, 19 Jul 2021 16:52:48 +0200
+Message-Id: <20210719144945.983944477@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,37 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koby Elbaz <kelbaz@habana.ai>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 1f7ef4bf41c7c2abad3d21b8c69db11fc3ebc4f5 ]
+[ Upstream commit 9c9a915afd90f7534c16a71d1cd44b58596fddf3 ]
 
-fix the following smatch warnings:
-gaudi_internal_cb_pool_init() warn: missing error code 'rc'
+s390 is the only architecture which makes use of the __no_kasan_or_inline
+attribute for two functions. Given that both stap() and __load_psw_mask()
+are very small functions they can and should be always inlined anyway.
 
-Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+Therefore get rid of __no_kasan_or_inline and always inline these
+functions.
+
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/processor.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 0c6092ebbc04..894056da22cf 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -8070,8 +8070,10 @@ static int gaudi_internal_cb_pool_init(struct hl_device *hdev,
- 			HL_VA_RANGE_TYPE_HOST, HOST_SPACE_INTERNAL_CB_SZ,
- 			HL_MMU_VA_ALIGNMENT_NOT_NEEDED);
+diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
+index 023a15dc25a3..dbd380d81133 100644
+--- a/arch/s390/include/asm/processor.h
++++ b/arch/s390/include/asm/processor.h
+@@ -207,7 +207,7 @@ static __always_inline unsigned long current_stack_pointer(void)
+ 	return sp;
+ }
  
--	if (!hdev->internal_cb_va_base)
-+	if (!hdev->internal_cb_va_base) {
-+		rc = -ENOMEM;
- 		goto destroy_internal_cb_pool;
-+	}
+-static __no_kasan_or_inline unsigned short stap(void)
++static __always_inline unsigned short stap(void)
+ {
+ 	unsigned short cpu_address;
  
- 	mutex_lock(&ctx->mmu_lock);
- 	rc = hl_mmu_map_contiguous(ctx, hdev->internal_cb_va_base,
+@@ -246,7 +246,7 @@ static inline void __load_psw(psw_t psw)
+  * Set PSW mask to specified value, while leaving the
+  * PSW addr pointing to the next instruction.
+  */
+-static __no_kasan_or_inline void __load_psw_mask(unsigned long mask)
++static __always_inline void __load_psw_mask(unsigned long mask)
+ {
+ 	unsigned long addr;
+ 	psw_t psw;
 -- 
 2.30.2
 
