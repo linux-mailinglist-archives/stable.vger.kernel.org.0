@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95AB73CE567
+	by mail.lfdr.de (Postfix) with ESMTP id 4D49A3CE566
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348850AbhGSPty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47304 "EHLO mail.kernel.org"
+        id S1348867AbhGSPuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:50:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347473AbhGSPpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 225D661166;
-        Mon, 19 Jul 2021 16:26:32 +0000 (UTC)
+        id S1349564AbhGSPqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:46:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B67B661209;
+        Mon, 19 Jul 2021 16:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711993;
-        bh=scFsY1NGDBz0F+RDxTz8nFdjYLG0Qt4hPIotrS/R4x0=;
+        s=korg; t=1626711996;
+        bh=VP0GUshar69puAi37yg/wxXq5L4nJF5ufmP1cjz5SBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqRxXpP7X/pz3GuI5NXVLv+6LKAxFm6FknT6Zt2ex2q+X5NEW2wgjPwp5ehgDNBIG
-         c6fwaRBxAM3/wYqtffL98fJ1RmTo2aBs5gOz7PAfuA/207RMqIAen/Gp7WjJp8D3F7
-         tJzJAFfbEVuzjTK09IfDKzl0I3oD7Ad8+CBeDyFM=
+        b=hCYqVjWg0R4o2Jg6Yuv9XdZPbR5fC9Pn2pCYdfYc2M9I6P8I+AOqRJi1Krra7A42z
+         lSAVxuhd5XNA53mzeoHvWDnwRqsIKz8Vl4AXt4j6LJdUgyOWmomhWVh79xWBsVAbp0
+         RIf9y9nIaMSdlerI6Wl76AeuKqOgSlTiDZAEX9WM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 209/292] vdpa/mlx5: Fix possible failure in umem size calculation
-Date:   Mon, 19 Jul 2021 16:54:31 +0200
-Message-Id: <20210719144949.872070943@linuxfoundation.org>
+Subject: [PATCH 5.12 210/292] vdp/mlx5: Fix setting the correct dma_device
+Date:   Mon, 19 Jul 2021 16:54:32 +0200
+Message-Id: <20210719144949.903219713@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,67 +43,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 71ab6a7cfbae27f86a3901daab10bfe13b3a1e3a ]
+[ Upstream commit 7d23dcdf213c2e5f097eb7eec3148c26eb01d59f ]
 
-umem size is a 32 bit unsigned value so assigning it to an int could
-cause false failures. Set the calculated value inside the function and
-modify function name to reflect the fact it updates the size.
+Before SF support was introduced, the DMA device was equal to
+mdev->device which was in essence equal to pdev->dev.
 
-This bug was found during code review but never had real impact to this
-date.
+With SF introduction this is no longer true. It has already been
+handled for vhost_vdpa since the reference to the dma device can from
+within mlx5_vdpa. With virtio_vdpa this broke. To fix this we set the
+real dma device when initializing the device.
 
-Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+In addition, for the sake of consistency, previous references in the
+code to the dma device are changed to vdev->dma_dev.
+
+Fixes: d13a15d544ce5 ("vdpa/mlx5: Use the correct dma device when registering memory")
 Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210530090349.8360-1-elic@nvidia.com
+Link: https://lore.kernel.org/r/20210606053150.170489-1-elic@nvidia.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/vdpa/mlx5/core/mr.c       | 9 ++-------
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
+diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+index 800cfd1967ad..cfa56a58b271 100644
+--- a/drivers/vdpa/mlx5/core/mr.c
++++ b/drivers/vdpa/mlx5/core/mr.c
+@@ -219,11 +219,6 @@ static void destroy_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_m
+ 	mlx5_vdpa_destroy_mkey(mvdev, &mkey->mkey);
+ }
+ 
+-static struct device *get_dma_device(struct mlx5_vdpa_dev *mvdev)
+-{
+-	return &mvdev->mdev->pdev->dev;
+-}
+-
+ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr *mr,
+ 			 struct vhost_iotlb *iotlb)
+ {
+@@ -239,7 +234,7 @@ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr
+ 	u64 pa;
+ 	u64 paend;
+ 	struct scatterlist *sg;
+-	struct device *dma = get_dma_device(mvdev);
++	struct device *dma = mvdev->vdev.dma_dev;
+ 
+ 	for (map = vhost_iotlb_itree_first(iotlb, mr->start, mr->end - 1);
+ 	     map; map = vhost_iotlb_itree_next(map, start, mr->end - 1)) {
+@@ -298,7 +293,7 @@ err_map:
+ 
+ static void unmap_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr *mr)
+ {
+-	struct device *dma = get_dma_device(mvdev);
++	struct device *dma = mvdev->vdev.dma_dev;
+ 
+ 	destroy_direct_mr(mvdev, mr);
+ 	dma_unmap_sg_attrs(dma, mr->sg_head.sgl, mr->nsg, DMA_BIDIRECTIONAL, 0);
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index fc7834a34695..d5ea956a3a3a 100644
+index d5ea956a3a3a..85bcbbce1ef9 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -611,8 +611,8 @@ static void cq_destroy(struct mlx5_vdpa_net *ndev, u16 idx)
- 	mlx5_db_free(ndev->mvdev.mdev, &vcq->db);
- }
- 
--static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
--		     struct mlx5_vdpa_umem **umemp)
-+static void set_umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
-+			  struct mlx5_vdpa_umem **umemp)
- {
- 	struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
- 	int p_a;
-@@ -635,7 +635,7 @@ static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq
- 		*umemp = &mvq->umem3;
- 		break;
+@@ -2017,7 +2017,7 @@ static int mlx5v_probe(struct auxiliary_device *adev,
+ 			goto err_mtu;
  	}
--	return p_a * mvq->num_ent + p_b;
-+	(*umemp)->size = p_a * mvq->num_ent + p_b;
- }
  
- static void umem_frag_buf_free(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_umem *umem)
-@@ -651,15 +651,10 @@ static int create_umem(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
- 	void *in;
- 	int err;
- 	__be64 *pas;
--	int size;
- 	struct mlx5_vdpa_umem *umem;
- 
--	size = umem_size(ndev, mvq, num, &umem);
--	if (size < 0)
--		return size;
--
--	umem->size = size;
--	err = umem_frag_buf_alloc(ndev, umem, size);
-+	set_umem_size(ndev, mvq, num, &umem);
-+	err = umem_frag_buf_alloc(ndev, umem, umem->size);
+-	mvdev->vdev.dma_dev = mdev->device;
++	mvdev->vdev.dma_dev = &mdev->pdev->dev;
+ 	err = mlx5_vdpa_alloc_resources(&ndev->mvdev);
  	if (err)
- 		return err;
- 
+ 		goto err_mpfs;
 -- 
 2.30.2
 
