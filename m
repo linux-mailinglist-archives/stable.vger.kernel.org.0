@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 900EE3CE0C2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 311623CE0C5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346762AbhGSPSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:18:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S1346708AbhGSPSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346525AbhGSPOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346524AbhGSPOt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:14:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09E9D61285;
-        Mon, 19 Jul 2021 15:54:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 909E26128A;
+        Mon, 19 Jul 2021 15:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710096;
-        bh=O9+YOua0G9KnyA2M8OLH87WPhPFNQl5D35Y7gWGQ2s4=;
+        s=korg; t=1626710099;
+        bh=OLqbH2d+gVP9ROOjklugV0zALHqGY/8Q2uzXokpItNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WelPhPzGv3Ti5pyfEG1lHlmDb1nZMnipgL6ews+DMXk+6sA+Bin5cNfsBdv4UrITi
-         7WFRCGFLmQFtC3Nthf+Z0AjqhG2XbfiNBDQnw5kie0caw5YZwaQhIivTFUFp0sW8M/
-         RNcaK5RFPxagEQefhpf1PgJFtooVWeGYfznObDyY=
+        b=OzJPyml3CgUYTVZ6yBv+ZnROYlahbDW3bPy/FdVrf+mR1ZyH9hasE8LLD98ii0VGz
+         VEdyBz6J0bstadbToi4eyL1QwpH6ioRBkjpqaWmE2dLfSIwXo/c02gUPkZTJt4FIrA
+         juWhwA19pN6E9E1tCLvPAoEmgpUycC9rmQkBsK2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luiz Sampaio <sampaio.ime@gmail.com>,
+        stable@vger.kernel.org,
+        Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>,
+        Yong Zhi <yong.zhi@intel.com>, Bard Liao <bard.liao@intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 041/243] w1: ds2438: fixing bug that would always get page0
-Date:   Mon, 19 Jul 2021 16:51:10 +0200
-Message-Id: <20210719144942.251322184@linuxfoundation.org>
+Subject: [PATCH 5.10 042/243] ASoC: Intel: sof_sdw: add quirk support for Brya and BT-offload
+Date:   Mon, 19 Jul 2021 16:51:11 +0200
+Message-Id: <20210719144942.282420184@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -39,43 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Sampaio <sampaio.ime@gmail.com>
+From: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
 
-[ Upstream commit 1f5e7518f063728aee0679c5086b92d8ea429e11 ]
+[ Upstream commit 03effde3a2ea1d82c4dd6b634fc6174545d2c34f ]
 
-The purpose of the w1_ds2438_get_page function is to get the register
-values at the page passed as the pageno parameter. However, the page0 was
-hardcoded, such that the function always returned the page0 contents. Fixed
-so that the function can retrieve any page.
+Brya is another ADL-P product.
 
-Signed-off-by: Luiz Sampaio <sampaio.ime@gmail.com>
-Link: https://lore.kernel.org/r/20210519223046.13798-5-sampaio.ime@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+AlderLake has support for Bluetooth audio offload capability.
+Enable the BT-offload quirk for ADL-P Brya and the Intel RVP.
+
+Signed-off-by: Vamshi Krishna Gopal <vamshi.krishna.gopal@intel.com>
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Reviewed-by: Bard Liao <bard.liao@intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20210521155632.3736393-2-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/slaves/w1_ds2438.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/intel/boards/sof_sdw.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/w1/slaves/w1_ds2438.c b/drivers/w1/slaves/w1_ds2438.c
-index 5cfb0ae23e91..5698566b0ee0 100644
---- a/drivers/w1/slaves/w1_ds2438.c
-+++ b/drivers/w1/slaves/w1_ds2438.c
-@@ -62,13 +62,13 @@ static int w1_ds2438_get_page(struct w1_slave *sl, int pageno, u8 *buf)
- 		if (w1_reset_select_slave(sl))
- 			continue;
- 		w1_buf[0] = W1_DS2438_RECALL_MEMORY;
--		w1_buf[1] = 0x00;
-+		w1_buf[1] = (u8)pageno;
- 		w1_write_block(sl->master, w1_buf, 2);
- 
- 		if (w1_reset_select_slave(sl))
- 			continue;
- 		w1_buf[0] = W1_DS2438_READ_SCRATCH;
--		w1_buf[1] = 0x00;
-+		w1_buf[1] = (u8)pageno;
- 		w1_write_block(sl->master, w1_buf, 2);
- 
- 		count = w1_read_block(sl->master, buf, DS2438_PAGE_SIZE + 1);
+diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
+index 2770e8179983..f6d957ff61d6 100644
+--- a/sound/soc/intel/boards/sof_sdw.c
++++ b/sound/soc/intel/boards/sof_sdw.c
+@@ -197,7 +197,21 @@ static const struct dmi_system_id sof_sdw_quirk_table[] = {
+ 		.driver_data = (void *)(SOF_RT711_JD_SRC_JD1 |
+ 					SOF_SDW_TGL_HDMI |
+ 					SOF_RT715_DAI_ID_FIX |
+-					SOF_SDW_PCH_DMIC),
++					SOF_SDW_PCH_DMIC |
++					SOF_BT_OFFLOAD_SSP(2) |
++					SOF_SSP_BT_OFFLOAD_PRESENT),
++	},
++	{
++		.callback = sof_sdw_quirk_cb,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Brya"),
++		},
++		.driver_data = (void *)(SOF_SDW_TGL_HDMI |
++					SOF_SDW_PCH_DMIC |
++					SOF_SDW_FOUR_SPK |
++					SOF_BT_OFFLOAD_SSP(2) |
++					SOF_SSP_BT_OFFLOAD_PRESENT),
+ 	},
+ 	{}
+ };
 -- 
 2.30.2
 
