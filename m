@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28B7C3CD8BA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE1C3CD8B8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242693AbhGSOZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S242918AbhGSOZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242696AbhGSOWn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242693AbhGSOWn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:22:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB5761242;
-        Mon, 19 Jul 2021 15:02:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 811FC6113A;
+        Mon, 19 Jul 2021 15:02:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706963;
-        bh=ofUSPjF/yzLP/MLlyjcF+HuRo4cIJ3w1XQeSscxrtvo=;
+        s=korg; t=1626706966;
+        bh=8vf89cqAEiEpOFAna+3saqsBdZd00cUqtRl2GaRnTcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukSKFzxesVVc3Vsr0XcKi7kKo5OdyM+4qu3yDuqXH5b1GCSI6ikrZc0CnPGUEY9Cw
-         lxf5h9/GjsJB5qTI7mY3rrq1121DuGUgyBMN91do+z2lpvEOVlC2b9JiZaygy2D9S5
-         F4hdYf0PVaQvBJux0FRqWmJlt6/Pc/6hc3nB912Y=
+        b=f/qEgyNM6ybIrALhj5Kyw2R9kczfrTmCpF/VPMGqcEWCn2zsIeuOUgb8pqR9ajn+Q
+         dYIUFfJtSZY77vaQsrX1thBtYasnw9Gp/JuDJq8tvBON9U8LYEZRbRKSHiNiXINvUo
+         fSfK02c8jHVtfOt8o+QCDy+cIRhfu4AEDGF0qWpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Jian Cai <jiancai@google.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 167/188] ARM: 9087/1: kprobes: test-thumb: fix for LLVM_IAS=1
-Date:   Mon, 19 Jul 2021 16:52:31 +0200
-Message-Id: <20210719144941.958876782@linuxfoundation.org>
+Subject: [PATCH 4.4 168/188] watchdog: Fix possible use-after-free in wdt_startup()
+Date:   Mon, 19 Jul 2021 16:52:32 +0200
+Message-Id: <20210719144941.989363258@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -41,69 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Desaulniers <ndesaulniers@google.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 8b95a7d90ce8160ac5cffd5bace6e2eba01a871e ]
+[ Upstream commit c08a6b31e4917034f0ed0cb457c3bb209576f542 ]
 
-There's a few instructions that GAS infers operands but Clang doesn't;
-from what I can tell the Arm ARM doesn't say these are optional.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-F5.1.257 TBB, TBH T1 Halfword variant
-F5.1.238 STREXD T1 variant
-F5.1.84 LDREXD T1 variant
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1309
-
-Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
-Reviewed-by: Jian Cai <jiancai@google.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/1620716495-108352-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/probes/kprobes/test-thumb.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/watchdog/sbc60xxwdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/probes/kprobes/test-thumb.c b/arch/arm/probes/kprobes/test-thumb.c
-index b683b4517458..4254391f3906 100644
---- a/arch/arm/probes/kprobes/test-thumb.c
-+++ b/arch/arm/probes/kprobes/test-thumb.c
-@@ -444,21 +444,21 @@ void kprobe_thumb32_test_cases(void)
- 		"3:	mvn	r0, r0	\n\t"
- 		"2:	nop		\n\t")
- 
--	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
-+	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
- 		"9:			\n\t"
- 		".short	(2f-1b-4)>>1	\n\t"
- 		".short	(3f-1b-4)>>1	\n\t"
- 		"3:	mvn	r0, r0	\n\t"
- 		"2:	nop		\n\t")
- 
--	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
-+	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
- 		"9:			\n\t"
- 		".short	(2f-1b-4)>>1	\n\t"
- 		".short	(3f-1b-4)>>1	\n\t"
- 		"3:	mvn	r0, r0	\n\t"
- 		"2:	nop		\n\t")
- 
--	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
-+	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
- 		"9:			\n\t"
- 		".short	(2f-1b-4)>>1	\n\t"
- 		".short	(3f-1b-4)>>1	\n\t"
-@@ -471,10 +471,10 @@ void kprobe_thumb32_test_cases(void)
- 
- 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
- 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
--	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
-+	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
- 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
- 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
--	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
-+	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
- 
- 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
- 
+diff --git a/drivers/watchdog/sbc60xxwdt.c b/drivers/watchdog/sbc60xxwdt.c
+index 2eef58a0cf05..152db059d5aa 100644
+--- a/drivers/watchdog/sbc60xxwdt.c
++++ b/drivers/watchdog/sbc60xxwdt.c
+@@ -152,7 +152,7 @@ static void wdt_startup(void)
+ static void wdt_turnoff(void)
+ {
+ 	/* Stop the timer */
+-	del_timer(&timer);
++	del_timer_sync(&timer);
+ 	inb_p(wdt_stop);
+ 	pr_info("Watchdog timer is now disabled...\n");
+ }
 -- 
 2.30.2
 
