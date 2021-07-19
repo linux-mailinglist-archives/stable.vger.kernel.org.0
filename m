@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37693CDDFA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F4153CDDFE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345080AbhGSPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
+        id S1345148AbhGSPBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344395AbhGSO7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344412AbhGSO7g (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:59:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A5B060241;
-        Mon, 19 Jul 2021 15:40:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D27A260551;
+        Mon, 19 Jul 2021 15:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709203;
-        bh=aGOBuTpCyBT/9YPbAH2QN7D0OjQUj74F9IAvV0an/SQ=;
+        s=korg; t=1626709206;
+        bh=NYdkv1krDDvfASXYqmGKcEbFBMGcWOv8+irBhrGseyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BiFr5L9gwPR2Fm6mrvS02pCjEE/ju/njkIfYnayooha4oc0VVcLyPgEIgb2a+vVbj
-         lX5gADJz7wO5lZ74Pg/PnDeML6/oZE92G4Gcd5ZeCRAuhHRggSjbxbaJhErsfcVAuR
-         gScPToZHk1w7XtU7uQM8ao7pdSdPEKA4bmwS8ak8=
+        b=TRNRuapE/OPvDtDM6xL4u/xNxc/GJBdi1RQ99BSBLVXfhAoI4TspiqdfMSfwsZlfz
+         5ZJujs80Icy/0s/xCFP7ddus1uWnOtwcRD8EDOSnMucjMRdauSuNef3gpIJBqWWPJU
+         G94O3FAMVeVJUwneyq9BxjD6fihFGZmsUM4myIZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 257/421] cw1200: add missing MODULE_DEVICE_TABLE
-Date:   Mon, 19 Jul 2021 16:51:08 +0200
-Message-Id: <20210719144955.307050064@linuxfoundation.org>
+Subject: [PATCH 4.19 258/421] net: fix mistake path for netdev_features_strings
+Date:   Mon, 19 Jul 2021 16:51:09 +0200
+Message-Id: <20210719144955.339703482@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -41,35 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit dd778f89225cd258e8f0fed2b7256124982c8bb5 ]
+[ Upstream commit 2d8ea148e553e1dd4e80a87741abdfb229e2b323 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Th_strings arrays netdev_features_strings, tunable_strings, and
+phy_tunable_strings has been moved to file net/ethtool/common.c.
+So fixes the comment.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1620788714-14300-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/st/cw1200/cw1200_sdio.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/linux/netdev_features.h | 2 +-
+ include/uapi/linux/ethtool.h    | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/cw1200_sdio.c b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-index 1037ec62659d..ee86436bf152 100644
---- a/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-+++ b/drivers/net/wireless/st/cw1200/cw1200_sdio.c
-@@ -63,6 +63,7 @@ static const struct sdio_device_id cw1200_sdio_ids[] = {
- 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
- 	{ /* end: all zeroes */			},
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index 4c76fe2c8488..2a8105d204a9 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -88,7 +88,7 @@ enum {
+ 
+ 	/*
+ 	 * Add your fresh new feature above and remember to update
+-	 * netdev_features_strings[] in net/core/ethtool.c and maybe
++	 * netdev_features_strings[] in net/ethtool/common.c and maybe
+ 	 * some feature mask #defines below. Please also describe it
+ 	 * in Documentation/networking/netdev-features.txt.
+ 	 */
+diff --git a/include/uapi/linux/ethtool.h b/include/uapi/linux/ethtool.h
+index fc21d3726b59..35b11c246aeb 100644
+--- a/include/uapi/linux/ethtool.h
++++ b/include/uapi/linux/ethtool.h
+@@ -227,7 +227,7 @@ enum tunable_id {
+ 	ETHTOOL_PFC_PREVENTION_TOUT, /* timeout in msecs */
+ 	/*
+ 	 * Add your fresh new tunable attribute above and remember to update
+-	 * tunable_strings[] in net/core/ethtool.c
++	 * tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_TUNABLE_COUNT,
  };
-+MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
- 
- /* hwbus_ops implemetation */
- 
+@@ -261,7 +261,7 @@ enum phy_tunable_id {
+ 	ETHTOOL_PHY_DOWNSHIFT,
+ 	/*
+ 	 * Add your fresh new phy tunable attribute above and remember to update
+-	 * phy_tunable_strings[] in net/core/ethtool.c
++	 * phy_tunable_strings[] in net/ethtool/common.c
+ 	 */
+ 	__ETHTOOL_PHY_TUNABLE_COUNT,
+ };
 -- 
 2.30.2
 
