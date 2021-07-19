@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 305003CE014
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304A43CDE38
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346082AbhGSPNi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:13:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S245569AbhGSPCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345619AbhGSPMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:12:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 590716128E;
-        Mon, 19 Jul 2021 15:52:36 +0000 (UTC)
+        id S1343856AbhGSO7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9216D61289;
+        Mon, 19 Jul 2021 15:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709956;
-        bh=yaTQYHirmBKbG37mh1K7PYcOY8yl4a4MLQ1mreivnoc=;
+        s=korg; t=1626709050;
+        bh=MB9zlgkJnCKies2mtTgzKmFoPVEsNrYGrm3alODX5fQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R8oevDr7qMofJyfIIMcnyTqZ+PYDWsiqNsdOga/oTO5T3hvHz0lnnIyO3JD1NL3X8
-         j3mGp7CstbFFqw2f23qW/P8MesJIb6NtAAy7ufwfgEUR+SV9SUMQ1e4RCtfxk7nKns
-         4UhBi6/1EebSvzovuBqJp8A3/JTZnnehQ11IjwtY=
+        b=ZVKEdcSJpQvMf/a61LxAKmPaRTRxbFGFsf46N3K281U0zk61bK397rVKlV+G5G3up
+         N0gnrJtnXQZJ/JuVFs9s0z+mroVma6ebMYHZfMycT4VJG7s1rIfNXrwk3PMn5o3W4t
+         NcnSQ4wPQuymrrAvIA7v4JJl3hzMIZyBjfXEv/kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.10 016/243] drm/dp_mst: Avoid to mess up payload table by ports in stale topology
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 234/421] mISDN: fix possible use-after-free in HFC_cleanup()
 Date:   Mon, 19 Jul 2021 16:50:45 +0200
-Message-Id: <20210719144941.445588771@linuxfoundation.org>
+Message-Id: <20210719144954.534821272@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,121 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-commit 3769e4c0af5b82c8ea21d037013cb9564dfaa51f upstream.
+[ Upstream commit 009fc857c5f6fda81f2f7dd851b2d54193a8e733 ]
 
-[Why]
-After unplug/hotplug hub from the system, userspace might start to
-clear stale payloads gradually. If we call drm_dp_mst_deallocate_vcpi()
-to release stale VCPI of those ports which are not relating to current
-topology, we have chane to wrongly clear active payload table entry for
-current topology.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-E.g.
-We have allocated VCPI 1 in current payload table and we call
-drm_dp_mst_deallocate_vcpi() to clean VCPI 1 in stale topology. In
-drm_dp_mst_deallocate_vcpi(), it will call drm_dp_mst_put_payload_id()
-tp put VCPI 1 and which means ID 1 is available again. Thereafter, if we
-want to allocate a new payload stream, it will find ID 1 is available by
-drm_dp_mst_assign_payload_id(). However, ID 1 is being used
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-[How]
-Check target sink is relating to current topology or not before doing
-any payload table update.
-Searching upward to find the target sink's relevant root branch device.
-If the found root branch device is not the same root of current
-topology, don't update payload table.
-
-Changes since v1:
-* Change debug macro to use drm_dbg_kms() instead
-* Amend the commit message to add Cc tag.
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-3-Wayne.Lin@amd.com
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   29 +++++++++++++++++++++++++++++
- 1 file changed, 29 insertions(+)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -94,6 +94,9 @@ static int drm_dp_mst_register_i2c_bus(s
- static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
- static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
- 
-+static bool drm_dp_mst_port_downstream_of_branch(struct drm_dp_mst_port *port,
-+						 struct drm_dp_mst_branch *branch);
-+
- #define DBG_PREFIX "[dp_mst]"
- 
- #define DP_STR(x) [DP_ ## x] = #x
-@@ -3362,6 +3365,7 @@ int drm_dp_update_payload_part1(struct d
- 	struct drm_dp_mst_port *port;
- 	int i, j;
- 	int cur_slots = 1;
-+	bool skip;
- 
- 	mutex_lock(&mgr->payload_lock);
- 	for (i = 0; i < mgr->max_payloads; i++) {
-@@ -3376,6 +3380,14 @@ int drm_dp_update_payload_part1(struct d
- 			port = container_of(vcpi, struct drm_dp_mst_port,
- 					    vcpi);
- 
-+			mutex_lock(&mgr->lock);
-+			skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+			mutex_unlock(&mgr->lock);
-+
-+			if (skip) {
-+				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
-+				continue;
-+			}
- 			/* Validated ports don't matter if we're releasing
- 			 * VCPI
- 			 */
-@@ -3475,6 +3487,7 @@ int drm_dp_update_payload_part2(struct d
- 	struct drm_dp_mst_port *port;
- 	int i;
- 	int ret = 0;
-+	bool skip;
- 
- 	mutex_lock(&mgr->payload_lock);
- 	for (i = 0; i < mgr->max_payloads; i++) {
-@@ -3484,6 +3497,13 @@ int drm_dp_update_payload_part2(struct d
- 
- 		port = container_of(mgr->proposed_vcpis[i], struct drm_dp_mst_port, vcpi);
- 
-+		mutex_lock(&mgr->lock);
-+		skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+		mutex_unlock(&mgr->lock);
-+
-+		if (skip)
-+			continue;
-+
- 		DRM_DEBUG_KMS("payload %d %d\n", i, mgr->payloads[i].payload_state);
- 		if (mgr->payloads[i].payload_state == DP_PAYLOAD_LOCAL) {
- 			ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
-@@ -4565,9 +4585,18 @@ EXPORT_SYMBOL(drm_dp_mst_reset_vcpi_slot
- void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
- 				struct drm_dp_mst_port *port)
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index ebb3fa2e1d00..53349850f866 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -2348,7 +2348,7 @@ static void __exit
+ HFC_cleanup(void)
  {
-+	bool skip;
-+
- 	if (!port->vcpi.vcpi)
- 		return;
+ 	if (timer_pending(&hfc_tl))
+-		del_timer(&hfc_tl);
++		del_timer_sync(&hfc_tl);
  
-+	mutex_lock(&mgr->lock);
-+	skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
-+	mutex_unlock(&mgr->lock);
-+
-+	if (skip)
-+		return;
-+
- 	drm_dp_mst_put_payload_id(mgr, port->vcpi.vcpi);
- 	port->vcpi.num_slots = 0;
- 	port->vcpi.pbn = 0;
+ 	pci_unregister_driver(&hfc_driver);
+ }
+-- 
+2.30.2
+
 
 
