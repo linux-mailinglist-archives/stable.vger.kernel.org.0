@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0871C3CE5B1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0E5C3CE5B5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348823AbhGSPwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
+        id S1348966AbhGSPxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:53:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346381AbhGSPrt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347120AbhGSPrt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:47:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 651DD6128A;
-        Mon, 19 Jul 2021 16:27:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDF466142C;
+        Mon, 19 Jul 2021 16:27:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712074;
-        bh=FF6FdsUlmnuBBRRI2C3j3WieIA8w49IEE/YOHnTkSJU=;
+        s=korg; t=1626712077;
+        bh=UmLDDuHsDMQSXQ7CGjLaMI8m20POY947kK+WUlq0OYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBXHaw+gVgagtdl+/Vot8PntN/UfgxEmtcbOcSA12XsPhrDBheY8BpTdotkEsGTCS
-         DxohhJMpfOl9XFrijMwcXAoPPCuNCo71lsyyRQjQiBdBsccpZ6ntNvAlif59hkzMJE
-         Mb22bbXpUvv7BYoLNiz3dWFpXflBWldaROGP35kY=
+        b=EiPgpKRZiZfCLrz7zTGAgb1JDdW3mZpRufs4YtgNy64y6EaorzlktfyMs1m6sEg9D
+         O+MuE0oUXyJXLj2DAPzAyxZnQWf8sfj7zQ1TsxFIc9mtyiV4kilqECKruH7Xa5VMXp
+         NrRe4AaYiRHghtarHBxvc/7Ep9/2WNwUy7D7rZDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Caleb Connolly <caleb@connolly.tech>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 241/292] arm64: dts: qcom: sdm845-oneplus-common: guard rmtfs-mem
-Date:   Mon, 19 Jul 2021 16:55:03 +0200
-Message-Id: <20210719144950.882627059@linuxfoundation.org>
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 242/292] arm64: dts: ti: j7200-main: Enable USB2 PHY RX sensitivity workaround
+Date:   Mon, 19 Jul 2021 16:55:04 +0200
+Message-Id: <20210719144950.916742224@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,75 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caleb Connolly <caleb@connolly.tech>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit e60fd5ac1f6851be5b2c042b39584bfcf8a66f57 ]
+[ Upstream commit a2894d85f44ba3f2bdf5806c8dc62e2ec40c1c09 ]
 
-The rmtfs_mem region is a weird one, downstream allocates it
-dynamically, and supports a "qcom,guard-memory" property which when set
-will reserve 4k above and below the rmtfs memory.
+Enable work around feature built into the controller to address issue with
+RX Sensitivity for USB2 PHY.
 
-A common from qcom 4.9 kernel msm_sharedmem driver:
-
-/*
- * If guard_memory is set, then the shared memory region
- * will be guarded by SZ_4K at the start and at the end.
- * This is needed to overcome the XPU limitation on few
- * MSM HW, so as to make this memory not contiguous with
- * other allocations that may possibly happen from other
- * clients in the system.
-*/
-
-When the kernel tries to touch memory that is too close the
-rmtfs region it may cause an XPU violation. Such is the case on the
-OnePlus 6 where random crashes would occur usually after boot.
-
-Reserve 4k above and below the rmtfs_mem to avoid hitting these XPU
-Violations.
-
-This doesn't entirely solve the random crashes on the OnePlus 6/6T but
-it does seem to prevent the ones which happen shortly after modem
-bringup.
-
-Fixes: 288ef8a42612 ("arm64: dts: sdm845: add oneplus6/6t devices")
-Signed-off-by: Caleb Connolly <caleb@connolly.tech>
-Link: https://lore.kernel.org/r/20210502014146.85642-4-caleb@connolly.tech
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 6197d7139d12 ("arm64: dts: ti: k3-j7200-main: Add USB controller")
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210512153308.5840-1-a-govindraju@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-index 8f617f7b6d34..f712771df0c7 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-@@ -46,6 +46,14 @@
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+index 3398f174f09b..bfdf63d3947f 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+@@ -671,6 +671,7 @@
+ 					  "otg";
+ 			maximum-speed = "super-speed";
+ 			dr_mode = "otg";
++			cdns,phyrst-a-enable;
+ 		};
  	};
  
- 	reserved-memory {
-+		/* The rmtfs_mem needs to be guarded due to "XPU limitations"
-+		 * it is otherwise possible for an allocation adjacent to the
-+		 * rmtfs_mem region to trigger an XPU violation, causing a crash.
-+		 */
-+		rmtfs_lower_guard: memory@f5b00000 {
-+			no-map;
-+			reg = <0 0xf5b00000 0 0x1000>;
-+		};
- 		/*
- 		 * The rmtfs memory region in downstream is 'dynamically allocated'
- 		 * but given the same address every time. Hard code it as this address is
-@@ -59,6 +67,10 @@
- 			qcom,client-id = <1>;
- 			qcom,vmid = <15>;
- 		};
-+		rmtfs_upper_guard: memory@f5d01000 {
-+			no-map;
-+			reg = <0 0xf5d01000 0 0x2000>;
-+		};
- 
- 		/*
- 		 * It seems like reserving the old rmtfs_mem region is also needed to prevent
 -- 
 2.30.2
 
