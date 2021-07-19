@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CE7E3CE1C3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE243CE22D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345471AbhGSP1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:27:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S1346570AbhGSP31 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:29:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348211AbhGSPYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348212AbhGSPYj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:24:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A5D061407;
-        Mon, 19 Jul 2021 16:03:05 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88DE26140E;
+        Mon, 19 Jul 2021 16:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710585;
-        bh=mhhkwe1B7toKpvKFSN71soUIGso39L1OA/sprNGE4S8=;
+        s=korg; t=1626710590;
+        bh=YpiV6X3H08q/4trbmkrSG6VkxvyotsF79iM7KJklwmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxlSNzzOW39eYMMZJL5mOvSepASzSlhxQGwHFHoIuVQt09W9jQuGa5mGZRKTRxWZL
-         F64XdNFJ8BxhABRW3mRUR0fc2IwhtDk28fLvXjI/DhlQF0O7DsFEQBIQ9f2nEVVYs9
-         uvAFnV+pbRCY7vb3EzY9SDlu5Jx2fGT9BQaUDx48=
+        b=YOsfP2r5vwvGfUKMbzTFrWK5rd3kfj6aLoufeMY7vY5fNwXLotEm8QxY39H1X1XvA
+         h5TrXs+xYszA4DQoZrjMMuJA4sn7QEE118iNjPyRZxFttsUSB6BKu5po9eQ39ez3e0
+         l8a4MYRfMieqCWLe4K02nYuUe/OaUVTmHONv87UU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.13 034/351] drm/dp_mst: Do not set proposed vcpi directly
-Date:   Mon, 19 Jul 2021 16:49:40 +0200
-Message-Id: <20210719144945.655814083@linuxfoundation.org>
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.13 035/351] drm/dp_mst: Avoid to mess up payload table by ports in stale topology
+Date:   Mon, 19 Jul 2021 16:49:41 +0200
+Message-Id: <20210719144945.687164541@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -45,124 +41,119 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit 35d3e8cb35e75450f87f87e3d314e2d418b6954b upstream.
+commit 3769e4c0af5b82c8ea21d037013cb9564dfaa51f upstream.
 
 [Why]
-When we receive CSN message to notify one port is disconnected, we will
-implicitly set its corresponding num_slots to 0. Later on, we will
-eventually call drm_dp_update_payload_part1() to arrange down streams.
+After unplug/hotplug hub from the system, userspace might start to
+clear stale payloads gradually. If we call drm_dp_mst_deallocate_vcpi()
+to release stale VCPI of those ports which are not relating to current
+topology, we have chane to wrongly clear active payload table entry for
+current topology.
 
-In drm_dp_update_payload_part1(), we iterate over all proposed_vcpis[]
-to do the update. Not specific to a target sink only. For example, if we
-light up 2 monitors, Monitor_A and Monitor_B, and then we unplug
-Monitor_B. Later on, when we call drm_dp_update_payload_part1() to try
-to update payload for Monitor_A, we'll also implicitly clean payload for
-Monitor_B at the same time. And finally, when we try to call
-drm_dp_update_payload_part1() to clean payload for Monitor_B, we will do
-nothing at this time since payload for Monitor_B has been cleaned up
-previously.
-
-For StarTech 1to3 DP hub, it seems like if we didn't update DPCD payload
-ID table then polling for "ACT Handled"(BIT_1 of DPCD 002C0h) will fail
-and this polling will last for 3 seconds.
-
-Therefore, guess the best way is we don't set the proposed_vcpi[]
-diretly. Let user of these herlper functions to set the proposed_vcpi
-directly.
+E.g.
+We have allocated VCPI 1 in current payload table and we call
+drm_dp_mst_deallocate_vcpi() to clean VCPI 1 in stale topology. In
+drm_dp_mst_deallocate_vcpi(), it will call drm_dp_mst_put_payload_id()
+tp put VCPI 1 and which means ID 1 is available again. Thereafter, if we
+want to allocate a new payload stream, it will find ID 1 is available by
+drm_dp_mst_assign_payload_id(). However, ID 1 is being used
 
 [How]
-1. Revert commit 7617e9621bf2 ("drm/dp_mst: clear time slots for ports
-invalid")
-2. Tackle the issue in previous commit by skipping those trasient
-proposed VCPIs. These stale VCPIs shoulde be explicitly cleared by
-user later on.
+Check target sink is relating to current topology or not before doing
+any payload table update.
+Searching upward to find the target sink's relevant root branch device.
+If the found root branch device is not the same root of current
+topology, don't update payload table.
 
 Changes since v1:
 * Change debug macro to use drm_dbg_kms() instead
-* Amend the commit message to add Fixed & Cc tags
+* Amend the commit message to add Cc tag.
 
 Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Fixes: 7617e9621bf2 ("drm/dp_mst: clear time slots for ports invalid")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.5+
+Cc: stable@vger.kernel.org
 Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-2-Wayne.Lin@amd.com
+Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-3-Wayne.Lin@amd.com
 Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   36 +++++++++-------------------------
- 1 file changed, 10 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
 --- a/drivers/gpu/drm/drm_dp_mst_topology.c
 +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2497,7 +2497,7 @@ drm_dp_mst_handle_conn_stat(struct drm_d
- {
- 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
+@@ -94,6 +94,9 @@ static int drm_dp_mst_register_i2c_bus(s
+ static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
+ static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
+ 
++static bool drm_dp_mst_port_downstream_of_branch(struct drm_dp_mst_port *port,
++						 struct drm_dp_mst_branch *branch);
++
+ #define DBG_PREFIX "[dp_mst]"
+ 
+ #define DP_STR(x) [DP_ ## x] = #x
+@@ -3360,6 +3363,7 @@ int drm_dp_update_payload_part1(struct d
  	struct drm_dp_mst_port *port;
--	int old_ddps, old_input, ret, i;
-+	int old_ddps, ret;
- 	u8 new_pdt;
- 	bool new_mcs;
- 	bool dowork = false, create_connector = false;
-@@ -2529,7 +2529,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
- 	}
+ 	int i, j;
+ 	int cur_slots = 1;
++	bool skip;
  
- 	old_ddps = port->ddps;
--	old_input = port->input;
- 	port->input = conn_stat->input_port;
- 	port->ldps = conn_stat->legacy_device_plug_status;
- 	port->ddps = conn_stat->displayport_device_plug_status;
-@@ -2552,28 +2551,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
- 		dowork = false;
- 	}
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3374,6 +3378,14 @@ int drm_dp_update_payload_part1(struct d
+ 			port = container_of(vcpi, struct drm_dp_mst_port,
+ 					    vcpi);
  
--	if (!old_input && old_ddps != port->ddps && !port->ddps) {
--		for (i = 0; i < mgr->max_payloads; i++) {
--			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
--			struct drm_dp_mst_port *port_validated;
--
--			if (!vcpi)
--				continue;
--
--			port_validated =
--				container_of(vcpi, struct drm_dp_mst_port, vcpi);
--			port_validated =
--				drm_dp_mst_topology_get_port_validated(mgr, port_validated);
--			if (!port_validated) {
--				mutex_lock(&mgr->payload_lock);
--				vcpi->num_slots = 0;
--				mutex_unlock(&mgr->payload_lock);
--			} else {
--				drm_dp_mst_topology_put_port(port_validated);
--			}
--		}
--	}
--
- 	if (port->connector)
- 		drm_modeset_unlock(&mgr->base.lock);
- 	else if (create_connector)
-@@ -3404,8 +3381,15 @@ int drm_dp_update_payload_part1(struct d
- 				port = drm_dp_mst_topology_get_port_validated(
- 				    mgr, port);
- 				if (!port) {
--					mutex_unlock(&mgr->payload_lock);
--					return -EINVAL;
-+					if (vcpi->num_slots == payload->num_slots) {
-+						cur_slots += vcpi->num_slots;
-+						payload->start_slot = req_payload.start_slot;
-+						continue;
-+					} else {
-+						drm_dbg_kms("Fail:set payload to invalid sink");
-+						mutex_unlock(&mgr->payload_lock);
-+						return -EINVAL;
-+					}
- 				}
- 				put_port = true;
- 			}
++			mutex_lock(&mgr->lock);
++			skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++			mutex_unlock(&mgr->lock);
++
++			if (skip) {
++				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
++				continue;
++			}
+ 			/* Validated ports don't matter if we're releasing
+ 			 * VCPI
+ 			 */
+@@ -3473,6 +3485,7 @@ int drm_dp_update_payload_part2(struct d
+ 	struct drm_dp_mst_port *port;
+ 	int i;
+ 	int ret = 0;
++	bool skip;
+ 
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3482,6 +3495,13 @@ int drm_dp_update_payload_part2(struct d
+ 
+ 		port = container_of(mgr->proposed_vcpis[i], struct drm_dp_mst_port, vcpi);
+ 
++		mutex_lock(&mgr->lock);
++		skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++		mutex_unlock(&mgr->lock);
++
++		if (skip)
++			continue;
++
+ 		DRM_DEBUG_KMS("payload %d %d\n", i, mgr->payloads[i].payload_state);
+ 		if (mgr->payloads[i].payload_state == DP_PAYLOAD_LOCAL) {
+ 			ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
+@@ -4561,9 +4581,18 @@ EXPORT_SYMBOL(drm_dp_mst_reset_vcpi_slot
+ void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
+ 				struct drm_dp_mst_port *port)
+ {
++	bool skip;
++
+ 	if (!port->vcpi.vcpi)
+ 		return;
+ 
++	mutex_lock(&mgr->lock);
++	skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++	mutex_unlock(&mgr->lock);
++
++	if (skip)
++		return;
++
+ 	drm_dp_mst_put_payload_id(mgr, port->vcpi.vcpi);
+ 	port->vcpi.num_slots = 0;
+ 	port->vcpi.pbn = 0;
 
 
