@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 538AD3CDBB1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 684B53CD9BF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238041AbhGSOtg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60874 "EHLO mail.kernel.org"
+        id S241497AbhGSObd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245552AbhGSOmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:42:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7562D61221;
-        Mon, 19 Jul 2021 15:21:56 +0000 (UTC)
+        id S244303AbhGSO3e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 68E7061186;
+        Mon, 19 Jul 2021 15:09:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708116;
-        bh=WtqPB5MKbb9f4Znuqs7cgBs3WXwdAkg9h1wOf5Br/vY=;
+        s=korg; t=1626707353;
+        bh=zGOVYjwyMffJLWfigNL2olJxhT7aPhNmZaFHOVgs7cA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVj8tEPO6Knzp4nrb9FPe7ZpoXkxV4bzxf6iKaT4m5TudbZWow5+sWUnRpd7Uxw1u
-         F6coWqFJhTjHwd6VP5iZ3/66FweExGtn3l5bPbT5r6t7twoCeq3SlNPrGikL+V1LEB
-         XNfUIfhfhJbNZXc0nrAU5zVaTXZqJv/mVOMU9hhQ=
+        b=CJdEvUBuy5OvlBwOFZprbdiSAGQzxn5JGfEn/ZjoSlOyLwmzB6NU3VXFMm7TGOT1S
+         JI7Xsl/K/wiSWKWlmV1RrayDnMb3js91sR2jrTGRTb7lBmV+aImqVsWXvicYADzutA
+         lRw+sxBFGDNbjmEnU0HkU+xVHI324zMupMz0rrW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 180/315] net: micrel: check return value after calling platform_get_resource()
+Subject: [PATCH 4.9 127/245] mISDN: fix possible use-after-free in HFC_cleanup()
 Date:   Mon, 19 Jul 2021 16:51:09 +0200
-Message-Id: <20210719144948.806172919@linuxfoundation.org>
+Message-Id: <20210719144944.514144850@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 20f1932e2282c58cb5ac59517585206cf5b385ae ]
+[ Upstream commit 009fc857c5f6fda81f2f7dd851b2d54193a8e733 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8842.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/isdn/hardware/mISDN/hfcpci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8842.c b/drivers/net/ethernet/micrel/ks8842.c
-index e3d7c74d47bb..5282c5754ac1 100644
---- a/drivers/net/ethernet/micrel/ks8842.c
-+++ b/drivers/net/ethernet/micrel/ks8842.c
-@@ -1150,6 +1150,10 @@ static int ks8842_probe(struct platform_device *pdev)
- 	unsigned i;
+diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
+index ff48da61c94c..89cf1d695a01 100644
+--- a/drivers/isdn/hardware/mISDN/hfcpci.c
++++ b/drivers/isdn/hardware/mISDN/hfcpci.c
+@@ -2352,7 +2352,7 @@ static void __exit
+ HFC_cleanup(void)
+ {
+ 	if (timer_pending(&hfc_tl))
+-		del_timer(&hfc_tl);
++		del_timer_sync(&hfc_tl);
  
- 	iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!iomem) {
-+		dev_err(&pdev->dev, "Invalid resource\n");
-+		return -EINVAL;
-+	}
- 	if (!request_mem_region(iomem->start, resource_size(iomem), DRV_NAME))
- 		goto err_mem_region;
- 
+ 	pci_unregister_driver(&hfc_driver);
+ }
 -- 
 2.30.2
 
