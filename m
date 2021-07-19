@@ -2,72 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DC8E3CD06E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377223CCFEF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234816AbhGSIgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:36:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60242 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235235AbhGSIgi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 04:36:38 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 454C6C061574
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 01:18:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=cc8WxTp9u8HYpKx7zXqvjDzDZErsRxFk/MMnyKkMLQg=; b=A9Xm6YNlWN+nzI/dpgXm0abe3A
-        luJ1k4KEHp2gDhChrg4AiKI+M2OZ0q+Ux0kqutpjRVUORh32sJIEUA+Arf7sYFFaUVusZPNRER6MD
-        CIUar6CD9U4dE5V1h8tVC37BNxgzxwnM/1BgOaC7jyW6/R0TZUEFnMOI14yYCIXgRb5qxTiR/Ynmz
-        m+2Elq52B126zZr+Kcytn4Xq7rRrlOSxTV9yGflhkk80X3rJV9CFp961ly+zL1kf8P0jwmQ0nyT8L
-        hyQSQLKZuF5VKo7Ixfq8omp22OV4030nCh9yUdu2buSXncSp7cIZh+LLeDgFHGRAo0wIZPqXZggjM
-        xKgjAg0Q==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1m5Oo1-006f6U-0s; Mon, 19 Jul 2021 08:39:22 +0000
-Date:   Mon, 19 Jul 2021 09:39:17 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        "Darrick J . Wong" <djwong@kernel.org>, linux-xfs@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, Gao Xiang <xiang@kernel.org>,
-        linux-erofs@lists.ozlabs.org, stable@vger.kernel.org
-Subject: Re: [PATCH] iomap: Add missing flush_dcache_page
-Message-ID: <YPU6NVlfIh4PfbPl@infradead.org>
-References: <20210716150032.1089982-1-willy@infradead.org>
- <YPGf8o7vo6/9iTE5@infradead.org>
- <YPHBqlLJQKQgRHqH@casper.infradead.org>
+        id S235882AbhGSIXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:23:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235677AbhGSIXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 04:23:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DB9B611C0;
+        Mon, 19 Jul 2021 08:55:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626684922;
+        bh=mvZJarycN/VfNRfHwkkD4qLpdUHL2+W+41SjHEqsdXQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=CA5NkdMQYdy9gXw5fyI48I5W0YqCvYURrA+4SW2e4oTjhHgm+FeVXlPFAuOHiakJt
+         rqOo10GkU+xJ7kWNnwEsaEDMes9m0bIye7C3s+zoQ7Kk6xjkY2jd5yPqIFsTOB9TAj
+         SNsO0o0LU20Gd6aA8fzizB8fhpln2bT+f4vyjzcI=
+Subject: FAILED: patch "[PATCH] KVM: x86: Use kernel's x86_phys_bits to handle reduced" failed to apply to 5.12-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 19 Jul 2021 10:52:39 +0200
+Message-ID: <16266847593323@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YPHBqlLJQKQgRHqH@casper.infradead.org>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 16, 2021 at 06:28:10PM +0100, Matthew Wilcox wrote:
-> > >  	memcpy(addr, iomap->inline_data, size);
-> > >  	memset(addr + size, 0, PAGE_SIZE - size);
-> > >  	kunmap_atomic(addr);
-> > > +	flush_dcache_page(page);
-> > 
-> > .. and all writes into a kmap also need such a flush, so this needs to
-> > move a line up.  My plan was to add a memcpy_to_page_and_pad helper
-> > ala memcpy_to_page to get various file systems and drivers out of the
-> > business of cache flushing as much as we can.
-> 
-> hm?  It's absolutely allowed to flush the page after calling kunmap.
-> Look at zero_user_segments(), for example.
 
-Documentation/core-api/cachetlb.rst states that any user page obtained
-using kmap needs a flush_kernel_dcache_page after modification.
-flush_dcache_page is a strict superset of flush_kernel_dcache_page.
-That beeing said flushing after kmap updates is a complete mess.
-arm as probably the poster child for dcache challenged plus highmem
-architectures always flushed caches from kunmap and, and arc has
-a flush_dcache_page that doesn't work at all on a highmem page that
-is not kmapped (where kmap_atomic and kmap_local_page don't count as
-kmapped as they don't set page->virtual).
+The patch below does not apply to the 5.12-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e39f00f60ebd2e7b295c37a05e6349df656d3eb8 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Wed, 23 Jun 2021 16:05:47 -0700
+Subject: [PATCH] KVM: x86: Use kernel's x86_phys_bits to handle reduced
+ MAXPHYADDR
+
+Use boot_cpu_data.x86_phys_bits instead of the raw CPUID information to
+enumerate the MAXPHYADDR for KVM guests when TDP is disabled (the guest
+version is only relevant to NPT/TDP).
+
+When using shadow paging, any reductions to the host's MAXPHYADDR apply
+to KVM and its guests as well, i.e. using the raw CPUID info will cause
+KVM to misreport the number of PA bits available to the guest.
+
+Unconditionally zero out the "Physical Address bit reduction" entry.
+For !TDP, the adjustment is already done, and for TDP enumerating the
+host's reduction is wrong as the reduction does not apply to GPAs.
+
+Fixes: 9af9b94068fb ("x86/cpu/AMD: Handle SME reduction in physical address size")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210623230552.4027702-3-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index 1a4217b3e185..ca7866d63e98 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -941,11 +941,18 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
+ 		unsigned phys_as = entry->eax & 0xff;
+ 
+ 		/*
+-		 * Use bare metal's MAXPHADDR if the CPU doesn't report guest
+-		 * MAXPHYADDR separately, or if TDP (NPT) is disabled, as the
+-		 * guest version "applies only to guests using nested paging".
++		 * If TDP (NPT) is disabled use the adjusted host MAXPHYADDR as
++		 * the guest operates in the same PA space as the host, i.e.
++		 * reductions in MAXPHYADDR for memory encryption affect shadow
++		 * paging, too.
++		 *
++		 * If TDP is enabled but an explicit guest MAXPHYADDR is not
++		 * provided, use the raw bare metal MAXPHYADDR as reductions to
++		 * the HPAs do not affect GPAs.
+ 		 */
+-		if (!g_phys_as || !tdp_enabled)
++		if (!tdp_enabled)
++			g_phys_as = boot_cpu_data.x86_phys_bits;
++		else if (!g_phys_as)
+ 			g_phys_as = phys_as;
+ 
+ 		entry->eax = g_phys_as | (virt_as << 8);
+@@ -970,12 +977,18 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
+ 	case 0x8000001a:
+ 	case 0x8000001e:
+ 		break;
+-	/* Support memory encryption cpuid if host supports it */
+ 	case 0x8000001F:
+-		if (!kvm_cpu_cap_has(X86_FEATURE_SEV))
++		if (!kvm_cpu_cap_has(X86_FEATURE_SEV)) {
+ 			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
+-		else
++		} else {
+ 			cpuid_entry_override(entry, CPUID_8000_001F_EAX);
++
++			/*
++			 * Enumerate '0' for "PA bits reduction", the adjusted
++			 * MAXPHYADDR is enumerated directly (see 0x80000008).
++			 */
++			entry->ebx &= ~GENMASK(11, 6);
++		}
+ 		break;
+ 	/*Add support for Centaur's CPUID instruction*/
+ 	case 0xC0000000:
+
