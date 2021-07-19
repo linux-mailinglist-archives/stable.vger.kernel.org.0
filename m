@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DAA3CE4F6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2303CE4F5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346595AbhGSPrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
+        id S1346590AbhGSPrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349526AbhGSPpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34D0E613AE;
-        Mon, 19 Jul 2021 16:25:25 +0000 (UTC)
+        id S1349552AbhGSPpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFD30613EB;
+        Mon, 19 Jul 2021 16:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711925;
-        bh=TA9QqRNb//SC6IcAX3eEG7Yp/WdzyzNJZnDtORAEov4=;
+        s=korg; t=1626711928;
+        bh=6aTflyQFmFomlDwzDmPE7l9RTZTxsm8IuLC6j0pLP30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pTa4i7HgfmYdVTWoYwDv8KDs+OMTkO1w/MmiS8EEvCwUux25PQlS4wt80qBfq/XmQ
-         2XBWSwRGiQaQyFfs8VWxL3u7Ni8vCWYQ4gVsvY/WsOJEFBLtQIlYONkwI2Hc3TXhGL
-         2WkY+vOMtjNT5uB4FpgaRHP4mVkuffCtF/8iRTyk=
+        b=NwECPMPdnfUfOJr4Hu29FnzeuIQVxig9j/2NKaDdu4Wk14t6/PObwIbDk0M/yTMRO
+         Isxgo7y8Xcj9a2KxQtlgtyQYTnesTQkn6+hWMaZ7Qn7NXqRsoWvIN6pakpLhch6htH
+         LkCB+JRPN7LRTJKib5mab1eRUYqIK5RVwfSzMudM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michael Wakabayashi <mwakabayashi@vmware.com>,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 182/292] NFSv4: Initialise connection to the server in nfs4_alloc_client()
-Date:   Mon, 19 Jul 2021 16:54:04 +0200
-Message-Id: <20210719144948.483541679@linuxfoundation.org>
+Subject: [PATCH 5.12 183/292] NFSv4: Fix an Oops in pnfs_mark_request_commit() when doing O_DIRECT
+Date:   Mon, 19 Jul 2021 16:54:05 +0200
+Message-Id: <20210719144948.514357582@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,136 +42,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit dd99e9f98fbf423ff6d365b37a98e8879170f17c ]
+[ Upstream commit 3731d44bba8e0116b052b1b374476c5f6dd9a456 ]
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+Fix an Oopsable condition in pnfs_mark_request_commit() when we're
+putting a set of writes on the commit list to reschedule them after a
+failed pNFS attempt.
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles connection setup to the DS")
+Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ fs/nfs/direct.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 42719384e25f..28431acd1230 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -197,8 +197,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
- 
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
+diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
+index 2d30a4da49fa..2e894fec036b 100644
+--- a/fs/nfs/direct.c
++++ b/fs/nfs/direct.c
+@@ -700,8 +700,8 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
  {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *clp = nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
+ 	struct nfs_direct_req *dreq = hdr->dreq;
+ 	struct nfs_commit_info cinfo;
+-	bool request_commit = false;
+ 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
++	int flags = NFS_ODIRECT_DONE;
  
-@@ -222,6 +225,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
- 	INIT_LIST_HEAD(&clp->pending_cb_stateids);
-+
-+	if (cl_init->minorversion != 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err == -EINVAL)
-+		err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr= option was specified, find a usable cb address */
-+	if (ip_addr == NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
-+
-+		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err = rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr = (const char *)buf;
-+	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
-+
-+	err = nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error = %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
+ 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
  
- error:
-@@ -372,8 +413,6 @@ static int nfs4_init_client_minor_version(struct nfs_client *clp)
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
+@@ -713,15 +713,9 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
  
-@@ -381,43 +420,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 		/* the client is initialised already */
- 		return clp;
+ 	nfs_direct_count_bytes(dreq, hdr);
+ 	if (hdr->good_bytes != 0 && nfs_write_need_commit(hdr)) {
+-		switch (dreq->flags) {
+-		case 0:
++		if (!dreq->flags)
+ 			dreq->flags = NFS_ODIRECT_DO_COMMIT;
+-			request_commit = true;
+-			break;
+-		case NFS_ODIRECT_RESCHED_WRITES:
+-		case NFS_ODIRECT_DO_COMMIT:
+-			request_commit = true;
+-		}
++		flags = dreq->flags;
+ 	}
+ 	spin_unlock(&dreq->lock);
  
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops = &nfs_v4_clientops;
--
--	if (clp->cl_minorversion != 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error == -EINVAL)
--		error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr= option was specified, find a usable cb address */
--	if (ip_addr == NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
--
--		error = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error = rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr = (const char *)buf;
--	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error = nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error = %d\n",
--			__func__, error);
--		goto error;
--	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error = nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+@@ -729,12 +723,15 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
+ 
+ 		req = nfs_list_entry(hdr->pages.next);
+ 		nfs_list_remove_request(req);
+-		if (request_commit) {
++		if (flags == NFS_ODIRECT_DO_COMMIT) {
+ 			kref_get(&req->wb_kref);
+ 			memcpy(&req->wb_verf, &hdr->verf.verifier,
+ 			       sizeof(req->wb_verf));
+ 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
+ 				hdr->ds_commit_idx);
++		} else if (flags == NFS_ODIRECT_RESCHED_WRITES) {
++			kref_get(&req->wb_kref);
++			nfs_mark_request_commit(req, NULL, &cinfo, 0);
+ 		}
+ 		nfs_unlock_and_release_request(req);
+ 	}
 -- 
 2.30.2
 
