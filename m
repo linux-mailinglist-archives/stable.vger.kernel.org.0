@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBF03CD81A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EECB53CD98D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242726AbhGSOUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:20:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        id S244129AbhGSOap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242382AbhGSOTu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:19:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A009B61165;
-        Mon, 19 Jul 2021 15:00:28 +0000 (UTC)
+        id S244070AbhGSO3S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A149B61166;
+        Mon, 19 Jul 2021 15:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706829;
-        bh=Fi1WOGB/gHgrOPil0YCRQlkbeL9NDzzccaMwb4AsXMc=;
+        s=korg; t=1626707325;
+        bh=QG+XvMaXC6bssGZ1g7BHEL8mbwhbxFPsktMscyZdKdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pydUVFhdDgWxVuDLpWPAcTQna98f0gZkevuT0fdbw83JA/iRzuKDR+o+WyWLzM6Xz
-         KTSMFjDUViq0QeeHhoRQV3dbUOy7/h7CAL7yxlnnTw/fCeXq/PhTQtuwWYmfmelDSS
-         xmwEz4jiZvHKz+LTdeJG3E0iNcZNLBLv7Nnmyem0=
+        b=c32aJbRvF/PaXkDB1en4R6Hb0X5iGYcfY4kD0E02aP0blp6QVx/0yjzq0u1fkbfac
+         dVCxBveo0k8eptraGgzB21rn7j7+jS3KHr728STXt8ZdIGodLS/QG37S4awzQOw/qp
+         nm1588dc2OCK/Ed8OdnC8Gd1tAo1/RWJLS0BjN14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 073/188] vxlan: add missing rcu_read_lock() in neigh_reduce()
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 115/245] phy: ti: dm816x: Fix the error handling path in dm816x_usb_phy_probe()
 Date:   Mon, 19 Jul 2021 16:50:57 +0200
-Message-Id: <20210719144930.039980271@linuxfoundation.org>
+Message-Id: <20210719144944.131981506@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 85e8b032d6ebb0f698a34dd22c2f13443d905888 ]
+[ Upstream commit f7eedcb8539ddcbb6fe7791f1b4ccf43f905c72f ]
 
-syzbot complained in neigh_reduce(), because rcu_read_lock_bh()
-is treated differently than rcu_read_lock()
+Add an error handling path in the probe to release some resources, as
+already done in the remove function.
 
-WARNING: suspicious RCU usage
-5.13.0-rc6-syzkaller #0 Not tainted
------------------------------
-include/net/addrconf.h:313 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-3 locks held by kworker/0:0/5:
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:617 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:644 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2247
- #1: ffffc90000ca7da8 ((work_completion)(&port->wq)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2251
- #2: ffffffff8bf795c0 (rcu_read_lock_bh){....}-{1:2}, at: __dev_queue_xmit+0x1da/0x3130 net/core/dev.c:4180
-
-stack backtrace:
-CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.13.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events ipvlan_process_multicast
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- __in6_dev_get include/net/addrconf.h:313 [inline]
- __in6_dev_get include/net/addrconf.h:311 [inline]
- neigh_reduce drivers/net/vxlan.c:2167 [inline]
- vxlan_xmit+0x34d5/0x4c30 drivers/net/vxlan.c:2919
- __netdev_start_xmit include/linux/netdevice.h:4944 [inline]
- netdev_start_xmit include/linux/netdevice.h:4958 [inline]
- xmit_one net/core/dev.c:3654 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3670
- __dev_queue_xmit+0x2133/0x3130 net/core/dev.c:4246
- ipvlan_process_multicast+0xa99/0xd70 drivers/net/ipvlan/ipvlan_core.c:287
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2276
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2422
- kthread+0x3b1/0x4a0 kernel/kthread.c:313
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 609adde838f4 ("phy: Add a driver for dm816x USB PHY")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/ac5136881f6bdec50be19b3bf73b3bc1b15ef1f1.1622898974.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/phy/phy-dm816x-usb.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 50ede6b8b874..4d44ec5b7cd7 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1549,6 +1549,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb)
- 	struct neighbour *n;
- 	struct inet6_dev *in6_dev;
+diff --git a/drivers/phy/phy-dm816x-usb.c b/drivers/phy/phy-dm816x-usb.c
+index cbcce7cf0028..2ed5fe20d779 100644
+--- a/drivers/phy/phy-dm816x-usb.c
++++ b/drivers/phy/phy-dm816x-usb.c
+@@ -246,19 +246,28 @@ static int dm816x_usb_phy_probe(struct platform_device *pdev)
  
-+	rcu_read_lock();
- 	in6_dev = __in6_dev_get(dev);
- 	if (!in6_dev)
- 		goto out;
-@@ -1605,6 +1606,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb)
- 	}
+ 	pm_runtime_enable(phy->dev);
+ 	generic_phy = devm_phy_create(phy->dev, NULL, &ops);
+-	if (IS_ERR(generic_phy))
+-		return PTR_ERR(generic_phy);
++	if (IS_ERR(generic_phy)) {
++		error = PTR_ERR(generic_phy);
++		goto clk_unprepare;
++	}
  
- out:
-+	rcu_read_unlock();
- 	consume_skb(skb);
- 	return NETDEV_TX_OK;
+ 	phy_set_drvdata(generic_phy, phy);
+ 
+ 	phy_provider = devm_of_phy_provider_register(phy->dev,
+ 						     of_phy_simple_xlate);
+-	if (IS_ERR(phy_provider))
+-		return PTR_ERR(phy_provider);
++	if (IS_ERR(phy_provider)) {
++		error = PTR_ERR(phy_provider);
++		goto clk_unprepare;
++	}
+ 
+ 	usb_add_phy_dev(&phy->phy);
+ 
+ 	return 0;
++
++clk_unprepare:
++	pm_runtime_disable(phy->dev);
++	clk_unprepare(phy->refclk);
++	return error;
  }
+ 
+ static int dm816x_usb_phy_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
