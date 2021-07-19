@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7A453CDFD8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4912C3CDF27
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344197AbhGSPM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47038 "EHLO mail.kernel.org"
+        id S1343594AbhGSPIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345274AbhGSPKc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01560611F2;
-        Mon, 19 Jul 2021 15:51:10 +0000 (UTC)
+        id S1345607AbhGSPEp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C22606A5;
+        Mon, 19 Jul 2021 15:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709871;
-        bh=vLRAzC3PB3D1e2H6/tAEcR/aEhROiBVS9SoP3n7iMSY=;
+        s=korg; t=1626709472;
+        bh=x88MS2ITws8FK+xlvLz/ieDFsmVgFG8E+Ow7UVUBkA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbZFEruAY+F1CO0bGM9BnttRrIf+GXL1EhyMQ/JDtkeAQ1MM5tDjGxRW9vVS0V61P
-         ruZmstgL7Ms/5FqFF034zxov7zBH6VI6lUtae4k6Vl/zkdG+eYnvV2t7fU37syAL6U
-         GfWK3WrsIVCQXIk12KhYbXXRq9wSZfqn8iQoIBUg=
+        b=G9+d1gjYE1hlD5QT+cSKjf2e44AReYpLymMCpFVM/P6CFt7+rnwqQOYempUhWpEH3
+         j0fH2+hCRXJo4tQmSJ0/t3IK+MsT8xFuAedjpAITiAl5HP9ZKahT1cE8DvWB+5jnQs
+         aMTzSh1n7r4ucwR9ETA3hUzwkLhBIivmKCygeaDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Brian Cain <bcain@codeaurora.org>,
+        David Rientjes <rientjes@google.com>,
+        Oliver Glitta <glittao@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/149] PCI/sysfs: Fix dsm_label_utf16s_to_utf8s() buffer overrun
-Date:   Mon, 19 Jul 2021 16:53:26 +0200
-Message-Id: <20210719144924.563585893@linuxfoundation.org>
+Subject: [PATCH 4.19 396/421] hexagon: use common DISCARDS macro
+Date:   Mon, 19 Jul 2021 16:53:27 +0200
+Message-Id: <20210719145000.096295657@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit bdcdaa13ad96f1a530711c29e6d4b8311eff767c ]
+[ Upstream commit 681ba73c72302214686401e707e2087ed11a6556 ]
 
-"utf16s_to_utf8s(..., buf, PAGE_SIZE)" puts up to PAGE_SIZE bytes into
-"buf" and returns the number of bytes it actually put there.  If it wrote
-PAGE_SIZE bytes, the newline added by dsm_label_utf16s_to_utf8s() would
-overrun "buf".
+ld.lld warns that the '.modinfo' section is not currently handled:
 
-Reduce the size available for utf16s_to_utf8s() to use so there is always
-space for the newline.
+ld.lld: warning: kernel/built-in.a(workqueue.o):(.modinfo) is being placed in '.modinfo'
+ld.lld: warning: kernel/built-in.a(printk/printk.o):(.modinfo) is being placed in '.modinfo'
+ld.lld: warning: kernel/built-in.a(irq/spurious.o):(.modinfo) is being placed in '.modinfo'
+ld.lld: warning: kernel/built-in.a(rcu/update.o):(.modinfo) is being placed in '.modinfo'
 
-[bhelgaas: reorder patch in series, commit log]
-Fixes: 6058989bad05 ("PCI: Export ACPI _DSM provided firmware instance number and string name to sysfs")
-Link: https://lore.kernel.org/r/20210603000112.703037-7-kw@linux.com
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+The '.modinfo' section was added in commit 898490c010b5 ("moduleparam:
+Save information about built-in modules in separate file") to the DISCARDS
+macro but Hexagon has never used that macro.  The unification of DISCARDS
+happened in commit 023bf6f1b8bf ("linker script: unify usage of discard
+definition") in 2009, prior to Hexagon being added in 2011.
+
+Switch Hexagon over to the DISCARDS macro so that anything that is
+expected to be discarded gets discarded.
+
+Link: https://lkml.kernel.org/r/20210521011239.1332345-3-nathan@kernel.org
+Fixes: e95bf452a9e2 ("Hexagon: Add configuration and makefiles for the Hexagon architecture.")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Oliver Glitta <glittao@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/hexagon/kernel/vmlinux.lds.S | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/pci/pci-label.c b/drivers/pci/pci-label.c
-index a5910f942857..9fb4ef568f40 100644
---- a/drivers/pci/pci-label.c
-+++ b/drivers/pci/pci-label.c
-@@ -162,7 +162,7 @@ static void dsm_label_utf16s_to_utf8s(union acpi_object *obj, char *buf)
- 	len = utf16s_to_utf8s((const wchar_t *)obj->buffer.pointer,
- 			      obj->buffer.length,
- 			      UTF16_LITTLE_ENDIAN,
--			      buf, PAGE_SIZE);
-+			      buf, PAGE_SIZE - 1);
- 	buf[len] = '\n';
- }
+diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+index ad69d181c939..757f9554118e 100644
+--- a/arch/hexagon/kernel/vmlinux.lds.S
++++ b/arch/hexagon/kernel/vmlinux.lds.S
+@@ -73,13 +73,8 @@ SECTIONS
  
+ 	_end = .;
+ 
+-	/DISCARD/ : {
+-		EXIT_TEXT
+-		EXIT_DATA
+-		EXIT_CALL
+-	}
+-
+ 	STABS_DEBUG
+ 	DWARF_DEBUG
+ 
++	DISCARDS
+ }
 -- 
 2.30.2
 
