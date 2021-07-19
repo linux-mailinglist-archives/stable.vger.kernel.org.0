@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2ABB3CD85B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 089543CDA01
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242619AbhGSOVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
+        id S244126AbhGSOcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:32:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242710AbhGSOUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27FC360551;
-        Mon, 19 Jul 2021 15:01:07 +0000 (UTC)
+        id S244301AbhGSObG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:31:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 510D96113E;
+        Mon, 19 Jul 2021 15:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706868;
-        bh=bQ6o2NIi3EfTjmaHCOFG+RzRJtr0dJpoXEu17KBfHcQ=;
+        s=korg; t=1626707505;
+        bh=8erM4yy4DXfOGEcPzvo2oM60PZSoFIAWrTWHF0PB67E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJYHvaY2i6bkkBWy4LHKl/jcCPZM/8NlCqeTaq/T1shIJ72N9qb/NAUc68PZKaQ5i
-         +YROnSnFr7OxSWuyMIasz5gOokLc5TJKeggMFyLdj4fAFS3oqyxl0TiltvYdT2OqUO
-         8LlZVClu4Sq/Qj0Gb4x6i5qSFRU918Mm3b2gxj9k=
+        b=mZvoY4/673q6WAORDm9WgksfJBoReudaUdA6JSxk9JhHOTAmv2CHemDFdLf/1kNBN
+         8rsRrKPRyA/k/51ahbMdOFTYH47IpHSeew5b770WEqbW/WdC/6ZyLFzof0v0n0MFay
+         csd8aL3dJc23ilddLtUBknHpSe+AQWfQjhHo3LuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Marcus Cooper <codekipper@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.4 132/188] power: supply: ab8500: Fix an old bug
+        stable@vger.kernel.org,
+        syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 174/245] media: zr364xx: fix memory leak in zr364xx_start_readpipe
 Date:   Mon, 19 Jul 2021 16:51:56 +0200
-Message-Id: <20210719144940.808576241@linuxfoundation.org>
+Message-Id: <20210719144946.019024555@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f1c74a6c07e76fcb31a4bcc1f437c4361a2674ce upstream.
+commit 0a045eac8d0427b64577a24d74bb8347c905ac65 upstream.
 
-Trying to get the AB8500 charging driver working I ran into a bit
-of bitrot: we haven't used the driver for a while so errors in
-refactorings won't be noticed.
+syzbot reported memory leak in zr364xx driver.
+The problem was in non-freed urb in case of
+usb_submit_urb() fail.
 
-This one is pretty self evident: use argument to the macro or we
-end up with a random pointer to something else.
+backtrace:
+  [<ffffffff82baedf6>] kmalloc include/linux/slab.h:561 [inline]
+  [<ffffffff82baedf6>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
+  [<ffffffff82f7cce8>] zr364xx_start_readpipe+0x78/0x130 drivers/media/usb/zr364xx/zr364xx.c:1022
+  [<ffffffff84251dfc>] zr364xx_board_init drivers/media/usb/zr364xx/zr364xx.c:1383 [inline]
+  [<ffffffff84251dfc>] zr364xx_probe+0x6a3/0x851 drivers/media/usb/zr364xx/zr364xx.c:1516
+  [<ffffffff82bb6507>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+  [<ffffffff826018a9>] really_probe+0x159/0x500 drivers/base/dd.c:576
 
+Fixes: ccbf035ae5de ("V4L/DVB (12278): zr364xx: implement V4L2_CAP_STREAMING")
 Cc: stable@vger.kernel.org
-Cc: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Marcus Cooper <codekipper@gmail.com>
-Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mfd/abx500/ux500_chargalg.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/zr364xx/zr364xx.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/mfd/abx500/ux500_chargalg.h
-+++ b/include/linux/mfd/abx500/ux500_chargalg.h
-@@ -15,7 +15,7 @@
-  * - POWER_SUPPLY_TYPE_USB,
-  * because only them store as drv_data pointer to struct ux500_charger.
-  */
--#define psy_to_ux500_charger(x) power_supply_get_drvdata(psy)
-+#define psy_to_ux500_charger(x) power_supply_get_drvdata(x)
- 
- /* Forward declaration */
- struct ux500_charger;
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -1066,6 +1066,7 @@ static int zr364xx_start_readpipe(struct
+ 	DBG("submitting URB %p\n", pipe_info->stream_urb);
+ 	retval = usb_submit_urb(pipe_info->stream_urb, GFP_KERNEL);
+ 	if (retval) {
++		usb_free_urb(pipe_info->stream_urb);
+ 		printk(KERN_ERR KBUILD_MODNAME ": start read pipe failed\n");
+ 		return retval;
+ 	}
 
 
