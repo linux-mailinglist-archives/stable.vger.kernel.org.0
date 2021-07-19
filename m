@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B183CE180
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDE6A3CE294
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349250AbhGSP0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S1348471AbhGSPa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347966AbhGSPXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:23:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60ECF6138C;
-        Mon, 19 Jul 2021 15:59:55 +0000 (UTC)
+        id S1347991AbhGSPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:23:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF3AB613BA;
+        Mon, 19 Jul 2021 16:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710395;
-        bh=RwlISPnHQslLBk/zlANfaI8QrAYVqKcDeX1BM6g9CaA=;
+        s=korg; t=1626710422;
+        bh=BNX6y5/y5h4PLRqYX8uBjpHS5I+n3ABAsSXgaq9wdc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w3Us64qKDyhCqcOqxJjwnumGCdjtYTJWaBlZJaf1UKLhWLlfV2iWIzs2VnzGGszwO
-         0I9bstC2Otp1J908adkOLFhsMZXwWZJCyO8A4H5qxCJUV8G10SKhedviiVK/ueXQKk
-         8KJV86V8dkf5xwUu16MhXhTGh0aXfWFjk8ReZeos=
+        b=pzkMjyejKyxDjfNFG6kwS/l99vGmQG6m2DAvh8EJEy4jubZG4Bf5TSJp5yX2ZqlPP
+         URCGo+9RAQ7C6iQfBxwGWHtFwQnVfIhZu/03zrY/94k/Cy1XMfDTeUXRmOUaqiwstk
+         RBzZHamleSk1Rqowq/KwUs0W1dMMfbaYkX2SepDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 181/243] NFSv4/pnfs: Fix the layout barrier update
-Date:   Mon, 19 Jul 2021 16:53:30 +0200
-Message-Id: <20210719144946.756253099@linuxfoundation.org>
+Subject: [PATCH 5.10 182/243] NFSv4/pnfs: Fix layoutget behaviour after invalidation
+Date:   Mon, 19 Jul 2021 16:53:31 +0200
+Message-Id: <20210719144946.793544088@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -42,75 +42,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit aa95edf309ef31e2df4a37ebf0e5c2ca2a6772ab ]
+[ Upstream commit 0b77f97a7e42adc72bd566ff8cb733ea426f74f6 ]
 
-If we have multiple outstanding layoutget requests, the current code to
-update the layout barrier assumes that the outstanding layout stateids
-are updated in order. That's not necessarily the case.
+If the layout gets invalidated, we should wait for any outstanding
+layoutget requests for that layout to complete, and we should resend
+them only after re-establishing the layout stateid.
 
-Instead of using the value of lo->plh_outstanding as a guesstimate for
-the window of values we need to accept, just wait to update the window
-until we're processing the last one. The intention here is just to
-ensure that we don't process 2^31 seqid updates without also updating
-the barrier.
-
-Fixes: 1bcf34fdac5f ("pNFS/NFSv4: Update the layout barrier when we schedule a layoutreturn")
+Fixes: d29b468da4f9 ("pNFS/NFSv4: Improve rejection of out-of-order layouts")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ fs/nfs/pnfs.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index 4d20125e982a..c0c2612f14af 100644
+index c0c2612f14af..371665e0c154 100644
 --- a/fs/nfs/pnfs.c
 +++ b/fs/nfs/pnfs.c
-@@ -966,10 +966,8 @@ void
- pnfs_set_layout_stateid(struct pnfs_layout_hdr *lo, const nfs4_stateid *new,
- 			const struct cred *cred, bool update_barrier)
- {
--	u32 oldseq, newseq, new_barrier = 0;
--
--	oldseq = be32_to_cpu(lo->plh_stateid.seqid);
--	newseq = be32_to_cpu(new->seqid);
-+	u32 oldseq = be32_to_cpu(lo->plh_stateid.seqid);
-+	u32 newseq = be32_to_cpu(new->seqid);
- 
- 	if (!pnfs_layout_is_valid(lo)) {
- 		pnfs_set_layout_cred(lo, cred);
-@@ -979,19 +977,21 @@ pnfs_set_layout_stateid(struct pnfs_layout_hdr *lo, const nfs4_stateid *new,
- 		clear_bit(NFS_LAYOUT_INVALID_STID, &lo->plh_flags);
- 		return;
+@@ -2015,7 +2015,7 @@ lookup_again:
+ 	 * If the layout segment list is empty, but there are outstanding
+ 	 * layoutget calls, then they might be subject to a layoutrecall.
+ 	 */
+-	if (list_empty(&lo->plh_segs) &&
++	if ((list_empty(&lo->plh_segs) || !pnfs_layout_is_valid(lo)) &&
+ 	    atomic_read(&lo->plh_outstanding) != 0) {
+ 		spin_unlock(&ino->i_lock);
+ 		lseg = ERR_PTR(wait_var_event_killable(&lo->plh_outstanding,
+@@ -2391,11 +2391,13 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
+ 		goto out_forget;
  	}
--	if (pnfs_seqid_is_newer(newseq, oldseq)) {
-+
-+	if (pnfs_seqid_is_newer(newseq, oldseq))
- 		nfs4_stateid_copy(&lo->plh_stateid, new);
--		/*
--		 * Because of wraparound, we want to keep the barrier
--		 * "close" to the current seqids.
--		 */
--		new_barrier = newseq - atomic_read(&lo->plh_outstanding);
--	}
--	if (update_barrier)
--		new_barrier = be32_to_cpu(new->seqid);
--	else if (new_barrier == 0)
-+
-+	if (update_barrier) {
-+		pnfs_barrier_update(lo, newseq);
- 		return;
--	pnfs_barrier_update(lo, new_barrier);
-+	}
-+	/*
-+	 * Because of wraparound, we want to keep the barrier
-+	 * "close" to the current seqids. We really only want to
-+	 * get here from a layoutget call.
-+	 */
-+	if (atomic_read(&lo->plh_outstanding) == 1)
-+		 pnfs_barrier_update(lo, be32_to_cpu(lo->plh_stateid.seqid));
- }
  
- static bool
++	if (!pnfs_layout_is_valid(lo) && !pnfs_is_first_layoutget(lo))
++		goto out_forget;
++
+ 	if (nfs4_stateid_match_other(&lo->plh_stateid, &res->stateid)) {
+ 		/* existing state ID, make sure the sequence number matches. */
+ 		if (pnfs_layout_stateid_blocked(lo, &res->stateid)) {
+-			if (!pnfs_layout_is_valid(lo) &&
+-			    pnfs_is_first_layoutget(lo))
++			if (!pnfs_layout_is_valid(lo))
+ 				lo->plh_barrier = 0;
+ 			dprintk("%s forget reply due to sequence\n", __func__);
+ 			goto out_forget;
+@@ -2416,8 +2418,6 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
+ 		goto out_forget;
+ 	} else {
+ 		/* We have a completely new layout */
+-		if (!pnfs_is_first_layoutget(lo))
+-			goto out_forget;
+ 		pnfs_set_layout_stateid(lo, &res->stateid, lgp->cred, true);
+ 	}
+ 
 -- 
 2.30.2
 
