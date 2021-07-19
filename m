@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC3E3CE015
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672123CDDCD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346081AbhGSPNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:13:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
+        id S245650AbhGSPAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344366AbhGSPMK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:12:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2CF96127C;
-        Mon, 19 Jul 2021 15:52:33 +0000 (UTC)
+        id S1343837AbhGSO7W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CAA66113E;
+        Mon, 19 Jul 2021 15:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709954;
-        bh=lTQAdoT+A2R5QcppUh7z770vJdI+rfGpo1UKuzMDMIc=;
+        s=korg; t=1626709047;
+        bh=V5zivt4KHWMbQAUslsEEoDkydvtFrBaqqBpGyzEc12w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WVBdMSqRYr1IGdALubhbC87PnFzNzPVXpjByr6aMCcZpSr1+0pgA6WUDDHy9PsSg6
-         R8HlRH8YphAdl8/1E4O4mkSrHvSfg+uf/KxSKYKCo905zZTtkFrdxmBJPGfayvEvaU
-         +PXO30jgwf60lxV7/fcDFFqIYfCrqtNWUkbTm0FM=
+        b=vQbJBAWLxUsW2N5BOEhxbuSjc3fjKWXz49viSYbpGLfl8SL+ixmCbiYjDb8Gxu1Bh
+         GkPya4AeZy4aavJDzbtKtOrEZnh+dwBa2H0P4w7K08yQQyJG0e0r0KtXcvkpOKSwne
+         HPJe2+1tmBo/X+YkiwwqzbrEQ9Jw0Uv6UqsVmYfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH 5.10 015/243] drm/dp_mst: Do not set proposed vcpi directly
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 233/421] atm: iphase: fix possible use-after-free in ia_module_exit()
 Date:   Mon, 19 Jul 2021 16:50:44 +0200
-Message-Id: <20210719144941.413511279@linuxfoundation.org>
+Message-Id: <20210719144954.494139511@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,126 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-commit 35d3e8cb35e75450f87f87e3d314e2d418b6954b upstream.
+[ Upstream commit 1c72e6ab66b9598cac741ed397438a52065a8f1f ]
 
-[Why]
-When we receive CSN message to notify one port is disconnected, we will
-implicitly set its corresponding num_slots to 0. Later on, we will
-eventually call drm_dp_update_payload_part1() to arrange down streams.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-In drm_dp_update_payload_part1(), we iterate over all proposed_vcpis[]
-to do the update. Not specific to a target sink only. For example, if we
-light up 2 monitors, Monitor_A and Monitor_B, and then we unplug
-Monitor_B. Later on, when we call drm_dp_update_payload_part1() to try
-to update payload for Monitor_A, we'll also implicitly clean payload for
-Monitor_B at the same time. And finally, when we try to call
-drm_dp_update_payload_part1() to clean payload for Monitor_B, we will do
-nothing at this time since payload for Monitor_B has been cleaned up
-previously.
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-For StarTech 1to3 DP hub, it seems like if we didn't update DPCD payload
-ID table then polling for "ACT Handled"(BIT_1 of DPCD 002C0h) will fail
-and this polling will last for 3 seconds.
-
-Therefore, guess the best way is we don't set the proposed_vcpi[]
-diretly. Let user of these herlper functions to set the proposed_vcpi
-directly.
-
-[How]
-1. Revert commit 7617e9621bf2 ("drm/dp_mst: clear time slots for ports
-invalid")
-2. Tackle the issue in previous commit by skipping those trasient
-proposed VCPIs. These stale VCPIs shoulde be explicitly cleared by
-user later on.
-
-Changes since v1:
-* Change debug macro to use drm_dbg_kms() instead
-* Amend the commit message to add Fixed & Cc tags
-
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Fixes: 7617e9621bf2 ("drm/dp_mst: clear time slots for ports invalid")
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.5+
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-2-Wayne.Lin@amd.com
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |   36 +++++++++-------------------------
- 1 file changed, 10 insertions(+), 26 deletions(-)
+ drivers/atm/iphase.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2499,7 +2499,7 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+diff --git a/drivers/atm/iphase.c b/drivers/atm/iphase.c
+index 008905d4152a..827c6d5e6177 100644
+--- a/drivers/atm/iphase.c
++++ b/drivers/atm/iphase.c
+@@ -3301,7 +3301,7 @@ static void __exit ia_module_exit(void)
  {
- 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
- 	struct drm_dp_mst_port *port;
--	int old_ddps, old_input, ret, i;
-+	int old_ddps, ret;
- 	u8 new_pdt;
- 	bool new_mcs;
- 	bool dowork = false, create_connector = false;
-@@ -2531,7 +2531,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
- 	}
+ 	pci_unregister_driver(&ia_driver);
  
- 	old_ddps = port->ddps;
--	old_input = port->input;
- 	port->input = conn_stat->input_port;
- 	port->ldps = conn_stat->legacy_device_plug_status;
- 	port->ddps = conn_stat->displayport_device_plug_status;
-@@ -2554,28 +2553,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
- 		dowork = false;
- 	}
+-        del_timer(&ia_timer);
++	del_timer_sync(&ia_timer);
+ }
  
--	if (!old_input && old_ddps != port->ddps && !port->ddps) {
--		for (i = 0; i < mgr->max_payloads; i++) {
--			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
--			struct drm_dp_mst_port *port_validated;
--
--			if (!vcpi)
--				continue;
--
--			port_validated =
--				container_of(vcpi, struct drm_dp_mst_port, vcpi);
--			port_validated =
--				drm_dp_mst_topology_get_port_validated(mgr, port_validated);
--			if (!port_validated) {
--				mutex_lock(&mgr->payload_lock);
--				vcpi->num_slots = 0;
--				mutex_unlock(&mgr->payload_lock);
--			} else {
--				drm_dp_mst_topology_put_port(port_validated);
--			}
--		}
--	}
--
- 	if (port->connector)
- 		drm_modeset_unlock(&mgr->base.lock);
- 	else if (create_connector)
-@@ -3406,8 +3383,15 @@ int drm_dp_update_payload_part1(struct d
- 				port = drm_dp_mst_topology_get_port_validated(
- 				    mgr, port);
- 				if (!port) {
--					mutex_unlock(&mgr->payload_lock);
--					return -EINVAL;
-+					if (vcpi->num_slots == payload->num_slots) {
-+						cur_slots += vcpi->num_slots;
-+						payload->start_slot = req_payload.start_slot;
-+						continue;
-+					} else {
-+						drm_dbg_kms("Fail:set payload to invalid sink");
-+						mutex_unlock(&mgr->payload_lock);
-+						return -EINVAL;
-+					}
- 				}
- 				put_port = true;
- 			}
+ module_init(ia_module_init);
+-- 
+2.30.2
+
 
 
