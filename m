@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 765023CD9A8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D6FA3CD831
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244860AbhGSObM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
+        id S242845AbhGSOVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244999AbhGSOaM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D165E6008E;
-        Mon, 19 Jul 2021 15:10:50 +0000 (UTC)
+        id S242619AbhGSOUL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98B2461073;
+        Mon, 19 Jul 2021 15:00:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707451;
-        bh=DicTgpPqhZr/i6spxuOj5ERWvvj9fiLdAcdUwi3iu88=;
+        s=korg; t=1626706850;
+        bh=mMIS+Y5t42SGI2NUOoLIFM4/YIJr4m7BFnO3ggN34KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ApHZTcK4MWrKtWq84BDWAQpzQw/KK8CsozOIzDEHk8I5byB6QyIVUJCM9Kdi/Kxuo
-         TIDN75DKxmGf5iKSR5QRgU3UF9tpjetujaEGdBJBbccoDRa/Yuh9rB3G1hxHyJqd/3
-         HrdFB0Fw9MZyKl/s6shA+8y8ITgS144Vabyl/il0=
+        b=Su0aZFM8jDhVMdmFNdutsRBQjKl2/0j+smW7g09nFfepoWigOPjI9kPOlwyH24jqf
+         uVRWvxgIy25c7j369jX9Wc8IHrYEV/eMQ8NTp+dhnsDg68dr4I2spQXY03fmmYXfId
+         ENKwSCY4eX86JIe3kf6QVh0dtVvHB/Lowcyw3ShE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, johannes@sipsolutions.net
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.9 168/245] ipmi/watchdog: Stop watchdog timer when the current action is none
+        stable@vger.kernel.org,
+        "linux-wireless@vger.kernel.org, stable@vger.kernel.org, Davis Mosenkovs" 
+        <davis@mosenkovs.lv>, Davis Mosenkovs <davis@mosenkovs.lv>
+Subject: [PATCH 4.4 126/188] mac80211: fix memory corruption in EAPOL handling
 Date:   Mon, 19 Jul 2021 16:51:50 +0200
-Message-Id: <20210719144945.836083769@linuxfoundation.org>
+Message-Id: <20210719144940.616512993@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Pavlu <petr.pavlu@suse.com>
+From: Davis Mosenkovs <davis@mosenkovs.lv>
 
-commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
+Commit e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL
+frames") uses skb_mac_header() before eth_type_trans() is called
+leading to incorrect pointer, the pointer gets written to. This issue
+has appeared during backporting to 4.4, 4.9 and 4.14.
 
-When an IPMI watchdog timer is being stopped in ipmi_close() or
-ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
-WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
-to install this action. The latter function ends up invoking
-__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
-request.
-
-For IPMI 1.0, this operation results in fully stopping the watchdog timer.
-For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
-stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
-that the watchdog timer has its action correctly updated to 'none' but the
-timer continues to run. A problem is that IPMI firmware can then still log
-an expiration event when the configured timeout is reached, which is
-unexpected because the watchdog timer was requested to be stopped.
-
-The patch fixes this problem by not setting the "don't stop" flag in
-__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
-results in stopping the watchdog timer. This makes the behaviour for
-IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
-__ipmi_heartbeat() which does not allow to reset the watchdog if the
-current action is WDOG_TIMEOUT_NONE as that would start the timer.
-
-Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL frames")
+Link: https://lore.kernel.org/r/CAHQn7pKcyC_jYmGyTcPCdk9xxATwW5QPNph=bsZV8d-HPwNsyA@mail.gmail.com
+Cc: <stable@vger.kernel.org> # 4.4.x
+Signed-off-by: Davis Mosenkovs <davis@mosenkovs.lv>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ net/mac80211/rx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -393,16 +393,18 @@ static int i_ipmi_set_timeout(struct ipm
- 	data[0] = 0;
- 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2234,7 +2234,7 @@ ieee80211_deliver_skb(struct ieee80211_r
+ #endif
  
--	if ((ipmi_version_major > 1)
--	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
--		/* This is an IPMI 1.5-only feature. */
--		data[0] |= WDOG_DONT_STOP_ON_SET;
--	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
--		/*
--		 * In ipmi 1.0, setting the timer stops the watchdog, we
--		 * need to start it back up again.
--		 */
--		hbnow = 1;
-+	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
-+		if ((ipmi_version_major > 1) ||
-+		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
-+			/* This is an IPMI 1.5-only feature. */
-+			data[0] |= WDOG_DONT_STOP_ON_SET;
-+		} else {
-+			/*
-+			 * In ipmi 1.0, setting the timer stops the watchdog, we
-+			 * need to start it back up again.
-+			 */
-+			hbnow = 1;
-+		}
- 	}
+ 	if (skb) {
+-		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
++		struct ethhdr *ehdr = (struct ethhdr *)skb->data;
  
- 	data[1] = 0;
+ 		/* deliver to local stack */
+ 		skb->protocol = eth_type_trans(skb, dev);
 
 
