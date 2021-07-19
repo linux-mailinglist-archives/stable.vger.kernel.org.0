@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 784203CE5C1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC7103CE5C0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345701AbhGSPxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233750AbhGSPxQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:53:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49718 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344022AbhGSPrX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:47:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB004613CC;
-        Mon, 19 Jul 2021 16:27:33 +0000 (UTC)
+        id S1346796AbhGSPrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A3A2613B0;
+        Mon, 19 Jul 2021 16:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712054;
-        bh=O/XLNs45j5AW45fZa8ttvzotd2ITvBBHqU3XmX5lFqk=;
+        s=korg; t=1626712057;
+        bh=jgg0uQosO6yAVi5yQtfEpZjl7nko8NRs6L7+JDAfTC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=unwNIqGx0aM2EFHyvqAPfAyE80Dw7Opnh/KzvJcASNdhPfx4W6fK/rvAE0elArHDu
-         pUjGjacOJfPar2OTcKHfEFL72yNX+UWiiYzRuphdMCDBI79FxCLw7lSl8/vAqasOIX
-         /nUzwJyLUI85YfIgkwSN9vupCr2LLorqy8S2k7tY=
+        b=0Yrqw9ZI9E13qVSlwVGNYw+k2+Do2SLr2QrTIMsxWHs0wYbl4hW+Qo4SPpa8cAB9e
+         zt6awRlnCrw5BPMj3Wcwm4+ivdlxbibgq3O9Ycbtzk2uYpmlsPQGFVbmWR/KpWjq72
+         bQHlhtvGnOrk0c9k0vXv6Co2+f2Us9fIJCrbPXp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Christophe Kerello <christophe.kerello@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 233/292] memory: stm32-fmc2-ebi: add missing of_node_put for loop iteration
-Date:   Mon, 19 Jul 2021 16:54:55 +0200
-Message-Id: <20210719144950.623220142@linuxfoundation.org>
+Subject: [PATCH 5.12 234/292] memory: atmel-ebi: add missing of_node_put for loop iteration
+Date:   Mon, 19 Jul 2021 16:54:56 +0200
+Message-Id: <20210719144950.652963994@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,55 +42,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 2f9dc6a357ff3b82c1e54d29fb5d52b8d4a0c587 ]
+[ Upstream commit 907c5bbb514a4676160e79764522fff56ce3448e ]
 
 Early exits from for_each_available_child_of_node() should decrement the
 node reference counter.  Reported by Coccinelle:
 
-  drivers/memory/stm32-fmc2-ebi.c:1046:1-33: WARNING:
-    Function "for_each_available_child_of_node" should have of_node_put() before return around line 1051.
+  drivers/memory/atmel-ebi.c:593:1-33: WARNING:
+    Function "for_each_available_child_of_node" should have of_node_put() before return around line 604.
 
-Fixes: 66b8173a197f ("memory: stm32-fmc2-ebi: add STM32 FMC2 EBI controller driver")
+Fixes: 6a4ec4cd0888 ("memory: add Atmel EBI (External Bus Interface) driver")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Christophe Kerello <christophe.kerello@foss.st.com>
-Link: https://lore.kernel.org/r/20210423101815.119341-1-krzysztof.kozlowski@canonical.com
+Link: https://lore.kernel.org/r/20210423101815.119341-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/stm32-fmc2-ebi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/memory/atmel-ebi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/stm32-fmc2-ebi.c b/drivers/memory/stm32-fmc2-ebi.c
-index 4d5758c419c5..ffec26a99313 100644
---- a/drivers/memory/stm32-fmc2-ebi.c
-+++ b/drivers/memory/stm32-fmc2-ebi.c
-@@ -1048,16 +1048,19 @@ static int stm32_fmc2_ebi_parse_dt(struct stm32_fmc2_ebi *ebi)
- 		if (ret) {
- 			dev_err(dev, "could not retrieve reg property: %d\n",
- 				ret);
-+			of_node_put(child);
- 			return ret;
- 		}
+diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
+index 14386d0b5f57..c267283b01fd 100644
+--- a/drivers/memory/atmel-ebi.c
++++ b/drivers/memory/atmel-ebi.c
+@@ -600,8 +600,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
+ 				child);
  
- 		if (bank >= FMC2_MAX_BANKS) {
- 			dev_err(dev, "invalid reg value: %d\n", bank);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
- 		if (ebi->bank_assigned & BIT(bank)) {
- 			dev_err(dev, "bank already assigned: %d\n", bank);
-+			of_node_put(child);
- 			return -EINVAL;
- 		}
- 
-@@ -1066,6 +1069,7 @@ static int stm32_fmc2_ebi_parse_dt(struct stm32_fmc2_ebi *ebi)
- 			if (ret) {
- 				dev_err(dev, "setup chip select %d failed: %d\n",
- 					bank, ret);
+ 			ret = atmel_ebi_dev_disable(ebi, child);
+-			if (ret)
++			if (ret) {
 +				of_node_put(child);
  				return ret;
- 			}
++			}
  		}
+ 	}
+ 
 -- 
 2.30.2
 
