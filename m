@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4D03CE5EE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A923CE5F9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348763AbhGSPzl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:55:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48162 "EHLO mail.kernel.org"
+        id S235642AbhGSP45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350480AbhGSPvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350452AbhGSPvE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:51:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F02E560FD8;
-        Mon, 19 Jul 2021 16:29:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22D6C6112D;
+        Mon, 19 Jul 2021 16:29:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712171;
-        bh=5l+CbeNtFNMZRmjXjvby5K20xdEF5yT9XL4lP0yvdsA=;
+        s=korg; t=1626712176;
+        bh=vHpaj8DjY9ZSf0mKh7DBDsXIZprWGE6ESd2A+llvKI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sft6gWiOMiXB5I1S1dqRplQesLKkkU5A5WrqIimeGJFbFBiQlojswtmk/lxcLAP52
-         D+s3264FmKc1NWWuNI7gRMXJT+RL9IRiLfoaroJWSkaK2/ma8RtKCI+4I88XrJm48w
-         KmkyAm67nlg9ovPyL0pCOto9CmCpq3FucfojhOg4=
+        b=w1P+Fu1Elrk35X1rcHP7a5gk1KVK/3K1vorBh8t4KTHV+D7lXZ7vdBeSyPBrgN9LK
+         qkJVBl1jlUEwG4Czw0eIS2UgNnlqIchwogvApcScrR/Kk0GuV69u7rmUGZuZm5G1Rs
+         7suCgzEGdwS0rhSFw2REkaaUPc1MA7u7P7ykHjlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Xuewen Yan <xuewen.yan@unisoc.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Qais Yousef <qais.yousef@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 278/292] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
-Date:   Mon, 19 Jul 2021 16:55:40 +0200
-Message-Id: <20210719144952.061172604@linuxfoundation.org>
+Subject: [PATCH 5.12 279/292] sched/uclamp: Ignore max aggregation if rq is idle
+Date:   Mon, 19 Jul 2021 16:55:41 +0200
+Message-Id: <20210719144952.092878540@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,35 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Xuewen Yan <xuewen.yan@unisoc.com>
 
-[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
+[ Upstream commit 3e1493f46390618ea78607cb30c58fc19e2a5035 ]
 
-If an error occurs after a pci_enable_pcie_error_reporting() call, it must
-be undone by a corresponding pci_disable_pcie_error_reporting() call, as
-already done in the remove function.
+When a task wakes up on an idle rq, uclamp_rq_util_with() would max
+aggregate with rq value. But since there is no task enqueued yet, the
+values are stale based on the last task that was running. When the new
+task actually wakes up and enqueued, then the rq uclamp values should
+reflect that of the newly woken up task effective uclamp values.
 
-Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
-Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This is a problem particularly for uclamp_max because it default to
+1024. If a task p with uclamp_max = 512 wakes up, then max aggregation
+would ignore the capping that should apply when this task is enqueued,
+which is wrong.
+
+Fix that by ignoring max aggregation if the rq is idle since in that
+case the effective uclamp value of the rq will be the ones of the task
+that will wake up.
+
+Fixes: 9d20ad7dfc9a ("sched/uclamp: Add uclamp_util_with()")
+Signed-off-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+[qias: Changelog]
+Reviewed-by: Qais Yousef <qais.yousef@arm.com>
+Link: https://lore.kernel.org/r/20210630141204.8197-1-xuewen.yan94@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/sched/sched.h | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 09d2f8351539..207e3f53c638 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5745,6 +5745,7 @@ free_hba:
- 	pci_disable_msix(phba->pcidev);
- 	pci_dev_put(phba->pcidev);
- 	iscsi_host_free(phba->shost);
-+	pci_disable_pcie_error_reporting(pcidev);
- 	pci_set_drvdata(pcidev, NULL);
- disable_pci:
- 	pci_release_regions(pcidev);
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index e4e4f47cee6a..eee49ce2d596 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2524,20 +2524,27 @@ static __always_inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
+ {
+-	unsigned long min_util;
+-	unsigned long max_util;
++	unsigned long min_util = 0;
++	unsigned long max_util = 0;
+ 
+ 	if (!static_branch_likely(&sched_uclamp_used))
+ 		return util;
+ 
+-	min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
+-	max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
+-
+ 	if (p) {
+-		min_util = max(min_util, uclamp_eff_value(p, UCLAMP_MIN));
+-		max_util = max(max_util, uclamp_eff_value(p, UCLAMP_MAX));
++		min_util = uclamp_eff_value(p, UCLAMP_MIN);
++		max_util = uclamp_eff_value(p, UCLAMP_MAX);
++
++		/*
++		 * Ignore last runnable task's max clamp, as this task will
++		 * reset it. Similarly, no need to read the rq's min clamp.
++		 */
++		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
++			goto out;
+ 	}
+ 
++	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
++	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
++out:
+ 	/*
+ 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
+ 	 * RUNNABLE tasks with _different_ clamps, we can end up with an
 -- 
 2.30.2
 
