@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A93CE3CE4D6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE433CE4D9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343961AbhGSPqb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45128 "EHLO mail.kernel.org"
+        id S241169AbhGSPqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348935AbhGSPoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:44:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3707861396;
-        Mon, 19 Jul 2021 16:23:26 +0000 (UTC)
+        id S1348950AbhGSPok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:44:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F186F61580;
+        Mon, 19 Jul 2021 16:23:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711806;
-        bh=HUMXNiWlr+lAzD0WDDX5+BAJHVe2ELrSxvY4d7GcbJg=;
+        s=korg; t=1626711809;
+        bh=NVlw8FdD1InjhL9vfc52dDxWF+C4FWMDMsiClR8WO7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eS/QaIJHPWfpHUPhrk1eq8kSN21QvUgomGJs+EqoDvclo2LiA7/yjCowJsQVZFQi
-         j1o+P1U6N1ebCkJlwT+GSP9SVIW32l2NOPXcp3yQxRlxPx1qcZoUx5Iu43Pq1Ntjns
-         ILW1hSC9MQSTWztEdPdLm7JITE4P/RVwWxO9VGk0=
+        b=I6v2momcofytcQoa8dDS7kGJsm4gaVTxYtLEaivTMlwT48is7PR702JAsDcY5ypKp
+         VTpNi1xjQUQ334F3krAF5hxJOK2NMUP5hoAAKoZGRh0/fXL7aKS4mX3qvR7VbCwbvF
+         6bkZZbm1lR3DgaitSW59wHbCF+oiKf+ieimx57Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Jian Cai <jiancai@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 139/292] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
-Date:   Mon, 19 Jul 2021 16:53:21 +0200
-Message-Id: <20210719144947.060674881@linuxfoundation.org>
+Subject: [PATCH 5.12 140/292] ARM: 9087/1: kprobes: test-thumb: fix for LLVM_IAS=1
+Date:   Mon, 19 Jul 2021 16:53:22 +0200
+Message-Id: <20210719144947.089662289@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,34 +41,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
+[ Upstream commit 8b95a7d90ce8160ac5cffd5bace6e2eba01a871e ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+There's a few instructions that GAS infers operands but Clang doesn't;
+from what I can tell the Arm ARM doesn't say these are optional.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+F5.1.257 TBB, TBH T1 Halfword variant
+F5.1.238 STREXD T1 variant
+F5.1.84 LDREXD T1 variant
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1309
+
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jian Cai <jiancai@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/reset/gpio-poweroff.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/probes/kprobes/test-thumb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
-index c5067eb75370..1c5af2fef142 100644
---- a/drivers/power/reset/gpio-poweroff.c
-+++ b/drivers/power/reset/gpio-poweroff.c
-@@ -90,6 +90,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
- 	{ .compatible = "gpio-poweroff", },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
+diff --git a/arch/arm/probes/kprobes/test-thumb.c b/arch/arm/probes/kprobes/test-thumb.c
+index 456c181a7bfe..4e11f0b760f8 100644
+--- a/arch/arm/probes/kprobes/test-thumb.c
++++ b/arch/arm/probes/kprobes/test-thumb.c
+@@ -441,21 +441,21 @@ void kprobe_thumb32_test_cases(void)
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
- static struct platform_driver gpio_poweroff_driver = {
- 	.probe = gpio_poweroff_probe,
+-	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
++	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
+ 
+-	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
++	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
+ 
+-	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
++	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+@@ -468,10 +468,10 @@ void kprobe_thumb32_test_cases(void)
+ 
+ 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
+ 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
+-	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
++	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
+ 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
+ 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
+-	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
++	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
+ 
+ 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
+ 
 -- 
 2.30.2
 
