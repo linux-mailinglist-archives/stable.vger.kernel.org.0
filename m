@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA6EC3CDC72
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFDD53CDC7C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244175AbhGSOw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42344 "EHLO mail.kernel.org"
+        id S244376AbhGSOwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344597AbhGSOtA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:49:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7142560249;
-        Mon, 19 Jul 2021 15:29:38 +0000 (UTC)
+        id S1344610AbhGSOtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:49:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3657860241;
+        Mon, 19 Jul 2021 15:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708579;
-        bh=9dgPndNJt6CBJpmU9Qg0aOfVXmmZjNsFet1Id7CDoE0=;
+        s=korg; t=1626708581;
+        bh=xGf8nSOitxpurxwT4C5tDc5NICV04DNLDTlC7EnpJig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C0wawN0DhpwkpcDMxKHJ6NOrz/C0XOgZkbTr6eKfWXAGrPiF8980ie/Xon8Jtd5wH
-         cFIg5ssuYCr28LmfKZEweUPXWNwrxC5NW3Cxay9RyTsk3P5EweNnqXlGeVLPp0+lk1
-         dihUhkfdEtsiYBckfymnYds9i+KvObQHbRx6OYwk=
+        b=Eg2rBkp8pGIeDzyqM8IrCgaJBWvpm1JDVPB1cy+7MfonE1gbV404CJeIG+/1Zx1Z8
+         OgPx4ec1ihlupxPQ9n0APXHzk/f6i5rDB/zg+iFtWdShCC5rmjzeUwe1nXnPkXfjdJ
+         UuQIV+DYOomZZbr2R0kYys5DtCUuw2Ejd6pnm95I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 047/421] powerpc/stacktrace: Fix spurious "stale" traces in raise_backtrace_ipi()
-Date:   Mon, 19 Jul 2021 16:47:38 +0200
-Message-Id: <20210719144947.857137632@linuxfoundation.org>
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.19 048/421] evm: Execute evm_inode_init_security() only when an HMAC key is loaded
+Date:   Mon, 19 Jul 2021 16:47:39 +0200
+Message-Id: <20210719144947.890894790@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -39,103 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 7c6986ade69e3c81bac831645bc72109cd798a80 upstream.
+commit 9eea2904292c2d8fa98df141d3bf7c41ec9dc1b5 upstream.
 
-In raise_backtrace_ipi() we iterate through the cpumask of CPUs, sending
-each an IPI asking them to do a backtrace, but we don't wait for the
-backtrace to happen.
+evm_inode_init_security() requires an HMAC key to calculate the HMAC on
+initial xattrs provided by LSMs. However, it checks generically whether a
+key has been loaded, including also public keys, which is not correct as
+public keys are not suitable to calculate the HMAC.
 
-We then iterate through the CPU mask again, and if any CPU hasn't done
-the backtrace and cleared itself from the mask, we print a trace on its
-behalf, noting that the trace may be "stale".
+Originally, support for signature verification was introduced to verify a
+possibly immutable initial ram disk, when no new files are created, and to
+switch to HMAC for the root filesystem. By that time, an HMAC key should
+have been loaded and usable to calculate HMACs for new files.
 
-This works well enough when a CPU is not responding, because in that
-case it doesn't receive the IPI and the sending CPU is left to print the
-trace. But when all CPUs are responding we are left with a race between
-the sending and receiving CPUs, if the sending CPU wins the race then it
-will erroneously print a trace.
+More recently support for requiring an HMAC key was removed from the
+kernel, so that signature verification can be used alone. Since this is a
+legitimate use case, evm_inode_init_security() should not return an error
+when no HMAC key has been loaded.
 
-This leads to spurious "stale" traces from the sending CPU, which can
-then be interleaved messily with the receiving CPU, note the CPU
-numbers, eg:
+This patch fixes this problem by replacing the evm_key_loaded() check with
+a check of the EVM_INIT_HMAC flag in evm_initialized.
 
-  [ 1658.929157][    C7] rcu: Stack dump where RCU GP kthread last ran:
-  [ 1658.929223][    C7] Sending NMI from CPU 7 to CPUs 1:
-  [ 1658.929303][    C1] NMI backtrace for cpu 1
-  [ 1658.929303][    C7] CPU 1 didn't respond to backtrace IPI, inspecting paca.
-  [ 1658.929362][    C1] CPU: 1 PID: 325 Comm: kworker/1:1H Tainted: G        W   E     5.13.0-rc2+ #46
-  [ 1658.929405][    C7] irq_soft_mask: 0x01 in_mce: 0 in_nmi: 0 current: 325 (kworker/1:1H)
-  [ 1658.929465][    C1] Workqueue: events_highpri test_work_fn [test_lockup]
-  [ 1658.929549][    C7] Back trace of paca->saved_r1 (0xc0000000057fb400) (possibly stale):
-  [ 1658.929592][    C1] NIP:  c00000000002cf50 LR: c008000000820178 CTR: c00000000002cfa0
-
-To fix it, change the logic so that the sending CPU waits 5s for the
-receiving CPU to print its trace. If the receiving CPU prints its trace
-successfully then the sending CPU just continues, avoiding any spurious
-"stale" trace.
-
-This has the added benefit of allowing all CPUs to print their traces in
-order and avoids any interleaving of their output.
-
-Fixes: 5cc05910f26e ("powerpc/64s: Wire up arch_trigger_cpumask_backtrace()")
-Cc: stable@vger.kernel.org # v4.18+
-Reported-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210625140408.3351173-1-mpe@ellerman.id.au
+Fixes: 26ddabfe96b ("evm: enable EVM when X509 certificate is loaded")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org # 4.5.x
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/kernel/stacktrace.c |   27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
 
---- a/arch/powerpc/kernel/stacktrace.c
-+++ b/arch/powerpc/kernel/stacktrace.c
-@@ -19,6 +19,7 @@
- #include <asm/ptrace.h>
- #include <asm/processor.h>
- #include <linux/ftrace.h>
-+#include <linux/delay.h>
- #include <asm/kprobes.h>
+---
+ security/integrity/evm/evm_main.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/security/integrity/evm/evm_main.c
++++ b/security/integrity/evm/evm_main.c
+@@ -523,7 +523,7 @@ void evm_inode_post_setattr(struct dentr
+ }
  
- #include <asm/paca.h>
-@@ -204,17 +205,31 @@ static void handle_backtrace_ipi(struct
+ /*
+- * evm_inode_init_security - initializes security.evm
++ * evm_inode_init_security - initializes security.evm HMAC value
+  */
+ int evm_inode_init_security(struct inode *inode,
+ 				 const struct xattr *lsm_xattr,
+@@ -532,7 +532,8 @@ int evm_inode_init_security(struct inode
+ 	struct evm_ima_xattr_data *xattr_data;
+ 	int rc;
  
- static void raise_backtrace_ipi(cpumask_t *mask)
- {
-+	struct paca_struct *p;
- 	unsigned int cpu;
-+	u64 delay_us;
+-	if (!evm_key_loaded() || !evm_protected_xattr(lsm_xattr->name))
++	if (!(evm_initialized & EVM_INIT_HMAC) ||
++	    !evm_protected_xattr(lsm_xattr->name))
+ 		return 0;
  
- 	for_each_cpu(cpu, mask) {
--		if (cpu == smp_processor_id())
-+		if (cpu == smp_processor_id()) {
- 			handle_backtrace_ipi(NULL);
--		else
--			smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, 5 * USEC_PER_SEC);
--	}
-+			continue;
-+		}
- 
--	for_each_cpu(cpu, mask) {
--		struct paca_struct *p = paca_ptrs[cpu];
-+		delay_us = 5 * USEC_PER_SEC;
-+
-+		if (smp_send_safe_nmi_ipi(cpu, handle_backtrace_ipi, delay_us)) {
-+			// Now wait up to 5s for the other CPU to do its backtrace
-+			while (cpumask_test_cpu(cpu, mask) && delay_us) {
-+				udelay(1);
-+				delay_us--;
-+			}
-+
-+			// Other CPU cleared itself from the mask
-+			if (delay_us)
-+				continue;
-+		}
-+
-+		p = paca_ptrs[cpu];
- 
- 		cpumask_clear_cpu(cpu, mask);
- 
+ 	xattr_data = kzalloc(sizeof(*xattr_data), GFP_NOFS);
 
 
