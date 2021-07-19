@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB1423CDEE3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727473CDF96
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344723AbhGSPGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
+        id S245563AbhGSPKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345490AbhGSPEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D341261396;
-        Mon, 19 Jul 2021 15:44:08 +0000 (UTC)
+        id S1345842AbhGSPJl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 727FF610FB;
+        Mon, 19 Jul 2021 15:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709449;
-        bh=tHqcx/RbHcKopyWXvSFnQBhyo19ftC2v//zfIdwxrEU=;
+        s=korg; t=1626709774;
+        bh=Kr5HoqsE5MPFdwwLrEQmw5vIHfZj7/DGPLKFuD6t3uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPWH7dob8boKECRXmenxovVmSqK6zhhsTX/uxmyyo8I64psx1wqW38IhVwvMs6l6j
-         My27ywV4yAO1gl0Kd/p/X6Q1JQbGvBk0OQIfbZ/YxgFpfML3rXqu1zkU2jmHQI7Q++
-         YtKTZHTSLJfUovmRXMX6kKbyq4T580iQvdqy0yJo=
+        b=F+KsUG/6Qri1BKbhzCVKoH9QY2RWcmdnhvJAmKEPFXE7hKwtPvH8yyjy5EKHC+3hl
+         9TySnWoHk8wRmaa9gV2fkriKP8b4Z571eNFj5INiYFtfeIEFvDxaezn6UDL7+xFRV2
+         15pqlUD0VXxJ4Kh44hUcaPp6YqB+uCMwidS4ev5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 388/421] nfs: fix acl memory leak of posix_acl_create()
+Subject: [PATCH 5.4 091/149] ACPI: AMBA: Fix resource name in /proc/iomem
 Date:   Mon, 19 Jul 2021 16:53:19 +0200
-Message-Id: <20210719144959.834321741@linuxfoundation.org>
+Message-Id: <20210719144922.951366323@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 1fcb6fcd74a222d9ead54d405842fc763bb86262 ]
+[ Upstream commit 7718629432676b5ebd9a32940782fe297a0abf8d ]
 
-When looking into another nfs xfstests report, I found acl and
-default_acl in nfs3_proc_create() and nfs3_proc_mknod() error
-paths are possibly leaked. Fix them in advance.
+In function amba_handler_attach(), dev->res.name is initialized by
+amba_device_alloc. But when address_found is false, dev->res.name is
+assigned to null value, which leads to wrong resource name display in
+/proc/iomem, "<BAD>" is seen for those resources.
 
-Fixes: 013cdf1088d7 ("nfs: use generic posix ACL infrastructure for v3 Posix ACLs")
-Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Anna Schumaker <anna.schumaker@netapp.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_amba.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
-index ec8a9efa268f..e302f8370b9b 100644
---- a/fs/nfs/nfs3proc.c
-+++ b/fs/nfs/nfs3proc.c
-@@ -346,7 +346,7 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 				break;
- 
- 			case NFS3_CREATE_UNCHECKED:
--				goto out;
-+				goto out_release_acls;
- 		}
- 		nfs_fattr_init(data->res.dir_attr);
- 		nfs_fattr_init(data->res.fattr);
-@@ -695,7 +695,7 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 		break;
- 	default:
- 		status = -EINVAL;
--		goto out;
-+		goto out_release_acls;
- 	}
- 
- 	status = nfs3_do_create(dir, dentry, data);
+diff --git a/drivers/acpi/acpi_amba.c b/drivers/acpi/acpi_amba.c
+index 49b781a9cd97..ab8a4e0191b1 100644
+--- a/drivers/acpi/acpi_amba.c
++++ b/drivers/acpi/acpi_amba.c
+@@ -76,6 +76,7 @@ static int amba_handler_attach(struct acpi_device *adev,
+ 		case IORESOURCE_MEM:
+ 			if (!address_found) {
+ 				dev->res = *rentry->res;
++				dev->res.name = dev_name(&dev->dev);
+ 				address_found = true;
+ 			}
+ 			break;
 -- 
 2.30.2
 
