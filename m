@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE7F3CDC4B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F473CDEDC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243787AbhGSOv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40442 "EHLO mail.kernel.org"
+        id S1344652AbhGSPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344207AbhGSOsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2445161403;
-        Mon, 19 Jul 2021 15:26:55 +0000 (UTC)
+        id S1345424AbhGSPEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5F2A860238;
+        Mon, 19 Jul 2021 15:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708416;
-        bh=alClgonaliYo7bbQrEoXPOwyF03/KVXnqZEw2BqJkKM=;
+        s=korg; t=1626709431;
+        bh=QYTHVKAk8jN3oDibGlvNSAtJhO/sJJEXPVwOVQHYIos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwSxR5p0gLZq3IQdw7JmMR9nElBfMwJNCDn74FMSIt80m/uMgPioQHBMjpgQGlsQK
-         laML7Dr1hOBDh9dsNBWjPGrGsPrTeREggUz8Nn9pk15/2xKvkqrOMPtrMPcJcIaDMO
-         bwWu0eMcyKgE27FRESWiVNxzBxcC/pUbca1QJm/E=
+        b=LM6vmDUKXyzO56LicJVLwbDqvvoYX4+FSmtoOAIyjTxfZo9teyXpruVyLshx0Bl6Q
+         JG+h8d9MJ1kMV6WVV9ggP5lzNelnEpQA55uA0LjdY8oRDii5z8ZnL4Kxq/s1C2V19r
+         y3m0FvC2hx8sMOpFOwznFDB/UUjB76utVDSDqngg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, marcosfrm <marcosfrm@gmail.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 303/315] rtc: fix snprintf() checking in is_rtc_hctosys()
+Subject: [PATCH 4.19 381/421] f2fs: add MODULE_SOFTDEP to ensure crc32 is included in the initramfs
 Date:   Mon, 19 Jul 2021 16:53:12 +0200
-Message-Id: <20210719144953.430307490@linuxfoundation.org>
+Message-Id: <20210719144959.576786708@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 54b909436ede47e0ee07f1765da27ec2efa41e84 ]
+[ Upstream commit 0dd571785d61528d62cdd8aa49d76bc6085152fe ]
 
-The scnprintf() function silently truncates the printf() and returns
-the number bytes that it was able to copy (not counting the NUL
-terminator).  Thus, the highest value it can return here is
-"NAME_SIZE - 1" and the overflow check is dead code.  Fix this by
-using the snprintf() function which returns the number of bytes that
-would have been copied if there was enough space and changing the
-condition from "> NAME_SIZE" to ">= NAME_SIZE".
+As marcosfrm reported in bugzilla:
 
-Fixes: 92589c986b33 ("rtc-proc: permit the /proc/driver/rtc device to use other devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/YJov/pcGmhLi2pEl@mwanda
+https://bugzilla.kernel.org/show_bug.cgi?id=213089
+
+Initramfs generators rely on "pre" softdeps (and "depends") to include
+additional required modules.
+
+F2FS does not declare "pre: crc32" softdep. Then every generator (dracut,
+mkinitcpio...) has to maintain a hardcoded list for this purpose.
+
+Hence let's use MODULE_SOFTDEP("pre: crc32") in f2fs code.
+
+Fixes: 43b6573bac95 ("f2fs: use cryptoapi crc32 functions")
+Reported-by: marcosfrm <marcosfrm@gmail.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/f2fs/super.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index 31e7e23cc5be..9396b69f75e8 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -26,8 +26,8 @@ static bool is_rtc_hctosys(struct rtc_device *rtc)
- 	int size;
- 	char name[NAME_SIZE];
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 161ce0eb8891..89fc8a4ce149 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -3373,4 +3373,5 @@ module_exit(exit_f2fs_fs)
+ MODULE_AUTHOR("Samsung Electronics's Praesto Team");
+ MODULE_DESCRIPTION("Flash Friendly File System");
+ MODULE_LICENSE("GPL");
++MODULE_SOFTDEP("pre: crc32");
  
--	size = scnprintf(name, NAME_SIZE, "rtc%d", rtc->id);
--	if (size > NAME_SIZE)
-+	size = snprintf(name, NAME_SIZE, "rtc%d", rtc->id);
-+	if (size >= NAME_SIZE)
- 		return false;
- 
- 	return !strncmp(name, CONFIG_RTC_HCTOSYS_DEVICE, NAME_SIZE);
 -- 
 2.30.2
 
