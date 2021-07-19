@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 718253CDB43
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 652943CD917
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244091AbhGSOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
+        id S243081AbhGSO0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245102AbhGSOjQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F26F6112D;
-        Mon, 19 Jul 2021 15:18:33 +0000 (UTC)
+        id S242810AbhGSOZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:25:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07BC06024A;
+        Mon, 19 Jul 2021 15:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707914;
-        bh=qnYEtcBDceRQ0JPUdv62x6m/W6ksONb5rBwKgOpVu4k=;
+        s=korg; t=1626707161;
+        bh=YQqC+kuQ824pfnGx0FiZRw+KqiQr83Qr104Ugy1swkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvgbCpqIiX2zLc1Xa/cwgXleW4+XgUAThJ4uK6G4EMgwL1SBBRGKDwMUsISwo8ipj
-         V9ZhqTtePYnSezCBywICBOmkVjvkJaRIK4oMavPUtbV9Gd9FItw909ja2f63Pnyrs5
-         l2Ul4sALRY5CluyjjVlxxVYjb1uELiOHhT86rAeY=
+        b=kezUV9vWDNNJbWiEMiIqbKgimboazCvCrS5BakZldEms6hFsNelDqZF4K8cAczrDZ
+         fgxLo5IAaQJ4CX1v0JPX1xl5DDlxqaLbDk2ThapvUc1gExyiqC4qURHikU42D+aZC1
+         No37STgq9I1I1oyc6i9/Gk0gfL1fO0vm8Jr0Pe8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 105/315] netfilter: nft_exthdr: check for IPv6 packet before further processing
+Subject: [PATCH 4.9 052/245] fs: dlm: fix memory leak when fenced
 Date:   Mon, 19 Jul 2021 16:49:54 +0200
-Message-Id: <20210719144946.328999381@linuxfoundation.org>
+Message-Id: <20210719144942.083082226@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
+[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
 
-ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
-sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
-is passed for parsing.
+I got some kmemleak report when a node was fenced. The user space tool
+dlm_controld will therefore run some rmdir() in dlm configfs which was
+triggering some memleaks. This patch stores the sps and cms attributes
+which stores some handling for subdirectories of the configfs cluster
+entry and free them if they get released as the parent directory gets
+freed.
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+unreferenced object 0xffff88810d9e3e00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000db8b640b>] make_cluster+0x5d/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+unreferenced object 0xffff88810d9e3a00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_exthdr.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/dlm/config.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index a0a93d987a3b..a301d3bbd3fa 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -46,6 +46,9 @@ static void nft_exthdr_ipv6_eval(const struct nft_expr *expr,
- 	unsigned int offset = 0;
- 	int err;
- 
-+	if (pkt->skb->protocol != htons(ETH_P_IPV6))
-+		goto err;
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 6def89d2209d..10d25b7830bf 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -80,6 +80,9 @@ struct dlm_cluster {
+ 	unsigned int cl_new_rsb_count;
+ 	unsigned int cl_recover_callbacks;
+ 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
 +
- 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
- 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
- 		*dest = (err >= 0);
++	struct dlm_spaces *sps;
++	struct dlm_comms *cms;
+ };
+ 
+ static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
+@@ -356,6 +359,9 @@ static struct config_group *make_cluster(struct config_group *g,
+ 	if (!cl || !sps || !cms)
+ 		goto fail;
+ 
++	cl->sps = sps;
++	cl->cms = cms;
++
+ 	config_group_init_type_name(&cl->group, name, &cluster_type);
+ 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
+ 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
+@@ -405,6 +411,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
+ static void release_cluster(struct config_item *i)
+ {
+ 	struct dlm_cluster *cl = config_item_to_cluster(i);
++
++	kfree(cl->sps);
++	kfree(cl->cms);
+ 	kfree(cl);
+ }
+ 
 -- 
 2.30.2
 
