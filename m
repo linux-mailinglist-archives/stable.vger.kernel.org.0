@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D473CD840
+	by mail.lfdr.de (Postfix) with ESMTP id 481783CD83E
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241934AbhGSOVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
+        id S242361AbhGSOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242321AbhGSOU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242694AbhGSOU2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:20:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42FA461002;
-        Mon, 19 Jul 2021 15:01:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D624F611EF;
+        Mon, 19 Jul 2021 15:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706860;
-        bh=aYmCmLwlanssdjfVPHfag2Uu6KXtTJuNJ4MyqSbVFVE=;
+        s=korg; t=1626706863;
+        bh=GMxS9DfMtnmP7n3N51meeAEyDGM3GJ/tnF8tGL7WL7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfbR2hbqGkw4uAnXLypAx5mpxeDkiV91pbamojqvAo6dVdJDA/EszwSOdaZARRWXR
-         Bk4jbGT4JkTJqSTW/vn6XVuqH8jJOqzuUHsWYM2q98RiM+wVQC8dNZpWCrHqw2JB5K
-         qTC7uWZGHX0NM+jAhehCR7C8cpcizU1kXDa2AVXU=
+        b=xpdNXDOgcE+/p0f7Bkglk6EKcBVNgWiQeqhSJzHplpE+oIhVO3CnBbWTCIzDGk+og
+         0em1ycYPR41pKeSwh8WRT1DObSMH3/Rpgqi9rEGqKpIM2dfshorUsxVfvNT3/yuhoh
+         2IfCzB0b6LUtpsd2GUcuIIKUWaSRiiSzVbqLjWLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Timo Sigurdsson <public_timo.s@silentcreek.de>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 129/188] ata: ahci_sunxi: Disable DIPM
-Date:   Mon, 19 Jul 2021 16:51:53 +0200
-Message-Id: <20210719144940.713635883@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.4 130/188] ASoC: tegra: Set driver_name=tegra for all machine drivers
+Date:   Mon, 19 Jul 2021 16:51:54 +0200
+Message-Id: <20210719144940.745823014@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,43 +39,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timo Sigurdsson <public_timo.s@silentcreek.de>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
+commit f6eb84fa596abf28959fc7e0b626f925eb1196c7 upstream.
 
-DIPM is unsupported or broken on sunxi. Trying to enable the power
-management policy med_power_with_dipm on an Allwinner A20 SoC based board
-leads to immediate I/O errors and the attached SATA disk disappears from
-the /dev filesystem. A reset (power cycle) is required to make the SATA
-controller or disk work again. The A10 and A20 SoC data sheets and manuals
-don't mention DIPM at all [1], so it's fair to assume that it's simply not
-supported. But even if it was, it should be considered broken and best be
-disabled in the ahci_sunxi driver.
+The driver_name="tegra" is now required by the newer ALSA UCMs, otherwise
+Tegra UCMs don't match by the path/name.
 
-[1] https://github.com/allwinner-zh/documents/tree/master/
+All Tegra machine drivers are specifying the card's name, but it has no
+effect if model name is specified in the device-tree since it overrides
+the card's name. We need to set the driver_name to "tegra" in order to
+get a usable lookup path for the updated ALSA UCMs. The new UCM lookup
+path has a form of driver_name/card_name.
 
-Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
+The old lookup paths that are based on driver module name continue to
+work as before. Note that UCM matching never worked for Tegra ASoC drivers
+if they were compiled as built-in, this is fixed by supporting the new
+naming scheme.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
-Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/20210529154649.25936-2-digetx@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ata/ahci_sunxi.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/tegra/tegra_alc5632.c  |    1 +
+ sound/soc/tegra/tegra_max98090.c |    1 +
+ sound/soc/tegra/tegra_rt5640.c   |    1 +
+ sound/soc/tegra/tegra_rt5677.c   |    1 +
+ sound/soc/tegra/tegra_wm8753.c   |    1 +
+ sound/soc/tegra/tegra_wm8903.c   |    1 +
+ sound/soc/tegra/tegra_wm9712.c   |    1 +
+ sound/soc/tegra/trimslice.c      |    1 +
+ 8 files changed, 8 insertions(+)
 
---- a/drivers/ata/ahci_sunxi.c
-+++ b/drivers/ata/ahci_sunxi.c
-@@ -165,7 +165,7 @@ static void ahci_sunxi_start_engine(stru
- }
+--- a/sound/soc/tegra/tegra_alc5632.c
++++ b/sound/soc/tegra/tegra_alc5632.c
+@@ -149,6 +149,7 @@ static struct snd_soc_dai_link tegra_alc
  
- static const struct ata_port_info ahci_sunxi_port_info = {
--	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
-+	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
- 	.pio_mask	= ATA_PIO4,
- 	.udma_mask	= ATA_UDMA6,
- 	.port_ops	= &ahci_platform_ops,
+ static struct snd_soc_card snd_soc_tegra_alc5632 = {
+ 	.name = "tegra-alc5632",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.remove = tegra_alc5632_card_remove,
+ 	.dai_link = &tegra_alc5632_dai,
+--- a/sound/soc/tegra/tegra_max98090.c
++++ b/sound/soc/tegra/tegra_max98090.c
+@@ -205,6 +205,7 @@ static struct snd_soc_dai_link tegra_max
+ 
+ static struct snd_soc_card snd_soc_tegra_max98090 = {
+ 	.name = "tegra-max98090",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.remove = tegra_max98090_card_remove,
+ 	.dai_link = &tegra_max98090_dai,
+--- a/sound/soc/tegra/tegra_rt5640.c
++++ b/sound/soc/tegra/tegra_rt5640.c
+@@ -150,6 +150,7 @@ static struct snd_soc_dai_link tegra_rt5
+ 
+ static struct snd_soc_card snd_soc_tegra_rt5640 = {
+ 	.name = "tegra-rt5640",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.remove = tegra_rt5640_card_remove,
+ 	.dai_link = &tegra_rt5640_dai,
+--- a/sound/soc/tegra/tegra_rt5677.c
++++ b/sound/soc/tegra/tegra_rt5677.c
+@@ -198,6 +198,7 @@ static struct snd_soc_dai_link tegra_rt5
+ 
+ static struct snd_soc_card snd_soc_tegra_rt5677 = {
+ 	.name = "tegra-rt5677",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.remove = tegra_rt5677_card_remove,
+ 	.dai_link = &tegra_rt5677_dai,
+--- a/sound/soc/tegra/tegra_wm8753.c
++++ b/sound/soc/tegra/tegra_wm8753.c
+@@ -110,6 +110,7 @@ static struct snd_soc_dai_link tegra_wm8
+ 
+ static struct snd_soc_card snd_soc_tegra_wm8753 = {
+ 	.name = "tegra-wm8753",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm8753_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_wm8903.c
++++ b/sound/soc/tegra/tegra_wm8903.c
+@@ -227,6 +227,7 @@ static struct snd_soc_dai_link tegra_wm8
+ 
+ static struct snd_soc_card snd_soc_tegra_wm8903 = {
+ 	.name = "tegra-wm8903",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm8903_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/tegra_wm9712.c
++++ b/sound/soc/tegra/tegra_wm9712.c
+@@ -59,6 +59,7 @@ static struct snd_soc_dai_link tegra_wm9
+ 
+ static struct snd_soc_card snd_soc_tegra_wm9712 = {
+ 	.name = "tegra-wm9712",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &tegra_wm9712_dai,
+ 	.num_links = 1,
+--- a/sound/soc/tegra/trimslice.c
++++ b/sound/soc/tegra/trimslice.c
+@@ -103,6 +103,7 @@ static struct snd_soc_dai_link trimslice
+ 
+ static struct snd_soc_card snd_soc_trimslice = {
+ 	.name = "tegra-trimslice",
++	.driver_name = "tegra",
+ 	.owner = THIS_MODULE,
+ 	.dai_link = &trimslice_tlv320aic23_dai,
+ 	.num_links = 1,
 
 
