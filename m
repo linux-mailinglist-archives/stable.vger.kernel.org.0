@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E3EF3CDE0B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A55593CDF1A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344763AbhGSPBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58564 "EHLO mail.kernel.org"
+        id S244807AbhGSPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345167AbhGSPAO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D7E060238;
-        Mon, 19 Jul 2021 15:40:52 +0000 (UTC)
+        id S1346261AbhGSPFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40A566023D;
+        Mon, 19 Jul 2021 15:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709252;
-        bh=UneAK/DRjDNfyR8fmzdC+wouinMrBxCTvyD8NB2tdLg=;
+        s=korg; t=1626709564;
+        bh=4DYIJkBBNEgbBtLUIK/WIpKbeZB5/9WqbXBS6E8Bh54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1pv2R2Eg8SMm1H6X+gW2dBYJ/JsBCxx+SGHWVI6byElaQOoywVHyzr3xFBlj2pttz
-         235F4TiHQwmEjgk77ZfEK+hN3QKjWWBMvK9nfRyDZjcpq2at9CZK+wI2Bt/k+AkMos
-         WLDtCyIkcS/PZqLen1ofletvUagNLQnqrgSmRCew=
+        b=sFF49CXLZ6x5EZb6h/RcaS7CAFi6klRPf04HQiPuwKZN/1KN9I9MJHw9Ly3fztz9H
+         XdKhZSLWwWpMj7Znu7ECw4WD74utpvq8zNtt2bNHWGhT5wnHLBd5quW13Js6LLy7K5
+         OyNPcCzUdo5GBwz77q+jPm4+V3HIZkZM0SLtZfos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.19 309/421] media: dtv5100: fix control-request directions
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 012/149] misc/libmasm/module: Fix two use after free in ibmasm_init_one
 Date:   Mon, 19 Jul 2021 16:52:00 +0200
-Message-Id: <20210719144957.040287684@linuxfoundation.org>
+Message-Id: <20210719144904.343497944@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,69 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
+[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
+Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
+allocated by input_allocate_device(), and assigned to
+sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
 
-Fix the control requests which erroneously used usb_rcvctrlpipe().
+In the err_free_devices error branch of ibmasm_init_one,
+mouse_dev and keybd_dev are freed by input_free_device(), and return
+error. Then the execution runs into error_send_message error branch
+of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
+to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
 
-Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
-Cc: stable@vger.kernel.org      # 2.6.28
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+My patch add a "error_init_remote" label to handle the error of
+ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
+
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/misc/ibmasm/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/dvb-usb/dtv5100.c
-+++ b/drivers/media/usb/dvb-usb/dtv5100.c
-@@ -35,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
- {
- 	struct dtv5100_state *st = d->priv;
-+	unsigned int pipe;
- 	u8 request;
- 	u8 type;
- 	u16 value;
-@@ -43,6 +44,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 	switch (wlen) {
- 	case 1:
- 		/* write { reg }, read { value } */
-+		pipe = usb_rcvctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
- 							DTV5100_TUNER_READ);
- 		type = USB_TYPE_VENDOR | USB_DIR_IN;
-@@ -50,6 +52,7 @@ static int dtv5100_i2c_msg(struct dvb_us
- 		break;
- 	case 2:
- 		/* write { reg, value } */
-+		pipe = usb_sndctrlpipe(d->udev, 0);
- 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
- 							DTV5100_TUNER_WRITE);
- 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
-@@ -63,7 +66,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
+index 4edad6c445d3..dc8a06c06c63 100644
+--- a/drivers/misc/ibmasm/module.c
++++ b/drivers/misc/ibmasm/module.c
+@@ -111,7 +111,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	result = ibmasm_init_remote_input_dev(sp);
+ 	if (result) {
+ 		dev_err(sp->dev, "Failed to initialize remote queue\n");
+-		goto error_send_message;
++		goto error_init_remote;
+ 	}
  
- 	memcpy(st->data, rbuf, rlen);
- 	msleep(1); /* avoid I2C errors */
--	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
-+	return usb_control_msg(d->udev, pipe, request,
- 			       type, value, index, st->data, rlen,
- 			       DTV5100_USB_TIMEOUT);
- }
-@@ -150,7 +153,7 @@ static int dtv5100_probe(struct usb_inte
+ 	result = ibmasm_send_driver_vpd(sp);
+@@ -131,8 +131,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
  
- 	/* initialize non qt1010/zl10353 part? */
- 	for (i = 0; dtv5100_init[i].request; i++) {
--		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				      dtv5100_init[i].request,
- 				      USB_TYPE_VENDOR | USB_DIR_OUT,
- 				      dtv5100_init[i].value,
+ error_send_message:
+-	disable_sp_interrupts(sp->base_address);
+ 	ibmasm_free_remote_input_dev(sp);
++error_init_remote:
++	disable_sp_interrupts(sp->base_address);
+ 	free_irq(sp->irq, (void *)sp);
+ error_request_irq:
+ 	iounmap(sp->base_address);
+-- 
+2.30.2
+
 
 
