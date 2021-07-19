@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB0D53CE1C6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC643CE1FC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345885AbhGSP1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:27:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41026 "EHLO mail.kernel.org"
+        id S1349406AbhGSP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348239AbhGSPYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6AD86145D;
-        Mon, 19 Jul 2021 16:03:26 +0000 (UTC)
+        id S1348271AbhGSPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A3236145F;
+        Mon, 19 Jul 2021 16:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710607;
-        bh=79/HYkvwxCe55o5MFGHNpPyyxL7jdePrtaRs3K2/aC4=;
+        s=korg; t=1626710609;
+        bh=IYoubfj/OlkMZZB5SY71eKlG6nEiNmDXtp7ZUMa6i/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoUj+fdGAruDgZq8+78Znyh5Xw2kRYgan60dYQS/+prZfmBgYlS8rx1xjAm4Sj7wU
-         uHmDtHogAki3g53hdBHIOdXPz5DHRw8QdTvLsXVdK8mRU90aJ0iz3kxbKa8i8Q5nle
-         9y04lj0vooqQLoOHm4zJvvZ121ib7zuoTcvH4lBo=
+        b=kYlRIaJ/U5lxJr/sxIrubQAqFmVIdZJqYyVKCrndOwMSwWi1vlag0NZPZy9xWF7wG
+         wr2sXj0Ucry9zvxmli8fH9FQ6qlWC9sAY9Tri6TTVNrKYJoz7Hc2MxuxCBpRqUa7QP
+         zlwra+Ao4fMtdLUY6AYsefv+adCzyvhO+Pu26x2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 041/351] dmaengine: fsl-qdma: check dma_set_mask return value
-Date:   Mon, 19 Jul 2021 16:49:47 +0200
-Message-Id: <20210719144945.890494296@linuxfoundation.org>
+        stable@vger.kernel.org, ching Huang <ching2048@areca.com.tw>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 042/351] scsi: arcmsr: Fix the wrong CDB payload report to IOP
+Date:   Mon, 19 Jul 2021 16:49:48 +0200
+Message-Id: <20210719144945.928411160@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -39,39 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: ching Huang <ching2048@areca.com.tw>
 
-[ Upstream commit f0c07993af0acf5545d5c1445798846565f4f147 ]
+[ Upstream commit 5b8644968d2ca85abb785e83efec36934974b0c2 ]
 
-For fix below warning reported by static code analysis tool like Coverity
-from Synopsys:
+This patch fixes the wrong CDB payload report to IOP.
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Addresses-Coverity-ID: 12285639 ("Unchecked return value")
-Link: https://lore.kernel.org/r/1619427549-20498-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/d2c97df3c817595c6faf582839316209022f70da.camel@areca.com.tw
+Signed-off-by: ching Huang <ching2048@areca.com.tw>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsl-qdma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/arcmsr/arcmsr_hba.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
-index ed2ab46b15e7..045ead46ec8f 100644
---- a/drivers/dma/fsl-qdma.c
-+++ b/drivers/dma/fsl-qdma.c
-@@ -1235,7 +1235,11 @@ static int fsl_qdma_probe(struct platform_device *pdev)
- 	fsl_qdma->dma_dev.device_synchronize = fsl_qdma_synchronize;
- 	fsl_qdma->dma_dev.device_terminate_all = fsl_qdma_terminate_all;
+diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
+index 4b79661275c9..930972cda38c 100644
+--- a/drivers/scsi/arcmsr/arcmsr_hba.c
++++ b/drivers/scsi/arcmsr/arcmsr_hba.c
+@@ -1923,8 +1923,12 @@ static void arcmsr_post_ccb(struct AdapterControlBlock *acb, struct CommandContr
  
--	dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	if (ret) {
-+		dev_err(&pdev->dev, "dma_set_mask failure.\n");
-+		return ret;
-+	}
- 
- 	platform_set_drvdata(pdev, fsl_qdma);
- 
+ 		if (ccb->arc_cdb_size <= 0x300)
+ 			arc_cdb_size = (ccb->arc_cdb_size - 1) >> 6 | 1;
+-		else
+-			arc_cdb_size = (((ccb->arc_cdb_size + 0xff) >> 8) + 2) << 1 | 1;
++		else {
++			arc_cdb_size = ((ccb->arc_cdb_size + 0xff) >> 8) + 2;
++			if (arc_cdb_size > 0xF)
++				arc_cdb_size = 0xF;
++			arc_cdb_size = (arc_cdb_size << 1) | 1;
++		}
+ 		ccb_post_stamp = (ccb->smid | arc_cdb_size);
+ 		writel(0, &pmu->inbound_queueport_high);
+ 		writel(ccb_post_stamp, &pmu->inbound_queueport_low);
 -- 
 2.30.2
 
