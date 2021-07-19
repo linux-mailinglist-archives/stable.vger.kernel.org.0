@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E209C3CD8E1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6B23CDAC3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242925AbhGSOZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36934 "EHLO mail.kernel.org"
+        id S244237AbhGSOh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:37:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243802AbhGSOYa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3ED0A60FDC;
-        Mon, 19 Jul 2021 15:04:07 +0000 (UTC)
+        id S243186AbhGSOgN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:36:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 234CB60249;
+        Mon, 19 Jul 2021 15:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707047;
-        bh=hORQOAzlkDXrcapcdCZ3EVs7d3Y8WAfK2ElV6moD+Bo=;
+        s=korg; t=1626707810;
+        bh=5KqFaq0lcX9UFg/77cuYyckorO3nTTfDYTCY9UOwWyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zel/qDzgkWUm2VOLvDJ/ruaoaw81NDgC5rRecPNV5ta/sJqzB3O2+Gms+umHzplaf
-         A0rkMn2aEjBwqnk9ZJB9fqbf0SKfB9fBY4fiC8e+rh2Gb/kzFwoWi8WSaJ4Spi80Qw
-         BwPI8rIbOKRDqHKyWIJ1nKNu2Ep6v+8Uf0bNEXAQ=
+        b=nKi6lEOfmVk9hjtOyDFrJzi0NpQ/Wc+Q7vwYIGcoeSQUO0lgJnjhlYm8L5ScxBDEo
+         uhnAvlfRcpEDOTmrpQSdQv3QT+qxCwq0rXN9KHxDIesWYXT4vi4VTuLKHweE3hke+y
+         WO8blMDzpVMq9zJW92FtdBZH7XUrjTkqttE91btM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 011/245] btrfs: clear defrag status of a root if starting transaction fails
+        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
+        Jian-Hong Pan <jhp@endlessos.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 064/315] ACPI: EC: Make more Asus laptops use ECDT _GPE
 Date:   Mon, 19 Jul 2021 16:49:13 +0200
-Message-Id: <20210719144940.752704207@linuxfoundation.org>
+Message-Id: <20210719144944.961334312@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Chris Chiu <chris.chiu@canonical.com>
 
-commit 6819703f5a365c95488b07066a8744841bf14231 upstream.
+[ Upstream commit 6306f0431914beaf220634ad36c08234006571d5 ]
 
-The defrag loop processes leaves in batches and starting transaction for
-each. The whole defragmentation on a given root is protected by a bit
-but in case the transaction fails, the bit is not cleared
+More ASUS laptops have the _GPE define in the DSDT table with a
+different value than the _GPE number in the ECDT.
 
-In case the transaction fails the bit would prevent starting
-defragmentation again, so make sure it's cleared.
+This is causing media keys not working on ASUS X505BA/BP, X542BA/BP
 
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add model info to the quirks list.
 
+Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/transaction.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/acpi/ec.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
---- a/fs/btrfs/transaction.c
-+++ b/fs/btrfs/transaction.c
-@@ -1287,8 +1287,10 @@ int btrfs_defrag_root(struct btrfs_root
- 
- 	while (1) {
- 		trans = btrfs_start_transaction(root, 0);
--		if (IS_ERR(trans))
--			return PTR_ERR(trans);
-+		if (IS_ERR(trans)) {
-+			ret = PTR_ERR(trans);
-+			break;
-+		}
- 
- 		ret = btrfs_defrag_leaves(trans, root);
- 
+diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
+index 37aacb39e692..f8fc30be6871 100644
+--- a/drivers/acpi/ec.c
++++ b/drivers/acpi/ec.c
+@@ -1886,6 +1886,22 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
+ 	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
++	{
++	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
++	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
++	{
+ 	ec_honor_ecdt_gpe, "ASUS X550VXK", {
+ 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+ 	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
+-- 
+2.30.2
+
 
 
