@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE5473CDD8B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2833CDD8F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240946AbhGSO6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:58:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
+        id S245181AbhGSO6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244419AbhGSO5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S243866AbhGSO5w (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:57:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90B20613EB;
-        Mon, 19 Jul 2021 15:35:23 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB58F613D3;
+        Mon, 19 Jul 2021 15:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708924;
-        bh=Gm2Hm2cbVdGDWuf+mdtlQfLJKDZ+0cdksKOyXsIlUxM=;
+        s=korg; t=1626708926;
+        bh=AXPOwiVCw8bz5ozF5siShDrCreOkBYpBCfYsEoaRpSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HQnujio+NXF6bbwL/tINAgjrcRZwkz/wV5zhF81tf6HjbkLgVP8A+cbvv6qGWX0ox
-         O73+zcKao0DBmilqsr86N8cfqnRUgDQ5XxSK+/oPbg1AVNCZ9BQK5VJ6NGiZG7W80Y
-         1RGau1pF6VuxwoDUA2Ab001mfyT3+GNJFAkG/B1U=
+        b=eVgrT86LZEopyd3gPD3deaIP5qq/Uj5oIKEcJansMAzGraUNaaNccIZxNvXkxxs64
+         ke/J9p/CIP7+HSps+DO2//BuGPbEDW/C5c0iqTep02FBqEOGsvC4iaa1C1QiS5GVbI
+         Tdq3x1msXiNW4t8xkuInjxAV7HWpYajym2Fhu5Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Tom Herbert <tom@quantonium.net>,
+        Coco Li <lixiaoyan@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/421] net: bcmgenet: Fix attaching to PYH failed on RPi 4B
-Date:   Mon, 19 Jul 2021 16:49:22 +0200
-Message-Id: <20210719144951.702941930@linuxfoundation.org>
+Subject: [PATCH 4.19 152/421] ipv6: exthdrs: do not blindly use init_net
+Date:   Mon, 19 Jul 2021 16:49:23 +0200
+Message-Id: <20210719144951.733089369@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -41,45 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian-Hong Pan <jhp@endlessos.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b2ac9800cfe0f8da16abc4e74e003440361c112e ]
+[ Upstream commit bcc3f2a829b9edbe3da5fb117ee5a63686d31834 ]
 
-The Broadcom UniMAC MDIO bus from mdio-bcm-unimac module comes too late.
-So, GENET cannot find the ethernet PHY on UniMAC MDIO bus. This leads
-GENET fail to attach the PHY as following log:
+I see no reason why max_dst_opts_cnt and max_hbh_opts_cnt
+are fetched from the initial net namespace.
 
-bcmgenet fd580000.ethernet: GENET 5.0 EPHY: 0x0000
-...
-could not attach to PHY
-bcmgenet fd580000.ethernet eth0: failed to connect to PHY
-uart-pl011 fe201000.serial: no DMA platform data
-libphy: bcmgenet MII bus: probed
-...
-unimac-mdio unimac-mdio.-19: Broadcom UniMAC MDIO bus
+The other sysctls (max_dst_opts_len & max_hbh_opts_len)
+are in fact already using the current ns.
 
-This patch adds the soft dependency to load mdio-bcm-unimac module
-before genet module to avoid the issue.
+Note: it is not clear why ipv6_destopt_rcv() use two ways to
+get to the netns :
 
-Fixes: 9a4e79697009 ("net: bcmgenet: utilize generic Broadcom UniMAC MDIO controller driver")
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=213485
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+ 1) dev_net(dst->dev)
+    Originally used to increment IPSTATS_MIB_INHDRERRORS
+
+ 2) dev_net(skb->dev)
+     Tom used this variant in his patch.
+
+Maybe this calls to use ipv6_skb_net() instead ?
+
+Fixes: 47d3d7ac656a ("ipv6: Implement limits on Hop-by-Hop and Destination options")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Tom Herbert <tom@quantonium.net>
+Cc: Coco Li <lixiaoyan@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/exthdrs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index c3e824f5e50e..1546a9bd9203 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3750,3 +3750,4 @@ MODULE_AUTHOR("Broadcom Corporation");
- MODULE_DESCRIPTION("Broadcom GENET Ethernet controller driver");
- MODULE_ALIAS("platform:bcmgenet");
- MODULE_LICENSE("GPL");
-+MODULE_SOFTDEP("pre: mdio-bcm-unimac");
+diff --git a/net/ipv6/exthdrs.c b/net/ipv6/exthdrs.c
+index 20291c2036fc..68b8084da83a 100644
+--- a/net/ipv6/exthdrs.c
++++ b/net/ipv6/exthdrs.c
+@@ -309,7 +309,7 @@ fail_and_free:
+ #endif
+ 
+ 	if (ip6_parse_tlv(tlvprocdestopt_lst, skb,
+-			  init_net.ipv6.sysctl.max_dst_opts_cnt)) {
++			  net->ipv6.sysctl.max_dst_opts_cnt)) {
+ 		skb->transport_header += extlen;
+ 		opt = IP6CB(skb);
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+@@ -848,7 +848,7 @@ fail_and_free:
+ 
+ 	opt->flags |= IP6SKB_HOPBYHOP;
+ 	if (ip6_parse_tlv(tlvprochopopt_lst, skb,
+-			  init_net.ipv6.sysctl.max_hbh_opts_cnt)) {
++			  net->ipv6.sysctl.max_hbh_opts_cnt)) {
+ 		skb->transport_header += extlen;
+ 		opt = IP6CB(skb);
+ 		opt->nhoff = sizeof(struct ipv6hdr);
 -- 
 2.30.2
 
