@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06F583CE55A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 203A13CE55C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348014AbhGSPs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:48:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46042 "EHLO mail.kernel.org"
+        id S1348098AbhGSPs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349919AbhGSPp2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F184560FE9;
-        Mon, 19 Jul 2021 16:26:06 +0000 (UTC)
+        id S1350032AbhGSPpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87D1B61107;
+        Mon, 19 Jul 2021 16:26:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711967;
-        bh=PsM/oEeLeFVpxT9DvqvZk4ztkjZyublkQYANPYhPMQ8=;
+        s=korg; t=1626711970;
+        bh=rcGreCIoz1dl8poNvVGGA1M3PbJmnLSrc+aGpbVweUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myyfbnYr8K368XLoPsjl2xzoMvClj6osXE1q3Phf6wSpCUKkEdM2NEsa8wh+/GPO+
-         ghjdBKfGiWZ8/TovMCBY5ToEDzhVDgsFMP+MUyv5S0MyrH9UffLa81cZ1QGF8CdQIl
-         QT+K+6RDoiDvVijKcjNys2CWzhltE0PMlW8btLXQ=
+        b=1fD0FrwXJvwrGwiZHMckB6ZYnAsE2FkJo9pPiylJcuRSFm5ktm17CyM8eDLN5189B
+         4LssIFm3HH0DYjhjywhbVMnshRpDRAsXNfDZXV8QmTkj0/OUol3pxCSbhRGdS6tLqB
+         nSG6+fGdT95rxQlvYqB90xoCV/BVyboZeSW5Ms3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
         Sandor Bodo-Merle <sbodomerle@gmail.com>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Marc Zyngier <maz@kernel.org>, Ray Jui <ray.jui@broadcom.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 200/292] PCI: iproc: Fix multi-MSI base vector number allocation
-Date:   Mon, 19 Jul 2021 16:54:22 +0200
-Message-Id: <20210719144949.062894099@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ray Jui <ray.jui@broadcom.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 201/292] PCI: iproc: Support multi-MSI only on uniprocessor kernel
+Date:   Mon, 19 Jul 2021 16:54:23 +0200
+Message-Id: <20210719144949.104060526@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -45,16 +44,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sandor Bodo-Merle <sbodomerle@gmail.com>
 
-[ Upstream commit e673d697b9a234fc3544ac240e173cef8c82b349 ]
+[ Upstream commit 2dc0a201d0f59e6818ef443609f0850a32910844 ]
 
-Commit fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
-introduced multi-MSI support with a broken allocation mechanism (it failed
-to reserve the proper number of bits from the inner domain).  Natural
-alignment of the base vector number was also not guaranteed.
+The interrupt affinity scheme used by this driver is incompatible with
+multi-MSI as it implies moving the doorbell address to that of another MSI
+group.  This isn't possible for multi-MSI, as all the MSIs must have the
+same doorbell address. As such it is restricted to systems with a single
+CPU.
 
-Link: https://lore.kernel.org/r/20210622152630.40842-1-sbodomerle@gmail.com
+Link: https://lore.kernel.org/r/20210622152630.40842-2-sbodomerle@gmail.com
 Fixes: fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
-Reported-by: Pali Rohár <pali@kernel.org>
+Reported-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sandor Bodo-Merle <sbodomerle@gmail.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Acked-by: Marc Zyngier <maz@kernel.org>
@@ -62,51 +62,42 @@ Acked-by: Pali Rohár <pali@kernel.org>
 Acked-by: Ray Jui <ray.jui@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-iproc-msi.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/pci/controller/pcie-iproc-msi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
-index eede4e8f3f75..557d93dcb3bc 100644
+index 557d93dcb3bc..81b4effeb130 100644
 --- a/drivers/pci/controller/pcie-iproc-msi.c
 +++ b/drivers/pci/controller/pcie-iproc-msi.c
-@@ -252,18 +252,18 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
+@@ -171,7 +171,7 @@ static struct irq_chip iproc_msi_irq_chip = {
  
- 	mutex_lock(&msi->bitmap_lock);
+ static struct msi_domain_info iproc_msi_domain_info = {
+ 	.flags = MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
+-		MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX,
++		MSI_FLAG_PCI_MSIX,
+ 	.chip = &iproc_msi_irq_chip,
+ };
  
--	/* Allocate 'nr_cpus' number of MSI vectors each time */
--	hwirq = bitmap_find_next_zero_area(msi->bitmap, msi->nr_msi_vecs, 0,
--					   msi->nr_cpus, 0);
--	if (hwirq < msi->nr_msi_vecs) {
--		bitmap_set(msi->bitmap, hwirq, msi->nr_cpus);
--	} else {
--		mutex_unlock(&msi->bitmap_lock);
--		return -ENOSPC;
--	}
-+	/*
-+	 * Allocate 'nr_irqs' multiplied by 'nr_cpus' number of MSI vectors
-+	 * each time
-+	 */
-+	hwirq = bitmap_find_free_region(msi->bitmap, msi->nr_msi_vecs,
-+					order_base_2(msi->nr_cpus * nr_irqs));
+@@ -250,6 +250,9 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
+ 	struct iproc_msi *msi = domain->host_data;
+ 	int hwirq, i;
  
- 	mutex_unlock(&msi->bitmap_lock);
- 
-+	if (hwirq < 0)
-+		return -ENOSPC;
++	if (msi->nr_cpus > 1 && nr_irqs > 1)
++		return -EINVAL;
 +
- 	for (i = 0; i < nr_irqs; i++) {
- 		irq_domain_set_info(domain, virq + i, hwirq + i,
- 				    &iproc_msi_bottom_irq_chip,
-@@ -284,7 +284,8 @@ static void iproc_msi_irq_domain_free(struct irq_domain *domain,
  	mutex_lock(&msi->bitmap_lock);
  
- 	hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq);
--	bitmap_clear(msi->bitmap, hwirq, msi->nr_cpus);
-+	bitmap_release_region(msi->bitmap, hwirq,
-+			      order_base_2(msi->nr_cpus * nr_irqs));
+ 	/*
+@@ -540,6 +543,9 @@ int iproc_msi_init(struct iproc_pcie *pcie, struct device_node *node)
+ 	mutex_init(&msi->bitmap_lock);
+ 	msi->nr_cpus = num_possible_cpus();
  
- 	mutex_unlock(&msi->bitmap_lock);
- 
++	if (msi->nr_cpus == 1)
++		iproc_msi_domain_info.flags |=  MSI_FLAG_MULTI_PCI_MSI;
++
+ 	msi->nr_irqs = of_irq_count(node);
+ 	if (!msi->nr_irqs) {
+ 		dev_err(pcie->dev, "found no MSI GIC interrupt\n");
 -- 
 2.30.2
 
