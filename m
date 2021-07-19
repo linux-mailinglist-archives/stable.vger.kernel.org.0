@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F84D3CDF8B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370C33CDED0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344773AbhGSPKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
+        id S245084AbhGSPGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345474AbhGSPJY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:09:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A72516127C;
-        Mon, 19 Jul 2021 15:48:53 +0000 (UTC)
+        id S245591AbhGSPEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D43F460FE9;
+        Mon, 19 Jul 2021 15:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709734;
-        bh=EVmXXHjaRF80xiIY8Q2N2toit2bFFczKgUbpR2q2xl4=;
+        s=korg; t=1626709409;
+        bh=v9fKI3g9CGS+M7/RcSjVHRLlssIUn3seZ0gjiK4qS+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rdEJG3nDw5a5BHMlwgTXbroZR9OnxJDXMIX02dVUmMQ48dKBLnEFer4Tx1+GUxokw
-         bvEEjbQrIsJxotmnsYZOGJYS3NIDB2Npjobq90LGUHD+++Io5j28t1UbI0R16vPdBs
-         zWV4meXPMmFDBC+VBB8+7AzXfO4w1sOIDj9Yn39s=
+        b=TftNOnelQuj+JqAd2vm0rpvIjcgCnL2guKZXUozet1AV/LX2pZuvJ0UVfj7vE5Aha
+         h9ZkoKtoUcvWZKqkv/o9C7AAQobb7LKgs06g7IYqwzTFdSJNmuIdeIAzlNeDBr7wl+
+         tI1d/oJl/NO93vC8QCFqCe+3ZGlICPUsiKML394U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/149] PCI/P2PDMA: Avoid pci_get_slot(), which may sleep
+Subject: [PATCH 4.19 373/421] power: supply: charger-manager: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:53:04 +0200
-Message-Id: <20210719144919.296693488@linuxfoundation.org>
+Message-Id: <20210719144959.176237547@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 3ec0c3ec2d92c09465534a1ff9c6f9d9506ffef6 ]
+[ Upstream commit 073b5d5b1f9cc94a3eea25279fbafee3f4f5f097 ]
 
-In order to use upstream_bridge_distance_warn() from a dma_map function, it
-must not sleep. However, pci_get_slot() takes the pci_bus_sem so it might
-sleep.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-In order to avoid this, try to get the host bridge's device from the first
-element in the device list. It should be impossible for the host bridge's
-device to go away while references are held on child devices, so the first
-element should not be able to change and, thus, this should be safe.
-
-Introduce a static function called pci_host_bridge_dev() to obtain the host
-bridge's root device.
-
-Link: https://lore.kernel.org/r/20210610160609.28447-7-logang@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/p2pdma.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ drivers/power/supply/charger-manager.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/p2pdma.c b/drivers/pci/p2pdma.c
-index 0608aae72ccc..0153abdbbc8d 100644
---- a/drivers/pci/p2pdma.c
-+++ b/drivers/pci/p2pdma.c
-@@ -292,10 +292,41 @@ static const struct pci_p2pdma_whitelist_entry {
- 	{}
+diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
+index 7ae983e37f64..eec79db9b750 100644
+--- a/drivers/power/supply/charger-manager.c
++++ b/drivers/power/supply/charger-manager.c
+@@ -1484,6 +1484,7 @@ static const struct of_device_id charger_manager_match[] = {
+ 	},
+ 	{},
  };
++MODULE_DEVICE_TABLE(of, charger_manager_match);
  
-+/*
-+ * This lookup function tries to find the PCI device corresponding to a given
-+ * host bridge.
-+ *
-+ * It assumes the host bridge device is the first PCI device in the
-+ * bus->devices list and that the devfn is 00.0. These assumptions should hold
-+ * for all the devices in the whitelist above.
-+ *
-+ * This function is equivalent to pci_get_slot(host->bus, 0), however it does
-+ * not take the pci_bus_sem lock seeing __host_bridge_whitelist() must not
-+ * sleep.
-+ *
-+ * For this to be safe, the caller should hold a reference to a device on the
-+ * bridge, which should ensure the host_bridge device will not be freed
-+ * or removed from the head of the devices list.
-+ */
-+static struct pci_dev *pci_host_bridge_dev(struct pci_host_bridge *host)
-+{
-+	struct pci_dev *root;
-+
-+	root = list_first_entry_or_null(&host->bus->devices,
-+					struct pci_dev, bus_list);
-+
-+	if (!root)
-+		return NULL;
-+	if (root->devfn != PCI_DEVFN(0, 0))
-+		return NULL;
-+
-+	return root;
-+}
-+
- static bool __host_bridge_whitelist(struct pci_host_bridge *host,
- 				    bool same_host_bridge)
+ static struct charger_desc *of_cm_parse_desc(struct device *dev)
  {
--	struct pci_dev *root = pci_get_slot(host->bus, PCI_DEVFN(0, 0));
-+	struct pci_dev *root = pci_host_bridge_dev(host);
- 	const struct pci_p2pdma_whitelist_entry *entry;
- 	unsigned short vendor, device;
- 
-@@ -304,7 +335,6 @@ static bool __host_bridge_whitelist(struct pci_host_bridge *host,
- 
- 	vendor = root->vendor;
- 	device = root->device;
--	pci_dev_put(root);
- 
- 	for (entry = pci_p2pdma_whitelist; entry->vendor; entry++) {
- 		if (vendor != entry->vendor || device != entry->device)
 -- 
 2.30.2
 
