@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FB23CDFEF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE7573CDFEE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345190AbhGSPMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345220AbhGSPMq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244709AbhGSPLH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:11:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 291E56113B;
-        Mon, 19 Jul 2021 15:51:45 +0000 (UTC)
+        id S1343848AbhGSPLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B52C4610D2;
+        Mon, 19 Jul 2021 15:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709906;
-        bh=6XfZTFwjt1OIkBMcdhyOc0Z+3LRmdzIPIXWyJodzCH0=;
+        s=korg; t=1626709909;
+        bh=wrAXyTUu8iaEYGFgf4AL1J9lnFaFjPOR7mr8+BQtH7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oug+VH8snU/UK+CWeHRnPN4Z4BMIY64LxYtPnwpEuak7Jm6up9mPy5aoq/4uImhBc
-         Y8pDkkUChKxydBlbUKPkpH3owwK0j/8J4y9O6BwUUkNFGrkEiSGpJZW6SX02LLdi6+
-         1JFPhlFdiUX9c97QrdFmZes3yW9jfvPIpmy2NZr0=
+        b=GXo/N09o0p1349yylNvHMiKwCP58dxZTr23pVqXrOwZ25dQyioZM2kgjVRvWA9X5U
+         hIZ+Z9P0YjMnZwMaKhia1GmTZf37j0+zOAerGJxuNgVK/Xl1+gAxjug++Qd4AtXtpP
+         tVBZjYTbyFb206+TebbWj4I7FKf1pQfyEZu5h/b8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 146/149] perf report: Fix --task and --stat with pipe input
-Date:   Mon, 19 Jul 2021 16:54:14 +0200
-Message-Id: <20210719144935.853487869@linuxfoundation.org>
+Subject: [PATCH 5.4 147/149] MIPS: vdso: Invalid GIC access through VDSO
+Date:   Mon, 19 Jul 2021 16:54:15 +0200
+Message-Id: <20210719144936.079981460@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -44,102 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Martin Fäcknitz <faecknitz@hotsplots.de>
 
-[ Upstream commit 892ba7f18621a02af4428c58d97451f64685dba4 ]
+[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
 
-Current 'perf report' fails to process a pipe input when --task or
---stat options are used.  This is because they reset all the tool
-callbacks and fails to find a matching event for a sample.
+Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
+doesn't return the correct time when using the GIC as clock source.
+The address of the GIC mapped page is in this case not calculated
+correctly. The GIC mapped page is calculated from the VDSO data by
+subtracting PAGE_SIZE:
 
-When pipe input is used, the event info is passed via ATTR records so it
-needs to handle that operation.  Otherwise the following error occurs.
-Note, -14 (= -EFAULT) comes from evlist__parse_sample():
+  void *get_gic(const struct vdso_data *data) {
+    return (void __iomem *)data - PAGE_SIZE;
+  }
 
-  # perf record -a -o- sleep 1 | perf report -i- --stat
-  Can't parse sample, err = -14
-  0x271044 [0x38]: failed to process type: 9
-  Error:
-  failed to process sample
-  #
+However, the data pointer is not page aligned for raw clock sources.
+This is because the VDSO data for raw clock sources (CS_RAW = 1) is
+stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
+Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
 
-Committer testing:
+  +--------------------+
+  |                    |
+  | vd[CS_RAW]         | ---+
+  | vd[CS_HRES_COARSE] |    |
+  +--------------------+    | -PAGE_SIZE
+  |                    |    |
+  |  GIC mapped page   | <--+
+  |                    |
+  +--------------------+
 
-Before:
+When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
+the wrong address (somewhere inside the GIC mapped page). The GIC counter
+values are not returned which results in an invalid time.
 
-  $ perf record -o- sleep 1 | perf report -i- --stat
-  Can't parse sample, err = -14
-  [ perf record: Woken up 1 times to write data ]
-  0x1350 [0x30]: failed to process type: 9
-  Error:
-  failed to process sample
-  [ perf record: Captured and wrote 0.000 MB - ]
-  $
-
-After:
-
-  $ perf record -o- sleep 1 | perf report -i- --stat
-  [ perf record: Woken up 1 times to write data ]
-  [ perf record: Captured and wrote 0.000 MB - ]
-
-  Aggregated stats:
-             TOTAL events:         41
-              COMM events:          2  ( 4.9%)
-              EXIT events:          1  ( 2.4%)
-            SAMPLE events:          9  (22.0%)
-             MMAP2 events:          4  ( 9.8%)
-              ATTR events:          1  ( 2.4%)
-    FINISHED_ROUND events:          1  ( 2.4%)
-        THREAD_MAP events:          1  ( 2.4%)
-           CPU_MAP events:          1  ( 2.4%)
-      EVENT_UPDATE events:          1  ( 2.4%)
-         TIME_CONV events:          1  ( 2.4%)
-           FEATURE events:         19  (46.3%)
-  cycles:uhH stats:
-            SAMPLE events:          9
-  $
-
-Fixes: a4a4d0a7a2b20f78 ("perf report: Add --stats option to display quick data statistics")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210630043058.1131295-1-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
+Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-report.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/mips/include/asm/vdso/vdso.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
-index d3c0b04e2e22..60beb2d5b164 100644
---- a/tools/perf/builtin-report.c
-+++ b/tools/perf/builtin-report.c
-@@ -666,9 +666,14 @@ static void report__output_resort(struct report *rep)
- 	ui_progress__finish();
- }
+diff --git a/arch/mips/include/asm/vdso/vdso.h b/arch/mips/include/asm/vdso/vdso.h
+index 737ddfc3411c..a327ca21270e 100644
+--- a/arch/mips/include/asm/vdso/vdso.h
++++ b/arch/mips/include/asm/vdso/vdso.h
+@@ -67,7 +67,7 @@ static inline const struct vdso_data *get_vdso_data(void)
  
-+static int process_attr(struct perf_tool *tool __maybe_unused,
-+			union perf_event *event,
-+			struct evlist **pevlist);
-+
- static void stats_setup(struct report *rep)
+ static inline void __iomem *get_gic(const struct vdso_data *data)
  {
- 	memset(&rep->tool, 0, sizeof(rep->tool));
-+	rep->tool.attr = process_attr;
- 	rep->tool.no_warn = true;
+-	return (void __iomem *)data - PAGE_SIZE;
++	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
  }
  
-@@ -688,6 +693,7 @@ static void tasks_setup(struct report *rep)
- 		rep->tool.mmap = perf_event__process_mmap;
- 		rep->tool.mmap2 = perf_event__process_mmap2;
- 	}
-+	rep->tool.attr = process_attr;
- 	rep->tool.comm = perf_event__process_comm;
- 	rep->tool.exit = perf_event__process_exit;
- 	rep->tool.fork = perf_event__process_fork;
+ #endif /* CONFIG_CLKSRC_MIPS_GIC */
 -- 
 2.30.2
 
