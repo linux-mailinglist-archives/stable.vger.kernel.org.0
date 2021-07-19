@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8253C3CD7A0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE4543CD7A3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241827AbhGSORt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:17:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51718 "EHLO mail.kernel.org"
+        id S241834AbhGSORu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:17:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241895AbhGSORc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 645D761003;
-        Mon, 19 Jul 2021 14:58:11 +0000 (UTC)
+        id S241876AbhGSORe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:17:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C9C6113C;
+        Mon, 19 Jul 2021 14:58:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706691;
-        bh=VRFYNxDkreyelBpDbdTt05/VEp915dkvpX9DIqFL9mM=;
+        s=korg; t=1626706694;
+        bh=IfQ+6XhX+XSWDe++IxnkzQxz7AJBoKZP595+xEwmzRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjLjRkuPONBN9rvvL9Wguo+Av0DnCUarooZ1wccN4X4srXokLZgtCgVlizDA4R1Hb
-         6bIkTZka8kdtqODMJb7WWq78Sqlqt60EMyHqE8+Z/rBtvzKyHW+wzLYq5X3HAJQ8+h
-         jzXUdiw8E66mKAaf4BaqVWjyj6ZlNZf3VnWiqdqg=
+        b=mr6tYNI5NSn40I9HrP8Xx4u1cdTvYk+L3XBAaSh4muT7Ff4THFl5wVpwoIZnlkP3q
+         /4cqkuKoNAcvS2tpLdxryKrGIGhXX7GEV14BR7Jr8YE8CYZxe80mZNjTMORKepRjsa
+         5hA6qObb+/G6lXZEz0FTddS4r7veFaiANMd1ayck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 056/188] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
-Date:   Mon, 19 Jul 2021 16:50:40 +0200
-Message-Id: <20210719144926.126643293@linuxfoundation.org>
+Subject: [PATCH 4.4 057/188] mmc: usdhi6rol0: fix error return code in usdhi6_probe()
+Date:   Mon, 19 Jul 2021 16:50:41 +0200
+Message-Id: <20210719144926.340059214@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,161 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
+[ Upstream commit 2f9ae69e5267f53e89e296fccee291975a85f0eb ]
 
-Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
-its msg_data array from 4 to 5 elements. Notice that at some point
-the 5th element of msg_data is being accessed in function
-smscore_load_firmware_family2():
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
-
-Also, there is no need for the object _trigger_msg_ of type struct
-sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
-in struct sms_msg_data is a one-element array, which causes multiple
-out-of-bounds warnings when accessing beyond its first element
-in function smscore_load_firmware_family2():
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
- 994
- 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 996                 SMS_INIT_MSG(&msg->x_msg_header,
- 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
- 998                                 sizeof(struct sms_msg_hdr) +
- 999                                 sizeof(u32) * 5);
-1000
-1001                 trigger_msg->msg_data[0] = firmware->start_address;
-1002                                         /* Entry point */
-1003                 trigger_msg->msg_data[1] = 6; /* Priority */
-1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
-1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
-1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
-
-even when enough dynamic memory is allocated for _msg_:
-
- 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
- 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
-
-but as _msg_ is casted to (struct sms_msg_data *):
-
- 992                 struct sms_msg_data *trigger_msg =
- 993                         (struct sms_msg_data *) msg;
-
-the out-of-bounds warnings are actually valid and should be addressed.
-
-Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
-which contains a 5-elements array, instead of just 4. And use
-_msg_ directly, instead of creating object trigger_msg.
-
-This helps with the ongoing efforts to enable -Warray-bounds by fixing
-the following warnings:
-
-  CC [M]  drivers/media/common/siano/smscoreapi.o
-drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
-drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
- 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
-      |   ~~~~~~~~~~~~~~~~~~~~~^~~
-In file included from drivers/media/common/siano/smscoreapi.c:12:
-drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
-  619 |  u32 msg_data[1];
-      |      ^~~~~~~~
-
-Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
-Co-developed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Fixes: 75fa9ea6e3c0 ("mmc: add a driver for the Renesas usdhi6rol0 SD/SDIO host controller")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508020321.1677-1-thunder.leizhen@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
- drivers/media/common/siano/smscoreapi.h |  4 ++--
- 2 files changed, 11 insertions(+), 15 deletions(-)
+ drivers/mmc/host/usdhi6rol0.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
-index 2a8d9a36d6f0..5cc68144771c 100644
---- a/drivers/media/common/siano/smscoreapi.c
-+++ b/drivers/media/common/siano/smscoreapi.c
-@@ -914,7 +914,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 					 void *buffer, size_t size)
- {
- 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
--	struct sms_msg_data4 *msg;
-+	struct sms_msg_data5 *msg;
- 	u32 mem_address,  calc_checksum = 0;
- 	u32 i, *ptr;
- 	u8 *payload = firmware->payload;
-@@ -995,24 +995,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
- 		goto exit_fw_download;
+diff --git a/drivers/mmc/host/usdhi6rol0.c b/drivers/mmc/host/usdhi6rol0.c
+index 2b6a9c6a6e96..49798a68299e 100644
+--- a/drivers/mmc/host/usdhi6rol0.c
++++ b/drivers/mmc/host/usdhi6rol0.c
+@@ -1751,6 +1751,7 @@ static int usdhi6_probe(struct platform_device *pdev)
  
- 	if (coredev->mode == DEVICE_MODE_NONE) {
--		struct sms_msg_data *trigger_msg =
--			(struct sms_msg_data *) msg;
--
- 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
- 		SMS_INIT_MSG(&msg->x_msg_header,
- 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
--				sizeof(struct sms_msg_hdr) +
--				sizeof(u32) * 5);
-+				sizeof(*msg));
- 
--		trigger_msg->msg_data[0] = firmware->start_address;
-+		msg->msg_data[0] = firmware->start_address;
- 					/* Entry point */
--		trigger_msg->msg_data[1] = 6; /* Priority */
--		trigger_msg->msg_data[2] = 0x200; /* Stack size */
--		trigger_msg->msg_data[3] = 0; /* Parameter */
--		trigger_msg->msg_data[4] = 4; /* Task ID */
-+		msg->msg_data[1] = 6; /* Priority */
-+		msg->msg_data[2] = 0x200; /* Stack size */
-+		msg->msg_data[3] = 0; /* Parameter */
-+		msg->msg_data[4] = 4; /* Task ID */
- 
--		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
--					trigger_msg->x_msg_header.msg_length,
-+		rc = smscore_sendrequest_and_wait(coredev, msg,
-+					msg->x_msg_header.msg_length,
- 					&coredev->trigger_done);
- 	} else {
- 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
-diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
-index 4cc39e4a8318..55d02c27f124 100644
---- a/drivers/media/common/siano/smscoreapi.h
-+++ b/drivers/media/common/siano/smscoreapi.h
-@@ -636,9 +636,9 @@ struct sms_msg_data2 {
- 	u32 msg_data[2];
- };
- 
--struct sms_msg_data4 {
-+struct sms_msg_data5 {
- 	struct sms_msg_hdr x_msg_header;
--	u32 msg_data[4];
-+	u32 msg_data[5];
- };
- 
- struct sms_data_download {
+ 	version = usdhi6_read(host, USDHI6_VERSION);
+ 	if ((version & 0xfff) != 0xa0d) {
++		ret = -EPERM;
+ 		dev_err(dev, "Version not recognized %x\n", version);
+ 		goto e_clk_off;
+ 	}
 -- 
 2.30.2
 
