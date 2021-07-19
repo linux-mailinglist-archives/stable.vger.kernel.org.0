@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 970233CD8FA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D553CDAB7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243674AbhGSO0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36934 "EHLO mail.kernel.org"
+        id S241448AbhGSOhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:37:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244093AbhGSOYs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC67C6113C;
-        Mon, 19 Jul 2021 15:05:01 +0000 (UTC)
+        id S244994AbhGSOfz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:35:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A42F060551;
+        Mon, 19 Jul 2021 15:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707102;
-        bh=W4dfKPYzJfB6MDAJ5rD8u1fU9PIYlxiT86MoLQ3ZGF8=;
+        s=korg; t=1626707795;
+        bh=oELBDiCkfRqdOuU0PT4sHdy7R3CRpNSQfTPY0Vfv2u0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C98HKtLnh17WN42w+cT6RqZAcaLKvJtiUfPbmikn0S1fkQIUVEXzIbhgfFmuPAcAl
-         RlEWZrtNsaHdZwd+AVKMBisjOd2VuzkbFzIG7Xth/QKc8tzpoGFT5BrEjPU/C3lZQh
-         /lzysd9T2NtQq3b5/N68+D30VBHcaIAm+w3OwkWc=
+        b=KEMmJurrJPH/EYzy91OOOGRXvaJALAoDs+S3HBQTjiTVa2hDjedqkFIVGSxYyj2cK
+         xHRTrIVB6HDEENpxy9kaU+2qGApDHFIevxy6D5Ycg6if2j1PntXcsJUVjK1VcbPlUl
+         fSjxH19j67FePDU5Oz0BeVDTBCzl5V80WJx3b1UA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannu Hartikainen <hannu@hrtk.in>
-Subject: [PATCH 4.9 006/245] USB: cdc-acm: blacklist Heimann USB Appset device
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 059/315] regulator: da9052: Ensure enough delay time for .set_voltage_time_sel
 Date:   Mon, 19 Jul 2021 16:49:08 +0200
-Message-Id: <20210719144940.590164762@linuxfoundation.org>
+Message-Id: <20210719144944.803706626@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,43 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannu Hartikainen <hannu@hrtk.in>
+From: Axel Lin <axel.lin@ingics.com>
 
-commit 4897807753e078655a78de39ed76044d784f3e63 upstream.
+[ Upstream commit a336dc8f683e5be794186b5643cd34cb28dd2c53 ]
 
-The device (32a7:0000 Heimann Sensor GmbH USB appset demo) claims to be
-a CDC-ACM device in its descriptors but in fact is not. If it is run
-with echo disabled it returns garbled data, probably due to something
-that happens in the TTY layer. And when run with echo enabled (the
-default), it will mess up the calibration data of the sensor the first
-time any data is sent to the device.
+Use DIV_ROUND_UP to prevent truncation by integer division issue.
+This ensures we return enough delay time.
 
-In short, I had a bad time after connecting the sensor and trying to get
-it to work. I hope blacklisting it in the cdc-acm driver will save
-someone else a bit of trouble.
+Also fix returning negative value when new_sel < old_sel.
 
-Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210622141454.337948-1-hannu@hrtk.in
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Link: https://lore.kernel.org/r/20210618141412.4014912-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/regulator/da9052-regulator.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -1894,6 +1894,11 @@ static const struct usb_device_id acm_id
- 	.driver_info = IGNORE_DEVICE,
- 	},
+diff --git a/drivers/regulator/da9052-regulator.c b/drivers/regulator/da9052-regulator.c
+index 9ececfef42d6..bd91c95f73e0 100644
+--- a/drivers/regulator/da9052-regulator.c
++++ b/drivers/regulator/da9052-regulator.c
+@@ -258,7 +258,8 @@ static int da9052_regulator_set_voltage_time_sel(struct regulator_dev *rdev,
+ 	case DA9052_ID_BUCK3:
+ 	case DA9052_ID_LDO2:
+ 	case DA9052_ID_LDO3:
+-		ret = (new_sel - old_sel) * info->step_uV / 6250;
++		ret = DIV_ROUND_UP(abs(new_sel - old_sel) * info->step_uV,
++				   6250);
+ 		break;
+ 	}
  
-+	/* Exclude Heimann Sensor GmbH USB appset demo */
-+	{ USB_DEVICE(0x32a7, 0x0000),
-+	.driver_info = IGNORE_DEVICE,
-+	},
-+
- 	/* control interfaces without any protocol set */
- 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
- 		USB_CDC_PROTO_NONE) },
+-- 
+2.30.2
+
 
 
