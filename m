@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6AB3CDC17
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F84D3CDF8B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241195AbhGSOvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
+        id S1344773AbhGSPKk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344279AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0DA061287;
-        Mon, 19 Jul 2021 15:27:42 +0000 (UTC)
+        id S1345474AbhGSPJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A72516127C;
+        Mon, 19 Jul 2021 15:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708463;
-        bh=GUnLCwqGq+Q1BY2Di5mdFrrVM7TVqfE4gqATT0VHGZw=;
+        s=korg; t=1626709734;
+        bh=EVmXXHjaRF80xiIY8Q2N2toit2bFFczKgUbpR2q2xl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHW2Ptaldz3rTUhmPrkIlC/HubOIh65Xd/oZ2vP3jDvsK7pUxC3JDtKI0KGC3YgQp
-         i578stM/jFyfwaGDIdLzIg8+kDgATlxFoTBHtLoCFDQX6/LUwtvVyBk91nJ1KDIKVj
-         MGxlPAY5VL/DVbLUxKBYe0goLRe4eD7HkywlrNMw=
+        b=rdEJG3nDw5a5BHMlwgTXbroZR9OnxJDXMIX02dVUmMQ48dKBLnEFer4Tx1+GUxokw
+         bvEEjbQrIsJxotmnsYZOGJYS3NIDB2Npjobq90LGUHD+++Io5j28t1UbI0R16vPdBs
+         zWV4meXPMmFDBC+VBB8+7AzXfO4w1sOIDj9Yn39s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 295/315] x86/fpu: Limit xstate copy size in xstateregs_set()
+Subject: [PATCH 5.4 076/149] PCI/P2PDMA: Avoid pci_get_slot(), which may sleep
 Date:   Mon, 19 Jul 2021 16:53:04 +0200
-Message-Id: <20210719144953.166987065@linuxfoundation.org>
+Message-Id: <20210719144919.296693488@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Logan Gunthorpe <logang@deltatee.com>
 
-[ Upstream commit 07d6688b22e09be465652cf2da0da6bf86154df6 ]
+[ Upstream commit 3ec0c3ec2d92c09465534a1ff9c6f9d9506ffef6 ]
 
-If the count argument is larger than the xstate size, this will happily
-copy beyond the end of xstate.
+In order to use upstream_bridge_distance_warn() from a dma_map function, it
+must not sleep. However, pci_get_slot() takes the pci_bus_sem so it might
+sleep.
 
-Fixes: 91c3dba7dbc1 ("x86/fpu/xstate: Fix PTRACE frames for XSAVES")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121452.120741557@linutronix.de
+In order to avoid this, try to get the host bridge's device from the first
+element in the device list. It should be impossible for the host bridge's
+device to go away while references are held on child devices, so the first
+element should not be able to change and, thus, this should be safe.
+
+Introduce a static function called pci_host_bridge_dev() to obtain the host
+bridge's root device.
+
+Link: https://lore.kernel.org/r/20210610160609.28447-7-logang@deltatee.com
+Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/regset.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/p2pdma.c | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index bc02f5144b95..621d249ded0b 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -128,7 +128,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
- 	/*
- 	 * A whole standard-format XSAVE buffer is needed:
- 	 */
--	if ((pos != 0) || (count < fpu_user_xstate_size))
-+	if (pos != 0 || count != fpu_user_xstate_size)
- 		return -EFAULT;
+diff --git a/drivers/pci/p2pdma.c b/drivers/pci/p2pdma.c
+index 0608aae72ccc..0153abdbbc8d 100644
+--- a/drivers/pci/p2pdma.c
++++ b/drivers/pci/p2pdma.c
+@@ -292,10 +292,41 @@ static const struct pci_p2pdma_whitelist_entry {
+ 	{}
+ };
  
- 	xsave = &fpu->state.xsave;
++/*
++ * This lookup function tries to find the PCI device corresponding to a given
++ * host bridge.
++ *
++ * It assumes the host bridge device is the first PCI device in the
++ * bus->devices list and that the devfn is 00.0. These assumptions should hold
++ * for all the devices in the whitelist above.
++ *
++ * This function is equivalent to pci_get_slot(host->bus, 0), however it does
++ * not take the pci_bus_sem lock seeing __host_bridge_whitelist() must not
++ * sleep.
++ *
++ * For this to be safe, the caller should hold a reference to a device on the
++ * bridge, which should ensure the host_bridge device will not be freed
++ * or removed from the head of the devices list.
++ */
++static struct pci_dev *pci_host_bridge_dev(struct pci_host_bridge *host)
++{
++	struct pci_dev *root;
++
++	root = list_first_entry_or_null(&host->bus->devices,
++					struct pci_dev, bus_list);
++
++	if (!root)
++		return NULL;
++	if (root->devfn != PCI_DEVFN(0, 0))
++		return NULL;
++
++	return root;
++}
++
+ static bool __host_bridge_whitelist(struct pci_host_bridge *host,
+ 				    bool same_host_bridge)
+ {
+-	struct pci_dev *root = pci_get_slot(host->bus, PCI_DEVFN(0, 0));
++	struct pci_dev *root = pci_host_bridge_dev(host);
+ 	const struct pci_p2pdma_whitelist_entry *entry;
+ 	unsigned short vendor, device;
+ 
+@@ -304,7 +335,6 @@ static bool __host_bridge_whitelist(struct pci_host_bridge *host,
+ 
+ 	vendor = root->vendor;
+ 	device = root->device;
+-	pci_dev_put(root);
+ 
+ 	for (entry = pci_p2pdma_whitelist; entry->vendor; entry++) {
+ 		if (vendor != entry->vendor || device != entry->device)
 -- 
 2.30.2
 
