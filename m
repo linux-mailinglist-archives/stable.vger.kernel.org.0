@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2486E3CE490
+	by mail.lfdr.de (Postfix) with ESMTP id B9A283CE492
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348606AbhGSPoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1348613AbhGSPoM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:44:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346304AbhGSPlV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346731AbhGSPlV (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:41:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 587C561221;
-        Mon, 19 Jul 2021 16:21:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2114460FDC;
+        Mon, 19 Jul 2021 16:21:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711671;
-        bh=1BWtIQ+bDDju4B6IewjLGl2AaJcRH26LIim6FejbrmU=;
+        s=korg; t=1626711674;
+        bh=ZKJVrmLYGVPSJrHqQHBq6fK9ClMXludSvV3cqZNaBzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wprYNh0ziFvjPK7uq9ieCE2Fx59OgioaySlpLEUSrAV/XuzEO7G80+zXwt3v441SS
-         cb1NS+v8/tl5ZxwKQya8LocnpORmE+GKinDF3ehdrvyVp5gSl1MBtt8P5zvXC0PNbT
-         G5bBnfEi7U7sZSqXiY7ElYXhl3vnHfx7SSPlg1Ww=
+        b=ppg2ssB9/j/cSdIjqvK3IAUr/HwZNCyGSzd3PSA+NOkWAeEcLxtDmxqchn+VAxBck
+         ffIWe6vT8Afw0JrmZw8/tJFbVHLQvcfKOyApZr67Tl13f8P8vouwvkmhQyA/rJ7ssb
+         pT8GTEPkgjxN91vYyGjOWD61BU6H+PFtRHJY34ME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 090/292] ALSA: n64: check return value after calling platform_get_resource()
-Date:   Mon, 19 Jul 2021 16:52:32 +0200
-Message-Id: <20210719144945.469866333@linuxfoundation.org>
+        stable@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
+        Mark Brown <broonie@kernel.org>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 091/292] ASoC: soc-pcm: fix the return value in dpcm_apply_symmetry()
+Date:   Mon, 19 Jul 2021 16:52:33 +0200
+Message-Id: <20210719144945.501844366@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -39,36 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Jaroslav Kysela <perex@perex.cz>
 
-[ Upstream commit be471fe332f7f14aa6828010b220d7e6902b91a0 ]
+[ Upstream commit 12ffd726824a2f52486f72338b6fd3244b512959 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+In case, where the loops are not executed for a reason, the uninitialized
+variable 'err' is returned to the caller. Make code fully predictible
+and assign zero in the declaration.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210610124958.116142-1-yangyingliang@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jaroslav Kysela <perex@perex.cz>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Link: https://lore.kernel.org/r/20210614071746.1787072-1-perex@perex.cz
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/mips/snd-n64.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/soc-pcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/mips/snd-n64.c b/sound/mips/snd-n64.c
-index e35e93157755..463a6fe589eb 100644
---- a/sound/mips/snd-n64.c
-+++ b/sound/mips/snd-n64.c
-@@ -338,6 +338,10 @@ static int __init n64audio_probe(struct platform_device *pdev)
- 	strcpy(card->longname, "N64 Audio");
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 14d85ca1e435..4a25a1e39831 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1695,7 +1695,7 @@ static int dpcm_apply_symmetry(struct snd_pcm_substream *fe_substream,
+ 	struct snd_soc_dpcm *dpcm;
+ 	struct snd_soc_pcm_runtime *fe = asoc_substream_to_rtd(fe_substream);
+ 	struct snd_soc_dai *fe_cpu_dai;
+-	int err;
++	int err = 0;
+ 	int i;
  
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-+	if (!res) {
-+		err = -EINVAL;
-+		goto fail_dma_alloc;
-+	}
- 	if (devm_request_irq(&pdev->dev, res->start, n64audio_isr,
- 				IRQF_SHARED, "N64 Audio", priv)) {
- 		err = -EBUSY;
+ 	/* apply symmetry for FE */
 -- 
 2.30.2
 
