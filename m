@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 485873CE1FE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 606013CE228
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349395AbhGSP0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
+        id S1346514AbhGSP3W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:29:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348240AbhGSPYk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C5E461461;
-        Mon, 19 Jul 2021 16:03:36 +0000 (UTC)
+        id S1348272AbhGSPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73A20613F7;
+        Mon, 19 Jul 2021 16:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710617;
-        bh=BzEBpleatGRrw0kXVuk8Cw6ahi6FDczfg30IAZx5yME=;
+        s=korg; t=1626710620;
+        bh=p7VlPFXuhYUrlLGzWVBlKVGGGZ/ormNZxuIr4IHfc5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8mi/P4oQfzjA3e/a5PyOYiwnvDghjAogt5qGLr3UnqnADirZeLe1FTBXgTyr4KBS
-         XEsbS4soACeGsQRUDvODw2i5pKeM28zdiB1hjElP9DCA7C4qkNAKzCxd6YF4ODhqVz
-         Y9vzcuICSht59T3JMf0LdBdlSk5FVlD6Tv4Nb+Us=
+        b=0WRs9hG+5aq8eC5Bp6Q+9NxtIgkDRJ1J2h8rIewpfxBmrDQW+xWoX2/nL6D8QsFPs
+         EAYiSNkYwLGZL+r0GwWVk2rIdYxdkf1JPdKjyMIti3KxpZKDnIYNIxVHDKvsLpaTL/
+         xwT7Yf3ib3aL+bByU63BwxsH86oVBXWsQhICo5GU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rander Wang <rander.wang@intel.com>,
         Bard Liao <yung-chuan.liao@linux.intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 045/351] soundwire: bus: only use CLOCK_STOP_MODE0 and fix confusions
-Date:   Mon, 19 Jul 2021 16:49:51 +0200
-Message-Id: <20210719144946.029836404@linuxfoundation.org>
+Subject: [PATCH 5.13 046/351] soundwire: bus: handle -ENODATA errors in clock stop/start sequences
+Date:   Mon, 19 Jul 2021 16:49:52 +0200
+Message-Id: <20210719144946.060307290@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -45,234 +45,215 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 345e9f5ca798600e44c0843646621f2804eb99f4 ]
+[ Upstream commit b50bb8ba369cdc8814e82558117711c12ef3af3d ]
 
-Existing devices and implementations only support the required
-CLOCK_STOP_MODE0. All the code related to CLOCK_STOP_MODE1 has not
-been tested and is highly questionable, with a clear confusion between
-CLOCK_STOP_MODE1 and the simple clock stop state machine.
+If a device lost sync and can no longer ACK a command, it may not be
+able to enter a lower-power state but it will still be able to resync
+when the clock restarts. In those cases, we want to continue with the
+clock stop sequence.
 
-This patch removes all usages of CLOCK_STOP_MODE1 - which has no
-impact on any solution - and fixes the use of the simple clock stop
-state machine. The resulting code should be a lot more symmetrical and
-easier to maintain.
+This patch modifies the behavior during clock stop sequences to only
+log errors unrelated to -ENODATA/Command_Ignored. The flow is also
+modified so that loops continue to prepare/deprepare other devices
+even when one seems to have lost sync.
 
-Note that CLOCK_STOP_MODE1 is not supported in the SoundWire Device
-Class specification so it's rather unlikely that we need to re-add
-this mode later.
+When resuming the clocks, all issues are logged with a dev_warn(),
+previously only some of them were checked. This is the only part that
+now differs between the clock stop entry and clock stop exit
+sequences: while we don't want to stop the suspend flow, we do want
+information on potential issues while resuming, as they may have
+ripple effects.
+
+For consistency the log messages are also modified to be unique and
+self-explanatory. Errors in sdw_slave_clk_stop_callback() were
+removed, they are now handled in the caller.
 
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 Reviewed-by: Rander Wang <rander.wang@intel.com>
 Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20210511030048.25622-2-yung-chuan.liao@linux.intel.com
+Link: https://lore.kernel.org/r/20210511030048.25622-4-yung-chuan.liao@linux.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/bus.c       | 100 ++++++++++++++--------------------
- include/linux/soundwire/sdw.h |   2 -
- 2 files changed, 40 insertions(+), 62 deletions(-)
+ drivers/soundwire/bus.c | 69 +++++++++++++++++++++--------------------
+ 1 file changed, 36 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/soundwire/bus.c b/drivers/soundwire/bus.c
-index a9e0aa72654d..dc4033b6f2e9 100644
+index dc4033b6f2e9..100d904bf700 100644
 --- a/drivers/soundwire/bus.c
 +++ b/drivers/soundwire/bus.c
-@@ -821,26 +821,6 @@ static void sdw_modify_slave_status(struct sdw_slave *slave,
- 	mutex_unlock(&bus->bus_lock);
- }
+@@ -829,11 +829,8 @@ static int sdw_slave_clk_stop_callback(struct sdw_slave *slave,
  
--static enum sdw_clk_stop_mode sdw_get_clk_stop_mode(struct sdw_slave *slave)
--{
--	enum sdw_clk_stop_mode mode;
--
--	/*
--	 * Query for clock stop mode if Slave implements
--	 * ops->get_clk_stop_mode, else read from property.
--	 */
--	if (slave->ops && slave->ops->get_clk_stop_mode) {
--		mode = slave->ops->get_clk_stop_mode(slave);
--	} else {
--		if (slave->prop.clk_stop_mode1)
--			mode = SDW_CLK_STOP_MODE1;
--		else
--			mode = SDW_CLK_STOP_MODE0;
--	}
--
--	return mode;
--}
--
- static int sdw_slave_clk_stop_callback(struct sdw_slave *slave,
- 				       enum sdw_clk_stop_mode mode,
- 				       enum sdw_clk_stop_type type)
-@@ -933,7 +913,6 @@ static int sdw_bus_wait_for_clk_prep_deprep(struct sdw_bus *bus, u16 dev_num)
-  */
- int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
- {
--	enum sdw_clk_stop_mode slave_mode;
- 	bool simple_clk_stop = true;
- 	struct sdw_slave *slave;
- 	bool is_slave = false;
-@@ -955,10 +934,8 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
- 		/* Identify if Slave(s) are available on Bus */
- 		is_slave = true;
+ 	if (slave->ops && slave->ops->clk_stop) {
+ 		ret = slave->ops->clk_stop(slave, mode, type);
+-		if (ret < 0) {
+-			dev_err(&slave->dev,
+-				"Clk Stop type =%d failed: %d\n", type, ret);
++		if (ret < 0)
+ 			return ret;
+-		}
+ 	}
  
--		slave_mode = sdw_get_clk_stop_mode(slave);
--		slave->curr_clk_stop_mode = slave_mode;
--
--		ret = sdw_slave_clk_stop_callback(slave, slave_mode,
-+		ret = sdw_slave_clk_stop_callback(slave,
-+						  SDW_CLK_STOP_MODE0,
- 						  SDW_CLK_PRE_PREPARE);
+ 	return 0;
+@@ -860,7 +857,8 @@ static int sdw_slave_clk_stop_prepare(struct sdw_slave *slave,
+ 	} else {
+ 		ret = sdw_read_no_pm(slave, SDW_SCP_SYSTEMCTRL);
  		if (ret < 0) {
- 			dev_err(&slave->dev,
-@@ -966,22 +943,29 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
+-			dev_err(&slave->dev, "SDW_SCP_SYSTEMCTRL read failed:%d\n", ret);
++			if (ret != -ENODATA)
++				dev_err(&slave->dev, "SDW_SCP_SYSTEMCTRL read failed:%d\n", ret);
  			return ret;
  		}
+ 		val = ret;
+@@ -869,9 +867,8 @@ static int sdw_slave_clk_stop_prepare(struct sdw_slave *slave,
  
--		ret = sdw_slave_clk_stop_prepare(slave,
--						 slave_mode, true);
+ 	ret = sdw_write_no_pm(slave, SDW_SCP_SYSTEMCTRL, val);
+ 
+-	if (ret < 0)
+-		dev_err(&slave->dev,
+-			"Clock Stop prepare failed for slave: %d", ret);
++	if (ret < 0 && ret != -ENODATA)
++		dev_err(&slave->dev, "SDW_SCP_SYSTEMCTRL write failed:%d\n", ret);
+ 
+ 	return ret;
+ }
+@@ -922,6 +919,9 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
+ 	 * In order to save on transition time, prepare
+ 	 * each Slave and then wait for all Slave(s) to be
+ 	 * prepared for clock stop.
++	 * If one of the Slave devices has lost sync and
++	 * replies with Command Ignored/-ENODATA, we continue
++	 * the loop
+ 	 */
+ 	list_for_each_entry(slave, &bus->slaves, node) {
+ 		if (!slave->dev_num)
+@@ -937,9 +937,8 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
+ 		ret = sdw_slave_clk_stop_callback(slave,
+ 						  SDW_CLK_STOP_MODE0,
+ 						  SDW_CLK_PRE_PREPARE);
 -		if (ret < 0) {
 -			dev_err(&slave->dev,
 -				"pre-prepare failed:%d", ret);
--			return ret;
--		}
--
--		if (slave_mode == SDW_CLK_STOP_MODE1)
-+		/* Only prepare a Slave device if needed */
-+		if (!slave->prop.simple_clk_stop_capable) {
- 			simple_clk_stop = false;
-+
-+			ret = sdw_slave_clk_stop_prepare(slave,
-+							 SDW_CLK_STOP_MODE0,
-+							 true);
-+			if (ret < 0) {
-+				dev_err(&slave->dev,
-+					"pre-prepare failed:%d", ret);
-+				return ret;
-+			}
-+		}
- 	}
++		if (ret < 0 && ret != -ENODATA) {
++			dev_err(&slave->dev, "clock stop pre-prepare cb failed:%d\n", ret);
+ 			return ret;
+ 		}
+ 
+@@ -950,9 +949,8 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
+ 			ret = sdw_slave_clk_stop_prepare(slave,
+ 							 SDW_CLK_STOP_MODE0,
+ 							 true);
+-			if (ret < 0) {
+-				dev_err(&slave->dev,
+-					"pre-prepare failed:%d", ret);
++			if (ret < 0 && ret != -ENODATA) {
++				dev_err(&slave->dev, "clock stop prepare failed:%d\n", ret);
+ 				return ret;
+ 			}
+ 		}
+@@ -960,7 +958,7 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
  
  	/* Skip remaining clock stop preparation if no Slave is attached */
  	if (!is_slave)
- 		return ret;
+-		return ret;
++		return 0;
  
-+	/*
-+	 * Don't wait for all Slaves to be ready if they follow the simple
-+	 * state machine
-+	 */
+ 	/*
+ 	 * Don't wait for all Slaves to be ready if they follow the simple
+@@ -969,6 +967,12 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
  	if (!simple_clk_stop) {
  		ret = sdw_bus_wait_for_clk_prep_deprep(bus,
  						       SDW_BROADCAST_DEV_NUM);
-@@ -998,17 +982,13 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
- 		    slave->status != SDW_SLAVE_ALERT)
- 			continue;
++		/*
++		 * if there are no Slave devices present and the reply is
++		 * Command_Ignored/-ENODATA, we don't need to continue with the
++		 * flow and can just return here. The error code is not modified
++		 * and its handling left as an exercise for the caller.
++		 */
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+@@ -986,13 +990,13 @@ int sdw_bus_prep_clk_stop(struct sdw_bus *bus)
+ 						  SDW_CLK_STOP_MODE0,
+ 						  SDW_CLK_POST_PREPARE);
  
--		slave_mode = slave->curr_clk_stop_mode;
--
--		if (slave_mode == SDW_CLK_STOP_MODE1) {
--			ret = sdw_slave_clk_stop_callback(slave,
--							  slave_mode,
--							  SDW_CLK_POST_PREPARE);
-+		ret = sdw_slave_clk_stop_callback(slave,
-+						  SDW_CLK_STOP_MODE0,
-+						  SDW_CLK_POST_PREPARE);
- 
--			if (ret < 0) {
--				dev_err(&slave->dev,
--					"post-prepare failed:%d", ret);
--			}
-+		if (ret < 0) {
-+			dev_err(&slave->dev,
-+				"post-prepare failed:%d", ret);
+-		if (ret < 0) {
+-			dev_err(&slave->dev,
+-				"post-prepare failed:%d", ret);
++		if (ret < 0 && ret != -ENODATA) {
++			dev_err(&slave->dev, "clock stop post-prepare cb failed:%d\n", ret);
++			return ret;
  		}
  	}
  
-@@ -1059,7 +1039,6 @@ EXPORT_SYMBOL(sdw_bus_clk_stop);
-  */
- int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
- {
--	enum sdw_clk_stop_mode mode;
- 	bool simple_clk_stop = true;
- 	struct sdw_slave *slave;
- 	bool is_slave = false;
-@@ -1081,31 +1060,33 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
- 		/* Identify if Slave(s) are available on Bus */
- 		is_slave = true;
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL(sdw_bus_prep_clk_stop);
  
--		mode = slave->curr_clk_stop_mode;
--
--		if (mode == SDW_CLK_STOP_MODE1) {
--			simple_clk_stop = false;
--			continue;
--		}
--
--		ret = sdw_slave_clk_stop_callback(slave, mode,
-+		ret = sdw_slave_clk_stop_callback(slave, SDW_CLK_STOP_MODE0,
- 						  SDW_CLK_PRE_DEPREPARE);
- 		if (ret < 0)
- 			dev_warn(&slave->dev,
- 				 "clk stop deprep failed:%d", ret);
- 
--		ret = sdw_slave_clk_stop_prepare(slave, mode,
--						 false);
-+		/* Only de-prepare a Slave device if needed */
-+		if (!slave->prop.simple_clk_stop_capable) {
-+			simple_clk_stop = false;
- 
--		if (ret < 0)
--			dev_warn(&slave->dev,
--				 "clk stop deprep failed:%d", ret);
-+			ret = sdw_slave_clk_stop_prepare(slave, SDW_CLK_STOP_MODE0,
-+							 false);
-+
-+			if (ret < 0)
-+				dev_warn(&slave->dev,
-+					 "clk stop deprep failed:%d", ret);
-+		}
+@@ -1015,12 +1019,8 @@ int sdw_bus_clk_stop(struct sdw_bus *bus)
+ 	ret = sdw_bwrite_no_pm(bus, SDW_BROADCAST_DEV_NUM,
+ 			       SDW_SCP_CTRL, SDW_SCP_CTRL_CLK_STP_NOW);
+ 	if (ret < 0) {
+-		if (ret == -ENODATA)
+-			dev_dbg(bus->dev,
+-				"ClockStopNow Broadcast msg ignored %d", ret);
+-		else
+-			dev_err(bus->dev,
+-				"ClockStopNow Broadcast msg failed %d", ret);
++		if (ret != -ENODATA)
++			dev_err(bus->dev, "ClockStopNow Broadcast msg failed %d\n", ret);
+ 		return ret;
  	}
  
- 	/* Skip remaining clock stop de-preparation if no Slave is attached */
- 	if (!is_slave)
- 		return 0;
+@@ -1063,8 +1063,7 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
+ 		ret = sdw_slave_clk_stop_callback(slave, SDW_CLK_STOP_MODE0,
+ 						  SDW_CLK_PRE_DEPREPARE);
+ 		if (ret < 0)
+-			dev_warn(&slave->dev,
+-				 "clk stop deprep failed:%d", ret);
++			dev_warn(&slave->dev, "clock stop pre-deprepare cb failed:%d\n", ret);
  
-+	/*
-+	 * Don't wait for all Slaves to be ready if they follow the simple
-+	 * state machine
-+	 */
- 	if (!simple_clk_stop)
- 		sdw_bus_wait_for_clk_prep_deprep(bus, SDW_BROADCAST_DEV_NUM);
+ 		/* Only de-prepare a Slave device if needed */
+ 		if (!slave->prop.simple_clk_stop_capable) {
+@@ -1074,8 +1073,7 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
+ 							 false);
  
-@@ -1117,8 +1098,7 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
+ 			if (ret < 0)
+-				dev_warn(&slave->dev,
+-					 "clk stop deprep failed:%d", ret);
++				dev_warn(&slave->dev, "clock stop deprepare failed:%d\n", ret);
+ 		}
+ 	}
+ 
+@@ -1087,8 +1085,11 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
+ 	 * Don't wait for all Slaves to be ready if they follow the simple
+ 	 * state machine
+ 	 */
+-	if (!simple_clk_stop)
+-		sdw_bus_wait_for_clk_prep_deprep(bus, SDW_BROADCAST_DEV_NUM);
++	if (!simple_clk_stop) {
++		ret = sdw_bus_wait_for_clk_prep_deprep(bus, SDW_BROADCAST_DEV_NUM);
++		if (ret < 0)
++			dev_warn(&slave->dev, "clock stop deprepare wait failed:%d\n", ret);
++	}
+ 
+ 	list_for_each_entry(slave, &bus->slaves, node) {
+ 		if (!slave->dev_num)
+@@ -1098,8 +1099,10 @@ int sdw_bus_exit_clk_stop(struct sdw_bus *bus)
  		    slave->status != SDW_SLAVE_ALERT)
  			continue;
  
--		mode = slave->curr_clk_stop_mode;
--		sdw_slave_clk_stop_callback(slave, mode,
-+		sdw_slave_clk_stop_callback(slave, SDW_CLK_STOP_MODE0,
- 					    SDW_CLK_POST_DEPREPARE);
+-		sdw_slave_clk_stop_callback(slave, SDW_CLK_STOP_MODE0,
+-					    SDW_CLK_POST_DEPREPARE);
++		ret = sdw_slave_clk_stop_callback(slave, SDW_CLK_STOP_MODE0,
++						  SDW_CLK_POST_DEPREPARE);
++		if (ret < 0)
++			dev_warn(&slave->dev, "clock stop post-deprepare cb failed:%d\n", ret);
  	}
  
-diff --git a/include/linux/soundwire/sdw.h b/include/linux/soundwire/sdw.h
-index ced07f8fde87..5d93d9949653 100644
---- a/include/linux/soundwire/sdw.h
-+++ b/include/linux/soundwire/sdw.h
-@@ -624,7 +624,6 @@ struct sdw_slave_ops {
- 	int (*port_prep)(struct sdw_slave *slave,
- 			 struct sdw_prepare_ch *prepare_ch,
- 			 enum sdw_port_prep_ops pre_ops);
--	int (*get_clk_stop_mode)(struct sdw_slave *slave);
- 	int (*clk_stop)(struct sdw_slave *slave,
- 			enum sdw_clk_stop_mode mode,
- 			enum sdw_clk_stop_type type);
-@@ -675,7 +674,6 @@ struct sdw_slave {
- 	struct list_head node;
- 	struct completion port_ready[SDW_MAX_PORTS];
- 	unsigned int m_port_map[SDW_MAX_PORTS];
--	enum sdw_clk_stop_mode curr_clk_stop_mode;
- 	u16 dev_num;
- 	u16 dev_num_sticky;
- 	bool probed;
+ 	return 0;
 -- 
 2.30.2
 
