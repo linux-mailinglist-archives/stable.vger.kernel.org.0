@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE453CE2DB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D313CE104
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233710AbhGSPca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:32:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S1347330AbhGSPTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:19:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346589AbhGSP2S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0142C613EB;
-        Mon, 19 Jul 2021 16:08:48 +0000 (UTC)
+        id S1347182AbhGSPPv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:15:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 584DE61003;
+        Mon, 19 Jul 2021 15:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710929;
-        bh=yZ19D2EA1OUhyCLOW/hS71/J5T/SbBrNsg3xivWuV4A=;
+        s=korg; t=1626710189;
+        bh=YqEKOD+jbFI2SPkTCsG8hHcld8NPo8tsmJX1Z8hqID4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G7N7wDoJ6EVC8Vqtddu/R4WwADOavSsKUF+PLfbC7gQjR3eas/m4gkeVrpWYZBj3J
-         znIdE4RhUBhQa75FTeuepfUZeTwXwz0WKgp+PdBaUZllAgjCfw/zkDHAnIFqj9W2wU
-         1dc+nDfQVnty+J3EvHkBc+ipb6w1UEVvCeSR16RQ=
+        b=ISETRliupciNk8Mqqt/NhW4d7q3oylGs5fEJZpPi/zOBTPQRxlNWHt8GS/p8mNFj+
+         LQ19dyQ6Jcv4Xu01iILa2EIP3/UE7nNU6iYhYSdqU2jVM8ZlBLDpdhtf0iq40RV8IK
+         iWz6q4PiY4HBfyr7n5jgZvNnlGUqRNxw7QYsIr/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 161/351] PCI/P2PDMA: Avoid pci_get_slot(), which may sleep
-Date:   Mon, 19 Jul 2021 16:51:47 +0200
-Message-Id: <20210719144950.294979958@linuxfoundation.org>
+Subject: [PATCH 5.10 079/243] scsi: storvsc: Correctly handle multiple flags in srb_status
+Date:   Mon, 19 Jul 2021 16:51:48 +0200
+Message-Id: <20210719144943.450202519@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Michael Kelley <mikelley@microsoft.com>
 
-[ Upstream commit 3ec0c3ec2d92c09465534a1ff9c6f9d9506ffef6 ]
+[ Upstream commit 52e1b3b3daa9d53f0204bf474ee1d4b1beb38234 ]
 
-In order to use upstream_bridge_distance_warn() from a dma_map function, it
-must not sleep. However, pci_get_slot() takes the pci_bus_sem so it might
-sleep.
+Hyper-V is observed to sometimes set multiple flags in the srb_status, such
+as ABORTED and ERROR. Current code in storvsc_handle_error() handles only a
+single flag being set, and does nothing when multiple flags are set.  Fix
+this by changing the case statement into a series of "if" statements
+testing individual flags. The functionality for handling each flag is
+unchanged.
 
-In order to avoid this, try to get the host bridge's device from the first
-element in the device list. It should be impossible for the host bridge's
-device to go away while references are held on child devices, so the first
-element should not be able to change and, thus, this should be safe.
-
-Introduce a static function called pci_host_bridge_dev() to obtain the host
-bridge's root device.
-
-Link: https://lore.kernel.org/r/20210610160609.28447-7-logang@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/1622827263-12516-3-git-send-email-mikelley@microsoft.com
+Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/p2pdma.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ drivers/scsi/storvsc_drv.c | 61 +++++++++++++++++++++-----------------
+ 1 file changed, 33 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/pci/p2pdma.c b/drivers/pci/p2pdma.c
-index 196382630363..c49c13a5fedc 100644
---- a/drivers/pci/p2pdma.c
-+++ b/drivers/pci/p2pdma.c
-@@ -308,10 +308,41 @@ static const struct pci_p2pdma_whitelist_entry {
- 	{}
- };
+diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
+index ded00a89bfc4..0ee0b80006e0 100644
+--- a/drivers/scsi/storvsc_drv.c
++++ b/drivers/scsi/storvsc_drv.c
+@@ -994,17 +994,40 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 	struct storvsc_scan_work *wrk;
+ 	void (*process_err_fn)(struct work_struct *work);
+ 	struct hv_host_device *host_dev = shost_priv(host);
+-	bool do_work = false;
  
-+/*
-+ * This lookup function tries to find the PCI device corresponding to a given
-+ * host bridge.
-+ *
-+ * It assumes the host bridge device is the first PCI device in the
-+ * bus->devices list and that the devfn is 00.0. These assumptions should hold
-+ * for all the devices in the whitelist above.
-+ *
-+ * This function is equivalent to pci_get_slot(host->bus, 0), however it does
-+ * not take the pci_bus_sem lock seeing __host_bridge_whitelist() must not
-+ * sleep.
-+ *
-+ * For this to be safe, the caller should hold a reference to a device on the
-+ * bridge, which should ensure the host_bridge device will not be freed
-+ * or removed from the head of the devices list.
-+ */
-+static struct pci_dev *pci_host_bridge_dev(struct pci_host_bridge *host)
-+{
-+	struct pci_dev *root;
+-	switch (SRB_STATUS(vm_srb->srb_status)) {
+-	case SRB_STATUS_ERROR:
++	/*
++	 * In some situations, Hyper-V sets multiple bits in the
++	 * srb_status, such as ABORTED and ERROR. So process them
++	 * individually, with the most specific bits first.
++	 */
 +
-+	root = list_first_entry_or_null(&host->bus->devices,
-+					struct pci_dev, bus_list);
++	if (vm_srb->srb_status & SRB_STATUS_INVALID_LUN) {
++		set_host_byte(scmnd, DID_NO_CONNECT);
++		process_err_fn = storvsc_remove_lun;
++		goto do_work;
++	}
 +
-+	if (!root)
-+		return NULL;
-+	if (root->devfn != PCI_DEVFN(0, 0))
-+		return NULL;
++	if (vm_srb->srb_status & SRB_STATUS_ABORTED) {
++		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
++		    /* Capacity data has changed */
++		    (asc == 0x2a) && (ascq == 0x9)) {
++			process_err_fn = storvsc_device_scan;
++			/*
++			 * Retry the I/O that triggered this.
++			 */
++			set_host_byte(scmnd, DID_REQUEUE);
++			goto do_work;
++		}
++	}
 +
-+	return root;
-+}
++	if (vm_srb->srb_status & SRB_STATUS_ERROR) {
+ 		/*
+ 		 * Let upper layer deal with error when
+ 		 * sense message is present.
+ 		 */
+-
+ 		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID)
+-			break;
++			return;
 +
- static bool __host_bridge_whitelist(struct pci_host_bridge *host,
- 				    bool same_host_bridge)
- {
--	struct pci_dev *root = pci_get_slot(host->bus, PCI_DEVFN(0, 0));
-+	struct pci_dev *root = pci_host_bridge_dev(host);
- 	const struct pci_p2pdma_whitelist_entry *entry;
- 	unsigned short vendor, device;
+ 		/*
+ 		 * If there is an error; offline the device since all
+ 		 * error recovery strategies would have already been
+@@ -1017,37 +1040,19 @@ static void storvsc_handle_error(struct vmscsi_request *vm_srb,
+ 			set_host_byte(scmnd, DID_PASSTHROUGH);
+ 			break;
+ 		/*
+-		 * On Some Windows hosts TEST_UNIT_READY command can return
+-		 * SRB_STATUS_ERROR, let the upper level code deal with it
+-		 * based on the sense information.
++		 * On some Hyper-V hosts TEST_UNIT_READY command can
++		 * return SRB_STATUS_ERROR. Let the upper level code
++		 * deal with it based on the sense information.
+ 		 */
+ 		case TEST_UNIT_READY:
+ 			break;
+ 		default:
+ 			set_host_byte(scmnd, DID_ERROR);
+ 		}
+-		break;
+-	case SRB_STATUS_INVALID_LUN:
+-		set_host_byte(scmnd, DID_NO_CONNECT);
+-		do_work = true;
+-		process_err_fn = storvsc_remove_lun;
+-		break;
+-	case SRB_STATUS_ABORTED:
+-		if (vm_srb->srb_status & SRB_STATUS_AUTOSENSE_VALID &&
+-		    (asc == 0x2a) && (ascq == 0x9)) {
+-			do_work = true;
+-			process_err_fn = storvsc_device_scan;
+-			/*
+-			 * Retry the I/O that triggered this.
+-			 */
+-			set_host_byte(scmnd, DID_REQUEUE);
+-		}
+-		break;
+ 	}
++	return;
  
-@@ -320,7 +351,6 @@ static bool __host_bridge_whitelist(struct pci_host_bridge *host,
- 
- 	vendor = root->vendor;
- 	device = root->device;
--	pci_dev_put(root);
- 
- 	for (entry = pci_p2pdma_whitelist; entry->vendor; entry++) {
- 		if (vendor != entry->vendor || device != entry->device)
+-	if (!do_work)
+-		return;
+-
++do_work:
+ 	/*
+ 	 * We need to schedule work to process this error; schedule it.
+ 	 */
 -- 
 2.30.2
 
