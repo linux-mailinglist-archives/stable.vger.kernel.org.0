@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9112E3CDC84
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 312563CDE51
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244449AbhGSOwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
+        id S1344813AbhGSPCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245168AbhGSOr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B04861375;
-        Mon, 19 Jul 2021 15:23:39 +0000 (UTC)
+        id S1344978AbhGSPAE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D3160FE7;
+        Mon, 19 Jul 2021 15:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708220;
-        bh=tWVXGu/HX1v3G1LQMW2of1bw8eLUL8rFjcAstOR9S8A=;
+        s=korg; t=1626709244;
+        bh=P/+PFyP0BceRirEQv3mysyqEmD4b45Nlhv3l1gSh/tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvleT4PR5Hg80bfEOjQN55OJNLqEXLmkLHy5J5WvOiCfHY/zdNI7nVjJly2qsAZC9
-         jIVdy7VFsHECAeYnVojieFAPVjFXTOxhu8eKZI1BV83UIVDdiBjuIz8bf1UGlX1AAa
-         muQb2VFWYv9GMuIWkUWInEWhOLaj5EA68MWkEPLw=
+        b=lUnIPTg4CdUZnxP7qAYU8bHIE7B8pldsD+eijZDBkPWbmrDxNrURlMGThMjosVitj
+         TNuDEc7mr4GtITzbsBBjurWvcNIMRCuZ6dHUa+q0MMbJ6dpKuzRcULpNZ3EQuWH19Q
+         ZOI8PuEOD9eLkdD4Jp3ofTjGOqv/zCm+NmVpPArI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 228/315] jfs: fix GPF in diFree
-Date:   Mon, 19 Jul 2021 16:51:57 +0200
-Message-Id: <20210719144950.922217628@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Subject: [PATCH 4.19 307/421] PCI: aardvark: Fix checking for PIO Non-posted Request
+Date:   Mon, 19 Jul 2021 16:51:58 +0200
+Message-Id: <20210719144956.968160516@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 9d574f985fe33efd6911f4d752de6f485a1ea732 upstream.
+commit 8ceeac307a79f68c0d0c72d6e48b82fa424204ec upstream.
 
-Avoid passing inode with
-JFS_SBI(inode->i_sb)->ipimap == NULL to
-diFree()[1]. GFP will appear:
+PIO_NON_POSTED_REQ for PIO_STAT register is incorrectly defined. Bit 10 in
+register PIO_STAT indicates the response is to a non-posted request.
 
-	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
-	struct inomap *imap = JFS_IP(ipimap)->i_imap;
-
-JFS_IP() will return invalid pointer when ipimap == NULL
-
-Call Trace:
- diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
- jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
- evict+0x2ed/0x750 fs/inode.c:578
- iput_final fs/inode.c:1654 [inline]
- iput.part.0+0x3fe/0x820 fs/inode.c:1680
- iput+0x58/0x70 fs/inode.c:1670
-
-Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Link: https://lore.kernel.org/r/20210624213345.3617-2-pali@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/jfs/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -161,7 +161,8 @@ void jfs_evict_inode(struct inode *inode
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
- 
--			diFree(inode);
-+			if (JFS_SBI(inode->i_sb)->ipimap)
-+				diFree(inode);
- 
- 			/*
- 			 * Free the inode from the quota allocation.
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -54,7 +54,7 @@
+ #define   PIO_COMPLETION_STATUS_UR		1
+ #define   PIO_COMPLETION_STATUS_CRS		2
+ #define   PIO_COMPLETION_STATUS_CA		4
+-#define   PIO_NON_POSTED_REQ			BIT(0)
++#define   PIO_NON_POSTED_REQ			BIT(10)
+ #define PIO_ADDR_LS				(PIO_BASE_ADDR + 0x8)
+ #define PIO_ADDR_MS				(PIO_BASE_ADDR + 0xc)
+ #define PIO_WR_DATA				(PIO_BASE_ADDR + 0x10)
 
 
