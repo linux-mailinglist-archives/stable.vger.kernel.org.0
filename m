@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB39F3CDCD5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED5DB3CDCCF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238687AbhGSOx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44744 "EHLO mail.kernel.org"
+        id S239519AbhGSOxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239089AbhGSOue (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:50:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2562F601FD;
-        Mon, 19 Jul 2021 15:31:12 +0000 (UTC)
+        id S239279AbhGSOuh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:50:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B5AA60FE7;
+        Mon, 19 Jul 2021 15:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708673;
-        bh=PWDQcW0qgTf0nfb1boA+21LCDTNkO+PPhim+Nm5vvaY=;
+        s=korg; t=1626708675;
+        bh=nFiVBD9s1F0BKiFDeyhGID7OC5rzFoiX0HeTvFie4L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uhYNAO2ZzNq2xhAN/wqDdhQRygXvnqZMZ8geac4AyUxqAtwl3EH5ZpcPaMNaYvwQl
-         nnH5w0h1IwprUEbel1Cj1MQKbwoLRAt3Zkjlbp5FXfqQNolk/6VkJnUFdNOIRbXC7g
-         ensuSzTg6qlhk7YLEdbahVas+sj0fZFb4OTFx4mw=
+        b=xRYjkEV4JfX0mtWcmFoy7rGf/SU9J+rZAAwLZZ74NuTGKknRNAd9p3FmdpDU0Vp3m
+         Fs5gDka7HP/LTVrlU5mq5AH9huBbt60GOdj2iGvaeNThHCyMMiYVuKW7FpXuMtrDI6
+         90RHSiNWSxWV3GL7ujgdHHWF4n9eBHaMKOCIVz7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/421] fs: dlm: cancel work sync othercon
-Date:   Mon, 19 Jul 2021 16:48:15 +0200
-Message-Id: <20210719144949.040101240@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 085/421] random32: Fix implicit truncation warning in prandom_seed_state()
+Date:   Mon, 19 Jul 2021 16:48:16 +0200
+Message-Id: <20210719144949.070546826@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,36 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit c6aa00e3d20c2767ba3f57b64eb862572b9744b3 ]
+[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
 
-These rx tx flags arguments are for signaling close_connection() from
-which worker they are called. Obviously the receive worker cannot cancel
-itself and vice versa for swork. For the othercon the receive worker
-should only be used, however to avoid deadlocks we should pass the same
-flags as the original close_connection() was called.
+sparse generates the following warning:
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+ include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
+ constant value
+
+This is because the 64-bit seed value is manipulated and then placed in a
+u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
+prevent this warning, which is reasonable because a typecast doesn't prove
+that truncation was expected.
+
+Logical-AND the value with 0xffffffff to make explicit that truncation to
+32-bit is intended.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lowcomms.c | 2 +-
+ include/linux/prandom.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index a93ebffe84b3..f476a90e8aae 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -609,7 +609,7 @@ static void close_connection(struct connection *con, bool and_other,
- 	}
- 	if (con->othercon && and_other) {
- 		/* Will only re-enter once. */
--		close_connection(con->othercon, false, true, true);
-+		close_connection(con->othercon, false, tx, rx);
- 	}
- 	if (con->rx_page) {
- 		__free_page(con->rx_page);
+diff --git a/include/linux/prandom.h b/include/linux/prandom.h
+index cc1e71334e53..e20339c78a84 100644
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -93,7 +93,7 @@ static inline u32 __seed(u32 x, u32 m)
+  */
+ static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
+ {
+-	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
++	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
+ 
+ 	state->s1 = __seed(i,   2U);
+ 	state->s2 = __seed(i,   8U);
 -- 
 2.30.2
 
