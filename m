@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41B3E3CD88B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EF03CD8B4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243250AbhGSOXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:23:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
+        id S242771AbhGSOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242755AbhGSOVz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:21:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DE8161221;
-        Mon, 19 Jul 2021 15:02:07 +0000 (UTC)
+        id S243147AbhGSOW1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:22:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F3C6121F;
+        Mon, 19 Jul 2021 15:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706928;
-        bh=VZP/X+3I2CY/Y94ML6h8eu4Jevr7NJU1hitT9SU0iN8=;
+        s=korg; t=1626706958;
+        bh=7RVlGp/VCGgNC+AZUVJrD/WDe+wKEsOz8Qdzjhn0Hbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEp2OoO0iF6zTJaKOYX4LZUIb8jIy9EG+sMQjwKnME8J7mA9uc57OzmvyEbbxQn2r
-         KalFR1tak3HDBewWl//uA/F+qnb+ReSkdvhV6Veh4cSDo9vTL5U6XA+Ox3Uim3SSDu
-         idZ4QpIHao4K6QSzMHOq4jHJ0xz0Hozs0dzaWYSc=
+        b=XEg8yl8GhXPAasjnT13nVP1MrJwVFClO1OtsVyZNdTXnUMCoATzdd4BfTeOSWhUXb
+         xcmH3CcU4ZQq9D2Yo0JrVcAPgPVTtkwr4AQJAA9Pr3IXSL0+7o2Zoz6XGmO2VidnxM
+         Ilrt52gGVk/6Rq5tJ8YAV9TMaaSIcMYFr7cVqPlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 147/188] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
-Date:   Mon, 19 Jul 2021 16:52:11 +0200
-Message-Id: <20210719144941.294644749@linuxfoundation.org>
+Subject: [PATCH 4.4 148/188] fs/jfs: Fix missing error code in lmLogInit()
+Date:   Mon, 19 Jul 2021 16:52:12 +0200
+Message-Id: <20210719144941.335152601@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,52 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
+[ Upstream commit 492109333c29e1bb16d8732e1d597b02e8e0bf2e ]
 
-In the probe function, if the final 'serial_config()' fails, 'info' is
-leaking.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'rc.
 
-Add a resource handling path to free this memory.
+Eliminate the follow smatch warning:
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+fs/jfs/jfs_logmgr.c:1327 lmLogInit() warn: missing error code 'rc'.
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/jfs/jfs_logmgr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
-index bf5feb2ea35a..92c64ed12295 100644
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -305,6 +305,7 @@ static int serial_resume(struct pcmcia_device *link)
- static int serial_probe(struct pcmcia_device *link)
- {
- 	struct serial_info *info;
-+	int ret;
- 
- 	dev_dbg(&link->dev, "serial_attach()\n");
- 
-@@ -319,7 +320,15 @@ static int serial_probe(struct pcmcia_device *link)
- 	if (do_sound)
- 		link->config_flags |= CONF_ENABLE_SPKR;
- 
--	return serial_config(link);
-+	ret = serial_config(link);
-+	if (ret)
-+		goto free_info;
-+
-+	return 0;
-+
-+free_info:
-+	kfree(info);
-+	return ret;
- }
- 
- static void serial_detach(struct pcmcia_device *link)
+diff --git a/fs/jfs/jfs_logmgr.c b/fs/jfs/jfs_logmgr.c
+index a69bdf2a1085..d19542a88c2c 100644
+--- a/fs/jfs/jfs_logmgr.c
++++ b/fs/jfs/jfs_logmgr.c
+@@ -1339,6 +1339,7 @@ int lmLogInit(struct jfs_log * log)
+ 		} else {
+ 			if (memcmp(logsuper->uuid, log->uuid, 16)) {
+ 				jfs_warn("wrong uuid on JFS log device");
++				rc = -EINVAL;
+ 				goto errout20;
+ 			}
+ 			log->size = le32_to_cpu(logsuper->size);
 -- 
 2.30.2
 
