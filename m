@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 089543CDA01
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F4803CDA13
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244126AbhGSOcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
+        id S243316AbhGSOdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:33:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244301AbhGSObG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:31:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 510D96113E;
-        Mon, 19 Jul 2021 15:11:45 +0000 (UTC)
+        id S245261AbhGSObd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F276113B;
+        Mon, 19 Jul 2021 15:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707505;
-        bh=8erM4yy4DXfOGEcPzvo2oM60PZSoFIAWrTWHF0PB67E=;
+        s=korg; t=1626707533;
+        bh=pwDR3FkUhf104SvF8+Xhqb1svmlpt/mIr3WMqfl82bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZvoY4/673q6WAORDm9WgksfJBoReudaUdA6JSxk9JhHOTAmv2CHemDFdLf/1kNBN
-         8rsRrKPRyA/k/51ahbMdOFTYH47IpHSeew5b770WEqbW/WdC/6ZyLFzof0v0n0MFay
-         csd8aL3dJc23ilddLtUBknHpSe+AQWfQjhHo3LuE=
+        b=GgK1RCbMoPQ1/yEKPTGPVzhHwmcf62eSsJpC/gNhwPuXHrSq1GYskUCh4Bi1SZuCu
+         X9SnPqz3LX+Pgpl+Ycs3lkp4kvxxRmi283yY1W7et2uKpjYzSEV+SITD/tNfwHqiSE
+         I4RAKSC6eReJEXMza9ZDclYPkws4VPrdXSEumnJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 174/245] media: zr364xx: fix memory leak in zr364xx_start_readpipe
-Date:   Mon, 19 Jul 2021 16:51:56 +0200
-Message-Id: <20210719144946.019024555@linuxfoundation.org>
+Subject: [PATCH 4.9 175/245] media: gspca/sq905: fix control-request direction
+Date:   Mon, 19 Jul 2021 16:51:57 +0200
+Message-Id: <20210719144946.054923166@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -42,43 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 0a045eac8d0427b64577a24d74bb8347c905ac65 upstream.
+commit 53ae298fde7adcc4b1432bce2dbdf8dac54dfa72 upstream.
 
-syzbot reported memory leak in zr364xx driver.
-The problem was in non-freed urb in case of
-usb_submit_urb() fail.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-backtrace:
-  [<ffffffff82baedf6>] kmalloc include/linux/slab.h:561 [inline]
-  [<ffffffff82baedf6>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
-  [<ffffffff82f7cce8>] zr364xx_start_readpipe+0x78/0x130 drivers/media/usb/zr364xx/zr364xx.c:1022
-  [<ffffffff84251dfc>] zr364xx_board_init drivers/media/usb/zr364xx/zr364xx.c:1383 [inline]
-  [<ffffffff84251dfc>] zr364xx_probe+0x6a3/0x851 drivers/media/usb/zr364xx/zr364xx.c:1516
-  [<ffffffff82bb6507>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-  [<ffffffff826018a9>] really_probe+0x159/0x500 drivers/base/dd.c:576
+Fix the USB_REQ_SYNCH_FRAME request which erroneously used
+usb_sndctrlpipe().
 
-Fixes: ccbf035ae5de ("V4L/DVB (12278): zr364xx: implement V4L2_CAP_STREAMING")
-Cc: stable@vger.kernel.org
-Reported-by: syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 27d35fc3fb06 ("V4L/DVB (10639): gspca - sq905: New subdriver.")
+Cc: stable@vger.kernel.org      # 2.6.30
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/zr364xx/zr364xx.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/gspca/sq905.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/usb/zr364xx/zr364xx.c
-+++ b/drivers/media/usb/zr364xx/zr364xx.c
-@@ -1066,6 +1066,7 @@ static int zr364xx_start_readpipe(struct
- 	DBG("submitting URB %p\n", pipe_info->stream_urb);
- 	retval = usb_submit_urb(pipe_info->stream_urb, GFP_KERNEL);
- 	if (retval) {
-+		usb_free_urb(pipe_info->stream_urb);
- 		printk(KERN_ERR KBUILD_MODNAME ": start read pipe failed\n");
- 		return retval;
+--- a/drivers/media/usb/gspca/sq905.c
++++ b/drivers/media/usb/gspca/sq905.c
+@@ -130,7 +130,7 @@ static int sq905_command(struct gspca_de
  	}
+ 
+ 	ret = usb_control_msg(gspca_dev->dev,
+-			      usb_sndctrlpipe(gspca_dev->dev, 0),
++			      usb_rcvctrlpipe(gspca_dev->dev, 0),
+ 			      USB_REQ_SYNCH_FRAME,                /* request */
+ 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 			      SQ905_PING, 0, gspca_dev->usb_buf, 1,
 
 
