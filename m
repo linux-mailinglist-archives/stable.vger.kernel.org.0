@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A09E3CE067
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7018E3CDE43
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346426AbhGSPRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48928 "EHLO mail.kernel.org"
+        id S1344602AbhGSPC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345690AbhGSPNr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:13:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A2861351;
-        Mon, 19 Jul 2021 15:53:40 +0000 (UTC)
+        id S1344221AbhGSO7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B769613B7;
+        Mon, 19 Jul 2021 15:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710021;
-        bh=cyHD2oQuOJvUpiuoQ4Y/gRXIIVB8xWrQuC8BwU950Ks=;
+        s=korg; t=1626709150;
+        bh=03smCh26/GYOWe5lhahVhl1KR+OidGB07r5Z9zhMGYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAlYJlQ4ziqHcFftwrmDDcvL/Q9JzGMuM9zwgR1hK/e4khSB0nc1lO8/LtKiijjKI
-         a4rjAnaoTS1P8WkLkMDEGa75+PtkLntrkUoFBHXy7/novrttgcugvYSgCHDcO6oN4C
-         Bl1+ZMnxcAeKH31e3FDeDP9akD9OKWf8wNeKxyio=
+        b=wjCtFwqFOGeNG7MeU66Q96Unp8fw4Z9hl8miuAHWFyrKk1j8Cd9X5xxfoY3mojNzj
+         os+QIBdHkFC7afTAEerwsz2wXPS0Yw8JFasfhxzysigcy835vrf/yJPZyHh+CDI54d
+         b3qqIBun8fBVyYuK2Ld7kVTcQIDxHjl9q1byWzoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Rui Miguel Silva <rui.silva@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/243] iio: gyro: fxa21002c: Balance runtime pm + use pm_runtime_resume_and_get().
-Date:   Mon, 19 Jul 2021 16:51:04 +0200
-Message-Id: <20210719144942.065467933@linuxfoundation.org>
+Subject: [PATCH 4.19 254/421] xfrm: Fix error reporting in xfrm_state_construct.
+Date:   Mon, 19 Jul 2021 16:51:05 +0200
+Message-Id: <20210719144955.203033751@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 41120ebbb1eb5e9dec93320e259d5b2c93226073 ]
+[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
 
-In both the probe() error path and remove() pm_runtime_put_noidle()
-is called which will decrement the runtime pm reference count.
-However, there is no matching function to have raised the reference count.
-Not this isn't a fix as the runtime pm core will stop the reference count
-going negative anyway.
+When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
+the error will not be reported because the -ENOMEM assignment
+to the err variable is overwritten before. Fix this by moving
+these two in front of the function so that memory allocation
+failures will be reported.
 
-An alternative would have been to raise the count in these paths, but
-it is not clear why that would be necessary.
-
-Whilst we are here replace some boilerplate with pm_runtime_resume_and_get()
-Found using coccicheck script under review at:
-https://lore.kernel.org/lkml/20210427141946.2478411-1-Julia.Lawall@inria.fr/
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Rui Miguel Silva <rui.silva@linaro.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/20210509113354.660190-2-jic23@kernel.org
+Reported-by: Tobias Brunner <tobias@strongswan.org>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/gyro/fxas21002c_core.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/iio/gyro/fxas21002c_core.c b/drivers/iio/gyro/fxas21002c_core.c
-index b7523357d8eb..ec6bd15bd2d4 100644
---- a/drivers/iio/gyro/fxas21002c_core.c
-+++ b/drivers/iio/gyro/fxas21002c_core.c
-@@ -366,14 +366,7 @@ out_unlock:
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 0b80c7907715..f94abe1fdd58 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -579,6 +579,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
  
- static int  fxas21002c_pm_get(struct fxas21002c_data *data)
- {
--	struct device *dev = regmap_get_device(data->regmap);
--	int ret;
+ 	copy_from_user_state(x, p);
+ 
++	if (attrs[XFRMA_ENCAP]) {
++		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
++				   sizeof(*x->encap), GFP_KERNEL);
++		if (x->encap == NULL)
++			goto error;
++	}
++
++	if (attrs[XFRMA_COADDR]) {
++		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
++				    sizeof(*x->coaddr), GFP_KERNEL);
++		if (x->coaddr == NULL)
++			goto error;
++	}
++
+ 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
+ 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
+ 
+@@ -599,23 +613,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+ 				   attrs[XFRMA_ALG_COMP])))
+ 		goto error;
+ 
+-	if (attrs[XFRMA_ENCAP]) {
+-		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
+-				   sizeof(*x->encap), GFP_KERNEL);
+-		if (x->encap == NULL)
+-			goto error;
+-	}
 -
--	ret = pm_runtime_get_sync(dev);
--	if (ret < 0)
--		pm_runtime_put_noidle(dev);
+ 	if (attrs[XFRMA_TFCPAD])
+ 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
+ 
+-	if (attrs[XFRMA_COADDR]) {
+-		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
+-				    sizeof(*x->coaddr), GFP_KERNEL);
+-		if (x->coaddr == NULL)
+-			goto error;
+-	}
 -
--	return ret;
-+	return pm_runtime_resume_and_get(regmap_get_device(data->regmap));
- }
+ 	xfrm_mark_get(attrs, &x->mark);
  
- static int  fxas21002c_pm_put(struct fxas21002c_data *data)
-@@ -1005,7 +998,6 @@ int fxas21002c_core_probe(struct device *dev, struct regmap *regmap, int irq,
- pm_disable:
- 	pm_runtime_disable(dev);
- 	pm_runtime_set_suspended(dev);
--	pm_runtime_put_noidle(dev);
- 
- 	return ret;
- }
-@@ -1019,7 +1011,6 @@ void fxas21002c_core_remove(struct device *dev)
- 
- 	pm_runtime_disable(dev);
- 	pm_runtime_set_suspended(dev);
--	pm_runtime_put_noidle(dev);
- }
- EXPORT_SYMBOL_GPL(fxas21002c_core_remove);
- 
+ 	xfrm_smark_init(attrs, &x->props.smark);
 -- 
 2.30.2
 
