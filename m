@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5DB3CDCCF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9403CDCD1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239519AbhGSOxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44874 "EHLO mail.kernel.org"
+        id S239532AbhGSOxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239279AbhGSOuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:50:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B5AA60FE7;
-        Mon, 19 Jul 2021 15:31:15 +0000 (UTC)
+        id S239312AbhGSOui (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:50:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A990E6124B;
+        Mon, 19 Jul 2021 15:31:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708675;
-        bh=nFiVBD9s1F0BKiFDeyhGID7OC5rzFoiX0HeTvFie4L0=;
+        s=korg; t=1626708678;
+        bh=WCgqCVeQTTzT+EkU1SDOwaTTAyEbF/1YJP6Z97JdPVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRYjkEV4JfX0mtWcmFoy7rGf/SU9J+rZAAwLZZ74NuTGKknRNAd9p3FmdpDU0Vp3m
-         Fs5gDka7HP/LTVrlU5mq5AH9huBbt60GOdj2iGvaeNThHCyMMiYVuKW7FpXuMtrDI6
-         90RHSiNWSxWV3GL7ujgdHHWF4n9eBHaMKOCIVz7o=
+        b=e7eALNnb15iv0dwTH4k4D2m6reWiD6fL4szYsxyUYIMz3Y0gUyXY/FSiHrxJXMrzz
+         9v+mh8BExFIQ1Hzn8TcNaB9KCDqhX1fCcVvSAqXKJFsZMl67htz6xdVJcG/fZ9H9Wp
+         g22DJOqEFQnLC0cCX38rhwnikn51wqMFGXMsf/+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/421] random32: Fix implicit truncation warning in prandom_seed_state()
-Date:   Mon, 19 Jul 2021 16:48:16 +0200
-Message-Id: <20210719144949.070546826@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/421] fs: dlm: fix memory leak when fenced
+Date:   Mon, 19 Jul 2021 16:48:17 +0200
+Message-Id: <20210719144949.101274059@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,46 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
+[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
 
-sparse generates the following warning:
+I got some kmemleak report when a node was fenced. The user space tool
+dlm_controld will therefore run some rmdir() in dlm configfs which was
+triggering some memleaks. This patch stores the sps and cms attributes
+which stores some handling for subdirectories of the configfs cluster
+entry and free them if they get released as the parent directory gets
+freed.
 
- include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
- constant value
+unreferenced object 0xffff88810d9e3e00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000db8b640b>] make_cluster+0x5d/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+unreferenced object 0xffff88810d9e3a00 (size 192):
+  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
+    [<000000006a571db4>] configfs_mkdir+0x274/0x730
+    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
+    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
+    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
+    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This is because the 64-bit seed value is manipulated and then placed in a
-u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
-prevent this warning, which is reasonable because a typecast doesn't prove
-that truncation was expected.
-
-Logical-AND the value with 0xffffffff to make explicit that truncation to
-32-bit is intended.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/prandom.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/dlm/config.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/include/linux/prandom.h b/include/linux/prandom.h
-index cc1e71334e53..e20339c78a84 100644
---- a/include/linux/prandom.h
-+++ b/include/linux/prandom.h
-@@ -93,7 +93,7 @@ static inline u32 __seed(u32 x, u32 m)
-  */
- static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
- {
--	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
-+	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index f13d86524450..42b53e2a4e96 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -80,6 +80,9 @@ struct dlm_cluster {
+ 	unsigned int cl_new_rsb_count;
+ 	unsigned int cl_recover_callbacks;
+ 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
++
++	struct dlm_spaces *sps;
++	struct dlm_comms *cms;
+ };
  
- 	state->s1 = __seed(i,   2U);
- 	state->s2 = __seed(i,   8U);
+ static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
+@@ -356,6 +359,9 @@ static struct config_group *make_cluster(struct config_group *g,
+ 	if (!cl || !sps || !cms)
+ 		goto fail;
+ 
++	cl->sps = sps;
++	cl->cms = cms;
++
+ 	config_group_init_type_name(&cl->group, name, &cluster_type);
+ 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
+ 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
+@@ -405,6 +411,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
+ static void release_cluster(struct config_item *i)
+ {
+ 	struct dlm_cluster *cl = config_item_to_cluster(i);
++
++	kfree(cl->sps);
++	kfree(cl->cms);
+ 	kfree(cl);
+ }
+ 
 -- 
 2.30.2
 
