@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0453CDDEE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 523623CDC9C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345005AbhGSPBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
+        id S241159AbhGSOxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344299AbhGSO7d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 286A86124B;
-        Mon, 19 Jul 2021 15:39:35 +0000 (UTC)
+        id S237761AbhGSOoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7704060FED;
+        Mon, 19 Jul 2021 15:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709176;
-        bh=ppXR8ltNU7s8CedI67fAiIUmh+fxPgkzVoQ0NtumQyg=;
+        s=korg; t=1626708158;
+        bh=0nZy+v2ropVBET/GkPLKizZr+ktk0nN8ewMRt8G+YYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCD5Evkv68sYenjvbECUVVq4hjJVNZ/XvdiqfTmEL3s1QHB/4KrCv+jA6iWgB9WR4
-         sQOQ+L+V6aArC5wzoCF7W34yB+p3Z/XeU4BAnSr6twXpbucGHAXBMhIjwCYrjZwHsl
-         ioW9AcWB3bF5CxnCs4BE07trDrG5UJxDMpB5HHqU=
+        b=fIx1uvHlzvXeadyyetXKEAviGzOcp82OUUP1NjlZ4vupyFKGdMJhhdzQpbGaWG2T5
+         /Dy0Ajs9uN0HzR9IwRjCWb2OZTG/YMk4BRVffEjBZr6ve/aqShe2ZJe/vyx1Buzknq
+         Akbkp8jtiFGd2ixobyVvYFEu6He6kokNfrnCWLh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 4.19 281/421] serial: mvebu-uart: clarify the baud rate derivation
+        stable@vger.kernel.org, AceLan Kao <acelan.kao@canonical.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Macpaul Lin <macpaul.lin@mediatek.com>
+Subject: [PATCH 4.14 203/315] bdi: Do not use freezable workqueue
 Date:   Mon, 19 Jul 2021 16:51:32 +0200
-Message-Id: <20210719144956.089384852@linuxfoundation.org>
+Message-Id: <20210719144950.102627441@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,69 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 0e4cf69ede8751d25f733cd7a6f954c5b505fa03 upstream.
+commit a2b90f11217790ec0964ba9c93a4abb369758c26 upstream.
 
-The current comment in ->set_baud_rate() is rather incomplete as it
-fails to describe what are the actual stages for the baudrate
-derivation. Replace this comment with something more explicit and
-close to the functional specification. Also adapt the variable names
-to it.
+A removable block device, such as NVMe or SSD connected over Thunderbolt
+can be hot-removed any time including when the system is suspended. When
+device is hot-removed during suspend and the system gets resumed, kernel
+first resumes devices and then thaws the userspace including freezable
+workqueues. What happens in that case is that the NVMe driver notices
+that the device is unplugged and removes it from the system. This ends
+up calling bdi_unregister() for the gendisk which then schedules
+wb_workfn() to be run one more time.
 
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+However, since the bdi_wq is still frozen flush_delayed_work() call in
+wb_shutdown() blocks forever halting system resume process. User sees
+this as hang as nothing is happening anymore.
+
+Triggering sysrq-w reveals this:
+
+  Workqueue: nvme-wq nvme_remove_dead_ctrl_work [nvme]
+  Call Trace:
+   ? __schedule+0x2c5/0x630
+   ? wait_for_completion+0xa4/0x120
+   schedule+0x3e/0xc0
+   schedule_timeout+0x1c9/0x320
+   ? resched_curr+0x1f/0xd0
+   ? wait_for_completion+0xa4/0x120
+   wait_for_completion+0xc3/0x120
+   ? wake_up_q+0x60/0x60
+   __flush_work+0x131/0x1e0
+   ? flush_workqueue_prep_pwqs+0x130/0x130
+   bdi_unregister+0xb9/0x130
+   del_gendisk+0x2d2/0x2e0
+   nvme_ns_remove+0xed/0x110 [nvme_core]
+   nvme_remove_namespaces+0x96/0xd0 [nvme_core]
+   nvme_remove+0x5b/0x160 [nvme]
+   pci_device_remove+0x36/0x90
+   device_release_driver_internal+0xdf/0x1c0
+   nvme_remove_dead_ctrl_work+0x14/0x30 [nvme]
+   process_one_work+0x1c2/0x3f0
+   worker_thread+0x48/0x3e0
+   kthread+0x100/0x140
+   ? current_work+0x30/0x30
+   ? kthread_park+0x80/0x80
+   ret_from_fork+0x35/0x40
+
+This is not limited to NVMes so exactly same issue can be reproduced by
+hot-removing SSD (over Thunderbolt) while the system is suspended.
+
+Prevent this from happening by removing WQ_FREEZABLE from bdi_wq.
+
+Reported-by: AceLan Kao <acelan.kao@canonical.com>
+Link: https://marc.info/?l=linux-kernel&m=138695698516487
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=204385
+Link: https://lore.kernel.org/lkml/20191002122136.GD2819@lahna.fi.intel.com/#t
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Macpaul Lin <macpaul.lin@mediatek.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/mvebu-uart.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ mm/backing-dev.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -72,6 +72,7 @@
- #define  BRDV_BAUD_MASK         0x3FF
- 
- #define UART_OSAMP		0x14
-+#define  OSAMP_DEFAULT_DIVISOR	16
- 
- #define MVEBU_NR_UARTS		2
- 
-@@ -444,23 +445,28 @@ static void mvebu_uart_shutdown(struct u
- static int mvebu_uart_baud_rate_set(struct uart_port *port, unsigned int baud)
+--- a/mm/backing-dev.c
++++ b/mm/backing-dev.c
+@@ -247,8 +247,8 @@ static int __init default_bdi_init(void)
  {
- 	struct mvebu_uart *mvuart = to_mvuart(port);
--	unsigned int baud_rate_div;
-+	unsigned int d_divisor, m_divisor;
- 	u32 brdv;
+ 	int err;
  
- 	if (IS_ERR(mvuart->clk))
- 		return -PTR_ERR(mvuart->clk);
+-	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_FREEZABLE |
+-					      WQ_UNBOUND | WQ_SYSFS, 0);
++	bdi_wq = alloc_workqueue("writeback", WQ_MEM_RECLAIM | WQ_UNBOUND |
++				 WQ_SYSFS, 0);
+ 	if (!bdi_wq)
+ 		return -ENOMEM;
  
- 	/*
--	 * The UART clock is divided by the value of the divisor to generate
--	 * UCLK_OUT clock, which is 16 times faster than the baudrate.
--	 * This prescaler can achieve all standard baudrates until 230400.
--	 * Higher baudrates could be achieved for the extended UART by using the
--	 * programmable oversampling stack (also called fractional divisor).
-+	 * The baudrate is derived from the UART clock thanks to two divisors:
-+	 *   > D ("baud generator"): can divide the clock from 2 to 2^10 - 1.
-+	 *   > M ("fractional divisor"): allows a better accuracy for
-+	 *     baudrates higher than 230400.
-+	 *
-+	 * As the derivation of M is rather complicated, the code sticks to its
-+	 * default value (x16) when all the prescalers are zeroed, and only
-+	 * makes use of D to configure the desired baudrate.
- 	 */
--	baud_rate_div = DIV_ROUND_UP(port->uartclk, baud * 16);
-+	m_divisor = OSAMP_DEFAULT_DIVISOR;
-+	d_divisor = DIV_ROUND_UP(port->uartclk, baud * m_divisor);
-+
- 	brdv = readl(port->membase + UART_BRDV);
- 	brdv &= ~BRDV_BAUD_MASK;
--	brdv |= baud_rate_div;
-+	brdv |= d_divisor;
- 	writel(brdv, port->membase + UART_BRDV);
- 
- 	return 0;
 
 
