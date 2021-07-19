@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B48E3CCFED
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A723CCFF2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235862AbhGSIXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41440 "EHLO mail.kernel.org"
+        id S235908AbhGSIXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235828AbhGSIXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235789AbhGSIXr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 04:23:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 244A961283;
-        Mon, 19 Jul 2021 08:56:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 925A661285;
+        Mon, 19 Jul 2021 08:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626684962;
-        bh=m/fuxiu8jKZ4ozVEzoR5BtkqJuLqziFASTL26h6szuk=;
+        s=korg; t=1626684965;
+        bh=CiKQ7DMna5I32NJXiyt9hcjhSmn/Y1Ni92K0YFWQaFU=;
         h=Subject:To:Cc:From:Date:From;
-        b=fQ8XPIRZgUW8OiwitmVARwsVfr4yL1RF9MGLkhPe+x769n11JgoNQjS9ONlqemq0B
-         naU7kjo+ZUzO4/6rXWCMWHzmJp1BzUXeguo9i0plszzqwdpz4DGvw1QWvQI3YCPEe4
-         4oFul0uMyPVt3BPmsCT/R1rHzmfd3Lhq/l0NnNQ8=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Do not apply HPA (memory encryption) mask to" failed to apply to 4.19-stable tree
+        b=01RaLQsOJCJUCtS6GEpimChykZNUUsDRw28hKxyz3sxOKICMvw6id4WFAFPWiP6TZ
+         Qfxgs8hgYCb1XOjH6A2lKC7X6Kdf03U8tzZdbxXKB01oKsoS3HKbSEJP09v4Kd4J9k
+         XXLo1kqfCM6RUMciRhHVW/T8Xgmz0qU+AjLUfEE8=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Do not apply HPA (memory encryption) mask to" failed to apply to 4.14-stable tree
 To:     seanjc@google.com, brijesh.singh@amd.com, pbonzini@redhat.com,
         thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Jul 2021 10:53:11 +0200
-Message-ID: <162668479157197@kroah.com>
+Date:   Mon, 19 Jul 2021 10:53:12 +0200
+Message-ID: <162668479216129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
