@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E01613CD8D7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5DA3CDA42
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243500AbhGSOZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
+        id S243483AbhGSOfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243525AbhGSOYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40E966121E;
-        Mon, 19 Jul 2021 15:03:46 +0000 (UTC)
+        id S244287AbhGSOdI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:33:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C6C61241;
+        Mon, 19 Jul 2021 15:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707026;
-        bh=K9DhBWjy9n0juvv0cJzwntGVbROZXbA/Kys1kN6r9KI=;
+        s=korg; t=1626707592;
+        bh=ppW35qgSusQj6wBIpMSCIYMQAiPVAwVu0i48L2F97tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XiGhgjFAquKuYknz1VgkGF1ubCb6PbUh3Z6SBHYwIxtX9wbbZuwYy0smddBmWjaS
-         C7b1sKdAxYeTvBYWqgpfD17WoFnTGlU9gQ7N2pFRZo6WidVS+Lb+HzswQlxlCde16R
-         jzam9UpuJC9Mf3SMmxiRCizWf2NvJVh31I0PuOP8=
+        b=Q4gPP9xyTAhkQstwmF+krC59hMeVJQsIUtq3jSE5VyfEQiGo8m38syROocncs+LmG
+         z2Lz/8fSrzfFI+aph7KSM2/ZhfM33irBrbHiGTuqEg6w7fi/881iXhnWvdOLax/lLl
+         kU6GnDNUyyxk0R7SUCk8SuNFmBz55e/1eKceieYY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        anton.ivanov@cambridgegreys.com,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 184/188] memory: fsl_ifc: fix leak of IO mapping on probe failure
+Subject: [PATCH 4.9 226/245] um: fix error return code in slip_open()
 Date:   Mon, 19 Jul 2021 16:52:48 +0200
-Message-Id: <20210719144942.508243842@linuxfoundation.org>
+Message-Id: <20210719144947.694737295@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 3b132ab67fc7a358fff35e808fa65d4bea452521 ]
+[ Upstream commit b77e81fbe5f5fb4ad9a61ec80f6d1e30b6da093a ]
 
-On probe error the driver should unmap the IO memory.  Smatch reports:
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-  drivers/memory/fsl_ifc.c:298 fsl_ifc_ctrl_probe() warn: 'fsl_ifc_ctrl_dev->gregs' not released on lines: 298.
-
-Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210527154322.81253-1-krzysztof.kozlowski@canonical.com
+Fixes: a3c77c67a443 ("[PATCH] uml: slirp and slip driver cleanups and fixes")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-By: anton.ivanov@cambridgegreys.com
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/um/drivers/slip_user.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index acd1460cf787..040be4638140 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -228,8 +228,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 	fsl_ifc_ctrl_dev->regs = of_iomap(dev->dev.of_node, 0);
- 	if (!fsl_ifc_ctrl_dev->regs) {
- 		dev_err(&dev->dev, "failed to get memory region\n");
--		ret = -ENODEV;
--		goto err;
-+		return -ENODEV;
+diff --git a/arch/um/drivers/slip_user.c b/arch/um/drivers/slip_user.c
+index 0d6b66c64a81..76d155631c5d 100644
+--- a/arch/um/drivers/slip_user.c
++++ b/arch/um/drivers/slip_user.c
+@@ -145,7 +145,8 @@ static int slip_open(void *data)
  	}
+ 	sfd = err;
  
- 	version = ifc_in32(&fsl_ifc_ctrl_dev->regs->ifc_rev) &
-@@ -306,6 +305,7 @@ err_irq:
- 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
- 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
- err:
-+	iounmap(fsl_ifc_ctrl_dev->gregs);
- 	return ret;
- }
+-	if (set_up_tty(sfd))
++	err = set_up_tty(sfd);
++	if (err)
+ 		goto out_close2;
  
+ 	pri->slave = sfd;
 -- 
 2.30.2
 
