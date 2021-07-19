@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4AE3CD8C7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 499F53CDA64
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243205AbhGSOZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55504 "EHLO mail.kernel.org"
+        id S244451AbhGSOfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243359AbhGSOXi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:23:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D359C611ED;
-        Mon, 19 Jul 2021 15:03:11 +0000 (UTC)
+        id S244244AbhGSOcp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:32:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA7CF6120E;
+        Mon, 19 Jul 2021 15:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706992;
-        bh=ppW35qgSusQj6wBIpMSCIYMQAiPVAwVu0i48L2F97tA=;
+        s=korg; t=1626707576;
+        bh=yZiHhf7MDMsrBOm+Rfirza9bKGPc4BGe3mcHCLe6UbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fqyab8/ERpgQKAfEuTtdJCLIrgHtoTNaL8TAJlGrhWKRCLxkfDTVIp5gq0JR6WC8
-         sHhq1Y5xoG50LVlCY0kS+1PMlO3a+YCmnEMIaf6YOYUOw3/rT36lbMqBcAc4ik986R
-         ceLoYffOrnZblwQ6eBeqwSKEush4UuMIM1w68k4Y=
+        b=ZGj+PzOniICMjCS7vlb/zkcnm+Z4USLEnE7DhE6I5+BYrvbhnQz8FAQw4DjxjzKJ2
+         r6yKStE4ySh/mQsNu+q7GeDEAbibmS/wPGo9LXDaETajG4DSMXngj/3pFFDc9Rh8c8
+         DALr8+i06d2LGCT03cX6N4rLZIHJTqMrDT+g3QdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        anton.ivanov@cambridgegreys.com,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 177/188] um: fix error return code in slip_open()
-Date:   Mon, 19 Jul 2021 16:52:41 +0200
-Message-Id: <20210719144942.278748365@linuxfoundation.org>
+Subject: [PATCH 4.9 220/245] pwm: tegra: Dont modify HW state in .remove callback
+Date:   Mon, 19 Jul 2021 16:52:42 +0200
+Message-Id: <20210719144947.492624219@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b77e81fbe5f5fb4ad9a61ec80f6d1e30b6da093a ]
+[ Upstream commit 86f7fa71cd830d18d7ebcaf719dffd5ddfe1acdd ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-Fixes: a3c77c67a443 ("[PATCH] uml: slirp and slip driver cleanups and fixes")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-By: anton.ivanov@cambridgegreys.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+So drop the hardware modification from the .remove() callback.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/slip_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pwm/pwm-tegra.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/arch/um/drivers/slip_user.c b/arch/um/drivers/slip_user.c
-index 0d6b66c64a81..76d155631c5d 100644
---- a/arch/um/drivers/slip_user.c
-+++ b/arch/um/drivers/slip_user.c
-@@ -145,7 +145,8 @@ static int slip_open(void *data)
- 	}
- 	sfd = err;
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index 7e8906d6ab7a..d76698ce6472 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -228,7 +228,6 @@ static int tegra_pwm_probe(struct platform_device *pdev)
+ static int tegra_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct tegra_pwm_chip *pc = platform_get_drvdata(pdev);
+-	unsigned int i;
+ 	int err;
  
--	if (set_up_tty(sfd))
-+	err = set_up_tty(sfd);
-+	if (err)
- 		goto out_close2;
+ 	if (WARN_ON(!pc))
+@@ -238,18 +237,6 @@ static int tegra_pwm_remove(struct platform_device *pdev)
+ 	if (err < 0)
+ 		return err;
  
- 	pri->slave = sfd;
+-	for (i = 0; i < pc->chip.npwm; i++) {
+-		struct pwm_device *pwm = &pc->chip.pwms[i];
+-
+-		if (!pwm_is_enabled(pwm))
+-			if (clk_prepare_enable(pc->clk) < 0)
+-				continue;
+-
+-		pwm_writel(pc, i, 0);
+-
+-		clk_disable_unprepare(pc->clk);
+-	}
+-
+ 	reset_control_assert(pc->rst);
+ 	clk_disable_unprepare(pc->clk);
+ 
 -- 
 2.30.2
 
