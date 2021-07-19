@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C03333CE175
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 928ED3CE3F4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346886AbhGSP0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S1344362AbhGSPlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347848AbhGSPWF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:22:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A0961006;
-        Mon, 19 Jul 2021 15:59:30 +0000 (UTC)
+        id S1348223AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11BA061601;
+        Mon, 19 Jul 2021 16:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710371;
-        bh=Z6ZydqLjlMDD66kySE5xSLlnlFJ4OA8zpDyXLTtJ/IE=;
+        s=korg; t=1626711222;
+        bh=pZcMXx1l67f2NROb7JPoPMqXFjUa20hfB2QYR1czKLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/oTsHBj36S2H6fIdjctm2eRoWABDayCM40CywRYM1wDZuyf1LRgRdKOdNi5r21US
-         v55aVxrDZZ1DmTzgP5eRDmZn6UIe/pgkIizj6XrLJf3dJZmuGWEBTzZKYbs3DqonkX
-         JKjN4oxHLuuv73hVZ922aWduwdzYaQlYcumgeqdM=
+        b=lVRUPUodp+9n7qmHcB+dl6g0jlJgTVpNtlqgWUWpfFs/v7GdTXfn6zmYMA6G3hrkO
+         Xz9bgT/MX8Qwx2bl1FTnXWroxn6pA2PnjIS3MiQYNlugPxAhfvcaSiZNYiR9nAxacW
+         VVThobiqg0fXCDWPb7DoL1DhIHTDqcCepU/7/ewQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 189/243] reset: a10sr: add missing of_match_table reference
+Subject: [PATCH 5.13 272/351] arm64: dts: rockchip: Drop fephy pinctrl from gmac2phy on rk3328 rock-pi-e
 Date:   Mon, 19 Jul 2021 16:53:38 +0200
-Message-Id: <20210719144947.021197330@linuxfoundation.org>
+Message-Id: <20210719144953.937405562@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Chen-Yu Tsai <wens@csie.org>
 
-[ Upstream commit 466ba3c8ff4fae39e455ff8d080b3d5503302765 ]
+[ Upstream commit e6526f90696e6a7d722d04b958f15b97d6fd9ce6 ]
 
-The driver defined of_device_id table but did not use it with
-of_match_table.  This prevents usual matching via devicetree and causes
-a W=1 warning:
+Turns out the fephy pins are already claimed in the phy node, which is
+rightfully where they should be claimed.
 
-  drivers/reset/reset-a10sr.c:111:34: warning:
-    ‘a10sr_reset_of_match’ defined but not used [-Wunused-const-variable=]
+Drop the pinctrl properties from the gmac2phy node for the ROCK Pi E.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 627006820268 ("reset: Add Altera Arria10 SR Reset Controller")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210507112803.20012-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: b918e81f2145 ("arm64: dts: rockchip: rk3328: Add Radxa ROCK Pi E")
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Link: https://lore.kernel.org/r/20210426095916.14574-1-wens@kernel.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-a10sr.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/reset/reset-a10sr.c b/drivers/reset/reset-a10sr.c
-index 7eacc89382f8..99b3bc8382f3 100644
---- a/drivers/reset/reset-a10sr.c
-+++ b/drivers/reset/reset-a10sr.c
-@@ -118,6 +118,7 @@ static struct platform_driver a10sr_reset_driver = {
- 	.probe	= a10sr_reset_probe,
- 	.driver = {
- 		.name		= "altr_a10sr_reset",
-+		.of_match_table	= a10sr_reset_of_match,
- 	},
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts b/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
+index c7e31efdd2e1..c02059c0a954 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
+@@ -177,8 +177,6 @@
  };
- module_platform_driver(a10sr_reset_driver);
+ 
+ &gmac2phy {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&fephyled_linkm1>, <&fephyled_rxm1>;
+ 	status = "okay";
+ };
+ 
 -- 
 2.30.2
 
