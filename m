@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4912C3CDF27
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345393CDFD7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343594AbhGSPIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
+        id S1345652AbhGSPMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345607AbhGSPEp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60C22606A5;
-        Mon, 19 Jul 2021 15:44:31 +0000 (UTC)
+        id S1345305AbhGSPKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFB5261222;
+        Mon, 19 Jul 2021 15:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709472;
-        bh=x88MS2ITws8FK+xlvLz/ieDFsmVgFG8E+Ow7UVUBkA0=;
+        s=korg; t=1626709874;
+        bh=ysuG3U0bgLZgVc25yiRpVSjyZ83XOlg7wm7UpuaRCiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9+d1gjYE1hlD5QT+cSKjf2e44AReYpLymMCpFVM/P6CFt7+rnwqQOYempUhWpEH3
-         j0fH2+hCRXJo4tQmSJ0/t3IK+MsT8xFuAedjpAITiAl5HP9ZKahT1cE8DvWB+5jnQs
-         aMTzSh1n7r4ucwR9ETA3hUzwkLhBIivmKCygeaDw=
+        b=OzQywupAVjxttHEgUFmSb8uJtoEUOZXNCO0r7zIAe2PAxPHICfmQSQ6wx0i/pP0es
+         693Rj0bsnH7wtRx0gaHI9WtAelna92AV4JCcfNqJq8K+Kv8LciTuwJHAT4FOpmoABb
+         fp1jByaPWkN+kZ9KAQ8AvTC4lVo5x5erH6lu+7Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Brian Cain <bcain@codeaurora.org>,
-        David Rientjes <rientjes@google.com>,
-        Oliver Glitta <glittao@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 396/421] hexagon: use common DISCARDS macro
+Subject: [PATCH 5.4 099/149] power: supply: rt5033_battery: Fix device tree enumeration
 Date:   Mon, 19 Jul 2021 16:53:27 +0200
-Message-Id: <20210719145000.096295657@linuxfoundation.org>
+Message-Id: <20210719144924.829886764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 681ba73c72302214686401e707e2087ed11a6556 ]
+[ Upstream commit f3076cd8d1d5fa64b5e1fa5affc045c2fc123baa ]
 
-ld.lld warns that the '.modinfo' section is not currently handled:
+The fuel gauge in the RT5033 PMIC has its own I2C bus and interrupt
+line. Therefore, it is not actually part of the RT5033 MFD and needs
+its own of_match_table to probe properly.
 
-ld.lld: warning: kernel/built-in.a(workqueue.o):(.modinfo) is being placed in '.modinfo'
-ld.lld: warning: kernel/built-in.a(printk/printk.o):(.modinfo) is being placed in '.modinfo'
-ld.lld: warning: kernel/built-in.a(irq/spurious.o):(.modinfo) is being placed in '.modinfo'
-ld.lld: warning: kernel/built-in.a(rcu/update.o):(.modinfo) is being placed in '.modinfo'
+Also, given that it's independent of the MFD, there is actually
+no need to make the Kconfig depend on MFD_RT5033. Although the driver
+uses the shared <linux/mfd/rt5033.h> header, there is no compile
+or runtime dependency on the RT5033 MFD driver.
 
-The '.modinfo' section was added in commit 898490c010b5 ("moduleparam:
-Save information about built-in modules in separate file") to the DISCARDS
-macro but Hexagon has never used that macro.  The unification of DISCARDS
-happened in commit 023bf6f1b8bf ("linker script: unify usage of discard
-definition") in 2009, prior to Hexagon being added in 2011.
-
-Switch Hexagon over to the DISCARDS macro so that anything that is
-expected to be discarded gets discarded.
-
-Link: https://lkml.kernel.org/r/20210521011239.1332345-3-nathan@kernel.org
-Fixes: e95bf452a9e2 ("Hexagon: Add configuration and makefiles for the Hexagon architecture.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Acked-by: Brian Cain <bcain@codeaurora.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Oliver Glitta <glittao@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Beomho Seo <beomho.seo@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/hexagon/kernel/vmlinux.lds.S | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/power/supply/Kconfig          | 3 ++-
+ drivers/power/supply/rt5033_battery.c | 7 +++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
-index ad69d181c939..757f9554118e 100644
---- a/arch/hexagon/kernel/vmlinux.lds.S
-+++ b/arch/hexagon/kernel/vmlinux.lds.S
-@@ -73,13 +73,8 @@ SECTIONS
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index d6fdc10c29f0..ffdb15278c10 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -643,7 +643,8 @@ config BATTERY_GOLDFISH
  
- 	_end = .;
+ config BATTERY_RT5033
+ 	tristate "RT5033 fuel gauge support"
+-	depends on MFD_RT5033
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  This adds support for battery fuel gauge in Richtek RT5033 PMIC.
+ 	  The fuelgauge calculates and determines the battery state of charge
+diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
+index d8667a9fc49b..6609f8cb8ca0 100644
+--- a/drivers/power/supply/rt5033_battery.c
++++ b/drivers/power/supply/rt5033_battery.c
+@@ -164,9 +164,16 @@ static const struct i2c_device_id rt5033_battery_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rt5033_battery_id);
  
--	/DISCARD/ : {
--		EXIT_TEXT
--		EXIT_DATA
--		EXIT_CALL
--	}
--
- 	STABS_DEBUG
- 	DWARF_DEBUG
- 
-+	DISCARDS
- }
++static const struct of_device_id rt5033_battery_of_match[] = {
++	{ .compatible = "richtek,rt5033-battery", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rt5033_battery_of_match);
++
+ static struct i2c_driver rt5033_battery_driver = {
+ 	.driver = {
+ 		.name = "rt5033-battery",
++		.of_match_table = rt5033_battery_of_match,
+ 	},
+ 	.probe = rt5033_battery_probe,
+ 	.remove = rt5033_battery_remove,
 -- 
 2.30.2
 
