@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F14763CD9DA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 229C23CD85F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243520AbhGSObx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
+        id S243055AbhGSOV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244609AbhGSO3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53EBD6112D;
-        Mon, 19 Jul 2021 15:10:08 +0000 (UTC)
+        id S242264AbhGSOUs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AE6B6113A;
+        Mon, 19 Jul 2021 15:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707408;
-        bh=/ipI3NIR6k+HOgDX7jUT4v6stWOk4kxW8w0+NBsAYLg=;
+        s=korg; t=1626706887;
+        bh=MO1UiU6D8VAjwtNDAnZ1A2lmkG72xrOsuxRUWY3P+Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsEz+WSG1vU3NKmQ7WO+PDQLyFd7QfS9dWe7OisNt/jI21n1QhA2VU3zQDgo36Xk4
-         Ko+hULItnRePKxnIo3+hbRuSEhkFzSDsap/8iMitxe2nVC6NNKTxmYup6dSLnYnnW0
-         42JU8eVdqVefjnPPgln6bwRqd8Xz/KfkCUPQntVY=
+        b=MbYrmnj1JpLAhFKTKgoLon14UbPLLkHnNhfVwx8mkQVXoU/Xoox4roCeEZ//NHmmt
+         2hoRaIURl4n8WzhbVocn+7kCRNEjb5QWkb3YrOMyVFXLslIsL+yj5P4EzS9R/hvQjM
+         POwntLeZ7QwzsEq1hxu8hzp53oMdrzSF+Xx4oYDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
-        Yu Liu <yudiliu@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 153/245] Bluetooth: Fix the HCI to MGMT status conversion table
-Date:   Mon, 19 Jul 2021 16:51:35 +0200
-Message-Id: <20210719144945.350862185@linuxfoundation.org>
+Subject: [PATCH 4.4 112/188] cw1200: add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:51:36 +0200
+Message-Id: <20210719144939.243269540@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liu <yudiliu@google.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 4ef36a52b0e47c80bbfd69c0cce61c7ae9f541ed ]
+[ Upstream commit dd778f89225cd258e8f0fed2b7256124982c8bb5 ]
 
-0x2B, 0x31 and 0x33 are reserved for future use but were not present in
-the HCI to MGMT conversion table, this caused the conversion to be
-incorrect for the HCI status code greater than 0x2A.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
-Signed-off-by: Yu Liu <yudiliu@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1620788714-14300-1-git-send-email-zou_wei@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/mgmt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/cw1200/cw1200_sdio.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index fa9526712b0a..7aef6d23bc77 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -219,12 +219,15 @@ static u8 mgmt_status_table[] = {
- 	MGMT_STATUS_TIMEOUT,		/* Instant Passed */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Pairing Not Supported */
- 	MGMT_STATUS_FAILED,		/* Transaction Collision */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Unacceptable Parameter */
- 	MGMT_STATUS_REJECTED,		/* QoS Rejected */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Classification Not Supported */
- 	MGMT_STATUS_REJECTED,		/* Insufficient Security */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Parameter Out Of Range */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_BUSY,		/* Role Switch Pending */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_FAILED,		/* Slot Violation */
- 	MGMT_STATUS_FAILED,		/* Role Switch Failed */
- 	MGMT_STATUS_INVALID_PARAMS,	/* EIR Too Large */
+diff --git a/drivers/net/wireless/cw1200/cw1200_sdio.c b/drivers/net/wireless/cw1200/cw1200_sdio.c
+index d3acc85932a5..de92107549ee 100644
+--- a/drivers/net/wireless/cw1200/cw1200_sdio.c
++++ b/drivers/net/wireless/cw1200/cw1200_sdio.c
+@@ -62,6 +62,7 @@ static const struct sdio_device_id cw1200_sdio_ids[] = {
+ 	{ SDIO_DEVICE(SDIO_VENDOR_ID_STE, SDIO_DEVICE_ID_STE_CW1200) },
+ 	{ /* end: all zeroes */			},
+ };
++MODULE_DEVICE_TABLE(sdio, cw1200_sdio_ids);
+ 
+ /* hwbus_ops implemetation */
+ 
 -- 
 2.30.2
 
