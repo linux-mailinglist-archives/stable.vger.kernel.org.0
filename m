@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C85D3CD9AE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 034B03CDBB0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243278AbhGSObO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
+        id S238057AbhGSOti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:49:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245174AbhGSOaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6888E6008E;
-        Mon, 19 Jul 2021 15:11:02 +0000 (UTC)
+        id S1343584AbhGSOmq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:42:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36C0660FE4;
+        Mon, 19 Jul 2021 15:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707462;
-        bh=yw59GsYN9fZBYf4Z6YQlWTvK7S0ELg+JgFlEsSrDhuA=;
+        s=korg; t=1626708128;
+        bh=XFIYqRr+Ko+Cclp+2bzYkg5sdLF66yLb3lyibASCLcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pzuhNWq4t2oI/Bb/hOc1lmCvKn6BFjY1T0t+Wd9nKHn+KEhRVGRdX4papFG6SIMYu
-         uNJKC69NoViRjwEIHu7RUnYrkVvaA+3qzDLrqVLlAWUdKgUIN4WA8dnxEcCXMIfMgJ
-         1bvHgiDPionvzwveAgpExYU6cQI/jg1amEcCCv3s=
+        b=kDExP3iGNoRsrLkbkSGL23RwUc+ArYeXcal3gqFF8ADZ2gB54ScDl/vlDq8H9+FSx
+         TXPu0kE80BUJxO4/KA7rPAUGF9feZSTGyrmT0Zx66YiY2VwneKattAECYjzifG7Ipq
+         kTupLxBUZEOIR4xRGqJWnk/ljgoAGLcmLzTN6mt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minchan Kim <minchan@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 140/245] selinux: use __GFP_NOWARN with GFP_NOWAIT in the AVC
+Subject: [PATCH 4.14 193/315] sfc: avoid double pci_remove of VFs
 Date:   Mon, 19 Jul 2021 16:51:22 +0200
-Message-Id: <20210719144944.930329551@linuxfoundation.org>
+Message-Id: <20210719144949.265773598@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,130 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Minchan Kim <minchan@kernel.org>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 648f2c6100cfa18e7dfe43bc0b9c3b73560d623c ]
+[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
 
-In the field, we have seen lots of allocation failure from the call
-path below.
+If pci_remove was called for a PF with VFs, the removal of the VFs was
+called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
+and another implicit by calling pci_disable_sriov, which also perform
+the VFs remove. This was leading to crashing the kernel on the second
+attempt.
 
-06-03 13:29:12.999 1010315 31557 31557 W Binder  : 31542_2: page allocation failure: order:0, mode:0x800(GFP_NOWAIT), nodemask=(null),cpuset=background,mems_allowed=0
-...
-...
-06-03 13:29:12.999 1010315 31557 31557 W Call trace:
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_backtrace.cfi_jt+0x0/0x8
-06-03 13:29:12.999 1010315 31557 31557 W         : dump_stack+0xc8/0x14c
-06-03 13:29:12.999 1010315 31557 31557 W         : warn_alloc+0x158/0x1c8
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_slowpath+0x9d8/0xb80
-06-03 13:29:12.999 1010315 31557 31557 W         : __alloc_pages_nodemask+0x1c4/0x430
-06-03 13:29:12.999 1010315 31557 31557 W         : allocate_slab+0xb4/0x390
-06-03 13:29:12.999 1010315 31557 31557 W         : ___slab_alloc+0x12c/0x3a4
-06-03 13:29:12.999 1010315 31557 31557 W         : kmem_cache_alloc+0x358/0x5e4
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_alloc_node+0x30/0x184
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_update_node+0x54/0x4f0
-06-03 13:29:12.999 1010315 31557 31557 W         : avc_has_extended_perms+0x1a4/0x460
-06-03 13:29:12.999 1010315 31557 31557 W         : selinux_file_ioctl+0x320/0x3d0
-06-03 13:29:12.999 1010315 31557 31557 W         : __arm64_sys_ioctl+0xec/0x1fc
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc_common+0xc0/0x24c
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_svc+0x28/0x88
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync_handler+0x8c/0xf0
-06-03 13:29:12.999 1010315 31557 31557 W         : el0_sync+0x1a4/0x1c0
-..
-..
-06-03 13:29:12.999 1010315 31557 31557 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010315 31557 31557 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010315 31557 31557 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:12.999 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:12.999 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:12.999 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 1010161 10686 10686 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 1010161 10686 10686 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 1010161 10686 10686 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
-06-03 13:29:13.000 10230 30892 30892 W node 0  : slabs: 57, objs: 2907, free: 0
-06-03 13:29:13.000 10230 30892 30892 W SLUB    : Unable to allocate memory on node -1, gfp=0x900(GFP_NOWAIT|__GFP_ZERO)
-06-03 13:29:13.000 10230 30892 30892 W cache   : avc_node, object size: 72, buffer size: 80, default order: 0, min order: 0
+Given that pci_disable_sriov already calls to pci remove function, get
+rid of the direct call to pci_driver->remove from the driver.
 
-Based on [1], selinux is tolerate for failure of memory allocation.
-Then, use __GFP_NOWARN together.
+2 different ways to trigger the bug:
+- Create one or more VFs, then attach the PF to a virtual machine (at
+  least with qemu/KVM)
+- Create one or more VFs, then remove the PF with:
+  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
 
-[1] 476accbe2f6e ("selinux: use GFP_NOWAIT in the AVC kmem_caches")
+Removing sfc module does not trigger the error, at least for me, because
+it removes the VF first, and then the PF.
 
-Signed-off-by: Minchan Kim <minchan@kernel.org>
-[PM: subj fix, line wraps, normalized commit refs]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Example of a log with the error:
+    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
+    ------------[ cut here ]------------
+    kernel BUG at lib/list_debug.c:47!
+    [...trimmed...]
+    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
+    [...trimmed...]
+    Call Trace:
+    efx_dissociate+0x1f/0x140 [sfc]
+    efx_pci_remove+0x27/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    pci_stop_bus_device+0x69/0x90
+    pci_stop_and_remove_bus_device+0xe/0x20
+    pci_iov_remove_virtfn+0xba/0x120
+    sriov_disable+0x2f/0xe0
+    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
+    ? pcie_aer_is_native+0x12/0x40
+    efx_ef10_sriov_fini+0x72/0x110 [sfc]
+    efx_pci_remove+0x62/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    unbind_store+0xf6/0x130
+    kernfs_fop_write+0x116/0x190
+    vfs_write+0xa5/0x1a0
+    ksys_write+0x4f/0xb0
+    do_syscall_64+0x5b/0x1a0
+    entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index f3c473791b69..a16c72c2a967 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -348,26 +348,27 @@ static struct avc_xperms_decision_node
- 	struct avc_xperms_decision_node *xpd_node;
- 	struct extended_perms_decision *xpd;
- 
--	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep, GFP_NOWAIT);
-+	xpd_node = kmem_cache_zalloc(avc_xperms_decision_cachep,
-+				     GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xpd_node)
- 		return NULL;
- 
- 	xpd = &xpd_node->xpd;
- 	if (which & XPERMS_ALLOWED) {
- 		xpd->allowed = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->allowed)
- 			goto error;
- 	}
- 	if (which & XPERMS_AUDITALLOW) {
- 		xpd->auditallow = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->auditallow)
- 			goto error;
- 	}
- 	if (which & XPERMS_DONTAUDIT) {
- 		xpd->dontaudit = kmem_cache_zalloc(avc_xperms_data_cachep,
--						GFP_NOWAIT);
-+						GFP_NOWAIT | __GFP_NOWARN);
- 		if (!xpd->dontaudit)
- 			goto error;
- 	}
-@@ -395,7 +396,7 @@ static struct avc_xperms_node *avc_xperms_alloc(void)
+diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
+index 019cef1d3cf7..76c8d50882fc 100644
+--- a/drivers/net/ethernet/sfc/ef10_sriov.c
++++ b/drivers/net/ethernet/sfc/ef10_sriov.c
+@@ -443,7 +443,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
+ void efx_ef10_sriov_fini(struct efx_nic *efx)
  {
- 	struct avc_xperms_node *xp_node;
+ 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-	unsigned int i;
+ 	int rc;
  
--	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT);
-+	xp_node = kmem_cache_zalloc(avc_xperms_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!xp_node)
- 		return xp_node;
- 	INIT_LIST_HEAD(&xp_node->xpd_head);
-@@ -548,7 +549,7 @@ static struct avc_node *avc_alloc_node(void)
- {
- 	struct avc_node *node;
+ 	if (!nic_data->vf) {
+@@ -453,14 +452,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
+ 		return;
+ 	}
  
--	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT);
-+	node = kmem_cache_zalloc(avc_node_cachep, GFP_NOWAIT | __GFP_NOWARN);
- 	if (!node)
- 		goto out;
- 
+-	/* Remove any VFs in the host */
+-	for (i = 0; i < efx->vf_count; ++i) {
+-		struct efx_nic *vf_efx = nic_data->vf[i].efx;
+-
+-		if (vf_efx)
+-			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
+-	}
+-
++	/* Disable SRIOV and remove any VFs in the host */
+ 	rc = efx_ef10_pci_sriov_disable(efx, true);
+ 	if (rc)
+ 		netif_dbg(efx, drv, efx->net_dev,
 -- 
 2.30.2
 
