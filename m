@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C02D93CE25D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B06AF3CE422
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348206AbhGSPaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40022 "EHLO mail.kernel.org"
+        id S1344405AbhGSPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348080AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85D5C61411;
-        Mon, 19 Jul 2021 16:01:20 +0000 (UTC)
+        id S1350015AbhGSPge (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:36:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4685260E0C;
+        Mon, 19 Jul 2021 16:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710481;
-        bh=Sqtv2oYS9TW4dmQMiEDsE7hxSoVFTvockIzPUnWBKVM=;
+        s=korg; t=1626711433;
+        bh=df5gBBXuMGStVpHHUHWlMnjn0NvGlIlmnWSeiC1O6QQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbWHTWkb+VOPrzs+bftjlzcq4CbVAbpsdgWQcTjoo45lbYnqIFP/YsjkUB4FTycoq
-         9HPnJozXesLRf5mnsQeIlzAfVwq8HIAsAv3aif/V7R2e6nfSkuopHjV85nbawdPKxA
-         jZP6nD3XWY55T6RqjrGdN7HkMuvLS/W25HPJ/CCc=
+        b=Hc7Nybz0DJ2V2JGvB5GKhOJnClEjNV2cQDD6HVoNY9FFCztfF+nghKBTF7HQUT1l4
+         rskEeRHY3Z1TQrx6/bGV5pZxDEN1BG7C8Yf1XVyp6ljf6Iph0quw3Iq3graN0qB8/D
+         UFm3wqArrikAQTIztci612CEnJFKNFrNjr7SNxds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 235/243] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
+Subject: [PATCH 5.13 318/351] arm64: dts: allwinner: a64-sopine-baseboard: change RGMII mode to TXID
 Date:   Mon, 19 Jul 2021 16:54:24 +0200
-Message-Id: <20210719144948.505621604@linuxfoundation.org>
+Message-Id: <20210719144955.573317814@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
+[ Upstream commit bd5431b2f9b30a70f6ed964dd5ee9a6d1c397c06 ]
 
-If an error occurs after a pci_enable_pcie_error_reporting() call, it must
-be undone by a corresponding pci_disable_pcie_error_reporting() call, as
-already done in the remove function.
+Although the schematics of Pine A64-LTS and SoPine Baseboard shows both
+the RX and TX internal delay are enabled, they're using the same broken
+RTL8211E chip batch with Pine A64+, so they should use TXID instead, not
+ID.
 
-Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
-Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+In addition, by checking the real components soldered on both a SoPine
+Baseboard and a Pine A64-LTS, RX delay is not enabled (GR69 soldered and
+GR70 NC) despite the schematics says it's enabled. It's a common
+situation for Pine64 boards that the NC information on schematics is not
+the same with the board.
+
+So the RGMII delay mode should be TXID on these boards.
+
+Fixes: c2b111e59a7b ("arm64: dts: allwinner: A64 Sopine: phy-mode rgmii-id")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210609083843.463750-1-icenowy@aosc.io
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index 1643e2225692..987dc8135a9b 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5745,6 +5745,7 @@ free_hba:
- 	pci_disable_msix(phba->pcidev);
- 	pci_dev_put(phba->pcidev);
- 	iscsi_host_free(phba->shost);
-+	pci_disable_pcie_error_reporting(pcidev);
- 	pci_set_drvdata(pcidev, NULL);
- disable_pci:
- 	pci_release_regions(pcidev);
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
+index e22b94c83647..5e66ce1a334f 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
+@@ -79,7 +79,7 @@
+ &emac {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&rgmii_pins>;
+-	phy-mode = "rgmii-id";
++	phy-mode = "rgmii-txid";
+ 	phy-handle = <&ext_rgmii_phy>;
+ 	phy-supply = <&reg_dc1sw>;
+ 	status = "okay";
 -- 
 2.30.2
 
