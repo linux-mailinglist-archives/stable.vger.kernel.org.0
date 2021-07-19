@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739703CE069
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D60063CDE3F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346274AbhGSPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
+        id S243346AbhGSPCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345165AbhGSPNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:13:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 008D8613F1;
-        Mon, 19 Jul 2021 15:53:45 +0000 (UTC)
+        id S1344155AbhGSO7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D50CD61363;
+        Mon, 19 Jul 2021 15:38:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710026;
-        bh=QtvRV+ywbWvf5Ob5LjgKwga0Bz4DLWTM5dMniOTQAAo=;
+        s=korg; t=1626709125;
+        bh=8HpQHPCkSzrADkTZ/pMXcY+Hsmpe2Aypku5O0/pmY0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsfLIcP23bZxt9VNccfxqzMQKtaKi5/VxgtDmGYLv0fgtkt9lxEDG+B58XKZJrA0R
-         vqkCI5is+L2s7QP8Op96I+xyKoKwUh6JuXde5I4iNCeejbVob/2gHmceBJlyuMdON+
-         E+Av2lFr8skagwS15g6dWG6pdMDEicnSe2dq3TqA=
+        b=xmPMavuEQ9pSF9nIJqh1iyI44p/hEhPxk0JAk2Xxa88PwKqLkRmk6y72t+mqlvIFe
+         6qlNe2qCxUHsxplpmbELjCypDx7e6Taq+6aOQlludAuzoGxc8fUR6HLhMwmVYsZXH5
+         cDaaVmWxJm0JEww4az1mjXX2Oe2p+XVroVoJ/Yvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        Norbert Slusarek <nslusarek@gmx.net>,
+        Andra Paraschiv <andraprs@amazon.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        David Brazdil <dbrazdil@google.com>,
+        Alexander Popov <alex.popov@linux.com>,
+        Stefano Garzarella <sgarzare@redhat.com>,
+        lixianming <lixianming5@huawei.com>,
+        "Longpeng(Mike)" <longpeng2@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/243] scsi: lpfc: Fix "Unexpected timeout" error in direct attach topology
+Subject: [PATCH 4.19 263/421] vsock: notify server to shutdown when client has pending signal
 Date:   Mon, 19 Jul 2021 16:51:14 +0200
-Message-Id: <20210719144942.377423412@linuxfoundation.org>
+Message-Id: <20210719144955.509022881@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +49,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-[ Upstream commit e30d55137edef47434c40d7570276a0846fe922c ]
+[ Upstream commit c7ff9cff70601ea19245d997bb977344663434c7 ]
 
-An 'unexpected timeout' message may be seen in a point-2-point topology.
-The message occurs when a PLOGI is received before the driver is notified
-of FLOGI completion. The FLOGI completion failure causes discovery to be
-triggered for a second time. The discovery timer is restarted but no new
-discovery activity is initiated, thus the timeout message eventually
-appears.
+The client's sk_state will be set to TCP_ESTABLISHED if the server
+replay the client's connect request.
 
-In point-2-point, when discovery has progressed before the FLOGI completion
-is processed, it is not a failure. Add code to FLOGI completion to detect
-that discovery has progressed and exit the FLOGI handling (noop'ing it).
+However, if the client has pending signal, its sk_state will be set
+to TCP_CLOSE without notify the server, so the server will hold the
+corrupt connection.
 
-Link: https://lore.kernel.org/r/20210514195559.119853-4-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+            client                        server
+
+1. sk_state=TCP_SYN_SENT         |
+2. call ->connect()              |
+3. wait reply                    |
+                                 | 4. sk_state=TCP_ESTABLISHED
+                                 | 5. insert to connected list
+                                 | 6. reply to the client
+7. sk_state=TCP_ESTABLISHED      |
+8. insert to connected list      |
+9. *signal pending* <--------------------- the user kill client
+10. sk_state=TCP_CLOSE           |
+client is exiting...             |
+11. call ->release()             |
+     virtio_transport_close
+      if (!(sk->sk_state == TCP_ESTABLISHED ||
+	      sk->sk_state == TCP_CLOSING))
+		return true; *return at here, the server cannot notice the connection is corrupt*
+
+So the client should notify the peer in this case.
+
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Jorgen Hansen <jhansen@vmware.com>
+Cc: Norbert Slusarek <nslusarek@gmx.net>
+Cc: Andra Paraschiv <andraprs@amazon.com>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: David Brazdil <dbrazdil@google.com>
+Cc: Alexander Popov <alex.popov@linux.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Link: https://lkml.org/lkml/2021/5/17/418
+Signed-off-by: lixianming <lixianming5@huawei.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ net/vmw_vsock/af_vsock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index b60945182db8..3d9889b3d5c8 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1179,6 +1179,15 @@ stop_rr_fcf_flogi:
- 			phba->fcf.fcf_redisc_attempted = 0; /* reset */
- 			goto out;
- 		}
-+	} else if (vport->port_state > LPFC_FLOGI &&
-+		   vport->fc_flag & FC_PT2PT) {
-+		/*
-+		 * In a p2p topology, it is possible that discovery has
-+		 * already progressed, and this completion can be ignored.
-+		 * Recheck the indicated topology.
-+		 */
-+		if (!sp->cmn.fPort)
-+			goto out;
- 	}
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index aceafec612a8..2d31fce5c218 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1225,7 +1225,7 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
  
- flogifail:
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+-			sk->sk_state = TCP_CLOSE;
++			sk->sk_state = sk->sk_state == TCP_ESTABLISHED ? TCP_CLOSING : TCP_CLOSE;
+ 			sock->state = SS_UNCONNECTED;
+ 			vsock_transport_cancel_pkt(vsk);
+ 			goto out_wait;
 -- 
 2.30.2
 
