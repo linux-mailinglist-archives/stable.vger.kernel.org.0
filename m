@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A8A3CE544
+	by mail.lfdr.de (Postfix) with ESMTP id 521163CE545
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234664AbhGSPs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45594 "EHLO mail.kernel.org"
+        id S1346991AbhGSPs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349329AbhGSPo7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349328AbhGSPo7 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:44:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71732610C7;
-        Mon, 19 Jul 2021 16:24:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 041096113B;
+        Mon, 19 Jul 2021 16:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711872;
-        bh=djiJWBEnmSqH0yNdpQmj2nhgTBcf0CHr1UrpVaVvGLA=;
+        s=korg; t=1626711874;
+        bh=Kr5HoqsE5MPFdwwLrEQmw5vIHfZj7/DGPLKFuD6t3uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0UqwzJbYCF2jpL66tg0sNN8zj21hxWm7XZ3LdNBmMTIPKS/1NttJi0kcaONjeusOo
-         HZPHcqCaHbXd2jB1tpajvHuwjOzBnGkntQQMK2KHHMROgMPYSnQGlPRDn+YWKXwx1A
-         HmauBsjVwBjDIYTWMPuQPYcMeNKi5LwtBtq0av4Y=
+        b=KZkwDzRpADNrtvJUnKimkV857Vl1Ov7sgitAe7WBo1utjxJIOzOMQ0CWECoV+qfJK
+         ebzsBq74OPg4ST4CEcndQESSTdduLlLByRbwNBp82g2eY/rq2KUBWbZifnVyQAMd1C
+         JU5kM+Lk9Zlgpp+KDhMt0lZwOr47NOOKPjBqBAtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 164/292] pwm: tegra: Dont modify HW state in .remove callback
-Date:   Mon, 19 Jul 2021 16:53:46 +0200
-Message-Id: <20210719144947.883092715@linuxfoundation.org>
+Subject: [PATCH 5.12 165/292] ACPI: AMBA: Fix resource name in /proc/iomem
+Date:   Mon, 19 Jul 2021 16:53:47 +0200
+Message-Id: <20210719144947.915605114@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,56 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Liguang Zhang <zhangliguang@linux.alibaba.com>
 
-[ Upstream commit 86f7fa71cd830d18d7ebcaf719dffd5ddfe1acdd ]
+[ Upstream commit 7718629432676b5ebd9a32940782fe297a0abf8d ]
 
-A consumer is expected to disable a PWM before calling pwm_put(). And if
-they didn't there is hopefully a good reason (or the consumer needs
-fixing). Also if disabling an enabled PWM was the right thing to do,
-this should better be done in the framework instead of in each low level
-driver.
+In function amba_handler_attach(), dev->res.name is initialized by
+amba_device_alloc. But when address_found is false, dev->res.name is
+assigned to null value, which leads to wrong resource name display in
+/proc/iomem, "<BAD>" is seen for those resources.
 
-So drop the hardware modification from the .remove() callback.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-tegra.c | 13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/acpi/acpi_amba.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
-index 55bc63d5a0ae..6d8e324864fa 100644
---- a/drivers/pwm/pwm-tegra.c
-+++ b/drivers/pwm/pwm-tegra.c
-@@ -301,7 +301,6 @@ static int tegra_pwm_probe(struct platform_device *pdev)
- static int tegra_pwm_remove(struct platform_device *pdev)
- {
- 	struct tegra_pwm_chip *pc = platform_get_drvdata(pdev);
--	unsigned int i;
- 	int err;
- 
- 	if (WARN_ON(!pc))
-@@ -311,18 +310,6 @@ static int tegra_pwm_remove(struct platform_device *pdev)
- 	if (err < 0)
- 		return err;
- 
--	for (i = 0; i < pc->chip.npwm; i++) {
--		struct pwm_device *pwm = &pc->chip.pwms[i];
--
--		if (!pwm_is_enabled(pwm))
--			if (clk_prepare_enable(pc->clk) < 0)
--				continue;
--
--		pwm_writel(pc, i, 0);
--
--		clk_disable_unprepare(pc->clk);
--	}
--
- 	reset_control_assert(pc->rst);
- 	clk_disable_unprepare(pc->clk);
- 
+diff --git a/drivers/acpi/acpi_amba.c b/drivers/acpi/acpi_amba.c
+index 49b781a9cd97..ab8a4e0191b1 100644
+--- a/drivers/acpi/acpi_amba.c
++++ b/drivers/acpi/acpi_amba.c
+@@ -76,6 +76,7 @@ static int amba_handler_attach(struct acpi_device *adev,
+ 		case IORESOURCE_MEM:
+ 			if (!address_found) {
+ 				dev->res = *rentry->res;
++				dev->res.name = dev_name(&dev->dev);
+ 				address_found = true;
+ 			}
+ 			break;
 -- 
 2.30.2
 
