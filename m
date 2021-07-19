@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E33913CE56F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DD343CE5A2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349224AbhGSPuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47934 "EHLO mail.kernel.org"
+        id S1348054AbhGSPwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241276AbhGSPqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:46:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD42E6145A;
-        Mon, 19 Jul 2021 16:26:53 +0000 (UTC)
+        id S241527AbhGSPrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6844E613DF;
+        Mon, 19 Jul 2021 16:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712014;
-        bh=dtrbSkRrJsSWp/litbZIc5oikePs1EjtcjMjJ7YtHmI=;
+        s=korg; t=1626712032;
+        bh=5kAhOn2eRTsba3I5fnZ22AzHtv6emCoac4CtMYcaWvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oNBRifpdQFkRy4Gh0q754w7OffpSzScpHoQWHtFIS7yog9g028d6VQoPYdvpxe/Ev
-         HNEni3R1UL57+Ar2oyhWc3VpBH52SUlrlfZQMUVnralPxbueUXKG6ROHBdgSUJql+r
-         wHDvBzykzvnayU198nE0+zKt1HK31I9ad9RfTeP8=
+        b=ubLQ/WtWntnWd+0Wt+4RSsFCiFzf1S6PC69Sv9pqs+1MjirE7rAWdg/klrL/v1MFy
+         sOVYTQ5yt9A6W8CnyLs5dqgziz5YveLbUUvujsAUcRKyYD9W4e9iDs4Qxn3MMvcxk5
+         fDBPHpvrktd5FSUru/yiQK3OcFBDAAMLW5TgZing=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shruthi Sanil <shruthi.sanil@intel.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 190/292] watchdog: keembay: Upadate WDT pretimeout for every update in timeout
-Date:   Mon, 19 Jul 2021 16:54:12 +0200
-Message-Id: <20210719144948.740324599@linuxfoundation.org>
+Subject: [PATCH 5.12 191/292] watchdog: keembay: Update pretimeout to zero in the TH ISR
+Date:   Mon, 19 Jul 2021 16:54:13 +0200
+Message-Id: <20210719144948.777595487@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -45,38 +45,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shruthi Sanil <shruthi.sanil@intel.com>
 
-[ Upstream commit 0f7bfaf10c0abc979220442bae2af4f1f869c41e ]
+[ Upstream commit 75f6c56dfeec92c53e09a72896547888ac9a27d7 ]
 
-The pre-timeout value to be programmed to the register has to be
-calculated and updated for every change in the timeout value.
-Else the threshold time wouldn't be calculated to its
-corresponding timeout.
+The pretimeout has to be updated to zero during the ISR of the
+ThresHold interrupt. Else the TH interrupt would be triggerred for
+every tick until the timeout.
 
 Fixes: fa0f8d51e90d ("watchdog: Add watchdog driver for Intel Keembay Soc")
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Kris Pan <kris.pan@intel.com>
 Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20210517174953.19404-3-shruthi.sanil@intel.com
+Link: https://lore.kernel.org/r/20210517174953.19404-4-shruthi.sanil@intel.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/keembay_wdt.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/keembay_wdt.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/watchdog/keembay_wdt.c b/drivers/watchdog/keembay_wdt.c
-index f2f5c9fae29c..b2afeb4a60e3 100644
+index b2afeb4a60e3..6053416b8d3d 100644
 --- a/drivers/watchdog/keembay_wdt.c
 +++ b/drivers/watchdog/keembay_wdt.c
-@@ -109,6 +109,7 @@ static int keembay_wdt_set_timeout(struct watchdog_device *wdog, u32 t)
- {
- 	wdog->timeout = t;
- 	keembay_wdt_set_timeout_reg(wdog);
-+	keembay_wdt_set_pretimeout_reg(wdog);
+@@ -154,6 +154,8 @@ static irqreturn_t keembay_wdt_th_isr(int irq, void *dev_id)
+ 	struct keembay_wdt *wdt = dev_id;
+ 	struct arm_smccc_res res;
  
- 	return 0;
- }
++	keembay_wdt_set_pretimeout(&wdt->wdd, 0x0);
++
+ 	arm_smccc_smc(WDT_ISR_CLEAR, WDT_ISR_MASK, 0, 0, 0, 0, 0, 0, &res);
+ 	dev_crit(wdt->wdd.parent, "Intel Keem Bay non-sec wdt pre-timeout.\n");
+ 	watchdog_notify_pretimeout(&wdt->wdd);
 -- 
 2.30.2
 
