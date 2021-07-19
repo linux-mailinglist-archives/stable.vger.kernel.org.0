@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 672123CDDCD
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 305003CE014
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245650AbhGSPAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:00:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
+        id S1346082AbhGSPNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:13:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343837AbhGSO7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CAA66113E;
-        Mon, 19 Jul 2021 15:37:27 +0000 (UTC)
+        id S1345619AbhGSPMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:12:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 590716128E;
+        Mon, 19 Jul 2021 15:52:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709047;
-        bh=V5zivt4KHWMbQAUslsEEoDkydvtFrBaqqBpGyzEc12w=;
+        s=korg; t=1626709956;
+        bh=yaTQYHirmBKbG37mh1K7PYcOY8yl4a4MLQ1mreivnoc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQbJBAWLxUsW2N5BOEhxbuSjc3fjKWXz49viSYbpGLfl8SL+ixmCbiYjDb8Gxu1Bh
-         GkPya4AeZy4aavJDzbtKtOrEZnh+dwBa2H0P4w7K08yQQyJG0e0r0KtXcvkpOKSwne
-         HPJe2+1tmBo/X+YkiwwqzbrEQ9Jw0Uv6UqsVmYfw=
+        b=R8oevDr7qMofJyfIIMcnyTqZ+PYDWsiqNsdOga/oTO5T3hvHz0lnnIyO3JD1NL3X8
+         j3mGp7CstbFFqw2f23qW/P8MesJIb6NtAAy7ufwfgEUR+SV9SUMQ1e4RCtfxk7nKns
+         4UhBi6/1EebSvzovuBqJp8A3/JTZnnehQ11IjwtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 233/421] atm: iphase: fix possible use-after-free in ia_module_exit()
-Date:   Mon, 19 Jul 2021 16:50:44 +0200
-Message-Id: <20210719144954.494139511@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.10 016/243] drm/dp_mst: Avoid to mess up payload table by ports in stale topology
+Date:   Mon, 19 Jul 2021 16:50:45 +0200
+Message-Id: <20210719144941.445588771@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +39,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 1c72e6ab66b9598cac741ed397438a52065a8f1f ]
+commit 3769e4c0af5b82c8ea21d037013cb9564dfaa51f upstream.
 
-This module's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+[Why]
+After unplug/hotplug hub from the system, userspace might start to
+clear stale payloads gradually. If we call drm_dp_mst_deallocate_vcpi()
+to release stale VCPI of those ports which are not relating to current
+topology, we have chane to wrongly clear active payload table entry for
+current topology.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+E.g.
+We have allocated VCPI 1 in current payload table and we call
+drm_dp_mst_deallocate_vcpi() to clean VCPI 1 in stale topology. In
+drm_dp_mst_deallocate_vcpi(), it will call drm_dp_mst_put_payload_id()
+tp put VCPI 1 and which means ID 1 is available again. Thereafter, if we
+want to allocate a new payload stream, it will find ID 1 is available by
+drm_dp_mst_assign_payload_id(). However, ID 1 is being used
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[How]
+Check target sink is relating to current topology or not before doing
+any payload table update.
+Searching upward to find the target sink's relevant root branch device.
+If the found root branch device is not the same root of current
+topology, don't update payload table.
+
+Changes since v1:
+* Change debug macro to use drm_dbg_kms() instead
+* Amend the commit message to add Cc tag.
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-3-Wayne.Lin@amd.com
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/atm/iphase.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-diff --git a/drivers/atm/iphase.c b/drivers/atm/iphase.c
-index 008905d4152a..827c6d5e6177 100644
---- a/drivers/atm/iphase.c
-+++ b/drivers/atm/iphase.c
-@@ -3301,7 +3301,7 @@ static void __exit ia_module_exit(void)
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -94,6 +94,9 @@ static int drm_dp_mst_register_i2c_bus(s
+ static void drm_dp_mst_unregister_i2c_bus(struct drm_dp_mst_port *port);
+ static void drm_dp_mst_kick_tx(struct drm_dp_mst_topology_mgr *mgr);
+ 
++static bool drm_dp_mst_port_downstream_of_branch(struct drm_dp_mst_port *port,
++						 struct drm_dp_mst_branch *branch);
++
+ #define DBG_PREFIX "[dp_mst]"
+ 
+ #define DP_STR(x) [DP_ ## x] = #x
+@@ -3362,6 +3365,7 @@ int drm_dp_update_payload_part1(struct d
+ 	struct drm_dp_mst_port *port;
+ 	int i, j;
+ 	int cur_slots = 1;
++	bool skip;
+ 
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3376,6 +3380,14 @@ int drm_dp_update_payload_part1(struct d
+ 			port = container_of(vcpi, struct drm_dp_mst_port,
+ 					    vcpi);
+ 
++			mutex_lock(&mgr->lock);
++			skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++			mutex_unlock(&mgr->lock);
++
++			if (skip) {
++				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
++				continue;
++			}
+ 			/* Validated ports don't matter if we're releasing
+ 			 * VCPI
+ 			 */
+@@ -3475,6 +3487,7 @@ int drm_dp_update_payload_part2(struct d
+ 	struct drm_dp_mst_port *port;
+ 	int i;
+ 	int ret = 0;
++	bool skip;
+ 
+ 	mutex_lock(&mgr->payload_lock);
+ 	for (i = 0; i < mgr->max_payloads; i++) {
+@@ -3484,6 +3497,13 @@ int drm_dp_update_payload_part2(struct d
+ 
+ 		port = container_of(mgr->proposed_vcpis[i], struct drm_dp_mst_port, vcpi);
+ 
++		mutex_lock(&mgr->lock);
++		skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++		mutex_unlock(&mgr->lock);
++
++		if (skip)
++			continue;
++
+ 		DRM_DEBUG_KMS("payload %d %d\n", i, mgr->payloads[i].payload_state);
+ 		if (mgr->payloads[i].payload_state == DP_PAYLOAD_LOCAL) {
+ 			ret = drm_dp_create_payload_step2(mgr, port, mgr->proposed_vcpis[i]->vcpi, &mgr->payloads[i]);
+@@ -4565,9 +4585,18 @@ EXPORT_SYMBOL(drm_dp_mst_reset_vcpi_slot
+ void drm_dp_mst_deallocate_vcpi(struct drm_dp_mst_topology_mgr *mgr,
+ 				struct drm_dp_mst_port *port)
  {
- 	pci_unregister_driver(&ia_driver);
++	bool skip;
++
+ 	if (!port->vcpi.vcpi)
+ 		return;
  
--        del_timer(&ia_timer);
-+	del_timer_sync(&ia_timer);
- }
- 
- module_init(ia_module_init);
--- 
-2.30.2
-
++	mutex_lock(&mgr->lock);
++	skip = !drm_dp_mst_port_downstream_of_branch(port, mgr->mst_primary);
++	mutex_unlock(&mgr->lock);
++
++	if (skip)
++		return;
++
+ 	drm_dp_mst_put_payload_id(mgr, port->vcpi.vcpi);
+ 	port->vcpi.num_slots = 0;
+ 	port->vcpi.pbn = 0;
 
 
