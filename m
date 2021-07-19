@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1C583CE3FC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 782693CE3FA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347512AbhGSPlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S239017AbhGSPl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348514AbhGSPf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348518AbhGSPf0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:35:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 991FB616E9;
-        Mon, 19 Jul 2021 16:13:52 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A88061623;
+        Mon, 19 Jul 2021 16:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711233;
-        bh=zshBdTlSdICAvFElda7ZcGN/sA61zy6HmSBwavoUE98=;
+        s=korg; t=1626711235;
+        bh=IQS6fQ51be3SuZkBUN3CfUH9k9n+uJAVVOalJIXtre4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pADek3QYsRk+Ki3gpFf5rfm5oJXq/H/nJ6g0SGi+kNasnyef1cydKo/Nh+3bctgOr
-         GxowFUAZdLBVtp6vSrowM8B7WiC+4x77j5rGTtXqGnsPs2L8TqX62AhozLY+959xph
-         SBCgYWZBND1fGD81zZeJ3HldOan970PyujKSmbNg=
+        b=0/nDnFY/7VucC2oyEKqOgjZx4cq80K/OoW1bcBTlWgNXwQ56jnMpMhLF9C/svBzvH
+         tMKVjhAkwDaVW5liWMuO2jORYA2iGNOSUAsvOAmECZ2QRa1BLmhVnSikC0ANGY4UeY
+         LHMThbeq4Us/FJYB3gFjS8gbKdGW+tSJYZ51aOjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 243/351] io_uring: get rid of files in exit cancel
-Date:   Mon, 19 Jul 2021 16:53:09 +0200
-Message-Id: <20210719144952.982544153@linuxfoundation.org>
+Subject: [PATCH 5.13 244/351] io_uring: shuffle rarely used ctx fields
+Date:   Mon, 19 Jul 2021 16:53:10 +0200
+Message-Id: <20210719144953.013134777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -41,251 +41,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 3dd0c97a9e011b11ce6bd245bacf58c57f6f7875 ]
+[ Upstream commit b986af7e2df4f0871367c397ba61a542f37c0ab3 ]
 
-We don't match against files on cancellation anymore, so no need to drag
-around files_struct anymore, just pass a flag telling whether only
-inflight or all requests should be killed.
+There is a bunch of scattered around ctx fields that are almost never
+used, e.g. only on ring exit, plunge them to the end, better locality,
+better aesthetically.
 
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/7bfc5409a78f8e2d6b27dec3293ec2d248677348.1621201931.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/782ff94b00355923eae757d58b1a47821b5b46d4.1621201931.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 63 +++++++++++++++++++++++++--------------------------
- 1 file changed, 31 insertions(+), 32 deletions(-)
+ fs/io_uring.c | 36 +++++++++++++++++-------------------
+ 1 file changed, 17 insertions(+), 19 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index a949b2bdb718..2bf2aacb4c81 100644
+index 2bf2aacb4c81..5d685c92b8fd 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -1037,7 +1037,7 @@ static bool io_disarm_next(struct io_kiocb *req);
- static void io_uring_del_task_file(unsigned long index);
- static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 					 struct task_struct *task,
--					 struct files_struct *files);
-+					 bool cancel_all);
- static void io_uring_cancel_sqpoll(struct io_sq_data *sqd);
- static struct io_rsrc_node *io_rsrc_node_alloc(struct io_ring_ctx *ctx);
+@@ -369,9 +369,6 @@ struct io_ring_ctx {
+ 		unsigned		cached_cq_overflow;
+ 		unsigned long		sq_check_overflow;
  
-@@ -1106,15 +1106,14 @@ static void io_refs_resurrect(struct percpu_ref *ref, struct completion *compl)
- 		percpu_ref_put(ref);
- }
+-		/* hashed buffered write serialization */
+-		struct io_wq_hash	*hash_map;
+-
+ 		struct list_head	defer_list;
+ 		struct list_head	timeout_list;
+ 		struct list_head	cq_overflow_list;
+@@ -388,9 +385,6 @@ struct io_ring_ctx {
  
--static bool io_match_task(struct io_kiocb *head,
--			  struct task_struct *task,
--			  struct files_struct *files)
-+static bool io_match_task(struct io_kiocb *head, struct task_struct *task,
-+			  bool cancel_all)
- {
- 	struct io_kiocb *req;
+ 	struct io_rings	*rings;
  
- 	if (task && head->task != task)
- 		return false;
--	if (!files)
-+	if (cancel_all)
- 		return true;
+-	/* Only used for accounting purposes */
+-	struct mm_struct	*mm_account;
+-
+ 	const struct cred	*sq_creds;	/* cred used for __io_sq_thread() */
+ 	struct io_sq_data	*sq_data;	/* if using sq thread polling */
  
- 	io_for_each_link(req, head) {
-@@ -5265,7 +5264,7 @@ static bool io_poll_remove_one(struct io_kiocb *req)
-  * Returns true if we found and killed one or more poll requests
-  */
- static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
--			       struct files_struct *files)
-+			       bool cancel_all)
- {
- 	struct hlist_node *tmp;
- 	struct io_kiocb *req;
-@@ -5277,7 +5276,7 @@ static bool io_poll_remove_all(struct io_ring_ctx *ctx, struct task_struct *tsk,
+@@ -411,14 +405,6 @@ struct io_ring_ctx {
+ 	unsigned		nr_user_bufs;
+ 	struct io_mapped_ubuf	**user_bufs;
  
- 		list = &ctx->cancel_hash[i];
- 		hlist_for_each_entry_safe(req, tmp, list, hash_node) {
--			if (io_match_task(req, tsk, files))
-+			if (io_match_task(req, tsk, cancel_all))
- 				posted += io_poll_remove_one(req);
- 		}
- 	}
-@@ -8747,7 +8746,7 @@ static void io_ring_exit_work(struct work_struct *work)
- 	 * as nobody else will be looking for them.
- 	 */
- 	do {
--		io_uring_try_cancel_requests(ctx, NULL, NULL);
-+		io_uring_try_cancel_requests(ctx, NULL, true);
- 		if (ctx->sq_data) {
- 			struct io_sq_data *sqd = ctx->sq_data;
- 			struct task_struct *tsk;
-@@ -8798,14 +8797,14 @@ static void io_ring_exit_work(struct work_struct *work)
+-	struct user_struct	*user;
+-
+-	struct completion	ref_comp;
+-
+-#if defined(CONFIG_UNIX)
+-	struct socket		*ring_sock;
+-#endif
+-
+ 	struct xarray		io_buffers;
  
- /* Returns true if we found and killed one or more timeouts */
- static bool io_kill_timeouts(struct io_ring_ctx *ctx, struct task_struct *tsk,
--			     struct files_struct *files)
-+			     bool cancel_all)
- {
- 	struct io_kiocb *req, *tmp;
- 	int canceled = 0;
+ 	struct xarray		personalities;
+@@ -462,12 +448,24 @@ struct io_ring_ctx {
  
- 	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_safe(req, tmp, &ctx->timeout_list, timeout.list) {
--		if (io_match_task(req, tsk, files)) {
-+		if (io_match_task(req, tsk, cancel_all)) {
- 			io_kill_timeout(req, -ECANCELED);
- 			canceled++;
- 		}
-@@ -8831,8 +8830,8 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
- 		io_unregister_personality(ctx, index);
- 	mutex_unlock(&ctx->uring_lock);
+ 	struct io_restriction		restrictions;
  
--	io_kill_timeouts(ctx, NULL, NULL);
--	io_poll_remove_all(ctx, NULL, NULL);
-+	io_kill_timeouts(ctx, NULL, true);
-+	io_poll_remove_all(ctx, NULL, true);
- 
- 	/* if we failed setting up the ctx, we might not have any rings */
- 	io_iopoll_try_reap_events(ctx);
-@@ -8858,7 +8857,7 @@ static int io_uring_release(struct inode *inode, struct file *file)
- 
- struct io_task_cancel {
- 	struct task_struct *task;
--	struct files_struct *files;
-+	bool all;
+-	/* exit task_work */
+-	struct callback_head		*exit_task_work;
+-
+ 	/* Keep this last, we don't need it for the fast path */
+-	struct work_struct		exit_work;
+-	struct list_head		tctx_list;
++	struct {
++		#if defined(CONFIG_UNIX)
++			struct socket		*ring_sock;
++		#endif
++		/* hashed buffered write serialization */
++		struct io_wq_hash		*hash_map;
++
++		/* Only used for accounting purposes */
++		struct user_struct		*user;
++		struct mm_struct		*mm_account;
++
++		/* ctx exit and cancelation */
++		struct callback_head		*exit_task_work;
++		struct work_struct		exit_work;
++		struct list_head		tctx_list;
++		struct completion		ref_comp;
++	};
  };
  
- static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
-@@ -8867,30 +8866,29 @@ static bool io_cancel_task_cb(struct io_wq_work *work, void *data)
- 	struct io_task_cancel *cancel = data;
- 	bool ret;
- 
--	if (cancel->files && (req->flags & REQ_F_LINK_TIMEOUT)) {
-+	if (!cancel->all && (req->flags & REQ_F_LINK_TIMEOUT)) {
- 		unsigned long flags;
- 		struct io_ring_ctx *ctx = req->ctx;
- 
- 		/* protect against races with linked timeouts */
- 		spin_lock_irqsave(&ctx->completion_lock, flags);
--		ret = io_match_task(req, cancel->task, cancel->files);
-+		ret = io_match_task(req, cancel->task, cancel->all);
- 		spin_unlock_irqrestore(&ctx->completion_lock, flags);
- 	} else {
--		ret = io_match_task(req, cancel->task, cancel->files);
-+		ret = io_match_task(req, cancel->task, cancel->all);
- 	}
- 	return ret;
- }
- 
- static bool io_cancel_defer_files(struct io_ring_ctx *ctx,
--				  struct task_struct *task,
--				  struct files_struct *files)
-+				  struct task_struct *task, bool cancel_all)
- {
- 	struct io_defer_entry *de;
- 	LIST_HEAD(list);
- 
- 	spin_lock_irq(&ctx->completion_lock);
- 	list_for_each_entry_reverse(de, &ctx->defer_list, list) {
--		if (io_match_task(de->req, task, files)) {
-+		if (io_match_task(de->req, task, cancel_all)) {
- 			list_cut_position(&list, &ctx->defer_list, &de->list);
- 			break;
- 		}
-@@ -8934,9 +8932,9 @@ static bool io_uring_try_cancel_iowq(struct io_ring_ctx *ctx)
- 
- static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 					 struct task_struct *task,
--					 struct files_struct *files)
-+					 bool cancel_all)
- {
--	struct io_task_cancel cancel = { .task = task, .files = files, };
-+	struct io_task_cancel cancel = { .task = task, .all = cancel_all, };
- 	struct io_uring_task *tctx = task ? task->io_uring : NULL;
- 
- 	while (1) {
-@@ -8956,7 +8954,7 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 		}
- 
- 		/* SQPOLL thread does its own polling */
--		if ((!(ctx->flags & IORING_SETUP_SQPOLL) && !files) ||
-+		if ((!(ctx->flags & IORING_SETUP_SQPOLL) && cancel_all) ||
- 		    (ctx->sq_data && ctx->sq_data->thread == current)) {
- 			while (!list_empty_careful(&ctx->iopoll_list)) {
- 				io_iopoll_try_reap_events(ctx);
-@@ -8964,9 +8962,9 @@ static void io_uring_try_cancel_requests(struct io_ring_ctx *ctx,
- 			}
- 		}
- 
--		ret |= io_cancel_defer_files(ctx, task, files);
--		ret |= io_poll_remove_all(ctx, task, files);
--		ret |= io_kill_timeouts(ctx, task, files);
-+		ret |= io_cancel_defer_files(ctx, task, cancel_all);
-+		ret |= io_poll_remove_all(ctx, task, cancel_all);
-+		ret |= io_kill_timeouts(ctx, task, cancel_all);
- 		ret |= io_run_task_work();
- 		ret |= io_run_ctx_fallback(ctx);
- 		if (!ret)
-@@ -9072,7 +9070,7 @@ static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
- 	return percpu_counter_sum(&tctx->inflight);
- }
- 
--static void io_uring_try_cancel(struct files_struct *files)
-+static void io_uring_try_cancel(bool cancel_all)
- {
- 	struct io_uring_task *tctx = current->io_uring;
- 	struct io_tctx_node *node;
-@@ -9083,7 +9081,7 @@ static void io_uring_try_cancel(struct files_struct *files)
- 
- 		/* sqpoll task will cancel all its requests */
- 		if (!ctx->sq_data)
--			io_uring_try_cancel_requests(ctx, current, files);
-+			io_uring_try_cancel_requests(ctx, current, cancel_all);
- 	}
- }
- 
-@@ -9109,7 +9107,7 @@ static void io_uring_cancel_sqpoll(struct io_sq_data *sqd)
- 		if (!inflight)
- 			break;
- 		list_for_each_entry(ctx, &sqd->ctx_list, sqd_list)
--			io_uring_try_cancel_requests(ctx, current, NULL);
-+			io_uring_try_cancel_requests(ctx, current, true);
- 
- 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
- 		/*
-@@ -9133,6 +9131,7 @@ void __io_uring_cancel(struct files_struct *files)
- 	struct io_uring_task *tctx = current->io_uring;
- 	DEFINE_WAIT(wait);
- 	s64 inflight;
-+	bool cancel_all = !files;
- 
- 	if (tctx->io_wq)
- 		io_wq_exit_start(tctx->io_wq);
-@@ -9141,10 +9140,10 @@ void __io_uring_cancel(struct files_struct *files)
- 	atomic_inc(&tctx->in_idle);
- 	do {
- 		/* read completions before cancelations */
--		inflight = tctx_inflight(tctx, !!files);
-+		inflight = tctx_inflight(tctx, !cancel_all);
- 		if (!inflight)
- 			break;
--		io_uring_try_cancel(files);
-+		io_uring_try_cancel(cancel_all);
- 		prepare_to_wait(&tctx->wait, &wait, TASK_UNINTERRUPTIBLE);
- 
- 		/*
-@@ -9152,14 +9151,14 @@ void __io_uring_cancel(struct files_struct *files)
- 		 * avoids a race where a completion comes in before we did
- 		 * prepare_to_wait().
- 		 */
--		if (inflight == tctx_inflight(tctx, !!files))
-+		if (inflight == tctx_inflight(tctx, !cancel_all))
- 			schedule();
- 		finish_wait(&tctx->wait, &wait);
- 	} while (1);
- 	atomic_dec(&tctx->in_idle);
- 
- 	io_uring_clean_tctx(tctx);
--	if (!files) {
-+	if (cancel_all) {
- 		/* for exec all current's requests should be gone, kill tctx */
- 		__io_uring_free(current);
- 	}
+ struct io_uring_task {
 -- 
 2.30.2
 
