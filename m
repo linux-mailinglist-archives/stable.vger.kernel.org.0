@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A343CE4FD
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1A243CE507
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:37:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347058AbhGSPr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45128 "EHLO mail.kernel.org"
+        id S235999AbhGSPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349477AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349484AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 201876135D;
-        Mon, 19 Jul 2021 16:25:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 915E06113A;
+        Mon, 19 Jul 2021 16:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711909;
-        bh=InkGXwA3TAOKMtG6OFMKVzR/kj7esuSP/1VyhOF+kS4=;
+        s=korg; t=1626711912;
+        bh=2l3H4EHNYgT3yM4ZUxgFppRbrJS+2LeXY3D4BoXwaQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OxSnw2/yMigugTXm+v/jqIAYj6yAULGSAgnp+g3ZdU1oL142Zek/Ir7APVUfpmP+
-         +21PXGbVGmh+aCbS01S+Ey5cB3aNrjBAxW33MRvru/1SKXTywS4stXDkwDVhg0eUqt
-         3G2RCHhmF5ewcmH1zC2rbuthVKeT5AH9PrM5qnag=
+        b=P6smRn2ml1Cg7lAlHmlnZgKoToHpl5ko0C+qqZ0qX3uFQHIFYKTrvBWPDaAGaE4dE
+         jQo0D7/OY6v0UaV37N1ChI0kpTfVNxbpIF79sXo5gdKj7f6VVu0hJ2DuBgES+yA5Rn
+         yH7D1VyeO4K5R0Z7hHpsfpNWcaJvSoBHlosJTUUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, marcosfrm <marcosfrm@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 177/292] f2fs: add MODULE_SOFTDEP to ensure crc32 is included in the initramfs
-Date:   Mon, 19 Jul 2021 16:53:59 +0200
-Message-Id: <20210719144948.319273188@linuxfoundation.org>
+Subject: [PATCH 5.12 178/292] f2fs: compress: fix to disallow temp extension
+Date:   Mon, 19 Jul 2021 16:54:00 +0200
+Message-Id: <20210719144948.349908853@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,39 +42,85 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 0dd571785d61528d62cdd8aa49d76bc6085152fe ]
+[ Upstream commit 4a67d9b07ac8dce7f1034e0d887f2f4ee00fe118 ]
 
-As marcosfrm reported in bugzilla:
+This patch restricts to configure compress extension as format of:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=213089
+ [filename + '.' + extension]
 
-Initramfs generators rely on "pre" softdeps (and "depends") to include
-additional required modules.
+rather than:
 
-F2FS does not declare "pre: crc32" softdep. Then every generator (dracut,
-mkinitcpio...) has to maintain a hardcoded list for this purpose.
+ [filename + '.' + extension + (optional: '.' + temp extension)]
 
-Hence let's use MODULE_SOFTDEP("pre: crc32") in f2fs code.
+in order to avoid to enable compression incorrectly:
 
-Fixes: 43b6573bac95 ("f2fs: use cryptoapi crc32 functions")
-Reported-by: marcosfrm <marcosfrm@gmail.com>
+1. compress_extension=so
+2. touch file.soa
+3. touch file.so.tmp
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/namei.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 1f7bc4b3f6ae..a4b4b8297ec3 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -4281,4 +4281,5 @@ module_exit(exit_f2fs_fs)
- MODULE_AUTHOR("Samsung Electronics's Praesto Team");
- MODULE_DESCRIPTION("Flash Friendly File System");
- MODULE_LICENSE("GPL");
-+MODULE_SOFTDEP("pre: crc32");
+diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
+index 17bd072a5d39..11aafe93180c 100644
+--- a/fs/f2fs/namei.c
++++ b/fs/f2fs/namei.c
+@@ -153,7 +153,8 @@ fail_drop:
+ 	return ERR_PTR(err);
+ }
  
+-static inline int is_extension_exist(const unsigned char *s, const char *sub)
++static inline int is_extension_exist(const unsigned char *s, const char *sub,
++						bool tmp_ext)
+ {
+ 	size_t slen = strlen(s);
+ 	size_t sublen = strlen(sub);
+@@ -169,6 +170,13 @@ static inline int is_extension_exist(const unsigned char *s, const char *sub)
+ 	if (slen < sublen + 2)
+ 		return 0;
+ 
++	if (!tmp_ext) {
++		/* file has no temp extension */
++		if (s[slen - sublen - 1] != '.')
++			return 0;
++		return !strncasecmp(s + slen - sublen, sub, sublen);
++	}
++
+ 	for (i = 1; i < slen - sublen; i++) {
+ 		if (s[i] != '.')
+ 			continue;
+@@ -194,7 +202,7 @@ static inline void set_file_temperature(struct f2fs_sb_info *sbi, struct inode *
+ 	hot_count = sbi->raw_super->hot_ext_count;
+ 
+ 	for (i = 0; i < cold_count + hot_count; i++) {
+-		if (is_extension_exist(name, extlist[i]))
++		if (is_extension_exist(name, extlist[i], true))
+ 			break;
+ 	}
+ 
+@@ -295,7 +303,7 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
+ 	hot_count = sbi->raw_super->hot_ext_count;
+ 
+ 	for (i = cold_count; i < cold_count + hot_count; i++) {
+-		if (is_extension_exist(name, extlist[i])) {
++		if (is_extension_exist(name, extlist[i], false)) {
+ 			up_read(&sbi->sb_lock);
+ 			return;
+ 		}
+@@ -306,7 +314,7 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
+ 	ext = F2FS_OPTION(sbi).extensions;
+ 
+ 	for (i = 0; i < ext_cnt; i++) {
+-		if (!is_extension_exist(name, ext[i]))
++		if (!is_extension_exist(name, ext[i], false))
+ 			continue;
+ 
+ 		set_compress_context(inode);
 -- 
 2.30.2
 
