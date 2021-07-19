@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C93EB3CE016
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 359E63CDDD3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346096AbhGSPNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
+        id S1344103AbhGSPA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345622AbhGSPML (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:12:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9B536135C;
-        Mon, 19 Jul 2021 15:52:38 +0000 (UTC)
+        id S1343898AbhGSO7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EF76613FB;
+        Mon, 19 Jul 2021 15:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709959;
-        bh=clzoqKNetUcJ+lkLQDWwtYU9CiEyEKAkHpiyoVX86Eo=;
+        s=korg; t=1626709058;
+        bh=xRK/PhhfhjCInaS+gdP9roevZksbjf9A37UbDK8ficc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDCVq3Exqxh/2gG35oSrrWAu22TJplYUA/IRpz0M/9LxGAZ7W0EldZdxoxNN8vbyd
-         rYF/gq0kUKBv2Atr0rP5MIWF5J9soxoakyOPnCqVciflbOGitGaSBYj3NQhXb1GqQd
-         MJMdsvEvrutk4txZiolpu40+z5POzU2Tq3EeLjPM=
+        b=IiF5fjGrSljS/FjD/iTHFCLfNCNiu/q1pEWo6PcsD1Fle6/Y5Wy8f87geVBkLpVeO
+         A+jC4N1xwBoaYAV4W75BWNWRMSKJMbEv1I/bkfdbQDP4Qt68v0DPaY696EWXQfZZ+j
+         9g0GkVGevI2aIz7I9+ZCaC/k/rQebJgw8aU2HJBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
-        Lyude Paul <lyude@redhat.com>, dri-devel@lists.freedesktop.org,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
-Subject: [PATCH 5.10 017/243] drm/dp_mst: Add missing drm parameters to recently added call to drm_dbg_kms()
-Date:   Mon, 19 Jul 2021 16:50:46 +0200
-Message-Id: <20210719144941.475992307@linuxfoundation.org>
+        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 236/421] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
+Date:   Mon, 19 Jul 2021 16:50:47 +0200
+Message-Id: <20210719144954.599905080@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Roberto de Souza <jose.souza@intel.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit 24ff3dc18b99c4b912ab1746e803ddb3be5ced4c upstream.
+[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
 
-Commit 3769e4c0af5b ("drm/dp_mst: Avoid to mess up payload table by
-ports in stale topology") added to calls to drm_dbg_kms() but it
-missed the first parameter, the drm device breaking the build.
+__napi_schedule_irqoff() is an optimized version of __napi_schedule()
+which can be used where it is known that interrupts are disabled,
+e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
+callbacks.
 
-Fixes: 3769e4c0af5b ("drm/dp_mst: Avoid to mess up payload table by ports in stale topology")
-Cc: Wayne Lin <Wayne.Lin@amd.com>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: dri-devel@lists.freedesktop.org
-Cc: stable@vger.kernel.org
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210616194415.36926-1-jose.souza@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On PREEMPT_RT enabled kernels this assumptions is not true. Force-
+threaded interrupt handlers and spinlocks are not disabling interrupts
+and the NAPI hrtimer callback is forced into softirq context which runs
+with interrupts enabled as well.
+
+Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
+game so make __napi_schedule_irqoff() invoke __napi_schedule() for
+PREEMPT_RT kernels.
+
+The callers of ____napi_schedule() in the networking core have been
+audited and are correct on PREEMPT_RT kernels as well.
+
+Reported-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/core/dev.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3385,7 +3385,9 @@ int drm_dp_update_payload_part1(struct d
- 			mutex_unlock(&mgr->lock);
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 7803bd9628dc..722ae0b57f3f 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5931,11 +5931,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
+  * __napi_schedule_irqoff - schedule for receive
+  * @n: entry to schedule
+  *
+- * Variant of __napi_schedule() assuming hard irqs are masked
++ * Variant of __napi_schedule() assuming hard irqs are masked.
++ *
++ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
++ * because the interrupt disabled assumption might not be true
++ * due to force-threaded interrupts and spinlock substitution.
+  */
+ void __napi_schedule_irqoff(struct napi_struct *n)
+ {
+-	____napi_schedule(this_cpu_ptr(&softnet_data), n);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		____napi_schedule(this_cpu_ptr(&softnet_data), n);
++	else
++		__napi_schedule(n);
+ }
+ EXPORT_SYMBOL(__napi_schedule_irqoff);
  
- 			if (skip) {
--				drm_dbg_kms("Virtual channel %d is not in current topology\n", i);
-+				drm_dbg_kms(mgr->dev,
-+					    "Virtual channel %d is not in current topology\n",
-+					    i);
- 				continue;
- 			}
- 			/* Validated ports don't matter if we're releasing
-@@ -3400,7 +3402,8 @@ int drm_dp_update_payload_part1(struct d
- 						payload->start_slot = req_payload.start_slot;
- 						continue;
- 					} else {
--						drm_dbg_kms("Fail:set payload to invalid sink");
-+						drm_dbg_kms(mgr->dev,
-+							    "Fail:set payload to invalid sink");
- 						mutex_unlock(&mgr->payload_lock);
- 						return -EINVAL;
- 					}
+-- 
+2.30.2
+
 
 
