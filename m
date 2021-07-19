@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2289C3CE3EA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE7D3CE3F5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242954AbhGSPlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
+        id S1346853AbhGSPlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347925AbhGSPfU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EED614A5;
-        Mon, 19 Jul 2021 16:13:15 +0000 (UTC)
+        id S1348426AbhGSPfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA3061405;
+        Mon, 19 Jul 2021 16:13:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711196;
-        bh=4FcsHxi4CzxlZaRAlc6eWSCvhTpDgoZ9eZ2lh8B2xhw=;
+        s=korg; t=1626711199;
+        bh=OmspyvnvLA1HVBdfgG/Hpumd9bm01t68OXzNd+vswFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hBbDxKV4Yp7w3S02LiTcnIGM+cruYUSVZvw2ZpP0YCY06NUv0Hkk9JNDklPh3a/er
-         aFFBJiIRY+6d4kR9xj/eMwW2KSoKx+IKzeJYSUehbVFnv8WV/JRG+e7HjnNr13Od6O
-         aBsrGOBXF1wfB+FDAQXwY2Imh13rs26gPrcKzrcY=
+        b=CA3v91fAeIG3jZnskPczZWDxvHTpdb1brrPBKy6CCAxs5u/Y+qOmu2bsmK2OXWy+E
+         sNdH1fkuUfGDsyt0Rbce10+rsKncRXr+4n4oTv2p9v6RlxQRsucBPO8qXBCFBK+t/c
+         7ZDZIpvAG3MBWle+w/VYItzh6KaLfEFNs0TxM4f8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 263/351] virtio-mem: dont read big block size in Sub Block Mode
-Date:   Mon, 19 Jul 2021 16:53:29 +0200
-Message-Id: <20210719144953.644611723@linuxfoundation.org>
+Subject: [PATCH 5.13 264/351] NFS: Fix fscache read from NFS after cache error
+Date:   Mon, 19 Jul 2021 16:53:30 +0200
+Message-Id: <20210719144953.678311422@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,59 +40,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Dave Wysochanski <dwysocha@redhat.com>
 
-[ Upstream commit 500817bf5e110ad9b7138bc582971bb7ee77d6f7 ]
+[ Upstream commit ba512c1bc3232124567a59a3995c773dc79716e8 ]
 
-We are reading a Big Block Mode value while in Sub Block Mode
-when initializing. Fortunately, vm->bbm.bb_size maps to some counter
-in the vm->sbm.mb_count array, which is 0 at that point in time.
+Earlier commits refactored some NFS read code and removed
+nfs_readpage_async(), but neglected to properly fixup
+nfs_readpage_from_fscache_complete().  The code path is
+only hit when something unusual occurs with the cachefiles
+backing filesystem, such as an IO error or while a cookie
+is being invalidated.
 
-No harm done; still, this was unintended and is not future-proof.
+Mark page with PG_checked if fscache IO completes in error,
+unlock the page, and let the VM decide to re-issue based on
+PG_uptodate.  When the VM reissues the readpage, PG_checked
+allows us to skip over fscache and read from the server.
 
-Fixes: 4ba50cd3355d ("virtio-mem: Big Block Mode (BBM) memory hotplug")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20210602185720.31821-2-david@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://marc.info/?l=linux-nfs&m=162498209518739
+Fixes: 1e83b173b266 ("NFS: Add nfs_pageio_complete_read() and remove nfs_readpage_async()")
+Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/virtio/virtio_mem.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ fs/nfs/fscache.c | 18 +++++++++++++-----
+ fs/nfs/read.c    |  5 +++--
+ 2 files changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 10ec60d81e84..3bf08b5bb359 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -2420,6 +2420,10 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 		dev_warn(&vm->vdev->dev,
- 			 "Some device memory is not addressable/pluggable. This can make some memory unusable.\n");
+diff --git a/fs/nfs/fscache.c b/fs/nfs/fscache.c
+index c4c021c6ebbd..d743629e05e1 100644
+--- a/fs/nfs/fscache.c
++++ b/fs/nfs/fscache.c
+@@ -385,12 +385,15 @@ static void nfs_readpage_from_fscache_complete(struct page *page,
+ 		 "NFS: readpage_from_fscache_complete (0x%p/0x%p/%d)\n",
+ 		 page, context, error);
  
-+	/* Prepare the offline threshold - make sure we can add two blocks. */
-+	vm->offline_threshold = max_t(uint64_t, 2 * memory_block_size_bytes(),
-+				      VIRTIO_MEM_DEFAULT_OFFLINE_THRESHOLD);
-+
- 	/*
- 	 * We want subblocks to span at least MAX_ORDER_NR_PAGES and
- 	 * pageblock_nr_pages pages. This:
-@@ -2466,14 +2470,11 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 		       vm->bbm.bb_size - 1;
- 		vm->bbm.first_bb_id = virtio_mem_phys_to_bb_id(vm, addr);
- 		vm->bbm.next_bb_id = vm->bbm.first_bb_id;
+-	/* if the read completes with an error, we just unlock the page and let
+-	 * the VM reissue the readpage */
+-	if (!error) {
++	/*
++	 * If the read completes with an error, mark the page with PG_checked,
++	 * unlock the page, and let the VM reissue the readpage.
++	 */
++	if (!error)
+ 		SetPageUptodate(page);
+-		unlock_page(page);
 -	}
++	else
++		SetPageChecked(page);
++	unlock_page(page);
+ }
  
--	/* Prepare the offline threshold - make sure we can add two blocks. */
--	vm->offline_threshold = max_t(uint64_t, 2 * memory_block_size_bytes(),
--				      VIRTIO_MEM_DEFAULT_OFFLINE_THRESHOLD);
--	/* In BBM, we also want at least two big blocks. */
--	vm->offline_threshold = max_t(uint64_t, 2 * vm->bbm.bb_size,
--				      vm->offline_threshold);
-+		/* Make sure we can add two big blocks. */
-+		vm->offline_threshold = max_t(uint64_t, 2 * vm->bbm.bb_size,
-+					      vm->offline_threshold);
+ /*
+@@ -405,6 +408,11 @@ int __nfs_readpage_from_fscache(struct nfs_open_context *ctx,
+ 		 "NFS: readpage_from_fscache(fsc:%p/p:%p(i:%lx f:%lx)/0x%p)\n",
+ 		 nfs_i_fscache(inode), page, page->index, page->flags, inode);
+ 
++	if (PageChecked(page)) {
++		ClearPageChecked(page);
++		return 1;
 +	}
++
+ 	ret = fscache_read_or_alloc_page(nfs_i_fscache(inode),
+ 					 page,
+ 					 nfs_readpage_from_fscache_complete,
+diff --git a/fs/nfs/read.c b/fs/nfs/read.c
+index d2b6dce1f99f..4ca50b70a7b0 100644
+--- a/fs/nfs/read.c
++++ b/fs/nfs/read.c
+@@ -363,13 +363,13 @@ int nfs_readpage(struct file *file, struct page *page)
+ 	} else
+ 		desc.ctx = get_nfs_open_context(nfs_file_open_context(file));
  
- 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
- 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
++	xchg(&desc.ctx->error, 0);
+ 	if (!IS_SYNC(inode)) {
+ 		ret = nfs_readpage_from_fscache(desc.ctx, inode, page);
+ 		if (ret == 0)
+-			goto out;
++			goto out_wait;
+ 	}
+ 
+-	xchg(&desc.ctx->error, 0);
+ 	nfs_pageio_init_read(&desc.pgio, inode, false,
+ 			     &nfs_async_read_completion_ops);
+ 
+@@ -379,6 +379,7 @@ int nfs_readpage(struct file *file, struct page *page)
+ 		nfs_pageio_complete_read(&desc.pgio, inode);
+ 
+ 	ret = desc.pgio.pg_error < 0 ? desc.pgio.pg_error : 0;
++out_wait:
+ 	if (!ret) {
+ 		ret = wait_on_page_locked_killable(page);
+ 		if (!PageUptodate(page) && !ret)
 -- 
 2.30.2
 
