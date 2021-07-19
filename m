@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CED1B3CDF47
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECD73CDE7D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243486AbhGSPI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39644 "EHLO mail.kernel.org"
+        id S1345015AbhGSPDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344733AbhGSPGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:06:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E8C5606A5;
-        Mon, 19 Jul 2021 15:47:18 +0000 (UTC)
+        id S1344964AbhGSPBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BCE16120D;
+        Mon, 19 Jul 2021 15:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709639;
-        bh=cWHiH12FvTJFDthkEwrs//hjGIjPEoNDcrBkmfawt0I=;
+        s=korg; t=1626709320;
+        bh=e1zOqYgKx4rAHLUuZKj6F5JREF0otEiGPUmQRzvjkOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gx84N1Yf/ey94WL5bGGazecqlvHbRdrtnVmCDP5w2MurODLyeGmhH00d4CyPfGq1M
-         zg01z4fBQu1tDCQoXh7vxaIinIaardwft24Szv0kdkxRB5N+z6Yuc9ly++dEFVElTi
-         eVaxUv8TAw79s8Rc+7fKaiNt9xhGmMY1qoLGfE20=
+        b=CjwQdw07/GGbsZYgNs+WPFnKI916xOMMtX1NRhHnuY8NonnON3X+7Ul2EodRL6THJ
+         CeeAWz7NfwerRg3t9pgWR7v4vL9pjofkweYZj4TFeNfJu2aWdyk1Kes2XY5KVEqlox
+         qa0c3dnex14j3olYImkWZY9pP1LQDt3nfPFACBC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 039/149] selftests: timers: rtcpie: skip test if default RTC device does not exist
-Date:   Mon, 19 Jul 2021 16:52:27 +0200
-Message-Id: <20210719144910.727139352@linuxfoundation.org>
+Subject: [PATCH 4.19 337/421] scsi: qedi: Fix null ref during abort handling
+Date:   Mon, 19 Jul 2021 16:52:28 +0200
+Message-Id: <20210719144957.970879856@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 0d3e5a057992bdc66e4dca2ca50b77fa4a7bd90e ]
+[ Upstream commit 5777b7f0f03ce49372203b6521631f62f2810c8f ]
 
-This test will require /dev/rtc0, the default RTC device, or one
-specified by user to run. Since this default RTC is not guaranteed to
-exist on all of the devices, so check its existence first, otherwise
-skip this test with the kselftest skip code 4.
+If qedi_process_cmd_cleanup_resp finds the cmd it frees the work and sets
+list_tmf_work to NULL, so qedi_tmf_work should check if list_tmf_work is
+non-NULL when it wants to force cleanup.
 
-Without this patch this test will fail like this on a s390x zVM:
-$ selftests: timers: rtcpie
-$ /dev/rtc0: No such file or directory
-not ok 1 selftests: timers: rtcpie # exit=22
-
-With this patch:
-$ selftests: timers: rtcpie
-$ Default RTC /dev/rtc0 does not exist. Test Skipped!
-not ok 9 selftests: timers: rtcpie # SKIP
-
-Fixed up change log so "With this patch" text doesn't get dropped.
-Shuah Khan <skhan@linuxfoundation.org>
-
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210525181821.7617-20-michael.christie@oracle.com
+Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/timers/rtcpie.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/scsi/qedi/qedi_fw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
-index 47b5bad1b393..4ef2184f1558 100644
---- a/tools/testing/selftests/timers/rtcpie.c
-+++ b/tools/testing/selftests/timers/rtcpie.c
-@@ -18,6 +18,8 @@
- #include <stdlib.h>
- #include <errno.h>
+diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
+index 357a0acc5ed2..b60b48f3b984 100644
+--- a/drivers/scsi/qedi/qedi_fw.c
++++ b/drivers/scsi/qedi/qedi_fw.c
+@@ -1466,7 +1466,7 @@ abort_ret:
  
-+#include "../kselftest.h"
-+
- /*
-  * This expects the new RTC class driver framework, working with
-  * clocks that will often not be clones of what the PC-AT had.
-@@ -35,8 +37,14 @@ int main(int argc, char **argv)
- 	switch (argc) {
- 	case 2:
- 		rtc = argv[1];
--		/* FALLTHROUGH */
-+		break;
- 	case 1:
-+		fd = open(default_rtc, O_RDONLY);
-+		if (fd == -1) {
-+			printf("Default RTC %s does not exist. Test Skipped!\n", default_rtc);
-+			exit(KSFT_SKIP);
-+		}
-+		close(fd);
- 		break;
- 	default:
- 		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
+ ldel_exit:
+ 	spin_lock_bh(&qedi_conn->tmf_work_lock);
+-	if (!qedi_cmd->list_tmf_work) {
++	if (qedi_cmd->list_tmf_work) {
+ 		list_del_init(&list_work->list);
+ 		qedi_cmd->list_tmf_work = NULL;
+ 		kfree(list_work);
 -- 
 2.30.2
 
