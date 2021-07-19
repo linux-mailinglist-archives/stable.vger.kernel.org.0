@@ -2,128 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3EE03CD504
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 823143CD526
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237011AbhGSMEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 08:04:35 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:45915 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236571AbhGSMEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:04:34 -0400
-Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailout.west.internal (Postfix) with ESMTP id 5C7BA3200947;
-        Mon, 19 Jul 2021 08:45:14 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Mon, 19 Jul 2021 08:45:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=K
-        hSjEHlHQwDF3RC9HIiNLOMrNeVg+ij6e5xk9o3mEpk=; b=c1pQLbWFeZCvfm4Z7
-        URpjftGRix8f/bov0VxA2Iv5iOk4UtOTkJAZ37nVA1T8MSToSxQr7+42ugUh9dgQ
-        /LeDAtvlx0N/YdJqr40jCYM1jkC+/1VIsXwSnQIn/A/3MPozy6Vlr5eBfMaxkons
-        fF1JBaFUFmUlJwP51mXRvcRl3DOD27wtmdWOwLXiNsak5R0gxUDkkWi2p7PZxFp4
-        +GR3ASPqNv6GqN+bOtSdR+OCKt2LGJMVmmmWdNM9BoniQM3vl9YI7luJQ7Br9Bnv
-        5EfTztKcXqAIhpknmEKlYW3rGSflIsMYTkLQf0F+ZnAKXGNTlEdFSCdPWOMjsXOm
-        iKehw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=KhSjEHlHQwDF3RC9HIiNLOMrNeVg+ij6e5xk9o3mE
-        pk=; b=F35rDhZn7PREGGlr9P3Uy/tfiV8BbFT5qt5yizdJHsqjOf4JtnW3n//qJ
-        DpA2f5i5n4XjqbVt3y1KmEGUcChPi0M6p65sqbidhDO01Ae+cRhh3+dmJ7Dq7SSu
-        m9pDCy/3E4ve/U+Ff+3Lz+YGCgDfFDBGq8E4ZeHBrW1lSgnlN3xqWc63oXwgsGgv
-        0G9fZCqHzkGfrCMr+2CF310BRm6fLNOg7wLYJM9N4B/4Axgd93Y2WRvEe7AqoC7w
-        2LNCpZT9Hp5OzpUJ1SlCtLGzZkxto+wzuEjp5f5vhcXKtFRsC72LI6YVW0xrTOTH
-        aH7gyS/6GHAniA9qVwZvxsWBe3dbg==
-X-ME-Sender: <xms:2XP1YIjgNLp6srjua_dFVU3hjP--j1xKKeTurthhEglPdXeL2JJPxA>
-    <xme:2XP1YBDmk_8P3bzXYDaQOutbdbWqsYCaKAdbMSOVyoBazsevNwgLDxM5plpdSNSZ0
-    Er5FfM3Db9ZUw>
-X-ME-Received: <xmr:2XP1YAGty6B3y7hosYCANlv9pOcSbmpoSwls2MGDOeRXI60Z6r1xRfBLbdA6VXrHmarmfuEIhd5RiBzv3MXGIodlYXzG2yUl>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrfedtgdehgecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeeigfdtge
-    eghfegjeeigfdvtdegtddttdeggefghffgtdelhedutedvteevgfffkeenucffohhmrghi
-    nhepthhruhhsthgvughfihhrmhifrghrvgdrohhrghdpkhgvrhhnvghlrdhorhhgnecuve
-    hluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehk
-    rhhorghhrdgtohhm
-X-ME-Proxy: <xmx:2XP1YJT79hMUIcFgrRWrdYNU3hlviq_UztxCbhwsELyvRNJpr3I4BQ>
-    <xmx:2XP1YFza4-ahwJCVsmT9jAtm9wVcfpLfFFF4g_pHhleZtwcuMuuwRA>
-    <xmx:2XP1YH496ZpuJFc3NDWvq2-RYovmLwnGTy_v3W28CiYmIHGkpI7W0Q>
-    <xmx:2nP1YA9XFbguIpIoOtI7ukF2YBolutL7ctLfOFjFLQiTFA8DeuFrfA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 19 Jul 2021 08:45:13 -0400 (EDT)
-Date:   Mon, 19 Jul 2021 14:45:07 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH stable-4.19] PCI: aardvark: Fix kernel panic during PIO
- transfer
-Message-ID: <YPVz0xkG/fT+lZoQ@kroah.com>
-References: <20210716122504.22976-1-pali@kernel.org>
+        id S236867AbhGSMNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 08:13:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57250 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231282AbhGSMNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:13:31 -0400
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63DD5C061574
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:12:37 -0700 (PDT)
+Received: by mail-ed1-x534.google.com with SMTP id t2so23405004edd.13
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:54:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=blackwall-org.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RLAFEMSHEAjHyWGb7WMVIwkHP/31gWjL5+vJ3R8qmhw=;
+        b=pI/RNHMNdf+xOzZrP5hLjVDrBdORcbA4VLQKfqukCMh55KdzaqIaB7LE3UaEvIKaZg
+         ca7LdROeE00RbyST1cZ+o6Gra0nUNAlaf2zm9fEV3Zxoiw92N+iaNa3BYCuX77e+5+pv
+         Q1wsqNpSKwHwjAywNIvBg3BS+qxEhIw+BTG6cm8OFfmRVJCh560uX2Oa8nSdfekPT4O9
+         vDdueCT4oUKkDcelhDQpH6qOo0EwP1pmQ+0WWvbUfPs6o+wNySc/VbXJcYF1MeauY1KX
+         Q2HxrOzE8Grnz8RJGU/NI6QKuBJG1COkrwKRo8MlsiiQfVDDa9OSolJWaamLSIbi+Tik
+         bmhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RLAFEMSHEAjHyWGb7WMVIwkHP/31gWjL5+vJ3R8qmhw=;
+        b=ctBb/FlbVjAiL8Khk23OB1MT68I9hN0Ukse33stJc1qxycFkzod5c205mhSYYK07w8
+         dAPZEpBYCb777ULhyZt2RJ6i7HM6pQ6iSZsSABPUs+DRLanaZSK2bAbY7EEgjTQ9cHfI
+         EjktABVgYsaV+cN64gPzueG2yYmP8z6PqkE3iWZU8/teuK/apNVnk/Bcf1cTFljk5wey
+         ZqH2VubmHwmdqgEW76QIzQdolMe7/PMhAQYXDxrYa0DfswuyIn6RSYBgUsjZIQ0pJTtT
+         qK7wE0dBqbcwXitpyQX9pGMI//Lt0dcGeqevzMsPD1eKuZ9YZEXmAr1TomCLV/nnaDSy
+         4H1w==
+X-Gm-Message-State: AOAM531uaJrOIzvbgf0BexNZkB2lE13E3IIZ401W7s3GjfoNd7iO/xRK
+        QsEQYKXw5QotoeeddQZ+F4QqjL1Mypr6jRLUMuY=
+X-Google-Smtp-Source: ABdhPJw7odC5PxrQxVgRhgFY5fSx2lm4Y+uLyHY73dlIsEPEGmMiBuq8t+uok1Uz/b3g5F3hU+KBiw==
+X-Received: by 2002:a05:6402:1385:: with SMTP id b5mr34356687edv.276.1626699249199;
+        Mon, 19 Jul 2021 05:54:09 -0700 (PDT)
+Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
+        by smtp.gmail.com with ESMTPSA id o26sm7797691edt.18.2021.07.19.05.54.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 Jul 2021 05:54:08 -0700 (PDT)
+From:   Nikolay Aleksandrov <razor@blackwall.org>
+To:     stable@vger.kernel.org
+Cc:     Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 1/2] net: bridge: multicast: fix PIM hello router port marking race
+Date:   Mon, 19 Jul 2021 15:53:54 +0300
+Message-Id: <20210719125355.317449-1-razor@blackwall.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20210716122504.22976-1-pali@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jul 16, 2021 at 02:25:04PM +0200, Pali Rohár wrote:
-> commit f18139966d072dab8e4398c95ce955a9742e04f7 upstream.
-> 
-> Trying to start a new PIO transfer by writing value 0 in PIO_START register
-> when previous transfer has not yet completed (which is indicated by value 1
-> in PIO_START) causes an External Abort on CPU, which results in kernel
-> panic:
-> 
->     SError Interrupt on CPU0, code 0xbf000002 -- SError
->     Kernel panic - not syncing: Asynchronous SError Interrupt
-> 
-> To prevent kernel panic, it is required to reject a new PIO transfer when
-> previous one has not finished yet.
-> 
-> If previous PIO transfer is not finished yet, the kernel may issue a new
-> PIO request only if the previous PIO transfer timed out.
-> 
-> In the past the root cause of this issue was incorrectly identified (as it
-> often happens during link retraining or after link down event) and special
-> hack was implemented in Trusted Firmware to catch all SError events in EL3,
-> to ignore errors with code 0xbf000002 and not forwarding any other errors
-> to kernel and instead throw panic from EL3 Trusted Firmware handler.
-> 
-> Links to discussion and patches about this issue:
-> https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/commit/?id=3c7dcdac5c50
-> https://lore.kernel.org/linux-pci/20190316161243.29517-1-repk@triplefau.lt/
-> https://lore.kernel.org/linux-pci/971be151d24312cc533989a64bd454b4@www.loen.fr/
-> https://review.trustedfirmware.org/c/TF-A/trusted-firmware-a/+/1541
-> 
-> But the real cause was the fact that during link retraining or after link
-> down event the PIO transfer may take longer time, up to the 1.44s until it
-> times out. This increased probability that a new PIO transfer would be
-> issued by kernel while previous one has not finished yet.
-> 
-> After applying this change into the kernel, it is possible to revert the
-> mentioned TF-A hack and SError events do not have to be caught in TF-A EL3.
-> 
-> Link: https://lore.kernel.org/r/20210608203655.31228-1-pali@kernel.org
-> Signed-off-by: Pali Rohár <pali@kernel.org>
-> Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Reviewed-by: Marek Behún <kabel@kernel.org>
-> Cc: stable@vger.kernel.org # 7fbcb5da811b ("PCI: aardvark: Don't rely on jiffies while holding spinlock")
-> [pali: Backported to 4.19 version]
-> ---
-> This patch is backported to 4.19 version. It depends on commit
-> 7fbcb5da811b as presented on Cc: stable line.
-> ---
->  drivers/pci/controller/pci-aardvark.c | 49 ++++++++++++++++++++++-----
->  1 file changed, 40 insertions(+), 9 deletions(-)
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-Now queued up, thanks.
+commit 04bef83a3358946bfc98a5ecebd1b0003d83d882 upstream.
 
-greg k-h
+When a PIM hello packet is received on a bridge port with multicast
+snooping enabled, we mark it as a router port automatically, that
+includes adding that port the router port list. The multicast lock
+protects that list, but it is not acquired in the PIM message case
+leading to a race condition, we need to take it to fix the race.
+
+Cc: stable@vger.kernel.org
+Fixes: 91b02d3d133b ("bridge: mcast: add router port on PIM hello message")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ net/bridge/br_multicast.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
+index 226bb05c3b42..e27fe6e6ecd4 100644
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -3087,7 +3087,9 @@ static void br_multicast_pim(struct net_bridge *br,
+ 	    pim_hdr_type(pimhdr) != PIM_TYPE_HELLO)
+ 		return;
+ 
++	spin_lock(&br->multicast_lock);
+ 	br_multicast_mark_router(br, port);
++	spin_unlock(&br->multicast_lock);
+ }
+ 
+ static int br_ip4_multicast_mrd_rcv(struct net_bridge *br,
+-- 
+2.31.1
+
