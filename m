@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77C5A3CDFDA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 376093CDEEE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344939AbhGSPM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46982 "EHLO mail.kernel.org"
+        id S1344815AbhGSPGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245440AbhGSPK3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 926BD60FD7;
-        Mon, 19 Jul 2021 15:51:08 +0000 (UTC)
+        id S1345596AbhGSPEn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3541610D0;
+        Mon, 19 Jul 2021 15:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709869;
-        bh=110oo0bp8XEIgGoX8PuIKeTuPmcHodzQu7MT/F3PYyg=;
+        s=korg; t=1626709469;
+        bh=bBUmxY9SmW/fbIBJRTm3Oz338qZMRe2V0cH6/8LP+sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fVCCLf7KZUmZG26a1XEYtKj5u8CY8J2DjxVPXQyBk6iLYSe2kSjLrCcoSZAEmgLma
-         /NvUHUwl6p1Y+74XVS7LeJpk/baX+Qr+5vdmxgfKASXHgh6HD1W9ypkI2ugkOYrHsh
-         yqBIpilpNZUzdkHzD2V0Zue8EvoCKKry0yJBS0MU=
+        b=kt3qgiYE3B82aaIvFtwUOkJvUvo9JMQ5gH8K5vpNNfC03myyJJSoGRfqHS1UKNrRx
+         TR9s1F4xscyAvqtmfYPmBrG3vzuRN/3nx0qC5u81QcYkePdz6VfGJ4cQmWpT4apUFE
+         WDZxv5VW2y+NuFApsl0K8h6TXXl4o8IB3j2f5/Hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, marcosfrm <marcosfrm@gmail.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 097/149] f2fs: add MODULE_SOFTDEP to ensure crc32 is included in the initramfs
-Date:   Mon, 19 Jul 2021 16:53:25 +0200
-Message-Id: <20210719144924.326628728@linuxfoundation.org>
+Subject: [PATCH 4.19 395/421] NFSv4/pNFS: Dont call _nfs4_pnfs_v3_ds_connect multiple times
+Date:   Mon, 19 Jul 2021 16:53:26 +0200
+Message-Id: <20210719145000.061210229@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0dd571785d61528d62cdd8aa49d76bc6085152fe ]
+[ Upstream commit f46f84931a0aa344678efe412d4b071d84d8a805 ]
 
-As marcosfrm reported in bugzilla:
+After we grab the lock in nfs4_pnfs_ds_connect(), there is no check for
+whether or not ds->ds_clp has already been initialised, so we can end up
+adding the same transports multiple times.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=213089
-
-Initramfs generators rely on "pre" softdeps (and "depends") to include
-additional required modules.
-
-F2FS does not declare "pre: crc32" softdep. Then every generator (dracut,
-mkinitcpio...) has to maintain a hardcoded list for this purpose.
-
-Hence let's use MODULE_SOFTDEP("pre: crc32") in f2fs code.
-
-Fixes: 43b6573bac95 ("f2fs: use cryptoapi crc32 functions")
-Reported-by: marcosfrm <marcosfrm@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: fc821d59209d ("pnfs/NFSv4.1: Add multipath capabilities to pNFS flexfiles servers over NFSv3")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/nfs/pnfs_nfs.c | 52 +++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index a9a083232bcf..6d904dc9bd19 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -3804,4 +3804,5 @@ module_exit(exit_f2fs_fs)
- MODULE_AUTHOR("Samsung Electronics's Praesto Team");
- MODULE_DESCRIPTION("Flash Friendly File System");
- MODULE_LICENSE("GPL");
-+MODULE_SOFTDEP("pre: crc32");
+diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
+index acfb52bc0007..3f0c2436254a 100644
+--- a/fs/nfs/pnfs_nfs.c
++++ b/fs/nfs/pnfs_nfs.c
+@@ -555,19 +555,16 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(nfs4_pnfs_ds_add);
  
+-static void nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
++static int nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
+ {
+ 	might_sleep();
+-	wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING,
+-			TASK_KILLABLE);
++	return wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING, TASK_KILLABLE);
+ }
+ 
+ static void nfs4_clear_ds_conn_bit(struct nfs4_pnfs_ds *ds)
+ {
+ 	smp_mb__before_atomic();
+-	clear_bit(NFS4DS_CONNECTING, &ds->ds_state);
+-	smp_mb__after_atomic();
+-	wake_up_bit(&ds->ds_state, NFS4DS_CONNECTING);
++	clear_and_wake_up_bit(NFS4DS_CONNECTING, &ds->ds_state);
+ }
+ 
+ static struct nfs_client *(*get_v3_ds_connect)(
+@@ -728,30 +725,33 @@ int nfs4_pnfs_ds_connect(struct nfs_server *mds_srv, struct nfs4_pnfs_ds *ds,
+ {
+ 	int err;
+ 
+-again:
+-	err = 0;
+-	if (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) == 0) {
+-		if (version == 3) {
+-			err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo,
+-						       retrans);
+-		} else if (version == 4) {
+-			err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo,
+-						       retrans, minor_version);
+-		} else {
+-			dprintk("%s: unsupported DS version %d\n", __func__,
+-				version);
+-			err = -EPROTONOSUPPORT;
+-		}
++	do {
++		err = nfs4_wait_ds_connect(ds);
++		if (err || ds->ds_clp)
++			goto out;
++		if (nfs4_test_deviceid_unavailable(devid))
++			return -ENODEV;
++	} while (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) != 0);
+ 
+-		nfs4_clear_ds_conn_bit(ds);
+-	} else {
+-		nfs4_wait_ds_connect(ds);
++	if (ds->ds_clp)
++		goto connect_done;
+ 
+-		/* what was waited on didn't connect AND didn't mark unavail */
+-		if (!ds->ds_clp && !nfs4_test_deviceid_unavailable(devid))
+-			goto again;
++	switch (version) {
++	case 3:
++		err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo, retrans);
++		break;
++	case 4:
++		err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo, retrans,
++					       minor_version);
++		break;
++	default:
++		dprintk("%s: unsupported DS version %d\n", __func__, version);
++		err = -EPROTONOSUPPORT;
+ 	}
+ 
++connect_done:
++	nfs4_clear_ds_conn_bit(ds);
++out:
+ 	/*
+ 	 * At this point the ds->ds_clp should be ready, but it might have
+ 	 * hit an error.
 -- 
 2.30.2
 
