@@ -2,37 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF83A3CE0AF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804383CE253
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343732AbhGSPRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
+        id S1348075AbhGSPaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346433AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C9E61003;
-        Mon, 19 Jul 2021 15:54:29 +0000 (UTC)
+        id S243148AbhGSP11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:27:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E002261249;
+        Mon, 19 Jul 2021 16:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710070;
-        bh=rAYbW2UqpPZ9JX4gxQTDr5MbWh0vAa4y18WI67hklA8=;
+        s=korg; t=1626710886;
+        bh=+uFTDpvKhWHlQ5H7ysMc7Ohh59fU2zT9cKN7k1vT62k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Twvp9qvWmFg+brdLMj1CjB9QaKVIHx4GlP6xI4mZVGvV/f9CMhm6nHbtpCI7lxTCk
-         po61C7pIQIhZfP8JzZQuL9snK6FcP0Yd3ZuCiCx7GzulWfjpaOyNKOBWggwlITgbZc
-         roa6Yqfwu4hvUPNB+mf5681/fb/llJKqDyAs8iA8=
+        b=GgaBdJt0Az1Y2dkpI0UbkK8bkTk/o+L5mcNdhfYLFOHJ5qsH9rMy4TDaeFgmZcoTL
+         8fw+2mC9DQv+MSd1Bs8oi2NQiSkeQg2nTJlRnp1M6o3ekkIKTbBiq4l0oOHf/unWSa
+         PeqtVV+BvowIE4n/rN/4mg5sdssCT59WzQ2WU5i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
+        Kyungsik Lee <kyungsik.lee@lge.com>,
+        Yinghai Lu <yinghai@kernel.org>,
+        Bongkyu Kim <bongkyu.kim@lge.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
+        Rajat Asthana <thisisrast7@gmail.com>,
+        Nick Terrell <terrelln@fb.com>,
+        Gao Xiang <hsiangkao@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/243] scsi: qedi: Fix cleanup session block/unblock use
+Subject: [PATCH 5.13 146/351] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
 Date:   Mon, 19 Jul 2021 16:51:32 +0200
-Message-Id: <20210719144942.955976459@linuxfoundation.org>
+Message-Id: <20210719144949.810047891@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +50,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
 
-[ Upstream commit 0c72191da68638a479602dd515b587ada913184a ]
+[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
 
-Drivers shouldn't be calling block/unblock session for cmd cleanup because
-the functions can change the session state from under libiscsi.  This adds
-a new a driver level bit so it can block all I/O the host while it drains
-the card.
+lz4 compatible decompressor is simple.  The format is underspecified and
+relies on EOF notification to determine when to stop.  Initramfs buffer
+format[1] explicitly states that it can have arbitrary number of zero
+padding.  Thus when operating without a fill function, be extra careful to
+ensure that sizes less than 4, or apperantly empty chunksizes are treated
+as EOF.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-26-michael.christie@oracle.com
-Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+To test this I have created two cpio initrds, first a normal one,
+main.cpio.  And second one with just a single /test-file with content
+"second" second.cpio.  Then i compressed both of them with gzip, and with
+lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
+count=4).  To create four testcase initrds:
+
+ 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
+ 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
+ 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
+ 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
+
+The pad4 test-cases replicate the initrd load by grub, as it pads and
+aligns every initrd it loads.
+
+All of the above boot, however /test-file was not accessible in the initrd
+for the testcase #4, as decoding in lz4 decompressor failed.  Also an
+error message printed which usually is harmless.
+
+Whith a patched kernel, all of the above testcases now pass, and
+/test-file is accessible.
+
+This fixes lz4 initrd decompress warning on every boot with grub.  And
+more importantly this fixes inability to load multiple lz4 compressed
+initrds with grub.  This patch has been shipping in Ubuntu kernels since
+January 2021.
+
+[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
+
+BugLink: https://bugs.launchpad.net/bugs/1835660
+Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
+Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
+Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+Cc: Kyungsik Lee <kyungsik.lee@lge.com>
+Cc: Yinghai Lu <yinghai@kernel.org>
+Cc: Bongkyu Kim <bongkyu.kim@lge.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
+Cc: Rajat Asthana <thisisrast7@gmail.com>
+Cc: Nick Terrell <terrelln@fb.com>
+Cc: Gao Xiang <hsiangkao@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi.h       |  1 +
- drivers/scsi/qedi/qedi_iscsi.c | 17 +++++++++++++++--
- 2 files changed, 16 insertions(+), 2 deletions(-)
+ lib/decompress_unlz4.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi.h b/drivers/scsi/qedi/qedi.h
-index c342defc3f52..ce199a7a16b8 100644
---- a/drivers/scsi/qedi/qedi.h
-+++ b/drivers/scsi/qedi/qedi.h
-@@ -284,6 +284,7 @@ struct qedi_ctx {
- #define QEDI_IN_RECOVERY	5
- #define QEDI_IN_OFFLINE		6
- #define QEDI_IN_SHUTDOWN	7
-+#define QEDI_BLOCK_IO		8
+diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
+index c0cfcfd486be..e6327391b6b6 100644
+--- a/lib/decompress_unlz4.c
++++ b/lib/decompress_unlz4.c
+@@ -112,6 +112,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 				error("data corrupted");
+ 				goto exit_2;
+ 			}
++		} else if (size < 4) {
++			/* empty or end-of-file */
++			goto exit_3;
+ 		}
  
- 	u8 mac[ETH_ALEN];
- 	u32 src_ip[4];
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 604c4f408bc1..f51723e2d522 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -330,12 +330,22 @@ free_conn:
+ 		chunksize = get_unaligned_le32(inp);
+@@ -125,6 +128,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 			continue;
+ 		}
  
- void qedi_mark_device_missing(struct iscsi_cls_session *cls_session)
- {
--	iscsi_block_session(cls_session);
-+	struct iscsi_session *session = cls_session->dd_data;
-+	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
-+
-+	spin_lock_bh(&session->frwd_lock);
-+	set_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
-+	spin_unlock_bh(&session->frwd_lock);
- }
++		if (!fill && chunksize == 0) {
++			/* empty or end-of-file */
++			goto exit_3;
++		}
  
- void qedi_mark_device_available(struct iscsi_cls_session *cls_session)
- {
--	iscsi_unblock_session(cls_session);
-+	struct iscsi_session *session = cls_session->dd_data;
-+	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
-+
-+	spin_lock_bh(&session->frwd_lock);
-+	clear_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
-+	spin_unlock_bh(&session->frwd_lock);
- }
+ 		if (posp)
+ 			*posp += 4;
+@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
+ 		}
+ 	}
  
- static int qedi_bind_conn_to_iscsi_cid(struct qedi_ctx *qedi,
-@@ -789,6 +799,9 @@ static int qedi_task_xmit(struct iscsi_task *task)
- 	if (test_bit(QEDI_IN_SHUTDOWN, &qedi_conn->qedi->flags))
- 		return -ENODEV;
- 
-+	if (test_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags))
-+		return -EACCES;
-+
- 	cmd->state = 0;
- 	cmd->task = NULL;
- 	cmd->use_slowpath = false;
++exit_3:
+ 	ret = 0;
+ exit_2:
+ 	if (!input)
 -- 
 2.30.2
 
