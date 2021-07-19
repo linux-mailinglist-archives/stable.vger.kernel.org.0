@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E80563CE382
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:20:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 058023CE261
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346584AbhGSPi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S1348234AbhGSPaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348953AbhGSPfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62BD961363;
-        Mon, 19 Jul 2021 16:15:40 +0000 (UTC)
+        id S1348057AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BFCD613FD;
+        Mon, 19 Jul 2021 16:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711340;
-        bh=nQeAaTWWY4/VN7Kg6FQONv+WkXezfjMBgP7RZVW+Rl8=;
+        s=korg; t=1626710463;
+        bh=x8pcX7WrmRQJa5lLBNsSi3OusVCczGQBCEXATRjZjQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8YX1VDU5vqNSsOcYf6DPoloK+Z9FEhwWZ2wkACF3oOSULAyiN1Q+Yx0hmd5BiT5Y
-         RI51E6nhngzFmaPCLILEa50QWXgap04BMjZmFAA92fZHodqpfh0JdOf3UmdbVZ99Cg
-         lpCq3dq+bzcJgwBpm9brSyMA4ZtegPKFxgXGhcNo=
+        b=LDNcGApqsti8Dihb0tH/ubWEQ0Cu3F3DE+jTUYA/ocdqx3DLvxB4xYkc2JeCQmio9
+         Tyji0o27BAVg0hF+XgvWMcXXPNRIFXjWzQNWhY8DKJP3zoHpXC42Aw8dTOioNUbdJ5
+         TsCFyWkPDsvl8mFj3A0m4Ye697ZfRjwF8B6b4hYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
         Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 310/351] arm64: dts: renesas: r8a779a0: Drop power-domains property from GIC node
-Date:   Mon, 19 Jul 2021 16:54:16 +0200
-Message-Id: <20210719144955.304869832@linuxfoundation.org>
+Subject: [PATCH 5.10 228/243] thermal/drivers/rcar_gen3_thermal: Fix coefficient calculations
+Date:   Mon, 19 Jul 2021 16:54:17 +0200
+Message-Id: <20210719144948.282623274@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit 1771a33b34421050c7b830f0a8af703178ba9d36 ]
+[ Upstream commit 8946187ab57ffd02088e50256c73dd31f49db06d ]
 
-"make dtbs_check":
+The fixed value of 157 used in the calculations are only correct for
+M3-W, on other Gen3 SoC it should be 167. The constant can be derived
+correctly from the static TJ_3 constant and the SoC specific TJ_1 value.
+Update the calculation be correct on all Gen3 SoCs.
 
-    arm64/boot/dts/renesas/r8a779a0-falcon.dt.yaml: interrupt-controller@f1000000: 'power-domains' does not match any of the regexes: '^(msi-controller|gic-its|interrupt-controller)@[0-9a-f]+$', '^gic-its@', '^interrupt-controller@[0-9a-f]+$', 'pinctrl-[0-9]+'
-	    From schema: Documentation/devicetree/bindings/interrupt-controller/arm,gic-v3.yaml
-
-Remove the "power-domains" property, as the GIC on R-Car V3U is
-always-on, and not part of a clock domain.
-
-Fixes: 834c310f541839b6 ("arm64: dts: renesas: Add Renesas R8A779A0 SoC support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: 4eb39f79ef44 ("thermal: rcar_gen3_thermal: Update value of Tj_1")
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/a9ae5cbc7c586bf2c6b18ddc665ad7051bd1d206.1622560236.git.geert+renesas@glider.be
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210605085211.564909-1-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a779a0.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/thermal/rcar_gen3_thermal.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-index 70b3604e56cd..9a7d1aca4998 100644
---- a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-@@ -1096,7 +1096,6 @@
- 			      <0x0 0xf1060000 0 0x110000>;
- 			interrupts = <GIC_PPI 9
- 				      (GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_HIGH)>;
--			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
- 		};
+diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
+index 0dd47dca3e77..8d724d92d57f 100644
+--- a/drivers/thermal/rcar_gen3_thermal.c
++++ b/drivers/thermal/rcar_gen3_thermal.c
+@@ -141,7 +141,7 @@ static void rcar_gen3_thermal_calc_coefs(struct rcar_gen3_thermal_tsc *tsc,
+ 	 * Division is not scaled in BSP and if scaled it might overflow
+ 	 * the dividend (4095 * 4095 << 14 > INT_MAX) so keep it unscaled
+ 	 */
+-	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * 157)
++	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * (ths_tj_1 - TJ_3))
+ 		     / (ptat[0] - ptat[2])) + FIXPT_INT(TJ_3);
  
- 		fcpvd0: fcp@fea10000 {
+ 	tsc->coef.a1 = FIXPT_DIV(FIXPT_INT(thcode[1] - thcode[2]),
 -- 
 2.30.2
 
