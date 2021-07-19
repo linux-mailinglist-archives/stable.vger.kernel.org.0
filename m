@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84DEB3CE195
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE513CE3A6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349353AbhGSP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38040 "EHLO mail.kernel.org"
+        id S1346442AbhGSPis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:38:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348112AbhGSPYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C679C6143A;
-        Mon, 19 Jul 2021 16:01:48 +0000 (UTC)
+        id S1348882AbhGSPfe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 243276120F;
+        Mon, 19 Jul 2021 16:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710509;
-        bh=lMXqqgo3Fi6EqGKVYChvs0Q6edpm5Mnt9CW+CR7CCnw=;
+        s=korg; t=1626711308;
+        bh=NX+XniBkaOZOUpU6smko+YGbqSaqgsrVV5bBgbwVegQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgKLrY1GLqDdR6kSWSQyf7Q2yQ3U6CM5qBct0NrvGmyYdgZ3DBrmTLGdyefJTIw+Q
-         EKb6OMtIpldXiyZe1JUGaxLhVXbeqtCbGwo8o8luvLfmV2DfMfX/58nIAaQ5GCcDOg
-         Z1ddgYtDVVvvL/K02eZ18sFulAKUYeIN/c65bF2E=
+        b=MG37e+u+/VIADPCotqnpVB2fx9KZrCAc/AoLj/SYGxZ0oywRPEK1gGtmOGZfRdCzl
+         yRkbvM2Ls6GoJUgYcqM2elv1eHhy9mgL/jWVGrim1YjkEl3VrSb7/cqpZ4WKr1MZcJ
+         tRTgl0qt034DOXwqraF5LKwCeVBJZyv2NickSNGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gowtham Tammana <g-tammana@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        "chun-jie.chen" <chun-jie.chen@mediatek.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 221/243] ARM: dts: dra7: Fix duplicate USB4 target module node
+Subject: [PATCH 5.13 304/351] soc: mtk-pm-domains: do not register smi node as syscon
 Date:   Mon, 19 Jul 2021 16:54:10 +0200
-Message-Id: <20210719144948.061679916@linuxfoundation.org>
+Message-Id: <20210719144955.108452719@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,226 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gowtham Tammana <g-tammana@ti.com>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-[ Upstream commit 78b4b165280d3d70e7a217599f0c06a4c0bb11f9 ]
+[ Upstream commit eed6ff1bb2da65067d928f4ab322c7d75f944fa4 ]
 
-With [1] USB4 target-module node got defined in dra74x.dtsi file.
-However, the earlier definition in [2] was not removed, and this
-duplication of the target module is causing boot failure on dra74
-variant boards - dra7-evm, dra76-evm.
+Mediatek requires mmsys clocks to be unprepared during suspend,
+otherwise system has chances to hang.
 
-USB4 is only present in DRA74x variants, so keeping the entry in
-dra74x.dtsi and removing it from the top level interconnect hierarchy
-dra7-l4.dtsi file. This change makes the USB4 target module no longer
-visible to AM5718, DRA71x and DRA72x so removing references to it in
-their respective dts files.
+syscon_regmap_lookup_by_phandle_optional() will attach and prepare the
+first clock in smi node, leading to additional prepare to the clock
+which is not balanced with the prepare/unprepare pair in resume/suspend
+callbacks.
 
-[1]: commit c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for
-dra7 dwc3")
-[2]: commit 549fce068a311 ("ARM: dts: dra7: Add l4 interconnect
-hierarchy and ti-sysc data")
+If a power domain node requests an smi node and the smi node's first
+clock is an mmsys clock, it will results in an unstable suspend resume.
 
-Fixes: c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for dra7 dwc3")
-Signed-off-by: Gowtham Tammana <g-tammana@ti.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: f414854c8843 ("soc: mediatek: pm-domains: Add SMI block as bus protection block")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: chun-jie.chen <chun-jie.chen@mediatek.com>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Link: https://lore.kernel.org/r/20210601035905.2970384-2-hsinyi@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am5718.dtsi  |  6 +--
- arch/arm/boot/dts/dra7-l4.dtsi | 22 --------
- arch/arm/boot/dts/dra71x.dtsi  |  4 --
- arch/arm/boot/dts/dra72x.dtsi  |  4 --
- arch/arm/boot/dts/dra74x.dtsi  | 92 ++++++++++++++++++----------------
- 5 files changed, 50 insertions(+), 78 deletions(-)
+ drivers/soc/mediatek/mtk-pm-domains.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am5718.dtsi b/arch/arm/boot/dts/am5718.dtsi
-index ebf4d3cc1cfb..6d7530a48c73 100644
---- a/arch/arm/boot/dts/am5718.dtsi
-+++ b/arch/arm/boot/dts/am5718.dtsi
-@@ -17,17 +17,13 @@
-  * VCP1, VCP2
-  * MLB
-  * ISS
-- * USB3, USB4
-+ * USB3
-  */
+diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
+index 0af00efa0ef8..22fa52f0e86e 100644
+--- a/drivers/soc/mediatek/mtk-pm-domains.c
++++ b/drivers/soc/mediatek/mtk-pm-domains.c
+@@ -297,6 +297,7 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
+ 	const struct scpsys_domain_data *domain_data;
+ 	struct scpsys_domain *pd;
+ 	struct device_node *root_node = scpsys->dev->of_node;
++	struct device_node *smi_node;
+ 	struct property *prop;
+ 	const char *clk_name;
+ 	int i, ret, num_clks;
+@@ -352,9 +353,13 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
+ 	if (IS_ERR(pd->infracfg))
+ 		return ERR_CAST(pd->infracfg);
  
- &usb3_tm {
- 	status = "disabled";
- };
+-	pd->smi = syscon_regmap_lookup_by_phandle_optional(node, "mediatek,smi");
+-	if (IS_ERR(pd->smi))
+-		return ERR_CAST(pd->smi);
++	smi_node = of_parse_phandle(node, "mediatek,smi", 0);
++	if (smi_node) {
++		pd->smi = device_node_to_regmap(smi_node);
++		of_node_put(smi_node);
++		if (IS_ERR(pd->smi))
++			return ERR_CAST(pd->smi);
++	}
  
--&usb4_tm {
--	status = "disabled";
--};
--
- &atl_tm {
- 	status = "disabled";
- };
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index a294a02f2d23..1dafce92fc76 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -4095,28 +4095,6 @@
- 			};
- 		};
- 
--		usb4_tm: target-module@140000 {		/* 0x48940000, ap 75 3c.0 */
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x140000 0x4>,
--			      <0x140010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x140000 0x20000>;
--		};
--
- 		target-module@170000 {			/* 0x48970000, ap 21 0a.0 */
- 			compatible = "ti,sysc-omap4", "ti,sysc";
- 			reg = <0x170010 0x4>;
-diff --git a/arch/arm/boot/dts/dra71x.dtsi b/arch/arm/boot/dts/dra71x.dtsi
-index cad0e4a2bd8d..9c270d8f75d5 100644
---- a/arch/arm/boot/dts/dra71x.dtsi
-+++ b/arch/arm/boot/dts/dra71x.dtsi
-@@ -11,7 +11,3 @@
- &rtctarget {
- 	status = "disabled";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
-index d403acc754b6..f3e934ef7d3e 100644
---- a/arch/arm/boot/dts/dra72x.dtsi
-+++ b/arch/arm/boot/dts/dra72x.dtsi
-@@ -108,7 +108,3 @@
- &pcie2_rc {
- 	compatible = "ti,dra726-pcie-rc", "ti,dra7-pcie";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
-index e1850d6c841a..b4e07d99ffde 100644
---- a/arch/arm/boot/dts/dra74x.dtsi
-+++ b/arch/arm/boot/dts/dra74x.dtsi
-@@ -49,49 +49,6 @@
- 			reg = <0x41500000 0x100>;
- 		};
- 
--		target-module@48940000 {
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x48940000 0x4>,
--			      <0x48940010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x48940000 0x20000>;
--
--			omap_dwc3_4: omap_dwc3_4@0 {
--				compatible = "ti,dwc3";
--				reg = <0 0x10000>;
--				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--				#address-cells = <1>;
--				#size-cells = <1>;
--				utmi-mode = <2>;
--				ranges;
--				status = "disabled";
--				usb4: usb@10000 {
--					compatible = "snps,dwc3";
--					reg = <0x10000 0x17000>;
--					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--					interrupt-names = "peripheral",
--							  "host",
--							  "otg";
--					maximum-speed = "high-speed";
--					dr_mode = "otg";
--				};
--			};
--		};
- 
- 		target-module@41501000 {
- 			compatible = "ti,sysc-omap2", "ti,sysc";
-@@ -224,3 +181,52 @@
- &pcie2_rc {
- 	compatible = "ti,dra746-pcie-rc", "ti,dra7-pcie";
- };
-+
-+&l4_per3 {
-+	segment@0 {
-+		usb4_tm: target-module@140000 {         /* 0x48940000, ap 75 3c.0 */
-+			compatible = "ti,sysc-omap4", "ti,sysc";
-+			reg = <0x140000 0x4>,
-+			      <0x140010 0x4>;
-+			reg-names = "rev", "sysc";
-+			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
-+			ti,sysc-midle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
-+			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
-+			clock-names = "fck";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ranges = <0x0 0x140000 0x20000>;
-+
-+			omap_dwc3_4: omap_dwc3_4@0 {
-+				compatible = "ti,dwc3";
-+				reg = <0 0x10000>;
-+				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+				#address-cells = <1>;
-+				#size-cells = <1>;
-+				utmi-mode = <2>;
-+				ranges;
-+				status = "disabled";
-+				usb4: usb@10000 {
-+					compatible = "snps,dwc3";
-+					reg = <0x10000 0x17000>;
-+					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupt-names = "peripheral",
-+							  "host",
-+							  "otg";
-+					maximum-speed = "high-speed";
-+					dr_mode = "otg";
-+				};
-+			};
-+		};
-+	};
-+};
+ 	num_clks = of_clk_get_parent_count(node);
+ 	if (num_clks > 0) {
 -- 
 2.30.2
 
