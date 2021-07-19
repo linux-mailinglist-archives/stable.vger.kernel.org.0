@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC7E3CD0BE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:28:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 874DA3CD0C0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:28:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235359AbhGSIrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52364 "EHLO mail.kernel.org"
+        id S235235AbhGSIrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235235AbhGSIrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235752AbhGSIrF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 04:47:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A166115B;
-        Mon, 19 Jul 2021 09:27:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A784A6108B;
+        Mon, 19 Jul 2021 09:27:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626686857;
-        bh=REEZi4sY28431nNspiNiRuamhKsZJPFfKiNL6OlhbLw=;
+        s=korg; t=1626686860;
+        bh=N+BCOvb3C12kSn3Avy1yWriIf1doMGdvkma7/vtel0E=;
         h=Subject:To:Cc:From:Date:From;
-        b=Pox474boKjvsUYJ3Vs3dq+JBvEv+wdFYRcfvcURlAeNDy/giSCMWLVZvo9HEncYRx
-         LeXUoxYSjYitBtoXwa9XZm5SJmZKlMFw3GfxBqH8crvWRSDkwG6BYRGR02jzgvpN1P
-         GJF4RcYtVrOk1nRMarPlWXm1mC8mYEH9oSu/z9jg=
-Subject: FAILED: patch "[PATCH] net: bridge: multicast: fix PIM hello router port marking" failed to apply to 4.14-stable tree
+        b=VGV7DbRW6fdc5APWzBZKSlmZ63kKdlEsWg1oKJNH84+RUNbXJ/vt9n/WU+r389g4k
+         GdXD+tK7RZNkVl5VV+X7N+f6LuiyMHKAySLR8QSO72tr748PqikAQyL2QmT9AEDFgZ
+         FD7qEiacgC1h+cnUC1BAVAB2jRsbucN6IUMg7WbU=
+Subject: FAILED: patch "[PATCH] net: bridge: multicast: fix PIM hello router port marking" failed to apply to 4.19-stable tree
 To:     nikolay@nvidia.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 19 Jul 2021 11:27:26 +0200
-Message-ID: <16266868461037@kroah.com>
+Message-ID: <1626686846111197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
