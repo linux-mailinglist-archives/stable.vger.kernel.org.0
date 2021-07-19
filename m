@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C8183CDF1E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9A23CDE58
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345094AbhGSPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38540 "EHLO mail.kernel.org"
+        id S1344912AbhGSPCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244648AbhGSPFe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92E2260238;
-        Mon, 19 Jul 2021 15:46:12 +0000 (UTC)
+        id S1343671AbhGSPAV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E56B601FD;
+        Mon, 19 Jul 2021 15:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709573;
-        bh=9um7bU0QSz8fHCjawR9fxW6X0ZJGhUEH7wCqU6luNOg=;
+        s=korg; t=1626709261;
+        bh=PL5aCO4as6xANYS7odvexncPcBJjOp9Bk8XouauD5lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LLR3kmegB+JjKZtPdonERDXe/wh6YzPFITF9a5MV7pyoJSro5l8/zu35vm9PcnkI5
-         YRw4QM542t7t7HnJ4PfOqvyfDto/KsTVAMGPbMKcLcThb/fd7aI9nfi2hq55PmjMri
-         l4jozDWlrFvkFnQDn+2rnvdgyzHv9xjZBi8JO/HE=
+        b=AnBdp7z1ZUZJVs1JVT7ekJiKZUEXjVl50j6h3UNjJZ+OJSH59HGbA45vt4F09NbD1
+         99CqkjMywAkP2jmprvNvyrGGBBL68DqJPs9xqkClouy/Ct39xv90DZisxiK3ixfV0Y
+         kIv3tOTtqf+raxJB5fqM2blRCf1iriEnziOTPf4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 015/149] iio: magn: bmc150: Balance runtime pm + use pm_runtime_resume_and_get()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 312/421] media: gspca/sunplus: fix zero-length control requests
 Date:   Mon, 19 Jul 2021 16:52:03 +0200
-Message-Id: <20210719144905.056627130@linuxfoundation.org>
+Message-Id: <20210719144957.135959846@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 264da512431495e542fcaf56ffe75e7df0e7db74 ]
+commit b4bb4d425b7b02424afea2dfdcd77b3b4794175e upstream.
 
-probe() error paths after runtime pm is enabled, should disable it.
-remove() should not call pm_runtime_put_noidle() as there is no
-matching get() to have raised the reference count.  This case
-has no affect a the runtime pm core protects against going negative.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Whilst here use pm_runtime_resume_and_get() to tidy things up a little.
-coccicheck script didn't get this one due to complex code structure so
-found by inspection.
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/20210509113354.660190-12-jic23@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix the single zero-length control request which was using the
+read-register helper, and update the helper so that zero-length reads
+fail with an error message instead.
+
+Fixes: 6a7eba24e4f0 ("V4L/DVB (8157): gspca: all subdrivers")
+Cc: stable@vger.kernel.org      # 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/magnetometer/bmc150_magn.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/media/usb/gspca/sunplus.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/magnetometer/bmc150_magn.c b/drivers/iio/magnetometer/bmc150_magn.c
-index 48685d785c1b..087dc16c2185 100644
---- a/drivers/iio/magnetometer/bmc150_magn.c
-+++ b/drivers/iio/magnetometer/bmc150_magn.c
-@@ -263,7 +263,7 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
- 	int ret;
- 
- 	if (on) {
--		ret = pm_runtime_get_sync(data->dev);
-+		ret = pm_runtime_resume_and_get(data->dev);
- 	} else {
- 		pm_runtime_mark_last_busy(data->dev);
- 		ret = pm_runtime_put_autosuspend(data->dev);
-@@ -272,9 +272,6 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
- 	if (ret < 0) {
- 		dev_err(data->dev,
- 			"failed to change power state to %d\n", on);
--		if (on)
--			pm_runtime_put_noidle(data->dev);
--
- 		return ret;
+--- a/drivers/media/usb/gspca/sunplus.c
++++ b/drivers/media/usb/gspca/sunplus.c
+@@ -251,6 +251,10 @@ static void reg_r(struct gspca_dev *gspc
+ 		gspca_err(gspca_dev, "reg_r: buffer overflow\n");
+ 		return;
  	}
- #endif
-@@ -947,12 +944,14 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
- 	ret = iio_device_register(indio_dev);
++	if (len == 0) {
++		gspca_err(gspca_dev, "reg_r: zero-length read\n");
++		return;
++	}
+ 	if (gspca_dev->usb_err < 0)
+ 		return;
+ 	ret = usb_control_msg(gspca_dev->dev,
+@@ -259,7 +263,7 @@ static void reg_r(struct gspca_dev *gspc
+ 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 			0,		/* value */
+ 			index,
+-			len ? gspca_dev->usb_buf : NULL, len,
++			gspca_dev->usb_buf, len,
+ 			500);
  	if (ret < 0) {
- 		dev_err(dev, "unable to register iio device\n");
--		goto err_buffer_cleanup;
-+		goto err_disable_runtime_pm;
- 	}
- 
- 	dev_dbg(dev, "Registered device %s\n", name);
- 	return 0;
- 
-+err_disable_runtime_pm:
-+	pm_runtime_disable(dev);
- err_buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
- err_free_irq:
-@@ -976,7 +975,6 @@ int bmc150_magn_remove(struct device *dev)
- 
- 	pm_runtime_disable(dev);
- 	pm_runtime_set_suspended(dev);
--	pm_runtime_put_noidle(dev);
- 
- 	iio_triggered_buffer_cleanup(indio_dev);
- 
--- 
-2.30.2
-
+ 		pr_err("reg_r err %d\n", ret);
+@@ -736,7 +740,7 @@ static int sd_start(struct gspca_dev *gs
+ 		case MegaImageVI:
+ 			reg_w_riv(gspca_dev, 0xf0, 0, 0);
+ 			spca504B_WaitCmdStatus(gspca_dev);
+-			reg_r(gspca_dev, 0xf0, 4, 0);
++			reg_w_riv(gspca_dev, 0xf0, 4, 0);
+ 			spca504B_WaitCmdStatus(gspca_dev);
+ 			break;
+ 		default:
 
 
