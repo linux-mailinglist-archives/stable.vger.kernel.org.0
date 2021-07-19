@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B0A53CDC1C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 462BC3CDF79
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:51:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238258AbhGSOvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40446 "EHLO mail.kernel.org"
+        id S1344562AbhGSPKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344286AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90DB96121F;
-        Mon, 19 Jul 2021 15:27:37 +0000 (UTC)
+        id S1345369AbhGSPJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D0DB60238;
+        Mon, 19 Jul 2021 15:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708458;
-        bh=TnTtTq4bNkNe5j4Zh8ZgsaHqO3yYo2zneElUalXvHIw=;
+        s=korg; t=1626709727;
+        bh=vlhTaWuRPTY+zCBeoALKBFA9mfR5UqFCjXRXlrpTVbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anRG7pc+jOXLkuuGsqu4Lxk9kPn0nrvG25CIC6WaOt+zY8z4oQ1VHSbT53Bk+lR2q
-         o7J7TGuUuG3U42eWNPUHxCNIzTRvnamcLYW7Nnqd3jLCI9Fqa1x+mFifBXNxhBszJJ
-         4ObDsxnZxsyE8lTKmqKG8pZ1Avb0+hR0Dc5noRhQ=
+        b=prsFFAYBCTV3kVjip6bMFImuMcI1f7GQ4b0F6iPuAx+fnwzCByWS/CVoeYFrB3S92
+         FA5TCbqcv5MfKM8hLLQzjy1kV80t6gwdm/bSeyi9lOKQb+0lDI5FdxhwOatoJpCfYD
+         ND/rXo7rvrD0QUA1VF6C4jNL/wzxTREPi/4rloYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 293/315] nfs: fix acl memory leak of posix_acl_create()
+Subject: [PATCH 5.4 074/149] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:53:02 +0200
-Message-Id: <20210719144953.098170829@linuxfoundation.org>
+Message-Id: <20210719144918.816029635@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gao Xiang <hsiangkao@linux.alibaba.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 1fcb6fcd74a222d9ead54d405842fc763bb86262 ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-When looking into another nfs xfstests report, I found acl and
-default_acl in nfs3_proc_create() and nfs3_proc_mknod() error
-paths are possibly leaked. Fix them in advance.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Fixes: 013cdf1088d7 ("nfs: use generic posix ACL infrastructure for v3 Posix ACLs")
-Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
-Cc: Anna Schumaker <anna.schumaker@netapp.com>
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs3proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
-index bc673fb47fb3..65f9a8ae2845 100644
---- a/fs/nfs/nfs3proc.c
-+++ b/fs/nfs/nfs3proc.c
-@@ -357,7 +357,7 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 				break;
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index 6a4bbb506551..97d1f58efef4 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -90,6 +90,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
- 			case NFS3_CREATE_UNCHECKED:
--				goto out;
-+				goto out_release_acls;
- 		}
- 		nfs_fattr_init(data->res.dir_attr);
- 		nfs_fattr_init(data->res.fattr);
-@@ -702,7 +702,7 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
- 		break;
- 	default:
- 		status = -EINVAL;
--		goto out;
-+		goto out_release_acls;
- 	}
- 
- 	status = nfs3_do_create(dir, dentry, data);
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
