@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481823CDC83
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 739703CE069
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244470AbhGSOwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34974 "EHLO mail.kernel.org"
+        id S1346274AbhGSPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244445AbhGSOr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F4966120A;
-        Mon, 19 Jul 2021 15:23:15 +0000 (UTC)
+        id S1345165AbhGSPNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:13:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 008D8613F1;
+        Mon, 19 Jul 2021 15:53:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708196;
-        bh=DLMSh4j0AnmTMlzgxM/VboZ7+8wm4ULFHQ39d2I+ppE=;
+        s=korg; t=1626710026;
+        bh=QtvRV+ywbWvf5Ob5LjgKwga0Bz4DLWTM5dMniOTQAAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vudZg5PoMkXrdBTlrh3fHw3VmL7nJlsN1h1y4m7DNPpbuVAYLIJ0HmVcCdEZiQFxk
-         ktf5MEiWkR3V3WQn6kLBtb/zMTU20qk7Ym5HycH0YUfcwH+Pl6112g8m17Cd7/DYY7
-         WSTvbOGok9maM0LOc4o2YBwT56TtPF7wTUZIRS2c=
+        b=gsfLIcP23bZxt9VNccfxqzMQKtaKi5/VxgtDmGYLv0fgtkt9lxEDG+B58XKZJrA0R
+         vqkCI5is+L2s7QP8Op96I+xyKoKwUh6JuXde5I4iNCeejbVob/2gHmceBJlyuMdON+
+         E+Av2lFr8skagwS15g6dWG6pdMDEicnSe2dq3TqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Gibson <leegib@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 185/315] wl1251: Fix possible buffer overflow in wl1251_cmd_scan
+Subject: [PATCH 5.10 045/243] scsi: lpfc: Fix "Unexpected timeout" error in direct attach topology
 Date:   Mon, 19 Jul 2021 16:51:14 +0200
-Message-Id: <20210719144948.979870242@linuxfoundation.org>
+Message-Id: <20210719144942.377423412@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Gibson <leegib@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d10a87a3535cce2b890897914f5d0d83df669c63 ]
+[ Upstream commit e30d55137edef47434c40d7570276a0846fe922c ]
 
-Function wl1251_cmd_scan calls memcpy without checking the length.
-Harden by checking the length is within the maximum allowed size.
+An 'unexpected timeout' message may be seen in a point-2-point topology.
+The message occurs when a PLOGI is received before the driver is notified
+of FLOGI completion. The FLOGI completion failure causes discovery to be
+triggered for a second time. The discovery timer is restarted but no new
+discovery activity is initiated, thus the timeout message eventually
+appears.
 
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210428115508.25624-1-leegib@gmail.com
+In point-2-point, when discovery has progressed before the FLOGI completion
+is processed, it is not a failure. Add code to FLOGI completion to detect
+that discovery has progressed and exit the FLOGI handling (noop'ing it).
+
+Link: https://lore.kernel.org/r/20210514195559.119853-4-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wl1251/cmd.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/wireless/ti/wl1251/cmd.c b/drivers/net/wireless/ti/wl1251/cmd.c
-index 9547aea01b0f..ea0215246c5c 100644
---- a/drivers/net/wireless/ti/wl1251/cmd.c
-+++ b/drivers/net/wireless/ti/wl1251/cmd.c
-@@ -466,9 +466,12 @@ int wl1251_cmd_scan(struct wl1251 *wl, u8 *ssid, size_t ssid_len,
- 		cmd->channels[i].channel = channels[i]->hw_value;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index b60945182db8..3d9889b3d5c8 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1179,6 +1179,15 @@ stop_rr_fcf_flogi:
+ 			phba->fcf.fcf_redisc_attempted = 0; /* reset */
+ 			goto out;
+ 		}
++	} else if (vport->port_state > LPFC_FLOGI &&
++		   vport->fc_flag & FC_PT2PT) {
++		/*
++		 * In a p2p topology, it is possible that discovery has
++		 * already progressed, and this completion can be ignored.
++		 * Recheck the indicated topology.
++		 */
++		if (!sp->cmn.fPort)
++			goto out;
  	}
  
--	cmd->params.ssid_len = ssid_len;
--	if (ssid)
--		memcpy(cmd->params.ssid, ssid, ssid_len);
-+	if (ssid) {
-+		int len = clamp_val(ssid_len, 0, IEEE80211_MAX_SSID_LEN);
-+
-+		cmd->params.ssid_len = len;
-+		memcpy(cmd->params.ssid, ssid, len);
-+	}
- 
- 	ret = wl1251_cmd_send(wl, CMD_SCAN, cmd, sizeof(*cmd));
- 	if (ret < 0) {
+ flogifail:
 -- 
 2.30.2
 
