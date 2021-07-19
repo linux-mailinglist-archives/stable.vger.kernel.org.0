@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E9613CE0AD
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9813CE268
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238264AbhGSPRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49366 "EHLO mail.kernel.org"
+        id S1348427AbhGSPaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346441AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FDBB60FDA;
-        Mon, 19 Jul 2021 15:54:37 +0000 (UTC)
+        id S245168AbhGSP1e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:27:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71CE06113B;
+        Mon, 19 Jul 2021 16:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710077;
-        bh=qGZ/XPXWZNsgiZS33sYC3mAXAM5fqIhgEEX1RPAfsW4=;
+        s=korg; t=1626710893;
+        bh=LxXAEoD5Ila78o+YYGT3jjqLa2D/vUuiuMAS6PHKgPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUk0od3CVOkqvPZ/J7X4Sb8X7USWn/2iDDEAxYNbq6KdWLjVVOTjQTayJrNQDokFg
-         NNtBobhHIRgVxmqm8LsgWhGJwXRTOXwmi8XE2tafe7k7Nq0GZAvsMsxwuidJSRkWvo
-         wW0tsbPYo3OO+rXx2CsHmxcCfoyDpXxtLNMdqixA=
+        b=rWrBeC6MLZr1Q+kAkF8bm7zUVqsdfA7pBXqNPOwVdr++gZ+8uxziPlg/gXVqbLJi6
+         T4LW/M4OcOwnKaQzw0NCLl9DiJ7xsSXz8O7dyfWMK4HhqQqKNWNeFdV2FjtnEEZc8K
+         oIwanejDwEgePvx9hd6Y3Xmf1Ve1+AYwUyvgwhIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Ivan Jelincic <parazyd@dyne.org>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        "Sicelo A. Mhlongo" <absicsz@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/243] mfd: cpcap: Fix cpcap dmamask not set warnings
+Subject: [PATCH 5.13 148/351] power: supply: sc27xx: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:51:34 +0200
-Message-Id: <20210719144943.016722884@linuxfoundation.org>
+Message-Id: <20210719144949.872588319@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 0b7cbe811ca524295ea43d9a4d73d3427e419c54 ]
+[ Upstream commit 603fcfb9d4ec1cad8d66d3bb37f3613afa8a661a ]
 
-We have started to get a bunch of pointless dmamask not set warnings
-that makes the output of dmesg -l err,warn hard to read with many
-extra warnings:
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-cpcap-regulator cpcap-regulator.0: DMA mask not set
-cpcap_adc cpcap_adc.0: DMA mask not set
-cpcap_battery cpcap_battery.0: DMA mask not set
-cpcap-charger cpcap-charger.0: DMA mask not set
-cpcap-pwrbutton cpcap-pwrbutton.0: DMA mask not set
-cpcap-led cpcap-led.0: DMA mask not set
-cpcap-led cpcap-led.1: DMA mask not set
-cpcap-led cpcap-led.2: DMA mask not set
-cpcap-led cpcap-led.3: DMA mask not set
-cpcap-led cpcap-led.4: DMA mask not set
-cpcap-rtc cpcap-rtc.0: DMA mask not set
-cpcap-usb-phy cpcap-usb-phy.0: DMA mask not set
-
-This seems to have started with commit 4d8bde883bfb ("OF: Don't set
-default coherent DMA mask"). We have the parent SPI controller use
-DMA, while CPCAP driver and it's children do not. For audio, the
-DMA is handled over I2S bus with the McBSP driver.
-
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Ivan Jelincic <parazyd@dyne.org>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Sicelo A. Mhlongo <absicsz@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/motorola-cpcap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/power/supply/sc27xx_fuel_gauge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index 30d82bfe5b02..6fb206da2729 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -327,6 +327,10 @@ static int cpcap_probe(struct spi_device *spi)
- 	if (ret)
- 		return ret;
+diff --git a/drivers/power/supply/sc27xx_fuel_gauge.c b/drivers/power/supply/sc27xx_fuel_gauge.c
+index 9c627618c224..1ae8374e1ceb 100644
+--- a/drivers/power/supply/sc27xx_fuel_gauge.c
++++ b/drivers/power/supply/sc27xx_fuel_gauge.c
+@@ -1342,6 +1342,7 @@ static const struct of_device_id sc27xx_fgu_of_match[] = {
+ 	{ .compatible = "sprd,sc2731-fgu", },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, sc27xx_fgu_of_match);
  
-+	/* Parent SPI controller uses DMA, CPCAP and child devices do not */
-+	spi->dev.coherent_dma_mask = 0;
-+	spi->dev.dma_mask = &spi->dev.coherent_dma_mask;
-+
- 	return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
- 				    ARRAY_SIZE(cpcap_mfd_devices), NULL, 0, NULL);
- }
+ static struct platform_driver sc27xx_fgu_driver = {
+ 	.probe = sc27xx_fgu_probe,
 -- 
 2.30.2
 
