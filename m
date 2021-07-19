@@ -2,116 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D5083CE226
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADA383CE686
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 19:01:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346490AbhGSP3U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38166 "EHLO mail.kernel.org"
+        id S1349077AbhGSQH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 12:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348279AbhGSPYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0C216146E;
-        Mon, 19 Jul 2021 16:03:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626710640;
-        bh=NktaP5UM5AUliK7sgINcamt6vssyEjeyaA93J3yNswc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TZLv8cIkdfJLGUCHDMUaN2mGwPxEQDkuaRga+0krHtU8VpQ5nWys9MMZ8TA7bODJ8
-         G2jIAwshZIxHmKbjUUnRW6MQxTONaVHuw+cSxHjtenbrlO24UTdLwO0otUO7HxwBtg
-         bMHOIIIo+cR2EngDP8mf1aw6XddT4398Jy4XS4bvhjpouBDaQ16dK5zZteCIeRvDws
-         qY4I3ncjMXlZkuWnMpoPUeNgQ6RpdOwyGKwuSGOwBx++vQB904ENmZWVeupf1tkr4r
-         ByQhfrv4hrOXJGqzTyT1Slu3EP0EbIARmzSqyHoqunVPIpY3QtofZwztNXMy51jkrs
-         Z7Gj6eBhEzOMg==
-Date:   Mon, 19 Jul 2021 12:03:58 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.12.16 (stable-queue, e2aabcec)
-Message-ID: <YPWibiDQqHg1aw0o@sashalap>
-References: <cki.4B06E639A0.ME3EXCXRTW@redhat.com>
- <CA+tGwnkjpwHE6=5MxFRnHSZ6=LYN_uiJQhTOP1oTr2rqhSiTyg@mail.gmail.com>
- <YOyPn2MPRWjI3BnN@kroah.com>
- <CA+tGwn=trnVtDiUjHhvDJPMDNoXMnFc359ECSv39F_AB0++j+w@mail.gmail.com>
+        id S1347921AbhGSQFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 12:05:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B5961107;
+        Mon, 19 Jul 2021 16:45:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626713106;
+        bh=jwxkV8jZGl94FlM/nlAXZjfg9eIq3wI2w8TCMXtD7B8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=ekEebnjmLj78LW7/x5uuqqxy/MmRiB1PW29Puwk+GAQGFYr/tL+cdo6WRreQ+Q3nI
+         BYqU8wjK8sfODPwO2VCG1/cL4WInlSSoV/xiS936orrREaoEqOi0t76B4SeQJUWx9+
+         8hFRn27N5uVNEcywW30n281wpI6OYKgclg0W80n4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 110/351] selftests/powerpc: Fix "no_handler" EBB selftest
+Date:   Mon, 19 Jul 2021 16:50:56 +0200
+Message-Id: <20210719144948.128066923@linuxfoundation.org>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+tGwn=trnVtDiUjHhvDJPMDNoXMnFc359ECSv39F_AB0++j+w@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 04:54:36PM +0200, Veronika Kabatova wrote:
->On Mon, Jul 12, 2021 at 8:53 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->>
->> On Mon, Jul 12, 2021 at 03:40:01PM +0200, Veronika Kabatova wrote:
->> > On Mon, Jul 12, 2021 at 3:37 PM CKI Project <cki-project@redhat.com> wrote:
->> > >
->> > >
->> > > Hello,
->> > >
->> > > We ran automated tests on a recent commit from this kernel tree:
->> > >
->> > >        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->> > >             Commit: e2aabcece18e - powerpc/preempt: Don't touch the idle task's preempt_count during hotplug
->> > >
->> > > The results of these automated tests are provided below.
->> > >
->> > >     Overall result: FAILED (see details below)
->> > >              Merge: OK
->> > >            Compile: FAILED
->> > >
->> > > All kernel binaries, config files, and logs are available for download here:
->> > >
->> > >   https://arr-cki-prod-datawarehouse-public.s3.amazonaws.com/index.html?prefix=datawarehouse-public/2021/07/12/335283844
->> > >
->> > > We attempted to compile the kernel for multiple architectures, but the compile
->> > > failed on one or more architectures:
->> > >
->> > >             x86_64: FAILED (see build-x86_64.log.xz attachment)
->> >
->> > 00:07:45 sound/soc/intel/boards/sof_sdw.c:200:41: error: implicit
->> > declaration of function ‘SOF_BT_OFFLOAD_SSP’
->> > [-Werror=implicit-function-declaration]
->> > 00:07:45   200 |                                         SOF_BT_OFFLOAD_SSP(2) |
->> > 00:07:45       |                                         ^~~~~~~~~~~~~~~~~~
->> > 00:07:45 sound/soc/intel/boards/sof_sdw.c:201:41: error:
->> > ‘SOF_SSP_BT_OFFLOAD_PRESENT’ undeclared here (not in a function)
->> > 00:07:45   201 |
->> > SOF_SSP_BT_OFFLOAD_PRESENT),
->> > 00:07:45       |
->> > ^~~~~~~~~~~~~~~~~~~~~~~~~~
->> > 00:07:45 cc1: some warnings being treated as errors
->> > 00:07:45 make[6]: *** [scripts/Makefile.build:272:
->> > sound/soc/intel/boards/sof_sdw.o] Error 1
->> > 00:07:45 make[5]: *** [scripts/Makefile.build:515:
->> > sound/soc/intel/boards] Error 2
->> > 00:07:45 make[4]: *** [scripts/Makefile.build:515: sound/soc/intel] Error 2
->> > 00:07:45 make[3]: *** [scripts/Makefile.build:515: sound/soc] Error 2
->> > 00:07:45 make[2]: *** [Makefile:1859: sound] Error 2
->> >
->> >
->> > Hi, this looks to be introduced by
->> >
->> > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.12&id=514524d8977c5eca653e739fa580862f027e2b37
->> >
->>
->> Thanks, offending patches now dropped from all queues.
->
->Hi,
->
->it looks like the patch sneaked back into the release and queue
->for 5.13, we're seeing this compile error again:
->
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=queue/5.13&id=1da8a7c09a8cbb265e88ab16645353005352bf51
->https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/commit/?h=linux-5.13.y&id=fe01a34f7e0a0e6b1814b650bab20facac703122
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-Uh, apparently I had it in two of my queues. Now dropped again, thanks!
+[ Upstream commit 45677c9aebe926192e59475b35a1ff35ff2d4217 ]
 
+The "no_handler_test" in ebb selftests attempts to read the PMU
+registers twice via helper function "dump_ebb_state". First dump is
+just before closing of event and the second invocation is done after
+closing of the event. The original intention of second
+dump_ebb_state was to dump the state of registers at the end of
+the test when the counters are frozen. But this will be achieved
+with the first call itself since sample period is set to low value
+and PMU will be frozen by then. Hence patch removes the
+dump which was done before closing of the event.
+
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com <mailto:rnsastry@linux.ibm.com>>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1621950703-1532-2-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
+index fc5bf4870d8e..01e827c31169 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
+@@ -50,8 +50,6 @@ static int no_handler_test(void)
+ 
+ 	event_close(&event);
+ 
+-	dump_ebb_state();
+-
+ 	/* The real test is that we never took an EBB at 0x0 */
+ 
+ 	return 0;
 -- 
-Thanks,
-Sasha
+2.30.2
+
+
+
