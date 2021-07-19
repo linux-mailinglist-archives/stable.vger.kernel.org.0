@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B66003CDB38
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 411CC3CD90F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245086AbhGSOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54628 "EHLO mail.kernel.org"
+        id S242831AbhGSO0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244162AbhGSOhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:37:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E91FD61186;
-        Mon, 19 Jul 2021 15:17:28 +0000 (UTC)
+        id S244342AbhGSOZF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:25:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C5AC6024A;
+        Mon, 19 Jul 2021 15:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707849;
-        bh=PFPsGtloBeXk6RGscme2w6t+8g1G3WoUgkd9m9GI2yA=;
+        s=korg; t=1626707145;
+        bh=6RJKt1rJB+Tl9PSJdzMzybbrRaOroIwvNMi4G3NUILc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqfzC7WznIA8mv5q++LN3WLZNEPhnXcXiBJAeRahxSW1qrp4kmycUUjW1z7XdsdMr
-         O91il2QK/HZubIGkD8bHewLmWSyvib9z96HiEYXgQ2OEZBa5ljOxH7ZSFRioiyGILE
-         33Hi5D57TU+80NVAK9iln5Rf3NQbKyRNbHYfdsRQ=
+        b=UbMFQF4IHwTmK+v7C6pcI7RuctDXS20JL6Z0HZXA00DMtLLEL/lLkH+BCVe8YLVV1
+         3/RP8YaTs0mWX7DnCg/PHXUW/4MB69qFfIr8blxiZxuGfHmIEW+GeOI4zvrBCS7d3s
+         HWG0ODO/t+2Yd27xHK7rqLHuKoyzTed5/Gr55SEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        John Allen <john.allen@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 082/315] crypto: ccp - Fix a resource leak in an error handling path
+Subject: [PATCH 4.9 029/245] spi: spi-loopback-test: Fix tx_buf might be rx_buf
 Date:   Mon, 19 Jul 2021 16:49:31 +0200
-Message-Id: <20210719144945.570151277@linuxfoundation.org>
+Message-Id: <20210719144941.348110284@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit a6f8e68e238a15bb15f1726b35c695136c64eaba ]
+[ Upstream commit 9e37a3ab0627011fb63875e9a93094b6fc8ddf48 ]
 
-If an error occurs after calling 'sp_get_irqs()', 'sp_free_irqs()' must be
-called as already done in the error handling path.
+In function 'spi_test_run_iter': Value 'tx_buf' might be 'rx_buf'.
 
-Fixes: f4d18d656f88 ("crypto: ccp - Abstract interrupt registeration")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: John Allen <john.allen@amd.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/1620629903-15493-5-git-send-email-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sp-pci.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/spi/spi-loopback-test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/ccp/sp-pci.c b/drivers/crypto/ccp/sp-pci.c
-index 9859aa683a28..e820d99c555f 100644
---- a/drivers/crypto/ccp/sp-pci.c
-+++ b/drivers/crypto/ccp/sp-pci.c
-@@ -173,7 +173,7 @@ static int sp_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 		if (ret) {
- 			dev_err(dev, "dma_set_mask_and_coherent failed (%d)\n",
- 				ret);
--			goto e_err;
-+			goto free_irqs;
- 		}
+diff --git a/drivers/spi/spi-loopback-test.c b/drivers/spi/spi-loopback-test.c
+index 7120083fe761..cac38753d0cd 100644
+--- a/drivers/spi/spi-loopback-test.c
++++ b/drivers/spi/spi-loopback-test.c
+@@ -803,7 +803,7 @@ static int spi_test_run_iter(struct spi_device *spi,
+ 			test.transfers[i].len = len;
+ 		if (test.transfers[i].tx_buf)
+ 			test.transfers[i].tx_buf += tx_off;
+-		if (test.transfers[i].tx_buf)
++		if (test.transfers[i].rx_buf)
+ 			test.transfers[i].rx_buf += rx_off;
  	}
  
-@@ -181,12 +181,14 @@ static int sp_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 
- 	ret = sp_init(sp);
- 	if (ret)
--		goto e_err;
-+		goto free_irqs;
- 
- 	dev_notice(dev, "enabled\n");
- 
- 	return 0;
- 
-+free_irqs:
-+	sp_free_irqs(sp);
- e_err:
- 	dev_notice(dev, "initialization failed\n");
- 	return ret;
 -- 
 2.30.2
 
