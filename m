@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D60F43CDF36
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1886D3CDE53
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345161AbhGSPIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
+        id S1344780AbhGSPCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245660AbhGSPF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBEEA6023D;
-        Mon, 19 Jul 2021 15:46:33 +0000 (UTC)
+        id S1344700AbhGSO7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D25B60551;
+        Mon, 19 Jul 2021 15:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709594;
-        bh=CvdYBrxiw1l1zZ4Cc/5Uh8+NuGV4y9yalN8+wGYIBAk=;
+        s=korg; t=1626709234;
+        bh=0NGF+/Yk5kcNR1dfnZcL1k/x5L1AmX9YZ0m95ltl6fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELTyYXrI4r6Ig2hsaVrWZthxuvhLH7rO6DYp+3S2PNXjL1Tup1dQB62I+Fh3k8OIp
-         VOA7EhEkvtwldhX1zCY45a0HOZvB/m0iZoRd7xiJFSghoMI1Uj4fbOu+KVjEKlfrwW
-         WrSYGqTAHkbPMsfDC9SxQf5A8Ilz+t/AQ3+0plKo=
+        b=on3Oc2MiDenzsiIxZ8lZ0rDdaQSzBUgKPK4fxpr8dbr7IhuEUfU8nisC4r7JTiAsD
+         W8O8yM01RCzHeyNJNnk7aOdfp+1R6kbrTO5XlsZDaouyhTi4zjGl7an9h7j0EEMoeb
+         qW8X70+Aw7j0HELJAYNjHJvhfkJwjR4hM1r6hnaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com,
-        Christoph Hellwig <hch@lst.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Dmitry Vyukov <dvyukov@google.com>, stable@kernel.org,
-        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 006/149] cgroup: verify that source is a string
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Subject: [PATCH 4.19 303/421] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
 Date:   Mon, 19 Jul 2021 16:51:54 +0200
-Message-Id: <20210719144902.970233371@linuxfoundation.org>
+Message-Id: <20210719144956.833048832@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 3b0462726e7ef281c35a7a4ae33e93ee2bc9975b upstream.
+commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
 
-The following sequence can be used to trigger a UAF:
+In the out_err_bus_register error branch of tpci200_pci_probe,
+tpci200->info->cfg_regs is freed by tpci200_uninstall()->
+tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
+in the first time.
 
-    int fscontext_fd = fsopen("cgroup");
-    int fd_null = open("/dev/null, O_RDONLY);
-    int fsconfig(fscontext_fd, FSCONFIG_SET_FD, "source", fd_null);
-    close_range(3, ~0U, 0);
+But later, iounmap() is called to free tpci200->info->cfg_regs
+again.
 
-The cgroup v1 specific fs parser expects a string for the "source"
-parameter.  However, it is perfectly legitimate to e.g.  specify a file
-descriptor for the "source" parameter.  The fs parser doesn't know what
-a filesystem allows there.  So it's a bug to assume that "source" is
-always of type fs_value_is_string when it can reasonably also be
-fs_value_is_file.
+My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
+to avoid the double free.
 
-This assumption in the cgroup code causes a UAF because struct
-fs_parameter uses a union for the actual value.  Access to that union is
-guarded by the param->type member.  Since the cgroup paramter parser
-didn't check param->type but unconditionally moved param->string into
-fc->source a close on the fscontext_fd would trigger a UAF during
-put_fs_context() which frees fc->source thereby freeing the file stashed
-in param->file causing a UAF during a close of the fd_null.
-
-Fix this by verifying that param->type is actually a string and report
-an error if not.
-
-In follow up patches I'll add a new generic helper that can be used here
-and by other filesystems instead of this error-prone copy-pasta fix.
-But fixing it in here first makes backporting a it to stable a lot
-easier.
-
-Fixes: 8d2451f4994f ("cgroup1: switch to option-by-option parsing")
-Reported-by: syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: <stable@kernel.org>
-Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cgroup-v1.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/ipack/carriers/tpci200.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -918,6 +918,8 @@ int cgroup1_parse_param(struct fs_contex
- 	opt = fs_parse(fc, &cgroup1_fs_parameters, param, &result);
- 	if (opt == -ENOPARAM) {
- 		if (strcmp(param->key, "source") == 0) {
-+			if (param->type != fs_value_is_string)
-+				return invalf(fc, "Non-string source");
- 			if (fc->source)
- 				return invalf(fc, "Multiple sources not supported");
- 			fc->source = param->string;
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -599,8 +599,11 @@ static int tpci200_pci_probe(struct pci_
+ 
+ out_err_bus_register:
+ 	tpci200_uninstall(tpci200);
++	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
++	tpci200->info->cfg_regs = NULL;
+ out_err_install:
+-	iounmap(tpci200->info->cfg_regs);
++	if (tpci200->info->cfg_regs)
++		iounmap(tpci200->info->cfg_regs);
+ out_err_ioremap:
+ 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
+ out_err_pci_request:
 
 
