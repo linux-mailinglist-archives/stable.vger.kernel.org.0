@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7809A3CE4C5
+	by mail.lfdr.de (Postfix) with ESMTP id C07503CE4C6
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236104AbhGSPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43674 "EHLO mail.kernel.org"
+        id S236323AbhGSPqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348353AbhGSPmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348352AbhGSPmp (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:42:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA55B61404;
-        Mon, 19 Jul 2021 16:21:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9238F613EE;
+        Mon, 19 Jul 2021 16:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711717;
-        bh=HhGH2nShtf085j9Q6EdZ9DG6ZWL1jEl8tbmBg7X1qpk=;
+        s=korg; t=1626711720;
+        bh=D8wE6hMjQTlUe9QWH2Md16qINHYcgAlC8HKXj4ZNvMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUyU5l2+QVzLZnRajUk6ixYHZoBrkuyRmtGDgutTQ5Vhn/WRUJL3A9/QEyilSYDM0
-         LFLiBym0xZsrnMjhRrAm4Ciu5b6Ld/q73fSQZL2yoh0SthYW85xv3AjURKrlqt40jj
-         rZ288awys396GeqIbbLt3AFbH82H7uOuwE4pohQE=
+        b=VlQtfuJ5sMMWxJyOF8w5W5ltNxPQNpDsHZugrf4UtAF3bK6adHEUWj1sMA9By5FSx
+         vCg0xrsbG1EMhLe/ULGicj1l1lW+pLNCnWRxUfi7udfNzjhrg9hHMa5F6z4KASy27V
+         vP8M7yOx5hUVsv819yYILxW6Ic2OdSehwivoguKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
         Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 106/292] s390/processor: always inline stap() and __load_psw_mask()
-Date:   Mon, 19 Jul 2021 16:52:48 +0200
-Message-Id: <20210719144945.983944477@linuxfoundation.org>
+Subject: [PATCH 5.12 107/292] s390/ipl_parm: fix program check new psw handling
+Date:   Mon, 19 Jul 2021 16:52:49 +0200
+Message-Id: <20210719144946.016010110@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,44 +42,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 9c9a915afd90f7534c16a71d1cd44b58596fddf3 ]
+[ Upstream commit 88c2510cecb7e2b518e3c4fdf3cf0e13ebe9377c ]
 
-s390 is the only architecture which makes use of the __no_kasan_or_inline
-attribute for two functions. Given that both stap() and __load_psw_mask()
-are very small functions they can and should be always inlined anyway.
+The __diag308() inline asm temporarily changes the program check new
+psw to redirect a potential program check on the diag instruction.
+Restoring of the program check new psw is done in C code behind the
+inline asm.
 
-Therefore get rid of __no_kasan_or_inline and always inline these
-functions.
+This can be problematic, especially if the function is inlined, since
+the compiler can reorder instructions in such a way that a different
+instruction, which may result in a program check, might be executed
+before the program check new psw has been restored.
+
+To avoid such a scenario move restoring into the inline asm. For
+consistency reasons move also saving of the original program check new
+psw into the inline asm.
 
 Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/processor.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/boot/ipl_parm.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/processor.h b/arch/s390/include/asm/processor.h
-index 023a15dc25a3..dbd380d81133 100644
---- a/arch/s390/include/asm/processor.h
-+++ b/arch/s390/include/asm/processor.h
-@@ -207,7 +207,7 @@ static __always_inline unsigned long current_stack_pointer(void)
- 	return sp;
+diff --git a/arch/s390/boot/ipl_parm.c b/arch/s390/boot/ipl_parm.c
+index d372a45fe10e..dd92092e3eec 100644
+--- a/arch/s390/boot/ipl_parm.c
++++ b/arch/s390/boot/ipl_parm.c
+@@ -28,22 +28,25 @@ static inline int __diag308(unsigned long subcode, void *addr)
+ 	register unsigned long _addr asm("0") = (unsigned long)addr;
+ 	register unsigned long _rc asm("1") = 0;
+ 	unsigned long reg1, reg2;
+-	psw_t old = S390_lowcore.program_new_psw;
++	psw_t old;
+ 
+ 	asm volatile(
++		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
+ 		"	epsw	%0,%1\n"
+-		"	st	%0,%[psw_pgm]\n"
+-		"	st	%1,%[psw_pgm]+4\n"
++		"	st	%0,0(%[psw_pgm])\n"
++		"	st	%1,4(%[psw_pgm])\n"
+ 		"	larl	%0,1f\n"
+-		"	stg	%0,%[psw_pgm]+8\n"
++		"	stg	%0,8(%[psw_pgm])\n"
+ 		"	diag	%[addr],%[subcode],0x308\n"
+-		"1:	nopr	%%r7\n"
++		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
+ 		: "=&d" (reg1), "=&a" (reg2),
+-		  [psw_pgm] "=Q" (S390_lowcore.program_new_psw),
++		  "+Q" (S390_lowcore.program_new_psw),
++		  "=Q" (old),
+ 		  [addr] "+d" (_addr), "+d" (_rc)
+-		: [subcode] "d" (subcode)
++		: [subcode] "d" (subcode),
++		  [psw_old] "a" (&old),
++		  [psw_pgm] "a" (&S390_lowcore.program_new_psw)
+ 		: "cc", "memory");
+-	S390_lowcore.program_new_psw = old;
+ 	return _rc;
  }
  
--static __no_kasan_or_inline unsigned short stap(void)
-+static __always_inline unsigned short stap(void)
- {
- 	unsigned short cpu_address;
- 
-@@ -246,7 +246,7 @@ static inline void __load_psw(psw_t psw)
-  * Set PSW mask to specified value, while leaving the
-  * PSW addr pointing to the next instruction.
-  */
--static __no_kasan_or_inline void __load_psw_mask(unsigned long mask)
-+static __always_inline void __load_psw_mask(unsigned long mask)
- {
- 	unsigned long addr;
- 	psw_t psw;
 -- 
 2.30.2
 
