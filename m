@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A28F3CE469
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A5D33CE46B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347953AbhGSPni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35796 "EHLO mail.kernel.org"
+        id S1348196AbhGSPnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348002AbhGSPjr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348010AbhGSPjr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00DA660FDC;
-        Mon, 19 Jul 2021 16:19:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAE0461209;
+        Mon, 19 Jul 2021 16:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711572;
-        bh=N9tg4uOowuFl6i9wi0x5B9WKbHwNGTjWXkUqtqYIuno=;
+        s=korg; t=1626711575;
+        bh=O9+YOua0G9KnyA2M8OLH87WPhPFNQl5D35Y7gWGQ2s4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B7w7u2Of9yqdk20FRoX1CbMDEZXUwDJArNid+g72ToCHYbbRPDWeXx851Li1dIkO2
-         f+sBYH84imKuBtlHrLDjUnEi6QUZlGJi9r+x4CH6zHP+hY3+qYusYpnzuDdj6UCSCK
-         +8rTcqK85QiUfr5bq0r0rEtRpeGjA2GzrUirSXJw=
+        b=sDgXHYHNK7LC1DGQA60VwFxTCE6CFJQmk1McNVVjloTSBT4zI1XMhjYsU0P8e6BW+
+         /NppVoDrTytpykyeM6AlKPPUirwO4YMngxU1npyj6JjbGO8oz5uCcrooAJyvcX1Ld5
+         G0B6QNfR6NyNZdDv4avQZNTFMZRu7rsTwpODZneg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, Luiz Sampaio <sampaio.ime@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 053/292] usb: common: usb-conn-gpio: fix NULL pointer dereference of charger
-Date:   Mon, 19 Jul 2021 16:51:55 +0200
-Message-Id: <20210719144944.263116022@linuxfoundation.org>
+Subject: [PATCH 5.12 054/292] w1: ds2438: fixing bug that would always get page0
+Date:   Mon, 19 Jul 2021 16:51:56 +0200
+Message-Id: <20210719144944.298306159@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -39,96 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Luiz Sampaio <sampaio.ime@gmail.com>
 
-[ Upstream commit 880287910b1892ed2cb38977893b947382a09d21 ]
+[ Upstream commit 1f5e7518f063728aee0679c5086b92d8ea429e11 ]
 
-When power on system with OTG cable, IDDIG's interrupt arises before
-the charger registration, it will cause a NULL pointer dereference,
-fix the issue by registering the power supply before requesting
-IDDIG/VBUS irq.
+The purpose of the w1_ds2438_get_page function is to get the register
+values at the page passed as the pageno parameter. However, the page0 was
+hardcoded, such that the function always returned the page0 contents. Fixed
+so that the function can retrieve any page.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1621406386-18838-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Luiz Sampaio <sampaio.ime@gmail.com>
+Link: https://lore.kernel.org/r/20210519223046.13798-5-sampaio.ime@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/common/usb-conn-gpio.c | 44 ++++++++++++++++++------------
- 1 file changed, 26 insertions(+), 18 deletions(-)
+ drivers/w1/slaves/w1_ds2438.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/common/usb-conn-gpio.c b/drivers/usb/common/usb-conn-gpio.c
-index 6c4e3a19f42c..c9545a4eff66 100644
---- a/drivers/usb/common/usb-conn-gpio.c
-+++ b/drivers/usb/common/usb-conn-gpio.c
-@@ -149,14 +149,32 @@ static int usb_charger_get_property(struct power_supply *psy,
- 	return 0;
- }
+diff --git a/drivers/w1/slaves/w1_ds2438.c b/drivers/w1/slaves/w1_ds2438.c
+index 5cfb0ae23e91..5698566b0ee0 100644
+--- a/drivers/w1/slaves/w1_ds2438.c
++++ b/drivers/w1/slaves/w1_ds2438.c
+@@ -62,13 +62,13 @@ static int w1_ds2438_get_page(struct w1_slave *sl, int pageno, u8 *buf)
+ 		if (w1_reset_select_slave(sl))
+ 			continue;
+ 		w1_buf[0] = W1_DS2438_RECALL_MEMORY;
+-		w1_buf[1] = 0x00;
++		w1_buf[1] = (u8)pageno;
+ 		w1_write_block(sl->master, w1_buf, 2);
  
--static int usb_conn_probe(struct platform_device *pdev)
-+static int usb_conn_psy_register(struct usb_conn_info *info)
- {
--	struct device *dev = &pdev->dev;
--	struct power_supply_desc *desc;
--	struct usb_conn_info *info;
-+	struct device *dev = info->dev;
-+	struct power_supply_desc *desc = &info->desc;
- 	struct power_supply_config cfg = {
- 		.of_node = dev->of_node,
- 	};
-+
-+	desc->name = "usb-charger";
-+	desc->properties = usb_charger_properties;
-+	desc->num_properties = ARRAY_SIZE(usb_charger_properties);
-+	desc->get_property = usb_charger_get_property;
-+	desc->type = POWER_SUPPLY_TYPE_USB;
-+	cfg.drv_data = info;
-+
-+	info->charger = devm_power_supply_register(dev, desc, &cfg);
-+	if (IS_ERR(info->charger))
-+		dev_err(dev, "Unable to register charger\n");
-+
-+	return PTR_ERR_OR_ZERO(info->charger);
-+}
-+
-+static int usb_conn_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct usb_conn_info *info;
- 	bool need_vbus = true;
- 	int ret = 0;
+ 		if (w1_reset_select_slave(sl))
+ 			continue;
+ 		w1_buf[0] = W1_DS2438_READ_SCRATCH;
+-		w1_buf[1] = 0x00;
++		w1_buf[1] = (u8)pageno;
+ 		w1_write_block(sl->master, w1_buf, 2);
  
-@@ -218,6 +236,10 @@ static int usb_conn_probe(struct platform_device *pdev)
- 		return PTR_ERR(info->role_sw);
- 	}
- 
-+	ret = usb_conn_psy_register(info);
-+	if (ret)
-+		goto put_role_sw;
-+
- 	if (info->id_gpiod) {
- 		info->id_irq = gpiod_to_irq(info->id_gpiod);
- 		if (info->id_irq < 0) {
-@@ -252,20 +274,6 @@ static int usb_conn_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	desc = &info->desc;
--	desc->name = "usb-charger";
--	desc->properties = usb_charger_properties;
--	desc->num_properties = ARRAY_SIZE(usb_charger_properties);
--	desc->get_property = usb_charger_get_property;
--	desc->type = POWER_SUPPLY_TYPE_USB;
--	cfg.drv_data = info;
--
--	info->charger = devm_power_supply_register(dev, desc, &cfg);
--	if (IS_ERR(info->charger)) {
--		dev_err(dev, "Unable to register charger\n");
--		return PTR_ERR(info->charger);
--	}
--
- 	platform_set_drvdata(pdev, info);
- 
- 	/* Perform initial detection */
+ 		count = w1_read_block(sl->master, buf, DS2438_PAGE_SIZE + 1);
 -- 
 2.30.2
 
