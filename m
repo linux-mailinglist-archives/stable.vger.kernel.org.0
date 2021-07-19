@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FFF3CE142
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD1CD3CE362
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344196AbhGSPZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
+        id S241446AbhGSPhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347438AbhGSPQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:16:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23708611C1;
-        Mon, 19 Jul 2021 15:56:55 +0000 (UTC)
+        id S1347299AbhGSPfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2261E61464;
+        Mon, 19 Jul 2021 16:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710216;
-        bh=4l/AoMsvGwjk7Lsth8aoRoQQpUwOUt4rTVkI0sOT9vM=;
+        s=korg; t=1626711137;
+        bh=6oussey0HRECi3hSQKZL9JXBsdu6U9bASLIFinatFVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdEjEs94FYfIakBWR0n+tM4VlrHf6i7t/yBmd8CSfy9sjrBCjrxsDdqJ6pMRMx5VO
-         4NCyuQwql4Pw4FaR2/1O3fImwpYbV1PNBlBGV4iIgmJ8y6hf5I5q3IxC4o17w06wV4
-         Igwye1wqN2Yxj69fjCWDjGgJ/5ptT+hJPJpQgVOY=
+        b=hU+G1ycxHXGSnU+xUoLUpg0b0XzItw2DDsCGbXJuBa082rGOWhCfMefYIc6a+gLkT
+         1JG3l8xGe0SVGPri9FQwoWGs1I9h5wWO9oEJWstIIVcuAMbzyH23Dv7MSC2KbJrpMt
+         K7Mk3TRsBDvhnSptgEw5F/DfyVIbpKQDJVY0Rugs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/243] watchdog: Fix possible use-after-free by calling del_timer_sync()
+Subject: [PATCH 5.13 208/351] remoteproc: stm32: fix phys_addr_t format string
 Date:   Mon, 19 Jul 2021 16:52:34 +0200
-Message-Id: <20210719144944.942445469@linuxfoundation.org>
+Message-Id: <20210719144951.850159163@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+[ Upstream commit 3e25e407a1c93b53a87a7743ea0cd4703d3985b7 ]
 
-This driver's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+A phys_addr_t may be wider than an int or pointer:
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+drivers/remoteproc/stm32_rproc.c: In function 'stm32_rproc_da_to_pa':
+drivers/remoteproc/stm32_rproc.c:583:30: error: format '%x' expects argument of type 'unsigned int', but argument 5 has type 'phys_addr_t' {aka 'long long unsigned int'} [-Werror=format=]
+  583 |                 dev_dbg(dev, "da %llx to pa %#x\n", da, *pa);
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Print it by reference using the special %pap format string.
+
+Reviewed-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Fixes: 8a471396d21c ("remoteproc: stm32: Move resource table setup to rproc_ops")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210421140053.3727528-1-arnd@kernel.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/remoteproc/stm32_rproc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index 78cf11c94941..60b6d74f267d 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+diff --git a/drivers/remoteproc/stm32_rproc.c b/drivers/remoteproc/stm32_rproc.c
+index 0e8203a432ab..b643efcf995a 100644
+--- a/drivers/remoteproc/stm32_rproc.c
++++ b/drivers/remoteproc/stm32_rproc.c
+@@ -576,7 +576,7 @@ static int stm32_rproc_da_to_pa(struct rproc *rproc,
+ 			continue;
  
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
+ 		*pa = da - p_mem->dev_addr + p_mem->bus_addr;
+-		dev_dbg(dev, "da %llx to pa %#x\n", da, *pa);
++		dev_dbg(dev, "da %llx to pa %pap\n", da, pa);
  
- 	return 0;
- }
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index 5772cc5d3780..f2650863fd02 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -166,7 +166,7 @@ static void wdt_startup(void)
- static void wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
- 
- 	wdt_change(WDT_DISABLE);
- 
+ 		return 0;
+ 	}
 -- 
 2.30.2
 
