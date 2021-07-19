@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E576E3CDBCF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0E33CDBDD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238598AbhGSOtu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
+        id S238880AbhGSOuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344231AbhGSOsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344236AbhGSOsn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14B766140A;
-        Mon, 19 Jul 2021 15:27:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4006F60FED;
+        Mon, 19 Jul 2021 15:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708437;
-        bh=1fOpBQFPGJh3jYfnNThexnAEFH4o1IaAuITIQp2BZdw=;
+        s=korg; t=1626708442;
+        bh=MHBxAPKyqc+lJw8lq8G4ATINV2DINglleA8QB3vIpRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2rOkZsXhX0ohi0DK8Q0k1LdNov+KIAevl21/hGc+b5mezon09mvPXgCNC8VZGPkJ4
-         Hq3MGtwn9SiK/IzYs4KOnNmq9xw73XaccNuYlwUTCj42tAcvLIOWHzmShLA4jRi05p
-         l7LRuw9mJTZ6SgmlD4oQttboc9z3W+UvQvlHo/kY=
+        b=zL0G2NoWIE+B7HVyjrLgHw2nQv79QI5nKaPkgqhIptxDy1iYzEXV3XUtiugyjVWJQ
+         e7f66+HqnTGKf/T/Zg7bzvimIYEUietrr3XCri9kdngBUakL5G5ha2clmXOBRYXD4u
+         0vZRGh1cHkNW07KNWTly81eqZRIaHEPnc2ZlJJvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 310/315] ARM: dts: am335x: align ti,pindir-d0-out-d1-in property with dt-shema
-Date:   Mon, 19 Jul 2021 16:53:19 +0200
-Message-Id: <20210719144953.670503267@linuxfoundation.org>
+Subject: [PATCH 4.14 312/315] mips: always link byteswap helpers into decompressor
+Date:   Mon, 19 Jul 2021 16:53:21 +0200
+Message-Id: <20210719144953.740204246@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -40,34 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 414bfe1d26b60ef20b58e36efd5363188a694bab ]
+[ Upstream commit cddc40f5617e53f97ef019d5b29c1bd6cbb031ec ]
 
-ti,pindir-d0-out-d1-in property is expected to be of type boolean.
-Therefore, fix the property accordingly.
+My series to clean up the unaligned access implementation
+across architectures caused some mips randconfig builds to
+fail with:
 
-Fixes: 444d66fafab8 ("ARM: dts: add spi wifi support to cm-t335")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+   mips64-linux-ld: arch/mips/boot/compressed/decompress.o: in function `decompress_kernel':
+   decompress.c:(.text.decompress_kernel+0x54): undefined reference to `__bswapsi2'
+
+It turns out that this problem has already been fixed for the XZ
+decompressor but now it also shows up in (at least) LZO and LZ4.  From my
+analysis I concluded that the compiler could always have emitted those
+calls, but the different implementation allowed it to make otherwise
+better decisions about not inlining the byteswap, which results in the
+link error when the out-of-line code is missing.
+
+While it could be addressed by adding it to the two decompressor
+implementations that are known to be affected, but as this only adds
+112 bytes to the kernel, the safer choice is to always add them.
+
+Fixes: c50ec6787536 ("MIPS: zboot: Fix the build with XZ compression on older GCC versions")
+Fixes: 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers")
+Link: https://lore.kernel.org/linux-mm/202106301304.gz2wVY9w-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106260659.TyMe8mjr-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106172016.onWT6Tza-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202105231743.JJcALnhS-lkp@intel.com/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-cm-t335.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/boot/compressed/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-cm-t335.dts b/arch/arm/boot/dts/am335x-cm-t335.dts
-index 947c81b7aaaf..56a04d3086c3 100644
---- a/arch/arm/boot/dts/am335x-cm-t335.dts
-+++ b/arch/arm/boot/dts/am335x-cm-t335.dts
-@@ -552,7 +552,7 @@ status = "okay";
- 	status = "okay";
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&spi0_pins>;
--	ti,pindir-d0-out-d1-in = <1>;
-+	ti,pindir-d0-out-d1-in;
- 	/* WLS1271 WiFi */
- 	wlcore: wlcore@1 {
- 		compatible = "ti,wl1271";
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 516e593a8ee9..b5f08fac5ddc 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -33,7 +33,7 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
+ KCOV_INSTRUMENT		:= n
+ 
+ # decompressor objects (linked with vmlinuz)
+-vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
++vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o $(obj)/bswapsi.o
+ 
+ ifdef CONFIG_DEBUG_ZBOOT
+ vmlinuzobjs-$(CONFIG_DEBUG_ZBOOT)		   += $(obj)/dbg.o
+@@ -47,7 +47,7 @@ extra-y += uart-ath79.c
+ $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
+ 	$(call cmd,shipped)
+ 
+-vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o $(obj)/bswapsi.o
++vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
+ 
+ extra-y += ashldi3.c bswapsi.c
+ $(obj)/ashldi3.o $(obj)/bswapsi.o: KBUILD_CFLAGS += -I$(srctree)/arch/mips/lib
 -- 
 2.30.2
 
