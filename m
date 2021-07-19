@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436703CE402
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3EE3CE2B5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347612AbhGSPlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
+        id S1348623AbhGSPb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:31:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348737AbhGSPf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2244F6188B;
-        Mon, 19 Jul 2021 16:14:24 +0000 (UTC)
+        id S1347990AbhGSPX7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:23:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 852E16128E;
+        Mon, 19 Jul 2021 16:00:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711265;
-        bh=FF6FdsUlmnuBBRRI2C3j3WieIA8w49IEE/YOHnTkSJU=;
+        s=korg; t=1626710420;
+        bh=CqSn37A0mEvfsbRFxJgwwff0raFkcrKahWhhKEaD7UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LKdkQ3icd+po/wztRQI3ndUFnWjLzcDeSIbsMLGi9A0yztgpLXhlJgvrUKane1HnP
-         jTAtOVAlsYvRzNHokNwIrOAckQiWXFgsYMF7MDPZT6+Pjo2n81CNKt3hlJhLtVxuJp
-         6r2WZNLPvyS0U3iHVJ/qVpX+BusJYY37bHqK36as=
+        b=Ik5SfVnl7POKtr4KuwFqESCQJBnfrSNFt6STO3EGo4So2hMvAnlxAS5QPu33fTRy+
+         r0S6LP/6+ZLVFVdAbmFs7tUcbdzeFjaPx9zmEZARKcVhC6dlBNrr9FKsBhW8sLun8X
+         CYeE71oITG/hB0+bXtbRYf9lRhK6ZajcoZNKdpm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Caleb Connolly <caleb@connolly.tech>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 290/351] arm64: dts: qcom: sdm845-oneplus-common: guard rmtfs-mem
-Date:   Mon, 19 Jul 2021 16:53:56 +0200
-Message-Id: <20210719144954.633987245@linuxfoundation.org>
+Subject: [PATCH 5.10 208/243] arm64: dts: qcom: trogdor: Add no-hpd to DSI bridge node
+Date:   Mon, 19 Jul 2021 16:53:57 +0200
+Message-Id: <20210719144947.643324764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caleb Connolly <caleb@connolly.tech>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit e60fd5ac1f6851be5b2c042b39584bfcf8a66f57 ]
+[ Upstream commit 5f551b5ce55575b14c26933fe9b49365ea246b3d ]
 
-The rmtfs_mem region is a weird one, downstream allocates it
-dynamically, and supports a "qcom,guard-memory" property which when set
-will reserve 4k above and below the rmtfs memory.
+We should indicate that we're not using the HPD pin on this device, per
+the binding document. Otherwise if code in the future wants to enable
+HPD in the bridge when this property is absent we'll be wasting power
+powering hpd when we don't use it on trogdor boards. We didn't notice
+this before because the kernel driver blindly disables hpd, but that
+won't be true for much longer.
 
-A common from qcom 4.9 kernel msm_sharedmem driver:
-
-/*
- * If guard_memory is set, then the shared memory region
- * will be guarded by SZ_4K at the start and at the end.
- * This is needed to overcome the XPU limitation on few
- * MSM HW, so as to make this memory not contiguous with
- * other allocations that may possibly happen from other
- * clients in the system.
-*/
-
-When the kernel tries to touch memory that is too close the
-rmtfs region it may cause an XPU violation. Such is the case on the
-OnePlus 6 where random crashes would occur usually after boot.
-
-Reserve 4k above and below the rmtfs_mem to avoid hitting these XPU
-Violations.
-
-This doesn't entirely solve the random crashes on the OnePlus 6/6T but
-it does seem to prevent the ones which happen shortly after modem
-bringup.
-
-Fixes: 288ef8a42612 ("arm64: dts: sdm845: add oneplus6/6t devices")
-Signed-off-by: Caleb Connolly <caleb@connolly.tech>
-Link: https://lore.kernel.org/r/20210502014146.85642-4-caleb@connolly.tech
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: Douglas Anderson <dianders@chromium.org>
+Fixes: 7ec3e67307f8 ("arm64: dts: qcom: sc7180-trogdor: add initial trogdor and lazor dt")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210324025534.1837405-1-swboyd@chromium.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-index 8f617f7b6d34..f712771df0c7 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-@@ -46,6 +46,14 @@
- 	};
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+index bf875589d364..5b2a616c6257 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+@@ -622,6 +622,8 @@ edp_brij_i2c: &i2c2 {
+ 		clocks = <&rpmhcc RPMH_LN_BB_CLK3>;
+ 		clock-names = "refclk";
  
- 	reserved-memory {
-+		/* The rmtfs_mem needs to be guarded due to "XPU limitations"
-+		 * it is otherwise possible for an allocation adjacent to the
-+		 * rmtfs_mem region to trigger an XPU violation, causing a crash.
-+		 */
-+		rmtfs_lower_guard: memory@f5b00000 {
-+			no-map;
-+			reg = <0 0xf5b00000 0 0x1000>;
-+		};
- 		/*
- 		 * The rmtfs memory region in downstream is 'dynamically allocated'
- 		 * but given the same address every time. Hard code it as this address is
-@@ -59,6 +67,10 @@
- 			qcom,client-id = <1>;
- 			qcom,vmid = <15>;
- 		};
-+		rmtfs_upper_guard: memory@f5d01000 {
-+			no-map;
-+			reg = <0 0xf5d01000 0 0x2000>;
-+		};
- 
- 		/*
- 		 * It seems like reserving the old rmtfs_mem region is also needed to prevent
++		no-hpd;
++
+ 		ports {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.30.2
 
