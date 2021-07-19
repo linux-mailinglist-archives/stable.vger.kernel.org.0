@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C87C63CE1CE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B98FE3CE22F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346752AbhGSP1n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:27:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S1347708AbhGSP32 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:29:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348325AbhGSPYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE5461435;
-        Mon, 19 Jul 2021 16:04:20 +0000 (UTC)
+        id S1348191AbhGSPYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD12B61357;
+        Mon, 19 Jul 2021 16:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710661;
-        bh=JRHN1d/tspUR/JkC5JgQi2q0Kloygg45fjwUk11zO2o=;
+        s=korg; t=1626710573;
+        bh=bsO9+AlvIrvEHt+LlBmWdTtj1C8W/3RmGzPNsy+bniU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gzkh2mcF6+CqNaiF/JRkStipdFNxVUGlYRNauZNQuEcvXw4TwsRKnjVzrIgCirVXP
-         OMbltDrSpOOxuH3kP2h4GkLtgqKwnlTdWPfwaF99UGuoi57cs3d69krGHT1/p7NuZt
-         lEVJ7D3n3dkmI80nIHY5fo/lYmGONJazqGYkXEwk=
+        b=Ap8uLWl+CWkIEjkXA0nPb4zLhcOdgw8djWqI5iOZVV1D3awkfHIJao5pqDPvGfv4V
+         Bjh7lqf+SJ2BsRw4XJ/534RFbt0xzll0+FTEqpAqCDuHLouBnmjcnGM1i498eFmv/3
+         Nl6+nTcDe3e3L9A1GcvmZuPQvLj4oUaG6/WgVzyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
+        stable@vger.kernel.org,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.13 028/351] btrfs: properly split extent_map for REQ_OP_ZONE_APPEND
-Date:   Mon, 19 Jul 2021 16:49:34 +0200
-Message-Id: <20210719144945.452754485@linuxfoundation.org>
+Subject: [PATCH 5.13 029/351] btrfs: zoned: fix types for u64 division in btrfs_reclaim_bgs_work
+Date:   Mon, 19 Jul 2021 16:49:35 +0200
+Message-Id: <20210719144945.489096172@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -41,248 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: David Sterba <dsterba@suse.com>
 
-commit abb99cfdaf0759f8a619e5fecf52ccccdf310c8c upstream.
+commit 54afaae34ee49e98c1c902b444b42832551d090c upstream.
 
-Damien reported a test failure with btrfs/209. The test itself ran fine,
-but the fsck ran afterwards reported a corrupted filesystem.
+The types in calculation of the used percentage in the reclaiming
+messages are both u64, though bg->length is either 1GiB (non-zoned) or
+the zone size in the zoned mode. The upper limit on zone size is 8GiB so
+this could theoretically overflow in the future, right now the values
+fit.
 
-The filesystem corruption happens because we're splitting an extent and
-then writing the extent twice. We have to split the extent though, because
-we're creating too large extents for a REQ_OP_ZONE_APPEND operation.
-
-When dumping the extent tree, we can see two EXTENT_ITEMs at the same
-start address but different lengths.
-
-$ btrfs inspect dump-tree /dev/nullb1 -t extent
-...
-   item 19 key (269484032 EXTENT_ITEM 126976) itemoff 15470 itemsize 53
-           refs 1 gen 7 flags DATA
-           extent data backref root FS_TREE objectid 257 offset 786432 count 1
-   item 20 key (269484032 EXTENT_ITEM 262144) itemoff 15417 itemsize 53
-           refs 1 gen 7 flags DATA
-           extent data backref root FS_TREE objectid 257 offset 786432 count 1
-
-The duplicated EXTENT_ITEMs originally come from wrongly split extent_map in
-extract_ordered_extent(). Since extract_ordered_extent() uses
-create_io_em() to split an existing extent_map, we will have
-split->orig_start != split->start. Then, it will be logged with non-zero
-"extent data offset". Finally, the logged entries are replayed into
-a duplicated EXTENT_ITEM.
-
-Introduce and use proper splitting function for extent_map. The function is
-intended to be simple and specific usage for extract_ordered_extent() e.g.
-not supporting compression case (we do not allow splitting compressed
-extent_map anyway).
-
-There was a question raised by Qu, in summary why we want to split the
-extent map (and not the bio):
-
-The problem is not the limit on the zone end, which as you mention is
-the same as the block group end. The problem is that data write use zone
-append (ZA) operations. ZA BIOs cannot be split so a large extent may
-need to be processed with multiple ZA BIOs, While that is also true for
-regular writes, the major difference is that ZA are "nameless" write
-operation giving back the written sectors on completion. And ZA
-operations may be reordered by the block layer (not intentionally
-though). Combine both of these characteristics and you can see that the
-data for a large extent may end up being shuffled when written resulting
-in data corruption and the impossibility to map the extent to some start
-sector.
-
-To avoid this problem, zoned btrfs uses the principle "one data extent
-== one ZA BIO". So large extents need to be split. This is unfortunate,
-but we can revisit this later and optimize, e.g. merge back together the
-fragments of an extent once written if they actually were written
-sequentially in the zone.
-
-Reported-by: Damien Le Moal <damien.lemoal@wdc.com>
-Fixes: d22002fd37bd ("btrfs: zoned: split ordered extent when bio is sent")
-CC: stable@vger.kernel.org # 5.12+
-CC: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Fixes: 18bb8bbf13c1 ("btrfs: zoned: automatically reclaim zones")
+CC: stable@vger.kernel.org # 5.13
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |  147 ++++++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 118 insertions(+), 29 deletions(-)
+ fs/btrfs/block-group.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -2260,13 +2260,127 @@ bool btrfs_bio_fits_in_ordered_extent(st
- 	return ret;
- }
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -1539,7 +1539,7 @@ void btrfs_reclaim_bgs_work(struct work_
+ 			goto next;
  
-+/*
-+ * Split an extent_map at [start, start + len]
-+ *
-+ * This function is intended to be used only for extract_ordered_extent().
-+ */
-+static int split_zoned_em(struct btrfs_inode *inode, u64 start, u64 len,
-+			  u64 pre, u64 post)
-+{
-+	struct extent_map_tree *em_tree = &inode->extent_tree;
-+	struct extent_map *em;
-+	struct extent_map *split_pre = NULL;
-+	struct extent_map *split_mid = NULL;
-+	struct extent_map *split_post = NULL;
-+	int ret = 0;
-+	int modified;
-+	unsigned long flags;
-+
-+	/* Sanity check */
-+	if (pre == 0 && post == 0)
-+		return 0;
-+
-+	split_pre = alloc_extent_map();
-+	if (pre)
-+		split_mid = alloc_extent_map();
-+	if (post)
-+		split_post = alloc_extent_map();
-+	if (!split_pre || (pre && !split_mid) || (post && !split_post)) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ASSERT(pre + post < len);
-+
-+	lock_extent(&inode->io_tree, start, start + len - 1);
-+	write_lock(&em_tree->lock);
-+	em = lookup_extent_mapping(em_tree, start, len);
-+	if (!em) {
-+		ret = -EIO;
-+		goto out_unlock;
-+	}
-+
-+	ASSERT(em->len == len);
-+	ASSERT(!test_bit(EXTENT_FLAG_COMPRESSED, &em->flags));
-+	ASSERT(em->block_start < EXTENT_MAP_LAST_BYTE);
-+
-+	flags = em->flags;
-+	clear_bit(EXTENT_FLAG_PINNED, &em->flags);
-+	clear_bit(EXTENT_FLAG_LOGGING, &flags);
-+	modified = !list_empty(&em->list);
-+
-+	/* First, replace the em with a new extent_map starting from * em->start */
-+	split_pre->start = em->start;
-+	split_pre->len = (pre ? pre : em->len - post);
-+	split_pre->orig_start = split_pre->start;
-+	split_pre->block_start = em->block_start;
-+	split_pre->block_len = split_pre->len;
-+	split_pre->orig_block_len = split_pre->block_len;
-+	split_pre->ram_bytes = split_pre->len;
-+	split_pre->flags = flags;
-+	split_pre->compress_type = em->compress_type;
-+	split_pre->generation = em->generation;
-+
-+	replace_extent_mapping(em_tree, em, split_pre, modified);
-+
-+	/*
-+	 * Now we only have an extent_map at:
-+	 *     [em->start, em->start + pre] if pre != 0
-+	 *     [em->start, em->start + em->len - post] if pre == 0
-+	 */
-+
-+	if (pre) {
-+		/* Insert the middle extent_map */
-+		split_mid->start = em->start + pre;
-+		split_mid->len = em->len - pre - post;
-+		split_mid->orig_start = split_mid->start;
-+		split_mid->block_start = em->block_start + pre;
-+		split_mid->block_len = split_mid->len;
-+		split_mid->orig_block_len = split_mid->block_len;
-+		split_mid->ram_bytes = split_mid->len;
-+		split_mid->flags = flags;
-+		split_mid->compress_type = em->compress_type;
-+		split_mid->generation = em->generation;
-+		add_extent_mapping(em_tree, split_mid, modified);
-+	}
-+
-+	if (post) {
-+		split_post->start = em->start + em->len - post;
-+		split_post->len = post;
-+		split_post->orig_start = split_post->start;
-+		split_post->block_start = em->block_start + em->len - post;
-+		split_post->block_len = split_post->len;
-+		split_post->orig_block_len = split_post->block_len;
-+		split_post->ram_bytes = split_post->len;
-+		split_post->flags = flags;
-+		split_post->compress_type = em->compress_type;
-+		split_post->generation = em->generation;
-+		add_extent_mapping(em_tree, split_post, modified);
-+	}
-+
-+	/* Once for us */
-+	free_extent_map(em);
-+	/* Once for the tree */
-+	free_extent_map(em);
-+
-+out_unlock:
-+	write_unlock(&em_tree->lock);
-+	unlock_extent(&inode->io_tree, start, start + len - 1);
-+out:
-+	free_extent_map(split_pre);
-+	free_extent_map(split_mid);
-+	free_extent_map(split_post);
-+
-+	return ret;
-+}
-+
- static blk_status_t extract_ordered_extent(struct btrfs_inode *inode,
- 					   struct bio *bio, loff_t file_offset)
- {
- 	struct btrfs_ordered_extent *ordered;
--	struct extent_map *em = NULL, *em_new = NULL;
--	struct extent_map_tree *em_tree = &inode->extent_tree;
- 	u64 start = (u64)bio->bi_iter.bi_sector << SECTOR_SHIFT;
-+	u64 file_len;
- 	u64 len = bio->bi_iter.bi_size;
- 	u64 end = start + len;
- 	u64 ordered_end;
-@@ -2306,41 +2420,16 @@ static blk_status_t extract_ordered_exte
- 		goto out;
- 	}
- 
-+	file_len = ordered->num_bytes;
- 	pre = start - ordered->disk_bytenr;
- 	post = ordered_end - end;
- 
- 	ret = btrfs_split_ordered_extent(ordered, pre, post);
- 	if (ret)
- 		goto out;
--
--	read_lock(&em_tree->lock);
--	em = lookup_extent_mapping(em_tree, ordered->file_offset, len);
--	if (!em) {
--		read_unlock(&em_tree->lock);
--		ret = -EIO;
--		goto out;
--	}
--	read_unlock(&em_tree->lock);
--
--	ASSERT(!test_bit(EXTENT_FLAG_COMPRESSED, &em->flags));
--	/*
--	 * We cannot reuse em_new here but have to create a new one, as
--	 * unpin_extent_cache() expects the start of the extent map to be the
--	 * logical offset of the file, which does not hold true anymore after
--	 * splitting.
--	 */
--	em_new = create_io_em(inode, em->start + pre, len,
--			      em->start + pre, em->block_start + pre, len,
--			      len, len, BTRFS_COMPRESS_NONE,
--			      BTRFS_ORDERED_REGULAR);
--	if (IS_ERR(em_new)) {
--		ret = PTR_ERR(em_new);
--		goto out;
--	}
--	free_extent_map(em_new);
-+	ret = split_zoned_em(inode, file_offset, file_len, pre, post);
- 
- out:
--	free_extent_map(em);
- 	btrfs_put_ordered_extent(ordered);
- 
- 	return errno_to_blk_status(ret);
+ 		btrfs_info(fs_info, "reclaiming chunk %llu with %llu%% used",
+-				bg->start, div_u64(bg->used * 100, bg->length));
++				bg->start, div64_u64(bg->used * 100, bg->length));
+ 		trace_btrfs_reclaim_block_group(bg);
+ 		ret = btrfs_relocate_chunk(fs_info, bg->start);
+ 		if (ret)
 
 
