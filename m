@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 285623CDBF8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 622683CDE49
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239471AbhGSOun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60724 "EHLO mail.kernel.org"
+        id S1344669AbhGSPCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237772AbhGSOoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A9E76128E;
-        Mon, 19 Jul 2021 15:22:45 +0000 (UTC)
+        id S1344321AbhGSO7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94FE76120C;
+        Mon, 19 Jul 2021 15:39:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708165;
-        bh=aFsUVaC5yWClsBlgSlvKGh2SHyPxxgiWPz3InVNf2CQ=;
+        s=korg; t=1626709187;
+        bh=lxo5OpBggpjvMAzCMAYvT0FbGUxzwNEToMFBodGRDhg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YwLLc7cppg3IJssucWmWbn8e0Or9vdjIojM1lS9xMjVGz9/Uqra/drxmdqlCAvgD+
-         jfWg7sOfV4YKtm91WF0LOnVA3+oLmUrjI6OvenjdR52ZaY6rRodD8It23/JJ6W9B7h
-         pkGdLjWovA/mZzoiX8i8gAonO1ocGRsmpSgPWl60=
+        b=BDYDAmXyQzagF4e1rCRHrijAG0mrdior3W8KTJofP4a+ft9SNtiExjRhmPLcfyTjo
+         WOLmkaziHlCQls4dsARKkRq6HCzhog7VVOwQTcTH78SQktFW+3egVXmSF9Iq4Yneup
+         7l8dYwfJWuZtolTp2mcfh05o6IVVV/g/Ri2hoebk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.14 206/315] powerpc/barrier: Avoid collision with clangs __lwsync macro
+Subject: [PATCH 4.19 284/421] powerpc/barrier: Avoid collision with clangs __lwsync macro
 Date:   Mon, 19 Jul 2021 16:51:35 +0200
-Message-Id: <20210719144950.203863297@linuxfoundation.org>
+Message-Id: <20210719144956.189560616@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -83,7 +83,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/arch/powerpc/include/asm/barrier.h
 +++ b/arch/powerpc/include/asm/barrier.h
-@@ -42,6 +42,8 @@
+@@ -44,6 +44,8 @@
  #    define SMPWMB      eieio
  #endif
  
