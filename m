@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 711923CDF86
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA6A3CDBE8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344511AbhGSPIq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
+        id S239037AbhGSOu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344644AbhGSPGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:06:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B1846128E;
-        Mon, 19 Jul 2021 15:47:08 +0000 (UTC)
+        id S1344052AbhGSOsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CD99613E3;
+        Mon, 19 Jul 2021 15:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709628;
-        bh=hau0c91h4BJ9V9i1sgzxQVHOLNVU2hgyRWuAw9aeMe0=;
+        s=korg; t=1626708364;
+        bh=mg/dBNjmOrN16CbWPwjsPBTSuVAxaYt3Ce/hTeTt/RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkYIAf486mhQxLHAFcuUyhuxC7I4DrHUy5eKtyVyC1Yar80I2g981/9c6DdmDY/VG
-         ajAOt+BKdAuaO/2otRC5fkXx1jJWamU/4ypp07TQ1I9J60NhjnWLlnwhAKsr3E7nQY
-         yIwXawqaaBh/o4JCgTkTnUtMkhelHuGiEC6u/NMY=
+        b=tQ70Xui088/pA0J9Odynhw3Ux1gXz75C13gAPq7JtQ4kve1jXG8dRnlzidA2PIYpA
+         MpAFrAvX0WoAoSfr5g+YKmjL2G3NqSdjPO0uQ5SdejzXV5+vSJPTIDtXCfOs2FIutR
+         fNoWG/iZkAMK/l+moYteCHBbOx9qryT/xQdbVtYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yufen Yu <yuyufen@huawei.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/149] ASoC: img: Fix PM reference leak in img_i2s_in_probe()
+Subject: [PATCH 4.14 255/315] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
 Date:   Mon, 19 Jul 2021 16:52:24 +0200
-Message-Id: <20210719144909.956642425@linuxfoundation.org>
+Message-Id: <20210719144951.812741885@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 81aad47278539f02de808bcc8251fed0ad3d6f55 ]
+[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+When devm_kcalloc() fails, the error code -ENOMEM should be returned
+instead of -EINVAL.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Link: https://lore.kernel.org/r/20210524093521.612176-1-yuyufen@huawei.com
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/img/img-i2s-in.c | 2 +-
+ sound/soc/soc-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
-index bb668551dd4b..243f916355ee 100644
---- a/sound/soc/img/img-i2s-in.c
-+++ b/sound/soc/img/img-i2s-in.c
-@@ -464,7 +464,7 @@ static int img_i2s_in_probe(struct platform_device *pdev)
- 		if (ret)
- 			goto err_pm_disable;
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 42c2a3065b77..2a172de37466 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -4046,7 +4046,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
+ 	if (!routes) {
+ 		dev_err(card->dev,
+ 			"ASoC: Could not allocate DAPM route table\n");
+-		return -EINVAL;
++		return -ENOMEM;
  	}
--	ret = pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_resume_and_get(&pdev->dev);
- 	if (ret < 0)
- 		goto err_suspend;
  
+ 	for (i = 0; i < num_routes; i++) {
 -- 
 2.30.2
 
