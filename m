@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 159993CE1AE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61FD43CE1AC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347362AbhGSP1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344212AbhGSP1R (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:27:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60842 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346906AbhGSPST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:18:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E37061406;
-        Mon, 19 Jul 2021 15:58:08 +0000 (UTC)
+        id S1346912AbhGSPSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:18:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A1276135D;
+        Mon, 19 Jul 2021 15:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710289;
-        bh=6aTflyQFmFomlDwzDmPE7l9RTZTxsm8IuLC6j0pLP30=;
+        s=korg; t=1626710291;
+        bh=SIeiKKr65/+iePijq9wHcz1W/ALmD3TMh+937v8EIEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7xEkC/wsMjC13QOupasAefboZwfaImk0uNirQJ+VJAZ0sIiEe01iKzmih4kerXr3
-         JQ2CLQEO3vhMSHxu9vWZbfTpPscr+HIHpZVgSYwmfKGrIEy5kTZYZRwemBMi1ZXdPx
-         SJGDNdsmUBEht0igeyamyDm9EyRxmzb0OTd2mVzg=
+        b=h2/8GYxSeR7a58F4lMIHMRMt7H0lBrECzbiznPYoE3XyVoJnLxBBFM4Z9oKS1DzFG
+         /Y7wWeosZRXmbz19OB0dnwCKTVB0Y1zZqwtyuj0QvimNvzjUMoGDWRIm3JOSjQewer
+         uFDIdIdAQ2XSDfXThhlNFh4i1To1YkOD9Tn1qkI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 155/243] NFSv4: Fix an Oops in pnfs_mark_request_commit() when doing O_DIRECT
-Date:   Mon, 19 Jul 2021 16:53:04 +0200
-Message-Id: <20210719144945.910532369@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Tong Zhang <ztong0001@gmail.com>
+Subject: [PATCH 5.10 156/243] misc: alcor_pci: fix inverted branch condition
+Date:   Mon, 19 Jul 2021 16:53:05 +0200
+Message-Id: <20210719144945.947068255@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -40,72 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 3731d44bba8e0116b052b1b374476c5f6dd9a456 ]
+commit 281e468446994a7672733af2bf941f4110d4a895 upstream.
 
-Fix an Oopsable condition in pnfs_mark_request_commit() when we're
-putting a set of writes on the commit list to reschedule them after a
-failed pNFS attempt.
+This patch fixes a trivial mistake that I made in the previous attempt
+in fixing the null bridge issue. The branch condition is inverted and we
+should call alcor_pci_find_cap_offset() only if bridge is not null.
 
-Fixes: 9c455a8c1e14 ("NFS/pNFS: Clean up pNFS commit operations")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 3ce3e45cc333 ("misc: alcor_pci: fix null-ptr-deref when there is no PCI bridge")
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210522043725.602179-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/direct.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/misc/cardreader/alcor_pci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/direct.c b/fs/nfs/direct.c
-index 2d30a4da49fa..2e894fec036b 100644
---- a/fs/nfs/direct.c
-+++ b/fs/nfs/direct.c
-@@ -700,8 +700,8 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- {
- 	struct nfs_direct_req *dreq = hdr->dreq;
- 	struct nfs_commit_info cinfo;
--	bool request_commit = false;
- 	struct nfs_page *req = nfs_list_entry(hdr->pages.next);
-+	int flags = NFS_ODIRECT_DONE;
+--- a/drivers/misc/cardreader/alcor_pci.c
++++ b/drivers/misc/cardreader/alcor_pci.c
+@@ -144,7 +144,7 @@ static void alcor_pci_init_check_aspm(st
+ 	 * priv->parent_pdev will be NULL. In this case we don't check its
+ 	 * capability and disable ASPM completely.
+ 	 */
+-	if (!priv->parent_pdev)
++	if (priv->parent_pdev)
+ 		priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
+ 							 priv->parent_pdev);
  
- 	nfs_init_cinfo_from_dreq(&cinfo, dreq);
- 
-@@ -713,15 +713,9 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- 
- 	nfs_direct_count_bytes(dreq, hdr);
- 	if (hdr->good_bytes != 0 && nfs_write_need_commit(hdr)) {
--		switch (dreq->flags) {
--		case 0:
-+		if (!dreq->flags)
- 			dreq->flags = NFS_ODIRECT_DO_COMMIT;
--			request_commit = true;
--			break;
--		case NFS_ODIRECT_RESCHED_WRITES:
--		case NFS_ODIRECT_DO_COMMIT:
--			request_commit = true;
--		}
-+		flags = dreq->flags;
- 	}
- 	spin_unlock(&dreq->lock);
- 
-@@ -729,12 +723,15 @@ static void nfs_direct_write_completion(struct nfs_pgio_header *hdr)
- 
- 		req = nfs_list_entry(hdr->pages.next);
- 		nfs_list_remove_request(req);
--		if (request_commit) {
-+		if (flags == NFS_ODIRECT_DO_COMMIT) {
- 			kref_get(&req->wb_kref);
- 			memcpy(&req->wb_verf, &hdr->verf.verifier,
- 			       sizeof(req->wb_verf));
- 			nfs_mark_request_commit(req, hdr->lseg, &cinfo,
- 				hdr->ds_commit_idx);
-+		} else if (flags == NFS_ODIRECT_RESCHED_WRITES) {
-+			kref_get(&req->wb_kref);
-+			nfs_mark_request_commit(req, NULL, &cinfo, 0);
- 		}
- 		nfs_unlock_and_release_request(req);
- 	}
--- 
-2.30.2
-
 
 
