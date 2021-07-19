@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E262C3CD7B6
+	by mail.lfdr.de (Postfix) with ESMTP id 45D453CD7B4
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241381AbhGSOSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:18:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53200 "EHLO mail.kernel.org"
+        id S241950AbhGSOSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:18:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242141AbhGSOSP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33731610D2;
-        Mon, 19 Jul 2021 14:58:54 +0000 (UTC)
+        id S241842AbhGSOSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C266611C1;
+        Mon, 19 Jul 2021 14:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706734;
-        bh=CI4jYarbWrt2iBArbBgIdntQThqTJhVm7C3TvtGzvqw=;
+        s=korg; t=1626706737;
+        bh=Oq8MBoPTf8nY/K+XPlS22isf5ghOcandDGfC5iijANU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avKmp65gkJ5RYl7Gs8m3QjhrHyd6/NrUUziRG4LqGt1WTNcPGWsB1XN3sNn5pFosR
-         +Jw/S38u/8+124fb4HJSYVL8V/aBNt9gVEHEguQeZ6ru/WT/nVc+nmEPkG0MyqFWTo
-         /Xnu7RBj/wHDhKgCw9zSUIWvM3ZPQTaIYq4EfhGc=
+        b=Em+mN7hxLTuGM/dkICIz4JR13QVj8+LdQsBbjTOSsNu/BO7OMg+Kloo5A5b6NkLJl
+         Yddz+rxTW+0JmqUEVCBUx2MqWq0VIAGAYFiGkHpeJxnIWkIGYOYFMN5PzegFQrZIkj
+         R9u2XrssAb6CeD1fW6BlNbR6Dv3f6JqEccu1PSmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prike Liang <Prike.Liang@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 041/188] ACPI: processor idle: Fix up C-state latency if not ordered
-Date:   Mon, 19 Jul 2021 16:50:25 +0200
-Message-Id: <20210719144922.729964959@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 042/188] block_dump: remove block_dump feature in mark_inode_dirty()
+Date:   Mon, 19 Jul 2021 16:50:26 +0200
+Message-Id: <20210719144922.927756599@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -42,111 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 65ea8f2c6e230bdf71fed0137cf9e9d1b307db32 ]
+[ Upstream commit 12e0613715e1cf305fffafaf0e89d810d9a85cc0 ]
 
-Generally, the C-state latency is provided by the _CST method or
-FADT, but some OEM platforms using AMD Picasso, Renoir, Van Gogh,
-and Cezanne set the C2 latency greater than C3's which causes the
-C2 state to be skipped.
+block_dump is an old debugging interface, one of it's functions is used
+to print the information about who write which file on disk. If we
+enable block_dump through /proc/sys/vm/block_dump and turn on debug log
+level, we can gather information about write process name, target file
+name and disk from kernel message. This feature is realized in
+block_dump___mark_inode_dirty(), it print above information into kernel
+message directly when marking inode dirty, so it is noisy and can easily
+trigger log storm. At the same time, get the dentry refcount is also not
+safe, we found it will lead to deadlock on ext4 file system with
+data=journal mode.
 
-That will block the core entering PC6, which prevents S0ix working
-properly on Linux systems.
+After tracepoints has been introduced into the kernel, we got a
+tracepoint in __mark_inode_dirty(), which is a better replacement of
+block_dump___mark_inode_dirty(). The only downside is that it only trace
+the inode number and not a file name, but it probably doesn't matter
+because the original printed file name in block_dump is not accurate in
+some cases, and we can still find it through the inode number and device
+id. So this patch delete the dirting inode part of block_dump feature.
 
-In other operating systems, the latency values are not validated and
-this does not cause problems by skipping states.
-
-To avoid this issue on Linux, detect when latencies are not an
-arithmetic progression and sort them.
-
-Link: https://gitlab.freedesktop.org/agd5f/linux/-/commit/026d186e4592c1ee9c1cb44295912d0294508725
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1230#note_712174
-Suggested-by: Prike Liang <Prike.Liang@amd.com>
-Suggested-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210313030146.2882027-2-yi.zhang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/processor_idle.c | 40 +++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+ fs/fs-writeback.c | 25 -------------------------
+ 1 file changed, 25 deletions(-)
 
-diff --git a/drivers/acpi/processor_idle.c b/drivers/acpi/processor_idle.c
-index 175c86bee3a9..69fec2d3a1f5 100644
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -28,6 +28,7 @@
- #include <linux/acpi.h>
- #include <linux/dmi.h>
- #include <linux/sched.h>       /* need_resched() */
-+#include <linux/sort.h>
- #include <linux/tick.h>
- #include <linux/cpuidle.h>
- #include <linux/syscore_ops.h>
-@@ -572,10 +573,37 @@ static void acpi_processor_power_verify_c3(struct acpi_processor *pr,
- 	return;
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 7f068330edb6..958a1bd0b5fc 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -2040,28 +2040,6 @@ int dirtytime_interval_handler(struct ctl_table *table, int write,
+ 	return ret;
  }
  
-+static int acpi_cst_latency_cmp(const void *a, const void *b)
-+{
-+	const struct acpi_processor_cx *x = a, *y = b;
-+
-+	if (!(x->valid && y->valid))
-+		return 0;
-+	if (x->latency > y->latency)
-+		return 1;
-+	if (x->latency < y->latency)
-+		return -1;
-+	return 0;
-+}
-+static void acpi_cst_latency_swap(void *a, void *b, int n)
-+{
-+	struct acpi_processor_cx *x = a, *y = b;
-+	u32 tmp;
-+
-+	if (!(x->valid && y->valid))
-+		return;
-+	tmp = x->latency;
-+	x->latency = y->latency;
-+	y->latency = tmp;
-+}
-+
- static int acpi_processor_power_verify(struct acpi_processor *pr)
- {
- 	unsigned int i;
- 	unsigned int working = 0;
-+	unsigned int last_latency = 0;
-+	unsigned int last_type = 0;
-+	bool buggy_latency = false;
+-static noinline void block_dump___mark_inode_dirty(struct inode *inode)
+-{
+-	if (inode->i_ino || strcmp(inode->i_sb->s_id, "bdev")) {
+-		struct dentry *dentry;
+-		const char *name = "?";
+-
+-		dentry = d_find_alias(inode);
+-		if (dentry) {
+-			spin_lock(&dentry->d_lock);
+-			name = (const char *) dentry->d_name.name;
+-		}
+-		printk(KERN_DEBUG
+-		       "%s(%d): dirtied inode %lu (%s) on %s\n",
+-		       current->comm, task_pid_nr(current), inode->i_ino,
+-		       name, inode->i_sb->s_id);
+-		if (dentry) {
+-			spin_unlock(&dentry->d_lock);
+-			dput(dentry);
+-		}
+-	}
+-}
+-
+ /**
+  *	__mark_inode_dirty -	internal function
+  *	@inode: inode to mark
+@@ -2120,9 +2098,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
+ 		return;
  
- 	pr->power.timer_broadcast_on_state = INT_MAX;
- 
-@@ -599,12 +627,24 @@ static int acpi_processor_power_verify(struct acpi_processor *pr)
- 		}
- 		if (!cx->valid)
- 			continue;
-+		if (cx->type >= last_type && cx->latency < last_latency)
-+			buggy_latency = true;
-+		last_latency = cx->latency;
-+		last_type = cx->type;
- 
- 		lapic_timer_check_state(i, pr, cx);
- 		tsc_check_state(cx->type);
- 		working++;
- 	}
- 
-+	if (buggy_latency) {
-+		pr_notice("FW issue: working around C-state latencies out of order\n");
-+		sort(&pr->power.states[1], max_cstate,
-+		     sizeof(struct acpi_processor_cx),
-+		     acpi_cst_latency_cmp,
-+		     acpi_cst_latency_swap);
-+	}
-+
- 	lapic_timer_propagate_broadcast(pr);
- 
- 	return (working);
+-	if (unlikely(block_dump))
+-		block_dump___mark_inode_dirty(inode);
+-
+ 	spin_lock(&inode->i_lock);
+ 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
+ 		goto out_unlock_inode;
 -- 
 2.30.2
 
