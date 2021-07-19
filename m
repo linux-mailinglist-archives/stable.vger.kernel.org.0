@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD563CD7C9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FB23CD7C8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242062AbhGSOS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52924 "EHLO mail.kernel.org"
+        id S242177AbhGSOS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:18:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241982AbhGSOSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AC186115B;
-        Mon, 19 Jul 2021 14:58:42 +0000 (UTC)
+        id S241984AbhGSOSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6416F6113E;
+        Mon, 19 Jul 2021 14:58:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706723;
-        bh=pqyxd2YiuZs7bK7vYbl43VUNOhLeegiIbUmOgEIJfVo=;
+        s=korg; t=1626706725;
+        bh=bJpgrQ25/RRPLOGOvX+A8ArEfpBuiDhPyAvDWQ6LQWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CEkt45iM7nw6hjSp5hDW1F8fLfdsJEh+hSSx5xS01b+KAP/0W3NohCvghenrBOXDz
-         uBS/uU+V9x3fBRZSJMEcB/UMN+SBJ3xaGa00jHYVlayAJEoFfzCgHW8GptX2Hq1ctT
-         QKS5xyT9jTXfYzvqS8EGTda4/mW4jfsWcGm4wao4=
+        b=b9oTAAm7nRW90XL3GP27v9uU12tF2zeS5Z89p/SsMJ98P8CclyEAGSbIdyyly9GNj
+         XSdKSQWBLKirdNqG5gdbYQY3WZbrLQ6H62iM700fRQZM4Qm9/VQqlvGc6NfIxqkzIf
+         KAiyU1pKg4M73K0JVYf6VstRjItTzsZVucrjj/10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 069/188] netfilter: nft_exthdr: check for IPv6 packet before further processing
-Date:   Mon, 19 Jul 2021 16:50:53 +0200
-Message-Id: <20210719144929.093778889@linuxfoundation.org>
+Subject: [PATCH 4.4 070/188] net: ethernet: aeroflex: fix UAF in greth_of_remove
+Date:   Mon, 19 Jul 2021 16:50:54 +0200
+Message-Id: <20210719144929.330392517@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -39,35 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
+[ Upstream commit e3a5de6d81d8b2199935c7eb3f7d17a50a7075b7 ]
 
-ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
-sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
-is passed for parsing.
+static int greth_of_remove(struct platform_device *of_dev)
+{
+...
+	struct greth_private *greth = netdev_priv(ndev);
+...
+	unregister_netdev(ndev);
+	free_netdev(ndev);
 
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+...
+}
+
+greth is netdev private data, but it is used
+after free_netdev(). It can cause use-after-free when accessing greth
+pointer. So, fix it by moving free_netdev() after of_iounmap()
+call.
+
+Fixes: d4c41139df6e ("net: Add Aeroflex Gaisler 10/100/1G Ethernet MAC driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_exthdr.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/aeroflex/greth.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
-index ba7aed13e174..a81f6bf42d1f 100644
---- a/net/netfilter/nft_exthdr.c
-+++ b/net/netfilter/nft_exthdr.c
-@@ -34,6 +34,9 @@ static void nft_exthdr_eval(const struct nft_expr *expr,
- 	unsigned int offset = 0;
- 	int err;
+diff --git a/drivers/net/ethernet/aeroflex/greth.c b/drivers/net/ethernet/aeroflex/greth.c
+index 20bf55dbd76f..e3ca8abb14f4 100644
+--- a/drivers/net/ethernet/aeroflex/greth.c
++++ b/drivers/net/ethernet/aeroflex/greth.c
+@@ -1579,10 +1579,11 @@ static int greth_of_remove(struct platform_device *of_dev)
+ 	mdiobus_unregister(greth->mdio);
  
-+	if (pkt->skb->protocol != htons(ETH_P_IPV6))
-+		goto err;
+ 	unregister_netdev(ndev);
+-	free_netdev(ndev);
+ 
+ 	of_iounmap(&of_dev->resource[0], greth->regs, resource_size(&of_dev->resource[0]));
+ 
++	free_netdev(ndev);
 +
- 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
- 	if (err < 0)
- 		goto err;
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
