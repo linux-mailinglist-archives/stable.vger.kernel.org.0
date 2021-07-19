@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F05A03CE1A6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA523CE214
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346472AbhGSP1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41938 "EHLO mail.kernel.org"
+        id S1347471AbhGSP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:28:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348742AbhGSPZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:25:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 040FF600EF;
-        Mon, 19 Jul 2021 16:05:41 +0000 (UTC)
+        id S1349436AbhGSP07 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:26:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEE6A60FD7;
+        Mon, 19 Jul 2021 16:07:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710742;
-        bh=zcdR+7Ixce2wcvSTjoQub02GaLVwOc/g7cAn+ekALic=;
+        s=korg; t=1626710857;
+        bh=fkUJS1dADMxRAZQuLDsHZ0G5sxxumHZxKUvQov5hhjE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvW6ZKKrFCjv3SRruuGTIOR1tuK83lx3ZyL6M3LAAxeL9G9pWya3lC6/XjsACB+eY
-         B8PIP5rAt4K4JgR/JV9eZ8Mngqw5er/5G5zzr8/8yThLYCc8ZtwHAvbi30Vbs4QgC4
-         1e1DVaQxlFjoTjd0lKjrXJJmuKiNUEc733vDAHMU=
+        b=DVX8xAQcYfoyxdhuuIop3DNIsiwnCgOFEYJxRJ2pa0FmrPCz5i+slkOnD6KOQUVOk
+         Ep8o1iCIJQMnI3HgPvSzpnyeKsiZePR42hkzVYgA3c0RoZgpN9943toJByWWQF1iij
+         q3nVLxP6A8+FY6xp+wChSvzOQZjg8uj+WAXD//9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>, Joel Stanley <joel@jms.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 090/351] iov_iter_advance(): use consistent semantics for move past the end
-Date:   Mon, 19 Jul 2021 16:50:36 +0200
-Message-Id: <20210719144947.471372587@linuxfoundation.org>
+Subject: [PATCH 5.13 091/351] fsi: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:50:37 +0200
+Message-Id: <20210719144947.508118561@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -39,50 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 3b3fc051cd2cba42bf736fa62780857d251a1236 ]
+[ Upstream commit 19a52178125c1e8b84444d85f2ce34c0964b4a91 ]
 
-asking to advance by more than we have left in the iov_iter should
-move to the very end; it should *not* leave negative i->count and
-it should not spew into syslog, etc. - it's a legitimate operation.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620896249-52769-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/iov_iter.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/fsi/fsi-master-aspeed.c | 1 +
+ drivers/fsi/fsi-master-ast-cf.c | 1 +
+ drivers/fsi/fsi-master-gpio.c   | 1 +
+ drivers/fsi/fsi-occ.c           | 1 +
+ 4 files changed, 4 insertions(+)
 
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index 9eb7c31688cc..459c33c26bea 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -1117,8 +1117,6 @@ static inline void pipe_truncate(struct iov_iter *i)
- static void pipe_advance(struct iov_iter *i, size_t size)
- {
- 	struct pipe_inode_info *pipe = i->pipe;
--	if (unlikely(i->count < size))
--		size = i->count;
- 	if (size) {
- 		struct pipe_buffer *buf;
- 		unsigned int p_mask = pipe->ring_size - 1;
-@@ -1159,6 +1157,8 @@ static void iov_iter_bvec_advance(struct iov_iter *i, size_t size)
+diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
+index 90dbe58ca1ed..dbad73162c83 100644
+--- a/drivers/fsi/fsi-master-aspeed.c
++++ b/drivers/fsi/fsi-master-aspeed.c
+@@ -645,6 +645,7 @@ static const struct of_device_id fsi_master_aspeed_match[] = {
+ 	{ .compatible = "aspeed,ast2600-fsi-master" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_aspeed_match);
  
- void iov_iter_advance(struct iov_iter *i, size_t size)
- {
-+	if (unlikely(i->count < size))
-+		size = i->count;
- 	if (unlikely(iov_iter_is_pipe(i))) {
- 		pipe_advance(i, size);
- 		return;
-@@ -1168,7 +1168,6 @@ void iov_iter_advance(struct iov_iter *i, size_t size)
- 		return;
- 	}
- 	if (unlikely(iov_iter_is_xarray(i))) {
--		size = min(size, i->count);
- 		i->iov_offset += size;
- 		i->count -= size;
- 		return;
+ static struct platform_driver fsi_master_aspeed_driver = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-master-ast-cf.c b/drivers/fsi/fsi-master-ast-cf.c
+index 57a779a89b07..70c03e304d6c 100644
+--- a/drivers/fsi/fsi-master-ast-cf.c
++++ b/drivers/fsi/fsi-master-ast-cf.c
+@@ -1427,6 +1427,7 @@ static const struct of_device_id fsi_master_acf_match[] = {
+ 	{ .compatible = "aspeed,ast2500-cf-fsi-master" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_acf_match);
+ 
+ static struct platform_driver fsi_master_acf = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-master-gpio.c b/drivers/fsi/fsi-master-gpio.c
+index aa97c4a250cb..7d5f29b4b595 100644
+--- a/drivers/fsi/fsi-master-gpio.c
++++ b/drivers/fsi/fsi-master-gpio.c
+@@ -882,6 +882,7 @@ static const struct of_device_id fsi_master_gpio_match[] = {
+ 	{ .compatible = "fsi-master-gpio" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_gpio_match);
+ 
+ static struct platform_driver fsi_master_gpio_driver = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
+index cb05b6dacc9d..dc74bffedd72 100644
+--- a/drivers/fsi/fsi-occ.c
++++ b/drivers/fsi/fsi-occ.c
+@@ -636,6 +636,7 @@ static const struct of_device_id occ_match[] = {
+ 	},
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, occ_match);
+ 
+ static struct platform_driver occ_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
