@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6283CE0A7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF363CE246
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347485AbhGSPRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
+        id S1347946AbhGSP3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:29:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346396AbhGSPOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B880C60200;
-        Mon, 19 Jul 2021 15:54:27 +0000 (UTC)
+        id S1347382AbhGSP1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:27:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 914DB611ED;
+        Mon, 19 Jul 2021 16:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710068;
-        bh=bx2NjaHIi7EIzUuk5t5pEMwJV/11m704jcJmZ6JoNMI=;
+        s=korg; t=1626710884;
+        bh=nro3MGa7h3qaKoTs4yw4efAa7zU3Ahe3U9SERvsOMXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xc1RWiU2wh5CsU7qMCp6CW456PtKGWnzEatZn5vTsvY9F0bVcph+INoqLAiNfBtGK
-         VbFJz+fef1hZB7giSw69DB5BtzjSBCro3JZbj+msPuOaETVf6/tKKloHRce6JM7ksn
-         j8RlVUNDuIzaubHBAWlQU53fLVNY2Lj7CGCHySUE=
+        b=QEf0At+o/l5WCA5k8oebE3GEDXolSNHINw9KOvKa2wRfT1rNAOw9z9aa8SdE+EYgL
+         E8IkksZX6bkoXbxt0Js/WSZEZf4lbKKB0tPjBc2pJuW2O/eG5IQpFP3RitUt969MjW
+         ULZsSYboWa8GP94QXevDwKrsZWFHJXa81SEf6yCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Rashmi A <rashmi.a@intel.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/243] scsi: qedi: Fix TMF session block/unblock use
+Subject: [PATCH 5.13 145/351] phy: intel: Fix for warnings due to EMMC clock 175Mhz change in FIP
 Date:   Mon, 19 Jul 2021 16:51:31 +0200
-Message-Id: <20210719144942.926360586@linuxfoundation.org>
+Message-Id: <20210719144949.276473799@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Rashmi A <rashmi.a@intel.com>
 
-[ Upstream commit 2819b4ae2873d50fd55292877b0231ec936c3b2e ]
+[ Upstream commit 2f2b73a29d2aabf5ad0150856c3e5cb6e04dcfc1 ]
 
-Drivers shouldn't be calling block/unblock session for tmf handling because
-the functions can change the session state from under libiscsi.
-iscsi_queuecommand's call to iscsi_prep_scsi_cmd_pdu->
-iscsi_check_tmf_restrictions will prevent new cmds from being sent to qedi
-after we've started handling a TMF. So we don't need to try and block it in
-the driver, and we can remove these block calls.
+Since the EMMC clock was changed from 200Mhz to 175Mhz in FIP,
+there were some warnings introduced, as the frequency values
+being checked was still wrt 200Mhz in code. Hence, the frequency
+checks are now updated based on the current 175Mhz EMMC clock changed
+in FIP.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-25-michael.christie@oracle.com
-Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Spamming kernel log msg:
+"phy phy-20290000.mmc_phy.2: Unsupported rate: 43750000"
+
+Signed-off-by: Rashmi A <rashmi.a@intel.com>
+Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20210603182242.25733-3-rashmi.a@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/phy/intel/phy-intel-keembay-emmc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index c12bb2dd5ff9..4c87640e6a91 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -159,14 +159,9 @@ static void qedi_tmf_resp_work(struct work_struct *work)
- 	set_bit(QEDI_CONN_FW_CLEANUP, &qedi_conn->flags);
- 	resp_hdr_ptr =  (struct iscsi_tm_rsp *)qedi_cmd->tmf_resp_buf;
+diff --git a/drivers/phy/intel/phy-intel-keembay-emmc.c b/drivers/phy/intel/phy-intel-keembay-emmc.c
+index eb7c635ed89a..0eb11ac7c2e2 100644
+--- a/drivers/phy/intel/phy-intel-keembay-emmc.c
++++ b/drivers/phy/intel/phy-intel-keembay-emmc.c
+@@ -95,7 +95,8 @@ static int keembay_emmc_phy_power(struct phy *phy, bool on_off)
+ 	else
+ 		freqsel = 0x0;
  
--	iscsi_block_session(session->cls_session);
- 	rval = qedi_cleanup_all_io(qedi, qedi_conn, qedi_cmd->task, true);
--	if (rval) {
--		iscsi_unblock_session(session->cls_session);
-+	if (rval)
- 		goto exit_tmf_resp;
--	}
--
--	iscsi_unblock_session(session->cls_session);
+-	if (mhz < 50 || mhz > 200)
++	/* Check for EMMC clock rate*/
++	if (mhz > 175)
+ 		dev_warn(&phy->dev, "Unsupported rate: %d MHz\n", mhz);
  
- 	spin_lock(&session->back_lock);
- 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr_ptr, NULL, 0);
+ 	/*
 -- 
 2.30.2
 
