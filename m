@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E753CE2C7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532A03CE09B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236899AbhGSPcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:32:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46962 "EHLO mail.kernel.org"
+        id S1346161AbhGSPRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347142AbhGSP2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17312613C3;
-        Mon, 19 Jul 2021 16:08:56 +0000 (UTC)
+        id S1345357AbhGSPOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24C1861400;
+        Mon, 19 Jul 2021 15:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710937;
-        bh=+cUaXs9SZyH/ZrXGu4wPjqlTNqEvKvvC7K1OSUMyATE=;
+        s=korg; t=1626710035;
+        bh=Sf6e4yExoweHIOKnhm/QYEDg5XEg6e3wHd9VOfVKaFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fO5qi+LG02x/GQc712lXkFwxmNz+gOCjKhvHaLwZIdi9ofqgdKY6jq+jqtW7xI82l
-         v4XZMr3R8xcWk81EDEeEjCFEJWnnEKXAmPiXAqZBpAiTVfpBFUExqueSwa/2r42YC/
-         GOjcHQFjo2nkmBvKM++yxGBjWTGwbV5vR4Vcz5lM=
+        b=BWNWS6nyBAMMp8nAxF/jHeNl6iuyR8ABiIoobAFVl1CD1BvLAhugjE7bl6eEA55p6
+         h6/nbjrYT6TBT5vGW/h80fYau5Z9itxb0A+jI2YHqCZMHE0x4i5ClqF2an3YltG6Lt
+         Bszn+5aa9FlXwqo5rZw4rzcjihNoDv363fi8zC30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 132/351] usb: gadget: hid: fix error return code in hid_bind()
+Subject: [PATCH 5.10 049/243] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
 Date:   Mon, 19 Jul 2021 16:51:18 +0200
-Message-Id: <20210719144948.850455530@linuxfoundation.org>
+Message-Id: <20210719144942.500837804@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 88693f770bb09c196b1eb5f06a484a254ecb9924 ]
+[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
 
-Fix to return a negative error code from the error handling
-case instead of 0.
+In the probe function, if the final 'serial_config()' fails, 'info' is
+leaking.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210618043835.2641360-1-yangyingliang@huawei.com
+Add a resource handling path to free this memory.
+
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/hid.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/legacy/hid.c b/drivers/usb/gadget/legacy/hid.c
-index c4eda7fe7ab4..5b27d289443f 100644
---- a/drivers/usb/gadget/legacy/hid.c
-+++ b/drivers/usb/gadget/legacy/hid.c
-@@ -171,8 +171,10 @@ static int hid_bind(struct usb_composite_dev *cdev)
- 		struct usb_descriptor_header *usb_desc;
+diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
+index 1d3ec8503cef..7c3ea68e533e 100644
+--- a/drivers/tty/serial/8250/serial_cs.c
++++ b/drivers/tty/serial/8250/serial_cs.c
+@@ -306,6 +306,7 @@ static int serial_resume(struct pcmcia_device *link)
+ static int serial_probe(struct pcmcia_device *link)
+ {
+ 	struct serial_info *info;
++	int ret;
  
- 		usb_desc = usb_otg_descriptor_alloc(gadget);
--		if (!usb_desc)
-+		if (!usb_desc) {
-+			status = -ENOMEM;
- 			goto put;
-+		}
- 		usb_otg_descriptor_init(gadget, usb_desc);
- 		otg_desc[0] = usb_desc;
- 		otg_desc[1] = NULL;
+ 	dev_dbg(&link->dev, "serial_attach()\n");
+ 
+@@ -320,7 +321,15 @@ static int serial_probe(struct pcmcia_device *link)
+ 	if (do_sound)
+ 		link->config_flags |= CONF_ENABLE_SPKR;
+ 
+-	return serial_config(link);
++	ret = serial_config(link);
++	if (ret)
++		goto free_info;
++
++	return 0;
++
++free_info:
++	kfree(info);
++	return ret;
+ }
+ 
+ static void serial_detach(struct pcmcia_device *link)
 -- 
 2.30.2
 
