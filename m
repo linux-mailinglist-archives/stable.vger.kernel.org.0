@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C8C3CE0FF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7FC93CE2DD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344654AbhGSPTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:19:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55880 "EHLO mail.kernel.org"
+        id S235301AbhGSPcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:32:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347152AbhGSPPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:15:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81643606A5;
-        Mon, 19 Jul 2021 15:56:19 +0000 (UTC)
+        id S243877AbhGSP2O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:28:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E67E61351;
+        Mon, 19 Jul 2021 16:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710180;
-        bh=beYeCVqpXG//mMve1jdsA+aMH4RCqJHoakwYn0A5V8M=;
+        s=korg; t=1626710924;
+        bh=HUMXNiWlr+lAzD0WDDX5+BAJHVe2ELrSxvY4d7GcbJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bsP8b2gkFSPYakUkpFXM4mBxBkyrxNnEpFiIiIbVlQCm9OWoRq5T9L8MMPDCl7aL/
-         8jpIq9EJQJafjtayYGVp7I2QxssCKr87JlVtEh4mITeS8akpc/xSMNZmLv9zCkDRGX
-         IPbHBI3HgxwYaUnPBO9cqThjYq6RPN1m2FKedgOI=
+        b=zKRsUZDRzZnO1MvsMcpmP2hptLeUM23di5jGIDuAtllBbak0iZogt1Zldx8xcAlGr
+         5d6oLTg5XhmHVNAAvVYy1Z7+TCHWehyTCwrMh+XE7fWiXCfkXs3AJXpGiLUK7su5+f
+         Z3mlMcwXCuwq6q7PWQVHVYCXHI97uQ9iLVIYCniE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 075/243] iommu/arm-smmu: Fix arm_smmu_device refcount leak in address translation
-Date:   Mon, 19 Jul 2021 16:51:44 +0200
-Message-Id: <20210719144943.328401125@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 159/351] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:51:45 +0200
+Message-Id: <20210719144950.227663229@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,65 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 7c8f176d6a3fa18aa0f8875da6f7c672ed2a8554 ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-The reference counting issue happens in several exception handling paths
-of arm_smmu_iova_to_phys_hard(). When those error scenarios occur, the
-function forgets to decrease the refcount of "smmu" increased by
-arm_smmu_rpm_get(), causing a refcount leak.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Fix this issue by jumping to "out" label when those error scenarios
-occur.
-
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Reviewed-by: Rob Clark <robdclark@chromium.org>
-Link: https://lore.kernel.org/r/1623293391-17261-1-git-send-email-xiyuyang19@fudan.edu.cn
-Signed-off-by: Will Deacon <will@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/arm/arm-smmu/arm-smmu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-index 052f0a1bf037..df24bbe3ea4f 100644
---- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
-+++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
-@@ -1284,6 +1284,7 @@ static phys_addr_t arm_smmu_iova_to_phys_hard(struct iommu_domain *domain,
- 	u64 phys;
- 	unsigned long va, flags;
- 	int ret, idx = cfg->cbndx;
-+	phys_addr_t addr = 0;
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index c5067eb75370..1c5af2fef142 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -90,6 +90,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
- 	ret = arm_smmu_rpm_get(smmu);
- 	if (ret < 0)
-@@ -1303,6 +1304,7 @@ static phys_addr_t arm_smmu_iova_to_phys_hard(struct iommu_domain *domain,
- 		dev_err(dev,
- 			"iova to phys timed out on %pad. Falling back to software table walk.\n",
- 			&iova);
-+		arm_smmu_rpm_put(smmu);
- 		return ops->iova_to_phys(ops, iova);
- 	}
- 
-@@ -1311,12 +1313,14 @@ static phys_addr_t arm_smmu_iova_to_phys_hard(struct iommu_domain *domain,
- 	if (phys & ARM_SMMU_CB_PAR_F) {
- 		dev_err(dev, "translation fault!\n");
- 		dev_err(dev, "PAR = 0x%llx\n", phys);
--		return 0;
-+		goto out;
- 	}
- 
-+	addr = (phys & GENMASK_ULL(39, 12)) | (iova & 0xfff);
-+out:
- 	arm_smmu_rpm_put(smmu);
- 
--	return (phys & GENMASK_ULL(39, 12)) | (iova & 0xfff);
-+	return addr;
- }
- 
- static phys_addr_t arm_smmu_iova_to_phys(struct iommu_domain *domain,
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
