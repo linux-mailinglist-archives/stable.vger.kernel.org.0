@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A6BA3CD8F6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338C63CDAB3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242563AbhGSO0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
+        id S244235AbhGSOh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:37:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244033AbhGSOYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6EE861166;
-        Mon, 19 Jul 2021 15:04:53 +0000 (UTC)
+        id S244947AbhGSOfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:35:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43ACF60720;
+        Mon, 19 Jul 2021 15:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707094;
-        bh=pcTpmDa2B6Mt9+IbFS58Ge7g5y18OtLbWxe0ijQFQoI=;
+        s=korg; t=1626707790;
+        bh=c9FPzrAZJ4DPglSf/wv9oOPPMbR8tL55X3iSkGq5r6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T2g8ML71WtmVZOM9p9H7PqaxZVxRfkgL1BXwcpiVndoiRf2nUsOVPZVMeHf4tpsJp
-         J3LIwlgyuuapzIOQa+pBi/9WdHk/H117aypfKsO2mB6bSVtDGbHfL2tx+LaZzGtQTa
-         ZR7lq2shjplkumqBedAQhdifirirYTLDjJh0CeCM=
+        b=g6AgjRhj1ehuJf4385jIXlHDyZfIVHx200lmG73Mr1KjGz2hC/HRqo2gN2acHH/5y
+         YQOC5OP+KyoJHS1CcyN5j3XQyRmb/b6LmXBImRHKb/QYLejFH8uF2sIkn7cKY/I+Nm
+         O0+G3J+tohm3opb9yK07IGGDI4kIRedcaINkDuoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 003/245] Input: usbtouchscreen - fix control-request directions
-Date:   Mon, 19 Jul 2021 16:49:05 +0200
-Message-Id: <20210719144940.466833740@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 057/315] btrfs: abort transaction if we fail to update the delayed inode
+Date:   Mon, 19 Jul 2021 16:49:06 +0200
+Message-Id: <20210719144944.735148307@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,66 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 41e81022a04a0294c55cfa7e366bc14b9634c66e upstream.
+[ Upstream commit 04587ad9bef6ce9d510325b4ba9852b6129eebdb ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+If we fail to update the delayed inode we need to abort the transaction,
+because we could leave an inode with the improper counts or some other
+such corruption behind.
 
-Fix the four control requests which erroneously used usb_rcvctrlpipe().
-
-Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
-Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
-Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Cc: stable@vger.kernel.org      # 2.6.17
-Link: https://lore.kernel.org/r/20210524092048.4443-1-johan@kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/usbtouchscreen.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/btrfs/delayed-inode.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -266,7 +266,7 @@ static int e2i_init(struct usbtouch_usb
- 	int ret;
- 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
+index 3631154d8245..9f276d1dd29c 100644
+--- a/fs/btrfs/delayed-inode.c
++++ b/fs/btrfs/delayed-inode.c
+@@ -1105,6 +1105,14 @@ err_out:
+ 	btrfs_delayed_inode_release_metadata(fs_info, node);
+ 	btrfs_release_delayed_inode(node);
  
--	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 	                      0x01, 0x02, 0x0000, 0x0081,
- 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
++	/*
++	 * If we fail to update the delayed inode we need to abort the
++	 * transaction, because we could leave the inode with the improper
++	 * counts behind.
++	 */
++	if (ret && ret != -ENOENT)
++		btrfs_abort_transaction(trans, ret);
++
+ 	return ret;
  
-@@ -462,7 +462,7 @@ static int mtouch_init(struct usbtouch_u
- 	int ret, i;
- 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
- 
--	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 	                      MTOUCHUSB_RESET,
- 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -474,7 +474,7 @@ static int mtouch_init(struct usbtouch_u
- 	msleep(150);
- 
- 	for (i = 0; i < 3; i++) {
--		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				      MTOUCHUSB_ASYNC_REPORT,
- 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -645,7 +645,7 @@ static int dmc_tsc10_init(struct usbtouc
- 	}
- 
- 	/* start sending data */
--	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
- 	                      TSC10_CMD_DATA1,
- 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+ search:
+-- 
+2.30.2
+
 
 
