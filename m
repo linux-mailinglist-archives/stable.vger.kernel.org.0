@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B88A3CD95C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F4EE3CDB07
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242714AbhGSO2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:28:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S244480AbhGSOkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243756AbhGSO1P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:27:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A32560FDC;
-        Mon, 19 Jul 2021 15:07:31 +0000 (UTC)
+        id S1343953AbhGSOjv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D3DC60FED;
+        Mon, 19 Jul 2021 15:20:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707251;
-        bh=KliTdoe5hJcH0PpJx2ajeKVcSDVcyge+e4e1Kk4KVVA=;
+        s=korg; t=1626708002;
+        bh=lMySY2p3SQcBCujOTLnmX9KF+eIUCAjUsx88WREPhAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQKqh1Q5hPq9QeFYUTuqVUtcli5cv1J/oihmG+lCCG0qzI4giSXQDvWFpFCy3QYaa
-         muXHNr89B30HDSQ35szSspnrgF57a4X7TN2V2g4NzjHhoSF9+H0TKdXv8WUuizD1pY
-         IYg1i5umaO53/5CGPiTQjvcZn3osnikzutR03Nt8=
+        b=Y+FxtBOskayNixfpEeMSWPyWZ/Ss5fxUIqR08cwYVT/90RirTVzLQFmymlUaMhk32
+         1U5UI8U5lhzUqhGJtYp+jr3myDoBYLGZaA0HyiFCmziouw94m6wuf0hmT6K2EAI/Cu
+         W+c2WMxrSo1uFiltRX3qviEea+nDTqqaNVzQgHuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 086/245] net: ethernet: ezchip: fix error handling
-Date:   Mon, 19 Jul 2021 16:50:28 +0200
-Message-Id: <20210719144943.184081878@linuxfoundation.org>
+Subject: [PATCH 4.14 140/315] tty: nozomi: Fix the error handling path of nozomi_card_init()
+Date:   Mon, 19 Jul 2021 16:50:29 +0200
+Message-Id: <20210719144947.500057078@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 0de449d599594f5472e00267d651615c7f2c6c1d ]
+[ Upstream commit 6ae7d0f5a92b9619f6e3c307ce56b2cefff3f0e9 ]
 
-As documented at drivers/base/platform.c for platform_get_irq:
+The error handling path is broken and we may un-register things that have
+never been registered.
 
- * Gets an IRQ for a platform device and prints an error message if finding the
- * IRQ fails. Device drivers should check the return value for errors so as to
- * not pass a negative integer value to the request_irq() APIs.
+Update the loops index accordingly.
 
-So, the driver should check that platform_get_irq() return value
-is _negative_, not that it's equal to zero, because -ENXIO (return
-value from request_irq() if irq was not found) will
-pass this check and it leads to passing negative irq to request_irq()
-
-Fixes: 0dd077093636 ("NET: Add ezchip ethernet driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/e28c2e92c7475da25b03d022ea2d6dcf1ba807a2.1621968629.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ezchip/nps_enet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/nozomi.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/ezchip/nps_enet.c b/drivers/net/ethernet/ezchip/nps_enet.c
-index 1edf1c76c22c..6de29f2a0a09 100644
---- a/drivers/net/ethernet/ezchip/nps_enet.c
-+++ b/drivers/net/ethernet/ezchip/nps_enet.c
-@@ -624,7 +624,7 @@ static s32 nps_enet_probe(struct platform_device *pdev)
+diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
+index d19acddc3cf3..0c424624a00c 100644
+--- a/drivers/tty/nozomi.c
++++ b/drivers/tty/nozomi.c
+@@ -1416,7 +1416,7 @@ static int nozomi_card_init(struct pci_dev *pdev,
+ 			NOZOMI_NAME, dc);
+ 	if (unlikely(ret)) {
+ 		dev_err(&pdev->dev, "can't request irq %d\n", pdev->irq);
+-		goto err_free_kfifo;
++		goto err_free_all_kfifo;
+ 	}
  
- 	/* Get IRQ number */
- 	priv->irq = platform_get_irq(pdev, 0);
--	if (!priv->irq) {
-+	if (priv->irq < 0) {
- 		dev_err(dev, "failed to retrieve <irq Rx-Tx> value from device tree\n");
- 		err = -ENODEV;
- 		goto out_netdev;
+ 	DBG1("base_addr: %p", dc->base_addr);
+@@ -1454,13 +1454,15 @@ static int nozomi_card_init(struct pci_dev *pdev,
+ 	return 0;
+ 
+ err_free_tty:
+-	for (i = 0; i < MAX_PORT; ++i) {
++	for (i--; i >= 0; i--) {
+ 		tty_unregister_device(ntty_driver, dc->index_start + i);
+ 		tty_port_destroy(&dc->port[i].port);
+ 	}
+ 	free_irq(pdev->irq, dc);
++err_free_all_kfifo:
++	i = MAX_PORT;
+ err_free_kfifo:
+-	for (i = 0; i < MAX_PORT; i++)
++	for (i--; i >= PORT_MDM; i--)
+ 		kfifo_free(&dc->port[i].fifo_ul);
+ err_free_sbuf:
+ 	kfree(dc->send_buf);
 -- 
 2.30.2
 
