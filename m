@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30BA23CD998
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8CD33CD99B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243092AbhGSOa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S244033AbhGSOa7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244438AbhGSO3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244450AbhGSO3q (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:29:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE34260FE4;
-        Mon, 19 Jul 2021 15:09:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE8B360249;
+        Mon, 19 Jul 2021 15:09:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707369;
-        bh=bneTy3l4dtaTdeZs1Xduz3nnufrr2WqhPF/+LlNBZy8=;
+        s=korg; t=1626707371;
+        bh=5i7m6YX8SA5KT6nhg8VE7TWcYW8SL3Nb60FoMy3MKc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c9V87BW8eUOEoitZW94LmBAH5rARvaoo7dNxxrVBIOFPvZUmlNbyVq/2kVEuw14E7
-         yxszA1LERMJYS1Ez4syGJW9YlLDYJnb8mY4656tG57chqr6KQfMU43rLurap0bZaog
-         pKxISc0SUfONxsg6cBKkjHFwuQj5MTXdxUtq0Cbs=
+        b=JXI6ddpKVKOydztGmw/5zmZDFsFTdPWepFzRaxY0ji6r7mlgCc4c4Rz32s9Yt6CMU
+         2XW7YfZNwhHOtkJqo5+1UDXLNYh85sZIJun9+/RNksRaTo81jtAmPvTGOj9gSlOFEK
+         NMNTzgGv7iUflemyYCD5HqAqEb/ZXeGONRj/xDeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 133/245] e100: handle eeprom as little endian
-Date:   Mon, 19 Jul 2021 16:51:15 +0200
-Message-Id: <20210719144944.709628671@linuxfoundation.org>
+Subject: [PATCH 4.9 134/245] clk: tegra: Ensure that PLLU configuration is applied properly
+Date:   Mon, 19 Jul 2021 16:51:16 +0200
+Message-Id: <20210719144944.740824590@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -41,67 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-[ Upstream commit d4ef55288aa2e1b76033717242728ac98ddc4721 ]
+[ Upstream commit a7196048cd5168096c2c4f44a3939d7a6dcd06b9 ]
 
-Sparse tool was warning on some implicit conversions from
-little endian data read from the EEPROM on the e100 cards.
+The PLLU (USB) consists of the PLL configuration itself and configuration
+of the PLLU outputs. The PLLU programming is inconsistent on T30 vs T114,
+where T114 immediately bails out if PLLU is enabled and T30 re-enables
+a potentially already enabled PLL (left after bootloader) and then fully
+reprograms it, which could be unsafe to do. The correct way should be to
+skip enabling of the PLL if it's already enabled and then apply
+configuration to the outputs. This patch doesn't fix any known problems,
+it's a minor improvement.
 
-Fix these by being explicit about the conversions using
-le16_to_cpu().
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/e100.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/clk/tegra/clk-pll.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e100.c b/drivers/net/ethernet/intel/e100.c
-index 93c29094ceff..9035cb5fc70d 100644
---- a/drivers/net/ethernet/intel/e100.c
-+++ b/drivers/net/ethernet/intel/e100.c
-@@ -1423,7 +1423,7 @@ static int e100_phy_check_without_mii(struct nic *nic)
- 	u8 phy_type;
- 	int without_mii;
+diff --git a/drivers/clk/tegra/clk-pll.c b/drivers/clk/tegra/clk-pll.c
+index 1ab36a355daf..789efad791a3 100644
+--- a/drivers/clk/tegra/clk-pll.c
++++ b/drivers/clk/tegra/clk-pll.c
+@@ -1085,7 +1085,8 @@ static int clk_pllu_enable(struct clk_hw *hw)
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
--	phy_type = (nic->eeprom[eeprom_phy_iface] >> 8) & 0x0f;
-+	phy_type = (le16_to_cpu(nic->eeprom[eeprom_phy_iface]) >> 8) & 0x0f;
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
- 	switch (phy_type) {
- 	case NoSuchPhy: /* Non-MII PHY; UNTESTED! */
-@@ -1543,7 +1543,7 @@ static int e100_phy_init(struct nic *nic)
- 		mdio_write(netdev, nic->mii.phy_id, MII_BMCR, bmcr);
- 	} else if ((nic->mac >= mac_82550_D102) || ((nic->flags & ich) &&
- 	   (mdio_read(netdev, nic->mii.phy_id, MII_TPISTATUS) & 0x8000) &&
--		(nic->eeprom[eeprom_cnfg_mdix] & eeprom_mdix_enabled))) {
-+	   (le16_to_cpu(nic->eeprom[eeprom_cnfg_mdix]) & eeprom_mdix_enabled))) {
- 		/* enable/disable MDI/MDI-X auto-switching. */
- 		mdio_write(netdev, nic->mii.phy_id, MII_NCONFIG,
- 				nic->mii.force_media ? 0 : NCONFIG_AUTO_SWITCH);
-@@ -2298,9 +2298,9 @@ static int e100_asf(struct nic *nic)
- {
- 	/* ASF can be enabled from eeprom */
- 	return (nic->pdev->device >= 0x1050) && (nic->pdev->device <= 0x1057) &&
--	   (nic->eeprom[eeprom_config_asf] & eeprom_asf) &&
--	   !(nic->eeprom[eeprom_config_asf] & eeprom_gcl) &&
--	   ((nic->eeprom[eeprom_smbus_addr] & 0xFF) != 0xFE);
-+	   (le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_asf) &&
-+	   !(le16_to_cpu(nic->eeprom[eeprom_config_asf]) & eeprom_gcl) &&
-+	   ((le16_to_cpu(nic->eeprom[eeprom_smbus_addr]) & 0xFF) != 0xFE);
- }
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
+@@ -1702,7 +1703,8 @@ static int clk_pllu_tegra114_enable(struct clk_hw *hw)
+ 	if (pll->lock)
+ 		spin_lock_irqsave(pll->lock, flags);
  
- static int e100_up(struct nic *nic)
-@@ -2952,7 +2952,7 @@ static int e100_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+-	_clk_pll_enable(hw);
++	if (!clk_pll_is_enabled(hw))
++		_clk_pll_enable(hw);
  
- 	/* Wol magic packet can be enabled from eeprom */
- 	if ((nic->mac >= mac_82558_D101_A4) &&
--	   (nic->eeprom[eeprom_id] & eeprom_id_wol)) {
-+	   (le16_to_cpu(nic->eeprom[eeprom_id]) & eeprom_id_wol)) {
- 		nic->flags |= wol_magic;
- 		device_set_wakeup_enable(&pdev->dev, true);
- 	}
+ 	ret = clk_pll_wait_for_lock(pll);
+ 	if (ret < 0)
 -- 
 2.30.2
 
