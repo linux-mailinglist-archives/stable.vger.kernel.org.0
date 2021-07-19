@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CC8E3CDAAA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ED893CD8DE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245076AbhGSOhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47966 "EHLO mail.kernel.org"
+        id S243618AbhGSOZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243282AbhGSOfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E28461002;
-        Mon, 19 Jul 2021 15:16:21 +0000 (UTC)
+        id S243747AbhGSOYY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AF086127C;
+        Mon, 19 Jul 2021 15:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707782;
-        bh=RTuMiah45fIxinGTF64R2yLNfcz5ZaPENDnAW9pz7kY=;
+        s=korg; t=1626707042;
+        bh=k6sdeo0K8ERWXNUtPcBk6nxQGep85ebEdlMYkBweH2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdkU06HChakDe4IEmLAP565Gs0TjxTHUFapeEy8zBUsBFW6/udmQTs2wzMvR3jMzT
-         LqO2lRDnjJkXdhZ/nYLRtcmXBed2iJTXtUbHoK0KbeKpxo1CBslSBk319XcQsRUpPj
-         jH6WT+RtDpx/D2kJ8GTDhQ1pY4P+Vk0LFeFXZ5Gk=
+        b=ansj00CfXQ5hKZIEbGO3psa70Ih8irus8wg+zKl6WORwgOevYpSz8c4p8zEJLtj0N
+         i++uiOf0Q22JY7VlMpjBeN0ajzfDr5ORCsMwLJjDN+jGhdKnfjx4QQOJ4+iFteYMAM
+         PElGwgwlpLLbbNeBMXnnnFHYyV/rXaX9QlVCCi3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/315] media: dvb_net: avoid speculation from net slot
+        stable@vger.kernel.org, Daehwan Jung <dh10.jung@samsung.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 001/245] ALSA: usb-audio: fix rate on Ozone Z90 USB headset
 Date:   Mon, 19 Jul 2021 16:49:03 +0200
-Message-Id: <20210719144944.639510555@linuxfoundation.org>
+Message-Id: <20210719144940.366766904@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,89 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Daehwan Jung <dh10.jung@samsung.com>
 
-[ Upstream commit abc0226df64dc137b48b911c1fe4319aec5891bb ]
+commit aecc19ec404bdc745c781058ac97a373731c3089 upstream.
 
-The risk of especulation is actually almost-non-existing here,
-as there are very few users of TCP/IP using the DVB stack,
-as, this is mainly used with DVB-S/S2 cards, and only by people
-that receives TCP/IP from satellite connections, which limits
-a lot the number of users of such feature(*).
+It mislabels its 96 kHz altsetting and that's why it causes some noise
 
-(*) In thesis, DVB-C cards could also benefit from it, but I'm
-yet to see a hardware that supports it.
+Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1623836097-61918-1-git-send-email-dh10.jung@samsung.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Yet, fixing it is trivial.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvb_net.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ sound/usb/format.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
-index 06b0dcc13695..280f941ca97d 100644
---- a/drivers/media/dvb-core/dvb_net.c
-+++ b/drivers/media/dvb-core/dvb_net.c
-@@ -56,6 +56,7 @@
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/netdevice.h>
-+#include <linux/nospec.h>
- #include <linux/etherdevice.h>
- #include <linux/dvb/net.h>
- #include <linux/uio.h>
-@@ -1481,14 +1482,20 @@ static int dvb_net_do_ioctl(struct file *file,
- 		struct net_device *netdev;
- 		struct dvb_net_priv *priv_data;
- 		struct dvb_net_if *dvbnetif = parg;
-+		int if_num = dvbnetif->if_num;
- 
--		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
--		    !dvbnet->state[dvbnetif->if_num]) {
-+		if (if_num >= DVB_NET_DEVICES_MAX) {
- 			ret = -EINVAL;
- 			goto ioctl_error;
- 		}
-+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
- 
--		netdev = dvbnet->device[dvbnetif->if_num];
-+		if (!dvbnet->state[if_num]) {
-+			ret = -EINVAL;
-+			goto ioctl_error;
-+		}
-+
-+		netdev = dvbnet->device[if_num];
- 
- 		priv_data = netdev_priv(netdev);
- 		dvbnetif->pid=priv_data->pid;
-@@ -1541,14 +1548,20 @@ static int dvb_net_do_ioctl(struct file *file,
- 		struct net_device *netdev;
- 		struct dvb_net_priv *priv_data;
- 		struct __dvb_net_if_old *dvbnetif = parg;
-+		int if_num = dvbnetif->if_num;
-+
-+		if (if_num >= DVB_NET_DEVICES_MAX) {
-+			ret = -EINVAL;
-+			goto ioctl_error;
-+		}
-+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
- 
--		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
--		    !dvbnet->state[dvbnetif->if_num]) {
-+		if (!dvbnet->state[if_num]) {
- 			ret = -EINVAL;
- 			goto ioctl_error;
- 		}
- 
--		netdev = dvbnet->device[dvbnetif->if_num];
-+		netdev = dvbnet->device[if_num];
- 
- 		priv_data = netdev_priv(netdev);
- 		dvbnetif->pid=priv_data->pid;
--- 
-2.30.2
-
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -189,9 +189,11 @@ static int parse_audio_format_rates_v1(s
+ 				continue;
+ 			/* C-Media CM6501 mislabels its 96 kHz altsetting */
+ 			/* Terratec Aureon 7.1 USB C-Media 6206, too */
++			/* Ozone Z90 USB C-Media, too */
+ 			if (rate == 48000 && nr_rates == 1 &&
+ 			    (chip->usb_id == USB_ID(0x0d8c, 0x0201) ||
+ 			     chip->usb_id == USB_ID(0x0d8c, 0x0102) ||
++			     chip->usb_id == USB_ID(0x0d8c, 0x0078) ||
+ 			     chip->usb_id == USB_ID(0x0ccd, 0x00b1)) &&
+ 			    fp->altsetting == 5 && fp->maxpacksize == 392)
+ 				rate = 96000;
 
 
