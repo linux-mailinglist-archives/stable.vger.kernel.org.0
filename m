@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0E23CDB5A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D5F3CD8E7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245729AbhGSOm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S243487AbhGSO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245694AbhGSOjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8FA36135C;
-        Mon, 19 Jul 2021 15:18:51 +0000 (UTC)
+        id S243880AbhGSOYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 954226128C;
+        Mon, 19 Jul 2021 15:04:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707932;
-        bh=gHI2DoY4IyNFtGPUKqbxnQZ2z7cG3IQxGPlRt7+kbcI=;
+        s=korg; t=1626707061;
+        bh=FmAVlWNamuC3GE2YBzJqk0R5gjzAnQP1bm5KdpmSjkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZwlQRSwj/9Km4el2pask7Yvz7VWjwutQDa3MwwIdic6GbFoLH3SqyDzbH83nJZNz
-         pA4eR1JwIQQw2tTiE+kFMpl+Fy//UlMISo4li3HRW5x8h8bOpzlkVf/jTiX3g7ICOs
-         KicLmI5yQf0uERSiK4k0YCpSmjVnKou37fUymGds=
+        b=sP1zy07YTY+cvbz04QAAKVUXdEIpJYfJmLCqiVcqAxSPWoNMrr5tRpvzE0XGfq6ds
+         HccEy7NJteLDv9KCrwgKEp/GsrAFZpwf57/NX3JV/x2G/cfNr8J0xqw47ymAo45XVx
+         wQR6Xxthvg1WNbk3QliFhINQ3U2DfzaH75ZXtTKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
-        Erik Kaneda <erik.kaneda@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/315] ACPICA: Fix memory leak caused by _CID repair function
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 016/245] SUNRPC: Fix the batch tasks count wraparound.
 Date:   Mon, 19 Jul 2021 16:49:18 +0200
-Message-Id: <20210719144945.129445271@linuxfoundation.org>
+Message-Id: <20210719144940.913158919@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Erik Kaneda <erik.kaneda@intel.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit c27bac0314131b11bccd735f7e8415ac6444b667 ]
+commit fcb170a9d825d7db4a3fb870b0300f5a40a8d096 upstream.
 
-ACPICA commit 180cb53963aa876c782a6f52cc155d951b26051a
+The 'queue->nr' will wraparound from 0 to 255 when only current
+priority queue has tasks. This maybe lead a deadlock same as commit
+dfe1fe75e00e ("NFSv4: Fix deadlock between nfs4_evict_inode()
+and nfs4_opendata_get_inode()"):
 
-According to the ACPI spec, _CID returns a package containing
-hardware ID's. Each element of an ASL package contains a reference
-count from the parent package as well as the element itself.
+Privileged delegreturn task is queued to privileged list because all
+the slots are assigned. When non-privileged task complete and release
+the slot, a non-privileged maybe picked out. It maybe allocate slot
+failed when the session on draining.
 
-Name (TEST, Package() {
-    "String object" // this package element has a reference count of 2
-})
+If the 'queue->nr' has wraparound to 255, and no enough slot to
+service it, then the privileged delegreturn will lost to wake up.
 
-A memory leak was caused in the _CID repair function because it did
-not decrement the reference count created by the package. Fix the
-memory leak by calling acpi_ut_remove_reference on _CID package elements
-that represent a hardware ID (_HID).
+So we should avoid the wraparound on 'queue->nr'.
 
-Link: https://github.com/acpica/acpica/commit/180cb539
-Tested-by: Shawn Guo <shawn.guo@linaro.org>
-Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/acpi/acpica/nsrepair2.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/sunrpc/sched.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/nsrepair2.c b/drivers/acpi/acpica/nsrepair2.c
-index 06037e044694..78b802b5f7d3 100644
---- a/drivers/acpi/acpica/nsrepair2.c
-+++ b/drivers/acpi/acpica/nsrepair2.c
-@@ -409,6 +409,13 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
- 
- 			(*element_ptr)->common.reference_count =
- 			    original_ref_count;
-+
-+			/*
-+			 * The original_element holds a reference from the package object
-+			 * that represents _HID. Since a new element was created by _HID,
-+			 * remove the reference from the _CID package.
-+			 */
-+			acpi_ut_remove_reference(original_element);
- 		}
- 
- 		element_ptr++;
--- 
-2.30.2
-
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -490,7 +490,8 @@ static struct rpc_task *__rpc_find_next_
+ 	 * Service a batch of tasks from a single owner.
+ 	 */
+ 	q = &queue->tasks[queue->priority];
+-	if (!list_empty(q) && --queue->nr) {
++	if (!list_empty(q) && queue->nr) {
++		queue->nr--;
+ 		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
+ 		goto out;
+ 	}
 
 
