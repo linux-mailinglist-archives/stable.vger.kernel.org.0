@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 332F13CDFB5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 560073CDEF9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344049AbhGSPLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42190 "EHLO mail.kernel.org"
+        id S1344924AbhGSPHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346060AbhGSPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4955E61241;
-        Mon, 19 Jul 2021 15:50:15 +0000 (UTC)
+        id S1345672AbhGSPEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B67EF61006;
+        Mon, 19 Jul 2021 15:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709815;
-        bh=6VI+H0xnqlJM+JgDKkrwBxzWYaGpPM5UawKrq2R/Mok=;
+        s=korg; t=1626709494;
+        bh=hJ0q1YUEeTElbzGRnf2TEzf0g2dgesuOVIupLfKvsZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XmiVyJtaaIVJ4YUafvGvOjRv28OKRCoZoycQNnTkBQzb1sWgjsvrj4olYYERs3nOH
-         xuK9LxNicVe565tXGUlbL7ayzS70rsMSICiRTe3coG8g95NzD5OCMAAXvZunVh0BeY
-         2AV/9QzV0oXcA0qtpa8gY+Jbn1L5sTtvLfvPO5xA=
+        b=zQzHLs7htac+Kem4MdA59ziNoKPc3SlQ80ziJ2K+b6XGlqxxf8I3ZMbc2cQ2m7J26
+         nCVLy4UcTeGCUimsnCuoI3VtDCr3izJzoPk5djuKV2+X27rSYy/SrUv1x4ekPmbPKJ
+         cK8u/+0tubPnyl+hG2uIQcE8h74ZYa1HFAVagyTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/149] virtio_net: move tx vq operation under tx queue lock
+Subject: [PATCH 4.19 407/421] reset: bail if try_module_get() fails
 Date:   Mon, 19 Jul 2021 16:53:38 +0200
-Message-Id: <20210719144927.436821051@linuxfoundation.org>
+Message-Id: <20210719145000.438939361@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit 5a2f966d0f3fa0ef6dada7ab9eda74cacee96b8a ]
+[ Upstream commit 4fb26fb83f0def3d39c14e268bcd4003aae8fade ]
 
-It's unsafe to operate a vq from multiple threads.
-Unfortunately this is exactly what we do when invoking
-clean tx poll from rx napi.
-Same happens with napi-tx even without the
-opportunistic cleaning from the receive interrupt: that races
-with processing the vq in start_xmit.
+Abort instead of returning a new reset control for a reset controller
+device that is going to have its module unloaded.
 
-As a fix move everything that deals with the vq to under tx lock.
-
-Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: 61fc41317666 ("reset: Add reset controller API")
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20210607082615.15160-1-p.zabel@pengutronix.de
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/reset/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index af7d69719c4f..15453d6fcc23 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1504,6 +1504,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	unsigned int index = vq2txq(sq->vq);
- 	struct netdev_queue *txq;
-+	int opaque;
-+	bool done;
+diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+index f7bf20493f23..ccb97f4e31c3 100644
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -428,7 +428,10 @@ static struct reset_control *__reset_control_get_internal(
+ 	if (!rstc)
+ 		return ERR_PTR(-ENOMEM);
  
- 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
- 		/* We don't need to enable cb for XDP */
-@@ -1513,10 +1515,28 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
-+	virtqueue_disable_cb(sq->vq);
- 	free_old_xmit_skbs(sq, true);
-+
-+	opaque = virtqueue_enable_cb_prepare(sq->vq);
-+
-+	done = napi_complete_done(napi, 0);
-+
-+	if (!done)
-+		virtqueue_disable_cb(sq->vq);
-+
- 	__netif_tx_unlock(txq);
- 
--	virtqueue_napi_complete(napi, sq->vq, 0);
-+	if (done) {
-+		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
-+			if (napi_schedule_prep(napi)) {
-+				__netif_tx_lock(txq, raw_smp_processor_id());
-+				virtqueue_disable_cb(sq->vq);
-+				__netif_tx_unlock(txq);
-+				__napi_schedule(napi);
-+			}
-+		}
+-	try_module_get(rcdev->owner);
++	if (!try_module_get(rcdev->owner)) {
++		kfree(rstc);
++		return ERR_PTR(-ENODEV);
 +	}
  
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
+ 	rstc->rcdev = rcdev;
+ 	list_add(&rstc->list, &rcdev->reset_control_head);
 -- 
 2.30.2
 
