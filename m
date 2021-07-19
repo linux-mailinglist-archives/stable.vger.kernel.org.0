@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AD143CE266
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A2D3CE0B2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346830AbhGSPaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1346689AbhGSPRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345523AbhGSP1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:27:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE67C6121F;
-        Mon, 19 Jul 2021 16:08:15 +0000 (UTC)
+        id S1346447AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BACC06113B;
+        Mon, 19 Jul 2021 15:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710896;
-        bh=31Q2SxNVO6mzsD2YnuunmRyukAVykWhnb+sZHX1XplY=;
+        s=korg; t=1626710080;
+        bh=1tBw5Zt9YPIrQK/9dRp5GoREl6y7xA8VRfsxmcF8F8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SnXbFibnalbPd0XGvboqZ1o9haQKbguDHjno99WCQEkAfra0VA8ANhFkLYljEl7B0
-         QyxrlkB9a8fXZuPHr3qpcExW8NXlo5zfxERTCWsyb0k/R/YMNf6XuNgTPEK88zQUqk
-         a+b+roGOmAkCSUyq85kRMSXXZAeH2aqt7nE3Octg=
+        b=jFJYPLUOpBuMHnOzP3d5hROqRr9s73cZ6lLPGXUsV24obpfYfo222gZdhcgNW+uPo
+         F6zedzTj3J93qVLxb2+6wXaJReHrbPREW5v2BnHUWLdHIqgLAB3SfF8wpUIlb6zrqg
+         c4rkUzisCbBiTWgkqLG7n/ZKVjq/Vw7B/YW8vkuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Yufen Yu <yuyufen@huawei.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 149/351] power: supply: sc2731_charger: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 5.10 066/243] ASoC: img: Fix PM reference leak in img_i2s_in_probe()
 Date:   Mon, 19 Jul 2021 16:51:35 +0200
-Message-Id: <20210719144949.906240229@linuxfoundation.org>
+Message-Id: <20210719144943.048526978@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Yufen Yu <yuyufen@huawei.com>
 
-[ Upstream commit 2aac79d14d76879c8e307820b31876e315b1b242 ]
+[ Upstream commit 81aad47278539f02de808bcc8251fed0ad3d6f55 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Link: https://lore.kernel.org/r/20210524093521.612176-1-yuyufen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/sc2731_charger.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/img/img-i2s-in.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/sc2731_charger.c b/drivers/power/supply/sc2731_charger.c
-index 335cb857ef30..288b79836c13 100644
---- a/drivers/power/supply/sc2731_charger.c
-+++ b/drivers/power/supply/sc2731_charger.c
-@@ -524,6 +524,7 @@ static const struct of_device_id sc2731_charger_of_match[] = {
- 	{ .compatible = "sprd,sc2731-charger", },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, sc2731_charger_of_match);
+diff --git a/sound/soc/img/img-i2s-in.c b/sound/soc/img/img-i2s-in.c
+index 0843235d73c9..fd3432a1d6ab 100644
+--- a/sound/soc/img/img-i2s-in.c
++++ b/sound/soc/img/img-i2s-in.c
+@@ -464,7 +464,7 @@ static int img_i2s_in_probe(struct platform_device *pdev)
+ 		if (ret)
+ 			goto err_pm_disable;
+ 	}
+-	ret = pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_resume_and_get(&pdev->dev);
+ 	if (ret < 0)
+ 		goto err_suspend;
  
- static struct platform_driver sc2731_charger_driver = {
- 	.driver = {
 -- 
 2.30.2
 
