@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4D793CD9BA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 544113CDB71
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244358AbhGSObZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S245123AbhGSOmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244111AbhGSO3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A38C86138C;
-        Mon, 19 Jul 2021 15:08:51 +0000 (UTC)
+        id S244369AbhGSOkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:40:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEDB860249;
+        Mon, 19 Jul 2021 15:21:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707332;
-        bh=+mr0Q12/HsfTHj3RrdpF01hzuwS04ZXkax8EBgThnG8=;
+        s=korg; t=1626708077;
+        bh=3IVAtzPpxoEBVV2EqKmnxyEFuGzcWDzdLnb0XTy4L4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aW7U+sgzt+zR0dqD83/QYkjwkIbNmPZWCS5c4DRMRVJFO1YNTYPNfld6vn/SrLbuL
-         Zdq3nsO1O6tHUrwPx4QppIOyfy5rqF3CdMIzQuS5GKMUOtnYHZ3bQjnqVT8097aELs
-         SyiKlccz5Qywrei462pkkBKdpM4UTFhSKL5z3Ui0=
+        b=fQjjidw+COHXqJjHHeyub9wzExPRLRBpkVE18JlvzGwH+Y85lPO769WcHnAdSpI4y
+         unY521BN7m0gHyaf+0untvz6RwVNvyEHOSQekNEspCW4KX2anyJTAEFyxlsBQMkdEI
+         +zW+iAUINrfC6RgIeNatRnk51DeRVkc4eDPFUjj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chung-Chiang Cheng <cccheng@synology.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 118/245] configfs: fix memleak in configfs_release_bin_file
+        stable@vger.kernel.org, Arturo Giusti <koredump@protonmail.com>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 171/315] udf: Fix NULL pointer dereference in udf_symlink function
 Date:   Mon, 19 Jul 2021 16:51:00 +0200
-Message-Id: <20210719144944.231184389@linuxfoundation.org>
+Message-Id: <20210719144948.513689947@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chung-Chiang Cheng <shepjeng@gmail.com>
+From: Arturo Giusti <koredump@protonmail.com>
 
-[ Upstream commit 3c252b087de08d3cb32468b54a158bd7ad0ae2f7 ]
+[ Upstream commit fa236c2b2d4436d9f19ee4e5d5924e90ffd7bb43 ]
 
-When reading binary attributes in progress, buffer->bin_buffer is setup in
-configfs_read_bin_file() but never freed.
+In function udf_symlink, epos.bh is assigned with the value returned
+by udf_tgetblk. The function udf_tgetblk is defined in udf/misc.c
+and returns the value of sb_getblk function that could be NULL.
+Then, epos.bh is used without any check, causing a possible
+NULL pointer dereference when sb_getblk fails.
 
-Fixes: 03607ace807b4 ("configfs: implement binary attributes")
-Signed-off-by: Chung-Chiang Cheng <cccheng@synology.com>
-[hch: move the vfree rather than duplicating it]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+This fix adds a check to validate the value of epos.bh.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213083
+Signed-off-by: Arturo Giusti <koredump@protonmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/file.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/udf/namei.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/configfs/file.c b/fs/configfs/file.c
-index 896e90dc9193..71f665eb0316 100644
---- a/fs/configfs/file.c
-+++ b/fs/configfs/file.c
-@@ -496,13 +496,13 @@ static int configfs_release_bin_file(struct inode *inode, struct file *file)
- 					buffer->bin_buffer_size);
- 		}
- 		up_read(&frag->frag_sem);
--		/* vfree on NULL is safe */
--		vfree(buffer->bin_buffer);
--		buffer->bin_buffer = NULL;
--		buffer->bin_buffer_size = 0;
--		buffer->needs_read_fill = 1;
- 	}
- 
-+	vfree(buffer->bin_buffer);
-+	buffer->bin_buffer = NULL;
-+	buffer->bin_buffer_size = 0;
-+	buffer->needs_read_fill = 1;
-+
- 	configfs_release(inode, file);
- 	return 0;
- }
+diff --git a/fs/udf/namei.c b/fs/udf/namei.c
+index 041bf34f781f..d5516f025bad 100644
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -956,6 +956,10 @@ static int udf_symlink(struct inode *dir, struct dentry *dentry,
+ 				iinfo->i_location.partitionReferenceNum,
+ 				0);
+ 		epos.bh = udf_tgetblk(sb, block);
++		if (unlikely(!epos.bh)) {
++			err = -ENOMEM;
++			goto out_no_entry;
++		}
+ 		lock_buffer(epos.bh);
+ 		memset(epos.bh->b_data, 0x00, bsize);
+ 		set_buffer_uptodate(epos.bh);
 -- 
 2.30.2
 
