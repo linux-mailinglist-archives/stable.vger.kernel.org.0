@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 522D93CE1F5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B1A3CE0C0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346281AbhGSP2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:28:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
+        id S1346739AbhGSPSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346848AbhGSP0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:26:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 41E9360200;
-        Mon, 19 Jul 2021 16:06:48 +0000 (UTC)
+        id S1346526AbhGSPOt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C06761357;
+        Mon, 19 Jul 2021 15:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710808;
-        bh=adqF5/SaVwK5U/EMi9g7HF+YpqR+S0USPaDDQxju/eo=;
+        s=korg; t=1626710103;
+        bh=NIOvFFYGolkiUWHbQp1PRNxwIQ3ks2cXnYip0cqAkgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESWOD5LU2Lt65t6kTJ5fac0XJRhmXbP0tLy3efVrP9hZJwXDYytCXCwe2v6ir4I9V
-         6DcDHjtFfocLs+iKgrtJjaEqSLHN41TQ4Y2F/oGsOprdxJv47fHj520rPfxAJikqHW
-         V1x8F+spxS3nzL7VPR66AGEx0nX08qWKf06hgXnM=
+        b=elpvjxw7mZh5+taceF1FJ1PsRP9sqTsXBBsLKOF9wpRW++GVas4gjZjcpVdA8Saxx
+         0D+zOevE+rie+XEiFYz3En1kva18DggewDu51YzQuB+hyXNeI96kNwPA0nVQ/p1r7N
+         4UUxnZKxzlFE1PW+65EVVYBwhPHal3pr6waoLC/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Koby Elbaz <kelbaz@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 116/351] habanalabs/gaudi: set the correct cpu_id on MME2_QM failure
-Date:   Mon, 19 Jul 2021 16:51:02 +0200
-Message-Id: <20210719144948.321461410@linuxfoundation.org>
+Subject: [PATCH 5.10 034/243] partitions: msdos: fix one-byte get_unaligned()
+Date:   Mon, 19 Jul 2021 16:51:03 +0200
+Message-Id: <20210719144942.036101208@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +39,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koby Elbaz <kelbaz@habana.ai>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit b92c637c5f5ef7e3e21dbc7bfa7f1999450f3902 ]
+[ Upstream commit 1b1774998b2dec837a57d729d1a22e5eb2d6d206 ]
 
-This fix was applied since there was an incorrect reported CPU ID to GIC
-such that an error in MME2 QMAN aliased to be an arriving from DMA0_QM.
+A simplification of get_unaligned() clashes with callers that pass
+in a character pointer, causing a harmless warning like:
 
-Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+block/partitions/msdos.c: In function 'msdos_partition':
+include/asm-generic/unaligned.h:13:22: warning: 'packed' attribute ignored for field of type 'u8' {aka 'unsigned char'} [-Wattributes]
+
+Remove the SYS_IND() macro with the get_unaligned() call
+and just use the ->ind field directly.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/gaudi/gaudi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/partitions/ldm.c   |  2 +-
+ block/partitions/ldm.h   |  3 ---
+ block/partitions/msdos.c | 24 +++++++++++-------------
+ 3 files changed, 12 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
-index 9e4a6bb3acd1..f6a56d5f2ae7 100644
---- a/drivers/misc/habanalabs/gaudi/gaudi.c
-+++ b/drivers/misc/habanalabs/gaudi/gaudi.c
-@@ -2834,7 +2834,7 @@ static void gaudi_init_mme_qman(struct hl_device *hdev, u32 mme_offset,
+diff --git a/block/partitions/ldm.c b/block/partitions/ldm.c
+index d333786b5c7e..cc86534c80ad 100644
+--- a/block/partitions/ldm.c
++++ b/block/partitions/ldm.c
+@@ -510,7 +510,7 @@ static bool ldm_validate_partition_table(struct parsed_partitions *state)
  
- 		/* Configure RAZWI IRQ */
- 		mme_id = mme_offset /
--				(mmMME1_QM_GLBL_CFG0 - mmMME0_QM_GLBL_CFG0);
-+				(mmMME1_QM_GLBL_CFG0 - mmMME0_QM_GLBL_CFG0) / 2;
+ 	p = (struct msdos_partition *)(data + 0x01BE);
+ 	for (i = 0; i < 4; i++, p++)
+-		if (SYS_IND (p) == LDM_PARTITION) {
++		if (p->sys_ind == LDM_PARTITION) {
+ 			result = true;
+ 			break;
+ 		}
+diff --git a/block/partitions/ldm.h b/block/partitions/ldm.h
+index d8d6beaa72c4..8693704dcf5e 100644
+--- a/block/partitions/ldm.h
++++ b/block/partitions/ldm.h
+@@ -84,9 +84,6 @@ struct parsed_partitions;
+ #define TOC_BITMAP1		"config"	/* Names of the two defined */
+ #define TOC_BITMAP2		"log"		/* bitmaps in the TOCBLOCK. */
  
- 		mme_qm_err_cfg = MME_QMAN_GLBL_ERR_CFG_MSG_EN_MASK;
- 		if (hdev->stop_on_err) {
+-/* Borrowed from msdos.c */
+-#define SYS_IND(p)		(get_unaligned(&(p)->sys_ind))
+-
+ struct frag {				/* VBLK Fragment handling */
+ 	struct list_head list;
+ 	u32		group;
+diff --git a/block/partitions/msdos.c b/block/partitions/msdos.c
+index 8f2fcc080264..c94de377c502 100644
+--- a/block/partitions/msdos.c
++++ b/block/partitions/msdos.c
+@@ -38,8 +38,6 @@
+  */
+ #include <asm/unaligned.h>
+ 
+-#define SYS_IND(p)	get_unaligned(&p->sys_ind)
+-
+ static inline sector_t nr_sects(struct msdos_partition *p)
+ {
+ 	return (sector_t)get_unaligned_le32(&p->nr_sects);
+@@ -52,9 +50,9 @@ static inline sector_t start_sect(struct msdos_partition *p)
+ 
+ static inline int is_extended_partition(struct msdos_partition *p)
+ {
+-	return (SYS_IND(p) == DOS_EXTENDED_PARTITION ||
+-		SYS_IND(p) == WIN98_EXTENDED_PARTITION ||
+-		SYS_IND(p) == LINUX_EXTENDED_PARTITION);
++	return (p->sys_ind == DOS_EXTENDED_PARTITION ||
++		p->sys_ind == WIN98_EXTENDED_PARTITION ||
++		p->sys_ind == LINUX_EXTENDED_PARTITION);
+ }
+ 
+ #define MSDOS_LABEL_MAGIC1	0x55
+@@ -193,7 +191,7 @@ static void parse_extended(struct parsed_partitions *state,
+ 
+ 			put_partition(state, state->next, next, size);
+ 			set_info(state, state->next, disksig);
+-			if (SYS_IND(p) == LINUX_RAID_PARTITION)
++			if (p->sys_ind == LINUX_RAID_PARTITION)
+ 				state->parts[state->next].flags = ADDPART_FLAG_RAID;
+ 			loopct = 0;
+ 			if (++state->next == state->limit)
+@@ -546,7 +544,7 @@ static void parse_minix(struct parsed_partitions *state,
+ 	 * a secondary MBR describing its subpartitions, or
+ 	 * the normal boot sector. */
+ 	if (msdos_magic_present(data + 510) &&
+-	    SYS_IND(p) == MINIX_PARTITION) { /* subpartition table present */
++	    p->sys_ind == MINIX_PARTITION) { /* subpartition table present */
+ 		char tmp[1 + BDEVNAME_SIZE + 10 + 9 + 1];
+ 
+ 		snprintf(tmp, sizeof(tmp), " %s%d: <minix:", state->name, origin);
+@@ -555,7 +553,7 @@ static void parse_minix(struct parsed_partitions *state,
+ 			if (state->next == state->limit)
+ 				break;
+ 			/* add each partition in use */
+-			if (SYS_IND(p) == MINIX_PARTITION)
++			if (p->sys_ind == MINIX_PARTITION)
+ 				put_partition(state, state->next++,
+ 					      start_sect(p), nr_sects(p));
+ 		}
+@@ -643,7 +641,7 @@ int msdos_partition(struct parsed_partitions *state)
+ 	p = (struct msdos_partition *) (data + 0x1be);
+ 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
+ 		/* If this is an EFI GPT disk, msdos should ignore it. */
+-		if (SYS_IND(p) == EFI_PMBR_OSTYPE_EFI_GPT) {
++		if (p->sys_ind == EFI_PMBR_OSTYPE_EFI_GPT) {
+ 			put_dev_sector(sect);
+ 			return 0;
+ 		}
+@@ -685,11 +683,11 @@ int msdos_partition(struct parsed_partitions *state)
+ 		}
+ 		put_partition(state, slot, start, size);
+ 		set_info(state, slot, disksig);
+-		if (SYS_IND(p) == LINUX_RAID_PARTITION)
++		if (p->sys_ind == LINUX_RAID_PARTITION)
+ 			state->parts[slot].flags = ADDPART_FLAG_RAID;
+-		if (SYS_IND(p) == DM6_PARTITION)
++		if (p->sys_ind == DM6_PARTITION)
+ 			strlcat(state->pp_buf, "[DM]", PAGE_SIZE);
+-		if (SYS_IND(p) == EZD_PARTITION)
++		if (p->sys_ind == EZD_PARTITION)
+ 			strlcat(state->pp_buf, "[EZD]", PAGE_SIZE);
+ 	}
+ 
+@@ -698,7 +696,7 @@ int msdos_partition(struct parsed_partitions *state)
+ 	/* second pass - output for each on a separate line */
+ 	p = (struct msdos_partition *) (0x1be + data);
+ 	for (slot = 1 ; slot <= 4 ; slot++, p++) {
+-		unsigned char id = SYS_IND(p);
++		unsigned char id = p->sys_ind;
+ 		int n;
+ 
+ 		if (!nr_sects(p))
 -- 
 2.30.2
 
