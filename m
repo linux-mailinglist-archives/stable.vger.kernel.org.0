@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 797CB3CE4FB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB3FD3CE4F7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346969AbhGSPrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
+        id S1346870AbhGSPrW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349465AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5809D61175;
-        Mon, 19 Jul 2021 16:25:14 +0000 (UTC)
+        id S1349493AbhGSPpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FDE26128C;
+        Mon, 19 Jul 2021 16:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711914;
-        bh=iTyf83tF/Wvx/ifyE51GtFz1bu1+4+JQLSsbBUHajY4=;
+        s=korg; t=1626711917;
+        bh=4KsKW8tFlrctLEkYf5y+b9RxZ2NggOdutywFRqIHSJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJzVp4tBR+12nTQ58fYww3PaqG0ZTbV5vWi+rVGWC98iUEdsoCA9LcnXazk+7yqup
-         Qx+16+E20JCErxsz8rtxZBB0TiBQJeXNBaj2ZNUvC15OZLYc8c/hIpv7NI7XzkC6SP
-         nYCjbpiuoY/hOKIgwvR50yAhCI4v1bw7A8LeA9X0=
+        b=ltn1ErqsOqGZTPJlTvLCBiR2SRsPxIH0FWNK42NmJKVCoe4S9WA5zToMMMm6CSZGF
+         i9zuHgC4KxOeSRT8wTEC07GuIbpbs7Qc5JVJNhLJu8RuUhdduZtx5cUpxsK8XJZoVV
+         xz1MxRKOAoCNFr3WN0Z5j4MC3NqGy5wPWYoZJa88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 179/292] remoteproc: k3-r5: Fix an error message
-Date:   Mon, 19 Jul 2021 16:54:01 +0200
-Message-Id: <20210719144948.385550236@linuxfoundation.org>
+Subject: [PATCH 5.12 180/292] PCI/sysfs: Fix dsm_label_utf16s_to_utf8s() buffer overrun
+Date:   Mon, 19 Jul 2021 16:54:02 +0200
+Message-Id: <20210719144948.415289448@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,37 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Krzysztof Wilczyński <kw@linux.com>
 
-[ Upstream commit 34c4da6d5dfba48f49f891ebd75bb55999f0c538 ]
+[ Upstream commit bdcdaa13ad96f1a530711c29e6d4b8311eff767c ]
 
-'ret' is known to be 0 here.
-Reorder the code so that the expected error code is printed.
+"utf16s_to_utf8s(..., buf, PAGE_SIZE)" puts up to PAGE_SIZE bytes into
+"buf" and returns the number of bytes it actually put there.  If it wrote
+PAGE_SIZE bytes, the newline added by dsm_label_utf16s_to_utf8s() would
+overrun "buf".
 
-Acked-by: Suman Anna <s-anna@ti.com>
-Fixes: 6dedbd1d5443 ("remoteproc: k3-r5: Add a remoteproc driver for R5F subsystem")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/d6e29d903b48957bf59c67229d54b0fc215e31ae.1620333870.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reduce the size available for utf16s_to_utf8s() to use so there is always
+space for the newline.
+
+[bhelgaas: reorder patch in series, commit log]
+Fixes: 6058989bad05 ("PCI: Export ACPI _DSM provided firmware instance number and string name to sysfs")
+Link: https://lore.kernel.org/r/20210603000112.703037-7-kw@linux.com
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/ti_k3_r5_remoteproc.c | 2 +-
+ drivers/pci/pci-label.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/ti_k3_r5_remoteproc.c b/drivers/remoteproc/ti_k3_r5_remoteproc.c
-index 62b5a4c29456..914db1d1f638 100644
---- a/drivers/remoteproc/ti_k3_r5_remoteproc.c
-+++ b/drivers/remoteproc/ti_k3_r5_remoteproc.c
-@@ -1272,9 +1272,9 @@ static int k3_r5_core_of_init(struct platform_device *pdev)
- 
- 	core->tsp = k3_r5_core_of_get_tsp(dev, core->ti_sci);
- 	if (IS_ERR(core->tsp)) {
-+		ret = PTR_ERR(core->tsp);
- 		dev_err(dev, "failed to construct ti-sci proc control, ret = %d\n",
- 			ret);
--		ret = PTR_ERR(core->tsp);
- 		goto err;
- 	}
+diff --git a/drivers/pci/pci-label.c b/drivers/pci/pci-label.c
+index 781e45cf60d1..cd84cf52a92e 100644
+--- a/drivers/pci/pci-label.c
++++ b/drivers/pci/pci-label.c
+@@ -162,7 +162,7 @@ static void dsm_label_utf16s_to_utf8s(union acpi_object *obj, char *buf)
+ 	len = utf16s_to_utf8s((const wchar_t *)obj->buffer.pointer,
+ 			      obj->buffer.length,
+ 			      UTF16_LITTLE_ENDIAN,
+-			      buf, PAGE_SIZE);
++			      buf, PAGE_SIZE - 1);
+ 	buf[len] = '\n';
+ }
  
 -- 
 2.30.2
