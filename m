@@ -2,32 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A95EE3CE438
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B2973CE45D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347785AbhGSPmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
+        id S1347331AbhGSPnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236961AbhGSPhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:37:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 779856113A;
-        Mon, 19 Jul 2021 16:17:58 +0000 (UTC)
+        id S240940AbhGSPhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:37:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE1761248;
+        Mon, 19 Jul 2021 16:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711479;
-        bh=s8qxXTQl66UCi8CW5gBxbUGTEfvj080RXKdnY+bWkSg=;
+        s=korg; t=1626711481;
+        bh=QD1d3pOJsWBYGMDUpWa4YS0LLXpRn9mRsdxNn5EXTc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqZAyuyZR5XEByT8HGr7PhPlzUF+LmiNzCVzmQpYaLFMM+tBfkqRQ/i9eziWiekZg
-         9QVbrMmxs2NwqUjvwSfqImsVF3xXQlSKvXa45Xe4DMhaZBU8C8IZnzz/tSjFEba/JJ
-         hEgdmtGexu4eAXH9s9BgPMIKTZiRCtq24n0EibZo=
+        b=ZkVpjybQ2HlXssNOsJI8RUmiwKboLVMDPwHDV8L+pENpMfK3ho5EYcTUr2dnqusLd
+         esXjuQxg7ihIbsVCdArajDUCFGZRDtKPI6YXQOmFjOH3lIM6brtPC/LubuPt+nY3FF
+         10Vzl26syUwNlYlTiuH4x6KRJpwisdK3vObA9Jh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.12 018/292] fbmem: Do not delete the mode that is still in use
-Date:   Mon, 19 Jul 2021 16:51:20 +0200
-Message-Id: <20210719144943.124764533@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac@vger.kernel.org,
+        bowsingbetee <bowsingbetee@protonmail.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 019/292] EDAC/igen6: fix core dependency AGAIN
+Date:   Mon, 19 Jul 2021 16:51:21 +0200
+Message-Id: <20210719144943.166355936@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -39,85 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 0af778269a522c988ef0b4188556aba97fb420cc upstream.
+commit a1c9ca5f65c9acfd7c02474b9d5cacbd7ea288df upstream.
 
-The execution of fb_delete_videomode() is not based on the result of the
-previous fbcon_mode_deleted(). As a result, the mode is directly deleted,
-regardless of whether it is still in use, which may cause UAF.
+My previous patch had a typo/thinko which prevents this driver
+from being enabled: change X64_64 to X86_64.
 
-==================================================================
-BUG: KASAN: use-after-free in fb_mode_is_equal+0x36e/0x5e0 \
-drivers/video/fbdev/core/modedb.c:924
-Read of size 4 at addr ffff88807e0ddb1c by task syz-executor.0/18962
-
-CPU: 2 PID: 18962 Comm: syz-executor.0 Not tainted 5.10.45-rc1+ #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ...
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x137/0x1be lib/dump_stack.c:118
- print_address_description+0x6c/0x640 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x13d/0x1e0 mm/kasan/report.c:562
- fb_mode_is_equal+0x36e/0x5e0 drivers/video/fbdev/core/modedb.c:924
- fbcon_mode_deleted+0x16a/0x220 drivers/video/fbdev/core/fbcon.c:2746
- fb_set_var+0x1e1/0xdb0 drivers/video/fbdev/core/fbmem.c:975
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Freed by task 18960:
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
- kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
- __kasan_slab_free+0x108/0x140 mm/kasan/common.c:422
- slab_free_hook mm/slub.c:1541 [inline]
- slab_free_freelist_hook+0xd6/0x1a0 mm/slub.c:1574
- slab_free mm/slub.c:3139 [inline]
- kfree+0xca/0x3d0 mm/slub.c:4121
- fb_delete_videomode+0x56a/0x820 drivers/video/fbdev/core/modedb.c:1104
- fb_set_var+0x1f3/0xdb0 drivers/video/fbdev/core/fbmem.c:978
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 13ff178ccd6d ("fbcon: Call fbcon_mode_deleted/new_modelist directly")
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210712085544.2828-1-thunder.leizhen@huawei.com
+Fixes: 0a9ece9ba154 ("EDAC/igen6: fix core dependency")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac@vger.kernel.org
+Cc: bowsingbetee <bowsingbetee@protonmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/edac/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -970,13 +970,11 @@ fb_set_var(struct fb_info *info, struct
- 		fb_var_to_videomode(&mode2, &info->var);
- 		/* make sure we don't delete the videomode of current var */
- 		ret = fb_mode_is_equal(&mode1, &mode2);
--
--		if (!ret)
--			fbcon_mode_deleted(info, &mode1);
--
--		if (!ret)
--			fb_delete_videomode(&mode1, &info->modelist);
--
-+		if (!ret) {
-+			ret = fbcon_mode_deleted(info, &mode1);
-+			if (!ret)
-+				fb_delete_videomode(&mode1, &info->modelist);
-+		}
- 
- 		return ret ? -EINVAL : 0;
- 	}
+--- a/drivers/edac/Kconfig
++++ b/drivers/edac/Kconfig
+@@ -271,7 +271,7 @@ config EDAC_PND2
+ config EDAC_IGEN6
+ 	tristate "Intel client SoC Integrated MC"
+ 	depends on PCI && PCI_MMCONFIG && ARCH_HAVE_NMI_SAFE_CMPXCHG
+-	depends on X64_64 && X86_MCE_INTEL
++	depends on X86_64 && X86_MCE_INTEL
+ 	help
+ 	  Support for error detection and correction on the Intel
+ 	  client SoC Integrated Memory Controller using In-Band ECC IP.
 
 
