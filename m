@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F5723CDFA4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4253CDF14
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344854AbhGSPLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
+        id S1345043AbhGSPHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346051AbhGSPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3E3261279;
-        Mon, 19 Jul 2021 15:50:12 +0000 (UTC)
+        id S1346038AbhGSPFM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C13206023D;
+        Mon, 19 Jul 2021 15:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709813;
-        bh=qZkyoG2FBn2OT+lhuZGNVpkXT/zpxIylfZrc701XAf8=;
+        s=korg; t=1626709551;
+        bh=HVAnDmf5mBzFTFIU5/PourG2v7nNC1fxLxf8dnzTuk8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeaCVKWmt9B938Fjazdn3p0qZnTa9aFwJm8WfZtgtjQcd/24dF3eVbe3/ugeXVU4w
-         1EJjHQEcszfCsdTm3lmc0tHuATK6OzJS79AnQmvS/6Fh6Nbf1fl8lpHtp4LRtAWD18
-         talG8OahLnS5aP0FjZ9PbUi73Jz4tteYvA73SuhE=
+        b=ZAryqFPQC6dXzPnOcZFCETGC4UJY2MnpLMrO/mf3Ac9Zi0V3sSWd/VbwDspZxU8FU
+         kyIp7vbI/x8aVmZtQ26jRFFb2kXi8IPRpgYgY7EpOJM//NiJNjH3T/Of68z0gnI5nX
+         GMsfrWdCINxV1xuQuBk+wzxbCdrFqoRsEqQo29gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 109/149] pwm: imx1: Dont disable clocks at device remove time
+Subject: [PATCH 4.19 406/421] ARM: dts: BCM5301X: Fixup SPI binding
 Date:   Mon, 19 Jul 2021 16:53:37 +0200
-Message-Id: <20210719144927.183141317@linuxfoundation.org>
+Message-Id: <20210719145000.408831082@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +41,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-[ Upstream commit 1bc6ea31cb41d50302a3c9b401964cf0a88d41f9 ]
+[ Upstream commit d5aede3e6dd1b8ca574600a1ecafe1e580c53f2f ]
 
-The .remove() callback disables clocks that were not enabled in
-.probe(). So just probing and then unbinding the driver results in a clk
-enable imbalance.
+1. Reorder interrupts
+2. Fix typo: s/spi_lr_overhead/spi_lr_overread/
+3. Rename node: s/spi-nor@0/flash@0/
 
-So just drop the call to disable the clocks. (Which BTW was also in the
-wrong order because the call makes the PWM unfunctional and so should
-have come only after pwmchip_remove()).
+This fixes:
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi@18029200: interrupt-names: 'oneOf' conditional failed, one must be fixed:
+        ['spi_lr_fullness_reached', 'spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted'] is too long
+        Additional items are not allowed ('spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted' were unexpected)
+        'mspi_done' was expected
+        'spi_l1_intr' was expected
+        'mspi_halted' was expected
+        'spi_lr_fullness_reached' was expected
+        'spi_lr_session_aborted' was expected
+        'spi_lr_impatient' was expected
+        'spi_lr_session_done' was expected
+        'spi_lr_overread' was expected
+        From schema: Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.yaml
+arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi-nor@0: $nodename:0: 'spi-nor@0' does not match '^flash(@.*)?$'
+        From schema: Documentation/devicetree/bindings/mtd/jedec,spi-nor.yaml
 
-Fixes: 9f4c8f9607c3 ("pwm: imx: Add ipg clock operation")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-imx1.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/boot/dts/bcm5301x.dtsi | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/pwm/pwm-imx1.c b/drivers/pwm/pwm-imx1.c
-index f8b2c2e001a7..c17652c40e14 100644
---- a/drivers/pwm/pwm-imx1.c
-+++ b/drivers/pwm/pwm-imx1.c
-@@ -180,8 +180,6 @@ static int pwm_imx1_remove(struct platform_device *pdev)
- {
- 	struct pwm_imx1_chip *imx = platform_get_drvdata(pdev);
+diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
+index c91716d5980c..fa3422c4caec 100644
+--- a/arch/arm/boot/dts/bcm5301x.dtsi
++++ b/arch/arm/boot/dts/bcm5301x.dtsi
+@@ -451,27 +451,27 @@
+ 		      <0x1811b408 0x004>,
+ 		      <0x180293a0 0x01c>;
+ 		reg-names = "mspi", "bspi", "intr_regs", "intr_status_reg";
+-		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
++		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
++			     <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
+ 			     <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
+-			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
+-		interrupt-names = "spi_lr_fullness_reached",
++			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
++		interrupt-names = "mspi_done",
++				  "mspi_halted",
++				  "spi_lr_fullness_reached",
+ 				  "spi_lr_session_aborted",
+ 				  "spi_lr_impatient",
+ 				  "spi_lr_session_done",
+-				  "spi_lr_overhead",
+-				  "mspi_done",
+-				  "mspi_halted";
++				  "spi_lr_overread";
+ 		clocks = <&iprocmed>;
+ 		clock-names = "iprocmed";
+ 		num-cs = <2>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
  
--	pwm_imx1_clk_disable_unprepare(&imx->chip);
--
- 	return pwmchip_remove(&imx->chip);
- }
- 
+-		spi_nor: spi-nor@0 {
++		spi_nor: flash@0 {
+ 			compatible = "jedec,spi-nor";
+ 			reg = <0>;
+ 			spi-max-frequency = <20000000>;
 -- 
 2.30.2
 
