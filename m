@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE93B3CD745
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:56:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC47D3CD758
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241312AbhGSOPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:15:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47408 "EHLO mail.kernel.org"
+        id S241465AbhGSOQK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:16:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232727AbhGSOPo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:15:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AA3961002;
-        Mon, 19 Jul 2021 14:56:23 +0000 (UTC)
+        id S241453AbhGSOQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:16:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D84961003;
+        Mon, 19 Jul 2021 14:56:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706584;
-        bh=TXp7ZZnWuhjFT4Z5mgRHuh7lOXDrAqgaTbIOFa1/B+k=;
+        s=korg; t=1626706608;
+        bh=OSsrk1BtM1mo+nq3Kk5gAu8BvCCYQWNkdRw1mLGpOL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5ql7NP2fZYgr7QsNF3Rfa1oj3E2dZQceWzKk/rvocy85Ag1qeouCYuHdfvaaGt+m
-         YJ5YNfTT4J4pwMU9cybr7/YITPO+MdIZiCTGAAFLX40SLrnxlmYqi+ctsO0oGkGn8G
-         b0QTLVnCIpMtRIrDxDCjguBtpFT8D/M97a0d+1lk=
+        b=XZTy2CefUlSnCE0ELQZpCY+RRcDA6wevak9kAVi/JZfVhWeRf6SlksprveIIKCtv7
+         XsqYDhrvA8x0/VHnxRXYhsTNWPXza7tHKTW32RhuXqVF6+L6upLKLmJpOSZ6MpIhp1
+         jUpIxgGjQ3PSqxLP5DG64s18Xs7kKc5JRGvCX5Gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daehwan Jung <dh10.jung@samsung.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 001/188] ALSA: usb-audio: fix rate on Ozone Z90 USB headset
-Date:   Mon, 19 Jul 2021 16:49:45 +0200
-Message-Id: <20210719144913.443273871@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 002/188] media: dvb-usb: fix wrong definition
+Date:   Mon, 19 Jul 2021 16:49:46 +0200
+Message-Id: <20210719144913.666897738@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,35 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daehwan Jung <dh10.jung@samsung.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit aecc19ec404bdc745c781058ac97a373731c3089 upstream.
+commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
 
-It mislabels its 96 kHz altsetting and that's why it causes some noise
+syzbot reported WARNING in vmalloc. The problem
+was in zero size passed to vmalloc.
 
-Signed-off-by: Daehwan Jung <dh10.jung@samsung.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1623836097-61918-1-git-send-email-dh10.jung@samsung.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The root case was in wrong cxusb_bluebird_lgz201_properties
+definition. adapter array has only 1 entry, but num_adapters was
+2.
+
+Call Trace:
+ __vmalloc_node mm/vmalloc.c:2963 [inline]
+ vmalloc+0x67/0x80 mm/vmalloc.c:2996
+ dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
+ dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
+ dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
+ dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+ dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+ cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+
+Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/format.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/dvb-usb/cxusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -191,9 +191,11 @@ static int parse_audio_format_rates_v1(s
- 				continue;
- 			/* C-Media CM6501 mislabels its 96 kHz altsetting */
- 			/* Terratec Aureon 7.1 USB C-Media 6206, too */
-+			/* Ozone Z90 USB C-Media, too */
- 			if (rate == 48000 && nr_rates == 1 &&
- 			    (chip->usb_id == USB_ID(0x0d8c, 0x0201) ||
- 			     chip->usb_id == USB_ID(0x0d8c, 0x0102) ||
-+			     chip->usb_id == USB_ID(0x0d8c, 0x0078) ||
- 			     chip->usb_id == USB_ID(0x0ccd, 0x00b1)) &&
- 			    fp->altsetting == 5 && fp->maxpacksize == 392)
- 				rate = 96000;
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -1789,7 +1789,7 @@ static struct dvb_usb_device_properties
+ 
+ 	.size_of_priv     = sizeof(struct cxusb_state),
+ 
+-	.num_adapters = 2,
++	.num_adapters = 1,
+ 	.adapter = {
+ 		{
+ 		.num_frontends = 1,
 
 
