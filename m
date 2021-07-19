@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 921A63CD92F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F30BE3CDAEF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243244AbhGSO1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:27:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
+        id S243905AbhGSOkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:40:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243467AbhGSO0A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:26:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3042761003;
-        Mon, 19 Jul 2021 15:06:38 +0000 (UTC)
+        id S244268AbhGSOh4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:37:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C27BB6121F;
+        Mon, 19 Jul 2021 15:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707198;
-        bh=drUgEw/JmGeAOkEVkPyc57pdHsGa7qFRuqiUSVvQ2Tc=;
+        s=korg; t=1626707859;
+        bh=b4Dul+CjHBdb83gGvbe6u5Q0us1wNFEnsdbBnojmT6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yS2cISyxbGkOMj4LeHGKVMFJmv/rY/8mv527ojlNAwnuHlEZuezxnROKAmgS7pvqz
-         mcM3gpVpQfFjG5f5N+DzZlrhBWrxtntJVJM7Ur6B2Ly6AH/e0hEn4cq5qfCCY6h0vt
-         Ub53HK+hmv5N8U4p1hYMYSDu8iqFmtx+BQk6ComE=
+        b=zHxYBOCLhl9WOVkVnLTPAzb3ioegmSH63pYzTuxrYC+rfLPoRytrxUUXKmlrtqr9C
+         nSGjpdP8U7wg54N7EXj9ufRWtgKhklWk+//Tk3uVMFUccAHY04KX2IJnDcDgmpIquH
+         1WJj4QkrA/xH8QnWEtXyjPKn2XMcwW4JzT1C2Dz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 033/245] media: cpia2: fix memory leak in cpia2_usb_probe
+Subject: [PATCH 4.14 086/315] media: siano: Fix out-of-bounds warnings in smscore_load_firmware_family2()
 Date:   Mon, 19 Jul 2021 16:49:35 +0200
-Message-Id: <20210719144941.469909978@linuxfoundation.org>
+Message-Id: <20210719144945.703668704@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,102 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit be8656e62e9e791837b606a027802b504a945c97 ]
+[ Upstream commit 13dfead49db07225335d4f587a560a2210391a1a ]
 
-syzbot reported leak in cpia2 usb driver. The problem was
-in invalid error handling.
+Rename struct sms_msg_data4 to sms_msg_data5 and increase the size of
+its msg_data array from 4 to 5 elements. Notice that at some point
+the 5th element of msg_data is being accessed in function
+smscore_load_firmware_family2():
 
-v4l2_device_register() is called in cpia2_init_camera_struct(), but
-all error cases after cpia2_init_camera_struct() did not call the
-v4l2_device_unregister()
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
 
-Reported-by: syzbot+d1e69c888f0d3866ead4@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Also, there is no need for the object _trigger_msg_ of type struct
+sms_msg_data *, when _msg_ can be used, directly. Notice that msg_data
+in struct sms_msg_data is a one-element array, which causes multiple
+out-of-bounds warnings when accessing beyond its first element
+in function smscore_load_firmware_family2():
+
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+ 994
+ 995                 pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 996                 SMS_INIT_MSG(&msg->x_msg_header,
+ 997                                 MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+ 998                                 sizeof(struct sms_msg_hdr) +
+ 999                                 sizeof(u32) * 5);
+1000
+1001                 trigger_msg->msg_data[0] = firmware->start_address;
+1002                                         /* Entry point */
+1003                 trigger_msg->msg_data[1] = 6; /* Priority */
+1004                 trigger_msg->msg_data[2] = 0x200; /* Stack size */
+1005                 trigger_msg->msg_data[3] = 0; /* Parameter */
+1006                 trigger_msg->msg_data[4] = 4; /* Task ID */
+
+even when enough dynamic memory is allocated for _msg_:
+
+ 929         /* PAGE_SIZE buffer shall be enough and dma aligned */
+ 930         msg = kmalloc(PAGE_SIZE, GFP_KERNEL | coredev->gfp_buf_flags);
+
+but as _msg_ is casted to (struct sms_msg_data *):
+
+ 992                 struct sms_msg_data *trigger_msg =
+ 993                         (struct sms_msg_data *) msg;
+
+the out-of-bounds warnings are actually valid and should be addressed.
+
+Fix this by declaring object _msg_ of type struct sms_msg_data5 *,
+which contains a 5-elements array, instead of just 4. And use
+_msg_ directly, instead of creating object trigger_msg.
+
+This helps with the ongoing efforts to enable -Warray-bounds by fixing
+the following warnings:
+
+  CC [M]  drivers/media/common/siano/smscoreapi.o
+drivers/media/common/siano/smscoreapi.c: In function ‘smscore_load_firmware_family2’:
+drivers/media/common/siano/smscoreapi.c:1003:24: warning: array subscript 1 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1003 |   trigger_msg->msg_data[1] = 6; /* Priority */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1004:24: warning: array subscript 2 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1004 |   trigger_msg->msg_data[2] = 0x200; /* Stack size */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1005:24: warning: array subscript 3 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1005 |   trigger_msg->msg_data[3] = 0; /* Parameter */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+drivers/media/common/siano/smscoreapi.c:1006:24: warning: array subscript 4 is above array bounds of ‘u32[1]’ {aka ‘unsigned int[1]’} [-Warray-bounds]
+ 1006 |   trigger_msg->msg_data[4] = 4; /* Task ID */
+      |   ~~~~~~~~~~~~~~~~~~~~~^~~
+In file included from drivers/media/common/siano/smscoreapi.c:12:
+drivers/media/common/siano/smscoreapi.h:619:6: note: while referencing ‘msg_data’
+  619 |  u32 msg_data[1];
+      |      ^~~~~~~~
+
+Fixes: 018b0c6f8acb ("[media] siano: make load firmware logic to work with newer firmwares")
+Co-developed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/cpia2/cpia2.h      |  1 +
- drivers/media/usb/cpia2/cpia2_core.c | 12 ++++++++++++
- drivers/media/usb/cpia2/cpia2_usb.c  | 13 +++++++------
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/media/common/siano/smscoreapi.c | 22 +++++++++-------------
+ drivers/media/common/siano/smscoreapi.h |  4 ++--
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/usb/cpia2/cpia2.h b/drivers/media/usb/cpia2/cpia2.h
-index cdef677d57ec..80a7af6482ae 100644
---- a/drivers/media/usb/cpia2/cpia2.h
-+++ b/drivers/media/usb/cpia2/cpia2.h
-@@ -442,6 +442,7 @@ int cpia2_send_command(struct camera_data *cam, struct cpia2_command *cmd);
- int cpia2_do_command(struct camera_data *cam,
- 		     unsigned int command,
- 		     unsigned char direction, unsigned char param);
-+void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf);
- struct camera_data *cpia2_init_camera_struct(struct usb_interface *intf);
- int cpia2_init_camera(struct camera_data *cam);
- int cpia2_allocate_buffers(struct camera_data *cam);
-diff --git a/drivers/media/usb/cpia2/cpia2_core.c b/drivers/media/usb/cpia2/cpia2_core.c
-index 0310fd6ed103..828f9689f4a1 100644
---- a/drivers/media/usb/cpia2/cpia2_core.c
-+++ b/drivers/media/usb/cpia2/cpia2_core.c
-@@ -2158,6 +2158,18 @@ static void reset_camera_struct(struct camera_data *cam)
- 	cam->height = cam->params.roi.height;
- }
+diff --git a/drivers/media/common/siano/smscoreapi.c b/drivers/media/common/siano/smscoreapi.c
+index e7a0d7798d5b..963289e21598 100644
+--- a/drivers/media/common/siano/smscoreapi.c
++++ b/drivers/media/common/siano/smscoreapi.c
+@@ -910,7 +910,7 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 					 void *buffer, size_t size)
+ {
+ 	struct sms_firmware *firmware = (struct sms_firmware *) buffer;
+-	struct sms_msg_data4 *msg;
++	struct sms_msg_data5 *msg;
+ 	u32 mem_address,  calc_checksum = 0;
+ 	u32 i, *ptr;
+ 	u8 *payload = firmware->payload;
+@@ -991,24 +991,20 @@ static int smscore_load_firmware_family2(struct smscore_device_t *coredev,
+ 		goto exit_fw_download;
  
-+/******************************************************************************
-+ *
-+ *  cpia2_init_camera_struct
-+ *
-+ *  Deinitialize camera struct
-+ *****************************************************************************/
-+void cpia2_deinit_camera_struct(struct camera_data *cam, struct usb_interface *intf)
-+{
-+	v4l2_device_unregister(&cam->v4l2_dev);
-+	kfree(cam);
-+}
-+
- /******************************************************************************
-  *
-  *  cpia2_init_camera_struct
-diff --git a/drivers/media/usb/cpia2/cpia2_usb.c b/drivers/media/usb/cpia2/cpia2_usb.c
-index 30e27844e0e9..4f4a130f17af 100644
---- a/drivers/media/usb/cpia2/cpia2_usb.c
-+++ b/drivers/media/usb/cpia2/cpia2_usb.c
-@@ -860,15 +860,13 @@ static int cpia2_usb_probe(struct usb_interface *intf,
- 	ret = set_alternate(cam, USBIF_CMDONLY);
- 	if (ret < 0) {
- 		ERR("%s: usb_set_interface error (ret = %d)\n", __func__, ret);
--		kfree(cam);
--		return ret;
-+		goto alt_err;
- 	}
+ 	if (coredev->mode == DEVICE_MODE_NONE) {
+-		struct sms_msg_data *trigger_msg =
+-			(struct sms_msg_data *) msg;
+-
+ 		pr_debug("sending MSG_SMS_SWDOWNLOAD_TRIGGER_REQ\n");
+ 		SMS_INIT_MSG(&msg->x_msg_header,
+ 				MSG_SMS_SWDOWNLOAD_TRIGGER_REQ,
+-				sizeof(struct sms_msg_hdr) +
+-				sizeof(u32) * 5);
++				sizeof(*msg));
  
+-		trigger_msg->msg_data[0] = firmware->start_address;
++		msg->msg_data[0] = firmware->start_address;
+ 					/* Entry point */
+-		trigger_msg->msg_data[1] = 6; /* Priority */
+-		trigger_msg->msg_data[2] = 0x200; /* Stack size */
+-		trigger_msg->msg_data[3] = 0; /* Parameter */
+-		trigger_msg->msg_data[4] = 4; /* Task ID */
++		msg->msg_data[1] = 6; /* Priority */
++		msg->msg_data[2] = 0x200; /* Stack size */
++		msg->msg_data[3] = 0; /* Parameter */
++		msg->msg_data[4] = 4; /* Task ID */
  
- 	if((ret = cpia2_init_camera(cam)) < 0) {
- 		ERR("%s: failed to initialize cpia2 camera (ret = %d)\n", __func__, ret);
--		kfree(cam);
--		return ret;
-+		goto alt_err;
- 	}
- 	LOG("  CPiA Version: %d.%02d (%d.%d)\n",
- 	       cam->params.version.firmware_revision_hi,
-@@ -888,11 +886,14 @@ static int cpia2_usb_probe(struct usb_interface *intf,
- 	ret = cpia2_register_camera(cam);
- 	if (ret < 0) {
- 		ERR("%s: Failed to register cpia2 camera (ret = %d)\n", __func__, ret);
--		kfree(cam);
--		return ret;
-+		goto alt_err;
- 	}
+-		rc = smscore_sendrequest_and_wait(coredev, trigger_msg,
+-					trigger_msg->x_msg_header.msg_length,
++		rc = smscore_sendrequest_and_wait(coredev, msg,
++					msg->x_msg_header.msg_length,
+ 					&coredev->trigger_done);
+ 	} else {
+ 		SMS_INIT_MSG(&msg->x_msg_header, MSG_SW_RELOAD_EXEC_REQ,
+diff --git a/drivers/media/common/siano/smscoreapi.h b/drivers/media/common/siano/smscoreapi.h
+index 4cc39e4a8318..55d02c27f124 100644
+--- a/drivers/media/common/siano/smscoreapi.h
++++ b/drivers/media/common/siano/smscoreapi.h
+@@ -636,9 +636,9 @@ struct sms_msg_data2 {
+ 	u32 msg_data[2];
+ };
  
- 	return 0;
-+
-+alt_err:
-+	cpia2_deinit_camera_struct(cam, intf);
-+	return ret;
- }
+-struct sms_msg_data4 {
++struct sms_msg_data5 {
+ 	struct sms_msg_hdr x_msg_header;
+-	u32 msg_data[4];
++	u32 msg_data[5];
+ };
  
- /******************************************************************************
+ struct sms_data_download {
 -- 
 2.30.2
 
