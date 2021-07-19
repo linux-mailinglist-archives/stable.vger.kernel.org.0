@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 380C83CDC89
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146913CDF1F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244526AbhGSOwy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S1345108AbhGSPHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245430AbhGSOr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA7A96113B;
-        Mon, 19 Jul 2021 15:23:54 +0000 (UTC)
+        id S1343667AbhGSPFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 255C96023D;
+        Mon, 19 Jul 2021 15:46:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708235;
-        bh=pjhl/Ikbkwp9aJzO3QhyFGkx/kiFCiBdzsiwReEX5Vk=;
+        s=korg; t=1626709575;
+        bh=PFPsC1bwNfkre24GbZAloHDyURgIzkgS9yrhCz7qWhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eVNU9yUu8pIHK3NDzsbBcvN0ciAP71Vwl2CPH5vyb5n+rAxhma4C4foQeeEBEfB31
-         Iw6+198GAhAU5m6a1DdQSAjqK1WEOuGytOdzXlAVMHP+MHs3vluKRgZuQya+q3Qgfl
-         ACeKEthDVDDbD0cbwGTkToSRYD1mFXf5BRATfdrU=
+        b=H0Lm+/CPWkAau+bWfTmOfS66xaTKFHEpJD0B9T5zgRK4KKzO652uTwuz48OY2Fh9B
+         TCF0tItg9GU2GlqcINgmXl1my5kvtoNSG/q8J79hwulp3S0Wr21ZZBp0jqIHKrJQHy
+         18ZxDOpte7UA0dys6ax+NXiWDY3Al5jl4x+AXopc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Remi Pommarel <repk@triplefau.lt>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Andrew Murray <andrew.murray@arm.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: [PATCH 4.14 234/315] PCI: aardvark: Dont rely on jiffies while holding spinlock
-Date:   Mon, 19 Jul 2021 16:52:03 +0200
-Message-Id: <20210719144951.115590417@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 016/149] ALSA: usx2y: Dont call free_pages_exact() with NULL address
+Date:   Mon, 19 Jul 2021 16:52:04 +0200
+Message-Id: <20210719144905.273222544@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Remi Pommarel <repk@triplefau.lt>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7fbcb5da811be7d47468417c7795405058abb3da upstream.
+[ Upstream commit cae0cf651adccee2c3f376e78f30fbd788d0829f ]
 
-advk_pcie_wait_pio() can be called while holding a spinlock (from
-pci_bus_read_config_dword()), then depends on jiffies in order to
-timeout while polling on PIO state registers. In the case the PIO
-transaction failed, the timeout will never happen and will also cause
-the cpu to stall.
+Unlike some other functions, we can't pass NULL pointer to
+free_pages_exact().  Add a proper NULL check for avoiding possible
+Oops.
 
-This decrements a variable and wait instead of using jiffies.
-
-Signed-off-by: Remi Pommarel <repk@triplefau.lt>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Andrew Murray <andrew.murray@arm.com>
-Acked-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210517131545.27252-10-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pci-aardvark.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/usb/usx2y/usb_stream.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/host/pci-aardvark.c
-+++ b/drivers/pci/host/pci-aardvark.c
-@@ -185,7 +185,8 @@
- 	(PCIE_CONF_BUS(bus) | PCIE_CONF_DEV(PCI_SLOT(devfn))	| \
- 	 PCIE_CONF_FUNC(PCI_FUNC(devfn)) | PCIE_CONF_REG(where))
+diff --git a/sound/usb/usx2y/usb_stream.c b/sound/usb/usx2y/usb_stream.c
+index 091c071b270a..cff684942c4f 100644
+--- a/sound/usb/usx2y/usb_stream.c
++++ b/sound/usb/usx2y/usb_stream.c
+@@ -142,8 +142,11 @@ void usb_stream_free(struct usb_stream_kernel *sk)
+ 	if (!s)
+ 		return;
  
--#define PIO_TIMEOUT_MS			1
-+#define PIO_RETRY_CNT			500
-+#define PIO_RETRY_DELAY			2 /* 2 us*/
- 
- #define LINK_WAIT_MAX_RETRIES		10
- #define LINK_WAIT_USLEEP_MIN		90000
-@@ -413,17 +414,16 @@ static void advk_pcie_check_pio_status(s
- static int advk_pcie_wait_pio(struct advk_pcie *pcie)
- {
- 	struct device *dev = &pcie->pdev->dev;
--	unsigned long timeout;
--
--	timeout = jiffies + msecs_to_jiffies(PIO_TIMEOUT_MS);
-+	int i;
- 
--	while (time_before(jiffies, timeout)) {
-+	for (i = 0; i < PIO_RETRY_CNT; i++) {
- 		u32 start, isr;
- 
- 		start = advk_readl(pcie, PIO_START);
- 		isr = advk_readl(pcie, PIO_ISR);
- 		if (!start && isr)
- 			return 0;
-+		udelay(PIO_RETRY_DELAY);
- 	}
- 
- 	dev_err(dev, "config read/write timed out\n");
+-	free_pages_exact(sk->write_page, s->write_size);
+-	sk->write_page = NULL;
++	if (sk->write_page) {
++		free_pages_exact(sk->write_page, s->write_size);
++		sk->write_page = NULL;
++	}
++
+ 	free_pages_exact(s, s->read_size);
+ 	sk->s = NULL;
+ }
+-- 
+2.30.2
+
 
 
