@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F813CD943
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBE23CDB27
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242931AbhGSO1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:27:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S239498AbhGSOl1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:41:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243168AbhGSO0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:26:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EACA6120C;
-        Mon, 19 Jul 2021 15:06:59 +0000 (UTC)
+        id S1343677AbhGSOjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DA3061375;
+        Mon, 19 Jul 2021 15:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707220;
-        bh=1xsdfRACIb5lZuf/osrx1w01L7zn3RFG7QL6Wnq12dk=;
+        s=korg; t=1626707970;
+        bh=urQ49XxHUXcgsCaVyFWB+Zp2rfaAoWf9AqY/8fZpTsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egbpH6Cqum3YyphTx1+nz85fCVAQ3Qcv0VzKdkN6ZNNviD6FxuvVkUw/lXqk1R1YH
-         9ocnThWGaMhrXaaStSZa0vGoDXscAe2ifO54/9n2wbla79XVAI02unWln2BUPurTU0
-         OvRsSOB/Kn3mWsxkfF4mJTeX1MV3cp0+GQ/FpK+c=
+        b=O2RfpKGBq150O/RpKrWsIMJhm0RAgRNQmRAkDWMzxUAC2/8E4CoHjMjkvkoZ02GYT
+         CRRQOg56NK+mNiOSCgUYGTWYZEuWb6ByoA1/VX3JBG+UP4/QTWT1AF9CmcoJ208sWD
+         RYNVaoSusJOk08b3l/C7DcAIHuH3lwnrrg+JMCZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S. Miller" <davem@davemloft.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stefan-Gabriel Mirea <stefan-gabriel.mirea@nxp.com>,
+        Sanchayan Maity <maitysanchayan@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/245] net: pch_gbe: Propagate error from devm_gpio_request_one()
+Subject: [PATCH 4.14 128/315] iio: adc: vf610: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 19 Jul 2021 16:50:17 +0200
-Message-Id: <20210719144942.834371133@linuxfoundation.org>
+Message-Id: <20210719144947.097001818@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 9e3617a7b84512bf96c04f9cf82d1a7257d33794 ]
+[ Upstream commit 7765dfaa22ea08abf0c175e7553826ba2a939632 ]
 
-If GPIO controller is not available yet we need to defer
-the probe of GBE until provider will become available.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-While here, drop GPIOF_EXPORT because it's deprecated and
-may not be available.
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-Fixes: f1a26fdf5944 ("pch_gbe: Add MinnowBoard support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0010d6b44406 ("iio: adc: vf610: Add IIO buffer support for Vybrid ADC")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Stefan-Gabriel Mirea <stefan-gabriel.mirea@nxp.com>
+Cc: Sanchayan Maity <maitysanchayan@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-10-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 10 +++++++---
+ drivers/iio/adc/vf610_adc.c | 10 +++++++---
  1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 3cd87a41ac92..5d39b5319d50 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -2617,9 +2617,13 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->hw.reg = pcim_iomap_table(pdev)[PCH_GBE_PCI_BAR];
-+
- 	adapter->pdata = (struct pch_gbe_privdata *)pci_id->driver_data;
--	if (adapter->pdata && adapter->pdata->platform_init)
--		adapter->pdata->platform_init(pdev);
-+	if (adapter->pdata && adapter->pdata->platform_init) {
-+		ret = adapter->pdata->platform_init(pdev);
-+		if (ret)
-+			goto err_free_netdev;
-+	}
+diff --git a/drivers/iio/adc/vf610_adc.c b/drivers/iio/adc/vf610_adc.c
+index c168e0db329a..d4409366e3c6 100644
+--- a/drivers/iio/adc/vf610_adc.c
++++ b/drivers/iio/adc/vf610_adc.c
+@@ -180,7 +180,11 @@ struct vf610_adc {
+ 	u32 sample_freq_avail[5];
  
- 	adapter->ptp_pdev = pci_get_bus_and_slot(adapter->pdev->bus->number,
- 					       PCI_DEVFN(12, 4));
-@@ -2709,7 +2713,7 @@ err_free_netdev:
-  */
- static int pch_gbe_minnow_platform_init(struct pci_dev *pdev)
- {
--	unsigned long flags = GPIOF_DIR_OUT | GPIOF_INIT_HIGH | GPIOF_EXPORT;
-+	unsigned long flags = GPIOF_OUT_INIT_HIGH;
- 	unsigned gpio = MINNOW_PHY_RESET_GPIO;
- 	int ret;
+ 	struct completion completion;
+-	u16 buffer[8];
++	/* Ensure the timestamp is naturally aligned */
++	struct {
++		u16 chan;
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
+ static const u32 vf610_hw_avgs[] = { 1, 4, 8, 16, 32 };
+@@ -592,9 +596,9 @@ static irqreturn_t vf610_adc_isr(int irq, void *dev_id)
+ 	if (coco & VF610_ADC_HS_COCO0) {
+ 		info->value = vf610_adc_read_data(info);
+ 		if (iio_buffer_enabled(indio_dev)) {
+-			info->buffer[0] = info->value;
++			info->scan.chan = info->value;
+ 			iio_push_to_buffers_with_timestamp(indio_dev,
+-					info->buffer,
++					&info->scan,
+ 					iio_get_time_ns(indio_dev));
+ 			iio_trigger_notify_done(indio_dev->trig);
+ 		} else
 -- 
 2.30.2
 
