@@ -2,51 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A943CE150
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B9803CE320
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349094AbhGSPZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58334 "EHLO mail.kernel.org"
+        id S235122AbhGSPgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:36:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346339AbhGSPRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:17:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63056611F2;
-        Mon, 19 Jul 2021 15:57:26 +0000 (UTC)
+        id S231282AbhGSPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C1A261414;
+        Mon, 19 Jul 2021 16:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710247;
-        bh=45GuMCIsNAAFPuiEtXYLR8ryh0fkkKY+94o5SajtHBM=;
+        s=korg; t=1626711012;
+        bh=usjltRtEuFp8h2ICKIOczpm839/NnubVdwqvLBLU3LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcnOMC1TI72vNvVE5LTglDmcFRTQo7u9pD7JzXt8ZldTdOyJAVjognArjWLsG9pyK
-         FKo0q5AAvO/Any8/HbK9sbCXW49F0K6yXOHFoPiiTb1ptj5YaT+bqt9GGvlBG4qPMf
-         fdLWEBLO3lwfTbfzJBH7bgZHy8n+yuly/Q8mZWOE=
+        b=wla2YdXUk+36zcfGhinFHlHOmRFgFqqUtccBUpIUCqT6FR0xAcDRRSZW0apqbswip
+         t39QVv1XlCuJ5a2qPGp9uEOf7z8e7bWcYMyXfJjC9qVAlZj4ABFyOeuQL4qiJ26VQq
+         SkbBjArSuaHLQof79tB8xepsIN23lX9lz24qWzPY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Will Deacon <will@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 110/243] kcov: add __no_sanitize_coverage to fix noinstr for all architectures
+Subject: [PATCH 5.13 193/351] PCI: rockchip: Register IRQ handlers after device and data are ready
 Date:   Mon, 19 Jul 2021 16:52:19 +0200
-Message-Id: <20210719144944.454966054@linuxfoundation.org>
+Message-Id: <20210719144951.350946995@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,129 +43,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 540540d06e9d9b3769b46d88def90f7e7c002322 ]
+[ Upstream commit 3cf5f7ab230e2b886e493c7a8449ed50e29d2b98 ]
 
-Until now no compiler supported an attribute to disable coverage
-instrumentation as used by KCOV.
+An IRQ handler may be called at any time after it is registered, so
+anything it relies on must be ready before registration.
 
-To work around this limitation on x86, noinstr functions have their
-coverage instrumentation turned into nops by objtool.  However, this
-solution doesn't scale automatically to other architectures, such as
-arm64, which are migrating to use the generic entry code.
+rockchip_pcie_subsys_irq_handler() and rockchip_pcie_client_irq_handler()
+read registers in the PCIe controller, but we registered them before
+turning on clocks to the controller.  If either is called before the clocks
+are turned on, the register reads fail and the machine hangs.
 
-Clang [1] and GCC [2] have added support for the attribute recently.
-[1] https://github.com/llvm/llvm-project/commit/280333021e9550d80f5c1152a34e33e81df1e178
-[2] https://gcc.gnu.org/git/?p=gcc.git;a=commit;h=cec4d4a6782c9bd8d071839c50a239c49caca689
-The changes will appear in Clang 13 and GCC 12.
+Similarly, rockchip_pcie_legacy_int_handler() uses rockchip->irq_domain,
+but we installed it before initializing irq_domain.
 
-Add __no_sanitize_coverage for both compilers, and add it to noinstr.
+Register IRQ handlers after their data structures are initialized and
+clocks are enabled.
 
-Note: In the Clang case, __has_feature(coverage_sanitizer) is only true if
-the feature is enabled, and therefore we do not require an additional
-defined(CONFIG_KCOV) (like in the GCC case where __has_attribute(..) is
-always true) to avoid adding redundant attributes to functions if KCOV is
-off.  That being said, compilers that support the attribute will not
-generate errors/warnings if the attribute is redundantly used; however,
-where possible let's avoid it as it reduces preprocessed code size and
-associated compile-time overheads.
+Found by enabling CONFIG_DEBUG_SHIRQ, which calls the IRQ handler when it
+is being unregistered.  An error during the probe path might cause this
+unregistration and IRQ handler execution before the device or data
+structure init has finished.
 
-[elver@google.com: Implement __has_feature(coverage_sanitizer) in Clang]
-  Link: https://lkml.kernel.org/r/20210527162655.3246381-1-elver@google.com
-[elver@google.com: add comment explaining __has_feature() in Clang]
-  Link: https://lkml.kernel.org/r/20210527194448.3470080-1-elver@google.com
-
-Link: https://lkml.kernel.org/r/20210525175819.699786-1-elver@google.com
-Signed-off-by: Marco Elver <elver@google.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Cc: Arvind Sankar <nivedita@alum.mit.edu>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bhelgaas: commit log]
+Link: https://lore.kernel.org/r/20210608080409.1729276-1-javierm@redhat.com
+Reported-by: Peter Robinson <pbrobinson@gmail.com>
+Tested-by: Peter Robinson <pbrobinson@gmail.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Shawn Lin <shawn.lin@rock-chips.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/compiler-clang.h | 17 +++++++++++++++++
- include/linux/compiler-gcc.h   |  6 ++++++
- include/linux/compiler_types.h |  2 +-
- 3 files changed, 24 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pcie-rockchip-host.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/compiler-clang.h b/include/linux/compiler-clang.h
-index 189149de77a9..9ba951e3a6c2 100644
---- a/include/linux/compiler-clang.h
-+++ b/include/linux/compiler-clang.h
-@@ -23,6 +23,12 @@
- /* all clang versions usable with the kernel support KASAN ABI version 5 */
- #define KASAN_ABI_VERSION 5
+diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
+index f1d08a1b1591..78d04ac29cd5 100644
+--- a/drivers/pci/controller/pcie-rockchip-host.c
++++ b/drivers/pci/controller/pcie-rockchip-host.c
+@@ -592,10 +592,6 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
+ 	if (err)
+ 		return err;
  
-+/*
-+ * Note: Checking __has_feature(*_sanitizer) is only true if the feature is
-+ * enabled. Therefore it is not required to additionally check defined(CONFIG_*)
-+ * to avoid adding redundant attributes in other configurations.
-+ */
+-	err = rockchip_pcie_setup_irq(rockchip);
+-	if (err)
+-		return err;
+-
+ 	rockchip->vpcie12v = devm_regulator_get_optional(dev, "vpcie12v");
+ 	if (IS_ERR(rockchip->vpcie12v)) {
+ 		if (PTR_ERR(rockchip->vpcie12v) != -ENODEV)
+@@ -973,8 +969,6 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+ 	if (err)
+ 		goto err_vpcie;
+ 
+-	rockchip_pcie_enable_interrupts(rockchip);
+-
+ 	err = rockchip_pcie_init_irq_domain(rockchip);
+ 	if (err < 0)
+ 		goto err_deinit_port;
+@@ -992,6 +986,12 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
+ 	bridge->sysdata = rockchip;
+ 	bridge->ops = &rockchip_pcie_ops;
+ 
++	err = rockchip_pcie_setup_irq(rockchip);
++	if (err)
++		goto err_remove_irq_domain;
 +
- #if __has_feature(address_sanitizer) || __has_feature(hwaddress_sanitizer)
- /* Emulate GCC's __SANITIZE_ADDRESS__ flag */
- #define __SANITIZE_ADDRESS__
-@@ -55,6 +61,17 @@
- #define __no_sanitize_undefined
- #endif
- 
-+/*
-+ * Support for __has_feature(coverage_sanitizer) was added in Clang 13 together
-+ * with no_sanitize("coverage"). Prior versions of Clang support coverage
-+ * instrumentation, but cannot be queried for support by the preprocessor.
-+ */
-+#if __has_feature(coverage_sanitizer)
-+#define __no_sanitize_coverage __attribute__((no_sanitize("coverage")))
-+#else
-+#define __no_sanitize_coverage
-+#endif
++	rockchip_pcie_enable_interrupts(rockchip);
 +
- /*
-  * Not all versions of clang implement the type-generic versions
-  * of the builtin overflow checkers. Fortunately, clang implements
-diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-index 555ab0fddbef..4cf524ccab43 100644
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -137,6 +137,12 @@
- #define __no_sanitize_undefined
- #endif
- 
-+#if defined(CONFIG_KCOV) && __has_attribute(__no_sanitize_coverage__)
-+#define __no_sanitize_coverage __attribute__((no_sanitize_coverage))
-+#else
-+#define __no_sanitize_coverage
-+#endif
-+
- #if GCC_VERSION >= 50100
- #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
- #endif
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index ac3fa37a84f9..2a1c202baa1f 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -205,7 +205,7 @@ struct ftrace_likely_data {
- /* Section for code which can't be instrumented at all */
- #define noinstr								\
- 	noinline notrace __attribute((__section__(".noinstr.text")))	\
--	__no_kcsan __no_sanitize_address
-+	__no_kcsan __no_sanitize_address __no_sanitize_coverage
- 
- #endif /* __KERNEL__ */
- 
+ 	err = pci_host_probe(bridge);
+ 	if (err < 0)
+ 		goto err_remove_irq_domain;
 -- 
 2.30.2
 
