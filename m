@@ -2,32 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 654393CE00E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CC3E3CE015
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:56:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346068AbhGSPNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:13:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
+        id S1346081AbhGSPNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:13:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345592AbhGSPMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:12:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 215CA61249;
-        Mon, 19 Jul 2021 15:52:30 +0000 (UTC)
+        id S1344366AbhGSPMK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:12:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2CF96127C;
+        Mon, 19 Jul 2021 15:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709951;
-        bh=s8qxXTQl66UCi8CW5gBxbUGTEfvj080RXKdnY+bWkSg=;
+        s=korg; t=1626709954;
+        bh=lTQAdoT+A2R5QcppUh7z770vJdI+rfGpo1UKuzMDMIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qmg5H/HCnj3n7FhW9oiWn2tUfxLghlJfuWFss/tZ7u9jfARr3F4KptiJ5TGmbzmr3
-         DL5gStnwGotQmM1RLViqzYx+VEy6i9ICRfoECpiFbqpGS3FNx5Gfsr5v3kVkKNxTb+
-         rVgFfUMFlNmi0g3vO8Qf2p97f9Dt2VZHyCLGTRMU=
+        b=WVBdMSqRYr1IGdALubhbC87PnFzNzPVXpjByr6aMCcZpSr1+0pgA6WUDDHy9PsSg6
+         R8HlRH8YphAdl8/1E4O4mkSrHvSfg+uf/KxSKYKCo905zZTtkFrdxmBJPGfayvEvaU
+         +PXO30jgwf60lxV7/fcDFFqIYfCrqtNWUkbTm0FM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.10 014/243] fbmem: Do not delete the mode that is still in use
-Date:   Mon, 19 Jul 2021 16:50:43 +0200
-Message-Id: <20210719144941.381524645@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.10 015/243] drm/dp_mst: Do not set proposed vcpi directly
+Date:   Mon, 19 Jul 2021 16:50:44 +0200
+Message-Id: <20210719144941.413511279@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -39,85 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit 0af778269a522c988ef0b4188556aba97fb420cc upstream.
+commit 35d3e8cb35e75450f87f87e3d314e2d418b6954b upstream.
 
-The execution of fb_delete_videomode() is not based on the result of the
-previous fbcon_mode_deleted(). As a result, the mode is directly deleted,
-regardless of whether it is still in use, which may cause UAF.
+[Why]
+When we receive CSN message to notify one port is disconnected, we will
+implicitly set its corresponding num_slots to 0. Later on, we will
+eventually call drm_dp_update_payload_part1() to arrange down streams.
 
-==================================================================
-BUG: KASAN: use-after-free in fb_mode_is_equal+0x36e/0x5e0 \
-drivers/video/fbdev/core/modedb.c:924
-Read of size 4 at addr ffff88807e0ddb1c by task syz-executor.0/18962
+In drm_dp_update_payload_part1(), we iterate over all proposed_vcpis[]
+to do the update. Not specific to a target sink only. For example, if we
+light up 2 monitors, Monitor_A and Monitor_B, and then we unplug
+Monitor_B. Later on, when we call drm_dp_update_payload_part1() to try
+to update payload for Monitor_A, we'll also implicitly clean payload for
+Monitor_B at the same time. And finally, when we try to call
+drm_dp_update_payload_part1() to clean payload for Monitor_B, we will do
+nothing at this time since payload for Monitor_B has been cleaned up
+previously.
 
-CPU: 2 PID: 18962 Comm: syz-executor.0 Not tainted 5.10.45-rc1+ #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ...
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x137/0x1be lib/dump_stack.c:118
- print_address_description+0x6c/0x640 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x13d/0x1e0 mm/kasan/report.c:562
- fb_mode_is_equal+0x36e/0x5e0 drivers/video/fbdev/core/modedb.c:924
- fbcon_mode_deleted+0x16a/0x220 drivers/video/fbdev/core/fbcon.c:2746
- fb_set_var+0x1e1/0xdb0 drivers/video/fbdev/core/fbmem.c:975
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+For StarTech 1to3 DP hub, it seems like if we didn't update DPCD payload
+ID table then polling for "ACT Handled"(BIT_1 of DPCD 002C0h) will fail
+and this polling will last for 3 seconds.
 
-Freed by task 18960:
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
- kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
- __kasan_slab_free+0x108/0x140 mm/kasan/common.c:422
- slab_free_hook mm/slub.c:1541 [inline]
- slab_free_freelist_hook+0xd6/0x1a0 mm/slub.c:1574
- slab_free mm/slub.c:3139 [inline]
- kfree+0xca/0x3d0 mm/slub.c:4121
- fb_delete_videomode+0x56a/0x820 drivers/video/fbdev/core/modedb.c:1104
- fb_set_var+0x1f3/0xdb0 drivers/video/fbdev/core/fbmem.c:978
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Therefore, guess the best way is we don't set the proposed_vcpi[]
+diretly. Let user of these herlper functions to set the proposed_vcpi
+directly.
 
-Fixes: 13ff178ccd6d ("fbcon: Call fbcon_mode_deleted/new_modelist directly")
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210712085544.2828-1-thunder.leizhen@huawei.com
+[How]
+1. Revert commit 7617e9621bf2 ("drm/dp_mst: clear time slots for ports
+invalid")
+2. Tackle the issue in previous commit by skipping those trasient
+proposed VCPIs. These stale VCPIs shoulde be explicitly cleared by
+user later on.
+
+Changes since v1:
+* Change debug macro to use drm_dbg_kms() instead
+* Amend the commit message to add Fixed & Cc tags
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Fixes: 7617e9621bf2 ("drm/dp_mst: clear time slots for ports invalid")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Wayne Lin <Wayne.Lin@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.5+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-2-Wayne.Lin@amd.com
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   36 +++++++++-------------------------
+ 1 file changed, 10 insertions(+), 26 deletions(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -970,13 +970,11 @@ fb_set_var(struct fb_info *info, struct
- 		fb_var_to_videomode(&mode2, &info->var);
- 		/* make sure we don't delete the videomode of current var */
- 		ret = fb_mode_is_equal(&mode1, &mode2);
--
--		if (!ret)
--			fbcon_mode_deleted(info, &mode1);
--
--		if (!ret)
--			fb_delete_videomode(&mode1, &info->modelist);
--
-+		if (!ret) {
-+			ret = fbcon_mode_deleted(info, &mode1);
-+			if (!ret)
-+				fb_delete_videomode(&mode1, &info->modelist);
-+		}
- 
- 		return ret ? -EINVAL : 0;
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2499,7 +2499,7 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+ {
+ 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
+ 	struct drm_dp_mst_port *port;
+-	int old_ddps, old_input, ret, i;
++	int old_ddps, ret;
+ 	u8 new_pdt;
+ 	bool new_mcs;
+ 	bool dowork = false, create_connector = false;
+@@ -2531,7 +2531,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
  	}
+ 
+ 	old_ddps = port->ddps;
+-	old_input = port->input;
+ 	port->input = conn_stat->input_port;
+ 	port->ldps = conn_stat->legacy_device_plug_status;
+ 	port->ddps = conn_stat->displayport_device_plug_status;
+@@ -2554,28 +2553,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+ 		dowork = false;
+ 	}
+ 
+-	if (!old_input && old_ddps != port->ddps && !port->ddps) {
+-		for (i = 0; i < mgr->max_payloads; i++) {
+-			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
+-			struct drm_dp_mst_port *port_validated;
+-
+-			if (!vcpi)
+-				continue;
+-
+-			port_validated =
+-				container_of(vcpi, struct drm_dp_mst_port, vcpi);
+-			port_validated =
+-				drm_dp_mst_topology_get_port_validated(mgr, port_validated);
+-			if (!port_validated) {
+-				mutex_lock(&mgr->payload_lock);
+-				vcpi->num_slots = 0;
+-				mutex_unlock(&mgr->payload_lock);
+-			} else {
+-				drm_dp_mst_topology_put_port(port_validated);
+-			}
+-		}
+-	}
+-
+ 	if (port->connector)
+ 		drm_modeset_unlock(&mgr->base.lock);
+ 	else if (create_connector)
+@@ -3406,8 +3383,15 @@ int drm_dp_update_payload_part1(struct d
+ 				port = drm_dp_mst_topology_get_port_validated(
+ 				    mgr, port);
+ 				if (!port) {
+-					mutex_unlock(&mgr->payload_lock);
+-					return -EINVAL;
++					if (vcpi->num_slots == payload->num_slots) {
++						cur_slots += vcpi->num_slots;
++						payload->start_slot = req_payload.start_slot;
++						continue;
++					} else {
++						drm_dbg_kms("Fail:set payload to invalid sink");
++						mutex_unlock(&mgr->payload_lock);
++						return -EINVAL;
++					}
+ 				}
+ 				put_port = true;
+ 			}
 
 
