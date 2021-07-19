@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4823CDF38
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71F533CDBF3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344433AbhGSPI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39644 "EHLO mail.kernel.org"
+        id S238531AbhGSOuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245008AbhGSPGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:06:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA528613ED;
-        Mon, 19 Jul 2021 15:46:39 +0000 (UTC)
+        id S245139AbhGSOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:47:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5B6E61363;
+        Mon, 19 Jul 2021 15:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709600;
-        bh=sT+e0hNKLkCsOWrTnDNuAgfnRZqKvy8MxoEqU5PIEtg=;
+        s=korg; t=1626708217;
+        bh=V55OotZTM1O2aMmV9536ILQb5yI1FsYwaTgVcTdi8rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zarPC2HeZH85Rn9emzfQ8a6O7d9roxXoq/HquY8KGnk+um7Rpts0m4WH3Al7unAlh
-         NQHK/iMWjPJzwuLo6HLFjXSZOoeDKf7GC5SQx4rRFuqvmFnTnyR2ETKNwL44HjUf/C
-         knEDAbG7bt0A/BK4w7ontYxJvImKc/V2vmDxvb8s=
+        b=STinYalFxUKg19BM2uICZ7r/lN37WeH6VrZ1tqHSx1hzo5lQDiNAcrhrMELZDRsPQ
+         CqRmodaZ4V6RtvO0JL2sbNYcy73ZfNFMN5V3nkusfJw8iXNFfvtjBjjLlo67qWzmrS
+         VYpHbyk3/WuGl/43hNlNAY1vjwIX/+1i7IEXtoPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 008/149] net: moxa: Use devm_platform_get_and_ioremap_resource()
+        stable@vger.kernel.org, Benjamin Drung <bdrung@posteo.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 227/315] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
 Date:   Mon, 19 Jul 2021 16:51:56 +0200
-Message-Id: <20210719144903.413602646@linuxfoundation.org>
+Message-Id: <20210719144950.890006757@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Benjamin Drung <bdrung@posteo.de>
 
-commit 35cba15a504bf4f585bb9d78f47b22b28a1a06b2 upstream.
+commit 4c6e0976295add7f0ed94d276c04a3d6f1ea8f83 upstream.
 
-Use devm_platform_get_and_ioremap_resource() to simplify
-code and avoid a null-ptr-deref by checking 'res' in it.
+The Elgato Cam Link 4K HDMI video capture card reports to support three
+different pixel formats, where the first format depends on the connected
+HDMI device.
 
-[yyl: since devm_platform_get_and_ioremap_resource() is introduced
-      in linux-5.7, so just check the return value after calling
-      platform_get_resource()]
+```
+$ v4l2-ctl -d /dev/video0 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	[0]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[1]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[2]: 'YU12' (Planar YUV 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+```
+
+Changing the pixel format to anything besides the first pixel format
+does not work:
+
+```
+$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
+Format Video Capture:
+	Width/Height      : 3840/2160
+	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
+	Field             : None
+	Bytes per Line    : 3840
+	Size Image        : 12441600
+	Colorspace        : sRGB
+	Transfer Function : Rec. 709
+	YCbCr/HSV Encoding: Rec. 709
+	Quantization      : Default (maps to Limited Range)
+	Flags             :
+```
+
+User space applications like VLC might show an error message on the
+terminal in that case:
+
+```
+libv4l2: error set_fmt gave us a different result than try_fmt!
+```
+
+Depending on the error handling of the user space applications, they
+might display a distorted video, because they use the wrong pixel format
+for decoding the stream.
+
+The Elgato Cam Link 4K responds to the USB video probe
+VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
+second byte contains bFormatIndex (instead of being the second byte of
+bmHint). The first byte is always zero. The third byte is always 1.
+
+The firmware bug was reported to Elgato on 2020-12-01 and it was
+forwarded by the support team to the developers as feature request.
+There is no firmware update available since then. The latest firmware
+for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
+
+Therefore correct the malformed data structure for this device. The
+change was successfully tested with VLC, OBS, and Chromium using
+different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
+1920x1080), and frame rates (29.970 and 59.940 fps).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Drung <bdrung@posteo.de>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/moxa/moxart_ether.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/usb/uvc/uvc_video.c |   27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
---- a/drivers/net/ethernet/moxa/moxart_ether.c
-+++ b/drivers/net/ethernet/moxa/moxart_ether.c
-@@ -481,6 +481,10 @@ static int moxart_mac_probe(struct platf
- 	priv->pdev = pdev;
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -89,10 +89,37 @@ int uvc_query_ctrl(struct uvc_device *de
+ static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
+ 	struct uvc_streaming_control *ctrl)
+ {
++	static const struct usb_device_id elgato_cam_link_4k = {
++		USB_DEVICE(0x0fd9, 0x0066)
++	};
+ 	struct uvc_format *format = NULL;
+ 	struct uvc_frame *frame = NULL;
+ 	unsigned int i;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		ret = -EINVAL;
-+		goto init_fail;
++	/*
++	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
++	 * contains bFormatIndex (instead of being the second byte of bmHint).
++	 * The first byte is always zero. The third byte is always 1.
++	 *
++	 * The UVC 1.5 class specification defines the first five bits in the
++	 * bmHint bitfield. The remaining bits are reserved and should be zero.
++	 * Therefore a valid bmHint will be less than 32.
++	 *
++	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
++	 * MCU: 20.02.19, FPGA: 67
++	 */
++	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) &&
++	    ctrl->bmHint > 255) {
++		u8 corrected_format_index = ctrl->bmHint >> 8;
++
++		/* uvc_dbg(stream->dev, VIDEO,
++			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
++			ctrl->bmHint, ctrl->bFormatIndex,
++			1, corrected_format_index); */
++		ctrl->bmHint = 1;
++		ctrl->bFormatIndex = corrected_format_index;
 +	}
- 	ndev->base_addr = res->start;
- 	priv->base = devm_ioremap_resource(p_dev, res);
- 	if (IS_ERR(priv->base)) {
++
+ 	for (i = 0; i < stream->nformats; ++i) {
+ 		if (stream->format[i].index == ctrl->bFormatIndex) {
+ 			format = &stream->format[i];
 
 
