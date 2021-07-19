@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97F853CD91A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 718253CDB43
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242717AbhGSO0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38044 "EHLO mail.kernel.org"
+        id S244091AbhGSOmM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242461AbhGSOZT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:25:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F1A761073;
-        Mon, 19 Jul 2021 15:05:58 +0000 (UTC)
+        id S245102AbhGSOjQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F26F6112D;
+        Mon, 19 Jul 2021 15:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707158;
-        bh=nFiVBD9s1F0BKiFDeyhGID7OC5rzFoiX0HeTvFie4L0=;
+        s=korg; t=1626707914;
+        bh=qnYEtcBDceRQ0JPUdv62x6m/W6ksONb5rBwKgOpVu4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpsmEG4ge9MFdn9JImO0djC6v3JvauLIu74v1g7cHfN8sbB4FEm3jZIkTZGTWiAz+
-         ntS5ER3LZDRTjLVU66ifZbC0efRDylVXFLzDEsLln3HaLQl1Smj09UdkO1LktVf7x8
-         2HxDG2eTkX+x59EYTGrEPx9WEYrYbl8BtrQng7zg=
+        b=TvgbCpqIiX2zLc1Xa/cwgXleW4+XgUAThJ4uK6G4EMgwL1SBBRGKDwMUsISwo8ipj
+         V9ZhqTtePYnSezCBywICBOmkVjvkJaRIK4oMavPUtbV9Gd9FItw909ja2f63Pnyrs5
+         l2Ul4sALRY5CluyjjVlxxVYjb1uELiOHhT86rAeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 051/245] random32: Fix implicit truncation warning in prandom_seed_state()
-Date:   Mon, 19 Jul 2021 16:49:53 +0200
-Message-Id: <20210719144942.050909885@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 105/315] netfilter: nft_exthdr: check for IPv6 packet before further processing
+Date:   Mon, 19 Jul 2021 16:49:54 +0200
+Message-Id: <20210719144946.328999381@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit d327ea15a305024ef0085252fa3657bbb1ce25f5 ]
+[ Upstream commit cdd73cc545c0fb9b1a1f7b209f4f536e7990cff4 ]
 
-sparse generates the following warning:
+ipv6_find_hdr() does not validate that this is an IPv6 packet. Add a
+sanity check for calling ipv6_find_hdr() to make sure an IPv6 packet
+is passed for parsing.
 
- include/linux/prandom.h:114:45: sparse: sparse: cast truncates bits from
- constant value
-
-This is because the 64-bit seed value is manipulated and then placed in a
-u32, causing an implicit cast and truncation. A forced cast to u32 doesn't
-prevent this warning, which is reasonable because a typecast doesn't prove
-that truncation was expected.
-
-Logical-AND the value with 0xffffffff to make explicit that truncation to
-32-bit is intended.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20210525122012.6336-3-rf@opensource.cirrus.com
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/prandom.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_exthdr.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/prandom.h b/include/linux/prandom.h
-index cc1e71334e53..e20339c78a84 100644
---- a/include/linux/prandom.h
-+++ b/include/linux/prandom.h
-@@ -93,7 +93,7 @@ static inline u32 __seed(u32 x, u32 m)
-  */
- static inline void prandom_seed_state(struct rnd_state *state, u64 seed)
- {
--	u32 i = (seed >> 32) ^ (seed << 10) ^ seed;
-+	u32 i = ((seed >> 32) ^ (seed << 10) ^ seed) & 0xffffffffUL;
+diff --git a/net/netfilter/nft_exthdr.c b/net/netfilter/nft_exthdr.c
+index a0a93d987a3b..a301d3bbd3fa 100644
+--- a/net/netfilter/nft_exthdr.c
++++ b/net/netfilter/nft_exthdr.c
+@@ -46,6 +46,9 @@ static void nft_exthdr_ipv6_eval(const struct nft_expr *expr,
+ 	unsigned int offset = 0;
+ 	int err;
  
- 	state->s1 = __seed(i,   2U);
- 	state->s2 = __seed(i,   8U);
++	if (pkt->skb->protocol != htons(ETH_P_IPV6))
++		goto err;
++
+ 	err = ipv6_find_hdr(pkt->skb, &offset, priv->type, NULL, NULL);
+ 	if (priv->flags & NFT_EXTHDR_F_PRESENT) {
+ 		*dest = (err >= 0);
 -- 
 2.30.2
 
