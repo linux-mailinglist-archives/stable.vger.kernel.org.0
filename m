@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABC653CDC16
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B6F3CDFDC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241190AbhGSOvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40436 "EHLO mail.kernel.org"
+        id S1345714AbhGSPMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344280AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C100A61003;
-        Mon, 19 Jul 2021 15:27:27 +0000 (UTC)
+        id S1345217AbhGSPK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A3E16113B;
+        Mon, 19 Jul 2021 15:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708448;
-        bh=TNFVtHoJc3PqwJwXyaoHT9IFm9G1RO35rNOmgMwLZag=;
+        s=korg; t=1626709866;
+        bh=avXpt2IE8evYRyq1qslB7oJTaE/69xXYFne8L/SFsqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jnXFLnv3tsyNGA5bS9hRhI3wMfCJhebgoMt4CSbuOme0ctoLSB0T5jT5wrJCfPl/m
-         hoD0BnSma/g11j/UYTpG2KogtpRXgih7rcUMP3Vr5CqMChHtGgrt24nsX6HLqziEDg
-         M6MlhQv0JM86LlwU4F2FgzOr3PoOnzaI/cqoAZqM=
+        b=Gcw7ZPb4NNhwwNQfjVXhzDFdP6yflkJaIqIwVqmbEjHkdc3DFaJTACdGupq+n/Ree
+         DAJLHj1XKs/fW7XtUm9qpB8ZfaYU92/mL5o55nfCWG+c2OlW/ajSfpW7mDU16MsQPG
+         NgNMW4w2DRTfHng8ZxMCiUPVU523760EmselOrbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 314/315] MIPS: vdso: Invalid GIC access through VDSO
-Date:   Mon, 19 Jul 2021 16:53:23 +0200
-Message-Id: <20210719144953.805394783@linuxfoundation.org>
+Subject: [PATCH 5.4 096/149] x86/signal: Detect and prevent an alternate signal stack overflow
+Date:   Mon, 19 Jul 2021 16:53:24 +0200
+Message-Id: <20210719144924.106579372@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +44,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fäcknitz <faecknitz@hotsplots.de>
+From: Chang S. Bae <chang.seok.bae@intel.com>
 
-[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
+[ Upstream commit 2beb4a53fc3f1081cedc1c1a198c7f56cc4fc60c ]
 
-Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
-doesn't return the correct time when using the GIC as clock source.
-The address of the GIC mapped page is in this case not calculated
-correctly. The GIC mapped page is calculated from the VDSO data by
-subtracting PAGE_SIZE:
+The kernel pushes context on to the userspace stack to prepare for the
+user's signal handler. When the user has supplied an alternate signal
+stack, via sigaltstack(2), it is easy for the kernel to verify that the
+stack size is sufficient for the current hardware context.
 
-  void *get_gic(const struct vdso_data *data) {
-    return (void __iomem *)data - PAGE_SIZE;
-  }
+Check if writing the hardware context to the alternate stack will exceed
+it's size. If yes, then instead of corrupting user-data and proceeding with
+the original signal handler, an immediate SIGSEGV signal is delivered.
 
-However, the data pointer is not page aligned for raw clock sources.
-This is because the VDSO data for raw clock sources (CS_RAW = 1) is
-stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
-Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
+Refactor the stack pointer check code from on_sig_stack() and use the new
+helper.
 
-  +--------------------+
-  |                    |
-  | vd[CS_RAW]         | ---+
-  | vd[CS_HRES_COARSE] |    |
-  +--------------------+    | -PAGE_SIZE
-  |                    |    |
-  |  GIC mapped page   | <--+
-  |                    |
-  +--------------------+
+While the kernel allows new source code to discover and use a sufficient
+alternate signal stack size, this check is still necessary to protect
+binaries with insufficient alternate signal stack size from data
+corruption.
 
-When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
-the wrong address (somewhere inside the GIC mapped page). The GIC counter
-values are not returned which results in an invalid time.
-
-Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
-Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: c2bc11f10a39 ("x86, AVX-512: Enable AVX-512 States Context Switch")
+Reported-by: Florian Weimer <fweimer@redhat.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Len Brown <len.brown@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20210518200320.17239-6-chang.seok.bae@intel.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=153531
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/vdso.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/signal.c     | 24 ++++++++++++++++++++----
+ include/linux/sched/signal.h | 19 ++++++++++++-------
+ 2 files changed, 32 insertions(+), 11 deletions(-)
 
-diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
-index cfb1be441dec..921589b45bc2 100644
---- a/arch/mips/vdso/vdso.h
-+++ b/arch/mips/vdso/vdso.h
-@@ -81,7 +81,7 @@ static inline const union mips_vdso_data *get_vdso_data(void)
- 
- static inline void __iomem *get_gic(const union mips_vdso_data *data)
+diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
+index 2fdbf5ef8c39..026ce06a24c0 100644
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -241,10 +241,11 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 	     void __user **fpstate)
  {
--	return (void __iomem *)data - PAGE_SIZE;
-+	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+ 	/* Default to using normal stack */
++	bool nested_altstack = on_sig_stack(regs->sp);
++	bool entering_altstack = false;
+ 	unsigned long math_size = 0;
+ 	unsigned long sp = regs->sp;
+ 	unsigned long buf_fx = 0;
+-	int onsigstack = on_sig_stack(sp);
+ 	int ret;
+ 
+ 	/* redzone */
+@@ -253,15 +254,23 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 
+ 	/* This is the X/Open sanctioned signal stack switching.  */
+ 	if (ka->sa.sa_flags & SA_ONSTACK) {
+-		if (sas_ss_flags(sp) == 0)
++		/*
++		 * This checks nested_altstack via sas_ss_flags(). Sensible
++		 * programs use SS_AUTODISARM, which disables that check, and
++		 * programs that don't use SS_AUTODISARM get compatible.
++		 */
++		if (sas_ss_flags(sp) == 0) {
+ 			sp = current->sas_ss_sp + current->sas_ss_size;
++			entering_altstack = true;
++		}
+ 	} else if (IS_ENABLED(CONFIG_X86_32) &&
+-		   !onsigstack &&
++		   !nested_altstack &&
+ 		   regs->ss != __USER_DS &&
+ 		   !(ka->sa.sa_flags & SA_RESTORER) &&
+ 		   ka->sa.sa_restorer) {
+ 		/* This is the legacy signal stack switching. */
+ 		sp = (unsigned long) ka->sa.sa_restorer;
++		entering_altstack = true;
+ 	}
+ 
+ 	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
+@@ -274,8 +283,15 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 	 * If we are on the alternate signal stack and would overflow it, don't.
+ 	 * Return an always-bogus address instead so we will die with SIGSEGV.
+ 	 */
+-	if (onsigstack && !likely(on_sig_stack(sp)))
++	if (unlikely((nested_altstack || entering_altstack) &&
++		     !__on_sig_stack(sp))) {
++
++		if (show_unhandled_signals && printk_ratelimit())
++			pr_info("%s[%d] overflowed sigaltstack\n",
++				current->comm, task_pid_nr(current));
++
+ 		return (void __user *)-1L;
++	}
+ 
+ 	/* save i387 and extended state */
+ 	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index baf58f4cb057..b3f88470cbb5 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -509,6 +509,17 @@ static inline int kill_cad_pid(int sig, int priv)
+ #define SEND_SIG_NOINFO ((struct kernel_siginfo *) 0)
+ #define SEND_SIG_PRIV	((struct kernel_siginfo *) 1)
+ 
++static inline int __on_sig_stack(unsigned long sp)
++{
++#ifdef CONFIG_STACK_GROWSUP
++	return sp >= current->sas_ss_sp &&
++		sp - current->sas_ss_sp < current->sas_ss_size;
++#else
++	return sp > current->sas_ss_sp &&
++		sp - current->sas_ss_sp <= current->sas_ss_size;
++#endif
++}
++
+ /*
+  * True if we are on the alternate signal stack.
+  */
+@@ -526,13 +537,7 @@ static inline int on_sig_stack(unsigned long sp)
+ 	if (current->sas_ss_flags & SS_AUTODISARM)
+ 		return 0;
+ 
+-#ifdef CONFIG_STACK_GROWSUP
+-	return sp >= current->sas_ss_sp &&
+-		sp - current->sas_ss_sp < current->sas_ss_size;
+-#else
+-	return sp > current->sas_ss_sp &&
+-		sp - current->sas_ss_sp <= current->sas_ss_size;
+-#endif
++	return __on_sig_stack(sp);
  }
  
- #endif /* CONFIG_CLKSRC_MIPS_GIC */
+ static inline int sas_ss_flags(unsigned long sp)
 -- 
 2.30.2
 
