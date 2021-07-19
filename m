@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4D193CDD8E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE5473CDD8B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245099AbhGSO6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:58:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S240946AbhGSO6m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:58:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245194AbhGSO5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244419AbhGSO5w (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:57:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 123CD613E9;
-        Mon, 19 Jul 2021 15:35:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90B20613EB;
+        Mon, 19 Jul 2021 15:35:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708921;
-        bh=BrpNknLtV2X2AoTjMLqOVDmsgnK4iG7hZQJOUZh6HQU=;
+        s=korg; t=1626708924;
+        bh=Gm2Hm2cbVdGDWuf+mdtlQfLJKDZ+0cdksKOyXsIlUxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPkk4oT6XykN48a3eIy75+jK0NhWqgjGdlsb6qvpPp5/QbPtmGNMM9kptnI59njQd
-         NXiT1W73f9JJCs51QwcH6KtweR0fCkvRL5mGJ5b8PdaaIJMnL86bQ8Rd9saHwVaXQ0
-         GSYy7KK6RTZ/SmJ7S3e+V7vZtFZ/5U0pTkt2L/+w=
+        b=HQnujio+NXF6bbwL/tINAgjrcRZwkz/wV5zhF81tf6HjbkLgVP8A+cbvv6qGWX0ox
+         O73+zcKao0DBmilqsr86N8cfqnRUgDQ5XxSK+/oPbg1AVNCZ9BQK5VJ6NGiZG7W80Y
+         1RGau1pF6VuxwoDUA2Ab001mfyT3+GNJFAkG/B1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Jian-Hong Pan <jhp@endlessos.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 150/421] mac80211: remove iwlwifi specific workaround NDPs of null_response
-Date:   Mon, 19 Jul 2021 16:49:21 +0200
-Message-Id: <20210719144951.673084859@linuxfoundation.org>
+Subject: [PATCH 4.19 151/421] net: bcmgenet: Fix attaching to PYH failed on RPi 4B
+Date:   Mon, 19 Jul 2021 16:49:22 +0200
+Message-Id: <20210719144951.702941930@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,39 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Jian-Hong Pan <jhp@endlessos.org>
 
-[ Upstream commit 744757e46bf13ec3a7b3507d17ab3faab9516d43 ]
+[ Upstream commit b2ac9800cfe0f8da16abc4e74e003440361c112e ]
 
-Remove the remaining workaround that is not removed by the
-commit e41eb3e408de ("mac80211: remove iwlwifi specific workaround
-that broke sta NDP tx")
+The Broadcom UniMAC MDIO bus from mdio-bcm-unimac module comes too late.
+So, GENET cannot find the ethernet PHY on UniMAC MDIO bus. This leads
+GENET fail to attach the PHY as following log:
 
-Fixes: 41cbb0f5a295 ("mac80211: add support for HE")
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Link: https://lore.kernel.org/r/20210623134826.10318-1-pkshih@realtek.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+bcmgenet fd580000.ethernet: GENET 5.0 EPHY: 0x0000
+...
+could not attach to PHY
+bcmgenet fd580000.ethernet eth0: failed to connect to PHY
+uart-pl011 fe201000.serial: no DMA platform data
+libphy: bcmgenet MII bus: probed
+...
+unimac-mdio unimac-mdio.-19: Broadcom UniMAC MDIO bus
+
+This patch adds the soft dependency to load mdio-bcm-unimac module
+before genet module to avoid the issue.
+
+Fixes: 9a4e79697009 ("net: bcmgenet: utilize generic Broadcom UniMAC MDIO controller driver")
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=213485
+Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/sta_info.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mac80211/sta_info.c b/net/mac80211/sta_info.c
-index 71c6a462277f..3a907ba7f763 100644
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -1344,11 +1344,6 @@ static void ieee80211_send_null_response(struct sta_info *sta, int tid,
- 	struct ieee80211_tx_info *info;
- 	struct ieee80211_chanctx_conf *chanctx_conf;
- 
--	/* Don't send NDPs when STA is connected HE */
--	if (sdata->vif.type == NL80211_IFTYPE_STATION &&
--	    !(sdata->u.mgd.flags & IEEE80211_STA_DISABLE_HE))
--		return;
--
- 	if (qos) {
- 		fc = cpu_to_le16(IEEE80211_FTYPE_DATA |
- 				 IEEE80211_STYPE_QOS_NULLFUNC |
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index c3e824f5e50e..1546a9bd9203 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -3750,3 +3750,4 @@ MODULE_AUTHOR("Broadcom Corporation");
+ MODULE_DESCRIPTION("Broadcom GENET Ethernet controller driver");
+ MODULE_ALIAS("platform:bcmgenet");
+ MODULE_LICENSE("GPL");
++MODULE_SOFTDEP("pre: mdio-bcm-unimac");
 -- 
 2.30.2
 
