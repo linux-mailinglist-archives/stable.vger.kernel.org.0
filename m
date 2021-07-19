@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EED63CD84A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC023CD9AA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242970AbhGSOVd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55876 "EHLO mail.kernel.org"
+        id S243805AbhGSObN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242104AbhGSOUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1D4C6128A;
-        Mon, 19 Jul 2021 15:00:54 +0000 (UTC)
+        id S245062AbhGSOaR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:30:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AB836024A;
+        Mon, 19 Jul 2021 15:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706855;
-        bh=XULeIKO58KM06kqQ/XPeBJWpa8SchSLl8yxE/fnaWqw=;
+        s=korg; t=1626707455;
+        bh=n6nmUqmdKxTKnLhFD5LYShrjOaP+9FEZWtPmKcV9p/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9fHOmOEJnG1Ybz24yBjs0YeTvoqKIMKAeJ1Vx5VDj36lXw2sIp21VvUvZ2JhzmL9
-         clwxn05W/lsWHmuUOa990Obb1S9F/jFxjTx6/Te9CdxAkUHCQzGg+xbE0JUxnt1nCh
-         pr9FJpJSGLUubDF3oELs3og6E1d8S75rNkrJrSaU=
+        b=2jJRQniC/NX+JfCu7M0+9DhjjT0cOpZmnLGCvvMkRqCbn8Wnb5m/UN8gDB+W5HLtm
+         zDXRfa94ivUuqb90Y6JXIVRPstaKKXcsDZbN/+0LEZWzDqilSMpsqLZqMzSLKhRqS7
+         4Rosw9bvtETbgkquffAIShl+epf8OvZo2fPoMzLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 128/188] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
+        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.9 170/245] seq_buf: Fix overflow in seq_buf_putmem_hex()
 Date:   Mon, 19 Jul 2021 16:51:52 +0200
-Message-Id: <20210719144940.681641460@linuxfoundation.org>
+Message-Id: <20210719144945.899681500@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Yun Zhou <yun.zhou@windriver.com>
 
-commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
+commit d3b16034a24a112bb83aeb669ac5b9b01f744bb7 upstream.
 
-When an eMMC device is being run in HS400 mode, any access to the
-RPMB device will cause the error message "mmc1: Invalid UHS-I mode
-selected". This happens as a result of tuning being disabled before
-RPMB access and then re-enabled after the RPMB access is complete.
-When tuning is re-enabled, the system has to switch from HS400
-to HS200 to do the tuning and then back to HS400. As part of
-sequence to switch from HS400 to HS200 the system is temporarily
-put into HS mode. When switching to HS mode, sdhci_get_preset_value()
-is called and does not have support for HS mode and prints the warning
-message and returns the preset for SDR12. The fix is to add support
-for MMC and SD HS modes to sdhci_get_preset_value().
+There's two variables being increased in that loop (i and j), and i
+follows the raw data, and j follows what is being written into the buffer.
+We should compare 'i' to MAX_MEMHEX_BYTES or compare 'j' to HEX_CHARS.
+Otherwise, if 'j' goes bigger than HEX_CHARS, it will overflow the
+destination buffer.
 
-This can be reproduced on any system running eMMC in HS400 mode
-(not HS400ES) by using the "mmc" utility to run the following
-command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
+Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
+Link: https://lkml.kernel.org/r/20210626032156.47889-1-yun.zhou@windriver.com
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 5e3ca0ec76fce ("ftrace: introduce the "hex" output method")
+Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mmc/host/sdhci.c |    4 ++++
- drivers/mmc/host/sdhci.h |    1 +
- 2 files changed, 5 insertions(+)
+ lib/seq_buf.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1134,6 +1134,10 @@ static u16 sdhci_get_preset_value(struct
- 	u16 preset = 0;
+--- a/lib/seq_buf.c
++++ b/lib/seq_buf.c
+@@ -227,8 +227,10 @@ int seq_buf_putmem_hex(struct seq_buf *s
  
- 	switch (host->timing) {
-+	case MMC_TIMING_MMC_HS:
-+	case MMC_TIMING_SD_HS:
-+		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
-+		break;
- 	case MMC_TIMING_UHS_SDR12:
- 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
- 		break;
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -232,6 +232,7 @@
+ 	WARN_ON(s->size == 0);
  
- /* 60-FB reserved */
- 
-+#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
- #define SDHCI_PRESET_FOR_SDR12 0x66
- #define SDHCI_PRESET_FOR_SDR25 0x68
- #define SDHCI_PRESET_FOR_SDR50 0x6A
++	BUILD_BUG_ON(MAX_MEMHEX_BYTES * 2 >= HEX_CHARS);
++
+ 	while (len) {
+-		start_len = min(len, HEX_CHARS - 1);
++		start_len = min(len, MAX_MEMHEX_BYTES);
+ #ifdef __BIG_ENDIAN
+ 		for (i = 0, j = 0; i < start_len; i++) {
+ #else
 
 
