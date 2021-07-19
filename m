@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E1023CD9D3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5823A3CD9E2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242752AbhGSObs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
+        id S244018AbhGSOb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244639AbhGSO3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244642AbhGSO3y (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 486CF6113B;
-        Mon, 19 Jul 2021 15:10:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF89161166;
+        Mon, 19 Jul 2021 15:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707428;
-        bh=IcrrfMENSAMzCA8Bq393mwfNqrFuA/ur07uvUXWQVF4=;
+        s=korg; t=1626707431;
+        bh=POVAWTU9hlQ1zDNUT297jGkJfQ9rvNQUOcQjx+Z4pFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lsapD+dQZQDy9v5wGXnYqaBvN4pNvO4LTYL9F5//4w//fACLOdBzgBvk6aTFev07F
-         lkO5JcfozesrcM423mWqVz9lP+2CwAlRqTkI+bjSxxSOm+U3GAcYBoNXEG+FZI6MZJ
-         SgAx3I1UelNLjvI7wKGtZz/yCZxoRocaQANqF/F4=
+        b=aRrQmEmA84lXsF+Ywtyor2IEBiJezj+BbNfTZvykK6XS55TFDZY8PcyGBZadQ+ySK
+         pjylw+NktoWlis5xq+5+HjYmhf2/xb7rjhGQ/5I2gQKY1DPkoa20PgyUduIu/HTWyG
+         kVDfG9Y5wPe8kU+VY5jpSuel3ENJeF/mBOC6bs4Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "linux-wireless@vger.kernel.org, stable@vger.kernel.org, Davis Mosenkovs" 
-        <davis@mosenkovs.lv>, Davis Mosenkovs <davis@mosenkovs.lv>
-Subject: [PATCH 4.9 160/245] mac80211: fix memory corruption in EAPOL handling
-Date:   Mon, 19 Jul 2021 16:51:42 +0200
-Message-Id: <20210719144945.576632083@linuxfoundation.org>
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 161/245] powerpc/barrier: Avoid collision with clangs __lwsync macro
+Date:   Mon, 19 Jul 2021 16:51:43 +0200
+Message-Id: <20210719144945.616612359@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -40,33 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davis Mosenkovs <davis@mosenkovs.lv>
+From: Nathan Chancellor <nathan@kernel.org>
 
-Commit e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL
-frames") uses skb_mac_header() before eth_type_trans() is called
-leading to incorrect pointer, the pointer gets written to. This issue
-has appeared during backporting to 4.4, 4.9 and 4.14.
+commit 015d98149b326e0f1f02e44413112ca8b4330543 upstream.
 
-Fixes: e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL frames")
-Link: https://lore.kernel.org/r/CAHQn7pKcyC_jYmGyTcPCdk9xxATwW5QPNph=bsZV8d-HPwNsyA@mail.gmail.com
-Cc: <stable@vger.kernel.org> # 4.4.x
-Signed-off-by: Davis Mosenkovs <davis@mosenkovs.lv>
+A change in clang 13 results in the __lwsync macro being defined as
+__builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
+the target supports. This breaks the build because of -Werror in
+arch/powerpc, along with thousands of warnings:
+
+ In file included from arch/powerpc/kernel/pmc.c:12:
+ In file included from include/linux/bug.h:5:
+ In file included from arch/powerpc/include/asm/bug.h:109:
+ In file included from include/asm-generic/bug.h:20:
+ In file included from include/linux/kernel.h:12:
+ In file included from include/linux/bitops.h:32:
+ In file included from arch/powerpc/include/asm/bitops.h:62:
+ arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
+ #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
+        ^
+ <built-in>:308:9: note: previous definition is here
+ #define __lwsync __builtin_ppc_lwsync
+        ^
+ 1 error generated.
+
+Undefine this macro so that the runtime patching introduced by
+commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
+work properly with clang and the build no longer breaks.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1386
+Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
+Link: https://lore.kernel.org/r/20210528182752.1852002-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/mac80211/rx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/barrier.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2380,7 +2380,7 @@ ieee80211_deliver_skb(struct ieee80211_r
+--- a/arch/powerpc/include/asm/barrier.h
++++ b/arch/powerpc/include/asm/barrier.h
+@@ -41,6 +41,8 @@
+ #    define SMPWMB      eieio
  #endif
  
- 	if (skb) {
--		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
-+		struct ethhdr *ehdr = (struct ethhdr *)skb->data;
- 
- 		/* deliver to local stack */
- 		skb->protocol = eth_type_trans(skb, dev);
++/* clang defines this macro for a builtin, which will not work with runtime patching */
++#undef __lwsync
+ #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
+ #define dma_rmb()	__lwsync()
+ #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
 
 
