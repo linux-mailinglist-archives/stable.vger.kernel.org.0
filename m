@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0623CE393
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C3E3CE392
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238455AbhGSPkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S241842AbhGSPkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349080AbhGSPfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349076AbhGSPfn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B1C6135C;
-        Mon, 19 Jul 2021 16:16:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5340B610D0;
+        Mon, 19 Jul 2021 16:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711372;
-        bh=QHlC913CF6h2zDe57sr9VPDmI30uTexbDEogBLb4a3Q=;
+        s=korg; t=1626711375;
+        bh=Mpq3AmYAT6nnSPIVQugAsnSv5AgE0ayoFpUJOym7+/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qxeh0dG14fwSU1BCG+Lh/hiRsza0ijWkN70DjoIBDF+kh9PhpI/a2p+HH+4NMlFg5
-         VuKh8YzyhLaWrI2iLfROr5TjQnqWUqCKPnGZNbNIsA50Uw4X58wpQPxRSfKJSGSTjm
-         Ptss7zs3GgsJ5g9aZVofNdHEz3ggLgilCCfA8q2Q=
+        b=C82GilkXUTI1+vTEvlDxicUmguWIZakv2xYc7RxAeTHYYT9lkej2xkNrzw1ZmOQOa
+         qKSAgoJHA48XJjWfPkIwbAKMdzI6+Ss5LOBSUEqMS+F99NvuAXX4pSV743v8vNi2RR
+         re2qW6QgJmpsSrC4S8e9FKkHrUr7WYg76st6PlLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 329/351] thermal/drivers/rcar_gen3_thermal: Fix coefficient calculations
-Date:   Mon, 19 Jul 2021 16:54:35 +0200
-Message-Id: <20210719144955.945413413@linuxfoundation.org>
+Subject: [PATCH 5.13 330/351] kbuild: remove trailing slashes from $(KBUILD_EXTMOD)
+Date:   Mon, 19 Jul 2021 16:54:36 +0200
+Message-Id: <20210719144955.978189599@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -44,40 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 8946187ab57ffd02088e50256c73dd31f49db06d ]
+[ Upstream commit 74ee585b7eecd98be3650e677625a0ee588d08e0 ]
 
-The fixed value of 157 used in the calculations are only correct for
-M3-W, on other Gen3 SoC it should be 167. The constant can be derived
-correctly from the static TJ_3 constant and the SoC specific TJ_1 value.
-Update the calculation be correct on all Gen3 SoCs.
+M= (or KBUILD_EXTMOD) generally expects a directory path without any
+trailing slashes, like M=a/b/c.
 
-Fixes: 4eb39f79ef44 ("thermal: rcar_gen3_thermal: Update value of Tj_1")
-Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210605085211.564909-1-niklas.soderlund+renesas@ragnatech.se
+If you add a trailing slash, like M=a/b/c/, you will get ugly build
+logs (two slashes in a series), but it still works fine as long as it
+is consistent between 'make modules' and 'make modules_install'.
+
+The following commands correctly build and install the modules.
+
+  $ make M=a/b/c/ modules
+  $ sudo make M=a/b/c/ modules_install
+
+Since commit ccae4cfa7bfb ("kbuild: refactor scripts/Makefile.modinst"),
+a problem happens if you add a trailing slash only for modules_install.
+
+  $ make M=a/b/c modules
+  $ sudo make M=a/b/c/ modules_install
+
+No module is installed in this case, Johannes Berg reported. [1]
+
+Trim any trailing slashes from $(KBUILD_EXTMOD).
+
+I used the 'dirname' command to remove all the trailing slashes in
+case someone adds more slashes like M=a/b/c/////. The Make's built-in
+function, $(dir ...) cannot take care of such a case.
+
+[1]: https://lore.kernel.org/lkml/10cc8522b27a051e6a9c3e158a4c4b6414fd04a0.camel@sipsolutions.net/
+
+Fixes: ccae4cfa7bfb ("kbuild: refactor scripts/Makefile.modinst")
+Reported-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_gen3_thermal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index e1e412348076..1a60adb1d30a 100644
---- a/drivers/thermal/rcar_gen3_thermal.c
-+++ b/drivers/thermal/rcar_gen3_thermal.c
-@@ -143,7 +143,7 @@ static void rcar_gen3_thermal_calc_coefs(struct rcar_gen3_thermal_tsc *tsc,
- 	 * Division is not scaled in BSP and if scaled it might overflow
- 	 * the dividend (4095 * 4095 << 14 > INT_MAX) so keep it unscaled
- 	 */
--	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * 157)
-+	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * (ths_tj_1 - TJ_3))
- 		     / (ptat[0] - ptat[2])) + FIXPT_INT(TJ_3);
+diff --git a/Makefile b/Makefile
+index 83f4212e004f..4258a60f6119 100644
+--- a/Makefile
++++ b/Makefile
+@@ -129,6 +129,11 @@ endif
+ $(if $(word 2, $(KBUILD_EXTMOD)), \
+ 	$(error building multiple external modules is not supported))
  
- 	tsc->coef.a1 = FIXPT_DIV(FIXPT_INT(thcode[1] - thcode[2]),
++# Remove trailing slashes
++ifneq ($(filter %/, $(KBUILD_EXTMOD)),)
++KBUILD_EXTMOD := $(shell dirname $(KBUILD_EXTMOD).)
++endif
++
+ export KBUILD_EXTMOD
+ 
+ # Kbuild will save output files in the current working directory.
 -- 
 2.30.2
 
