@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D37303CDF23
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C32F83CDFA9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345128AbhGSPH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
+        id S237535AbhGSPLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345746AbhGSPE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEC9F61003;
-        Mon, 19 Jul 2021 15:45:13 +0000 (UTC)
+        id S1346090AbhGSPKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B83260FDA;
+        Mon, 19 Jul 2021 15:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709514;
-        bh=FbXo8RoIe6ef5+Air3b6Kwtly/OmhbfV009rKozsAhM=;
+        s=korg; t=1626709841;
+        bh=yE3rC14qPZtSjLSfzNb9Nj3yI6btJPoqiV3QB70WPFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJC+e1EAdBJEuPj3vALDP6JQLmcne9KSvyADo5g7gmwM02J47IdEbOrwhT/o5pLSs
-         lvSLELJN9EQbdWc4Hy4V/C7HjFKvdc2JlJ7a3LsahzKZiapPZ7R94UQ6Uf03hmtdTH
-         0w2FIHF6jaojC5Tno5o9boANbsFuewf+CyjP4JGk=
+        b=rlhdZwGqNLGsHZ384huVxb3r62C5+wI3hMSl8v0/CyWL00nmqxdWwqUTwsvrmxjMV
+         KKXCnDz/O5mUiPYHgREjX7RBBWGKmMg+VB61C6b2aPfXu1B3BSjt1I53AqAHFmfTE1
+         ug5IHuIvBNgqj8uE459PZMa0GSo5jjw3p3lAPuCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 415/421] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
-Date:   Mon, 19 Jul 2021 16:53:46 +0200
-Message-Id: <20210719145000.695355152@linuxfoundation.org>
+Subject: [PATCH 5.4 119/149] ARM: dts: exynos: fix PWM LED max brightness on Odroid HC1
+Date:   Mon, 19 Jul 2021 16:53:47 +0200
+Message-Id: <20210719144929.573180213@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
+[ Upstream commit a7e59c84cf2055a1894f45855c8319191f2fa59e ]
 
-If an error occurs after a pci_enable_pcie_error_reporting() call, it must
-be undone by a corresponding pci_disable_pcie_error_reporting() call, as
-already done in the remove function.
+There is no "max_brightness" property as pointed out by dtschema:
 
-Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
-Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+  arch/arm/boot/dts/exynos5422-odroidhc1.dt.yaml: led-controller: led-1: 'max-brightness' is a required property
+
+Fixes: 1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210505135941.59898-4-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5422-odroidhc1.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index a5b807c676fc..50e9b4b68357 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5764,6 +5764,7 @@ free_hba:
- 	pci_disable_msix(phba->pcidev);
- 	pci_dev_put(phba->pcidev);
- 	iscsi_host_free(phba->shost);
-+	pci_disable_pcie_error_reporting(pcidev);
- 	pci_set_drvdata(pcidev, NULL);
- disable_pci:
- 	pci_release_regions(pcidev);
+diff --git a/arch/arm/boot/dts/exynos5422-odroidhc1.dts b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
+index d271e7548826..fce5a4579693 100644
+--- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
++++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
+@@ -22,7 +22,7 @@
+ 			label = "blue:heartbeat";
+ 			pwms = <&pwm 2 2000000 0>;
+ 			pwm-names = "pwm2";
+-			max_brightness = <255>;
++			max-brightness = <255>;
+ 			linux,default-trigger = "heartbeat";
+ 		};
+ 	};
 -- 
 2.30.2
 
