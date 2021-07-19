@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7796B3CDA85
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91EA23CDA88
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244641AbhGSOgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47358 "EHLO mail.kernel.org"
+        id S243048AbhGSOgT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:36:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343552AbhGSOfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B93B61221;
-        Mon, 19 Jul 2021 15:15:19 +0000 (UTC)
+        id S1343565AbhGSOfE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:35:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 003EF61186;
+        Mon, 19 Jul 2021 15:15:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707719;
-        bh=k/bT1qAkZX640jeKQc0YiLQbC/GXZcqW7Jp09ezVbBg=;
+        s=korg; t=1626707724;
+        bh=gTVTBA9GH+f6QveIO2r5+affM5vWCu6NKVlKh/EhWiQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mSQID4nIrIHn6pf3U91ZAJotmMVdHWG83xlrkz94tuWTAqJWmK7egsFKi/65bsWkM
-         BnWWLtSa1/wHp2O+dy8Xaqn6J/AY8IEH3c/uOVMUYr7Ji4f94lmpHSl1L09m5OdCqD
-         Swc2wseevCEqgNBnXh1QFEweyQwO9YbE2gUjxiqE=
+        b=h1yMu78nPnzo8+QREACaLL3sYzFuYF0zlRz3S1x0rULuHwm8BdHBGTdk7IR5w97D8
+         iy+TtCUME+hU6hAs83NI2TO1BDNYF62vJWUIkGxtn5LqJHaCcn+vk+srR1d3hNXm4P
+         pOX5eImqzfM6ushvgvX3jlLlsksU92InIqt/8fdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.14 029/315] serial: sh-sci: Stop dmaengine transfer in sci_stop_tx()
-Date:   Mon, 19 Jul 2021 16:48:38 +0200
-Message-Id: <20210719144943.842543190@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>
+Subject: [PATCH 4.14 030/315] serial_cs: Add Option International GSM-Ready 56K/ISDN modem
+Date:   Mon, 19 Jul 2021 16:48:39 +0200
+Message-Id: <20210719144943.879159423@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -39,48 +38,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Ondrej Zary <linux@zary.sk>
 
-commit 08a84410a04f05c7c1b8e833f552416d8eb9f6fe upstream.
+commit d495dd743d5ecd47288156e25c4d9163294a0992 upstream.
 
-Stop dmaengine transfer in sci_stop_tx(). Otherwise, the following
-message is possible output when system enters suspend and while
-transferring data, because clearing TIE bit in SCSCR is not able to
-stop any dmaengine transfer.
+Add support for Option International GSM-Ready 56K/ISDN PCMCIA modem
+card.
 
-    sh-sci e6550000.serial: ttySC1: Unable to drain transmitter
-
-Note that this driver has already used some #ifdef in the .c file
-so that this patch also uses #ifdef to fix the issue. Otherwise,
-build errors happens if the CONFIG_SERIAL_SH_SCI_DMA is disabled.
-
-Fixes: 73a19e4c0301 ("serial: sh-sci: Add DMA support.")
-Cc: <stable@vger.kernel.org> # v4.9+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210610110806.277932-1-yoshihiro.shimoda.uh@renesas.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210611201940.23898-2-linux@zary.sk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/sh-sci.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/tty/serial/8250/serial_cs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -581,6 +581,14 @@ static void sci_stop_tx(struct uart_port
- 	ctrl &= ~SCSCR_TIE;
- 
- 	serial_port_out(port, SCSCR, ctrl);
-+
-+#ifdef CONFIG_SERIAL_SH_SCI_DMA
-+	if (to_sci_port(port)->chan_tx &&
-+	    !dma_submit_error(to_sci_port(port)->cookie_tx)) {
-+		dmaengine_terminate_async(to_sci_port(port)->chan_tx);
-+		to_sci_port(port)->cookie_tx = -EINVAL;
-+	}
-+#endif
- }
- 
- static void sci_start_rx(struct uart_port *port)
+--- a/drivers/tty/serial/8250/serial_cs.c
++++ b/drivers/tty/serial/8250/serial_cs.c
+@@ -779,6 +779,7 @@ static const struct pcmcia_device_id ser
+ 	PCMCIA_DEVICE_PROD_ID12("Multi-Tech", "MT2834LT", 0x5f73be51, 0x4cd7c09e),
+ 	PCMCIA_DEVICE_PROD_ID12("OEM      ", "C288MX     ", 0xb572d360, 0xd2385b7a),
+ 	PCMCIA_DEVICE_PROD_ID12("Option International", "V34bis GSM/PSTN Data/Fax Modem", 0x9d7cd6f5, 0x5cb8bf41),
++	PCMCIA_DEVICE_PROD_ID12("Option International", "GSM-Ready 56K/ISDN", 0x9d7cd6f5, 0xb23844aa),
+ 	PCMCIA_DEVICE_PROD_ID12("PCMCIA   ", "C336MX     ", 0x99bcafe9, 0xaa25bcab),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "PCMCIA Dual RS-232 Serial Port Card", 0xc4420b35, 0x92abc92f),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "Dual RS-232 Serial Port PC Card", 0xc4420b35, 0x031a380d),
 
 
