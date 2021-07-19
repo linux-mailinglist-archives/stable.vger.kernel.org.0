@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 151EA3CD93C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:08:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27573CDB49
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243923AbhGSO1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:27:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
+        id S242667AbhGSOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243909AbhGSO0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:26:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6377F60551;
-        Mon, 19 Jul 2021 15:06:51 +0000 (UTC)
+        id S1343551AbhGSOjb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C32561221;
+        Mon, 19 Jul 2021 15:19:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707212;
-        bh=ayvlCRoW97D6v0qnTXQ69qDY/Q6dbXPXUQfbfxDivLQ=;
+        s=korg; t=1626707942;
+        bh=0C9uuqB1dFJzprdnF7w86hJ0Q0f8gYo6yYcSZaejqIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRhQLSSuZo6wqTNCJVBad170kM7chCJGdhwYhYRNa3wKb02aNF9N29/n0HuPHbxRx
-         YzsH02quDs/41XygrnzMg1Tic4OmyF9rinmKToXNAHXnp9D4t7Xfnc5NuXfpZ6QkI8
-         MoswMY9Oo/Zg0T0+or3YCIB06TomQwITBm+cbqO0=
+        b=kS66jWFxTA+vac/vWU5vy66kzHcWEdLrqqiZMHsT7jFrbhwDXVq5+GfD84zMAHZmm
+         wxxrg9DLp5NlUawL/NuCTpLPSDXdtSZU9N2jVEqvtqM3DtIdeWOmOj6i9RZWnOfQSn
+         IncXl/zRGfR0x/b0pfk5DUbb4ZLp7X0+v/sAwX14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 064/245] pata_ep93xx: fix deferred probing
-Date:   Mon, 19 Jul 2021 16:50:06 +0200
-Message-Id: <20210719144942.476596986@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 118/315] tty: nozomi: Fix a resource leak in an error handling function
+Date:   Mon, 19 Jul 2021 16:50:07 +0200
+Message-Id: <20210719144946.754205766@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
+[ Upstream commit 31a9a318255960d32ae183e95d0999daf2418608 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
-permanently instead of the deferred probing.  Propagate the error code
-upstream, as it should have been done from the start...
+A 'request_irq()' call is not balanced by a corresponding 'free_irq()' in
+the error handling path, as already done in the remove function.
 
-Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add it.
+
+Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/4f0d2b3038e82f081d370ccb0cade3ad88463fe7.1620580838.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/nozomi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index 634c814cbeda..ebdd2dfabbeb 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -927,7 +927,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
- 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		err = -ENXIO;
-+		err = irq;
- 		goto err_rel_gpio;
+diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
+index 39b3723a32a6..d19acddc3cf3 100644
+--- a/drivers/tty/nozomi.c
++++ b/drivers/tty/nozomi.c
+@@ -1458,6 +1458,7 @@ err_free_tty:
+ 		tty_unregister_device(ntty_driver, dc->index_start + i);
+ 		tty_port_destroy(&dc->port[i].port);
  	}
- 
++	free_irq(pdev->irq, dc);
+ err_free_kfifo:
+ 	for (i = 0; i < MAX_PORT; i++)
+ 		kfifo_free(&dc->port[i].fifo_ul);
 -- 
 2.30.2
 
