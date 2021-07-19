@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 345393CDFD7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15B73CDFDB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345652AbhGSPMU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47126 "EHLO mail.kernel.org"
+        id S1344921AbhGSPMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345305AbhGSPKf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFB5261222;
-        Mon, 19 Jul 2021 15:51:13 +0000 (UTC)
+        id S1345346AbhGSPKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72235610FB;
+        Mon, 19 Jul 2021 15:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709874;
-        bh=ysuG3U0bgLZgVc25yiRpVSjyZ83XOlg7wm7UpuaRCiQ=;
+        s=korg; t=1626709876;
+        bh=0DJlWJfdKqNbqEU2AQwB7Aaptgw22xYq1L3YmblnEFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OzQywupAVjxttHEgUFmSb8uJtoEUOZXNCO0r7zIAe2PAxPHICfmQSQ6wx0i/pP0es
-         693Rj0bsnH7wtRx0gaHI9WtAelna92AV4JCcfNqJq8K+Kv8LciTuwJHAT4FOpmoABb
-         fp1jByaPWkN+kZ9KAQ8AvTC4lVo5x5erH6lu+7Dc=
+        b=tmNBksV4FYJgFVgMfD+Pl6qj5WpzbF65eDPBVrYdzRfovliG2v5sKunrXXHmv2VAg
+         TW+Z71xooCuRR7zZAtEAviotPKMv3wYC0uyJnKHJy/ykTHAaWeHryIQF4B+GK27Bi9
+         I8JspVmgQIIF7OJfMfwAXNZvfOUp7HBptamao81s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Michael Wakabayashi <mwakabayashi@vmware.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 099/149] power: supply: rt5033_battery: Fix device tree enumeration
-Date:   Mon, 19 Jul 2021 16:53:27 +0200
-Message-Id: <20210719144924.829886764@linuxfoundation.org>
+Subject: [PATCH 5.4 100/149] NFSv4: Initialise connection to the server in nfs4_alloc_client()
+Date:   Mon, 19 Jul 2021 16:53:28 +0200
+Message-Id: <20210719144925.083812186@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -42,65 +41,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit f3076cd8d1d5fa64b5e1fa5affc045c2fc123baa ]
+[ Upstream commit dd99e9f98fbf423ff6d365b37a98e8879170f17c ]
 
-The fuel gauge in the RT5033 PMIC has its own I2C bus and interrupt
-line. Therefore, it is not actually part of the RT5033 MFD and needs
-its own of_match_table to probe properly.
+Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
+we've added the struct nfs_client to the net-namespace's nfs_client_list
+so that a downed server won't cause other mounts to hang in the trunking
+detection code.
 
-Also, given that it's independent of the MFD, there is actually
-no need to make the Kconfig depend on MFD_RT5033. Although the driver
-uses the shared <linux/mfd/rt5033.h> header, there is no compile
-or runtime dependency on the RT5033 MFD driver.
-
-Cc: Beomho Seo <beomho.seo@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>
-Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
+Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles connection setup to the DS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/Kconfig          | 3 ++-
- drivers/power/supply/rt5033_battery.c | 7 +++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index d6fdc10c29f0..ffdb15278c10 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -643,7 +643,8 @@ config BATTERY_GOLDFISH
+diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
+index 5a69dbd01a6c..8cace8350fa3 100644
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -197,8 +197,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
  
- config BATTERY_RT5033
- 	tristate "RT5033 fuel gauge support"
--	depends on MFD_RT5033
-+	depends on I2C
-+	select REGMAP_I2C
- 	help
- 	  This adds support for battery fuel gauge in Richtek RT5033 PMIC.
- 	  The fuelgauge calculates and determines the battery state of charge
-diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
-index d8667a9fc49b..6609f8cb8ca0 100644
---- a/drivers/power/supply/rt5033_battery.c
-+++ b/drivers/power/supply/rt5033_battery.c
-@@ -164,9 +164,16 @@ static const struct i2c_device_id rt5033_battery_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rt5033_battery_id);
- 
-+static const struct of_device_id rt5033_battery_of_match[] = {
-+	{ .compatible = "richtek,rt5033-battery", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, rt5033_battery_of_match);
+ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
+ {
+-	int err;
++	char buf[INET6_ADDRSTRLEN + 1];
++	const char *ip_addr = cl_init->ip_addr;
+ 	struct nfs_client *clp = nfs_alloc_client(cl_init);
++	int err;
 +
- static struct i2c_driver rt5033_battery_driver = {
- 	.driver = {
- 		.name = "rt5033-battery",
-+		.of_match_table = rt5033_battery_of_match,
- 	},
- 	.probe = rt5033_battery_probe,
- 	.remove = rt5033_battery_remove,
+ 	if (IS_ERR(clp))
+ 		return clp;
+ 
+@@ -222,6 +225,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
+ 	init_waitqueue_head(&clp->cl_lock_waitq);
+ #endif
+ 	INIT_LIST_HEAD(&clp->pending_cb_stateids);
++
++	if (cl_init->minorversion != 0)
++		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
++	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
++	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
++
++	/*
++	 * Set up the connection to the server before we add add to the
++	 * global list.
++	 */
++	err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
++	if (err == -EINVAL)
++		err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
++	if (err < 0)
++		goto error;
++
++	/* If no clientaddr= option was specified, find a usable cb address */
++	if (ip_addr == NULL) {
++		struct sockaddr_storage cb_addr;
++		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
++
++		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
++		if (err < 0)
++			goto error;
++		err = rpc_ntop(sap, buf, sizeof(buf));
++		if (err < 0)
++			goto error;
++		ip_addr = (const char *)buf;
++	}
++	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
++
++	err = nfs_idmap_new(clp);
++	if (err < 0) {
++		dprintk("%s: failed to create idmapper. Error = %d\n",
++			__func__, err);
++		goto error;
++	}
++	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
+ 	return clp;
+ 
+ error:
+@@ -372,8 +413,6 @@ static int nfs4_init_client_minor_version(struct nfs_client *clp)
+ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
+ 				    const struct nfs_client_initdata *cl_init)
+ {
+-	char buf[INET6_ADDRSTRLEN + 1];
+-	const char *ip_addr = cl_init->ip_addr;
+ 	struct nfs_client *old;
+ 	int error;
+ 
+@@ -381,43 +420,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
+ 		/* the client is initialised already */
+ 		return clp;
+ 
+-	/* Check NFS protocol revision and initialize RPC op vector */
+-	clp->rpc_ops = &nfs_v4_clientops;
+-
+-	if (clp->cl_minorversion != 0)
+-		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
+-	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
+-	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
+-
+-	error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
+-	if (error == -EINVAL)
+-		error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
+-	if (error < 0)
+-		goto error;
+-
+-	/* If no clientaddr= option was specified, find a usable cb address */
+-	if (ip_addr == NULL) {
+-		struct sockaddr_storage cb_addr;
+-		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
+-
+-		error = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
+-		if (error < 0)
+-			goto error;
+-		error = rpc_ntop(sap, buf, sizeof(buf));
+-		if (error < 0)
+-			goto error;
+-		ip_addr = (const char *)buf;
+-	}
+-	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
+-
+-	error = nfs_idmap_new(clp);
+-	if (error < 0) {
+-		dprintk("%s: failed to create idmapper. Error = %d\n",
+-			__func__, error);
+-		goto error;
+-	}
+-	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
+-
+ 	error = nfs4_init_client_minor_version(clp);
+ 	if (error < 0)
+ 		goto error;
 -- 
 2.30.2
 
