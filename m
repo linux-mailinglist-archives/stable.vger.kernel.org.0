@@ -2,99 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 219253CE708
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 19:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FD23CE70A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 19:03:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243710AbhGSQUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 12:20:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58810 "EHLO
+        id S1349515AbhGSQUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 12:20:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352490AbhGSQOE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 12:14:04 -0400
-Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5C70C0225AC
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 09:04:29 -0700 (PDT)
-Received: by mail-oi1-x22e.google.com with SMTP id s23so5613267oiw.12
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 09:28:12 -0700 (PDT)
+        with ESMTP id S1352715AbhGSQOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 12:14:31 -0400
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com [IPv6:2607:f8b0:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F754C05BD2C
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 09:08:19 -0700 (PDT)
+Received: by mail-ot1-x330.google.com with SMTP id 75-20020a9d08510000b02904acfe6bcccaso18727762oty.12
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 09:31:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=2J/IJN7jTSaz10874klSZQm1VrNWG/qhaIIis0kLtYQ=;
-        b=sypUeMmx597p9nhCkl1CQmvT/Mma6iF6Jv0fGO4xYcRqJiCUNDymJQFsWCtuhcu0bj
-         rS1cBOsO5IxY91lSAwmgLaaMp4MkVRui5fvmEfGLOa/PQcijhrz/35vIJQXyrXII964G
-         nuaZ01IKuR5AX/5YbsHdOlHCqPNX2v4GKAD/IY9UhZJKd3UgJ+7Ymb0/aBDQqq/kXEmp
-         EFlnD0kfgpIIOusfU5YYtuQJD/zPf4u9Hqmlr6cix1IqGXsYPjs889WfTnmGAM6flcNr
-         iMlUb2AGpRqH0cT/wfGn2zoT9xLoW7xOFcL3XlJuyHhxb31FN6J1ZS+bZBBGSfiDo1Fr
-         aeng==
+        bh=kbUdQK2vlTB6j8FkLGF5mfubURI8TtogZmmaDTQnPvE=;
+        b=m1Y5GGDzL9DhhIvkQOhKE8jm3ZPo4x4Kv6XvT4jPArx0adIOBT1hGUUUbAshqq35At
+         cndkNHv3bLE99B2KPXbx+BBHRsvMNEKx7wZFz3S2elI3zJMYHu0SAlm5rcIyp1hfBy2h
+         89LdnkHO0yJuDXGxtdbPbok1w/9yDgFDESo27uJMpG9xBVdPCaPb7TxfI4h1HltRqi8V
+         EVWjePQnUvjw4o8vQiw0vFx0L2ew1xzqVhz8912TvG7AK2WMYtMRkiu6XZ46lYpGSiap
+         Bv0DFKDwfzskPik/IwZXUFaBoM1tM253EjCycIAHlDL9qYGSyy3QqtYCqiS+KdK70o5r
+         SaNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=2J/IJN7jTSaz10874klSZQm1VrNWG/qhaIIis0kLtYQ=;
-        b=HG24zdgzL9Ki/JAWyjK9rydzjoON1JpunUfSrd/3Q6nXQMsV6defX9YVyT03L92W0E
-         VPsYWY8rwvP2N1MRxaayB/NsZQ044omtZGG72RjL4FdzXLtpbhSSJEfRbzBq+SXRi1/2
-         jJ2jZ6t51hffBgnhhBgJWjRmWhu016jD8Vl/YhxTtNLP0N18Rvw7faF/QqxQPLsCZ4OE
-         NLcqKnyqKJ6viuFLex2N9PdrVCnvgUd65Re9W61qPDMBRqZhmkz2E+LeNUp4Lge9V9VB
-         4an1T7WNwRPR4bwnNW4i3+Sj8wYoQUCDyY7Ytj5G7cKHwGjABJWKMTXUKC0urkbYTJM/
-         upUQ==
-X-Gm-Message-State: AOAM5303hmSJTYGJKtycNxoe6JwOz1Q0WBxfSR7MGspIuZ5W7WcD1q1o
-        x+wU1zJW81MWVx+kgTnLiDxBQpPlp422e9eX4rjGhdekm4KAIkn+
-X-Google-Smtp-Source: ABdhPJwXQgv+MnffwSXc9BXeRSV936RyyhNC8lxdnCS1gRFAcNCTLoF5HqVpY3wu1982brXNeIv2TfVyzM/1NbmGA90=
-X-Received: by 2002:aca:eb53:: with SMTP id j80mr12866322oih.13.1626712092215;
- Mon, 19 Jul 2021 09:28:12 -0700 (PDT)
+        bh=kbUdQK2vlTB6j8FkLGF5mfubURI8TtogZmmaDTQnPvE=;
+        b=L8rYQ1YWsB2+yQHPEVDnMIbVnnstqEQRNFiWr2OMnM21Np/+XeZgouq9sX8voaGNgn
+         Op21FkpFSf5PkiQGMp4NCyW+rgYfMgdBVymjZE7xJ7MlBetM1NBGHaq7O5NeaasDD6Ql
+         Ulj9Y5BAtHIeIRefTFsRGeai2PHwmFub6zY/DFthQrphzT7hHELbtkA+oIG5q5K7r6E0
+         rBislTrg6FtNAZbGaicrd7oWIZAcPoCh+JShNyQtnvc0dCzwFlsMqNqkA5CGez0Vvx2h
+         Xp7X0sOYtfWea+aTQiX7TN0Hb1tD8ZdC0G2BzFMXO4a6r5/CWkBRifmKar/U8351nJLw
+         qy9A==
+X-Gm-Message-State: AOAM530XcnagvItd3j9hzShUoqdcRW+UyaQ8lhL4P3FDT5/WobTXfasl
+        A3m3oW3zzfKfBgqDEntvS13Okwv1axKxwUXVX1n0/w==
+X-Google-Smtp-Source: ABdhPJxNFGGSwVV4mbFVlmbTZTuBcgOgdMnEF1cKN+gu3X2TRo9H89LDD1Q4vY5nLoK0erRMiePXRw+pMiFgx5TJODI=
+X-Received: by 2002:a05:6830:242f:: with SMTP id k15mr19821711ots.72.1626712304089;
+ Mon, 19 Jul 2021 09:31:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210719144940.904087935@linuxfoundation.org>
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org> <20210719144947.891096868@linuxfoundation.org>
+In-Reply-To: <20210719144947.891096868@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 19 Jul 2021 21:58:00 +0530
-Message-ID: <CA+G9fYv6TQOKp1O7JnN9zfEL_A5XP=VXRc3h-=n33jjXxP3OyA@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/243] 5.10.52-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date:   Mon, 19 Jul 2021 22:01:30 +0530
+Message-ID: <CA+G9fYt3-5vb_1rjdW3=4nASPGMe3gRrXzdCu10bSgR+Zeo-Hw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 216/243] arm64: dts: ti: k3-j721e-common-proc-board:
+ Use external clock for SERDES
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
         linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Nishanth Menon <nm@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>,
+        lkft-triage@lists.linaro.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 19 Jul 2021 at 21:35, Greg Kroah-Hartman
+On Mon, 19 Jul 2021 at 21:42, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.10.52 release.
-> There are 243 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> From: Kishon Vijay Abraham I <kishon@ti.com>
 >
-> Responses should be made by Wed, 21 Jul 2021 14:47:42 +0000.
-> Anything received after that time might be too late.
+> [ Upstream commit f2a7657ad7a821de9cc77d071a5587b243144cd5 ]
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.52-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> Use external clock for all the SERDES used by PCIe controller. This will
+> make the same clock used by the local SERDES as well as the clock
+> provided to the PCIe connector.
 >
-> thanks,
+> Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+> Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
+> Signed-off-by: Nishanth Menon <nm@ti.com>
+> Link: https://lore.kernel.org/r/20210603143427.28735-4-kishon@ti.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  .../dts/ti/k3-j721e-common-proc-board.dts     | 40 +++++++++++++++++++
+>  1 file changed, 40 insertions(+)
 >
-> greg k-h
-
+> diff --git a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
+> index 7cd31ac67f88..56a92f59c3a1 100644
+> --- a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
+> +++ b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
+> @@ -9,6 +9,7 @@
+>  #include <dt-bindings/gpio/gpio.h>
+>  #include <dt-bindings/input/input.h>
+>  #include <dt-bindings/net/ti-dp83867.h>
+> +#include <dt-bindings/phy/phy-cadence.h>
 
 Following build errors noticed on arm64 architecture on 5.10 branch.
-
-
-> Kishon Vijay Abraham I <kishon@ti.com>
->     arm64: dts: ti: k3-j721e-common-proc-board: Use external clock for SERDES
 
 make --silent --keep-going --jobs=8
 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm64
@@ -114,6 +113,31 @@ make[2]: Target '__build' not remade because of errors.
 make[1]: *** [/builds/linux/Makefile:1358: dtbs] Error 2
 
 Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+
+ref:
+https://builds.tuxbuild.com/1vXT3b334rT9K155TzUSkMWobkx/
+https://builds.tuxbuild.com/1vXT3b334rT9K155TzUSkMWobkx/config
+
+Steps to reproduce:
+--------------------
+# TuxMake is a command line tool and Python library that provides
+# portable and repeatable Linux kernel builds across a variety of
+# architectures, toolchains, kernel configurations, and make targets.
+#
+# TuxMake supports the concept of runtimes.
+# See https://docs.tuxmake.org/runtimes/, for that to work it requires
+# that you install podman or docker on your system.
+#
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+
+
+tuxmake --runtime podman --target-arch arm64 --toolchain gcc-11
+--kconfig defconfig --kconfig-add
+https://builds.tuxbuild.com/1vXT3b334rT9K155TzUSkMWobkx/config
 
 --
 Linaro LKFT
