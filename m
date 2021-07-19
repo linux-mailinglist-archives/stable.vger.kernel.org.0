@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B073CE107
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 918B83CE349
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347424AbhGSPTP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:19:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56066 "EHLO mail.kernel.org"
+        id S236147AbhGSPhG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347298AbhGSPP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:15:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1D9160FD7;
-        Mon, 19 Jul 2021 15:56:36 +0000 (UTC)
+        id S237333AbhGSPcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5F861436;
+        Mon, 19 Jul 2021 16:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710197;
-        bh=I9NWyjJHAW2z+DIDt60z2A6Gun9QhxQbQHcbEkHjgF8=;
+        s=korg; t=1626711049;
+        bh=E8PP4NPDN52lu/PZw1ppmR3pD/CBiAQZQ6bMN2ZX5T8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgkcOnxqHBHsChWTIvJuOnfZr4ewqZyQnhUNOzLixH36qFmYDdbdPEOMeo6TBtGup
-         j4tBA4AuFmpeutDo1eJ/RAmrskTIhrYeqmwfYttVWfK/GA2Pk3v7NXNKzi2CV21fX6
-         LvpijYRXlf4EwxbH/GdkWyQw5EmzXbOpAj8I0VSU=
+        b=NUXpi4aH7LazB/g3p+PhI/XdiIOGqat5qQrepALDevo4i+2ibKsqWhaJUSag62pUz
+         i7H9UzsfEY7M8yiOA+BgjON+fvbml6Wt82WRc45eUf9TZR2N2QNXOIXuqkFTXfrxV0
+         4c0RvkxXI5BPofrqHROoDDwRozXKVVIpZH0lziYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, David Wysochanski <dwysocha@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 117/243] power: supply: max17042: Do not enforce (incorrect) interrupt trigger type
-Date:   Mon, 19 Jul 2021 16:52:26 +0200
-Message-Id: <20210719144944.685528962@linuxfoundation.org>
+Subject: [PATCH 5.13 201/351] NFSD: Fix TP_printk() format specifier in nfsd_clid_class
+Date:   Mon, 19 Jul 2021 16:52:27 +0200
+Message-Id: <20210719144951.613322428@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +42,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 7fbf6b731bca347700e460d94b130f9d734b33e9 ]
+[ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
 
-Interrupt line can be configured on different hardware in different way,
-even inverted.  Therefore driver should not enforce specific trigger
-type - edge falling - but instead rely on Devicetree to configure it.
+Since commit 9a6944fee68e ("tracing: Add a verifier to check string
+pointers for trace events"), which was merged in v5.13-rc1,
+TP_printk() no longer tacitly supports the "%.*s" format specifier.
 
-The Maxim 17047/77693 datasheets describe the interrupt line as active
-low with a requirement of acknowledge from the CPU therefore the edge
-falling is not correct.
+These are low value tracepoints, so just remove them.
 
-The interrupt line is shared between PMIC and RTC driver, so using level
-sensitive interrupt is here especially important to avoid races.  With
-an edge configuration in case if first PMIC signals interrupt followed
-shortly after by the RTC, the interrupt might not be yet cleared/acked
-thus the second one would not be noticed.
-
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reported-by: David Wysochanski <dwysocha@redhat.com>
+Fixes: dd5e3fbc1f47 ("NFSD: Add tracepoints to the NFSD state management code")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs4state.c |  3 ---
+ fs/nfsd/trace.h     | 29 -----------------------------
+ 2 files changed, 32 deletions(-)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 2e9672fe4df1..794caf03658d 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -1094,7 +1094,7 @@ static int max17042_probe(struct i2c_client *client,
- 	}
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index b517a8794400..6abe48dee6ed 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -7229,7 +7229,6 @@ nfs4_client_to_reclaim(struct xdr_netobj name, struct xdr_netobj princhash,
+ 	unsigned int strhashval;
+ 	struct nfs4_client_reclaim *crp;
  
- 	if (client->irq) {
--		unsigned int flags = IRQF_TRIGGER_FALLING | IRQF_ONESHOT;
-+		unsigned int flags = IRQF_ONESHOT;
+-	trace_nfsd_clid_reclaim(nn, name.len, name.data);
+ 	crp = alloc_reclaim();
+ 	if (crp) {
+ 		strhashval = clientstr_hashval(name);
+@@ -7279,8 +7278,6 @@ nfsd4_find_reclaim_client(struct xdr_netobj name, struct nfsd_net *nn)
+ 	unsigned int strhashval;
+ 	struct nfs4_client_reclaim *crp = NULL;
  
- 		/*
- 		 * On ACPI systems the IRQ may be handled by ACPI-event code,
+-	trace_nfsd_clid_find(nn, name.len, name.data);
+-
+ 	strhashval = clientstr_hashval(name);
+ 	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
+ 		if (compare_blob(&crp->cr_name, &name) == 0) {
+diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
+index 27a93ebd1d80..42ad2a02f953 100644
+--- a/fs/nfsd/trace.h
++++ b/fs/nfsd/trace.h
+@@ -536,35 +536,6 @@ DEFINE_EVENT(nfsd_net_class, nfsd_##name, \
+ DEFINE_NET_EVENT(grace_start);
+ DEFINE_NET_EVENT(grace_complete);
+ 
+-DECLARE_EVENT_CLASS(nfsd_clid_class,
+-	TP_PROTO(const struct nfsd_net *nn,
+-		 unsigned int namelen,
+-		 const unsigned char *namedata),
+-	TP_ARGS(nn, namelen, namedata),
+-	TP_STRUCT__entry(
+-		__field(unsigned long long, boot_time)
+-		__field(unsigned int, namelen)
+-		__dynamic_array(unsigned char,  name, namelen)
+-	),
+-	TP_fast_assign(
+-		__entry->boot_time = nn->boot_time;
+-		__entry->namelen = namelen;
+-		memcpy(__get_dynamic_array(name), namedata, namelen);
+-	),
+-	TP_printk("boot_time=%16llx nfs4_clientid=%.*s",
+-		__entry->boot_time, __entry->namelen, __get_str(name))
+-)
+-
+-#define DEFINE_CLID_EVENT(name) \
+-DEFINE_EVENT(nfsd_clid_class, nfsd_clid_##name, \
+-	TP_PROTO(const struct nfsd_net *nn, \
+-		 unsigned int namelen, \
+-		 const unsigned char *namedata), \
+-	TP_ARGS(nn, namelen, namedata))
+-
+-DEFINE_CLID_EVENT(find);
+-DEFINE_CLID_EVENT(reclaim);
+-
+ TRACE_EVENT(nfsd_clid_inuse_err,
+ 	TP_PROTO(const struct nfs4_client *clp),
+ 	TP_ARGS(clp),
 -- 
 2.30.2
 
