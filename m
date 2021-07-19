@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 929F23CD981
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 938B53CD9C5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243486AbhGSOaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
+        id S245273AbhGSObh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243434AbhGSO20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:28:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ABD61003;
-        Mon, 19 Jul 2021 15:08:05 +0000 (UTC)
+        id S244498AbhGSO3s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 425E561221;
+        Mon, 19 Jul 2021 15:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707286;
-        bh=we0Z8Qb5CRePw6IZiHrDko5jgmXm6I7fIZBCO5nZ510=;
+        s=korg; t=1626707386;
+        bh=ty9UynT7PDHbcdewFsITahOLJKeL+JHzrnPnrkjxVss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TW92bWT6fmfC8uMUZIFwG7upQXZajqk2LSL6m+SZ/jh9SLPDremC3O3zSrH5ISFqp
-         3onjabk3Lts5ATGzVpg2Q99YuhaDpUfSoDeBK3SN11oDrNspoVQRluks9Do1nb7F70
-         tgQvaS6/6ZJxLj8AkGDUrxMjn8KYeqmnXiWk9qZo=
+        b=X6y243bhzQuGA2dtC9zoYBdStGxkm7mcDKewg3smGb1KZQBHRhfll8u/SRrA07RJN
+         hiW6iO1no8AoS1rJLmYX1vyGtN1Ccp43BKwoYtlT6ekB3vWAzKDSA9etZ+sBiAvuON
+         M3UBloFYXi29/b/mxsHxfvWSzltaVMi+drWMDJW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 098/245] iio: accel: stk8ba50: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:40 +0200
-Message-Id: <20210719144943.586728592@linuxfoundation.org>
+Subject: [PATCH 4.9 099/245] iio: adc: ti-ads1015: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:50:41 +0200
+Message-Id: <20210719144943.625719346@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -43,66 +45,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 334883894bc1e145a1e0f5de1b0d1b6a1133f0e6 ]
+[ Upstream commit d85d71dd1ab67eaa7351f69fec512d8f09d164e1 ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
 
 Found during an audit of all calls of this function.
 
-Fixes: db6a19b8251f ("iio: accel: Add trigger support for STK8BA50")
+Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Daniel Baluta <daniel.baluta@nxp.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-8-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-9-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/stk8ba50.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/iio/adc/ti-ads1015.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/stk8ba50.c b/drivers/iio/accel/stk8ba50.c
-index 300d955bad00..5ca179cea2fb 100644
---- a/drivers/iio/accel/stk8ba50.c
-+++ b/drivers/iio/accel/stk8ba50.c
-@@ -94,12 +94,11 @@ struct stk8ba50_data {
- 	u8 sample_rate_idx;
- 	struct iio_trigger *dready_trig;
- 	bool dready_trigger_on;
--	/*
--	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
--	 * 1 x 16 padding +
--	 * 4 x 16 64-bit timestamp
--	 */
--	s16 buffer[8];
-+	/* Ensure timestamp is naturally aligned */
+diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
+index 5afe32f6587b..d892c0fe5c31 100644
+--- a/drivers/iio/adc/ti-ads1015.c
++++ b/drivers/iio/adc/ti-ads1015.c
+@@ -292,10 +292,14 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct ads1015_data *data = iio_priv(indio_dev);
+-	s16 buf[8]; /* 1x s16 ADC val + 3x s16 padding +  4x s16 timestamp */
++	/* Ensure natural alignment of timestamp */
 +	struct {
-+		s16 chans[3];
-+		s64 timetamp __aligned(8);
++		s16 chan;
++		s64 timestamp __aligned(8);
 +	} scan;
- };
+ 	int chan, ret, res;
  
- #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
-@@ -329,7 +328,7 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
- 		ret = i2c_smbus_read_i2c_block_data(data->client,
- 						    STK8BA50_REG_XOUT,
- 						    STK8BA50_ALL_CHANNEL_SIZE,
--						    (u8 *)data->buffer);
-+						    (u8 *)data->scan.chans);
- 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
- 			dev_err(&data->client->dev, "register read failed\n");
- 			goto err;
-@@ -342,10 +341,10 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
- 			if (ret < 0)
- 				goto err;
+-	memset(buf, 0, sizeof(buf));
++	memset(&scan, 0, sizeof(scan));
  
--			data->buffer[i++] = ret;
-+			data->scan.chans[i++] = ret;
- 		}
+ 	mutex_lock(&data->lock);
+ 	chan = find_first_bit(indio_dev->active_scan_mask,
+@@ -306,10 +310,10 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
+ 		goto err;
  	}
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   pf->timestamp);
- err:
+ 
+-	buf[0] = res;
++	scan.chan = res;
  	mutex_unlock(&data->lock);
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ err:
 -- 
 2.30.2
 
