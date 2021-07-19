@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14FF13CE2D4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53D873CE0F4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbhGSPcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48720 "EHLO mail.kernel.org"
+        id S1347119AbhGSPTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348390AbhGSPaQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:30:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 020A36135C;
-        Mon, 19 Jul 2021 16:09:37 +0000 (UTC)
+        id S1346918AbhGSPPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:15:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A219606A5;
+        Mon, 19 Jul 2021 15:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710978;
-        bh=BwS4FGvYH+5J50gDNL+sFbHRZu+tSr/ySH75Dxt2hMw=;
+        s=korg; t=1626710160;
+        bh=QwLQbdP49YfgcDW40ZAkUHlMT8Eq0PXFGuarjr5BCns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aq9qSSb9GpN1R5EVh2h0XrJ1GXrkW4oXL4qDNgTlMKpz0Es6SzGr3KUR0JRuzxRo0
-         pVznZrFJxd03m5KE7UTB1xIhfgdhqNcUEXXPPKsWWKeHZsjyrwKk9ber6yT11j316Y
-         drdfS/ZYwpqTRZB970hplKgySa2JE2zpn7WsYqs4=
+        b=QEpbr5hIeyih1KXfp7Nup9MPN/M1tl7RC/jXgMr3E1oPL+y/FxqIcSGK/lJKbDG/t
+         RqHp5/2xT/0+m5CubNAgAD00GuLXx8iunvbpFBJAiCsYQPyrZP36h6n3mSyDdOFneg
+         MtAdxlvf2h2D+NBqXJXxQcldvL6/OQJNBDYWdOeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 182/351] NFS: nfs_find_open_context() may only select open files
-Date:   Mon, 19 Jul 2021 16:52:08 +0200
-Message-Id: <20210719144950.997098704@linuxfoundation.org>
+Subject: [PATCH 5.10 100/243] backlight: lm3630a: Fix return code of .update_status() callback
+Date:   Mon, 19 Jul 2021 16:52:09 +0200
+Message-Id: <20210719144944.119179773@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit e97bc66377bca097e1f3349ca18ca17f202ff659 ]
+[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
 
-If a file has already been closed, then it should not be selected to
-support further I/O.
+According to <linux/backlight.h> .update_status() is supposed to
+return 0 on success and a negative error code otherwise. Adapt
+lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
+actually do it.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[Trond: Fix an invalid pointer deref reported by Colin Ian King]
+While touching that also add the error code to the failure message.
+
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c         | 4 ++++
- include/linux/nfs_fs.h | 1 +
- 2 files changed, 5 insertions(+)
+ drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 327f9ae4dd3f..1acae1716df1 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1101,6 +1101,7 @@ EXPORT_SYMBOL_GPL(nfs_inode_attach_open_context);
- void nfs_file_set_open_context(struct file *filp, struct nfs_open_context *ctx)
- {
- 	filp->private_data = get_nfs_open_context(ctx);
-+	set_bit(NFS_CONTEXT_FILE_OPEN, &ctx->flags);
- 	if (list_empty(&ctx->list))
- 		nfs_inode_attach_open_context(ctx);
+diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
+index 662029d6a3dc..419b0334cf08 100644
+--- a/drivers/video/backlight/lm3630a_bl.c
++++ b/drivers/video/backlight/lm3630a_bl.c
+@@ -190,7 +190,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
+ 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
+ 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
+ 				 bl->props.max_brightness);
+-		return bl->props.brightness;
++		return 0;
+ 	}
+ 
+ 	/* disable sleep */
+@@ -210,8 +210,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
+ 	return 0;
+ 
+ out_i2c_err:
+-	dev_err(pchip->dev, "i2c failed to access\n");
+-	return bl->props.brightness;
++	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
++	return ret;
  }
-@@ -1120,6 +1121,8 @@ struct nfs_open_context *nfs_find_open_context(struct inode *inode, const struct
- 			continue;
- 		if ((pos->mode & (FMODE_READ|FMODE_WRITE)) != mode)
- 			continue;
-+		if (!test_bit(NFS_CONTEXT_FILE_OPEN, &pos->flags))
-+			continue;
- 		ctx = get_nfs_open_context(pos);
- 		if (ctx)
- 			break;
-@@ -1135,6 +1138,7 @@ void nfs_file_clear_open_context(struct file *filp)
- 	if (ctx) {
- 		struct inode *inode = d_inode(ctx->dentry);
  
-+		clear_bit(NFS_CONTEXT_FILE_OPEN, &ctx->flags);
- 		/*
- 		 * We fatal error on write before. Try to writeback
- 		 * every page again.
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index ffba254d2098..ce6474594872 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -84,6 +84,7 @@ struct nfs_open_context {
- #define NFS_CONTEXT_RESEND_WRITES	(1)
- #define NFS_CONTEXT_BAD			(2)
- #define NFS_CONTEXT_UNLOCK	(3)
-+#define NFS_CONTEXT_FILE_OPEN		(4)
- 	int error;
+ static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
+@@ -267,7 +267,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
+ 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
+ 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
+ 				 bl->props.max_brightness);
+-		return bl->props.brightness;
++		return 0;
+ 	}
  
- 	struct list_head list;
+ 	/* disable sleep */
+@@ -287,8 +287,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
+ 	return 0;
+ 
+ out_i2c_err:
+-	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
+-	return bl->props.brightness;
++	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
++	return ret;
+ }
+ 
+ static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
 -- 
 2.30.2
 
