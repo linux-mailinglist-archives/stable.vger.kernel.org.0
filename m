@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3F53CDE88
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB39A3CDE8A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343823AbhGSPDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
+        id S1344592AbhGSPDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245694AbhGSPBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:01:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FDCC61221;
-        Mon, 19 Jul 2021 15:42:26 +0000 (UTC)
+        id S1345355AbhGSPBv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0CC5A61244;
+        Mon, 19 Jul 2021 15:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709347;
-        bh=8Q3uEpjy477WheXpk2ubs8evkJ+OhUEsTaZIHEwoyiM=;
+        s=korg; t=1626709349;
+        bh=Hvm7ppRyQJJFoZu7LAYNLjkXJAGcAG0e9cv6Q0x2NAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yl3//SUPXQoySSEFUhUGPrD68LYj+bz7P5iSeEfgy9O/umhc3vI7ML6oYiIHSY35f
-         Geuarlf/wk4xYN7uEAFRx1Cl2fNhdWOGx+m+bKC+xv7h+Pn/vckIOfx7S5k70ovCNu
-         vfsq931mdl3VbgWkf/POgwtuF5iIorsPpYJXaW0o=
+        b=S7EXKRbXvSF8QOBuccdoa2kL/JHRrVwxftzPxKcMMVaDKHPYzLAFpE3NiuOLZBW0E
+         e6qWpZjgCWryFsrtb2Ifmobnoa1WkQXm3rdhvlcWSEgsPLz402Gs9O7KfJ0WzKrnf9
+         TEv/CIXUxNzyJ4xUuNR0A6zUa8TRhax7vzDIiXcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 347/421] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
-Date:   Mon, 19 Jul 2021 16:52:38 +0200
-Message-Id: <20210719144958.313681688@linuxfoundation.org>
+Subject: [PATCH 4.19 348/421] Input: hideep - fix the uninitialized use in hideep_nvm_unlock()
+Date:   Mon, 19 Jul 2021 16:52:39 +0200
+Message-Id: <20210719144958.345375764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,34 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Yizhuo Zhai <yzhai003@ucr.edu>
 
-[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
+[ Upstream commit cac7100d4c51c04979dacdfe6c9a5e400d3f0a27 ]
 
-When devm_kcalloc() fails, the error code -ENOMEM should be returned
-instead of -EINVAL.
+Inside function hideep_nvm_unlock(), variable "unmask_code" could
+be uninitialized if hideep_pgm_r_reg() returns error, however, it
+is used in the later if statement after an "and" operation, which
+is potentially unsafe.
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/hideep.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 595fe20bbc6d..8531b490f6f6 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -3510,7 +3510,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
- 	if (!routes) {
- 		dev_err(card->dev,
- 			"ASoC: Could not allocate DAPM route table\n");
--		return -EINVAL;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+index f1cd4dd9a4a3..d7775db0b711 100644
+--- a/drivers/input/touchscreen/hideep.c
++++ b/drivers/input/touchscreen/hideep.c
+@@ -364,13 +364,16 @@ static int hideep_enter_pgm(struct hideep_ts *ts)
+ 	return -EIO;
+ }
  
- 	for (i = 0; i < num_routes; i++) {
+-static void hideep_nvm_unlock(struct hideep_ts *ts)
++static int hideep_nvm_unlock(struct hideep_ts *ts)
+ {
+ 	u32 unmask_code;
++	int error;
+ 
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_SFR_RPAGE);
+-	hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
++	error = hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++	if (error)
++		return error;
+ 
+ 	/* make it unprotected code */
+ 	unmask_code &= ~HIDEEP_PROT_MODE;
+@@ -387,6 +390,8 @@ static void hideep_nvm_unlock(struct hideep_ts *ts)
+ 	NVM_W_SFR(HIDEEP_NVM_MASK_OFS, ts->nvm_mask);
+ 	SET_FLASH_HWCONTROL();
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++
++	return 0;
+ }
+ 
+ static int hideep_check_status(struct hideep_ts *ts)
+@@ -465,7 +470,9 @@ static int hideep_program_nvm(struct hideep_ts *ts,
+ 	u32 addr = 0;
+ 	int error;
+ 
+-	hideep_nvm_unlock(ts);
++       error = hideep_nvm_unlock(ts);
++       if (error)
++               return error;
+ 
+ 	while (ucode_len > 0) {
+ 		xfer_len = min_t(size_t, ucode_len, HIDEEP_NVM_PAGE_SIZE);
 -- 
 2.30.2
 
