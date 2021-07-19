@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D30763CD8C5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26163CDA00
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243120AbhGSOZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57020 "EHLO mail.kernel.org"
+        id S245108AbhGSOcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:32:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243092AbhGSOX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59AAC611CE;
-        Mon, 19 Jul 2021 15:03:06 +0000 (UTC)
+        id S245118AbhGSObF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:31:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21CAC610D2;
+        Mon, 19 Jul 2021 15:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706986;
-        bh=frp5os3e6XNWtslDHOui4v0epU+AQnVOVRCsFNp/VSM=;
+        s=korg; t=1626707503;
+        bh=UPcY7p/xBM474osapEx9fb+98A24OINPFDQEPCC2jIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yl70d4Vf1yRzuqCHUcWnqsmtnRFN2gOpQWmaKKTqSyuBAjnEt7QxpSCnXMyi5B+WC
-         OA7++jeA5YH6sJ/jkpe1yReoAmiG1UI/wAxD+TFZZNa1ktBr7HyehxA0KqIpjhEd9b
-         rINnyCtJO5uFSIDlZydMgEoOUqnFvCapKELueLWY=
+        b=VTi9v0ntZQKPsHNsSvVCy3O60ax6URoqOsRsZEGeGxJ1E3vxzm2BfeJCh+wk44m0w
+         Qn1kvhg5b1O4hze+d0WUtXPJJlVAnbV3Cmtcxe3woE0K9c/DdPYO6MAeobE2DKQJRk
+         3KK08ZeFgR5rrD/aBq+hHmryzqDUdG/O8BWWZ+L8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 149/188] scsi: iscsi: Add iscsi_cls_conn refcount helpers
+Subject: [PATCH 4.9 191/245] scsi: iscsi: Add iscsi_cls_conn refcount helpers
 Date:   Mon, 19 Jul 2021 16:52:13 +0200
-Message-Id: <20210719144941.366359911@linuxfoundation.org>
+Message-Id: <20210719144946.577964255@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,7 +62,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 16 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 18b8d86ef74b..0713d02cf112 100644
+index 50e2943c3337..30e954bb6c81 100644
 --- a/drivers/scsi/libiscsi.c
 +++ b/drivers/scsi/libiscsi.c
 @@ -1384,7 +1384,6 @@ void iscsi_session_failure(struct iscsi_session *session,
@@ -95,10 +95,10 @@ index 18b8d86ef74b..0713d02cf112 100644
  EXPORT_SYMBOL_GPL(iscsi_session_failure);
  
 diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
-index 42bc4b71b0ba..e0159e6a1065 100644
+index 4f4d2d65a4a7..337aad0660fa 100644
 --- a/drivers/scsi/scsi_transport_iscsi.c
 +++ b/drivers/scsi/scsi_transport_iscsi.c
-@@ -2328,6 +2328,18 @@ int iscsi_destroy_conn(struct iscsi_cls_conn *conn)
+@@ -2327,6 +2327,18 @@ int iscsi_destroy_conn(struct iscsi_cls_conn *conn)
  }
  EXPORT_SYMBOL_GPL(iscsi_destroy_conn);
  
