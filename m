@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 266923CE439
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ED6B3CE446
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243279AbhGSPmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37194 "EHLO mail.kernel.org"
+        id S238926AbhGSPnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245415AbhGSPiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:38:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4856A61422;
-        Mon, 19 Jul 2021 16:18:20 +0000 (UTC)
+        id S1347252AbhGSPjY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:39:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E08E61353;
+        Mon, 19 Jul 2021 16:18:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711500;
-        bh=6HTHVIOonIARUObqEiWAXa0pMPP6v6IGfStkdlr7Hss=;
+        s=korg; t=1626711530;
+        bh=V2Wfxr9JfVS+/e63pWr0Relh2uJnmGusOVSbZcHkR5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IyV0Q8SbbVY8I4EHq7ktbsMnHURRMY3KrwfHHOoyFD47XhBOEvmawKJIv3CVEYuKd
-         QbruFhtiHRIxm3kIt/pMAL/giTneLZ+F38ck1RDqD2YacYBbroI+pwUXMvw7+PFtvn
-         bb/j8Z1N01gFwFc3m0JwVu7dAgRz08KQ1llMKVoE=
+        b=Uc6X+ldylqGH71p+g/LLQ+gKWkoR9LzpP6gWPcKv9FaONi8rRfvXzaHPcKTw85re8
+         erqWiM1mvJgxFnCp6noXKJSBIayYS3vwXXt3GLl7m4FlC8xh868/8II6W0PTAZfMjE
+         qICSIHtJ0zzipiWgYZpV2mcX+dx8rJkl/bknjx4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 008/292] KVM: X86: Disable hardware breakpoints unconditionally before kvm_x86->run()
-Date:   Mon, 19 Jul 2021 16:51:10 +0200
-Message-Id: <20210719144942.797770948@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.12 009/292] scsi: core: Fix bad pointer dereference when ehandler kthread is invalid
+Date:   Mon, 19 Jul 2021 16:51:11 +0200
+Message-Id: <20210719144942.827991856@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -39,49 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-commit f85d40160691881a17a397c448d799dfc90987ba upstream.
+commit 93aa71ad7379900e61c8adff6a710a4c18c7c99b upstream.
 
-When the host is using debug registers but the guest is not using them
-nor is the guest in guest-debug state, the kvm code does not reset
-the host debug registers before kvm_x86->run().  Rather, it relies on
-the hardware vmentry instruction to automatically reset the dr7 registers
-which ensures that the host breakpoints do not affect the guest.
+Commit 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
+changed the allocation logic to call put_device() to perform host cleanup
+with the assumption that IDA removal and stopping the kthread would
+properly be performed in scsi_host_dev_release(). However, in the unlikely
+case that the error handler thread fails to spawn, shost->ehandler is set
+to ERR_PTR(-ENOMEM).
 
-This however violates the non-instrumentable nature around VM entry
-and exit; for example, when a host breakpoint is set on vcpu->arch.cr2,
+The error handler cleanup code in scsi_host_dev_release() will call
+kthread_stop() if shost->ehandler != NULL which will always be the case
+whether the kthread was successfully spawned or not. In the case that it
+failed to spawn this has the nasty side effect of trying to dereference an
+invalid pointer when kthread_stop() is called. The following splat provides
+an example of this behavior in the wild:
 
-Another issue is consistency.  When the guest debug registers are active,
-the host breakpoints are reset before kvm_x86->run(). But when the
-guest debug registers are inactive, the host breakpoints are delayed to
-be disabled.  The host tracing tools may see different results depending
-on what the guest is doing.
+scsi host11: error handler thread failed to spawn, error = -4
+Kernel attempted to read user page (10c) - exploit attempt? (uid: 0)
+BUG: Kernel NULL pointer dereference on read at 0x0000010c
+Faulting instruction address: 0xc00000000818e9a8
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: ibmvscsi(+) scsi_transport_srp dm_multipath dm_mirror dm_region
+ hash dm_log dm_mod fuse overlay squashfs loop
+CPU: 12 PID: 274 Comm: systemd-udevd Not tainted 5.13.0-rc7 #1
+NIP:  c00000000818e9a8 LR: c0000000089846e8 CTR: 0000000000007ee8
+REGS: c000000037d12ea0 TRAP: 0300   Not tainted  (5.13.0-rc7)
+MSR:  800000000280b033 &lt;SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE&gt;  CR: 28228228
+XER: 20040001
+CFAR: c0000000089846e4 DAR: 000000000000010c DSISR: 40000000 IRQMASK: 0
+GPR00: c0000000089846e8 c000000037d13140 c000000009cc1100 fffffffffffffffc
+GPR04: 0000000000000001 0000000000000000 0000000000000000 c000000037dc0000
+GPR08: 0000000000000000 c000000037dc0000 0000000000000001 00000000fffff7ff
+GPR12: 0000000000008000 c00000000a049000 c000000037d13d00 000000011134d5a0
+GPR16: 0000000000001740 c0080000190d0000 c0080000190d1740 c000000009129288
+GPR20: c000000037d13bc0 0000000000000001 c000000037d13bc0 c0080000190b7898
+GPR24: c0080000190b7708 0000000000000000 c000000033bb2c48 0000000000000000
+GPR28: c000000046b28280 0000000000000000 000000000000010c fffffffffffffffc
+NIP [c00000000818e9a8] kthread_stop+0x38/0x230
+LR [c0000000089846e8] scsi_host_dev_release+0x98/0x160
+Call Trace:
+[c000000033bb2c48] 0xc000000033bb2c48 (unreliable)
+[c0000000089846e8] scsi_host_dev_release+0x98/0x160
+[c00000000891e960] device_release+0x60/0x100
+[c0000000087e55c4] kobject_release+0x84/0x210
+[c00000000891ec78] put_device+0x28/0x40
+[c000000008984ea4] scsi_host_alloc+0x314/0x430
+[c0080000190b38bc] ibmvscsi_probe+0x54/0xad0 [ibmvscsi]
+[c000000008110104] vio_bus_probe+0xa4/0x4b0
+[c00000000892a860] really_probe+0x140/0x680
+[c00000000892aefc] driver_probe_device+0x15c/0x200
+[c00000000892b63c] device_driver_attach+0xcc/0xe0
+[c00000000892b740] __driver_attach+0xf0/0x200
+[c000000008926f28] bus_for_each_dev+0xa8/0x130
+[c000000008929ce4] driver_attach+0x34/0x50
+[c000000008928fc0] bus_add_driver+0x1b0/0x300
+[c00000000892c798] driver_register+0x98/0x1a0
+[c00000000810eb60] __vio_register_driver+0x80/0xe0
+[c0080000190b4a30] ibmvscsi_module_init+0x9c/0xdc [ibmvscsi]
+[c0000000080121d0] do_one_initcall+0x60/0x2d0
+[c000000008261abc] do_init_module+0x7c/0x320
+[c000000008265700] load_module+0x2350/0x25b0
+[c000000008265cb4] __do_sys_finit_module+0xd4/0x160
+[c000000008031110] system_call_exception+0x150/0x2d0
+[c00000000800d35c] system_call_common+0xec/0x278
 
-To fix the problems, we clear %db7 unconditionally before kvm_x86->run()
-if the host has set any breakpoints, no matter if the guest is using
-them or not.
+Fix this be nulling shost->ehandler when the kthread fails to spawn.
 
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Message-Id: <20210628172632.81029-1-jiangshanlai@gmail.com>
+Link: https://lore.kernel.org/r/20210701195659.3185475-1-tyreld@linux.ibm.com
+Fixes: 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
 Cc: stable@vger.kernel.org
-[Only clear %db7 instead of reloading all debug registers. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/hosts.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9194,6 +9194,8 @@ static int vcpu_enter_guest(struct kvm_v
- 		set_debugreg(vcpu->arch.eff_db[3], 3);
- 		set_debugreg(vcpu->arch.dr6, 6);
- 		vcpu->arch.switch_db_regs &= ~KVM_DEBUGREG_RELOAD;
-+	} else if (unlikely(hw_breakpoint_active())) {
-+		set_debugreg(0, 7);
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -490,6 +490,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
++		shost->ehandler = NULL;
+ 		goto fail;
  	}
  
- 	for (;;) {
 
 
