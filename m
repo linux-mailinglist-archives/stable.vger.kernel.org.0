@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAD63CDEE4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6343CDEE7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344729AbhGSPGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
+        id S1344752AbhGSPGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345488AbhGSPEd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC8C61222;
-        Mon, 19 Jul 2021 15:44:03 +0000 (UTC)
+        id S1345497AbhGSPEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B8D161351;
+        Mon, 19 Jul 2021 15:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709444;
-        bh=tVeVkGG/MmAyhCGUxk5QVDwrSECRghS7ZDYKBuA6pgk=;
+        s=korg; t=1626709447;
+        bh=A9iVZeAtGVUZg5jJkN5qSKQzO3MKOa1jvyK7N/uxNa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vC1USwEru7xqcjO1xqfh9eravdvOLy7uDVrEwnAJEdfUg1MfcMqOUz3yC3r+X7kq0
-         M9cQnmF2FnEhK03OfMbroCbbHmCaSGxXaCGFp0YipxJxp5XLP2KrocyPrvOb87o03c
-         uuWsJDn+uQ4q4C4tgYa4cPjGhK2R62DPyh4CcHWc=
+        b=nEKcf1ycZ2auY13Jm2Xs2EHGRLIs1RWtFNEyu6tarFG3vXnvjJrB+jtgiMpdIFa06
+         nJ9Sp0YvBo635WL1ENEzSDl59LMIJXsJcnNFVmnOzFqrZPSDhi75JtFkoCgu22RveN
+         5P8P2+XgOfGyrc1Sccwxk89uzfJ6UON48HkYmZaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        anton.ivanov@cambridgegreys.com,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Amithash Prasad <amithash@fb.com>,
+        Tao Ren <rentao.bupt@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 386/421] um: fix error return code in winch_tramp()
-Date:   Mon, 19 Jul 2021 16:53:17 +0200
-Message-Id: <20210719144959.766261669@linuxfoundation.org>
+Subject: [PATCH 4.19 387/421] watchdog: aspeed: fix hardware timeout calculation
+Date:   Mon, 19 Jul 2021 16:53:18 +0200
+Message-Id: <20210719144959.798187652@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,37 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Tao Ren <rentao.bupt@gmail.com>
 
-[ Upstream commit ccf1236ecac476d9d2704866d9a476c86e387971 ]
+[ Upstream commit e7dc481c92060f9ce872878b0b7a08c24713a7e5 ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+Fix hardware timeout calculation in aspeed_wdt_set_timeout function to
+ensure the reload value does not exceed the hardware limit.
 
-Fixes: 89df6bfc0405 ("uml: DEBUG_SHIRQ fixes")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-By: anton.ivanov@cambridgegreys.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: efa859f7d786 ("watchdog: Add Aspeed watchdog driver")
+Reported-by: Amithash Prasad <amithash@fb.com>
+Signed-off-by: Tao Ren <rentao.bupt@gmail.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210417034249.5978-1-rentao.bupt@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/chan_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/watchdog/aspeed_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/chan_user.c b/arch/um/drivers/chan_user.c
-index 9cffbbb15c56..669124d5290b 100644
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -256,7 +256,8 @@ static int winch_tramp(int fd, struct tty_port *port, int *fd_out,
- 		goto out_close;
- 	}
+diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
+index d84d6cbd9697..814041d4e287 100644
+--- a/drivers/watchdog/aspeed_wdt.c
++++ b/drivers/watchdog/aspeed_wdt.c
+@@ -149,7 +149,7 @@ static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
  
--	if (os_set_fd_block(*fd_out, 0)) {
-+	err = os_set_fd_block(*fd_out, 0);
-+	if (err) {
- 		printk(UM_KERN_ERR "winch_tramp: failed to set thread_fd "
- 		       "non-blocking.\n");
- 		goto out_close;
+ 	wdd->timeout = timeout;
+ 
+-	actual = min(timeout, wdd->max_hw_heartbeat_ms * 1000);
++	actual = min(timeout, wdd->max_hw_heartbeat_ms / 1000);
+ 
+ 	writel(actual * WDT_RATE_1MHZ, wdt->base + WDT_RELOAD_VALUE);
+ 	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
 -- 
 2.30.2
 
