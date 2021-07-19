@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 087C63CE3E5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10FFF3CE142
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241191AbhGSPkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
+        id S1344196AbhGSPZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347303AbhGSPfG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BC4F6146B;
-        Mon, 19 Jul 2021 16:12:14 +0000 (UTC)
+        id S1347438AbhGSPQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:16:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23708611C1;
+        Mon, 19 Jul 2021 15:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711134;
-        bh=fq1DtqfsAsAPtDE043gbUJrHJpIm+hdLhfaMOouPOM8=;
+        s=korg; t=1626710216;
+        bh=4l/AoMsvGwjk7Lsth8aoRoQQpUwOUt4rTVkI0sOT9vM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJnhKL1wjEMrhvFy//DaMTj9VubXuApk/se81FpnfPhhJzNufICMN7s+fN0oMPDuw
-         3xUsHvKbDJYO3BQuH2x8VvpFH1/NIm/vodVQWPqEDESWW1cWNrb+Qj/5Sl8D1tKOsS
-         rpekkAnajmpwiUG7lDSogz9UmC0RzBvnEsxQPHvo=
+        b=hdEjEs94FYfIakBWR0n+tM4VlrHf6i7t/yBmd8CSfy9sjrBCjrxsDdqJ6pMRMx5VO
+         4NCyuQwql4Pw4FaR2/1O3fImwpYbV1PNBlBGV4iIgmJ8y6hf5I5q3IxC4o17w06wV4
+         Igwye1wqN2Yxj69fjCWDjGgJ/5ptT+hJPJpQgVOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 207/351] f2fs: compress: fix to disallow temp extension
-Date:   Mon, 19 Jul 2021 16:52:33 +0200
-Message-Id: <20210719144951.816159116@linuxfoundation.org>
+Subject: [PATCH 5.10 125/243] watchdog: Fix possible use-after-free by calling del_timer_sync()
+Date:   Mon, 19 Jul 2021 16:52:34 +0200
+Message-Id: <20210719144944.942445469@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,87 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 4a67d9b07ac8dce7f1034e0d887f2f4ee00fe118 ]
+[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
 
-This patch restricts to configure compress extension as format of:
+This driver's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
- [filename + '.' + extension]
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-rather than:
-
- [filename + '.' + extension + (optional: '.' + temp extension)]
-
-in order to avoid to enable compression incorrectly:
-
-1. compress_extension=so
-2. touch file.soa
-3. touch file.so.tmp
-
-Fixes: 4c8ff7095bef ("f2fs: support data compression")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/namei.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/watchdog/lpc18xx_wdt.c | 2 +-
+ drivers/watchdog/w83877f_wdt.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/namei.c b/fs/f2fs/namei.c
-index a9cd9cf97229..d4139e166b95 100644
---- a/fs/f2fs/namei.c
-+++ b/fs/f2fs/namei.c
-@@ -153,7 +153,8 @@ fail_drop:
- 	return ERR_PTR(err);
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index 78cf11c94941..60b6d74f267d 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+ 
+ 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
+-	del_timer(&lpc18xx_wdt->timer);
++	del_timer_sync(&lpc18xx_wdt->timer);
+ 
+ 	return 0;
  }
- 
--static inline int is_extension_exist(const unsigned char *s, const char *sub)
-+static inline int is_extension_exist(const unsigned char *s, const char *sub,
-+						bool tmp_ext)
+diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
+index 5772cc5d3780..f2650863fd02 100644
+--- a/drivers/watchdog/w83877f_wdt.c
++++ b/drivers/watchdog/w83877f_wdt.c
+@@ -166,7 +166,7 @@ static void wdt_startup(void)
+ static void wdt_turnoff(void)
  {
- 	size_t slen = strlen(s);
- 	size_t sublen = strlen(sub);
-@@ -169,6 +170,13 @@ static inline int is_extension_exist(const unsigned char *s, const char *sub)
- 	if (slen < sublen + 2)
- 		return 0;
+ 	/* Stop the timer */
+-	del_timer(&timer);
++	del_timer_sync(&timer);
  
-+	if (!tmp_ext) {
-+		/* file has no temp extension */
-+		if (s[slen - sublen - 1] != '.')
-+			return 0;
-+		return !strncasecmp(s + slen - sublen, sub, sublen);
-+	}
-+
- 	for (i = 1; i < slen - sublen; i++) {
- 		if (s[i] != '.')
- 			continue;
-@@ -194,7 +202,7 @@ static inline void set_file_temperature(struct f2fs_sb_info *sbi, struct inode *
- 	hot_count = sbi->raw_super->hot_ext_count;
+ 	wdt_change(WDT_DISABLE);
  
- 	for (i = 0; i < cold_count + hot_count; i++) {
--		if (is_extension_exist(name, extlist[i]))
-+		if (is_extension_exist(name, extlist[i], true))
- 			break;
- 	}
- 
-@@ -295,7 +303,7 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
- 	hot_count = sbi->raw_super->hot_ext_count;
- 
- 	for (i = cold_count; i < cold_count + hot_count; i++) {
--		if (is_extension_exist(name, extlist[i])) {
-+		if (is_extension_exist(name, extlist[i], false)) {
- 			up_read(&sbi->sb_lock);
- 			return;
- 		}
-@@ -306,7 +314,7 @@ static void set_compress_inode(struct f2fs_sb_info *sbi, struct inode *inode,
- 	ext = F2FS_OPTION(sbi).extensions;
- 
- 	for (i = 0; i < ext_cnt; i++) {
--		if (!is_extension_exist(name, ext[i]))
-+		if (!is_extension_exist(name, ext[i], false))
- 			continue;
- 
- 		set_compress_context(inode);
 -- 
 2.30.2
 
