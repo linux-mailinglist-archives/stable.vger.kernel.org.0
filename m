@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 363093CDA05
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19C923CD8CE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242807AbhGSOce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47358 "EHLO mail.kernel.org"
+        id S243271AbhGSOZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244795AbhGSObK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:31:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E0361175;
-        Mon, 19 Jul 2021 15:11:49 +0000 (UTC)
+        id S243426AbhGSOXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:23:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB2F161186;
+        Mon, 19 Jul 2021 15:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707510;
-        bh=GbRITskkQzXHjVgMBPKIfkYDQjCcswr+9Z3Y4aR6cJE=;
+        s=korg; t=1626707008;
+        bh=0maWroivBJOvh18abpe9bTk7gxcjye2N3W9KBM9/MHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4KBqg0n13c2T7tdKu1W06ChhkTvK0P0djIfFZMW2AhMYjL9Y5KRfgaVDWlGSKj+g
-         5jQ5hc+Lj3DsSiB0lshzM4ivfDVpggWgelU7GZV9s4+lE957d3ljJJqUJZuAXRHLif
-         9Oocjl8ckgYe0vhWIZ/dXFdnWLOKJx2o9GOSK5r0=
+        b=S6RIJiA7qi42qJGTexgmyK/rkcXaDaaICVFv4hZqL0L9z8wnx0pxTZa5S7Lw7hJH5
+         e1LYcEEb/yczbdlGv9eNr6PXfuyJaW/5o0J3gaJB1VBbTlSA0s1Xy9H5VLS2NHU23x
+         EarspRWOmuNf2Rv4ufQ3eqFN4X9LIMHSEnNbdPco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 193/245] s390/sclp_vt220: fix console name to match device
+Subject: [PATCH 4.4 151/188] ALSA: sb: Fix potential double-free of CSP mixer elements
 Date:   Mon, 19 Jul 2021 16:52:15 +0200
-Message-Id: <20210719144946.637495579@linuxfoundation.org>
+Message-Id: <20210719144941.426859457@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b7d91d230a119fdcc334d10c9889ce9c5e15118b ]
+[ Upstream commit c305366a37441c2ac90b08711cb6f032b43672f2 ]
 
-Console name reported in /proc/consoles:
+snd_sb_qsound_destroy() contains the calls of removing the previously
+created mixer controls, but it doesn't clear the pointers.  As
+snd_sb_qsound_destroy() itself may be repeatedly called via ioctl,
+this could lead to double-free potentially.
 
-  ttyS1                -W- (EC p  )    4:65
+Fix it by clearing the struct fields properly afterwards.
 
-does not match the char device name:
-
-  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
-
-so debian-installer inside a QEMU s390x instance gets confused and fails
-to start with the following error:
-
-  steal-ctty: No such file or directory
-
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Link: https://lore.kernel.org/r/20210427194010.9330-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210608140540.17885-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c       | 2 +-
- drivers/s390/char/sclp_vt220.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ sound/isa/sb/sb16_csp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index ce49c2b9db7e..9939879f5f25 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -137,7 +137,7 @@ static void __init set_preferred_console(void)
- 	else if (CONSOLE_IS_3270)
- 		add_preferred_console("tty3270", 0, NULL);
- 	else if (CONSOLE_IS_VT220)
--		add_preferred_console("ttyS", 1, NULL);
-+		add_preferred_console("ttysclp", 0, NULL);
- 	else if (CONSOLE_IS_HVC)
- 		add_preferred_console("hvc", 0, NULL);
- }
-diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
-index 68d6ee7ae504..3e8b5906548f 100644
---- a/drivers/s390/char/sclp_vt220.c
-+++ b/drivers/s390/char/sclp_vt220.c
-@@ -34,8 +34,8 @@
- #define SCLP_VT220_MINOR		65
- #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
- #define SCLP_VT220_DEVICE_NAME		"ttysclp"
--#define SCLP_VT220_CONSOLE_NAME		"ttyS"
--#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
-+#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
-+#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
+diff --git a/sound/isa/sb/sb16_csp.c b/sound/isa/sb/sb16_csp.c
+index 2cc068be7d3b..90fa57ad14c0 100644
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1086,10 +1086,14 @@ static void snd_sb_qsound_destroy(struct snd_sb_csp * p)
+ 	card = p->chip->card;	
+ 	
+ 	down_write(&card->controls_rwsem);
+-	if (p->qsound_switch)
++	if (p->qsound_switch) {
+ 		snd_ctl_remove(card, p->qsound_switch);
+-	if (p->qsound_space)
++		p->qsound_switch = NULL;
++	}
++	if (p->qsound_space) {
+ 		snd_ctl_remove(card, p->qsound_space);
++		p->qsound_space = NULL;
++	}
+ 	up_write(&card->controls_rwsem);
  
- /* Representation of a single write request */
- struct sclp_vt220_request {
+ 	/* cancel pending transfer of QSound parameters */
 -- 
 2.30.2
 
