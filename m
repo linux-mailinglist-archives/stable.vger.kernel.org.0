@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9265C3CDE60
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B776A3CDF6E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343525AbhGSPCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
+        id S1345057AbhGSPKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345315AbhGSPAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A99CB60238;
-        Mon, 19 Jul 2021 15:41:10 +0000 (UTC)
+        id S1345141AbhGSPIF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:08:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6EC61357;
+        Mon, 19 Jul 2021 15:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709271;
-        bh=FsPxri3gfRLtr9txcmOvhLNCaxYZiy2IXVIUQXOPk5U=;
+        s=korg; t=1626709699;
+        bh=771xVZXqIipQtpSSLwGn+z8A4FMZJy3lU2l55actlcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIaJIJGtfrUvByChC6SZYriW6p90TyblMJs1LvLHrvkjOXIizyThWMMB2+TTN38hj
-         JBHkHwkwrtM5Ys4rDJV2wqz6whjL1UgvrlzMsc2fYE8wlEPncj+rAzsrFMWL6YETiN
-         8bULYRvH8u2Q9GntG79Au6jAVG4SIQflbSs5hjUo=
+        b=KJ/7uoIS3eyGgDYWFB61bJX1W3FwBheNl1LIUMqA2PVlkWng4tnZes0ivLelO0e3x
+         Qhg4xFfjAQwcSsPZUObJAQOq0F2Mdb23rRE4K38pxkax2UPb0x8dBtLUh2ZMf2oQz2
+         YFnrEELmQMQ31x6LJAhvFCdSxyt780pPCjgAtxas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.19 316/421] smackfs: restrict bytes count in smk_set_cipso()
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 019/149] scsi: hisi_sas: Propagate errors in interrupt_init_v1_hw()
 Date:   Mon, 19 Jul 2021 16:52:07 +0200
-Message-Id: <20210719144957.265183240@linuxfoundation.org>
+Message-Id: <20210719144906.033353519@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-commit 49ec114a6e62d8d320037ce71c1aaf9650b3cafd upstream.
+[ Upstream commit ab17122e758ef68fb21033e25c041144067975f5 ]
 
-Oops, I failed to update subject line.
+After commit 6c11dc060427 ("scsi: hisi_sas: Fix IRQ checks") we have the
+error codes returned by platform_get_irq() ready for the propagation
+upsream in interrupt_init_v1_hw() -- that will fix still broken deferred
+probing. Let's propagate the error codes from devm_request_irq() as well
+since I don't see the reason to override them with -ENOENT...
 
->From 07571157c91b98ce1a4aa70967531e64b78e8346 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 12 Apr 2021 22:25:06 +0900
-Subject: [PATCH 4.19 316/421] smackfs: restrict bytes count in smk_set_cipso()
-
-Commit 7ef4c19d245f3dc2 ("smackfs: restrict bytes count in smackfs write
-functions") missed that count > SMK_CIPSOMAX check applies to only
-format == SMK_FIXED24_FMT case.
-
-Reported-by: syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/49ba93a3-d427-7542-d85a-b74fe1a33a73@omp.ru
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/smack/smackfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -883,6 +883,8 @@ static ssize_t smk_set_cipso(struct file
- 	if (format == SMK_FIXED24_FMT &&
- 	    (count < SMK_CIPSOMIN || count > SMK_CIPSOMAX))
- 		return -EINVAL;
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 3364ae0b9bfe..9f6534bd354b 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1648,7 +1648,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			if (irq < 0) {
+ 				dev_err(dev, "irq init: fail map phy interrupt %d\n",
+ 					idx);
+-				return -ENOENT;
++				return irq;
+ 			}
  
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ 			rc = devm_request_irq(dev, irq, phy_interrupts[j], 0,
+@@ -1656,7 +1656,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			if (rc) {
+ 				dev_err(dev, "irq init: could not request phy interrupt %d, rc=%d\n",
+ 					irq, rc);
+-				return -ENOENT;
++				return rc;
+ 			}
+ 		}
+ 	}
+@@ -1667,7 +1667,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, cq_interrupt_v1_hw, 0,
+@@ -1675,7 +1675,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
+@@ -1685,7 +1685,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, fatal_interrupts[i], 0,
+@@ -1693,7 +1693,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request fatal interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
+-- 
+2.30.2
+
 
 
