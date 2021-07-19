@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D09F3CD909
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B25DB3CDB5C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242823AbhGSO01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37378 "EHLO mail.kernel.org"
+        id S1343507AbhGSOm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244188AbhGSOYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2836761002;
-        Mon, 19 Jul 2021 15:05:31 +0000 (UTC)
+        id S239505AbhGSOi5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:38:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0062B60720;
+        Mon, 19 Jul 2021 15:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707131;
-        bh=y4GEIzLLKPd2XuowFaDqQ4Di0Kdcwbjx00e4A6CjEw4=;
+        s=korg; t=1626707888;
+        bh=i1GhNBxdRdtwBVkRFEdH+UrbvrI/rlWNQSWg3bAIQl8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdbUMUWZr6163qx9SaccogQqlnxPCG9lW6P+fJnb/nBOPxZ/nT44dXZT+OM/oDpt7
-         Wy9iEPPhjnbkPESnlaJX+HzC5VFj+/VqqJNlznlk542Ofu1Bp2uZCq/iZX5axyqy0t
-         v7hBUaCg77CwiGgeXnn72IchmS7EKvphibc0NypI=
+        b=AxlU63F6UMboulzueF2gph0jlyrUOq8lfL7vBVQ0qlg6g7T7Xdb1x0uMMtKXrlFss
+         8Vpy1doowFviNzPZmsQN2AbKy2ttkcc5LhTiW9lWWDc0UbpapJaXPNtjwj+GWmntQh
+         5HYPdIvMOt1rOihMZbiO1Djz6cqADP8BXJ8kmw5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Eric Biggers <ebiggers@google.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Flavio Suligoi <f.suligoi@asem.it>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 042/245] crypto: shash - avoid comparing pointers to exported functions under CFI
-Date:   Mon, 19 Jul 2021 16:49:44 +0200
-Message-Id: <20210719144941.759192607@linuxfoundation.org>
+Subject: [PATCH 4.14 096/315] net: pch_gbe: Propagate error from devm_gpio_request_one()
+Date:   Mon, 19 Jul 2021 16:49:45 +0200
+Message-Id: <20210719144946.039313326@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,84 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 22ca9f4aaf431a9413dcc115dd590123307f274f ]
+[ Upstream commit 9e3617a7b84512bf96c04f9cf82d1a7257d33794 ]
 
-crypto_shash_alg_has_setkey() is implemented by testing whether the
-.setkey() member of a struct shash_alg points to the default version,
-called shash_no_setkey(). As crypto_shash_alg_has_setkey() is a static
-inline, this requires shash_no_setkey() to be exported to modules.
+If GPIO controller is not available yet we need to defer
+the probe of GBE until provider will become available.
 
-Unfortunately, when building with CFI, function pointers are routed
-via CFI stubs which are private to each module (or to the kernel proper)
-and so this function pointer comparison may fail spuriously.
+While here, drop GPIOF_EXPORT because it's deprecated and
+may not be available.
 
-Let's fix this by turning crypto_shash_alg_has_setkey() into an out of
-line function.
-
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: f1a26fdf5944 ("pch_gbe: Add MinnowBoard support")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Flavio Suligoi <f.suligoi@asem.it>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/shash.c                 | 18 +++++++++++++++---
- include/crypto/internal/hash.h |  8 +-------
- 2 files changed, 16 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/crypto/shash.c b/crypto/shash.c
-index a1c7609578ea..7eebf3cde7b7 100644
---- a/crypto/shash.c
-+++ b/crypto/shash.c
-@@ -24,12 +24,24 @@
- 
- static const struct crypto_type crypto_shash_type;
- 
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen)
-+static int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
-+			   unsigned int keylen)
- {
- 	return -ENOSYS;
- }
--EXPORT_SYMBOL_GPL(shash_no_setkey);
+diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+index 5ae9681a2da7..cb16f86ab90a 100644
+--- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
++++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
+@@ -2599,9 +2599,13 @@ static int pch_gbe_probe(struct pci_dev *pdev,
+ 	adapter->pdev = pdev;
+ 	adapter->hw.back = adapter;
+ 	adapter->hw.reg = pcim_iomap_table(pdev)[PCH_GBE_PCI_BAR];
 +
-+/*
-+ * Check whether an shash algorithm has a setkey function.
-+ *
-+ * For CFI compatibility, this must not be an inline function.  This is because
-+ * when CFI is enabled, modules won't get the same address for shash_no_setkey
-+ * (if it were exported, which inlining would require) as the core kernel will.
-+ */
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
-+{
-+	return alg->setkey != shash_no_setkey;
-+}
-+EXPORT_SYMBOL_GPL(crypto_shash_alg_has_setkey);
+ 	adapter->pdata = (struct pch_gbe_privdata *)pci_id->driver_data;
+-	if (adapter->pdata && adapter->pdata->platform_init)
+-		adapter->pdata->platform_init(pdev);
++	if (adapter->pdata && adapter->pdata->platform_init) {
++		ret = adapter->pdata->platform_init(pdev);
++		if (ret)
++			goto err_free_netdev;
++	}
  
- static int shash_setkey_unaligned(struct crypto_shash *tfm, const u8 *key,
- 				  unsigned int keylen)
-diff --git a/include/crypto/internal/hash.h b/include/crypto/internal/hash.h
-index 5203560f992e..000c049a75f7 100644
---- a/include/crypto/internal/hash.h
-+++ b/include/crypto/internal/hash.h
-@@ -80,13 +80,7 @@ int ahash_register_instance(struct crypto_template *tmpl,
- 			    struct ahash_instance *inst);
- void ahash_free_instance(struct crypto_instance *inst);
- 
--int shash_no_setkey(struct crypto_shash *tfm, const u8 *key,
--		    unsigned int keylen);
--
--static inline bool crypto_shash_alg_has_setkey(struct shash_alg *alg)
--{
--	return alg->setkey != shash_no_setkey;
--}
-+bool crypto_shash_alg_has_setkey(struct shash_alg *alg);
- 
- bool crypto_hash_alg_has_setkey(struct hash_alg_common *halg);
+ 	adapter->ptp_pdev = pci_get_bus_and_slot(adapter->pdev->bus->number,
+ 					       PCI_DEVFN(12, 4));
+@@ -2696,7 +2700,7 @@ err_free_netdev:
+  */
+ static int pch_gbe_minnow_platform_init(struct pci_dev *pdev)
+ {
+-	unsigned long flags = GPIOF_DIR_OUT | GPIOF_INIT_HIGH | GPIOF_EXPORT;
++	unsigned long flags = GPIOF_OUT_INIT_HIGH;
+ 	unsigned gpio = MINNOW_PHY_RESET_GPIO;
+ 	int ret;
  
 -- 
 2.30.2
