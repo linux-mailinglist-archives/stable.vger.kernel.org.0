@@ -2,94 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC8CD3CCC5D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 04:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF0F3CCC70
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 04:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbhGSCrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Jul 2021 22:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41984 "EHLO
+        id S233807AbhGSC6p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Jul 2021 22:58:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233720AbhGSCrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Jul 2021 22:47:35 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B9CC061762;
-        Sun, 18 Jul 2021 19:44:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=CkU8nVUDnffLrkz4DUK+GmPmahjzgRndjrnRCR8YauY=; b=UFffVny8+0I97DD+4Ofigd11P7
-        zDhen93BvIB5vb2XX78j/xX10LqnrvRjWNwN2sfNILyJDpI7D8/RVjukpSN2KsiDHJPclj9cXikm7
-        U1Yvzoj0zF0KHxzcGslUsLsG2GHoRlko377Dxo+VHw6u1oY2B37wjHCkVX6n74Q8lzI0LXQbEJWT0
-        hJjXabSUC+qR63Xl4GfF7uYDYBpzPOTYsaO0CjJexxcs5ZyN5s5Ig5NlXznFVLJj9weQOqYEFOLsg
-        xMFkXLv6KSWJmXLez5SOSxYaXZaxA4RFFumDrA3tm0eEhvKMzo+iHaSBSa1U8gPhnsTKa0h0trUxk
-        0wfU23eQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1m5JFE-006TD0-Qc; Mon, 19 Jul 2021 02:43:17 +0000
-Date:   Mon, 19 Jul 2021 03:43:00 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Zhouyi Zhou <zhouzhouyi@gmail.com>
-Cc:     paulmck@kernel.org, Oleksandr Natalenko <oleksandr@natalenko.name>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Chris Clayton <chris2553@googlemail.com>,
-        Chris Rankin <rankincj@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Lai Jiangshan <jiangshanlai@gmail.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        rcu <rcu@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux-MM <linux-mm@kvack.org>
-Subject: Re: linux-5.13.2: warning from kernel/rcu/tree_plugin.h:359
-Message-ID: <YPTmtNMJpykEpzx6@casper.infradead.org>
-References: <c9fd1311-662c-f993-c8ef-54af036f2f78@googlemail.com>
- <2245518.LNIG0phfVR@natalenko.name>
- <6698965.kvI7vG0SvZ@natalenko.name>
- <20210718215914.GQ4397@paulmck-ThinkPad-P17-Gen-1>
- <YPSweHyCrD2q2Pue@casper.infradead.org>
- <20210719015313.GS4397@paulmck-ThinkPad-P17-Gen-1>
- <CAABZP2yE+3vzd+LgJDJcJ2f8qttJQSUQ6efD9MaFd2iD4xPTZA@mail.gmail.com>
+        with ESMTP id S233720AbhGSC6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 18 Jul 2021 22:58:44 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD593C061762;
+        Sun, 18 Jul 2021 19:55:44 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id 23so15408189qke.0;
+        Sun, 18 Jul 2021 19:55:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=iNXlxu41QAi9eyXyEp9P4BgFOZiugUdeuIzu212ysvs=;
+        b=V6b+NmivyRSSIkWo9qNI8PdtQvoet39umINKYQvmFV3Ibk8dDcLbnezTU2TL3xVuwX
+         lxx2g0Ie3iY7hoaJX6L660D24e67DqEYVhla1z0HNqfy/y+BI3+J6pptyMaNSOExyt9g
+         eyLD5IfT05e00WXxfe2SpXCQKR6s4ezib/xSKVm7rVb8d2PqMrG5BoxOAmpKpQWvyNEM
+         YYUV5Zgy3TNTHVgWNn2qH5QZL1Hh0o74isy/24unaCkkimHnJ6MQruXwkblRxzuvlxzi
+         uHN21iSpu5XdyLaT6g/d4pM4bXzsNlRSacqFKeXjThvqnJacjYwCVvLv/i18gbby2pPF
+         0YVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=iNXlxu41QAi9eyXyEp9P4BgFOZiugUdeuIzu212ysvs=;
+        b=Q2lomFf2rUAfMWOaBFX22hR81a/EeJtV+L98fvNAdOXOwkz8x8v5qYi6yVjXR6kFLI
+         s7CcgomEyo1GmfrIwY8AKWGqBS1Lxcp9lTmyeR1GUjtgImZJGOR9PT4dYmxnZ509ejOd
+         3PlXJDPpxXzgJc3P63EapsBD1WTvF5lnbEjn2ItwaxZ0FYUAPZWulykh9JbhdaAIOceP
+         G5dMzEDIVNq+YxRIvLLS4UdaGX1sXvkjGOTmw3o6QcnKuKMljvJ0do2WpnfeMa12TwqO
+         vHPpCigUQr2gJSkJ4dE95yg5va3gsScmDnyF4Ee4Sh5uQsum/UsqtUfISW/FUlJgnvbg
+         aMUQ==
+X-Gm-Message-State: AOAM533+bfHxFqFKVA9+L4paWYUhkohN1x00uaMBUdaiULU7iqv4EJhz
+        d6KK4N7GKuh6kSX8POvakD+UxZmwvmI/4C/D5FI=
+X-Google-Smtp-Source: ABdhPJwB1y+j+sdeR4vc3gg4ZAWtWNDHGEX12CxUO8SxSeJWWN0gV4rMiFEYtb/b/PQi3QMyw20pv7/8kplWmcPQI1w=
+X-Received: by 2002:a05:620a:6c9:: with SMTP id 9mr22232077qky.303.1626663344173;
+ Sun, 18 Jul 2021 19:55:44 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAABZP2yE+3vzd+LgJDJcJ2f8qttJQSUQ6efD9MaFd2iD4xPTZA@mail.gmail.com>
+References: <20210717043159.12566-1-rdunlap@infradead.org>
+In-Reply-To: <20210717043159.12566-1-rdunlap@infradead.org>
+From:   Dongjiu Geng <gengdongjiu1@gmail.com>
+Date:   Mon, 19 Jul 2021 10:55:36 +0800
+Message-ID: <CABSBigROX2sYdcOOt=L45_hhdz9reff3t1rD-6M2vDLQ35LcOQ@mail.gmail.com>
+Subject: Re: [PATCH] clk: hisilicon: hi3559a: select RESET_HISI
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dongjiu Geng <gengdongjiu@huawei.com>,
+        Stephen Boyd <sboyd@kernel.org>, stable@vger.kernel.org,
+        linux-clk@vger.kernel.org,
+        Michael Turquette <mturquette@baylibre.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 10:24:18AM +0800, Zhouyi Zhou wrote:
-> Meanwhile, I examined the 5.12.17 by naked eye, and found a suspicious place
-> that could possibly trigger that problem:
-> 
-> struct swap_info_struct *get_swap_device(swp_entry_t entry)
-> {
->      struct swap_info_struct *si;
->      unsigned long offset;
-> 
->      if (!entry.val)
->              goto out;
->     si = swp_swap_info(entry);
->     if (!si)
->        goto bad_nofile;
-> 
->    rcu_read_lock();
->   if (data_race(!(si->flags & SWP_VALID)))
->      goto unlock_out;
->   offset = swp_offset(entry);
->   if (offset >= si->max)
->    goto unlock_out;
-> 
->   return si;
-> bad_nofile:
->   pr_err("%s: %s%08lx\n", __func__, Bad_file, entry.val);
-> out:
->   return NULL;
-> unlock_out:
->   rcu_read_unlock();
->   return NULL;
-> }
-> I guess the function "return si" without a rcu_read_unlock.
+Randy Dunlap <rdunlap@infradead.org> =E4=BA=8E2021=E5=B9=B47=E6=9C=8817=E6=
+=97=A5=E5=91=A8=E5=85=AD =E4=B8=8B=E5=8D=8812:34=E5=86=99=E9=81=93=EF=BC=9A
+>
+> The clk-hi3559a driver uses functions from reset.c so it should
+> select RESET_HISI to avoid build errors.
+>
+> Fixes these build errors:
+> aarch64-linux-ld: drivers/clk/hisilicon/clk-hi3559a.o: in function `hi355=
+9av100_crg_remove':
+> clk-hi3559a.c:(.text+0x158): undefined reference to `hisi_reset_exit'
+> aarch64-linux-ld: drivers/clk/hisilicon/clk-hi3559a.o: in function `hi355=
+9av100_crg_probe':
+> clk-hi3559a.c:(.text+0x1f4): undefined reference to `hisi_reset_init'
+> aarch64-linux-ld: clk-hi3559a.c:(.text+0x238): undefined reference to `hi=
+si_reset_exit'
+>
+> Fixes: 6c81966107dc ("clk: hisilicon: Add clock driver for hi3559A SoC")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Cc: Dongjiu Geng <gengdongjiu@huawei.com>
+> Cc: Stephen Boyd <sboyd@kernel.org>
+> Cc: stable@vger.kernel.org
+> Cc: linux-clk@vger.kernel.org
+> Cc: Michael Turquette <mturquette@baylibre.com>
+> ---
+>  drivers/clk/hisilicon/Kconfig |    1 +
+>  1 file changed, 1 insertion(+)
+>
+> --- linux-next-20210716.orig/drivers/clk/hisilicon/Kconfig
+> +++ linux-next-20210716/drivers/clk/hisilicon/Kconfig
+> @@ -18,6 +18,7 @@ config COMMON_CLK_HI3519
+>  config COMMON_CLK_HI3559A
+>         bool "Hi3559A Clock Driver"
+>         depends on ARCH_HISI || COMPILE_TEST
+> +       select RESET_HISI
+>         default ARCH_HISI
+>         help
+>           Build the clock driver for hi3559a.
 
-Yes, but the caller is supposed to call put_swap_device() which
-calls rcu_read_unlock().  See commit eb085574a752.
+Reviewed-by: Dongjiu Geng <gengdongjiu1@gmail.com>
