@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5005B3CDC3F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EE163CDF8C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238205AbhGSOvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
+        id S1345427AbhGSPKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344253AbhGSOsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4548F61289;
-        Mon, 19 Jul 2021 15:27:40 +0000 (UTC)
+        id S1345465AbhGSPJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A155608FC;
+        Mon, 19 Jul 2021 15:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708460;
-        bh=iVA0Irtyj5+vISta1uNTPfwIhilsrb46kFwIemRbYWc=;
+        s=korg; t=1626709731;
+        bh=NVlw8FdD1InjhL9vfc52dDxWF+C4FWMDMsiClR8WO7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3Ztew/FapXlGTraAo2pDk8Gjedo9baZ2CAijyIg6cqyn46Ds2gDQbt/TfwBw5cqb
-         WVz6OzJ4YzGQ1x3IgGVdOGrcBWLUfZHM1INzRHe8PswI3uiVgxoUJAsDExcdbfa/QN
-         OBAvQpcgx3bLy9viVUCXKBrGuV9ooz9SKr5vsW5U=
+        b=sYWQ2rBUxJPkswnSwRMF+shqpszEY4rDjO1MBpF6v5rWL8layrDyK95urtFkkSk4m
+         2iUtcTrNCv7HnA1Q8NiqVSpanCibT5aVYAVzffjTURMEXZ4OuMMJfDnBkBAqc/MiPJ
+         QbKe589hvK1KgL4qfb7X2/E4a72B6Ks8PZunSmXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhihao Cheng <chengzhihao1@huawei.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Jian Cai <jiancai@google.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 294/315] ubifs: Set/Clear I_LINKABLE under i_lock for whiteout inode
+Subject: [PATCH 5.4 075/149] ARM: 9087/1: kprobes: test-thumb: fix for LLVM_IAS=1
 Date:   Mon, 19 Jul 2021 16:53:03 +0200
-Message-Id: <20210719144953.135574307@linuxfoundation.org>
+Message-Id: <20210719144919.033297424@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhihao Cheng <chengzhihao1@huawei.com>
+From: Nick Desaulniers <ndesaulniers@google.com>
 
-[ Upstream commit a801fcfeef96702fa3f9b22ad56c5eb1989d9221 ]
+[ Upstream commit 8b95a7d90ce8160ac5cffd5bace6e2eba01a871e ]
 
-xfstests-generic/476 reports a warning message as below:
+There's a few instructions that GAS infers operands but Clang doesn't;
+from what I can tell the Arm ARM doesn't say these are optional.
 
-WARNING: CPU: 2 PID: 30347 at fs/inode.c:361 inc_nlink+0x52/0x70
-Call Trace:
-  do_rename+0x502/0xd40 [ubifs]
-  ubifs_rename+0x8b/0x180 [ubifs]
-  vfs_rename+0x476/0x1080
-  do_renameat2+0x67c/0x7b0
-  __x64_sys_renameat2+0x6e/0x90
-  do_syscall_64+0x66/0xe0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+F5.1.257 TBB, TBH T1 Halfword variant
+F5.1.238 STREXD T1 variant
+F5.1.84 LDREXD T1 variant
 
-Following race case can cause this:
-         rename_whiteout(Thread 1)             wb_workfn(Thread 2)
-ubifs_rename
-  do_rename
-                                          __writeback_single_inode
-					    spin_lock(&inode->i_lock)
-    whiteout->i_state |= I_LINKABLE
-                                            inode->i_state &= ~dirty;
----- How race happens on i_state:
-    (tmp = whiteout->i_state | I_LINKABLE)
-		                           (tmp = inode->i_state & ~dirty)
-    (whiteout->i_state = tmp)
-		                           (inode->i_state = tmp)
-----
-					    spin_unlock(&inode->i_lock)
-    inc_nlink(whiteout)
-    WARN_ON(!(inode->i_state & I_LINKABLE)) !!!
+Link: https://github.com/ClangBuiltLinux/linux/issues/1309
 
-Fix to add i_lock to avoid i_state update race condition.
-
-Fixes: 9e0a1fff8db56ea ("ubifs: Implement RENAME_WHITEOUT")
-Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Jian Cai <jiancai@google.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/dir.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/probes/kprobes/test-thumb.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/fs/ubifs/dir.c b/fs/ubifs/dir.c
-index 9d5face7fdc0..de0d63a347ac 100644
---- a/fs/ubifs/dir.c
-+++ b/fs/ubifs/dir.c
-@@ -1408,7 +1408,10 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
- 			goto out_release;
- 		}
+diff --git a/arch/arm/probes/kprobes/test-thumb.c b/arch/arm/probes/kprobes/test-thumb.c
+index 456c181a7bfe..4e11f0b760f8 100644
+--- a/arch/arm/probes/kprobes/test-thumb.c
++++ b/arch/arm/probes/kprobes/test-thumb.c
+@@ -441,21 +441,21 @@ void kprobe_thumb32_test_cases(void)
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state |= I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		whiteout_ui = ubifs_inode(whiteout);
- 		whiteout_ui->data = dev;
- 		whiteout_ui->data_len = ubifs_encode_dev(dev, MKDEV(0, 0));
-@@ -1501,7 +1504,11 @@ static int do_rename(struct inode *old_dir, struct dentry *old_dentry,
+-	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,"]",
++	TEST_RX("tbh	[pc, r",7, (9f-(1f+4))>>1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
  
- 		inc_nlink(whiteout);
- 		mark_inode_dirty(whiteout);
-+
-+		spin_lock(&whiteout->i_lock);
- 		whiteout->i_state &= ~I_LINKABLE;
-+		spin_unlock(&whiteout->i_lock);
-+
- 		iput(whiteout);
- 	}
+-	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,"]",
++	TEST_RX("tbh	[pc, r",12, ((9f-(1f+4))>>1)+1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+ 		"3:	mvn	r0, r0	\n\t"
+ 		"2:	nop		\n\t")
+ 
+-	TEST_RRX("tbh	[r",1,9f, ", r",14,1,"]",
++	TEST_RRX("tbh	[r",1,9f, ", r",14,1,", lsl #1]",
+ 		"9:			\n\t"
+ 		".short	(2f-1b-4)>>1	\n\t"
+ 		".short	(3f-1b-4)>>1	\n\t"
+@@ -468,10 +468,10 @@ void kprobe_thumb32_test_cases(void)
+ 
+ 	TEST_UNSUPPORTED("strexb	r0, r1, [r2]")
+ 	TEST_UNSUPPORTED("strexh	r0, r1, [r2]")
+-	TEST_UNSUPPORTED("strexd	r0, r1, [r2]")
++	TEST_UNSUPPORTED("strexd	r0, r1, r2, [r2]")
+ 	TEST_UNSUPPORTED("ldrexb	r0, [r1]")
+ 	TEST_UNSUPPORTED("ldrexh	r0, [r1]")
+-	TEST_UNSUPPORTED("ldrexd	r0, [r1]")
++	TEST_UNSUPPORTED("ldrexd	r0, r1, [r1]")
+ 
+ 	TEST_GROUP("Data-processing (shifted register) and (modified immediate)")
  
 -- 
 2.30.2
