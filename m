@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EECB53CD98D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E92063CDB6F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244129AbhGSOap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S245105AbhGSOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244070AbhGSO3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A149B61166;
-        Mon, 19 Jul 2021 15:08:44 +0000 (UTC)
+        id S244208AbhGSOka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:40:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC5461175;
+        Mon, 19 Jul 2021 15:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707325;
-        bh=QG+XvMaXC6bssGZ1g7BHEL8mbwhbxFPsktMscyZdKdc=;
+        s=korg; t=1626708069;
+        bh=qsIHHwD5PwQiuhnjDssTRMjsBvM7qqNQlrYb/pmkRdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c32aJbRvF/PaXkDB1en4R6Hb0X5iGYcfY4kD0E02aP0blp6QVx/0yjzq0u1fkbfac
-         dVCxBveo0k8eptraGgzB21rn7j7+jS3KHr728STXt8ZdIGodLS/QG37S4awzQOw/qp
-         nm1588dc2OCK/Ed8OdnC8Gd1tAo1/RWJLS0BjN14=
+        b=KVrl60qYIhMa7dGjLMc3mQg2PNZS4pnjw/6jTrVcSYuHSgn/Jn0bzBc+AYNCzdaec
+         X8KCc3vXxzJ6L9tpXaRwjitNniJXgvCGE5vxa+HQpOiI4DsxH2iWxmWgn45eHYtNdO
+         o4Df/U0xrgkLTSpMYqN6L9zLl2NnEzvdaMCEYqmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/245] phy: ti: dm816x: Fix the error handling path in dm816x_usb_phy_probe()
+        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 168/315] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
 Date:   Mon, 19 Jul 2021 16:50:57 +0200
-Message-Id: <20210719144944.131981506@linuxfoundation.org>
+Message-Id: <20210719144948.420026059@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-[ Upstream commit f7eedcb8539ddcbb6fe7791f1b4ccf43f905c72f ]
+[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
 
-Add an error handling path in the probe to release some resources, as
-already done in the remove function.
+__napi_schedule_irqoff() is an optimized version of __napi_schedule()
+which can be used where it is known that interrupts are disabled,
+e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
+callbacks.
 
-Fixes: 609adde838f4 ("phy: Add a driver for dm816x USB PHY")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/ac5136881f6bdec50be19b3bf73b3bc1b15ef1f1.1622898974.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+On PREEMPT_RT enabled kernels this assumptions is not true. Force-
+threaded interrupt handlers and spinlocks are not disabling interrupts
+and the NAPI hrtimer callback is forced into softirq context which runs
+with interrupts enabled as well.
+
+Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
+game so make __napi_schedule_irqoff() invoke __napi_schedule() for
+PREEMPT_RT kernels.
+
+The callers of ____napi_schedule() in the networking core have been
+audited and are correct on PREEMPT_RT kernels as well.
+
+Reported-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-dm816x-usb.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ net/core/dev.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/phy-dm816x-usb.c b/drivers/phy/phy-dm816x-usb.c
-index cbcce7cf0028..2ed5fe20d779 100644
---- a/drivers/phy/phy-dm816x-usb.c
-+++ b/drivers/phy/phy-dm816x-usb.c
-@@ -246,19 +246,28 @@ static int dm816x_usb_phy_probe(struct platform_device *pdev)
- 
- 	pm_runtime_enable(phy->dev);
- 	generic_phy = devm_phy_create(phy->dev, NULL, &ops);
--	if (IS_ERR(generic_phy))
--		return PTR_ERR(generic_phy);
-+	if (IS_ERR(generic_phy)) {
-+		error = PTR_ERR(generic_phy);
-+		goto clk_unprepare;
-+	}
- 
- 	phy_set_drvdata(generic_phy, phy);
- 
- 	phy_provider = devm_of_phy_provider_register(phy->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto clk_unprepare;
-+	}
- 
- 	usb_add_phy_dev(&phy->phy);
- 
- 	return 0;
-+
-+clk_unprepare:
-+	pm_runtime_disable(phy->dev);
-+	clk_unprepare(phy->refclk);
-+	return error;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 7ee89125cd53..aa419f3162b8 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -5277,11 +5277,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
+  * __napi_schedule_irqoff - schedule for receive
+  * @n: entry to schedule
+  *
+- * Variant of __napi_schedule() assuming hard irqs are masked
++ * Variant of __napi_schedule() assuming hard irqs are masked.
++ *
++ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
++ * because the interrupt disabled assumption might not be true
++ * due to force-threaded interrupts and spinlock substitution.
+  */
+ void __napi_schedule_irqoff(struct napi_struct *n)
+ {
+-	____napi_schedule(this_cpu_ptr(&softnet_data), n);
++	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
++		____napi_schedule(this_cpu_ptr(&softnet_data), n);
++	else
++		__napi_schedule(n);
  }
+ EXPORT_SYMBOL(__napi_schedule_irqoff);
  
- static int dm816x_usb_phy_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
