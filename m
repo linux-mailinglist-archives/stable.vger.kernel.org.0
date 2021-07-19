@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ED193CDB4C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C436D3CD984
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244613AbhGSOmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
+        id S243817AbhGSOad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343614AbhGSOjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6C1461364;
-        Mon, 19 Jul 2021 15:19:08 +0000 (UTC)
+        id S243580AbhGSO2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4D746121E;
+        Mon, 19 Jul 2021 15:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707949;
-        bh=UlxK49/2O/vY7teo2N8gZC7tT53j0N5Z4BzcduEFvcA=;
+        s=korg; t=1626707294;
+        bh=sX/1dpxLfrkwkd8GfgqXXons5CRaM2BzMnnGYZmHzvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tN7UPWzAZ8RA2p2vtJSSbmRFSrB0TgNVPWx6t8ks/DKPEYzV24LadqMP8Coh3jdXa
-         +5WsLc/c4IV3QC2Wz6phVGGEIz/j4Fv9leg7vS80FkZnLc+7tUsoPEOGzHIwIrPp4Z
-         wczwseG9KsdcrgNerY3tiVrWlW0KbIZFaSZ9YWac=
+        b=sxCMR6+jLLob/wllaGQNaT3ODLUjVuUmYof2c6rYsKcooavRU0YpZs3Hlhiij7eO7
+         P3rdBGlg0+kgmtdjgo/weYVa7UxHNF5UlDtpBNQoKniOxrS7l00I3StciDAbnzcp2P
+         pIFsrUhLZk0hCFcWz4IwQMY7qHcOq2OpVl4+5esw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Peter Meerwald <pmeerw@pmeerw.net>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 121/315] iio: accel: bma180: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:10 +0200
-Message-Id: <20210719144946.847312389@linuxfoundation.org>
+Subject: [PATCH 4.9 069/245] hwmon: (max31722) Remove non-standard ACPI device IDs
+Date:   Mon, 19 Jul 2021 16:50:11 +0200
+Message-Id: <20210719144942.632865524@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit fc36da3131a747a9367a05caf06de19be1bcc972 ]
+[ Upstream commit 97387c2f06bcfd79d04a848d35517b32ee6dca7c ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+Valid Maxim Integrated ACPI device IDs would start with MXIM,
+not with MAX1. On top of that, ACPI device IDs reflecting chip names
+are almost always invalid.
 
-Found during an audit of all calls of this function.
+Remove the invalid ACPI IDs.
 
-Fixes: b9a6a237ffc9 ("iio:bma180: Drop _update_scan_mode()")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Peter Meerwald <pmeerw@pmeerw.net>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-2-jic23@kernel.org
+Fixes: 04e1e70afec6 ("hwmon: (max31722) Add support for MAX31722/MAX31723 temperature sensors")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/bma180.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/hwmon/max31722.c | 9 ---------
+ 1 file changed, 9 deletions(-)
 
-diff --git a/drivers/iio/accel/bma180.c b/drivers/iio/accel/bma180.c
-index 3dec972ca672..dabe4717961f 100644
---- a/drivers/iio/accel/bma180.c
-+++ b/drivers/iio/accel/bma180.c
-@@ -121,7 +121,11 @@ struct bma180_data {
- 	int scale;
- 	int bw;
- 	bool pmode;
--	u8 buff[16]; /* 3x 16-bit + 8-bit + padding + timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		s16 chan[4];
-+		s64 timestamp __aligned(8);
-+	} scan;
+diff --git a/drivers/hwmon/max31722.c b/drivers/hwmon/max31722.c
+index 30a100e70a0d..877c3d7dca01 100644
+--- a/drivers/hwmon/max31722.c
++++ b/drivers/hwmon/max31722.c
+@@ -9,7 +9,6 @@
+  * directory of this archive for more details.
+  */
+ 
+-#include <linux/acpi.h>
+ #include <linux/hwmon.h>
+ #include <linux/hwmon-sysfs.h>
+ #include <linux/kernel.h>
+@@ -138,20 +137,12 @@ static const struct spi_device_id max31722_spi_id[] = {
+ 	{"max31723", 0},
+ 	{}
  };
+-
+-static const struct acpi_device_id __maybe_unused max31722_acpi_id[] = {
+-	{"MAX31722", 0},
+-	{"MAX31723", 0},
+-	{}
+-};
+-
+ MODULE_DEVICE_TABLE(spi, max31722_spi_id);
  
- enum bma180_chan {
-@@ -668,12 +672,12 @@ static irqreturn_t bma180_trigger_handler(int irq, void *p)
- 			mutex_unlock(&data->mutex);
- 			goto err;
- 		}
--		((s16 *)data->buff)[i++] = ret;
-+		data->scan.chan[i++] = ret;
- 	}
- 
- 	mutex_unlock(&data->mutex);
- 
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buff, time_ns);
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan, time_ns);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
- 
+ static struct spi_driver max31722_driver = {
+ 	.driver = {
+ 		.name = "max31722",
+ 		.pm = &max31722_pm_ops,
+-		.acpi_match_table = ACPI_PTR(max31722_acpi_id),
+ 	},
+ 	.probe =            max31722_probe,
+ 	.remove =           max31722_remove,
 -- 
 2.30.2
 
