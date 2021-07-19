@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AC033CD8D4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDD893CDA41
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243032AbhGSOZo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S243933AbhGSOfP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243501AbhGSOYG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 612AA6120D;
-        Mon, 19 Jul 2021 15:03:43 +0000 (UTC)
+        id S244234AbhGSOdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:33:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C1406120D;
+        Mon, 19 Jul 2021 15:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707024;
-        bh=wBLlXIPWF4mAHbJGtxkv7K3R9bjGQNIhUcFvSYVDY34=;
+        s=korg; t=1626707589;
+        bh=+br4lXrLjVnAKanPtMz7dggClCfj8m6FutAZAkS03dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/COP0R3nhZilFSEvvtegmXhRTZ4FOm1TZFWkDSzuNy3+9zfKQoPPgCWYknoRd82m
-         cilx5iY6UW3fNt9746HS8mcFQHNfQjVH8VAzbaWR2IVnLD/0pRtK8y9JdS/EltblvF
-         K+M8yNJzx68o/G/g39sEYBpaehmAvlrEq6y89pvQ=
+        b=qTaaxF9ydUo4Y3x2hzjFj26rzMcpWcERWb2p+qGDWB76UEowb8wbFr1uqPY+f9CvU
+         PWj4IdcGy6elTCu3fqBydqLiW9WISqQU4Ud5NrKcLVg1JfJLGd2BNKhJeFZmMppFwH
+         9rJkZLia50YLIlJ8F93uCPiAHqR4I6lET7Zv4ry0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 183/188] rtc: fix snprintf() checking in is_rtc_hctosys()
+Subject: [PATCH 4.9 225/245] power: supply: rt5033_battery: Fix device tree enumeration
 Date:   Mon, 19 Jul 2021 16:52:47 +0200
-Message-Id: <20210719144942.473878749@linuxfoundation.org>
+Message-Id: <20210719144947.665299160@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 54b909436ede47e0ee07f1765da27ec2efa41e84 ]
+[ Upstream commit f3076cd8d1d5fa64b5e1fa5affc045c2fc123baa ]
 
-The scnprintf() function silently truncates the printf() and returns
-the number bytes that it was able to copy (not counting the NUL
-terminator).  Thus, the highest value it can return here is
-"NAME_SIZE - 1" and the overflow check is dead code.  Fix this by
-using the snprintf() function which returns the number of bytes that
-would have been copied if there was enough space and changing the
-condition from "> NAME_SIZE" to ">= NAME_SIZE".
+The fuel gauge in the RT5033 PMIC has its own I2C bus and interrupt
+line. Therefore, it is not actually part of the RT5033 MFD and needs
+its own of_match_table to probe properly.
 
-Fixes: 92589c986b33 ("rtc-proc: permit the /proc/driver/rtc device to use other devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/YJov/pcGmhLi2pEl@mwanda
+Also, given that it's independent of the MFD, there is actually
+no need to make the Kconfig depend on MFD_RT5033. Although the driver
+uses the shared <linux/mfd/rt5033.h> header, there is no compile
+or runtime dependency on the RT5033 MFD driver.
+
+Cc: Beomho Seo <beomho.seo@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/Kconfig          | 3 ++-
+ drivers/power/supply/rt5033_battery.c | 7 +++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-proc.c b/drivers/rtc/rtc-proc.c
-index ffa69e1c9245..4f10cb1561cc 100644
---- a/drivers/rtc/rtc-proc.c
-+++ b/drivers/rtc/rtc-proc.c
-@@ -26,8 +26,8 @@ static bool is_rtc_hctosys(struct rtc_device *rtc)
- 	int size;
- 	char name[NAME_SIZE];
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index 0de9a958b29a..b825e70a5196 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -490,7 +490,8 @@ config BATTERY_GOLDFISH
  
--	size = scnprintf(name, NAME_SIZE, "rtc%d", rtc->id);
--	if (size > NAME_SIZE)
-+	size = snprintf(name, NAME_SIZE, "rtc%d", rtc->id);
-+	if (size >= NAME_SIZE)
- 		return false;
+ config BATTERY_RT5033
+ 	tristate "RT5033 fuel gauge support"
+-	depends on MFD_RT5033
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  This adds support for battery fuel gauge in Richtek RT5033 PMIC.
+ 	  The fuelgauge calculates and determines the battery state of charge
+diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
+index bcdd83048492..9310b85f3405 100644
+--- a/drivers/power/supply/rt5033_battery.c
++++ b/drivers/power/supply/rt5033_battery.c
+@@ -167,9 +167,16 @@ static const struct i2c_device_id rt5033_battery_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rt5033_battery_id);
  
- 	return !strncmp(name, CONFIG_RTC_HCTOSYS_DEVICE, NAME_SIZE);
++static const struct of_device_id rt5033_battery_of_match[] = {
++	{ .compatible = "richtek,rt5033-battery", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rt5033_battery_of_match);
++
+ static struct i2c_driver rt5033_battery_driver = {
+ 	.driver = {
+ 		.name = "rt5033-battery",
++		.of_match_table = rt5033_battery_of_match,
+ 	},
+ 	.probe = rt5033_battery_probe,
+ 	.remove = rt5033_battery_remove,
 -- 
 2.30.2
 
