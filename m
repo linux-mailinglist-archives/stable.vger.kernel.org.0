@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D7303CDB37
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F90C3CD91C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245048AbhGSOll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
+        id S243280AbhGSO0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244560AbhGSOhp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:37:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26E6D6120A;
-        Mon, 19 Jul 2021 15:17:31 +0000 (UTC)
+        id S242817AbhGSOZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:25:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D20976113E;
+        Mon, 19 Jul 2021 15:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707851;
-        bh=9jCJNCia3eUKC2iySVvG5X6hbJWuaZ3NbdUFamvukTc=;
+        s=korg; t=1626707174;
+        bh=J4p7LzVQQchdgunuqTzd4zWgz3g8h/zu+BG8D/ucd8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x04ffV2fDip229AGLwrjBG0it4TDiO+7GBGO5h11G0tLdZymzsySSnOgBoiOebEXp
-         cAjO14cg04I4TmmJufj+3U9bR6Y65+n0Bi9MtfWRI+WvtG8n1h5KYBqW8IcXl2zsK5
-         7bHJOawYDEWBDQbzJbZOdgLkB/o4PM69Lcch6v/E=
+        b=YWOGgwFDgO0iH9Kqy73kFqjnxTflzOIia16JNRTdkXmuFembfb2yrie1jF4rUUR6x
+         1kN5SIY8BitEIBG4LncdzWOe7BBMY5WOkPagb7qUcj+e7+D4EaUYuR2RNXwjqSZVlT
+         M7d5/jXC7qNdU1/qzm+PnaBOFXEXdTuCzmS0HXuA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/315] pata_ep93xx: fix deferred probing
+        stable@vger.kernel.org, Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 030/245] spi: spi-topcliff-pch: Fix potential double free in pch_spi_process_messages()
 Date:   Mon, 19 Jul 2021 16:49:32 +0200
-Message-Id: <20210719144945.606734732@linuxfoundation.org>
+Message-Id: <20210719144941.378713238@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Jay Fang <f.fangjian@huawei.com>
 
-[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
+[ Upstream commit 026a1dc1af52742c5897e64a3431445371a71871 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
-permanently instead of the deferred probing.  Propagate the error code
-upstream, as it should have been done from the start...
+pch_spi_set_tx() frees data->pkt_tx_buff on failure of kzalloc() for
+data->pkt_rx_buff, but its caller, pch_spi_process_messages(), will
+free data->pkt_tx_buff again. Set data->pkt_tx_buff to NULL after
+kfree() to avoid double free.
 
-Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/1620284888-65215-1-git-send-email-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-topcliff-pch.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index cc6d06c1b2c7..7ce62cdb63a5 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -927,7 +927,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
- 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		err = -ENXIO;
-+		err = irq;
- 		goto err_rel_gpio;
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index fe707440f8c3..9b24ebbba346 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -585,8 +585,10 @@ static void pch_spi_set_tx(struct pch_spi_data *data, int *bpw)
+ 	data->pkt_tx_buff = kzalloc(size, GFP_KERNEL);
+ 	if (data->pkt_tx_buff != NULL) {
+ 		data->pkt_rx_buff = kzalloc(size, GFP_KERNEL);
+-		if (!data->pkt_rx_buff)
++		if (!data->pkt_rx_buff) {
+ 			kfree(data->pkt_tx_buff);
++			data->pkt_tx_buff = NULL;
++		}
  	}
  
+ 	if (!data->pkt_rx_buff) {
 -- 
 2.30.2
 
