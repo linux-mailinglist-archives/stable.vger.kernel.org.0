@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A7E3CDBD9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3943CDA68
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbhGSOuI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
+        id S244923AbhGSOft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344289AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F7306128E;
-        Mon, 19 Jul 2021 15:27:50 +0000 (UTC)
+        id S245368AbhGSOed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0245E6128A;
+        Mon, 19 Jul 2021 15:13:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708470;
-        bh=dI0pHhPcB160m+cv+0IezzUj6hvXNpfMeDRFZDsAkXk=;
+        s=korg; t=1626707639;
+        bh=COMMYMrIZyJA7Y/8b9KO9zfJUI/g6UHTY3iQqUVpiVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HYp4SVMsRbL7N4OtBPhSGApnCo2Xxz+5N0xOOv0hwNlFSLUwJofO3yZr+su2bbtBp
-         DObMrP7RACxBLJr1vfT/EfLHErD9aCT6fiHItqFTIWM9WheJim3sZIM8A0ZmjqR12y
-         NAfgQznqCmMuvqkUqujvALBng38Yxkl7/UiVHE1A=
+        b=MyePAsyAfruDiZjmJUo1LtM/EPKj6Pkz+lUglUEFvWNcyzP9xnMdxXtOL2Nr8gPAG
+         OSf2EmHKhoIB/3RXGg0CHHMH4XVOMbmTBS9wIjXmYEkeWL1LWO3n+6831RbVL+Bt/K
+         PIPYmimV9Fpw9vV0Cg2pvptWfA3rFHoKTJanFBOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 296/315] ALSA: isa: Fix error return code in snd_cmi8330_probe()
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 243/245] mips: always link byteswap helpers into decompressor
 Date:   Mon, 19 Jul 2021 16:53:05 +0200
-Message-Id: <20210719144953.199255646@linuxfoundation.org>
+Message-Id: <20210719144948.218519419@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 31028cbed26a8afa25533a10425ffa2ab794c76c ]
+[ Upstream commit cddc40f5617e53f97ef019d5b29c1bd6cbb031ec ]
 
-When 'SB_HW_16' check fails, the error code -ENODEV instead of 0 should be
-returned, which is the same as that returned when 'WSS_HW_CMI8330' check
-fails.
+My series to clean up the unaligned access implementation
+across architectures caused some mips randconfig builds to
+fail with:
 
-Fixes: 43bcd973d6d0 ("[ALSA] Add snd_card_set_generic_dev() call to ISA drivers")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210707074051.2663-1-thunder.leizhen@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+   mips64-linux-ld: arch/mips/boot/compressed/decompress.o: in function `decompress_kernel':
+   decompress.c:(.text.decompress_kernel+0x54): undefined reference to `__bswapsi2'
+
+It turns out that this problem has already been fixed for the XZ
+decompressor but now it also shows up in (at least) LZO and LZ4.  From my
+analysis I concluded that the compiler could always have emitted those
+calls, but the different implementation allowed it to make otherwise
+better decisions about not inlining the byteswap, which results in the
+link error when the out-of-line code is missing.
+
+While it could be addressed by adding it to the two decompressor
+implementations that are known to be affected, but as this only adds
+112 bytes to the kernel, the safer choice is to always add them.
+
+Fixes: c50ec6787536 ("MIPS: zboot: Fix the build with XZ compression on older GCC versions")
+Fixes: 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers")
+Link: https://lore.kernel.org/linux-mm/202106301304.gz2wVY9w-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106260659.TyMe8mjr-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106172016.onWT6Tza-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202105231743.JJcALnhS-lkp@intel.com/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/cmi8330.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/boot/compressed/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
-index 6b8c46942efb..75b3d76eb852 100644
---- a/sound/isa/cmi8330.c
-+++ b/sound/isa/cmi8330.c
-@@ -564,7 +564,7 @@ static int snd_cmi8330_probe(struct snd_card *card, int dev)
- 	}
- 	if (acard->sb->hardware != SB_HW_16) {
- 		snd_printk(KERN_ERR PFX "SB16 not found during probe\n");
--		return err;
-+		return -ENODEV;
- 	}
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 0fa91c981658..3e93eea5a5f5 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -33,7 +33,7 @@ KBUILD_AFLAGS := $(LINUXINCLUDE) $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
+ KCOV_INSTRUMENT		:= n
  
- 	snd_wss_out(acard->wss, CS4231_MISC_INFO, 0x40); /* switch on MODE2 */
+ # decompressor objects (linked with vmlinuz)
+-vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
++vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o $(obj)/bswapsi.o
+ 
+ ifdef CONFIG_DEBUG_ZBOOT
+ vmlinuzobjs-$(CONFIG_DEBUG_ZBOOT)		   += $(obj)/dbg.o
+@@ -47,7 +47,7 @@ extra-y += uart-ath79.c
+ $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
+ 	$(call cmd,shipped)
+ 
+-vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o $(obj)/bswapsi.o
++vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
+ 
+ extra-y += ashldi3.c bswapsi.c
+ $(obj)/ashldi3.o $(obj)/bswapsi.o: KBUILD_CFLAGS += -I$(srctree)/arch/mips/lib
 -- 
 2.30.2
 
