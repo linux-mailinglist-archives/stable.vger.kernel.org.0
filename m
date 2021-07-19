@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9403CDCD1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA683CDCD2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239532AbhGSOxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44960 "EHLO mail.kernel.org"
+        id S238470AbhGSOx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239312AbhGSOui (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:50:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A990E6124B;
-        Mon, 19 Jul 2021 15:31:17 +0000 (UTC)
+        id S239344AbhGSOuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:50:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D602360551;
+        Mon, 19 Jul 2021 15:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708678;
-        bh=WCgqCVeQTTzT+EkU1SDOwaTTAyEbF/1YJP6Z97JdPVc=;
+        s=korg; t=1626708680;
+        bh=SA5MZgS2PfvCVaCfZaGNl9mDx1oFuWLRKXOI2zUk/hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7eALNnb15iv0dwTH4k4D2m6reWiD6fL4szYsxyUYIMz3Y0gUyXY/FSiHrxJXMrzz
-         9v+mh8BExFIQ1Hzn8TcNaB9KCDqhX1fCcVvSAqXKJFsZMl67htz6xdVJcG/fZ9H9Wp
-         g22DJOqEFQnLC0cCX38rhwnikn51wqMFGXMsf/+c=
+        b=WUWoFdmNoweKJnGVIt7Ett6MOJOH7eH5AFFIl4Wep9qonQu0HKYs9qvHVA1GXSM+4
+         /OgVjc+f6sESDz8Q+OtU8Hxhn6QHar7hSAZBABBYjfZZX40aJE5sokTqLP1+Ts7lAb
+         caphil3KGzwiSThyaV32aU60fBILJXMyE12MD34Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Shawn Guo <shawn.guo@linaro.org>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 086/421] fs: dlm: fix memory leak when fenced
-Date:   Mon, 19 Jul 2021 16:48:17 +0200
-Message-Id: <20210719144949.101274059@linuxfoundation.org>
+Subject: [PATCH 4.19 087/421] ACPICA: Fix memory leak caused by _CID repair function
+Date:   Mon, 19 Jul 2021 16:48:18 +0200
+Message-Id: <20210719144949.132266521@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,83 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Erik Kaneda <erik.kaneda@intel.com>
 
-[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
+[ Upstream commit c27bac0314131b11bccd735f7e8415ac6444b667 ]
 
-I got some kmemleak report when a node was fenced. The user space tool
-dlm_controld will therefore run some rmdir() in dlm configfs which was
-triggering some memleaks. This patch stores the sps and cms attributes
-which stores some handling for subdirectories of the configfs cluster
-entry and free them if they get released as the parent directory gets
-freed.
+ACPICA commit 180cb53963aa876c782a6f52cc155d951b26051a
 
-unreferenced object 0xffff88810d9e3e00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000db8b640b>] make_cluster+0x5d/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-unreferenced object 0xffff88810d9e3a00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+According to the ACPI spec, _CID returns a package containing
+hardware ID's. Each element of an ASL package contains a reference
+count from the parent package as well as the element itself.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Name (TEST, Package() {
+    "String object" // this package element has a reference count of 2
+})
+
+A memory leak was caused in the _CID repair function because it did
+not decrement the reference count created by the package. Fix the
+memory leak by calling acpi_ut_remove_reference on _CID package elements
+that represent a hardware ID (_HID).
+
+Link: https://github.com/acpica/acpica/commit/180cb539
+Tested-by: Shawn Guo <shawn.guo@linaro.org>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/acpi/acpica/nsrepair2.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index f13d86524450..42b53e2a4e96 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -80,6 +80,9 @@ struct dlm_cluster {
- 	unsigned int cl_new_rsb_count;
- 	unsigned int cl_recover_callbacks;
- 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
-+
-+	struct dlm_spaces *sps;
-+	struct dlm_comms *cms;
- };
+diff --git a/drivers/acpi/acpica/nsrepair2.c b/drivers/acpi/acpica/nsrepair2.c
+index a3bd6280882c..4c8ce483805d 100644
+--- a/drivers/acpi/acpica/nsrepair2.c
++++ b/drivers/acpi/acpica/nsrepair2.c
+@@ -375,6 +375,13 @@ acpi_ns_repair_CID(struct acpi_evaluate_info *info,
  
- static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
-@@ -356,6 +359,9 @@ static struct config_group *make_cluster(struct config_group *g,
- 	if (!cl || !sps || !cms)
- 		goto fail;
- 
-+	cl->sps = sps;
-+	cl->cms = cms;
+ 			(*element_ptr)->common.reference_count =
+ 			    original_ref_count;
 +
- 	config_group_init_type_name(&cl->group, name, &cluster_type);
- 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
- 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
-@@ -405,6 +411,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
- static void release_cluster(struct config_item *i)
- {
- 	struct dlm_cluster *cl = config_item_to_cluster(i);
-+
-+	kfree(cl->sps);
-+	kfree(cl->cms);
- 	kfree(cl);
- }
++			/*
++			 * The original_element holds a reference from the package object
++			 * that represents _HID. Since a new element was created by _HID,
++			 * remove the reference from the _CID package.
++			 */
++			acpi_ut_remove_reference(original_element);
+ 		}
  
+ 		element_ptr++;
 -- 
 2.30.2
 
