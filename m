@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A483CE256
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F83D3CE418
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346756AbhGSPaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S242383AbhGSPmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348081AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51B8661426;
-        Mon, 19 Jul 2021 16:01:35 +0000 (UTC)
+        id S1348990AbhGSPfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B08E460FD7;
+        Mon, 19 Jul 2021 16:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710495;
-        bh=1w39NO3r1fdOq1xGZi/VCg80LLnswPcxJ4oM8HMkOX4=;
+        s=korg; t=1626711354;
+        bh=wq4ZZtUm7EFvZAjpJHS806vzHeGv9agH7iwJwPRfhek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXBPNxK7dCLx4MgkMNO9yV5Pqnq/LN/HpZoEB2Z6/LEzjXYgrX+yrqTbrxdIlg9x7
-         dvj9bCQsUBAIMwaHLfCmZkGv+Rfm3tGq3Hvt0QH47jkEZ3gx7KFAYIbUphvULmVXHP
-         7NTM2p/viuPxD2OFErUDrekShXPTVYIm5C6dIIdw=
+        b=Ex0VlJ69WMDB4foSXJe/S5shU6D8X4Wxjz01sIq4eENMbyVS/vAMIE2P/VP3cHbCI
+         tJENh1E2Z7AqY6hPvKyW5rsVOl/leCwf3+pBQ5ZXfrC6RDMmRFXy1/qdJkfZPiassb
+         V4G0nmdG6rNS0KmbXwBwUiq2DitTOTXm8/Ww1OuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Kyungsik Lee <kyungsik.lee@lge.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 240/243] mips: disable branch profiling in boot/decompress.o
+        stable@vger.kernel.org,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        kernel@dh-electronics.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 323/351] ARM: dts: imx6q-dhcom: Fix ethernet reset time properties
 Date:   Mon, 19 Jul 2021 16:54:29 +0200
-Message-Id: <20210719144948.668310419@linuxfoundation.org>
+Message-Id: <20210719144955.734889507@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-[ Upstream commit 97e488073cfca0eea84450169ca4cbfcc64e33e3 ]
+[ Upstream commit c016c26c1631f539c652b5d82242a3ca402545c1 ]
 
-Use DISABLE_BRANCH_PROFILING for arch/mips/boot/compressed/decompress.o
-to prevent linkage errors.
+Fix ethernet reset time properties as described in
+Documentation/devicetree/bindings/net/ethernet-phy.yaml
 
-mips64-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_fast_extDict':
-decompress.c:(.text+0x8c): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0xf4): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x200): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x230): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x320): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: arch/mips/boot/compressed/decompress.o:decompress.c:(.text+0x3f4): more undefined references to `ftrace_likely_update' follow
-
-Fixes: e76e1fdfa8f8 ("lib: add support for LZ4-compressed kernel")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: kernel@dh-electronics.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/compressed/decompress.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/imx6q-dhcom-som.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/boot/compressed/decompress.c b/arch/mips/boot/compressed/decompress.c
-index e3946b06e840..1e91155bed80 100644
---- a/arch/mips/boot/compressed/decompress.c
-+++ b/arch/mips/boot/compressed/decompress.c
-@@ -7,6 +7,8 @@
-  * Author: Wu Zhangjin <wuzhangjin@gmail.com>
-  */
- 
-+#define DISABLE_BRANCH_PROFILING
-+
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/string.h>
+diff --git a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+index d0768ae429fa..921a277fc3b0 100644
+--- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+@@ -96,8 +96,8 @@
+ 			reg = <0>;
+ 			max-speed = <100>;
+ 			reset-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+-			reset-delay-us = <1000>;
+-			reset-post-delay-us = <1000>;
++			reset-assert-us = <1000>;
++			reset-deassert-us = <1000>;
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
