@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E67713CD9FE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41B3E3CD88B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245061AbhGSOcX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47024 "EHLO mail.kernel.org"
+        id S243250AbhGSOXN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:23:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244072AbhGSOa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D18626128A;
-        Mon, 19 Jul 2021 15:11:37 +0000 (UTC)
+        id S242755AbhGSOVz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DE8161221;
+        Mon, 19 Jul 2021 15:02:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707498;
-        bh=wia/TUYpbbKj1UwbejGKotlRBPD2a0DaKGT95+sCIfY=;
+        s=korg; t=1626706928;
+        bh=VZP/X+3I2CY/Y94ML6h8eu4Jevr7NJU1hitT9SU0iN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qu7yj0Ta55YrIuzKAiPW3jhN4NqjIh7y/2XQXhCbXuBPXAtjKjPwYZf80YbWLBLgO
-         jUL/2vWdtQheDIeFjvHz3uQy0QNEtU8Sb+1ID/fBieUOb9hEXN/hbNxjMIavmW14N/
-         h1T/eZdfZPO2vl6DEZIPTL5fUp8aUnWSOAbztSwQ=
+        b=zEp2OoO0iF6zTJaKOYX4LZUIb8jIy9EG+sMQjwKnME8J7mA9uc57OzmvyEbbxQn2r
+         KalFR1tak3HDBewWl//uA/F+qnb+ReSkdvhV6Veh4cSDo9vTL5U6XA+Ox3Uim3SSDu
+         idZ4QpIHao4K6QSzMHOq4jHJ0xz0Hozs0dzaWYSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 189/245] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
+Subject: [PATCH 4.4 147/188] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
 Date:   Mon, 19 Jul 2021 16:52:11 +0200
-Message-Id: <20210719144946.517933326@linuxfoundation.org>
+Message-Id: <20210719144941.294644749@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,7 +58,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
-index ba9731ace0e4..3747991024d5 100644
+index bf5feb2ea35a..92c64ed12295 100644
 --- a/drivers/tty/serial/8250/serial_cs.c
 +++ b/drivers/tty/serial/8250/serial_cs.c
 @@ -305,6 +305,7 @@ static int serial_resume(struct pcmcia_device *link)
