@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4073CE33F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9300E3CE0D0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235541AbhGSPhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48720 "EHLO mail.kernel.org"
+        id S1346859AbhGSPST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235557AbhGSPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0755D6141D;
-        Mon, 19 Jul 2021 16:10:29 +0000 (UTC)
+        id S1346552AbhGSPOv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1F72D6120C;
+        Mon, 19 Jul 2021 15:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711030;
-        bh=4l/AoMsvGwjk7Lsth8aoRoQQpUwOUt4rTVkI0sOT9vM=;
+        s=korg; t=1626710117;
+        bh=BAx2GDapydcayVPgmDKTjmO6TJRsJq0/Tnd8ZZI9me8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RB1a1Jk4PxV94pIU0EPU7bF61fGwiFtH4bVX5/bXDDGoHUqwfk02A2ssrN3CmDdc+
-         9hg6kFFu/NYuek8Ptg6WaMqn9b8zzufYobLr/wrkYvP4OAAWPyle3LMzlX8XKjyd1/
-         PiEjKhB1F/tqZg2mTeyqzEkl5pc4ix0pUvUj65bo=
+        b=r6mpM5CRWA7LkvGmPf5yvLrUQGoif2ziuq6s0ntpzHqaRg/6M5R6cwTDipNZjickr
+         Nc93/CMILSbS9DmMjzPrZvVSuxqjp/Ge1JG2HMTVDj1lO5bXXruDVQf12xOcUqHAiQ
+         vlIjjWz50UxWEnBA/NY+JcyoTefvODB/A1Uk6780=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 167/351] watchdog: Fix possible use-after-free by calling del_timer_sync()
+Subject: [PATCH 5.10 084/243] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
 Date:   Mon, 19 Jul 2021 16:51:53 +0200
-Message-Id: <20210719144950.502349970@linuxfoundation.org>
+Message-Id: <20210719144943.610813410@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
 
-This driver's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+When devm_kcalloc() fails, the error code -ENOMEM should be returned
+instead of -EINVAL.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/soc-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index 78cf11c94941..60b6d74f267d 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -292,7 +292,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index b22674e3a89c..e677422c1058 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2804,7 +2804,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
+ 	if (!routes) {
+ 		dev_err(card->dev,
+ 			"ASoC: Could not allocate DAPM route table\n");
+-		return -EINVAL;
++		return -ENOMEM;
+ 	}
  
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
- 
- 	return 0;
- }
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index 5772cc5d3780..f2650863fd02 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -166,7 +166,7 @@ static void wdt_startup(void)
- static void wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
- 
- 	wdt_change(WDT_DISABLE);
- 
+ 	for (i = 0; i < num_routes; i++) {
 -- 
 2.30.2
 
