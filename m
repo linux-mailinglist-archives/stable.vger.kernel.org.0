@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 532A03CE09B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 767243CE2C2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346161AbhGSPRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49454 "EHLO mail.kernel.org"
+        id S233421AbhGSPbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345357AbhGSPOF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24C1861400;
-        Mon, 19 Jul 2021 15:53:54 +0000 (UTC)
+        id S1346311AbhGSP2l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:28:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 768F7611ED;
+        Mon, 19 Jul 2021 16:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710035;
-        bh=Sf6e4yExoweHIOKnhm/QYEDg5XEg6e3wHd9VOfVKaFc=;
+        s=korg; t=1626710939;
+        bh=sk5rvFib5S+/tFVACJhPL3D9r+kcEJmN/zFpx1YCRI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWNWS6nyBAMMp8nAxF/jHeNl6iuyR8ABiIoobAFVl1CD1BvLAhugjE7bl6eEA55p6
-         h6/nbjrYT6TBT5vGW/h80fYau5Z9itxb0A+jI2YHqCZMHE0x4i5ClqF2an3YltG6Lt
-         Bszn+5aa9FlXwqo5rZw4rzcjihNoDv363fi8zC30=
+        b=0eqBFMO/3j4F3C9jm4hjDoez376WWkDTWmGpym6v2JuZ802Bq95fZjj8zNyZFFPRg
+         UOS8fVpz4viqqPMwNjaecvJ/llEX+p+7xkl/NP97YfEbrBfhgbNxddRLaajHgviE5w
+         Rgarh1LC5EjJZCwNsJK8p6ms1YY8Pl4GeDSaOsE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Segher Boessenkool <segher@kernel.crashing.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/243] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
-Date:   Mon, 19 Jul 2021 16:51:18 +0200
-Message-Id: <20210719144942.500837804@linuxfoundation.org>
+Subject: [PATCH 5.13 133/351] powerpc/boot: Fixup device-tree on little endian
+Date:   Mon, 19 Jul 2021 16:51:19 +0200
+Message-Id: <20210719144948.882809750@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +44,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
+[ Upstream commit c93f80849bdd9b45d834053ae1336e28f0026c84 ]
 
-In the probe function, if the final 'serial_config()' fails, 'info' is
-leaking.
+This fixes the core devtree.c functions and the ns16550 UART backend.
 
-Add a resource handling path to free this memory.
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
+Acked-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/YMwXrPT8nc4YUdJ9@thinks.paulus.ozlabs.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/powerpc/boot/devtree.c | 59 +++++++++++++++++++++----------------
+ arch/powerpc/boot/ns16550.c |  9 ++++--
+ 2 files changed, 41 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
-index 1d3ec8503cef..7c3ea68e533e 100644
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -306,6 +306,7 @@ static int serial_resume(struct pcmcia_device *link)
- static int serial_probe(struct pcmcia_device *link)
+diff --git a/arch/powerpc/boot/devtree.c b/arch/powerpc/boot/devtree.c
+index 5d91036ad626..58fbcfcc98c9 100644
+--- a/arch/powerpc/boot/devtree.c
++++ b/arch/powerpc/boot/devtree.c
+@@ -13,6 +13,7 @@
+ #include "string.h"
+ #include "stdio.h"
+ #include "ops.h"
++#include "of.h"
+ 
+ void dt_fixup_memory(u64 start, u64 size)
  {
- 	struct serial_info *info;
-+	int ret;
+@@ -23,21 +24,25 @@ void dt_fixup_memory(u64 start, u64 size)
+ 	root = finddevice("/");
+ 	if (getprop(root, "#address-cells", &naddr, sizeof(naddr)) < 0)
+ 		naddr = 2;
++	else
++		naddr = be32_to_cpu(naddr);
+ 	if (naddr < 1 || naddr > 2)
+ 		fatal("Can't cope with #address-cells == %d in /\n\r", naddr);
  
- 	dev_dbg(&link->dev, "serial_attach()\n");
+ 	if (getprop(root, "#size-cells", &nsize, sizeof(nsize)) < 0)
+ 		nsize = 1;
++	else
++		nsize = be32_to_cpu(nsize);
+ 	if (nsize < 1 || nsize > 2)
+ 		fatal("Can't cope with #size-cells == %d in /\n\r", nsize);
  
-@@ -320,7 +321,15 @@ static int serial_probe(struct pcmcia_device *link)
- 	if (do_sound)
- 		link->config_flags |= CONF_ENABLE_SPKR;
+ 	i = 0;
+ 	if (naddr == 2)
+-		memreg[i++] = start >> 32;
+-	memreg[i++] = start & 0xffffffff;
++		memreg[i++] = cpu_to_be32(start >> 32);
++	memreg[i++] = cpu_to_be32(start & 0xffffffff);
+ 	if (nsize == 2)
+-		memreg[i++] = size >> 32;
+-	memreg[i++] = size & 0xffffffff;
++		memreg[i++] = cpu_to_be32(size >> 32);
++	memreg[i++] = cpu_to_be32(size & 0xffffffff);
  
--	return serial_config(link);
-+	ret = serial_config(link);
-+	if (ret)
-+		goto free_info;
-+
-+	return 0;
-+
-+free_info:
-+	kfree(info);
-+	return ret;
+ 	memory = finddevice("/memory");
+ 	if (! memory) {
+@@ -45,9 +50,9 @@ void dt_fixup_memory(u64 start, u64 size)
+ 		setprop_str(memory, "device_type", "memory");
+ 	}
+ 
+-	printf("Memory <- <0x%x", memreg[0]);
++	printf("Memory <- <0x%x", be32_to_cpu(memreg[0]));
+ 	for (i = 1; i < (naddr + nsize); i++)
+-		printf(" 0x%x", memreg[i]);
++		printf(" 0x%x", be32_to_cpu(memreg[i]));
+ 	printf("> (%ldMB)\n\r", (unsigned long)(size >> 20));
+ 
+ 	setprop(memory, "reg", memreg, (naddr + nsize)*sizeof(u32));
+@@ -65,10 +70,10 @@ void dt_fixup_cpu_clocks(u32 cpu, u32 tb, u32 bus)
+ 		printf("CPU bus-frequency <- 0x%x (%dMHz)\n\r", bus, MHZ(bus));
+ 
+ 	while ((devp = find_node_by_devtype(devp, "cpu"))) {
+-		setprop_val(devp, "clock-frequency", cpu);
+-		setprop_val(devp, "timebase-frequency", tb);
++		setprop_val(devp, "clock-frequency", cpu_to_be32(cpu));
++		setprop_val(devp, "timebase-frequency", cpu_to_be32(tb));
+ 		if (bus > 0)
+-			setprop_val(devp, "bus-frequency", bus);
++			setprop_val(devp, "bus-frequency", cpu_to_be32(bus));
+ 	}
+ 
+ 	timebase_period_ns = 1000000000 / tb;
+@@ -80,7 +85,7 @@ void dt_fixup_clock(const char *path, u32 freq)
+ 
+ 	if (devp) {
+ 		printf("%s: clock-frequency <- %x (%dMHz)\n\r", path, freq, MHZ(freq));
+-		setprop_val(devp, "clock-frequency", freq);
++		setprop_val(devp, "clock-frequency", cpu_to_be32(freq));
+ 	}
  }
  
- static void serial_detach(struct pcmcia_device *link)
+@@ -133,8 +138,12 @@ void dt_get_reg_format(void *node, u32 *naddr, u32 *nsize)
+ {
+ 	if (getprop(node, "#address-cells", naddr, 4) != 4)
+ 		*naddr = 2;
++	else
++		*naddr = be32_to_cpu(*naddr);
+ 	if (getprop(node, "#size-cells", nsize, 4) != 4)
+ 		*nsize = 1;
++	else
++		*nsize = be32_to_cpu(*nsize);
+ }
+ 
+ static void copy_val(u32 *dest, u32 *src, int naddr)
+@@ -163,9 +172,9 @@ static int add_reg(u32 *reg, u32 *add, int naddr)
+ 	int i, carry = 0;
+ 
+ 	for (i = MAX_ADDR_CELLS - 1; i >= MAX_ADDR_CELLS - naddr; i--) {
+-		u64 tmp = (u64)reg[i] + add[i] + carry;
++		u64 tmp = (u64)be32_to_cpu(reg[i]) + be32_to_cpu(add[i]) + carry;
+ 		carry = tmp >> 32;
+-		reg[i] = (u32)tmp;
++		reg[i] = cpu_to_be32((u32)tmp);
+ 	}
+ 
+ 	return !carry;
+@@ -180,18 +189,18 @@ static int compare_reg(u32 *reg, u32 *range, u32 *rangesize)
+ 	u32 end;
+ 
+ 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
+-		if (reg[i] < range[i])
++		if (be32_to_cpu(reg[i]) < be32_to_cpu(range[i]))
+ 			return 0;
+-		if (reg[i] > range[i])
++		if (be32_to_cpu(reg[i]) > be32_to_cpu(range[i]))
+ 			break;
+ 	}
+ 
+ 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
+-		end = range[i] + rangesize[i];
++		end = be32_to_cpu(range[i]) + be32_to_cpu(rangesize[i]);
+ 
+-		if (reg[i] < end)
++		if (be32_to_cpu(reg[i]) < end)
+ 			break;
+-		if (reg[i] > end)
++		if (be32_to_cpu(reg[i]) > end)
+ 			return 0;
+ 	}
+ 
+@@ -240,7 +249,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
+ 		return 0;
+ 
+ 	dt_get_reg_format(parent, &naddr, &nsize);
+-
+ 	if (nsize > 2)
+ 		return 0;
+ 
+@@ -252,10 +260,10 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
+ 
+ 	copy_val(last_addr, prop_buf + offset, naddr);
+ 
+-	ret_size = prop_buf[offset + naddr];
++	ret_size = be32_to_cpu(prop_buf[offset + naddr]);
+ 	if (nsize == 2) {
+ 		ret_size <<= 32;
+-		ret_size |= prop_buf[offset + naddr + 1];
++		ret_size |= be32_to_cpu(prop_buf[offset + naddr + 1]);
+ 	}
+ 
+ 	for (;;) {
+@@ -278,7 +286,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
+ 
+ 		offset = find_range(last_addr, prop_buf, prev_naddr,
+ 		                    naddr, prev_nsize, buflen / 4);
+-
+ 		if (offset < 0)
+ 			return 0;
+ 
+@@ -296,8 +303,7 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
+ 	if (naddr > 2)
+ 		return 0;
+ 
+-	ret_addr = ((u64)last_addr[2] << 32) | last_addr[3];
+-
++	ret_addr = ((u64)be32_to_cpu(last_addr[2]) << 32) | be32_to_cpu(last_addr[3]);
+ 	if (sizeof(void *) == 4 &&
+ 	    (ret_addr >= 0x100000000ULL || ret_size > 0x100000000ULL ||
+ 	     ret_addr + ret_size > 0x100000000ULL))
+@@ -350,11 +356,14 @@ int dt_is_compatible(void *node, const char *compat)
+ int dt_get_virtual_reg(void *node, void **addr, int nres)
+ {
+ 	unsigned long xaddr;
+-	int n;
++	int n, i;
+ 
+ 	n = getprop(node, "virtual-reg", addr, nres * 4);
+-	if (n > 0)
++	if (n > 0) {
++		for (i = 0; i < n/4; i ++)
++			((u32 *)addr)[i] = be32_to_cpu(((u32 *)addr)[i]);
+ 		return n / 4;
++	}
+ 
+ 	for (n = 0; n < nres; n++) {
+ 		if (!dt_xlate_reg(node, n, &xaddr, NULL))
+diff --git a/arch/powerpc/boot/ns16550.c b/arch/powerpc/boot/ns16550.c
+index b0da4466d419..f16d2be1d0f3 100644
+--- a/arch/powerpc/boot/ns16550.c
++++ b/arch/powerpc/boot/ns16550.c
+@@ -15,6 +15,7 @@
+ #include "stdio.h"
+ #include "io.h"
+ #include "ops.h"
++#include "of.h"
+ 
+ #define UART_DLL	0	/* Out: Divisor Latch Low */
+ #define UART_DLM	1	/* Out: Divisor Latch High */
+@@ -58,16 +59,20 @@ int ns16550_console_init(void *devp, struct serial_console_data *scdp)
+ 	int n;
+ 	u32 reg_offset;
+ 
+-	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1)
++	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1) {
++		printf("virt reg parse fail...\r\n");
+ 		return -1;
++	}
+ 
+ 	n = getprop(devp, "reg-offset", &reg_offset, sizeof(reg_offset));
+ 	if (n == sizeof(reg_offset))
+-		reg_base += reg_offset;
++		reg_base += be32_to_cpu(reg_offset);
+ 
+ 	n = getprop(devp, "reg-shift", &reg_shift, sizeof(reg_shift));
+ 	if (n != sizeof(reg_shift))
+ 		reg_shift = 0;
++	else
++		reg_shift = be32_to_cpu(reg_shift);
+ 
+ 	scdp->open = ns16550_open;
+ 	scdp->putc = ns16550_putc;
 -- 
 2.30.2
 
