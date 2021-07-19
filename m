@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B6F3CDFDC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA9B3CDF2B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345714AbhGSPMf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46912 "EHLO mail.kernel.org"
+        id S1345131AbhGSPIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345217AbhGSPK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A3E16113B;
-        Mon, 19 Jul 2021 15:51:05 +0000 (UTC)
+        id S1345582AbhGSPEm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91DA561002;
+        Mon, 19 Jul 2021 15:44:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709866;
-        bh=avXpt2IE8evYRyq1qslB7oJTaE/69xXYFne8L/SFsqc=;
+        s=korg; t=1626709464;
+        bh=MsuFiYr1B/vBs+rZ9Sy8lx3c5KEKHFIwYu/WAIBpf6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gcw7ZPb4NNhwwNQfjVXhzDFdP6yflkJaIqIwVqmbEjHkdc3DFaJTACdGupq+n/Ree
-         DAJLHj1XKs/fW7XtUm9qpB8ZfaYU92/mL5o55nfCWG+c2OlW/ajSfpW7mDU16MsQPG
-         NgNMW4w2DRTfHng8ZxMCiUPVU523760EmselOrbM=
+        b=MROTOiw85dvUhNdfUpSmWoTqAZajXVrHw2KyZISTp3gEZXwKOEWOa0yLq+ADNYnlC
+         a8Re1EM+iDzg433lFElXFGtYVqnSTay59DCQL9h8A8ihk5tY9CIBF1FgwEgMn1zWY5
+         UUdk/7sahjqyQ3rl+fn2+4tOiRyRStOhfdOyq4ek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 096/149] x86/signal: Detect and prevent an alternate signal stack overflow
+Subject: [PATCH 4.19 393/421] virtio_net: move tx vq operation under tx queue lock
 Date:   Mon, 19 Jul 2021 16:53:24 +0200
-Message-Id: <20210719144924.106579372@linuxfoundation.org>
+Message-Id: <20210719144959.997457901@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,140 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chang S. Bae <chang.seok.bae@intel.com>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 2beb4a53fc3f1081cedc1c1a198c7f56cc4fc60c ]
+[ Upstream commit 5a2f966d0f3fa0ef6dada7ab9eda74cacee96b8a ]
 
-The kernel pushes context on to the userspace stack to prepare for the
-user's signal handler. When the user has supplied an alternate signal
-stack, via sigaltstack(2), it is easy for the kernel to verify that the
-stack size is sufficient for the current hardware context.
+It's unsafe to operate a vq from multiple threads.
+Unfortunately this is exactly what we do when invoking
+clean tx poll from rx napi.
+Same happens with napi-tx even without the
+opportunistic cleaning from the receive interrupt: that races
+with processing the vq in start_xmit.
 
-Check if writing the hardware context to the alternate stack will exceed
-it's size. If yes, then instead of corrupting user-data and proceeding with
-the original signal handler, an immediate SIGSEGV signal is delivered.
+As a fix move everything that deals with the vq to under tx lock.
 
-Refactor the stack pointer check code from on_sig_stack() and use the new
-helper.
-
-While the kernel allows new source code to discover and use a sufficient
-alternate signal stack size, this check is still necessary to protect
-binaries with insufficient alternate signal stack size from data
-corruption.
-
-Fixes: c2bc11f10a39 ("x86, AVX-512: Enable AVX-512 States Context Switch")
-Reported-by: Florian Weimer <fweimer@redhat.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Len Brown <len.brown@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20210518200320.17239-6-chang.seok.bae@intel.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=153531
+Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c     | 24 ++++++++++++++++++++----
- include/linux/sched/signal.h | 19 ++++++++++++-------
- 2 files changed, 32 insertions(+), 11 deletions(-)
+ drivers/net/virtio_net.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index 2fdbf5ef8c39..026ce06a24c0 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -241,10 +241,11 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	     void __user **fpstate)
- {
- 	/* Default to using normal stack */
-+	bool nested_altstack = on_sig_stack(regs->sp);
-+	bool entering_altstack = false;
- 	unsigned long math_size = 0;
- 	unsigned long sp = regs->sp;
- 	unsigned long buf_fx = 0;
--	int onsigstack = on_sig_stack(sp);
- 	int ret;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index bb11a1e30646..5e8b40630286 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1506,6 +1506,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
+ 	struct virtnet_info *vi = sq->vq->vdev->priv;
+ 	unsigned int index = vq2txq(sq->vq);
+ 	struct netdev_queue *txq;
++	int opaque;
++	bool done;
  
- 	/* redzone */
-@@ -253,15 +254,23 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
+ 		/* We don't need to enable cb for XDP */
+@@ -1515,10 +1517,28 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
  
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (sas_ss_flags(sp) == 0)
-+		/*
-+		 * This checks nested_altstack via sas_ss_flags(). Sensible
-+		 * programs use SS_AUTODISARM, which disables that check, and
-+		 * programs that don't use SS_AUTODISARM get compatible.
-+		 */
-+		if (sas_ss_flags(sp) == 0) {
- 			sp = current->sas_ss_sp + current->sas_ss_size;
-+			entering_altstack = true;
+ 	txq = netdev_get_tx_queue(vi->dev, index);
+ 	__netif_tx_lock(txq, raw_smp_processor_id());
++	virtqueue_disable_cb(sq->vq);
+ 	free_old_xmit_skbs(sq, true);
++
++	opaque = virtqueue_enable_cb_prepare(sq->vq);
++
++	done = napi_complete_done(napi, 0);
++
++	if (!done)
++		virtqueue_disable_cb(sq->vq);
++
+ 	__netif_tx_unlock(txq);
+ 
+-	virtqueue_napi_complete(napi, sq->vq, 0);
++	if (done) {
++		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
++			if (napi_schedule_prep(napi)) {
++				__netif_tx_lock(txq, raw_smp_processor_id());
++				virtqueue_disable_cb(sq->vq);
++				__netif_tx_unlock(txq);
++				__napi_schedule(napi);
++			}
 +		}
- 	} else if (IS_ENABLED(CONFIG_X86_32) &&
--		   !onsigstack &&
-+		   !nested_altstack &&
- 		   regs->ss != __USER_DS &&
- 		   !(ka->sa.sa_flags & SA_RESTORER) &&
- 		   ka->sa.sa_restorer) {
- 		/* This is the legacy signal stack switching. */
- 		sp = (unsigned long) ka->sa.sa_restorer;
-+		entering_altstack = true;
- 	}
- 
- 	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
-@@ -274,8 +283,15 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	 * If we are on the alternate signal stack and would overflow it, don't.
- 	 * Return an always-bogus address instead so we will die with SIGSEGV.
- 	 */
--	if (onsigstack && !likely(on_sig_stack(sp)))
-+	if (unlikely((nested_altstack || entering_altstack) &&
-+		     !__on_sig_stack(sp))) {
-+
-+		if (show_unhandled_signals && printk_ratelimit())
-+			pr_info("%s[%d] overflowed sigaltstack\n",
-+				current->comm, task_pid_nr(current));
-+
- 		return (void __user *)-1L;
 +	}
  
- 	/* save i387 and extended state */
- 	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index baf58f4cb057..b3f88470cbb5 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -509,6 +509,17 @@ static inline int kill_cad_pid(int sig, int priv)
- #define SEND_SIG_NOINFO ((struct kernel_siginfo *) 0)
- #define SEND_SIG_PRIV	((struct kernel_siginfo *) 1)
- 
-+static inline int __on_sig_stack(unsigned long sp)
-+{
-+#ifdef CONFIG_STACK_GROWSUP
-+	return sp >= current->sas_ss_sp &&
-+		sp - current->sas_ss_sp < current->sas_ss_size;
-+#else
-+	return sp > current->sas_ss_sp &&
-+		sp - current->sas_ss_sp <= current->sas_ss_size;
-+#endif
-+}
-+
- /*
-  * True if we are on the alternate signal stack.
-  */
-@@ -526,13 +537,7 @@ static inline int on_sig_stack(unsigned long sp)
- 	if (current->sas_ss_flags & SS_AUTODISARM)
- 		return 0;
- 
--#ifdef CONFIG_STACK_GROWSUP
--	return sp >= current->sas_ss_sp &&
--		sp - current->sas_ss_sp < current->sas_ss_size;
--#else
--	return sp > current->sas_ss_sp &&
--		sp - current->sas_ss_sp <= current->sas_ss_size;
--#endif
-+	return __on_sig_stack(sp);
- }
- 
- static inline int sas_ss_flags(unsigned long sp)
+ 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+ 		netif_tx_wake_queue(txq);
 -- 
 2.30.2
 
