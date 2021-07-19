@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6353CE181
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABF63CE406
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349257AbhGSP0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1347699AbhGSPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347971AbhGSPXj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09173613D3;
-        Mon, 19 Jul 2021 16:00:05 +0000 (UTC)
+        id S1348748AbhGSPf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA03461629;
+        Mon, 19 Jul 2021 16:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710406;
-        bh=R5v9OgEwcjZa8ieC98gxzWeUdtmbSLxTyoDoyWpuVyE=;
+        s=korg; t=1626711252;
+        bh=LDL4Bqi17LueZ8n7BQx1SbwuFjKuWJ/E8uFrCXGqHxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7nNwqy7IEXV+mZ/C+zo8tjzaeg+765KmcRX8F+7EGyZ3qbEg3qPsWVUzdR1Czgc9
-         czhVPWm2SFXi8s7BjxWR5mXnxehTgc48PhGWcd9bET0+ZNn8FwFLI8Ul+bns4Iv+HR
-         SmPsN/5iGV3CtEK+tCsdnyuQkkiiRv7tBCtoriSg=
+        b=ENKsCGlj6jzH9MLGTa3Nemsgd4yguyH4LktEe13kOfcXUnDsh5WJ6tqMmKk9b5Shl
+         NRu1W7jN15+Srt9rz8jd7uRJBnR6jvuXzXYK+uZ5NzpHLLxVmsul3lneg5/L/TEcsX
+         EDnwWnSFgjr57qJ2ICtSNOXvlCTcRLolQj1lCt00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 202/243] arm64: dts: ti: j7200-main: Enable USB2 PHY RX sensitivity workaround
+        stable@vger.kernel.org, "B.R. Oake" <broake@mailfence.com>,
+        Vagrant Cascadian <vagrant@reproducible-builds.org>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 285/351] ARM: dts: sun8i: h3: orangepi-plus: Fix ethernet phy-mode
 Date:   Mon, 19 Jul 2021 16:53:51 +0200
-Message-Id: <20210719144947.451238345@linuxfoundation.org>
+Message-Id: <20210719144954.462410955@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Salvatore Bonaccorso <carnil@debian.org>
 
-[ Upstream commit a2894d85f44ba3f2bdf5806c8dc62e2ec40c1c09 ]
+[ Upstream commit b19d3479f25e8a0ff24df0b46c82e50ef0f900dd ]
 
-Enable work around feature built into the controller to address issue with
-RX Sensitivity for USB2 PHY.
+Commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay
+config") sets the RX/TX delay according to the phy-mode property in the
+device tree. For the Orange Pi Plus board this is "rgmii", which is the
+wrong setting.
 
-Fixes: 6197d7139d12 ("arm64: dts: ti: k3-j7200-main: Add USB controller")
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210512153308.5840-1-a-govindraju@ti.com
+Following the example of a900cac3750b ("ARM: dts: sun7i: a20: bananapro:
+Fix ethernet phy-mode") the phy-mode is changed to "rgmii-id" which gets
+the Ethernet working again on this board.
+
+Fixes: bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay config")
+Reported-by: "B.R. Oake" <broake@mailfence.com>
+Reported-by: Vagrant Cascadian <vagrant@reproducible-builds.org>
+Link: https://bugs.debian.org/988574
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210524122111.416885-1-carnil@debian.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 689538244392..5832ad830ed1 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -446,6 +446,7 @@
- 					  "otg";
- 			maximum-speed = "super-speed";
- 			dr_mode = "otg";
-+			cdns,phyrst-a-enable;
- 		};
- 	};
+diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
+index 97f497854e05..d05fa679dcd3 100644
+--- a/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
++++ b/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
+@@ -85,7 +85,7 @@
+ 	pinctrl-0 = <&emac_rgmii_pins>;
+ 	phy-supply = <&reg_gmac_3v3>;
+ 	phy-handle = <&ext_rgmii_phy>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
+ 
+ 	status = "okay";
  };
 -- 
 2.30.2
