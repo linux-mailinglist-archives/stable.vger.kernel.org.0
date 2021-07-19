@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7CE3CDE0C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01C53CDC93
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344622AbhGSPBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
+        id S244713AbhGSOxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344464AbhGSO7l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E91560FE9;
-        Mon, 19 Jul 2021 15:40:19 +0000 (UTC)
+        id S238242AbhGSOoc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37B75610A5;
+        Mon, 19 Jul 2021 15:23:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709220;
-        bh=wegrrj2M5Y+qYlIrcdG5oDviKj1PRHxI1vpOC93rO8M=;
+        s=korg; t=1626708185;
+        bh=aYmCmLwlanssdjfVPHfag2Uu6KXtTJuNJ4MyqSbVFVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qtmtJmTbWKtraMVxfqHQoGyfNy/JwNfL8aGYTFAi/nUFwbYkRAS9rsDQ0EGC11Z6/
-         xpap3DhMqs8rKipiFFNvgY1bWLVwRc9drALocHiSqy6e4/bnTBc7V/Fn5G1fbAIrTb
-         hqSKY/UwmlSVP0WzHX/PUxvzzmke2u1k8nog2t1U=
+        b=Rmhq6ZdKoHEnBG3wVsIo+6b3WIuE3oWerNAVaa3HEyLngunq8V/7Q1BGfI0pL4frP
+         S4F+gg5PmHYDjcSuy5e97sumfADHT9wg2myfSeowHccmVanvJMuI+DK4ie1eQglcLB
+         2B/yIcyQkcx2/ktTqCsAjV105RjG6u1ni4tEaQTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 290/421] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
-Date:   Mon, 19 Jul 2021 16:51:41 +0200
-Message-Id: <20210719144956.383077234@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Timo Sigurdsson <public_timo.s@silentcreek.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 213/315] ata: ahci_sunxi: Disable DIPM
+Date:   Mon, 19 Jul 2021 16:51:42 +0200
+Message-Id: <20210719144950.435832764@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Timo Sigurdsson <public_timo.s@silentcreek.de>
 
-commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
+commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
 
-When an eMMC device is being run in HS400 mode, any access to the
-RPMB device will cause the error message "mmc1: Invalid UHS-I mode
-selected". This happens as a result of tuning being disabled before
-RPMB access and then re-enabled after the RPMB access is complete.
-When tuning is re-enabled, the system has to switch from HS400
-to HS200 to do the tuning and then back to HS400. As part of
-sequence to switch from HS400 to HS200 the system is temporarily
-put into HS mode. When switching to HS mode, sdhci_get_preset_value()
-is called and does not have support for HS mode and prints the warning
-message and returns the preset for SDR12. The fix is to add support
-for MMC and SD HS modes to sdhci_get_preset_value().
+DIPM is unsupported or broken on sunxi. Trying to enable the power
+management policy med_power_with_dipm on an Allwinner A20 SoC based board
+leads to immediate I/O errors and the attached SATA disk disappears from
+the /dev filesystem. A reset (power cycle) is required to make the SATA
+controller or disk work again. The A10 and A20 SoC data sheets and manuals
+don't mention DIPM at all [1], so it's fair to assume that it's simply not
+supported. But even if it was, it should be considered broken and best be
+disabled in the ahci_sunxi driver.
 
-This can be reproduced on any system running eMMC in HS400 mode
-(not HS400ES) by using the "mmc" utility to run the following
-command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
+[1] https://github.com/allwinner-zh/documents/tree/master/
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
+Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |    4 ++++
- drivers/mmc/host/sdhci.h |    1 +
- 2 files changed, 5 insertions(+)
+ drivers/ata/ahci_sunxi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1371,6 +1371,10 @@ static u16 sdhci_get_preset_value(struct
- 	u16 preset = 0;
+--- a/drivers/ata/ahci_sunxi.c
++++ b/drivers/ata/ahci_sunxi.c
+@@ -165,7 +165,7 @@ static void ahci_sunxi_start_engine(stru
+ }
  
- 	switch (host->timing) {
-+	case MMC_TIMING_MMC_HS:
-+	case MMC_TIMING_SD_HS:
-+		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
-+		break;
- 	case MMC_TIMING_UHS_SDR12:
- 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
- 		break;
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -252,6 +252,7 @@
- 
- /* 60-FB reserved */
- 
-+#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
- #define SDHCI_PRESET_FOR_SDR12 0x66
- #define SDHCI_PRESET_FOR_SDR25 0x68
- #define SDHCI_PRESET_FOR_SDR50 0x6A
+ static const struct ata_port_info ahci_sunxi_port_info = {
+-	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
++	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
+ 	.pio_mask	= ATA_PIO4,
+ 	.udma_mask	= ATA_UDMA6,
+ 	.port_ops	= &ahci_platform_ops,
 
 
