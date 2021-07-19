@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A53BE3CE4BC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0B43CE4BD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349629AbhGSPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349649AbhGSPqC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:46:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347537AbhGSPlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:41:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F117B61375;
-        Mon, 19 Jul 2021 16:21:37 +0000 (UTC)
+        id S1347918AbhGSPlq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:41:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B834F61283;
+        Mon, 19 Jul 2021 16:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711698;
-        bh=7wFhkZ0IlNgtCAhPr5ZrgV3HSP2CLK9OONDhD4XycyQ=;
+        s=korg; t=1626711701;
+        bh=wVFWZjD32RCEOXrQYqbhnw7dQOnDS4glSrjrbV4SPHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1kJikASfMVQaPh0aVjVGocxquY7u9L+UvFx1ti96ZSUj1784IoQ+uuWCzqWoYsox
-         WvIFZFmax7yAJoGUxAhrtH8iR6Pl2IVRIN/XO71zt6eeoACaoulGA+5crwH4cgyKAR
-         GPW9ZioSBViAo+ayzZMOzrjaqkopDT5Mu1VFmS6s=
+        b=2sqich22+DzIrg288yFSfX9pN92VuhSXn+3W4fcPV7gcbLcv1hvZ6uSN5+jVxfHVH
+         JoFKwSUnnI3NC63APSTuZj8BclBnx3ZhCwXbLbmWTmiFb9+eoR/YRggzvUOaQ2fybB
+         9Cb/x7zY2rIBVVcKqnBAA3rhIFcMAtKvbmyG5QiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 099/292] ASoC: soc-core: Fix the error return code in snd_soc_of_parse_audio_routing()
-Date:   Mon, 19 Jul 2021 16:52:41 +0200
-Message-Id: <20210719144945.750366195@linuxfoundation.org>
+Subject: [PATCH 5.12 100/292] xhci: handle failed buffer copy to URB sg list and fix a W=1 copiler warning
+Date:   Mon, 19 Jul 2021 16:52:42 +0200
+Message-Id: <20210719144945.790451390@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,34 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 7d3865a10b9ff2669c531d5ddd60bf46b3d48f1e ]
+[ Upstream commit 271a21d8b280b186f8cc9ca6f7151902efde9512 ]
 
-When devm_kcalloc() fails, the error code -ENOMEM should be returned
-instead of -EINVAL.
+Set the urb->actual_length to bytes successfully copied in case all bytes
+weren't copied from a temporary buffer to the URB sg list.
+Also print a debug message
 
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210617103729.1918-1-thunder.leizhen@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210617150354.1512157-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 6680c12716d4..6d4b08e918de 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -2796,7 +2796,7 @@ int snd_soc_of_parse_audio_routing(struct snd_soc_card *card,
- 	if (!routes) {
- 		dev_err(card->dev,
- 			"ASoC: Could not allocate DAPM route table\n");
--		return -EINVAL;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 0d2f1c37ab74..73cdaa3f3067 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1362,12 +1362,17 @@ static void xhci_unmap_temp_buf(struct usb_hcd *hcd, struct urb *urb)
+ 				 urb->transfer_buffer_length,
+ 				 dir);
  
- 	for (i = 0; i < num_routes; i++) {
+-	if (usb_urb_dir_in(urb))
++	if (usb_urb_dir_in(urb)) {
+ 		len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs,
+ 					   urb->transfer_buffer,
+ 					   buf_len,
+ 					   0);
+-
++		if (len != buf_len) {
++			xhci_dbg(hcd_to_xhci(hcd),
++				 "Copy from tmp buf to urb sg list failed\n");
++			urb->actual_length = len;
++		}
++	}
+ 	urb->transfer_flags &= ~URB_DMA_MAP_SINGLE;
+ 	kfree(urb->transfer_buffer);
+ 	urb->transfer_buffer = NULL;
 -- 
 2.30.2
 
