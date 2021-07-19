@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E9B3CDF17
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FD13CDC64
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345055AbhGSPHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38316 "EHLO mail.kernel.org"
+        id S237818AbhGSOwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346172AbhGSPFR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11D5660238;
-        Mon, 19 Jul 2021 15:45:55 +0000 (UTC)
+        id S1343740AbhGSOsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6284861264;
+        Mon, 19 Jul 2021 15:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709556;
-        bh=v5VR3ML5WWx7WsjA2n/GGkbhcKCR+pId0vcZ6ZoDZzo=;
+        s=korg; t=1626708291;
+        bh=UqriqRib4I+JDiCwd7F7ESvVv8gKRctAuFQYRQF22rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHsYpqr5V7+/tfrRw1hTX0P6Z4zJ2xMyd1GctO2bLET+uqwPtqufYOOYnOfJKSmQr
-         m/m+eb3Dimsd6FCU7UWEZDSG6kRIFgMXTdBtJ819BgjJK5LPgZz9KtMAq7mCXIHLYD
-         8qpXUh09brNU/ywbySqNJGyDIGzdjehrWx5rq4l4=
+        b=zPK+myBEssTtWtuPOmJnzaIvnaadVnvKR1ZiVyP8FcuFWJJ3lFTJOznjhEAdTo81b
+         yujzIK+cC2g1kqYR6WDF7SweV5vkQk7BNpQ+VTyZeEyV6+edudkRUTBeZ71RiFvOI0
+         crZD5M4tRFkitkWMPKesJ0ntZDWdTCgj8EF8d8cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        kvm@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH 5.4 001/149] KVM: mmio: Fix use-after-free Read in kvm_vm_ioctl_unregister_coalesced_mmio
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Paul Burton <paulburton@google.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 220/315] tracing: Simplify & fix saved_tgids logic
 Date:   Mon, 19 Jul 2021 16:51:49 +0200
-Message-Id: <20210719144901.709931996@linuxfoundation.org>
+Message-Id: <20210719144950.667161505@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,128 +41,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Paul Burton <paulburton@google.com>
 
-commit 23fa2e46a5556f787ce2ea1a315d3ab93cced204 upstream.
+commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
 
-BUG: KASAN: use-after-free in kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
-Read of size 8 at addr ffff0000c03a2500 by task syz-executor083/4269
+The tgid_map array records a mapping from pid to tgid, where the index
+of an entry within the array is the pid & the value stored at that index
+is the tgid.
 
-CPU: 5 PID: 4269 Comm: syz-executor083 Not tainted 5.10.0 #7
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
- show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x110/0x164 lib/dump_stack.c:118
- print_address_description+0x78/0x5c8 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x148/0x1e4 mm/kasan/report.c:562
- check_memory_region_inline mm/kasan/generic.c:183 [inline]
- __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
- kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
- kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+The saved_tgids_next() function iterates over pointers into the tgid_map
+array & dereferences the pointers which results in the tgid, but then it
+passes that dereferenced value to trace_find_tgid() which treats it as a
+pid & does a further lookup within the tgid_map array. It seems likely
+that the intent here was to skip over entries in tgid_map for which the
+recorded tgid is zero, but instead we end up skipping over entries for
+which the thread group leader hasn't yet had its own tgid recorded in
+tgid_map.
 
-Allocated by task 4269:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
- kmem_cache_alloc_trace include/linux/slab.h:450 [inline]
- kmalloc include/linux/slab.h:552 [inline]
- kzalloc include/linux/slab.h:664 [inline]
- kvm_vm_ioctl_register_coalesced_mmio+0x78/0x1cc arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:146
- kvm_vm_ioctl+0x7e8/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3746
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+A minimal fix would be to remove the call to trace_find_tgid, turning:
 
-Freed by task 4269:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x38/0x6c mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
- __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
- kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
- slab_free_hook mm/slub.c:1544 [inline]
- slab_free_freelist_hook mm/slub.c:1577 [inline]
- slab_free mm/slub.c:3142 [inline]
- kfree+0x104/0x38c mm/slub.c:4124
- coalesced_mmio_destructor+0x94/0xa4 arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:102
- kvm_iodevice_destructor include/kvm/iodev.h:61 [inline]
- kvm_io_bus_unregister_dev+0x248/0x280 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:4374
- kvm_vm_ioctl_unregister_coalesced_mmio+0x158/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:186
- kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+  if (trace_find_tgid(*ptr))
 
-If kvm_io_bus_unregister_dev() return -ENOMEM, we already call kvm_iodevice_destructor()
-inside this function to delete 'struct kvm_coalesced_mmio_dev *dev' from list
-and free the dev, but kvm_iodevice_destructor() is called again, it will lead
-the above issue.
+into:
 
-Let's check the the return value of kvm_io_bus_unregister_dev(), only call
-kvm_iodevice_destructor() if the return value is 0.
+  if (*ptr)
 
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-Id: <20210626070304.143456-1-wangkefeng.wang@huawei.com>
-Cc: stable@vger.kernel.org
-Fixes: 5d3c4c79384a ("KVM: Stop looking for coalesced MMIO zones if the bus is destroyed", 2021-04-20)
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+..but it seems like this logic can be much simpler if we simply let
+seq_read() iterate over the whole tgid_map array & filter out empty
+entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
+approach, removing the incorrect logic here entirely.
+
+Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
+
+Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Joel Fernandes <joelaf@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Burton <paulburton@google.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/coalesced_mmio.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c |   38 +++++++++++++-------------------------
+ 1 file changed, 13 insertions(+), 25 deletions(-)
 
---- a/virt/kvm/coalesced_mmio.c
-+++ b/virt/kvm/coalesced_mmio.c
-@@ -190,7 +190,6 @@ int kvm_vm_ioctl_unregister_coalesced_mm
- 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
- 			r = kvm_io_bus_unregister_dev(kvm,
- 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
--			kvm_iodevice_destructor(&dev->dev);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -4750,37 +4750,20 @@ static const struct file_operations trac
  
- 			/*
- 			 * On failure, unregister destroys all devices on the
-@@ -200,6 +199,7 @@ int kvm_vm_ioctl_unregister_coalesced_mm
- 			 */
- 			if (r)
- 				break;
-+			kvm_iodevice_destructor(&dev->dev);
- 		}
- 	}
+ static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
+ {
+-	int *ptr = v;
++	int pid = ++(*pos);
+ 
+-	if (*pos || m->count)
+-		ptr++;
+-
+-	(*pos)++;
+-
+-	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
+-		if (trace_find_tgid(*ptr))
+-			return ptr;
+-	}
++	if (pid > PID_MAX_DEFAULT)
++		return NULL;
+ 
+-	return NULL;
++	return &tgid_map[pid];
+ }
+ 
+ static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
+ {
+-	void *v;
+-	loff_t l = 0;
+-
+-	if (!tgid_map)
++	if (!tgid_map || *pos > PID_MAX_DEFAULT)
+ 		return NULL;
+ 
+-	v = &tgid_map[0];
+-	while (l <= *pos) {
+-		v = saved_tgids_next(m, v, &l);
+-		if (!v)
+-			return NULL;
+-	}
+-
+-	return v;
++	return &tgid_map[*pos];
+ }
+ 
+ static void saved_tgids_stop(struct seq_file *m, void *v)
+@@ -4789,9 +4772,14 @@ static void saved_tgids_stop(struct seq_
+ 
+ static int saved_tgids_show(struct seq_file *m, void *v)
+ {
+-	int pid = (int *)v - tgid_map;
++	int *entry = (int *)v;
++	int pid = entry - tgid_map;
++	int tgid = *entry;
++
++	if (tgid == 0)
++		return SEQ_SKIP;
+ 
+-	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
++	seq_printf(m, "%d %d\n", pid, tgid);
+ 	return 0;
+ }
  
 
 
