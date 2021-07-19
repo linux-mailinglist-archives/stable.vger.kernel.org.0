@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81673CE28A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBAF83CE3EE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347476AbhGSPat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
+        id S232227AbhGSPlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348018AbhGSPYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA5C66124B;
-        Mon, 19 Jul 2021 16:00:39 +0000 (UTC)
+        id S1348170AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41B6C6140A;
+        Mon, 19 Jul 2021 16:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710440;
-        bh=DyTMdCdsxsbTLR7vRnnYoeE6C/G6Kd7Q4U0wr8X/eWE=;
+        s=korg; t=1626711209;
+        bh=qAOrF9B0QCnF2sSl9P3Z0vFbu1w7HEbgskEF8O8ND3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IafVxC1zmoGRuHEgRXkewTUH2z21p0yi87MxRAGX2x0ifuP3lKYvg1sv8wVVSL0S1
-         7mYSM9U9CX3dVj7v0XbADtGjO2qFx2F6rSu02ebZaZje5Hn+WHcRmZ8Fd0C9UXcrg+
-         BXd4Kemrs5gbzzPm2rb9XzDu85A5UXbywTEG5OuE=
+        b=m5kTzG/Y8whKRiFrOr5gUC39UnPmXgr4aI9YMgnRWFERAa7AtfDV0GjMpm0OFogyT
+         DMOem4YpIhSQJbsg7Ceku1obDQqcDkw3MqptM2g1Cimj8rg8SA0eleUkaCAwzbYnIP
+         tsu/mPKKkYVC46vYk5rrRQD/qvUqFn1CODv4xSII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 183/243] NFSv4/pNFS: Dont call _nfs4_pnfs_v3_ds_connect multiple times
-Date:   Mon, 19 Jul 2021 16:53:32 +0200
-Message-Id: <20210719144946.831800649@linuxfoundation.org>
+Subject: [PATCH 5.13 267/351] NFSv4/pNFS: Dont call _nfs4_pnfs_v3_ds_connect multiple times
+Date:   Mon, 19 Jul 2021 16:53:33 +0200
+Message-Id: <20210719144953.777802323@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,10 +56,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 26 insertions(+), 26 deletions(-)
 
 diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index e3b25822e0bb..251c4a3aef9a 100644
+index 49d3389bd813..1c2c0d08614e 100644
 --- a/fs/nfs/pnfs_nfs.c
 +++ b/fs/nfs/pnfs_nfs.c
-@@ -791,19 +791,16 @@ out:
+@@ -805,19 +805,16 @@ out:
  }
  EXPORT_SYMBOL_GPL(nfs4_pnfs_ds_add);
  
@@ -82,7 +82,7 @@ index e3b25822e0bb..251c4a3aef9a 100644
  }
  
  static struct nfs_client *(*get_v3_ds_connect)(
-@@ -969,30 +966,33 @@ int nfs4_pnfs_ds_connect(struct nfs_server *mds_srv, struct nfs4_pnfs_ds *ds,
+@@ -993,30 +990,33 @@ int nfs4_pnfs_ds_connect(struct nfs_server *mds_srv, struct nfs4_pnfs_ds *ds,
  {
  	int err;
  
