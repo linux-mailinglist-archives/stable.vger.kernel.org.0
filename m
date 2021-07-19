@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE3123CE0FC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8953CE2EA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347317AbhGSPTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55604 "EHLO mail.kernel.org"
+        id S236524AbhGSPcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347116AbhGSPPf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:15:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2D30601FD;
-        Mon, 19 Jul 2021 15:56:14 +0000 (UTC)
+        id S239753AbhGSPan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:30:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9157B6140F;
+        Mon, 19 Jul 2021 16:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710175;
-        bh=YrfJ8dKNlutmPddgbdWUgLKsXiT8/9F7vm9xuBCNROM=;
+        s=korg; t=1626710999;
+        bh=B6M+TEEyT4yZKC2+XgZybp+diuzpOAhge+9nkCwgf+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooizk6dYo2j8ngBBJqqSHGNmpXSG/FN3uMaHQCrA6J273t3FwCDiCPbwb3k8vAxoy
-         Zcaxyljhzq0KJjJB8Fs1wotus6Y28zMwC+kZ/UnU9/6CQy+Lgn0WcLkvKu0nzlW2Fz
-         PC27C807eXlcbDAh/b0pf0p0ypZaQfTFhLjjsFQQ=
+        b=eRIUkeWFnubRqOArOLzvVqNkRoBJGBNOmx0yPzR7CeBWZM9AOakNjaqtO1bRKFZ95
+         SD/f8o37al+kByZQnDUOL1LYcBmqqTD1dJ26mU1S4OlonIV6ThJOrsUjissrYp6CLd
+         n/lEoUWsBvRbH/+xt5Z/5u+7E61x0jWEIh4wWAKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 106/243] intel_th: Wait until port is in reset before programming it
+Subject: [PATCH 5.13 189/351] pwm: img: Fix PM reference leak in img_pwm_enable()
 Date:   Mon, 19 Jul 2021 16:52:15 +0200
-Message-Id: <20210719144944.327437336@linuxfoundation.org>
+Message-Id: <20210719144951.229084481@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,117 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit ab1afed701d2db7eb35c1a2526a29067a38e93d1 ]
+[ Upstream commit fde25294dfd8e36e4e30b693c27a86232864002a ]
 
-Some devices don't drain their pipelines if we don't make sure that
-the corresponding output port is in reset before programming it for
-a new trace capture, resulting in bits of old trace appearing in the
-new trace capture. Fix that by explicitly making sure the reset is
-asserted before programming new trace capture.
+pm_runtime_get_sync will increment pm usage counter even it failed.
+Forgetting to putting operation will result in reference leak here.
+Fix it by replacing it with pm_runtime_resume_and_get to keep usage
+counter balanced.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Link: https://lore.kernel.org/r/20210621151246.31891-5-alexander.shishkin@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/core.c     | 17 +++++++++++++++++
- drivers/hwtracing/intel_th/gth.c      | 16 ++++++++++++++++
- drivers/hwtracing/intel_th/intel_th.h |  3 +++
- 3 files changed, 36 insertions(+)
+ drivers/pwm/pwm-img.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/intel_th/core.c b/drivers/hwtracing/intel_th/core.c
-index c9ac3dc65113..9cb8c7d13d46 100644
---- a/drivers/hwtracing/intel_th/core.c
-+++ b/drivers/hwtracing/intel_th/core.c
-@@ -215,6 +215,22 @@ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
+diff --git a/drivers/pwm/pwm-img.c b/drivers/pwm/pwm-img.c
+index cc37054589cc..11b16ecc4f96 100644
+--- a/drivers/pwm/pwm-img.c
++++ b/drivers/pwm/pwm-img.c
+@@ -156,7 +156,7 @@ static int img_pwm_enable(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	struct img_pwm_chip *pwm_chip = to_img_pwm_chip(chip);
+ 	int ret;
  
- static DEVICE_ATTR_RO(port);
+-	ret = pm_runtime_get_sync(chip->dev);
++	ret = pm_runtime_resume_and_get(chip->dev);
+ 	if (ret < 0)
+ 		return ret;
  
-+static void intel_th_trace_prepare(struct intel_th_device *thdev)
-+{
-+	struct intel_th_device *hub = to_intel_th_hub(thdev);
-+	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
-+
-+	if (hub->type != INTEL_TH_SWITCH)
-+		return;
-+
-+	if (thdev->type != INTEL_TH_OUTPUT)
-+		return;
-+
-+	pm_runtime_get_sync(&thdev->dev);
-+	hubdrv->prepare(hub, &thdev->output);
-+	pm_runtime_put(&thdev->dev);
-+}
-+
- static int intel_th_output_activate(struct intel_th_device *thdev)
- {
- 	struct intel_th_driver *thdrv =
-@@ -235,6 +251,7 @@ static int intel_th_output_activate(struct intel_th_device *thdev)
- 	if (ret)
- 		goto fail_put;
- 
-+	intel_th_trace_prepare(thdev);
- 	if (thdrv->activate)
- 		ret = thdrv->activate(thdev);
- 	else
-diff --git a/drivers/hwtracing/intel_th/gth.c b/drivers/hwtracing/intel_th/gth.c
-index 28509b02a0b5..b3308934a687 100644
---- a/drivers/hwtracing/intel_th/gth.c
-+++ b/drivers/hwtracing/intel_th/gth.c
-@@ -564,6 +564,21 @@ static void gth_tscu_resync(struct gth_device *gth)
- 	iowrite32(reg, gth->base + REG_TSCU_TSUCTRL);
- }
- 
-+static void intel_th_gth_prepare(struct intel_th_device *thdev,
-+				 struct intel_th_output *output)
-+{
-+	struct gth_device *gth = dev_get_drvdata(&thdev->dev);
-+	int count;
-+
-+	/*
-+	 * Wait until the output port is in reset before we start
-+	 * programming it.
-+	 */
-+	for (count = GTH_PLE_WAITLOOP_DEPTH;
-+	     count && !(gth_output_get(gth, output->port) & BIT(5)); count--)
-+		cpu_relax();
-+}
-+
- /**
-  * intel_th_gth_enable() - enable tracing to an output device
-  * @thdev:	GTH device
-@@ -815,6 +830,7 @@ static struct intel_th_driver intel_th_gth_driver = {
- 	.assign		= intel_th_gth_assign,
- 	.unassign	= intel_th_gth_unassign,
- 	.set_output	= intel_th_gth_set_output,
-+	.prepare	= intel_th_gth_prepare,
- 	.enable		= intel_th_gth_enable,
- 	.trig_switch	= intel_th_gth_switch,
- 	.disable	= intel_th_gth_disable,
-diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
-index 5fe694708b7a..595615b79108 100644
---- a/drivers/hwtracing/intel_th/intel_th.h
-+++ b/drivers/hwtracing/intel_th/intel_th.h
-@@ -143,6 +143,7 @@ intel_th_output_assigned(struct intel_th_device *thdev)
-  * @remove:	remove method
-  * @assign:	match a given output type device against available outputs
-  * @unassign:	deassociate an output type device from an output port
-+ * @prepare:	prepare output port for tracing
-  * @enable:	enable tracing for a given output device
-  * @disable:	disable tracing for a given output device
-  * @irq:	interrupt callback
-@@ -164,6 +165,8 @@ struct intel_th_driver {
- 					  struct intel_th_device *othdev);
- 	void			(*unassign)(struct intel_th_device *thdev,
- 					    struct intel_th_device *othdev);
-+	void			(*prepare)(struct intel_th_device *thdev,
-+					   struct intel_th_output *output);
- 	void			(*enable)(struct intel_th_device *thdev,
- 					  struct intel_th_output *output);
- 	void			(*trig_switch)(struct intel_th_device *thdev,
 -- 
 2.30.2
 
