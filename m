@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D6FA3CD831
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0840D3CD9EB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242845AbhGSOVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57286 "EHLO mail.kernel.org"
+        id S244047AbhGSOcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242619AbhGSOUL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98B2461073;
-        Mon, 19 Jul 2021 15:00:49 +0000 (UTC)
+        id S245048AbhGSOaO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:30:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2490460551;
+        Mon, 19 Jul 2021 15:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706850;
-        bh=mMIS+Y5t42SGI2NUOoLIFM4/YIJr4m7BFnO3ggN34KQ=;
+        s=korg; t=1626707453;
+        bh=bQ6o2NIi3EfTjmaHCOFG+RzRJtr0dJpoXEu17KBfHcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Su0aZFM8jDhVMdmFNdutsRBQjKl2/0j+smW7g09nFfepoWigOPjI9kPOlwyH24jqf
-         uVRWvxgIy25c7j369jX9Wc8IHrYEV/eMQ8NTp+dhnsDg68dr4I2spQXY03fmmYXfId
-         ENKwSCY4eX86JIe3kf6QVh0dtVvHB/Lowcyw3ShE=
+        b=o3rgX1NZNz1JLpfLSz4n/VZej6RsjOQFLpLLoo1XvHFR0cb4xZkjzLoE5SaaVvjn0
+         eQ7l5SWq0py3TrOx9UyJpsEVI6hHVPjMUB8eVVMvmYtjyjp2eiH5JQRcnAgBTJLtcS
+         BlhvrX8591EBcdbUY8fGxiEq+WJm565dMXOZHG3c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "linux-wireless@vger.kernel.org, stable@vger.kernel.org, Davis Mosenkovs" 
-        <davis@mosenkovs.lv>, Davis Mosenkovs <davis@mosenkovs.lv>
-Subject: [PATCH 4.4 126/188] mac80211: fix memory corruption in EAPOL handling
-Date:   Mon, 19 Jul 2021 16:51:50 +0200
-Message-Id: <20210719144940.616512993@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Marcus Cooper <codekipper@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>
+Subject: [PATCH 4.9 169/245] power: supply: ab8500: Fix an old bug
+Date:   Mon, 19 Jul 2021 16:51:51 +0200
+Message-Id: <20210719144945.869636730@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davis Mosenkovs <davis@mosenkovs.lv>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-Commit e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL
-frames") uses skb_mac_header() before eth_type_trans() is called
-leading to incorrect pointer, the pointer gets written to. This issue
-has appeared during backporting to 4.4, 4.9 and 4.14.
+commit f1c74a6c07e76fcb31a4bcc1f437c4361a2674ce upstream.
 
-Fixes: e3d4030498c3 ("mac80211: do not accept/forward invalid EAPOL frames")
-Link: https://lore.kernel.org/r/CAHQn7pKcyC_jYmGyTcPCdk9xxATwW5QPNph=bsZV8d-HPwNsyA@mail.gmail.com
-Cc: <stable@vger.kernel.org> # 4.4.x
-Signed-off-by: Davis Mosenkovs <davis@mosenkovs.lv>
+Trying to get the AB8500 charging driver working I ran into a bit
+of bitrot: we haven't used the driver for a while so errors in
+refactorings won't be noticed.
+
+This one is pretty self evident: use argument to the macro or we
+end up with a random pointer to something else.
+
+Cc: stable@vger.kernel.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Marcus Cooper <codekipper@gmail.com>
+Fixes: 297d716f6260 ("power_supply: Change ownership from driver to core")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/mac80211/rx.c |    2 +-
+ include/linux/mfd/abx500/ux500_chargalg.h |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2234,7 +2234,7 @@ ieee80211_deliver_skb(struct ieee80211_r
- #endif
+--- a/include/linux/mfd/abx500/ux500_chargalg.h
++++ b/include/linux/mfd/abx500/ux500_chargalg.h
+@@ -15,7 +15,7 @@
+  * - POWER_SUPPLY_TYPE_USB,
+  * because only them store as drv_data pointer to struct ux500_charger.
+  */
+-#define psy_to_ux500_charger(x) power_supply_get_drvdata(psy)
++#define psy_to_ux500_charger(x) power_supply_get_drvdata(x)
  
- 	if (skb) {
--		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
-+		struct ethhdr *ehdr = (struct ethhdr *)skb->data;
- 
- 		/* deliver to local stack */
- 		skb->protocol = eth_type_trans(skb, dev);
+ /* Forward declaration */
+ struct ux500_charger;
 
 
