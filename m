@@ -2,83 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6623CD565
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 15:02:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 117263CD56E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 15:05:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237054AbhGSMWB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 08:22:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237046AbhGSMWB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:22:01 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75232C061574
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:21:49 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id w2so8270543qvh.13
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 06:02:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=VJ611z1FmhhcIsTyubRflvm53G1ExczPtkYrv0GxHSI=;
-        b=GCVQia6DP3OMIkNXjzb4GtR1kykj2RS8U/Gaka7KW50q0ZGg00deU9mxWWkrdhIALr
-         qTijMyGpe2v2sbWG3GULt4X7BlBXGjc6USI2qx2RxQHz5LKRCH4q1FCR6ULwHab3S6DM
-         ok8XMz5MpypCKLqWHcBz01wCIOjQF/3NSmELx/7J8hHoL4Ip62Xlrj9xpMzPA39v8t9T
-         8ruchBvvA8Lhetg24H+L7P1hXsgjnJZfUdd0PDVhQPiNQtveHo5bFgOjyqrdnzv/6Fzx
-         tzLivQiucAUMaIfMa0vPLj5rMwDKntcwutwQQ14W+ZFy2P/hyeCCoXtcny23Hv5US1sZ
-         S6nQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=VJ611z1FmhhcIsTyubRflvm53G1ExczPtkYrv0GxHSI=;
-        b=Iir+Nh64dns/xO0qP+uksJREh/1gbFIVtu3PVAp2ia70aOk/N+SD18/SbAVz9cEUos
-         QdGiKls5MzdDqGVHoSGWHOzvW/kw06RDLsFxOcnM0uYhImZmpOA/CSK6ZiuupmY5i664
-         LKbohdPENJLYPeNcOGk2bETKHgBqBYa+J46JVTyWtehq85jvLSYwIBEVooADNeHk/fa7
-         /0JWUAHJDVLIgebWJ+xN9R505wLyIJH2EIYrG9xDGwt4BAXGLvBKxI6dr7KG7ycpgGsu
-         Iv+EHujrCQWhp2DE1txkmNjvM8qjrrulOKRcIzHfUKIvso4emet40A9mG/8Z5WNJMcJ5
-         qbKQ==
-X-Gm-Message-State: AOAM530a5ELHYc4gqkvUJK9bWufGd+rfYtmRMkEmcuAeA5ZaHRkjw2N7
-        eKxwmX0u11g5FgpgPVgvpX/Kj3SESERAZVJkyrc=
-X-Google-Smtp-Source: ABdhPJzwINOVM0FCPMb1wTf/5Awo8fSPqryqkH7AQCVOmJEScGbjIvfSSAjhoQTqz45YD/o1r/eTfnqTSMJErI9/YxU=
-X-Received: by 2002:a0c:ed30:: with SMTP id u16mr24650969qvq.34.1626699759653;
- Mon, 19 Jul 2021 06:02:39 -0700 (PDT)
+        id S237046AbhGSMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 08:24:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53732 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236883AbhGSMYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 08:24:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF97D610A5;
+        Mon, 19 Jul 2021 13:05:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626699905;
+        bh=35IH1Be/xn27F8mXBOPo5R8WaCBnv5MW7j4hM992ZeU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=onoAm0NSVStQeP9V4wR6k8eqWvO+KFUNnqtYFgRjuMLbse6Or2MUtp13xliIfe1qk
+         YEO/YIMZ9PAd3PDh9IHJHSZJ4GPoXzRkn+VC2DvhrbCM7WeN/Ta2k3GeMGbM67RtZV
+         qojNHhN5gTjV5jrCbHL+ZEJrkuPXOgdchTbUWM88=
+Date:   Mon, 19 Jul 2021 15:05:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Xiaotian Feng <xtfeng@gmail.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
+        kernel test robot <lkp@intel.com>,
+        Dave Airlie <airlied@redhat.com>,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 5.12 237/242] drm/ast: Remove reference to struct
+ drm_device.pdev
+Message-ID: <YPV4fkUjqWcqhrRY@kroah.com>
+References: <20210715182551.731989182@linuxfoundation.org>
+ <20210715182634.577299401@linuxfoundation.org>
+ <CAJn8CcF+gfXToErpZv=pWmBKF-i--oVWmaM=6AQ8YZCb21X=oA@mail.gmail.com>
+ <YPVgtybrZLxe3XeW@kroah.com>
+ <CAJn8CcHHKSo7GF29Z1ufXJJpMUzn6+fdvwiqe9=JvgpcfvnbHQ@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a0c:c483:0:0:0:0:0 with HTTP; Mon, 19 Jul 2021 06:02:39
- -0700 (PDT)
-From:   bellobello abubakar <bellobelloabubakar8@gmail.com>
-Date:   Mon, 19 Jul 2021 06:02:39 -0700
-Message-ID: <CAAgk6y0YjemxsuHtu0Wpossq0E9JJmrwSOiC8gzGis7K=sNrOQ@mail.gmail.com>
-Subject: URGENT REPLY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJn8CcHHKSo7GF29Z1ufXJJpMUzn6+fdvwiqe9=JvgpcfvnbHQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-Hello,
+On Mon, Jul 19, 2021 at 07:43:39PM +0800, Xiaotian Feng wrote:
+> On Mon, Jul 19, 2021 at 7:23 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Jul 19, 2021 at 05:57:30PM +0800, Xiaotian Feng wrote:
+> > > On Fri, Jul 16, 2021 at 5:13 AM Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > >
+> > > > From: Thomas Zimmermann <tzimmermann@suse.de>
+> > > >
+> > > > commit 0ecb51824e838372e01330752503ddf9c0430ef7 upstream.
+> > > >
+> > > > Using struct drm_device.pdev is deprecated. Upcast with to_pci_dev()
+> > > > from struct drm_device.dev to get the PCI device structure.
+> > > >
+> > > > v9:
+> > > >         * fix remaining pdev references
+> > > >
+> > > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+> > > > Fixes: ba4e0339a6a3 ("drm/ast: Fixed CVE for DP501")
+> > > > Cc: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+> > > > Cc: kernel test robot <lkp@intel.com>
+> > > > Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > Cc: Dave Airlie <airlied@redhat.com>
+> > > > Cc: dri-devel@lists.freedesktop.org
+> > > > Link: https://patchwork.freedesktop.org/patch/msgid/20210429105101.25667-2-tzimmermann@suse.de
+> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > ---
+> > > >  drivers/gpu/drm/ast/ast_main.c |    5 ++---
+> > > >  1 file changed, 2 insertions(+), 3 deletions(-)
+> > > >
+> > > > --- a/drivers/gpu/drm/ast/ast_main.c
+> > > > +++ b/drivers/gpu/drm/ast/ast_main.c
+> > > > @@ -411,7 +411,6 @@ struct ast_private *ast_device_create(co
+> > > >                 return ast;
+> > > >         dev = &ast->base;
+> > > >
+> > > > -       dev->pdev = pdev;
+> > > >         pci_set_drvdata(pdev, dev);
+> > > >
+> > > >         ast->regs = pcim_iomap(pdev, 1, 0);
+> > > > @@ -453,8 +452,8 @@ struct ast_private *ast_device_create(co
+> > > >
+> > > >         /* map reserved buffer */
+> > > >         ast->dp501_fw_buf = NULL;
+> > > > -       if (dev->vram_mm->vram_size < pci_resource_len(dev->pdev, 0)) {
+> > > > -               ast->dp501_fw_buf = pci_iomap_range(dev->pdev, 0, dev->vram_mm->vram_size, 0);
+> > > > +       if (dev->vram_mm->vram_size < pci_resource_len(pdev, 0)) {
+> > > > +               ast->dp501_fw_buf = pci_iomap_range(pdev, 0, dev->vram_mm->vram_size, 0);
+> > > >                 if (!ast->dp501_fw_buf)
+> > > >                         drm_info(dev, "failed to map reserved buffer!\n");
+> > > >         }
+> > > >
+> > >
+> > > Hi Greg,
+> > >
+> > >      This backport is incomplete for 5.10 kernel,  kernel is panicked
+> > > on RIP: ast_device_create+0x7d.  When I look into the crash code, I
+> > > found
+> > >
+> > > struct ast_private *ast_device_create(struct drm_driver *drv,
+> > >                                       struct pci_dev *pdev,
+> > >                                       unsigned long flags)
+> > > {
+> > > .......
+> > >         dev->pdev = pdev;  // This is removed
+> > >         pci_set_drvdata(pdev, dev);
+> > >
+> > >         ast->regs = pcim_iomap(pdev, 1, 0);
+> > >         if (!ast->regs)
+> > >                 return ERR_PTR(-EIO);
+> > >
+> > >         /*
+> > >          * If we don't have IO space at all, use MMIO now and
+> > >          * assume the chip has MMIO enabled by default (rev 0x20
+> > >          * and higher).
+> > >          */
+> > >         if (!(pci_resource_flags(dev->pdev, 2) & IORESOURCE_IO)) { //
+> > > dev->pdev is in used here.
+> > >                 drm_info(dev, "platform has no IO space, trying MMIO\n");
+> > >                 ast->ioregs = ast->regs + AST_IO_MM_OFFSET;
+> > >         }
+> > >
+> > >         That's because commit 46fb883c3d0d8a823ef995ddb1f9b0817dea6882
+> > > is not backported to 5.10 kernel.
+> >
+> > So what should I do here?  Backport that commit (was was not called
+> > out), or just revert this?
+> >
+> I think we can just simply revert the patch. Because commit 46fb883c
+> removed drm_device.pdev usage,
+> then commit ba4e0339 used drm_device.pdev again. Since commit 46fb883c
+> is not in 5.10.50 kernel,
+> it's not a stable fix.
 
-I am a relative of a politically exposed person (PEP) that is in
-financial regulation. Due to my present health condition, I'd decided
-to write through this email for the security reason.
+Now qropped, thanks.
 
-Therefore, kindly treat this as top secret for the security reason.
-I'd after fasting and prayer choose to write not you particularly but
-I believing in probability of you being a confidant chosen by chance;
-luck to help and share in this noble cause.
-
-I need your assistant to conduct secret transfers of family's funds
-worth =E2=82=AC90.5 millions Euros. It was deposited in bank clandestinely.
-
-I am in grave condition and I expect my death any moment now and I
-want to donate the fund to less privilege and you will be rewarded
-with reasonable percentage of the fund if you can assist.
-
-Please contact me back for more details via email/ bello08abubakar@gmail.co=
-m
-
-Yours truly,
-Bello Abubakar
-Quick Reply
+greg k-h
