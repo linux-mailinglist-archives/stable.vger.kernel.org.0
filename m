@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06AF3CE422
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D786E3CE192
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344405AbhGSPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
+        id S1349323AbhGSP0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350015AbhGSPge (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:36:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4685260E0C;
-        Mon, 19 Jul 2021 16:17:13 +0000 (UTC)
+        id S1348078AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BC6C61417;
+        Mon, 19 Jul 2021 16:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711433;
-        bh=df5gBBXuMGStVpHHUHWlMnjn0NvGlIlmnWSeiC1O6QQ=;
+        s=korg; t=1626710486;
+        bh=5seagCm6Ve4VniNFFV5xW3qMx/jh+v5Yg6lXa6SkrnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hc7Nybz0DJ2V2JGvB5GKhOJnClEjNV2cQDD6HVoNY9FFCztfF+nghKBTF7HQUT1l4
-         rskEeRHY3Z1TQrx6/bGV5pZxDEN1BG7C8Yf1XVyp6ljf6Iph0quw3Iq3graN0qB8/D
-         UFm3wqArrikAQTIztci612CEnJFKNFrNjr7SNxds=
+        b=R6RDhbR3CfHx3QWAF7uAfE7ijf5Cu6b9FnfQ+PqMRew6RVG9qeOqtN86cYlT1AT7a
+         tBmzkOBhpzSXksu570hZf34qUHUq1eknPlXUY5PLFmk2n5bH5Xh7pwBizm0AticGCI
+         k1C/s79DGzm78ZqGxre9uTvVXjrGRi41B2uwQAFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Icenowy Zheng <icenowy@aosc.io>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Xuewen Yan <xuewen.yan@unisoc.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Qais Yousef <qais.yousef@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 318/351] arm64: dts: allwinner: a64-sopine-baseboard: change RGMII mode to TXID
-Date:   Mon, 19 Jul 2021 16:54:24 +0200
-Message-Id: <20210719144955.573317814@linuxfoundation.org>
+Subject: [PATCH 5.10 236/243] sched/uclamp: Ignore max aggregation if rq is idle
+Date:   Mon, 19 Jul 2021 16:54:25 +0200
+Message-Id: <20210719144948.536532588@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Icenowy Zheng <icenowy@aosc.io>
+From: Xuewen Yan <xuewen.yan@unisoc.com>
 
-[ Upstream commit bd5431b2f9b30a70f6ed964dd5ee9a6d1c397c06 ]
+[ Upstream commit 3e1493f46390618ea78607cb30c58fc19e2a5035 ]
 
-Although the schematics of Pine A64-LTS and SoPine Baseboard shows both
-the RX and TX internal delay are enabled, they're using the same broken
-RTL8211E chip batch with Pine A64+, so they should use TXID instead, not
-ID.
+When a task wakes up on an idle rq, uclamp_rq_util_with() would max
+aggregate with rq value. But since there is no task enqueued yet, the
+values are stale based on the last task that was running. When the new
+task actually wakes up and enqueued, then the rq uclamp values should
+reflect that of the newly woken up task effective uclamp values.
 
-In addition, by checking the real components soldered on both a SoPine
-Baseboard and a Pine A64-LTS, RX delay is not enabled (GR69 soldered and
-GR70 NC) despite the schematics says it's enabled. It's a common
-situation for Pine64 boards that the NC information on schematics is not
-the same with the board.
+This is a problem particularly for uclamp_max because it default to
+1024. If a task p with uclamp_max = 512 wakes up, then max aggregation
+would ignore the capping that should apply when this task is enqueued,
+which is wrong.
 
-So the RGMII delay mode should be TXID on these boards.
+Fix that by ignoring max aggregation if the rq is idle since in that
+case the effective uclamp value of the rq will be the ones of the task
+that will wake up.
 
-Fixes: c2b111e59a7b ("arm64: dts: allwinner: A64 Sopine: phy-mode rgmii-id")
-Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://lore.kernel.org/r/20210609083843.463750-1-icenowy@aosc.io
+Fixes: 9d20ad7dfc9a ("sched/uclamp: Add uclamp_util_with()")
+Signed-off-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+[qias: Changelog]
+Reviewed-by: Qais Yousef <qais.yousef@arm.com>
+Link: https://lore.kernel.org/r/20210630141204.8197-1-xuewen.yan94@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/sched.h | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-index e22b94c83647..5e66ce1a334f 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-@@ -79,7 +79,7 @@
- &emac {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&rgmii_pins>;
--	phy-mode = "rgmii-id";
-+	phy-mode = "rgmii-txid";
- 	phy-handle = <&ext_rgmii_phy>;
- 	phy-supply = <&reg_dc1sw>;
- 	status = "okay";
+diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+index fdebfcbdfca9..39112ac7ab34 100644
+--- a/kernel/sched/sched.h
++++ b/kernel/sched/sched.h
+@@ -2422,20 +2422,27 @@ static __always_inline
+ unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
+ 				  struct task_struct *p)
+ {
+-	unsigned long min_util;
+-	unsigned long max_util;
++	unsigned long min_util = 0;
++	unsigned long max_util = 0;
+ 
+ 	if (!static_branch_likely(&sched_uclamp_used))
+ 		return util;
+ 
+-	min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
+-	max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
+-
+ 	if (p) {
+-		min_util = max(min_util, uclamp_eff_value(p, UCLAMP_MIN));
+-		max_util = max(max_util, uclamp_eff_value(p, UCLAMP_MAX));
++		min_util = uclamp_eff_value(p, UCLAMP_MIN);
++		max_util = uclamp_eff_value(p, UCLAMP_MAX);
++
++		/*
++		 * Ignore last runnable task's max clamp, as this task will
++		 * reset it. Similarly, no need to read the rq's min clamp.
++		 */
++		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
++			goto out;
+ 	}
+ 
++	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
++	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
++out:
+ 	/*
+ 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
+ 	 * RUNNABLE tasks with _different_ clamps, we can end up with an
 -- 
 2.30.2
 
