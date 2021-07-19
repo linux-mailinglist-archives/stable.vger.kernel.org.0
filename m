@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E70A3CE458
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1441B3CE43B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241260AbhGSPnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34260 "EHLO mail.kernel.org"
+        id S1346825AbhGSPmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244460AbhGSPh7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:37:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D11E761002;
-        Mon, 19 Jul 2021 16:18:11 +0000 (UTC)
+        id S244592AbhGSPiA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:38:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B06666140A;
+        Mon, 19 Jul 2021 16:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711492;
-        bh=akt6TiS9mxCQJGoLLfPgMFHUrjIAHezc/OxB+edDq14=;
+        s=korg; t=1626711495;
+        bh=wAj6FxD4RJnp6eaqRPKy9MKXU2i7tr1BOGKk+iqGxaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u78sw/OdcX1ULUAtkDTU+75R1dpKxyGnDDebDjGbBsXPPFfc05/kvyZLjDnYLCvun
-         xw4kyf/eW0TADHJV1sjYbX8KEKlQub61yW+SbOzMMOv/WT4j6xCaC4NCMHMty22vkf
-         UjAEy5R5RVO1Y1GIjbzAHAsw58cyAOaSJblRFpX4=
+        b=W5WOJ3WXJPYhzNfYg6MCxcREgbDQfEEwExfVay0p2ZGVKxZ1/mnafOKszdRPsHwpx
+         4QRuJEXpJrNndfAkUPGlHuoRrrS5AxrJx/+uXaCQbJ1WaBcTpn6GprFm/E361tqRyS
+         u4bysxGPi3QQXOAeG3lw6ZfRTv8VFA8lLvHledKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
+        Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 023/292] btrfs: properly split extent_map for REQ_OP_ZONE_APPEND
-Date:   Mon, 19 Jul 2021 16:51:25 +0200
-Message-Id: <20210719144943.294336399@linuxfoundation.org>
+Subject: [PATCH 5.12 024/292] btrfs: fix deadlock with concurrent chunk allocations involving system chunks
+Date:   Mon, 19 Jul 2021 16:51:26 +0200
+Message-Id: <20210719144943.325491690@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,248 +41,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit abb99cfdaf0759f8a619e5fecf52ccccdf310c8c upstream.
+commit 1cb3db1cf383a3c7dbda1aa0ce748b0958759947 upstream.
 
-Damien reported a test failure with btrfs/209. The test itself ran fine,
-but the fsck ran afterwards reported a corrupted filesystem.
+When a task attempting to allocate a new chunk verifies that there is not
+currently enough free space in the system space_info and there is another
+task that allocated a new system chunk but it did not finish yet the
+creation of the respective block group, it waits for that other task to
+finish creating the block group. This is to avoid exhaustion of the system
+chunk array in the superblock, which is limited, when we have a thundering
+herd of tasks allocating new chunks. This problem was described and fixed
+by commit eafa4fd0ad0607 ("btrfs: fix exhaustion of the system chunk array
+due to concurrent allocations").
 
-The filesystem corruption happens because we're splitting an extent and
-then writing the extent twice. We have to split the extent though, because
-we're creating too large extents for a REQ_OP_ZONE_APPEND operation.
+However there are two very similar scenarios where this can lead to a
+deadlock:
 
-When dumping the extent tree, we can see two EXTENT_ITEMs at the same
-start address but different lengths.
+1) Task B allocated a new system chunk and task A is waiting on task B
+   to finish creation of the respective system block group. However before
+   task B ends its transaction handle and finishes the creation of the
+   system block group, it attempts to allocate another chunk (like a data
+   chunk for an fallocate operation for a very large range). Task B will
+   be unable to progress and allocate the new chunk, because task A set
+   space_info->chunk_alloc to 1 and therefore it loops at
+   btrfs_chunk_alloc() waiting for task A to finish its chunk allocation
+   and set space_info->chunk_alloc to 0, but task A is waiting on task B
+   to finish creation of the new system block group, therefore resulting
+   in a deadlock;
 
-$ btrfs inspect dump-tree /dev/nullb1 -t extent
-...
-   item 19 key (269484032 EXTENT_ITEM 126976) itemoff 15470 itemsize 53
-           refs 1 gen 7 flags DATA
-           extent data backref root FS_TREE objectid 257 offset 786432 count 1
-   item 20 key (269484032 EXTENT_ITEM 262144) itemoff 15417 itemsize 53
-           refs 1 gen 7 flags DATA
-           extent data backref root FS_TREE objectid 257 offset 786432 count 1
+2) Task B allocated a new system chunk and task A is waiting on task B to
+   finish creation of the respective system block group. By the time that
+   task B enter the final phase of block group allocation, which happens
+   at btrfs_create_pending_block_groups(), when it modifies the extent
+   tree, the device tree or the chunk tree to insert the items for some
+   new block group, it needs to allocate a new chunk, so it ends up at
+   btrfs_chunk_alloc() and keeps looping there because task A has set
+   space_info->chunk_alloc to 1, but task A is waiting for task B to
+   finish creation of the new system block group and release the reserved
+   system space, therefore resulting in a deadlock.
 
-The duplicated EXTENT_ITEMs originally come from wrongly split extent_map in
-extract_ordered_extent(). Since extract_ordered_extent() uses
-create_io_em() to split an existing extent_map, we will have
-split->orig_start != split->start. Then, it will be logged with non-zero
-"extent data offset". Finally, the logged entries are replayed into
-a duplicated EXTENT_ITEM.
+In short, the problem is if a task B needs to allocate a new chunk after
+it previously allocated a new system chunk and if another task A is
+currently waiting for task B to complete the allocation of the new system
+chunk.
 
-Introduce and use proper splitting function for extent_map. The function is
-intended to be simple and specific usage for extract_ordered_extent() e.g.
-not supporting compression case (we do not allow splitting compressed
-extent_map anyway).
+Unfortunately this deadlock scenario introduced by the previous fix for
+the system chunk array exhaustion problem does not have a simple and short
+fix, and requires a big change to rework the chunk allocation code so that
+chunk btree updates are all made in the first phase of chunk allocation.
+And since this deadlock regression is being frequently hit on zoned
+filesystems and the system chunk array exhaustion problem is triggered
+in more extreme cases (originally observed on PowerPC with a node size
+of 64K when running the fallocate tests from stress-ng), revert the
+changes from that commit. The next patch in the series, with a subject
+of "btrfs: rework chunk allocation to avoid exhaustion of the system
+chunk array" does the necessary changes to fix the system chunk array
+exhaustion problem.
 
-There was a question raised by Qu, in summary why we want to split the
-extent map (and not the bio):
-
-The problem is not the limit on the zone end, which as you mention is
-the same as the block group end. The problem is that data write use zone
-append (ZA) operations. ZA BIOs cannot be split so a large extent may
-need to be processed with multiple ZA BIOs, While that is also true for
-regular writes, the major difference is that ZA are "nameless" write
-operation giving back the written sectors on completion. And ZA
-operations may be reordered by the block layer (not intentionally
-though). Combine both of these characteristics and you can see that the
-data for a large extent may end up being shuffled when written resulting
-in data corruption and the impossibility to map the extent to some start
-sector.
-
-To avoid this problem, zoned btrfs uses the principle "one data extent
-== one ZA BIO". So large extents need to be split. This is unfortunate,
-but we can revisit this later and optimize, e.g. merge back together the
-fragments of an extent once written if they actually were written
-sequentially in the zone.
-
-Reported-by: Damien Le Moal <damien.lemoal@wdc.com>
-Fixes: d22002fd37bd ("btrfs: zoned: split ordered extent when bio is sent")
+Reported-by: Naohiro Aota <naohiro.aota@wdc.com>
+Link: https://lore.kernel.org/linux-btrfs/20210621015922.ewgbffxuawia7liz@naota-xeon/
+Fixes: eafa4fd0ad0607 ("btrfs: fix exhaustion of the system chunk array due to concurrent allocations")
 CC: stable@vger.kernel.org # 5.12+
-CC: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+Tested-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Tested-by: Naohiro Aota <naohiro.aota@wdc.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Tested-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |  147 ++++++++++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 118 insertions(+), 29 deletions(-)
+ fs/btrfs/block-group.c |   58 -------------------------------------------------
+ fs/btrfs/transaction.c |    5 ----
+ fs/btrfs/transaction.h |    7 -----
+ 3 files changed, 1 insertion(+), 69 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -2271,13 +2271,127 @@ bool btrfs_bio_fits_in_ordered_extent(st
- 	return ret;
+--- a/fs/btrfs/block-group.c
++++ b/fs/btrfs/block-group.c
+@@ -3269,7 +3269,6 @@ static u64 get_profile_num_devs(struct b
+  */
+ void check_system_chunk(struct btrfs_trans_handle *trans, u64 type)
+ {
+-	struct btrfs_transaction *cur_trans = trans->transaction;
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+ 	struct btrfs_space_info *info;
+ 	u64 left;
+@@ -3284,7 +3283,6 @@ void check_system_chunk(struct btrfs_tra
+ 	lockdep_assert_held(&fs_info->chunk_mutex);
+ 
+ 	info = btrfs_find_space_info(fs_info, BTRFS_BLOCK_GROUP_SYSTEM);
+-again:
+ 	spin_lock(&info->lock);
+ 	left = info->total_bytes - btrfs_space_info_used(info, true);
+ 	spin_unlock(&info->lock);
+@@ -3303,58 +3301,6 @@ again:
+ 
+ 	if (left < thresh) {
+ 		u64 flags = btrfs_system_alloc_profile(fs_info);
+-		u64 reserved = atomic64_read(&cur_trans->chunk_bytes_reserved);
+-
+-		/*
+-		 * If there's not available space for the chunk tree (system
+-		 * space) and there are other tasks that reserved space for
+-		 * creating a new system block group, wait for them to complete
+-		 * the creation of their system block group and release excess
+-		 * reserved space. We do this because:
+-		 *
+-		 * *) We can end up allocating more system chunks than necessary
+-		 *    when there are multiple tasks that are concurrently
+-		 *    allocating block groups, which can lead to exhaustion of
+-		 *    the system array in the superblock;
+-		 *
+-		 * *) If we allocate extra and unnecessary system block groups,
+-		 *    despite being empty for a long time, and possibly forever,
+-		 *    they end not being added to the list of unused block groups
+-		 *    because that typically happens only when deallocating the
+-		 *    last extent from a block group - which never happens since
+-		 *    we never allocate from them in the first place. The few
+-		 *    exceptions are when mounting a filesystem or running scrub,
+-		 *    which add unused block groups to the list of unused block
+-		 *    groups, to be deleted by the cleaner kthread.
+-		 *    And even when they are added to the list of unused block
+-		 *    groups, it can take a long time until they get deleted,
+-		 *    since the cleaner kthread might be sleeping or busy with
+-		 *    other work (deleting subvolumes, running delayed iputs,
+-		 *    defrag scheduling, etc);
+-		 *
+-		 * This is rare in practice, but can happen when too many tasks
+-		 * are allocating blocks groups in parallel (via fallocate())
+-		 * and before the one that reserved space for a new system block
+-		 * group finishes the block group creation and releases the space
+-		 * reserved in excess (at btrfs_create_pending_block_groups()),
+-		 * other tasks end up here and see free system space temporarily
+-		 * not enough for updating the chunk tree.
+-		 *
+-		 * We unlock the chunk mutex before waiting for such tasks and
+-		 * lock it again after the wait, otherwise we would deadlock.
+-		 * It is safe to do so because allocating a system chunk is the
+-		 * first thing done while allocating a new block group.
+-		 */
+-		if (reserved > trans->chunk_bytes_reserved) {
+-			const u64 min_needed = reserved - thresh;
+-
+-			mutex_unlock(&fs_info->chunk_mutex);
+-			wait_event(cur_trans->chunk_reserve_wait,
+-			   atomic64_read(&cur_trans->chunk_bytes_reserved) <=
+-			   min_needed);
+-			mutex_lock(&fs_info->chunk_mutex);
+-			goto again;
+-		}
+ 
+ 		/*
+ 		 * Ignore failure to create system chunk. We might end up not
+@@ -3369,10 +3315,8 @@ again:
+ 		ret = btrfs_block_rsv_add(fs_info->chunk_root,
+ 					  &fs_info->chunk_block_rsv,
+ 					  thresh, BTRFS_RESERVE_NO_FLUSH);
+-		if (!ret) {
+-			atomic64_add(thresh, &cur_trans->chunk_bytes_reserved);
++		if (!ret)
+ 			trans->chunk_bytes_reserved += thresh;
+-		}
+ 	}
  }
  
-+/*
-+ * Split an extent_map at [start, start + len]
-+ *
-+ * This function is intended to be used only for extract_ordered_extent().
-+ */
-+static int split_zoned_em(struct btrfs_inode *inode, u64 start, u64 len,
-+			  u64 pre, u64 post)
-+{
-+	struct extent_map_tree *em_tree = &inode->extent_tree;
-+	struct extent_map *em;
-+	struct extent_map *split_pre = NULL;
-+	struct extent_map *split_mid = NULL;
-+	struct extent_map *split_post = NULL;
-+	int ret = 0;
-+	int modified;
-+	unsigned long flags;
-+
-+	/* Sanity check */
-+	if (pre == 0 && post == 0)
-+		return 0;
-+
-+	split_pre = alloc_extent_map();
-+	if (pre)
-+		split_mid = alloc_extent_map();
-+	if (post)
-+		split_post = alloc_extent_map();
-+	if (!split_pre || (pre && !split_mid) || (post && !split_post)) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	ASSERT(pre + post < len);
-+
-+	lock_extent(&inode->io_tree, start, start + len - 1);
-+	write_lock(&em_tree->lock);
-+	em = lookup_extent_mapping(em_tree, start, len);
-+	if (!em) {
-+		ret = -EIO;
-+		goto out_unlock;
-+	}
-+
-+	ASSERT(em->len == len);
-+	ASSERT(!test_bit(EXTENT_FLAG_COMPRESSED, &em->flags));
-+	ASSERT(em->block_start < EXTENT_MAP_LAST_BYTE);
-+
-+	flags = em->flags;
-+	clear_bit(EXTENT_FLAG_PINNED, &em->flags);
-+	clear_bit(EXTENT_FLAG_LOGGING, &flags);
-+	modified = !list_empty(&em->list);
-+
-+	/* First, replace the em with a new extent_map starting from * em->start */
-+	split_pre->start = em->start;
-+	split_pre->len = (pre ? pre : em->len - post);
-+	split_pre->orig_start = split_pre->start;
-+	split_pre->block_start = em->block_start;
-+	split_pre->block_len = split_pre->len;
-+	split_pre->orig_block_len = split_pre->block_len;
-+	split_pre->ram_bytes = split_pre->len;
-+	split_pre->flags = flags;
-+	split_pre->compress_type = em->compress_type;
-+	split_pre->generation = em->generation;
-+
-+	replace_extent_mapping(em_tree, em, split_pre, modified);
-+
-+	/*
-+	 * Now we only have an extent_map at:
-+	 *     [em->start, em->start + pre] if pre != 0
-+	 *     [em->start, em->start + em->len - post] if pre == 0
-+	 */
-+
-+	if (pre) {
-+		/* Insert the middle extent_map */
-+		split_mid->start = em->start + pre;
-+		split_mid->len = em->len - pre - post;
-+		split_mid->orig_start = split_mid->start;
-+		split_mid->block_start = em->block_start + pre;
-+		split_mid->block_len = split_mid->len;
-+		split_mid->orig_block_len = split_mid->block_len;
-+		split_mid->ram_bytes = split_mid->len;
-+		split_mid->flags = flags;
-+		split_mid->compress_type = em->compress_type;
-+		split_mid->generation = em->generation;
-+		add_extent_mapping(em_tree, split_mid, modified);
-+	}
-+
-+	if (post) {
-+		split_post->start = em->start + em->len - post;
-+		split_post->len = post;
-+		split_post->orig_start = split_post->start;
-+		split_post->block_start = em->block_start + em->len - post;
-+		split_post->block_len = split_post->len;
-+		split_post->orig_block_len = split_post->block_len;
-+		split_post->ram_bytes = split_post->len;
-+		split_post->flags = flags;
-+		split_post->compress_type = em->compress_type;
-+		split_post->generation = em->generation;
-+		add_extent_mapping(em_tree, split_post, modified);
-+	}
-+
-+	/* Once for us */
-+	free_extent_map(em);
-+	/* Once for the tree */
-+	free_extent_map(em);
-+
-+out_unlock:
-+	write_unlock(&em_tree->lock);
-+	unlock_extent(&inode->io_tree, start, start + len - 1);
-+out:
-+	free_extent_map(split_pre);
-+	free_extent_map(split_mid);
-+	free_extent_map(split_post);
-+
-+	return ret;
-+}
-+
- static blk_status_t extract_ordered_extent(struct btrfs_inode *inode,
- 					   struct bio *bio, loff_t file_offset)
+--- a/fs/btrfs/transaction.c
++++ b/fs/btrfs/transaction.c
+@@ -260,7 +260,6 @@ static inline int extwriter_counter_read
+ void btrfs_trans_release_chunk_metadata(struct btrfs_trans_handle *trans)
  {
- 	struct btrfs_ordered_extent *ordered;
--	struct extent_map *em = NULL, *em_new = NULL;
--	struct extent_map_tree *em_tree = &inode->extent_tree;
- 	u64 start = (u64)bio->bi_iter.bi_sector << SECTOR_SHIFT;
-+	u64 file_len;
- 	u64 len = bio->bi_iter.bi_size;
- 	u64 end = start + len;
- 	u64 ordered_end;
-@@ -2317,41 +2431,16 @@ static blk_status_t extract_ordered_exte
- 		goto out;
- 	}
+ 	struct btrfs_fs_info *fs_info = trans->fs_info;
+-	struct btrfs_transaction *cur_trans = trans->transaction;
  
-+	file_len = ordered->num_bytes;
- 	pre = start - ordered->disk_bytenr;
- 	post = ordered_end - end;
+ 	if (!trans->chunk_bytes_reserved)
+ 		return;
+@@ -269,8 +268,6 @@ void btrfs_trans_release_chunk_metadata(
  
- 	ret = btrfs_split_ordered_extent(ordered, pre, post);
- 	if (ret)
- 		goto out;
+ 	btrfs_block_rsv_release(fs_info, &fs_info->chunk_block_rsv,
+ 				trans->chunk_bytes_reserved, NULL);
+-	atomic64_sub(trans->chunk_bytes_reserved, &cur_trans->chunk_bytes_reserved);
+-	cond_wake_up(&cur_trans->chunk_reserve_wait);
+ 	trans->chunk_bytes_reserved = 0;
+ }
+ 
+@@ -386,8 +383,6 @@ loop:
+ 	spin_lock_init(&cur_trans->dropped_roots_lock);
+ 	INIT_LIST_HEAD(&cur_trans->releasing_ebs);
+ 	spin_lock_init(&cur_trans->releasing_ebs_lock);
+-	atomic64_set(&cur_trans->chunk_bytes_reserved, 0);
+-	init_waitqueue_head(&cur_trans->chunk_reserve_wait);
+ 	list_add_tail(&cur_trans->list, &fs_info->trans_list);
+ 	extent_io_tree_init(fs_info, &cur_trans->dirty_pages,
+ 			IO_TREE_TRANS_DIRTY_PAGES, fs_info->btree_inode);
+--- a/fs/btrfs/transaction.h
++++ b/fs/btrfs/transaction.h
+@@ -96,13 +96,6 @@ struct btrfs_transaction {
+ 
+ 	spinlock_t releasing_ebs_lock;
+ 	struct list_head releasing_ebs;
 -
--	read_lock(&em_tree->lock);
--	em = lookup_extent_mapping(em_tree, ordered->file_offset, len);
--	if (!em) {
--		read_unlock(&em_tree->lock);
--		ret = -EIO;
--		goto out;
--	}
--	read_unlock(&em_tree->lock);
--
--	ASSERT(!test_bit(EXTENT_FLAG_COMPRESSED, &em->flags));
 -	/*
--	 * We cannot reuse em_new here but have to create a new one, as
--	 * unpin_extent_cache() expects the start of the extent map to be the
--	 * logical offset of the file, which does not hold true anymore after
--	 * splitting.
+-	 * The number of bytes currently reserved, by all transaction handles
+-	 * attached to this transaction, for metadata extents of the chunk tree.
 -	 */
--	em_new = create_io_em(inode, em->start + pre, len,
--			      em->start + pre, em->block_start + pre, len,
--			      len, len, BTRFS_COMPRESS_NONE,
--			      BTRFS_ORDERED_REGULAR);
--	if (IS_ERR(em_new)) {
--		ret = PTR_ERR(em_new);
--		goto out;
--	}
--	free_extent_map(em_new);
-+	ret = split_zoned_em(inode, file_offset, file_len, pre, post);
+-	atomic64_t chunk_bytes_reserved;
+-	wait_queue_head_t chunk_reserve_wait;
+ };
  
- out:
--	free_extent_map(em);
- 	btrfs_put_ordered_extent(ordered);
- 
- 	return errno_to_blk_status(ret);
+ #define __TRANS_FREEZABLE	(1U << 0)
 
 
