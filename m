@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC363CE3D8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E724F3CE359
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238342AbhGSPkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
+        id S240339AbhGSPhf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239389AbhGSPeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:34:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE75B61287;
-        Mon, 19 Jul 2021 16:11:28 +0000 (UTC)
+        id S242681AbhGSPek (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:34:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE3BF60FD7;
+        Mon, 19 Jul 2021 16:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711089;
-        bh=2YOHV8+qqf8dcNZqg3uXOI7cfpP8ORr6M0OS/ycxGjU=;
+        s=korg; t=1626711092;
+        bh=/6P/yh1GrLehfkA0U3vm5g25urVZMcCG+tR3K6Xmti8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w+IC3Bd35nlpM4lzqednJmytg70SF93O00InyeD+Wf6AvycqF7AZtlQgXwHIEnhP+
-         iJ+E9/GwX4FVgavgTGKZYK32yXwipBBRcoFQ9SIodNIP+81LGaqMggoqdszfGen9IR
-         Rus5bxNUF/9eXbleSIdUduQNjmI+qwWacSZxXeOU=
+        b=1oh7h/hJQDZnXme4w3Xtv3WMmFFvrD3lbQdTqi+SOstf71+lIsKE6J9eJpIIC0h2+
+         z2hA4+ClJRaEXSL+OGPw8i/ZpuudI82keoqyVh5RVb5593odMVg+8CrIiN2Uh0SGf1
+         3Jot1W2TfPDvSL+gI/yKCPUz+hDOTMNCK4/tEdu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shruthi Sanil <shruthi.sanil@intel.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 223/351] watchdog: keembay: Clear either the TO or TH interrupt bit
-Date:   Mon, 19 Jul 2021 16:52:49 +0200
-Message-Id: <20210719144952.337473021@linuxfoundation.org>
+Subject: [PATCH 5.13 224/351] watchdog: keembay: Remove timeout update in the WDT start function
+Date:   Mon, 19 Jul 2021 16:52:50 +0200
+Message-Id: <20210719144952.369144356@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -45,57 +45,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shruthi Sanil <shruthi.sanil@intel.com>
 
-[ Upstream commit 0e36a09faea25f4564d41a0c28938199b605148e ]
+[ Upstream commit 9eb25269271c679e8cfcc7df5c0c5e9d0572fc27 ]
 
-During the interrupt service routine of the TimeOut interrupt and
-the ThresHold interrupt, the respective interrupt clear bit
-have to be cleared and not both.
+Removed set timeout from the start WDT function. There is a function
+defined to set the timeout. Hence no need to set the timeout again in
+start function as the timeout would have been already updated
+before calling the start/enable.
 
 Fixes: fa0f8d51e90d ("watchdog: Add watchdog driver for Intel Keembay Soc")
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Kris Pan <kris.pan@intel.com>
 Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20210517174953.19404-5-shruthi.sanil@intel.com
+Link: https://lore.kernel.org/r/20210517174953.19404-6-shruthi.sanil@intel.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/keembay_wdt.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/watchdog/keembay_wdt.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/watchdog/keembay_wdt.c b/drivers/watchdog/keembay_wdt.c
-index 6053416b8d3d..f2a16c9933c3 100644
+index f2a16c9933c3..039753b9932b 100644
 --- a/drivers/watchdog/keembay_wdt.c
 +++ b/drivers/watchdog/keembay_wdt.c
-@@ -23,7 +23,8 @@
- #define TIM_WDOG_EN		0x8
- #define TIM_SAFE		0xc
+@@ -84,7 +84,6 @@ static int keembay_wdt_start(struct watchdog_device *wdog)
+ {
+ 	struct keembay_wdt *wdt = watchdog_get_drvdata(wdog);
  
--#define WDT_ISR_MASK		GENMASK(9, 8)
-+#define WDT_TH_INT_MASK		BIT(8)
-+#define WDT_TO_INT_MASK		BIT(9)
- #define WDT_ISR_CLEAR		0x8200ff18
- #define WDT_UNLOCK		0xf1d0dead
- #define WDT_LOAD_MAX		U32_MAX
-@@ -142,7 +143,7 @@ static irqreturn_t keembay_wdt_to_isr(int irq, void *dev_id)
- 	struct arm_smccc_res res;
+-	keembay_wdt_set_timeout_reg(wdog);
+ 	keembay_wdt_writel(wdt, TIM_WDOG_EN, 1);
  
- 	keembay_wdt_writel(wdt, TIM_WATCHDOG, 1);
--	arm_smccc_smc(WDT_ISR_CLEAR, WDT_ISR_MASK, 0, 0, 0, 0, 0, 0, &res);
-+	arm_smccc_smc(WDT_ISR_CLEAR, WDT_TO_INT_MASK, 0, 0, 0, 0, 0, 0, &res);
- 	dev_crit(wdt->wdd.parent, "Intel Keem Bay non-sec wdt timeout.\n");
- 	emergency_restart();
- 
-@@ -156,7 +157,7 @@ static irqreturn_t keembay_wdt_th_isr(int irq, void *dev_id)
- 
- 	keembay_wdt_set_pretimeout(&wdt->wdd, 0x0);
- 
--	arm_smccc_smc(WDT_ISR_CLEAR, WDT_ISR_MASK, 0, 0, 0, 0, 0, 0, &res);
-+	arm_smccc_smc(WDT_ISR_CLEAR, WDT_TH_INT_MASK, 0, 0, 0, 0, 0, 0, &res);
- 	dev_crit(wdt->wdd.parent, "Intel Keem Bay non-sec wdt pre-timeout.\n");
- 	watchdog_notify_pretimeout(&wdt->wdd);
- 
+ 	return 0;
 -- 
 2.30.2
 
