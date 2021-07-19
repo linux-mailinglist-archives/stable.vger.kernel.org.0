@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D293F3CDB21
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B88A3CD95C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243630AbhGSOlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54628 "EHLO mail.kernel.org"
+        id S242714AbhGSO2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343931AbhGSOju (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48D14610D2;
-        Mon, 19 Jul 2021 15:19:59 +0000 (UTC)
+        id S243756AbhGSO1P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:27:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A32560FDC;
+        Mon, 19 Jul 2021 15:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707999;
-        bh=MC4NVmBGXrM/WSdJz6Zwb7kvjndWarIAprMhhRf7m+Q=;
+        s=korg; t=1626707251;
+        bh=KliTdoe5hJcH0PpJx2ajeKVcSDVcyge+e4e1Kk4KVVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcPBhaEHMH8WycBVLzxZwHzJzdqpZKJZI325Dc87NEvPT7neyG1jPRKMgEViNiged
-         tUy1LMb+qhJbg27d+C3sPZGMup+LjWWQlUVz8l9X6+fMrxpRnsknao6w66EBE5USfZ
-         1rz74GV/m0bBdYIeD8kYfdd+lwVKGbn11a4jS5e8=
+        b=DQKqh1Q5hPq9QeFYUTuqVUtcli5cv1J/oihmG+lCCG0qzI4giSXQDvWFpFCy3QYaa
+         muXHNr89B30HDSQ35szSspnrgF57a4X7TN2V2g4NzjHhoSF9+H0TKdXv8WUuizD1pY
+         IYg1i5umaO53/5CGPiTQjvcZn3osnikzutR03Nt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yu Kuai <yukuai3@huawei.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/315] char: pcmcia: error out if num_bytes_read is greater than 4 in set_protocol()
+Subject: [PATCH 4.9 086/245] net: ethernet: ezchip: fix error handling
 Date:   Mon, 19 Jul 2021 16:50:28 +0200
-Message-Id: <20210719144947.463946299@linuxfoundation.org>
+Message-Id: <20210719144943.184081878@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 37188559c610f1b7eec83c8e448936c361c578de ]
+[ Upstream commit 0de449d599594f5472e00267d651615c7f2c6c1d ]
 
-Theoretically, it will cause index out of bounds error if
-'num_bytes_read' is greater than 4. As we expect it(and was tested)
-never to be greater than 4, error out if it happens.
+As documented at drivers/base/platform.c for platform_get_irq:
 
-Fixes: c1986ee9bea3 ("[PATCH] New Omnikey Cardman 4000 driver")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Link: https://lore.kernel.org/r/20210521120617.138396-1-yukuai3@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ * Gets an IRQ for a platform device and prints an error message if finding the
+ * IRQ fails. Device drivers should check the return value for errors so as to
+ * not pass a negative integer value to the request_irq() APIs.
+
+So, the driver should check that platform_get_irq() return value
+is _negative_, not that it's equal to zero, because -ENXIO (return
+value from request_irq() if irq was not found) will
+pass this check and it leads to passing negative irq to request_irq()
+
+Fixes: 0dd077093636 ("NET: Add ezchip ethernet driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/pcmcia/cm4000_cs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/ezchip/nps_enet.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/pcmcia/cm4000_cs.c b/drivers/char/pcmcia/cm4000_cs.c
-index cd53771b9ae7..432e161efe5d 100644
---- a/drivers/char/pcmcia/cm4000_cs.c
-+++ b/drivers/char/pcmcia/cm4000_cs.c
-@@ -544,6 +544,10 @@ static int set_protocol(struct cm4000_dev *dev, struct ptsreq *ptsreq)
- 		io_read_num_rec_bytes(iobase, &num_bytes_read);
- 		if (num_bytes_read >= 4) {
- 			DEBUGP(2, dev, "NumRecBytes = %i\n", num_bytes_read);
-+			if (num_bytes_read > 4) {
-+				rc = -EIO;
-+				goto exit_setprotocol;
-+			}
- 			break;
- 		}
- 		mdelay(10);
+diff --git a/drivers/net/ethernet/ezchip/nps_enet.c b/drivers/net/ethernet/ezchip/nps_enet.c
+index 1edf1c76c22c..6de29f2a0a09 100644
+--- a/drivers/net/ethernet/ezchip/nps_enet.c
++++ b/drivers/net/ethernet/ezchip/nps_enet.c
+@@ -624,7 +624,7 @@ static s32 nps_enet_probe(struct platform_device *pdev)
+ 
+ 	/* Get IRQ number */
+ 	priv->irq = platform_get_irq(pdev, 0);
+-	if (!priv->irq) {
++	if (priv->irq < 0) {
+ 		dev_err(dev, "failed to retrieve <irq Rx-Tx> value from device tree\n");
+ 		err = -ENODEV;
+ 		goto out_netdev;
 -- 
 2.30.2
 
