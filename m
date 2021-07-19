@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A55593CDF1A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54DB3CDBF6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244807AbhGSPHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:07:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38414 "EHLO mail.kernel.org"
+        id S239352AbhGSOul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346261AbhGSPFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40A566023D;
-        Mon, 19 Jul 2021 15:46:04 +0000 (UTC)
+        id S245424AbhGSOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:47:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41D2260551;
+        Mon, 19 Jul 2021 15:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709564;
-        bh=4DYIJkBBNEgbBtLUIK/WIpKbeZB5/9WqbXBS6E8Bh54=;
+        s=korg; t=1626708229;
+        bh=TQ4UpPTgYeXGQFca3epqZYICdPPcfC+iCiPWtVh04Ps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFF49CXLZ6x5EZb6h/RcaS7CAFi6klRPf04HQiPuwKZN/1KN9I9MJHw9Ly3fztz9H
-         XdKhZSLWwWpMj7Znu7ECw4WD74utpvq8zNtt2bNHWGhT5wnHLBd5quW13Js6LLy7K5
-         OyNPcCzUdo5GBwz77q+jPm4+V3HIZkZM0SLtZfos=
+        b=x8oeQSaWCv1JL1gX5ehT4b1D3O05E5wQTBeDUqWpRhlO+N/KyiiVDh6XmtCxbJhmH
+         nS6Kduwa++9wkTsaP3E46mEsaa9RPPCRmxKf626LYHPnmVFmSpAyuMNx5Gq3Hb4g2a
+         v5mEdU/HaQsbTabAwiPeau0h7GhH9dxGPFWYeXAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 012/149] misc/libmasm/module: Fix two use after free in ibmasm_init_one
-Date:   Mon, 19 Jul 2021 16:52:00 +0200
-Message-Id: <20210719144904.343497944@linuxfoundation.org>
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 232/315] scsi: core: Fix bad pointer dereference when ehandler kthread is invalid
+Date:   Mon, 19 Jul 2021 16:52:01 +0200
+Message-Id: <20210719144951.051329173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
+commit 93aa71ad7379900e61c8adff6a710a4c18c7c99b upstream.
 
-In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
-Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
-allocated by input_allocate_device(), and assigned to
-sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
+Commit 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
+changed the allocation logic to call put_device() to perform host cleanup
+with the assumption that IDA removal and stopping the kthread would
+properly be performed in scsi_host_dev_release(). However, in the unlikely
+case that the error handler thread fails to spawn, shost->ehandler is set
+to ERR_PTR(-ENOMEM).
 
-In the err_free_devices error branch of ibmasm_init_one,
-mouse_dev and keybd_dev are freed by input_free_device(), and return
-error. Then the execution runs into error_send_message error branch
-of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
-to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
+The error handler cleanup code in scsi_host_dev_release() will call
+kthread_stop() if shost->ehandler != NULL which will always be the case
+whether the kthread was successfully spawned or not. In the case that it
+failed to spawn this has the nasty side effect of trying to dereference an
+invalid pointer when kthread_stop() is called. The following splat provides
+an example of this behavior in the wild:
 
-My patch add a "error_init_remote" label to handle the error of
-ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
+scsi host11: error handler thread failed to spawn, error = -4
+Kernel attempted to read user page (10c) - exploit attempt? (uid: 0)
+BUG: Kernel NULL pointer dereference on read at 0x0000010c
+Faulting instruction address: 0xc00000000818e9a8
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: ibmvscsi(+) scsi_transport_srp dm_multipath dm_mirror dm_region
+ hash dm_log dm_mod fuse overlay squashfs loop
+CPU: 12 PID: 274 Comm: systemd-udevd Not tainted 5.13.0-rc7 #1
+NIP:  c00000000818e9a8 LR: c0000000089846e8 CTR: 0000000000007ee8
+REGS: c000000037d12ea0 TRAP: 0300   Not tainted  (5.13.0-rc7)
+MSR:  800000000280b033 &lt;SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE&gt;  CR: 28228228
+XER: 20040001
+CFAR: c0000000089846e4 DAR: 000000000000010c DSISR: 40000000 IRQMASK: 0
+GPR00: c0000000089846e8 c000000037d13140 c000000009cc1100 fffffffffffffffc
+GPR04: 0000000000000001 0000000000000000 0000000000000000 c000000037dc0000
+GPR08: 0000000000000000 c000000037dc0000 0000000000000001 00000000fffff7ff
+GPR12: 0000000000008000 c00000000a049000 c000000037d13d00 000000011134d5a0
+GPR16: 0000000000001740 c0080000190d0000 c0080000190d1740 c000000009129288
+GPR20: c000000037d13bc0 0000000000000001 c000000037d13bc0 c0080000190b7898
+GPR24: c0080000190b7708 0000000000000000 c000000033bb2c48 0000000000000000
+GPR28: c000000046b28280 0000000000000000 000000000000010c fffffffffffffffc
+NIP [c00000000818e9a8] kthread_stop+0x38/0x230
+LR [c0000000089846e8] scsi_host_dev_release+0x98/0x160
+Call Trace:
+[c000000033bb2c48] 0xc000000033bb2c48 (unreliable)
+[c0000000089846e8] scsi_host_dev_release+0x98/0x160
+[c00000000891e960] device_release+0x60/0x100
+[c0000000087e55c4] kobject_release+0x84/0x210
+[c00000000891ec78] put_device+0x28/0x40
+[c000000008984ea4] scsi_host_alloc+0x314/0x430
+[c0080000190b38bc] ibmvscsi_probe+0x54/0xad0 [ibmvscsi]
+[c000000008110104] vio_bus_probe+0xa4/0x4b0
+[c00000000892a860] really_probe+0x140/0x680
+[c00000000892aefc] driver_probe_device+0x15c/0x200
+[c00000000892b63c] device_driver_attach+0xcc/0xe0
+[c00000000892b740] __driver_attach+0xf0/0x200
+[c000000008926f28] bus_for_each_dev+0xa8/0x130
+[c000000008929ce4] driver_attach+0x34/0x50
+[c000000008928fc0] bus_add_driver+0x1b0/0x300
+[c00000000892c798] driver_register+0x98/0x1a0
+[c00000000810eb60] __vio_register_driver+0x80/0xe0
+[c0080000190b4a30] ibmvscsi_module_init+0x9c/0xdc [ibmvscsi]
+[c0000000080121d0] do_one_initcall+0x60/0x2d0
+[c000000008261abc] do_init_module+0x7c/0x320
+[c000000008265700] load_module+0x2350/0x25b0
+[c000000008265cb4] __do_sys_finit_module+0xd4/0x160
+[c000000008031110] system_call_exception+0x150/0x2d0
+[c00000000800d35c] system_call_common+0xec/0x278
 
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
+Fix this be nulling shost->ehandler when the kthread fails to spawn.
+
+Link: https://lore.kernel.org/r/20210701195659.3185475-1-tyreld@linux.ibm.com
+Fixes: 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
+Cc: stable@vger.kernel.org
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/ibmasm/module.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/hosts.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
-index 4edad6c445d3..dc8a06c06c63 100644
---- a/drivers/misc/ibmasm/module.c
-+++ b/drivers/misc/ibmasm/module.c
-@@ -111,7 +111,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	result = ibmasm_init_remote_input_dev(sp);
- 	if (result) {
- 		dev_err(sp->dev, "Failed to initialize remote queue\n");
--		goto error_send_message;
-+		goto error_init_remote;
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -499,6 +499,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
++		shost->ehandler = NULL;
+ 		goto fail;
  	}
  
- 	result = ibmasm_send_driver_vpd(sp);
-@@ -131,8 +131,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 	return 0;
- 
- error_send_message:
--	disable_sp_interrupts(sp->base_address);
- 	ibmasm_free_remote_input_dev(sp);
-+error_init_remote:
-+	disable_sp_interrupts(sp->base_address);
- 	free_irq(sp->irq, (void *)sp);
- error_request_irq:
- 	iounmap(sp->base_address);
--- 
-2.30.2
-
 
 
