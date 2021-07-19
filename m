@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A8713CD9D8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5CA83CD9D7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243115AbhGSObv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40508 "EHLO mail.kernel.org"
+        id S245307AbhGSObu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244616AbhGSO3x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD5C66113A;
-        Mon, 19 Jul 2021 15:10:15 +0000 (UTC)
+        id S244634AbhGSO3y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E5986113C;
+        Mon, 19 Jul 2021 15:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707416;
-        bh=grkEjosmlW7zlW8HPokuK+9bc9XrMK0ts/pfTBaXc38=;
+        s=korg; t=1626707418;
+        bh=FQQIFpnAiR23hT4T3lXEcnFdqObycTksY+X948lJ45A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Bmh29wwQSBY5i2xNB9JWVCI2OJrwuog0SNB6f9VkZff62ii50XS5+j6AkMTzO+DS
-         z6M3F6GE3M1ta/t922POMPsevj4lkB00NWsxQxILMOJGQyZiN9LchBxlTkM6v7wS3x
-         u9ZHpIHrX5yi4+DwH1drnz4HmRMSewCdkVuTL5JA=
+        b=BGZYjLOdY7O9XXnX5I8FSIu8nvLtmdFDg+is4pZ0XinJiNCudhH5Y/dVLTFGTHxqG
+         HNfN0S2pc6XAlbJeuiP639I26RngngjWt/dmV3Pxoj5z7/MFYvV6lqGugzV+9EdOSc
+         TKjZMIX2YZp51QqfboELrJv0ZhTxtfBnlXrDYTFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Jiang <tjiang@codeaurora.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 155/245] Bluetooth: btusb: fix bt fiwmare downloading failure issue for qca btsoc.
-Date:   Mon, 19 Jul 2021 16:51:37 +0200
-Message-Id: <20210719144945.409865923@linuxfoundation.org>
+Subject: [PATCH 4.9 156/245] sctp: add size validation when walking chunks
+Date:   Mon, 19 Jul 2021 16:51:38 +0200
+Message-Id: <20210719144945.448079004@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -40,37 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Jiang <tjiang@codeaurora.org>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-[ Upstream commit 4f00bfb372674d586c4a261bfc595cbce101fbb6 ]
+[ Upstream commit 50619dbf8db77e98d821d615af4f634d08e22698 ]
 
-This is btsoc timing issue, after host start to downloading bt firmware,
-ep2 need time to switch from function acl to function dfu, so host add
-20ms delay as workaround.
+The first chunk in a packet is ensured to be present at the beginning of
+sctp_rcv(), as a packet needs to have at least 1 chunk. But the second
+one, may not be completely available and ch->length can be over
+uninitialized memory.
 
-Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fix here is by only trying to walk on the next chunk if there is enough to
+hold at least the header, and then proceed with the ch->length validation
+that is already there.
+
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/sctp/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 4e3b24a0511f..30c09b9ddbf0 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2508,6 +2508,11 @@ static int btusb_setup_qca_download_fw(struct hci_dev *hdev,
- 	sent += size;
- 	count -= size;
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 12d821ea8a1f..8f4574c4aa6c 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -1165,7 +1165,7 @@ static struct sctp_association *__sctp_rcv_walk_lookup(struct net *net,
  
-+	/* ep2 need time to switch from function acl to function dfu,
-+	 * so we add 20ms delay here.
-+	 */
-+	msleep(20);
-+
- 	while (count) {
- 		size = min_t(size_t, count, QCA_DFU_PACKET_LEN);
+ 		ch = (sctp_chunkhdr_t *) ch_end;
+ 		chunk_num++;
+-	} while (ch_end < skb_tail_pointer(skb));
++	} while (ch_end + sizeof(*ch) < skb_tail_pointer(skb));
  
+ 	return asoc;
+ }
 -- 
 2.30.2
 
