@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9C253CDE2F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA033CDE2B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245579AbhGSPCN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52768 "EHLO mail.kernel.org"
+        id S1345246AbhGSPCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244227AbhGSO6n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:58:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7991F613F8;
-        Mon, 19 Jul 2021 15:36:19 +0000 (UTC)
+        id S245675AbhGSO6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:58:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3415E60FED;
+        Mon, 19 Jul 2021 15:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708979;
-        bh=6aQYi632XiykU/Wwde0KFpO+Dblrr6hqyTUGMrmWsn8=;
+        s=korg; t=1626708982;
+        bh=dvWPkMGOJnrDC5zEycXPbsLOq8JCoV6BC/fGKrSdsGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdZnqAdIT0d+WJe2nrNHvlxTZ2z8b1OITmAbttfqu0kyJgNUHGNrp9b2+QE1Bp/OI
-         1eg19i5aJf49V3+bV4xA4rhaWyMiBDteFs+/v5ffLFCbj+28xk/8HMpSBBYl+JEt2P
-         en48xaFthb7coUgzCDAtM8Z03w2mB7Z+L443UJLs=
+        b=LEdqW8rHbq0NT/ckSUejBSdb+/7vKE9MZuEJ16lFsb7d5OLafqguUY3fOQjlf0GtP
+         tqIinY3n+Gcr+wN5bOqFQTD7sSofCaqUFREtjMdy/iZIHpMqlvsot0sjTZYk0RJzxE
+         ELKJkVNwZM7vwAp14EmQkL90mfcyZbbCxgz0tCIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mathieu Othacehe <m.othacehe@gmail.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 206/421] iio: prox: isl29501: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:17 +0200
-Message-Id: <20210719144953.507591876@linuxfoundation.org>
+Subject: [PATCH 4.19 207/421] ASoC: cs42l42: Correct definition of CS42L42_ADC_PDN_MASK
+Date:   Mon, 19 Jul 2021 16:50:18 +0200
+Message-Id: <20210719144953.539834127@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,41 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 92babc9938ebbf4050f2fba774836f7edc16a570 ]
+[ Upstream commit fac165f22ac947b55407cd3a60a2a9824f905235 ]
 
-Add __aligned(8) to ensure the buffer passed to
-iio_push_to_buffers_with_timestamp() is suitable for the naturally
-aligned timestamp that will be inserted.
+The definition of CS42L42_ADC_PDN_MASK was incorrectly defined
+as the HP_PDN bit.
 
-Here an explicit structure is not used, because the holes would
-necessitate the addition of an explict memset(), to avoid a kernel
-data leak, making for a less minimal fix.
-
-Fixes: 1c28799257bc ("iio: light: isl29501: Add support for the ISL29501 ToF sensor.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Mathieu Othacehe <m.othacehe@gmail.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210613152301.571002-9-jic23@kernel.org
+Fixes: 2c394ca79604 ("ASoC: Add support for CS42L42 codec")
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20210616135604.19363-1-rf@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/proximity/isl29501.c | 2 +-
+ sound/soc/codecs/cs42l42.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/proximity/isl29501.c b/drivers/iio/proximity/isl29501.c
-index e5e94540f404..a99d26023ef7 100644
---- a/drivers/iio/proximity/isl29501.c
-+++ b/drivers/iio/proximity/isl29501.c
-@@ -946,7 +946,7 @@ static irqreturn_t isl29501_trigger_handler(int irq, void *p)
- 	struct iio_dev *indio_dev = pf->indio_dev;
- 	struct isl29501_private *isl29501 = iio_priv(indio_dev);
- 	const unsigned long *active_mask = indio_dev->active_scan_mask;
--	u32 buffer[4] = {}; /* 1x16-bit + ts */
-+	u32 buffer[4] __aligned(8) = {}; /* 1x16-bit + naturally aligned ts */
+diff --git a/sound/soc/codecs/cs42l42.h b/sound/soc/codecs/cs42l42.h
+index bcaf4f22408d..5a46e7d4f9a3 100644
+--- a/sound/soc/codecs/cs42l42.h
++++ b/sound/soc/codecs/cs42l42.h
+@@ -81,7 +81,7 @@
+ #define CS42L42_HP_PDN_SHIFT		3
+ #define CS42L42_HP_PDN_MASK		(1 << CS42L42_HP_PDN_SHIFT)
+ #define CS42L42_ADC_PDN_SHIFT		2
+-#define CS42L42_ADC_PDN_MASK		(1 << CS42L42_HP_PDN_SHIFT)
++#define CS42L42_ADC_PDN_MASK		(1 << CS42L42_ADC_PDN_SHIFT)
+ #define CS42L42_PDN_ALL_SHIFT		0
+ #define CS42L42_PDN_ALL_MASK		(1 << CS42L42_PDN_ALL_SHIFT)
  
- 	if (test_bit(ISL29501_DISTANCE_SCAN_INDEX, active_mask))
- 		isl29501_register_read(isl29501, REG_DISTANCE, buffer);
 -- 
 2.30.2
 
