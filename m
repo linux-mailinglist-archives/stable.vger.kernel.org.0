@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D6F3CDBF5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 333383CDE70
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239343AbhGSOuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40454 "EHLO mail.kernel.org"
+        id S1344970AbhGSPDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245414AbhGSOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BB6761380;
-        Mon, 19 Jul 2021 15:23:57 +0000 (UTC)
+        id S1344368AbhGSPBB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0AB4601FD;
+        Mon, 19 Jul 2021 15:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708237;
-        bh=lK1OJcXdg459ZhteeF7voycMQlelBiJ59v0OFlhME6I=;
+        s=korg; t=1626709301;
+        bh=QbXr4Mo5aHThvqcQbRCuuhMbvaXsNYLB+PbQm/ep94c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/Z+86FsXEYw1Pq9v/Pq2dow6gBnoyugA74yNgyubjeppvW4lbBfKwn5xNnB7CTpu
-         qpkSFl/GkPY/q3hE87tQl2ov7zFHN6QbCvVT6IpPKI3usjZMXaPZuJvGrK2TBC/nve
-         aVJ0TqJmB+5Eha3VZkTeBId8PCH4HA8J9NkrTwBY=
+        b=C8imd8Ab1cGnJLQ6cGjuXjmWkfgorAdoj6IeNEdhTTBGKvcFXWUcm6FwZb69wmduM
+         cAsBF6qu6mOrhonCSSVJiS4Sa3BqoNGlXjaMI27TO3AuNOC1uligAMxOebr+dJAKaY
+         /F2hmdRvOk82zrW8ThhMvjfXD9wHf43VSE7ZFyUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 4.14 217/315] ipmi/watchdog: Stop watchdog timer when the current action is none
+        stable@vger.kernel.org,
+        Roman Stratiienko <r.stratiienko@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 4.19 295/421] clocksource/arm_arch_timer: Improve Allwinner A64 timer workaround
 Date:   Mon, 19 Jul 2021 16:51:46 +0200
-Message-Id: <20210719144950.567817714@linuxfoundation.org>
+Message-Id: <20210719144956.551398440@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Pavlu <petr.pavlu@suse.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
+commit 8b33dfe0ba1c84c1aab2456590b38195837f1e6e upstream.
 
-When an IPMI watchdog timer is being stopped in ipmi_close() or
-ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
-WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
-to install this action. The latter function ends up invoking
-__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
-request.
+Bad counter reads are experienced sometimes when bit 10 or greater rolls
+over. Originally, testing showed that at least 10 lower bits would be
+set to the same value during these bad reads. However, some users still
+reported time skips.
 
-For IPMI 1.0, this operation results in fully stopping the watchdog timer.
-For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
-stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
-that the watchdog timer has its action correctly updated to 'none' but the
-timer continues to run. A problem is that IPMI firmware can then still log
-an expiration event when the configured timeout is reached, which is
-unexpected because the watchdog timer was requested to be stopped.
+Wider testing revealed that on some chips, occasionally only the lowest
+9 bits would read as the anomalous value. During these reads (which
+still happen only when bit 10), bit 9 would read as the correct value.
 
-The patch fixes this problem by not setting the "don't stop" flag in
-__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
-results in stopping the watchdog timer. This makes the behaviour for
-IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
-__ipmi_heartbeat() which does not allow to reset the watchdog if the
-current action is WDOG_TIMEOUT_NONE as that would start the timer.
+Reduce the mask by one bit to cover these cases as well.
 
-Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: c950ca8c35ee ("clocksource/drivers/arch_timer: Workaround for Allwinner A64 timer instability")
+Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210515021439.55316-1-samuel@sholland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/clocksource/arm_arch_timer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/ipmi/ipmi_watchdog.c
-+++ b/drivers/char/ipmi/ipmi_watchdog.c
-@@ -394,16 +394,18 @@ static int i_ipmi_set_timeout(struct ipm
- 	data[0] = 0;
- 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
- 
--	if ((ipmi_version_major > 1)
--	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
--		/* This is an IPMI 1.5-only feature. */
--		data[0] |= WDOG_DONT_STOP_ON_SET;
--	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
--		/*
--		 * In ipmi 1.0, setting the timer stops the watchdog, we
--		 * need to start it back up again.
--		 */
--		hbnow = 1;
-+	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
-+		if ((ipmi_version_major > 1) ||
-+		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
-+			/* This is an IPMI 1.5-only feature. */
-+			data[0] |= WDOG_DONT_STOP_ON_SET;
-+		} else {
-+			/*
-+			 * In ipmi 1.0, setting the timer stops the watchdog, we
-+			 * need to start it back up again.
-+			 */
-+			hbnow = 1;
-+		}
- 	}
- 
- 	data[1] = 0;
+--- a/drivers/clocksource/arm_arch_timer.c
++++ b/drivers/clocksource/arm_arch_timer.c
+@@ -334,7 +334,7 @@ static u64 notrace arm64_858921_read_cnt
+ 	do {								\
+ 		_val = read_sysreg(reg);				\
+ 		_retries--;						\
+-	} while (((_val + 1) & GENMASK(9, 0)) <= 1 && _retries);	\
++	} while (((_val + 1) & GENMASK(8, 0)) <= 1 && _retries);	\
+ 									\
+ 	WARN_ON_ONCE(!_retries);					\
+ 	_val;								\
 
 
