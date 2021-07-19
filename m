@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE72F3CE5FA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1347C3CE5EC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239705AbhGSPz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
+        id S242662AbhGSPzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350476AbhGSPvE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350478AbhGSPvE (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:51:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C2861205;
-        Mon, 19 Jul 2021 16:29:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C5A61002;
+        Mon, 19 Jul 2021 16:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712179;
-        bh=SYcAa8TmYSdGlsuEkk+9WtZsakEIO1w3XEBxp7uFzis=;
+        s=korg; t=1626712182;
+        bh=pEpzXsLiEDb0yqp74RXrXBOkd57v70QiF7gA4fYfv1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZG8uZMGfkGEYcnQeeRe4FagC0jPbEbnSpgEdC3TgfBl6f2jmLcQYZayPulsl31fIG
-         Fl2y+dgHNWstBP8QpUjFzf9F+QKybzcxbZ00no4YK4FKcjJcqIDSx0XpA9mVxHkTy1
-         l+tuVzwHlIFNsO3SXcIX0kkrpy9MemcJzmsbYvaU=
+        b=0X1NfsL4snpFJWtIomcAkmFRsBgRUcLt8wDdMXBbhPi214Y8Xcqvs0o91hwiGVtoV
+         mFS0biLjbWHcoa0qgZdLG7lvMM4wMbPRFkF2/NHQlP3EAs9sE0QMyHCr5SSOebilMA
+         LdW0WMMkcyKCIUVx26+YQA6fgLunmTq32Zp9RDZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        stable@vger.kernel.org,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>,
         Masami Hiramatsu <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 280/292] jump_label: Fix jump_label_text_reserved() vs __init
-Date:   Mon, 19 Jul 2021 16:55:42 +0200
-Message-Id: <20210719144952.125342929@linuxfoundation.org>
+Subject: [PATCH 5.12 281/292] static_call: Fix static_call_text_reserved() vs __init
+Date:   Mon, 19 Jul 2021 16:55:43 +0200
+Message-Id: <20210719144952.156996705@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -44,70 +44,64 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 9e667624c291753b8a5128f620f493d0b5226063 ]
+[ Upstream commit 2bee6d16e4379326b1eea454e68c98b17456769e ]
 
-It turns out that jump_label_text_reserved() was reporting __init text
-as being reserved past the time when the __init text was freed and
-re-used.
+It turns out that static_call_text_reserved() was reporting __init
+text as being reserved past the time when the __init text was freed
+and re-used.
 
-For a long time, this resulted in, at worst, not being able to kprobe
-text that happened to land at the re-used address. However a recent
-commit e7bf1ba97afd ("jump_label, x86: Emit short JMP") made it a
-fatal mistake because it now needs to read the instruction in order to
-determine the conflict -- an instruction that's no longer there.
+This is mostly harmless and will at worst result in refusing a kprobe.
 
-Fixes: 4c3ef6d79328 ("jump label: Add jump_label_text_reserved() to reserve jump points")
-Reported-by: kernel test robot <oliver.sang@intel.com>
+Fixes: 6333e8f73b83 ("static_call: Avoid kprobes on inline static_call()s")
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20210628113045.045141693@infradead.org
+Link: https://lore.kernel.org/r/20210628113045.106211657@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/jump_label.c | 13 ++++++++-----
+ kernel/static_call.c | 13 ++++++++-----
  1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index ba39fbb1f8e7..af520ca26360 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -316,14 +316,16 @@ static int addr_conflict(struct jump_entry *entry, void *start, void *end)
- }
+diff --git a/kernel/static_call.c b/kernel/static_call.c
+index 2c5950b0b90e..7eba4912e529 100644
+--- a/kernel/static_call.c
++++ b/kernel/static_call.c
+@@ -292,13 +292,15 @@ static int addr_conflict(struct static_call_site *site, void *start, void *end)
  
- static int __jump_label_text_reserved(struct jump_entry *iter_start,
--		struct jump_entry *iter_stop, void *start, void *end)
-+		struct jump_entry *iter_stop, void *start, void *end, bool init)
+ static int __static_call_text_reserved(struct static_call_site *iter_start,
+ 				       struct static_call_site *iter_stop,
+-				       void *start, void *end)
++				       void *start, void *end, bool init)
  {
- 	struct jump_entry *iter;
+ 	struct static_call_site *iter = iter_start;
  
- 	iter = iter_start;
  	while (iter < iter_stop) {
 -		if (addr_conflict(iter, start, end))
 -			return 1;
-+		if (init || !jump_entry_is_init(iter)) {
++		if (init || !static_call_is_init(iter)) {
 +			if (addr_conflict(iter, start, end))
 +				return 1;
 +		}
  		iter++;
  	}
  
-@@ -561,7 +563,7 @@ static int __jump_label_mod_text_reserved(void *start, void *end)
+@@ -324,7 +326,7 @@ static int __static_call_mod_text_reserved(void *start, void *end)
  
- 	ret = __jump_label_text_reserved(mod->jump_entries,
- 				mod->jump_entries + mod->num_jump_entries,
--				start, end);
-+				start, end, mod->state == MODULE_STATE_COMING);
+ 	ret = __static_call_text_reserved(mod->static_call_sites,
+ 			mod->static_call_sites + mod->num_static_call_sites,
+-			start, end);
++			start, end, mod->state == MODULE_STATE_COMING);
  
  	module_put(mod);
  
-@@ -786,8 +788,9 @@ early_initcall(jump_label_init_module);
-  */
- int jump_label_text_reserved(void *start, void *end)
+@@ -459,8 +461,9 @@ static inline int __static_call_mod_text_reserved(void *start, void *end)
+ 
+ int static_call_text_reserved(void *start, void *end)
  {
 +	bool init = system_state < SYSTEM_RUNNING;
- 	int ret = __jump_label_text_reserved(__start___jump_table,
--			__stop___jump_table, start, end);
-+			__stop___jump_table, start, end, init);
+ 	int ret = __static_call_text_reserved(__start_static_call_sites,
+-			__stop_static_call_sites, start, end);
++			__stop_static_call_sites, start, end, init);
  
  	if (ret)
  		return ret;
