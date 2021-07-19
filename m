@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81093CE47A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0043CE473
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348453AbhGSPnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37992 "EHLO mail.kernel.org"
+        id S1348416AbhGSPnq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344144AbhGSPk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:40:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADFEA60FD7;
-        Mon, 19 Jul 2021 16:20:12 +0000 (UTC)
+        id S239947AbhGSPkZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:40:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E8AC6112D;
+        Mon, 19 Jul 2021 16:20:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711613;
-        bh=j2iFc+yHPohmL0+Nq7gWMIupbe/xXIB04J5KHEO+GR0=;
+        s=korg; t=1626711615;
+        bh=/Mzr4UdKvZBOY5VKaIoH2spQn3OBTLaMKBvpd+sAk+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3N4lEGHPy9eCBcPCktZOTnBJGNd3gT4Aa60UxZx+p2aMCcJNQJxmrcXP3rQOHB6g
-         cQCnOqfBPKmTuTgbvYWyJU2vJKPFPDFxTfdR/fvXRV40m+v0Iblo8l15GiP1K1LpUC
-         TrCDkViEncfDNgFtFsxGV16k01g0XkW9Ow7t+9VM=
+        b=ZXZwXjas99EM9NPNfFl9++gxEKtZlId4u79ECz14iXTCaUT4k8nm53jHLDZcqxtez
+         I+A7klzCazrQoHOyQKGbpS1QpYvjEXLtorNRstW7E8XmzFbsLletwUm/oBfeA3Vv1+
+         dGR9Dz9i1xJJfCT1A5zYSx4wIUSHszNMgRDIoZIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kashyap Desai <kashyap.desai@broadcom.com>,
         Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 067/292] scsi: megaraid_sas: Fix resource leak in case of probe failure
-Date:   Mon, 19 Jul 2021 16:52:09 +0200
-Message-Id: <20210719144944.725342639@linuxfoundation.org>
+Subject: [PATCH 5.12 068/292] scsi: megaraid_sas: Early detection of VD deletion through RaidMap update
+Date:   Mon, 19 Jul 2021 16:52:10 +0200
+Message-Id: <20210719144944.755295980@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,76 +42,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+From: Kashyap Desai <kashyap.desai@broadcom.com>
 
-[ Upstream commit b5438f48fdd8e1c3f130d32637511efd32038152 ]
+[ Upstream commit ae6874ba4b43c5a00065f48599811a09d33b873d ]
 
-The driver doesn't clean up all the allocated resources properly when
-scsi_add_host(), megasas_start_aen() function fails during the PCI device
-probe.
+Consider the case where a VD is deleted and the targetID of that VD is
+assigned to a newly created VD. If the sequence of deletion/addition of VD
+happens very quickly there is a possibility that second event (VD add)
+occurs even before the driver processes the first event (VD delete).  As
+event processing is done in deferred context the device list remains the
+same (but targetID is re-used) so driver will not learn the VD
+deletion/additon. I/Os meant for the older VD will be directed to new VD
+which may lead to data corruption.
 
-Clean up all those resources.
+Make driver detect the deleted VD as soon as possible based on the RaidMap
+update and block further I/O to that device.
 
-Link: https://lore.kernel.org/r/20210528131307.25683-3-chandrakanth.patil@broadcom.com
+Link: https://lore.kernel.org/r/20210528131307.25683-4-chandrakanth.patil@broadcom.com
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Kashyap Desai <kashyap.desai@broadcom.com>
 Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_base.c   | 13 +++++++++++++
- drivers/scsi/megaraid/megaraid_sas_fusion.c |  1 +
- 2 files changed, 14 insertions(+)
+ drivers/scsi/megaraid/megaraid_sas.h      | 12 ++++
+ drivers/scsi/megaraid/megaraid_sas_base.c | 83 ++++++++++++++++++++---
+ drivers/scsi/megaraid/megaraid_sas_fp.c   |  6 +-
+ 3 files changed, 92 insertions(+), 9 deletions(-)
 
+diff --git a/drivers/scsi/megaraid/megaraid_sas.h b/drivers/scsi/megaraid/megaraid_sas.h
+index 0f808d63580e..69fed9318468 100644
+--- a/drivers/scsi/megaraid/megaraid_sas.h
++++ b/drivers/scsi/megaraid/megaraid_sas.h
+@@ -2259,6 +2259,15 @@ enum MR_PERF_MODE {
+ 		 (mode) == MR_LATENCY_PERF_MODE ? "Latency" : \
+ 		 "Unknown")
+ 
++enum MEGASAS_LD_TARGET_ID_STATUS {
++	LD_TARGET_ID_INITIAL,
++	LD_TARGET_ID_ACTIVE,
++	LD_TARGET_ID_DELETED,
++};
++
++#define MEGASAS_TARGET_ID(sdev)						\
++	(((sdev->channel % 2) * MEGASAS_MAX_DEV_PER_CHANNEL) + sdev->id)
++
+ struct megasas_instance {
+ 
+ 	unsigned int *reply_map;
+@@ -2323,6 +2332,9 @@ struct megasas_instance {
+ 	struct megasas_pd_list          pd_list[MEGASAS_MAX_PD];
+ 	struct megasas_pd_list          local_pd_list[MEGASAS_MAX_PD];
+ 	u8 ld_ids[MEGASAS_MAX_LD_IDS];
++	u8 ld_tgtid_status[MEGASAS_MAX_LD_IDS];
++	u8 ld_ids_prev[MEGASAS_MAX_LD_IDS];
++	u8 ld_ids_from_raidmap[MEGASAS_MAX_LD_IDS];
+ 	s8 init_id;
+ 
+ 	u16 max_num_sge;
 diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
-index 63a4f48bdc75..7ab741f03b84 100644
+index 7ab741f03b84..c9c8a5e4925c 100644
 --- a/drivers/scsi/megaraid/megaraid_sas_base.c
 +++ b/drivers/scsi/megaraid/megaraid_sas_base.c
-@@ -7478,11 +7478,16 @@ static int megasas_probe_one(struct pci_dev *pdev,
- 	return 0;
+@@ -132,6 +132,8 @@ static int megasas_register_aen(struct megasas_instance *instance,
+ 				u32 seq_num, u32 class_locale_word);
+ static void megasas_get_pd_info(struct megasas_instance *instance,
+ 				struct scsi_device *sdev);
++static void
++megasas_set_ld_removed_by_fw(struct megasas_instance *instance);
  
- fail_start_aen:
-+	instance->unload = 1;
-+	scsi_remove_host(instance->host);
- fail_io_attach:
- 	megasas_mgmt_info.count--;
- 	megasas_mgmt_info.max_index--;
- 	megasas_mgmt_info.instance[megasas_mgmt_info.max_index] = NULL;
+ /*
+  * PCI ID table for all supported controllers
+@@ -426,6 +428,12 @@ megasas_decode_evt(struct megasas_instance *instance)
+ 			(class_locale.members.locale),
+ 			format_class(class_locale.members.class),
+ 			evt_detail->description);
++
++	if (megasas_dbg_lvl & LD_PD_DEBUG)
++		dev_info(&instance->pdev->dev,
++			 "evt_detail.args.ld.target_id/index %d/%d\n",
++			 evt_detail->args.ld.target_id, evt_detail->args.ld.ld_index);
++
+ }
  
-+	if (instance->requestorId && !instance->skip_heartbeat_timer_del)
-+		del_timer_sync(&instance->sriov_heartbeat_timer);
-+
- 	instance->instancet->disable_intr(instance);
- 	megasas_destroy_irqs(instance);
+ /*
+@@ -1769,6 +1777,7 @@ megasas_queue_command(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
+ {
+ 	struct megasas_instance *instance;
+ 	struct MR_PRIV_DEVICE *mr_device_priv_data;
++	u32 ld_tgt_id;
  
-@@ -7490,8 +7495,16 @@ fail_io_attach:
- 		megasas_release_fusion(instance);
- 	else
- 		megasas_release_mfi(instance);
-+
- 	if (instance->msix_vectors)
- 		pci_free_irq_vectors(instance->pdev);
-+	instance->msix_vectors = 0;
-+
-+	if (instance->fw_crash_state != UNAVAILABLE)
-+		megasas_free_host_crash_buffer(instance);
-+
-+	if (instance->adapter_type != MFI_SERIES)
-+		megasas_fusion_stop_watchdog(instance);
- fail_init_mfi:
- 	scsi_host_put(host);
- fail_alloc_instance:
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index 73295cf74cbe..54f8a8073ca0 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -5201,6 +5201,7 @@ megasas_alloc_fusion_context(struct megasas_instance *instance)
- 		if (!fusion->log_to_span) {
- 			dev_err(&instance->pdev->dev, "Failed from %s %d\n",
- 				__func__, __LINE__);
-+			kfree(instance->ctrl_context);
- 			return -ENOMEM;
+ 	instance = (struct megasas_instance *)
+ 	    scmd->device->host->hostdata;
+@@ -1795,17 +1804,21 @@ megasas_queue_command(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
  		}
  	}
+ 
+-	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR) {
++	mr_device_priv_data = scmd->device->hostdata;
++	if (!mr_device_priv_data ||
++	    (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)) {
+ 		scmd->result = DID_NO_CONNECT << 16;
+ 		scmd->scsi_done(scmd);
+ 		return 0;
+ 	}
+ 
+-	mr_device_priv_data = scmd->device->hostdata;
+-	if (!mr_device_priv_data) {
+-		scmd->result = DID_NO_CONNECT << 16;
+-		scmd->scsi_done(scmd);
+-		return 0;
++	if (MEGASAS_IS_LOGICAL(scmd->device)) {
++		ld_tgt_id = MEGASAS_TARGET_ID(scmd->device);
++		if (instance->ld_tgtid_status[ld_tgt_id] == LD_TARGET_ID_DELETED) {
++			scmd->result = DID_NO_CONNECT << 16;
++			scmd->scsi_done(scmd);
++			return 0;
++		}
+ 	}
+ 
+ 	if (atomic_read(&instance->adprecovery) != MEGASAS_HBA_OPERATIONAL)
+@@ -2085,7 +2098,7 @@ static int megasas_slave_configure(struct scsi_device *sdev)
+ 
+ static int megasas_slave_alloc(struct scsi_device *sdev)
+ {
+-	u16 pd_index = 0;
++	u16 pd_index = 0, ld_tgt_id;
+ 	struct megasas_instance *instance ;
+ 	struct MR_PRIV_DEVICE *mr_device_priv_data;
+ 
+@@ -2110,6 +2123,14 @@ scan_target:
+ 					GFP_KERNEL);
+ 	if (!mr_device_priv_data)
+ 		return -ENOMEM;
++
++	if (MEGASAS_IS_LOGICAL(sdev)) {
++		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
++		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_ACTIVE;
++		if (megasas_dbg_lvl & LD_PD_DEBUG)
++			sdev_printk(KERN_INFO, sdev, "LD target ID %d created.\n", ld_tgt_id);
++	}
++
+ 	sdev->hostdata = mr_device_priv_data;
+ 
+ 	atomic_set(&mr_device_priv_data->r1_ldio_hint,
+@@ -2119,6 +2140,19 @@ scan_target:
+ 
+ static void megasas_slave_destroy(struct scsi_device *sdev)
+ {
++	u16 ld_tgt_id;
++	struct megasas_instance *instance;
++
++	instance = megasas_lookup_instance(sdev->host->host_no);
++
++	if (MEGASAS_IS_LOGICAL(sdev)) {
++		ld_tgt_id = MEGASAS_TARGET_ID(sdev);
++		instance->ld_tgtid_status[ld_tgt_id] = LD_TARGET_ID_DELETED;
++		if (megasas_dbg_lvl & LD_PD_DEBUG)
++			sdev_printk(KERN_INFO, sdev,
++				    "LD target ID %d removed from OS stack\n", ld_tgt_id);
++	}
++
+ 	kfree(sdev->hostdata);
+ 	sdev->hostdata = NULL;
+ }
+@@ -3491,6 +3525,22 @@ megasas_complete_abort(struct megasas_instance *instance,
+ 	}
+ }
+ 
++static void
++megasas_set_ld_removed_by_fw(struct megasas_instance *instance)
++{
++	uint i;
++
++	for (i = 0; (i < MEGASAS_MAX_LD_IDS); i++) {
++		if (instance->ld_ids_prev[i] != 0xff &&
++		    instance->ld_ids_from_raidmap[i] == 0xff) {
++			if (megasas_dbg_lvl & LD_PD_DEBUG)
++				dev_info(&instance->pdev->dev,
++					 "LD target ID %d removed from RAID map\n", i);
++			instance->ld_tgtid_status[i] = LD_TARGET_ID_DELETED;
++		}
++	}
++}
++
+ /**
+  * megasas_complete_cmd -	Completes a command
+  * @instance:			Adapter soft state
+@@ -3653,9 +3703,13 @@ megasas_complete_cmd(struct megasas_instance *instance, struct megasas_cmd *cmd,
+ 				fusion->fast_path_io = 0;
+ 			}
+ 
++			if (instance->adapter_type >= INVADER_SERIES)
++				megasas_set_ld_removed_by_fw(instance);
++
+ 			megasas_sync_map_info(instance);
+ 			spin_unlock_irqrestore(instance->host->host_lock,
+ 					       flags);
++
+ 			break;
+ 		}
+ 		if (opcode == MR_DCMD_CTRL_EVENT_GET_INFO ||
+@@ -8764,8 +8818,10 @@ megasas_aen_polling(struct work_struct *work)
+ 	union megasas_evt_class_locale class_locale;
+ 	int event_type = 0;
+ 	u32 seq_num;
++	u16 ld_target_id;
+ 	int error;
+ 	u8  dcmd_ret = DCMD_SUCCESS;
++	struct scsi_device *sdev1;
+ 
+ 	if (!instance) {
+ 		printk(KERN_ERR "invalid instance!\n");
+@@ -8788,12 +8844,23 @@ megasas_aen_polling(struct work_struct *work)
+ 			break;
+ 
+ 		case MR_EVT_LD_OFFLINE:
+-		case MR_EVT_CFG_CLEARED:
+ 		case MR_EVT_LD_DELETED:
++			ld_target_id = instance->evt_detail->args.ld.target_id;
++			sdev1 = scsi_device_lookup(instance->host,
++						   MEGASAS_MAX_PD_CHANNELS +
++						   (ld_target_id / MEGASAS_MAX_DEV_PER_CHANNEL),
++						   (ld_target_id - MEGASAS_MAX_DEV_PER_CHANNEL),
++						   0);
++			if (sdev1)
++				megasas_remove_scsi_device(sdev1);
++
++			event_type = SCAN_VD_CHANNEL;
++			break;
+ 		case MR_EVT_LD_CREATED:
+ 			event_type = SCAN_VD_CHANNEL;
+ 			break;
+ 
++		case MR_EVT_CFG_CLEARED:
+ 		case MR_EVT_CTRL_HOST_BUS_SCAN_REQUESTED:
+ 		case MR_EVT_FOREIGN_CFG_IMPORTED:
+ 		case MR_EVT_LD_STATE_CHANGE:
+diff --git a/drivers/scsi/megaraid/megaraid_sas_fp.c b/drivers/scsi/megaraid/megaraid_sas_fp.c
+index b6c08d620033..83f69c33b01a 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_fp.c
++++ b/drivers/scsi/megaraid/megaraid_sas_fp.c
+@@ -349,6 +349,10 @@ u8 MR_ValidateMapInfo(struct megasas_instance *instance, u64 map_id)
+ 
+ 	num_lds = le16_to_cpu(drv_map->raidMap.ldCount);
+ 
++	memcpy(instance->ld_ids_prev,
++	       instance->ld_ids_from_raidmap,
++	       sizeof(instance->ld_ids_from_raidmap));
++	memset(instance->ld_ids_from_raidmap, 0xff, MEGASAS_MAX_LD_IDS);
+ 	/*Convert Raid capability values to CPU arch */
+ 	for (i = 0; (num_lds > 0) && (i < MAX_LOGICAL_DRIVES_EXT); i++) {
+ 		ld = MR_TargetIdToLdGet(i, drv_map);
+@@ -359,7 +363,7 @@ u8 MR_ValidateMapInfo(struct megasas_instance *instance, u64 map_id)
+ 
+ 		raid = MR_LdRaidGet(ld, drv_map);
+ 		le32_to_cpus((u32 *)&raid->capability);
+-
++		instance->ld_ids_from_raidmap[i] = i;
+ 		num_lds--;
+ 	}
+ 
 -- 
 2.30.2
 
