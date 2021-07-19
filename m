@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F02443CDC46
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E3843CDF2D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237553AbhGSOv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40458 "EHLO mail.kernel.org"
+        id S1345140AbhGSPIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344235AbhGSOsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FD9460720;
-        Mon, 19 Jul 2021 15:27:19 +0000 (UTC)
+        id S1345551AbhGSPEk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B68E161221;
+        Mon, 19 Jul 2021 15:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708440;
-        bh=i+G2kUEBmi+G1M3L2rdcYPgBks09r0PBN1osL1oZ6HI=;
+        s=korg; t=1626709454;
+        bh=ISuSGZrA2s+qVlTUCJJysGqf5n68q9hKA1W7aqYp+tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U5f4DABMY82GRLdMLauahlZGyk7/HH3TQkYM4GRt4bPEWPEgD81DQ60zANk4Qnms5
-         5Df6i5ZXUrvQTT50eAsxVF5AANddz+McpUs2l2wDIgTGMd55eeTCshg3vXEY95YKOp
-         wNOLnG6WyL0eDZ+Cw/DcR089QPfdxvilJdt+bC1k=
+        b=W/RW64RJNhJ5PlW+otha4sE4fDnlbNiIIqre7Sl8EU9Aist+yEOJpiX8gHV/m+l+W
+         xHogrgHGymsjWh1YPR3JsJcfQIPsxgHtkO00Agji5xOJWoW3TfH2QZfvtShh6tjb/E
+         YYVEeqnSIKzzdLUKcf9+ud0cbQdjdkXcJjpx3rFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Sandor Bodo-Merle <sbodomerle@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Marc Zyngier <maz@kernel.org>, Ray Jui <ray.jui@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 311/315] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
-Date:   Mon, 19 Jul 2021 16:53:20 +0200
-Message-Id: <20210719144953.709293484@linuxfoundation.org>
+Subject: [PATCH 4.19 390/421] PCI: iproc: Fix multi-MSI base vector number allocation
+Date:   Mon, 19 Jul 2021 16:53:21 +0200
+Message-Id: <20210719144959.895754338@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sandor Bodo-Merle <sbodomerle@gmail.com>
 
-[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
+[ Upstream commit e673d697b9a234fc3544ac240e173cef8c82b349 ]
 
-If an error occurs after a pci_enable_pcie_error_reporting() call, it must
-be undone by a corresponding pci_disable_pcie_error_reporting() call, as
-already done in the remove function.
+Commit fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
+introduced multi-MSI support with a broken allocation mechanism (it failed
+to reserve the proper number of bits from the inner domain).  Natural
+alignment of the base vector number was also not guaranteed.
 
-Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
-Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Link: https://lore.kernel.org/r/20210622152630.40842-1-sbodomerle@gmail.com
+Fixes: fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
+Reported-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Sandor Bodo-Merle <sbodomerle@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ray Jui <ray.jui@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/be2iscsi/be_main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/controller/pcie-iproc-msi.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
-index d7ed1ec02f5e..a1fd8a7fa48c 100644
---- a/drivers/scsi/be2iscsi/be_main.c
-+++ b/drivers/scsi/be2iscsi/be_main.c
-@@ -5737,6 +5737,7 @@ hba_free:
- 	pci_disable_msix(phba->pcidev);
- 	pci_dev_put(phba->pcidev);
- 	iscsi_host_free(phba->shost);
-+	pci_disable_pcie_error_reporting(pcidev);
- 	pci_set_drvdata(pcidev, NULL);
- disable_pci:
- 	pci_release_regions(pcidev);
+diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
+index dc953c73cb56..b43ae4c06f30 100644
+--- a/drivers/pci/controller/pcie-iproc-msi.c
++++ b/drivers/pci/controller/pcie-iproc-msi.c
+@@ -252,18 +252,18 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
+ 
+ 	mutex_lock(&msi->bitmap_lock);
+ 
+-	/* Allocate 'nr_cpus' number of MSI vectors each time */
+-	hwirq = bitmap_find_next_zero_area(msi->bitmap, msi->nr_msi_vecs, 0,
+-					   msi->nr_cpus, 0);
+-	if (hwirq < msi->nr_msi_vecs) {
+-		bitmap_set(msi->bitmap, hwirq, msi->nr_cpus);
+-	} else {
+-		mutex_unlock(&msi->bitmap_lock);
+-		return -ENOSPC;
+-	}
++	/*
++	 * Allocate 'nr_irqs' multiplied by 'nr_cpus' number of MSI vectors
++	 * each time
++	 */
++	hwirq = bitmap_find_free_region(msi->bitmap, msi->nr_msi_vecs,
++					order_base_2(msi->nr_cpus * nr_irqs));
+ 
+ 	mutex_unlock(&msi->bitmap_lock);
+ 
++	if (hwirq < 0)
++		return -ENOSPC;
++
+ 	for (i = 0; i < nr_irqs; i++) {
+ 		irq_domain_set_info(domain, virq + i, hwirq + i,
+ 				    &iproc_msi_bottom_irq_chip,
+@@ -284,7 +284,8 @@ static void iproc_msi_irq_domain_free(struct irq_domain *domain,
+ 	mutex_lock(&msi->bitmap_lock);
+ 
+ 	hwirq = hwirq_to_canonical_hwirq(msi, data->hwirq);
+-	bitmap_clear(msi->bitmap, hwirq, msi->nr_cpus);
++	bitmap_release_region(msi->bitmap, hwirq,
++			      order_base_2(msi->nr_cpus * nr_irqs));
+ 
+ 	mutex_unlock(&msi->bitmap_lock);
+ 
 -- 
 2.30.2
 
