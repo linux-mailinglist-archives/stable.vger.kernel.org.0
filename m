@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 546B53CE148
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D4A93CE34E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346423AbhGSPZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57792 "EHLO mail.kernel.org"
+        id S236361AbhGSPhL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345966AbhGSPQx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:16:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11A4B6127C;
-        Mon, 19 Jul 2021 15:57:07 +0000 (UTC)
+        id S236764AbhGSPco (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F6096128A;
+        Mon, 19 Jul 2021 16:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710228;
-        bh=5s5W2nW/VJwzeHHfStZ6DKDgBTQn+P3DbBHGlW+c7Jc=;
+        s=korg; t=1626711057;
+        bh=uBbEQURdQzkDl+P3DLwVEMiHjR+OfdmT0mT+qSbciQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jkXMqHIwRrlslxuWTlImg6OZ7kDhDyzGR2ICE4ZeWlSW5hypJvKXdysPvbwVO86Tx
-         zchAEG2AqDGThXjyP0Abqy9R3OPG+eg3EZxN8QjgwJi1SOWDFRWFwnScwlKLY2yqCv
-         RMz4lcMQiKZFLQl4DP9Py1opm5SlSRcv5V+fp2OY=
+        b=kCSWD1nauSO+7dzvvX7qTRuM/yc+gEoNCbBwMrUC1HOnzWdKaHpmDO9g7pf4ze5/c
+         V+5+mmFJsX1hLauBs2a+AfSO6kCVwrreMvyzS35Qms8T2EW4H6GME1beeKw+algE89
+         dCH338wNFQHDeEqLmEfJiK5YXw6Fa4qdlMw8nhRc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Siddharth Gupta <sidgup@codeaurora.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 129/243] remoteproc: core: Fix cdev remove and rproc del
+Subject: [PATCH 5.13 212/351] power: supply: rt5033_battery: Fix device tree enumeration
 Date:   Mon, 19 Jul 2021 16:52:38 +0200
-Message-Id: <20210719144945.082764029@linuxfoundation.org>
+Message-Id: <20210719144951.979860701@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Gupta <sidgup@codeaurora.org>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit 930eec0be20c93a53160c74005a1485a230e6911 ]
+[ Upstream commit f3076cd8d1d5fa64b5e1fa5affc045c2fc123baa ]
 
-The rproc_char_device_remove() call currently unmaps the cdev
-region instead of simply deleting the cdev that was added as a
-part of the rproc_char_device_add() call. This change fixes that
-behaviour, and also fixes the order in which device_del() and
-cdev_del() need to be called.
+The fuel gauge in the RT5033 PMIC has its own I2C bus and interrupt
+line. Therefore, it is not actually part of the RT5033 MFD and needs
+its own of_match_table to probe properly.
 
-Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
-Link: https://lore.kernel.org/r/1623723671-5517-4-git-send-email-sidgup@codeaurora.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Also, given that it's independent of the MFD, there is actually
+no need to make the Kconfig depend on MFD_RT5033. Although the driver
+uses the shared <linux/mfd/rt5033.h> header, there is no compile
+or runtime dependency on the RT5033 MFD driver.
+
+Cc: Beomho Seo <beomho.seo@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/remoteproc_cdev.c | 2 +-
- drivers/remoteproc/remoteproc_core.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/Kconfig          | 3 ++-
+ drivers/power/supply/rt5033_battery.c | 7 +++++++
+ 2 files changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/remoteproc_cdev.c b/drivers/remoteproc/remoteproc_cdev.c
-index b19ea3057bde..ff92ed25d8b0 100644
---- a/drivers/remoteproc/remoteproc_cdev.c
-+++ b/drivers/remoteproc/remoteproc_cdev.c
-@@ -111,7 +111,7 @@ int rproc_char_device_add(struct rproc *rproc)
+diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
+index e696364126f1..20a2f93252f9 100644
+--- a/drivers/power/supply/Kconfig
++++ b/drivers/power/supply/Kconfig
+@@ -712,7 +712,8 @@ config BATTERY_GOLDFISH
  
- void rproc_char_device_remove(struct rproc *rproc)
- {
--	__unregister_chrdev(MAJOR(rproc->dev.devt), rproc->index, 1, "remoteproc");
-+	cdev_del(&rproc->cdev);
- }
+ config BATTERY_RT5033
+ 	tristate "RT5033 fuel gauge support"
+-	depends on MFD_RT5033
++	depends on I2C
++	select REGMAP_I2C
+ 	help
+ 	  This adds support for battery fuel gauge in Richtek RT5033 PMIC.
+ 	  The fuelgauge calculates and determines the battery state of charge
+diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
+index f330452341f0..9ad0afe83d1b 100644
+--- a/drivers/power/supply/rt5033_battery.c
++++ b/drivers/power/supply/rt5033_battery.c
+@@ -164,9 +164,16 @@ static const struct i2c_device_id rt5033_battery_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, rt5033_battery_id);
  
- void __init rproc_init_cdev(void)
-diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
-index dab2c0f5caf0..47924d5ed4f5 100644
---- a/drivers/remoteproc/remoteproc_core.c
-+++ b/drivers/remoteproc/remoteproc_core.c
-@@ -2290,7 +2290,6 @@ int rproc_del(struct rproc *rproc)
- 	mutex_unlock(&rproc->lock);
- 
- 	rproc_delete_debug_dir(rproc);
--	rproc_char_device_remove(rproc);
- 
- 	/* the rproc is downref'ed as soon as it's removed from the klist */
- 	mutex_lock(&rproc_list_mutex);
-@@ -2301,6 +2300,7 @@ int rproc_del(struct rproc *rproc)
- 	synchronize_rcu();
- 
- 	device_del(&rproc->dev);
-+	rproc_char_device_remove(rproc);
- 
- 	return 0;
- }
++static const struct of_device_id rt5033_battery_of_match[] = {
++	{ .compatible = "richtek,rt5033-battery", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, rt5033_battery_of_match);
++
+ static struct i2c_driver rt5033_battery_driver = {
+ 	.driver = {
+ 		.name = "rt5033-battery",
++		.of_match_table = rt5033_battery_of_match,
+ 	},
+ 	.probe = rt5033_battery_probe,
+ 	.remove = rt5033_battery_remove,
 -- 
 2.30.2
 
