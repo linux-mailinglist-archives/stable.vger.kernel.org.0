@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F633CE405
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E39D3CE298
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347680AbhGSPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57516 "EHLO mail.kernel.org"
+        id S1348505AbhGSPa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348752AbhGSPf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F4576187E;
-        Mon, 19 Jul 2021 16:14:17 +0000 (UTC)
+        id S1347987AbhGSPXz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:23:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 04E34613D0;
+        Mon, 19 Jul 2021 16:00:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711257;
-        bh=ALUg3I4EgJTJjOYjclxtb3GuqXylJMBR65DGoO+kQf4=;
+        s=korg; t=1626710413;
+        bh=lJy0GM2LntCanx7s/pW97hMaaJEGzFs4g8nxbjHrm6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+HMszVDm1hCKOkzLwZETZTfNc1rdO8wiQ+Mq8IQkMtS+YHKC4Z9K2MG83wNfGuu7
-         j6wPcPS0MiL4lKAs/KTYAmBsOxxI0mo0IxUn/g/i6xR7xgrzIgxz44h0Bvh6yhZrXH
-         H3dSGs5h4n4uvQZ3p2TRRsRCY4l9RefkSu+aMRms=
+        b=MOsxB4MRgA1yMQwanCcQx46hyw4igSabB/xNjmGwvZxKHZ/WMHEBozv3Otyt9uTdF
+         FWSCLXeep+D4HlESoxy1G9IfKyVYD0WwLUu6f7+GVqoyoo5Ldy1qc9yPpEF+xlO37w
+         xpSUX9uTL+TYIQaLGmMQ7Xzuu1eDzGZMMTi67qew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Patrick Delaunay <patrick.delaunay@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 287/351] rtc: fix snprintf() checking in is_rtc_hctosys()
-Date:   Mon, 19 Jul 2021 16:53:53 +0200
-Message-Id: <20210719144954.529465956@linuxfoundation.org>
+Subject: [PATCH 5.10 205/243] ARM: dts: stm32: Connect PHY IRQ line on DH STM32MP1 SoM
+Date:   Mon, 19 Jul 2021 16:53:54 +0200
+Message-Id: <20210719144947.547706671@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 54b909436ede47e0ee07f1765da27ec2efa41e84 ]
+[ Upstream commit 516728273ddfbf51b3d0fcaac05d26e299a7b456 ]
 
-The scnprintf() function silently truncates the printf() and returns
-the number bytes that it was able to copy (not counting the NUL
-terminator).  Thus, the highest value it can return here is
-"NAME_SIZE - 1" and the overflow check is dead code.  Fix this by
-using the snprintf() function which returns the number of bytes that
-would have been copied if there was enough space and changing the
-condition from "> NAME_SIZE" to ">= NAME_SIZE".
+On the production DHCOM STM32MP15xx SoM, the PHY IRQ line is connected
+to the PI11 pin. Describe it in the DT as well, so the PHY IRQ can be
+used e.g. to detect cable insertion and removal.
 
-Fixes: 92589c986b33 ("rtc-proc: permit the /proc/driver/rtc device to use other devices")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/YJov/pcGmhLi2pEl@mwanda
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Patrick Delaunay <patrick.delaunay@st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/proc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/proc.c b/drivers/rtc/proc.c
-index 73344598fc1b..cbcdbb19d848 100644
---- a/drivers/rtc/proc.c
-+++ b/drivers/rtc/proc.c
-@@ -23,8 +23,8 @@ static bool is_rtc_hctosys(struct rtc_device *rtc)
- 	int size;
- 	char name[NAME_SIZE];
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+index 2d027dafb7bc..71f3e4efce65 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+@@ -127,6 +127,8 @@
  
--	size = scnprintf(name, NAME_SIZE, "rtc%d", rtc->id);
--	if (size > NAME_SIZE)
-+	size = snprintf(name, NAME_SIZE, "rtc%d", rtc->id);
-+	if (size >= NAME_SIZE)
- 		return false;
- 
- 	return !strncmp(name, CONFIG_RTC_HCTOSYS_DEVICE, NAME_SIZE);
+ 		phy0: ethernet-phy@1 {
+ 			reg = <1>;
++			interrupt-parent = <&gpioi>;
++			interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
