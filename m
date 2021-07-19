@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A48673CDFFE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89C473CDFE5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343929AbhGSPNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
+        id S1345769AbhGSPMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344187AbhGSPLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:11:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8ECE8601FD;
-        Mon, 19 Jul 2021 15:52:13 +0000 (UTC)
+        id S245539AbhGSPKs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:10:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72A366124C;
+        Mon, 19 Jul 2021 15:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709934;
-        bh=lBja6npqrWLIC95aEWR3VwjqOIdN9rxJP4xeWvM/rCs=;
+        s=korg; t=1626709887;
+        bh=HScJ2QXo3Fuzfo1dc1cl1Ew329fvsqckr8Nw8zCfIUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J8NYTRxMizPs9TaFKapcMExzpomAYNF1Pzw+HiD58ZSzA+30BJNUf/Vhn7clBuIwt
-         Et79m1iRHZAREGCDj0JjXuNVkxdbZOYIGxlLjEkap14Z0Fkoo54XkwzraA8AkGTMwI
-         PLUWQ+dRL0y+/9tkW7SLAgRDPVC4gf7T6r0GztFA=
+        b=mOPCIxYtvTRRZIhQ73pdOzEJEyKXOWyhXY5++tFIwf85TV9lIFgBtc3I6A/UkaqxB
+         WS69VnxOkWyT35nj9t6+6IZt4kvV8pqZWPfiChAyrQ2pWfP9plzxUKjrV2WESiHe5U
+         heqaSDyTtvVnx9ApORkCzDxUxLiN4MRa5onvUw38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Marek Vasut <marex@denx.de>,
         NXP Linux Team <linux-imx@nxp.com>,
         kernel@dh-electronics.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 137/149] ARM: dts: imx6q-dhcom: Fix ethernet plugin detection problems
-Date:   Mon, 19 Jul 2021 16:54:05 +0200
-Message-Id: <20210719144933.814743454@linuxfoundation.org>
+Subject: [PATCH 5.4 138/149] ARM: dts: imx6q-dhcom: Add gpios pinctrl for i2c bus recovery
+Date:   Mon, 19 Jul 2021 16:54:06 +0200
+Message-Id: <20210719144934.030293167@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -46,10 +46,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-[ Upstream commit e2bdd3484890441b9cc2560413a86e8f2aa04157 ]
+[ Upstream commit ddc873cd3c0af4faad6a00bffda21c3f775126dd ]
 
-To make the ethernet cable plugin detection reliable the
-power detection of the smsc phy has been disabled.
+The i2c bus can freeze at the end of transaction so the bus can no longer work.
+This scenario is improved by adding scl/sda gpios definitions to implement the
+i2c bus recovery mechanism.
 
 Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
 Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
@@ -62,21 +63,90 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6q-dhcom-som.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx6q-dhcom-som.dtsi | 36 +++++++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 3 deletions(-)
 
 diff --git a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-index d347c8db0ab7..0824051a98f8 100644
+index 0824051a98f8..3233927d33b4 100644
 --- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
 +++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-@@ -100,6 +100,7 @@
- 			reset-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
- 			reset-assert-us = <1000>;
- 			reset-deassert-us = <1000>;
-+			smsc,disable-energy-detect; /* Make plugin detection reliable */
- 		};
- 	};
+@@ -107,22 +107,31 @@
+ 
+ &i2c1 {
+ 	clock-frequency = <100000>;
+-	pinctrl-names = "default";
++	pinctrl-names = "default", "gpio";
+ 	pinctrl-0 = <&pinctrl_i2c1>;
++	pinctrl-1 = <&pinctrl_i2c1_gpio>;
++	scl-gpios = <&gpio3 21 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio3 28 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	status = "okay";
  };
+ 
+ &i2c2 {
+ 	clock-frequency = <100000>;
+-	pinctrl-names = "default";
++	pinctrl-names = "default", "gpio";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
++	pinctrl-1 = <&pinctrl_i2c2_gpio>;
++	scl-gpios = <&gpio4 12 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio4 13 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	status = "okay";
+ };
+ 
+ &i2c3 {
+ 	clock-frequency = <100000>;
+-	pinctrl-names = "default";
++	pinctrl-names = "default", "gpio";
+ 	pinctrl-0 = <&pinctrl_i2c3>;
++	pinctrl-1 = <&pinctrl_i2c3_gpio>;
++	scl-gpios = <&gpio1 3 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++	sda-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+ 	status = "okay";
+ 
+ 	ltc3676: pmic@3c {
+@@ -288,6 +297,13 @@
+ 		>;
+ 	};
+ 
++	pinctrl_i2c1_gpio: i2c1-gpio-grp {
++		fsl,pins = <
++			MX6QDL_PAD_EIM_D21__GPIO3_IO21		0x4001b8b1
++			MX6QDL_PAD_EIM_D28__GPIO3_IO28		0x4001b8b1
++		>;
++	};
++
+ 	pinctrl_i2c2: i2c2-grp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_KEY_COL3__I2C2_SCL		0x4001b8b1
+@@ -295,6 +311,13 @@
+ 		>;
+ 	};
+ 
++	pinctrl_i2c2_gpio: i2c2-gpio-grp {
++		fsl,pins = <
++			MX6QDL_PAD_KEY_COL3__GPIO4_IO12		0x4001b8b1
++			MX6QDL_PAD_KEY_ROW3__GPIO4_IO13		0x4001b8b1
++		>;
++	};
++
+ 	pinctrl_i2c3: i2c3-grp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_GPIO_3__I2C3_SCL		0x4001b8b1
+@@ -302,6 +325,13 @@
+ 		>;
+ 	};
+ 
++	pinctrl_i2c3_gpio: i2c3-gpio-grp {
++		fsl,pins = <
++			MX6QDL_PAD_GPIO_3__GPIO1_IO03		0x4001b8b1
++			MX6QDL_PAD_GPIO_6__GPIO1_IO06		0x4001b8b1
++		>;
++	};
++
+ 	pinctrl_pmic_hw300: pmic-hw300-grp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_EIM_A25__GPIO5_IO02		0x1B0B0
 -- 
 2.30.2
 
