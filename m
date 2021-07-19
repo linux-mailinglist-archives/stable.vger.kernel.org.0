@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9FFA3CDC07
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6B453CDE81
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240926AbhGSOvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
+        id S1344836AbhGSPD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343916AbhGSOsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B01DE61242;
-        Mon, 19 Jul 2021 15:25:16 +0000 (UTC)
+        id S1345142AbhGSPBf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D85260238;
+        Mon, 19 Jul 2021 15:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708317;
-        bh=kbisOGd3B+uqzPfIHDpDeTo7WJGM1uM+KCB1rcbZ+h4=;
+        s=korg; t=1626709335;
+        bh=DzsBD/kyy/iw7660HipZkUBCf2tXw1/RPJy8yl4d+Jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqO5F6KDNQRchumnsbdQA0Q5J4s+oF7JGyNqCaCOi0HAs5OAqi2fRTjdu9hlL52bg
-         sds1zQmREsTF9GFEQVitLqxnIPl7toGDFjP6R4wVn7r2Ut3wKnT706JYWrmJIqj0x5
-         i5AZ23bpXGU03RHDskDl9sMgeNBQBiGPcWFjVazA=
+        b=iagzEP2gzdNrRufkbbAl58ykevZ4tM4FqvHAB3gtAoBO/bpzsHap1brtecNh2nJcO
+         JyoeSXb41yTu8s6UcP/eoG3YL/Tf3CfZK0UuiDtqobhbxoXQ75apqaGc1B1v8nR+Jp
+         14kf9/mRdilBQ+Ag91IJ6YBkzcmrZjbczgSL5GT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 265/315] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
+Subject: [PATCH 4.19 343/421] gpio: zynq: Check return value of pm_runtime_get_sync
 Date:   Mon, 19 Jul 2021 16:52:34 +0200
-Message-Id: <20210719144952.134159415@linuxfoundation.org>
+Message-Id: <20210719144958.189595903@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Srinivas Neeli <srinivas.neeli@xilinx.com>
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
+[ Upstream commit a51b2fb94b04ab71e53a71b9fad03fa826941254 ]
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+Return value of "pm_runtime_get_sync" API was neither captured nor checked.
+Fixed it by capturing the return value and then checking for any warning.
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
-
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
-
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
-
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
-
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
-
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
-
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
-
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Addresses-Coverity: "check_return"
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpio/gpio-zynq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index 1b0baf3008ea..b202aa864c48 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -115,6 +115,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
+diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
+index 5dec96155814..c2279b28bcb9 100644
+--- a/drivers/gpio/gpio-zynq.c
++++ b/drivers/gpio/gpio-zynq.c
+@@ -919,8 +919,11 @@ err_pm_dis:
+ static int zynq_gpio_remove(struct platform_device *pdev)
+ {
+ 	struct zynq_gpio *gpio = platform_get_drvdata(pdev);
++	int ret;
  
- 		chunksize = get_unaligned_le32(inp);
-@@ -128,6 +131,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
- 
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
- 
- 		if (posp)
- 			*posp += 4;
-@@ -187,6 +194,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
- 
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
+-	pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_get_sync(&pdev->dev);
++	if (ret < 0)
++		dev_warn(&pdev->dev, "pm_runtime_get_sync() Failed\n");
+ 	gpiochip_remove(&gpio->chip);
+ 	clk_disable_unprepare(gpio->clk);
+ 	device_set_wakeup_capable(&pdev->dev, 0);
 -- 
 2.30.2
 
