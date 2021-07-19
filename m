@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF8A3CDC69
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBCD3CDE77
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244013AbhGSOwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S244369AbhGSPDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343734AbhGSOsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8518961222;
-        Mon, 19 Jul 2021 15:24:37 +0000 (UTC)
+        id S1345132AbhGSPBO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6556611ED;
+        Mon, 19 Jul 2021 15:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708278;
-        bh=hW8Q2O61AkaJlvZF1qqBNpySKBd2DXLScMrgUKomg9w=;
+        s=korg; t=1626709313;
+        bh=AaxiyUJgb/wWIUCoEmwa22p47FjVGGBCNWT7ikz188s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Teq5RYWpc1edPQEkHKQmMOwRnR0R0GVazD2f3pbBvt1SkwXkfZW3Z7+/UQkvjBcWp
-         vHhqeHw7iRMSCcsynaqiII78OHYuhwD6WzjVyHQFWfoyuOZJy7/9Ncyt/i6hEqqqt1
-         eu2H4mDr/NekU11EECY4hSECAx8eCscWSTtD/MaY=
+        b=GhSLrxYDuanSJxKqXWDAq5ijUOMdGBr0c6s2ghzctAQgKNxCl/MXoMETeXq6V7unG
+         phxIsMrfK3gVCb9uP/Y40pumKB02USwqiPSmegZ5cr69Sq+ADtTNqFjEOmdGnn3inh
+         eD7V4xCPPd/WmzZoSwIdZR0I0uulEkjUCDgWbY18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Luiz Sampaio <sampaio.ime@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 248/315] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
+Subject: [PATCH 4.19 326/421] w1: ds2438: fixing bug that would always get page0
 Date:   Mon, 19 Jul 2021 16:52:17 +0200
-Message-Id: <20210719144951.575197875@linuxfoundation.org>
+Message-Id: <20210719144957.599313334@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Luiz Sampaio <sampaio.ime@gmail.com>
 
-[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
+[ Upstream commit 1f5e7518f063728aee0679c5086b92d8ea429e11 ]
 
-This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The purpose of the w1_ds2438_get_page function is to get the register
+values at the page passed as the pageno parameter. However, the page0 was
+hardcoded, such that the function always returned the page0 contents. Fixed
+so that the function can retrieve any page.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Luiz Sampaio <sampaio.ime@gmail.com>
+Link: https://lore.kernel.org/r/20210519223046.13798-5-sampaio.ime@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9052-i2c.c | 1 +
- drivers/mfd/stmpe-i2c.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/w1/slaves/w1_ds2438.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
-index 578e881067a5..4094f97ec7dc 100644
---- a/drivers/mfd/da9052-i2c.c
-+++ b/drivers/mfd/da9052-i2c.c
-@@ -118,6 +118,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
- 	{"da9053-bc", DA9053_BC},
- 	{}
- };
-+MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
+diff --git a/drivers/w1/slaves/w1_ds2438.c b/drivers/w1/slaves/w1_ds2438.c
+index 7c4e33dbee4d..b005dda9c697 100644
+--- a/drivers/w1/slaves/w1_ds2438.c
++++ b/drivers/w1/slaves/w1_ds2438.c
+@@ -64,13 +64,13 @@ static int w1_ds2438_get_page(struct w1_slave *sl, int pageno, u8 *buf)
+ 		if (w1_reset_select_slave(sl))
+ 			continue;
+ 		w1_buf[0] = W1_DS2438_RECALL_MEMORY;
+-		w1_buf[1] = 0x00;
++		w1_buf[1] = (u8)pageno;
+ 		w1_write_block(sl->master, w1_buf, 2);
  
- #ifdef CONFIG_OF
- static const struct of_device_id dialog_dt_ids[] = {
-diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
-index 863c39a3353c..d284df25c76b 100644
---- a/drivers/mfd/stmpe-i2c.c
-+++ b/drivers/mfd/stmpe-i2c.c
-@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
- 	{ "stmpe2403", STMPE2403 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, stmpe_id);
-+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
+ 		if (w1_reset_select_slave(sl))
+ 			continue;
+ 		w1_buf[0] = W1_DS2438_READ_SCRATCH;
+-		w1_buf[1] = 0x00;
++		w1_buf[1] = (u8)pageno;
+ 		w1_write_block(sl->master, w1_buf, 2);
  
- static struct i2c_driver stmpe_i2c_driver = {
- 	.driver = {
+ 		count = w1_read_block(sl->master, buf, DS2438_PAGE_SIZE + 1);
 -- 
 2.30.2
 
