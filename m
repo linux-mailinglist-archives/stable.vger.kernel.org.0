@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A9D3CD797
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994E53CD79D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241947AbhGSOR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51466 "EHLO mail.kernel.org"
+        id S241280AbhGSORn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:17:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241908AbhGSOR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB4246113E;
-        Mon, 19 Jul 2021 14:58:04 +0000 (UTC)
+        id S241945AbhGSOR1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:17:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DAE461002;
+        Mon, 19 Jul 2021 14:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706685;
-        bh=ayvlCRoW97D6v0qnTXQ69qDY/Q6dbXPXUQfbfxDivLQ=;
+        s=korg; t=1626706687;
+        bh=Vbud9SBBYs2/g0xhGe7+szUdm5GkczUREJcQQXajyc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/u8OVJaLyaGm2srFL2qJLhzwQjWBzMdLHBXzz4vDkBkxNpJQxOOoNbRF7AJdHRrA
-         pzb/HUMCUNqaSnBnKwDYnQOwPAavtvb9A7xeMZMHt2U+QkIAaYG1CTMEWZF/yO1WxN
-         JZoGZGVI8cMRTDWllbKm7CSDumQUPtoX5i0WQzk0=
+        b=dtWgE5+Jz5IwnUgXZQWfSEshQtN8KMoCrZ61jipexZZ1/IogSqehsAZbEYY+aUpyB
+         9iQAq3/Zd0SW8zor08QYIykS3qJwAn/z82/XPl2+W/wVqOyj2mQ6EnDZVEpZjzxopQ
+         RidMf3Nh9gjwaRc7euRjLuJgUxgJHAzNIRA/irns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 054/188] pata_ep93xx: fix deferred probing
-Date:   Mon, 19 Jul 2021 16:50:38 +0200
-Message-Id: <20210719144925.640069129@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 055/188] media: tc358743: Fix error return code in tc358743_probe_of()
+Date:   Mon, 19 Jul 2021 16:50:39 +0200
+Message-Id: <20210719144925.896675130@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -39,35 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 5c8121262484d99bffb598f39a0df445cecd8efb ]
+[ Upstream commit a6b1e7093f0a099571fc8836ab4a589633f956a8 ]
 
-The driver overrides the error codes returned by platform_get_irq() to
--ENXIO, so if it returns -EPROBE_DEFER, the driver would fail the probe
-permanently instead of the deferred probing.  Propagate the error code
-upstream, as it should have been done from the start...
+When the CSI bps per lane is not in the valid range, an appropriate error
+code -EINVAL should be returned. However, we currently do not explicitly
+assign this error code to 'ret'. As a result, 0 was incorrectly returned.
 
-Fixes: 2fff27512600 ("PATA host controller driver for ep93xx")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/509fda88-2e0d-2cc7-f411-695d7e94b136@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 256148246852 ("[media] tc358743: support probe from device tree")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/tc358743.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index 634c814cbeda..ebdd2dfabbeb 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -927,7 +927,7 @@ static int ep93xx_pata_probe(struct platform_device *pdev)
- 	/* INT[3] (IRQ_EP93XX_EXT3) line connected as pull down */
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
--		err = -ENXIO;
-+		err = irq;
- 		goto err_rel_gpio;
+diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
+index 1e95fdb61041..c3befb3f5dcd 100644
+--- a/drivers/media/i2c/tc358743.c
++++ b/drivers/media/i2c/tc358743.c
+@@ -1761,6 +1761,7 @@ static int tc358743_probe_of(struct tc358743_state *state)
+ 	bps_pr_lane = 2 * endpoint->link_frequencies[0];
+ 	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
+ 		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
++		ret = -EINVAL;
+ 		goto disable_clk;
  	}
  
 -- 
