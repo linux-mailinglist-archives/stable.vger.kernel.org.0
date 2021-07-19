@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0933CE376
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6E713CE288
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343968AbhGSPii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57422 "EHLO mail.kernel.org"
+        id S1348036AbhGSPas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348739AbhGSPf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5960061026;
-        Mon, 19 Jul 2021 16:14:30 +0000 (UTC)
+        id S1348001AbhGSPYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 359E9613E7;
+        Mon, 19 Jul 2021 16:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711270;
-        bh=6zMoGvdyRiAdL1Rr8Y7Ml0iP5yrtB+TvFUDRV33Trqg=;
+        s=korg; t=1626710426;
+        bh=yYpygZPIxpVH2TcmcNWlBa5D/UMWPo6vn70XF0/MG1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m6KmrfY5K6/E5vnM7OGHlPJ7xRnn5mIqfsz+zq4RdmzhWe/0K3IbeilqhlsHpM2wU
-         fYee2v93r8a3RyogO1ExWZHndA8EKc0K5eFlRuCsqg3nWJBI8wc9deovXX2lVOT2h3
-         0muZcz7v+6XOW8jGYUcol78Q6LVR2/aLk6kLJ2kg=
+        b=EL5mIF4UdTWkzxLAIMn5N/CD0jDsTI5AgwI5YNEwbjBIW4RIJfAuogbTs5GD+9/v2
+         1Q1QUyhp8Mw5UkURmRVPY9q1oUIMNfT06KrMAA4xIQmWKmgGp3YPnYHEiLJShbmco5
+         8cYKBhDVVWp/HnZhbtBXsVE06h+ju1G4TqIL84ZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Lokesh Vutla <lokeshvutla@ti.com>, Nishanth Menon <nm@ti.com>,
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 292/351] arm64: dts: ti: k3-j7200: Remove "#address-cells" property from GPIO DT nodes
-Date:   Mon, 19 Jul 2021 16:53:58 +0200
-Message-Id: <20210719144954.697535435@linuxfoundation.org>
+Subject: [PATCH 5.10 210/243] firmware: arm_scmi: Reset Rx buffer to max size during async commands
+Date:   Mon, 19 Jul 2021 16:53:59 +0200
+Message-Id: <20210719144947.707705497@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 6ec8ba764165f6ecb6f6f7efbfd2ec7ad76dedcb ]
+[ Upstream commit 0cb7af474e0dbb2f500c67aa62b6db9fafa74de2 ]
 
-GPIO device tree nodes do not have child nodes. Therefore, "#address-cells"
-property should not be added.
+During an async commands execution the Rx buffer length is at first set
+to max_msg_sz when the synchronous part of the command is first sent.
+However once the synchronous part completes the transport layer waits
+for the delayed response which will be processed using the same xfer
+descriptor initially allocated. Since synchronous response received at
+the end of the xfer will shrink the Rx buffer length to the effective
+payload response length, it needs to be reset again.
 
-Fixes: e0b2e6af39ea ("arm64: dts: ti: k3-j7200: Add gpio nodes")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Reviewed-by: Lokesh  Vutla <lokeshvutla@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210423064758.25520-1-a-govindraju@ti.com
+Raise the Rx buffer length again to max_msg_sz before fetching the
+delayed response to ensure full response is read correctly from the
+shared memory.
+
+Link: https://lore.kernel.org/r/20210601102421.26581-2-cristian.marussi@arm.com
+Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+[sudeep.holla: moved reset to scmi_handle_response as it could race with
+               do_xfer_with_response]
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j7200-main.dtsi       | 4 ----
- arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi | 2 --
- 2 files changed, 6 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-index 19fea8adbcff..7e7169195902 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
-@@ -696,7 +696,6 @@
- 			     <149>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <69>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 105 TI_SCI_PD_EXCLUSIVE>;
-@@ -714,7 +713,6 @@
- 			     <158>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <69>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 107 TI_SCI_PD_EXCLUSIVE>;
-@@ -732,7 +730,6 @@
- 			     <167>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <69>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 109 TI_SCI_PD_EXCLUSIVE>;
-@@ -750,7 +747,6 @@
- 			     <176>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <69>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 111 TI_SCI_PD_EXCLUSIVE>;
-diff --git a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-index 5663fe3ea466..343449af53fb 100644
---- a/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j7200-mcu-wakeup.dtsi
-@@ -117,7 +117,6 @@
- 		interrupts = <103>, <104>, <105>, <106>, <107>, <108>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <85>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 113 TI_SCI_PD_EXCLUSIVE>;
-@@ -134,7 +133,6 @@
- 		interrupts = <112>, <113>, <114>, <115>, <116>, <117>;
- 		interrupt-controller;
- 		#interrupt-cells = <2>;
--		#address-cells = <0>;
- 		ti,ngpio = <85>;
- 		ti,davinci-gpio-unbanked = <0>;
- 		power-domains = <&k3_pds 114 TI_SCI_PD_EXCLUSIVE>;
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index 6b2ce3f28f7b..f9901fadb3a4 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -268,6 +268,10 @@ static void scmi_handle_response(struct scmi_chan_info *cinfo,
+ 		return;
+ 	}
+ 
++	/* rx.len could be shrunk in the sync do_xfer, so reset to maxsz */
++	if (msg_type == MSG_TYPE_DELAYED_RESP)
++		xfer->rx.len = info->desc->max_msg_size;
++
+ 	scmi_dump_header_dbg(dev, &xfer->hdr);
+ 
+ 	info->desc->ops->fetch_response(cinfo, xfer);
 -- 
 2.30.2
 
