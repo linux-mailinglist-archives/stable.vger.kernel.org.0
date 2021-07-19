@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 091723CE560
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C6283CE51F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348433AbhGSPtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:49:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46856 "EHLO mail.kernel.org"
+        id S1346286AbhGSPrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350189AbhGSPpj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA16E60FE9;
-        Mon, 19 Jul 2021 16:26:17 +0000 (UTC)
+        id S1350201AbhGSPpn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 95AAE61166;
+        Mon, 19 Jul 2021 16:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711978;
-        bh=5+Jq1NdYPypHrnF6YgOEQMzgRw5KO02+NpnxpMDtenc=;
+        s=korg; t=1626711981;
+        bh=mcTb9YtVPkdlUK0sxT/Pyc5bw4su8gIpZz+V9Lk3fTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjBPyJoIuX7+7x0mEVpQa+giFzlb0EjEMoi9JmYrcYUmQ1pub/OQteoKIWh6/onTt
-         nShZQfcHEwZ90d0+wTnvgKB8j58LlyMa+vKHpSiFcE15QNPe6GNn7BCndNOBueJd5W
-         JTCRE6zW4vYSAev8uxpYO/jc3ZE69ckJl90s+jh4=
+        b=qVi3jE2drPNrM7VdtIOcqqTryC1Lk4tcD0QB+8E2VjiSOkAQKGHe6jmG5hhsTHef8
+         H7lQ7ZjN+zGXBIgUQlmVCxT+0ckG0Ak09BSrU4oKJMECYsQCBnqvMUL6t2KlO7b311
+         KN8mcQUTflxY53Mhy/3rvYjBGtRShVEp7eTvQ/24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Rahul Tanwar <rtanwar@maxlinear.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 204/292] x86/fpu: Limit xstate copy size in xstateregs_set()
-Date:   Mon, 19 Jul 2021 16:54:26 +0200
-Message-Id: <20210719144949.202527486@linuxfoundation.org>
+Subject: [PATCH 5.12 205/292] PCI: intel-gw: Fix INTx enable
+Date:   Mon, 19 Jul 2021 16:54:27 +0200
+Message-Id: <20210719144949.243113037@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,37 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit 07d6688b22e09be465652cf2da0da6bf86154df6 ]
+[ Upstream commit 655832d12f2251e04031294f547c86935a0a126d ]
 
-If the count argument is larger than the xstate size, this will happily
-copy beyond the end of xstate.
+The legacy PCI interrupt lines need to be enabled using PCIE_APP_IRNEN bits
+13 (INTA), 14 (INTB), 15 (INTC) and 16 (INTD). The old code however was
+taking (for example) "13" as raw value instead of taking BIT(13).  Define
+the legacy PCI interrupt bits using the BIT() macro and then use these in
+PCIE_APP_IRN_INT.
 
-Fixes: 91c3dba7dbc1 ("x86/fpu/xstate: Fix PTRACE frames for XSAVES")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121452.120741557@linutronix.de
+Link: https://lore.kernel.org/r/20210106135540.48420-1-martin.blumenstingl@googlemail.com
+Fixes: ed22aaaede44 ("PCI: dwc: intel: PCIe RC controller driver")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Rahul Tanwar <rtanwar@maxlinear.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/regset.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-intel-gw.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index c413756ba89f..6bb874441de8 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -117,7 +117,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
- 	/*
- 	 * A whole standard-format XSAVE buffer is needed:
- 	 */
--	if ((pos != 0) || (count < fpu_user_xstate_size))
-+	if (pos != 0 || count != fpu_user_xstate_size)
- 		return -EFAULT;
+diff --git a/drivers/pci/controller/dwc/pcie-intel-gw.c b/drivers/pci/controller/dwc/pcie-intel-gw.c
+index 0cedd1f95f37..ae96bfbb6c83 100644
+--- a/drivers/pci/controller/dwc/pcie-intel-gw.c
++++ b/drivers/pci/controller/dwc/pcie-intel-gw.c
+@@ -39,6 +39,10 @@
+ #define PCIE_APP_IRN_PM_TO_ACK		BIT(9)
+ #define PCIE_APP_IRN_LINK_AUTO_BW_STAT	BIT(11)
+ #define PCIE_APP_IRN_BW_MGT		BIT(12)
++#define PCIE_APP_IRN_INTA		BIT(13)
++#define PCIE_APP_IRN_INTB		BIT(14)
++#define PCIE_APP_IRN_INTC		BIT(15)
++#define PCIE_APP_IRN_INTD		BIT(16)
+ #define PCIE_APP_IRN_MSG_LTR		BIT(18)
+ #define PCIE_APP_IRN_SYS_ERR_RC		BIT(29)
+ #define PCIE_APP_INTX_OFST		12
+@@ -48,10 +52,8 @@
+ 	PCIE_APP_IRN_RX_VDM_MSG | PCIE_APP_IRN_SYS_ERR_RC | \
+ 	PCIE_APP_IRN_PM_TO_ACK | PCIE_APP_IRN_MSG_LTR | \
+ 	PCIE_APP_IRN_BW_MGT | PCIE_APP_IRN_LINK_AUTO_BW_STAT | \
+-	(PCIE_APP_INTX_OFST + PCI_INTERRUPT_INTA) | \
+-	(PCIE_APP_INTX_OFST + PCI_INTERRUPT_INTB) | \
+-	(PCIE_APP_INTX_OFST + PCI_INTERRUPT_INTC) | \
+-	(PCIE_APP_INTX_OFST + PCI_INTERRUPT_INTD))
++	PCIE_APP_IRN_INTA | PCIE_APP_IRN_INTB | \
++	PCIE_APP_IRN_INTC | PCIE_APP_IRN_INTD)
  
- 	xsave = &fpu->state.xsave;
+ #define BUS_IATU_OFFSET			SZ_256M
+ #define RESET_INTERVAL_MS		100
 -- 
 2.30.2
 
