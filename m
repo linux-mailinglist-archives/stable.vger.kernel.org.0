@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 153CA3CDBE7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBBAE3CDA63
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237204AbhGSOu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S244862AbhGSOfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344035AbhGSOsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 247DD613D2;
-        Mon, 19 Jul 2021 15:26:12 +0000 (UTC)
+        id S244548AbhGSOeL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C305061248;
+        Mon, 19 Jul 2021 15:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708372;
-        bh=WRHelRLjnMA4hAxyeEiTdQ/LDMsClhlPHHEvqM4oXR4=;
+        s=korg; t=1626707606;
+        bh=l/HgkrSVWeDGyLslPfjYj0DAq4XWKbrr5gXo/3GNSFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLvXabEQeN7YxoDUBjJK0u86OCgpKNOhzaIf4rPTGWsRvnmnnTFKHRjL2g/OvYD1y
-         T9suuTUroy9Tqq4hNGrXQgLfFRuKgQY2fJli9wEyFoJzf30+b3PxufwmlIh8mR+omb
-         D5TLMpubD2pdxzLp2v/ikmW3yecYH6nMBALAmEfU=
+        b=fsps8hqKx71opZg9xW9fNIXvua7U5PyUkp4w6UauWhVbKN/UW5XEnzYCYbVnW5NWL
+         vOHyOHiUXLXA9WcIqsIlo+Nur2GeXbudfXNxCKE58IuNCbd0x6kKgzPd9e2BxT7Y7Q
+         vNxdOmm2QBv7McecRuKzq7tSNDGoK6jD0eN9rueg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 284/315] virtio-blk: Fix memory leak among suspend/resume procedure
+Subject: [PATCH 4.9 231/245] x86/fpu: Limit xstate copy size in xstateregs_set()
 Date:   Mon, 19 Jul 2021 16:52:53 +0200
-Message-Id: <20210719144952.774611166@linuxfoundation.org>
+Message-Id: <20210719144947.851247620@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
+[ Upstream commit 07d6688b22e09be465652cf2da0da6bf86154df6 ]
 
-The vblk->vqs should be freed before we call init_vqs()
-in virtblk_restore().
+If the count argument is larger than the xstate size, this will happily
+copy beyond the end of xstate.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 91c3dba7dbc1 ("x86/fpu/xstate: Fix PTRACE frames for XSAVES")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Andy Lutomirski <luto@kernel.org>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210623121452.120741557@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/fpu/regset.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 2f15e38fb3f8..437d43747c6d 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -931,6 +931,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
- 	blk_mq_quiesce_queue(vblk->disk->queue);
+diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
+index 7052d9a65fe9..e1c9e94fcce6 100644
+--- a/arch/x86/kernel/fpu/regset.c
++++ b/arch/x86/kernel/fpu/regset.c
+@@ -123,7 +123,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
+ 	/*
+ 	 * A whole standard-format XSAVE buffer is needed:
+ 	 */
+-	if ((pos != 0) || (count < fpu_user_xstate_size))
++	if (pos != 0 || count != fpu_user_xstate_size)
+ 		return -EFAULT;
  
- 	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
-+
- 	return 0;
- }
- 
+ 	xsave = &fpu->state.xsave;
 -- 
 2.30.2
 
