@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD4D3CE62E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0B5A3CE61D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348977AbhGSQCI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 12:02:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48102 "EHLO mail.kernel.org"
+        id S1350038AbhGSQCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 12:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348800AbhGSPty (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348814AbhGSPty (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:49:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A39261874;
-        Mon, 19 Jul 2021 16:28:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 59E0161876;
+        Mon, 19 Jul 2021 16:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712119;
-        bh=scnZJGcdpmdsQJvOFBEJqkr7HM/nd2tSpsKMXVq7wL0=;
+        s=korg; t=1626712121;
+        bh=IBFI/NsLvnTDeENW4eAkcR1g8Z5XrQLd0HQjdND6skg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sScisZL9BEfoYllXWh+d3IEe1BSOraK92uDaQ6Ufi2MpTb+r7PnyvtcRCNZKSsFyp
-         ATo+D1wmW7iUA/e8tVg3cSwmhwjwAzygv5wu4WNQzSQSu2TeKgtEbpoRgn/9P81T8P
-         dLinyEyP/lw/J86vF87dcA3ldeNDME+YP2n49e/E=
+        b=p9GejY+Rf1EUPukwnXRzeq0Jg979YLaVWHzioU+gxM/ei+45NGWHX/m4pIDeP1RWu
+         ozxfV3hYfQzaGJrL3NS0NWf2Yf+mj/4bEGXmdw0u3JW3LOzl5rpXkYJCM0qhVnWd95
+         y1S6UrviTE+Pd87EbwqM9Hadg520d51gs+ao2egg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Pavel Hofman <pavel.hofman@ivitera.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 256/292] arm64: dts: renesas: r8a779a0: Drop power-domains property from GIC node
-Date:   Mon, 19 Jul 2021 16:55:18 +0200
-Message-Id: <20210719144951.352563362@linuxfoundation.org>
+Subject: [PATCH 5.12 257/292] Revert "ARM: dts: bcm283x: increase dwc2s RX FIFO size"
+Date:   Mon, 19 Jul 2021 16:55:19 +0200
+Message-Id: <20210719144951.383393445@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,39 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 1771a33b34421050c7b830f0a8af703178ba9d36 ]
+[ Upstream commit 77daceabedb42482bb6200fa26047c5591716e45 ]
 
-"make dtbs_check":
+This reverts commit 278407a53c3b33fb820332c4d39eb39316c3879a.
 
-    arm64/boot/dts/renesas/r8a779a0-falcon.dt.yaml: interrupt-controller@f1000000: 'power-domains' does not match any of the regexes: '^(msi-controller|gic-its|interrupt-controller)@[0-9a-f]+$', '^gic-its@', '^interrupt-controller@[0-9a-f]+$', 'pinctrl-[0-9]+'
-	    From schema: Documentation/devicetree/bindings/interrupt-controller/arm,gic-v3.yaml
+The original change breaks USB config on Raspberry Pi Zero and Pi 4 B,
+because it exceeds the total fifo size of 4080. A naive attempt to reduce
+g-tx-fifo-size doesn't help on Raspberry Pi Zero. So better go back.
 
-Remove the "power-domains" property, as the GIC on R-Car V3U is
-always-on, and not part of a clock domain.
-
-Fixes: 834c310f541839b6 ("arm64: dts: renesas: Add Renesas R8A779A0 SoC support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/a9ae5cbc7c586bf2c6b18ddc665ad7051bd1d206.1622560236.git.geert+renesas@glider.be
+Fixes: 278407a53c3b ("ARM: dts: bcm283x: increase dwc2's RX FIFO size")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Pavel Hofman <pavel.hofman@ivitera.com>
+Link: https://lore.kernel.org/r/1622293371-5997-1-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a779a0.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi        | 2 +-
+ arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-index 86ac48e2c849..2e17fc9fd711 100644
---- a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
-@@ -948,7 +948,6 @@
- 			      <0x0 0xf1060000 0 0x110000>;
- 			interrupts = <GIC_PPI 9
- 				      (GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_HIGH)>;
--			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
- 		};
- 
- 		prr: chipid@fff00044 {
+diff --git a/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi b/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
+index 20322de2f8bf..e2fd9610e125 100644
+--- a/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
++++ b/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ &usb {
+ 	dr_mode = "otg";
+-	g-rx-fifo-size = <558>;
++	g-rx-fifo-size = <256>;
+ 	g-np-tx-fifo-size = <32>;
+ 	/*
+ 	 * According to dwc2 the sum of all device EP
+diff --git a/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi b/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
+index 1409d1b559c1..0ff0e9e25327 100644
+--- a/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
++++ b/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
+@@ -1,7 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0
+ &usb {
+ 	dr_mode = "peripheral";
+-	g-rx-fifo-size = <558>;
++	g-rx-fifo-size = <256>;
+ 	g-np-tx-fifo-size = <32>;
+ 	g-tx-fifo-size = <256 256 512 512 512 768 768>;
+ };
 -- 
 2.30.2
 
