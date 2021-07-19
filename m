@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39E123CD884
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437803CD9CE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242989AbhGSOWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:22:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
+        id S243453AbhGSObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242990AbhGSOVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:21:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F28F6120C;
-        Mon, 19 Jul 2021 15:02:04 +0000 (UTC)
+        id S244570AbhGSO3w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCA0F61002;
+        Mon, 19 Jul 2021 15:10:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706925;
-        bh=trjxDXffTn9eyS2o4Us8QGGoApl6krh4FgByeT6p3rA=;
+        s=korg; t=1626707404;
+        bh=LykGqZADCmIweKh5fPsSWbyCvEBh58hVemt6UeYGwYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSP4sq8KG3fzSdw67bZcXnEMYLS7GB0PGMOZNI1SVRoJjG83k3qH0b+bRK2xAZgjF
-         nWCkVskNCYHZNyIK9ou9VnIM/+GxS5Faiw1PkkZhtW+nE0OpqRTWbrWUnbvB4S/amp
-         xiLZlrHVbxAP/UpRhlfnfKk3HPzKKg6A3xBR3sn8=
+        b=dZ99vXdw9bgJmTGOi+13QZb3r7VqvDU2C1CTd1DXU70Xy9gtbviiTUREvhKQh7kNm
+         RKWo6cGou6hJO2L88nnSu32CwGcw5m4tzlcsztVbt27n6Few+CzZBqP84IjS86aQ40
+         e6VB4Cs/80sIrPvComY/tY5edcmaBNNBew3nsAiQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Brunner <tobias@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 109/188] xfrm: Fix error reporting in xfrm_state_construct.
+Subject: [PATCH 4.9 151/245] wireless: wext-spy: Fix out-of-bounds warning
 Date:   Mon, 19 Jul 2021 16:51:33 +0200
-Message-Id: <20210719144938.483789251@linuxfoundation.org>
+Message-Id: <20210719144945.290979194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +42,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Klassert <steffen.klassert@secunet.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit 6fd06963fa74197103cdbb4b494763127b3f2f34 ]
+[ Upstream commit e93bdd78406da9ed01554c51e38b2a02c8ef8025 ]
 
-When memory allocation for XFRMA_ENCAP or XFRMA_COADDR fails,
-the error will not be reported because the -ENOMEM assignment
-to the err variable is overwritten before. Fix this by moving
-these two in front of the function so that memory allocation
-failures will be reported.
+Fix the following out-of-bounds warning:
 
-Reported-by: Tobias Brunner <tobias@strongswan.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+net/wireless/wext-spy.c:178:2: warning: 'memcpy' offset [25, 28] from the object at 'threshold' is out of the bounds of referenced subobject 'low' with type 'struct iw_quality' at offset 20 [-Warray-bounds]
+
+The problem is that the original code is trying to copy data into a
+couple of struct members adjacent to each other in a single call to
+memcpy(). This causes a legitimate compiler warning because memcpy()
+overruns the length of &threshold.low and &spydata->spy_thr_low. As
+these are just a couple of struct members, fix this by using direct
+assignments, instead of memcpy().
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210422200032.GA168995@embeddedor
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_user.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ net/wireless/wext-spy.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index 158f630cc7a6..98ea6ebc7317 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -566,6 +566,20 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
+diff --git a/net/wireless/wext-spy.c b/net/wireless/wext-spy.c
+index 33bef22e44e9..b379a0371653 100644
+--- a/net/wireless/wext-spy.c
++++ b/net/wireless/wext-spy.c
+@@ -120,8 +120,8 @@ int iw_handler_set_thrspy(struct net_device *	dev,
+ 		return -EOPNOTSUPP;
  
- 	copy_from_user_state(x, p);
+ 	/* Just do it */
+-	memcpy(&(spydata->spy_thr_low), &(threshold->low),
+-	       2 * sizeof(struct iw_quality));
++	spydata->spy_thr_low = threshold->low;
++	spydata->spy_thr_high = threshold->high;
  
-+	if (attrs[XFRMA_ENCAP]) {
-+		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
-+				   sizeof(*x->encap), GFP_KERNEL);
-+		if (x->encap == NULL)
-+			goto error;
-+	}
-+
-+	if (attrs[XFRMA_COADDR]) {
-+		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
-+				    sizeof(*x->coaddr), GFP_KERNEL);
-+		if (x->coaddr == NULL)
-+			goto error;
-+	}
-+
- 	if (attrs[XFRMA_SA_EXTRA_FLAGS])
- 		x->props.extra_flags = nla_get_u32(attrs[XFRMA_SA_EXTRA_FLAGS]);
+ 	/* Clear flag */
+ 	memset(spydata->spy_thr_under, '\0', sizeof(spydata->spy_thr_under));
+@@ -147,8 +147,8 @@ int iw_handler_get_thrspy(struct net_device *	dev,
+ 		return -EOPNOTSUPP;
  
-@@ -586,23 +600,9 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
- 				   attrs[XFRMA_ALG_COMP])))
- 		goto error;
+ 	/* Just do it */
+-	memcpy(&(threshold->low), &(spydata->spy_thr_low),
+-	       2 * sizeof(struct iw_quality));
++	threshold->low = spydata->spy_thr_low;
++	threshold->high = spydata->spy_thr_high;
  
--	if (attrs[XFRMA_ENCAP]) {
--		x->encap = kmemdup(nla_data(attrs[XFRMA_ENCAP]),
--				   sizeof(*x->encap), GFP_KERNEL);
--		if (x->encap == NULL)
--			goto error;
--	}
--
- 	if (attrs[XFRMA_TFCPAD])
- 		x->tfcpad = nla_get_u32(attrs[XFRMA_TFCPAD]);
+ 	return 0;
+ }
+@@ -173,10 +173,10 @@ static void iw_send_thrspy_event(struct net_device *	dev,
+ 	memcpy(threshold.addr.sa_data, address, ETH_ALEN);
+ 	threshold.addr.sa_family = ARPHRD_ETHER;
+ 	/* Copy stats */
+-	memcpy(&(threshold.qual), wstats, sizeof(struct iw_quality));
++	threshold.qual = *wstats;
+ 	/* Copy also thresholds */
+-	memcpy(&(threshold.low), &(spydata->spy_thr_low),
+-	       2 * sizeof(struct iw_quality));
++	threshold.low = spydata->spy_thr_low;
++	threshold.high = spydata->spy_thr_high;
  
--	if (attrs[XFRMA_COADDR]) {
--		x->coaddr = kmemdup(nla_data(attrs[XFRMA_COADDR]),
--				    sizeof(*x->coaddr), GFP_KERNEL);
--		if (x->coaddr == NULL)
--			goto error;
--	}
--
- 	xfrm_mark_get(attrs, &x->mark);
- 
- 	err = __xfrm_init_state(x, false);
+ 	/* Send event to user space */
+ 	wireless_send_event(dev, SIOCGIWTHRSPY, &wrqu, (char *) &threshold);
 -- 
 2.30.2
 
