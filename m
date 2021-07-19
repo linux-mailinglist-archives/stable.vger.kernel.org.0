@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9803CE320
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F37F63CE1AA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235122AbhGSPgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S1346836AbhGSP1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231282AbhGSPcJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C1A261414;
-        Mon, 19 Jul 2021 16:10:11 +0000 (UTC)
+        id S1347483AbhGSPRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:17:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9150261400;
+        Mon, 19 Jul 2021 15:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711012;
-        bh=usjltRtEuFp8h2ICKIOczpm839/NnubVdwqvLBLU3LI=;
+        s=korg; t=1626710262;
+        bh=LxXAEoD5Ila78o+YYGT3jjqLa2D/vUuiuMAS6PHKgPI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wla2YdXUk+36zcfGhinFHlHOmRFgFqqUtccBUpIUCqT6FR0xAcDRRSZW0apqbswip
-         t39QVv1XlCuJ5a2qPGp9uEOf7z8e7bWcYMyXfJjC9qVAlZj4ABFyOeuQL4qiJ26VQq
-         SkbBjArSuaHLQof79tB8xepsIN23lX9lz24qWzPY=
+        b=uFH0D+COrGbOIPjJeJTXZjR8EkkpaC5qTys3QxgXonQBEMesXepn5sWoIe3f7pbf7
+         qmmJVH7a1Ndr8xPPiOSgvx0NiPYZ9Q9Ed30MeM1aUOkGO3yZYMRWyZDSijOGSPGl7y
+         1tjCugOiqIUhNrRqGcUhy7XxJ0g898JA/RH++SiM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 193/351] PCI: rockchip: Register IRQ handlers after device and data are ready
-Date:   Mon, 19 Jul 2021 16:52:19 +0200
-Message-Id: <20210719144951.350946995@linuxfoundation.org>
+Subject: [PATCH 5.10 111/243] power: supply: sc27xx: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:52:20 +0200
+Message-Id: <20210719144944.486505231@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,79 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 3cf5f7ab230e2b886e493c7a8449ed50e29d2b98 ]
+[ Upstream commit 603fcfb9d4ec1cad8d66d3bb37f3613afa8a661a ]
 
-An IRQ handler may be called at any time after it is registered, so
-anything it relies on must be ready before registration.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-rockchip_pcie_subsys_irq_handler() and rockchip_pcie_client_irq_handler()
-read registers in the PCIe controller, but we registered them before
-turning on clocks to the controller.  If either is called before the clocks
-are turned on, the register reads fail and the machine hangs.
-
-Similarly, rockchip_pcie_legacy_int_handler() uses rockchip->irq_domain,
-but we installed it before initializing irq_domain.
-
-Register IRQ handlers after their data structures are initialized and
-clocks are enabled.
-
-Found by enabling CONFIG_DEBUG_SHIRQ, which calls the IRQ handler when it
-is being unregistered.  An error during the probe path might cause this
-unregistration and IRQ handler execution before the device or data
-structure init has finished.
-
-[bhelgaas: commit log]
-Link: https://lore.kernel.org/r/20210608080409.1729276-1-javierm@redhat.com
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Shawn Lin <shawn.lin@rock-chips.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rockchip-host.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/power/supply/sc27xx_fuel_gauge.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
-index f1d08a1b1591..78d04ac29cd5 100644
---- a/drivers/pci/controller/pcie-rockchip-host.c
-+++ b/drivers/pci/controller/pcie-rockchip-host.c
-@@ -592,10 +592,6 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
- 	if (err)
- 		return err;
+diff --git a/drivers/power/supply/sc27xx_fuel_gauge.c b/drivers/power/supply/sc27xx_fuel_gauge.c
+index 9c627618c224..1ae8374e1ceb 100644
+--- a/drivers/power/supply/sc27xx_fuel_gauge.c
++++ b/drivers/power/supply/sc27xx_fuel_gauge.c
+@@ -1342,6 +1342,7 @@ static const struct of_device_id sc27xx_fgu_of_match[] = {
+ 	{ .compatible = "sprd,sc2731-fgu", },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, sc27xx_fgu_of_match);
  
--	err = rockchip_pcie_setup_irq(rockchip);
--	if (err)
--		return err;
--
- 	rockchip->vpcie12v = devm_regulator_get_optional(dev, "vpcie12v");
- 	if (IS_ERR(rockchip->vpcie12v)) {
- 		if (PTR_ERR(rockchip->vpcie12v) != -ENODEV)
-@@ -973,8 +969,6 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
- 	if (err)
- 		goto err_vpcie;
- 
--	rockchip_pcie_enable_interrupts(rockchip);
--
- 	err = rockchip_pcie_init_irq_domain(rockchip);
- 	if (err < 0)
- 		goto err_deinit_port;
-@@ -992,6 +986,12 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
- 	bridge->sysdata = rockchip;
- 	bridge->ops = &rockchip_pcie_ops;
- 
-+	err = rockchip_pcie_setup_irq(rockchip);
-+	if (err)
-+		goto err_remove_irq_domain;
-+
-+	rockchip_pcie_enable_interrupts(rockchip);
-+
- 	err = pci_host_probe(bridge);
- 	if (err < 0)
- 		goto err_remove_irq_domain;
+ static struct platform_driver sc27xx_fgu_driver = {
+ 	.probe = sc27xx_fgu_probe,
 -- 
 2.30.2
 
