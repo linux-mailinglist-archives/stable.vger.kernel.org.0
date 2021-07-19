@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BD33CDF9E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 765133CDEBE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343843AbhGSPK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41044 "EHLO mail.kernel.org"
+        id S1344507AbhGSPF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:05:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345888AbhGSPJo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:09:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9156760FD7;
-        Mon, 19 Jul 2021 15:49:38 +0000 (UTC)
+        id S245745AbhGSPCo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:02:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D0106112D;
+        Mon, 19 Jul 2021 15:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709779;
-        bh=sk5rvFib5S+/tFVACJhPL3D9r+kcEJmN/zFpx1YCRI4=;
+        s=korg; t=1626709374;
+        bh=5vvKhpf1wnKOQ7hM+FGiCC3Nq6hpYTSywIeiLaqR0SQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KC/F2N9H1H3SzrPiRpP1R9+J0dGmR8oF1Qli2dOrdjy1JBslfaXUV/o9ZkiN1ctr0
-         1yAcPME7l8nmEqlkFAJMntsq4Kfp58q4VuJb5UQoiTh1qXFN5Yal/g65ySg/RiALqd
-         b3qp9st5JhdFm0zwuipA59W42Qy+SntfQLpad7Wo=
+        b=w8r28c50Ot1h2nNOsr1Fnyk0E8KpdmIhFHIwVfUTEm2tp+yHH2wS18NeN+ALCQcRZ
+         7iz2i0WAwg1fCn3LJica77shVFIPNnwnkzo3T7my3KbEXhPj+i2PU0Ju2Gq9UMD2Nh
+         c2Kvm2hmX3CrgBrPUF4QNfBv9ZcNI+TES/EuNz58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 060/149] powerpc/boot: Fixup device-tree on little endian
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 357/421] i2c: core: Disable client irq on reboot/shutdown
 Date:   Mon, 19 Jul 2021 16:52:48 +0200
-Message-Id: <20210719144915.610275417@linuxfoundation.org>
+Message-Id: <20210719144958.638500641@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,241 +41,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit c93f80849bdd9b45d834053ae1336e28f0026c84 ]
+[ Upstream commit b64210f2f7c11c757432ba3701d88241b2b98fb1 ]
 
-This fixes the core devtree.c functions and the ns16550 UART backend.
+If an i2c client receives an interrupt during reboot or shutdown it may
+be too late to service it by making an i2c transaction on the bus
+because the i2c controller has already been shutdown. This can lead to
+system hangs if the i2c controller tries to make a transfer that is
+doomed to fail because the access to the i2c pins is already shut down,
+or an iommu translation has been torn down so i2c controller register
+access doesn't work.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/YMwXrPT8nc4YUdJ9@thinks.paulus.ozlabs.org
+Let's simply disable the irq if there isn't a shutdown callback for an
+i2c client when there is an irq associated with the device. This will
+make sure that irqs don't come in later than the time that we can handle
+it. We don't do this if the i2c client device already has a shutdown
+callback because presumably they're doing the right thing and quieting
+the device so irqs don't come in after the shutdown callback returns.
+
+Reported-by: kernel test robot <lkp@intel.com>
+[swboyd@chromium.org: Dropped newline, added commit text, added
+interrupt.h for robot build error]
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/devtree.c | 59 +++++++++++++++++++++----------------
- arch/powerpc/boot/ns16550.c |  9 ++++--
- 2 files changed, 41 insertions(+), 27 deletions(-)
+ drivers/i2c/i2c-core-base.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/boot/devtree.c b/arch/powerpc/boot/devtree.c
-index 5d91036ad626..58fbcfcc98c9 100644
---- a/arch/powerpc/boot/devtree.c
-+++ b/arch/powerpc/boot/devtree.c
-@@ -13,6 +13,7 @@
- #include "string.h"
- #include "stdio.h"
- #include "ops.h"
-+#include "of.h"
- 
- void dt_fixup_memory(u64 start, u64 size)
- {
-@@ -23,21 +24,25 @@ void dt_fixup_memory(u64 start, u64 size)
- 	root = finddevice("/");
- 	if (getprop(root, "#address-cells", &naddr, sizeof(naddr)) < 0)
- 		naddr = 2;
-+	else
-+		naddr = be32_to_cpu(naddr);
- 	if (naddr < 1 || naddr > 2)
- 		fatal("Can't cope with #address-cells == %d in /\n\r", naddr);
- 
- 	if (getprop(root, "#size-cells", &nsize, sizeof(nsize)) < 0)
- 		nsize = 1;
-+	else
-+		nsize = be32_to_cpu(nsize);
- 	if (nsize < 1 || nsize > 2)
- 		fatal("Can't cope with #size-cells == %d in /\n\r", nsize);
- 
- 	i = 0;
- 	if (naddr == 2)
--		memreg[i++] = start >> 32;
--	memreg[i++] = start & 0xffffffff;
-+		memreg[i++] = cpu_to_be32(start >> 32);
-+	memreg[i++] = cpu_to_be32(start & 0xffffffff);
- 	if (nsize == 2)
--		memreg[i++] = size >> 32;
--	memreg[i++] = size & 0xffffffff;
-+		memreg[i++] = cpu_to_be32(size >> 32);
-+	memreg[i++] = cpu_to_be32(size & 0xffffffff);
- 
- 	memory = finddevice("/memory");
- 	if (! memory) {
-@@ -45,9 +50,9 @@ void dt_fixup_memory(u64 start, u64 size)
- 		setprop_str(memory, "device_type", "memory");
- 	}
- 
--	printf("Memory <- <0x%x", memreg[0]);
-+	printf("Memory <- <0x%x", be32_to_cpu(memreg[0]));
- 	for (i = 1; i < (naddr + nsize); i++)
--		printf(" 0x%x", memreg[i]);
-+		printf(" 0x%x", be32_to_cpu(memreg[i]));
- 	printf("> (%ldMB)\n\r", (unsigned long)(size >> 20));
- 
- 	setprop(memory, "reg", memreg, (naddr + nsize)*sizeof(u32));
-@@ -65,10 +70,10 @@ void dt_fixup_cpu_clocks(u32 cpu, u32 tb, u32 bus)
- 		printf("CPU bus-frequency <- 0x%x (%dMHz)\n\r", bus, MHZ(bus));
- 
- 	while ((devp = find_node_by_devtype(devp, "cpu"))) {
--		setprop_val(devp, "clock-frequency", cpu);
--		setprop_val(devp, "timebase-frequency", tb);
-+		setprop_val(devp, "clock-frequency", cpu_to_be32(cpu));
-+		setprop_val(devp, "timebase-frequency", cpu_to_be32(tb));
- 		if (bus > 0)
--			setprop_val(devp, "bus-frequency", bus);
-+			setprop_val(devp, "bus-frequency", cpu_to_be32(bus));
- 	}
- 
- 	timebase_period_ns = 1000000000 / tb;
-@@ -80,7 +85,7 @@ void dt_fixup_clock(const char *path, u32 freq)
- 
- 	if (devp) {
- 		printf("%s: clock-frequency <- %x (%dMHz)\n\r", path, freq, MHZ(freq));
--		setprop_val(devp, "clock-frequency", freq);
-+		setprop_val(devp, "clock-frequency", cpu_to_be32(freq));
- 	}
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 39be53b6f983..2a43f4e46af0 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -32,6 +32,7 @@
+ #include <linux/i2c-smbus.h>
+ #include <linux/idr.h>
+ #include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <linux/irqflags.h>
+ #include <linux/jump_label.h>
+ #include <linux/kernel.h>
+@@ -457,6 +458,8 @@ static void i2c_device_shutdown(struct device *dev)
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (driver->shutdown)
+ 		driver->shutdown(client);
++	else if (client->irq > 0)
++		disable_irq(client->irq);
  }
  
-@@ -133,8 +138,12 @@ void dt_get_reg_format(void *node, u32 *naddr, u32 *nsize)
- {
- 	if (getprop(node, "#address-cells", naddr, 4) != 4)
- 		*naddr = 2;
-+	else
-+		*naddr = be32_to_cpu(*naddr);
- 	if (getprop(node, "#size-cells", nsize, 4) != 4)
- 		*nsize = 1;
-+	else
-+		*nsize = be32_to_cpu(*nsize);
- }
- 
- static void copy_val(u32 *dest, u32 *src, int naddr)
-@@ -163,9 +172,9 @@ static int add_reg(u32 *reg, u32 *add, int naddr)
- 	int i, carry = 0;
- 
- 	for (i = MAX_ADDR_CELLS - 1; i >= MAX_ADDR_CELLS - naddr; i--) {
--		u64 tmp = (u64)reg[i] + add[i] + carry;
-+		u64 tmp = (u64)be32_to_cpu(reg[i]) + be32_to_cpu(add[i]) + carry;
- 		carry = tmp >> 32;
--		reg[i] = (u32)tmp;
-+		reg[i] = cpu_to_be32((u32)tmp);
- 	}
- 
- 	return !carry;
-@@ -180,18 +189,18 @@ static int compare_reg(u32 *reg, u32 *range, u32 *rangesize)
- 	u32 end;
- 
- 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
--		if (reg[i] < range[i])
-+		if (be32_to_cpu(reg[i]) < be32_to_cpu(range[i]))
- 			return 0;
--		if (reg[i] > range[i])
-+		if (be32_to_cpu(reg[i]) > be32_to_cpu(range[i]))
- 			break;
- 	}
- 
- 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
--		end = range[i] + rangesize[i];
-+		end = be32_to_cpu(range[i]) + be32_to_cpu(rangesize[i]);
- 
--		if (reg[i] < end)
-+		if (be32_to_cpu(reg[i]) < end)
- 			break;
--		if (reg[i] > end)
-+		if (be32_to_cpu(reg[i]) > end)
- 			return 0;
- 	}
- 
-@@ -240,7 +249,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 		return 0;
- 
- 	dt_get_reg_format(parent, &naddr, &nsize);
--
- 	if (nsize > 2)
- 		return 0;
- 
-@@ -252,10 +260,10 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 
- 	copy_val(last_addr, prop_buf + offset, naddr);
- 
--	ret_size = prop_buf[offset + naddr];
-+	ret_size = be32_to_cpu(prop_buf[offset + naddr]);
- 	if (nsize == 2) {
- 		ret_size <<= 32;
--		ret_size |= prop_buf[offset + naddr + 1];
-+		ret_size |= be32_to_cpu(prop_buf[offset + naddr + 1]);
- 	}
- 
- 	for (;;) {
-@@ -278,7 +286,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 
- 		offset = find_range(last_addr, prop_buf, prev_naddr,
- 		                    naddr, prev_nsize, buflen / 4);
--
- 		if (offset < 0)
- 			return 0;
- 
-@@ -296,8 +303,7 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 	if (naddr > 2)
- 		return 0;
- 
--	ret_addr = ((u64)last_addr[2] << 32) | last_addr[3];
--
-+	ret_addr = ((u64)be32_to_cpu(last_addr[2]) << 32) | be32_to_cpu(last_addr[3]);
- 	if (sizeof(void *) == 4 &&
- 	    (ret_addr >= 0x100000000ULL || ret_size > 0x100000000ULL ||
- 	     ret_addr + ret_size > 0x100000000ULL))
-@@ -350,11 +356,14 @@ int dt_is_compatible(void *node, const char *compat)
- int dt_get_virtual_reg(void *node, void **addr, int nres)
- {
- 	unsigned long xaddr;
--	int n;
-+	int n, i;
- 
- 	n = getprop(node, "virtual-reg", addr, nres * 4);
--	if (n > 0)
-+	if (n > 0) {
-+		for (i = 0; i < n/4; i ++)
-+			((u32 *)addr)[i] = be32_to_cpu(((u32 *)addr)[i]);
- 		return n / 4;
-+	}
- 
- 	for (n = 0; n < nres; n++) {
- 		if (!dt_xlate_reg(node, n, &xaddr, NULL))
-diff --git a/arch/powerpc/boot/ns16550.c b/arch/powerpc/boot/ns16550.c
-index b0da4466d419..f16d2be1d0f3 100644
---- a/arch/powerpc/boot/ns16550.c
-+++ b/arch/powerpc/boot/ns16550.c
-@@ -15,6 +15,7 @@
- #include "stdio.h"
- #include "io.h"
- #include "ops.h"
-+#include "of.h"
- 
- #define UART_DLL	0	/* Out: Divisor Latch Low */
- #define UART_DLM	1	/* Out: Divisor Latch High */
-@@ -58,16 +59,20 @@ int ns16550_console_init(void *devp, struct serial_console_data *scdp)
- 	int n;
- 	u32 reg_offset;
- 
--	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1)
-+	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1) {
-+		printf("virt reg parse fail...\r\n");
- 		return -1;
-+	}
- 
- 	n = getprop(devp, "reg-offset", &reg_offset, sizeof(reg_offset));
- 	if (n == sizeof(reg_offset))
--		reg_base += reg_offset;
-+		reg_base += be32_to_cpu(reg_offset);
- 
- 	n = getprop(devp, "reg-shift", &reg_shift, sizeof(reg_shift));
- 	if (n != sizeof(reg_shift))
- 		reg_shift = 0;
-+	else
-+		reg_shift = be32_to_cpu(reg_shift);
- 
- 	scdp->open = ns16550_open;
- 	scdp->putc = ns16550_putc;
+ static void i2c_client_dev_release(struct device *dev)
 -- 
 2.30.2
 
