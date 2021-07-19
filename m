@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 436A73CE511
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:38:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2983CE509
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236920AbhGSPrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44458 "EHLO mail.kernel.org"
+        id S241006AbhGSPrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349457AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349456AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70126613F5;
-        Mon, 19 Jul 2021 16:25:01 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E03C960E0C;
+        Mon, 19 Jul 2021 16:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711901;
-        bh=rpGBQzWXzgjo3gtp3C8cS/YdXc34mMtN2eKuObVQxd0=;
+        s=korg; t=1626711904;
+        bh=p/JTXm9wsrfU7GIam4K9w3soNMbCZ9xOSYuMwZZMedE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rEzyDWQPrBp1VY+TwyZrNz+2zxVukSA5rXo9RSFNvBysZT3IFO1Tr+ns520EedKXz
-         LwXy5MzcfcabbYC4e0675IgZYNDIaEKBaIuhxmimLu+d4WQ+MGrFPLwNzzuSfi8VY8
-         n4uaGM1Vm3PHHN5Sy1bjSsBtuKD/nYQojnHqvahg=
+        b=dxPo24VhwTbkzSk03L/Y6HOcomIWSq+J90Vyiw83Hn2wptKU7Bc7INrkKHvfWfAUs
+         a+H0hF8lpUV4yCw92zF9OjBzhjZwCBY7ieOfp+rJAvQRySOXMmzYJjDNS6ayL2znNx
+         chbCo1rkO/EdGKtPA9PVfQaFzqQpRmsjsDKQnjbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Wysochanski <dwysocha@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
+        Jann Horn <jannh@google.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 174/292] NFSD: Fix TP_printk() format specifier in nfsd_clid_class
-Date:   Mon, 19 Jul 2021 16:53:56 +0200
-Message-Id: <20210719144948.221576903@linuxfoundation.org>
+Subject: [PATCH 5.12 175/292] x86/signal: Detect and prevent an alternate signal stack overflow
+Date:   Mon, 19 Jul 2021 16:53:57 +0200
+Message-Id: <20210719144948.253461307@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,88 +44,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Chang S. Bae <chang.seok.bae@intel.com>
 
-[ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
+[ Upstream commit 2beb4a53fc3f1081cedc1c1a198c7f56cc4fc60c ]
 
-Since commit 9a6944fee68e ("tracing: Add a verifier to check string
-pointers for trace events"), which was merged in v5.13-rc1,
-TP_printk() no longer tacitly supports the "%.*s" format specifier.
+The kernel pushes context on to the userspace stack to prepare for the
+user's signal handler. When the user has supplied an alternate signal
+stack, via sigaltstack(2), it is easy for the kernel to verify that the
+stack size is sufficient for the current hardware context.
 
-These are low value tracepoints, so just remove them.
+Check if writing the hardware context to the alternate stack will exceed
+it's size. If yes, then instead of corrupting user-data and proceeding with
+the original signal handler, an immediate SIGSEGV signal is delivered.
 
-Reported-by: David Wysochanski <dwysocha@redhat.com>
-Fixes: dd5e3fbc1f47 ("NFSD: Add tracepoints to the NFSD state management code")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Refactor the stack pointer check code from on_sig_stack() and use the new
+helper.
+
+While the kernel allows new source code to discover and use a sufficient
+alternate signal stack size, this check is still necessary to protect
+binaries with insufficient alternate signal stack size from data
+corruption.
+
+Fixes: c2bc11f10a39 ("x86, AVX-512: Enable AVX-512 States Context Switch")
+Reported-by: Florian Weimer <fweimer@redhat.com>
+Suggested-by: Jann Horn <jannh@google.com>
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Len Brown <len.brown@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20210518200320.17239-6-chang.seok.bae@intel.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=153531
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c |  3 ---
- fs/nfsd/trace.h     | 29 -----------------------------
- 2 files changed, 32 deletions(-)
+ arch/x86/kernel/signal.c     | 24 ++++++++++++++++++++----
+ include/linux/sched/signal.h | 19 ++++++++++++-------
+ 2 files changed, 32 insertions(+), 11 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 886e50ed07c2..f8f528ce5835 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7150,7 +7150,6 @@ nfs4_client_to_reclaim(struct xdr_netobj name, struct xdr_netobj princhash,
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp;
+diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
+index f306e85a08a6..6f4e261071e0 100644
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -234,10 +234,11 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 	     void __user **fpstate)
+ {
+ 	/* Default to using normal stack */
++	bool nested_altstack = on_sig_stack(regs->sp);
++	bool entering_altstack = false;
+ 	unsigned long math_size = 0;
+ 	unsigned long sp = regs->sp;
+ 	unsigned long buf_fx = 0;
+-	int onsigstack = on_sig_stack(sp);
+ 	int ret;
  
--	trace_nfsd_clid_reclaim(nn, name.len, name.data);
- 	crp = alloc_reclaim();
- 	if (crp) {
- 		strhashval = clientstr_hashval(name);
-@@ -7200,8 +7199,6 @@ nfsd4_find_reclaim_client(struct xdr_netobj name, struct nfsd_net *nn)
- 	unsigned int strhashval;
- 	struct nfs4_client_reclaim *crp = NULL;
+ 	/* redzone */
+@@ -246,15 +247,23 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
  
--	trace_nfsd_clid_find(nn, name.len, name.data);
--
- 	strhashval = clientstr_hashval(name);
- 	list_for_each_entry(crp, &nn->reclaim_str_hashtbl[strhashval], cr_strhash) {
- 		if (compare_blob(&crp->cr_name, &name) == 0) {
-diff --git a/fs/nfsd/trace.h b/fs/nfsd/trace.h
-index 92a0973dd671..02a795470229 100644
---- a/fs/nfsd/trace.h
-+++ b/fs/nfsd/trace.h
-@@ -512,35 +512,6 @@ DEFINE_EVENT(nfsd_net_class, nfsd_##name, \
- DEFINE_NET_EVENT(grace_start);
- DEFINE_NET_EVENT(grace_complete);
+ 	/* This is the X/Open sanctioned signal stack switching.  */
+ 	if (ka->sa.sa_flags & SA_ONSTACK) {
+-		if (sas_ss_flags(sp) == 0)
++		/*
++		 * This checks nested_altstack via sas_ss_flags(). Sensible
++		 * programs use SS_AUTODISARM, which disables that check, and
++		 * programs that don't use SS_AUTODISARM get compatible.
++		 */
++		if (sas_ss_flags(sp) == 0) {
+ 			sp = current->sas_ss_sp + current->sas_ss_size;
++			entering_altstack = true;
++		}
+ 	} else if (IS_ENABLED(CONFIG_X86_32) &&
+-		   !onsigstack &&
++		   !nested_altstack &&
+ 		   regs->ss != __USER_DS &&
+ 		   !(ka->sa.sa_flags & SA_RESTORER) &&
+ 		   ka->sa.sa_restorer) {
+ 		/* This is the legacy signal stack switching. */
+ 		sp = (unsigned long) ka->sa.sa_restorer;
++		entering_altstack = true;
+ 	}
  
--DECLARE_EVENT_CLASS(nfsd_clid_class,
--	TP_PROTO(const struct nfsd_net *nn,
--		 unsigned int namelen,
--		 const unsigned char *namedata),
--	TP_ARGS(nn, namelen, namedata),
--	TP_STRUCT__entry(
--		__field(unsigned long long, boot_time)
--		__field(unsigned int, namelen)
--		__dynamic_array(unsigned char,  name, namelen)
--	),
--	TP_fast_assign(
--		__entry->boot_time = nn->boot_time;
--		__entry->namelen = namelen;
--		memcpy(__get_dynamic_array(name), namedata, namelen);
--	),
--	TP_printk("boot_time=%16llx nfs4_clientid=%.*s",
--		__entry->boot_time, __entry->namelen, __get_str(name))
--)
--
--#define DEFINE_CLID_EVENT(name) \
--DEFINE_EVENT(nfsd_clid_class, nfsd_clid_##name, \
--	TP_PROTO(const struct nfsd_net *nn, \
--		 unsigned int namelen, \
--		 const unsigned char *namedata), \
--	TP_ARGS(nn, namelen, namedata))
--
--DEFINE_CLID_EVENT(find);
--DEFINE_CLID_EVENT(reclaim);
--
- TRACE_EVENT(nfsd_clid_inuse_err,
- 	TP_PROTO(const struct nfs4_client *clp),
- 	TP_ARGS(clp),
+ 	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
+@@ -267,8 +276,15 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ 	 * If we are on the alternate signal stack and would overflow it, don't.
+ 	 * Return an always-bogus address instead so we will die with SIGSEGV.
+ 	 */
+-	if (onsigstack && !likely(on_sig_stack(sp)))
++	if (unlikely((nested_altstack || entering_altstack) &&
++		     !__on_sig_stack(sp))) {
++
++		if (show_unhandled_signals && printk_ratelimit())
++			pr_info("%s[%d] overflowed sigaltstack\n",
++				current->comm, task_pid_nr(current));
++
+ 		return (void __user *)-1L;
++	}
+ 
+ 	/* save i387 and extended state */
+ 	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
+diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
+index 3f6a0fcaa10c..ae60f838ebb9 100644
+--- a/include/linux/sched/signal.h
++++ b/include/linux/sched/signal.h
+@@ -537,6 +537,17 @@ static inline int kill_cad_pid(int sig, int priv)
+ #define SEND_SIG_NOINFO ((struct kernel_siginfo *) 0)
+ #define SEND_SIG_PRIV	((struct kernel_siginfo *) 1)
+ 
++static inline int __on_sig_stack(unsigned long sp)
++{
++#ifdef CONFIG_STACK_GROWSUP
++	return sp >= current->sas_ss_sp &&
++		sp - current->sas_ss_sp < current->sas_ss_size;
++#else
++	return sp > current->sas_ss_sp &&
++		sp - current->sas_ss_sp <= current->sas_ss_size;
++#endif
++}
++
+ /*
+  * True if we are on the alternate signal stack.
+  */
+@@ -554,13 +565,7 @@ static inline int on_sig_stack(unsigned long sp)
+ 	if (current->sas_ss_flags & SS_AUTODISARM)
+ 		return 0;
+ 
+-#ifdef CONFIG_STACK_GROWSUP
+-	return sp >= current->sas_ss_sp &&
+-		sp - current->sas_ss_sp < current->sas_ss_size;
+-#else
+-	return sp > current->sas_ss_sp &&
+-		sp - current->sas_ss_sp <= current->sas_ss_size;
+-#endif
++	return __on_sig_stack(sp);
+ }
+ 
+ static inline int sas_ss_flags(unsigned long sp)
 -- 
 2.30.2
 
