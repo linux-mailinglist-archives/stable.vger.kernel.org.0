@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9903CDC90
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263083CE06C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244639AbhGSOw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36478 "EHLO mail.kernel.org"
+        id S1346816AbhGSPR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245390AbhGSOr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8BC2610D2;
-        Mon, 19 Jul 2021 15:23:20 +0000 (UTC)
+        id S1346156AbhGSPOE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4B78613F6;
+        Mon, 19 Jul 2021 15:53:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708201;
-        bh=YLXnt5wG5jvESbfEUk+/masoINAD5jvQEUvbk327gPg=;
+        s=korg; t=1626710031;
+        bh=F0zeVKDyFDPy6hrxyowfbDBSqgsKZ6SvVWTV12S9pX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Huum/aoMc9sb7uRCyCcmkltrjGKurCuIsk+6a7k8ZK6RbvF0Gu24c1+uLrSq0xfW4
-         sGW0whPfA/x0+/4f8IcZrRab1eNjqdpprHMNBNQYuKVnx6ouNqKYGw41PSrOp5RUiH
-         2VkFArK197/CwqK9vCnSC0DpEODMfw8SUgC+dQWM=
+        b=yF4OOvGLjhehMawNUCj849knYw5HoWWmgd1QlR2VbrL5kvBV0ufZzYWWRpXU2Vbgp
+         QOCbuOTWF/Ty/fFnQx8FbkBK4JgoC3jTGI5jJpeA8yOUcqy4Kx7FkYRSBR7x9sM/9F
+         AP9hkArRW4qPJTb4MKEZfVku0XkYGOlqcQzjDirA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huang Pei <huangpei@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 187/315] MIPS: add PMD table accounting into MIPSpmd_alloc_one
+Subject: [PATCH 5.10 047/243] scsi: core: Cap scsi_host cmd_per_lun at can_queue
 Date:   Mon, 19 Jul 2021 16:51:16 +0200
-Message-Id: <20210719144949.056012137@linuxfoundation.org>
+Message-Id: <20210719144942.438101997@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Pei <huangpei@loongson.cn>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit ed914d48b6a1040d1039d371b56273d422c0081e ]
+[ Upstream commit ea2f0f77538c50739b9fb4de4700cee5535e1f77 ]
 
-This fixes Page Table accounting bug.
+The sysfs handling function sdev_store_queue_depth() enforces that the sdev
+queue depth cannot exceed shost can_queue. The initial sdev queue depth
+comes from shost cmd_per_lun. However, the LLDD may manually set
+cmd_per_lun to be larger than can_queue, which leads to an initial sdev
+queue depth greater than can_queue.
 
-MIPS is the ONLY arch just defining __HAVE_ARCH_PMD_ALLOC_ONE alone.
-Since commit b2b29d6d011944 (mm: account PMD tables like PTE tables),
-"pmd_free" in asm-generic with PMD table accounting and "pmd_alloc_one"
-in MIPS without PMD table accounting causes PageTable accounting number
-negative, which read by global_zone_page_state(), always returns 0.
+Such an issue was reported in [0], which caused a hang. That has since been
+fixed in commit fc09acb7de31 ("scsi: scsi_debug: Fix cmd_per_lun, set to
+max_queue").
 
-Signed-off-by: Huang Pei <huangpei@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Stop this possibly happening for other drivers by capping shost cmd_per_lun
+at shost can_queue.
+
+[0] https://lore.kernel.org/linux-scsi/YHaez6iN2HHYxYOh@T590/
+
+Link: https://lore.kernel.org/r/1621434662-173079-1-git-send-email-john.garry@huawei.com
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/pgalloc.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/scsi/hosts.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/include/asm/pgalloc.h b/arch/mips/include/asm/pgalloc.h
-index 39b9f311c4ef..f800872f867b 100644
---- a/arch/mips/include/asm/pgalloc.h
-+++ b/arch/mips/include/asm/pgalloc.h
-@@ -93,11 +93,15 @@ do {							\
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index bd0dcb540f82..da3920a19d53 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -220,6 +220,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+ 		goto fail;
+ 	}
  
- static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
- {
--	pmd_t *pmd;
-+	pmd_t *pmd = NULL;
-+	struct page *pg;
- 
--	pmd = (pmd_t *) __get_free_pages(GFP_KERNEL, PMD_ORDER);
--	if (pmd)
-+	pg = alloc_pages(GFP_KERNEL | __GFP_ACCOUNT, PMD_ORDER);
-+	if (pg) {
-+		pgtable_pmd_page_ctor(pg);
-+		pmd = (pmd_t *)page_address(pg);
- 		pmd_init((unsigned long)pmd, (unsigned long)invalid_pte_table);
-+	}
- 	return pmd;
- }
- 
++	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
++				   shost->can_queue);
++
+ 	error = scsi_init_sense_cache(shost);
+ 	if (error)
+ 		goto fail;
 -- 
 2.30.2
 
