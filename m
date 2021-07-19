@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34EF03CD8B4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 688963CD9FF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242771AbhGSOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
+        id S245066AbhGSOcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:32:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243147AbhGSOW1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:22:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F3C6121F;
-        Mon, 19 Jul 2021 15:02:37 +0000 (UTC)
+        id S244203AbhGSObB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:31:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A8D0160FE4;
+        Mon, 19 Jul 2021 15:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706958;
-        bh=7RVlGp/VCGgNC+AZUVJrD/WDe+wKEsOz8Qdzjhn0Hbc=;
+        s=korg; t=1626707501;
+        bh=dRcdDPEWchcf4A2Upk4RQmNEzi/AkR4iSvDC7K6DNeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XEg8yl8GhXPAasjnT13nVP1MrJwVFClO1OtsVyZNdTXnUMCoATzdd4BfTeOSWhUXb
-         xcmH3CcU4ZQq9D2Yo0JrVcAPgPVTtkwr4AQJAA9Pr3IXSL0+7o2Zoz6XGmO2VidnxM
-         Ilrt52gGVk/6Rq5tJ8YAV9TMaaSIcMYFr7cVqPlM=
+        b=O08oRrhQJHki5RKuaMnWqkuToYC6xjpDv9Kyzgt5oUpMJS++QDlVy0bznDK1ORIW1
+         F97whS2d3+C94SmTCoPLBUz6CpDsraGYgHyLb+t3fkOrhVFrcn4qhM8uDV2GTToAW2
+         BJ1XSdJUzCxaAlwZ1wcRYl3HW4j7zA9gKWVxL/Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
         Dave Kleikamp <dave.kleikamp@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 148/188] fs/jfs: Fix missing error code in lmLogInit()
+Subject: [PATCH 4.9 190/245] fs/jfs: Fix missing error code in lmLogInit()
 Date:   Mon, 19 Jul 2021 16:52:12 +0200
-Message-Id: <20210719144941.335152601@linuxfoundation.org>
+Message-Id: <20210719144946.548729129@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,10 +61,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/fs/jfs/jfs_logmgr.c b/fs/jfs/jfs_logmgr.c
-index a69bdf2a1085..d19542a88c2c 100644
+index a21ea8b3e5fa..12555c4eeb2b 100644
 --- a/fs/jfs/jfs_logmgr.c
 +++ b/fs/jfs/jfs_logmgr.c
-@@ -1339,6 +1339,7 @@ int lmLogInit(struct jfs_log * log)
+@@ -1338,6 +1338,7 @@ int lmLogInit(struct jfs_log * log)
  		} else {
  			if (memcmp(logsuper->uuid, log->uuid, 16)) {
  				jfs_warn("wrong uuid on JFS log device");
