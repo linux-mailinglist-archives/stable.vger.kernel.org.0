@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB193CDE19
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FC53CE00A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239505AbhGSPB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53364 "EHLO mail.kernel.org"
+        id S1345564AbhGSPNa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:13:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343827AbhGSO7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F240B610D2;
-        Mon, 19 Jul 2021 15:37:18 +0000 (UTC)
+        id S1345573AbhGSPMA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:12:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EACCC611F2;
+        Mon, 19 Jul 2021 15:52:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709039;
-        bh=q0l7HIm6cBTV/QM6GQTVanaevOi4VhL5s0HPVIwmccI=;
+        s=korg; t=1626709946;
+        bh=jg12mOpK9egcCR1Yae1/JahDu+SCbslYM283RCMqhis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I7EBQITB4pYZxr7PgXxsgCuH3EXb1LzRoltbQ9NyDgHLoJzgh8P3EBIk2H9tGrEEj
-         eS0toX4qkqvhcPnUFyF5JB9Z48ppQlLeLevU9GXhbdb6+dlGU3PkRCg1HgoCpa+f3+
-         BMRlAhC/WnjT0BiNd5UR6iVUkJDEkoH3ijfq5udM=
+        b=V/u+I+VZVx++qV4NgtSEEXUjrUFyLXTzDjbOWDYN1BBxyz/2TlaeS6KylqVDzso4A
+         sc77RU5EsQx+yJnSXEz8Ca5XVjztHsXi+nh33XKYj6Buk7HF/ri3Iq6ONuXQPPm5kr
+         98o6gQPNFcf81Wm0G8WSNQDdUWa5OEUn9wEqDn4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 230/421] net: pch_gbe: Use proper accessors to BE data in pch_ptp_match()
+        stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.10 012/243] drm/i915/gt: Fix -EDEADLK handling regression
 Date:   Mon, 19 Jul 2021 16:50:41 +0200
-Message-Id: <20210719144954.400996047@linuxfoundation.org>
+Message-Id: <20210719144941.315289046@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,87 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 443ef39b499cc9c6635f83238101f1bb923e9326 ]
+commit 2feeb52859fc1ab94cd35b61ada3a6ac4ff24243 upstream.
 
-Sparse is not happy about handling of strict types in pch_ptp_match():
+The conversion to ww mutexes failed to address the fence code which
+already returns -EDEADLK when we run out of fences. Ww mutexes on
+the other hand treat -EDEADLK as an internal errno value indicating
+a need to restart the operation due to a deadlock. So now when the
+fence code returns -EDEADLK the higher level code erroneously
+restarts everything instead of returning the error to userspace
+as is expected.
 
-  .../pch_gbe_main.c:158:33: warning: incorrect type in argument 2 (different base types)
-  .../pch_gbe_main.c:158:33:    expected unsigned short [usertype] uid_hi
-  .../pch_gbe_main.c:158:33:    got restricted __be16 [usertype]
-  .../pch_gbe_main.c:158:45: warning: incorrect type in argument 3 (different base types)
-  .../pch_gbe_main.c:158:45:    expected unsigned int [usertype] uid_lo
-  .../pch_gbe_main.c:158:45:    got restricted __be32 [usertype]
-  .../pch_gbe_main.c:158:56: warning: incorrect type in argument 4 (different base types)
-  .../pch_gbe_main.c:158:56:    expected unsigned short [usertype] seqid
-  .../pch_gbe_main.c:158:56:    got restricted __be16 [usertype]
+To remedy this let's switch the fence code to use a different errno
+value for this. -ENOBUFS seems like a semi-reasonable unique choice.
+Apart from igt the only user of this I could find is sna, and even
+there all we do is dump the current fence registers from debugfs
+into the X server log. So no user visible functionality is affected.
+If we really cared about preserving this we could of course convert
+back to -EDEADLK higher up, but doesn't seem like that's worth
+the hassle here.
 
-Fix that by switching to use proper accessors to BE data.
+Not quite sure which commit specifically broke this, but I'll
+just attribute it to the general gem ww mutex work.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@intel.com>
+Testcase: igt/gem_pread/exhaustion
+Testcase: igt/gem_pwrite/basic-exhaustion
+Testcase: igt/gem_fenced_exec_thrash/too-many-fences
+Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210630164413.25481-1-ville.syrjala@linux.intel.com
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+(cherry picked from commit 78d2ad7eb4e1f0e9cd5d79788446b6092c21d3e0)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../ethernet/oki-semi/pch_gbe/pch_gbe_main.c  | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 70f3276539c4..5a45648e3124 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -118,7 +118,7 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- {
- 	u8 *data = skb->data;
- 	unsigned int offset;
--	u16 *hi, *id;
-+	u16 hi, id;
- 	u32 lo;
+--- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
++++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
+@@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find
+ 	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
+ 		return ERR_PTR(-EAGAIN);
  
- 	if (ptp_classify_raw(skb) == PTP_CLASS_NONE)
-@@ -129,14 +129,11 @@ static int pch_ptp_match(struct sk_buff *skb, u16 uid_hi, u32 uid_lo, u16 seqid)
- 	if (skb->len < offset + OFF_PTP_SEQUENCE_ID + sizeof(seqid))
- 		return 0;
- 
--	hi = (u16 *)(data + offset + OFF_PTP_SOURCE_UUID);
--	id = (u16 *)(data + offset + OFF_PTP_SEQUENCE_ID);
-+	hi = get_unaligned_be16(data + offset + OFF_PTP_SOURCE_UUID + 0);
-+	lo = get_unaligned_be32(data + offset + OFF_PTP_SOURCE_UUID + 2);
-+	id = get_unaligned_be16(data + offset + OFF_PTP_SEQUENCE_ID);
- 
--	memcpy(&lo, &hi[1], sizeof(lo));
--
--	return (uid_hi == *hi &&
--		uid_lo == lo &&
--		seqid  == *id);
-+	return (uid_hi == hi && uid_lo == lo && seqid == id);
+-	return ERR_PTR(-EDEADLK);
++	return ERR_PTR(-ENOBUFS);
  }
  
- static void
-@@ -146,7 +143,6 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	struct pci_dev *pdev;
- 	u64 ns;
- 	u32 hi, lo, val;
--	u16 uid, seq;
- 
- 	if (!adapter->hwts_rx_en)
- 		return;
-@@ -162,10 +158,7 @@ pch_rx_timestamp(struct pch_gbe_adapter *adapter, struct sk_buff *skb)
- 	lo = pch_src_uuid_lo_read(pdev);
- 	hi = pch_src_uuid_hi_read(pdev);
- 
--	uid = hi & 0xffff;
--	seq = (hi >> 16) & 0xffff;
--
--	if (!pch_ptp_match(skb, htons(uid), htonl(lo), htons(seq)))
-+	if (!pch_ptp_match(skb, hi, lo, hi >> 16))
- 		goto out;
- 
- 	ns = pch_rx_snap_read(pdev);
--- 
-2.30.2
-
+ int __i915_vma_pin_fence(struct i915_vma *vma)
 
 
