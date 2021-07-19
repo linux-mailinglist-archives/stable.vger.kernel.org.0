@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73AEB3CDA7A
+	by mail.lfdr.de (Postfix) with ESMTP id BD1B63CDA7B
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243783AbhGSOgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
+        id S244550AbhGSOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343499AbhGSOe6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343496AbhGSOe6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:34:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC256120E;
-        Mon, 19 Jul 2021 15:15:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A2A860551;
+        Mon, 19 Jul 2021 15:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707705;
-        bh=W4ByK9wkQG1cSVbGIN/eHosYp9Dpk8vAUElkANoImus=;
+        s=korg; t=1626707708;
+        bh=bvm33jyJXdQm3RZnaxOHMbicFaMy8Y6/9H7JfLGBDqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+oG6vUOKG8nCUooy/H3R33dvoX40oFr3yjsSabMhFCQyF6OcXXC0Ous3voPWFEL2
-         bj7LCAtLDnMy0Yv18oCWxHNouweUCbSU8SuO1uUuths6ATk+FH33ITRJUwKoeosa3S
-         xvZt5BlclWvFnFyOUJciI8Lbe7dQoPQ0rIBbj6Zk=
+        b=wG6i+chu2joei1Q3mXaFxMZRYDaYSFWn1GOEluceMZyY8S97/yECDt9sVCLSTzeHu
+         IwggBlLqJJM8xfsnSZd7VEj4KADSyB5n7PtXd7VuzypbKPNk4QqBrPESfwRmxOUMrx
+         RxRd7OMT2aKVaF65dgcow3HFT8UzI0APJ4XgNREI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 023/315] SUNRPC: Should wake up the privileged task firstly.
-Date:   Mon, 19 Jul 2021 16:48:32 +0200
-Message-Id: <20210719144943.646833040@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>
+Subject: [PATCH 4.14 024/315] s390/cio: dont call css_wait_for_slow_path() inside a lock
+Date:   Mon, 19 Jul 2021 16:48:33 +0200
+Message-Id: <20210719144943.678345747@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -40,52 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Vineeth Vijayan <vneethv@linux.ibm.com>
 
-commit 5483b904bf336948826594610af4c9bbb0d9e3aa upstream.
+commit c749d8c018daf5fba6dfac7b6c5c78b27efd7d65 upstream.
 
-When find a task from wait queue to wake up, a non-privileged task may
-be found out, rather than the privileged. This maybe lead a deadlock
-same as commit dfe1fe75e00e ("NFSv4: Fix deadlock between nfs4_evict_inode()
-and nfs4_opendata_get_inode()"):
+Currently css_wait_for_slow_path() gets called inside the chp->lock.
+The path-verification-loop of slowpath inside this lock could lead to
+deadlock as reported by the lockdep validator.
 
-Privileged delegreturn task is queued to privileged list because all
-the slots are assigned. If there has no enough slot to wake up the
-non-privileged batch tasks(session less than 8 slot), then the privileged
-delegreturn task maybe lost waked up because the found out task can't
-get slot since the session is on draining.
+The ccw_device_get_chp_desc() during the instance of a device-set-online
+would try to acquire the same 'chp->lock' to read the chp->desc.
+The instance of this function can get called from multiple scenario,
+like probing or setting-device online manually. This could, in some
+corner-cases lead to the deadlock.
 
-So we should treate the privileged task as the emergency task, and
-execute it as for as we can.
+lockdep validator reported this as,
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+        CPU0                    CPU1
+        ----                    ----
+   lock(&chp->lock);
+                                lock(kn->active#43);
+                                lock(&chp->lock);
+   lock((wq_completion)cio);
+
+The chp->lock was introduced to serialize the access of struct
+channel_path. This lock is not needed for the css_wait_for_slow_path()
+function, so invoke the slow-path function outside this lock.
+
+Fixes: b730f3a93395 ("[S390] cio: add lock to struct channel_path")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Oberparleiter <oberpar@linux.ibm.com>
+Signed-off-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sunrpc/sched.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/s390/cio/chp.c  |    3 +++
+ drivers/s390/cio/chsc.c |    2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -487,6 +487,15 @@ static struct rpc_task *__rpc_find_next_
- 	struct rpc_task *task;
+--- a/drivers/s390/cio/chp.c
++++ b/drivers/s390/cio/chp.c
+@@ -254,6 +254,9 @@ static ssize_t chp_status_write(struct d
+ 	if (!num_args)
+ 		return count;
  
- 	/*
-+	 * Service the privileged queue.
-+	 */
-+	q = &queue->tasks[RPC_NR_PRIORITY - 1];
-+	if (queue->maxpriority > RPC_PRIORITY_PRIVILEGED && !list_empty(q)) {
-+		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
-+		goto out;
-+	}
++	/* Wait until previous actions have settled. */
++	css_wait_for_slow_path();
 +
-+	/*
- 	 * Service a batch of tasks from a single owner.
+ 	if (!strncasecmp(cmd, "on", 2) || !strcmp(cmd, "1")) {
+ 		mutex_lock(&cp->lock);
+ 		error = s390_vary_chpid(cp->chpid, 1);
+--- a/drivers/s390/cio/chsc.c
++++ b/drivers/s390/cio/chsc.c
+@@ -769,8 +769,6 @@ int chsc_chp_vary(struct chp_id chpid, i
+ {
+ 	struct channel_path *chp = chpid_to_chp(chpid);
+ 
+-	/* Wait until previous actions have settled. */
+-	css_wait_for_slow_path();
+ 	/*
+ 	 * Redo PathVerification on the devices the chpid connects to
  	 */
- 	q = &queue->tasks[queue->priority];
 
 
