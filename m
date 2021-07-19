@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2E033CDCED
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA4A33CDD4D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239096AbhGSOyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45098 "EHLO mail.kernel.org"
+        id S244610AbhGSO5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:57:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243557AbhGSOv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:51:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 875E46121E;
-        Mon, 19 Jul 2021 15:32:07 +0000 (UTC)
+        id S239045AbhGSO4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:56:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01FA861166;
+        Mon, 19 Jul 2021 15:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708728;
-        bh=cNms/ac6UK9W2T2Q9O7GdGBv0hSXcsudHqSmrEYw310=;
+        s=korg; t=1626708842;
+        bh=PixDz5PfxA+JCUrWBu8bcADbB5TXSXqC+ObPbJyllNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuePi39juBQ9GHhMZ+gMFAn9J86r6gSQ2F0ynSvgAsnAG7f/o02tyci7yJWYP2Tzz
-         wXTvgJTIBmELWQLKScDbsTLcQ+Siahi60Vs04VM790nxr7NB43v2rHr9bqgr4xIxD/
-         ew7UU7NtkaX/fHVGGfLY/FDJ0kDKOylOaCHutoig=
+        b=fc0ANLIar0It6PSO/73VAYnhif0fweigy0NmmkZYwNAWnammuSQs4QTt5aqxO4N1o
+         zddbbnXghTRZoLqa6nVfLakjZgYn7o189VdlJb6J7KNQ/G+1xYAlzE1FtH1kGE20Nw
+         hL8KA9KbbkuDDJlsb+YQQ5PZM/tAqMvlfxNiL+Xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 106/421] media: tc358743: Fix error return code in tc358743_probe_of()
-Date:   Mon, 19 Jul 2021 16:48:37 +0200
-Message-Id: <20210719144950.261131110@linuxfoundation.org>
+Subject: [PATCH 4.19 107/421] media: gspca/gl860: fix zero-length control requests
+Date:   Mon, 19 Jul 2021 16:48:38 +0200
+Message-Id: <20210719144950.292269600@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,34 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit a6b1e7093f0a099571fc8836ab4a589633f956a8 ]
+[ Upstream commit 8ed339f23d41e21660a389adf2e7b2966d457ff6 ]
 
-When the CSI bps per lane is not in the valid range, an appropriate error
-code -EINVAL should be returned. However, we currently do not explicitly
-assign this error code to 'ret'. As a result, 0 was incorrectly returned.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Fixes: 256148246852 ("[media] tc358743: support probe from device tree")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Control transfers without a data stage are treated as OUT requests by
+the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+will now trigger a warning.
+
+Fix the gl860_RTx() helper so that zero-length control reads fail with
+an error message instead. Note that there are no current callers that
+would trigger this.
+
+Fixes: 4f7cb8837cec ("V4L/DVB (12954): gspca - gl860: Addition of GL860 based webcams")
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/tc358743.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/gspca/gl860/gl860.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
-index 041b16965b96..079b8db4bc48 100644
---- a/drivers/media/i2c/tc358743.c
-+++ b/drivers/media/i2c/tc358743.c
-@@ -1972,6 +1972,7 @@ static int tc358743_probe_of(struct tc358743_state *state)
- 	bps_pr_lane = 2 * endpoint->link_frequencies[0];
- 	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
- 		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
-+		ret = -EINVAL;
- 		goto disable_clk;
+diff --git a/drivers/media/usb/gspca/gl860/gl860.c b/drivers/media/usb/gspca/gl860/gl860.c
+index 262200af76a3..7da437e7785f 100644
+--- a/drivers/media/usb/gspca/gl860/gl860.c
++++ b/drivers/media/usb/gspca/gl860/gl860.c
+@@ -573,8 +573,8 @@ int gl860_RTx(struct gspca_dev *gspca_dev,
+ 					len, 400 + 200 * (len > 1));
+ 			memcpy(pdata, gspca_dev->usb_buf, len);
+ 		} else {
+-			r = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+-					req, pref, val, index, NULL, len, 400);
++			gspca_err(gspca_dev, "zero-length read request\n");
++			r = -EINVAL;
+ 		}
  	}
  
 -- 
