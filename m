@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4433CD774
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A37C13CD776
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241732AbhGSOQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:16:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49626 "EHLO mail.kernel.org"
+        id S240385AbhGSOQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:16:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241650AbhGSOQn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:16:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E46461175;
-        Mon, 19 Jul 2021 14:57:21 +0000 (UTC)
+        id S241676AbhGSOQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:16:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7B24610F7;
+        Mon, 19 Jul 2021 14:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706642;
-        bh=WeMnDraM7T103alnbGAvN8eaYx0y/ydJ1naFAKo6x0I=;
+        s=korg; t=1626706644;
+        bh=FSyh4ATv5z5J1QHnSLtm7oz7ME9uM7NWV2nCpkUkoMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QO8tTijEj15G0miQSeRYSEH/MywRqCrCBpeNKPFVBcIcpPwdjxkp9yAyGETe8731J
-         +zAL9EbDsM20qsCfhEBwr1Dky8jTUeCojtCWt6I81iMpyA9ZNvMlePKekdX2Q9LSTV
-         v3CWqU8+A6rB0JxWqJX054KMTXAhTmC12gXXaiEo=
+        b=DCE4v99kvHHI5bgHYN30sV8Hp07i/7mLN6HhWpX6L77TMVKK+B9kvCA+mNzre9st3
+         /SWi0PEIKDdvBTT0n4JsNqFOh/ld1//0m2BvMg9oqleYwtEbeVQTScN0VLCnqKtBt2
+         PgKq7zH43TkSh2h3afWqigV95ifeor55wa7VB7b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
-        Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 033/188] crypto: qat - remove unused macro in FW loader
-Date:   Mon, 19 Jul 2021 16:50:17 +0200
-Message-Id: <20210719144920.803251349@linuxfoundation.org>
+Subject: [PATCH 4.4 034/188] media: v4l2-core: Avoid the dangling pointer in v4l2_fh_release
+Date:   Mon, 19 Jul 2021 16:50:18 +0200
+Message-Id: <20210719144921.033366722@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -42,40 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
+[ Upstream commit 7dd0c9e547b6924e18712b6b51aa3cba1896ee2c ]
 
-Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
-loader.
+A use after free bug caused by the dangling pointer
+filp->privitate_data in v4l2_fh_release.
+See https://lore.kernel.org/patchwork/patch/1419058/.
 
-This is to fix the following warning when compiling the driver using the
-clang compiler with CC=clang W=2:
+My patch sets the dangling pointer to NULL to provide
+robust.
 
-    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-fh.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
-index 923bb1988973..28e642959a9a 100644
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -360,7 +360,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
+diff --git a/drivers/media/v4l2-core/v4l2-fh.c b/drivers/media/v4l2-core/v4l2-fh.c
+index 1d076deb05a9..ce844ecc3340 100644
+--- a/drivers/media/v4l2-core/v4l2-fh.c
++++ b/drivers/media/v4l2-core/v4l2-fh.c
+@@ -107,6 +107,7 @@ int v4l2_fh_release(struct file *filp)
+ 		v4l2_fh_del(fh);
+ 		v4l2_fh_exit(fh);
+ 		kfree(fh);
++		filp->private_data = NULL;
+ 	}
  	return 0;
  }
- 
--#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
- static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
- 				   struct icp_qat_uof_initmem *init_mem)
- {
 -- 
 2.30.2
 
