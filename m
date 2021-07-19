@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 013E23CE0DB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 580493CE2C9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346895AbhGSPSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:18:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
+        id S237104AbhGSPcE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:32:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346612AbhGSPO5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C494D60FE9;
-        Mon, 19 Jul 2021 15:55:33 +0000 (UTC)
+        id S1348237AbhGSPaN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:30:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F1846613DF;
+        Mon, 19 Jul 2021 16:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710134;
-        bh=OU7RHW8RCJ20JtwD/Ek2scsCmITqJZlaW4FZJH/iKEk=;
+        s=korg; t=1626710958;
+        bh=rmi9s/x2tyhycHO8DxNQB8FZGrm8bIHajaa5Khfl9Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eg8vWmwcqCUwa+kuNhoO0qv4typnX24YPDyUVyNOhUkX7knLYEwlnMWFSrZEX2vLs
-         d/zAsjuOcsr2l380wb9OPctKk/RemUlIencaIoZYFKV7Qz1YcY+ML1E4ItZUsmDEi+
-         oihAEA260S5IGPNwV4IIuV8HAZRqbh5ICCXHSj0A=
+        b=gghCeQmlG5gq7jzzMFoNPzRYpwUCh9JNK8FOcwviVdsxt23SgjT6iat8rforw1J3K
+         yHZByzao/5PiTwUXh/Lpvfqm0vSLDCscKRPecI7zsfbuRqBIWjirnQVM8c8XhOTWUw
+         wd6QrkjFqG02lIu+ig5dIaKUP76OU4XYRgHY36m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Siddharth Gupta <sidgup@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/243] s390/mem_detect: fix tprot() program check new psw handling
-Date:   Mon, 19 Jul 2021 16:51:59 +0200
-Message-Id: <20210719144943.799030742@linuxfoundation.org>
+Subject: [PATCH 5.13 174/351] remoteproc: core: Fix cdev remove and rproc del
+Date:   Mon, 19 Jul 2021 16:52:00 +0200
+Message-Id: <20210719144950.732348342@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,77 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Siddharth Gupta <sidgup@codeaurora.org>
 
-[ Upstream commit da9057576785aaab52e706e76c0475c85b77ec14 ]
+[ Upstream commit 930eec0be20c93a53160c74005a1485a230e6911 ]
 
-The tprot() inline asm temporarily changes the program check new psw
-to redirect a potential program check on the diag instruction.
-Restoring of the program check new psw is done in C code behind the
-inline asm.
+The rproc_char_device_remove() call currently unmaps the cdev
+region instead of simply deleting the cdev that was added as a
+part of the rproc_char_device_add() call. This change fixes that
+behaviour, and also fixes the order in which device_del() and
+cdev_del() need to be called.
 
-This can be problematic, especially if the function is inlined, since
-the compiler can reorder instructions in such a way that a different
-instruction, which may result in a program check, might be executed
-before the program check new psw has been restored.
-
-To avoid such a scenario move restoring into the inline asm. For
-consistency reasons move also saving of the original program check new
-psw into the inline asm.
-
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Siddharth Gupta <sidgup@codeaurora.org>
+Link: https://lore.kernel.org/r/1623723671-5517-4-git-send-email-sidgup@codeaurora.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/mem_detect.c | 28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ drivers/remoteproc/remoteproc_cdev.c | 2 +-
+ drivers/remoteproc/remoteproc_core.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/mem_detect.c b/arch/s390/boot/mem_detect.c
-index 032d68165216..85049541c191 100644
---- a/arch/s390/boot/mem_detect.c
-+++ b/arch/s390/boot/mem_detect.c
-@@ -115,24 +115,30 @@ static int diag260(void)
+diff --git a/drivers/remoteproc/remoteproc_cdev.c b/drivers/remoteproc/remoteproc_cdev.c
+index 0b8a84c04f76..4ad98b0b8caa 100644
+--- a/drivers/remoteproc/remoteproc_cdev.c
++++ b/drivers/remoteproc/remoteproc_cdev.c
+@@ -124,7 +124,7 @@ int rproc_char_device_add(struct rproc *rproc)
  
- static int tprot(unsigned long addr)
+ void rproc_char_device_remove(struct rproc *rproc)
  {
--	unsigned long pgm_addr;
-+	unsigned long reg1, reg2;
- 	int rc = -EFAULT;
--	psw_t old = S390_lowcore.program_new_psw;
-+	psw_t old;
- 
--	S390_lowcore.program_new_psw.mask = __extract_psw();
- 	asm volatile(
--		"	larl	%[pgm_addr],1f\n"
--		"	stg	%[pgm_addr],%[psw_pgm_addr]\n"
-+		"	mvc	0(16,%[psw_old]),0(%[psw_pgm])\n"
-+		"	epsw	%[reg1],%[reg2]\n"
-+		"	st	%[reg1],0(%[psw_pgm])\n"
-+		"	st	%[reg2],4(%[psw_pgm])\n"
-+		"	larl	%[reg1],1f\n"
-+		"	stg	%[reg1],8(%[psw_pgm])\n"
- 		"	tprot	0(%[addr]),0\n"
- 		"	ipm	%[rc]\n"
- 		"	srl	%[rc],28\n"
--		"1:\n"
--		: [pgm_addr] "=&d"(pgm_addr),
--		  [psw_pgm_addr] "=Q"(S390_lowcore.program_new_psw.addr),
--		  [rc] "+&d"(rc)
--		: [addr] "a"(addr)
-+		"1:	mvc	0(16,%[psw_pgm]),0(%[psw_old])\n"
-+		: [reg1] "=&d" (reg1),
-+		  [reg2] "=&a" (reg2),
-+		  [rc] "+&d" (rc),
-+		  "=Q" (S390_lowcore.program_new_psw.addr),
-+		  "=Q" (old)
-+		: [psw_old] "a" (&old),
-+		  [psw_pgm] "a" (&S390_lowcore.program_new_psw),
-+		  [addr] "a" (addr)
- 		: "cc", "memory");
--	S390_lowcore.program_new_psw = old;
- 	return rc;
+-	__unregister_chrdev(MAJOR(rproc->dev.devt), rproc->index, 1, "remoteproc");
++	cdev_del(&rproc->cdev);
  }
  
+ void __init rproc_init_cdev(void)
+diff --git a/drivers/remoteproc/remoteproc_core.c b/drivers/remoteproc/remoteproc_core.c
+index 626a6b90fba2..203e2bd8ebb4 100644
+--- a/drivers/remoteproc/remoteproc_core.c
++++ b/drivers/remoteproc/remoteproc_core.c
+@@ -2602,7 +2602,6 @@ int rproc_del(struct rproc *rproc)
+ 	mutex_unlock(&rproc->lock);
+ 
+ 	rproc_delete_debug_dir(rproc);
+-	rproc_char_device_remove(rproc);
+ 
+ 	/* the rproc is downref'ed as soon as it's removed from the klist */
+ 	mutex_lock(&rproc_list_mutex);
+@@ -2613,6 +2612,7 @@ int rproc_del(struct rproc *rproc)
+ 	synchronize_rcu();
+ 
+ 	device_del(&rproc->dev);
++	rproc_char_device_remove(rproc);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
