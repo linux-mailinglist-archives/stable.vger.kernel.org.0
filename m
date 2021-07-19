@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 717B33CDFDF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F02443CDC46
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345739AbhGSPMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47400 "EHLO mail.kernel.org"
+        id S237553AbhGSOv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345438AbhGSPKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16A0E6120E;
-        Mon, 19 Jul 2021 15:51:20 +0000 (UTC)
+        id S1344235AbhGSOsn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FD9460720;
+        Mon, 19 Jul 2021 15:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709881;
-        bh=O4J8QoEERd6GnFu29lmxaZSXoFJjy5YXIk8dGSABdNQ=;
+        s=korg; t=1626708440;
+        bh=i+G2kUEBmi+G1M3L2rdcYPgBks09r0PBN1osL1oZ6HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPUU55O2SJh2MrvL5zQojzsya27qrTpJDRqoty0S46QsqD9P+MUhRbiPw8Keu5R9w
-         Xd4NLwbg4nlQBhNda/02VNSBlUewzwQYF8nQ0aA9NBrKodxZTM1treAalyD1VYAMef
-         G3+J8dEXouhSEGlUTM2vDXGyjt5jrj8yb7XO3dDM=
+        b=U5f4DABMY82GRLdMLauahlZGyk7/HH3TQkYM4GRt4bPEWPEgD81DQ60zANk4Qnms5
+         5Df6i5ZXUrvQTT50eAsxVF5AANddz+McpUs2l2wDIgTGMd55eeTCshg3vXEY95YKOp
+         wNOLnG6WyL0eDZ+Cw/DcR089QPfdxvilJdt+bC1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 092/149] ACPI: video: Add quirk for the Dell Vostro 3350
+Subject: [PATCH 4.14 311/315] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
 Date:   Mon, 19 Jul 2021 16:53:20 +0200
-Message-Id: <20210719144923.177456148@linuxfoundation.org>
+Message-Id: <20210719144953.709293484@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 9249c32ec9197e8d34fe5179c9e31668a205db04 ]
+[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
 
-The Dell Vostro 3350 ACPI video-bus device reports spurious
-ACPI_VIDEO_NOTIFY_CYCLE events resulting in spurious KEY_SWITCHVIDEOMODE
-events being reported to userspace (and causing trouble there).
+If an error occurs after a pci_enable_pcie_error_reporting() call, it must
+be undone by a corresponding pci_disable_pcie_error_reporting() call, as
+already done in the remove function.
 
-Add a quirk setting the report_key_events mask to
-REPORT_BRIGHTNESS_KEY_EVENTS so that the ACPI_VIDEO_NOTIFY_CYCLE
-events will be ignored, while still reporting brightness up/down
-hotkey-presses to userspace normally.
-
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1911763
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
+Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_video.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/scsi/be2iscsi/be_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
-index 4f325e47519f..81cd47d29932 100644
---- a/drivers/acpi/acpi_video.c
-+++ b/drivers/acpi/acpi_video.c
-@@ -543,6 +543,15 @@ static const struct dmi_system_id video_dmi_table[] = {
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
- 		},
- 	},
-+	{
-+	 .callback = video_set_report_key_events,
-+	 .driver_data = (void *)((uintptr_t)REPORT_BRIGHTNESS_KEY_EVENTS),
-+	 .ident = "Dell Vostro 3350",
-+	 .matches = {
-+		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-+		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 3350"),
-+		},
-+	},
- 	/*
- 	 * Some machines change the brightness themselves when a brightness
- 	 * hotkey gets pressed, despite us telling them not to. In this case
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index d7ed1ec02f5e..a1fd8a7fa48c 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -5737,6 +5737,7 @@ hba_free:
+ 	pci_disable_msix(phba->pcidev);
+ 	pci_dev_put(phba->pcidev);
+ 	iscsi_host_free(phba->shost);
++	pci_disable_pcie_error_reporting(pcidev);
+ 	pci_set_drvdata(pcidev, NULL);
+ disable_pci:
+ 	pci_release_regions(pcidev);
 -- 
 2.30.2
 
