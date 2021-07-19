@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C28ED3CE56A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95AB73CE567
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348986AbhGSPuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:50:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1348850AbhGSPty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241398AbhGSPpw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8557F61241;
-        Mon, 19 Jul 2021 16:26:30 +0000 (UTC)
+        id S1347473AbhGSPpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 225D661166;
+        Mon, 19 Jul 2021 16:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711991;
-        bh=iFhZyRV7lZQbMHM8bHTJb/6W0PI8rM3JZYrMKvNCRGQ=;
+        s=korg; t=1626711993;
+        bh=scFsY1NGDBz0F+RDxTz8nFdjYLG0Qt4hPIotrS/R4x0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=noym6J22o/UE2oF/FumNoT+io6n98pceBn2TOzGN0XfpApJc20soj8hDaWOmKDq3W
-         Z2wFg0oKF6aTLeaTtlf3bdc/0EIZu+rVHJJCqUWxQ3VCGGxr4sxqH1+nN4Ti0ejPaX
-         5gZrrauJOAxHx5YgKRK3qFKq3QDx/7OKhFok8qc4=
+        b=JqRxXpP7X/pz3GuI5NXVLv+6LKAxFm6FknT6Zt2ex2q+X5NEW2wgjPwp5ehgDNBIG
+         c6fwaRBxAM3/wYqtffL98fJ1RmTo2aBs5gOz7PAfuA/207RMqIAen/Gp7WjJp8D3F7
+         tJzJAFfbEVuzjTK09IfDKzl0I3oD7Ad8+CBeDyFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Jason Wang <jasowang@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 208/292] vdpa/mlx5: Fix umem sizes assignments on VQ create
-Date:   Mon, 19 Jul 2021 16:54:30 +0200
-Message-Id: <20210719144949.840129540@linuxfoundation.org>
+Subject: [PATCH 5.12 209/292] vdpa/mlx5: Fix possible failure in umem size calculation
+Date:   Mon, 19 Jul 2021 16:54:31 +0200
+Message-Id: <20210719144949.872070943@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,39 +43,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit e3011776af16caf423f2c36d0047acd624c274fa ]
+[ Upstream commit 71ab6a7cfbae27f86a3901daab10bfe13b3a1e3a ]
 
-Fix copy paste bug assigning umem1 size to umem2 and umem3. The issue
-was discovered when trying to use a 1:1 MR that covers the entire
-address space where firmware complained that provided sizes are not
-large enough. 1:1 MRs are required to support virtio_vdpa.
+umem size is a 32 bit unsigned value so assigning it to an int could
+cause false failures. Set the calculated value inside the function and
+modify function name to reflect the fact it updates the size.
+
+This bug was found during code review but never had real impact to this
+date.
 
 Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
 Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20210530090317.8284-1-elic@nvidia.com
+Link: https://lore.kernel.org/r/20210530090349.8360-1-elic@nvidia.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index a0e86c5d7cd7..fc7834a34695 100644
+index fc7834a34695..d5ea956a3a3a 100644
 --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -829,9 +829,9 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
- 	MLX5_SET(virtio_q, vq_ctx, umem_1_id, mvq->umem1.id);
- 	MLX5_SET(virtio_q, vq_ctx, umem_1_size, mvq->umem1.size);
- 	MLX5_SET(virtio_q, vq_ctx, umem_2_id, mvq->umem2.id);
--	MLX5_SET(virtio_q, vq_ctx, umem_2_size, mvq->umem1.size);
-+	MLX5_SET(virtio_q, vq_ctx, umem_2_size, mvq->umem2.size);
- 	MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
--	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem1.size);
-+	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
- 	MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
- 	if (MLX5_CAP_DEV_VDPA_EMULATION(ndev->mvdev.mdev, eth_frame_offload_type))
- 		MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0, 1);
+@@ -611,8 +611,8 @@ static void cq_destroy(struct mlx5_vdpa_net *ndev, u16 idx)
+ 	mlx5_db_free(ndev->mvdev.mdev, &vcq->db);
+ }
+ 
+-static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
+-		     struct mlx5_vdpa_umem **umemp)
++static void set_umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
++			  struct mlx5_vdpa_umem **umemp)
+ {
+ 	struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
+ 	int p_a;
+@@ -635,7 +635,7 @@ static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq
+ 		*umemp = &mvq->umem3;
+ 		break;
+ 	}
+-	return p_a * mvq->num_ent + p_b;
++	(*umemp)->size = p_a * mvq->num_ent + p_b;
+ }
+ 
+ static void umem_frag_buf_free(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_umem *umem)
+@@ -651,15 +651,10 @@ static int create_umem(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
+ 	void *in;
+ 	int err;
+ 	__be64 *pas;
+-	int size;
+ 	struct mlx5_vdpa_umem *umem;
+ 
+-	size = umem_size(ndev, mvq, num, &umem);
+-	if (size < 0)
+-		return size;
+-
+-	umem->size = size;
+-	err = umem_frag_buf_alloc(ndev, umem, size);
++	set_umem_size(ndev, mvq, num, &umem);
++	err = umem_frag_buf_alloc(ndev, umem, umem->size);
+ 	if (err)
+ 		return err;
+ 
 -- 
 2.30.2
 
