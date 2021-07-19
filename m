@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC2A3CE37D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A71983CE283
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346259AbhGSPin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S1347807AbhGSPao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348805AbhGSPfb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3927D61175;
-        Mon, 19 Jul 2021 16:14:46 +0000 (UTC)
+        id S1348019AbhGSPYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B33A6113E;
+        Mon, 19 Jul 2021 16:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711286;
-        bh=+dpuHWWPT+l1VZQL7B14BNrXE1GXw3v2R11JJJr8Qi4=;
+        s=korg; t=1626710435;
+        bh=cRYCjUdDlhOq4YgUVWWEjwCkCoRdUvLBX1KFsmpGVtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoMRFiXWkx17fMS++vKtKRPcDFzjl1//YxBjItirxuzBvTiW5nhrTpN3V9yUrJpre
-         kx+OiR3MxqGg+RAMTAYzRMxDX+bHkyPQ+OxJyoD2/DD6duOFURguI2/OtDzDiTRHw8
-         KXw5DXSmtH/+HTzySglx0+ZeXbT+QI8ASLVmhK8k=
+        b=ScboHwpNehzaNaz4nt5hb0PIKXbZyOzsEAXaWk8NSuUkSOGzzYSeyAfKQghzNP/vD
+         PsIDT2p6nbHtv7ZDJzuHoi91AiboX+Po4QAqMTFdN9+MsG/hXGxnpJHeENtFy2gOK5
+         yZPg0QJ9i2fDHQsrz/XdUX5LIqtGl+kJp8E9Ben4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Geert Uytterhoeven <geert+renesas@glider.be>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 297/351] arm64: dts: renesas: r8a7796[01]: Fix OPP table entry voltages
+Subject: [PATCH 5.10 214/243] arm64: dts: renesas: r8a779a0: Drop power-domains property from GIC node
 Date:   Mon, 19 Jul 2021 16:54:03 +0200
-Message-Id: <20210719144954.868834307@linuxfoundation.org>
+Message-Id: <20210719144947.829704160@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,76 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 659b38203f04f5c3d1dc60f1a3e54b582ad3841c ]
+[ Upstream commit 1771a33b34421050c7b830f0a8af703178ba9d36 ]
 
-Correct the voltages in the "Power Optimized" (<= 1.5 GHz) Cortex-A57
-operating point table entries for the R-Car M3-W and M3-W+ SoCs from
-0.82V to 0.83V, as per the R-Car Gen3 EC Manual Errata for Revision
-0.53.
+"make dtbs_check":
 
-Based on a patch for R-Car M3-W in the BSP by Takeshi Kihara
-<takeshi.kihara.df@renesas.com>.
+    arm64/boot/dts/renesas/r8a779a0-falcon.dt.yaml: interrupt-controller@f1000000: 'power-domains' does not match any of the regexes: '^(msi-controller|gic-its|interrupt-controller)@[0-9a-f]+$', '^gic-its@', '^interrupt-controller@[0-9a-f]+$', 'pinctrl-[0-9]+'
+	    From schema: Documentation/devicetree/bindings/interrupt-controller/arm,gic-v3.yaml
 
-Fixes: da7e3113344fda50 ("arm64: dts: renesas: r8a7796: Add OPPs table for cpu devices")
-Fixes: f51746ad7d1ff6b4 ("arm64: dts: renesas: Add Renesas R8A77961 SoC support")
+Remove the "power-domains" property, as the GIC on R-Car V3U is
+always-on, and not part of a clock domain.
+
+Fixes: 834c310f541839b6 ("arm64: dts: renesas: Add Renesas R8A779A0 SoC support")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/b9e9db907514790574429b83d070c823b36085ef.1619699909.git.geert+renesas@glider.be
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/a9ae5cbc7c586bf2c6b18ddc665ad7051bd1d206.1622560236.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a77960.dtsi | 6 +++---
- arch/arm64/boot/dts/renesas/r8a77961.dtsi | 6 +++---
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ arch/arm64/boot/dts/renesas/r8a779a0.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77960.dtsi b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-index cc09c5c652fa..a91a42c57484 100644
---- a/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77960.dtsi
-@@ -63,17 +63,17 @@
+diff --git a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+index 86ec32a919d2..bfbb53bf5375 100644
+--- a/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
++++ b/arch/arm64/boot/dts/renesas/r8a779a0.dtsi
+@@ -111,7 +111,6 @@
+ 			      <0x0 0xf1060000 0 0x110000>;
+ 			interrupts = <GIC_PPI 9
+ 				      (GIC_CPU_MASK_SIMPLE(1) | IRQ_TYPE_LEVEL_HIGH)>;
+-			power-domains = <&sysc R8A779A0_PD_ALWAYS_ON>;
+ 		};
  
- 		opp-500000000 {
- 			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 		};
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 		};
- 		opp-1500000000 {
- 			opp-hz = /bits/ 64 <1500000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 			opp-suspend;
- 		};
-diff --git a/arch/arm64/boot/dts/renesas/r8a77961.dtsi b/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-index 7d1333b9b92b..7f9d5c360522 100644
---- a/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77961.dtsi
-@@ -52,17 +52,17 @@
- 
- 		opp-500000000 {
- 			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 		};
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 		};
- 		opp-1500000000 {
- 			opp-hz = /bits/ 64 <1500000000>;
--			opp-microvolt = <820000>;
-+			opp-microvolt = <830000>;
- 			clock-latency-ns = <300000>;
- 			opp-suspend;
- 		};
+ 		prr: chipid@fff00044 {
 -- 
 2.30.2
 
