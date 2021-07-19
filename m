@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6110D3CD7EA
+	by mail.lfdr.de (Postfix) with ESMTP id F35243CD7EB
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242294AbhGSOTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:19:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54536 "EHLO mail.kernel.org"
+        id S242583AbhGSOTg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:19:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242322AbhGSOSy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A760A60FDC;
-        Mon, 19 Jul 2021 14:59:33 +0000 (UTC)
+        id S242492AbhGSOTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:19:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3E426008E;
+        Mon, 19 Jul 2021 14:59:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706774;
-        bh=3BCe4+Z8RxNVK5gi1KlTtwLqAnInCNoxtrPH5pPTyJ8=;
+        s=korg; t=1626706799;
+        bh=kp4kIPQlo9GTQ8+tb3yPPtJnBKD14p1D8LMeZngbT5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vQ9gcAGfZQ9nqTgDypmMwivgz43IhUjuDh8FDCL5C0LaB3yeLVhStL4/oOdqI3aFC
-         91Vy8A3/a1mRmK4hLwsh1imCYC2OipJe+LfZkDCccJlrwmbYQUINkRoM9T6qurxX1L
-         nQEHJ0ezUGOMTgiEd0bVAj0Q/qwSSjDyAy24XkT8=
+        b=d61XMZQ0KOl9LNUoeYsrE1u/78YEaq/Jk/eDg+9+8O8ih5vbXrpMBMDuInxA1SwVE
+         khcjHgjGg21EferfjJFh+QEjrd63sIYWU2+fpSOmMciDA2TZfK3sFP9oSb9nYCtXhW
+         HttuXtEGPE+1HNu9s/6nDtR9K3XGaI0Ny8JuhWtI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>, Tejun Heo <tj@kernel.org>,
-        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 075/188] writeback: fix obtain a reference to a freeing memcg css
-Date:   Mon, 19 Jul 2021 16:50:59 +0200
-Message-Id: <20210719144930.532905872@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 076/188] tty: nozomi: Fix a resource leak in an error handling function
+Date:   Mon, 19 Jul 2021 16:51:00 +0200
+Message-Id: <20210719144930.796674043@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,59 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8b0ed8443ae6458786580d36b7d5f8125535c5d4 ]
+[ Upstream commit 31a9a318255960d32ae183e95d0999daf2418608 ]
 
-The caller of wb_get_create() should pin the memcg, because
-wb_get_create() relies on this guarantee. The rcu read lock
-only can guarantee that the memcg css returned by css_from_id()
-cannot be released, but the reference of the memcg can be zero.
+A 'request_irq()' call is not balanced by a corresponding 'free_irq()' in
+the error handling path, as already done in the remove function.
 
-  rcu_read_lock()
-  memcg_css = css_from_id()
-  wb_get_create(memcg_css)
-      cgwb_create(memcg_css)
-          // css_get can change the ref counter from 0 back to 1
-          css_get(memcg_css)
-  rcu_read_unlock()
+Add it.
 
-Fix it by holding a reference to the css before calling
-wb_get_create(). This is not a problem I encountered in the
-real world. Just the result of a code review.
-
-Fixes: 682aa8e1a6a1 ("writeback: implement unlocked_inode_to_wb transaction and use it for stat updates")
-Link: https://lore.kernel.org/r/20210402091145.80635-1-songmuchun@bytedance.com
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jan Kara <jack@suse.cz>
+Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/4f0d2b3038e82f081d370ccb0cade3ad88463fe7.1620580838.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fs-writeback.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/tty/nozomi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 958a1bd0b5fc..0ce7ff7a2ce8 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -512,9 +512,14 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
- 	/* find and pin the new wb */
- 	rcu_read_lock();
- 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
--	if (memcg_css)
--		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
-+	if (memcg_css && !css_tryget(memcg_css))
-+		memcg_css = NULL;
- 	rcu_read_unlock();
-+	if (!memcg_css)
-+		goto out_free;
-+
-+	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
-+	css_put(memcg_css);
- 	if (!isw->new_wb)
- 		goto out_free;
- 
+diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
+index 5cc80b80c82b..880cfc780e67 100644
+--- a/drivers/tty/nozomi.c
++++ b/drivers/tty/nozomi.c
+@@ -1479,6 +1479,7 @@ err_free_tty:
+ 		tty_unregister_device(ntty_driver, dc->index_start + i);
+ 		tty_port_destroy(&dc->port[i].port);
+ 	}
++	free_irq(pdev->irq, dc);
+ err_free_kfifo:
+ 	for (i = 0; i < MAX_PORT; i++)
+ 		kfifo_free(&dc->port[i].fifo_ul);
 -- 
 2.30.2
 
