@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FAE3CDA54
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BB7C3CDBE1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242978AbhGSOff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S237597AbhGSOuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245575AbhGSOeq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C1761355;
-        Mon, 19 Jul 2021 15:14:22 +0000 (UTC)
+        id S1344159AbhGSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9660B61405;
+        Mon, 19 Jul 2021 15:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707663;
-        bh=TNFVtHoJc3PqwJwXyaoHT9IFm9G1RO35rNOmgMwLZag=;
+        s=korg; t=1626708422;
+        bh=gpjRWjPbeNOVff751auNa6T17/9i/Z6JF3WyIgzwXyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rx7bvrYxF+ZxYeDs61t7QrUZHOxGCqamMdTIiiOtJsnW9YZglxv8uFrYcaCWRHKqu
-         VppA9Nmh1H46XQLLrETuPL2wNWXa33h0oFSl+kd9Fo0FNnsP0wRiZ9kUOLNfCmpJQ7
-         ILKkr8u8JqHGLW5IM8Ee9JqrYMAYxiyiqZQ84NdE=
+        b=U+hMi17rbyjcThfYRO6yZKah310thulqock+Lcfzto+OLWouYJ9P4XKkxf1zFVHq8
+         LY0vLEt5z592vZWYDWdCoURW3YrCxLZqzl7S77gWPR1cv1pi0uiF3RxqzWY+OxXyhC
+         7zZgGuAcnsZp/ermbZKvwDpGlE56KqAZBn1uJWdc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 245/245] MIPS: vdso: Invalid GIC access through VDSO
-Date:   Mon, 19 Jul 2021 16:53:07 +0200
-Message-Id: <20210719144948.279281452@linuxfoundation.org>
+Subject: [PATCH 4.14 305/315] arm64: dts: qcom: msm8994-angler: Fix gpio-reserved-ranges 85-88
+Date:   Mon, 19 Jul 2021 16:53:14 +0200
+Message-Id: <20210719144953.504491331@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fäcknitz <faecknitz@hotsplots.de>
+From: Petr Vorel <petr.vorel@gmail.com>
 
-[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
+[ Upstream commit f890f89d9a80fffbfa7ca791b78927e5b8aba869 ]
 
-Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
-doesn't return the correct time when using the GIC as clock source.
-The address of the GIC mapped page is in this case not calculated
-correctly. The GIC mapped page is calculated from the VDSO data by
-subtracting PAGE_SIZE:
+Reserve GPIO pins 85-88 as these aren't meant to be accessible from the
+application CPUs (causes reboot). Yet another fix similar to
+9134586715e3, 5f8d3ab136d0, which is needed to allow angler to boot after
+3edfb7bd76bd ("gpiolib: Show correct direction from the beginning").
 
-  void *get_gic(const struct vdso_data *data) {
-    return (void __iomem *)data - PAGE_SIZE;
-  }
+Fixes: feeaf56ac78d ("arm64: dts: msm8994 SoC and Huawei Angler (Nexus 6P) support")
 
-However, the data pointer is not page aligned for raw clock sources.
-This is because the VDSO data for raw clock sources (CS_RAW = 1) is
-stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
-Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
-
-  +--------------------+
-  |                    |
-  | vd[CS_RAW]         | ---+
-  | vd[CS_HRES_COARSE] |    |
-  +--------------------+    | -PAGE_SIZE
-  |                    |    |
-  |  GIC mapped page   | <--+
-  |                    |
-  +--------------------+
-
-When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
-the wrong address (somewhere inside the GIC mapped page). The GIC counter
-values are not returned which results in an invalid time.
-
-Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
-Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210415193913.1836153-1-petr.vorel@gmail.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/vdso.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
-index cfb1be441dec..921589b45bc2 100644
---- a/arch/mips/vdso/vdso.h
-+++ b/arch/mips/vdso/vdso.h
-@@ -81,7 +81,7 @@ static inline const union mips_vdso_data *get_vdso_data(void)
- 
- static inline void __iomem *get_gic(const union mips_vdso_data *data)
- {
--	return (void __iomem *)data - PAGE_SIZE;
-+	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
- }
- 
- #endif /* CONFIG_CLKSRC_MIPS_GIC */
+diff --git a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+index dfa08f513dc4..e5850c4d3334 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+@@ -38,3 +38,7 @@
+ 		};
+ 	};
+ };
++
++&tlmm {
++	gpio-reserved-ranges = <85 4>;
++};
 -- 
 2.30.2
 
