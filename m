@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0279C3CD9A2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE9E23CD883
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242572AbhGSObJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
+        id S243207AbhGSOWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244627AbhGSO3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3F98610A5;
-        Mon, 19 Jul 2021 15:10:25 +0000 (UTC)
+        id S242987AbhGSOVe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03314611EF;
+        Mon, 19 Jul 2021 15:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707426;
-        bh=h5X+EMdnC2GQdjiE1tA20XIae1Z0Ner1jQZ/slzmXOo=;
+        s=korg; t=1626706922;
+        bh=LN1AtvVyV5WbCWvPHZo2WiTaP2uHUMqCLCm0xSGamBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GoUXHv2ZgqEiddqpVfuui/vxdNSxtNMcosWyotsGOVYoFjsgy0DUyKUFc5vxdmXMg
-         zxDKFvr2JK6pGAxhu441VVQq2JBjDs7fuU7DMZG0aorwhx3b7SumqF+/pQBDAFgw7z
-         KAGviM3p5pMlAWLNGFr9RUpveb9Xexg9HeWe8FaE=
+        b=yyQtqqV4WcVV3ito8kye0f/18bq6S/Gx5V1uRdJoqXnjqWiuDMffjQ7sNgqvptHnO
+         wszVkI7KLuuIoNAe5CaTnp1VMClT8wzzXI8FjjUjSdekv95uEvAP43RnGHAwoHGzvT
+         BF4g8GOHMxmnGbOyY+y/IqN5H1SumsZ6ykKJS7tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com,
-        Norbert Slusarek <nslusarek@gmx.net>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 159/245] can: bcm: delay release of struct bcm_op after synchronize_rcu()
-Date:   Mon, 19 Jul 2021 16:51:41 +0200
-Message-Id: <20210719144945.545842189@linuxfoundation.org>
+        stable@vger.kernel.org, Gerd Rausch <gerd.rausch@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 118/188] RDMA/cma: Fix rdma_resolve_route() memory leak
+Date:   Mon, 19 Jul 2021 16:51:42 +0200
+Message-Id: <20210719144940.248062364@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,65 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Gerd Rausch <gerd.rausch@oracle.com>
 
-commit d5f9023fa61ee8b94f37a93f08e94b136cf1e463 upstream.
+[ Upstream commit 74f160ead74bfe5f2b38afb4fcf86189f9ff40c9 ]
 
-can_rx_register() callbacks may be called concurrently to the call to
-can_rx_unregister(). The callbacks and callback data, though, are
-protected by RCU and the struct sock reference count.
+Fix a memory leak when "mda_resolve_route() is called more than once on
+the same "rdma_cm_id".
 
-So the callback data is really attached to the life of sk, meaning
-that it should be released on sk_destruct. However, bcm_remove_op()
-calls tasklet_kill(), and RCU callbacks may be called under RCU
-softirq, so that cannot be used on kernels before the introduction of
-HRTIMER_MODE_SOFT.
+This is possible if cma_query_handler() triggers the
+RDMA_CM_EVENT_ROUTE_ERROR flow which puts the state machine back and
+allows rdma_resolve_route() to be called again.
 
-However, bcm_rx_handler() is called under RCU protection, so after
-calling can_rx_unregister(), we may call synchronize_rcu() in order to
-wait for any RCU read-side critical sections to finish. That is,
-bcm_rx_handler() won't be called anymore for those ops. So, we only
-free them, after we do that synchronize_rcu().
-
-Fixes: ffd980f976e7 ("[CAN]: Add broadcast manager (bcm) protocol")
-Link: https://lore.kernel.org/r/20210619161813.2098382-1-cascardo@canonical.com
-Cc: linux-stable <stable@vger.kernel.org>
-Reported-by: syzbot+0f7e7e5e2f4f40fa89c0@syzkaller.appspotmail.com
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
+Link: https://lore.kernel.org/r/f6662b7b-bdb7-2706-1e12-47c61d3474b6@oracle.com
+Signed-off-by: Gerd Rausch <gerd.rausch@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -839,6 +839,7 @@ static int bcm_delete_rx_op(struct list_
- 						  bcm_rx_handler, op);
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index b59a4a819aaa..b5e7bd23857e 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2227,7 +2227,8 @@ static int cma_resolve_ib_route(struct rdma_id_private *id_priv, int timeout_ms)
+ 	work->new_state = RDMA_CM_ROUTE_RESOLVED;
+ 	work->event.event = RDMA_CM_EVENT_ROUTE_RESOLVED;
  
- 			list_del(&op->list);
-+			synchronize_rcu();
- 			bcm_remove_op(op);
- 			return 1; /* done */
- 		}
-@@ -1589,9 +1590,13 @@ static int bcm_release(struct socket *so
- 					  REGMASK(op->can_id),
- 					  bcm_rx_handler, op);
- 
--		bcm_remove_op(op);
- 	}
- 
-+	synchronize_rcu();
-+
-+	list_for_each_entry_safe(op, next, &bo->rx_ops, list)
-+		bcm_remove_op(op);
-+
- 	/* remove procfs entry */
- 	if (proc_dir && bo->bcm_proc_read)
- 		remove_proc_entry(bo->procname, proc_dir);
+-	route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
++	if (!route->path_rec)
++		route->path_rec = kmalloc(sizeof *route->path_rec, GFP_KERNEL);
+ 	if (!route->path_rec) {
+ 		ret = -ENOMEM;
+ 		goto err1;
+-- 
+2.30.2
+
 
 
