@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D6873CD9FC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D178D3CD871
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245040AbhGSOcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46720 "EHLO mail.kernel.org"
+        id S243151AbhGSOW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:22:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239461AbhGSOay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B528C6024A;
-        Mon, 19 Jul 2021 15:11:32 +0000 (UTC)
+        id S242896AbhGSOVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDE9C6121E;
+        Mon, 19 Jul 2021 15:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707493;
-        bh=QeLUFQxy6JlMBjtj8OBi4oV5VQjWo0ufIQd5sr2UTYw=;
+        s=korg; t=1626706906;
+        bh=ZooaiZP7gBJNc5eCoLevqjyTXnHImwqSvzTDDGcJCE0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cF/kr7eCUFtl3hEx+WWus2OZznlbJ3taC09XeH2ydwe9CARtmkM0KyUgoEvJPzjpF
-         AUy524u39Yx41X+A4+P0WRmBqpOkxTksn7uhe4g+v92S7OwqwXFkPYIVbprtkI8YSg
-         /8FmQoFbFIVuA7XJVLl1JJqjnWuZuRMRcnTvhsAM=
+        b=QCKHa0n/AG71lbd382x/GVeUiZ9IwfDb4WWag8hI/eHRevDzvxfMOMsznAVnyMUcW
+         KdJc3VF+5wByfQ4H/3ekvIVu0OxgciAZ3pqJnPBNvLvTKS+fFQcI56tLnO7Qz4VTO0
+         xPlxF6msjIQIqp/vb8syk9Lj+490TT6DgyvuUV8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 187/245] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
+Subject: [PATCH 4.4 145/188] Revert "ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro"
 Date:   Mon, 19 Jul 2021 16:52:09 +0200
-Message-Id: <20210719144946.450989424@linuxfoundation.org>
+Message-Id: <20210719144941.232186790@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
-index f7b8dcb57815..da9874d54676 100644
+index fdc01466d143..4199cfc4a96a 100644
 --- a/sound/firewire/Kconfig
 +++ b/sound/firewire/Kconfig
 @@ -36,7 +36,7 @@ config SND_OXFW
@@ -75,8 +75,8 @@ index f7b8dcb57815..da9874d54676 100644
 +	   * Mackie(Loud) d.2 pro/d.4 pro (built-in FireWire card with OXFW971 ASIC)
  	   * Mackie(Loud) U.420/U.420d
  	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -82,7 +82,7 @@ config SND_BEBOB
+ 
+@@ -91,7 +91,7 @@ config SND_BEBOB
  	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
  	  * BridgeCo RDAudio1/Audio5
  	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
@@ -86,10 +86,10 @@ index f7b8dcb57815..da9874d54676 100644
  	  * Tascam IF-FW/DM
  	  * Behringer XENIX UFX 1204/1604
 diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
-index 9d620a7c283f..c51564213365 100644
+index 088250ff2429..64dca7931272 100644
 --- a/sound/firewire/bebob/bebob.c
 +++ b/sound/firewire/bebob/bebob.c
-@@ -414,7 +414,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
+@@ -362,7 +362,7 @@ static const struct ieee1394_device_id bebob_id_table[] = {
  	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
  	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
  	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
@@ -99,10 +99,10 @@ index 9d620a7c283f..c51564213365 100644
  	/* Stanton, ScratchAmp */
  	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
 diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 44ecf2f5f65f..e2932ac9d487 100644
+index 2d310bf2f2b2..c700e11ab327 100644
 --- a/sound/firewire/oxfw/oxfw.c
 +++ b/sound/firewire/oxfw/oxfw.c
-@@ -405,7 +405,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
+@@ -320,7 +320,7 @@ static const struct ieee1394_device_id oxfw_id_table[] = {
  	 *  Onyx-i series (former models):	0x081216
  	 *  Mackie Onyx Satellite:		0x00200f
  	 *  Tapco LINK.firewire 4x6:		0x000460
