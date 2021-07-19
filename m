@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8A8C3CE058
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:57:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A246E3CDDD4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345991AbhGSPQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49168 "EHLO mail.kernel.org"
+        id S1344131AbhGSPA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:00:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345303AbhGSPM4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:12:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABD9F61375;
-        Mon, 19 Jul 2021 15:52:59 +0000 (UTC)
+        id S1343955AbhGSO7Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB49E6113C;
+        Mon, 19 Jul 2021 15:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709980;
-        bh=79/HYkvwxCe55o5MFGHNpPyyxL7jdePrtaRs3K2/aC4=;
+        s=korg; t=1626709076;
+        bh=zpPR9wcL8+H2sARlugzOS4AHiOpeCsblx6zpenS4A+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLfTzoo7zrlh6Z1wiAf1Da7flLMjLZhaoxLYL7f56dUffHsNy4ocJADEOLFgfQgAl
-         xIzHCWaVPE77G/INE6ppyBSa4kIxeft4W4LUvN7UF/ZY8wuFOl4DFBxHV1XSA5u1dd
-         eH4opZ76vota0me6z6KfYnSSi1r2xr9+Zt7ko3GY=
+        b=OE5zWRvs8+ltZnKUyP73hg7s9phTp6+GxmF4vh95LTj/P5ebSBTESdub2aQvMjHbH
+         vTGevSUmCD/L7APU9lbAnrq/wTCLQ7+kkc0omVaJY/tbLeYxjJViqN9t11tORb11bu
+         rVg65D8+/NVslZXVMYj+lwcxo0QI6Itb8ev+7YRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/243] dmaengine: fsl-qdma: check dma_set_mask return value
+        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
+        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 243/421] ipv6: use prandom_u32() for ID generation
 Date:   Mon, 19 Jul 2021 16:50:54 +0200
-Message-Id: <20210719144941.740694921@linuxfoundation.org>
+Message-Id: <20210719144954.833409473@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Gong <yibin.gong@nxp.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit f0c07993af0acf5545d5c1445798846565f4f147 ]
+[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
 
-For fix below warning reported by static code analysis tool like Coverity
-from Synopsys:
+This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
+table for IP ID generation"), but focusing on some specific aspects
+of IPv6.
 
-Signed-off-by: Robin Gong <yibin.gong@nxp.com>
-Addresses-Coverity-ID: 12285639 ("Unchecked return value")
-Link: https://lore.kernel.org/r/1619427549-20498-1-git-send-email-yibin.gong@nxp.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
+minimum MTU of 1280, it's much less easy to force a remote peer to
+produce many fragments to explore its ID sequence. In addition packet
+IDs are 32-bit in IPv6, which further complicates their analysis. On
+the other hand, it is often easier to choose among plenty of possible
+source addresses and partially work around the bigger hash table the
+commit above permits, which leaves IPv6 partially exposed to some
+possibilities of remote analysis at the risk of weakening some
+protocols like DNS if some IDs can be predicted with a good enough
+probability.
+
+Given the wide range of permitted IDs, the risk of collision is extremely
+low so there's no need to rely on the positive increment algorithm that
+is shared with the IPv4 code via ip_idents_reserve(). We have a fast
+PRNG, so let's simply call prandom_u32() and be done with it.
+
+Performance measurements at 10 Gbps couldn't show any difference with
+the previous code, even when using a single core, because due to the
+large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
+of the random generation is completely offset by other operations and by
+the network transfer time. In addition, this change removes the need to
+update a shared entry in the idents table so it may even end up being
+slightly faster on large scale systems where this matters.
+
+The risk of at least one collision here is about 1/80 million among
+10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
+which remains very low compared to IPv4 where all IDs are reused
+every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
+
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/fsl-qdma.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/ipv6/output_core.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
-index ed2ab46b15e7..045ead46ec8f 100644
---- a/drivers/dma/fsl-qdma.c
-+++ b/drivers/dma/fsl-qdma.c
-@@ -1235,7 +1235,11 @@ static int fsl_qdma_probe(struct platform_device *pdev)
- 	fsl_qdma->dma_dev.device_synchronize = fsl_qdma_synchronize;
- 	fsl_qdma->dma_dev.device_terminate_all = fsl_qdma_terminate_all;
+diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
+index 868ae23dbae1..3829b565c645 100644
+--- a/net/ipv6/output_core.c
++++ b/net/ipv6/output_core.c
+@@ -14,29 +14,11 @@ static u32 __ipv6_select_ident(struct net *net,
+ 			       const struct in6_addr *dst,
+ 			       const struct in6_addr *src)
+ {
+-	const struct {
+-		struct in6_addr dst;
+-		struct in6_addr src;
+-	} __aligned(SIPHASH_ALIGNMENT) combined = {
+-		.dst = *dst,
+-		.src = *src,
+-	};
+-	u32 hash, id;
+-
+-	/* Note the following code is not safe, but this is okay. */
+-	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
+-		get_random_bytes(&net->ipv4.ip_id_key,
+-				 sizeof(net->ipv4.ip_id_key));
+-
+-	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
+-
+-	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
+-	 * set the hight order instead thus minimizing possible future
+-	 * collisions.
+-	 */
+-	id = ip_idents_reserve(hash, 1);
+-	if (unlikely(!id))
+-		id = 1 << 31;
++	u32 id;
++
++	do {
++		id = prandom_u32();
++	} while (!id);
  
--	dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
-+	if (ret) {
-+		dev_err(&pdev->dev, "dma_set_mask failure.\n");
-+		return ret;
-+	}
- 
- 	platform_set_drvdata(pdev, fsl_qdma);
- 
+ 	return id;
+ }
 -- 
 2.30.2
 
