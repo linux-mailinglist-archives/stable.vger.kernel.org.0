@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2103CDEF3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C579A3CDC4F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344167AbhGSPG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
+        id S238261AbhGSOwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345649AbhGSPEs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2996D61165;
-        Mon, 19 Jul 2021 15:44:38 +0000 (UTC)
+        id S1344181AbhGSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AEB561408;
+        Mon, 19 Jul 2021 15:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709479;
-        bh=0QifNCpY/xvzZisF71nCx5PqR2PY7wNTgoNv7Nf5sCs=;
+        s=korg; t=1626708429;
+        bh=ppW35qgSusQj6wBIpMSCIYMQAiPVAwVu0i48L2F97tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0mZJ0x2qV0crTkDecCE2j87UduP30m2tFyOjtR/zuKsZRDVQ0tPIfDGG8yj600Xp
-         RFhOdSjq0UhXvvgQcXqj11gHzEMdx8Bpo9M8RfVlcNw6/1Yn1IJzFQPCUqra425F20
-         PWRjk/FvZv8/tKD4a8wB6j0iwoTsBsEvgBvBQv8c=
+        b=CsgwWr3d9BXLhen+Ek7Xs5gyRxtvZtBD3ph7RGg2K+sCKYkjQz0FR/TEHo3nLZ6kQ
+         5iQcGXkN/6t8LFtXPH4BE47XPr7/aDUrPWxeZml9BbEkk5HCXcUPLM5QtqZto/AYzt
+         C2RD/zz7D9Vk61st3/sQJ3HmeUSClAPu3yFP52A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        anton.ivanov@cambridgegreys.com,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 367/421] watchdog: iTCO_wdt: Account for rebooting on second timeout
-Date:   Mon, 19 Jul 2021 16:52:58 +0200
-Message-Id: <20210719144958.973172911@linuxfoundation.org>
+Subject: [PATCH 4.14 290/315] um: fix error return code in slip_open()
+Date:   Mon, 19 Jul 2021 16:52:59 +0200
+Message-Id: <20210719144952.982242355@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit cb011044e34c293e139570ce5c01aed66a34345c ]
+[ Upstream commit b77e81fbe5f5fb4ad9a61ec80f6d1e30b6da093a ]
 
-This was already attempted to fix via 1fccb73011ea: If the BIOS did not
-enable TCO SMIs, the timer definitely needs to trigger twice in order to
-cause a reboot. If TCO SMIs are on, as well as SMIs in general, we can
-continue to assume that the BIOS will perform a reboot on the first
-timeout.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-QEMU with its ICH9 and related BIOS falls into the former category,
-currently taking twice the configured timeout in order to reboot the
-machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
-this is also true and was currently only addressed for v1, irrespective
-of the turn_SMI_watchdog_clear_off value.
-
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/0b8bb307-d08b-41b5-696c-305cdac6789c@siemens.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Fixes: a3c77c67a443 ("[PATCH] uml: slirp and slip driver cleanups and fixes")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Acked-By: anton.ivanov@cambridgegreys.com
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/iTCO_wdt.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/um/drivers/slip_user.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index 347f0389b089..059c9eddb546 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -75,6 +75,8 @@
- #define TCOBASE(p)	((p)->tco_res->start)
- /* SMI Control and Enable Register */
- #define SMI_EN(p)	((p)->smi_res->start)
-+#define TCO_EN		(1 << 13)
-+#define GBL_SMI_EN	(1 << 0)
- 
- #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
- #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
-@@ -330,8 +332,12 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
- 
- 	tmrval = seconds_to_ticks(p, t);
- 
--	/* For TCO v1 the timer counts down twice before rebooting */
--	if (p->iTCO_version == 1)
-+	/*
-+	 * If TCO SMIs are off, the timer counts down twice before rebooting.
-+	 * Otherwise, the BIOS generally reboots when the SMI triggers.
-+	 */
-+	if (p->smi_res &&
-+	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
- 		tmrval /= 2;
- 
- 	/* from the specs: */
-@@ -493,7 +499,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 		 * Disables TCO logic generating an SMI#
- 		 */
- 		val32 = inl(SMI_EN(p));
--		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
-+		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
- 		outl(val32, SMI_EN(p));
+diff --git a/arch/um/drivers/slip_user.c b/arch/um/drivers/slip_user.c
+index 0d6b66c64a81..76d155631c5d 100644
+--- a/arch/um/drivers/slip_user.c
++++ b/arch/um/drivers/slip_user.c
+@@ -145,7 +145,8 @@ static int slip_open(void *data)
  	}
+ 	sfd = err;
  
+-	if (set_up_tty(sfd))
++	err = set_up_tty(sfd);
++	if (err)
+ 		goto out_close2;
+ 
+ 	pri->slave = sfd;
 -- 
 2.30.2
 
