@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8AAD3CDDA2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C831B3CDDB7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245748AbhGSO7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
+        id S1345338AbhGSPAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:00:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245319AbhGSO6O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:58:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1F746023D;
-        Mon, 19 Jul 2021 15:35:52 +0000 (UTC)
+        id S245361AbhGSO6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:58:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02AAC613E8;
+        Mon, 19 Jul 2021 15:35:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708953;
-        bh=SQN+3Kulvivgnq/wgeiUCuPyJFYyEXXhyjhCJeuXMio=;
+        s=korg; t=1626708955;
+        bh=YTOElYHPFdQIc8vgGPDEQvK4mq7IRZETr8MBk84uMnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKne27s7zJSgVxdMsaIacx8rftdC8plecNsXrgF35+HWF7eb3afjIBH41vXTGsHhQ
-         ZLZmh3UtekkH3P6zDvCKGW5B5w0+FRa1oJGsnYmt4HyDdVfdUxafXQzaYRvpl1PV7+
-         puvtcudb2Kn8Dql0fRBaRzP8oEu4+HPxEy2kenRM=
+        b=QDJmglTDeSANUzpLaAGzKHQkhxRgWAce2WSsnqyRnHOAt09p3htJtBn4XaUx3p1E/
+         37CODhT2m6C0cA4M5o1/4dsYK86nRSHEvQkR8QYX29JVsGW1dlsiU8f6tpi8HlciEE
+         qXv9ZabEDyWCJ2/Z3t/cQECl8glumX4JEBTizYiw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 196/421] s390: appldata depends on PROC_SYSCTL
-Date:   Mon, 19 Jul 2021 16:50:07 +0200
-Message-Id: <20210719144953.187732532@linuxfoundation.org>
+        stable@vger.kernel.org, Huy Duong <qhuyduong@hotmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 197/421] eeprom: idt_89hpesx: Put fwnode in matching case during ->probe()
+Date:   Mon, 19 Jul 2021 16:50:08 +0200
+Message-Id: <20210719144953.218943612@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,44 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
+[ Upstream commit 3f6ee1c095156a74ab2df605af13020f1ce3e600 ]
 
-APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
-Building with PROC_FS but not PROC_SYSCTL causes a build error,
-since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
+device_get_next_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
-appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
-
-Fixes: c185b783b099 ("[S390] Remove config options.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: linux-s390@vger.kernel.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Fixes: db15d73e5f0e ("eeprom: idt_89hpesx: Support both ACPI and OF probing")
+Cc: Huy Duong <qhuyduong@hotmail.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210607221757.81465-1-andy.shevchenko@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/eeprom/idt_89hpesx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 9a9c7a6fe925..ce4c3b659f70 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -867,7 +867,7 @@ config CMM_IUCV
- config APPLDATA_BASE
- 	def_bool n
- 	prompt "Linux - VM Monitor Stream, base infrastructure"
--	depends on PROC_FS
-+	depends on PROC_SYSCTL
- 	help
- 	  This provides a kernel interface for creating and updating z/VM APPLDATA
- 	  monitor records. The monitor records are updated at certain time
+diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
+index 8a4659518c33..b93b83fc3e3e 100644
+--- a/drivers/misc/eeprom/idt_89hpesx.c
++++ b/drivers/misc/eeprom/idt_89hpesx.c
+@@ -1163,6 +1163,7 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
+ 	else /* if (!fwnode_property_read_bool(node, "read-only")) */
+ 		pdev->eero = false;
+ 
++	fwnode_handle_put(fwnode);
+ 	dev_info(dev, "EEPROM of %d bytes found by 0x%x",
+ 		pdev->eesize, pdev->eeaddr);
+ }
 -- 
 2.30.2
 
