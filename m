@@ -2,102 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBD43CCFAC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EAE13CD04E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235630AbhGSISq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:18:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39374 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235643AbhGSISp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 04:18:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 572D761245;
-        Mon, 19 Jul 2021 08:54:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626684862;
-        bh=6Oc4+Us+O3SNdYbL0oP1jdH812m5HRycq3k8SdwCWQk=;
-        h=Subject:To:Cc:From:Date:From;
-        b=DfLmqE8O+IwdrAgz8NQbJ7kQz7+IKIQpQT7bGiVlnzRWPONPS28T+kfIuZMalm2sm
-         p7Cjlo13LxdC0g6Pr5NF4g2+ug9jBOH4RFDu666Iy/nkjvkCKFw/jPFEM2Ty5XFRG1
-         S1uq0wgZA9JPkX7HALbnuyBnpz+e2SrCIkKFrUC8=
-Subject: FAILED: patch "[PATCH] KVM: SVM: Revert clearing of C-bit on GPA in #NPF handler" failed to apply to 5.10-stable tree
-To:     seanjc@google.com, brijesh.singh@amd.com, pbonzini@redhat.com,
-        pgonda@google.com, thomas.lendacky@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Jul 2021 10:54:04 +0200
-Message-ID: <162668484410346@kroah.com>
+        id S235290AbhGSIea (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:34:30 -0400
+Received: from gateway23.websitewelcome.com ([192.185.49.104]:15856 "EHLO
+        gateway23.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235150AbhGSIea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 04:34:30 -0400
+X-Greylist: delayed 2174 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Jul 2021 04:34:30 EDT
+Received: from cm17.websitewelcome.com (cm17.websitewelcome.com [100.42.49.20])
+        by gateway23.websitewelcome.com (Postfix) with ESMTP id 295ED8D40
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 02:55:15 -0500 (CDT)
+Received: from gator4132.hostgator.com ([192.185.4.144])
+        by cmsmtp with SMTP
+        id 5O7Pm0v5XMGeE5O7PmR3Oy; Mon, 19 Jul 2021 02:55:15 -0500
+X-Authority-Reason: nr=8
+Received: from host-79-37-206-118.retail.telecomitalia.it ([79.37.206.118]:40920 helo=f34.bristot.me)
+        by gator4132.hostgator.com with esmtpa (Exim 4.94.2)
+        (envelope-from <bristot@kernel.org>)
+        id 1m5O7K-004Hrb-2v; Mon, 19 Jul 2021 02:55:10 -0500
+From:   Daniel Bristot de Oliveira <bristot@kernel.org>
+To:     Alexander Viro <viro@zeniv.linux.org.uk>,
+        linux-kernel@vger.kernel.org
+Cc:     Daniel Bristot de Oliveira <bristot@kernel.org>,
+        He Zhe <zhe.he@windriver.com>, Jens Axboe <axboe@kernel.dk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH] eventfd: protect eventfd_wake_count with a local_lock
+Date:   Mon, 19 Jul 2021 09:54:52 +0200
+Message-Id: <523c91c4a30f21295508004c81cd2e46ccc37dc2.1626680553.git.bristot@kernel.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - gator4132.hostgator.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.org
+X-BWhitelist: no
+X-Source-IP: 79.37.206.118
+X-Source-L: No
+X-Exim-ID: 1m5O7K-004Hrb-2v
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: host-79-37-206-118.retail.telecomitalia.it (f34.bristot.me) [79.37.206.118]:40920
+X-Source-Auth: kernel@bristot.me
+X-Email-Count: 3
+X-Source-Cap: YnJpc3RvdG1lO2JyaXN0b3RtZTtnYXRvcjQxMzIuaG9zdGdhdG9yLmNvbQ==
+X-Local-Domain: no
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+eventfd_signal assumes that spin_lock_irqsave/spin_unlock_irqrestore is
+non-preemptable and therefore increments and decrements the percpu
+variable inside the critical section.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+This obviously does not fly with PREEMPT_RT. If eventfd_signal is
+preempted and an unrelated thread calls eventfd_signal, the result is
+a spurious WARN. To avoid this, protect the percpu variable with a
+local_lock.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 76ff371b67cb12fb635396234468abcf6a466f16 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 24 Jun 2021 19:03:54 -0700
-Subject: [PATCH] KVM: SVM: Revert clearing of C-bit on GPA in #NPF handler
-
-Don't clear the C-bit in the #NPF handler, as it is a legal GPA bit for
-non-SEV guests, and for SEV guests the C-bit is dropped before the GPA
-hits the NPT in hardware.  Clearing the bit for non-SEV guests causes KVM
-to mishandle #NPFs with that collide with the host's C-bit.
-
-Although the APM doesn't explicitly state that the C-bit is not reserved
-for non-SEV, Tom Lendacky confirmed that the following snippet about the
-effective reduction due to the C-bit does indeed apply only to SEV guests.
-
-  Note that because guest physical addresses are always translated
-  through the nested page tables, the size of the guest physical address
-  space is not impacted by any physical address space reduction indicated
-  in CPUID 8000_001F[EBX]. If the C-bit is a physical address bit however,
-  the guest physical address space is effectively reduced by 1 bit.
-
-And for SEV guests, the APM clearly states that the bit is dropped before
-walking the nested page tables.
-
-  If the C-bit is an address bit, this bit is masked from the guest
-  physical address when it is translated through the nested page tables.
-  Consequently, the hypervisor does not need to be aware of which pages
-  the guest has chosen to mark private.
-
-Note, the bogus C-bit clearing was removed from legacy #PF handler in
-commit 6d1b867d0456 ("KVM: SVM: Don't strip the C-bit from CR2 on #PF
-interception").
-
-Fixes: 0ede79e13224 ("KVM: SVM: Clear C-bit from the page fault address")
-Cc: Peter Gonda <pgonda@google.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Reported-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Fixes: b5e683d5cab8 ("eventfd: track eventfd_signal() recursion depth")
+Cc: He Zhe <zhe.he@windriver.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210625020354.431829-3-seanjc@google.com>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Co-developed-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+---
+ fs/eventfd.c            | 27 ++++++++++++++++++++++-----
+ include/linux/eventfd.h |  7 +------
+ 2 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 8834822c00cd..ca5614a48b21 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1923,7 +1923,7 @@ static int npf_interception(struct kvm_vcpu *vcpu)
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
+diff --git a/fs/eventfd.c b/fs/eventfd.c
+index e265b6dd4f34..9754fcd38690 100644
+--- a/fs/eventfd.c
++++ b/fs/eventfd.c
+@@ -12,6 +12,7 @@
+ #include <linux/fs.h>
+ #include <linux/sched/signal.h>
+ #include <linux/kernel.h>
++#include <linux/local_lock.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+@@ -25,8 +26,6 @@
+ #include <linux/idr.h>
+ #include <linux/uio.h>
  
--	u64 fault_address = __sme_clr(svm->vmcb->control.exit_info_2);
-+	u64 fault_address = svm->vmcb->control.exit_info_2;
- 	u64 error_code = svm->vmcb->control.exit_info_1;
+-DEFINE_PER_CPU(int, eventfd_wake_count);
+-
+ static DEFINE_IDA(eventfd_ida);
  
- 	trace_kvm_page_fault(fault_address, error_code);
+ struct eventfd_ctx {
+@@ -45,6 +44,20 @@ struct eventfd_ctx {
+ 	int id;
+ };
+ 
++struct event_fd_recursion {
++	local_lock_t lock;
++	int count;
++};
++
++static DEFINE_PER_CPU(struct event_fd_recursion, event_fd_recursion) = {
++	.lock = INIT_LOCAL_LOCK(lock),
++};
++
++bool eventfd_signal_count(void)
++{
++	return this_cpu_read(event_fd_recursion.count);
++}
++
+ /**
+  * eventfd_signal - Adds @n to the eventfd counter.
+  * @ctx: [in] Pointer to the eventfd context.
+@@ -71,18 +84,22 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
+ 	 * it returns true, the eventfd_signal() call should be deferred to a
+ 	 * safe context.
+ 	 */
+-	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count)))
++	local_lock(&event_fd_recursion.lock);
++	if (WARN_ON_ONCE(this_cpu_read(event_fd_recursion.count))) {
++		local_unlock(&event_fd_recursion.lock);
+ 		return 0;
++	}
+ 
+ 	spin_lock_irqsave(&ctx->wqh.lock, flags);
+-	this_cpu_inc(eventfd_wake_count);
++	this_cpu_inc(event_fd_recursion.count);
+ 	if (ULLONG_MAX - ctx->count < n)
+ 		n = ULLONG_MAX - ctx->count;
+ 	ctx->count += n;
+ 	if (waitqueue_active(&ctx->wqh))
+ 		wake_up_locked_poll(&ctx->wqh, EPOLLIN);
+-	this_cpu_dec(eventfd_wake_count);
++	this_cpu_dec(event_fd_recursion.count);
+ 	spin_unlock_irqrestore(&ctx->wqh.lock, flags);
++	local_unlock(&event_fd_recursion.lock);
+ 
+ 	return n;
+ }
+diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
+index fa0a524baed0..ca89d6c409c1 100644
+--- a/include/linux/eventfd.h
++++ b/include/linux/eventfd.h
+@@ -43,12 +43,7 @@ int eventfd_ctx_remove_wait_queue(struct eventfd_ctx *ctx, wait_queue_entry_t *w
+ 				  __u64 *cnt);
+ void eventfd_ctx_do_read(struct eventfd_ctx *ctx, __u64 *cnt);
+ 
+-DECLARE_PER_CPU(int, eventfd_wake_count);
+-
+-static inline bool eventfd_signal_count(void)
+-{
+-	return this_cpu_read(eventfd_wake_count);
+-}
++bool eventfd_signal_count(void);
+ 
+ #else /* CONFIG_EVENTFD */
+ 
+-- 
+2.31.1
 
