@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B0453CE160
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7383CE396
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349177AbhGSPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58060 "EHLO mail.kernel.org"
+        id S236316AbhGSPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346663AbhGSPRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:17:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E4FD61285;
-        Mon, 19 Jul 2021 15:57:51 +0000 (UTC)
+        id S234455AbhGSPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7030C61422;
+        Mon, 19 Jul 2021 16:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710272;
-        bh=UeCvVDPoh1OLSrZIlpm701XxGHZ0KFMRQimJk6/CQhE=;
+        s=korg; t=1626711028;
+        bh=SnAOl7fKWjhe20IC1l1tJmqdbQ16Q/mHPq4YJDqkeLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+pkC8ODCdUMTEltCr+/lwerMxLusdt1GYzXwGEDRwqh43hK5H7bRebdLgincANjQ
-         0YFK4vKoL13rOIZvMvniYg3uoUzzENCc/eQ3802DPWtMbjpvX8UaoKJ3Fpc4mFFZo8
-         JbMZ2Gpf9ftycYJcCs0NNIO/bYXF2r4FmZA7n7jY=
+        b=RGAepVItK7Slc7thB6ZC4yJDsvNTpXiys5UCKY7LtKl88ggDnLDJs4/BPpWM6eJMJ
+         6e+FUDKAcI8bvmGWBUa2NeB4ZbrCFuGXOG4C+864mZ/ZH4ZQPy+Ymx8yOFtEfHvhHn
+         j8b5EnmygfzJqd+MoElZprc9f/i9tZIr3PmvyA6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 115/243] power: supply: ab8500: Avoid NULL pointers
-Date:   Mon, 19 Jul 2021 16:52:24 +0200
-Message-Id: <20210719144944.620412444@linuxfoundation.org>
+Subject: [PATCH 5.13 199/351] power: supply: surface_battery: Fix battery event handling
+Date:   Mon, 19 Jul 2021 16:52:25 +0200
+Message-Id: <20210719144951.546574054@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
+[ Upstream commit e633f33d2669cb54db2846f9cde08662d254dbd3 ]
 
-Sometimes the code will crash because we haven't enabled
-AC or USB charging and thus not created the corresponding
-psy device. Fix it by checking that it is there before
-notifying.
+The battery subsystem of the Surface Aggregator Module EC requires us to
+register the battery notifier with instance ID 0. However, battery
+events are actually sent with the instance ID corresponding to the
+device, which is nonzero. Thus, the strict-matching approach doesn't
+work here and will discard events that the driver is expected to handle.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+To fix this we have to fall back on notifier matching by target-category
+only and have to manually check the instance ID in the notifier
+callback.
+
+Fixes: 167f77f7d0b3 ("power: supply: Add battery driver for Surface Aggregator Module")
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_charger.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/power/supply/surface_battery.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index db65be026920..6765d0901320 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -413,6 +413,14 @@ disable_otp:
- static void ab8500_power_supply_changed(struct ab8500_charger *di,
- 					struct power_supply *psy)
- {
+diff --git a/drivers/power/supply/surface_battery.c b/drivers/power/supply/surface_battery.c
+index 7efa431a62b2..5ec2e6bb2465 100644
+--- a/drivers/power/supply/surface_battery.c
++++ b/drivers/power/supply/surface_battery.c
+@@ -345,6 +345,16 @@ static u32 spwr_notify_bat(struct ssam_event_notifier *nf, const struct ssam_eve
+ 	struct spwr_battery_device *bat = container_of(nf, struct spwr_battery_device, notif);
+ 	int status;
+ 
 +	/*
-+	 * This happens if we get notifications or interrupts and
-+	 * the platform has been configured not to support one or
-+	 * other type of charging.
++	 * We cannot use strict matching when registering the notifier as the
++	 * EC expects us to register it against instance ID 0. Strict matching
++	 * would thus drop events, as those may have non-zero instance IDs in
++	 * this subsystem. So we need to check the instance ID of the event
++	 * here manually.
 +	 */
-+	if (!psy)
-+		return;
++	if (event->instance_id != bat->sdev->uid.instance)
++		return 0;
 +
- 	if (di->autopower_cfg) {
- 		if (!di->usb.charger_connected &&
- 		    !di->ac.charger_connected &&
-@@ -439,7 +447,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
- 		if (!connected)
- 			di->flags.vbus_drop_end = false;
+ 	dev_dbg(&bat->sdev->dev, "power event (cid = %#04x, iid = %#04x, tid = %#04x)\n",
+ 		event->command_id, event->instance_id, event->target_id);
  
--		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
-+		/*
-+		 * Sometimes the platform is configured not to support
-+		 * USB charging and no psy has been created, but we still
-+		 * will get these notifications.
-+		 */
-+		if (di->usb_chg.psy) {
-+			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
-+				     "present");
-+		}
+@@ -720,8 +730,8 @@ static void spwr_battery_init(struct spwr_battery_device *bat, struct ssam_devic
+ 	bat->notif.base.fn = spwr_notify_bat;
+ 	bat->notif.event.reg = registry;
+ 	bat->notif.event.id.target_category = sdev->uid.category;
+-	bat->notif.event.id.instance = 0;
+-	bat->notif.event.mask = SSAM_EVENT_MASK_STRICT;
++	bat->notif.event.id.instance = 0;	/* need to register with instance 0 */
++	bat->notif.event.mask = SSAM_EVENT_MASK_TARGET;
+ 	bat->notif.event.flags = SSAM_EVENT_SEQUENCED;
  
- 		if (connected) {
- 			mutex_lock(&di->charger_attached_mutex);
+ 	bat->psy_desc.name = bat->name;
 -- 
 2.30.2
 
