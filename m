@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD3E3CE5AA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5838B3CE591
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245671AbhGSPwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48214 "EHLO mail.kernel.org"
+        id S1345132AbhGSPwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245373AbhGSPq3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C3156143E;
-        Mon, 19 Jul 2021 16:27:06 +0000 (UTC)
+        id S241562AbhGSPrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3CDA6135D;
+        Mon, 19 Jul 2021 16:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712027;
-        bh=qAOrF9B0QCnF2sSl9P3Z0vFbu1w7HEbgskEF8O8ND3w=;
+        s=korg; t=1626712030;
+        bh=wb24qyQbbZ4G0BR10Lg7jOKybgjnlwOQVtC4b9/RbVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x5prX5bhPz0lPscz1eQpS5A0YwdXZnAUn58ekt7OwZluqq2moQcg8oiNwQycCvMuc
-         EC0Tt/w5+i8PZsFeb4fcD8rfGRogNGcO6DC+aKw2AbtLV4Jot2jGStOiw4fer2pSHj
-         2Ig8wCfc45hKjm/RSpXXqbmM2JVsLQIeRnq5Gkao=
+        b=Fglcc8N7Lx9sxKwlt5a55qoJ92X4Ern2WwIdget3vA3SfdKR9EPp7ME7GYIKkpmDQ
+         wbVN6+kcOIuG9ZYPgfZi0W5IXltoCsOJCCBJKf54ULh735UdSS6fViLGAd6g8NCdOE
+         cFbpJTXehfN+VWmYQv+U4lazBy6PgEpWXHl00GQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Brian Cain <bcain@codeaurora.org>,
+        Oliver Glitta <glittao@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Rientjes <rientjes@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 221/292] NFSv4/pNFS: Dont call _nfs4_pnfs_v3_ds_connect multiple times
-Date:   Mon, 19 Jul 2021 16:54:43 +0200
-Message-Id: <20210719144950.243350238@linuxfoundation.org>
+Subject: [PATCH 5.12 222/292] hexagon: handle {,SOFT}IRQENTRY_TEXT in linker script
+Date:   Mon, 19 Jul 2021 16:54:44 +0200
+Message-Id: <20210719144950.274256070@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,102 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit f46f84931a0aa344678efe412d4b071d84d8a805 ]
+[ Upstream commit 6fef087d0d37ba7dba8f3d75566eb4c256cd6742 ]
 
-After we grab the lock in nfs4_pnfs_ds_connect(), there is no check for
-whether or not ds->ds_clp has already been initialised, so we can end up
-adding the same transports multiple times.
+Patch series "hexagon: Fix build error with CONFIG_STACKDEPOT and select CONFIG_ARCH_WANT_LD_ORPHAN_WARN".
 
-Fixes: fc821d59209d ("pnfs/NFSv4.1: Add multipath capabilities to pNFS flexfiles servers over NFSv3")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This series fixes an error with ARCH=hexagon that was pointed out by the
+patch "mm/slub: use stackdepot to save stack trace in objects".
+
+The first patch fixes that error by handling the '.irqentry.text' and
+'.softirqentry.text' sections.
+
+The second patch switches Hexagon over to the common DISCARDS macro, which
+should have been done when Hexagon was merged into the tree to match
+commit 023bf6f1b8bf ("linker script: unify usage of discard definition").
+
+The third patch selects CONFIG_ARCH_WANT_LD_ORPHAN_WARN so that something
+like this does not happen again.
+
+This patch (of 3):
+
+Patch "mm/slub: use stackdepot to save stack trace in objects" in -mm
+selects CONFIG_STACKDEPOT when CONFIG_STACKTRACE_SUPPORT is selected and
+CONFIG_STACKDEPOT requires IRQENTRY_TEXT and SOFTIRQENTRY_TEXT to be
+handled after commit 505a0ef15f96 ("kasan: stackdepot: move
+filter_irq_stacks() to stackdepot.c") due to the use of the
+__{,soft}irqentry_text_{start,end} section symbols.  If those sections are
+not handled, the build is broken.
+
+$ make ARCH=hexagon CROSS_COMPILE=hexagon-linux- LLVM=1 LLVM_IAS=1 defconfig all
+...
+ld.lld: error: undefined symbol: __irqentry_text_start
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+
+ld.lld: error: undefined symbol: __irqentry_text_end
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+
+ld.lld: error: undefined symbol: __softirqentry_text_start
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+
+ld.lld: error: undefined symbol: __softirqentry_text_end
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+>>> referenced by stackdepot.c
+>>>               stackdepot.o:(filter_irq_stacks) in archive lib/built-in.a
+...
+
+Add these sections to the Hexagon linker script so the build continues to
+work.  ld.lld's orphan section warning would have caught this prior to the
+-mm commit mentioned above:
+
+ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+ld.lld: warning: kernel/built-in.a(softirq.o):(.softirqentry.text) is being placed in '.softirqentry.text'
+
+Link: https://lkml.kernel.org/r/20210521011239.1332345-1-nathan@kernel.org
+Link: https://lkml.kernel.org/r/20210521011239.1332345-2-nathan@kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1381
+Fixes: 505a0ef15f96 ("kasan: stackdepot: move filter_irq_stacks() to stackdepot.c")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Brian Cain <bcain@codeaurora.org>
+Cc: Oliver Glitta <glittao@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Rientjes <rientjes@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs_nfs.c | 52 +++++++++++++++++++++++------------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
+ arch/hexagon/kernel/vmlinux.lds.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
-index 49d3389bd813..1c2c0d08614e 100644
---- a/fs/nfs/pnfs_nfs.c
-+++ b/fs/nfs/pnfs_nfs.c
-@@ -805,19 +805,16 @@ out:
- }
- EXPORT_SYMBOL_GPL(nfs4_pnfs_ds_add);
- 
--static void nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
-+static int nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
- {
- 	might_sleep();
--	wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING,
--			TASK_KILLABLE);
-+	return wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING, TASK_KILLABLE);
- }
- 
- static void nfs4_clear_ds_conn_bit(struct nfs4_pnfs_ds *ds)
- {
- 	smp_mb__before_atomic();
--	clear_bit(NFS4DS_CONNECTING, &ds->ds_state);
--	smp_mb__after_atomic();
--	wake_up_bit(&ds->ds_state, NFS4DS_CONNECTING);
-+	clear_and_wake_up_bit(NFS4DS_CONNECTING, &ds->ds_state);
- }
- 
- static struct nfs_client *(*get_v3_ds_connect)(
-@@ -993,30 +990,33 @@ int nfs4_pnfs_ds_connect(struct nfs_server *mds_srv, struct nfs4_pnfs_ds *ds,
- {
- 	int err;
- 
--again:
--	err = 0;
--	if (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) == 0) {
--		if (version == 3) {
--			err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo,
--						       retrans);
--		} else if (version == 4) {
--			err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo,
--						       retrans, minor_version);
--		} else {
--			dprintk("%s: unsupported DS version %d\n", __func__,
--				version);
--			err = -EPROTONOSUPPORT;
--		}
-+	do {
-+		err = nfs4_wait_ds_connect(ds);
-+		if (err || ds->ds_clp)
-+			goto out;
-+		if (nfs4_test_deviceid_unavailable(devid))
-+			return -ENODEV;
-+	} while (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) != 0);
- 
--		nfs4_clear_ds_conn_bit(ds);
--	} else {
--		nfs4_wait_ds_connect(ds);
-+	if (ds->ds_clp)
-+		goto connect_done;
- 
--		/* what was waited on didn't connect AND didn't mark unavail */
--		if (!ds->ds_clp && !nfs4_test_deviceid_unavailable(devid))
--			goto again;
-+	switch (version) {
-+	case 3:
-+		err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo, retrans);
-+		break;
-+	case 4:
-+		err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo, retrans,
-+					       minor_version);
-+		break;
-+	default:
-+		dprintk("%s: unsupported DS version %d\n", __func__, version);
-+		err = -EPROTONOSUPPORT;
- 	}
- 
-+connect_done:
-+	nfs4_clear_ds_conn_bit(ds);
-+out:
- 	/*
- 	 * At this point the ds->ds_clp should be ready, but it might have
- 	 * hit an error.
+diff --git a/arch/hexagon/kernel/vmlinux.lds.S b/arch/hexagon/kernel/vmlinux.lds.S
+index 35b18e55eae8..20f19539c5fc 100644
+--- a/arch/hexagon/kernel/vmlinux.lds.S
++++ b/arch/hexagon/kernel/vmlinux.lds.S
+@@ -38,6 +38,8 @@ SECTIONS
+ 	.text : AT(ADDR(.text)) {
+ 		_text = .;
+ 		TEXT_TEXT
++		IRQENTRY_TEXT
++		SOFTIRQENTRY_TEXT
+ 		SCHED_TEXT
+ 		CPUIDLE_TEXT
+ 		LOCK_TEXT
 -- 
 2.30.2
 
