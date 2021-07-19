@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED473CD84E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F913CD858
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242997AbhGSOVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S241719AbhGSOVv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242712AbhGSOUf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S242337AbhGSOUf (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C956008E;
-        Mon, 19 Jul 2021 15:01:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D68F61205;
+        Mon, 19 Jul 2021 15:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706871;
-        bh=n6nmUqmdKxTKnLhFD5LYShrjOaP+9FEZWtPmKcV9p/0=;
+        s=korg; t=1626706873;
+        bh=nzdydNYmLflCaFutndl1RJtdrTqtelCnjdq+dPZ1GI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrrSU4S8DMffHpcBxgUN2Y4+Rz8NACR0+VGcWgbFlTGWMaFQD85Tr6APKDoy9sQLu
-         LgBeG5PQWcb3f5ukApZTm03voab7V9kNj2FohoC5C3jxRmPVb7xbflpC9QHkd9C9tr
-         gGi1y8VinTZZAy2ufBhckg0o1APhWg+S3NCaXJfw=
+        b=X46HoJG2zU+DQszKphLIiqJFTX5z8jDFDcG93a3L96KHbCTH1EMmPLpncy0XVyM6C
+         WQpn333/aLJXaKh1/CizWGbtVYNsgtkWoO2WT7CIWHxyqTq+9sLIqBMR6BOAPvfc5U
+         TCAOVwYYJfL+hRvfSNB5ENvi1+UU+tNXssjq8z8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yun Zhou <yun.zhou@windriver.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 133/188] seq_buf: Fix overflow in seq_buf_putmem_hex()
-Date:   Mon, 19 Jul 2021 16:51:57 +0200
-Message-Id: <20210719144940.838941988@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Subject: [PATCH 4.4 134/188] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
+Date:   Mon, 19 Jul 2021 16:51:58 +0200
+Message-Id: <20210719144940.869160666@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -39,41 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yun Zhou <yun.zhou@windriver.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit d3b16034a24a112bb83aeb669ac5b9b01f744bb7 upstream.
+commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
 
-There's two variables being increased in that loop (i and j), and i
-follows the raw data, and j follows what is being written into the buffer.
-We should compare 'i' to MAX_MEMHEX_BYTES or compare 'j' to HEX_CHARS.
-Otherwise, if 'j' goes bigger than HEX_CHARS, it will overflow the
-destination buffer.
+In the out_err_bus_register error branch of tpci200_pci_probe,
+tpci200->info->cfg_regs is freed by tpci200_uninstall()->
+tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
+in the first time.
 
-Link: https://lore.kernel.org/lkml/20210625122453.5e2fe304@oasis.local.home/
-Link: https://lkml.kernel.org/r/20210626032156.47889-1-yun.zhou@windriver.com
+But later, iounmap() is called to free tpci200->info->cfg_regs
+again.
 
-Cc: stable@vger.kernel.org
-Fixes: 5e3ca0ec76fce ("ftrace: introduce the "hex" output method")
-Signed-off-by: Yun Zhou <yun.zhou@windriver.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
+to avoid the double free.
+
+Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/seq_buf.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/ipack/carriers/tpci200.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/lib/seq_buf.c
-+++ b/lib/seq_buf.c
-@@ -227,8 +227,10 @@ int seq_buf_putmem_hex(struct seq_buf *s
+--- a/drivers/ipack/carriers/tpci200.c
++++ b/drivers/ipack/carriers/tpci200.c
+@@ -591,8 +591,11 @@ static int tpci200_pci_probe(struct pci_
  
- 	WARN_ON(s->size == 0);
- 
-+	BUILD_BUG_ON(MAX_MEMHEX_BYTES * 2 >= HEX_CHARS);
-+
- 	while (len) {
--		start_len = min(len, HEX_CHARS - 1);
-+		start_len = min(len, MAX_MEMHEX_BYTES);
- #ifdef __BIG_ENDIAN
- 		for (i = 0, j = 0; i < start_len; i++) {
- #else
+ out_err_bus_register:
+ 	tpci200_uninstall(tpci200);
++	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
++	tpci200->info->cfg_regs = NULL;
+ out_err_install:
+-	iounmap(tpci200->info->cfg_regs);
++	if (tpci200->info->cfg_regs)
++		iounmap(tpci200->info->cfg_regs);
+ out_err_ioremap:
+ 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
+ out_err_pci_request:
 
 
