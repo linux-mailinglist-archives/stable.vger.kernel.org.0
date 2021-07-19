@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CCE03CE3C8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773043CE18F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234794AbhGSPke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33820 "EHLO mail.kernel.org"
+        id S1349310AbhGSP0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349938AbhGSPg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:36:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01EAE60E0C;
-        Mon, 19 Jul 2021 16:17:07 +0000 (UTC)
+        id S1348086AbhGSPYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C145F6140C;
+        Mon, 19 Jul 2021 16:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711428;
-        bh=OgCApF9g4DGMHKRlYaoHVBOoAFpWrb/y9h744UR1QNs=;
+        s=korg; t=1626710478;
+        bh=VsOISFCwQv1AE/8JHSouyfP6yzXVxKdCN4oZ5qKMw4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hSnz2ywqvfca6BScFUfTz+s0Y8LBxzzmHPYoc/+KKFHL2WSW9TOztXQvSCV6DHqaQ
-         uvxrqfNX8nXgebTBHoHDGVuaTa7tn4how2aSpHRsdV/pgivmu0kFfpYm65PLgsK5IR
-         rA4r6O9H1RMXQ0d68xOCfikSL+NgVq6SKzoOWG0w=
+        b=xB4cMajGcSTbTSGnqMKz1qrczwZiJIghapg5M3ncQy5dochvGFBdl7RfBMdwO1wvO
+         CCeYv86kv2DzNTySrZEb1xlSo4I39NxSmzFOP1lYiqW9yLj1a5km1T8l6WkWzOrAM+
+         4I58ZXwp1WTnqG0fd3RQ6uxl8/I4TInppvFRKdd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Alex Bee <knaerzche@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 316/351] memory: fsl_ifc: fix leak of IO mapping on probe failure
-Date:   Mon, 19 Jul 2021 16:54:22 +0200
-Message-Id: <20210719144955.508918482@linuxfoundation.org>
+Subject: [PATCH 5.10 234/243] arm64: dts: rockchip: Re-add regulator-always-on for vcc_sdio for rk3399-roc-pc
+Date:   Mon, 19 Jul 2021 16:54:23 +0200
+Message-Id: <20210719144948.476515787@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Alex Bee <knaerzche@gmail.com>
 
-[ Upstream commit 3b132ab67fc7a358fff35e808fa65d4bea452521 ]
+[ Upstream commit eb607cd4957fb0ef97beb2a8293478be6a54240a ]
 
-On probe error the driver should unmap the IO memory.  Smatch reports:
+Re-add the regulator-always-on property for vcc_sdio which supplies sdmmc,
+since it gets disabled during reboot now and the bootrom expects it to be
+enabled  when booting from SD card. This makes rebooting impossible in that
+case and requires a hard reset to boot again.
 
-  drivers/memory/fsl_ifc.c:298 fsl_ifc_ctrl_probe() warn: 'fsl_ifc_ctrl_dev->gregs' not released on lines: 298.
-
-Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210527154322.81253-1-krzysztof.kozlowski@canonical.com
+Fixes: 04a0077fdb19 ("arm64: dts: rockchip: Remove always-on properties from regulator nodes on rk3399-roc-pc.")
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Link: https://lore.kernel.org/r/20210619121306.7740-1-knaerzche@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 89f99b5b6450..a6324044a085 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -219,8 +219,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 	fsl_ifc_ctrl_dev->gregs = of_iomap(dev->dev.of_node, 0);
- 	if (!fsl_ifc_ctrl_dev->gregs) {
- 		dev_err(&dev->dev, "failed to get memory region\n");
--		ret = -ENODEV;
--		goto err;
-+		return -ENODEV;
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
+index e4345e5bdfb6..35b7ab3bf10c 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-roc-pc.dtsi
+@@ -384,6 +384,7 @@
  
- 	if (of_property_read_bool(dev->dev.of_node, "little-endian")) {
-@@ -295,6 +294,7 @@ err_irq:
- 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
- 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
- err:
-+	iounmap(fsl_ifc_ctrl_dev->gregs);
- 	return ret;
- }
- 
+ 			vcc_sdio: LDO_REG4 {
+ 				regulator-name = "vcc_sdio";
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <3000000>;
 -- 
 2.30.2
 
