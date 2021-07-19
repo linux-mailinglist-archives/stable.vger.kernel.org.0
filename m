@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2D93CDD2B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:37:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A34B3CDD28
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240886AbhGSO42 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:56:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45430 "EHLO mail.kernel.org"
+        id S239675AbhGSO4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240777AbhGSOyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240773AbhGSOyy (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EBF861283;
-        Mon, 19 Jul 2021 15:33:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4595261264;
+        Mon, 19 Jul 2021 15:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708795;
-        bh=6CaCWobqoV8e7QpECkstNJGE5++dTP3axjmn1/h2tnU=;
+        s=korg; t=1626708797;
+        bh=IhbMgoY8Tu4sYG2EfTN+VLdWXm7O7VQF7tUaIOTWv1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lU4Po2WJh+MFCvATcA26uihjKByicyARwr1DTyWpjagwg9QJwYn2veCUfJA92ikYC
-         lUqUblHnGPLDo++FJQktsC18IvOd+a7Rp3g/xG0aspRPb55dUudmbfzwH7KxOKhsj2
-         0cbEUxwKkwbcTAqeYnRUea2V/BFFTYFh1pYD1pUk=
+        b=qFC6mrfW2emawFecJtmOH1lponNGkwGz8B2Wb9nswlOvxrtBGK2N5HDEuGj0jw79d
+         n875OnuElwfXOIU4RptgoujwJd5hJN/xKtgAPGLY6WHl9fPdjHDFRSlptF8Mfzf06E
+         x3Yk3sPTQqJS3u6kbF1TMVLwDwZAxPuveirh3nd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/421] brcmsmac: mac80211_if: Fix a resource leak in an error handling path
-Date:   Mon, 19 Jul 2021 16:49:04 +0200
-Message-Id: <20210719144951.126124889@linuxfoundation.org>
+Subject: [PATCH 4.19 134/421] ath10k: Fix an error code in ath10k_add_interface()
+Date:   Mon, 19 Jul 2021 16:49:05 +0200
+Message-Id: <20210719144951.156350357@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,53 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Yang Li <yang.lee@linux.alibaba.com>
 
-[ Upstream commit 9a25344d5177c2b9285532236dc3d10a091f39a8 ]
+[ Upstream commit e9ca70c735ce66fc6a0e02c8b6958434f74ef8de ]
 
-If 'brcms_attach()' fails, we must undo the previous 'ieee80211_alloc_hw()'
-as already done in the remove function.
+When the code execute this if statement, the value of ret is 0.
+However, we can see from the ath10k_warn() log that the value of
+ret should be -EINVAL.
 
-Fixes: 5b435de0d786 ("net: wireless: add brcm80211 drivers")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Clean up smatch warning:
+
+drivers/net/wireless/ath/ath10k/mac.c:5596 ath10k_add_interface() warn:
+missing error code 'ret'
+
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Fixes: ccec9038c721 ("ath10k: enable raw encap mode and software crypto engine")
+Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/8fbc171a1a493b38db5a6f0873c6021fca026a6c.1620852921.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/1621939577-62218-1-git-send-email-yang.lee@linux.alibaba.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c    | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/mac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-index 6188275b17e5..288d4d4d4454 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-@@ -1223,6 +1223,7 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- {
- 	struct brcms_info *wl;
- 	struct ieee80211_hw *hw;
-+	int ret;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index f32d35e03708..8102d684be59 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -5125,6 +5125,7 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
  
- 	dev_info(&pdev->dev, "mfg %x core %x rev %d class %d irq %d\n",
- 		 pdev->id.manuf, pdev->id.id, pdev->id.rev, pdev->id.class,
-@@ -1247,11 +1248,16 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- 	wl = brcms_attach(pdev);
- 	if (!wl) {
- 		pr_err("%s: brcms_attach failed!\n", __func__);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_free_ieee80211;
+ 	if (arvif->nohwcrypt &&
+ 	    !test_bit(ATH10K_FLAG_RAW_MODE, &ar->dev_flags)) {
++		ret = -EINVAL;
+ 		ath10k_warn(ar, "cryptmode module param needed for sw crypto\n");
+ 		goto err;
  	}
- 	brcms_led_register(wl);
- 
- 	return 0;
-+
-+err_free_ieee80211:
-+	ieee80211_free_hw(hw);
-+	return ret;
- }
- 
- static int brcms_suspend(struct bcma_device *pdev)
 -- 
 2.30.2
 
