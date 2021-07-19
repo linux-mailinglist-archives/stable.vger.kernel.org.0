@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF0D3CD9F9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BA3F3CD86D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244961AbhGSOcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
+        id S242827AbhGSOWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244976AbhGSOas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C74E6113A;
-        Mon, 19 Jul 2021 15:11:27 +0000 (UTC)
+        id S242833AbhGSOVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 658496113C;
+        Mon, 19 Jul 2021 15:01:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707487;
-        bh=6IIqv45VZhMDWIeJ4VV/kuRvyK4QUeRR9GmrKQlpsBA=;
+        s=korg; t=1626706900;
+        bh=OrOvRXnJHcLvOozj6dKL+qNTjYI/AkkXuge1iissLIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aue9L1NYh/8JSsgrSZ4UCS/ciVPNw0Km04zuu5Nq2lsllNEW5kL1CnWKMCy/cfz3b
-         wONK/Ne4vkwePVkApOj4/W6+N8Q1Id9M1uARZcZoZ1d0HUfLPeQueiPhRTq9tmirTS
-         3KdqqietWMnJamxA9i3Mj2ImHVIqxQB0jAoB+atw=
+        b=swnRCudAUrzlJuwnD6Ss9m8I1VQQOdRSlo8FSp8FxjXExi8rRFi5RhNvP6WObJgVd
+         e74CbGg/1P5ircZViGja9f40hbCYce22s1sdW5qSxWtMP936R4GSHTlhQn9U6Ycdtq
+         T1VVDfKeSqk9y40PGEoITpokTsIXOYHBs8ipyVqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 185/245] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
+Subject: [PATCH 4.4 143/188] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
 Date:   Mon, 19 Jul 2021 16:52:07 +0200
-Message-Id: <20210719144946.382645003@linuxfoundation.org>
+Message-Id: <20210719144941.170298786@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,10 +58,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 5b6093dc3ff2..a4c1797e30d7 100644
+index 1544a7cc76ff..1319f3dd5b70 100644
 --- a/drivers/tty/serial/fsl_lpuart.c
 +++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1766,6 +1766,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
+@@ -1681,6 +1681,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
  
  	bd = lpuart32_read(sport->port.membase + UARTBAUD);
  	bd &= UARTBAUD_SBR_MASK;
