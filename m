@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0CBE3CDC56
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F1BF3CDEDB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237776AbhGSOwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
+        id S1344639AbhGSPGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344153AbhGSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA2CF61244;
-        Mon, 19 Jul 2021 15:26:58 +0000 (UTC)
+        id S1345418AbhGSPEX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5079613FB;
+        Mon, 19 Jul 2021 15:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708419;
-        bh=xHZWVjWjuS7dx1EBxb3BcjOQrdNHqcYC9lWORYUJgsg=;
+        s=korg; t=1626709434;
+        bh=vLRAzC3PB3D1e2H6/tAEcR/aEhROiBVS9SoP3n7iMSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=URbDeRc5XHupH6S8jdEejVvu7UvtPX1FYgUmXZw9mZfE6FJ2FjiFk1CBm2VOs2OBC
-         I14/J9VCpQWMd1athO8yn20SSSgsd4pa4cABmxjB3/3oCOx5i+SjkWoVNpArXe/WaC
-         gnkr8GkAYppHv6ALudLDkkpZCsBQlYi/VrS7LMhY=
+        b=jPJBqbhg1LvaWA/tUWqu+hHfbBbm3D4E8V0RcXo20ZcIFWy2bsgk05QFXKd3wDZLM
+         MKzES8x/2N+YK/MA9TI8AOPaDPCN7pu7ARldldzEgulvpmFSgY1OLu1Bn9D5CFWjSv
+         iAYdR6yi5Su7Ih63s4N92IuraqZlP/0ClHXrqjLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 304/315] ARM: dts: r8a7779, marzen: Fix DU clock names
+Subject: [PATCH 4.19 382/421] PCI/sysfs: Fix dsm_label_utf16s_to_utf8s() buffer overrun
 Date:   Mon, 19 Jul 2021 16:53:13 +0200
-Message-Id: <20210719144953.464731083@linuxfoundation.org>
+Message-Id: <20210719144959.614959420@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Krzysztof Wilczyński <kw@linux.com>
 
-[ Upstream commit 6ab8c23096a29b69044209a5925758a6f88bd450 ]
+[ Upstream commit bdcdaa13ad96f1a530711c29e6d4b8311eff767c ]
 
-"make dtbs_check" complains:
+"utf16s_to_utf8s(..., buf, PAGE_SIZE)" puts up to PAGE_SIZE bytes into
+"buf" and returns the number of bytes it actually put there.  If it wrote
+PAGE_SIZE bytes, the newline added by dsm_label_utf16s_to_utf8s() would
+overrun "buf".
 
-    arch/arm/boot/dts/r8a7779-marzen.dt.yaml: display@fff80000: clock-names:0: 'du.0' was expected
+Reduce the size available for utf16s_to_utf8s() to use so there is always
+space for the newline.
 
-Change the first clock name to match the DT bindings.
-This has no effect on actual operation, as the Display Unit driver in
-Linux does not use the first clock name on R-Car H1, but just grabs the
-first clock.
-
-Fixes: 665d79aa47cb3983 ("ARM: shmobile: marzen: Add DU external pixel clock to DT")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/9d5e1b371121883b3b3e10a3df43802a29c6a9da.1619699965.git.geert+renesas@glider.be
+[bhelgaas: reorder patch in series, commit log]
+Fixes: 6058989bad05 ("PCI: Export ACPI _DSM provided firmware instance number and string name to sysfs")
+Link: https://lore.kernel.org/r/20210603000112.703037-7-kw@linux.com
+Reported-by: Joe Perches <joe@perches.com>
+Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/r8a7779-marzen.dts | 2 +-
- arch/arm/boot/dts/r8a7779.dtsi       | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/pci-label.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/r8a7779-marzen.dts b/arch/arm/boot/dts/r8a7779-marzen.dts
-index 9412a86f9b30..8cae7a656cec 100644
---- a/arch/arm/boot/dts/r8a7779-marzen.dts
-+++ b/arch/arm/boot/dts/r8a7779-marzen.dts
-@@ -136,7 +136,7 @@
- 	status = "okay";
- 
- 	clocks = <&mstp1_clks R8A7779_CLK_DU>, <&x3_clk>;
--	clock-names = "du", "dclkin.0";
-+	clock-names = "du.0", "dclkin.0";
- 
- 	ports {
- 		port@0 {
-diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
-index 2face089d65b..138cc43911d6 100644
---- a/arch/arm/boot/dts/r8a7779.dtsi
-+++ b/arch/arm/boot/dts/r8a7779.dtsi
-@@ -432,6 +432,7 @@
- 		reg = <0xfff80000 0x40000>;
- 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp1_clks R8A7779_CLK_DU>;
-+		clock-names = "du.0";
- 		power-domains = <&sysc R8A7779_PD_ALWAYS_ON>;
- 		status = "disabled";
+diff --git a/drivers/pci/pci-label.c b/drivers/pci/pci-label.c
+index a5910f942857..9fb4ef568f40 100644
+--- a/drivers/pci/pci-label.c
++++ b/drivers/pci/pci-label.c
+@@ -162,7 +162,7 @@ static void dsm_label_utf16s_to_utf8s(union acpi_object *obj, char *buf)
+ 	len = utf16s_to_utf8s((const wchar_t *)obj->buffer.pointer,
+ 			      obj->buffer.length,
+ 			      UTF16_LITTLE_ENDIAN,
+-			      buf, PAGE_SIZE);
++			      buf, PAGE_SIZE - 1);
+ 	buf[len] = '\n';
+ }
  
 -- 
 2.30.2
