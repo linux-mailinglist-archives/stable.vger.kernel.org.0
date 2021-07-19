@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B22C3CDE4E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD3C3CDF34
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344693AbhGSPCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58130 "EHLO mail.kernel.org"
+        id S1345157AbhGSPIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344596AbhGSO7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C49C601FD;
-        Mon, 19 Jul 2021 15:40:30 +0000 (UTC)
+        id S245575AbhGSPFx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BB44610D0;
+        Mon, 19 Jul 2021 15:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709231;
-        bh=CJcCl1sAjW2kolgVzTWChUt7q5ZBduxOieQEixKPpPU=;
+        s=korg; t=1626709592;
+        bh=RFRYBHDbWlmu1RVAL0DMOo8Ao9gffs8zm01HWnXa5CI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpEOyMDLfwm+dO5KkWDkHhpg4XM6Ye4HdLrEhOJfYc35jKezmtSFG/wbchrcYCle/
-         O8M6US3OS+H+cVjfX9LJhaEeEC6IU30YWaxhzFRlS4esWCRA6Opo5rilJuxldaoTU2
-         ciniXIS7hDyTiCbl0swm0ZJkEKH1pyWeWKUrYUEc=
+        b=h2fiBQ2Y3Ag1Eaf14XhpTzlV3Z8z85H+81LMA7mZNdc9dBmEv8VkbT6eG0ce74wsQ
+         qscBRo8Lt1zJVN0cPwbYtql7LFu/v/M3TOmfLQJW7y/tnEetHz0MLgIWDIX01Kx3Qf
+         FX3ntOAYUt7wpRmnzpToBuBwa8hEX5EEhkdCfC7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Tzvetomir Stoyanov <tz.stoyanov@gmail.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Tom Zanussi <zanussi@kernel.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 302/421] tracing: Resize tgid_map to pid_max, not PID_MAX_DEFAULT
+Subject: [PATCH 5.4 005/149] tracing: Do not reference char * as a string in histograms
 Date:   Mon, 19 Jul 2021 16:51:53 +0200
-Message-Id: <20210719144956.793047635@linuxfoundation.org>
+Message-Id: <20210719144902.753593007@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,176 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-commit 4030a6e6a6a4a42ff8c18414c9e0c93e24cc70b8 upstream.
+commit 704adfb5a9978462cd861f170201ae2b5e3d3a80 upstream.
 
-Currently tgid_map is sized at PID_MAX_DEFAULT entries, which means that
-on systems where pid_max is configured higher than PID_MAX_DEFAULT the
-ftrace record-tgid option doesn't work so well. Any tasks with PIDs
-higher than PID_MAX_DEFAULT are simply not recorded in tgid_map, and
-don't show up in the saved_tgids file.
+The histogram logic was allowing events with char * pointers to be used as
+normal strings. But it was easy to crash the kernel with:
 
-In particular since systemd v243 & above configure pid_max to its
-highest possible 1<<22 value by default on 64 bit systems this renders
-the record-tgids option of little use.
+ # echo 'hist:keys=filename' > events/syscalls/sys_enter_openat/trigger
 
-Increase the size of tgid_map to the configured pid_max instead,
-allowing it to cover the full range of PIDs up to the maximum value of
-PID_MAX_LIMIT if the system is configured that way.
+And open some files, and boom!
 
-On 64 bit systems with pid_max == PID_MAX_LIMIT this will increase the
-size of tgid_map from 256KiB to 16MiB. Whilst this 64x increase in
-memory overhead sounds significant 64 bit systems are presumably best
-placed to accommodate it, and since tgid_map is only allocated when the
-record-tgid option is actually used presumably the user would rather it
-spends sufficient memory to actually record the tgids they expect.
+ BUG: unable to handle page fault for address: 00007f2ced0c3280
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 1173fa067 P4D 1173fa067 PUD 1171b6067 PMD 1171dd067 PTE 0
+ Oops: 0000 [#1] PREEMPT SMP
+ CPU: 6 PID: 1810 Comm: cat Not tainted 5.13.0-rc5-test+ #61
+ Hardware name: Hewlett-Packard HP Compaq Pro 6300 SFF/339A, BIOS K01
+v03.03 07/14/2016
+ RIP: 0010:strlen+0x0/0x20
+ Code: f6 82 80 2a 0b a9 20 74 11 0f b6 50 01 48 83 c0 01 f6 82 80 2a 0b
+a9 20 75 ef c3 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 <80> 3f 00 74
+10 48 89 f8 48 83 c0 01 80 38 00 75 f7 48 29 f8 c3
 
-The size of tgid_map could also increase for CONFIG_BASE_SMALL=y
-configurations, but these seem unlikely to be systems upon which people
-are both configuring a large pid_max and running ftrace with record-tgid
-anyway.
+ RSP: 0018:ffffbdbf81567b50 EFLAGS: 00010246
+ RAX: 0000000000000003 RBX: ffff93815cdb3800 RCX: ffff9382401a22d0
+ RDX: 0000000000000100 RSI: 0000000000000000 RDI: 00007f2ced0c3280
+ RBP: 0000000000000100 R08: ffff9382409ff074 R09: ffffbdbf81567c98
+ R10: ffff9382409ff074 R11: 0000000000000000 R12: ffff9382409ff074
+ R13: 0000000000000001 R14: ffff93815a744f00 R15: 00007f2ced0c3280
+ FS:  00007f2ced0f8580(0000) GS:ffff93825a800000(0000)
+knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f2ced0c3280 CR3: 0000000107069005 CR4: 00000000001706e0
+ Call Trace:
+  event_hist_trigger+0x463/0x5f0
+  ? find_held_lock+0x32/0x90
+  ? sched_clock_cpu+0xe/0xd0
+  ? lock_release+0x155/0x440
+  ? kernel_init_free_pages+0x6d/0x90
+  ? preempt_count_sub+0x9b/0xd0
+  ? kernel_init_free_pages+0x6d/0x90
+  ? get_page_from_freelist+0x12c4/0x1680
+  ? __rb_reserve_next+0xe5/0x460
+  ? ring_buffer_lock_reserve+0x12a/0x3f0
+  event_triggers_call+0x52/0xe0
+  ftrace_syscall_enter+0x264/0x2c0
+  syscall_trace_enter.constprop.0+0x1ee/0x210
+  do_syscall_64+0x1c/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Of note is that we only allocate tgid_map once, the first time that the
-record-tgid option is enabled. Therefore its size is only set once, to
-the value of pid_max at the time the record-tgid option is first
-enabled. If a user increases pid_max after that point, the saved_tgids
-file will not contain entries for any tasks with pids beyond the earlier
-value of pid_max.
+Where it triggered a fault on strlen(key) where key was the filename.
 
-Link: https://lkml.kernel.org/r/20210701172407.889626-2-paulburton@google.com
+The reason is that filename is a char * to user space, and the histogram
+code just blindly dereferenced it, with obvious bad results.
 
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-[ Fixed comment coding style ]
+I originally tried to use strncpy_from_user/kernel_nofault() but found
+that there's other places that its dereferenced and not worth the effort.
+
+Just do not allow "char *" to act like strings.
+
+Link: https://lkml.kernel.org/r/20210715000206.025df9d2@rorschach.local.home
+
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Tzvetomir Stoyanov <tz.stoyanov@gmail.com>
+Cc: stable@vger.kernel.org
+Acked-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Tom Zanussi <zanussi@kernel.org>
+Fixes: 79e577cbce4c4 ("tracing: Support string type key properly")
+Fixes: 5967bd5c4239 ("tracing: Let filter_assign_type() detect FILTER_PTR_STRING")
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   63 ++++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 47 insertions(+), 16 deletions(-)
+ kernel/trace/trace_events_hist.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -1729,8 +1729,15 @@ void tracing_reset_all_online_cpus(void)
- 	}
- }
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2571,7 +2571,9 @@ static struct hist_field *create_hist_fi
+ 	if (WARN_ON_ONCE(!field))
+ 		goto out;
  
-+/*
-+ * The tgid_map array maps from pid to tgid; i.e. the value stored at index i
-+ * is the tgid last observed corresponding to pid=i.
-+ */
- static int *tgid_map;
+-	if (is_string_field(field)) {
++	/* Pointers to strings are just pointers and dangerous to dereference */
++	if (is_string_field(field) &&
++	    (field->filter_type != FILTER_PTR_STRING)) {
+ 		flags |= HIST_FIELD_FL_STRING;
  
-+/* The maximum valid index into tgid_map. */
-+static size_t tgid_map_max;
-+
- #define SAVED_CMDLINES_DEFAULT 128
- #define NO_CMDLINE_MAP UINT_MAX
- static arch_spinlock_t trace_cmdline_lock = __ARCH_SPIN_LOCK_UNLOCKED;
-@@ -2003,24 +2010,41 @@ void trace_find_cmdline(int pid, char co
- 	preempt_enable();
- }
+ 		hist_field->size = MAX_FILTER_STR_VAL;
+@@ -5326,8 +5328,6 @@ static inline void add_to_key(char *comp
+ 		field = key_field->field;
+ 		if (field->filter_type == FILTER_DYN_STRING)
+ 			size = *(u32 *)(rec + field->offset) >> 16;
+-		else if (field->filter_type == FILTER_PTR_STRING)
+-			size = strlen(key);
+ 		else if (field->filter_type == FILTER_STATIC_STRING)
+ 			size = field->size;
  
-+static int *trace_find_tgid_ptr(int pid)
-+{
-+	/*
-+	 * Pairs with the smp_store_release in set_tracer_flag() to ensure that
-+	 * if we observe a non-NULL tgid_map then we also observe the correct
-+	 * tgid_map_max.
-+	 */
-+	int *map = smp_load_acquire(&tgid_map);
-+
-+	if (unlikely(!map || pid > tgid_map_max))
-+		return NULL;
-+
-+	return &map[pid];
-+}
-+
- int trace_find_tgid(int pid)
- {
--	if (unlikely(!tgid_map || !pid || pid > PID_MAX_DEFAULT))
--		return 0;
-+	int *ptr = trace_find_tgid_ptr(pid);
- 
--	return tgid_map[pid];
-+	return ptr ? *ptr : 0;
- }
- 
- static int trace_save_tgid(struct task_struct *tsk)
- {
-+	int *ptr;
-+
- 	/* treat recording of idle task as a success */
- 	if (!tsk->pid)
- 		return 1;
- 
--	if (unlikely(!tgid_map || tsk->pid > PID_MAX_DEFAULT))
-+	ptr = trace_find_tgid_ptr(tsk->pid);
-+	if (!ptr)
- 		return 0;
- 
--	tgid_map[tsk->pid] = tsk->tgid;
-+	*ptr = tsk->tgid;
- 	return 1;
- }
- 
-@@ -4355,6 +4379,8 @@ int trace_keep_overwrite(struct tracer *
- 
- int set_tracer_flag(struct trace_array *tr, unsigned int mask, int enabled)
- {
-+	int *map;
-+
- 	if ((mask == TRACE_ITER_RECORD_TGID) ||
- 	    (mask == TRACE_ITER_RECORD_CMD))
- 		lockdep_assert_held(&event_mutex);
-@@ -4377,10 +4403,19 @@ int set_tracer_flag(struct trace_array *
- 		trace_event_enable_cmd_record(enabled);
- 
- 	if (mask == TRACE_ITER_RECORD_TGID) {
--		if (!tgid_map)
--			tgid_map = kvcalloc(PID_MAX_DEFAULT + 1,
--					   sizeof(*tgid_map),
--					   GFP_KERNEL);
-+		if (!tgid_map) {
-+			tgid_map_max = pid_max;
-+			map = kvcalloc(tgid_map_max + 1, sizeof(*tgid_map),
-+				       GFP_KERNEL);
-+
-+			/*
-+			 * Pairs with smp_load_acquire() in
-+			 * trace_find_tgid_ptr() to ensure that if it observes
-+			 * the tgid_map we just allocated then it also observes
-+			 * the corresponding tgid_map_max value.
-+			 */
-+			smp_store_release(&tgid_map, map);
-+		}
- 		if (!tgid_map) {
- 			tr->trace_flags &= ~TRACE_ITER_RECORD_TGID;
- 			return -ENOMEM;
-@@ -4754,18 +4789,14 @@ static void *saved_tgids_next(struct seq
- {
- 	int pid = ++(*pos);
- 
--	if (pid > PID_MAX_DEFAULT)
--		return NULL;
--
--	return &tgid_map[pid];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	if (!tgid_map || *pos > PID_MAX_DEFAULT)
--		return NULL;
-+	int pid = *pos;
- 
--	return &tgid_map[*pos];
-+	return trace_find_tgid_ptr(pid);
- }
- 
- static void saved_tgids_stop(struct seq_file *m, void *v)
 
 
