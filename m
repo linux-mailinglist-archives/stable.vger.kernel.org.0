@@ -2,61 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B71DB3CD539
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:56:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CFC3CD53A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 14:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237057AbhGSMPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 08:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57854 "EHLO
+        id S236883AbhGSMQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 08:16:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236867AbhGSMPv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:15:51 -0400
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A999C061574
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:15:09 -0700 (PDT)
-Received: by mail-ed1-x52d.google.com with SMTP id h2so23831752edt.3
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:56:30 -0700 (PDT)
+        with ESMTP id S231282AbhGSMQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:16:08 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C3EC061574
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:15:26 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id l26so23776095eda.10
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:56:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=blackwall-org.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=3KleoVijwUG1KPNuSx3FYt/OGw+iX0Uw0Awgf4mbYrs=;
-        b=hG8kiC9BA+XKtqERmywGMfF9srMltkFUsp5w9drWT2Q3x/fB1HpRegLX3ks/gnxvmp
-         7kibriLe/Eaf2n5U/yTIKFv71FKFe0Ib2WCB77k3RtZHUYtXUeBmXcBY6RelQ+mLgK89
-         uDgrsTAufP4mK8DTO4UaPz+hX3A/hI1kl02uWvvSEFCo11Rgepr7wJ5ldSdNQvz9WPWt
-         iYIcoTYr5lN2mapfls0rXSzTUJPrEx9b+esLKCGWDuTh3AkiboUKWwWF6CSiqIua19Yf
-         /fSMLQmp/EkDNTCCb3YulxXY2Jn2QfR3VzMfxCen7hO/NW+WZJvGQojEmKRHQB4pTz3c
-         23UA==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mn+8wHHpC24at37S3PiMQmwjqA88jzhgo0Pf7gsKdqc=;
+        b=OETIYjxOip8DKIfdTzpdcyOx9Qy4VlhnQKOz0nPpEwVHf1ji7dr4GUfb4lE4ML9JL4
+         E9F/OIgU8mYlKgoVysDV+J7E63jj2BhMnfCcCUpx7pYmhK2CstrKE6W/kwi+mZG+5SVP
+         RAGuM29XzEwtBVTrUj/on//XngKpBy8qwvmnPM1r0epQDC23mLAeiyx5k6/A6MopQITX
+         muIFFrPfK/Mc11Jxinavj47R6j3WYvzaq4yYYi7sbEjAIS4ShhbUMxwv+Cdua83AOdYN
+         sXnYfWKUjcnbA896Tv7kJVImpAvwXlFWd61MpLOBBPot2Y4D1PqAx/6rMBrYBjJu05v+
+         qKcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=3KleoVijwUG1KPNuSx3FYt/OGw+iX0Uw0Awgf4mbYrs=;
-        b=uhOc4kI78uzZsVjNaT/XAGXiDww+Z1c6R7lKfxqKd+SOZKeVl4/rD6D+uN0BkK/O8A
-         jTP5cZVXXiKN1jPHLv85KQ3ZB/Lu2zJf8svdVqALR9fCKez7uXe4/y+urI95G0CSdKvZ
-         FU67h8qOUsaaEBubw37bjAlF5shVPBXddR1L1i4gRwhjwf4C+NqkTWTe2xhiwALuGtQI
-         UnRoI2VlfzY68oqlk8JxmzdgpNePnRPmYxsXdobXifsk9JwabpjbYvZDMm6F/5wSjik4
-         CIsht5F0jgez1JrAD7Tnjes6MwRnyLb0ZeuA6ULkTcK/Nh22itGKPO8NvvVORsTWK77g
-         Iiag==
-X-Gm-Message-State: AOAM531C0fJuI7ozJsgAl6PbGGfsoOzV03oDsoI9LmBBpG4X/z2OxI34
-        nRlU7H9x/YTl9v1lmzUVzEXQXuFsq9cyYsFqanE=
-X-Google-Smtp-Source: ABdhPJw2GH+SvZlNHM6VAPJ9P0x0wttLfV509aUP0NrAFBDKNsrWUHtlzeMbv3F4RnlAw1CUeVcbnw==
-X-Received: by 2002:a05:6402:13c9:: with SMTP id a9mr34236194edx.247.1626699389476;
-        Mon, 19 Jul 2021 05:56:29 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=mn+8wHHpC24at37S3PiMQmwjqA88jzhgo0Pf7gsKdqc=;
+        b=eWsze262AkJuzBInf3xD00Gr17Jxmc+TNDErjcVOEFqFVQmoO0whdSMBciK/ceUK+L
+         Sc+IzpuC5zvR+JBIvpI/Lg3BjBBf80/7YfWKvbdJ+NKgjBjJbh5zGPUin64ZKXMtw9uF
+         esgzhmvVJbUaCFYKed6UcmQjjDIbNVWAV/18t6GSNBhqYW7VL5jQq9eOvJPlZ+At2nAl
+         KjCghuT5Yfoxs2jog0kDYBVVCpkkUbNhrD6V7kVexSaTnV9QL1cM2YEP2cdfqke/J9lm
+         3An9nV8oevntfdT/WXd4KesY5mh0VNg+gqNAND7t8KfkxGiVMcJZ9ytpsr0rnB7ufq0H
+         LyKQ==
+X-Gm-Message-State: AOAM533ZkM+ZiBEl8T89Op7lbak0zfpcarZw/CNRLTfrPIJ2eFs9yxdR
+        Z6+NAPrOjXti5dI8Zz/+fHHo1d+9u/fifJ5cs/o=
+X-Google-Smtp-Source: ABdhPJweF3LWtptwNbvgMSDAcr+ldg3JOoI3Ys0UR1Fo7JDFO5spsJTwdcuhig1U99zbTICGlTwoyg==
+X-Received: by 2002:a05:6402:4cb:: with SMTP id n11mr33929509edw.292.1626699405326;
+        Mon, 19 Jul 2021 05:56:45 -0700 (PDT)
 Received: from debil.vdiclient.nvidia.com (84-238-136-197.ip.btc-net.bg. [84.238.136.197])
-        by smtp.gmail.com with ESMTPSA id k21sm7770281edo.41.2021.07.19.05.56.28
+        by smtp.gmail.com with ESMTPSA id dd24sm7810455edb.45.2021.07.19.05.56.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jul 2021 05:56:29 -0700 (PDT)
+        Mon, 19 Jul 2021 05:56:44 -0700 (PDT)
 From:   Nikolay Aleksandrov <razor@blackwall.org>
 To:     stable@vger.kernel.org
-Cc:     Nikolay Aleksandrov <nikolay@nvidia.com>, linus.luessing@c0d3.blue,
+Cc:     Nikolay Aleksandrov <nikolay@nvidia.com>,
         "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 2/2] net: bridge: multicast: fix MRD advertisement router port marking race
-Date:   Mon, 19 Jul 2021 15:56:24 +0300
-Message-Id: <20210719125624.317823-2-razor@blackwall.org>
+Subject: [PATCH 4.19] net: bridge: multicast: fix PIM hello router port marking race
+Date:   Mon, 19 Jul 2021 15:56:41 +0300
+Message-Id: <20210719125641.317916-1-razor@blackwall.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210719125624.317823-1-razor@blackwall.org>
-References: <20210719125624.317823-1-razor@blackwall.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -65,39 +63,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-commit 000b7287b67555fee39d39fff75229dedde0dcbf upstream.
+commit 04bef83a3358946bfc98a5ecebd1b0003d83d882 upstream.
 
-When an MRD advertisement is received on a bridge port with multicast
+When a PIM hello packet is received on a bridge port with multicast
 snooping enabled, we mark it as a router port automatically, that
-includes adding that port to the router port list. The multicast lock
-protects that list, but it is not acquired in the MRD advertisement case
+includes adding that port the router port list. The multicast lock
+protects that list, but it is not acquired in the PIM message case
 leading to a race condition, we need to take it to fix the race.
 
 Cc: stable@vger.kernel.org
-Cc: linus.luessing@c0d3.blue
-Fixes: 4b3087c7e37f ("bridge: Snoop Multicast Router Advertisements")
+Fixes: 91b02d3d133b ("bridge: mcast: add router port on PIM hello message")
 Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 ---
- net/bridge/br_multicast.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bridge/br_multicast.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/net/bridge/br_multicast.c b/net/bridge/br_multicast.c
-index 9e9a584cf993..e5328a2777ec 100644
+index 6a362da211e1..3504c3acd38f 100644
 --- a/net/bridge/br_multicast.c
 +++ b/net/bridge/br_multicast.c
-@@ -3011,7 +3011,9 @@ static int br_ip4_multicast_mrd_rcv(struct net_bridge *br,
- 	    igmp_hdr(skb)->type != IGMP_MRDISC_ADV)
- 		return -ENOMSG;
- 
-+	spin_lock(&br->multicast_lock);
- 	br_multicast_mark_router(br, port);
-+	spin_unlock(&br->multicast_lock);
- 
- 	return 0;
- }
-@@ -3079,7 +3081,9 @@ static void br_ip6_multicast_mrd_rcv(struct net_bridge *br,
- 	if (icmp6_hdr(skb)->icmp6_type != ICMPV6_MRDISC_ADV)
+@@ -1791,7 +1791,9 @@ static void br_multicast_pim(struct net_bridge *br,
+ 	    pim_hdr_type(pimhdr) != PIM_TYPE_HELLO)
  		return;
  
 +	spin_lock(&br->multicast_lock);
@@ -105,7 +92,7 @@ index 9e9a584cf993..e5328a2777ec 100644
 +	spin_unlock(&br->multicast_lock);
  }
  
- static int br_multicast_ipv6_rcv(struct net_bridge *br,
+ static int br_multicast_ipv4_rcv(struct net_bridge *br,
 -- 
 2.31.1
 
