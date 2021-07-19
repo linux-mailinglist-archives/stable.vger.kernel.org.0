@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01A133CE42F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A5E3CE465
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348202AbhGSPmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34938 "EHLO mail.kernel.org"
+        id S1347690AbhGSPnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236201AbhGSPhH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:37:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38B5D6120A;
-        Mon, 19 Jul 2021 16:17:45 +0000 (UTC)
+        id S1347854AbhGSPjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:39:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C62E6120C;
+        Mon, 19 Jul 2021 16:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711465;
-        bh=uCErFtZRdNF5y07pqjRLmpl62TcxkfILFvZUtKYpVLg=;
+        s=korg; t=1626711561;
+        bh=IW+kRm7y3/w5PDA1gPnsPSpm83DD9zwtepBPUsz8hoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxtjBFBJDVwZIP8nM5heLY6ZFMh6wasWn8A9xDLBHS5G6W0vaTss/reTbWH8EKvwT
-         BB5RPL0oPXIOUTT4a6iD6e4H+y+bZqSOUEAQiZOkKIjocc1kPSlEaRcrIpBx1Z6CYu
-         PGk8CUcB12GXI5CPpDx1iP/P7tiZXFKGV3Da8HhA=
+        b=oEdw+RQu9p0dZB3RR33r/84tV3Jx/myhLLw3XHGSGKhNtK9aMvrZn6ROGNRiQ4yS7
+         irWIkJUI2ddJ468oXmrvqntmJZfOEXMXBUXCNPGx+aUT4HbkMOvpmUwFeQJWEAdVR2
+         Cr3rsRDl5M9bpG30oR19iIozdDq4tCTY6FSHyZuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Brijesh Singh <brijesh.singh@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Sean Christopherson <seanjc@google.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 005/292] KVM: x86: Use guest MAXPHYADDR from CPUID.0x8000_0008 iff TDP is enabled
-Date:   Mon, 19 Jul 2021 16:51:07 +0200
-Message-Id: <20210719144942.694837936@linuxfoundation.org>
+Subject: [PATCH 5.12 006/292] KVM: x86/mmu: Do not apply HPA (memory encryption) mask to GPAs
+Date:   Mon, 19 Jul 2021 16:51:08 +0200
+Message-Id: <20210719144942.727723302@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,42 +43,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sean Christopherson <seanjc@google.com>
 
-commit 4bf48e3c0aafd32b960d341c4925b48f416f14a5 upstream.
+commit fc9bf2e087efcd81bda2e52d09616d2a1bf982a8 upstream.
 
-Ignore the guest MAXPHYADDR reported by CPUID.0x8000_0008 if TDP, i.e.
-NPT, is disabled, and instead use the host's MAXPHYADDR.  Per AMD'S APM:
+Ignore "dynamic" host adjustments to the physical address mask when
+generating the masks for guest PTEs, i.e. the guest PA masks.  The host
+physical address space and guest physical address space are two different
+beasts, e.g. even though SEV's C-bit is the same bit location for both
+host and guest, disabling SME in the host (which clears shadow_me_mask)
+does not affect the guest PTE->GPA "translation".
 
-  Maximum guest physical address size in bits. This number applies only
-  to guests using nested paging. When this field is zero, refer to the
-  PhysAddrSize field for the maximum guest physical address size.
+For non-SEV guests, not dropping bits is the correct behavior.  Assuming
+KVM and userspace correctly enumerate/configure guest MAXPHYADDR, bits
+that are lost as collateral damage from memory encryption are treated as
+reserved bits, i.e. KVM will never get to the point where it attempts to
+generate a gfn using the affected bits.  And if userspace wants to create
+a bogus vCPU, then userspace gets to deal with the fallout of hardware
+doing odd things with bad GPAs.
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
+For SEV guests, not dropping the C-bit is technically wrong, but it's a
+moot point because KVM can't read SEV guest's page tables in any case
+since they're always encrypted.  Not to mention that the current KVM code
+is also broken since sme_me_mask does not have to be non-zero for SEV to
+be supported by KVM.  The proper fix would be to teach all of KVM to
+correctly handle guest private memory, but that's a task for the future.
+
+Fixes: d0ec49d4de90 ("kvm/x86/svm: Support Secure Memory Encryption within KVM")
 Cc: stable@vger.kernel.org
+Cc: Brijesh Singh <brijesh.singh@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210623230552.4027702-2-seanjc@google.com>
+Message-Id: <20210623230552.4027702-5-seanjc@google.com>
+[Use a new header instead of adding header guards to paging_tmpl.h. - Paolo]
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c         |    2 ++
+ arch/x86/kvm/mmu/paging.h      |   14 ++++++++++++++
+ arch/x86/kvm/mmu/paging_tmpl.h |    4 ++--
+ arch/x86/kvm/mmu/spte.h        |    6 ------
+ 4 files changed, 18 insertions(+), 8 deletions(-)
+ create mode 100644 arch/x86/kvm/mmu/paging.h
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -844,8 +844,14 @@ static inline int __do_cpuid_func(struct
- 		unsigned virt_as = max((entry->eax >> 8) & 0xff, 48U);
- 		unsigned phys_as = entry->eax & 0xff;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -52,6 +52,8 @@
+ #include <asm/kvm_page_track.h>
+ #include "trace.h"
  
--		if (!g_phys_as)
-+		/*
-+		 * Use bare metal's MAXPHADDR if the CPU doesn't report guest
-+		 * MAXPHYADDR separately, or if TDP (NPT) is disabled, as the
-+		 * guest version "applies only to guests using nested paging".
-+		 */
-+		if (!g_phys_as || !tdp_enabled)
- 			g_phys_as = phys_as;
++#include "paging.h"
 +
- 		entry->eax = g_phys_as | (virt_as << 8);
- 		entry->edx = 0;
- 		cpuid_entry_override(entry, CPUID_8000_0008_EBX);
+ extern bool itlb_multihit_kvm_mitigation;
+ 
+ static int __read_mostly nx_huge_pages = -1;
+--- /dev/null
++++ b/arch/x86/kvm/mmu/paging.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/* Shadow paging constants/helpers that don't need to be #undef'd. */
++#ifndef __KVM_X86_PAGING_H
++#define __KVM_X86_PAGING_H
++
++#define GUEST_PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
++#define PT64_LVL_ADDR_MASK(level) \
++	(GUEST_PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
++						* PT64_LEVEL_BITS))) - 1))
++#define PT64_LVL_OFFSET_MASK(level) \
++	(GUEST_PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
++						* PT64_LEVEL_BITS))) - 1))
++#endif /* __KVM_X86_PAGING_H */
++
+--- a/arch/x86/kvm/mmu/paging_tmpl.h
++++ b/arch/x86/kvm/mmu/paging_tmpl.h
+@@ -24,7 +24,7 @@
+ 	#define pt_element_t u64
+ 	#define guest_walker guest_walker64
+ 	#define FNAME(name) paging##64_##name
+-	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
++	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
+ 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
+ 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
+ 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
+@@ -57,7 +57,7 @@
+ 	#define pt_element_t u64
+ 	#define guest_walker guest_walkerEPT
+ 	#define FNAME(name) ept_##name
+-	#define PT_BASE_ADDR_MASK PT64_BASE_ADDR_MASK
++	#define PT_BASE_ADDR_MASK GUEST_PT64_BASE_ADDR_MASK
+ 	#define PT_LVL_ADDR_MASK(lvl) PT64_LVL_ADDR_MASK(lvl)
+ 	#define PT_LVL_OFFSET_MASK(lvl) PT64_LVL_OFFSET_MASK(lvl)
+ 	#define PT_INDEX(addr, level) PT64_INDEX(addr, level)
+--- a/arch/x86/kvm/mmu/spte.h
++++ b/arch/x86/kvm/mmu/spte.h
+@@ -23,12 +23,6 @@
+ #else
+ #define PT64_BASE_ADDR_MASK (((1ULL << 52) - 1) & ~(u64)(PAGE_SIZE-1))
+ #endif
+-#define PT64_LVL_ADDR_MASK(level) \
+-	(PT64_BASE_ADDR_MASK & ~((1ULL << (PAGE_SHIFT + (((level) - 1) \
+-						* PT64_LEVEL_BITS))) - 1))
+-#define PT64_LVL_OFFSET_MASK(level) \
+-	(PT64_BASE_ADDR_MASK & ((1ULL << (PAGE_SHIFT + (((level) - 1) \
+-						* PT64_LEVEL_BITS))) - 1))
+ 
+ #define PT64_PERM_MASK (PT_PRESENT_MASK | PT_WRITABLE_MASK | shadow_user_mask \
+ 			| shadow_x_mask | shadow_nx_mask | shadow_me_mask)
 
 
