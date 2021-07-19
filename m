@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02A883CCFEC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5E83CCFF4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235841AbhGSIXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41414 "EHLO mail.kernel.org"
+        id S235879AbhGSIXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:23:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235814AbhGSIXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 04:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E03C56120E;
-        Mon, 19 Jul 2021 08:55:19 +0000 (UTC)
+        id S235880AbhGSIXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 04:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50EC461248;
+        Mon, 19 Jul 2021 08:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626684920;
-        bh=0oxP5gfEw/CrD5HppJMUUH4ifUICVi2esUiS3vHwKZo=;
+        s=korg; t=1626684955;
+        bh=ePBRj5YLuTR2mrim4zCUTZtMKw2CWxFnXRWiPcpzi9Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=pB1phsF70Y5ZHaVWOgYlpVR4w5BO/cc1YesbetSq92SDY0UFqA26FRKM2JjLm4Bpn
-         +E4ZS0ig2ZbijqVePCfCQKsCvoiSM62C2DbRtxPHxfToVkqX1xkEBEbmqc3r0l9KSu
-         U0aWbHYehuLRYb8bbL3oGPig4wWcl+CqYPf2niM4=
-Subject: FAILED: patch "[PATCH] KVM: x86: Use kernel's x86_phys_bits to handle reduced" failed to apply to 5.10-stable tree
+        b=UGe+Lyb+EiLiTMJ7IMTgTlJ4zS5rF/Sy42t+4p+7ghk9cKNIhVCCT+V6RrCGdTxmm
+         ALIRezwrk/Le7EkpNNRAtCPnLC0gi1ngQ2e8wgAaGecz6W8YIYcd64G8qCb+2RZXwO
+         GNWUds78Ode68vpt9vg3kHiKnBoMJAodoUBw8Gw0=
+Subject: FAILED: patch "[PATCH] KVM: x86: Use kernel's x86_phys_bits to handle reduced" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Jul 2021 10:52:39 +0200
-Message-ID: <162668475913841@kroah.com>
+Date:   Mon, 19 Jul 2021 10:52:40 +0200
+Message-ID: <162668476021559@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
