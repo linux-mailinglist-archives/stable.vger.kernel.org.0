@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D85683CDC97
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 613BF3CDE75
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244728AbhGSOxF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
+        id S245449AbhGSPDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237882AbhGSOo1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:44:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C536561073;
-        Mon, 19 Jul 2021 15:22:57 +0000 (UTC)
+        id S1344882AbhGSPBM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7BF610A5;
+        Mon, 19 Jul 2021 15:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708178;
-        bh=bx742uTUNRflyupydRQIjYRp84R79HcNqmh7470IApY=;
+        s=korg; t=1626709310;
+        bh=Yk4C3BLLAdIEdYekruoz0XI+8YhRHT61p0DV1dBQjYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fzNmGx3MzVhH2162n9bWGZY9Eete9YfrPNLvP9DYyKYwKifYPFDzOvtlGR2r+PsSC
-         P0AHXqqLf/4I9+6F8MIIaO9HfcKY6p7i9Q3WHYiGZgkcW/+P6LuVzl6EbITsqFPMt+
-         kkT66zggoJhJgDWbRvjH16ZqelUbVNKJweAhfyyQ=
+        b=NH4Tr0ztz6q19i1Zkj/YCMxSHb/IFiiRtrotkgye6lexEROWu5J0HZAWLCxMVywSR
+         Ll+rlM+MjHxxb9PHjY8id4gBSzmr+oLh2Zk2CXNZ2GENYp4UzFwY1AyUxNr9984SKy
+         EcQ24w2TRgMhqJVAA2mj6sCq7rjfvMNhEahhCafo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 210/315] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
-Date:   Mon, 19 Jul 2021 16:51:39 +0200
-Message-Id: <20210719144950.334621108@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Pekka Paalanen <pekka.paalanen@collabora.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Rob Clark <robdclark@chromium.org>,
+        Jordan Crouse <jordan@cosmicpenguin.net>,
+        Emil Velikov <emil.velikov@collabora.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Daniel Vetter <daniel.vetter@intel.com>
+Subject: [PATCH 4.19 289/421] drm/msm/mdp4: Fix modifier support enabling
+Date:   Mon, 19 Jul 2021 16:51:40 +0200
+Message-Id: <20210719144956.351860614@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,61 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Cooper <alcooperx@gmail.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
+commit 35cbb8c91e9cf310277d3dfb4d046df8edf2df33 upstream.
 
-When an eMMC device is being run in HS400 mode, any access to the
-RPMB device will cause the error message "mmc1: Invalid UHS-I mode
-selected". This happens as a result of tuning being disabled before
-RPMB access and then re-enabled after the RPMB access is complete.
-When tuning is re-enabled, the system has to switch from HS400
-to HS200 to do the tuning and then back to HS400. As part of
-sequence to switch from HS400 to HS200 the system is temporarily
-put into HS mode. When switching to HS mode, sdhci_get_preset_value()
-is called and does not have support for HS mode and prints the warning
-message and returns the preset for SDR12. The fix is to add support
-for MMC and SD HS modes to sdhci_get_preset_value().
+Setting the cap without the modifier list is very confusing to
+userspace. Fix that by listing the ones we support explicitly.
 
-This can be reproduced on any system running eMMC in HS400 mode
-(not HS400ES) by using the "mmc" utility to run the following
-command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
+Stable backport so that userspace can rely on this working in a
+reasonable way, i.e. that the cap set implies IN_FORMATS is available.
 
-Signed-off-by: Al Cooper <alcooperx@gmail.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
+Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
+Cc: Rob Clark <robdclark@chromium.org>
+Cc: Jordan Crouse <jordan@cosmicpenguin.net>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-5-daniel.vetter@ffwll.ch
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci.c |    4 ++++
- drivers/mmc/host/sdhci.h |    1 +
- 2 files changed, 5 insertions(+)
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c   |    2 --
+ drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c |    8 +++++++-
+ 2 files changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci.c
-+++ b/drivers/mmc/host/sdhci.c
-@@ -1293,6 +1293,10 @@ static u16 sdhci_get_preset_value(struct
- 	u16 preset = 0;
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
+@@ -96,8 +96,6 @@ static int mdp4_hw_init(struct msm_kms *
+ 	if (mdp4_kms->rev > 1)
+ 		mdp4_write(mdp4_kms, REG_MDP4_RESET_STATUS, 1);
  
- 	switch (host->timing) {
-+	case MMC_TIMING_MMC_HS:
-+	case MMC_TIMING_SD_HS:
-+		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
-+		break;
- 	case MMC_TIMING_UHS_SDR12:
- 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
- 		break;
---- a/drivers/mmc/host/sdhci.h
-+++ b/drivers/mmc/host/sdhci.h
-@@ -252,6 +252,7 @@
+-	dev->mode_config.allow_fb_modifiers = true;
+-
+ out:
+ 	pm_runtime_put_sync(dev->dev);
  
- /* 60-FB reserved */
+--- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c
++++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c
+@@ -356,6 +356,12 @@ enum mdp4_pipe mdp4_plane_pipe(struct dr
+ 	return mdp4_plane->pipe;
+ }
  
-+#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
- #define SDHCI_PRESET_FOR_SDR12 0x66
- #define SDHCI_PRESET_FOR_SDR25 0x68
- #define SDHCI_PRESET_FOR_SDR50 0x6A
++static const uint64_t supported_format_modifiers[] = {
++	DRM_FORMAT_MOD_SAMSUNG_64_32_TILE,
++	DRM_FORMAT_MOD_LINEAR,
++	DRM_FORMAT_MOD_INVALID
++};
++
+ /* initialize plane */
+ struct drm_plane *mdp4_plane_init(struct drm_device *dev,
+ 		enum mdp4_pipe pipe_id, bool private_plane)
+@@ -384,7 +390,7 @@ struct drm_plane *mdp4_plane_init(struct
+ 	type = private_plane ? DRM_PLANE_TYPE_PRIMARY : DRM_PLANE_TYPE_OVERLAY;
+ 	ret = drm_universal_plane_init(dev, plane, 0xff, &mdp4_plane_funcs,
+ 				 mdp4_plane->formats, mdp4_plane->nformats,
+-				 NULL, type, NULL);
++				 supported_format_modifiers, type, NULL);
+ 	if (ret)
+ 		goto fail;
+ 
 
 
