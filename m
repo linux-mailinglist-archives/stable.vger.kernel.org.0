@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 350523CE06B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB2C3CDDE3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346815AbhGSPR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49366 "EHLO mail.kernel.org"
+        id S1344922AbhGSPBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346162AbhGSPOE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB83613F8;
-        Mon, 19 Jul 2021 15:53:52 +0000 (UTC)
+        id S1344206AbhGSO7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93A416113B;
+        Mon, 19 Jul 2021 15:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710033;
-        bh=cjFLiYvpXgJg5R8/A0oRgy/TxHOhY+yBWW71dNTeMZw=;
+        s=korg; t=1626709136;
+        bh=EJn5Enp1Vta3TfDwEyAI6zvm15s9pDuRg5WqNMt6aLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpOvnsqsj/FcnIhrriuOn+IZbqyeFNR7KYcAT4x0DtSbPmPSkjxCzt1eXS1+Sv74X
-         WiZtk1uCSPl+qG/CPOjcScy5TQhqPdvCMcxHqeYHE7gi1/w9rzIo8SHIgYTRNR2t+o
-         lzmPITGdA+obCxFj51Ct00pIKR5AuFAp8exxDXgw=
+        b=vxqj8/s3RIh2FIyhoKWgTzz3rZ+/XdaB556GRllnHmFp8R4GwZMwsXLYrZfsdYeJW
+         Tvalk+ucgwDMUdCqco6x4vDmk6gLkdwARGDJMp6B2/3iH6hrX4Xlu7/a3F1mfIBqyM
+         pNXeHcr+2QdXcxjwrR/WH/OnDtk+q2psVkXsv2s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yufen Yu <yuyufen@huawei.com>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/243] ALSA: ac97: fix PM reference leak in ac97_bus_remove()
-Date:   Mon, 19 Jul 2021 16:51:17 +0200
-Message-Id: <20210719144942.469031110@linuxfoundation.org>
+Subject: [PATCH 4.19 267/421] sfc: avoid double pci_remove of VFs
+Date:   Mon, 19 Jul 2021 16:51:18 +0200
+Message-Id: <20210719144955.633234774@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit a38e93302ee25b2ca6f4ee76c6c974cf3637985e ]
+[ Upstream commit 45423cff1db66cf0993e8a9bd0ac93e740149e49 ]
 
-pm_runtime_get_sync will increment pm usage counter even it failed.
-Forgetting to putting operation will result in reference leak here.
-Fix it by replacing it with pm_runtime_resume_and_get to keep usage
-counter balanced.
+If pci_remove was called for a PF with VFs, the removal of the VFs was
+called twice from efx_ef10_sriov_fini: one directly with pci_driver->remove
+and another implicit by calling pci_disable_sriov, which also perform
+the VFs remove. This was leading to crashing the kernel on the second
+attempt.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Link: https://lore.kernel.org/r/20210524093811.612302-1-yuyufen@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Given that pci_disable_sriov already calls to pci remove function, get
+rid of the direct call to pci_driver->remove from the driver.
+
+2 different ways to trigger the bug:
+- Create one or more VFs, then attach the PF to a virtual machine (at
+  least with qemu/KVM)
+- Create one or more VFs, then remove the PF with:
+  echo 1 > /sys/bus/pci/devices/PF_PCI_ID/remove
+
+Removing sfc module does not trigger the error, at least for me, because
+it removes the VF first, and then the PF.
+
+Example of a log with the error:
+    list_del corruption, ffff967fd20a8ad0->next is LIST_POISON1 (dead000000000100)
+    ------------[ cut here ]------------
+    kernel BUG at lib/list_debug.c:47!
+    [...trimmed...]
+    RIP: 0010:__list_del_entry_valid.cold.1+0x12/0x4c
+    [...trimmed...]
+    Call Trace:
+    efx_dissociate+0x1f/0x140 [sfc]
+    efx_pci_remove+0x27/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    pci_stop_bus_device+0x69/0x90
+    pci_stop_and_remove_bus_device+0xe/0x20
+    pci_iov_remove_virtfn+0xba/0x120
+    sriov_disable+0x2f/0xe0
+    efx_ef10_pci_sriov_disable+0x52/0x80 [sfc]
+    ? pcie_aer_is_native+0x12/0x40
+    efx_ef10_sriov_fini+0x72/0x110 [sfc]
+    efx_pci_remove+0x62/0x150 [sfc]
+    pci_device_remove+0x3b/0xc0
+    device_release_driver_internal+0x103/0x1f0
+    unbind_store+0xf6/0x130
+    kernfs_fop_write+0x116/0x190
+    vfs_write+0xa5/0x1a0
+    ksys_write+0x4f/0xb0
+    do_syscall_64+0x5b/0x1a0
+    entry_SYSCALL_64_after_hwframe+0x65/0xca
+
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/ac97/bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/sfc/ef10_sriov.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/sound/ac97/bus.c b/sound/ac97/bus.c
-index 7985dd8198b6..99e1728b52ae 100644
---- a/sound/ac97/bus.c
-+++ b/sound/ac97/bus.c
-@@ -520,7 +520,7 @@ static int ac97_bus_remove(struct device *dev)
- 	struct ac97_codec_driver *adrv = to_ac97_driver(dev->driver);
- 	int ret;
+diff --git a/drivers/net/ethernet/sfc/ef10_sriov.c b/drivers/net/ethernet/sfc/ef10_sriov.c
+index 3d76fd1504c2..edd5ae855886 100644
+--- a/drivers/net/ethernet/sfc/ef10_sriov.c
++++ b/drivers/net/ethernet/sfc/ef10_sriov.c
+@@ -443,7 +443,6 @@ int efx_ef10_sriov_init(struct efx_nic *efx)
+ void efx_ef10_sriov_fini(struct efx_nic *efx)
+ {
+ 	struct efx_ef10_nic_data *nic_data = efx->nic_data;
+-	unsigned int i;
+ 	int rc;
  
--	ret = pm_runtime_get_sync(dev);
-+	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0)
- 		return ret;
+ 	if (!nic_data->vf) {
+@@ -453,14 +452,7 @@ void efx_ef10_sriov_fini(struct efx_nic *efx)
+ 		return;
+ 	}
  
+-	/* Remove any VFs in the host */
+-	for (i = 0; i < efx->vf_count; ++i) {
+-		struct efx_nic *vf_efx = nic_data->vf[i].efx;
+-
+-		if (vf_efx)
+-			vf_efx->pci_dev->driver->remove(vf_efx->pci_dev);
+-	}
+-
++	/* Disable SRIOV and remove any VFs in the host */
+ 	rc = efx_ef10_pci_sriov_disable(efx, true);
+ 	if (rc)
+ 		netif_dbg(efx, drv, efx->net_dev,
 -- 
 2.30.2
 
