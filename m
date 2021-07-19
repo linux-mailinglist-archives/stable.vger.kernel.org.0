@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9763CD7FC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 013D53CD7FD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242507AbhGSOUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242080AbhGSOUE (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 10:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55504 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:54020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242250AbhGSOTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:19:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52AFF6024A;
-        Mon, 19 Jul 2021 15:00:03 +0000 (UTC)
+        id S242264AbhGSOT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:19:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2640A61073;
+        Mon, 19 Jul 2021 15:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706803;
-        bh=44Xma6sR9QDFxx24O/PYwhH3IGAclEOgZ7kRlh4pOSA=;
+        s=korg; t=1626706806;
+        bh=WAQuxWIlNPd2b0uqYifXkaNozvCoZsBxDPZ2UQs77LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enhtbRfIR7OKzvoI6r/ztLx6SeyLSI40mkDjtt17C+cNJA9ddPio55BRMuK2oPi5s
-         trelHAXhEUYxWYcNA/b7w0XrhuUF1hX60Dr3RK3D5C5FHEFeUqzlyQ7TQHyK2eQ0Mf
-         /zbhz5M55GW7251u06MCBuy5Ftc4O81kHbTvDAeY=
+        b=OYQoZMv3NatXyUbETGc0aynTQ6SWTz4Le48HCKAg3icNJVqm1vR0sG3Fv28ftlbq2
+         nObHyYNGEdIhgbNgFfkoeNLUEEVfmUqpxdHeQyHSUke/YazRN++PWKq0kQAhpkPmW7
+         gPI1BdSJR4qboF4nX6O0svmhFEcUsct6NZMp7lT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Klein <aksecurity@gmail.com>,
-        Willy Tarreau <w@1wt.eu>, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 104/188] ipv6: use prandom_u32() for ID generation
-Date:   Mon, 19 Jul 2021 16:51:28 +0200
-Message-Id: <20210719144937.349504857@linuxfoundation.org>
+Subject: [PATCH 4.4 105/188] RDMA/cxgb4: Fix missing error code in create_qp()
+Date:   Mon, 19 Jul 2021 16:51:29 +0200
+Message-Id: <20210719144937.583603836@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -41,92 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 62f20e068ccc50d6ab66fdb72ba90da2b9418c99 ]
+[ Upstream commit aeb27bb76ad8197eb47890b1ff470d5faf8ec9a5 ]
 
-This is a complement to commit aa6dd211e4b1 ("inet: use bigger hash
-table for IP ID generation"), but focusing on some specific aspects
-of IPv6.
+The error code is missing in this code scenario so 0 will be returned. Add
+the error code '-EINVAL' to the return value 'ret'.
 
-Contary to IPv4, IPv6 only uses packet IDs with fragments, and with a
-minimum MTU of 1280, it's much less easy to force a remote peer to
-produce many fragments to explore its ID sequence. In addition packet
-IDs are 32-bit in IPv6, which further complicates their analysis. On
-the other hand, it is often easier to choose among plenty of possible
-source addresses and partially work around the bigger hash table the
-commit above permits, which leaves IPv6 partially exposed to some
-possibilities of remote analysis at the risk of weakening some
-protocols like DNS if some IDs can be predicted with a good enough
-probability.
+Eliminates the follow smatch warning:
 
-Given the wide range of permitted IDs, the risk of collision is extremely
-low so there's no need to rely on the positive increment algorithm that
-is shared with the IPv4 code via ip_idents_reserve(). We have a fast
-PRNG, so let's simply call prandom_u32() and be done with it.
+drivers/infiniband/hw/cxgb4/qp.c:298 create_qp() warn: missing error code 'ret'.
 
-Performance measurements at 10 Gbps couldn't show any difference with
-the previous code, even when using a single core, because due to the
-large fragments, we're limited to only ~930 kpps at 10 Gbps and the cost
-of the random generation is completely offset by other operations and by
-the network transfer time. In addition, this change removes the need to
-update a shared entry in the idents table so it may even end up being
-slightly faster on large scale systems where this matters.
-
-The risk of at least one collision here is about 1/80 million among
-10 IDs, 1/850k among 100 IDs, and still only 1/8.5k among 1000 IDs,
-which remains very low compared to IPv4 where all IDs are reused
-every 4 to 80ms on a 10 Gbps flow depending on packet sizes.
-
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20210529110746.6796-1-w@1wt.eu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/1622545669-20625-1-git-send-email-jiapeng.chong@linux.alibaba.com
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/output_core.c | 28 +++++-----------------------
- 1 file changed, 5 insertions(+), 23 deletions(-)
+ drivers/infiniband/hw/cxgb4/qp.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/output_core.c b/net/ipv6/output_core.c
-index 6b896cc9604e..e2de4b0479f6 100644
---- a/net/ipv6/output_core.c
-+++ b/net/ipv6/output_core.c
-@@ -14,29 +14,11 @@ static u32 __ipv6_select_ident(struct net *net,
- 			       const struct in6_addr *dst,
- 			       const struct in6_addr *src)
- {
--	const struct {
--		struct in6_addr dst;
--		struct in6_addr src;
--	} __aligned(SIPHASH_ALIGNMENT) combined = {
--		.dst = *dst,
--		.src = *src,
--	};
--	u32 hash, id;
--
--	/* Note the following code is not safe, but this is okay. */
--	if (unlikely(siphash_key_is_zero(&net->ipv4.ip_id_key)))
--		get_random_bytes(&net->ipv4.ip_id_key,
--				 sizeof(net->ipv4.ip_id_key));
--
--	hash = siphash(&combined, sizeof(combined), &net->ipv4.ip_id_key);
--
--	/* Treat id of 0 as unset and if we get 0 back from ip_idents_reserve,
--	 * set the hight order instead thus minimizing possible future
--	 * collisions.
--	 */
--	id = ip_idents_reserve(hash, 1);
--	if (unlikely(!id))
--		id = 1 << 31;
-+	u32 id;
-+
-+	do {
-+		id = prandom_u32();
-+	} while (!id);
+diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
+index 07579e31168c..67e4002bd776 100644
+--- a/drivers/infiniband/hw/cxgb4/qp.c
++++ b/drivers/infiniband/hw/cxgb4/qp.c
+@@ -277,6 +277,7 @@ static int create_qp(struct c4iw_rdev *rdev, struct t4_wq *wq,
+ 	if (user && (!wq->sq.bar2_pa || !wq->rq.bar2_pa)) {
+ 		pr_warn(MOD "%s: sqid %u or rqid %u not in BAR2 range.\n",
+ 			pci_name(rdev->lldi.pdev), wq->sq.qid, wq->rq.qid);
++		ret = -EINVAL;
+ 		goto free_dma;
+ 	}
  
- 	return id;
- }
 -- 
 2.30.2
 
