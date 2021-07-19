@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F533CDBF3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53853CDE4F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238531AbhGSOuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
+        id S1345403AbhGSPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245139AbhGSOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:47:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5B6E61363;
-        Mon, 19 Jul 2021 15:23:36 +0000 (UTC)
+        id S1344931AbhGSPAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7DA160E0C;
+        Mon, 19 Jul 2021 15:40:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708217;
-        bh=V55OotZTM1O2aMmV9536ILQb5yI1FsYwaTgVcTdi8rk=;
+        s=korg; t=1626709242;
+        bh=nb2cG0ZOtGDTPTLxzDCCwgcdA88QdL9quUUV+v7jMmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STinYalFxUKg19BM2uICZ7r/lN37WeH6VrZ1tqHSx1hzo5lQDiNAcrhrMELZDRsPQ
-         CqRmodaZ4V6RtvO0JL2sbNYcy73ZfNFMN5V3nkusfJw8iXNFfvtjBjjLlo67qWzmrS
-         VYpHbyk3/WuGl/43hNlNAY1vjwIX/+1i7IEXtoPI=
+        b=wbLRmr1Tqgvq1t4tAWEmZ5SbwPL2deTwPJIr7QPpRkjlSYObOksMm7oSnlqhHpLBU
+         tMpHRLtld2826ZNIFX7eoMBuvwzio+a7SczJfYv7smWxmXUvY7qmhkSb2CCJdBVEL6
+         CG1AadG58QTzgaQbYyti/GmbtICcBBTcnnEkNiJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Drung <bdrung@posteo.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 227/315] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
-Date:   Mon, 19 Jul 2021 16:51:56 +0200
-Message-Id: <20210719144950.890006757@linuxfoundation.org>
+        stable@vger.kernel.org, Konstantin Kharlamov <Hi-Angel@yandex.ru>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 4.19 306/421] PCI: Leave Apple Thunderbolt controllers on for s2idle or standby
+Date:   Mon, 19 Jul 2021 16:51:57 +0200
+Message-Id: <20210719144956.936554419@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,122 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Drung <bdrung@posteo.de>
+From: Konstantin Kharlamov <Hi-Angel@yandex.ru>
 
-commit 4c6e0976295add7f0ed94d276c04a3d6f1ea8f83 upstream.
+commit 4694ae373dc2114f9a82f6ae15737e65af0c6dea upstream.
 
-The Elgato Cam Link 4K HDMI video capture card reports to support three
-different pixel formats, where the first format depends on the connected
-HDMI device.
+On Macbook 2013, resuming from suspend-to-idle or standby resulted in the
+external monitor no longer being detected, a stacktrace, and errors like
+this in dmesg:
 
-```
-$ v4l2-ctl -d /dev/video0 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
+  pcieport 0000:06:00.0: can't change power state from D3hot to D0 (config space inaccessible)
 
-	[0]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[1]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[2]: 'YU12' (Planar YUV 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-```
+The reason is that we know how to turn power to the Thunderbolt controller
+*off* via the SXIO/SXFP/SXLF methods, but we don't know how to turn power
+back on.  We have to rely on firmware to turn the power back on.
 
-Changing the pixel format to anything besides the first pixel format
-does not work:
+When going to the "suspend-to-idle" or "standby" system sleep states,
+firmware is not involved either on the suspend side or the resume side, so
+we can't use SXIO/SXFP/SXLF to turn the power off.
 
-```
-$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
-Format Video Capture:
-	Width/Height      : 3840/2160
-	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
-	Field             : None
-	Bytes per Line    : 3840
-	Size Image        : 12441600
-	Colorspace        : sRGB
-	Transfer Function : Rec. 709
-	YCbCr/HSV Encoding: Rec. 709
-	Quantization      : Default (maps to Limited Range)
-	Flags             :
-```
+Skip SXIO/SXFP/SXLF when firmware isn't involved in suspend, e.g., when
+we're going to the "suspend-to-idle" or "standby" system sleep states.
 
-User space applications like VLC might show an error message on the
-terminal in that case:
-
-```
-libv4l2: error set_fmt gave us a different result than try_fmt!
-```
-
-Depending on the error handling of the user space applications, they
-might display a distorted video, because they use the wrong pixel format
-for decoding the stream.
-
-The Elgato Cam Link 4K responds to the USB video probe
-VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
-second byte contains bFormatIndex (instead of being the second byte of
-bmHint). The first byte is always zero. The third byte is always 1.
-
-The firmware bug was reported to Elgato on 2020-12-01 and it was
-forwarded by the support team to the developers as feature request.
-There is no firmware update available since then. The latest firmware
-for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
-
-Therefore correct the malformed data structure for this device. The
-change was successfully tested with VLC, OBS, and Chromium using
-different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
-1920x1080), and frame rates (29.970 and 59.940 fps).
-
+Fixes: 1df5172c5c25 ("PCI: Suspend/resume quirks for Apple thunderbolt")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212767
+Link: https://lore.kernel.org/r/20210520235501.917397-1-Hi-Angel@yandex.ru
+Signed-off-by: Konstantin Kharlamov <Hi-Angel@yandex.ru>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Drung <bdrung@posteo.de>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_video.c |   27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/pci/quirks.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -89,10 +89,37 @@ int uvc_query_ctrl(struct uvc_device *de
- static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
- 	struct uvc_streaming_control *ctrl)
- {
-+	static const struct usb_device_id elgato_cam_link_4k = {
-+		USB_DEVICE(0x0fd9, 0x0066)
-+	};
- 	struct uvc_format *format = NULL;
- 	struct uvc_frame *frame = NULL;
- 	unsigned int i;
- 
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -28,6 +28,7 @@
+ #include <linux/nvme.h>
+ #include <linux/platform_data/x86/apple.h>
+ #include <linux/pm_runtime.h>
++#include <linux/suspend.h>
+ #include <linux/switchtec.h>
+ #include <asm/dma.h>	/* isa_dma_bridge_buggy */
+ #include "pci.h"
+@@ -3573,6 +3574,16 @@ static void quirk_apple_poweroff_thunder
+ 		return;
+ 	if (pci_pcie_type(dev) != PCI_EXP_TYPE_UPSTREAM)
+ 		return;
++
 +	/*
-+	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
-+	 * contains bFormatIndex (instead of being the second byte of bmHint).
-+	 * The first byte is always zero. The third byte is always 1.
-+	 *
-+	 * The UVC 1.5 class specification defines the first five bits in the
-+	 * bmHint bitfield. The remaining bits are reserved and should be zero.
-+	 * Therefore a valid bmHint will be less than 32.
-+	 *
-+	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
-+	 * MCU: 20.02.19, FPGA: 67
++	 * SXIO/SXFP/SXLF turns off power to the Thunderbolt controller.
++	 * We don't know how to turn it back on again, but firmware does,
++	 * so we can only use SXIO/SXFP/SXLF if we're suspending via
++	 * firmware.
 +	 */
-+	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) &&
-+	    ctrl->bmHint > 255) {
-+		u8 corrected_format_index = ctrl->bmHint >> 8;
++	if (!pm_suspend_via_firmware())
++		return;
 +
-+		/* uvc_dbg(stream->dev, VIDEO,
-+			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
-+			ctrl->bmHint, ctrl->bFormatIndex,
-+			1, corrected_format_index); */
-+		ctrl->bmHint = 1;
-+		ctrl->bFormatIndex = corrected_format_index;
-+	}
-+
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (stream->format[i].index == ctrl->bFormatIndex) {
- 			format = &stream->format[i];
+ 	bridge = ACPI_HANDLE(&dev->dev);
+ 	if (!bridge)
+ 		return;
 
 
