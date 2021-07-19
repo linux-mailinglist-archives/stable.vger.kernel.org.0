@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 845C33CDA32
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B8B3CD853
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241725AbhGSOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
+        id S242192AbhGSOVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245043AbhGSOcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:32:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 322C561242;
-        Mon, 19 Jul 2021 15:12:40 +0000 (UTC)
+        id S242754AbhGSOUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E8B60FDC;
+        Mon, 19 Jul 2021 15:01:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707560;
-        bh=+F2AKkXu3sRa0Uz4MWIoXqi3COI3oEG5L7TnWtHXnr8=;
+        s=korg; t=1626706881;
+        bh=pwDR3FkUhf104SvF8+Xhqb1svmlpt/mIr3WMqfl82bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3WEpzZhNl8ovikZ69XBbNXjbcemLI+bdyoTQGOJ9Uy1FsqP/RVlfcRARIM6rjK3V
-         9XMveCfBce0rALkNqhp0wVRrBnB9Ac7hTS7nNiTe94o5cpfn+fhWf2vvrQF8gXKhzG
-         YUVGmSzNdnm9GbW/wnUD7gVxD2Dbf8Q2OXy9ug3c=
+        b=codgAWMKA8rEUTEUfIF7E3dkTNXbuPqtHgklkMtVU2cUKSMAKUKum83aQVO5q4lIW
+         efav5FLxQONlClYJkAviXX7I3hK8cGWC5QW+ivOTNbuIQrfAqeT+QuOcCIw34IniuZ
+         RIeqOBXml1ZDlzCbffOvxr0xO4hY3f9H4bOHTElY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Subject: [PATCH 4.9 179/245] smackfs: restrict bytes count in smk_set_cipso()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.4 137/188] media: gspca/sq905: fix control-request direction
 Date:   Mon, 19 Jul 2021 16:52:01 +0200
-Message-Id: <20210719144946.192105342@linuxfoundation.org>
+Message-Id: <20210719144940.978940881@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Johan Hovold <johan@kernel.org>
 
-commit 49ec114a6e62d8d320037ce71c1aaf9650b3cafd upstream.
+commit 53ae298fde7adcc4b1432bce2dbdf8dac54dfa72 upstream.
 
-Oops, I failed to update subject line.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
->From 07571157c91b98ce1a4aa70967531e64b78e8346 Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 12 Apr 2021 22:25:06 +0900
-Subject: [PATCH 4.9 179/245] smackfs: restrict bytes count in smk_set_cipso()
+Fix the USB_REQ_SYNCH_FRAME request which erroneously used
+usb_sndctrlpipe().
 
-Commit 7ef4c19d245f3dc2 ("smackfs: restrict bytes count in smackfs write
-functions") missed that count > SMK_CIPSOMAX check applies to only
-format == SMK_FIXED24_FMT case.
-
-Reported-by: syzbot <syzbot+77c53db50c9fff774e8e@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Fixes: 27d35fc3fb06 ("V4L/DVB (10639): gspca - sq905: New subdriver.")
+Cc: stable@vger.kernel.org      # 2.6.30
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/smack/smackfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/usb/gspca/sq905.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -878,6 +878,8 @@ static ssize_t smk_set_cipso(struct file
- 	if (format == SMK_FIXED24_FMT &&
- 	    (count < SMK_CIPSOMIN || count > SMK_CIPSOMAX))
- 		return -EINVAL;
-+	if (count > PAGE_SIZE)
-+		return -EINVAL;
+--- a/drivers/media/usb/gspca/sq905.c
++++ b/drivers/media/usb/gspca/sq905.c
+@@ -130,7 +130,7 @@ static int sq905_command(struct gspca_de
+ 	}
  
- 	data = memdup_user_nul(buf, count);
- 	if (IS_ERR(data))
+ 	ret = usb_control_msg(gspca_dev->dev,
+-			      usb_sndctrlpipe(gspca_dev->dev, 0),
++			      usb_rcvctrlpipe(gspca_dev->dev, 0),
+ 			      USB_REQ_SYNCH_FRAME,                /* request */
+ 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 			      SQ905_PING, 0, gspca_dev->usb_buf, 1,
 
 
