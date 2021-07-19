@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13B2C3CD8BE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81BBF3CDA53
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242758AbhGSOZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
+        id S241663AbhGSOff (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243206AbhGSOWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:22:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30A8A61175;
-        Mon, 19 Jul 2021 15:02:55 +0000 (UTC)
+        id S245527AbhGSOen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EBB61289;
+        Mon, 19 Jul 2021 15:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706976;
-        bh=FoONX3ZOfkpWvhodWQ/lNmjzW83iMuuZ8KZhxY9TO7s=;
+        s=korg; t=1626707647;
+        bh=zsX6P8+wsgbmqJgIM2hsJSHm4Qlrw2k1kf5DeSgcSvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7YvEt6SguUUFuMOxbNpAZuujxgWv9+lZSm1yOZoXKPClUUbWwOiKHadFlVu00h+v
-         iFb2rH/EDpq1jEFHh5BMJ2pAmj7s2DJ/O+WNdGeC0FjMR3RyFhm5wgm+U5lmutCKjR
-         03k3EsgHJL7oGkyVsRocSiUd4ElH+cfZRuZkdo10=
+        b=ncnFTARPOA4CU4iHGD0C+dVPE/qJv5zow2sDiSuJeWieEZdZRoD0IaBtIcAjlWGQA
+         4U3+1BjO04wy5cMO4L2ZnuVf8nAgp4Yc7XPStAqUg+8Ev58Jye3kzksPiXpPDZM8Dc
+         Bju07KtOT8/NWoJH5KgV+ssUyRJUWgOtL8ktXXvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
         Zou Wei <zou_wei@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 172/188] power: supply: charger-manager: add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 4.9 214/245] watchdog: Fix possible use-after-free by calling del_timer_sync()
 Date:   Mon, 19 Jul 2021 16:52:36 +0200
-Message-Id: <20210719144942.117190252@linuxfoundation.org>
+Message-Id: <20210719144947.310361020@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +45,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 073b5d5b1f9cc94a3eea25279fbafee3f4f5f097 ]
+[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+This driver's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
+
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
 Reported-by: Hulk Robot <hulkci@huawei.com>
 Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Vladimir Zapolskiy <vz@mleia.com>
+Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/charger-manager.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/watchdog/lpc18xx_wdt.c | 2 +-
+ drivers/watchdog/w83877f_wdt.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/charger-manager.c b/drivers/power/charger-manager.c
-index 1ea5d1aa268b..6656f847ed93 100644
---- a/drivers/power/charger-manager.c
-+++ b/drivers/power/charger-manager.c
-@@ -1490,6 +1490,7 @@ static const struct of_device_id charger_manager_match[] = {
- 	},
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, charger_manager_match);
+diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
+index fd171e6caa16..1b63d1d85aa0 100644
+--- a/drivers/watchdog/lpc18xx_wdt.c
++++ b/drivers/watchdog/lpc18xx_wdt.c
+@@ -300,7 +300,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
+ 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
  
- static struct charger_desc *of_cm_parse_desc(struct device *dev)
+ 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
+-	del_timer(&lpc18xx_wdt->timer);
++	del_timer_sync(&lpc18xx_wdt->timer);
+ 
+ 	watchdog_unregister_device(&lpc18xx_wdt->wdt_dev);
+ 	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
+diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
+index f0483c75ed32..4b52cf321747 100644
+--- a/drivers/watchdog/w83877f_wdt.c
++++ b/drivers/watchdog/w83877f_wdt.c
+@@ -170,7 +170,7 @@ static void wdt_startup(void)
+ static void wdt_turnoff(void)
  {
+ 	/* Stop the timer */
+-	del_timer(&timer);
++	del_timer_sync(&timer);
+ 
+ 	wdt_change(WDT_DISABLE);
+ 
 -- 
 2.30.2
 
