@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F553CDAF7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC27B3CD8EC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244187AbhGSOk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
+        id S243824AbhGSO0C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244302AbhGSOjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1CBC61003;
-        Mon, 19 Jul 2021 15:18:15 +0000 (UTC)
+        id S243958AbhGSOYh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42B5161003;
+        Mon, 19 Jul 2021 15:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707896;
-        bh=Cu5gKInQhBuXt9wr8GYj+02+hl0rME7bI/i5jZLGIFg=;
+        s=korg; t=1626707069;
+        bh=aqBJCsVihav4Yb5+bCdDWcvz8gk3PAphLrjk4OVQsSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ty22XbmxY/GXquEa9H2zQs14H6rRh4msqfytAJkRJgpLV3j9Dx3TVoc4zWl6WvjcY
-         qEX0G0YLJgPnYH9YbLqBjhdPIw6Q7NM4JWeqvl8sDyysBToJrwkVVUV0X6jadis96Y
-         fSgS+vlBTHdgAsOdRs+svCoZ2m6cRmNjlANoPUnI=
+        b=kL9pUPgow3GiT3uYubBebztpRvy4c5za2pKq/gr8ZP70JobJPyDfj7L1W2Qgy2jlZ
+         c+xlfZkyjEAwRXie/dVhczH067IsTusixPmW3eNn/hkn3JEywOrHhpf6U6z2pUqVXr
+         1nnGU6zQpySqtiiA0n9E59PAW9Q/OEVPoKbAtWck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Richard Fitzgerald <rf@opensource.cirrus.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 072/315] ACPI: tables: Add custom DSDT file as makefile prerequisite
+        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Nikita Travkin <nikita@trvn.ru>
+Subject: [PATCH 4.9 019/245] iio: ltr501: mark register holding upper 8 bits of ALS_DATA{0,1} and PS_DATA as volatile, too
 Date:   Mon, 19 Jul 2021 16:49:21 +0200
-Message-Id: <20210719144945.231054214@linuxfoundation.org>
+Message-Id: <20210719144941.021292078@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit d1059c1b1146870c52f3dac12cb7b6cbf39ed27f ]
+commit 2ac0b029a04b673ce83b5089368f467c5dca720c upstream.
 
-A custom DSDT file is mostly used during development or debugging,
-and in that case it is quite likely to want to rebuild the kernel
-after changing ONLY the content of the DSDT.
+The regmap is configured for 8 bit registers, uses a RB-Tree cache and
+marks several registers as volatile (i.e. do not cache).
 
-This patch adds the custom DSDT as a prerequisite to tables.o
-to ensure a rebuild if the DSDT file is updated. Make will merge
-the prerequisites from multiple rules for the same target.
+The ALS and PS data registers in the chip are 16 bit wide and spans
+two regmap registers. In the current driver only the base register is
+marked as volatile, resulting in the upper register only read once.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Further the data sheet notes:
+
+| When the I2C read operation starts, all four ALS data registers are
+| locked until the I2C read operation of register 0x8B is completed.
+
+Which results in the registers never update after the 2nd read.
+
+This patch fixes the problem by marking the upper 8 bits of the ALS
+and PS registers as volatile, too.
+
+Fixes: 2f2c96338afc ("iio: ltr501: Add regmap support.")
+Reported-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
+Link: https://lore.kernel.org/r/20210610134619.2101372-2-mkl@pengutronix.de
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/acpi/Makefile | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/iio/light/ltr501.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-index cd1abc9bc325..f9df9541f2ce 100644
---- a/drivers/acpi/Makefile
-+++ b/drivers/acpi/Makefile
-@@ -8,6 +8,11 @@ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
- #
- # ACPI Boot-Time Table Parsing
- #
-+ifeq ($(CONFIG_ACPI_CUSTOM_DSDT),y)
-+tables.o: $(src)/../../include/$(subst $\",,$(CONFIG_ACPI_CUSTOM_DSDT_FILE)) ;
-+
-+endif
-+
- obj-$(CONFIG_ACPI)		+= tables.o
- obj-$(CONFIG_X86)		+= blacklist.o
- 
--- 
-2.30.2
-
+--- a/drivers/iio/light/ltr501.c
++++ b/drivers/iio/light/ltr501.c
+@@ -35,9 +35,12 @@
+ #define LTR501_PART_ID 0x86
+ #define LTR501_MANUFAC_ID 0x87
+ #define LTR501_ALS_DATA1 0x88 /* 16-bit, little endian */
++#define LTR501_ALS_DATA1_UPPER 0x89 /* upper 8 bits of LTR501_ALS_DATA1 */
+ #define LTR501_ALS_DATA0 0x8a /* 16-bit, little endian */
++#define LTR501_ALS_DATA0_UPPER 0x8b /* upper 8 bits of LTR501_ALS_DATA0 */
+ #define LTR501_ALS_PS_STATUS 0x8c
+ #define LTR501_PS_DATA 0x8d /* 16-bit, little endian */
++#define LTR501_PS_DATA_UPPER 0x8e /* upper 8 bits of LTR501_PS_DATA */
+ #define LTR501_INTR 0x8f /* output mode, polarity, mode */
+ #define LTR501_PS_THRESH_UP 0x90 /* 11 bit, ps upper threshold */
+ #define LTR501_PS_THRESH_LOW 0x92 /* 11 bit, ps lower threshold */
+@@ -1329,9 +1332,12 @@ static bool ltr501_is_volatile_reg(struc
+ {
+ 	switch (reg) {
+ 	case LTR501_ALS_DATA1:
++	case LTR501_ALS_DATA1_UPPER:
+ 	case LTR501_ALS_DATA0:
++	case LTR501_ALS_DATA0_UPPER:
+ 	case LTR501_ALS_PS_STATUS:
+ 	case LTR501_PS_DATA:
++	case LTR501_PS_DATA_UPPER:
+ 		return true;
+ 	default:
+ 		return false;
 
 
