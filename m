@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2983CE509
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B823CE4F4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241006AbhGSPrj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
+        id S1346477AbhGSPrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349456AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349483AbhGSPpH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E03C960E0C;
-        Mon, 19 Jul 2021 16:25:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6A9761404;
+        Mon, 19 Jul 2021 16:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711904;
-        bh=p/JTXm9wsrfU7GIam4K9w3soNMbCZ9xOSYuMwZZMedE=;
+        s=korg; t=1626711907;
+        bh=Hmk2V+O0nQ1niaTHwAzt3793THZgc5AyJKvgRun1ZJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxPo24VhwTbkzSk03L/Y6HOcomIWSq+J90Vyiw83Hn2wptKU7Bc7INrkKHvfWfAUs
-         a+H0hF8lpUV4yCw92zF9OjBzhjZwCBY7ieOfp+rJAvQRySOXMmzYJjDNS6ayL2znNx
-         chbCo1rkO/EdGKtPA9PVfQaFzqQpRmsjsDKQnjbg=
+        b=fGC/OHDB+cDudzpYk3j2B2AzPU28WmQAGADt4RBen52aUx7g4HJD0iMJJJHIvRekL
+         /JEcd1JvaHNvZGTrPcyeX2+PAFGlJe7Fm6zxZiGwUXeTEJovfh8ZxT6uMMJ2CVjCol
+         H7jOg5ZSp1TZ3RLYYWKjeTnxIjujIR+4V9chu0pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Jon Mediero <jmdr@disroot.org>, Jessica Yu <jeyu@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 175/292] x86/signal: Detect and prevent an alternate signal stack overflow
-Date:   Mon, 19 Jul 2021 16:53:57 +0200
-Message-Id: <20210719144948.253461307@linuxfoundation.org>
+Subject: [PATCH 5.12 176/292] module: correctly exit module_kallsyms_on_each_symbol when fn() != 0
+Date:   Mon, 19 Jul 2021 16:53:58 +0200
+Message-Id: <20210719144948.284861956@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -44,140 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chang S. Bae <chang.seok.bae@intel.com>
+From: Jon Mediero <jmdr@disroot.org>
 
-[ Upstream commit 2beb4a53fc3f1081cedc1c1a198c7f56cc4fc60c ]
+[ Upstream commit 2c0f0f3639562d6e38ee9705303c6457c4936eac ]
 
-The kernel pushes context on to the userspace stack to prepare for the
-user's signal handler. When the user has supplied an alternate signal
-stack, via sigaltstack(2), it is easy for the kernel to verify that the
-stack size is sufficient for the current hardware context.
+Commit 013c1667cf78 ("kallsyms: refactor
+{,module_}kallsyms_on_each_symbol") replaced the return inside the
+nested loop with a break, changing the semantics of the function: the
+break only exits the innermost loop, so the code continues iterating the
+symbols of the next module instead of exiting.
 
-Check if writing the hardware context to the alternate stack will exceed
-it's size. If yes, then instead of corrupting user-data and proceeding with
-the original signal handler, an immediate SIGSEGV signal is delivered.
-
-Refactor the stack pointer check code from on_sig_stack() and use the new
-helper.
-
-While the kernel allows new source code to discover and use a sufficient
-alternate signal stack size, this check is still necessary to protect
-binaries with insufficient alternate signal stack size from data
-corruption.
-
-Fixes: c2bc11f10a39 ("x86, AVX-512: Enable AVX-512 States Context Switch")
-Reported-by: Florian Weimer <fweimer@redhat.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Len Brown <len.brown@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20210518200320.17239-6-chang.seok.bae@intel.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=153531
+Fixes: 013c1667cf78 ("kallsyms: refactor {,module_}kallsyms_on_each_symbol")
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+Reviewed-by: Miroslav Benes <mbenes@suse.cz>
+Signed-off-by: Jon Mediero <jmdr@disroot.org>
+Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c     | 24 ++++++++++++++++++++----
- include/linux/sched/signal.h | 19 ++++++++++++-------
- 2 files changed, 32 insertions(+), 11 deletions(-)
+ kernel/module.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index f306e85a08a6..6f4e261071e0 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -234,10 +234,11 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	     void __user **fpstate)
- {
- 	/* Default to using normal stack */
-+	bool nested_altstack = on_sig_stack(regs->sp);
-+	bool entering_altstack = false;
- 	unsigned long math_size = 0;
- 	unsigned long sp = regs->sp;
- 	unsigned long buf_fx = 0;
--	int onsigstack = on_sig_stack(sp);
- 	int ret;
- 
- 	/* redzone */
-@@ -246,15 +247,23 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (sas_ss_flags(sp) == 0)
-+		/*
-+		 * This checks nested_altstack via sas_ss_flags(). Sensible
-+		 * programs use SS_AUTODISARM, which disables that check, and
-+		 * programs that don't use SS_AUTODISARM get compatible.
-+		 */
-+		if (sas_ss_flags(sp) == 0) {
- 			sp = current->sas_ss_sp + current->sas_ss_size;
-+			entering_altstack = true;
-+		}
- 	} else if (IS_ENABLED(CONFIG_X86_32) &&
--		   !onsigstack &&
-+		   !nested_altstack &&
- 		   regs->ss != __USER_DS &&
- 		   !(ka->sa.sa_flags & SA_RESTORER) &&
- 		   ka->sa.sa_restorer) {
- 		/* This is the legacy signal stack switching. */
- 		sp = (unsigned long) ka->sa.sa_restorer;
-+		entering_altstack = true;
+diff --git a/kernel/module.c b/kernel/module.c
+index 260d6f3f6d68..f928037a1b56 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4410,9 +4410,10 @@ int module_kallsyms_on_each_symbol(int (*fn)(void *, const char *,
+ 			ret = fn(data, kallsyms_symbol_name(kallsyms, i),
+ 				 mod, kallsyms_symbol_value(sym));
+ 			if (ret != 0)
+-				break;
++				goto out;
+ 		}
  	}
- 
- 	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
-@@ -267,8 +276,15 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	 * If we are on the alternate signal stack and would overflow it, don't.
- 	 * Return an always-bogus address instead so we will die with SIGSEGV.
- 	 */
--	if (onsigstack && !likely(on_sig_stack(sp)))
-+	if (unlikely((nested_altstack || entering_altstack) &&
-+		     !__on_sig_stack(sp))) {
-+
-+		if (show_unhandled_signals && printk_ratelimit())
-+			pr_info("%s[%d] overflowed sigaltstack\n",
-+				current->comm, task_pid_nr(current));
-+
- 		return (void __user *)-1L;
-+	}
- 
- 	/* save i387 and extended state */
- 	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 3f6a0fcaa10c..ae60f838ebb9 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -537,6 +537,17 @@ static inline int kill_cad_pid(int sig, int priv)
- #define SEND_SIG_NOINFO ((struct kernel_siginfo *) 0)
- #define SEND_SIG_PRIV	((struct kernel_siginfo *) 1)
- 
-+static inline int __on_sig_stack(unsigned long sp)
-+{
-+#ifdef CONFIG_STACK_GROWSUP
-+	return sp >= current->sas_ss_sp &&
-+		sp - current->sas_ss_sp < current->sas_ss_size;
-+#else
-+	return sp > current->sas_ss_sp &&
-+		sp - current->sas_ss_sp <= current->sas_ss_size;
-+#endif
-+}
-+
- /*
-  * True if we are on the alternate signal stack.
-  */
-@@ -554,13 +565,7 @@ static inline int on_sig_stack(unsigned long sp)
- 	if (current->sas_ss_flags & SS_AUTODISARM)
- 		return 0;
- 
--#ifdef CONFIG_STACK_GROWSUP
--	return sp >= current->sas_ss_sp &&
--		sp - current->sas_ss_sp < current->sas_ss_size;
--#else
--	return sp > current->sas_ss_sp &&
--		sp - current->sas_ss_sp <= current->sas_ss_size;
--#endif
-+	return __on_sig_stack(sp);
++out:
+ 	mutex_unlock(&module_mutex);
+ 	return ret;
  }
- 
- static inline int sas_ss_flags(unsigned long sp)
 -- 
 2.30.2
 
