@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C733CE448
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF4F73CE48D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237856AbhGSPnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34196 "EHLO mail.kernel.org"
+        id S1348573AbhGSPoL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:44:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347296AbhGSPjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:39:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6E5261175;
-        Mon, 19 Jul 2021 16:19:02 +0000 (UTC)
+        id S1344337AbhGSPlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:41:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 102E4613F7;
+        Mon, 19 Jul 2021 16:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711543;
-        bh=LTJWYMUPiITN3Wa6Cf/Hoco6oaVd8XiUe0xBl1/a+Fo=;
+        s=korg; t=1626711661;
+        bh=N0b5EA01m6rix3zjJGI/CI/y5V9fr1n/JREdGLiscwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIAmSnwFapjC7zzP2Ye2rZvfI4o1i66rsAMaRmWG/wUpGIpwRXwRS5WmjjCm2gzsd
-         PBvqR733n54N4izZlg0O9x/vYfK3wPq9AKv9PAGgFXkasfwi2da9ysn0Fx4SJLZTJ6
-         /kMLmSMEidH5JvpzqyJ64ewjeflO4pjgD6e/1WyA=
+        b=2NtXbQJN2Ao68lSemN7N9Ip/oGQo3NwmsVoPG8WPYV41uKzOdXwX5vgeEkIhl6LRI
+         zY0f4uTCa8ajYJY4uhZ415FcWEonWV0GwqATSx9tBv9Az/MO9bhJ/W2XFuwRzUA7Kn
+         X14xDJkgjkyrwYBRnUstb7qdG/O9YTsLTnrwizLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
-        Raymond Tan <raymond.tan@intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        stable@vger.kernel.org, Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 040/292] usb: dwc3: pci: Fix DEFINE for Intel Elkhart Lake
-Date:   Mon, 19 Jul 2021 16:51:42 +0200
-Message-Id: <20210719144943.835218100@linuxfoundation.org>
+Subject: [PATCH 5.12 041/292] tty: serial: fsl_lpuart: fix the potential risk of division or modulo by zero
+Date:   Mon, 19 Jul 2021 16:51:43 +0200
+Message-Id: <20210719144943.866461330@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,56 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raymond Tan <raymond.tan@intel.com>
+From: Sherry Sun <sherry.sun@nxp.com>
 
-[ Upstream commit 457d22850b27de3aea336108272d08602c55fdf7 ]
+[ Upstream commit fcb10ee27fb91b25b68d7745db9817ecea9f1038 ]
 
-There's no separate low power (LP) version of Elkhart Lake, thus
-this patch updates the PCI Device ID DEFINE to indicate this.
+We should be very careful about the register values that will be used
+for division or modulo operations, althrough the possibility that the
+UARTBAUD register value is zero is very low, but we had better to deal
+with the "bad data" of hardware in advance to avoid division or modulo
+by zero leading to undefined kernel behavior.
 
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Raymond Tan <raymond.tan@intel.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512135901.28495-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20210427021226.27468-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 19789e94bbd0..45ec5ac9876e 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -36,7 +36,7 @@
- #define PCI_DEVICE_ID_INTEL_CNPH		0xa36e
- #define PCI_DEVICE_ID_INTEL_CNPV		0xa3b0
- #define PCI_DEVICE_ID_INTEL_ICLLP		0x34ee
--#define PCI_DEVICE_ID_INTEL_EHLLP		0x4b7e
-+#define PCI_DEVICE_ID_INTEL_EHL			0x4b7e
- #define PCI_DEVICE_ID_INTEL_TGPLP		0xa0ee
- #define PCI_DEVICE_ID_INTEL_TGPH		0x43ee
- #define PCI_DEVICE_ID_INTEL_JSP			0x4dee
-@@ -167,7 +167,7 @@ static int dwc3_pci_quirks(struct dwc3_pci *dwc)
- 	if (pdev->vendor == PCI_VENDOR_ID_INTEL) {
- 		if (pdev->device == PCI_DEVICE_ID_INTEL_BXT ||
- 		    pdev->device == PCI_DEVICE_ID_INTEL_BXT_M ||
--		    pdev->device == PCI_DEVICE_ID_INTEL_EHLLP) {
-+		    pdev->device == PCI_DEVICE_ID_INTEL_EHL) {
- 			guid_parse(PCI_INTEL_BXT_DSM_GUID, &dwc->guid);
- 			dwc->has_dsm_for_pm = true;
- 		}
-@@ -375,8 +375,8 @@ static const struct pci_device_id dwc3_pci_id_table[] = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_ICLLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 9c78e43e669d..4cad2ac00e9f 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2404,6 +2404,9 @@ lpuart32_console_get_options(struct lpuart_port *sport, int *baud,
  
--	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_EHLLP),
--	  (kernel_ulong_t) &dwc3_pci_intel_swnode },
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_EHL),
-+	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
- 
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGPLP),
- 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
+ 	bd = lpuart32_read(&sport->port, UARTBAUD);
+ 	bd &= UARTBAUD_SBR_MASK;
++	if (!bd)
++		return;
++
+ 	sbr = bd;
+ 	uartclk = lpuart_get_baud_clk_rate(sport);
+ 	/*
 -- 
 2.30.2
 
