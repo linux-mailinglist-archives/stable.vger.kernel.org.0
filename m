@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B63363CE5A8
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2753CE5A7
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242696AbhGSPwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:52:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
+        id S1348611AbhGSPwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346404AbhGSPrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346417AbhGSPrO (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:47:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC0D613D4;
-        Mon, 19 Jul 2021 16:27:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 831A16144F;
+        Mon, 19 Jul 2021 16:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712043;
-        bh=YeRPjHzK5EX/g2s1sPPjUmg37Dt96+T3QGH7KXDyeJk=;
+        s=korg; t=1626712046;
+        bh=K6sT0z5Ze+D+76RPWYHyQ8VyASl+PDH7AZMuq3ukA9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEEeVBbim/w49lSFiU5DqRVBYjFuKOwGidsyQ9OTclHL3p0aYcdGyn2Oi71bI5+52
-         7VkQTFEXxJx3q6QUpWwp2RpvJCazw3oRY6XUkBg+VwrpQCUsCcADVQ9ukEoxpOnga5
-         jKqHUcM6ZyekUVCZ0BDvXXA0HampzDumVX1U37LA=
+        b=oCIg0f9ymELVf21sai7o91FqFG+hG+/huMlm1e4xgPwW8RJyyFD3loiW9IComw7oB
+         Hl9PruCiFzxlaG2qwf9E57kiQxd5JKmjIMAS6vqpUv6RRAGWLON9GuGEjBdox+Npji
+         RfyE4+lJ91GUbdjcdDmpvbkzhK8jpRMwp6OIDyKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amithash Prasad <amithash@fb.com>,
-        Tao Ren <rentao.bupt@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Paul Cercueil <paul@crapouillou.net>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 195/292] watchdog: aspeed: fix hardware timeout calculation
-Date:   Mon, 19 Jul 2021 16:54:17 +0200
-Message-Id: <20210719144948.904727508@linuxfoundation.org>
+Subject: [PATCH 5.12 196/292] watchdog: jz4740: Fix return value check in jz4740_wdt_probe()
+Date:   Mon, 19 Jul 2021 16:54:18 +0200
+Message-Id: <20210719144948.937605194@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,38 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Ren <rentao.bupt@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit e7dc481c92060f9ce872878b0b7a08c24713a7e5 ]
+[ Upstream commit 29e85f53fb58b45b9e9276dcdf1f1cb762dd1c9f ]
 
-Fix hardware timeout calculation in aspeed_wdt_set_timeout function to
-ensure the reload value does not exceed the hardware limit.
+In case of error, the function device_node_to_regmap() returns
+ERR_PTR() and never returns NULL. The NULL test in the return
+value check should be replaced with IS_ERR().
 
-Fixes: efa859f7d786 ("watchdog: Add Aspeed watchdog driver")
-Reported-by: Amithash Prasad <amithash@fb.com>
-Signed-off-by: Tao Ren <rentao.bupt@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210417034249.5978-1-rentao.bupt@gmail.com
+Fixes: 6d532143c915 ("watchdog: jz4740: Use regmap provided by TCU driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Acked-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20210304045909.945799-1-weiyongjun1@huawei.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/aspeed_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/jz4740_wdt.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index 7e00960651fa..507fd815d767 100644
---- a/drivers/watchdog/aspeed_wdt.c
-+++ b/drivers/watchdog/aspeed_wdt.c
-@@ -147,7 +147,7 @@ static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
+diff --git a/drivers/watchdog/jz4740_wdt.c b/drivers/watchdog/jz4740_wdt.c
+index bdf9564efa29..395bde79e292 100644
+--- a/drivers/watchdog/jz4740_wdt.c
++++ b/drivers/watchdog/jz4740_wdt.c
+@@ -176,9 +176,9 @@ static int jz4740_wdt_probe(struct platform_device *pdev)
+ 	watchdog_set_drvdata(jz4740_wdt, drvdata);
  
- 	wdd->timeout = timeout;
+ 	drvdata->map = device_node_to_regmap(dev->parent->of_node);
+-	if (!drvdata->map) {
++	if (IS_ERR(drvdata->map)) {
+ 		dev_err(dev, "regmap not found\n");
+-		return -EINVAL;
++		return PTR_ERR(drvdata->map);
+ 	}
  
--	actual = min(timeout, wdd->max_hw_heartbeat_ms * 1000);
-+	actual = min(timeout, wdd->max_hw_heartbeat_ms / 1000);
- 
- 	writel(actual * WDT_RATE_1MHZ, wdt->base + WDT_RELOAD_VALUE);
- 	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+ 	return devm_watchdog_register_device(dev, &drvdata->wdt);
 -- 
 2.30.2
 
