@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6463CDFE9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D02D53CDFEB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344278AbhGSPMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47986 "EHLO mail.kernel.org"
+        id S1345820AbhGSPMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344059AbhGSPK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0ECB6138C;
-        Mon, 19 Jul 2021 15:51:36 +0000 (UTC)
+        id S1344446AbhGSPLA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C54B60FED;
+        Mon, 19 Jul 2021 15:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709897;
-        bh=W0ztL6wgycmfs0UAmxkvrauLtxZFCImL3jwtyFwNpUQ=;
+        s=korg; t=1626709899;
+        bh=ZQnT2KWBpmiwwqyZW/3i4id0c9HxrxB1FlyBrTLKfPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnT7arM5IBeH+gwqdYTtujId6JJ1/saItG0PCXckS7N156WfdjT/1cuNYe3t/eirA
-         yjypKcjVxb02suZqTHcJszRXOfCZ6o/x1GJ17ayTXozBD9bLBuDXRCIAT9OMI54JZ1
-         U+BFWFyX2qThaIig2Lw51hzOFbrWs7tqnS/JdK80=
+        b=OJp3F46gUQiyQ3nkLXFR2Tvg+Fe9VA1r1GvUWW+SM1XZhaC04in4mdxcCCL5luux1
+         ipVxL/SjX3bNmD12wRvn9mohOHzmiEyICp1cP17nEf4/9aFl0R9a6YPx2+XHwhQtPy
+         kBcktFLUqlvgSarSHcVnN46/qj0n7DfLdzgnAEAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 142/149] firmware: turris-mox-rwtm: fail probing when firmware does not support hwrng
-Date:   Mon, 19 Jul 2021 16:54:10 +0200
-Message-Id: <20210719144934.883712083@linuxfoundation.org>
+Subject: [PATCH 5.4 143/149] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
+Date:   Mon, 19 Jul 2021 16:54:11 +0200
+Message-Id: <20210719144935.086518362@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -43,74 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2eab59cf0d2036a5a9e264f719b71c21ccf679c2 ]
+[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
 
-When Marvell's rWTM firmware, which does not support the GET_RANDOM
-command, is used, kernel prints an error message
-  hwrng: no data available
-every 10 seconds.
+If an error occurs after a pci_enable_pcie_error_reporting() call, it must
+be undone by a corresponding pci_disable_pcie_error_reporting() call, as
+already done in the remove function.
 
-Fail probing of this driver if the rWTM firmware does not support the
-GET_RANDOM command.
-
-Fixes: 389711b37493 ("firmware: Add Turris Mox rWTM firmware driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
+Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/turris-mox-rwtm.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/scsi/be2iscsi/be_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/turris-mox-rwtm.c b/drivers/firmware/turris-mox-rwtm.c
-index e22ad73d4c86..9a6cf5af27a3 100644
---- a/drivers/firmware/turris-mox-rwtm.c
-+++ b/drivers/firmware/turris-mox-rwtm.c
-@@ -247,6 +247,27 @@ static int mox_get_board_info(struct mox_rwtm *rwtm)
- 	return 0;
- }
- 
-+static int check_get_random_support(struct mox_rwtm *rwtm)
-+{
-+	struct armada_37xx_rwtm_tx_msg msg;
-+	int ret;
-+
-+	msg.command = MBOX_CMD_GET_RANDOM;
-+	msg.args[0] = 1;
-+	msg.args[1] = rwtm->buf_phys;
-+	msg.args[2] = 4;
-+
-+	ret = mbox_send_message(rwtm->mbox, &msg);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = wait_for_completion_timeout(&rwtm->cmd_done, HZ / 2);
-+	if (ret < 0)
-+		return ret;
-+
-+	return mox_get_status(MBOX_CMD_GET_RANDOM, rwtm->reply.retval);
-+}
-+
- static int mox_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
- {
- 	struct mox_rwtm *rwtm = (struct mox_rwtm *) rng->priv;
-@@ -338,6 +359,13 @@ static int turris_mox_rwtm_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		dev_warn(dev, "Cannot read board information: %i\n", ret);
- 
-+	ret = check_get_random_support(rwtm);
-+	if (ret < 0) {
-+		dev_notice(dev,
-+			   "Firmware does not support the GET_RANDOM command\n");
-+		goto free_channel;
-+	}
-+
- 	rwtm->hwrng.name = DRIVER_NAME "_hwrng";
- 	rwtm->hwrng.read = mox_hwrng_read;
- 	rwtm->hwrng.priv = (unsigned long) rwtm;
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index 6fcd413c2ac9..53b33f146f82 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -5745,6 +5745,7 @@ free_hba:
+ 	pci_disable_msix(phba->pcidev);
+ 	pci_dev_put(phba->pcidev);
+ 	iscsi_host_free(phba->shost);
++	pci_disable_pcie_error_reporting(pcidev);
+ 	pci_set_drvdata(pcidev, NULL);
+ disable_pci:
+ 	pci_release_regions(pcidev);
 -- 
 2.30.2
 
