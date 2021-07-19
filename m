@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 731523CE262
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA073CE193
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348292AbhGSPaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
+        id S1349336AbhGSP0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348061AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01DF5613F1;
-        Mon, 19 Jul 2021 16:00:55 +0000 (UTC)
+        id S1348087AbhGSPYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3ACB61412;
+        Mon, 19 Jul 2021 16:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710456;
-        bh=Yxsl8x1opyX50THCsARORkBr5Q0cix0VZwo5yzMphxI=;
+        s=korg; t=1626710483;
+        bh=OgCApF9g4DGMHKRlYaoHVBOoAFpWrb/y9h744UR1QNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q1oVTHXwwvrmgdxs0WUxOydhgQXrk1kbC5rThRykU+lbEE9IF993DkHjbYyvNSguf
-         vfheGbi4Ky/AoQptUSb9ibk5UgQreHv7sxFoAaw1vRrw9lGjoH8XX96R5fdMpY9Fuh
-         xBPYegskhhljogGuez/ZyVFX7mZOGgod9Yhtnj5k=
+        b=CcebVu3txsqsyWVYWjkri8LR6Mljg7VH4DMgYvx9pbo+JnMMWorc1LV9qpDnDpkHK
+         rffVRviD8HXR/y1RcMIwN2iHasn+mdXkGNHQVPjLg0Um6H5Wrj94MQMnkUabtEXcU7
+         H/ZJVAiYCpgG71VFJhfLmiIk4jb68D+476fxsi0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 217/243] arm64: dts: ti: k3-j721e-common-proc-board: Re-name "link" name as "phy"
-Date:   Mon, 19 Jul 2021 16:54:06 +0200
-Message-Id: <20210719144947.930849236@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 218/243] memory: fsl_ifc: fix leak of IO mapping on probe failure
+Date:   Mon, 19 Jul 2021 16:54:07 +0200
+Message-Id: <20210719144947.961556771@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -40,70 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 02b4d9186121d842a53e347f53a86ec7f2c6b0c7 ]
+[ Upstream commit 3b132ab67fc7a358fff35e808fa65d4bea452521 ]
 
-Commit 66db854b1f62d ("arm64: dts: ti: k3-j721e-common-proc-board:
-Configure the PCIe instances") and
-commit 02c35dca2b488 ("arm64: dts: ti: k3-j721e: Enable Super-Speed
-support for USB0") added PHY DT nodes with node name as "link"
-However nodes with #phy-cells should be named 'phy' as discussed in [1].
-Re-name subnodes of serdes in J721E to 'phy'.
+On probe error the driver should unmap the IO memory.  Smatch reports:
 
-[1] -> http://lore.kernel.org/r/20200909203631.GA3026331@bogus
+  drivers/memory/fsl_ifc.c:298 fsl_ifc_ctrl_probe() warn: 'fsl_ifc_ctrl_dev->gregs' not released on lines: 298.
 
-Fixes: 66db854b1f62d ("arm64: dts: ti: k3-j721e-common-proc-board: Configure the PCIe instances")
-Fixes: 02c35dca2b488 ("arm64: dts: ti: k3-j721e: Enable Super-Speed support for USB0")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210603143427.28735-5-kishon@ti.com
+Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210527154322.81253-1-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/memory/fsl_ifc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-index 56a92f59c3a1..964e70ddf8e6 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-@@ -326,7 +326,7 @@
- };
+diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
+index 89f99b5b6450..a6324044a085 100644
+--- a/drivers/memory/fsl_ifc.c
++++ b/drivers/memory/fsl_ifc.c
+@@ -219,8 +219,7 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 	fsl_ifc_ctrl_dev->gregs = of_iomap(dev->dev.of_node, 0);
+ 	if (!fsl_ifc_ctrl_dev->gregs) {
+ 		dev_err(&dev->dev, "failed to get memory region\n");
+-		ret = -ENODEV;
+-		goto err;
++		return -ENODEV;
+ 	}
  
- &serdes3 {
--	serdes3_usb_link: link@0 {
-+	serdes3_usb_link: phy@0 {
- 		reg = <0>;
- 		cdns,num-lanes = <2>;
- 		#phy-cells = <0>;
-@@ -599,7 +599,7 @@
- 	assigned-clocks = <&serdes0 CDNS_SIERRA_PLL_CMNLC>;
- 	assigned-clock-parents = <&wiz0_pll1_refclk>;
+ 	if (of_property_read_bool(dev->dev.of_node, "little-endian")) {
+@@ -295,6 +294,7 @@ err_irq:
+ 	free_irq(fsl_ifc_ctrl_dev->irq, fsl_ifc_ctrl_dev);
+ 	irq_dispose_mapping(fsl_ifc_ctrl_dev->irq);
+ err:
++	iounmap(fsl_ifc_ctrl_dev->gregs);
+ 	return ret;
+ }
  
--	serdes0_pcie_link: link@0 {
-+	serdes0_pcie_link: phy@0 {
- 		reg = <0>;
- 		cdns,num-lanes = <1>;
- 		#phy-cells = <0>;
-@@ -612,7 +612,7 @@
- 	assigned-clocks = <&serdes1 CDNS_SIERRA_PLL_CMNLC>;
- 	assigned-clock-parents = <&wiz1_pll1_refclk>;
- 
--	serdes1_pcie_link: link@0 {
-+	serdes1_pcie_link: phy@0 {
- 		reg = <0>;
- 		cdns,num-lanes = <2>;
- 		#phy-cells = <0>;
-@@ -625,7 +625,7 @@
- 	assigned-clocks = <&serdes2 CDNS_SIERRA_PLL_CMNLC>;
- 	assigned-clock-parents = <&wiz2_pll1_refclk>;
- 
--	serdes2_pcie_link: link@0 {
-+	serdes2_pcie_link: phy@0 {
- 		reg = <0>;
- 		cdns,num-lanes = <2>;
- 		#phy-cells = <0>;
 -- 
 2.30.2
 
