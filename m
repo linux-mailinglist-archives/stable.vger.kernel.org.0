@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17CB13CDFAA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00C93CDF26
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344129AbhGSPLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
+        id S1343877AbhGSPH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346108AbhGSPKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2AB60FED;
-        Mon, 19 Jul 2021 15:50:32 +0000 (UTC)
+        id S1345743AbhGSPE5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED45C610A5;
+        Mon, 19 Jul 2021 15:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709833;
-        bh=Z6ZydqLjlMDD66kySE5xSLlnlFJ4OA8zpDyXLTtJ/IE=;
+        s=korg; t=1626709509;
+        bh=AWvCJaMoRoL6V6OkU1vz1o+Zcy7vJQWQqMK9pByqGdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o47dLeVFN3sITqMtY9SNTjg8P7PxW+FhbyLw4SmQ+dcuwzw64jZWobfQTLKRXx9l6
-         X6b6L/PvNpNZYsiI+mXqV9+j4n/rHoUP50poVSko2u9cAm7bRb7aVOIv2crq+HZPgQ
-         RtOEcDUSlFtTGJDMtWjOQbpguqsclJUkHOyfrN8M=
+        b=zXkzXs7+dTUr4kNk5l9JRXcyeCLKAjS1MsBgkSlx0apKReZcv+yNhqIEdXFIMQ3v9
+         j52T3oymr/1L87Qwm1Zb1KkX7gfgVTmkLjW6R510y48ACSfuualw+EPzikOwtpKDpY
+         g8XEAJc71gwDtU1Njc+DN0+UgaZMyYrfMl91bR9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/149] reset: a10sr: add missing of_match_table reference
+        stable@vger.kernel.org,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Fabio Estevam <festevam@gmail.com>,
+        Marek Vasut <marex@denx.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        kernel@dh-electronics.com, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 413/421] ARM: dts: imx6q-dhcom: Fix ethernet plugin detection problems
 Date:   Mon, 19 Jul 2021 16:53:44 +0200
-Message-Id: <20210719144928.880010531@linuxfoundation.org>
+Message-Id: <20210719145000.630943720@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Christoph Niedermaier <cniedermaier@dh-electronics.com>
 
-[ Upstream commit 466ba3c8ff4fae39e455ff8d080b3d5503302765 ]
+[ Upstream commit e2bdd3484890441b9cc2560413a86e8f2aa04157 ]
 
-The driver defined of_device_id table but did not use it with
-of_match_table.  This prevents usual matching via devicetree and causes
-a W=1 warning:
+To make the ethernet cable plugin detection reliable the
+power detection of the smsc phy has been disabled.
 
-  drivers/reset/reset-a10sr.c:111:34: warning:
-    ‘a10sr_reset_of_match’ defined but not used [-Wunused-const-variable=]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 627006820268 ("reset: Add Altera Arria10 SR Reset Controller")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210507112803.20012-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
+Signed-off-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Marek Vasut <marex@denx.de>
+Cc: NXP Linux Team <linux-imx@nxp.com>
+Cc: kernel@dh-electronics.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-a10sr.c | 1 +
+ arch/arm/boot/dts/imx6q-dhcom-som.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/reset/reset-a10sr.c b/drivers/reset/reset-a10sr.c
-index 7eacc89382f8..99b3bc8382f3 100644
---- a/drivers/reset/reset-a10sr.c
-+++ b/drivers/reset/reset-a10sr.c
-@@ -118,6 +118,7 @@ static struct platform_driver a10sr_reset_driver = {
- 	.probe	= a10sr_reset_probe,
- 	.driver = {
- 		.name		= "altr_a10sr_reset",
-+		.of_match_table	= a10sr_reset_of_match,
- 	},
+diff --git a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+index b158e530a796..6c08ef354a39 100644
+--- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
+@@ -99,6 +99,7 @@
+ 			reset-gpios = <&gpio5 0 GPIO_ACTIVE_LOW>;
+ 			reset-assert-us = <1000>;
+ 			reset-deassert-us = <1000>;
++			smsc,disable-energy-detect; /* Make plugin detection reliable */
+ 		};
+ 	};
  };
- module_platform_driver(a10sr_reset_driver);
 -- 
 2.30.2
 
