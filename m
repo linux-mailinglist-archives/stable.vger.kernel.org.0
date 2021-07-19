@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A327D3CDC53
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0667A3CDF90
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237702AbhGSOwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S1345541AbhGSPKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344186AbhGSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DE7761402;
-        Mon, 19 Jul 2021 15:26:53 +0000 (UTC)
+        id S1345537AbhGSPJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AC8A60FE7;
+        Mon, 19 Jul 2021 15:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708414;
-        bh=QLublSxF8S69jo4WfCokMlnzQSYsgb2lbYEReRKtKqI=;
+        s=korg; t=1626709751;
+        bh=ltZ7vO6TGRJU0yf0niTNoGRE3EuoqsctVzx+HefZ7Do=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=peANrciRKBY0BZl9zZhHT7Cke+xRWk1+aT81cUapOAdP2L++4Wb8iz611in0QgmLy
-         b+Gas84ucJh6y6xsY5XUKK7AZT4mrRrG/z8xq1juNQwopg30ifzSmbIMY5pw3EQAV5
-         gfxX3z4l8iGQ2W3RJhxRhoKegvKLgrJS6y3oGSWg=
+        b=1ZVxJgBo2elZ3em8u7Z91IZlU+K3gfmEbhKsclFZKnAYvA+U5PzhIh8urG2RNsIDq
+         TxZ8hT47Oq9dK8x5QZ+f8JLqdtqGHBZNZ95pPu1syhZCB7zp74BMn1kEYlrDddzXOH
+         p4E1TD4zSkoANSTxmLWAMIuc9Nw5eJ9+nveDMuTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Vidya Sagar <vidyas@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 302/315] memory: atmel-ebi: add missing of_node_put for loop iteration
+Subject: [PATCH 5.4 083/149] PCI: tegra: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:53:11 +0200
-Message-Id: <20210719144953.397555713@linuxfoundation.org>
+Message-Id: <20210719144920.998602961@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 907c5bbb514a4676160e79764522fff56ce3448e ]
+[ Upstream commit 7bf475a4614a9722b9b989e53184a02596cf16d1 ]
 
-Early exits from for_each_available_child_of_node() should decrement the
-node reference counter.  Reported by Coccinelle:
+Add missing MODULE_DEVICE_TABLE definition so we generate correct modalias
+for automatic loading of this driver when it is built as a module.
 
-  drivers/memory/atmel-ebi.c:593:1-33: WARNING:
-    Function "for_each_available_child_of_node" should have of_node_put() before return around line 604.
-
-Fixes: 6a4ec4cd0888 ("memory: add Atmel EBI (External Bus Interface) driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210423101815.119341-2-krzysztof.kozlowski@canonical.com
+Link: https://lore.kernel.org/r/1620792422-16535-1-git-send-email-zou_wei@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Vidya Sagar <vidyas@nvidia.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/atmel-ebi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/pci/controller/pci-tegra.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
-index b907865d4664..2b9283d4fcb1 100644
---- a/drivers/memory/atmel-ebi.c
-+++ b/drivers/memory/atmel-ebi.c
-@@ -579,8 +579,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 				child);
+diff --git a/drivers/pci/controller/pci-tegra.c b/drivers/pci/controller/pci-tegra.c
+index cfa3c83d6cc7..99d505a85067 100644
+--- a/drivers/pci/controller/pci-tegra.c
++++ b/drivers/pci/controller/pci-tegra.c
+@@ -2613,6 +2613,7 @@ static const struct of_device_id tegra_pcie_of_match[] = {
+ 	{ .compatible = "nvidia,tegra20-pcie", .data = &tegra20_pcie },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, tegra_pcie_of_match);
  
- 			ret = atmel_ebi_dev_disable(ebi, child);
--			if (ret)
-+			if (ret) {
-+				of_node_put(child);
- 				return ret;
-+			}
- 		}
- 	}
- 
+ static void *tegra_pcie_ports_seq_start(struct seq_file *s, loff_t *pos)
+ {
 -- 
 2.30.2
 
