@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73CB33CE441
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 853A33CE447
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348365AbhGSPm5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38792 "EHLO mail.kernel.org"
+        id S235794AbhGSPnB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:43:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346902AbhGSPjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:39:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D64B8606A5;
-        Mon, 19 Jul 2021 16:18:46 +0000 (UTC)
+        id S1347207AbhGSPjX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:39:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18E7D613D2;
+        Mon, 19 Jul 2021 16:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711527;
-        bh=gFLmGYKdOvbKE65Qf1cWwT+DPi2OwF30/ZEi8k4bv9c=;
+        s=korg; t=1626711532;
+        bh=79/HYkvwxCe55o5MFGHNpPyyxL7jdePrtaRs3K2/aC4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKaaOwSDyoe3gvF7B8P3/gpEIyW45CvlJAbkP6bz1ETc9JVYLV9aT0yl43+p9PR7k
-         40SiW41d/G3kqpdEXXpdxIFfyMwJk/caafxeCYycbAEnweU31AsUuS4uiuQAVGZFDl
-         DI8zAXQlwJXONgenNohV5AdL6+JTxCPWqCNcNjNI=
+        b=GiLExk3CIj/xXSzugBHl3KBMEOwaRfM7D9M+z3uaNXjovRW/qkNREe2aHWkSPD7Tq
+         wX+E6AFaHo4AnM5hjzIid+xTlxZVLv80occY2pWJ/xBbByO8wcMu3jWNiaE5qmymc6
+         NbMwXizsfGIUYHkbITY5SSM2rosZQnchy+7mW2tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Libin Yang <libin.yang@intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 035/292] ASoC: Intel: sof_sdw: add mutual exclusion between PCH DMIC and RT715
-Date:   Mon, 19 Jul 2021 16:51:37 +0200
-Message-Id: <20210719144943.681913538@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 036/292] dmaengine: fsl-qdma: check dma_set_mask return value
+Date:   Mon, 19 Jul 2021 16:51:38 +0200
+Message-Id: <20210719144943.712198136@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,131 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Robin Gong <yibin.gong@nxp.com>
 
-[ Upstream commit 35564e2bf94611c3eb51d35362addb3cb394ad54 ]
+[ Upstream commit f0c07993af0acf5545d5c1445798846565f4f147 ]
 
-When external RT714/715 devices are used for capture, we don't want
-the PCH DMICs to be used.
+For fix below warning reported by static code analysis tool like Coverity
+from Synopsys:
 
-Any information provided by the SOF platform driver or DMI quirks will
-be overridden.
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Reviewed-by: Libin Yang <libin.yang@intel.com>
-Link: https://lore.kernel.org/r/20210505163705.305616-5-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Addresses-Coverity-ID: 12285639 ("Unchecked return value")
+Link: https://lore.kernel.org/r/1619427549-20498-1-git-send-email-yibin.gong@nxp.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_sdw.c        | 19 +++++++++++++++++--
- sound/soc/intel/boards/sof_sdw_common.h |  1 +
- 2 files changed, 18 insertions(+), 2 deletions(-)
+ drivers/dma/fsl-qdma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/boards/sof_sdw.c b/sound/soc/intel/boards/sof_sdw.c
-index dfad2ad129ab..5827a16773c9 100644
---- a/sound/soc/intel/boards/sof_sdw.c
-+++ b/sound/soc/intel/boards/sof_sdw.c
-@@ -354,6 +354,7 @@ static struct sof_sdw_codec_info codec_info_list[] = {
- 		.part_id = 0x714,
- 		.version_id = 3,
- 		.direction = {false, true},
-+		.ignore_pch_dmic = true,
- 		.dai_name = "rt715-aif2",
- 		.init = sof_sdw_rt715_sdca_init,
- 	},
-@@ -361,6 +362,7 @@ static struct sof_sdw_codec_info codec_info_list[] = {
- 		.part_id = 0x715,
- 		.version_id = 3,
- 		.direction = {false, true},
-+		.ignore_pch_dmic = true,
- 		.dai_name = "rt715-aif2",
- 		.init = sof_sdw_rt715_sdca_init,
- 	},
-@@ -368,6 +370,7 @@ static struct sof_sdw_codec_info codec_info_list[] = {
- 		.part_id = 0x714,
- 		.version_id = 2,
- 		.direction = {false, true},
-+		.ignore_pch_dmic = true,
- 		.dai_name = "rt715-aif2",
- 		.init = sof_sdw_rt715_init,
- 	},
-@@ -375,6 +378,7 @@ static struct sof_sdw_codec_info codec_info_list[] = {
- 		.part_id = 0x715,
- 		.version_id = 2,
- 		.direction = {false, true},
-+		.ignore_pch_dmic = true,
- 		.dai_name = "rt715-aif2",
- 		.init = sof_sdw_rt715_init,
- 	},
-@@ -730,7 +734,8 @@ static int create_sdw_dailink(struct device *dev, int *be_index,
- 			      int *cpu_id, bool *group_generated,
- 			      struct snd_soc_codec_conf *codec_conf,
- 			      int codec_count,
--			      int *codec_conf_index)
-+			      int *codec_conf_index,
-+			      bool *ignore_pch_dmic)
- {
- 	const struct snd_soc_acpi_link_adr *link_next;
- 	struct snd_soc_dai_link_component *codecs;
-@@ -783,6 +788,9 @@ static int create_sdw_dailink(struct device *dev, int *be_index,
- 	if (codec_index < 0)
- 		return codec_index;
+diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
+index ed2ab46b15e7..045ead46ec8f 100644
+--- a/drivers/dma/fsl-qdma.c
++++ b/drivers/dma/fsl-qdma.c
+@@ -1235,7 +1235,11 @@ static int fsl_qdma_probe(struct platform_device *pdev)
+ 	fsl_qdma->dma_dev.device_synchronize = fsl_qdma_synchronize;
+ 	fsl_qdma->dma_dev.device_terminate_all = fsl_qdma_terminate_all;
  
-+	if (codec_info_list[codec_index].ignore_pch_dmic)
-+		*ignore_pch_dmic = true;
-+
- 	cpu_dai_index = *cpu_id;
- 	for_each_pcm_streams(stream) {
- 		char *name, *cpu_name;
-@@ -914,6 +922,7 @@ static int sof_card_dai_links_create(struct device *dev,
- 	const struct snd_soc_acpi_link_adr *adr_link;
- 	struct snd_soc_dai_link_component *cpus;
- 	struct snd_soc_codec_conf *codec_conf;
-+	bool ignore_pch_dmic = false;
- 	int codec_conf_count;
- 	int codec_conf_index = 0;
- 	bool group_generated[SDW_MAX_GROUPS];
-@@ -1020,7 +1029,8 @@ static int sof_card_dai_links_create(struct device *dev,
- 					 sdw_cpu_dai_num, cpus, adr_link,
- 					 &cpu_id, group_generated,
- 					 codec_conf, codec_conf_count,
--					 &codec_conf_index);
-+					 &codec_conf_index,
-+					 &ignore_pch_dmic);
- 		if (ret < 0) {
- 			dev_err(dev, "failed to create dai link %d", be_id);
- 			return -ENOMEM;
-@@ -1088,6 +1098,10 @@ SSP:
- DMIC:
- 	/* dmic */
- 	if (dmic_num > 0) {
-+		if (ignore_pch_dmic) {
-+			dev_warn(dev, "Ignoring PCH DMIC\n");
-+			goto HDMI;
-+		}
- 		cpus[cpu_id].dai_name = "DMIC01 Pin";
- 		init_dai_link(dev, links + link_id, be_id, "dmic01",
- 			      0, 1, // DMIC only supports capture
-@@ -1106,6 +1120,7 @@ DMIC:
- 		INC_ID(be_id, cpu_id, link_id);
- 	}
+-	dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
++	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
++	if (ret) {
++		dev_err(&pdev->dev, "dma_set_mask failure.\n");
++		return ret;
++	}
  
-+HDMI:
- 	/* HDMI */
- 	if (hdmi_num > 0) {
- 		idisp_components = devm_kcalloc(dev, hdmi_num,
-diff --git a/sound/soc/intel/boards/sof_sdw_common.h b/sound/soc/intel/boards/sof_sdw_common.h
-index f3cb6796363e..ea60e8ed215c 100644
---- a/sound/soc/intel/boards/sof_sdw_common.h
-+++ b/sound/soc/intel/boards/sof_sdw_common.h
-@@ -56,6 +56,7 @@ struct sof_sdw_codec_info {
- 	int amp_num;
- 	const u8 acpi_id[ACPI_ID_LEN];
- 	const bool direction[2]; // playback & capture support
-+	const bool ignore_pch_dmic;
- 	const char *dai_name;
- 	const struct snd_soc_ops *ops;
+ 	platform_set_drvdata(pdev, fsl_qdma);
  
 -- 
 2.30.2
