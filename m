@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F6483CDBDF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C607F3CDA4A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238894AbhGSOuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40962 "EHLO mail.kernel.org"
+        id S242455AbhGSOf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344129AbhGSOsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEF2F613FB;
-        Mon, 19 Jul 2021 15:26:40 +0000 (UTC)
+        id S244743AbhGSOeV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCBD36112D;
+        Mon, 19 Jul 2021 15:13:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708401;
-        bh=YPP6zuJ2ab3ghiSpsXmPP4KiZpp/JGYyr9Zjmon0lmk=;
+        s=korg; t=1626707621;
+        bh=gclrGqiJVU0lZ2aOjJDRWM/lezZrMs03wDKPwf1sCdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=InbxD/i71vy9bf0FwtPlkHbFMrnZ7Kl6A+sLaCfVi6fECPvCGf6WPLpEUXLVzjmku
-         GZk+TmTbqPEINKDL2tdiue5mZ8J3JjGRBXYll9Ic7J8CnI21m39Htfl5DasRdC2V0T
-         245+2fCMXBK/7n5tebZf69WqdGy7Jet+4NVUU3mM=
+        b=IRzrjfngcAmV05+Oww32NpCDPujI8mbGqSNzXlWabosfKs8Mo8ihFSXE9xfIpUbAN
+         M9OXL8PaFKhDjNUvQXpX8yQMaXXK/KAjxoD789gx56fohR4mtQA/8F4pT9LxkAKCoQ
+         NJIv7FLLf9yl7jpDnZQdUxrZLIOoMXhN5RmQ7TeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Beomho Seo <beomho.seo@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 289/315] power: supply: rt5033_battery: Fix device tree enumeration
-Date:   Mon, 19 Jul 2021 16:52:58 +0200
-Message-Id: <20210719144952.942597806@linuxfoundation.org>
+Subject: [PATCH 4.9 237/245] ARM: dts: r8a7779, marzen: Fix DU clock names
+Date:   Mon, 19 Jul 2021 16:52:59 +0200
+Message-Id: <20210719144948.036319767@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,65 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit f3076cd8d1d5fa64b5e1fa5affc045c2fc123baa ]
+[ Upstream commit 6ab8c23096a29b69044209a5925758a6f88bd450 ]
 
-The fuel gauge in the RT5033 PMIC has its own I2C bus and interrupt
-line. Therefore, it is not actually part of the RT5033 MFD and needs
-its own of_match_table to probe properly.
+"make dtbs_check" complains:
 
-Also, given that it's independent of the MFD, there is actually
-no need to make the Kconfig depend on MFD_RT5033. Although the driver
-uses the shared <linux/mfd/rt5033.h> header, there is no compile
-or runtime dependency on the RT5033 MFD driver.
+    arch/arm/boot/dts/r8a7779-marzen.dt.yaml: display@fff80000: clock-names:0: 'du.0' was expected
 
-Cc: Beomho Seo <beomho.seo@samsung.com>
-Cc: Chanwoo Choi <cw00.choi@samsung.com>
-Fixes: b847dd96e659 ("power: rt5033_battery: Add RT5033 Fuel gauge device driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Change the first clock name to match the DT bindings.
+This has no effect on actual operation, as the Display Unit driver in
+Linux does not use the first clock name on R-Car H1, but just grabs the
+first clock.
+
+Fixes: 665d79aa47cb3983 ("ARM: shmobile: marzen: Add DU external pixel clock to DT")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Link: https://lore.kernel.org/r/9d5e1b371121883b3b3e10a3df43802a29c6a9da.1619699965.git.geert+renesas@glider.be
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/Kconfig          | 3 ++-
- drivers/power/supply/rt5033_battery.c | 7 +++++++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/r8a7779-marzen.dts | 2 +-
+ arch/arm/boot/dts/r8a7779.dtsi       | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/Kconfig b/drivers/power/supply/Kconfig
-index 24163cf8612c..645908ccb710 100644
---- a/drivers/power/supply/Kconfig
-+++ b/drivers/power/supply/Kconfig
-@@ -596,7 +596,8 @@ config BATTERY_GOLDFISH
+diff --git a/arch/arm/boot/dts/r8a7779-marzen.dts b/arch/arm/boot/dts/r8a7779-marzen.dts
+index 541678df90a9..50ec24bb1d79 100644
+--- a/arch/arm/boot/dts/r8a7779-marzen.dts
++++ b/arch/arm/boot/dts/r8a7779-marzen.dts
+@@ -136,7 +136,7 @@
+ 	status = "okay";
  
- config BATTERY_RT5033
- 	tristate "RT5033 fuel gauge support"
--	depends on MFD_RT5033
-+	depends on I2C
-+	select REGMAP_I2C
- 	help
- 	  This adds support for battery fuel gauge in Richtek RT5033 PMIC.
- 	  The fuelgauge calculates and determines the battery state of charge
-diff --git a/drivers/power/supply/rt5033_battery.c b/drivers/power/supply/rt5033_battery.c
-index bcdd83048492..9310b85f3405 100644
---- a/drivers/power/supply/rt5033_battery.c
-+++ b/drivers/power/supply/rt5033_battery.c
-@@ -167,9 +167,16 @@ static const struct i2c_device_id rt5033_battery_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, rt5033_battery_id);
+ 	clocks = <&mstp1_clks R8A7779_CLK_DU>, <&x3_clk>;
+-	clock-names = "du", "dclkin.0";
++	clock-names = "du.0", "dclkin.0";
  
-+static const struct of_device_id rt5033_battery_of_match[] = {
-+	{ .compatible = "richtek,rt5033-battery", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, rt5033_battery_of_match);
-+
- static struct i2c_driver rt5033_battery_driver = {
- 	.driver = {
- 		.name = "rt5033-battery",
-+		.of_match_table = rt5033_battery_of_match,
- 	},
- 	.probe = rt5033_battery_probe,
- 	.remove = rt5033_battery_remove,
+ 	ports {
+ 		port@0 {
+diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
+index 6c6d4893e92d..3fb0a8d2530b 100644
+--- a/arch/arm/boot/dts/r8a7779.dtsi
++++ b/arch/arm/boot/dts/r8a7779.dtsi
+@@ -431,6 +431,7 @@
+ 		reg = <0 0xfff80000 0 0x40000>;
+ 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&mstp1_clks R8A7779_CLK_DU>;
++		clock-names = "du.0";
+ 		power-domains = <&sysc R8A7779_PD_ALWAYS_ON>;
+ 		status = "disabled";
+ 
 -- 
 2.30.2
 
