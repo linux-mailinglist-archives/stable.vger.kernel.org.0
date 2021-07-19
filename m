@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1BF3CDEDB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66ABB3CDFC1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344639AbhGSPGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
+        id S1345429AbhGSPLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345418AbhGSPEX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5079613FB;
-        Mon, 19 Jul 2021 15:43:53 +0000 (UTC)
+        id S1345808AbhGSPJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B125A613CF;
+        Mon, 19 Jul 2021 15:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709434;
-        bh=vLRAzC3PB3D1e2H6/tAEcR/aEhROiBVS9SoP3n7iMSY=;
+        s=korg; t=1626709759;
+        bh=wJTkCpPAafROXRuvciOmVlu458zkKHcOo7i/SuZMZz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPJBqbhg1LvaWA/tUWqu+hHfbBbm3D4E8V0RcXo20ZcIFWy2bsgk05QFXKd3wDZLM
-         MKzES8x/2N+YK/MA9TI8AOPaDPCN7pu7ARldldzEgulvpmFSgY1OLu1Bn9D5CFWjSv
-         iAYdR6yi5Su7Ih63s4N92IuraqZlP/0ClHXrqjLI=
+        b=U2KDn5bI/4FcjmsR8woLDQ/WzBwRbRUHRZJ6zU1MFn017I8d55zAs6WqOnKSzy3WF
+         DgIgTV8W9tg4Azu0n4sWdZvgzzC7lbTROdtj4e8xWRSABLY7owAIrJHMG+xW8zZcQW
+         +FZKnGFos4sR7Uun6B1YPHrfCa6Dugdf5FnKOd7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Perches <joe@perches.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 382/421] PCI/sysfs: Fix dsm_label_utf16s_to_utf8s() buffer overrun
+Subject: [PATCH 5.4 085/149] ceph: remove bogus checks and WARN_ONs from ceph_set_page_dirty
 Date:   Mon, 19 Jul 2021 16:53:13 +0200
-Message-Id: <20210719144959.614959420@linuxfoundation.org>
+Message-Id: <20210719144921.450032028@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Wilczyński <kw@linux.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit bdcdaa13ad96f1a530711c29e6d4b8311eff767c ]
+[ Upstream commit 22d41cdcd3cfd467a4af074165357fcbea1c37f5 ]
 
-"utf16s_to_utf8s(..., buf, PAGE_SIZE)" puts up to PAGE_SIZE bytes into
-"buf" and returns the number of bytes it actually put there.  If it wrote
-PAGE_SIZE bytes, the newline added by dsm_label_utf16s_to_utf8s() would
-overrun "buf".
+The checks for page->mapping are odd, as set_page_dirty is an
+address_space operation, and I don't see where it would be called on a
+non-pagecache page.
 
-Reduce the size available for utf16s_to_utf8s() to use so there is always
-space for the newline.
+The warning about the page lock also seems bogus.  The comment over
+set_page_dirty() says that it can be called without the page lock in
+some rare cases. I don't think we want to warn if that's the case.
 
-[bhelgaas: reorder patch in series, commit log]
-Fixes: 6058989bad05 ("PCI: Export ACPI _DSM provided firmware instance number and string name to sysfs")
-Link: https://lore.kernel.org/r/20210603000112.703037-7-kw@linux.com
-Reported-by: Joe Perches <joe@perches.com>
-Signed-off-by: Krzysztof Wilczyński <kw@linux.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/addr.c | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/pci/pci-label.c b/drivers/pci/pci-label.c
-index a5910f942857..9fb4ef568f40 100644
---- a/drivers/pci/pci-label.c
-+++ b/drivers/pci/pci-label.c
-@@ -162,7 +162,7 @@ static void dsm_label_utf16s_to_utf8s(union acpi_object *obj, char *buf)
- 	len = utf16s_to_utf8s((const wchar_t *)obj->buffer.pointer,
- 			      obj->buffer.length,
- 			      UTF16_LITTLE_ENDIAN,
--			      buf, PAGE_SIZE);
-+			      buf, PAGE_SIZE - 1);
- 	buf[len] = '\n';
+diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
+index a02e845eb0fb..34ab7b892b70 100644
+--- a/fs/ceph/addr.c
++++ b/fs/ceph/addr.c
+@@ -76,10 +76,6 @@ static int ceph_set_page_dirty(struct page *page)
+ 	struct inode *inode;
+ 	struct ceph_inode_info *ci;
+ 	struct ceph_snap_context *snapc;
+-	int ret;
+-
+-	if (unlikely(!mapping))
+-		return !TestSetPageDirty(page);
+ 
+ 	if (PageDirty(page)) {
+ 		dout("%p set_page_dirty %p idx %lu -- already dirty\n",
+@@ -125,11 +121,7 @@ static int ceph_set_page_dirty(struct page *page)
+ 	page->private = (unsigned long)snapc;
+ 	SetPagePrivate(page);
+ 
+-	ret = __set_page_dirty_nobuffers(page);
+-	WARN_ON(!PageLocked(page));
+-	WARN_ON(!page->mapping);
+-
+-	return ret;
++	return __set_page_dirty_nobuffers(page);
  }
  
+ /*
 -- 
 2.30.2
 
