@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 527813CDB66
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DABB3CDB72
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243235AbhGSOml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60580 "EHLO mail.kernel.org"
+        id S243322AbhGSOmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243621AbhGSOkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:40:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 582C261073;
-        Mon, 19 Jul 2021 15:20:58 +0000 (UTC)
+        id S243263AbhGSOkW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:40:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39070610D2;
+        Mon, 19 Jul 2021 15:21:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708058;
-        bh=Nj0Udr4R71nGxE+aMr8O49t+TEjcRM2tKiepHUjqTXA=;
+        s=korg; t=1626708061;
+        bh=AOANztogWG+byXD6GqBWGWH2rCikFuzKCOSb6tGVcgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfXzEb+oWFiUEp5RotncrGOSuO4ql2tfrpMNHuJ/FinH7IFqK/Boe0EEuLQOsvpev
-         8lA+AHml7+PdJxgQeAneEeJmqgdska8hkcjYxLImD4XabN57Sp2bUCLcquHXRDwhmc
-         9+H/CpMDrDTWJ+4nWzVaGp77mIOXfynxG53DGn3I=
+        b=iVR/5ftymfr6OhXrhkQkGmk+Ol/EfrhNdQbbD2A/O8tt/1cLEFQ8zBPNq/B9wM0vV
+         xLa5EFnbybz3GTCne2UB8/mgTJjo/7ZIrqQ2lDRSSqRNumMQTKyp0WsNMNaPOp7Ibl
+         RO9dlNl/7DbZ3OrMfKVk4RayvCK0eRpOKm9IIXeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bibo Mao <maobibo@loongson.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 164/315] hugetlb: clear huge pte during flush function on mips platform
-Date:   Mon, 19 Jul 2021 16:50:53 +0200
-Message-Id: <20210719144948.287487214@linuxfoundation.org>
+Subject: [PATCH 4.14 165/315] atm: iphase: fix possible use-after-free in ia_module_exit()
+Date:   Mon, 19 Jul 2021 16:50:54 +0200
+Message-Id: <20210719144948.321443581@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -40,47 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bibo Mao <maobibo@loongson.cn>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 33ae8f801ad8bec48e886d368739feb2816478f2 ]
+[ Upstream commit 1c72e6ab66b9598cac741ed397438a52065a8f1f ]
 
-If multiple threads are accessing the same huge page at the same
-time, hugetlb_cow will be called if one thread write the COW huge
-page. And function huge_ptep_clear_flush is called to notify other
-threads to clear the huge pte tlb entry. The other threads clear
-the huge pte tlb entry and reload it from page table, the reload
-huge pte entry may be old.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-This patch fixes this issue on mips platform, and it clears huge
-pte entry before notifying other threads to flush current huge
-page entry, it is similar with other architectures.
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-Signed-off-by: Bibo Mao <maobibo@loongson.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/hugetlb.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/atm/iphase.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/hugetlb.h b/arch/mips/include/asm/hugetlb.h
-index 982bc0685330..4747a4694669 100644
---- a/arch/mips/include/asm/hugetlb.h
-+++ b/arch/mips/include/asm/hugetlb.h
-@@ -67,7 +67,13 @@ static inline pte_t huge_ptep_get_and_clear(struct mm_struct *mm,
- static inline void huge_ptep_clear_flush(struct vm_area_struct *vma,
- 					 unsigned long addr, pte_t *ptep)
+diff --git a/drivers/atm/iphase.c b/drivers/atm/iphase.c
+index 2b29598791e8..16eb0266a59a 100644
+--- a/drivers/atm/iphase.c
++++ b/drivers/atm/iphase.c
+@@ -3301,7 +3301,7 @@ static void __exit ia_module_exit(void)
  {
--	flush_tlb_page(vma, addr & huge_page_mask(hstate_vma(vma)));
-+	/*
-+	 * clear the huge pte entry firstly, so that the other smp threads will
-+	 * not get old pte entry after finishing flush_tlb_page and before
-+	 * setting new huge pte entry
-+	 */
-+	huge_ptep_get_and_clear(vma->vm_mm, addr, ptep);
-+	flush_tlb_page(vma, addr);
+ 	pci_unregister_driver(&ia_driver);
+ 
+-        del_timer(&ia_timer);
++	del_timer_sync(&ia_timer);
  }
  
- static inline int huge_pte_none(pte_t pte)
+ module_init(ia_module_init);
 -- 
 2.30.2
 
