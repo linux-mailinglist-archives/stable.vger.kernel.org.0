@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4A73CE419
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0623CE393
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239820AbhGSPmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
+        id S238455AbhGSPkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349063AbhGSPfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0041F61353;
-        Mon, 19 Jul 2021 16:16:06 +0000 (UTC)
+        id S1349080AbhGSPfn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B1C6135C;
+        Mon, 19 Jul 2021 16:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711367;
-        bh=L49YH/ITUHIihx2GAELq0fq+6p+DSNTdvfuJGq4SGL4=;
+        s=korg; t=1626711372;
+        bh=QHlC913CF6h2zDe57sr9VPDmI30uTexbDEogBLb4a3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0XtWOKPxn78IauUenktzvvQgRA6SdDA+QHFIfZtpWrstIW+IW3ofDszpUBlVnX6Lc
-         f8CQfrcPdi6pUx32WPx3OyRPczlDUiWRwKkncflp6iB6uJibeP9VfiMMgmEzfioLWX
-         pv6v98R2BaR/SSDAoHGkN2apPWlYp7Q/uMCZnYd4=
+        b=Qxeh0dG14fwSU1BCG+Lh/hiRsza0ijWkN70DjoIBDF+kh9PhpI/a2p+HH+4NMlFg5
+         VuKh8YzyhLaWrI2iLfROr5TjQnqWUqCKPnGZNbNIsA50Uw4X58wpQPxRSfKJSGSTjm
+         Ptss7zs3GgsJ5g9aZVofNdHEz3ggLgilCCfA8q2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 328/351] arm64: dts: ti: k3-am642-evm: align ti,pindir-d0-out-d1-in property with dt-shema
-Date:   Mon, 19 Jul 2021 16:54:34 +0200
-Message-Id: <20210719144955.914080024@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 329/351] thermal/drivers/rcar_gen3_thermal: Fix coefficient calculations
+Date:   Mon, 19 Jul 2021 16:54:35 +0200
+Message-Id: <20210719144955.945413413@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,36 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit d3f1b155c04d949c843e6028034766aba1e0f8bf ]
+[ Upstream commit 8946187ab57ffd02088e50256c73dd31f49db06d ]
 
-ti,pindir-d0-out-d1-in property is expected to be of type boolean.
-Therefore, fix the property accordingly.
+The fixed value of 157 used in the calculations are only correct for
+M3-W, on other Gen3 SoC it should be 167. The constant can be derived
+correctly from the static TJ_3 constant and the SoC specific TJ_1 value.
+Update the calculation be correct on all Gen3 SoCs.
 
-Fixes: 4fb6c04683aa ("arm64: dts: ti: k3-am642-evm: Add support for SPI EEPROM")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210608051414.14873-3-a-govindraju@ti.com
+Fixes: 4eb39f79ef44 ("thermal: rcar_gen3_thermal: Update value of Tj_1")
+Reported-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210605085211.564909-1-niklas.soderlund+renesas@ragnatech.se
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am642-evm.dts | 2 +-
+ drivers/thermal/rcar_gen3_thermal.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am642-evm.dts b/arch/arm64/boot/dts/ti/k3-am642-evm.dts
-index dad0efa961ed..2fd0de905e61 100644
---- a/arch/arm64/boot/dts/ti/k3-am642-evm.dts
-+++ b/arch/arm64/boot/dts/ti/k3-am642-evm.dts
-@@ -334,7 +334,7 @@
- &main_spi0 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&main_spi0_pins_default>;
--	ti,pindir-d0-out-d1-in = <1>;
-+	ti,pindir-d0-out-d1-in;
- 	eeprom@0 {
- 		compatible = "microchip,93lc46b";
- 		reg = <0>;
+diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
+index e1e412348076..1a60adb1d30a 100644
+--- a/drivers/thermal/rcar_gen3_thermal.c
++++ b/drivers/thermal/rcar_gen3_thermal.c
+@@ -143,7 +143,7 @@ static void rcar_gen3_thermal_calc_coefs(struct rcar_gen3_thermal_tsc *tsc,
+ 	 * Division is not scaled in BSP and if scaled it might overflow
+ 	 * the dividend (4095 * 4095 << 14 > INT_MAX) so keep it unscaled
+ 	 */
+-	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * 157)
++	tsc->tj_t = (FIXPT_INT((ptat[1] - ptat[2]) * (ths_tj_1 - TJ_3))
+ 		     / (ptat[0] - ptat[2])) + FIXPT_INT(TJ_3);
+ 
+ 	tsc->coef.a1 = FIXPT_DIV(FIXPT_INT(thcode[1] - thcode[2]),
 -- 
 2.30.2
 
