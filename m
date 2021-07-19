@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 777053CDD76
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A800D3CDD75
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240373AbhGSO6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53364 "EHLO mail.kernel.org"
+        id S239091AbhGSO6B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:58:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238181AbhGSO5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:57:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E2B6138C;
-        Mon, 19 Jul 2021 15:34:48 +0000 (UTC)
+        id S239482AbhGSO5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:57:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 786BB613C3;
+        Mon, 19 Jul 2021 15:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708889;
-        bh=+/AeZ4SqTWfO/sc6k0LvpSgTqWAF7fTpsGToJETLRoY=;
+        s=korg; t=1626708892;
+        bh=zq2+svXrcExRH7BARF/5ueg0aatNBr7cHb+UGRqO274=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9nkzrA60ACzYM/F37MkAWWLfB29bx33yNWbgA88iyzTb+d0mcs9MjzsTzJcLKQIj
-         i7BdePUR62HyEAlc4HynV57tJs466Ncqjli7rTihHWvyEGhjDMyriIOQsfWHmPsJVJ
-         YrHu6ab6ajLqop+GI4Qztie0p1Zu7biJJGPuaWyk=
+        b=VXrs7NE56taxdPgm1I2teCCjJCBsAMUxmJBDOM52x3z3pp/vc1BQOKPnmOtB4dr4U
+         8tHSsIFFLNSAcCZcb28YnpVySWvMjY+Pw/fDU0LNYgIM/EOPkvI2PRKBL5fGnZK0lL
+         XpgnC9O2mGJHCiE/7EB+4Rd+nHDELLxiSo1Tmjn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 170/421] iio: accel: hid: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:49:41 +0200
-Message-Id: <20210719144952.319797358@linuxfoundation.org>
+Subject: [PATCH 4.19 171/421] iio: accel: kxcjk-1013: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:49:42 +0200
+Message-Id: <20210719144952.358681664@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -44,63 +44,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit c6559bf796ccdb3a0c79db846af96c8f7046880b ]
+[ Upstream commit 3ab3aa2e7bd57497f9a7c6275c00dce237d2c9ba ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
-Note this matches what was done in all the other hid sensor drivers.
-This one was missed previously due to an extra level of indirection.
 
 Found during an audit of all calls of this function.
 
-Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
+Fixes: 1a4fbf6a9286 ("iio: accel: kxcjk1013 3-axis accelerometer driver")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-4-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-5-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/hid-sensor-accel-3d.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/iio/accel/kxcjk-1013.c | 24 ++++++++++++++----------
+ 1 file changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index 38ff374a3ca4..32d5438d4519 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -42,8 +42,11 @@ struct accel_3d_state {
- 	struct hid_sensor_hub_callbacks callbacks;
- 	struct hid_sensor_common common_attributes;
- 	struct hid_sensor_hub_attribute_info accel[ACCEL_3D_CHANNEL_MAX];
--	/* Reserve for 3 channels + padding + timestamp */
--	u32 accel_val[ACCEL_3D_CHANNEL_MAX + 3];
-+	/* Ensure timestamp is naturally aligned */
+diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
+index c22afc979206..0ca6f9de5192 100644
+--- a/drivers/iio/accel/kxcjk-1013.c
++++ b/drivers/iio/accel/kxcjk-1013.c
+@@ -140,12 +140,23 @@ enum kx_acpi_type {
+ 	ACPI_KIOX010A,
+ };
+ 
++enum kxcjk1013_axis {
++	AXIS_X,
++	AXIS_Y,
++	AXIS_Z,
++	AXIS_MAX
++};
++
+ struct kxcjk1013_data {
+ 	struct i2c_client *client;
+ 	struct iio_trigger *dready_trig;
+ 	struct iio_trigger *motion_trig;
+ 	struct mutex mutex;
+-	s16 buffer[8];
++	/* Ensure timestamp naturally aligned */
 +	struct {
-+		u32 accel_val[3];
++		s16 chans[AXIS_MAX];
 +		s64 timestamp __aligned(8);
 +	} scan;
- 	int scale_pre_decml;
- 	int scale_post_decml;
- 	int scale_precision;
-@@ -254,8 +257,8 @@ static int accel_3d_proc_event(struct hid_sensor_hub_device *hsdev,
- 			accel_state->timestamp = iio_get_time_ns(indio_dev);
+ 	u8 odr_bits;
+ 	u8 range;
+ 	int wake_thres;
+@@ -159,13 +170,6 @@ struct kxcjk1013_data {
+ 	enum kx_acpi_type acpi_type;
+ };
  
- 		hid_sensor_push_data(indio_dev,
--				     accel_state->accel_val,
--				     sizeof(accel_state->accel_val),
-+				     &accel_state->scan,
-+				     sizeof(accel_state->scan),
- 				     accel_state->timestamp);
+-enum kxcjk1013_axis {
+-	AXIS_X,
+-	AXIS_Y,
+-	AXIS_Z,
+-	AXIS_MAX,
+-};
+-
+ enum kxcjk1013_mode {
+ 	STANDBY,
+ 	OPERATION,
+@@ -1086,12 +1090,12 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
+ 	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
+ 							KXCJK1013_REG_XOUT_L,
+ 							AXIS_MAX * 2,
+-							(u8 *)data->buffer);
++							(u8 *)data->scan.chans);
+ 	mutex_unlock(&data->mutex);
+ 	if (ret < 0)
+ 		goto err;
  
- 		accel_state->timestamp = 0;
-@@ -280,7 +283,7 @@ static int accel_3d_capture_sample(struct hid_sensor_hub_device *hsdev,
- 	case HID_USAGE_SENSOR_ACCEL_Y_AXIS:
- 	case HID_USAGE_SENSOR_ACCEL_Z_AXIS:
- 		offset = usage_id - HID_USAGE_SENSOR_ACCEL_X_AXIS;
--		accel_state->accel_val[CHANNEL_SCAN_INDEX_X + offset] =
-+		accel_state->scan.accel_val[CHANNEL_SCAN_INDEX_X + offset] =
- 						*(u32 *)raw_data;
- 		ret = 0;
- 	break;
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   data->timestamp);
+ err:
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.30.2
 
