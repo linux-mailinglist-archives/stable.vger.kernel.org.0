@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5453CDBB7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F25393CD8C2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238392AbhGSOtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40452 "EHLO mail.kernel.org"
+        id S243014AbhGSOZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343930AbhGSOsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD54D61283;
-        Mon, 19 Jul 2021 15:25:27 +0000 (UTC)
+        id S243249AbhGSOXN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:23:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B005B6113C;
+        Mon, 19 Jul 2021 15:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708328;
-        bh=vGFioSWvtRgICLzoYPoDXxpPQu2d3N5bConmOJySD3w=;
+        s=korg; t=1626706982;
+        bh=nTT+xchQK5zW6cns9KJcPWUUEfrXKrOpcI7iLsIGi1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LauD7hXT8LT6WVFG4n3kHyRdshTTvA00alx8O2qd8LKvHjYs4TW/oNrzpN+x93lU1
-         3g+stwJsCTCeCU/iZjRFvjdQERnsiBiMD0FcSRxcPlrQPlodJyE9iwuhI4zWbHlbrK
-         EgovEP+db61VDmVaJF/InUhxWvFtsp6GoFVAYmc8=
+        b=DBwR8ARjnBTDVlkO45lE+E/uF5sVKRSJEhtpjwBaVDD840TI6LmaONAQTKL2rSLKA
+         8Nc+NawQUq3S18tVPeX7gsFbdk8tdja7B3C4XEPrhKmcTBgC7hEwoTPXhSxbY2pZpU
+         UVAU3VI4B6iuLLUsBOnzTJSIAwCvb29e0adusFpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Bixuan Cui <cuibixuan@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 269/315] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 4.4 174/188] virtio-blk: Fix memory leak among suspend/resume procedure
 Date:   Mon, 19 Jul 2021 16:52:38 +0200
-Message-Id: <20210719144952.270100842@linuxfoundation.org>
+Message-Id: <20210719144942.179210785@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
+[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The vblk->vqs should be freed before we call init_vqs()
+in virtblk_restore().
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/reset/gpio-poweroff.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
-index be3d81ff51cc..a44e3427fdeb 100644
---- a/drivers/power/reset/gpio-poweroff.c
-+++ b/drivers/power/reset/gpio-poweroff.c
-@@ -84,6 +84,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
- 	{ .compatible = "gpio-poweroff", },
- 	{},
- };
-+MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index bdc3efacd0d2..2bcc2bc64149 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -808,6 +808,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
+ 	blk_mq_stop_hw_queues(vblk->disk->queue);
  
- static struct platform_driver gpio_poweroff_driver = {
- 	.probe = gpio_poweroff_probe,
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
++
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
