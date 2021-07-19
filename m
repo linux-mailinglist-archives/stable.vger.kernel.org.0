@@ -2,102 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE70C3CEF9F
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 01:15:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 069A73CEFA0
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 01:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241111AbhGSWS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 18:18:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60696 "EHLO
+        id S1352683AbhGSWTG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 18:19:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346539AbhGSUPS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 16:15:18 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B944BC061762;
-        Mon, 19 Jul 2021 13:54:17 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so996093pjo.3;
-        Mon, 19 Jul 2021 13:55:43 -0700 (PDT)
+        with ESMTP id S1354304AbhGSUXp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 16:23:45 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4DCFC061788;
+        Mon, 19 Jul 2021 14:02:34 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id b2so5751458plx.1;
+        Mon, 19 Jul 2021 14:03:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=u9XC1U01PZSZTEYtwmGzB+/FSp9gyv7FlSh+467nObk=;
-        b=aG/6shL9LTqm2pl+TFGNYDVOdqwlnLv9VZlMQTjYjOx1n52kowKRgdRmtM5Xwb59U/
-         HURFdosEYqp8cnGqQQp2VRxXqmTM1bftN7g0nY/SOe8jCYaZDfNP4oWU9bfMtIlwKRi/
-         f8I2sYU7Q7eGJmsRzBmZLKULcHkIalnBa3zqbBP+5b1MJ2hlbhhuQsBOv6i28lmY1OSf
-         elGsZMlZZqaT8UNo72PLH4wDpQQVu1/0NqpSFaUrTwk1RqXzfHLyT1S9wYelWCkQ2/n9
-         tCOF+Crhk+/iq/lmLsfwu8GHyuA6t3uA++GsvIyYqg9Q2tyDCqJrj5mSfgGIKEFpNisL
-         tfbA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=OhK3u3FqQBViJYF9EHyu7f3sYqoxbsemvfR7CYLIyP0=;
+        b=IFGsz6nN1pnrS96DBQAHtNcq5gjiVVi7KPSamFL7ln4A/BY57kuHcGHJvqOJoZKKl7
+         av/MmjUMwc5cM5TKjRuzDraaIF2h7Xr7NF9J46qo/BDIZVBPpiib8T1cIMl66KJkpz+7
+         JkHe7+CxJeRw31PZ8HirqPKkoSJoqtsqlsLquJvVdD4dEs29KvoNa03j7sDtVfCaGyeB
+         p3PZ0XjccnmskDjnSAN6lezSZjzz7ponqbq+Kwzl517+EmJNSD2gJAYWXupAp878rRJc
+         ASyC4ISq48RzpJslK4zheKKxnFoa6SLplErC5zQo469S8VKFrBF7YzjqNQlrRWQS4Rlb
+         B5fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=u9XC1U01PZSZTEYtwmGzB+/FSp9gyv7FlSh+467nObk=;
-        b=Um92DUOIQHkaUH9Zh4wChFx7ZD0dDwsXtAwPUzzU4gfhBsksrD1dPauA7tPeGdw1xe
-         IhrzbD+2eepewIM3vz7p5HUc4Sm3myOWkYwDzUUObhjl4X30qfmTmQVD/QcSilqZPzIo
-         qk0cMskA/9s+m66AkQIPhqluFe2qSs7i3dIsNBqyeJVOzCqcY/8qPHkLF5f8b96cWhTE
-         vHtrwDyoJ5raPUQvO+iymCcN0ITSeE3kK+jhsa2tRfL/fNaTPsxei5hZ1ZH3Pp+ap3Za
-         jZYJN0Tu1GTTEh+zjLShwgu5sJy4pGhzlLEXSkMBRoZqJMttvMeW3mouMiB7fwValRf9
-         rWzg==
-X-Gm-Message-State: AOAM532+DXT36tLgLGyVZVXo0EaLF8TDRio834xh6NVkUjVluhNXFaaN
-        vX6Oo4gB6515oKp7pLpfBPmDT1Ndeho4qg==
-X-Google-Smtp-Source: ABdhPJz0kP/3R5tJiG/EF/VpmbfPdaT2p8ywtwP5dnOzYubGCzEuw5iXwslEPXSTuv4a4rrYKTwOZA==
-X-Received: by 2002:a17:90a:6d63:: with SMTP id z90mr27576948pjj.177.1626728142836;
-        Mon, 19 Jul 2021 13:55:42 -0700 (PDT)
-Received: from horus.lan (71-34-86-28.ptld.qwest.net. [71.34.86.28])
-        by smtp.gmail.com with ESMTPSA id y82sm21451233pfb.121.2021.07.19.13.55.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jul 2021 13:55:42 -0700 (PDT)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH 1/6] HID: wacom: Re-enable touch by default for Cintiq 24HDT / 27QHDT
-Date:   Mon, 19 Jul 2021 13:55:28 -0700
-Message-Id: <20210719205533.2189804-1-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.32.0
+        bh=OhK3u3FqQBViJYF9EHyu7f3sYqoxbsemvfR7CYLIyP0=;
+        b=FAVxE71sk6uzikjnuLSvA+YC81GQz+NLvQGnOK9kjgCAaPxNpJXf8MIEZd5kdVeLyN
+         XFd+s8ZpkBPh1kgpZlYqSsi7hKZ8VdV6V/fUHSMdXWba8bKMeJ7BN3LBBcIwDpbnJr7A
+         YcgZf3ravGv4lBXMMCVuyCFQks19zWV2SqVYs+dD73Gr7hu1ZQxj7pmUq2twEOHmy8DS
+         M5fD4Vme8diEexupRIXmhuhFYSTueQbi4wB8ybWLzTYQrlVBhcbLBPDYHuO/9wmhiSrn
+         z0uMLjVrkJfbYmhTTTdXz2qpoguNBljFf2TnaOeRZMWfV28LLjSZnDCsuJnu+7pagQqT
+         kxow==
+X-Gm-Message-State: AOAM532QWXI79i9MUv/mN+Ds7DzyQa+/gwCwTyAHs5ZVK/4//iGnGw23
+        ziL4lVSAh3Hy9KfZ7PSP/+ydFNpXIdnA9w==
+X-Google-Smtp-Source: ABdhPJxn32UuhK8Qw1HPKzbBqqU6QBsxWwlMklk7fFT89dGmX2ooX9wq6oPWA6gPNfjw2Q+a5AoUMA==
+X-Received: by 2002:a17:90a:885:: with SMTP id v5mr32474845pjc.54.1626728601465;
+        Mon, 19 Jul 2021 14:03:21 -0700 (PDT)
+Received: from [10.67.49.104] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id 11sm23547432pge.7.2021.07.19.14.03.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Jul 2021 14:03:21 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/239] 5.10.52-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210719184320.888029606@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <03b1d9eb-7c87-7463-9dcf-a98a64be9997@gmail.com>
+Date:   Mon, 19 Jul 2021 14:03:18 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210719184320.888029606@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 670e90924bfe ("HID: wacom: support named keys on older devices")
-added support for sending named events from the soft buttons on the
-24HDT and 27QHDT. In the process, however, it inadvertantly disabled the
-touchscreen of the 24HDT and 27QHDT by default. The
-`wacom_set_shared_values` function would normally enable touch by default
-but because it checks the state of the non-shared `has_mute_touch_switch`
-flag and `wacom_setup_touch_input_capabilities` sets the state of the
-/shared/ version, touch ends up being disabled by default.
+On 7/19/21 11:45 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.52 release.
+> There are 239 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 21 Jul 2021 18:42:46 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.52-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This patch sets the non-shared flag, letting `wacom_set_shared_values`
-take care of copying the value over to the shared version and setting
-the default touch state to "on".
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Fixes: 670e90924bfe ("HID: wacom: support named keys on older devices")
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 81d7d12bcf34..496a000ef862 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -3831,7 +3831,7 @@ int wacom_setup_touch_input_capabilities(struct input_dev *input_dev,
- 		    wacom_wac->shared->touch->product == 0xF6) {
- 			input_dev->evbit[0] |= BIT_MASK(EV_SW);
- 			__set_bit(SW_MUTE_DEVICE, input_dev->swbit);
--			wacom_wac->shared->has_mute_touch_switch = true;
-+			wacom_wac->has_mute_touch_switch = true;
- 		}
- 		fallthrough;
- 
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.32.0
-
+Florian
