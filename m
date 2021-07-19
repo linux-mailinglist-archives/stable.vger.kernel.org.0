@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 452423CDB5B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268AF3CD913
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245753AbhGSOm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57588 "EHLO mail.kernel.org"
+        id S242537AbhGSO0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244679AbhGSOjP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 80BBA610A5;
-        Mon, 19 Jul 2021 15:18:26 +0000 (UTC)
+        id S242464AbhGSOZO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:25:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB05361003;
+        Mon, 19 Jul 2021 15:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707907;
-        bh=u4aM32FBcOCWJo+iYIkUhBLFCJZrAjHvwKrFPIrNldg=;
+        s=korg; t=1626707153;
+        bh=MSE0HJyv0gZvHrLGTwE0yeCLH3UFQ08Cfn7dQaC4XZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZAFmlL5O/g/SwcPqOFD2vw+8R8iG9AQ93vC6Hz51MSsghJMZyYjWOv6CJN8flLrH
-         rsQJ14iTlf6ZZOqiGRNnlZtssxrnwvjVq6R7Y7BYNZ2KKV7FNex3xRELGm17qk5LQ0
-         4gNXwl7FX5D55DiMI2x7CnpFx+br+3RP2sW9cPSY=
+        b=okDjMMqDVarcYn8UEudZkgNktu5HL/5EyofB65qvbf/8r4n71a8AjbAd8PM8Ev1YV
+         TxuB/YxJ10DsQ0A8W0gYNEjMNCGeUcyvPKyJPatCRfuTo+6LkoqZaZHniISPWQIKlD
+         JBBOD6kgrRBwjtLbUZtqYQNAy4Hqg6ddJTksniq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 102/315] brcmsmac: mac80211_if: Fix a resource leak in an error handling path
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 049/245] block_dump: remove block_dump feature in mark_inode_dirty()
 Date:   Mon, 19 Jul 2021 16:49:51 +0200
-Message-Id: <20210719144946.231997319@linuxfoundation.org>
+Message-Id: <20210719144941.984586178@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 9a25344d5177c2b9285532236dc3d10a091f39a8 ]
+[ Upstream commit 12e0613715e1cf305fffafaf0e89d810d9a85cc0 ]
 
-If 'brcms_attach()' fails, we must undo the previous 'ieee80211_alloc_hw()'
-as already done in the remove function.
+block_dump is an old debugging interface, one of it's functions is used
+to print the information about who write which file on disk. If we
+enable block_dump through /proc/sys/vm/block_dump and turn on debug log
+level, we can gather information about write process name, target file
+name and disk from kernel message. This feature is realized in
+block_dump___mark_inode_dirty(), it print above information into kernel
+message directly when marking inode dirty, so it is noisy and can easily
+trigger log storm. At the same time, get the dentry refcount is also not
+safe, we found it will lead to deadlock on ext4 file system with
+data=journal mode.
 
-Fixes: 5b435de0d786 ("net: wireless: add brcm80211 drivers")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/8fbc171a1a493b38db5a6f0873c6021fca026a6c.1620852921.git.christophe.jaillet@wanadoo.fr
+After tracepoints has been introduced into the kernel, we got a
+tracepoint in __mark_inode_dirty(), which is a better replacement of
+block_dump___mark_inode_dirty(). The only downside is that it only trace
+the inode number and not a file name, but it probably doesn't matter
+because the original printed file name in block_dump is not accurate in
+some cases, and we can still find it through the inode number and device
+id. So this patch delete the dirting inode part of block_dump feature.
+
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210313030146.2882027-2-yi.zhang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c    | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ fs/fs-writeback.c | 25 -------------------------
+ 1 file changed, 25 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-index 66f1f41b1380..c82e53145c2c 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
-@@ -1223,6 +1223,7 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- {
- 	struct brcms_info *wl;
- 	struct ieee80211_hw *hw;
-+	int ret;
- 
- 	dev_info(&pdev->dev, "mfg %x core %x rev %d class %d irq %d\n",
- 		 pdev->id.manuf, pdev->id.id, pdev->id.rev, pdev->id.class,
-@@ -1247,11 +1248,16 @@ static int brcms_bcma_probe(struct bcma_device *pdev)
- 	wl = brcms_attach(pdev);
- 	if (!wl) {
- 		pr_err("%s: brcms_attach failed!\n", __func__);
--		return -ENODEV;
-+		ret = -ENODEV;
-+		goto err_free_ieee80211;
- 	}
- 	brcms_led_register(wl);
- 
- 	return 0;
-+
-+err_free_ieee80211:
-+	ieee80211_free_hw(hw);
-+	return ret;
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 2de656ecc48b..008710314240 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -2088,28 +2088,6 @@ int dirtytime_interval_handler(struct ctl_table *table, int write,
+ 	return ret;
  }
  
- static int brcms_suspend(struct bcma_device *pdev)
+-static noinline void block_dump___mark_inode_dirty(struct inode *inode)
+-{
+-	if (inode->i_ino || strcmp(inode->i_sb->s_id, "bdev")) {
+-		struct dentry *dentry;
+-		const char *name = "?";
+-
+-		dentry = d_find_alias(inode);
+-		if (dentry) {
+-			spin_lock(&dentry->d_lock);
+-			name = (const char *) dentry->d_name.name;
+-		}
+-		printk(KERN_DEBUG
+-		       "%s(%d): dirtied inode %lu (%s) on %s\n",
+-		       current->comm, task_pid_nr(current), inode->i_ino,
+-		       name, inode->i_sb->s_id);
+-		if (dentry) {
+-			spin_unlock(&dentry->d_lock);
+-			dput(dentry);
+-		}
+-	}
+-}
+-
+ /**
+  *	__mark_inode_dirty -	internal function
+  *	@inode: inode to mark
+@@ -2168,9 +2146,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
+ 		return;
+ 
+-	if (unlikely(block_dump))
+-		block_dump___mark_inode_dirty(inode);
+-
+ 	spin_lock(&inode->i_lock);
+ 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
+ 		goto out_unlock_inode;
 -- 
 2.30.2
 
