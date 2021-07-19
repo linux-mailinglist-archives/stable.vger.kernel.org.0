@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBBAE3CDA63
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 473053CDBE4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244862AbhGSOfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
+        id S238994AbhGSOuX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244548AbhGSOeL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C305061248;
-        Mon, 19 Jul 2021 15:13:25 +0000 (UTC)
+        id S1344059AbhGSOsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B08BB613EB;
+        Mon, 19 Jul 2021 15:26:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707606;
-        bh=l/HgkrSVWeDGyLslPfjYj0DAq4XWKbrr5gXo/3GNSFA=;
+        s=korg; t=1626708375;
+        bh=3HQ9wMVGRFD8/R5uZMqXYBhCBBu1BfO9S4JiZLoCwT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fsps8hqKx71opZg9xW9fNIXvua7U5PyUkp4w6UauWhVbKN/UW5XEnzYCYbVnW5NWL
-         vOHyOHiUXLXA9WcIqsIlo+Nur2GeXbudfXNxCKE58IuNCbd0x6kKgzPd9e2BxT7Y7Q
-         vNxdOmm2QBv7McecRuKzq7tSNDGoK6jD0eN9rueg=
+        b=eE8fZuxuuaOpjeE9YfAiC9VL8hc638+uZ/vVB9PPXSAwhMDT5HRqymSkJQWj6s2Ap
+         nWYNepsENOyICFvkQwKEV9sx5LFF6gXRzLnOd9LNtIijDHoallw5WL0PJAT588aZXN
+         hQcg9vg6hpTOOH6FxWNhzrMbpLx5nItL84OkL4b0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 231/245] x86/fpu: Limit xstate copy size in xstateregs_set()
-Date:   Mon, 19 Jul 2021 16:52:53 +0200
-Message-Id: <20210719144947.851247620@linuxfoundation.org>
+Subject: [PATCH 4.14 285/315] virtio_net: Fix error handling in virtnet_restore()
+Date:   Mon, 19 Jul 2021 16:52:54 +0200
+Message-Id: <20210719144952.807666691@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 07d6688b22e09be465652cf2da0da6bf86154df6 ]
+[ Upstream commit 3f2869cace829fb4b80fc53b3ddaa7f4ba9acbf1 ]
 
-If the count argument is larger than the xstate size, this will happily
-copy beyond the end of xstate.
+Do some cleanups in virtnet_restore() when virtnet_cpu_notif_add() failed.
 
-Fixes: 91c3dba7dbc1 ("x86/fpu/xstate: Fix PTRACE frames for XSAVES")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121452.120741557@linutronix.de
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210517084516.332-1-xieyongji@bytedance.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/regset.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/fpu/regset.c b/arch/x86/kernel/fpu/regset.c
-index 7052d9a65fe9..e1c9e94fcce6 100644
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -123,7 +123,7 @@ int xstateregs_set(struct task_struct *target, const struct user_regset *regset,
- 	/*
- 	 * A whole standard-format XSAVE buffer is needed:
- 	 */
--	if ((pos != 0) || (count < fpu_user_xstate_size))
-+	if (pos != 0 || count != fpu_user_xstate_size)
- 		return -EFAULT;
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 71052d17c9ae..c8abbf81ef52 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2765,8 +2765,11 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
+ 	virtnet_set_queues(vi, vi->curr_queue_pairs);
  
- 	xsave = &fpu->state.xsave;
+ 	err = virtnet_cpu_notif_add(vi);
+-	if (err)
++	if (err) {
++		virtnet_freeze_down(vdev);
++		remove_vq_common(vi);
+ 		return err;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
