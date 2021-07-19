@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC8D3CE34A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 071233CE147
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236231AbhGSPhH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
+        id S1346416AbhGSPZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236773AbhGSPcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68F1861426;
-        Mon, 19 Jul 2021 16:10:51 +0000 (UTC)
+        id S1345844AbhGSPQx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:16:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96567610D0;
+        Mon, 19 Jul 2021 15:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711052;
-        bh=YnmAZuv+GSQjLqz/EuVkIS3SgkjoBz3aow2yGCSvJEc=;
+        s=korg; t=1626710226;
+        bh=iM1K6mqKlaFRjb/3+kOuMfyvud8VMFcfwJgch6Mi2cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yblrE4ThPrayBv5AAv9b9+wsPolvZzTOi5hz8y9slZsc/9A4LMapRi85i2WKSyXi9
-         tOnwk+gPuQYu45Jc+YaNXPN50yxEFKEi/Sq1RUzVE3qux0DEX5i7FeeIlwdhICE3GL
-         V20VR1xHZOAE2L0ZBad+tmmX0FPspce9sBLoTjsU=
+        b=K4R9VUy+aKkzQ6t18d48clRjSxiE2DG3ixomS+cZLEUdDsCXObPG3+IJ7MjfTsNEt
+         i83hkSfsjPEDz3mv2kRDHRvD/qQr8koMqL5Lzs5OexGI7/nfo4n/yVIFO1XMdhRUjZ
+         2V6DjMGFPx4PxhdUy6RNWbdD51Gr3NGb26JNbr8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 210/351] power: supply: surface-charger: Fix type of integer variable
-Date:   Mon, 19 Jul 2021 16:52:36 +0200
-Message-Id: <20210719144951.917110715@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 128/243] x86/fpu: Return proper error codes from user access functions
+Date:   Mon, 19 Jul 2021 16:52:37 +0200
+Message-Id: <20210719144945.042322427@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 601423bc0c06467d019cf2a446962a5bf1b5e330 ]
+[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
 
-The ac->state field is __le32, not u32. So change the variable we're
-temporarily storing it in to __le32 as well.
+When *RSTOR from user memory raises an exception, there is no way to
+differentiate them. That's bad because it forces the slow path even when
+the failure was not a fault. If the operation raised eg. #GP then going
+through the slow path is pointless.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: e61ffb344591 ("power: supply: Add AC driver for Surface Aggregator Module")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
+fixup return the negated trap number as error.
+
+This allows to separate the fast path and let it handle faults directly and
+avoid the slow path for all other exceptions.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/surface_charger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/power/supply/surface_charger.c b/drivers/power/supply/surface_charger.c
-index 81a5b79822c9..a060c36c7766 100644
---- a/drivers/power/supply/surface_charger.c
-+++ b/drivers/power/supply/surface_charger.c
-@@ -66,7 +66,7 @@ struct spwr_ac_device {
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 16bf4d4a8159..4e5af2b00d89 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -103,6 +103,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
+ }
+ extern void fpstate_sanitize_xstate(struct fpu *fpu);
  
- static int spwr_ac_update_unlocked(struct spwr_ac_device *ac)
- {
--	u32 old = ac->state;
-+	__le32 old = ac->state;
- 	int status;
++/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
+ #define user_insn(insn, output, input...)				\
+ ({									\
+ 	int err;							\
+@@ -110,14 +111,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
+ 	might_fault();							\
+ 									\
+ 	asm volatile(ASM_STAC "\n"					\
+-		     "1:" #insn "\n\t"					\
++		     "1: " #insn "\n"					\
+ 		     "2: " ASM_CLAC "\n"				\
+ 		     ".section .fixup,\"ax\"\n"				\
+-		     "3:  movl $-1,%[err]\n"				\
++		     "3:  negl %%eax\n"					\
+ 		     "    jmp  2b\n"					\
+ 		     ".previous\n"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err), output				\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err), output				\
+ 		     : "0"(0), input);					\
+ 	err;								\
+ })
+@@ -219,16 +220,20 @@ static inline void fxsave(struct fxregs_state *fx)
+ #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
+ #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
  
- 	lockdep_assert_held(&ac->lock);
++/*
++ * After this @err contains 0 on success or the negated trap number when
++ * the operation raises an exception. For faults this results in -EFAULT.
++ */
+ #define XSTATE_OP(op, st, lmask, hmask, err)				\
+ 	asm volatile("1:" op "\n\t"					\
+ 		     "xor %[err], %[err]\n"				\
+ 		     "2:\n\t"						\
+ 		     ".pushsection .fixup,\"ax\"\n\t"			\
+-		     "3: movl $-2,%[err]\n\t"				\
++		     "3: negl %%eax\n\t"				\
+ 		     "jmp 2b\n\t"					\
+ 		     ".popsection\n\t"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err)					\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err)					\
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
+ 
 -- 
 2.30.2
 
