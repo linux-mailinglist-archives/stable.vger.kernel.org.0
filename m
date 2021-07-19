@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1361A3CE09E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762CF3CE42A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244573AbhGSPRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
+        id S245408AbhGSPm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346335AbhGSPOi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 71FC261405;
-        Mon, 19 Jul 2021 15:54:06 +0000 (UTC)
+        id S235709AbhGSPhB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:37:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BF9E606A5;
+        Mon, 19 Jul 2021 16:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710046;
-        bh=ojZPvMZ9QED8uhrQc+lGq2D7813RXrFHkCZoCprd4eQ=;
+        s=korg; t=1626711460;
+        bh=+ICVfWQGiw/CqEw3V7m9n5QANmSfcNPfR7eNKcoAasM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b9W1qrZCnYa2kGuRLJmueNdjT9tn8rTrikPB4ctrDtcdojLA7qdxfyZKzWRp1FUWC
-         eImZwojeF8uSSvUpxj03/b5W6Hrs1p1a8XAhMdla1ZW0GH79J3OGOQSJMLgDN0URi5
-         TExq7CsRsHZvsFghWAppggpXI64U9/WZEAczHy6A=
+        b=oQ9dMes3TCiAJg6QCt8gJNN3vvFT/q0j+LElp2fdw0x8dqf7DKokhJCpLN5OjPZmC
+         +Iu8FKntyqxw4xhmG86NIrzGkVzebCUb9J9fePK7dIPaRPbTQGOCPluTj9tZ5NFC+I
+         OHof8vi0jp+2zf/XkEk3B8KcMm0fFKoe5V5cejOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 036/243] iio: magn: bmc150: Balance runtime pm + use pm_runtime_resume_and_get()
+        stable@vger.kernel.org, Xiaoli Feng <xifeng@redhat.com>,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.12 003/292] cifs: Do not use the original cruid when following DFS links for multiuser mounts
 Date:   Mon, 19 Jul 2021 16:51:05 +0200
-Message-Id: <20210719144942.095179176@linuxfoundation.org>
+Message-Id: <20210719144942.629302443@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
+References: <20210719144942.514164272@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,77 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 264da512431495e542fcaf56ffe75e7df0e7db74 ]
+commit 50630b3f1ada0bf412d3f28e73bac310448d9d6f upstream.
 
-probe() error paths after runtime pm is enabled, should disable it.
-remove() should not call pm_runtime_put_noidle() as there is no
-matching get() to have raised the reference count.  This case
-has no affect a the runtime pm core protects against going negative.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=213565
 
-Whilst here use pm_runtime_resume_and_get() to tidy things up a little.
-coccicheck script didn't get this one due to complex code structure so
-found by inspection.
+cruid should only be used for the initial mount and after this we should use the current
+users credentials.
+Ignore the original cruid mount argument when creating a new context for a multiuser mount
+following a DFS link.
 
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Link: https://lore.kernel.org/r/20210509113354.660190-12-jic23@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 24e0a1eff9e2 ("cifs: switch to new mount api")
+Cc: stable@vger.kernel.org # 5.11+
+Reported-by: Xiaoli Feng <xifeng@redhat.com>
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/magnetometer/bmc150_magn.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ fs/cifs/cifs_dfs_ref.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/iio/magnetometer/bmc150_magn.c b/drivers/iio/magnetometer/bmc150_magn.c
-index 8042175275d0..8eacfaf584cf 100644
---- a/drivers/iio/magnetometer/bmc150_magn.c
-+++ b/drivers/iio/magnetometer/bmc150_magn.c
-@@ -263,7 +263,7 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
- 	int ret;
+--- a/fs/cifs/cifs_dfs_ref.c
++++ b/fs/cifs/cifs_dfs_ref.c
+@@ -208,6 +208,10 @@ char *cifs_compose_mount_options(const c
+ 		else
+ 			noff = tkn_e - (sb_mountdata + off) + 1;
  
- 	if (on) {
--		ret = pm_runtime_get_sync(data->dev);
-+		ret = pm_runtime_resume_and_get(data->dev);
- 	} else {
- 		pm_runtime_mark_last_busy(data->dev);
- 		ret = pm_runtime_put_autosuspend(data->dev);
-@@ -272,9 +272,6 @@ static int bmc150_magn_set_power_state(struct bmc150_magn_data *data, bool on)
- 	if (ret < 0) {
- 		dev_err(data->dev,
- 			"failed to change power state to %d\n", on);
--		if (on)
--			pm_runtime_put_noidle(data->dev);
--
- 		return ret;
- 	}
- #endif
-@@ -944,12 +941,14 @@ int bmc150_magn_probe(struct device *dev, struct regmap *regmap,
- 	ret = iio_device_register(indio_dev);
- 	if (ret < 0) {
- 		dev_err(dev, "unable to register iio device\n");
--		goto err_buffer_cleanup;
-+		goto err_disable_runtime_pm;
- 	}
- 
- 	dev_dbg(dev, "Registered device %s\n", name);
- 	return 0;
- 
-+err_disable_runtime_pm:
-+	pm_runtime_disable(dev);
- err_buffer_cleanup:
- 	iio_triggered_buffer_cleanup(indio_dev);
- err_free_irq:
-@@ -973,7 +972,6 @@ int bmc150_magn_remove(struct device *dev)
- 
- 	pm_runtime_disable(dev);
- 	pm_runtime_set_suspended(dev);
--	pm_runtime_put_noidle(dev);
- 
- 	iio_triggered_buffer_cleanup(indio_dev);
- 
--- 
-2.30.2
-
++		if (strncasecmp(sb_mountdata + off, "cruid=", 6) == 0) {
++			off += noff;
++			continue;
++		}
+ 		if (strncasecmp(sb_mountdata + off, "unc=", 4) == 0) {
+ 			off += noff;
+ 			continue;
 
 
