@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABF553CD0E2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:31:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D2A53CD0E3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234970AbhGSIuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:50:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55428 "EHLO mail.kernel.org"
+        id S235031AbhGSIvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234946AbhGSIuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 04:50:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B24A860240;
-        Mon, 19 Jul 2021 09:31:30 +0000 (UTC)
+        id S234946AbhGSIvC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 04:51:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3C636108B;
+        Mon, 19 Jul 2021 09:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626687091;
-        bh=ImpzKWhHtTT+yC53t1ULYtynW5pgP3AktfSbvWrmSj4=;
+        s=korg; t=1626687102;
+        bh=ZNxmlvdUb8fBOwWkgSaL7im8ZMjduGzaxeThsjxnZms=;
         h=Subject:To:Cc:From:Date:From;
-        b=IX15zxvW6Druw/CK6I0uCj90cmubspPkSuDrcEifIpLRJ8bluSTz2tiNCxu1nJjuw
-         CzmouUiyZ9y2op3Ake0RJFN4X+yC+jaTA2FIo8K3WSscyPe2XBE8LzCuwWhfjcVxEX
-         bEnJh17BzQqmk3rMpFIQDN9QU9EGRfXigbpa4Kag=
-Subject: FAILED: patch "[PATCH] iommu/vt-d: Global devTLB flush when present context entry" failed to apply to 5.10-stable tree
-To:     sanjay.k.kumar@intel.com, baolu.lu@linux.intel.com, jroedel@suse.de
+        b=Ox3qT60i9WsXKFAkH+NwhVfTXTTvnLOWvsxqTNe2ky7f2P0uxcGCxRpiqmfohcqRt
+         sE+kc1uH1IDG5WWVRYHnPdejKDACqmsbeJbm6c4S3hr/rxTYEjHt4gqXvyz3tTHA/S
+         FhnNXHol1hupvAbS32SBe6wSAXWZh1cx1fUSuLa8=
+Subject: FAILED: patch "[PATCH] iommu/vt-d: Fix clearing real DMA device's scalable-mode" failed to apply to 5.10-stable tree
+To:     baolu.lu@linux.intel.com, jonathan.derrick@intel.com,
+        jroedel@suse.de, sanjay.k.kumar@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Jul 2021 11:31:24 +0200
-Message-ID: <1626687084253114@kroah.com>
+Date:   Mon, 19 Jul 2021 11:31:40 +0200
+Message-ID: <162668710010045@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -45,105 +46,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 37764b952e1b39053defc7ebe5dcd8c4e3e78de9 Mon Sep 17 00:00:00 2001
-From: Sanjay Kumar <sanjay.k.kumar@intel.com>
-Date: Mon, 12 Jul 2021 15:13:15 +0800
-Subject: [PATCH] iommu/vt-d: Global devTLB flush when present context entry
- changed
+From 474dd1c6506411752a9b2f2233eec11f1733a099 Mon Sep 17 00:00:00 2001
+From: Lu Baolu <baolu.lu@linux.intel.com>
+Date: Mon, 12 Jul 2021 15:17:12 +0800
+Subject: [PATCH] iommu/vt-d: Fix clearing real DMA device's scalable-mode
+ context entries
 
-This fixes a bug in context cache clear operation. The code was not
-following the correct invalidation flow. A global device TLB invalidation
-should be added after the IOTLB invalidation. At the same time, it
-uses the domain ID from the context entry. But in scalable mode, the
-domain ID is in PASID table entry, not context entry.
+The commit 2b0140c69637e ("iommu/vt-d: Use pci_real_dma_dev() for mapping")
+fixes an issue of "sub-device is removed where the context entry is cleared
+for all aliases". But this commit didn't consider the PASID entry and PASID
+table in VT-d scalable mode. This fix increases the coverage of scalable
+mode.
 
-Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
-Cc: stable@vger.kernel.org # v5.0+
-Signed-off-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Suggested-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Fixes: 8038bdb855331 ("iommu/vt-d: Only clear real DMA device's context entries")
+Fixes: 2b0140c69637e ("iommu/vt-d: Use pci_real_dma_dev() for mapping")
+Cc: stable@vger.kernel.org # v5.6+
+Cc: Jon Derrick <jonathan.derrick@intel.com>
 Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210712071315.3416543-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20210712071712.3416949-1-baolu.lu@linux.intel.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
 diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index a6a07d985709..57270290d62b 100644
+index 57270290d62b..dd22fc7d5176 100644
 --- a/drivers/iommu/intel/iommu.c
 +++ b/drivers/iommu/intel/iommu.c
-@@ -2429,10 +2429,11 @@ __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
- 	return 0;
- }
+@@ -4472,14 +4472,13 @@ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+ 	iommu = info->iommu;
+ 	domain = info->domain;
  
--static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn)
-+static void domain_context_clear_one(struct device_domain_info *info, u8 bus, u8 devfn)
- {
--	unsigned long flags;
-+	struct intel_iommu *iommu = info->iommu;
- 	struct context_entry *context;
-+	unsigned long flags;
- 	u16 did_old;
- 
- 	if (!iommu)
-@@ -2444,7 +2445,16 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
- 		spin_unlock_irqrestore(&iommu->lock, flags);
- 		return;
- 	}
--	did_old = context_domain_id(context);
-+
-+	if (sm_supported(iommu)) {
-+		if (hw_pass_through && domain_type_is_si(info->domain))
-+			did_old = FLPT_DEFAULT_DID;
-+		else
-+			did_old = info->domain->iommu_did[iommu->seq_id];
-+	} else {
-+		did_old = context_domain_id(context);
-+	}
-+
- 	context_clear_entry(context);
- 	__iommu_flush_cache(iommu, context, sizeof(*context));
- 	spin_unlock_irqrestore(&iommu->lock, flags);
-@@ -2462,6 +2472,8 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
- 				 0,
- 				 0,
- 				 DMA_TLB_DSI_FLUSH);
-+
-+	__iommu_flush_dev_iotlb(info, 0, MAX_AGAW_PFN_WIDTH);
- }
- 
- static inline void unlink_domain_info(struct device_domain_info *info)
-@@ -4425,9 +4437,9 @@ int __init intel_iommu_init(void)
- 
- static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *opaque)
- {
--	struct intel_iommu *iommu = opaque;
-+	struct device_domain_info *info = opaque;
- 
--	domain_context_clear_one(iommu, PCI_BUS_NUM(alias), alias & 0xff);
-+	domain_context_clear_one(info, PCI_BUS_NUM(alias), alias & 0xff);
- 	return 0;
- }
- 
-@@ -4437,12 +4449,13 @@ static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *op
-  * devices, unbinding the driver from any one of them will possibly leave
-  * the others unable to operate.
-  */
--static void domain_context_clear(struct intel_iommu *iommu, struct device *dev)
-+static void domain_context_clear(struct device_domain_info *info)
- {
--	if (!iommu || !dev || !dev_is_pci(dev))
-+	if (!info->iommu || !info->dev || !dev_is_pci(info->dev))
- 		return;
- 
--	pci_for_each_dma_alias(to_pci_dev(dev), &domain_context_clear_one_cb, iommu);
-+	pci_for_each_dma_alias(to_pci_dev(info->dev),
-+			       &domain_context_clear_one_cb, info);
- }
- 
- static void __dmar_remove_one_dev_info(struct device_domain_info *info)
-@@ -4466,7 +4479,7 @@ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+-	if (info->dev) {
++	if (info->dev && !dev_is_real_dma_subdevice(info->dev)) {
+ 		if (dev_is_pci(info->dev) && sm_supported(iommu))
+ 			intel_pasid_tear_down_entry(iommu, info->dev,
+ 					PASID_RID2PASID, false);
  
  		iommu_disable_dev_iotlb(info);
- 		if (!dev_is_real_dma_subdevice(info->dev))
--			domain_context_clear(iommu, info->dev);
-+			domain_context_clear(info);
+-		if (!dev_is_real_dma_subdevice(info->dev))
+-			domain_context_clear(info);
++		domain_context_clear(info);
  		intel_pasid_free_table(info->dev);
  	}
  
