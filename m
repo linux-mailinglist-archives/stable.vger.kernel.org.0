@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E27F3CE3D1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B823CE14E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235300AbhGSPkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59768 "EHLO mail.kernel.org"
+        id S1347260AbhGSPZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236510AbhGSPeR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:34:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1F4461431;
-        Mon, 19 Jul 2021 16:11:12 +0000 (UTC)
+        id S1346337AbhGSPRD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:17:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3152610FB;
+        Mon, 19 Jul 2021 15:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711073;
-        bh=x+P2Do7ryklMpG80dXcyjkEdqfS8QeylccWxHEDQ6Ps=;
+        s=korg; t=1626710242;
+        bh=Msty9ciBjP5m9SthITIk4KQonM2HpjFQVAmZcKQt8cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ab7WSZ04DZLtrwrfZhrf98UGSHDy3TKsciJcHZU3p35x9TsH+ZjQXYxm0u2ffPiCL
-         HQrdfgEXpiKXKrLvXBHBpOMFQA3wIt7rvt39dl6Mnxi4uXP0Riu2elLa27FEWaDaAD
-         Nctqp6YyEeJk+Kgz6QbASXHAOUjtcXNlAqpicLyg=
+        b=Nt1jAqkHS4/6pRF2qob1y6P8GjAgvAFUCMDZe8DbEBY/F66A3bPwKfGFvOlPziMZ6
+         dufmRzMVEGnPG1PkOYdUQwgCDywHK6DgQtsOPB+CrWM4vQlBIVWSfC5Otnp1t5WjWq
+         YHZQhpey6H+xWPcjecpfwJUsqqodbAjDB+tz3XNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        anton.ivanov@cambridgegreys.com,
-        Richard Weinberger <richard@nod.at>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 218/351] um: fix error return code in winch_tramp()
+Subject: [PATCH 5.10 135/243] power: supply: charger-manager: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:44 +0200
-Message-Id: <20210719144952.171003498@linuxfoundation.org>
+Message-Id: <20210719144945.268884439@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,37 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit ccf1236ecac476d9d2704866d9a476c86e387971 ]
+[ Upstream commit 073b5d5b1f9cc94a3eea25279fbafee3f4f5f097 ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Fixes: 89df6bfc0405 ("uml: DEBUG_SHIRQ fixes")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Acked-By: anton.ivanov@cambridgegreys.com
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/chan_user.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/power/supply/charger-manager.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/um/drivers/chan_user.c b/arch/um/drivers/chan_user.c
-index d8845d4aac6a..6040817c036f 100644
---- a/arch/um/drivers/chan_user.c
-+++ b/arch/um/drivers/chan_user.c
-@@ -256,7 +256,8 @@ static int winch_tramp(int fd, struct tty_port *port, int *fd_out,
- 		goto out_close;
- 	}
+diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
+index 6fcebe441552..333349275b96 100644
+--- a/drivers/power/supply/charger-manager.c
++++ b/drivers/power/supply/charger-manager.c
+@@ -1279,6 +1279,7 @@ static const struct of_device_id charger_manager_match[] = {
+ 	},
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, charger_manager_match);
  
--	if (os_set_fd_block(*fd_out, 0)) {
-+	err = os_set_fd_block(*fd_out, 0);
-+	if (err) {
- 		printk(UM_KERN_ERR "winch_tramp: failed to set thread_fd "
- 		       "non-blocking.\n");
- 		goto out_close;
+ static struct charger_desc *of_cm_parse_desc(struct device *dev)
+ {
 -- 
 2.30.2
 
