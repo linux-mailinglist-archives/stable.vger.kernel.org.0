@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCA53CDFF2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 382533CDFF3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345176AbhGSPMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344427AbhGSPMs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:12:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48530 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343990AbhGSPLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:11:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62AC460FD7;
-        Mon, 19 Jul 2021 15:51:51 +0000 (UTC)
+        id S1344905AbhGSPLT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BE346120A;
+        Mon, 19 Jul 2021 15:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709912;
-        bh=+R4RtJdrIx78hn1+MScHKhnw7kRDMo4OH3kSQsH12yw=;
+        s=korg; t=1626709919;
+        bh=FYY0wPdjYFvUScwzv/feV7G9JhIy/WU9o9UGwFEyxt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ARwVQVuR5vqUI4gqrMqt5QX+8AzF4cio5728c4BtsJ9pbctlugT9t1Vqk8nlDysq
-         9Qk8VimeZwO4JGYZHjUln1jetjfHrHcPUHj6T4lKEaVNyacaTlef81cGvrLg66RlHM
-         57jLfL3EWicHIK9foSl8s8oirjrFaapDWK+IMiEo=
+        b=l6BwQPwyWHTQ5f4jZ7CQXMv7N/4A+Sst9u8N/+7huG6v4BSPZwhDXR+10fZSaX2qL
+         1JDcd25Je2a6nwfGv6BoESI5artMQkn5CFSEsn9nwy4pfLooH69k7T7rNzkvXHWgrq
+         8gkr7vptHGQJWiZc1i2h6ZEd2yiOCY3VVihxv1yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 130/149] ARM: dts: BCM5301X: Fixup SPI binding
-Date:   Mon, 19 Jul 2021 16:53:58 +0200
-Message-Id: <20210719144932.133301671@linuxfoundation.org>
+Subject: [PATCH 5.4 131/149] reset: bail if try_module_get() fails
+Date:   Mon, 19 Jul 2021 16:53:59 +0200
+Message-Id: <20210719144932.340057158@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -41,78 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Philipp Zabel <p.zabel@pengutronix.de>
 
-[ Upstream commit d5aede3e6dd1b8ca574600a1ecafe1e580c53f2f ]
+[ Upstream commit 4fb26fb83f0def3d39c14e268bcd4003aae8fade ]
 
-1. Reorder interrupts
-2. Fix typo: s/spi_lr_overhead/spi_lr_overread/
-3. Rename node: s/spi-nor@0/flash@0/
+Abort instead of returning a new reset control for a reset controller
+device that is going to have its module unloaded.
 
-This fixes:
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi@18029200: interrupt-names: 'oneOf' conditional failed, one must be fixed:
-        ['spi_lr_fullness_reached', 'spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted'] is too long
-        Additional items are not allowed ('spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted' were unexpected)
-        'mspi_done' was expected
-        'spi_l1_intr' was expected
-        'mspi_halted' was expected
-        'spi_lr_fullness_reached' was expected
-        'spi_lr_session_aborted' was expected
-        'spi_lr_impatient' was expected
-        'spi_lr_session_done' was expected
-        'spi_lr_overread' was expected
-        From schema: Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.yaml
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi-nor@0: $nodename:0: 'spi-nor@0' does not match '^flash(@.*)?$'
-        From schema: Documentation/devicetree/bindings/mtd/jedec,spi-nor.yaml
-
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reported-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: 61fc41317666 ("reset: Add reset controller API")
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Link: https://lore.kernel.org/r/20210607082615.15160-1-p.zabel@pengutronix.de
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/reset/core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index 0016720ce530..9711170649b6 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -494,27 +494,27 @@
- 		      <0x1811b408 0x004>,
- 		      <0x180293a0 0x01c>;
- 		reg-names = "mspi", "bspi", "intr_regs", "intr_status_reg";
--		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
-+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "spi_lr_fullness_reached",
-+			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-names = "mspi_done",
-+				  "mspi_halted",
-+				  "spi_lr_fullness_reached",
- 				  "spi_lr_session_aborted",
- 				  "spi_lr_impatient",
- 				  "spi_lr_session_done",
--				  "spi_lr_overhead",
--				  "mspi_done",
--				  "mspi_halted";
-+				  "spi_lr_overread";
- 		clocks = <&iprocmed>;
- 		clock-names = "iprocmed";
- 		num-cs = <2>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+diff --git a/drivers/reset/core.c b/drivers/reset/core.c
+index 76c0dc7f165d..688b4f6227fc 100644
+--- a/drivers/reset/core.c
++++ b/drivers/reset/core.c
+@@ -565,7 +565,10 @@ static struct reset_control *__reset_control_get_internal(
+ 	if (!rstc)
+ 		return ERR_PTR(-ENOMEM);
  
--		spi_nor: spi-nor@0 {
-+		spi_nor: flash@0 {
- 			compatible = "jedec,spi-nor";
- 			reg = <0>;
- 			spi-max-frequency = <20000000>;
+-	try_module_get(rcdev->owner);
++	if (!try_module_get(rcdev->owner)) {
++		kfree(rstc);
++		return ERR_PTR(-ENODEV);
++	}
+ 
+ 	rstc->rcdev = rcdev;
+ 	list_add(&rstc->list, &rcdev->reset_control_head);
 -- 
 2.30.2
 
