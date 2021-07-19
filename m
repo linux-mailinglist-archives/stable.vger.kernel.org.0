@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05C6B3CDAFC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B1523CD9B6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244325AbhGSOkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54478 "EHLO mail.kernel.org"
+        id S244304AbhGSObV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343590AbhGSOje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B63B46128E;
-        Mon, 19 Jul 2021 15:19:06 +0000 (UTC)
+        id S239528AbhGSO2b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 961FD6112D;
+        Mon, 19 Jul 2021 15:08:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707947;
-        bh=eyhrDi3gUAam2qacXv6Di8YUNYqq+9qs1tRhUQL/saw=;
+        s=korg; t=1626707289;
+        bh=D1VUHzcd/kIB/rEvBXI1zonQZ9Y8Sk9Yd0ptZs+u0LY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmRQmOqMsSkIkQojuIaSwZ5SV0cnRJdVEFtHUM4pyOd3AkXC9HItynuhdJoxeBpxN
-         VScoKXTu+jQhvl/NjA9JdTGkbRkch3CjLsVpJKvAhFZ7MecIAZJ6FUtWiTpxf4/0Fm
-         IId+TjFLZPNZVfOFSRD7EThh2SW/7XGmkfyjgRf4=
+        b=0WrRr094Kx0TYvC7cC+bGIRZ06LIICVRQUKm2xavkeP+9izqPKKrws7ZBggsVw1oY
+         Cgx8ajTEZBhoSWQvd3Y2XeIwzKj57ysalBxM87+tA9pYC3E+NhUw5wrrm93rw3yvWU
+         qn6DF5pIWMrG4BAJul4JJQc5fNnBWaktFdn4NeoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Nuno Sa <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 120/315] iio: adis_buffer: do not return ints in irq handlers
+Subject: [PATCH 4.9 067/245] mmc: usdhi6rol0: fix error return code in usdhi6_probe()
 Date:   Mon, 19 Jul 2021 16:50:09 +0200
-Message-Id: <20210719144946.816601776@linuxfoundation.org>
+Message-Id: <20210719144942.570924900@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nuno Sa <nuno.sa@analog.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit d877539ad8e8fdde9af69887055fec6402be1a13 ]
+[ Upstream commit 2f9ae69e5267f53e89e296fccee291975a85f0eb ]
 
-On an IRQ handler we should not return normal error codes as 'irqreturn_t'
-is expected.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Not necessarily stable material as the old check cannot fail, so it's a bug
-we can not hit.
-
-Fixes: ccd2b52f4ac69 ("staging:iio: Add common ADIS library")
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Signed-off-by: Nuno Sa <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20210422101911.135630-2-nuno.sa@analog.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 75fa9ea6e3c0 ("mmc: add a driver for the Renesas usdhi6rol0 SD/SDIO host controller")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210508020321.1677-1-thunder.leizhen@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/adis_buffer.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/mmc/host/usdhi6rol0.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iio/imu/adis_buffer.c b/drivers/iio/imu/adis_buffer.c
-index 9de553e8c214..625f54d9e382 100644
---- a/drivers/iio/imu/adis_buffer.c
-+++ b/drivers/iio/imu/adis_buffer.c
-@@ -83,9 +83,6 @@ static irqreturn_t adis_trigger_handler(int irq, void *p)
- 	struct adis *adis = iio_device_get_drvdata(indio_dev);
- 	int ret;
+diff --git a/drivers/mmc/host/usdhi6rol0.c b/drivers/mmc/host/usdhi6rol0.c
+index 003aecc44122..ad0a467bb464 100644
+--- a/drivers/mmc/host/usdhi6rol0.c
++++ b/drivers/mmc/host/usdhi6rol0.c
+@@ -1809,6 +1809,7 @@ static int usdhi6_probe(struct platform_device *pdev)
  
--	if (!adis->buffer)
--		return -ENOMEM;
--
- 	if (adis->data->has_paging) {
- 		mutex_lock(&adis->txrx_lock);
- 		if (adis->current_page != 0) {
+ 	version = usdhi6_read(host, USDHI6_VERSION);
+ 	if ((version & 0xfff) != 0xa0d) {
++		ret = -EPERM;
+ 		dev_err(dev, "Version not recognized %x\n", version);
+ 		goto e_clk_off;
+ 	}
 -- 
 2.30.2
 
