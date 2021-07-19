@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 332873CD7D5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC553CD7CA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242204AbhGSOTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:19:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52736 "EHLO mail.kernel.org"
+        id S242010AbhGSOS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:18:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242049AbhGSOR7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 861946113A;
-        Mon, 19 Jul 2021 14:58:38 +0000 (UTC)
+        id S241588AbhGSOSC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1C6D6113B;
+        Mon, 19 Jul 2021 14:58:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706719;
-        bh=X5CYAT9QLlML+vNLLoMTH8v5to9glRLKpo5b3VcsGss=;
+        s=korg; t=1626706721;
+        bh=7cf9s0WJLknvqbvhZ3mFo260NRJ5Qby36RhCgiPJq5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vV1B762li6AZJR4220p8y9YtDDRs2wOF+xDHpX1O0u1Iesq0vnpIFjeOjad+FbUsh
-         +nHIaZWVj26PmGw+PYGGItybKzuYicqxRFsdmlJeouZeYYQtAT+nx3TXvO6pqPzwUx
-         JRJKjHXTtBZh9PEAFvAFz/Rm0gH6jrF78Oc9iPzI=
+        b=2ekpBsyH4e6QUKkfTZI5HZ6Vnr26VJWsLMZUyby+6e1ML96tHvdrmlifO5a8ktKHc
+         71A3I/v8bSC//88jp/tSYqY7NyNUkNEnkWudSLKshJYqBRwPiOqYjdtDvWjA5Tv9WY
+         qDN8D7E8H7p9D95uoLFjc4m5NkGy3SzSY+qYye2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Liu Shixin <liushixin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/188] ath10k: Fix an error code in ath10k_add_interface()
-Date:   Mon, 19 Jul 2021 16:50:51 +0200
-Message-Id: <20210719144928.583243334@linuxfoundation.org>
+Subject: [PATCH 4.4 068/188] netlabel: Fix memory leak in netlbl_mgmt_add_common
+Date:   Mon, 19 Jul 2021 16:50:52 +0200
+Message-Id: <20210719144928.849804703@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -41,41 +41,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit e9ca70c735ce66fc6a0e02c8b6958434f74ef8de ]
+[ Upstream commit b8f6b0522c298ae9267bd6584e19b942a0636910 ]
 
-When the code execute this if statement, the value of ret is 0.
-However, we can see from the ath10k_warn() log that the value of
-ret should be -EINVAL.
+Hulk Robot reported memory leak in netlbl_mgmt_add_common.
+The problem is non-freed map in case of netlbl_domhsh_add() failed.
 
-Clean up smatch warning:
+BUG: memory leak
+unreferenced object 0xffff888100ab7080 (size 96):
+  comm "syz-executor537", pid 360, jiffies 4294862456 (age 22.678s)
+  hex dump (first 32 bytes):
+    05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01  ................
+  backtrace:
+    [<0000000008b40026>] netlbl_mgmt_add_common.isra.0+0xb2a/0x1b40
+    [<000000003be10950>] netlbl_mgmt_add+0x271/0x3c0
+    [<00000000c70487ed>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320
+    [<000000001f2ff614>] genl_rcv_msg+0x2bf/0x4f0
+    [<0000000089045792>] netlink_rcv_skb+0x134/0x3d0
+    [<0000000020e96fdd>] genl_rcv+0x24/0x40
+    [<0000000042810c66>] netlink_unicast+0x4a0/0x6a0
+    [<000000002e1659f0>] netlink_sendmsg+0x789/0xc70
+    [<000000006e43415f>] sock_sendmsg+0x139/0x170
+    [<00000000680a73d7>] ____sys_sendmsg+0x658/0x7d0
+    [<0000000065cbb8af>] ___sys_sendmsg+0xf8/0x170
+    [<0000000019932b6c>] __sys_sendmsg+0xd3/0x190
+    [<00000000643ac172>] do_syscall_64+0x37/0x90
+    [<000000009b79d6dc>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-drivers/net/wireless/ath/ath10k/mac.c:5596 ath10k_add_interface() warn:
-missing error code 'ret'
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Fixes: ccec9038c721 ("ath10k: enable raw encap mode and software crypto engine")
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1621939577-62218-1-git-send-email-yang.lee@linux.alibaba.com
+Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/mac.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/netlabel/netlabel_mgmt.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
-index 5fad38c3feb1..7993ca956ede 100644
---- a/drivers/net/wireless/ath/ath10k/mac.c
-+++ b/drivers/net/wireless/ath/ath10k/mac.c
-@@ -4450,6 +4450,7 @@ static int ath10k_add_interface(struct ieee80211_hw *hw,
+diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
+index 13f777f20995..5f1218dc9162 100644
+--- a/net/netlabel/netlabel_mgmt.c
++++ b/net/netlabel/netlabel_mgmt.c
+@@ -92,6 +92,7 @@ static const struct nla_policy netlbl_mgmt_genl_policy[NLBL_MGMT_A_MAX + 1] = {
+ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 				  struct netlbl_audit *audit_info)
+ {
++	void *pmap = NULL;
+ 	int ret_val = -EINVAL;
+ 	struct netlbl_domaddr_map *addrmap = NULL;
+ 	struct cipso_v4_doi *cipsov4 = NULL;
+@@ -165,6 +166,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			ret_val = -ENOMEM;
+ 			goto add_free_addrmap;
+ 		}
++		pmap = map;
+ 		map->list.addr = addr->s_addr & mask->s_addr;
+ 		map->list.mask = mask->s_addr;
+ 		map->list.valid = 1;
+@@ -173,10 +175,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			map->def.cipso = cipsov4;
  
- 	if (arvif->nohwcrypt &&
- 	    !test_bit(ATH10K_FLAG_RAW_MODE, &ar->dev_flags)) {
-+		ret = -EINVAL;
- 		ath10k_warn(ar, "cryptmode module param needed for sw crypto\n");
- 		goto err;
- 	}
+ 		ret_val = netlbl_af4list_add(&map->list, &addrmap->list4);
+-		if (ret_val != 0) {
+-			kfree(map);
+-			goto add_free_addrmap;
+-		}
++		if (ret_val != 0)
++			goto add_free_map;
+ 
+ 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
+ 		entry->def.addrsel = addrmap;
+@@ -212,6 +212,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			ret_val = -ENOMEM;
+ 			goto add_free_addrmap;
+ 		}
++		pmap = map;
+ 		map->list.addr = *addr;
+ 		map->list.addr.s6_addr32[0] &= mask->s6_addr32[0];
+ 		map->list.addr.s6_addr32[1] &= mask->s6_addr32[1];
+@@ -222,10 +223,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 		map->def.type = entry->def.type;
+ 
+ 		ret_val = netlbl_af6list_add(&map->list, &addrmap->list6);
+-		if (ret_val != 0) {
+-			kfree(map);
+-			goto add_free_addrmap;
+-		}
++		if (ret_val != 0)
++			goto add_free_map;
+ 
+ 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
+ 		entry->def.addrsel = addrmap;
+@@ -234,10 +233,12 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 
+ 	ret_val = netlbl_domhsh_add(entry, audit_info);
+ 	if (ret_val != 0)
+-		goto add_free_addrmap;
++		goto add_free_map;
+ 
+ 	return 0;
+ 
++add_free_map:
++	kfree(pmap);
+ add_free_addrmap:
+ 	kfree(addrmap);
+ add_doi_put_def:
 -- 
 2.30.2
 
