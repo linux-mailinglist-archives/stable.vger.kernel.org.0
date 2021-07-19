@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF55F3CE2B0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E41763CE369
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348616AbhGSPbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
+        id S243801AbhGSPhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347816AbhGSPVe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:21:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50BC861289;
-        Mon, 19 Jul 2021 15:59:06 +0000 (UTC)
+        id S1347898AbhGSPfU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AB73614A7;
+        Mon, 19 Jul 2021 16:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710346;
-        bh=/CLhTyXPjjLRNb07GDJOFxKmUnEMQlQ76RxjoNskkSI=;
+        s=korg; t=1626711188;
+        bh=TK5hmaqnhb9CoIMS/EszauYQPHyrrRVARmPh2hE27hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gB5Z7gwRCSAD/1w42W9UBx9RK5XP7XzUz7O4e5aPdtOhkWYQ8hGHdHKtdxlSDLS4h
-         fJHVEzjfQqL99697BWbR+GR4eRsSqJ4a4as3amB1/URuCrARc65PvpvXXaEsUo2mLl
-         tyvIVLUJofJVOkNusiVEuBmgIlwc3egBx0Y+pQ0c=
+        b=JDM3HhQhG1j/E9D8jVIG8fvyIa2J2yBfijfqCrlxn+qHQlsEibbOHc93QAd6eWa4k
+         eVPCU6HoAspB4MtC+GnzzmDFkVQ/l5OXcKJahe1LHZ/bXaH4+DgWlGm3F0YjyZEdh5
+         aDj4aHmEg8qwSKO07oaSH8aoNWtm562WealIy8IY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/243] nvme-tcp: cant set sk_user_data without write_lock
+        stable@vger.kernel.org, JianHong Yin <jiyin@redhat.com>,
+        Chuck Lever III <chuck.lever@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 260/351] nfsd: fix NULL dereference in nfs3svc_encode_getaclres
 Date:   Mon, 19 Jul 2021 16:53:26 +0200
-Message-Id: <20210719144946.614584990@linuxfoundation.org>
+Message-Id: <20210719144953.550712506@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: J. Bruce Fields <bfields@redhat.com>
 
-[ Upstream commit 0755d3be2d9bb6ea38598ccd30d6bbaa1a5c3a50 ]
+[ Upstream commit ab1016d39cc052064e32f25ad18ef8767a0ee3b8 ]
 
-The sk_user_data pointer is supposed to be modified only while
-holding the write_lock "sk_callback_lock", otherwise
-we could race with other threads and crash the kernel.
+In error cases the dentry may be NULL.
 
-we can't take the write_lock in nvmet_tcp_state_change()
-because it would cause a deadlock, but the release_work queue
-will set the pointer to NULL later so we can simply remove
-the assignment.
+Before 20798dfe249a, the encoder also checked dentry and
+d_really_is_positive(dentry), but that looks like overkill to me--zero
+status should be enough to guarantee a positive dentry.
 
-Fixes: b5332a9f3f3d ("nvmet-tcp: fix incorrect locking in state_change sk callback")
+This isn't the first time we've seen an error-case NULL dereference
+hidden in the initialization of a local variable in an xdr encoder.  But
+I went back through the other recent rewrites and didn't spot any
+similar bugs.
 
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reported-by: JianHong Yin <jiyin@redhat.com>
+Reviewed-by: Chuck Lever III <chuck.lever@oracle.com>
+Fixes: 20798dfe249a ("NFSD: Update the NFSv3 GETACL result encoder...")
+Signed-off-by: J. Bruce Fields <bfields@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 1 -
- 1 file changed, 1 deletion(-)
+ fs/nfsd/nfs3acl.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 4df4f37e6b89..dedcb7aaf0d8 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1467,7 +1467,6 @@ static void nvmet_tcp_state_change(struct sock *sk)
- 	case TCP_CLOSE_WAIT:
- 	case TCP_CLOSE:
- 		/* FALLTHRU */
--		sk->sk_user_data = NULL;
- 		nvmet_tcp_schedule_release_queue(queue);
- 		break;
- 	default:
+diff --git a/fs/nfsd/nfs3acl.c b/fs/nfsd/nfs3acl.c
+index a1591feeea22..5dfe7644a517 100644
+--- a/fs/nfsd/nfs3acl.c
++++ b/fs/nfsd/nfs3acl.c
+@@ -172,7 +172,7 @@ static int nfs3svc_encode_getaclres(struct svc_rqst *rqstp, __be32 *p)
+ 	struct nfsd3_getaclres *resp = rqstp->rq_resp;
+ 	struct dentry *dentry = resp->fh.fh_dentry;
+ 	struct kvec *head = rqstp->rq_res.head;
+-	struct inode *inode = d_inode(dentry);
++	struct inode *inode;
+ 	unsigned int base;
+ 	int n;
+ 	int w;
+@@ -181,6 +181,7 @@ static int nfs3svc_encode_getaclres(struct svc_rqst *rqstp, __be32 *p)
+ 		return 0;
+ 	switch (resp->status) {
+ 	case nfs_ok:
++		inode = d_inode(dentry);
+ 		if (!svcxdr_encode_post_op_attr(rqstp, xdr, &resp->fh))
+ 			return 0;
+ 		if (xdr_stream_encode_u32(xdr, resp->mask) < 0)
 -- 
 2.30.2
 
