@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B693CE5CC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD9883CE5E8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348568AbhGSPxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47918 "EHLO mail.kernel.org"
+        id S1347938AbhGSPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350521AbhGSPvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35CC361363;
-        Mon, 19 Jul 2021 16:30:05 +0000 (UTC)
+        id S1350538AbhGSPvJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:51:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFF9961370;
+        Mon, 19 Jul 2021 16:30:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712205;
-        bh=1m8a9wG0Vf4PcrJslbgMPBunyllvfzxWUshqR0E4KnU=;
+        s=korg; t=1626712208;
+        bh=MZJStAWkc9toouQJGxD6XdV11GOUg3Sb8Tk+To+341k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyzX5fn2l8Y2V0CYd2SjNUZER8NtPpjoHtJVVawqKrXeFovL/G6LcigWP3Vh1UxDu
-         TYXdLQfaySrkBZLbHfUflNKhmaNibO3LKQ7IMR5FpzEP5MehhJ92mQAvXEOm7Vlb+/
-         71nzwR8JKKObbow3KB0by4EgIBW7eyTqursm0F4E=
+        b=FLIr04Cju+50fKQNf+6XM92A55mScLyQ37gENNFmaONKkS+CZSc70UOdGS22KFfzG
+         AsNUW1a8g9kXq9XbO68J7CAYvyp7IasKRpOie7LCrhh/QbndUTbecaJuwPV7jCv8Eh
+         xDT0vhU4CPEO0rTUjJaCeH/kDRtDynNtYK3rhmv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ionela Voinescu <ionela.voinescu@arm.com>,
-        Qian Cai <quic_qiancai@quicinc.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 289/292] cpufreq: CPPC: Fix potential memleak in cppc_cpufreq_cpu_init
-Date:   Mon, 19 Jul 2021 16:55:51 +0200
-Message-Id: <20210719144952.417634492@linuxfoundation.org>
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 290/292] certs: add x509_revocation_list to gitignore
+Date:   Mon, 19 Jul 2021 16:55:52 +0200
+Message-Id: <20210719144952.447021987@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,89 +39,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit fe2535a44904a77615a3af8e8fd7dafb98fb0e1b ]
+commit 81f202315856edb75a371f3376aa3a47543c16f0 upstream.
 
-It's a classic example of memleak, we allocate something, we fail and
-never free the resources.
+Commit d1f044103dad ("certs: Add ability to preload revocation certs")
+created a new generated file for revocation certs, but didn't tell git
+to ignore it.  Thus causing unnecessary "git status" noise after a
+kernel build with CONFIG_SYSTEM_REVOCATION_LIST enabled.
 
-Make sure we free all resources on policy ->init() failures.
+Add the proper gitignore magic.
 
-Fixes: a28b2bfc099c ("cppc_cpufreq: replace per-cpu data array with a list")
-Tested-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Ionela Voinescu <ionela.voinescu@arm.com>
-Tested-by: Qian Cai <quic_qiancai@quicinc.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/cppc_cpufreq.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ certs/.gitignore |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/cpufreq/cppc_cpufreq.c b/drivers/cpufreq/cppc_cpufreq.c
-index 8a482c434ea6..9ff81e260312 100644
---- a/drivers/cpufreq/cppc_cpufreq.c
-+++ b/drivers/cpufreq/cppc_cpufreq.c
-@@ -182,6 +182,16 @@ static int cppc_verify_policy(struct cpufreq_policy_data *policy)
- 	return 0;
- }
- 
-+static void cppc_cpufreq_put_cpu_data(struct cpufreq_policy *policy)
-+{
-+	struct cppc_cpudata *cpu_data = policy->driver_data;
-+
-+	list_del(&cpu_data->node);
-+	free_cpumask_var(cpu_data->shared_cpu_map);
-+	kfree(cpu_data);
-+	policy->driver_data = NULL;
-+}
-+
- static void cppc_cpufreq_stop_cpu(struct cpufreq_policy *policy)
- {
- 	struct cppc_cpudata *cpu_data = policy->driver_data;
-@@ -196,11 +206,7 @@ static void cppc_cpufreq_stop_cpu(struct cpufreq_policy *policy)
- 		pr_debug("Err setting perf value:%d on CPU:%d. ret:%d\n",
- 			 caps->lowest_perf, cpu, ret);
- 
--	/* Remove CPU node from list and free driver data for policy */
--	free_cpumask_var(cpu_data->shared_cpu_map);
--	list_del(&cpu_data->node);
--	kfree(policy->driver_data);
--	policy->driver_data = NULL;
-+	cppc_cpufreq_put_cpu_data(policy);
- }
- 
- /*
-@@ -340,7 +346,8 @@ static int cppc_cpufreq_cpu_init(struct cpufreq_policy *policy)
- 	default:
- 		pr_debug("Unsupported CPU co-ord type: %d\n",
- 			 policy->shared_type);
--		return -EFAULT;
-+		ret = -EFAULT;
-+		goto out;
- 	}
- 
- 	/*
-@@ -355,10 +362,16 @@ static int cppc_cpufreq_cpu_init(struct cpufreq_policy *policy)
- 	cpu_data->perf_ctrls.desired_perf =  caps->highest_perf;
- 
- 	ret = cppc_set_perf(cpu, &cpu_data->perf_ctrls);
--	if (ret)
-+	if (ret) {
- 		pr_debug("Err setting perf value:%d on CPU:%d. ret:%d\n",
- 			 caps->highest_perf, cpu, ret);
-+		goto out;
-+	}
- 
-+	return 0;
-+
-+out:
-+	cppc_cpufreq_put_cpu_data(policy);
- 	return ret;
- }
- 
--- 
-2.30.2
-
+--- a/certs/.gitignore
++++ b/certs/.gitignore
+@@ -1,2 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ x509_certificate_list
++x509_revocation_list
 
 
