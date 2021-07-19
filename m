@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA2FC3CDFA3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF983CDEFA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344544AbhGSPLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38958 "EHLO mail.kernel.org"
+        id S1344290AbhGSPHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346052AbhGSPKA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F0EF61221;
-        Mon, 19 Jul 2021 15:50:17 +0000 (UTC)
+        id S1345673AbhGSPEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC6EB611C1;
+        Mon, 19 Jul 2021 15:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709818;
-        bh=WF0TpTCVtD/q8bjs/VLUNrGERQsRQGf0gDxkGI0J854=;
+        s=korg; t=1626709499;
+        bh=buEgtu8vPGsBKS3HtvZ9ChBpyLl0G/Iljag4eaLJBSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EALweJnoTuoYJPHG0Ws2TjZX7RsRHoA/wNpu1nsTeeJJNzQdt0IyXsgcElXCTYBIv
-         Po38tff61z2NvIdmNmphPpuy541tFg7TMmApGsiL8GlAmIizHy6l/0aXS6OZW8qJ3J
-         JtNKAf8/bdSrCxXtejhYZa6aSgwWMuQ0MOgPvSMk=
+        b=m73lqG3c2ljzt7xXlJC35JoFfoAVje+aQf24znxR9wQ7yrnKlyBUgh6qSDQ+3BIJJ
+         Zrfyi0GcSvKW01wwGfN6m43NBPFJZ30Xvi932nBKvI8MNB14aQk88cbyuGQ7G8vrBo
+         gUzwBihcmll2A8vpLp/QpcCnrm2CaQbLj4jyaYr4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maurizio Lombardi <mlombard@redhat.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 111/149] nvme-tcp: cant set sk_user_data without write_lock
-Date:   Mon, 19 Jul 2021 16:53:39 +0200
-Message-Id: <20210719144927.643964494@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 409/421] memory: fsl_ifc: fix leak of private memory on probe failure
+Date:   Mon, 19 Jul 2021 16:53:40 +0200
+Message-Id: <20210719145000.502583459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 0755d3be2d9bb6ea38598ccd30d6bbaa1a5c3a50 ]
+[ Upstream commit 8e0d09b1232d0538066c40ed4c13086faccbdff6 ]
 
-The sk_user_data pointer is supposed to be modified only while
-holding the write_lock "sk_callback_lock", otherwise
-we could race with other threads and crash the kernel.
+On probe error the driver should free the memory allocated for private
+structure.  Fix this by using resource-managed allocation.
 
-we can't take the write_lock in nvmet_tcp_state_change()
-because it would cause a deadlock, but the release_work queue
-will set the pointer to NULL later so we can simply remove
-the assignment.
-
-Fixes: b5332a9f3f3d ("nvmet-tcp: fix incorrect locking in state_change sk callback")
-
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210527154322.81253-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/tcp.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/memory/fsl_ifc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 9bfd92b6677b..2ae846297d7c 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1412,7 +1412,6 @@ static void nvmet_tcp_state_change(struct sock *sk)
- 	case TCP_CLOSE_WAIT:
- 	case TCP_CLOSE:
- 		/* FALLTHRU */
--		sk->sk_user_data = NULL;
- 		nvmet_tcp_schedule_release_queue(queue);
- 		break;
- 	default:
+diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
+index 74bbbdc584f4..38b945eb410f 100644
+--- a/drivers/memory/fsl_ifc.c
++++ b/drivers/memory/fsl_ifc.c
+@@ -109,7 +109,6 @@ static int fsl_ifc_ctrl_remove(struct platform_device *dev)
+ 	iounmap(ctrl->gregs);
+ 
+ 	dev_set_drvdata(&dev->dev, NULL);
+-	kfree(ctrl);
+ 
+ 	return 0;
+ }
+@@ -221,7 +220,8 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 
+ 	dev_info(&dev->dev, "Freescale Integrated Flash Controller\n");
+ 
+-	fsl_ifc_ctrl_dev = kzalloc(sizeof(*fsl_ifc_ctrl_dev), GFP_KERNEL);
++	fsl_ifc_ctrl_dev = devm_kzalloc(&dev->dev, sizeof(*fsl_ifc_ctrl_dev),
++					GFP_KERNEL);
+ 	if (!fsl_ifc_ctrl_dev)
+ 		return -ENOMEM;
+ 
 -- 
 2.30.2
 
