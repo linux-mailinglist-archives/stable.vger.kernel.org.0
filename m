@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EE203CE171
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AFFD3CE35D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346699AbhGSP0H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57794 "EHLO mail.kernel.org"
+        id S241121AbhGSPhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347834AbhGSPVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:21:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3609661435;
-        Mon, 19 Jul 2021 15:59:16 +0000 (UTC)
+        id S1347164AbhGSPe5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:34:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD1AE6143F;
+        Mon, 19 Jul 2021 16:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710356;
-        bh=x+IICyJLGOlrp2+/G8fNZaP7xtm6pYWcCebeeTG4bj8=;
+        s=korg; t=1626711116;
+        bh=rcGreCIoz1dl8poNvVGGA1M3PbJmnLSrc+aGpbVweUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBazeP/2Mo+Bh71zF3haTJd+20zP8bpp8ojJ01dB+ZyF8GK+4RwjTcAY6O6F/t5HF
-         UNy4I0cpVQGTRpL/CdHjQ0nmZRHo/CAG4pCrZnBWNtQey51w+/ZHontSOwtw76rgvb
-         nsSzmUvKA9NpzA1SrFQmQixwz+FLO42ybU+q1+4s=
+        b=NeeIdSIkBUwquutt5TLo+vlzOD7LgatrCIsKar6+h1Q10bQOiZFQitxNM2DapLdk8
+         ten6mchvGzIK/g1oqxn6gaUlb82L+yzdUmsuBTT/ozjs4+EHG88cgxo9G6mcF4XS9Q
+         A2gHZ9He1Kyl2xOD7rOeH6GvkY/z2UYHpu4smwFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
-        Jann Horn <jannh@google.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Borislav Petkov <bp@suse.de>, Len Brown <len.brown@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 148/243] x86/signal: Detect and prevent an alternate signal stack overflow
-Date:   Mon, 19 Jul 2021 16:52:57 +0200
-Message-Id: <20210719144945.690624002@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Sandor Bodo-Merle <sbodomerle@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Ray Jui <ray.jui@broadcom.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 232/351] PCI: iproc: Support multi-MSI only on uniprocessor kernel
+Date:   Mon, 19 Jul 2021 16:52:58 +0200
+Message-Id: <20210719144952.619012293@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,140 +42,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chang S. Bae <chang.seok.bae@intel.com>
+From: Sandor Bodo-Merle <sbodomerle@gmail.com>
 
-[ Upstream commit 2beb4a53fc3f1081cedc1c1a198c7f56cc4fc60c ]
+[ Upstream commit 2dc0a201d0f59e6818ef443609f0850a32910844 ]
 
-The kernel pushes context on to the userspace stack to prepare for the
-user's signal handler. When the user has supplied an alternate signal
-stack, via sigaltstack(2), it is easy for the kernel to verify that the
-stack size is sufficient for the current hardware context.
+The interrupt affinity scheme used by this driver is incompatible with
+multi-MSI as it implies moving the doorbell address to that of another MSI
+group.  This isn't possible for multi-MSI, as all the MSIs must have the
+same doorbell address. As such it is restricted to systems with a single
+CPU.
 
-Check if writing the hardware context to the alternate stack will exceed
-it's size. If yes, then instead of corrupting user-data and proceeding with
-the original signal handler, an immediate SIGSEGV signal is delivered.
-
-Refactor the stack pointer check code from on_sig_stack() and use the new
-helper.
-
-While the kernel allows new source code to discover and use a sufficient
-alternate signal stack size, this check is still necessary to protect
-binaries with insufficient alternate signal stack size from data
-corruption.
-
-Fixes: c2bc11f10a39 ("x86, AVX-512: Enable AVX-512 States Context Switch")
-Reported-by: Florian Weimer <fweimer@redhat.com>
-Suggested-by: Jann Horn <jannh@google.com>
-Suggested-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Len Brown <len.brown@intel.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20210518200320.17239-6-chang.seok.bae@intel.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=153531
+Link: https://lore.kernel.org/r/20210622152630.40842-2-sbodomerle@gmail.com
+Fixes: fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
+Reported-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Sandor Bodo-Merle <sbodomerle@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Pali Rohár <pali@kernel.org>
+Acked-by: Ray Jui <ray.jui@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c     | 24 ++++++++++++++++++++----
- include/linux/sched/signal.h | 19 ++++++++++++-------
- 2 files changed, 32 insertions(+), 11 deletions(-)
+ drivers/pci/controller/pcie-iproc-msi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index f51cab3e983d..b001ba811cab 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -234,10 +234,11 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	     void __user **fpstate)
- {
- 	/* Default to using normal stack */
-+	bool nested_altstack = on_sig_stack(regs->sp);
-+	bool entering_altstack = false;
- 	unsigned long math_size = 0;
- 	unsigned long sp = regs->sp;
- 	unsigned long buf_fx = 0;
--	int onsigstack = on_sig_stack(sp);
- 	int ret;
+diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
+index 557d93dcb3bc..81b4effeb130 100644
+--- a/drivers/pci/controller/pcie-iproc-msi.c
++++ b/drivers/pci/controller/pcie-iproc-msi.c
+@@ -171,7 +171,7 @@ static struct irq_chip iproc_msi_irq_chip = {
  
- 	/* redzone */
-@@ -246,15 +247,23 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
+ static struct msi_domain_info iproc_msi_domain_info = {
+ 	.flags = MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
+-		MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX,
++		MSI_FLAG_PCI_MSIX,
+ 	.chip = &iproc_msi_irq_chip,
+ };
  
- 	/* This is the X/Open sanctioned signal stack switching.  */
- 	if (ka->sa.sa_flags & SA_ONSTACK) {
--		if (sas_ss_flags(sp) == 0)
-+		/*
-+		 * This checks nested_altstack via sas_ss_flags(). Sensible
-+		 * programs use SS_AUTODISARM, which disables that check, and
-+		 * programs that don't use SS_AUTODISARM get compatible.
-+		 */
-+		if (sas_ss_flags(sp) == 0) {
- 			sp = current->sas_ss_sp + current->sas_ss_size;
-+			entering_altstack = true;
-+		}
- 	} else if (IS_ENABLED(CONFIG_X86_32) &&
--		   !onsigstack &&
-+		   !nested_altstack &&
- 		   regs->ss != __USER_DS &&
- 		   !(ka->sa.sa_flags & SA_RESTORER) &&
- 		   ka->sa.sa_restorer) {
- 		/* This is the legacy signal stack switching. */
- 		sp = (unsigned long) ka->sa.sa_restorer;
-+		entering_altstack = true;
- 	}
+@@ -250,6 +250,9 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
+ 	struct iproc_msi *msi = domain->host_data;
+ 	int hwirq, i;
  
- 	sp = fpu__alloc_mathframe(sp, IS_ENABLED(CONFIG_X86_32),
-@@ -267,8 +276,15 @@ get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size,
- 	 * If we are on the alternate signal stack and would overflow it, don't.
- 	 * Return an always-bogus address instead so we will die with SIGSEGV.
- 	 */
--	if (onsigstack && !likely(on_sig_stack(sp)))
-+	if (unlikely((nested_altstack || entering_altstack) &&
-+		     !__on_sig_stack(sp))) {
++	if (msi->nr_cpus > 1 && nr_irqs > 1)
++		return -EINVAL;
 +
-+		if (show_unhandled_signals && printk_ratelimit())
-+			pr_info("%s[%d] overflowed sigaltstack\n",
-+				current->comm, task_pid_nr(current));
+ 	mutex_lock(&msi->bitmap_lock);
+ 
+ 	/*
+@@ -540,6 +543,9 @@ int iproc_msi_init(struct iproc_pcie *pcie, struct device_node *node)
+ 	mutex_init(&msi->bitmap_lock);
+ 	msi->nr_cpus = num_possible_cpus();
+ 
++	if (msi->nr_cpus == 1)
++		iproc_msi_domain_info.flags |=  MSI_FLAG_MULTI_PCI_MSI;
 +
- 		return (void __user *)-1L;
-+	}
- 
- 	/* save i387 and extended state */
- 	ret = copy_fpstate_to_sigframe(*fpstate, (void __user *)buf_fx, math_size);
-diff --git a/include/linux/sched/signal.h b/include/linux/sched/signal.h
-index 4b6a8234d7fc..657640015b33 100644
---- a/include/linux/sched/signal.h
-+++ b/include/linux/sched/signal.h
-@@ -525,6 +525,17 @@ static inline int kill_cad_pid(int sig, int priv)
- #define SEND_SIG_NOINFO ((struct kernel_siginfo *) 0)
- #define SEND_SIG_PRIV	((struct kernel_siginfo *) 1)
- 
-+static inline int __on_sig_stack(unsigned long sp)
-+{
-+#ifdef CONFIG_STACK_GROWSUP
-+	return sp >= current->sas_ss_sp &&
-+		sp - current->sas_ss_sp < current->sas_ss_size;
-+#else
-+	return sp > current->sas_ss_sp &&
-+		sp - current->sas_ss_sp <= current->sas_ss_size;
-+#endif
-+}
-+
- /*
-  * True if we are on the alternate signal stack.
-  */
-@@ -542,13 +553,7 @@ static inline int on_sig_stack(unsigned long sp)
- 	if (current->sas_ss_flags & SS_AUTODISARM)
- 		return 0;
- 
--#ifdef CONFIG_STACK_GROWSUP
--	return sp >= current->sas_ss_sp &&
--		sp - current->sas_ss_sp < current->sas_ss_size;
--#else
--	return sp > current->sas_ss_sp &&
--		sp - current->sas_ss_sp <= current->sas_ss_size;
--#endif
-+	return __on_sig_stack(sp);
- }
- 
- static inline int sas_ss_flags(unsigned long sp)
+ 	msi->nr_irqs = of_irq_count(node);
+ 	if (!msi->nr_irqs) {
+ 		dev_err(pcie->dev, "found no MSI GIC interrupt\n");
 -- 
 2.30.2
 
