@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 988833CDE94
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A54E3CDF95
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343807AbhGSPEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:04:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58644 "EHLO mail.kernel.org"
+        id S245700AbhGSPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242984AbhGSPCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:02:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44AFE601FD;
-        Mon, 19 Jul 2021 15:42:34 +0000 (UTC)
+        id S1345100AbhGSPHz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:07:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12CDE6120A;
+        Mon, 19 Jul 2021 15:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709354;
-        bh=yMXnnkfIQlp/RvYtTMPWmx93X7T3LtLLKbKSmLuyZtw=;
+        s=korg; t=1626709678;
+        bh=hwI9xTL2ebUdO0DmxdC1jpzwPPvsqSev3UsSzitDOfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHv4MhuJLP8ZXp6W1LlgTfKmLzC6tk4fhoZtNfrNFa7Oh9WWhlDQmDG/5IFRo5DaU
-         kw8w5sKLq95bgLLSdM+O4GrUK1fjvWa8j0VA55LHyVuoRpe+y9l8y+ipm6A0R9N8/n
-         150TTfm/PqluGLFEgKmZ5LXRNqC/mOCdI1PV0fJ0=
+        b=0N9oGlGGLXNnvwyqEsY9ZnuOEUxHk9TMYOGp5KtQmkNH8Ugn+RdTM3L6Dj11LUQbO
+         41tzcboa8ibEzpzCj166DwBQm77cSWBhswNgguprQuATWZn+Z8E/cRnzcrBMNpi+7q
+         zcpK9yPLfqEM91cp+C2Dznh5f0dT6M424NhZ/3VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabien Chouteau <fabien.chouteau@barco.com>,
-        Segiy Stetsyuk <serg_stetsuk@ukr.net>,
-        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
+        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 350/421] usb: gadget: f_hid: fix endianness issue with descriptors
+Subject: [PATCH 5.4 053/149] Input: hideep - fix the uninitialized use in hideep_nvm_unlock()
 Date:   Mon, 19 Jul 2021 16:52:41 +0200
-Message-Id: <20210719144958.413256198@linuxfoundation.org>
+Message-Id: <20210719144913.980281995@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+From: Yizhuo Zhai <yzhai003@ucr.edu>
 
-[ Upstream commit 33cb46c4676d01956811b68a29157ea969a5df70 ]
+[ Upstream commit cac7100d4c51c04979dacdfe6c9a5e400d3f0a27 ]
 
-Running sparse checker it shows warning message about
-incorrect endianness used for descriptor initialization:
+Inside function hideep_nvm_unlock(), variable "unmask_code" could
+be uninitialized if hideep_pgm_r_reg() returns error, however, it
+is used in the later if statement after an "and" operation, which
+is potentially unsafe.
 
-| f_hid.c:91:43: warning: incorrect type in initializer (different base types)
-| f_hid.c:91:43:    expected restricted __le16 [usertype] bcdHID
-| f_hid.c:91:43:    got int
-
-Fixing issue with cpu_to_le16() macro, however this is not a real issue
-as the value is the same both endians.
-
-Cc: Fabien Chouteau <fabien.chouteau@barco.com>
-Cc: Segiy Stetsyuk <serg_stetsuk@ukr.net>
-Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
-Link: https://lore.kernel.org/r/20210617162755.29676-1-ruslan.bilovol@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_hid.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/hideep.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
-index bc0a693c3260..fa8a8e04008a 100644
---- a/drivers/usb/gadget/function/f_hid.c
-+++ b/drivers/usb/gadget/function/f_hid.c
-@@ -88,7 +88,7 @@ static struct usb_interface_descriptor hidg_interface_desc = {
- static struct hid_descriptor hidg_desc = {
- 	.bLength			= sizeof hidg_desc,
- 	.bDescriptorType		= HID_DT_HID,
--	.bcdHID				= 0x0101,
-+	.bcdHID				= cpu_to_le16(0x0101),
- 	.bCountryCode			= 0x00,
- 	.bNumDescriptors		= 0x1,
- 	/*.desc[0].bDescriptorType	= DYNAMIC */
+diff --git a/drivers/input/touchscreen/hideep.c b/drivers/input/touchscreen/hideep.c
+index ddad4a82a5e5..e9547ee29756 100644
+--- a/drivers/input/touchscreen/hideep.c
++++ b/drivers/input/touchscreen/hideep.c
+@@ -361,13 +361,16 @@ static int hideep_enter_pgm(struct hideep_ts *ts)
+ 	return -EIO;
+ }
+ 
+-static void hideep_nvm_unlock(struct hideep_ts *ts)
++static int hideep_nvm_unlock(struct hideep_ts *ts)
+ {
+ 	u32 unmask_code;
++	int error;
+ 
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_SFR_RPAGE);
+-	hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
++	error = hideep_pgm_r_reg(ts, 0x0000000C, &unmask_code);
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++	if (error)
++		return error;
+ 
+ 	/* make it unprotected code */
+ 	unmask_code &= ~HIDEEP_PROT_MODE;
+@@ -384,6 +387,8 @@ static void hideep_nvm_unlock(struct hideep_ts *ts)
+ 	NVM_W_SFR(HIDEEP_NVM_MASK_OFS, ts->nvm_mask);
+ 	SET_FLASH_HWCONTROL();
+ 	hideep_pgm_w_reg(ts, HIDEEP_FLASH_CFG, HIDEEP_NVM_DEFAULT_PAGE);
++
++	return 0;
+ }
+ 
+ static int hideep_check_status(struct hideep_ts *ts)
+@@ -462,7 +467,9 @@ static int hideep_program_nvm(struct hideep_ts *ts,
+ 	u32 addr = 0;
+ 	int error;
+ 
+-	hideep_nvm_unlock(ts);
++       error = hideep_nvm_unlock(ts);
++       if (error)
++               return error;
+ 
+ 	while (ucode_len > 0) {
+ 		xfer_len = min_t(size_t, ucode_len, HIDEEP_NVM_PAGE_SIZE);
 -- 
 2.30.2
 
