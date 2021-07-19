@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AAAC3CDF3E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF8A3CDC69
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345207AbhGSPIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38958 "EHLO mail.kernel.org"
+        id S244013AbhGSOwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245340AbhGSPGc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:06:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CDB560FEA;
-        Mon, 19 Jul 2021 15:46:50 +0000 (UTC)
+        id S1343734AbhGSOsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8518961222;
+        Mon, 19 Jul 2021 15:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709610;
-        bh=wIFOHxxG1WGVVfYfKR8/d5d2XYXxPUVK5xaAmAYljR8=;
+        s=korg; t=1626708278;
+        bh=hW8Q2O61AkaJlvZF1qqBNpySKBd2DXLScMrgUKomg9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OY9OexXAf/D0hP07nIZk+8Mfw6UI1+7lSmXD80RII2fr+sA8I8UnnW4XBFCn5hLOy
-         /fv0MBJNifUqH2ViSVI1GPl+i6Au4mncuPjkkttXHFMQdVmMVXyQ6gWcbJEmfymGht
-         m8i8sjHd43OrM7/zyzQqFIo2Qe1VxsXw8Te0qSQA=
+        b=Teq5RYWpc1edPQEkHKQmMOwRnR0R0GVazD2f3pbBvt1SkwXkfZW3Z7+/UQkvjBcWp
+         vHhqeHw7iRMSCcsynaqiII78OHYuhwD6WzjVyHQFWfoyuOZJy7/9Ncyt/i6hEqqqt1
+         eu2H4mDr/NekU11EECY4hSECAx8eCscWSTtD/MaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomas Henzl <thenzl@redhat.com>,
-        kernel test robot <lkp@intel.com>,
-        Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-        Sumit Saxena <sumit.saxena@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/149] scsi: megaraid_sas: Handle missing interrupts while re-enabling IRQs
+Subject: [PATCH 4.14 248/315] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:17 +0200
-Message-Id: <20210719144908.436534436@linuxfoundation.org>
+Message-Id: <20210719144951.575197875@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,74 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 9bedd36e9146b34dda4d6994e3aa1d72bc6442c1 ]
+[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
 
-While reenabling the IRQ after IRQ poll there may be a small window for the
-firmware to post the replies with interrupts raised. In that case the
-driver will not see the interrupts which leads to I/O timeout.
+This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-This issue only happens when there are many I/O completions on a single
-reply queue. This forces the driver to switch between the interrupt and IRQ
-context.
-
-Make the driver process the reply queue one more time after enabling the
-IRQ.
-
-Link: https://lore.kernel.org/linux-scsi/20201102072746.27410-1-sreekanth.reddy@broadcom.com/
-Link: https://lore.kernel.org/r/20210528131307.25683-5-chandrakanth.patil@broadcom.com
-Cc: Tomas Henzl <thenzl@redhat.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Chandrakanth Patil <chandrakanth.patil@broadcom.com>
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/megaraid/megaraid_sas_fusion.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/mfd/da9052-i2c.c | 1 +
+ drivers/mfd/stmpe-i2c.c  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/megaraid/megaraid_sas_fusion.c b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-index ae7a3e154bb2..a78a702511fa 100644
---- a/drivers/scsi/megaraid/megaraid_sas_fusion.c
-+++ b/drivers/scsi/megaraid/megaraid_sas_fusion.c
-@@ -3716,6 +3716,7 @@ static void megasas_sync_irqs(unsigned long instance_addr)
- 		if (irq_ctx->irq_poll_scheduled) {
- 			irq_ctx->irq_poll_scheduled = false;
- 			enable_irq(irq_ctx->os_irq);
-+			complete_cmd_fusion(instance, irq_ctx->MSIxIndex, irq_ctx);
- 		}
- 	}
- }
-@@ -3747,6 +3748,7 @@ int megasas_irqpoll(struct irq_poll *irqpoll, int budget)
- 		irq_poll_complete(irqpoll);
- 		irq_ctx->irq_poll_scheduled = false;
- 		enable_irq(irq_ctx->os_irq);
-+		complete_cmd_fusion(instance, irq_ctx->MSIxIndex, irq_ctx);
- 	}
+diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
+index 578e881067a5..4094f97ec7dc 100644
+--- a/drivers/mfd/da9052-i2c.c
++++ b/drivers/mfd/da9052-i2c.c
+@@ -118,6 +118,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
+ 	{"da9053-bc", DA9053_BC},
+ 	{}
+ };
++MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
  
- 	return num_entries;
-@@ -3763,6 +3765,7 @@ megasas_complete_cmd_dpc_fusion(unsigned long instance_addr)
- {
- 	struct megasas_instance *instance =
- 		(struct megasas_instance *)instance_addr;
-+	struct megasas_irq_context *irq_ctx = NULL;
- 	u32 count, MSIxIndex;
+ #ifdef CONFIG_OF
+ static const struct of_device_id dialog_dt_ids[] = {
+diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
+index 863c39a3353c..d284df25c76b 100644
+--- a/drivers/mfd/stmpe-i2c.c
++++ b/drivers/mfd/stmpe-i2c.c
+@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
+ 	{ "stmpe2403", STMPE2403 },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(i2c, stmpe_id);
++MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
  
- 	count = instance->msix_vectors > 0 ? instance->msix_vectors : 1;
-@@ -3771,8 +3774,10 @@ megasas_complete_cmd_dpc_fusion(unsigned long instance_addr)
- 	if (atomic_read(&instance->adprecovery) == MEGASAS_HW_CRITICAL_ERROR)
- 		return;
- 
--	for (MSIxIndex = 0 ; MSIxIndex < count; MSIxIndex++)
--		complete_cmd_fusion(instance, MSIxIndex, NULL);
-+	for (MSIxIndex = 0 ; MSIxIndex < count; MSIxIndex++) {
-+		irq_ctx = &instance->irq_context[MSIxIndex];
-+		complete_cmd_fusion(instance, MSIxIndex, irq_ctx);
-+	}
- }
- 
- /**
+ static struct i2c_driver stmpe_i2c_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
