@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7FC3CDB44
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3191E3CD8F0
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239461AbhGSOmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S243496AbhGSO0G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245591AbhGSOjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 619516135D;
-        Mon, 19 Jul 2021 15:18:41 +0000 (UTC)
+        id S243974AbhGSOYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBE7361249;
+        Mon, 19 Jul 2021 15:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707922;
-        bh=dK4oXBu7DvXkxRUmQC1iqHAflWit35SWU6qTryn/LvE=;
+        s=korg; t=1626707080;
+        bh=UMozSnvRlPhfoHpaUAnIyPRFuidBgltl9iqNFRXz2HU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ejWDxItUr5LJoqB3GQS+iXgWmSSt9A9O9FxzVI4Q+Srxo9MchMZs+sxx0N7254Jbh
-         dIdOMqF4Q2yeiUVmSf1xIhty0bI65SQm7xPeqfDeOQL26zRcadLJZm1UtwxjeyqKGv
-         fRxQDGSsD81H5SPOuL72+8NI/6vw+aXQAX47Vr7o=
+        b=sM0V5sU182XUsejvA6QHJA1Fmm3Y3StNvOhjXUrRNG8urIxxTjtY+ps6n91A2Ejhi
+         JiExS8dawntQFZv25mj03GcosL+8vzyIFgNeygMAHvjSx4q1vRCWYGUvJscVawL41Z
+         SJVaoWfoKd7lT1VTpRUwiPqpjbkA3x0QBQO3mRBs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/315] media: s5p_cec: decrement usage count if disabled
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.9 022/245] serial: sh-sci: Stop dmaengine transfer in sci_stop_tx()
 Date:   Mon, 19 Jul 2021 16:49:24 +0200
-Message-Id: <20210719144945.338705296@linuxfoundation.org>
+Message-Id: <20210719144941.119097493@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit 747bad54a677d8633ec14b39dfbeb859c821d7f2 ]
+commit 08a84410a04f05c7c1b8e833f552416d8eb9f6fe upstream.
 
-There's a bug at s5p_cec_adap_enable(): if called to
-disable the device, it should call pm_runtime_put()
-instead of pm_runtime_disable(), as the goal here is to
-decrement the usage_count and not to disable PM runtime.
+Stop dmaengine transfer in sci_stop_tx(). Otherwise, the following
+message is possible output when system enters suspend and while
+transferring data, because clearing TIE bit in SCSCR is not able to
+stop any dmaengine transfer.
 
-Reported-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Fixes: 1bcbf6f4b6b0 ("[media] cec: s5p-cec: Add s5p-cec driver")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+    sh-sci e6550000.serial: ttySC1: Unable to drain transmitter
+
+Note that this driver has already used some #ifdef in the .c file
+so that this patch also uses #ifdef to fix the issue. Otherwise,
+build errors happens if the CONFIG_SERIAL_SH_SCI_DMA is disabled.
+
+Fixes: 73a19e4c0301 ("serial: sh-sci: Add DMA support.")
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210610110806.277932-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/s5p-cec/s5p_cec.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-cec/s5p_cec.c b/drivers/media/platform/s5p-cec/s5p_cec.c
-index 8837e2678bde..3032247c63a5 100644
---- a/drivers/media/platform/s5p-cec/s5p_cec.c
-+++ b/drivers/media/platform/s5p-cec/s5p_cec.c
-@@ -55,7 +55,7 @@ static int s5p_cec_adap_enable(struct cec_adapter *adap, bool enable)
- 	} else {
- 		s5p_cec_mask_tx_interrupts(cec);
- 		s5p_cec_mask_rx_interrupts(cec);
--		pm_runtime_disable(cec->dev);
-+		pm_runtime_put(cec->dev);
- 	}
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -612,6 +612,14 @@ static void sci_stop_tx(struct uart_port
+ 	ctrl &= ~SCSCR_TIE;
  
- 	return 0;
--- 
-2.30.2
-
+ 	serial_port_out(port, SCSCR, ctrl);
++
++#ifdef CONFIG_SERIAL_SH_SCI_DMA
++	if (to_sci_port(port)->chan_tx &&
++	    !dma_submit_error(to_sci_port(port)->cookie_tx)) {
++		dmaengine_terminate_async(to_sci_port(port)->chan_tx);
++		to_sci_port(port)->cookie_tx = -EINVAL;
++	}
++#endif
+ }
+ 
+ static void sci_start_rx(struct uart_port *port)
 
 
