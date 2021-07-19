@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C32F83CDFA9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D483CDF07
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237535AbhGSPLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39392 "EHLO mail.kernel.org"
+        id S1344024AbhGSPHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346090AbhGSPKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B83260FDA;
-        Mon, 19 Jul 2021 15:50:40 +0000 (UTC)
+        id S1345737AbhGSPE4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 553EF6120E;
+        Mon, 19 Jul 2021 15:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709841;
-        bh=yE3rC14qPZtSjLSfzNb9Nj3yI6btJPoqiV3QB70WPFM=;
+        s=korg; t=1626709516;
+        bh=ilAAsza47fyhNzBq535goglq9AzNyrdKAK5+/wxC07o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rlhdZwGqNLGsHZ384huVxb3r62C5+wI3hMSl8v0/CyWL00nmqxdWwqUTwsvrmxjMV
-         KKXCnDz/O5mUiPYHgREjX7RBBWGKmMg+VB61C6b2aPfXu1B3BSjt1I53AqAHFmfTE1
-         ug5IHuIvBNgqj8uE459PZMa0GSo5jjw3p3lAPuCc=
+        b=cUmFrpocJN1t/XJy35A1T5GTX2n4U4GwRHRQ6j5FgCF4FptKiTXL9PB1sW4jqZfxd
+         CeWbtDXKcCl5+mHG8uqUqqcqZmG5dvThDTwE3KCqwpG8y8LUiym85O49febUhGeOQA
+         xDepBavtrD45QJaluY+4gGh3PWx6oohMFHIYitng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/149] ARM: dts: exynos: fix PWM LED max brightness on Odroid HC1
+Subject: [PATCH 4.19 416/421] mips: always link byteswap helpers into decompressor
 Date:   Mon, 19 Jul 2021 16:53:47 +0200
-Message-Id: <20210719144929.573180213@linuxfoundation.org>
+Message-Id: <20210719145000.734302278@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit a7e59c84cf2055a1894f45855c8319191f2fa59e ]
+[ Upstream commit cddc40f5617e53f97ef019d5b29c1bd6cbb031ec ]
 
-There is no "max_brightness" property as pointed out by dtschema:
+My series to clean up the unaligned access implementation
+across architectures caused some mips randconfig builds to
+fail with:
 
-  arch/arm/boot/dts/exynos5422-odroidhc1.dt.yaml: led-controller: led-1: 'max-brightness' is a required property
+   mips64-linux-ld: arch/mips/boot/compressed/decompress.o: in function `decompress_kernel':
+   decompress.c:(.text.decompress_kernel+0x54): undefined reference to `__bswapsi2'
 
-Fixes: 1ac49427b566 ("ARM: dts: exynos: Add support for Hardkernel's Odroid HC1 board")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210505135941.59898-4-krzysztof.kozlowski@canonical.com
+It turns out that this problem has already been fixed for the XZ
+decompressor but now it also shows up in (at least) LZO and LZ4.  From my
+analysis I concluded that the compiler could always have emitted those
+calls, but the different implementation allowed it to make otherwise
+better decisions about not inlining the byteswap, which results in the
+link error when the out-of-line code is missing.
+
+While it could be addressed by adding it to the two decompressor
+implementations that are known to be affected, but as this only adds
+112 bytes to the kernel, the safer choice is to always add them.
+
+Fixes: c50ec6787536 ("MIPS: zboot: Fix the build with XZ compression on older GCC versions")
+Fixes: 0652035a5794 ("asm-generic: unaligned: remove byteshift helpers")
+Link: https://lore.kernel.org/linux-mm/202106301304.gz2wVY9w-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106260659.TyMe8mjr-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202106172016.onWT6Tza-lkp@intel.com/
+Link: https://lore.kernel.org/linux-mm/202105231743.JJcALnhS-lkp@intel.com/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5422-odroidhc1.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/boot/compressed/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5422-odroidhc1.dts b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-index d271e7548826..fce5a4579693 100644
---- a/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-+++ b/arch/arm/boot/dts/exynos5422-odroidhc1.dts
-@@ -22,7 +22,7 @@
- 			label = "blue:heartbeat";
- 			pwms = <&pwm 2 2000000 0>;
- 			pwm-names = "pwm2";
--			max_brightness = <255>;
-+			max-brightness = <255>;
- 			linux,default-trigger = "heartbeat";
- 		};
- 	};
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 378cbfb31ee7..1d6ebbc2a5d0 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -33,7 +33,7 @@ KBUILD_AFLAGS := $(KBUILD_AFLAGS) -D__ASSEMBLY__ \
+ KCOV_INSTRUMENT		:= n
+ 
+ # decompressor objects (linked with vmlinuz)
+-vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o
++vmlinuzobjs-y := $(obj)/head.o $(obj)/decompress.o $(obj)/string.o $(obj)/bswapsi.o
+ 
+ ifdef CONFIG_DEBUG_ZBOOT
+ vmlinuzobjs-$(CONFIG_DEBUG_ZBOOT)		   += $(obj)/dbg.o
+@@ -47,7 +47,7 @@ extra-y += uart-ath79.c
+ $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
+ 	$(call cmd,shipped)
+ 
+-vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o $(obj)/bswapsi.o
++vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
+ 
+ extra-y += ashldi3.c
+ $(obj)/ashldi3.c: $(obj)/%.c: $(srctree)/lib/%.c FORCE
 -- 
 2.30.2
 
