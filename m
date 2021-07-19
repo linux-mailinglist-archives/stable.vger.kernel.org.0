@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B456C3CE55F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92C13CE522
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348238AbhGSPtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:49:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
+        id S1347272AbhGSPru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350237AbhGSPpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4339960E0C;
-        Mon, 19 Jul 2021 16:26:23 +0000 (UTC)
+        id S235530AbhGSPpt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 32517613DF;
+        Mon, 19 Jul 2021 16:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711983;
-        bh=IwFbq0ckIDmWAfE6rS9ssp7mjvoQ1N7PPzPLMv3+Kvk=;
+        s=korg; t=1626711988;
+        bh=SKc2HtVL0Gq9rNDH0/NvQDUnW0rUiCq4uHxniytZ+kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SczCbVHqxys87wFBnEPbudewtjD2NOHJIpNSR5geN8YGTZj6fDP1CEaYNjJHh/Uoe
-         DHzfc/VfvGdK6VUNK//78rE13vTp0hjWq7XiSUSfGSPXx1x4ec6v5u4ddQe0q3kavi
-         7HAqQF88xUHENcGQPQzxlOmuMMnOX2bmqHhaidyQ=
+        b=LGF0OVXZPKnfD4CJbZV9X4UpQVCRBYLRfaQP53wI0W11v+iv3ypua/aiVtUYcsYcG
+         yy/jt0cx04LQmHMaM64mCyLhtLr2utJ+8JNAJRfBoMexfXIfRja8Cjl6Z2AUvEoboZ
+         XgtZQsE+8HGFYXLOis5iaTdFXDeGeeIKd+jCbWs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 206/292] pwm: imx1: Dont disable clocks at device remove time
-Date:   Mon, 19 Jul 2021 16:54:28 +0200
-Message-Id: <20210719144949.273985260@linuxfoundation.org>
+Subject: [PATCH 5.12 207/292] PCI: tegra194: Fix tegra_pcie_ep_raise_msi_irq() ill-defined shift
+Date:   Mon, 19 Jul 2021 16:54:29 +0200
+Message-Id: <20210719144949.809772093@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,39 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-[ Upstream commit 1bc6ea31cb41d50302a3c9b401964cf0a88d41f9 ]
+[ Upstream commit f67092eff2bd40650aad54a1a1910160f41d864a ]
 
-The .remove() callback disables clocks that were not enabled in
-.probe(). So just probing and then unbinding the driver results in a clk
-enable imbalance.
+tegra_pcie_ep_raise_msi_irq() shifted a signed 32-bit value left by 31
+bits.  The behavior of this is implementation-defined.
 
-So just drop the call to disable the clocks. (Which BTW was also in the
-wrong order because the call makes the PWM unfunctional and so should
-have come only after pwmchip_remove()).
+Replace the shift by BIT(), which is well-defined.
 
-Fixes: 9f4c8f9607c3 ("pwm: imx: Add ipg clock operation")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Found by cppcheck:
+
+  $ cppcheck --enable=all drivers/pci/controller/dwc/pcie-tegra194.c
+  Checking drivers/pci/controller/dwc/pcie-tegra194.c ...
+
+  drivers/pci/controller/dwc/pcie-tegra194.c:1829:23: portability: Shifting signed 32-bit value by 31 bits is implementation-defined behaviour. See condition at line 1826.  [shiftTooManyBitsSigned]
+
+  appl_writel(pcie, (1 << irq), APPL_MSI_CTRL_1);
+                     ^
+
+[bhelgaas: commit log]
+Link: https://lore.kernel.org/r/20210618160219.303092-1-jonathanh@nvidia.com
+Fixes: c57247f940e8 ("PCI: tegra: Add support for PCIe endpoint mode in Tegra194")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-imx1.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-imx1.c b/drivers/pwm/pwm-imx1.c
-index 727e0d3e249e..cd48136e5a53 100644
---- a/drivers/pwm/pwm-imx1.c
-+++ b/drivers/pwm/pwm-imx1.c
-@@ -169,8 +169,6 @@ static int pwm_imx1_remove(struct platform_device *pdev)
- {
- 	struct pwm_imx1_chip *imx = platform_get_drvdata(pdev);
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 8dee6d3f33a7..fb1df066a236 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -1826,7 +1826,7 @@ static int tegra_pcie_ep_raise_msi_irq(struct tegra_pcie_dw *pcie, u16 irq)
+ 	if (unlikely(irq > 31))
+ 		return -EINVAL;
  
--	pwm_imx1_clk_disable_unprepare(&imx->chip);
--
- 	return pwmchip_remove(&imx->chip);
+-	appl_writel(pcie, (1 << irq), APPL_MSI_CTRL_1);
++	appl_writel(pcie, BIT(irq), APPL_MSI_CTRL_1);
+ 
+ 	return 0;
  }
- 
 -- 
 2.30.2
 
