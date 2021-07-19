@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BBDA3CE41E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEEDF3CE3BE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346176AbhGSPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:15 -0400
+        id S1344214AbhGSPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:27 -0400
 Received: from mail.kernel.org ([198.145.29.99]:59806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349508AbhGSPf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E794D600EF;
-        Mon, 19 Jul 2021 16:16:35 +0000 (UTC)
+        id S1349619AbhGSPgD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:36:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5301360FD7;
+        Mon, 19 Jul 2021 16:16:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711396;
-        bh=9YDCUJ3AdYByCpUBpPkZkGVlKmM8ibKSWiSBt6RR1GI=;
+        s=korg; t=1626711401;
+        bh=SYcAa8TmYSdGlsuEkk+9WtZsakEIO1w3XEBxp7uFzis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WiqCHnx+WdSP/b/mQ4VceS0rLUm3TK8SMBucjXThD3GhBiysCcWz+u4260X37y95B
-         QK6A+Nu7lsQCa+O1pyJaPgMNwz4aLIfmcuXzEQ17Js8cMNSaqPKUh9Z8OulcelMYzI
-         rUmtYNQYzPNGxc8L5UhM2eRy6172Xv5yzMF7vNNk=
+        b=06Bdx6TMAOGJe0PaOR2RSj+s8bx+XqLOBLMFDy/qumBIVVyZFJ/JWPkf++IUORSfD
+         1oUmusRT0f3qr4Xot0JXfUMf1KQt0lbIYhl4G4kRZvVKB1xMmc/KXPpTLmTcwY+I/s
+         zg8YflhgbHE9VjbONPWRElSu0/Cuo1mnpesg2s3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuewen Yan <xuewen.yan@unisoc.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Qais Yousef <qais.yousef@arm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 338/351] sched/uclamp: Ignore max aggregation if rq is idle
-Date:   Mon, 19 Jul 2021 16:54:44 +0200
-Message-Id: <20210719144956.243799275@linuxfoundation.org>
+Subject: [PATCH 5.13 339/351] jump_label: Fix jump_label_text_reserved() vs __init
+Date:   Mon, 19 Jul 2021 16:54:45 +0200
+Message-Id: <20210719144956.282317813@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -42,76 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewen Yan <xuewen.yan@unisoc.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 3e1493f46390618ea78607cb30c58fc19e2a5035 ]
+[ Upstream commit 9e667624c291753b8a5128f620f493d0b5226063 ]
 
-When a task wakes up on an idle rq, uclamp_rq_util_with() would max
-aggregate with rq value. But since there is no task enqueued yet, the
-values are stale based on the last task that was running. When the new
-task actually wakes up and enqueued, then the rq uclamp values should
-reflect that of the newly woken up task effective uclamp values.
+It turns out that jump_label_text_reserved() was reporting __init text
+as being reserved past the time when the __init text was freed and
+re-used.
 
-This is a problem particularly for uclamp_max because it default to
-1024. If a task p with uclamp_max = 512 wakes up, then max aggregation
-would ignore the capping that should apply when this task is enqueued,
-which is wrong.
+For a long time, this resulted in, at worst, not being able to kprobe
+text that happened to land at the re-used address. However a recent
+commit e7bf1ba97afd ("jump_label, x86: Emit short JMP") made it a
+fatal mistake because it now needs to read the instruction in order to
+determine the conflict -- an instruction that's no longer there.
 
-Fix that by ignoring max aggregation if the rq is idle since in that
-case the effective uclamp value of the rq will be the ones of the task
-that will wake up.
-
-Fixes: 9d20ad7dfc9a ("sched/uclamp: Add uclamp_util_with()")
-Signed-off-by: Xuewen Yan <xuewen.yan@unisoc.com>
+Fixes: 4c3ef6d79328 ("jump label: Add jump_label_text_reserved() to reserve jump points")
+Reported-by: kernel test robot <oliver.sang@intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-[qias: Changelog]
-Reviewed-by: Qais Yousef <qais.yousef@arm.com>
-Link: https://lore.kernel.org/r/20210630141204.8197-1-xuewen.yan94@gmail.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20210628113045.045141693@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/sched.h | 21 ++++++++++++++-------
- 1 file changed, 14 insertions(+), 7 deletions(-)
+ kernel/jump_label.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index a189bec13729..35f7efed75c4 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -2539,20 +2539,27 @@ static __always_inline
- unsigned long uclamp_rq_util_with(struct rq *rq, unsigned long util,
- 				  struct task_struct *p)
+diff --git a/kernel/jump_label.c b/kernel/jump_label.c
+index ba39fbb1f8e7..af520ca26360 100644
+--- a/kernel/jump_label.c
++++ b/kernel/jump_label.c
+@@ -316,14 +316,16 @@ static int addr_conflict(struct jump_entry *entry, void *start, void *end)
+ }
+ 
+ static int __jump_label_text_reserved(struct jump_entry *iter_start,
+-		struct jump_entry *iter_stop, void *start, void *end)
++		struct jump_entry *iter_stop, void *start, void *end, bool init)
  {
--	unsigned long min_util;
--	unsigned long max_util;
-+	unsigned long min_util = 0;
-+	unsigned long max_util = 0;
+ 	struct jump_entry *iter;
  
- 	if (!static_branch_likely(&sched_uclamp_used))
- 		return util;
- 
--	min_util = READ_ONCE(rq->uclamp[UCLAMP_MIN].value);
--	max_util = READ_ONCE(rq->uclamp[UCLAMP_MAX].value);
--
- 	if (p) {
--		min_util = max(min_util, uclamp_eff_value(p, UCLAMP_MIN));
--		max_util = max(max_util, uclamp_eff_value(p, UCLAMP_MAX));
-+		min_util = uclamp_eff_value(p, UCLAMP_MIN);
-+		max_util = uclamp_eff_value(p, UCLAMP_MAX);
-+
-+		/*
-+		 * Ignore last runnable task's max clamp, as this task will
-+		 * reset it. Similarly, no need to read the rq's min clamp.
-+		 */
-+		if (rq->uclamp_flags & UCLAMP_FLAG_IDLE)
-+			goto out;
+ 	iter = iter_start;
+ 	while (iter < iter_stop) {
+-		if (addr_conflict(iter, start, end))
+-			return 1;
++		if (init || !jump_entry_is_init(iter)) {
++			if (addr_conflict(iter, start, end))
++				return 1;
++		}
+ 		iter++;
  	}
  
-+	min_util = max_t(unsigned long, min_util, READ_ONCE(rq->uclamp[UCLAMP_MIN].value));
-+	max_util = max_t(unsigned long, max_util, READ_ONCE(rq->uclamp[UCLAMP_MAX].value));
-+out:
- 	/*
- 	 * Since CPU's {min,max}_util clamps are MAX aggregated considering
- 	 * RUNNABLE tasks with _different_ clamps, we can end up with an
+@@ -561,7 +563,7 @@ static int __jump_label_mod_text_reserved(void *start, void *end)
+ 
+ 	ret = __jump_label_text_reserved(mod->jump_entries,
+ 				mod->jump_entries + mod->num_jump_entries,
+-				start, end);
++				start, end, mod->state == MODULE_STATE_COMING);
+ 
+ 	module_put(mod);
+ 
+@@ -786,8 +788,9 @@ early_initcall(jump_label_init_module);
+  */
+ int jump_label_text_reserved(void *start, void *end)
+ {
++	bool init = system_state < SYSTEM_RUNNING;
+ 	int ret = __jump_label_text_reserved(__start___jump_table,
+-			__stop___jump_table, start, end);
++			__stop___jump_table, start, end, init);
+ 
+ 	if (ret)
+ 		return ret;
 -- 
 2.30.2
 
