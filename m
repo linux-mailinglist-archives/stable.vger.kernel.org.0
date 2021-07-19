@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 157B83CDE84
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F523CDF43
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343804AbhGSPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32996 "EHLO mail.kernel.org"
+        id S1343585AbhGSPIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344832AbhGSPBk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:01:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FDFE61002;
-        Mon, 19 Jul 2021 15:42:18 +0000 (UTC)
+        id S1344621AbhGSPGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:06:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2783E61222;
+        Mon, 19 Jul 2021 15:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709339;
-        bh=d6EQGkgGyrpJq9ds6IdFPR6K1C/BosQhMQd510J6wRg=;
+        s=korg; t=1626709615;
+        bh=+Pq6GPQDZ/+H811W+07Z6tD4SMmWBzL+vIAeFme18vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g9VL8bSs/4izjpxAhsrKGVEyUeOvVgedD+DxOU4oxESplUEqQ/02vo4Rnj+Ffr1JB
-         dqZHBw9g1TNkZrjokMW37regpHBgvgX/VLktmcht6A1w6mdbTFqq7MfOzqG6GJ7nsB
-         OWJP4W6+fHtrIEjhQuzoqgWu0TXJyLuSOk3IcniI=
+        b=eqiNVfmLNtULBd3vHCYEV0Q65df52MdiQbPlkOfyg/fDwKZFKlj1M5AD4VVftKvKC
+         dZkROdR+HkYNVsBy25v4utw/880D104xo1cnPWzigiXeRGms8zvxPkwuJqrBcKXnKH
+         ycmwwHo+MGin3tPgTw0W3tiSTEu0Zg9n+zqeF040=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 327/421] scsi: lpfc: Fix "Unexpected timeout" error in direct attach topology
-Date:   Mon, 19 Jul 2021 16:52:18 +0200
-Message-Id: <20210719144957.629993598@linuxfoundation.org>
+Subject: [PATCH 5.4 031/149] scsi: iscsi: Fix conn use after free during resets
+Date:   Mon, 19 Jul 2021 16:52:19 +0200
+Message-Id: <20210719144908.856418706@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,410 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit e30d55137edef47434c40d7570276a0846fe922c ]
+[ Upstream commit ec29d0ac29be366450a7faffbcf8cba3a6a3b506 ]
 
-An 'unexpected timeout' message may be seen in a point-2-point topology.
-The message occurs when a PLOGI is received before the driver is notified
-of FLOGI completion. The FLOGI completion failure causes discovery to be
-triggered for a second time. The discovery timer is restarted but no new
-discovery activity is initiated, thus the timeout message eventually
-appears.
+If we haven't done a unbind target call we can race where
+iscsi_conn_teardown wakes up the EH thread and then frees the conn while
+those threads are still accessing the conn ehwait.
 
-In point-2-point, when discovery has progressed before the FLOGI completion
-is processed, it is not a failure. Add code to FLOGI completion to detect
-that discovery has progressed and exit the FLOGI handling (noop'ing it).
+We can only do one TMF per session so this just moves the TMF fields from
+the conn to the session. We can then rely on the
+iscsi_session_teardown->iscsi_remove_session->__iscsi_unbind_session call
+to remove the target and it's devices, and know after that point there is
+no device or scsi-ml callout trying to access the session.
 
-Link: https://lore.kernel.org/r/20210514195559.119853-4-jsmart2021@gmail.com
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Link: https://lore.kernel.org/r/20210525181821.7617-14-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/scsi/libiscsi.c | 115 +++++++++++++++++++---------------------
+ include/scsi/libiscsi.h |  11 ++--
+ 2 files changed, 60 insertions(+), 66 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index 6a4b496081e4..c4428249d3d7 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1176,6 +1176,15 @@ stop_rr_fcf_flogi:
- 			phba->fcf.fcf_redisc_attempted = 0; /* reset */
- 			goto out;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index b9981078375d..eeba6180711c 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -230,11 +230,11 @@ static int iscsi_prep_ecdb_ahs(struct iscsi_task *task)
+  */
+ static int iscsi_check_tmf_restrictions(struct iscsi_task *task, int opcode)
+ {
+-	struct iscsi_conn *conn = task->conn;
+-	struct iscsi_tm *tmf = &conn->tmhdr;
++	struct iscsi_session *session = task->conn->session;
++	struct iscsi_tm *tmf = &session->tmhdr;
+ 	u64 hdr_lun;
+ 
+-	if (conn->tmf_state == TMF_INITIAL)
++	if (session->tmf_state == TMF_INITIAL)
+ 		return 0;
+ 
+ 	if ((tmf->opcode & ISCSI_OPCODE_MASK) != ISCSI_OP_SCSI_TMFUNC)
+@@ -254,24 +254,19 @@ static int iscsi_check_tmf_restrictions(struct iscsi_task *task, int opcode)
+ 		 * Fail all SCSI cmd PDUs
+ 		 */
+ 		if (opcode != ISCSI_OP_SCSI_DATA_OUT) {
+-			iscsi_conn_printk(KERN_INFO, conn,
+-					  "task [op %x itt "
+-					  "0x%x/0x%x] "
+-					  "rejected.\n",
+-					  opcode, task->itt,
+-					  task->hdr_itt);
++			iscsi_session_printk(KERN_INFO, session,
++					     "task [op %x itt 0x%x/0x%x] rejected.\n",
++					     opcode, task->itt, task->hdr_itt);
+ 			return -EACCES;
  		}
-+	} else if (vport->port_state > LPFC_FLOGI &&
-+		   vport->fc_flag & FC_PT2PT) {
-+		/*
-+		 * In a p2p topology, it is possible that discovery has
-+		 * already progressed, and this completion can be ignored.
-+		 * Recheck the indicated topology.
-+		 */
-+		if (!sp->cmn.fPort)
-+			goto out;
+ 		/*
+ 		 * And also all data-out PDUs in response to R2T
+ 		 * if fast_abort is set.
+ 		 */
+-		if (conn->session->fast_abort) {
+-			iscsi_conn_printk(KERN_INFO, conn,
+-					  "task [op %x itt "
+-					  "0x%x/0x%x] fast abort.\n",
+-					  opcode, task->itt,
+-					  task->hdr_itt);
++		if (session->fast_abort) {
++			iscsi_session_printk(KERN_INFO, session,
++					     "task [op %x itt 0x%x/0x%x] fast abort.\n",
++					     opcode, task->itt, task->hdr_itt);
+ 			return -EACCES;
+ 		}
+ 		break;
+@@ -284,7 +279,7 @@ static int iscsi_check_tmf_restrictions(struct iscsi_task *task, int opcode)
+ 		 */
+ 		if (opcode == ISCSI_OP_SCSI_DATA_OUT &&
+ 		    task->hdr_itt == tmf->rtt) {
+-			ISCSI_DBG_SESSION(conn->session,
++			ISCSI_DBG_SESSION(session,
+ 					  "Preventing task %x/%x from sending "
+ 					  "data-out due to abort task in "
+ 					  "progress\n", task->itt,
+@@ -923,20 +918,21 @@ iscsi_data_in_rsp(struct iscsi_conn *conn, struct iscsi_hdr *hdr,
+ static void iscsi_tmf_rsp(struct iscsi_conn *conn, struct iscsi_hdr *hdr)
+ {
+ 	struct iscsi_tm_rsp *tmf = (struct iscsi_tm_rsp *)hdr;
++	struct iscsi_session *session = conn->session;
+ 
+ 	conn->exp_statsn = be32_to_cpu(hdr->statsn) + 1;
+ 	conn->tmfrsp_pdus_cnt++;
+ 
+-	if (conn->tmf_state != TMF_QUEUED)
++	if (session->tmf_state != TMF_QUEUED)
+ 		return;
+ 
+ 	if (tmf->response == ISCSI_TMF_RSP_COMPLETE)
+-		conn->tmf_state = TMF_SUCCESS;
++		session->tmf_state = TMF_SUCCESS;
+ 	else if (tmf->response == ISCSI_TMF_RSP_NO_TASK)
+-		conn->tmf_state = TMF_NOT_FOUND;
++		session->tmf_state = TMF_NOT_FOUND;
+ 	else
+-		conn->tmf_state = TMF_FAILED;
+-	wake_up(&conn->ehwait);
++		session->tmf_state = TMF_FAILED;
++	wake_up(&session->ehwait);
+ }
+ 
+ static int iscsi_send_nopout(struct iscsi_conn *conn, struct iscsi_nopin *rhdr)
+@@ -1784,15 +1780,14 @@ EXPORT_SYMBOL_GPL(iscsi_target_alloc);
+ 
+ static void iscsi_tmf_timedout(struct timer_list *t)
+ {
+-	struct iscsi_conn *conn = from_timer(conn, t, tmf_timer);
+-	struct iscsi_session *session = conn->session;
++	struct iscsi_session *session = from_timer(session, t, tmf_timer);
+ 
+ 	spin_lock(&session->frwd_lock);
+-	if (conn->tmf_state == TMF_QUEUED) {
+-		conn->tmf_state = TMF_TIMEDOUT;
++	if (session->tmf_state == TMF_QUEUED) {
++		session->tmf_state = TMF_TIMEDOUT;
+ 		ISCSI_DBG_EH(session, "tmf timedout\n");
+ 		/* unblock eh_abort() */
+-		wake_up(&conn->ehwait);
++		wake_up(&session->ehwait);
+ 	}
+ 	spin_unlock(&session->frwd_lock);
+ }
+@@ -1815,8 +1810,8 @@ static int iscsi_exec_task_mgmt_fn(struct iscsi_conn *conn,
+ 		return -EPERM;
+ 	}
+ 	conn->tmfcmd_pdus_cnt++;
+-	conn->tmf_timer.expires = timeout * HZ + jiffies;
+-	add_timer(&conn->tmf_timer);
++	session->tmf_timer.expires = timeout * HZ + jiffies;
++	add_timer(&session->tmf_timer);
+ 	ISCSI_DBG_EH(session, "tmf set timeout\n");
+ 
+ 	spin_unlock_bh(&session->frwd_lock);
+@@ -1830,12 +1825,12 @@ static int iscsi_exec_task_mgmt_fn(struct iscsi_conn *conn,
+ 	 * 3) session is terminated or restarted or userspace has
+ 	 * given up on recovery
+ 	 */
+-	wait_event_interruptible(conn->ehwait, age != session->age ||
++	wait_event_interruptible(session->ehwait, age != session->age ||
+ 				 session->state != ISCSI_STATE_LOGGED_IN ||
+-				 conn->tmf_state != TMF_QUEUED);
++				 session->tmf_state != TMF_QUEUED);
+ 	if (signal_pending(current))
+ 		flush_signals(current);
+-	del_timer_sync(&conn->tmf_timer);
++	del_timer_sync(&session->tmf_timer);
+ 
+ 	mutex_lock(&session->eh_mutex);
+ 	spin_lock_bh(&session->frwd_lock);
+@@ -2195,17 +2190,17 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
  	}
  
- flogifail:
+ 	/* only have one tmf outstanding at a time */
+-	if (conn->tmf_state != TMF_INITIAL)
++	if (session->tmf_state != TMF_INITIAL)
+ 		goto failed;
+-	conn->tmf_state = TMF_QUEUED;
++	session->tmf_state = TMF_QUEUED;
+ 
+-	hdr = &conn->tmhdr;
++	hdr = &session->tmhdr;
+ 	iscsi_prep_abort_task_pdu(task, hdr);
+ 
+ 	if (iscsi_exec_task_mgmt_fn(conn, hdr, age, session->abort_timeout))
+ 		goto failed;
+ 
+-	switch (conn->tmf_state) {
++	switch (session->tmf_state) {
+ 	case TMF_SUCCESS:
+ 		spin_unlock_bh(&session->frwd_lock);
+ 		/*
+@@ -2220,7 +2215,7 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
+ 		 */
+ 		spin_lock_bh(&session->frwd_lock);
+ 		fail_scsi_task(task, DID_ABORT);
+-		conn->tmf_state = TMF_INITIAL;
++		session->tmf_state = TMF_INITIAL;
+ 		memset(hdr, 0, sizeof(*hdr));
+ 		spin_unlock_bh(&session->frwd_lock);
+ 		iscsi_start_tx(conn);
+@@ -2231,7 +2226,7 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
+ 		goto failed_unlocked;
+ 	case TMF_NOT_FOUND:
+ 		if (!sc->SCp.ptr) {
+-			conn->tmf_state = TMF_INITIAL;
++			session->tmf_state = TMF_INITIAL;
+ 			memset(hdr, 0, sizeof(*hdr));
+ 			/* task completed before tmf abort response */
+ 			ISCSI_DBG_EH(session, "sc completed while abort	in "
+@@ -2240,7 +2235,7 @@ int iscsi_eh_abort(struct scsi_cmnd *sc)
+ 		}
+ 		/* fall through */
+ 	default:
+-		conn->tmf_state = TMF_INITIAL;
++		session->tmf_state = TMF_INITIAL;
+ 		goto failed;
+ 	}
+ 
+@@ -2297,11 +2292,11 @@ int iscsi_eh_device_reset(struct scsi_cmnd *sc)
+ 	conn = session->leadconn;
+ 
+ 	/* only have one tmf outstanding at a time */
+-	if (conn->tmf_state != TMF_INITIAL)
++	if (session->tmf_state != TMF_INITIAL)
+ 		goto unlock;
+-	conn->tmf_state = TMF_QUEUED;
++	session->tmf_state = TMF_QUEUED;
+ 
+-	hdr = &conn->tmhdr;
++	hdr = &session->tmhdr;
+ 	iscsi_prep_lun_reset_pdu(sc, hdr);
+ 
+ 	if (iscsi_exec_task_mgmt_fn(conn, hdr, session->age,
+@@ -2310,7 +2305,7 @@ int iscsi_eh_device_reset(struct scsi_cmnd *sc)
+ 		goto unlock;
+ 	}
+ 
+-	switch (conn->tmf_state) {
++	switch (session->tmf_state) {
+ 	case TMF_SUCCESS:
+ 		break;
+ 	case TMF_TIMEDOUT:
+@@ -2318,7 +2313,7 @@ int iscsi_eh_device_reset(struct scsi_cmnd *sc)
+ 		iscsi_conn_failure(conn, ISCSI_ERR_SCSI_EH_SESSION_RST);
+ 		goto done;
+ 	default:
+-		conn->tmf_state = TMF_INITIAL;
++		session->tmf_state = TMF_INITIAL;
+ 		goto unlock;
+ 	}
+ 
+@@ -2330,7 +2325,7 @@ int iscsi_eh_device_reset(struct scsi_cmnd *sc)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	memset(hdr, 0, sizeof(*hdr));
+ 	fail_scsi_tasks(conn, sc->device->lun, DID_ERROR);
+-	conn->tmf_state = TMF_INITIAL;
++	session->tmf_state = TMF_INITIAL;
+ 	spin_unlock_bh(&session->frwd_lock);
+ 
+ 	iscsi_start_tx(conn);
+@@ -2353,8 +2348,7 @@ void iscsi_session_recovery_timedout(struct iscsi_cls_session *cls_session)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	if (session->state != ISCSI_STATE_LOGGED_IN) {
+ 		session->state = ISCSI_STATE_RECOVERY_FAILED;
+-		if (session->leadconn)
+-			wake_up(&session->leadconn->ehwait);
++		wake_up(&session->ehwait);
+ 	}
+ 	spin_unlock_bh(&session->frwd_lock);
+ }
+@@ -2399,7 +2393,7 @@ failed:
+ 	iscsi_conn_failure(conn, ISCSI_ERR_SCSI_EH_SESSION_RST);
+ 
+ 	ISCSI_DBG_EH(session, "wait for relogin\n");
+-	wait_event_interruptible(conn->ehwait,
++	wait_event_interruptible(session->ehwait,
+ 				 session->state == ISCSI_STATE_TERMINATE ||
+ 				 session->state == ISCSI_STATE_LOGGED_IN ||
+ 				 session->state == ISCSI_STATE_RECOVERY_FAILED);
+@@ -2460,11 +2454,11 @@ static int iscsi_eh_target_reset(struct scsi_cmnd *sc)
+ 	conn = session->leadconn;
+ 
+ 	/* only have one tmf outstanding at a time */
+-	if (conn->tmf_state != TMF_INITIAL)
++	if (session->tmf_state != TMF_INITIAL)
+ 		goto unlock;
+-	conn->tmf_state = TMF_QUEUED;
++	session->tmf_state = TMF_QUEUED;
+ 
+-	hdr = &conn->tmhdr;
++	hdr = &session->tmhdr;
+ 	iscsi_prep_tgt_reset_pdu(sc, hdr);
+ 
+ 	if (iscsi_exec_task_mgmt_fn(conn, hdr, session->age,
+@@ -2473,7 +2467,7 @@ static int iscsi_eh_target_reset(struct scsi_cmnd *sc)
+ 		goto unlock;
+ 	}
+ 
+-	switch (conn->tmf_state) {
++	switch (session->tmf_state) {
+ 	case TMF_SUCCESS:
+ 		break;
+ 	case TMF_TIMEDOUT:
+@@ -2481,7 +2475,7 @@ static int iscsi_eh_target_reset(struct scsi_cmnd *sc)
+ 		iscsi_conn_failure(conn, ISCSI_ERR_SCSI_EH_SESSION_RST);
+ 		goto done;
+ 	default:
+-		conn->tmf_state = TMF_INITIAL;
++		session->tmf_state = TMF_INITIAL;
+ 		goto unlock;
+ 	}
+ 
+@@ -2493,7 +2487,7 @@ static int iscsi_eh_target_reset(struct scsi_cmnd *sc)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	memset(hdr, 0, sizeof(*hdr));
+ 	fail_scsi_tasks(conn, -1, DID_ERROR);
+-	conn->tmf_state = TMF_INITIAL;
++	session->tmf_state = TMF_INITIAL;
+ 	spin_unlock_bh(&session->frwd_lock);
+ 
+ 	iscsi_start_tx(conn);
+@@ -2798,7 +2792,10 @@ iscsi_session_setup(struct iscsi_transport *iscsit, struct Scsi_Host *shost,
+ 	session->tt = iscsit;
+ 	session->dd_data = cls_session->dd_data + sizeof(*session);
+ 
++	session->tmf_state = TMF_INITIAL;
++	timer_setup(&session->tmf_timer, iscsi_tmf_timedout, 0);
+ 	mutex_init(&session->eh_mutex);
++
+ 	spin_lock_init(&session->frwd_lock);
+ 	spin_lock_init(&session->back_lock);
+ 
+@@ -2902,7 +2899,6 @@ iscsi_conn_setup(struct iscsi_cls_session *cls_session, int dd_size,
+ 	conn->c_stage = ISCSI_CONN_INITIAL_STAGE;
+ 	conn->id = conn_idx;
+ 	conn->exp_statsn = 0;
+-	conn->tmf_state = TMF_INITIAL;
+ 
+ 	timer_setup(&conn->transport_timer, iscsi_check_transport_timeouts, 0);
+ 
+@@ -2928,8 +2924,7 @@ iscsi_conn_setup(struct iscsi_cls_session *cls_session, int dd_size,
+ 		goto login_task_data_alloc_fail;
+ 	conn->login_task->data = conn->data = data;
+ 
+-	timer_setup(&conn->tmf_timer, iscsi_tmf_timedout, 0);
+-	init_waitqueue_head(&conn->ehwait);
++	init_waitqueue_head(&session->ehwait);
+ 
+ 	return cls_conn;
+ 
+@@ -2964,7 +2959,7 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 		 * leading connection? then give up on recovery.
+ 		 */
+ 		session->state = ISCSI_STATE_TERMINATE;
+-		wake_up(&conn->ehwait);
++		wake_up(&session->ehwait);
+ 	}
+ 	spin_unlock_bh(&session->frwd_lock);
+ 
+@@ -3039,7 +3034,7 @@ int iscsi_conn_start(struct iscsi_cls_conn *cls_conn)
+ 		 * commands after successful recovery
+ 		 */
+ 		conn->stop_stage = 0;
+-		conn->tmf_state = TMF_INITIAL;
++		session->tmf_state = TMF_INITIAL;
+ 		session->age++;
+ 		if (session->age == 16)
+ 			session->age = 0;
+@@ -3053,7 +3048,7 @@ int iscsi_conn_start(struct iscsi_cls_conn *cls_conn)
+ 	spin_unlock_bh(&session->frwd_lock);
+ 
+ 	iscsi_unblock_session(session->cls_session);
+-	wake_up(&conn->ehwait);
++	wake_up(&session->ehwait);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_start);
+@@ -3140,7 +3135,7 @@ static void iscsi_start_session_recovery(struct iscsi_session *session,
+ 	spin_lock_bh(&session->frwd_lock);
+ 	fail_scsi_tasks(conn, -1, DID_TRANSPORT_DISRUPTED);
+ 	fail_mgmt_tasks(session, conn);
+-	memset(&conn->tmhdr, 0, sizeof(conn->tmhdr));
++	memset(&session->tmhdr, 0, sizeof(session->tmhdr));
+ 	spin_unlock_bh(&session->frwd_lock);
+ 	mutex_unlock(&session->eh_mutex);
+ }
+diff --git a/include/scsi/libiscsi.h b/include/scsi/libiscsi.h
+index b3bbd10eb3f0..2b5f97224f69 100644
+--- a/include/scsi/libiscsi.h
++++ b/include/scsi/libiscsi.h
+@@ -195,12 +195,6 @@ struct iscsi_conn {
+ 	unsigned long		suspend_tx;	/* suspend Tx */
+ 	unsigned long		suspend_rx;	/* suspend Rx */
+ 
+-	/* abort */
+-	wait_queue_head_t	ehwait;		/* used in eh_abort() */
+-	struct iscsi_tm		tmhdr;
+-	struct timer_list	tmf_timer;
+-	int			tmf_state;	/* see TMF_INITIAL, etc.*/
+-
+ 	/* negotiated params */
+ 	unsigned		max_recv_dlength; /* initiator_max_recv_dsl*/
+ 	unsigned		max_xmit_dlength; /* target_max_recv_dsl */
+@@ -270,6 +264,11 @@ struct iscsi_session {
+ 	 * and recv lock.
+ 	 */
+ 	struct mutex		eh_mutex;
++	/* abort */
++	wait_queue_head_t	ehwait;		/* used in eh_abort() */
++	struct iscsi_tm		tmhdr;
++	struct timer_list	tmf_timer;
++	int			tmf_state;	/* see TMF_INITIAL, etc.*/
+ 
+ 	/* iSCSI session-wide sequencing */
+ 	uint32_t		cmdsn;
 -- 
 2.30.2
 
