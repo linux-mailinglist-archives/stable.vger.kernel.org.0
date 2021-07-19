@@ -2,31 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 661E63CDBC5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEF33CDBC7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238682AbhGSOty (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
+        id S238706AbhGSOuA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344401AbhGSOsr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54AD861422;
-        Mon, 19 Jul 2021 15:28:55 +0000 (UTC)
+        id S1344424AbhGSOss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CE0B61429;
+        Mon, 19 Jul 2021 15:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708535;
-        bh=ssHx1jxHtE7jhBH393ogMLDkflNkJM9SPCT+IeL3mrE=;
+        s=korg; t=1626708548;
+        bh=s7eKRP40gmOvh9S1P/sCLrejts/RjNSQOmszYvllgQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOvg89cKikwdyBU+geyvHyeXA+s52KaauKc4fQrgMNGj9BkKFe1WqnHVvC1GFAcQd
-         Lvd5EjYvqhrtWiWZIf6Gya5D1IaMlCcHzdIPNsawZviC49K/zgSHCPKsq2Z1Kuf9vt
-         6Xtb2ew7wUwjynFBdlQ7SvnKK1RWXl75OaS03w6c=
+        b=hx2AC2vyRwjM3EhBzNgrZ3MgPtFmZIhurNk289OnR2YssuxiTfBoQZtQdrQucJ2a7
+         eTmlJEkMj3zTvkkdehfDlORsNunKsBI2g8uPi7B/31urlE+TWJAt8qps75Q22MEq2U
+         ImZ5UqW3h+8qRrjdt11giAo4QhZoLGgfUTDykF8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 003/421] ALSA: usb-audio: Fix OOB access at proc output
-Date:   Mon, 19 Jul 2021 16:46:54 +0200
-Message-Id: <20210719144946.429652112@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 004/421] media: dvb-usb: fix wrong definition
+Date:   Mon, 19 Jul 2021 16:46:55 +0200
+Message-Id: <20210719144946.461236248@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -38,37 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 362372ceb6556f338e230f2d90af27b47f82365a upstream.
+commit c680ed46e418e9c785d76cf44eb33bfd1e8cf3f6 upstream.
 
-At extending the available mixer values for 32bit types, we forgot to
-add the corresponding entries for the format dump in the proc output.
-This may result in OOB access.  Here adds the missing entries.
+syzbot reported WARNING in vmalloc. The problem
+was in zero size passed to vmalloc.
 
-Fixes: bc18e31c3042 ("ALSA: usb-audio: Fix parameter block size for UAC2 control requests")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210622090647.14021-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The root case was in wrong cxusb_bluebird_lgz201_properties
+definition. adapter array has only 1 entry, but num_adapters was
+2.
+
+Call Trace:
+ __vmalloc_node mm/vmalloc.c:2963 [inline]
+ vmalloc+0x67/0x80 mm/vmalloc.c:2996
+ dvb_dmx_init+0xe4/0xb90 drivers/media/dvb-core/dvb_demux.c:1251
+ dvb_usb_adapter_dvb_init+0x564/0x860 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:184
+ dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:86 [inline]
+ dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:184 [inline]
+ dvb_usb_device_init.cold+0xc94/0x146e drivers/media/usb/dvb-usb/dvb-usb-init.c:308
+ cxusb_probe+0x159/0x5e0 drivers/media/usb/dvb-usb/cxusb.c:1634
+
+Fixes: 4d43e13f723e ("V4L/DVB (4643): Multi-input patch for DVB-USB device")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+7336195c02c1bd2f64e1@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb/cxusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -3260,8 +3260,9 @@ static void snd_usb_mixer_dump_cval(stru
- 				    struct usb_mixer_elem_list *list)
- {
- 	struct usb_mixer_elem_info *cval = mixer_elem_list_to_info(list);
--	static const char * const val_types[] = {"BOOLEAN", "INV_BOOLEAN",
--				    "S8", "U8", "S16", "U16"};
-+	static const char * const val_types[] = {
-+		"BOOLEAN", "INV_BOOLEAN", "S8", "U8", "S16", "U16", "S32", "U32",
-+	};
- 	snd_iprintf(buffer, "    Info: id=%i, control=%i, cmask=0x%x, "
- 			    "channels=%i, type=\"%s\"\n", cval->head.id,
- 			    cval->control, cval->cmask, cval->channels,
+--- a/drivers/media/usb/dvb-usb/cxusb.c
++++ b/drivers/media/usb/dvb-usb/cxusb.c
+@@ -1659,7 +1659,7 @@ static struct dvb_usb_device_properties
+ 
+ 	.size_of_priv     = sizeof(struct cxusb_state),
+ 
+-	.num_adapters = 2,
++	.num_adapters = 1,
+ 	.adapter = {
+ 		{
+ 		.num_frontends = 1,
 
 
