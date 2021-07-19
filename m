@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3083CE551
+	by mail.lfdr.de (Postfix) with ESMTP id 073543CE550
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347350AbhGSPsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:48:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
+        id S1347890AbhGSPsk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349556AbhGSPpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349555AbhGSPpK (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A0E261405;
-        Mon, 19 Jul 2021 16:25:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A88C61409;
+        Mon, 19 Jul 2021 16:25:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711931;
-        bh=q2An+mu1ao07rcVJygd5q0JKjr0hlytbk9vYI4g09tU=;
+        s=korg; t=1626711933;
+        bh=+b1FT6sIZ/j2qD1KYh+WhRUaNVp0EPOv8Jc6wfGu2sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VcKDo5XkuaxNuLc4WLV+AREhm4GK+gLtq/CwvxHWT/ZicBG9qXwiBAmX1UEcPDuhL
-         24InOfNRA28xY1l17NXYlyKwhxLVH96lzJQ0DqKAZavp0rL/ObqmpWDajMhfxVVHx9
-         XPaKluVmNt7Rhz+7Ov69p6s8who3C26iRm7uhGLM=
+        b=M9yHdAQ6Sud6tjdJ3NXFIWFtQdgtUZrZM6e0y9Irib/NEsn7Ow3EFcXBsZdBFYdWX
+         aN4MR5+W5DoAMg7WsFFB5Wx3e89a0T/njW5/X1RureBFcHsnEnGt7Q9Nae/vA3HzpQ
+         g4iPSqK6c6AuAh//nmOr/NoPSz9vnph5x/sGR044=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, YiFei Zhu <zhuyifei1999@gmail.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 184/292] sunrpc: Avoid a KASAN slab-out-of-bounds bug in xdr_set_page_base()
-Date:   Mon, 19 Jul 2021 16:54:06 +0200
-Message-Id: <20210719144948.544201893@linuxfoundation.org>
+Subject: [PATCH 5.12 185/292] um: Fix stack pointer alignment
+Date:   Mon, 19 Jul 2021 16:54:07 +0200
+Message-Id: <20210719144948.574930317@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,42 +41,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: YiFei Zhu <zhuyifei1999@gmail.com>
 
-[ Upstream commit 6d1c0f3d28f98ea2736128ed3e46821496dc3a8c ]
+[ Upstream commit 558f9b2f94dbd2d5c5c8292aa13e081cc11ea7d9 ]
 
-This seems to happen fairly easily during READ_PLUS testing on NFS v4.2.
-I found that we could end up accessing xdr->buf->pages[pgnr] with a pgnr
-greater than the number of pages in the array. So let's just return
-early if we're setting base to a point at the end of the page data and
-let xdr_set_tail_base() handle setting up the buffer pointers instead.
+GCC assumes that stack is aligned to 16-byte on call sites [1].
+Since GCC 8, GCC began using 16-byte aligned SSE instructions to
+implement assignments to structs on stack. When
+CC_OPTIMIZE_FOR_PERFORMANCE is enabled, this affects
+os-Linux/sigio.c, write_sigio_thread:
 
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Fixes: 8d86e373b0ef ("SUNRPC: Clean up helpers xdr_set_iov() and xdr_set_page_base()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+  struct pollfds *fds, tmp;
+  tmp = current_poll;
+
+Note that struct pollfds is exactly 16 bytes in size.
+GCC 8+ generates assembly similar to:
+
+  movdqa (%rdi),%xmm0
+  movaps %xmm0,-0x50(%rbp)
+
+This is an issue, because movaps will #GP if -0x50(%rbp) is not
+aligned to 16 bytes [2], and how rbp gets assigned to is via glibc
+clone thread_start, then function prologue, going though execution
+trace similar to (showing only relevant instructions):
+
+  sub    $0x10,%rsi
+  mov    %rcx,0x8(%rsi)
+  mov    %rdi,(%rsi)
+  syscall
+  pop    %rax
+  pop    %rdi
+  callq  *%rax
+  push   %rbp
+  mov    %rsp,%rbp
+
+The stack pointer always points to the topmost element on stack,
+rather then the space right above the topmost. On push, the
+pointer decrements first before writing to the memory pointed to
+by it. Therefore, there is no need to have the stack pointer
+pointer always point to valid memory unless the stack is poped;
+so the `- sizeof(void *)` in the code is unnecessary.
+
+On the other hand, glibc reserves the 16 bytes it needs on stack
+and pops itself, so by the call instruction the stack pointer
+is exactly the caller-supplied sp. It then push the 16 bytes of
+the return address and the saved stack pointer, so the base
+pointer will be 16-byte aligned if and only if the caller
+supplied sp is 16-byte aligned. Therefore, the caller must supply
+a 16-byte aligned pointer, which `stack + UM_KERN_PAGE_SIZE`
+already satisfies.
+
+On a side note, musl is unaffected by this issue because it forces
+16 byte alignment via `and $-16,%rsi` in its clone wrapper.
+Similarly, glibc i386 is also unaffected because it has
+`andl $0xfffffff0, %ecx`.
+
+To reproduce this bug, enable CONFIG_UML_RTC and
+CC_OPTIMIZE_FOR_PERFORMANCE. uml_rtc will call
+add_sigio_fd which will then cause write_sigio_thread to either go
+into segfault loop or panic with "Segfault with no mm".
+
+Similarly, signal stacks will be aligned by the host kernel upon
+signal delivery. `- sizeof(void *)` to sigaltstack is
+unconventional and extraneous.
+
+On a related note, initialization of longjmp buffers do require
+`- sizeof(void *)`. This is to account for the return address
+that would have been pushed to the stack at the call site.
+
+The reason for uml to respect 16-byte alignment, rather than
+telling GCC to assume 8-byte alignment like the host kernel since
+commit d9b0cde91c60 ("x86-64, gcc: Use
+-mpreferred-stack-boundary=3 if supported"), is because uml links
+against libc. There is no reason to assume libc is also compiled
+with that flag and assumes 8-byte alignment rather than 16-byte.
+
+[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=40838
+[2] https://c9x.me/x86/html/file_module_x86_id_180.html
+
+Signed-off-by: YiFei Zhu <zhuyifei1999@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xdr.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/um/drivers/ubd_kern.c      | 3 +--
+ arch/um/kernel/skas/clone.c     | 2 +-
+ arch/um/os-Linux/helper.c       | 4 ++--
+ arch/um/os-Linux/signal.c       | 2 +-
+ arch/um/os-Linux/skas/process.c | 2 +-
+ 5 files changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/net/sunrpc/xdr.c b/net/sunrpc/xdr.c
-index 3964ff74ee51..ca10ba2626f2 100644
---- a/net/sunrpc/xdr.c
-+++ b/net/sunrpc/xdr.c
-@@ -1230,10 +1230,9 @@ static unsigned int xdr_set_page_base(struct xdr_stream *xdr,
- 	void *kaddr;
+diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+index 8e0b43cf089f..cbd4f00fe77e 100644
+--- a/arch/um/drivers/ubd_kern.c
++++ b/arch/um/drivers/ubd_kern.c
+@@ -1242,8 +1242,7 @@ static int __init ubd_driver_init(void){
+ 		 * enough. So use anyway the io thread. */
+ 	}
+ 	stack = alloc_stack(0, 0);
+-	io_pid = start_io_thread(stack + PAGE_SIZE - sizeof(void *),
+-				 &thread_fd);
++	io_pid = start_io_thread(stack + PAGE_SIZE, &thread_fd);
+ 	if(io_pid < 0){
+ 		printk(KERN_ERR
+ 		       "ubd : Failed to start I/O thread (errno = %d) - "
+diff --git a/arch/um/kernel/skas/clone.c b/arch/um/kernel/skas/clone.c
+index 592cdb138441..5afac0fef24e 100644
+--- a/arch/um/kernel/skas/clone.c
++++ b/arch/um/kernel/skas/clone.c
+@@ -29,7 +29,7 @@ stub_clone_handler(void)
+ 	long err;
  
- 	maxlen = xdr->buf->page_len;
--	if (base >= maxlen) {
--		base = maxlen;
--		maxlen = 0;
--	} else
-+	if (base >= maxlen)
-+		return 0;
-+	else
- 		maxlen -= base;
- 	if (len > maxlen)
- 		len = maxlen;
+ 	err = stub_syscall2(__NR_clone, CLONE_PARENT | CLONE_FILES | SIGCHLD,
+-			    (unsigned long)data + UM_KERN_PAGE_SIZE / 2 - sizeof(void *));
++			    (unsigned long)data + UM_KERN_PAGE_SIZE / 2);
+ 	if (err) {
+ 		data->parent_err = err;
+ 		goto done;
+diff --git a/arch/um/os-Linux/helper.c b/arch/um/os-Linux/helper.c
+index 9fa6e4187d4f..32e88baf18dd 100644
+--- a/arch/um/os-Linux/helper.c
++++ b/arch/um/os-Linux/helper.c
+@@ -64,7 +64,7 @@ int run_helper(void (*pre_exec)(void *), void *pre_data, char **argv)
+ 		goto out_close;
+ 	}
+ 
+-	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
++	sp = stack + UM_KERN_PAGE_SIZE;
+ 	data.pre_exec = pre_exec;
+ 	data.pre_data = pre_data;
+ 	data.argv = argv;
+@@ -120,7 +120,7 @@ int run_helper_thread(int (*proc)(void *), void *arg, unsigned int flags,
+ 	if (stack == 0)
+ 		return -ENOMEM;
+ 
+-	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
++	sp = stack + UM_KERN_PAGE_SIZE;
+ 	pid = clone(proc, (void *) sp, flags, arg);
+ 	if (pid < 0) {
+ 		err = -errno;
+diff --git a/arch/um/os-Linux/signal.c b/arch/um/os-Linux/signal.c
+index 96f511d1aabe..e283f130aadc 100644
+--- a/arch/um/os-Linux/signal.c
++++ b/arch/um/os-Linux/signal.c
+@@ -129,7 +129,7 @@ void set_sigstack(void *sig_stack, int size)
+ 	stack_t stack = {
+ 		.ss_flags = 0,
+ 		.ss_sp = sig_stack,
+-		.ss_size = size - sizeof(void *)
++		.ss_size = size
+ 	};
+ 
+ 	if (sigaltstack(&stack, NULL) != 0)
+diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
+index fba674fac8b7..87d3129e7362 100644
+--- a/arch/um/os-Linux/skas/process.c
++++ b/arch/um/os-Linux/skas/process.c
+@@ -327,7 +327,7 @@ int start_userspace(unsigned long stub_stack)
+ 	}
+ 
+ 	/* set stack pointer to the end of the stack page, so it can grow downwards */
+-	sp = (unsigned long) stack + UM_KERN_PAGE_SIZE - sizeof(void *);
++	sp = (unsigned long)stack + UM_KERN_PAGE_SIZE;
+ 
+ 	flags = CLONE_FILES | SIGCHLD;
+ 
 -- 
 2.30.2
 
