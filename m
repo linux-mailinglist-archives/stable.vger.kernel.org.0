@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 505B13CE45B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52143CE43E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347194AbhGSPnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35028 "EHLO mail.kernel.org"
+        id S1347186AbhGSPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346190AbhGSPik (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1346192AbhGSPik (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:38:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC14260E0C;
-        Mon, 19 Jul 2021 16:18:33 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83B5C61205;
+        Mon, 19 Jul 2021 16:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711514;
-        bh=euNVsQczHH08fRdHiWeAn7inWfpEXgXy04b321J2LD4=;
+        s=korg; t=1626711517;
+        bh=puAnekTf2hAJhWf0A+GK1B8W5QV6MXoZdBG7iavATEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klMzZExL1BrwqNakPHo/gxwDr1QT1uTEfNoBw4tgTlvM3UsaxL/OUiUwZgt36/rum
-         cGJcTFItgfuac0hD4bzFMPmTawY3B1djex9LUlmjBM9QF/xir73alVpKdQ18QVllvN
-         c7F759FKWEX8kcL5Vgsm5nHhsNOWOYBngjJjqnCc=
+        b=VSHQl4o1Qt8w1sSoumsXtKN2d70DSPPzg2r02VAhQ1+cIbXd66SN8Kv3eZREPk8Vl
+         rxS5LQC4JjhY8RuAkIuvb8X+1EhSCrfS/w0gvHbplMlk+W26sEPQtus97ZhyihgLpO
+         kz7yMXBInDrS2ByD7oj2t++IjL9xW6EZrR30kMk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org,
+        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
+        Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.12 030/292] io_uring: put link timeout req consistently
-Date:   Mon, 19 Jul 2021 16:51:32 +0200
-Message-Id: <20210719144943.520945560@linuxfoundation.org>
+Subject: [PATCH 5.12 031/292] io_uring: fix link timeout refs
+Date:   Mon, 19 Jul 2021 16:51:33 +0200
+Message-Id: <20210719144943.553226991@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,53 +43,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit df9727affa058f4f18e388b30247650f8ae13cd8 upstream.
+commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 upstream.
 
-Don't put linked timeout req in io_async_find_and_cancel() but do it in
-io_link_timeout_fn(), so we have only one point for that and won't have
-to do it differently as it's now (put vs put_deferred). Btw, improve a
-bit io_async_find_and_cancel()'s locking.
+WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
+Call Trace:
+ __refcount_sub_and_test include/linux/refcount.h:283 [inline]
+ __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+ refcount_dec_and_test include/linux/refcount.h:333 [inline]
+ io_put_req fs/io_uring.c:2140 [inline]
+ io_queue_linked_timeout fs/io_uring.c:6300 [inline]
+ __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
+ io_submit_sqe fs/io_uring.c:6534 [inline]
+ io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
+ __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
+ __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
 
+io_link_timeout_fn() should put only one reference of the linked timeout
+request, however in case of racing with the master request's completion
+first io_req_complete() puts one and then io_put_req_deferred() is
+called.
+
+Cc: stable@vger.kernel.org # 5.12+
+Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
+Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/d75b70957f245275ab7cba83e0ac9c1b86aae78a.1617287883.git.asml.silence@gmail.com
+Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ fs/io_uring.c |    1 -
+ 1 file changed, 1 deletion(-)
 
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -5727,12 +5727,9 @@ static void io_async_find_and_cancel(str
- 	int ret;
- 
- 	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
--	if (ret != -ENOENT) {
--		spin_lock_irqsave(&ctx->completion_lock, flags);
--		goto done;
--	}
--
- 	spin_lock_irqsave(&ctx->completion_lock, flags);
-+	if (ret != -ENOENT)
-+		goto done;
- 	ret = io_timeout_cancel(ctx, sqe_addr);
- 	if (ret != -ENOENT)
- 		goto done;
-@@ -5747,7 +5744,6 @@ done:
- 
- 	if (ret < 0)
- 		req_set_fail_links(req);
--	io_put_req(req);
- }
- 
- static int io_async_cancel_prep(struct io_kiocb *req,
-@@ -6310,8 +6306,8 @@ static enum hrtimer_restart io_link_time
- 		io_put_req_deferred(req, 1);
+@@ -6307,7 +6307,6 @@ static enum hrtimer_restart io_link_time
  	} else {
  		io_req_complete_post(req, -ETIME, 0);
--		io_put_req_deferred(req, 1);
  	}
-+	io_put_req_deferred(req, 1);
+-	io_put_req_deferred(req, 1);
  	return HRTIMER_NORESTART;
  }
  
