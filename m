@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB6D63CE5BA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F1B13CE5F2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349127AbhGSPxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:53:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49362 "EHLO mail.kernel.org"
+        id S239650AbhGSPzY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347864AbhGSPsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2518861448;
-        Mon, 19 Jul 2021 16:28:09 +0000 (UTC)
+        id S1347968AbhGSPss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:48:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 745386141D;
+        Mon, 19 Jul 2021 16:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712090;
-        bh=Gb9zFMGBXfir8GeCh+VGx5XxS566nl2HzZq1yD787+M=;
+        s=korg; t=1626712093;
+        bh=ocivvAtplwXi538HbZeZmEq+ix3HLt+w2bWvWvT5HF4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HpimU3nRkrCFW8c7Aoig760TgtpXdLz+UJFGsoDQ3C9bRumILBQxoGNB4+frS082R
-         c/Sh8iq86mMq7ZBuFc1TyY/7tWaQOx0+GP0+adrGFI2KiOyLn03ju/pURqY2Y/ZUfl
-         wTzwnLmIzHPU2YffxifMmKc/qVzKhwJ1IBHDTnjo=
+        b=dTqIrYpR3wUmUTEdyhWOTdXwNk5cJ0o+53L1SRLHEgByq5q1fwTfmWM3zTm2pfOCC
+         s0wgc2eJphmzd9wSif2IX7fTm8Y2lDPYgSPf0+6Eo3+jqMLueSm4RIP66t96UfkSg0
+         BI1Ck2ttokImbwAXNaTspjz4fsCbAnUaMw2DTFnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Vorel <petr.vorel@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Stephen Boyd <swboyd@chromium.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 246/292] arm64: dts: qcom: msm8994-angler: Fix gpio-reserved-ranges 85-88
-Date:   Mon, 19 Jul 2021 16:55:08 +0200
-Message-Id: <20210719144951.040606092@linuxfoundation.org>
+Subject: [PATCH 5.12 247/292] arm64: dts: qcom: trogdor: Add no-hpd to DSI bridge node
+Date:   Mon, 19 Jul 2021 16:55:09 +0200
+Message-Id: <20210719144951.071459795@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Vorel <petr.vorel@gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit f890f89d9a80fffbfa7ca791b78927e5b8aba869 ]
+[ Upstream commit 5f551b5ce55575b14c26933fe9b49365ea246b3d ]
 
-Reserve GPIO pins 85-88 as these aren't meant to be accessible from the
-application CPUs (causes reboot). Yet another fix similar to
-9134586715e3, 5f8d3ab136d0, which is needed to allow angler to boot after
-3edfb7bd76bd ("gpiolib: Show correct direction from the beginning").
+We should indicate that we're not using the HPD pin on this device, per
+the binding document. Otherwise if code in the future wants to enable
+HPD in the bridge when this property is absent we'll be wasting power
+powering hpd when we don't use it on trogdor boards. We didn't notice
+this before because the kernel driver blindly disables hpd, but that
+won't be true for much longer.
 
-Fixes: feeaf56ac78d ("arm64: dts: msm8994 SoC and Huawei Angler (Nexus 6P) support")
-
-Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
-Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210415193913.1836153-1-petr.vorel@gmail.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Cc: Douglas Anderson <dianders@chromium.org>
+Fixes: 7ec3e67307f8 ("arm64: dts: qcom: sc7180-trogdor: add initial trogdor and lazor dt")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Link: https://lore.kernel.org/r/20210324025534.1837405-1-swboyd@chromium.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
-index baa55643b40f..ffe1a9bd8f70 100644
---- a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
-+++ b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
-@@ -32,3 +32,7 @@
- 		};
- 	};
- };
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+index b8f7cf5cbdab..96914a307ba1 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor.dtsi
+@@ -597,6 +597,8 @@ edp_brij_i2c: &i2c2 {
+ 		clocks = <&rpmhcc RPMH_LN_BB_CLK3>;
+ 		clock-names = "refclk";
+ 
++		no-hpd;
 +
-+&tlmm {
-+	gpio-reserved-ranges = <85 4>;
-+};
+ 		ports {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
 -- 
 2.30.2
 
