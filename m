@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92A73CDC4C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E9D3CDFC3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238540AbhGSOv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41932 "EHLO mail.kernel.org"
+        id S1344716AbhGSPLh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:11:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344205AbhGSOsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C527261404;
-        Mon, 19 Jul 2021 15:27:03 +0000 (UTC)
+        id S1345805AbhGSPJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69E5E613C0;
+        Mon, 19 Jul 2021 15:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708424;
-        bh=5Vm9SroC6Pz4gZU4MFr8NI77D5Eosnz8naixy5bI5sc=;
+        s=korg; t=1626709763;
+        bh=Zgnyj7OietzwhR2T7kQGYpNELKJs2BYJDF1TZ96K5mw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qKZvKSdBO1R4DOx6bq6vf7TqnIJCSsR3+IuwLB3fw9h4mCfczSx2PdKZ0yuob6mGV
-         sVnK/pqqz+MXQqIAmik7Q3KTDW4+BqUAiVjbeL4+eX+rvPYhBr0a7cueXFnN9kNYdn
-         foGZqCdSOEwxiJ7OBe1wdivGhReLeVZdRytK5Tmc=
+        b=1zfpxxLFK9GvZwHXGpzfRof8cx0CtP6lrHd7y9fFN7DOvjGOmRM1j/xvUgWy7OEFo
+         1I+LzBl2ErSQTYT0g7MWH/e/a9C0N6OrY4SBbLtH567V5GF6pgcONaWmmOkwy2DKeL
+         /a/XYHjH1//mjMtsa9gejIn65L44glw17sbYF2oM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 306/315] ARM: dts: BCM5301X: Fixup SPI binding
+Subject: [PATCH 5.4 087/149] power: supply: charger-manager: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:53:15 +0200
-Message-Id: <20210719144953.535533273@linuxfoundation.org>
+Message-Id: <20210719144921.976572499@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,78 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit d5aede3e6dd1b8ca574600a1ecafe1e580c53f2f ]
+[ Upstream commit 073b5d5b1f9cc94a3eea25279fbafee3f4f5f097 ]
 
-1. Reorder interrupts
-2. Fix typo: s/spi_lr_overhead/spi_lr_overread/
-3. Rename node: s/spi-nor@0/flash@0/
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-This fixes:
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi@18029200: interrupt-names: 'oneOf' conditional failed, one must be fixed:
-        ['spi_lr_fullness_reached', 'spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted'] is too long
-        Additional items are not allowed ('spi_lr_session_aborted', 'spi_lr_impatient', 'spi_lr_session_done', 'spi_lr_overhead', 'mspi_done', 'mspi_halted' were unexpected)
-        'mspi_done' was expected
-        'spi_l1_intr' was expected
-        'mspi_halted' was expected
-        'spi_lr_fullness_reached' was expected
-        'spi_lr_session_aborted' was expected
-        'spi_lr_impatient' was expected
-        'spi_lr_session_done' was expected
-        'spi_lr_overread' was expected
-        From schema: Documentation/devicetree/bindings/spi/brcm,spi-bcm-qspi.yaml
-arch/arm/boot/dts/bcm4709-buffalo-wxr-1900dhp.dt.yaml: spi-nor@0: $nodename:0: 'spi-nor@0' does not match '^flash(@.*)?$'
-        From schema: Documentation/devicetree/bindings/mtd/jedec,spi-nor.yaml
-
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm5301x.dtsi | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/power/supply/charger-manager.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/bcm5301x.dtsi b/arch/arm/boot/dts/bcm5301x.dtsi
-index dffa8b9bd536..165fd1c1461a 100644
---- a/arch/arm/boot/dts/bcm5301x.dtsi
-+++ b/arch/arm/boot/dts/bcm5301x.dtsi
-@@ -432,27 +432,27 @@
- 		      <0x1811b408 0x004>,
- 		      <0x180293a0 0x01c>;
- 		reg-names = "mspi", "bspi", "intr_regs", "intr_status_reg";
--		interrupts = <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
-+		interrupts = <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 72 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 73 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
- 			     <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 77 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 78 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-names = "spi_lr_fullness_reached",
-+			     <GIC_SPI 76 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-names = "mspi_done",
-+				  "mspi_halted",
-+				  "spi_lr_fullness_reached",
- 				  "spi_lr_session_aborted",
- 				  "spi_lr_impatient",
- 				  "spi_lr_session_done",
--				  "spi_lr_overhead",
--				  "mspi_done",
--				  "mspi_halted";
-+				  "spi_lr_overread";
- 		clocks = <&iprocmed>;
- 		clock-names = "iprocmed";
- 		num-cs = <2>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+diff --git a/drivers/power/supply/charger-manager.c b/drivers/power/supply/charger-manager.c
+index a21e1a2673f8..1a215b6d9447 100644
+--- a/drivers/power/supply/charger-manager.c
++++ b/drivers/power/supply/charger-manager.c
+@@ -1470,6 +1470,7 @@ static const struct of_device_id charger_manager_match[] = {
+ 	},
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, charger_manager_match);
  
--		spi_nor: spi-nor@0 {
-+		spi_nor: flash@0 {
- 			compatible = "jedec,spi-nor";
- 			reg = <0>;
- 			spi-max-frequency = <20000000>;
+ static struct charger_desc *of_cm_parse_desc(struct device *dev)
+ {
 -- 
 2.30.2
 
