@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D153CE275
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B02D3CE0CB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239528AbhGSPa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43130 "EHLO mail.kernel.org"
+        id S1346702AbhGSPSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349369AbhGSP0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:26:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9703961004;
-        Mon, 19 Jul 2021 16:07:17 +0000 (UTC)
+        id S1346542AbhGSPOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C69E6128E;
+        Mon, 19 Jul 2021 15:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710838;
-        bh=zmj9WyXtSseTTgocPzLouGUl1hEY6kvuM9oHZQw1Zo8=;
+        s=korg; t=1626710101;
+        bh=koMInF0pTJ4jH9nnaDMP7JTIKBlVOtHo4QGr2fpwcdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfYhdor672G7xDy4oHj2DuPLJmT8mGn4+IDP+KhDybE4Zj8MM0J2auA7VlP34Sd7I
-         ONXHOOsecx2yjSFepyBHiUkw8nDXJuSEms+nTWP/y2yjC3kWzqNhA2P1JaIPvKBlX1
-         KNnTjL3mNcDiAJaoxW7j8hfzSW/OarIJTiEqUQlU=
+        b=cDNi4/3JcAYXnKRIRsWSmQBAN3MQR7PIbGBW8K2FoGTuEPSXVy2x7YSMOdTYcf0Bf
+         SMrBLKauIzWsFpwxNPzuzwj6sVPB24RQRIQczuz6vljOF8KzGe3Q7f4rHI81+LfXt1
+         8hWY46AxdvQWByKmv4LF8EdK3sroDEj539gXg1AI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Jozsef <daniel.jozsef@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 126/351] ALSA: bebob: add support for ToneWeal FW66
+        stable@vger.kernel.org, ching Huang <ching2048@areca.com.tw>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 043/243] scsi: arcmsr: Fix doorbell status being updated late on ARC-1886
 Date:   Mon, 19 Jul 2021 16:51:12 +0200
-Message-Id: <20210719144948.644622676@linuxfoundation.org>
+Message-Id: <20210719144942.316155164@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: ching Huang <ching2048@areca.com.tw>
 
-[ Upstream commit 50ebe56222bfa0911a932930f9229ee5995508d9 ]
+[ Upstream commit d9a231226f28261a787535e08d0c78669e1ad010 ]
 
-A user of FFADO project reported the issue of ToneWeal FW66. As a result,
-the device is identified as one of applications of BeBoB solution.
+It is possible for the IOP to be delayed in updating the doorbell
+status. The doorbell status should not be 0 so loop until the value
+changes.
 
-I note that in the report the device returns contradictory result in plug
-discovery process for audio subunit. Fortunately ALSA BeBoB driver doesn't
-perform it thus it's likely to handle the device without issues.
-
-I receive no reaction to test request for this patch yet, however it would
-be worth to add support for it.
-
-daniel@gibbonmoon:/sys/bus/firewire/devices/fw1$ grep -r . *
-Binary file config_rom matches
-dev:244:1
-guid:0x0023270002000000
-hardware_version:0x000002
-is_local:0
-model:0x020002
-model_name:FW66
-power/runtime_active_time:0
-power/runtime_active_kids:0
-power/runtime_usage:0
-power/runtime_status:unsupported
-power/async:disabled
-power/runtime_suspended_time:0
-power/runtime_enabled:disabled
-power/control:auto
-subsystem/drivers_autoprobe:1
-uevent:MAJOR=244
-uevent:MINOR=1
-uevent:DEVNAME=fw1
-units:0x00a02d:0x010001
-vendor:0x002327
-vendor_name:ToneWeal
-fw1.0/uevent:MODALIAS=ieee1394:ven00002327mo00020002sp0000A02Dver00010001
-fw1.0/power/runtime_active_time:0
-fw1.0/power/runtime_active_kids:0
-fw1.0/power/runtime_usage:0
-fw1.0/power/runtime_status:unsupported
-fw1.0/power/async:disabled
-fw1.0/power/runtime_suspended_time:0
-fw1.0/power/runtime_enabled:disabled
-fw1.0/power/control:auto
-fw1.0/model:0x020002
-fw1.0/rom_index:15
-fw1.0/specifier_id:0x00a02d
-fw1.0/model_name:FW66
-fw1.0/version:0x010001
-fw1.0/modalias:ieee1394:ven00002327mo00020002sp0000A02Dver00010001
-
-Cc: Daniel Jozsef <daniel.jozsef@gmail.com>
-Reference: https://lore.kernel.org/alsa-devel/20200119164335.GA11974@workstation/
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210619083922.16060-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/afdfdf7eabecf14632492c4987a6b9ac6312a7ad.camel@areca.com.tw
+Signed-off-by: ching Huang <ching2048@areca.com.tw>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/Kconfig       | 1 +
- sound/firewire/bebob/bebob.c | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/scsi/arcmsr/arcmsr_hba.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/sound/firewire/Kconfig b/sound/firewire/Kconfig
-index def1f3d5ecf5..12664c3a1414 100644
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -110,6 +110,7 @@ config SND_BEBOB
- 	  * M-Audio Ozonic/NRV10/ProfireLightBridge
- 	  * M-Audio FireWire 1814/ProjectMix IO
- 	  * Digidesign Mbox 2 Pro
-+	  * ToneWeal FW66
+diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
+index 4838f790dac7..9294a2c677b3 100644
+--- a/drivers/scsi/arcmsr/arcmsr_hba.c
++++ b/drivers/scsi/arcmsr/arcmsr_hba.c
+@@ -2424,10 +2424,17 @@ static void arcmsr_hbaD_doorbell_isr(struct AdapterControlBlock *pACB)
  
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called snd-bebob.
-diff --git a/sound/firewire/bebob/bebob.c b/sound/firewire/bebob/bebob.c
-index 90e98a6d1546..67fa0f2178b0 100644
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -59,6 +59,7 @@ static DECLARE_BITMAP(devices_used, SNDRV_CARDS);
- #define VEN_MAUDIO1	0x00000d6c
- #define VEN_MAUDIO2	0x000007f5
- #define VEN_DIGIDESIGN	0x00a07e
-+#define OUI_SHOUYO	0x002327
+ static void arcmsr_hbaE_doorbell_isr(struct AdapterControlBlock *pACB)
+ {
+-	uint32_t outbound_doorbell, in_doorbell, tmp;
++	uint32_t outbound_doorbell, in_doorbell, tmp, i;
+ 	struct MessageUnit_E __iomem *reg = pACB->pmuE;
  
- #define MODEL_FOCUSRITE_SAFFIRE_BOTH	0x00000000
- #define MODEL_MAUDIO_AUDIOPHILE_BOTH	0x00010060
-@@ -486,6 +487,8 @@ static const struct ieee1394_device_id bebob_id_table[] = {
- 			    &maudio_special_spec),
- 	/* Digidesign Mbox 2 Pro */
- 	SND_BEBOB_DEV_ENTRY(VEN_DIGIDESIGN, 0x0000a9, &spec_normal),
-+	// Toneweal FW66.
-+	SND_BEBOB_DEV_ENTRY(OUI_SHOUYO, 0x020002, &spec_normal),
- 	/* IDs are unknown but able to be supported */
- 	/*  Apogee, Mini-ME Firewire */
- 	/*  Apogee, Mini-DAC Firewire */
+-	in_doorbell = readl(&reg->iobound_doorbell);
++	if (pACB->adapter_type == ACB_ADAPTER_TYPE_F) {
++		for (i = 0; i < 5; i++) {
++			in_doorbell = readl(&reg->iobound_doorbell);
++			if (in_doorbell != 0)
++				break;
++		}
++	} else
++		in_doorbell = readl(&reg->iobound_doorbell);
+ 	outbound_doorbell = in_doorbell ^ pACB->in_doorbell;
+ 	do {
+ 		writel(0, &reg->host_int_status); /* clear interrupt */
 -- 
 2.30.2
 
