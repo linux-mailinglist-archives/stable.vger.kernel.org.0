@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BBA3CDDF8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D85683CDC97
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344747AbhGSPBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
+        id S244728AbhGSOxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344345AbhGSO7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D588661073;
-        Mon, 19 Jul 2021 15:39:57 +0000 (UTC)
+        id S237882AbhGSOo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C536561073;
+        Mon, 19 Jul 2021 15:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709198;
-        bh=x8jhDSBqoV11atW8IT+tsmr20TaVmO7qEmvzFrqscko=;
+        s=korg; t=1626708178;
+        bh=bx742uTUNRflyupydRQIjYRp84R79HcNqmh7470IApY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlncZrIWh6S+JKd/Il8n4Xw16/ZadgGw6JjhT2eqnWsmRj17BAkUAQyIyXxHaIVfy
-         N5y59jUk9b8bfa0J0XGSikAMmFWxftjeX5X19UqE++Az7xMVeoxmYUH3tbxSZ6C/vx
-         kyQA2jm79VxPrRcCl2HiPyR9ptHNdpEnZ3YPB4Cg=
+        b=fzNmGx3MzVhH2162n9bWGZY9Eete9YfrPNLvP9DYyKYwKifYPFDzOvtlGR2r+PsSC
+         P0AHXqqLf/4I9+6F8MIIaO9HfcKY6p7i9Q3WHYiGZgkcW/+P6LuVzl6EbITsqFPMt+
+         kkT66zggoJhJgDWbRvjH16ZqelUbVNKJweAhfyyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 4.19 288/421] pinctrl/amd: Add device HID for new AMD GPIO controller
+        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 210/315] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
 Date:   Mon, 19 Jul 2021 16:51:39 +0200
-Message-Id: <20210719144956.319667892@linuxfoundation.org>
+Message-Id: <20210719144950.334621108@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit 1ca46d3e43569186bd1decfb02a6b4c4ddb4304b upstream.
+commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
 
-Add device HID AMDI0031 to the AMD GPIO controller driver match table.
-This controller can be found on Microsoft Surface Laptop 4 devices and
-seems similar enough that we can just copy the existing AMDI0030 entry.
+When an eMMC device is being run in HS400 mode, any access to the
+RPMB device will cause the error message "mmc1: Invalid UHS-I mode
+selected". This happens as a result of tuning being disabled before
+RPMB access and then re-enabled after the RPMB access is complete.
+When tuning is re-enabled, the system has to switch from HS400
+to HS200 to do the tuning and then back to HS400. As part of
+sequence to switch from HS400 to HS200 the system is temporarily
+put into HS mode. When switching to HS mode, sdhci_get_preset_value()
+is called and does not have support for HS mode and prints the warning
+message and returns the preset for SDR12. The fix is to add support
+for MMC and SD HS modes to sdhci_get_preset_value().
 
-Cc: <stable@vger.kernel.org> # 5.10+
-Tested-by: Sachi King <nakato@nakato.io>
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20210512210316.1982416-1-luzmaximilian@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This can be reproduced on any system running eMMC in HS400 mode
+(not HS400ES) by using the "mmc" utility to run the following
+command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
+
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/pinctrl-amd.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/sdhci.c |    4 ++++
+ drivers/mmc/host/sdhci.h |    1 +
+ 2 files changed, 5 insertions(+)
 
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -966,6 +966,7 @@ static int amd_gpio_remove(struct platfo
- static const struct acpi_device_id amd_gpio_acpi_match[] = {
- 	{ "AMD0030", 0 },
- 	{ "AMDI0030", 0},
-+	{ "AMDI0031", 0},
- 	{ },
- };
- MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1293,6 +1293,10 @@ static u16 sdhci_get_preset_value(struct
+ 	u16 preset = 0;
+ 
+ 	switch (host->timing) {
++	case MMC_TIMING_MMC_HS:
++	case MMC_TIMING_SD_HS:
++		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
++		break;
+ 	case MMC_TIMING_UHS_SDR12:
+ 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
+ 		break;
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -252,6 +252,7 @@
+ 
+ /* 60-FB reserved */
+ 
++#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
+ #define SDHCI_PRESET_FOR_SDR12 0x66
+ #define SDHCI_PRESET_FOR_SDR25 0x68
+ #define SDHCI_PRESET_FOR_SDR50 0x6A
 
 
