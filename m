@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8EC3CE33B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 332303CE0D3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235435AbhGSPg7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:36:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46560 "EHLO mail.kernel.org"
+        id S1346914AbhGSPSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241542AbhGSPcR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A198C61424;
-        Mon, 19 Jul 2021 16:10:35 +0000 (UTC)
+        id S1346586AbhGSPOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F353D606A5;
+        Mon, 19 Jul 2021 15:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711036;
-        bh=96LjCpP+q2lNFwkuwSh8WkFF0CnkOkRCU0meSQEXn2I=;
+        s=korg; t=1626710122;
+        bh=aRrgl50TSkvA7cyCBcLcQtFR1KFOjQLcQfq2O4NGl0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUoKfVx3cIS2Xvra6sfMDjSy0WPYy6dLtlQzePSeWhSaeuk0cqYXG+wVYXhFiV+Vn
-         JS4v1MKwdm858YhtsoVZvpFuWgV3CnkvfwfZn7057BI6H1QyE7Cw7VnFromV9MXFvJ
-         5Oe9cXjrt6KALH5/BWMTJiHkNZ+DDVRyii1IUdSE=
+        b=0uBmj7jdRTFDMKRHG+h4wBfZni8UUjkBerG+FMJWYagNgd0DOGH1GIJwIM8JykUSu
+         nbLn7/CMW9bHtLgrVKwp5O2otp7xj5j2hb+4Ci71b+UY0ykUj1mil6fJE8MdV8EhIU
+         bRwRWpbZlKveRKUHFoFUujb/pBbXWQxXlh/lWAME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Koby Elbaz <kelbaz@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 169/351] watchdog: iTCO_wdt: Account for rebooting on second timeout
+Subject: [PATCH 5.10 086/243] habanalabs: remove node from list before freeing the node
 Date:   Mon, 19 Jul 2021 16:51:55 +0200
-Message-Id: <20210719144950.563664788@linuxfoundation.org>
+Message-Id: <20210719144943.670167746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,69 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Koby Elbaz <kelbaz@habana.ai>
 
-[ Upstream commit cb011044e34c293e139570ce5c01aed66a34345c ]
+[ Upstream commit f5eb7bf0c487a212ebda3c1b048fc3ccabacc147 ]
 
-This was already attempted to fix via 1fccb73011ea: If the BIOS did not
-enable TCO SMIs, the timer definitely needs to trigger twice in order to
-cause a reboot. If TCO SMIs are on, as well as SMIs in general, we can
-continue to assume that the BIOS will perform a reboot on the first
-timeout.
+fix the following smatch warnings:
 
-QEMU with its ICH9 and related BIOS falls into the former category,
-currently taking twice the configured timeout in order to reboot the
-machine. For iTCO version that fall under turn_SMI_watchdog_clear_off,
-this is also true and was currently only addressed for v1, irrespective
-of the turn_SMI_watchdog_clear_off value.
+goya_pin_memory_before_cs()
+warn: '&userptr->job_node' not removed from list
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/0b8bb307-d08b-41b5-696c-305cdac6789c@siemens.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+gaudi_pin_memory_before_cs()
+warn: '&userptr->job_node' not removed from list
+
+Signed-off-by: Koby Elbaz <kelbaz@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/iTCO_wdt.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/misc/habanalabs/gaudi/gaudi.c | 1 +
+ drivers/misc/habanalabs/goya/goya.c   | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/watchdog/iTCO_wdt.c b/drivers/watchdog/iTCO_wdt.c
-index bf31d7b67a69..3f1324871cfd 100644
---- a/drivers/watchdog/iTCO_wdt.c
-+++ b/drivers/watchdog/iTCO_wdt.c
-@@ -71,6 +71,8 @@
- #define TCOBASE(p)	((p)->tco_res->start)
- /* SMI Control and Enable Register */
- #define SMI_EN(p)	((p)->smi_res->start)
-+#define TCO_EN		(1 << 13)
-+#define GBL_SMI_EN	(1 << 0)
+diff --git a/drivers/misc/habanalabs/gaudi/gaudi.c b/drivers/misc/habanalabs/gaudi/gaudi.c
+index 044b2ae196f9..37edd663603f 100644
+--- a/drivers/misc/habanalabs/gaudi/gaudi.c
++++ b/drivers/misc/habanalabs/gaudi/gaudi.c
+@@ -3708,6 +3708,7 @@ already_pinned:
+ 	return 0;
  
- #define TCO_RLD(p)	(TCOBASE(p) + 0x00) /* TCO Timer Reload/Curr. Value */
- #define TCOv1_TMR(p)	(TCOBASE(p) + 0x01) /* TCOv1 Timer Initial Value*/
-@@ -355,8 +357,12 @@ static int iTCO_wdt_set_timeout(struct watchdog_device *wd_dev, unsigned int t)
+ unpin_memory:
++	list_del(&userptr->job_node);
+ 	hl_unpin_host_memory(hdev, userptr);
+ free_userptr:
+ 	kfree(userptr);
+diff --git a/drivers/misc/habanalabs/goya/goya.c b/drivers/misc/habanalabs/goya/goya.c
+index 986ed3c07208..5b5d6275c249 100644
+--- a/drivers/misc/habanalabs/goya/goya.c
++++ b/drivers/misc/habanalabs/goya/goya.c
+@@ -3190,6 +3190,7 @@ already_pinned:
+ 	return 0;
  
- 	tmrval = seconds_to_ticks(p, t);
- 
--	/* For TCO v1 the timer counts down twice before rebooting */
--	if (p->iTCO_version == 1)
-+	/*
-+	 * If TCO SMIs are off, the timer counts down twice before rebooting.
-+	 * Otherwise, the BIOS generally reboots when the SMI triggers.
-+	 */
-+	if (p->smi_res &&
-+	    (SMI_EN(p) & (TCO_EN | GBL_SMI_EN)) != (TCO_EN | GBL_SMI_EN))
- 		tmrval /= 2;
- 
- 	/* from the specs: */
-@@ -521,7 +527,7 @@ static int iTCO_wdt_probe(struct platform_device *pdev)
- 		 * Disables TCO logic generating an SMI#
- 		 */
- 		val32 = inl(SMI_EN(p));
--		val32 &= 0xffffdfff;	/* Turn off SMI clearing watchdog */
-+		val32 &= ~TCO_EN;	/* Turn off SMI clearing watchdog */
- 		outl(val32, SMI_EN(p));
- 	}
- 
+ unpin_memory:
++	list_del(&userptr->job_node);
+ 	hl_unpin_host_memory(hdev, userptr);
+ free_userptr:
+ 	kfree(userptr);
 -- 
 2.30.2
 
