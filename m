@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A492A3CD7DE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685663CD7AE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242251AbhGSOT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:19:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52382 "EHLO mail.kernel.org"
+        id S242079AbhGSOST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241676AbhGSORu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A6696112D;
-        Mon, 19 Jul 2021 14:58:29 +0000 (UTC)
+        id S242090AbhGSORx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:17:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBAA7610F7;
+        Mon, 19 Jul 2021 14:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706710;
-        bh=mEhpyU6/pnWvpMB3NtEBz/Le30RvdhBHhQUM6MuByRg=;
+        s=korg; t=1626706712;
+        bh=sdkExXGi2cZP0AY/16vUdPaM5q+1HH1jiwH7rVVcx64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gmXTxwxWuiO8ngcu6OYAWVCVjMKzKvWOMN49v2SIXvpDNdReu2y2s4yTBM/m3akju
-         ULNXiXZTU8zs0wqbEVOv0KgHc64KfcbQBonk43ptUGctcuZ7itfytPYUzUhgQ8NymP
-         ycjE5u1ptPZYRiNrv3UZz3sCXKwHGJfZxltGn/JU=
+        b=mvLk0a4bvfAthEk926PqISpkd+aynLd7srNmyfA0mt20t8ac2/JZ8EmWuOFK2h+9D
+         8jbfQvQlPvVVJnx7T+2TdUaNO42tuD3w4Gop88ICOxQUTKIU1IPoVv3xH4656fmCXE
+         z1gDKP1Md4whyiwv3Yl29+wcR+fowudn3Dp1QkSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Christian Lamparter <chunkeey@googlemail.com>,
+        linux-wireless@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Christian Lamparter <chunkeey@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 064/188] drm: qxl: ensure surf.data is ininitialized
-Date:   Mon, 19 Jul 2021 16:50:48 +0200
-Message-Id: <20210719144927.857770412@linuxfoundation.org>
+Subject: [PATCH 4.4 065/188] wireless: carl9170: fix LEDS build errors & warnings
+Date:   Mon, 19 Jul 2021 16:50:49 +0200
+Message-Id: <20210719144928.088208532@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,38 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit fbbf23ddb2a1cc0c12c9f78237d1561c24006f50 ]
+[ Upstream commit 272fdc0c4542fad173b44965be02a16d6db95499 ]
 
-The object surf is not fully initialized and the uninitialized
-field surf.data is being copied by the call to qxl_bo_create
-via the call to qxl_gem_object_create. Set surf.data to zero
-to ensure garbage data from the stack is not being copied.
+kernel test robot reports over 200 build errors and warnings
+that are due to this Kconfig problem when CARL9170=m,
+MAC80211=y, and LEDS_CLASS=m.
 
-Addresses-Coverity: ("Uninitialized scalar variable")
-Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210608161313.161922-1-colin.king@canonical.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+WARNING: unmet direct dependencies detected for MAC80211_LEDS
+  Depends on [n]: NET [=y] && WIRELESS [=y] && MAC80211 [=y] && (LEDS_CLASS [=m]=y || LEDS_CLASS [=m]=MAC80211 [=y])
+  Selected by [m]:
+  - CARL9170_LEDS [=y] && NETDEVICES [=y] && WLAN [=y] && WLAN_VENDOR_ATH [=y] && CARL9170 [=m]
+
+CARL9170_LEDS selects MAC80211_LEDS even though its kconfig
+dependencies are not met. This happens because 'select' does not follow
+any Kconfig dependency chains.
+
+Fix this by making CARL9170_LEDS depend on MAC80211_LEDS, where
+the latter supplies any needed dependencies on LEDS_CLASS.
+
+Fixes: 1d7e1e6b1b8ed ("carl9170: Makefile, Kconfig files and MAINTAINERS")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Christian Lamparter <chunkeey@googlemail.com>
+Cc: linux-wireless@vger.kernel.org
+Cc: Arnd Bergmann <arnd@arndb.de>
+Suggested-by: Christian Lamparter <chunkeey@googlemail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210530031134.23274-1-rdunlap@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/qxl/qxl_dumb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/carl9170/Kconfig | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_dumb.c
-index d34bb4130ff0..5f757328fced 100644
---- a/drivers/gpu/drm/qxl/qxl_dumb.c
-+++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-@@ -57,6 +57,8 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
- 	surf.height = args->height;
- 	surf.stride = pitch;
- 	surf.format = format;
-+	surf.data = 0;
-+
- 	r = qxl_gem_object_create_with_handle(qdev, file_priv,
- 					      QXL_GEM_DOMAIN_VRAM,
- 					      args->size, &surf, &qobj,
+diff --git a/drivers/net/wireless/ath/carl9170/Kconfig b/drivers/net/wireless/ath/carl9170/Kconfig
+index 1a796e5f69ec..3fc87997fcb3 100644
+--- a/drivers/net/wireless/ath/carl9170/Kconfig
++++ b/drivers/net/wireless/ath/carl9170/Kconfig
+@@ -17,13 +17,11 @@ config CARL9170
+ 
+ config CARL9170_LEDS
+ 	bool "SoftLED Support"
+-	depends on CARL9170
+-	select MAC80211_LEDS
+-	select LEDS_CLASS
+-	select NEW_LEDS
+ 	default y
++	depends on CARL9170
++	depends on MAC80211_LEDS
+ 	help
+-	  This option is necessary, if you want your device' LEDs to blink
++	  This option is necessary, if you want your device's LEDs to blink.
+ 
+ 	  Say Y, unless you need the LEDs for firmware debugging.
+ 
 -- 
 2.30.2
 
