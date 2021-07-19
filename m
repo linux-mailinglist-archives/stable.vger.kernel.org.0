@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DA7D3CD940
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2C03CDB4B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241514AbhGSO1w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:27:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S244275AbhGSOmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243153AbhGSO0R (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:26:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A7E561263;
-        Mon, 19 Jul 2021 15:06:56 +0000 (UTC)
+        id S1343651AbhGSOjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7F860241;
+        Mon, 19 Jul 2021 15:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707217;
-        bh=XPtUILbpPkc73MeAINurEZ0rHIO25qdd25VrfV4jjLI=;
+        s=korg; t=1626707967;
+        bh=cviDUqqDG7QmjX9/8Elnh1GRGJoM6YwQiehla20UCOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cyx01Y3lr/RYrVkcGTsgEDDopyMZz9wYIqkrkpIOGdfJkE0vnz3Cr8GNAQQ0l2EmG
-         v7keapjzXAKRek0v9bKAn33IdyFYc4uV8dQSySYidwapgR05NzY5bjJQFGL/qTJhIf
-         arSo5wJFhbOm5Ztq2Suz5YAcS+WDA45J4aBGbguI=
+        b=ZW/HiwaguQmNrpt5AfEj22epslHjeFix0+ILCdLF9J9rKhCahovx4XfrZls2LPPv8
+         OlNojPzWUJazPrDsKIiEnodEomwUPQn+WMZD/81PXQRye390IZcQryikSbFdE9Jajw
+         bVDiBVFLmbi3RkKpTZ1DANCDOPDEMNACwQtlMzqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Daniel Baluta <daniel.baluta@nxp.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 074/245] ocfs2: fix snprintf() checking
+Subject: [PATCH 4.14 127/315] iio: adc: ti-ads1015: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 19 Jul 2021 16:50:16 +0200
-Message-Id: <20210719144942.803207963@linuxfoundation.org>
+Message-Id: <20210719144947.057340399@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 54e948c60cc843b6e84dc44496edc91f51d2a28e ]
+[ Upstream commit d85d71dd1ab67eaa7351f69fec512d8f09d164e1 ]
 
-The snprintf() function returns the number of bytes which would have been
-printed if the buffer was large enough.  In other words it can return ">=
-remain" but this code assumes it returns "== remain".
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-The run time impact of this bug is not very severe.  The next iteration
-through the loop would trigger a WARN() when we pass a negative limit to
-snprintf().  We would then return success instead of -E2BIG.
+Found during an audit of all calls of this function.
 
-The kernel implementation of snprintf() will never return negatives so
-there is no need to check and I have deleted that dead code.
-
-Link: https://lkml.kernel.org/r/20210511135350.GV1955@kadam
-Fixes: a860f6eb4c6a ("ocfs2: sysfile interfaces for online file check")
-Fixes: 74ae4e104dfc ("ocfs2: Create stack glue sysfs files.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ecc24e72f437 ("iio: adc: Add TI ADS1015 ADC driver support")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Daniel Baluta <daniel.baluta@nxp.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-9-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/filecheck.c | 6 +-----
- fs/ocfs2/stackglue.c | 8 ++------
- 2 files changed, 3 insertions(+), 11 deletions(-)
+ drivers/iio/adc/ti-ads1015.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ocfs2/filecheck.c b/fs/ocfs2/filecheck.c
-index 2cabbcf2f28e..5571268b681c 100644
---- a/fs/ocfs2/filecheck.c
-+++ b/fs/ocfs2/filecheck.c
-@@ -431,11 +431,7 @@ static ssize_t ocfs2_filecheck_show(struct kobject *kobj,
- 		ret = snprintf(buf + total, remain, "%lu\t\t%u\t%s\n",
- 			       p->fe_ino, p->fe_done,
- 			       ocfs2_filecheck_error(p->fe_status));
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-diff --git a/fs/ocfs2/stackglue.c b/fs/ocfs2/stackglue.c
-index 52c07346bea3..03e1c6cd6f3c 100644
---- a/fs/ocfs2/stackglue.c
-+++ b/fs/ocfs2/stackglue.c
-@@ -510,11 +510,7 @@ static ssize_t ocfs2_loaded_cluster_plugins_show(struct kobject *kobj,
- 	list_for_each_entry(p, &ocfs2_stack_list, sp_list) {
- 		ret = snprintf(buf, remain, "%s\n",
- 			       p->sp_name);
--		if (ret < 0) {
--			total = ret;
--			break;
--		}
--		if (ret == remain) {
-+		if (ret >= remain) {
- 			/* snprintf() didn't fit */
- 			total = -E2BIG;
- 			break;
-@@ -541,7 +537,7 @@ static ssize_t ocfs2_active_cluster_plugin_show(struct kobject *kobj,
- 	if (active_stack) {
- 		ret = snprintf(buf, PAGE_SIZE, "%s\n",
- 			       active_stack->sp_name);
--		if (ret == PAGE_SIZE)
-+		if (ret >= PAGE_SIZE)
- 			ret = -E2BIG;
+diff --git a/drivers/iio/adc/ti-ads1015.c b/drivers/iio/adc/ti-ads1015.c
+index df71c6105353..007898d3b3a9 100644
+--- a/drivers/iio/adc/ti-ads1015.c
++++ b/drivers/iio/adc/ti-ads1015.c
+@@ -392,10 +392,14 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
+ 	struct iio_poll_func *pf = p;
+ 	struct iio_dev *indio_dev = pf->indio_dev;
+ 	struct ads1015_data *data = iio_priv(indio_dev);
+-	s16 buf[8]; /* 1x s16 ADC val + 3x s16 padding +  4x s16 timestamp */
++	/* Ensure natural alignment of timestamp */
++	struct {
++		s16 chan;
++		s64 timestamp __aligned(8);
++	} scan;
+ 	int chan, ret, res;
+ 
+-	memset(buf, 0, sizeof(buf));
++	memset(&scan, 0, sizeof(scan));
+ 
+ 	mutex_lock(&data->lock);
+ 	chan = find_first_bit(indio_dev->active_scan_mask,
+@@ -406,10 +410,10 @@ static irqreturn_t ads1015_trigger_handler(int irq, void *p)
+ 		goto err;
  	}
- 	spin_unlock(&ocfs2_stack_lock);
+ 
+-	buf[0] = res;
++	scan.chan = res;
+ 	mutex_unlock(&data->lock);
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, buf,
++	iio_push_to_buffers_with_timestamp(indio_dev, &scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ err:
 -- 
 2.30.2
 
