@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC3E63CE1DB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773D73CE26F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345881AbhGSP2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41754 "EHLO mail.kernel.org"
+        id S1346864AbhGSPaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348560AbhGSPYz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F1E1601FD;
-        Mon, 19 Jul 2021 16:05:33 +0000 (UTC)
+        id S1348649AbhGSPY5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B8C55600EF;
+        Mon, 19 Jul 2021 16:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710734;
-        bh=4cmWkVFhdTzQWY9usqWWMyf40gKiTVqMUh3jZzfwEhU=;
+        s=korg; t=1626710737;
+        bh=qGZ/XPXWZNsgiZS33sYC3mAXAM5fqIhgEEX1RPAfsW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntrnK3Q8yZ1u/J9PFmcCqwnikfseV2L4GOYhvRwzNciXORzsLgb8REIpMZyu8MmE2
-         KEx+If/sygyctoAEgQoy9hkvim4qq/b2rDTtYuzDnrMVOWfYLP0xAPkaTdhYxQoYPr
-         pxg0pjpW3jDTZm3mvp3F8Jju3oUmu6pQLhu+uKEw=
+        b=vwujao5NBg8qmppEKgv2Okw7yM6QID9LBwOb4luplmxLWMCkM9aYpnXTGQvhGkfHa
+         gDMbM6KywwTIJwZhj71XipLymRLulUfIvv05HgnN2+jp/fyeRvq+mpCjZUxIJrxMKH
+         twuOJEowa/kUp2OqkuGyOgeLDcipXqEu+cfKyaRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
+        Ivan Jelincic <parazyd@dyne.org>,
+        Merlijn Wajer <merlijn@wizzup.org>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sre@kernel.org>,
+        "Sicelo A. Mhlongo" <absicsz@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 087/351] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
-Date:   Mon, 19 Jul 2021 16:50:33 +0200
-Message-Id: <20210719144947.379834520@linuxfoundation.org>
+Subject: [PATCH 5.13 088/351] mfd: cpcap: Fix cpcap dmamask not set warnings
+Date:   Mon, 19 Jul 2021 16:50:34 +0200
+Message-Id: <20210719144947.409248725@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,48 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
+[ Upstream commit 0b7cbe811ca524295ea43d9a4d73d3427e419c54 ]
 
-This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+We have started to get a bunch of pointless dmamask not set warnings
+that makes the output of dmesg -l err,warn hard to read with many
+extra warnings:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
+cpcap-regulator cpcap-regulator.0: DMA mask not set
+cpcap_adc cpcap_adc.0: DMA mask not set
+cpcap_battery cpcap_battery.0: DMA mask not set
+cpcap-charger cpcap-charger.0: DMA mask not set
+cpcap-pwrbutton cpcap-pwrbutton.0: DMA mask not set
+cpcap-led cpcap-led.0: DMA mask not set
+cpcap-led cpcap-led.1: DMA mask not set
+cpcap-led cpcap-led.2: DMA mask not set
+cpcap-led cpcap-led.3: DMA mask not set
+cpcap-led cpcap-led.4: DMA mask not set
+cpcap-rtc cpcap-rtc.0: DMA mask not set
+cpcap-usb-phy cpcap-usb-phy.0: DMA mask not set
+
+This seems to have started with commit 4d8bde883bfb ("OF: Don't set
+default coherent DMA mask"). We have the parent SPI controller use
+DMA, while CPCAP driver and it's children do not. For audio, the
+DMA is handled over I2S bus with the McBSP driver.
+
+Cc: Carl Philipp Klemm <philipp@uvos.xyz>
+Cc: Ivan Jelincic <parazyd@dyne.org>
+Cc: Merlijn Wajer <merlijn@wizzup.org>
+Cc: Pavel Machek <pavel@ucw.cz>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Sicelo A. Mhlongo <absicsz@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9052-i2c.c | 1 +
- drivers/mfd/stmpe-i2c.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/motorola-cpcap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
-index 47556d2d9abe..8ebfc7bbe4e0 100644
---- a/drivers/mfd/da9052-i2c.c
-+++ b/drivers/mfd/da9052-i2c.c
-@@ -113,6 +113,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
- 	{"da9053-bc", DA9053_BC},
- 	{}
- };
-+MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
+diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
+index 30d82bfe5b02..6fb206da2729 100644
+--- a/drivers/mfd/motorola-cpcap.c
++++ b/drivers/mfd/motorola-cpcap.c
+@@ -327,6 +327,10 @@ static int cpcap_probe(struct spi_device *spi)
+ 	if (ret)
+ 		return ret;
  
- #ifdef CONFIG_OF
- static const struct of_device_id dialog_dt_ids[] = {
-diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
-index 61aa020199f5..cd2f45257dc1 100644
---- a/drivers/mfd/stmpe-i2c.c
-+++ b/drivers/mfd/stmpe-i2c.c
-@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
- 	{ "stmpe2403", STMPE2403 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, stmpe_id);
-+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
- 
- static struct i2c_driver stmpe_i2c_driver = {
- 	.driver = {
++	/* Parent SPI controller uses DMA, CPCAP and child devices do not */
++	spi->dev.coherent_dma_mask = 0;
++	spi->dev.dma_mask = &spi->dev.coherent_dma_mask;
++
+ 	return devm_mfd_add_devices(&spi->dev, 0, cpcap_mfd_devices,
+ 				    ARRAY_SIZE(cpcap_mfd_devices), NULL, 0, NULL);
+ }
 -- 
 2.30.2
 
