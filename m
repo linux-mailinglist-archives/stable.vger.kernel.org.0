@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F10373CD7DF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2AB3CD7E2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241645AbhGSOT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:19:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
+        id S242539AbhGSOT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:19:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242279AbhGSOSp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 507A76113E;
-        Mon, 19 Jul 2021 14:59:24 +0000 (UTC)
+        id S241695AbhGSOSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 998336024A;
+        Mon, 19 Jul 2021 14:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706764;
-        bh=uyE0wPo6SJcWe7R2RzI3ZSE77jn8wj5oxQQ5nSthLRs=;
+        s=korg; t=1626706767;
+        bh=jPMUboQyjXoGUGUPnY5dbwA0d+y5YMecRjnIAO2rWWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWIYSX8IlZviUQ3MEeOIaFvuibXPezPm4/Y7TB9SFfqVm33m2ipwhZ/+L52tluSIH
-         OIBceZQqZtyGZ8oZhnCzC+aZaO6JzJaHXmDuUYQw24A6NBTc/qOlbWTvll5HZtXStx
-         gdSIyTtcJxpdQ9Pz606pOGKc6mvummsArnEZlt5k=
+        b=NpksW+amzFkfgL1XRjWEEkCFyAyGlFMniz9gKIJWlwtLBdPMIrfHVCpCrDDPJ+cTK
+         oKkPjzsiPj4cqc9FoHc/AzISaJNCQJMDi7bN+xid8sC6tPUSDB2WMM0EsXw9HCogn2
+         CwyHxkf8Ug4J3+C5yyF0D7w0cPXp8/hdRkjZslqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 089/188] phy: ti: dm816x: Fix the error handling path in dm816x_usb_phy_probe()
-Date:   Mon, 19 Jul 2021 16:51:13 +0200
-Message-Id: <20210719144933.813818492@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 090/188] extcon: sm5502: Drop invalid register write in sm5502_reg_data
+Date:   Mon, 19 Jul 2021 16:51:14 +0200
+Message-Id: <20210719144934.043487367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,59 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit f7eedcb8539ddcbb6fe7791f1b4ccf43f905c72f ]
+[ Upstream commit d25b224f8e5507879b36a769a6d1324cf163466c ]
 
-Add an error handling path in the probe to release some resources, as
-already done in the remove function.
+When sm5502_init_dev_type() iterates over sm5502_reg_data to
+initialize the registers it is limited by ARRAY_SIZE(sm5502_reg_data).
+There is no need to add another empty element to sm5502_reg_data.
 
-Fixes: 609adde838f4 ("phy: Add a driver for dm816x USB PHY")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/ac5136881f6bdec50be19b3bf73b3bc1b15ef1f1.1622898974.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Having the additional empty element in sm5502_reg_data will just
+result in writing 0xff to register 0x00, which does not really
+make sense.
+
+Fixes: 914b881f9452 ("extcon: sm5502: Add support new SM5502 extcon device driver")
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-dm816x-usb.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/extcon/extcon-sm5502.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/phy/phy-dm816x-usb.c b/drivers/phy/phy-dm816x-usb.c
-index b4bbef664d20..908b5ff0e888 100644
---- a/drivers/phy/phy-dm816x-usb.c
-+++ b/drivers/phy/phy-dm816x-usb.c
-@@ -246,19 +246,28 @@ static int dm816x_usb_phy_probe(struct platform_device *pdev)
+diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
+index f63f9961ac12..9b8c79bc3acd 100644
+--- a/drivers/extcon/extcon-sm5502.c
++++ b/drivers/extcon/extcon-sm5502.c
+@@ -92,7 +92,6 @@ static struct reg_data sm5502_reg_data[] = {
+ 			| SM5502_REG_INTM2_MHL_MASK,
+ 		.invert = true,
+ 	},
+-	{ }
+ };
  
- 	pm_runtime_enable(phy->dev);
- 	generic_phy = devm_phy_create(phy->dev, NULL, &ops);
--	if (IS_ERR(generic_phy))
--		return PTR_ERR(generic_phy);
-+	if (IS_ERR(generic_phy)) {
-+		error = PTR_ERR(generic_phy);
-+		goto clk_unprepare;
-+	}
- 
- 	phy_set_drvdata(generic_phy, phy);
- 
- 	phy_provider = devm_of_phy_provider_register(phy->dev,
- 						     of_phy_simple_xlate);
--	if (IS_ERR(phy_provider))
--		return PTR_ERR(phy_provider);
-+	if (IS_ERR(phy_provider)) {
-+		error = PTR_ERR(phy_provider);
-+		goto clk_unprepare;
-+	}
- 
- 	usb_add_phy_dev(&phy->phy);
- 
- 	return 0;
-+
-+clk_unprepare:
-+	pm_runtime_disable(phy->dev);
-+	clk_unprepare(phy->refclk);
-+	return error;
- }
- 
- static int dm816x_usb_phy_remove(struct platform_device *pdev)
+ /* List of detectable cables */
 -- 
 2.30.2
 
