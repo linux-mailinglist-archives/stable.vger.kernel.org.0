@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D8F3CD98C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBF03CD81A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242262AbhGSOao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S242726AbhGSOUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:20:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244045AbhGSO3O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BCBA6128A;
-        Mon, 19 Jul 2021 15:08:41 +0000 (UTC)
+        id S242382AbhGSOTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:19:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A009B61165;
+        Mon, 19 Jul 2021 15:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707322;
-        bh=5ZDHVfW8B0AvKuteMND22zDcF8Pgi9DikFQfqF5Cwjg=;
+        s=korg; t=1626706829;
+        bh=Fi1WOGB/gHgrOPil0YCRQlkbeL9NDzzccaMwb4AsXMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmRKVRCrIQfVLoLtBPJ+A5NoefoY0koO5gkuz5JpgemiqN9uxrTwoqjHVRU3q0TCc
-         8lifHiX4xwzCOedwswe5wSe6LaYsCxie7eiczDfquIls8l60sWVijFQspWX5AzOfJ/
-         0mb0tKjqiYf3DvzhizUpe7FHttV5T98e6HF/QBNs=
+        b=pydUVFhdDgWxVuDLpWPAcTQna98f0gZkevuT0fdbw83JA/iRzuKDR+o+WyWLzM6Xz
+         KTSMFjDUViq0QeeHhoRQV3dbUOy7/h7CAL7yxlnnTw/fCeXq/PhTQtuwWYmfmelDSS
+         xmwEz4jiZvHKz+LTdeJG3E0iNcZNLBLv7Nnmyem0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/245] scsi: mpt3sas: Fix error return value in _scsih_expander_add()
-Date:   Mon, 19 Jul 2021 16:50:56 +0200
-Message-Id: <20210719144944.101593110@linuxfoundation.org>
+Subject: [PATCH 4.4 073/188] vxlan: add missing rcu_read_lock() in neigh_reduce()
+Date:   Mon, 19 Jul 2021 16:50:57 +0200
+Message-Id: <20210719144930.039980271@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +41,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d6c2ce435ffe23ef7f395ae76ec747414589db46 ]
+[ Upstream commit 85e8b032d6ebb0f698a34dd22c2f13443d905888 ]
 
-When an expander does not contain any 'phys', an appropriate error code -1
-should be returned, as done elsewhere in this function. However, we
-currently do not explicitly assign this error code to 'rc'. As a result, 0
-was incorrectly returned.
+syzbot complained in neigh_reduce(), because rcu_read_lock_bh()
+is treated differently than rcu_read_lock()
 
-Link: https://lore.kernel.org/r/20210514081300.6650-1-thunder.leizhen@huawei.com
-Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+WARNING: suspicious RCU usage
+5.13.0-rc6-syzkaller #0 Not tainted
+-----------------------------
+include/net/addrconf.h:313 suspicious rcu_dereference_check() usage!
+
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by kworker/0:0/5:
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:617 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:644 [inline]
+ #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2247
+ #1: ffffc90000ca7da8 ((work_completion)(&port->wq)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2251
+ #2: ffffffff8bf795c0 (rcu_read_lock_bh){....}-{1:2}, at: __dev_queue_xmit+0x1da/0x3130 net/core/dev.c:4180
+
+stack backtrace:
+CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.13.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events ipvlan_process_multicast
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ __in6_dev_get include/net/addrconf.h:313 [inline]
+ __in6_dev_get include/net/addrconf.h:311 [inline]
+ neigh_reduce drivers/net/vxlan.c:2167 [inline]
+ vxlan_xmit+0x34d5/0x4c30 drivers/net/vxlan.c:2919
+ __netdev_start_xmit include/linux/netdevice.h:4944 [inline]
+ netdev_start_xmit include/linux/netdevice.h:4958 [inline]
+ xmit_one net/core/dev.c:3654 [inline]
+ dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3670
+ __dev_queue_xmit+0x2133/0x3130 net/core/dev.c:4246
+ ipvlan_process_multicast+0xa99/0xd70 drivers/net/ipvlan/ipvlan_core.c:287
+ process_one_work+0x98d/0x1600 kernel/workqueue.c:2276
+ worker_thread+0x64c/0x1120 kernel/workqueue.c:2422
+ kthread+0x3b1/0x4a0 kernel/kthread.c:313
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+
+Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/vxlan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index aa2078d7e23e..58876b8a2e9f 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -5199,8 +5199,10 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
- 	    handle, parent_handle, (unsigned long long)
- 	    sas_expander->sas_address, sas_expander->num_phys);
+diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
+index 50ede6b8b874..4d44ec5b7cd7 100644
+--- a/drivers/net/vxlan.c
++++ b/drivers/net/vxlan.c
+@@ -1549,6 +1549,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb)
+ 	struct neighbour *n;
+ 	struct inet6_dev *in6_dev;
  
--	if (!sas_expander->num_phys)
-+	if (!sas_expander->num_phys) {
-+		rc = -1;
- 		goto out_fail;
-+	}
- 	sas_expander->phy = kcalloc(sas_expander->num_phys,
- 	    sizeof(struct _sas_phy), GFP_KERNEL);
- 	if (!sas_expander->phy) {
++	rcu_read_lock();
+ 	in6_dev = __in6_dev_get(dev);
+ 	if (!in6_dev)
+ 		goto out;
+@@ -1605,6 +1606,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb)
+ 	}
+ 
+ out:
++	rcu_read_unlock();
+ 	consume_skb(skb);
+ 	return NETDEV_TX_OK;
+ }
 -- 
 2.30.2
 
