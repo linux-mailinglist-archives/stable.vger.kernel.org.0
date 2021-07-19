@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48AFA3CDDF5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAEBA3CDBFA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344463AbhGSPB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53516 "EHLO mail.kernel.org"
+        id S237170AbhGSOup (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344356AbhGSO7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27D6061357;
-        Mon, 19 Jul 2021 15:39:48 +0000 (UTC)
+        id S237792AbhGSOoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E0961357;
+        Mon, 19 Jul 2021 15:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709189;
-        bh=pbOfW/0H+iiQ+gz597HvPmanmTNj/m3Sfopb6H9QodY=;
+        s=korg; t=1626708168;
+        bh=n8AS9o5Da4GrCla5e0mxbbdiI3CqYmqzsQMGDigrH+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0x0a31EkGnFXKkHBF1OVOeAeM0LiT4kB7RNFyIvtKtXvSKoofxXEgPgieWmgyCGsY
-         trvIPghYMt9di7R5CGJSVd/1MprcWADfcC2E9QbZohF6FYxaJ5fRfDXJ+G2hbvfd2E
-         BzYLv6Q+WRC4IeV+ebEEdQwJ5QpklDBinrfZeV2c=
+        b=A09emkkftYeI9TbQXVJrpROKEbaeKgq0xxqDIxkQ8RJkI8zGhBfJaorIUEyxTH0DI
+         g1q5LIKotTyhqtZx37F+bWTOkUj8cy/eIE6wj9LN2sx77C8ncKQ3djr2bsPF8otF+X
+         xDLsYle2Hw55ROJKDs5V8DpUTXO5FJqIYdk9gl8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bhuvanesh Surachari <bhuvanesh_surachari@mentor.com>,
         Eugeniu Rosca <erosca@de.adit-jv.com>,
         Andrew Gabbasov <andrew_gabbasov@mentor.com>
-Subject: [PATCH 4.19 285/421] usb: gadget: f_fs: Fix setting of device and driver data cross-references
+Subject: [PATCH 4.14 207/315] usb: gadget: f_fs: Fix setting of device and driver data cross-references
 Date:   Mon, 19 Jul 2021 16:51:36 +0200
-Message-Id: <20210719144956.222039326@linuxfoundation.org>
+Message-Id: <20210719144950.234580892@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -421,7 +421,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/gadget/function/f_fs.c
 +++ b/drivers/usb/gadget/function/f_fs.c
-@@ -243,8 +243,8 @@ EXPORT_SYMBOL_GPL(ffs_lock);
+@@ -247,8 +247,8 @@ EXPORT_SYMBOL_GPL(ffs_lock);
  static struct ffs_dev *_ffs_find_dev(const char *name);
  static struct ffs_dev *_ffs_alloc_dev(void);
  static void _ffs_free_dev(struct ffs_dev *dev);
@@ -432,7 +432,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  static int ffs_ready(struct ffs_data *ffs);
  static void ffs_closed(struct ffs_data *ffs);
  
-@@ -1515,7 +1515,6 @@ ffs_fs_mount(struct file_system_type *t,
+@@ -1505,7 +1505,6 @@ ffs_fs_mount(struct file_system_type *t,
  	};
  	struct dentry *rv;
  	int ret;
@@ -440,7 +440,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct ffs_data	*ffs;
  
  	ENTER();
-@@ -1536,19 +1535,16 @@ ffs_fs_mount(struct file_system_type *t,
+@@ -1526,19 +1525,16 @@ ffs_fs_mount(struct file_system_type *t,
  		return ERR_PTR(-ENOMEM);
  	}
  
@@ -464,7 +464,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return rv;
  }
  
-@@ -1558,10 +1554,8 @@ ffs_fs_kill_sb(struct super_block *sb)
+@@ -1548,10 +1544,8 @@ ffs_fs_kill_sb(struct super_block *sb)
  	ENTER();
  
  	kill_litter_super(sb);
@@ -476,7 +476,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static struct file_system_type ffs_fs_type = {
-@@ -1630,6 +1624,7 @@ static void ffs_data_put(struct ffs_data
+@@ -1620,6 +1614,7 @@ static void ffs_data_put(struct ffs_data
  	if (unlikely(refcount_dec_and_test(&ffs->ref))) {
  		pr_info("%s(): freeing\n", __func__);
  		ffs_data_clear(ffs);
@@ -484,7 +484,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		BUG_ON(waitqueue_active(&ffs->ev.waitq) ||
  		       waitqueue_active(&ffs->ep0req_completion.wait) ||
  		       waitqueue_active(&ffs->wait));
-@@ -2934,6 +2929,7 @@ static inline struct f_fs_opts *ffs_do_f
+@@ -2924,6 +2919,7 @@ static inline struct f_fs_opts *ffs_do_f
  	struct ffs_function *func = ffs_func_from_usb(f);
  	struct f_fs_opts *ffs_opts =
  		container_of(f->fi, struct f_fs_opts, func_inst);
@@ -492,7 +492,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int ret;
  
  	ENTER();
-@@ -2948,12 +2944,13 @@ static inline struct f_fs_opts *ffs_do_f
+@@ -2938,12 +2934,13 @@ static inline struct f_fs_opts *ffs_do_f
  	if (!ffs_opts->no_configfs)
  		ffs_dev_lock();
  	ret = ffs_opts->dev->desc_ready ? 0 : -ENODEV;
@@ -507,7 +507,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	func->conf = c;
  	func->gadget = c->cdev->gadget;
  
-@@ -3408,6 +3405,7 @@ static void ffs_free_inst(struct usb_fun
+@@ -3398,6 +3395,7 @@ static void ffs_free_inst(struct usb_fun
  	struct f_fs_opts *opts;
  
  	opts = to_f_fs_opts(f);
@@ -515,7 +515,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	ffs_dev_lock();
  	_ffs_free_dev(opts->dev);
  	ffs_dev_unlock();
-@@ -3595,47 +3593,48 @@ static void _ffs_free_dev(struct ffs_dev
+@@ -3585,47 +3583,48 @@ static void _ffs_free_dev(struct ffs_dev
  {
  	list_del(&dev->entry);
  
@@ -583,7 +583,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  		if (ffs_dev->ffs_release_dev_callback)
  			ffs_dev->ffs_release_dev_callback(ffs_dev);
-@@ -3663,7 +3662,6 @@ static int ffs_ready(struct ffs_data *ff
+@@ -3653,7 +3652,6 @@ static int ffs_ready(struct ffs_data *ff
  	}
  
  	ffs_obj->desc_ready = true;
@@ -591,7 +591,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (ffs_obj->ffs_ready_callback) {
  		ret = ffs_obj->ffs_ready_callback(ffs);
-@@ -3691,7 +3689,6 @@ static void ffs_closed(struct ffs_data *
+@@ -3681,7 +3679,6 @@ static void ffs_closed(struct ffs_data *
  		goto done;
  
  	ffs_obj->desc_ready = false;
