@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8583CE250
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FE63CE413
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348070AbhGSPaA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
+        id S1347640AbhGSPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348114AbhGSPYf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D653B61446;
-        Mon, 19 Jul 2021 16:01:53 +0000 (UTC)
+        id S1348898AbhGSPff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CBBF61248;
+        Mon, 19 Jul 2021 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710514;
-        bh=Uw4znneNdE3+jEIxxj3FTsKuwbyYOUj7XuRGv0103cM=;
+        s=korg; t=1626711313;
+        bh=xuWbw3UXh3nhvGk7DfHzJ+IA9prvE/TmTKUoeTavg4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AJHGby9voafge/GJoHNSrnVOoO+Kg9mpNE/tIyv5kmGFwOlzgjeFStzT4BMLGmq8k
-         TwxZLdO3W3rTvJr5PkGFuEKiJYuJCh6auol3KWpqiPGdHQvH6PhfWJPzAwMKAEb1it
-         ipMK6As+ANdPlkJK8L/V26NJMvepsTv/jIupYP54=
+        b=QZOkGcb0tCbQ+c788uILhDuEZEhtj2gQEoF+CPw5rwFAx95wRwrAxiACZQdwJH381
+         97OvHLaCPbZbaCofHExSL5W44SXYawjBkCU+bQcGJquFoC6s/+5Sv+vIjKItXPN5Ru
+         0VzddKOS6q1ak3TkLs25Nabey4mPPpfydVhXYI70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 223/243] ARM: dts: am437x: align ti,pindir-d0-out-d1-in property with dt-shema
+Subject: [PATCH 5.13 306/351] firmware: arm_scmi: Reset Rx buffer to max size during async commands
 Date:   Mon, 19 Jul 2021 16:54:12 +0200
-Message-Id: <20210719144948.123838078@linuxfoundation.org>
+Message-Id: <20210719144955.171594013@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aswath Govindraju <a-govindraju@ti.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 9b11fec7345f21995f4ea4bafb0e108b9a620238 ]
+[ Upstream commit 0cb7af474e0dbb2f500c67aa62b6db9fafa74de2 ]
 
-ti,pindir-d0-out-d1-in property is expected to be of type boolean.
-Therefore, fix the property accordingly.
+During an async commands execution the Rx buffer length is at first set
+to max_msg_sz when the synchronous part of the command is first sent.
+However once the synchronous part completes the transport layer waits
+for the delayed response which will be processed using the same xfer
+descriptor initially allocated. Since synchronous response received at
+the end of the xfer will shrink the Rx buffer length to the effective
+payload response length, it needs to be reset again.
 
-Fixes: b0b039515445 ("ARM: dts: am43x-epos-evm: set data pin directions for spi0 and spi1")
-Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Raise the Rx buffer length again to max_msg_sz before fetching the
+delayed response to ensure full response is read correctly from the
+shared memory.
+
+Link: https://lore.kernel.org/r/20210601102421.26581-2-cristian.marussi@arm.com
+Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+[sudeep.holla: moved reset to scmi_handle_response as it could race with
+               do_xfer_with_response]
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am43x-epos-evm.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
-index f517d1e843cf..8b696107eef8 100644
---- a/arch/arm/boot/dts/am43x-epos-evm.dts
-+++ b/arch/arm/boot/dts/am43x-epos-evm.dts
-@@ -860,7 +860,7 @@
- 	pinctrl-names = "default", "sleep";
- 	pinctrl-0 = <&spi0_pins_default>;
- 	pinctrl-1 = <&spi0_pins_sleep>;
--	ti,pindir-d0-out-d1-in = <1>;
-+	ti,pindir-d0-out-d1-in;
- };
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index 66eb3f0e5daf..5e8e9337adc7 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -335,6 +335,10 @@ static void scmi_handle_response(struct scmi_chan_info *cinfo,
+ 		return;
+ 	}
  
- &spi1 {
-@@ -868,7 +868,7 @@
- 	pinctrl-names = "default", "sleep";
- 	pinctrl-0 = <&spi1_pins_default>;
- 	pinctrl-1 = <&spi1_pins_sleep>;
--	ti,pindir-d0-out-d1-in = <1>;
-+	ti,pindir-d0-out-d1-in;
- };
++	/* rx.len could be shrunk in the sync do_xfer, so reset to maxsz */
++	if (msg_type == MSG_TYPE_DELAYED_RESP)
++		xfer->rx.len = info->desc->max_msg_size;
++
+ 	scmi_dump_header_dbg(dev, &xfer->hdr);
  
- &usb2_phy1 {
+ 	info->desc->ops->fetch_response(cinfo, xfer);
 -- 
 2.30.2
 
