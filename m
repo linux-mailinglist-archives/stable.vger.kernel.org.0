@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7CC3CDAB1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A6BA3CD8F6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245147AbhGSOhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:37:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S242563AbhGSO0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244906AbhGSOfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9322661073;
-        Mon, 19 Jul 2021 15:16:27 +0000 (UTC)
+        id S244033AbhGSOYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6EE861166;
+        Mon, 19 Jul 2021 15:04:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707788;
-        bh=rPD9mpr32J57dyxX2aHyxixkh9g8rEJEwDd4Ufn5pa8=;
+        s=korg; t=1626707094;
+        bh=pcTpmDa2B6Mt9+IbFS58Ge7g5y18OtLbWxe0ijQFQoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BoOnT+kW1Gs+nRUcz8p8r+NbYSY1L8V7e4179huB53j89i6LtilaVukJ4lviNWHIW
-         5kEt2TsFwLAMjZ0LnuTgEbC6+tJKPnc81IzEUKLo2rjRLZ7Lm8wV7EABw35F3/XWd7
-         03AIKYOvDM26FYnzU9bFBQKXhixR9YOEtKATNdek=
+        b=T2g8ML71WtmVZOM9p9H7PqaxZVxRfkgL1BXwcpiVndoiRf2nUsOVPZVMeHf4tpsJp
+         J3LIwlgyuuapzIOQa+pBi/9WdHk/H117aypfKsO2mB6bSVtDGbHfL2tx+LaZzGtQTa
+         ZR7lq2shjplkumqBedAQhdifirirYTLDjJh0CeCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/315] btrfs: fix error handling in __btrfs_update_delayed_inode
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 003/245] Input: usbtouchscreen - fix control-request directions
 Date:   Mon, 19 Jul 2021 16:49:05 +0200
-Message-Id: <20210719144944.701049112@linuxfoundation.org>
+Message-Id: <20210719144940.466833740@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +39,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit bb385bedded3ccbd794559600de4a09448810f4a ]
+commit 41e81022a04a0294c55cfa7e366bc14b9634c66e upstream.
 
-If we get an error while looking up the inode item we'll simply bail
-without cleaning up the delayed node.  This results in this style of
-warning happening on commit:
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-  WARNING: CPU: 0 PID: 76403 at fs/btrfs/delayed-inode.c:1365 btrfs_assert_delayed_root_empty+0x5b/0x90
-  CPU: 0 PID: 76403 Comm: fsstress Tainted: G        W         5.13.0-rc1+ #373
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:btrfs_assert_delayed_root_empty+0x5b/0x90
-  RSP: 0018:ffffb8bb815a7e50 EFLAGS: 00010286
-  RAX: 0000000000000000 RBX: ffff95d6d07e1888 RCX: ffff95d6c0fa3000
-  RDX: 0000000000000002 RSI: 000000000029e91c RDI: ffff95d6c0fc8060
-  RBP: ffff95d6c0fc8060 R08: 00008d6d701a2c1d R09: 0000000000000000
-  R10: ffff95d6d1760ea0 R11: 0000000000000001 R12: ffff95d6c15a4d00
-  R13: ffff95d6c0fa3000 R14: 0000000000000000 R15: ffffb8bb815a7e90
-  FS:  00007f490e8dbb80(0000) GS:ffff95d73bc00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f6e75555cb0 CR3: 00000001101ce001 CR4: 0000000000370ef0
-  Call Trace:
-   btrfs_commit_transaction+0x43c/0xb00
-   ? finish_wait+0x80/0x80
-   ? vfs_fsync_range+0x90/0x90
-   iterate_supers+0x8c/0x100
-   ksys_sync+0x50/0x90
-   __do_sys_sync+0xa/0x10
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Fix the four control requests which erroneously used usb_rcvctrlpipe().
 
-Because the iref isn't dropped and this leaves an elevated node->count,
-so any release just re-queues it onto the delayed inodes list.  Fix this
-by going to the out label to handle the proper cleanup of the delayed
-node.
+Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
+Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
+Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable@vger.kernel.org      # 2.6.17
+Link: https://lore.kernel.org/r/20210524092048.4443-1-johan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/delayed-inode.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/delayed-inode.c b/fs/btrfs/delayed-inode.c
-index 416fb50a5378..3631154d8245 100644
---- a/fs/btrfs/delayed-inode.c
-+++ b/fs/btrfs/delayed-inode.c
-@@ -1064,12 +1064,10 @@ static int __btrfs_update_delayed_inode(struct btrfs_trans_handle *trans,
- 	nofs_flag = memalloc_nofs_save();
- 	ret = btrfs_lookup_inode(trans, root, path, &key, mod);
- 	memalloc_nofs_restore(nofs_flag);
--	if (ret > 0) {
--		btrfs_release_path(path);
--		return -ENOENT;
--	} else if (ret < 0) {
--		return ret;
--	}
-+	if (ret > 0)
-+		ret = -ENOENT;
-+	if (ret < 0)
-+		goto out;
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -266,7 +266,7 @@ static int e2i_init(struct usbtouch_usb
+ 	int ret;
+ 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
- 	leaf = path->nodes[0];
- 	inode_item = btrfs_item_ptr(leaf, path->slots[0],
--- 
-2.30.2
-
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      0x01, 0x02, 0x0000, 0x0081,
+ 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
+ 
+@@ -462,7 +462,7 @@ static int mtouch_init(struct usbtouch_u
+ 	int ret, i;
+ 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
+ 
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      MTOUCHUSB_RESET,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -474,7 +474,7 @@ static int mtouch_init(struct usbtouch_u
+ 	msleep(150);
+ 
+ 	for (i = 0; i < 3; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      MTOUCHUSB_ASYNC_REPORT,
+ 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -645,7 +645,7 @@ static int dmc_tsc10_init(struct usbtouc
+ 	}
+ 
+ 	/* start sending data */
+-	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 	                      TSC10_CMD_DATA1,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
 
 
