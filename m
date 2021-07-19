@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99853CE557
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8D223CE4E8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347748AbhGSPsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:48:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
+        id S1346245AbhGSPqz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349624AbhGSPpP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DD5C610C7;
-        Mon, 19 Jul 2021 16:25:51 +0000 (UTC)
+        id S1349294AbhGSPo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:44:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F9FC61629;
+        Mon, 19 Jul 2021 16:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711952;
-        bh=j4v5bf/wFIPeGXrivdJqrxD4COA5DL2k+uD4+wcYois=;
+        s=korg; t=1626711863;
+        bh=rpDobu1G+F7akFTYlmVyFeM8NUSVwORrKbFMdXzVVOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRwXPayjIpym6pjN9Vc90ktyw0JNU9FWfpubgALX5ZG2Oomtjby9hAkwQmc0mnZ5l
-         IfKJch68c/v7ne4d5/npR1NwE+In49RfE/iCaJesnVNp5diJiLRJgmYsxMNSbK+1oJ
-         T6UAUyrJBbvufGWlNRKvG9Rr6hzfnZ5QXnubpiNo=
+        b=HzVh0eP1Z9YKcoEzP7QkPQ1RqCzEB+1saNYhthrIptU2hVXBGAs0oMeDcn5gvpSSe
+         uwd07URoRKpFJfwS482QoZxR/LAw8FWsFjUQDb+CWY81ydxDb9bPqgRWRCwDkfmfvy
+         RoimF0JIfO/oXmIB2f1+hYsCP8CR/AFK2m+eO5mE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Evan Quan <evan.quan@amd.com>,
+        Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 160/292] power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic
-Date:   Mon, 19 Jul 2021 16:53:42 +0200
-Message-Id: <20210719144947.754926033@linuxfoundation.org>
+Subject: [PATCH 5.12 161/292] drm/amdgpu: fix Navi1x tcp power gating hang when issuing lightweight invalidaiton
+Date:   Mon, 19 Jul 2021 16:53:43 +0200
+Message-Id: <20210719144947.785514648@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,70 +41,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Evan Quan <evan.quan@amd.com>
 
-[ Upstream commit 3a06b912a5ce494d7b7300b12719c562be7b566f ]
+[ Upstream commit 9c26ddb1c5b6e30c6bca48b8ad9205d96efe93d0 ]
 
-It turns out that the "T3 MRD" DMI_BOARD_NAME value is used in a lot of
-different Cherry Trail x5-z8300 / x5-z8350 based Mini-PC / HDMI-stick
-models from Ace PC / Meegopad / MinisForum / Wintel (and likely also
-other vendors).
+Fix TCP hang when a lightweight invalidation happens on Navi1x.
 
-Most of the other DMI strings on these boxes unfortunately contain various
-generic values like "Default string" or "$(DEFAULT_STRING)", so we cannot
-match on them. These devices do have their chassis-type correctly set to a
-value of "3" (desktop) which is a pleasant surprise, so also match on that.
-
-This should avoid the quirk accidentally also getting applied to laptops /
-tablets (which do actually have a battery). Although in my quite large
-database of Bay and Cherry Trail based devices DMIdecode dumps I don't
-have any laptops / tables with a board-name of "T3 MRD", so this should
-not be an issue.
-
-BugLink: https://askubuntu.com/questions/1206714/how-can-a-mini-pc-be-stopped-from-being-detected-as-a-laptop-with-a-battery/
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/axp288_fuel_gauge.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c | 95 ++++++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
 
-diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
-index 39e16ecb7638..37af0e216bc3 100644
---- a/drivers/power/supply/axp288_fuel_gauge.c
-+++ b/drivers/power/supply/axp288_fuel_gauge.c
-@@ -723,15 +723,6 @@ static const struct dmi_system_id axp288_fuel_gauge_blacklist[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "MEEGOPAD T02"),
- 		},
- 	},
--	{
--		/* Meegopad T08 */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Default string"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "To be filled by OEM."),
--			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
--			DMI_MATCH(DMI_BOARD_VERSION, "V1.1"),
--		},
--	},
- 	{	/* Mele PCG03 Mini PC */
- 		.matches = {
- 			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Mini PC"),
-@@ -745,6 +736,15 @@ static const struct dmi_system_id axp288_fuel_gauge_blacklist[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
- 		}
- 	},
-+	{
-+		/* Various Ace PC/Meegopad/MinisForum/Wintel Mini-PCs/HDMI-sticks */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
-+			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
-+			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
-+			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
-+		},
-+	},
- 	{}
- };
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+index 2342c5d216f9..5c40912b51d1 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
+@@ -7744,6 +7744,97 @@ static void gfx_v10_0_update_fine_grain_clock_gating(struct amdgpu_device *adev,
+ 	}
+ }
  
++static void gfx_v10_0_apply_medium_grain_clock_gating_workaround(struct amdgpu_device *adev)
++{
++	uint32_t reg_data = 0;
++	uint32_t reg_idx = 0;
++	uint32_t i;
++
++	const uint32_t tcp_ctrl_regs[] = {
++		mmCGTS_SA0_WGP00_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP00_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP01_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP01_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP02_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP02_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP10_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP10_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP11_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP11_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP12_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP12_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP00_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP00_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP01_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP01_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP02_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP02_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP10_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP10_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP11_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP11_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP12_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP12_CU1_TCP_CTRL_REG
++	};
++
++	const uint32_t tcp_ctrl_regs_nv12[] = {
++		mmCGTS_SA0_WGP00_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP00_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP01_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP01_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP02_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP02_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP10_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP10_CU1_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP11_CU0_TCP_CTRL_REG,
++		mmCGTS_SA0_WGP11_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP00_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP00_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP01_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP01_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP02_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP02_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP10_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP10_CU1_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP11_CU0_TCP_CTRL_REG,
++		mmCGTS_SA1_WGP11_CU1_TCP_CTRL_REG,
++	};
++
++	const uint32_t sm_ctlr_regs[] = {
++		mmCGTS_SA0_QUAD0_SM_CTRL_REG,
++		mmCGTS_SA0_QUAD1_SM_CTRL_REG,
++		mmCGTS_SA1_QUAD0_SM_CTRL_REG,
++		mmCGTS_SA1_QUAD1_SM_CTRL_REG
++	};
++
++	if (adev->asic_type == CHIP_NAVI12) {
++		for (i = 0; i < ARRAY_SIZE(tcp_ctrl_regs_nv12); i++) {
++			reg_idx = adev->reg_offset[GC_HWIP][0][mmCGTS_SA0_WGP00_CU0_TCP_CTRL_REG_BASE_IDX] +
++				  tcp_ctrl_regs_nv12[i];
++			reg_data = RREG32(reg_idx);
++			reg_data |= CGTS_SA0_WGP00_CU0_TCP_CTRL_REG__TCPI_LS_OVERRIDE_MASK;
++			WREG32(reg_idx, reg_data);
++		}
++	} else {
++		for (i = 0; i < ARRAY_SIZE(tcp_ctrl_regs); i++) {
++			reg_idx = adev->reg_offset[GC_HWIP][0][mmCGTS_SA0_WGP00_CU0_TCP_CTRL_REG_BASE_IDX] +
++				  tcp_ctrl_regs[i];
++			reg_data = RREG32(reg_idx);
++			reg_data |= CGTS_SA0_WGP00_CU0_TCP_CTRL_REG__TCPI_LS_OVERRIDE_MASK;
++			WREG32(reg_idx, reg_data);
++		}
++	}
++
++	for (i = 0; i < ARRAY_SIZE(sm_ctlr_regs); i++) {
++		reg_idx = adev->reg_offset[GC_HWIP][0][mmCGTS_SA0_QUAD0_SM_CTRL_REG_BASE_IDX] +
++			  sm_ctlr_regs[i];
++		reg_data = RREG32(reg_idx);
++		reg_data &= ~CGTS_SA0_QUAD0_SM_CTRL_REG__SM_MODE_MASK;
++		reg_data |= 2 << CGTS_SA0_QUAD0_SM_CTRL_REG__SM_MODE__SHIFT;
++		WREG32(reg_idx, reg_data);
++	}
++}
++
+ static int gfx_v10_0_update_gfx_clock_gating(struct amdgpu_device *adev,
+ 					    bool enable)
+ {
+@@ -7760,6 +7851,10 @@ static int gfx_v10_0_update_gfx_clock_gating(struct amdgpu_device *adev,
+ 		gfx_v10_0_update_3d_clock_gating(adev, enable);
+ 		/* ===  CGCG + CGLS === */
+ 		gfx_v10_0_update_coarse_grain_clock_gating(adev, enable);
++
++		if ((adev->asic_type >= CHIP_NAVI10) &&
++		     (adev->asic_type <= CHIP_NAVI12))
++			gfx_v10_0_apply_medium_grain_clock_gating_workaround(adev);
+ 	} else {
+ 		/* CGCG/CGLS should be disabled before MGCG/MGLS
+ 		 * ===  CGCG + CGLS ===
 -- 
 2.30.2
 
