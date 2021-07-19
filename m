@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E92063CDB6F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BEBB3CD822
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245105AbhGSOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60916 "EHLO mail.kernel.org"
+        id S242791AbhGSOUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:20:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244208AbhGSOka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:40:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCC5461175;
-        Mon, 19 Jul 2021 15:21:08 +0000 (UTC)
+        id S241555AbhGSOS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A42961002;
+        Mon, 19 Jul 2021 14:59:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708069;
-        bh=qsIHHwD5PwQiuhnjDssTRMjsBvM7qqNQlrYb/pmkRdI=;
+        s=korg; t=1626706748;
+        bh=eZsYcQnmi/fIQnY2rk4ZZAUcj2muKr1QXMOFblfMjYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KVrl60qYIhMa7dGjLMc3mQg2PNZS4pnjw/6jTrVcSYuHSgn/Jn0bzBc+AYNCzdaec
-         X8KCc3vXxzJ6L9tpXaRwjitNniJXgvCGE5vxa+HQpOiI4DsxH2iWxmWgn45eHYtNdO
-         o4Df/U0xrgkLTSpMYqN6L9zLl2NnEzvdaMCEYqmA=
+        b=uUSQ4dmpGlYYta8NYBMteCPRPkpuI5ayQk7HGh9K/A3qv/s6KvVj7yzb7aU4rqp7M
+         /4aZvv/L8PIbnxv4gof9qvXYPNKYg9V274zuCyUhSWycIB0+KlrJBGzRLyQdHb6xvq
+         IEm/3Eum10A3pyzBdrlCVqXYreOo/QAJO5eK84y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Juri Lelli <juri.lelli@redhat.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 168/315] net: Treat __napi_schedule_irqoff() as __napi_schedule() on PREEMPT_RT
-Date:   Mon, 19 Jul 2021 16:50:57 +0200
-Message-Id: <20210719144948.420026059@linuxfoundation.org>
+Subject: [PATCH 4.4 074/188] i40e: Fix error handling in i40e_vsi_open
+Date:   Mon, 19 Jul 2021 16:50:58 +0200
+Message-Id: <20210719144930.267138918@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,62 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 8380c81d5c4fced6f4397795a5ae65758272bbfd ]
+[ Upstream commit 9c04cfcd4aad232e36306cdc5c74cd9fc9148a7e ]
 
-__napi_schedule_irqoff() is an optimized version of __napi_schedule()
-which can be used where it is known that interrupts are disabled,
-e.g. in interrupt-handlers, spin_lock_irq() sections or hrtimer
-callbacks.
+When vsi->type == I40E_VSI_FDIR, we have caught the return value of
+i40e_vsi_request_irq() but without further handling. Check and execute
+memory clean on failure just like the other i40e_vsi_request_irq().
 
-On PREEMPT_RT enabled kernels this assumptions is not true. Force-
-threaded interrupt handlers and spinlocks are not disabling interrupts
-and the NAPI hrtimer callback is forced into softirq context which runs
-with interrupts enabled as well.
-
-Chasing all usage sites of __napi_schedule_irqoff() is a whack-a-mole
-game so make __napi_schedule_irqoff() invoke __napi_schedule() for
-PREEMPT_RT kernels.
-
-The callers of ____napi_schedule() in the networking core have been
-audited and are correct on PREEMPT_RT kernels as well.
-
-Reported-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Juri Lelli <juri.lelli@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8a9eb7d3cbcab ("i40e: rework fdir setup and teardown")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 7ee89125cd53..aa419f3162b8 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -5277,11 +5277,18 @@ EXPORT_SYMBOL(napi_schedule_prep);
-  * __napi_schedule_irqoff - schedule for receive
-  * @n: entry to schedule
-  *
-- * Variant of __napi_schedule() assuming hard irqs are masked
-+ * Variant of __napi_schedule() assuming hard irqs are masked.
-+ *
-+ * On PREEMPT_RT enabled kernels this maps to __napi_schedule()
-+ * because the interrupt disabled assumption might not be true
-+ * due to force-threaded interrupts and spinlock substitution.
-  */
- void __napi_schedule_irqoff(struct napi_struct *n)
- {
--	____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	if (!IS_ENABLED(CONFIG_PREEMPT_RT))
-+		____napi_schedule(this_cpu_ptr(&softnet_data), n);
-+	else
-+		__napi_schedule(n);
- }
- EXPORT_SYMBOL(__napi_schedule_irqoff);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 8bdc17658f3f..d6d4faa5c542 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5409,6 +5409,8 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
+ 			 dev_driver_string(&pf->pdev->dev),
+ 			 dev_name(&pf->pdev->dev));
+ 		err = i40e_vsi_request_irq(vsi, int_name);
++		if (err)
++			goto err_setup_rx;
  
+ 	} else {
+ 		err = -EINVAL;
 -- 
 2.30.2
 
