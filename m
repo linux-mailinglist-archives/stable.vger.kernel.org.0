@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC2393CDC03
+	by mail.lfdr.de (Postfix) with ESMTP id 6E10D3CDC02
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240760AbhGSOvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60500 "EHLO mail.kernel.org"
+        id S240717AbhGSOvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245440AbhGSOmQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245442AbhGSOmQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:42:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFD976128C;
-        Mon, 19 Jul 2021 15:21:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBB2061263;
+        Mon, 19 Jul 2021 15:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708108;
-        bh=OHeKcj5Y7wojStNmRsrQTDg6/hIqKU5JXWtwErSIH98=;
+        s=korg; t=1626708110;
+        bh=XlFgMBEfnDCIm0DhoNeSAAWKiwqQ3nsWZgM0gSwZEe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHc0g96R5j10EqCdkI3q0RdD8CtU1BHw60w9hLQHwkeJuZwDPSQxvmfx+SlvjmK33
-         y/4VLn0LgowXEgzmLI+oRFJ+qXGCq++fs+wmfh6FL7v413T+iAdKRTdLpxT8Up+S2K
-         XJ2RxxRmrQ6ZCSQzkekioAyxqphnYUw3N6EsweHM=
+        b=nthQEjBw1OxOLFngQPnC9p7Fz37ynTD5K29cOJ2c9IWAF9ynBG5LuPg1RwIs5G9fS
+         kEJsFXdlpcse3xqdspOJcAsftmdC+jUXOMB37WQ/trH9Gobk05fgIidfpD1L42YWS+
+         PQIyACxkHpqBqL9s+SE6jcAr6Tj5uVrcDc/nJcjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 149/315] scsi: mpt3sas: Fix error return value in _scsih_expander_add()
-Date:   Mon, 19 Jul 2021 16:50:38 +0200
-Message-Id: <20210719144947.791528288@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 150/315] phy: ti: dm816x: Fix the error handling path in dm816x_usb_phy_probe()
+Date:   Mon, 19 Jul 2021 16:50:39 +0200
+Message-Id: <20210719144947.828944056@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -41,41 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit d6c2ce435ffe23ef7f395ae76ec747414589db46 ]
+[ Upstream commit f7eedcb8539ddcbb6fe7791f1b4ccf43f905c72f ]
 
-When an expander does not contain any 'phys', an appropriate error code -1
-should be returned, as done elsewhere in this function. However, we
-currently do not explicitly assign this error code to 'rc'. As a result, 0
-was incorrectly returned.
+Add an error handling path in the probe to release some resources, as
+already done in the remove function.
 
-Link: https://lore.kernel.org/r/20210514081300.6650-1-thunder.leizhen@huawei.com
-Fixes: f92363d12359 ("[SCSI] mpt3sas: add new driver supporting 12GB SAS")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 609adde838f4 ("phy: Add a driver for dm816x USB PHY")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/ac5136881f6bdec50be19b3bf73b3bc1b15ef1f1.1622898974.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_scsih.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/phy/ti/phy-dm816x-usb.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-index 400c055167b0..332ea3af69ec 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
-@@ -5236,8 +5236,10 @@ _scsih_expander_add(struct MPT3SAS_ADAPTER *ioc, u16 handle)
- 	    handle, parent_handle, (unsigned long long)
- 	    sas_expander->sas_address, sas_expander->num_phys);
+diff --git a/drivers/phy/ti/phy-dm816x-usb.c b/drivers/phy/ti/phy-dm816x-usb.c
+index cbcce7cf0028..2ed5fe20d779 100644
+--- a/drivers/phy/ti/phy-dm816x-usb.c
++++ b/drivers/phy/ti/phy-dm816x-usb.c
+@@ -246,19 +246,28 @@ static int dm816x_usb_phy_probe(struct platform_device *pdev)
  
--	if (!sas_expander->num_phys)
-+	if (!sas_expander->num_phys) {
-+		rc = -1;
- 		goto out_fail;
+ 	pm_runtime_enable(phy->dev);
+ 	generic_phy = devm_phy_create(phy->dev, NULL, &ops);
+-	if (IS_ERR(generic_phy))
+-		return PTR_ERR(generic_phy);
++	if (IS_ERR(generic_phy)) {
++		error = PTR_ERR(generic_phy);
++		goto clk_unprepare;
 +	}
- 	sas_expander->phy = kcalloc(sas_expander->num_phys,
- 	    sizeof(struct _sas_phy), GFP_KERNEL);
- 	if (!sas_expander->phy) {
+ 
+ 	phy_set_drvdata(generic_phy, phy);
+ 
+ 	phy_provider = devm_of_phy_provider_register(phy->dev,
+ 						     of_phy_simple_xlate);
+-	if (IS_ERR(phy_provider))
+-		return PTR_ERR(phy_provider);
++	if (IS_ERR(phy_provider)) {
++		error = PTR_ERR(phy_provider);
++		goto clk_unprepare;
++	}
+ 
+ 	usb_add_phy_dev(&phy->phy);
+ 
+ 	return 0;
++
++clk_unprepare:
++	pm_runtime_disable(phy->dev);
++	clk_unprepare(phy->refclk);
++	return error;
+ }
+ 
+ static int dm816x_usb_phy_remove(struct platform_device *pdev)
 -- 
 2.30.2
 
