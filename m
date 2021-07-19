@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B61C73CDC33
+	by mail.lfdr.de (Postfix) with ESMTP id 4660C3CDC32
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242893AbhGSOvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S242833AbhGSOvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344449AbhGSOst (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344451AbhGSOst (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:48:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6B0660249;
-        Mon, 19 Jul 2021 15:29:13 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CB0560241;
+        Mon, 19 Jul 2021 15:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708554;
-        bh=2F1YceAhOmYXRFojOCBKHxLzQN8yw3ihgUr5UtzfwjU=;
+        s=korg; t=1626708560;
+        bh=Vn2V99S3tKjCz2qHU4IrEN+n4Te0ZW8MTELd31wPxZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZTq8W2cJrAwKLn+ED3dBgKpvZwBA2vYxgwCkqDDvjVAUsKQgVenyHZvHZaIP04EsC
-         FPNVg82gVBpp13QMqK9oCzK8Yl77JagVxkMFb8+/N+/8ixJ6IdDlDgdsgcLch4jWd1
-         I7CASASlVeVmP9ExOyPEtmRCZ+WIiGsUa7ov8m/w=
+        b=PKquXlvRRadoPuNQuj7nl5M3mzJVhT6fwvAU8qm3GcPwWETBa/a9+czRsKye2HlUi
+         scbJCjlBmrrHYrGMPMpKBqFgsEY3WM77lcMEa1ZJWvu07/ydYpxcQGb7PxbXdJPgFA
+         Qp7GgmhrDtM8fsA5VHj2ZlHmfR+4Xdqo7SiW8aIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 006/421] net: can: ems_usb: fix use-after-free in ems_usb_disconnect()
-Date:   Mon, 19 Jul 2021 16:46:57 +0200
-Message-Id: <20210719144946.523764807@linuxfoundation.org>
+        stable@vger.kernel.org, Hannu Hartikainen <hannu@hrtk.in>
+Subject: [PATCH 4.19 008/421] USB: cdc-acm: blacklist Heimann USB Appset device
+Date:   Mon, 19 Jul 2021 16:46:59 +0200
+Message-Id: <20210719144946.588377448@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -39,68 +38,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Hannu Hartikainen <hannu@hrtk.in>
 
-commit ab4a0b8fcb9a95c02909b62049811bd2e586aaa4 upstream.
+commit 4897807753e078655a78de39ed76044d784f3e63 upstream.
 
-In ems_usb_disconnect() dev pointer, which is netdev private data, is
-used after free_candev() call:
-| 	if (dev) {
-| 		unregister_netdev(dev->netdev);
-| 		free_candev(dev->netdev);
-|
-| 		unlink_all_urbs(dev);
-|
-| 		usb_free_urb(dev->intr_urb);
-|
-| 		kfree(dev->intr_in_buffer);
-| 		kfree(dev->tx_msg_buffer);
-| 	}
+The device (32a7:0000 Heimann Sensor GmbH USB appset demo) claims to be
+a CDC-ACM device in its descriptors but in fact is not. If it is run
+with echo disabled it returns garbled data, probably due to something
+that happens in the TTY layer. And when run with echo enabled (the
+default), it will mess up the calibration data of the sensor the first
+time any data is sent to the device.
 
-Fix it by simply moving free_candev() at the end of the block.
+In short, I had a bad time after connecting the sensor and trying to get
+it to work. I hope blacklisting it in the cdc-acm driver will save
+someone else a bit of trouble.
 
-Fail log:
-| BUG: KASAN: use-after-free in ems_usb_disconnect
-| Read of size 8 at addr ffff88804e041008 by task kworker/1:2/2895
-|
-| CPU: 1 PID: 2895 Comm: kworker/1:2 Not tainted 5.13.0-rc5+ #164
-| Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.4
-| Workqueue: usb_hub_wq hub_event
-| Call Trace:
-|     dump_stack (lib/dump_stack.c:122)
-|     print_address_description.constprop.0.cold (mm/kasan/report.c:234)
-|     kasan_report.cold (mm/kasan/report.c:420 mm/kasan/report.c:436)
-|     ems_usb_disconnect (drivers/net/can/usb/ems_usb.c:683 drivers/net/can/usb/ems_usb.c:1058)
-
-Fixes: 702171adeed3 ("ems_usb: Added support for EMS CPC-USB/ARM7 CAN/USB interface")
-Link: https://lore.kernel.org/r/20210617185130.5834-1-paskripkin@gmail.com
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Hannu Hartikainen <hannu@hrtk.in>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210622141454.337948-1-hannu@hrtk.in
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/can/usb/ems_usb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/class/cdc-acm.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/can/usb/ems_usb.c
-+++ b/drivers/net/can/usb/ems_usb.c
-@@ -1065,7 +1065,6 @@ static void ems_usb_disconnect(struct us
+--- a/drivers/usb/class/cdc-acm.c
++++ b/drivers/usb/class/cdc-acm.c
+@@ -2000,6 +2000,11 @@ static const struct usb_device_id acm_id
+ 	.driver_info = IGNORE_DEVICE,
+ 	},
  
- 	if (dev) {
- 		unregister_netdev(dev->netdev);
--		free_candev(dev->netdev);
- 
- 		unlink_all_urbs(dev);
- 
-@@ -1073,6 +1072,8 @@ static void ems_usb_disconnect(struct us
- 
- 		kfree(dev->intr_in_buffer);
- 		kfree(dev->tx_msg_buffer);
++	/* Exclude Heimann Sensor GmbH USB appset demo */
++	{ USB_DEVICE(0x32a7, 0x0000),
++	.driver_info = IGNORE_DEVICE,
++	},
 +
-+		free_candev(dev->netdev);
- 	}
- }
- 
+ 	/* control interfaces without any protocol set */
+ 	{ USB_INTERFACE_INFO(USB_CLASS_COMM, USB_CDC_SUBCLASS_ACM,
+ 		USB_CDC_PROTO_NONE) },
 
 
