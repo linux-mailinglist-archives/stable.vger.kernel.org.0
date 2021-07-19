@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 537093CD992
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B4B03CD990
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242567AbhGSOat (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38874 "EHLO mail.kernel.org"
+        id S245187AbhGSOas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244223AbhGSO32 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244233AbhGSO32 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:29:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F136120A;
-        Mon, 19 Jul 2021 15:08:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC2F61287;
+        Mon, 19 Jul 2021 15:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707338;
-        bh=MkA7JpnR5IKWj3YGXYf0kS7gG1tFG56PH0QWaBT1mxo=;
+        s=korg; t=1626707340;
+        bh=zeHqsCcQ31O/wt2L4qPT2BBmQLyfLs2ZaJFSVRXw3E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ys1o2IYOH6QuXjTTZTt8q8bsfQcn9k8thOx4KeT+klV0AqZMDQHxNl7PaZ3hORBBf
-         iqbC5qJVTHeDNzocbXMVWPKXs2H4S1Annf1oY7xgkBdJ+LxmZDzT/msu48toLzkrwE
-         lkRm3lmGvpMQImgvAuU5p6fK8rOlJ8A5xwHhyNhE=
+        b=LnwbTQnjJkv39qdUJZQRahUoM+uSVLz6VFmhMe9Fx/FA8KNqO7S6ZTrLpJ2IJspX5
+         3AnazzgBN279E0MGvlW59E4p5CnhNXpYm1Kq9hjTETgRFD2B97lFXGADOlc93K9Xgv
+         XUj0jW6aU5NBizt33b35v+/T/IfrQ0+rQFKjmvvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Minchan Kim <minchan@kernel.org>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        Rik van Riel <riel@surriel.com>,
-        Song Liu <songliubraving@fb.com>,
-        William Kucharski <william.kucharski@oracle.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+        stable@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Ram Pai <linuxram@us.ibm.com>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Florian Weimer <fweimer@redhat.com>,
+        "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michal Hocko <mhocko@kernel.org>,
+        Michal Suchanek <msuchanek@suse.de>,
+        Shuah Khan <shuah@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 120/245] mm/huge_memory.c: dont discard hugepage if other processes are mapping it
-Date:   Mon, 19 Jul 2021 16:51:02 +0200
-Message-Id: <20210719144944.297468476@linuxfoundation.org>
+Subject: [PATCH 4.9 121/245] selftests/vm/pkeys: fix alloc_random_pkey() to make it really, really random
+Date:   Mon, 19 Jul 2021 16:51:03 +0200
+Message-Id: <20210719144944.329974715@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -57,55 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit babbbdd08af98a59089334eb3effbed5a7a0cf7f ]
+[ Upstream commit f36ef407628835a7d7fb3d235b1f1aac7022d9a3 ]
 
-If other processes are mapping any other subpages of the hugepage, i.e.
-in pte-mapped thp case, page_mapcount() will return 1 incorrectly.  Then
-we would discard the page while other processes are still mapping it.  Fix
-it by using total_mapcount() which can tell whether other processes are
-still mapping it.
+Patch series "selftests/vm/pkeys: Bug fixes and a new test".
 
-Link: https://lkml.kernel.org/r/20210511134857.1581273-6-linmiaohe@huawei.com
-Fixes: b8d3c4c3009d ("mm/huge_memory.c: don't split THP page when MADV_FREE syscall is called")
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: William Kucharski <william.kucharski@oracle.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+There has been a lot of activity on the x86 front around the XSAVE
+architecture which is used to context-switch processor state (among other
+things).  In addition, AMD has recently joined the protection keys club by
+adding processor support for PKU.
+
+The AMD implementation helped uncover a kernel bug around the PKRU "init
+state", which actually applied to Intel's implementation but was just
+harder to hit.  This series adds a test which is expected to help find
+this class of bug both on AMD and Intel.  All the work around pkeys on x86
+also uncovered a few bugs in the selftest.
+
+This patch (of 4):
+
+The "random" pkey allocation code currently does the good old:
+
+	srand((unsigned int)time(NULL));
+
+*But*, it unfortunately does this on every random pkey allocation.
+
+There may be thousands of these a second.  time() has a one second
+resolution.  So, each time alloc_random_pkey() is called, the PRNG is
+*RESET* to time().  This is nasty.  Normally, if you do:
+
+	srand(<ANYTHING>);
+	foo = rand();
+	bar = rand();
+
+You'll be quite guaranteed that 'foo' and 'bar' are different.  But, if
+you do:
+
+	srand(1);
+	foo = rand();
+	srand(1);
+	bar = rand();
+
+You are quite guaranteed that 'foo' and 'bar' are the *SAME*.  The recent
+"fix" effectively forced the test case to use the same "random" pkey for
+the whole test, unless the test run crossed a second boundary.
+
+Only run srand() once at program startup.
+
+This explains some very odd and persistent test failures I've been seeing.
+
+Link: https://lkml.kernel.org/r/20210611164153.91B76FB8@viggo.jf.intel.com
+Link: https://lkml.kernel.org/r/20210611164155.192D00FF@viggo.jf.intel.com
+Fixes: 6e373263ce07 ("selftests/vm/pkeys: fix alloc_random_pkey() to make it really random")
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Ram Pai <linuxram@us.ibm.com>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: "Desnes A. Nunes do Rosario" <desnesn@linux.vnet.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Suchanek <msuchanek@suse.de>
+Cc: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/huge_memory.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/x86/protection_keys.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 177ca028b986..91f33bb43f17 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1369,7 +1369,7 @@ bool madvise_free_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
- 	 * If other processes are mapping this page, we couldn't discard
- 	 * the page unless they all do MADV_FREE so let's skip the page.
- 	 */
--	if (page_mapcount(page) != 1)
-+	if (total_mapcount(page) != 1)
- 		goto out;
+diff --git a/tools/testing/selftests/x86/protection_keys.c b/tools/testing/selftests/x86/protection_keys.c
+index 5338e668b5e6..d78736845b8e 100644
+--- a/tools/testing/selftests/x86/protection_keys.c
++++ b/tools/testing/selftests/x86/protection_keys.c
+@@ -609,7 +609,6 @@ int alloc_random_pkey(void)
+ 	int nr_alloced = 0;
+ 	int random_index;
+ 	memset(alloced_pkeys, 0, sizeof(alloced_pkeys));
+-	srand((unsigned int)time(NULL));
  
- 	if (!trylock_page(page))
+ 	/* allocate every possible key and make a note of which ones we got */
+ 	max_nr_pkey_allocs = NR_PKEYS;
+@@ -1387,6 +1386,8 @@ int main(void)
+ {
+ 	int nr_iterations = 22;
+ 
++	srand((unsigned int)time(NULL));
++
+ 	setup_handlers();
+ 
+ 	printf("has pku: %d\n", cpu_has_pku());
 -- 
 2.30.2
 
