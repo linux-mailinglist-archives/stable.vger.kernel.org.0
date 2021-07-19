@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E443CE5E4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 389063CE62F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348608AbhGSPz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47934 "EHLO mail.kernel.org"
+        id S235172AbhGSQCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 12:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348464AbhGSPtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348460AbhGSPtb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:49:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A32CB61627;
-        Mon, 19 Jul 2021 16:28:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 053C361626;
+        Mon, 19 Jul 2021 16:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712106;
-        bh=7QT1U953bYvLCzbE4HFNoLoGBw5K7L8I4mTsCqrarsk=;
+        s=korg; t=1626712111;
+        bh=nBuEjXP7MDnryNt1YS+NImG5NqXM1GptOt3LZMjOBnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDZT5szBT3q/qvsN5YwZNsaIRvv+MIloTVCkhzlyvsbLv4Ezx86QR5b1wg+tw1ySo
-         AtlatJskD2HLsG6EqRkSH9SAiwgJMAx6/pF4tHs3Sum5gZhhQ/3gYMLMrSljdk11E5
-         jHxz/+AhKPDqNz7keiiFwcEWMyE0EnZ9fsgr2UMk=
+        b=sO2WfowCqsX5rkMEJ/ijyCgUHt2ItaWVsFkLW+8bip9OfEHCahKDODEKMJpIXT4VF
+         IuXF+PLPaN4gCpk60KemAEljEcsVgd5ZzKeGJJmVIV0HYbiCtS8pwdxezGyl/6Rn9a
+         gVzyIXReoRN9faldDTvkSBD1jJJ8TEs+onUvQIWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 252/292] firmware: arm_scmi: Reset Rx buffer to max size during async commands
-Date:   Mon, 19 Jul 2021 16:55:14 +0200
-Message-Id: <20210719144951.227448524@linuxfoundation.org>
+Subject: [PATCH 5.12 253/292] dt-bindings: i2c: at91: fix example for scl-gpios
+Date:   Mon, 19 Jul 2021 16:55:15 +0200
+Message-Id: <20210719144951.257174646@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,48 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Nicolas Ferre <nicolas.ferre@microchip.com>
 
-[ Upstream commit 0cb7af474e0dbb2f500c67aa62b6db9fafa74de2 ]
+[ Upstream commit 92e669017ff1616ba7d8ba3c65f5193bc2a7acbe ]
 
-During an async commands execution the Rx buffer length is at first set
-to max_msg_sz when the synchronous part of the command is first sent.
-However once the synchronous part completes the transport layer waits
-for the delayed response which will be processed using the same xfer
-descriptor initially allocated. Since synchronous response received at
-the end of the xfer will shrink the Rx buffer length to the effective
-payload response length, it needs to be reset again.
+The SCL gpio pin used by I2C bus for recovery needs to be configured as
+open drain, so fix the binding example accordingly.
+In relation with fix c5a283802573 ("ARM: dts: at91: Configure I2C SCL
+gpio as open drain").
 
-Raise the Rx buffer length again to max_msg_sz before fetching the
-delayed response to ensure full response is read correctly from the
-shared memory.
-
-Link: https://lore.kernel.org/r/20210601102421.26581-2-cristian.marussi@arm.com
-Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-[sudeep.holla: moved reset to scmi_handle_response as it could race with
-               do_xfer_with_response]
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Fixes: 19e5cef058a0 ("dt-bindings: i2c: at91: document optional bus recovery properties")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/driver.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ Documentation/devicetree/bindings/i2c/i2c-at91.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
-index cacdf1589b10..9485e0f1f05f 100644
---- a/drivers/firmware/arm_scmi/driver.c
-+++ b/drivers/firmware/arm_scmi/driver.c
-@@ -268,6 +268,10 @@ static void scmi_handle_response(struct scmi_chan_info *cinfo,
- 		return;
- 	}
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-at91.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+index 96c914e048f5..2015f50aed0f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-at91.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
+@@ -73,7 +73,7 @@ i2c0: i2c@f8034600 {
+ 	pinctrl-0 = <&pinctrl_i2c0>;
+ 	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+ 	sda-gpios = <&pioA 30 GPIO_ACTIVE_HIGH>;
+-	scl-gpios = <&pioA 31 GPIO_ACTIVE_HIGH>;
++	scl-gpios = <&pioA 31 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
  
-+	/* rx.len could be shrunk in the sync do_xfer, so reset to maxsz */
-+	if (msg_type == MSG_TYPE_DELAYED_RESP)
-+		xfer->rx.len = info->desc->max_msg_size;
-+
- 	scmi_dump_header_dbg(dev, &xfer->hdr);
- 
- 	info->desc->ops->fetch_response(cinfo, xfer);
+ 	wm8731: wm8731@1a {
+ 		compatible = "wm8731";
 -- 
 2.30.2
 
