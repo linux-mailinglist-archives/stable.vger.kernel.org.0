@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 573FA3CE5A4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3005F3CE5BB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348012AbhGSPwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49372 "EHLO mail.kernel.org"
+        id S243322AbhGSPwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239802AbhGSPrH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:47:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86F9E613F5;
-        Mon, 19 Jul 2021 16:27:17 +0000 (UTC)
+        id S1344872AbhGSPrO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B40561414;
+        Mon, 19 Jul 2021 16:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712038;
-        bh=/6P/yh1GrLehfkA0U3vm5g25urVZMcCG+tR3K6Xmti8=;
+        s=korg; t=1626712040;
+        bh=4jecikHcgxeU8uQib/wwghp4sWMkjYX2jhx3uUKfQ5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AmH1dkOpKeiANvOL8E+zi9idVpOzS80TM8GuUQ23nFf6FAxTVnCM5zrhCe/v4g/9U
-         aeOSuNkPKI2n2YIGAVSQZHoHYJpBTQsPWoIx/9kC+dZdwA5kPtpY5OFs7jUQh3Ivn+
-         geAjtb7II0S2x+BVnl1rhjlnCf+FWzJoopu+3Evo=
+        b=HEwoXfXPXiIRVQ77ie58EKWOhEIDDJ2BNRf8mWOu4InaABdyBR5jX6fPwFOmiaZl6
+         pBQMk//BH+CduWeb6oyh46fPQf1ebCWOSwWLT7aBDr2E9dSSnVpIdMCPAjQQ9F6Lls
+         /JeCowgTSSV0FccT/zp8NHSo/E1wJQpLNfcctkwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -29,9 +29,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shruthi Sanil <shruthi.sanil@intel.com>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 193/292] watchdog: keembay: Remove timeout update in the WDT start function
-Date:   Mon, 19 Jul 2021 16:54:15 +0200
-Message-Id: <20210719144948.841231597@linuxfoundation.org>
+Subject: [PATCH 5.12 194/292] watchdog: keembay: Removed timeout update in the TO ISR
+Date:   Mon, 19 Jul 2021 16:54:16 +0200
+Message-Id: <20210719144948.871965281@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -45,19 +45,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shruthi Sanil <shruthi.sanil@intel.com>
 
-[ Upstream commit 9eb25269271c679e8cfcc7df5c0c5e9d0572fc27 ]
+[ Upstream commit 3168be5d66ac6c3508a880022f79b5a887865d5d ]
 
-Removed set timeout from the start WDT function. There is a function
-defined to set the timeout. Hence no need to set the timeout again in
-start function as the timeout would have been already updated
-before calling the start/enable.
+In the TO ISR removed updating the Timeout value because
+its not serving any purpose as the timer would have already expired
+and the system would be rebooting.
 
 Fixes: fa0f8d51e90d ("watchdog: Add watchdog driver for Intel Keembay Soc")
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Tested-by: Kris Pan <kris.pan@intel.com>
 Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20210517174953.19404-6-shruthi.sanil@intel.com
+Link: https://lore.kernel.org/r/20210517174953.19404-7-shruthi.sanil@intel.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
@@ -66,17 +65,17 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/drivers/watchdog/keembay_wdt.c b/drivers/watchdog/keembay_wdt.c
-index f2a16c9933c3..039753b9932b 100644
+index 039753b9932b..dd192b8dff55 100644
 --- a/drivers/watchdog/keembay_wdt.c
 +++ b/drivers/watchdog/keembay_wdt.c
-@@ -84,7 +84,6 @@ static int keembay_wdt_start(struct watchdog_device *wdog)
- {
- 	struct keembay_wdt *wdt = watchdog_get_drvdata(wdog);
+@@ -141,7 +141,6 @@ static irqreturn_t keembay_wdt_to_isr(int irq, void *dev_id)
+ 	struct keembay_wdt *wdt = dev_id;
+ 	struct arm_smccc_res res;
  
--	keembay_wdt_set_timeout_reg(wdog);
- 	keembay_wdt_writel(wdt, TIM_WDOG_EN, 1);
- 
- 	return 0;
+-	keembay_wdt_writel(wdt, TIM_WATCHDOG, 1);
+ 	arm_smccc_smc(WDT_ISR_CLEAR, WDT_TO_INT_MASK, 0, 0, 0, 0, 0, 0, &res);
+ 	dev_crit(wdt->wdd.parent, "Intel Keem Bay non-sec wdt timeout.\n");
+ 	emergency_restart();
 -- 
 2.30.2
 
