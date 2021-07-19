@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B323CE182
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6353CE181
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346777AbhGSP0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1349257AbhGSP0V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 11:26:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347972AbhGSPXj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347971AbhGSPXj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:23:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED6FD600EF;
-        Mon, 19 Jul 2021 16:00:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 09173613D3;
+        Mon, 19 Jul 2021 16:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710403;
-        bh=8V5ILEgp/i4QUHCtrtRhfCKYKqAyhN6besTbWjG36hs=;
+        s=korg; t=1626710406;
+        bh=R5v9OgEwcjZa8ieC98gxzWeUdtmbSLxTyoDoyWpuVyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s4sBsww4tPJcRFPn+CBk7kFHZ3K5EjWD3gXYBPysNSJlwtuZIoe7rMzYrr8B5FtXW
-         Ydwbwy7E3V+NUHk05swwOryjUskBFB7F8Yp5q0Rm9C0ZA+tQ1j1m9ACucOHSBgw+oK
-         LQ6zZi9OV4jc8GvJyapgyg8muIX1bgWdi1XxKUxU=
+        b=I7nNwqy7IEXV+mZ/C+zo8tjzaeg+765KmcRX8F+7EGyZ3qbEg3qPsWVUzdR1Czgc9
+         czhVPWm2SFXi8s7BjxWR5mXnxehTgc48PhGWcd9bET0+ZNn8FwFLI8Ul+bns4Iv+HR
+         SmPsN/5iGV3CtEK+tCsdnyuQkkiiRv7tBCtoriSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 201/243] ARM: dts: r8a7779, marzen: Fix DU clock names
-Date:   Mon, 19 Jul 2021 16:53:50 +0200
-Message-Id: <20210719144947.421366194@linuxfoundation.org>
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 202/243] arm64: dts: ti: j7200-main: Enable USB2 PHY RX sensitivity workaround
+Date:   Mon, 19 Jul 2021 16:53:51 +0200
+Message-Id: <20210719144947.451238345@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -41,54 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 6ab8c23096a29b69044209a5925758a6f88bd450 ]
+[ Upstream commit a2894d85f44ba3f2bdf5806c8dc62e2ec40c1c09 ]
 
-"make dtbs_check" complains:
+Enable work around feature built into the controller to address issue with
+RX Sensitivity for USB2 PHY.
 
-    arch/arm/boot/dts/r8a7779-marzen.dt.yaml: display@fff80000: clock-names:0: 'du.0' was expected
-
-Change the first clock name to match the DT bindings.
-This has no effect on actual operation, as the Display Unit driver in
-Linux does not use the first clock name on R-Car H1, but just grabs the
-first clock.
-
-Fixes: 665d79aa47cb3983 ("ARM: shmobile: marzen: Add DU external pixel clock to DT")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Link: https://lore.kernel.org/r/9d5e1b371121883b3b3e10a3df43802a29c6a9da.1619699965.git.geert+renesas@glider.be
+Fixes: 6197d7139d12 ("arm64: dts: ti: k3-j7200-main: Add USB controller")
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210512153308.5840-1-a-govindraju@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/r8a7779-marzen.dts | 2 +-
- arch/arm/boot/dts/r8a7779.dtsi       | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/r8a7779-marzen.dts b/arch/arm/boot/dts/r8a7779-marzen.dts
-index d2240b89ee52..465845323495 100644
---- a/arch/arm/boot/dts/r8a7779-marzen.dts
-+++ b/arch/arm/boot/dts/r8a7779-marzen.dts
-@@ -145,7 +145,7 @@
- 	status = "okay";
- 
- 	clocks = <&mstp1_clks R8A7779_CLK_DU>, <&x3_clk>;
--	clock-names = "du", "dclkin.0";
-+	clock-names = "du.0", "dclkin.0";
- 
- 	ports {
- 		port@0 {
-diff --git a/arch/arm/boot/dts/r8a7779.dtsi b/arch/arm/boot/dts/r8a7779.dtsi
-index 74d7e9084eab..3c5fcdfe16b8 100644
---- a/arch/arm/boot/dts/r8a7779.dtsi
-+++ b/arch/arm/boot/dts/r8a7779.dtsi
-@@ -463,6 +463,7 @@
- 		reg = <0xfff80000 0x40000>;
- 		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
- 		clocks = <&mstp1_clks R8A7779_CLK_DU>;
-+		clock-names = "du.0";
- 		power-domains = <&sysc R8A7779_PD_ALWAYS_ON>;
- 		status = "disabled";
- 
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+index 689538244392..5832ad830ed1 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+@@ -446,6 +446,7 @@
+ 					  "otg";
+ 			maximum-speed = "super-speed";
+ 			dr_mode = "otg";
++			cdns,phyrst-a-enable;
+ 		};
+ 	};
+ };
 -- 
 2.30.2
 
