@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7EB3CE4CD
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A33B83CE565
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241367AbhGSPqR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44952 "EHLO mail.kernel.org"
+        id S1348790AbhGSPts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343985AbhGSPni (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347940AbhGSPni (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:43:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 74F5661175;
-        Mon, 19 Jul 2021 16:22:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 403DF613AE;
+        Mon, 19 Jul 2021 16:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711745;
-        bh=iltiHxdz1e8vkb/ZLiYSQzFszXkKMHS4XNSyFkNI/TE=;
+        s=korg; t=1626711747;
+        bh=cWHiH12FvTJFDthkEwrs//hjGIjPEoNDcrBkmfawt0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aNTqjyCqoFZEiMAtXFLdzUvQfhSQxGblbTjIj4AUpvg4f7xc4LqzsbXVOm5WxubB3
-         wTgPelFbMFMXmT/pkh/uv2YAjAstEOMqVXzgQFi9PkSu9eR0H36jajpLQHiwfUBrvf
-         QcUAr4mo+cfBYgKG+ZyBQSEXKUEKOTwyqxUl4NRY=
+        b=fgtaHVzrvlyeoU0hofEaWLLofH6fhlTKTpg+YKLA9VHKj4AozEmICQajTaKCbSBm4
+         VmyghkYjM/DUat2kBlKuf81aoXkaS7hXU0hf9pVXlYSgcjteLNnETkpFO7P0yDMubh
+         N04jvITF8u9dls+QfJK7JncVABzQYqZbDmepsS4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Fontaine <fontaine.fabrice@gmail.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        stable@vger.kernel.org, Po-Hsu Lin <po-hsu.lin@canonical.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 083/292] s390: disable SSP when needed
-Date:   Mon, 19 Jul 2021 16:52:25 +0200
-Message-Id: <20210719144945.247784264@linuxfoundation.org>
+Subject: [PATCH 5.12 084/292] selftests: timers: rtcpie: skip test if default RTC device does not exist
+Date:   Mon, 19 Jul 2021 16:52:26 +0200
+Message-Id: <20210719144945.278415099@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -42,55 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+From: Po-Hsu Lin <po-hsu.lin@canonical.com>
 
-[ Upstream commit 42e8d652438f5ddf04e5dac299cb5e623d113dc0 ]
+[ Upstream commit 0d3e5a057992bdc66e4dca2ca50b77fa4a7bd90e ]
 
-Though -nostdlib is passed in PURGATORY_LDFLAGS and -ffreestanding in
-KBUILD_CFLAGS_DECOMPRESSOR, -fno-stack-protector must also be passed to
-avoid linking errors related to undefined references to
-'__stack_chk_guard' and '__stack_chk_fail' if toolchain enforces
--fstack-protector.
+This test will require /dev/rtc0, the default RTC device, or one
+specified by user to run. Since this default RTC is not guaranteed to
+exist on all of the devices, so check its existence first, otherwise
+skip this test with the kselftest skip code 4.
 
-Fixes
- - https://gitlab.com/kubu93/buildroot/-/jobs/1247043361
+Without this patch this test will fail like this on a s390x zVM:
+$ selftests: timers: rtcpie
+$ /dev/rtc0: No such file or directory
+not ok 1 selftests: timers: rtcpie # exit=22
 
-Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210510053133.1220167-1-fontaine.fabrice@gmail.com
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+With this patch:
+$ selftests: timers: rtcpie
+$ Default RTC /dev/rtc0 does not exist. Test Skipped!
+not ok 9 selftests: timers: rtcpie # SKIP
+
+Fixed up change log so "With this patch" text doesn't get dropped.
+Shuah Khan <skhan@linuxfoundation.org>
+
+Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Makefile           | 1 +
- arch/s390/purgatory/Makefile | 1 +
- 2 files changed, 2 insertions(+)
+ tools/testing/selftests/timers/rtcpie.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index e443ed9947bd..098abe3a56f3 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -28,6 +28,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
- KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float -mbackchain
- KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
- KBUILD_CFLAGS_DECOMPRESSOR += -ffreestanding
-+KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
- KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
-diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
-index c57f8c40e992..21c4ebe29b9a 100644
---- a/arch/s390/purgatory/Makefile
-+++ b/arch/s390/purgatory/Makefile
-@@ -24,6 +24,7 @@ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
- KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
- KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
- KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
-+KBUILD_CFLAGS += -fno-stack-protector
- KBUILD_CFLAGS += $(CLANG_FLAGS)
- KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
- KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
+diff --git a/tools/testing/selftests/timers/rtcpie.c b/tools/testing/selftests/timers/rtcpie.c
+index 47b5bad1b393..4ef2184f1558 100644
+--- a/tools/testing/selftests/timers/rtcpie.c
++++ b/tools/testing/selftests/timers/rtcpie.c
+@@ -18,6 +18,8 @@
+ #include <stdlib.h>
+ #include <errno.h>
+ 
++#include "../kselftest.h"
++
+ /*
+  * This expects the new RTC class driver framework, working with
+  * clocks that will often not be clones of what the PC-AT had.
+@@ -35,8 +37,14 @@ int main(int argc, char **argv)
+ 	switch (argc) {
+ 	case 2:
+ 		rtc = argv[1];
+-		/* FALLTHROUGH */
++		break;
+ 	case 1:
++		fd = open(default_rtc, O_RDONLY);
++		if (fd == -1) {
++			printf("Default RTC %s does not exist. Test Skipped!\n", default_rtc);
++			exit(KSFT_SKIP);
++		}
++		close(fd);
+ 		break;
+ 	default:
+ 		fprintf(stderr, "usage:  rtctest [rtcdev] [d]\n");
 -- 
 2.30.2
 
