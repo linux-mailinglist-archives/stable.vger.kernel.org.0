@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 520793CDF37
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F2663CDE52
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344613AbhGSPIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39496 "EHLO mail.kernel.org"
+        id S1344804AbhGSPCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343548AbhGSPF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:05:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E43EB606A5;
-        Mon, 19 Jul 2021 15:46:36 +0000 (UTC)
+        id S1344872AbhGSPAA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBCF060238;
+        Mon, 19 Jul 2021 15:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709597;
-        bh=TUKg6115f2BCoUDBCrHrgrDCCZlSJ/qcFV4GC2dSTU8=;
+        s=korg; t=1626709239;
+        bh=C1ShubNXVTEITTM499ROiCEtSal1Awt21Bbup50aTP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FL8Tnf1aY75awXokZNvh8UE57gARtu+WYqy0TkkUj3vRYBQ0RZ82wI1N6ysu+BV/C
-         FSxFyHxJbUIC3mpnleSilfHvhEwe59J7aAKar0LLqNHjaH48zmj1QptJT9x8YitPHN
-         xa2nCEENlXnk01nnvkDiIbYaD6CugoS++krv02Ws=
+        b=j2AgVtmQW8mpqPpvDy8Re29wcXCFy3pokOIHMEQEf7MqekMcJbnBTRu9KwZbvZrzB
+         g0bbOq4IKhW5WoV/hwbkffQ3s1gbyM1XpnhbgMdH93pbQVzVkVQzCE6Q+euKlhXv2r
+         yM0HV1srd/gfR3E75TybmF5QfFgi483+9K8owqmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 5.4 007/149] fbmem: Do not delete the mode that is still in use
-Date:   Mon, 19 Jul 2021 16:51:55 +0200
-Message-Id: <20210719144903.173252259@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 305/421] dm btree remove: assign new_root only when removal succeeds
+Date:   Mon, 19 Jul 2021 16:51:56 +0200
+Message-Id: <20210719144956.900812687@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit 0af778269a522c988ef0b4188556aba97fb420cc upstream.
+commit b6e58b5466b2959f83034bead2e2e1395cca8aeb upstream.
 
-The execution of fb_delete_videomode() is not based on the result of the
-previous fbcon_mode_deleted(). As a result, the mode is directly deleted,
-regardless of whether it is still in use, which may cause UAF.
+remove_raw() in dm_btree_remove() may fail due to IO read error
+(e.g. read the content of origin block fails during shadowing),
+and the value of shadow_spine::root is uninitialized, but
+the uninitialized value is still assign to new_root in the
+end of dm_btree_remove().
 
-==================================================================
-BUG: KASAN: use-after-free in fb_mode_is_equal+0x36e/0x5e0 \
-drivers/video/fbdev/core/modedb.c:924
-Read of size 4 at addr ffff88807e0ddb1c by task syz-executor.0/18962
+For dm-thin, the value of pmd->details_root or pmd->root will become
+an uninitialized value, so if trying to read details_info tree again
+out-of-bound memory may occur as showed below:
 
-CPU: 2 PID: 18962 Comm: syz-executor.0 Not tainted 5.10.45-rc1+ #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ...
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x137/0x1be lib/dump_stack.c:118
- print_address_description+0x6c/0x640 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x13d/0x1e0 mm/kasan/report.c:562
- fb_mode_is_equal+0x36e/0x5e0 drivers/video/fbdev/core/modedb.c:924
- fbcon_mode_deleted+0x16a/0x220 drivers/video/fbdev/core/fbcon.c:2746
- fb_set_var+0x1e1/0xdb0 drivers/video/fbdev/core/fbmem.c:975
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  general protection fault, probably for non-canonical address 0x3fdcb14c8d7520
+  CPU: 4 PID: 515 Comm: dmsetup Not tainted 5.13.0-rc6
+  Hardware name: QEMU Standard PC
+  RIP: 0010:metadata_ll_load_ie+0x14/0x30
+  Call Trace:
+   sm_metadata_count_is_more_than_one+0xb9/0xe0
+   dm_tm_shadow_block+0x52/0x1c0
+   shadow_step+0x59/0xf0
+   remove_raw+0xb2/0x170
+   dm_btree_remove+0xf4/0x1c0
+   dm_pool_delete_thin_device+0xc3/0x140
+   pool_message+0x218/0x2b0
+   target_message+0x251/0x290
+   ctl_ioctl+0x1c4/0x4d0
+   dm_ctl_ioctl+0xe/0x20
+   __x64_sys_ioctl+0x7b/0xb0
+   do_syscall_64+0x40/0xb0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Freed by task 18960:
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x3d/0x70 mm/kasan/common.c:56
- kasan_set_free_info+0x17/0x30 mm/kasan/generic.c:355
- __kasan_slab_free+0x108/0x140 mm/kasan/common.c:422
- slab_free_hook mm/slub.c:1541 [inline]
- slab_free_freelist_hook+0xd6/0x1a0 mm/slub.c:1574
- slab_free mm/slub.c:3139 [inline]
- kfree+0xca/0x3d0 mm/slub.c:4121
- fb_delete_videomode+0x56a/0x820 drivers/video/fbdev/core/modedb.c:1104
- fb_set_var+0x1f3/0xdb0 drivers/video/fbdev/core/fbmem.c:978
- do_fb_ioctl+0x4d9/0x6e0 drivers/video/fbdev/core/fbmem.c:1108
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl+0xfb/0x170 fs/ioctl.c:739
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Fixing it by only assign new_root when removal succeeds
 
-Fixes: 13ff178ccd6d ("fbcon: Call fbcon_mode_deleted/new_modelist directly")
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: <stable@vger.kernel.org> # v5.3+
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210712085544.2828-1-thunder.leizhen@huawei.com
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbmem.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/md/persistent-data/dm-btree-remove.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -965,13 +965,11 @@ fb_set_var(struct fb_info *info, struct
- 		fb_var_to_videomode(&mode2, &info->var);
- 		/* make sure we don't delete the videomode of current var */
- 		ret = fb_mode_is_equal(&mode1, &mode2);
--
--		if (!ret)
--			fbcon_mode_deleted(info, &mode1);
--
--		if (!ret)
--			fb_delete_videomode(&mode1, &info->modelist);
--
-+		if (!ret) {
-+			ret = fbcon_mode_deleted(info, &mode1);
-+			if (!ret)
-+				fb_delete_videomode(&mode1, &info->modelist);
-+		}
- 
- 		return ret ? -EINVAL : 0;
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -549,7 +549,8 @@ int dm_btree_remove(struct dm_btree_info
+ 		delete_at(n, index);
  	}
+ 
+-	*new_root = shadow_root(&spine);
++	if (!r)
++		*new_root = shadow_root(&spine);
+ 	exit_shadow_spine(&spine);
+ 
+ 	return r;
 
 
