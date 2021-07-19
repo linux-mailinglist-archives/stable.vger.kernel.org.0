@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE55D3CDE7A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 101233CDF4D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345003AbhGSPDS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60818 "EHLO mail.kernel.org"
+        id S1343882AbhGSPJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:09:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345010AbhGSPBZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:01:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B59DF60FE9;
-        Mon, 19 Jul 2021 15:42:04 +0000 (UTC)
+        id S1344818AbhGSPGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:06:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCBDE60FE7;
+        Mon, 19 Jul 2021 15:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709325;
-        bh=76H8fEoFE0QAszweaPuruSCXXxWs976mpnn4kWZZISA=;
+        s=korg; t=1626709647;
+        bh=owq9dcDj6W5tIDWtWgDI7aDMSiBLW0RSApzKwfmDGlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPnzoKIihAaiee24hZhpf5Q0vFy1Zcsx9ioTosup4QIhi4hrOCpBeHs8+xGxDFXCq
-         +fcysdWAyr8nv3EsjRgTMoLasB88FLfTHwCOpjXhUM9HIuHjpR4XF2jWiLyZFJ1BH+
-         zu9s5XeRW4Wt3bYZ2c+dIJxERyrXqRwvpNKafryA=
+        b=WvuqjeLdsnlsS9/ckWqikGYfzkFVHrnEoe6AtZVFFb9be5p0jy4ZPkXFj3zlI8AwK
+         n7I03iBevLSmjhdH1mSZ3JPEGe+V1mQ8q2w0Ne5Gp1T29t23qOpoOhX1ePWhQ/UKLm
+         pGdJXWy5fd4SHKrRcR5OBJytP3a7WA38Q1f/mIw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 339/421] s390/sclp_vt220: fix console name to match device
+Subject: [PATCH 5.4 042/149] iommu/arm-smmu: Fix arm_smmu_device refcount leak when arm_smmu_rpm_get fails
 Date:   Mon, 19 Jul 2021 16:52:30 +0200
-Message-Id: <20210719144958.056214245@linuxfoundation.org>
+Message-Id: <20210719144911.422049820@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,61 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit b7d91d230a119fdcc334d10c9889ce9c5e15118b ]
+[ Upstream commit 1adf30f198c26539a62d761e45af72cde570413d ]
 
-Console name reported in /proc/consoles:
+arm_smmu_rpm_get() invokes pm_runtime_get_sync(), which increases the
+refcount of the "smmu" even though the return value is less than 0.
 
-  ttyS1                -W- (EC p  )    4:65
+The reference counting issue happens in some error handling paths of
+arm_smmu_rpm_get() in its caller functions. When arm_smmu_rpm_get()
+fails, the caller functions forget to decrease the refcount of "smmu"
+increased by arm_smmu_rpm_get(), causing a refcount leak.
 
-does not match the char device name:
+Fix this issue by calling pm_runtime_resume_and_get() instead of
+pm_runtime_get_sync() in arm_smmu_rpm_get(), which can keep the refcount
+balanced in case of failure.
 
-  crw--w----    1 root     root        4,  65 May 17 12:18 /dev/ttysclp0
-
-so debian-installer inside a QEMU s390x instance gets confused and fails
-to start with the following error:
-
-  steal-ctty: No such file or directory
-
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Link: https://lore.kernel.org/r/20210427194010.9330-1-vvidic@valentin-vidic.from.hr
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1623293672-17954-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/setup.c       | 2 +-
- drivers/s390/char/sclp_vt220.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/iommu/arm-smmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/setup.c b/arch/s390/kernel/setup.c
-index 4bda9055daef..e8bfd29bb1f9 100644
---- a/arch/s390/kernel/setup.c
-+++ b/arch/s390/kernel/setup.c
-@@ -141,7 +141,7 @@ static void __init set_preferred_console(void)
- 	else if (CONSOLE_IS_3270)
- 		add_preferred_console("tty3270", 0, NULL);
- 	else if (CONSOLE_IS_VT220)
--		add_preferred_console("ttyS", 1, NULL);
-+		add_preferred_console("ttysclp", 0, NULL);
- 	else if (CONSOLE_IS_HVC)
- 		add_preferred_console("hvc", 0, NULL);
- }
-diff --git a/drivers/s390/char/sclp_vt220.c b/drivers/s390/char/sclp_vt220.c
-index 3f9a6ef650fa..3c2ed6d01387 100644
---- a/drivers/s390/char/sclp_vt220.c
-+++ b/drivers/s390/char/sclp_vt220.c
-@@ -35,8 +35,8 @@
- #define SCLP_VT220_MINOR		65
- #define SCLP_VT220_DRIVER_NAME		"sclp_vt220"
- #define SCLP_VT220_DEVICE_NAME		"ttysclp"
--#define SCLP_VT220_CONSOLE_NAME		"ttyS"
--#define SCLP_VT220_CONSOLE_INDEX	1	/* console=ttyS1 */
-+#define SCLP_VT220_CONSOLE_NAME		"ttysclp"
-+#define SCLP_VT220_CONSOLE_INDEX	0	/* console=ttysclp0 */
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 7c503a6bc585..abf4cf285548 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -114,7 +114,7 @@ static bool using_legacy_binding, using_generic_binding;
+ static inline int arm_smmu_rpm_get(struct arm_smmu_device *smmu)
+ {
+ 	if (pm_runtime_enabled(smmu->dev))
+-		return pm_runtime_get_sync(smmu->dev);
++		return pm_runtime_resume_and_get(smmu->dev);
  
- /* Representation of a single write request */
- struct sclp_vt220_request {
+ 	return 0;
+ }
 -- 
 2.30.2
 
