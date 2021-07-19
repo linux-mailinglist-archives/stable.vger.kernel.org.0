@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9DF3CDFF0
+	by mail.lfdr.de (Postfix) with ESMTP id A5FB23CDFEF
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345196AbhGSPMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
+        id S1345190AbhGSPMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344896AbhGSPLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:11:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA2FB60FDA;
-        Mon, 19 Jul 2021 15:51:43 +0000 (UTC)
+        id S244709AbhGSPLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 291E56113B;
+        Mon, 19 Jul 2021 15:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709904;
-        bh=jg9+WrGqWJ2SqvBAU7KcPrIyvo6uHxgYZt05DuCXvqc=;
+        s=korg; t=1626709906;
+        bh=6XfZTFwjt1OIkBMcdhyOc0Z+3LRmdzIPIXWyJodzCH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFvUMBbmGHrYPiG0463l6nMvaW3LGJIr8ZmR3iVK/Ar6yTR+Ds6dD60bOZjsoLMe5
-         hKehMCHqgKfWWm+kKY1EWrIP7mibGFf/Uiau8qilX/o4zvyzliW5tLyTd37ELAt61P
-         accU4lsTEQi2aoCbAX9tKILh93JR3UrdKCIaTlrM=
+        b=Oug+VH8snU/UK+CWeHRnPN4Z4BMIY64LxYtPnwpEuak7Jm6up9mPy5aoq/4uImhBc
+         Y8pDkkUChKxydBlbUKPkpH3owwK0j/8J4y9O6BwUUkNFGrkEiSGpJZW6SX02LLdi6+
+         1JFPhlFdiUX9c97QrdFmZes3yW9jfvPIpmy2NZr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org, Kyungsik Lee <kyungsik.lee@lge.com>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 145/149] mips: disable branch profiling in boot/decompress.o
-Date:   Mon, 19 Jul 2021 16:54:13 +0200
-Message-Id: <20210719144935.596994577@linuxfoundation.org>
+Subject: [PATCH 5.4 146/149] perf report: Fix --task and --stat with pipe input
+Date:   Mon, 19 Jul 2021 16:54:14 +0200
+Message-Id: <20210719144935.853487869@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -42,46 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Namhyung Kim <namhyung@kernel.org>
 
-[ Upstream commit 97e488073cfca0eea84450169ca4cbfcc64e33e3 ]
+[ Upstream commit 892ba7f18621a02af4428c58d97451f64685dba4 ]
 
-Use DISABLE_BRANCH_PROFILING for arch/mips/boot/compressed/decompress.o
-to prevent linkage errors.
+Current 'perf report' fails to process a pipe input when --task or
+--stat options are used.  This is because they reset all the tool
+callbacks and fails to find a matching event for a sample.
 
-mips64-linux-ld: arch/mips/boot/compressed/decompress.o: in function `LZ4_decompress_fast_extDict':
-decompress.c:(.text+0x8c): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0xf4): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x200): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x230): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: decompress.c:(.text+0x320): undefined reference to `ftrace_likely_update'
-mips64-linux-ld: arch/mips/boot/compressed/decompress.o:decompress.c:(.text+0x3f4): more undefined references to `ftrace_likely_update' follow
+When pipe input is used, the event info is passed via ATTR records so it
+needs to handle that operation.  Otherwise the following error occurs.
+Note, -14 (= -EFAULT) comes from evlist__parse_sample():
 
-Fixes: e76e1fdfa8f8 ("lib: add support for LZ4-compressed kernel")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+  # perf record -a -o- sleep 1 | perf report -i- --stat
+  Can't parse sample, err = -14
+  0x271044 [0x38]: failed to process type: 9
+  Error:
+  failed to process sample
+  #
+
+Committer testing:
+
+Before:
+
+  $ perf record -o- sleep 1 | perf report -i- --stat
+  Can't parse sample, err = -14
+  [ perf record: Woken up 1 times to write data ]
+  0x1350 [0x30]: failed to process type: 9
+  Error:
+  failed to process sample
+  [ perf record: Captured and wrote 0.000 MB - ]
+  $
+
+After:
+
+  $ perf record -o- sleep 1 | perf report -i- --stat
+  [ perf record: Woken up 1 times to write data ]
+  [ perf record: Captured and wrote 0.000 MB - ]
+
+  Aggregated stats:
+             TOTAL events:         41
+              COMM events:          2  ( 4.9%)
+              EXIT events:          1  ( 2.4%)
+            SAMPLE events:          9  (22.0%)
+             MMAP2 events:          4  ( 9.8%)
+              ATTR events:          1  ( 2.4%)
+    FINISHED_ROUND events:          1  ( 2.4%)
+        THREAD_MAP events:          1  ( 2.4%)
+           CPU_MAP events:          1  ( 2.4%)
+      EVENT_UPDATE events:          1  ( 2.4%)
+         TIME_CONV events:          1  ( 2.4%)
+           FEATURE events:         19  (46.3%)
+  cycles:uhH stats:
+            SAMPLE events:          9
+  $
+
+Fixes: a4a4d0a7a2b20f78 ("perf report: Add --stats option to display quick data statistics")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210630043058.1131295-1-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/compressed/decompress.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/perf/builtin-report.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/mips/boot/compressed/decompress.c b/arch/mips/boot/compressed/decompress.c
-index a52e929381ea..281e922e5c65 100644
---- a/arch/mips/boot/compressed/decompress.c
-+++ b/arch/mips/boot/compressed/decompress.c
-@@ -7,6 +7,8 @@
-  * Author: Wu Zhangjin <wuzhangjin@gmail.com>
-  */
+diff --git a/tools/perf/builtin-report.c b/tools/perf/builtin-report.c
+index d3c0b04e2e22..60beb2d5b164 100644
+--- a/tools/perf/builtin-report.c
++++ b/tools/perf/builtin-report.c
+@@ -666,9 +666,14 @@ static void report__output_resort(struct report *rep)
+ 	ui_progress__finish();
+ }
  
-+#define DISABLE_BRANCH_PROFILING
++static int process_attr(struct perf_tool *tool __maybe_unused,
++			union perf_event *event,
++			struct evlist **pevlist);
 +
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/string.h>
+ static void stats_setup(struct report *rep)
+ {
+ 	memset(&rep->tool, 0, sizeof(rep->tool));
++	rep->tool.attr = process_attr;
+ 	rep->tool.no_warn = true;
+ }
+ 
+@@ -688,6 +693,7 @@ static void tasks_setup(struct report *rep)
+ 		rep->tool.mmap = perf_event__process_mmap;
+ 		rep->tool.mmap2 = perf_event__process_mmap2;
+ 	}
++	rep->tool.attr = process_attr;
+ 	rep->tool.comm = perf_event__process_comm;
+ 	rep->tool.exit = perf_event__process_exit;
+ 	rep->tool.fork = perf_event__process_fork;
 -- 
 2.30.2
 
