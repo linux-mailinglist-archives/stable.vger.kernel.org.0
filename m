@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 653C63CD7A2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9251C3CD7DB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241859AbhGSORu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51666 "EHLO mail.kernel.org"
+        id S241496AbhGSOTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241505AbhGSORa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3887E610D2;
-        Mon, 19 Jul 2021 14:58:09 +0000 (UTC)
+        id S242112AbhGSORz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:17:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2753661003;
+        Mon, 19 Jul 2021 14:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706689;
-        bh=goPWnGR9FFZQkpBa1JFvefYOOvvJ/dsmy54RL39bWxg=;
+        s=korg; t=1626706714;
+        bh=iH675z0iLoR4ouZjcFqt7YDLzj9VRNuDKSKrS7DDiIo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fI2bp/NmhCHvq3ryvzVOgqiFvHVeerGPrz5LdUdAT0zKg8pSxOd4W4kdhrj/TsOuE
-         G6HYaeQ1rDh+wiQNDWFXbDCL+7DGBSKdT315WXkt/tC3plCrhE48dCnQBn4WfCktgB
-         ieKDGPkttnpg/chaGAvbAX3Dq6WyfLSItJyF0jok=
+        b=PKZ3SWUANk6PrY6ySrYW8JEVScoDp/rqYEIZoszQo43M0PgiATd+e9GwpiZuowE8l
+         MHLcycXrwQPwdV8zQ/EtpDX7JBnmat2ZKqXKxNMHoQ8HcZa36t4te/1ljNfiGxycWZ
+         yA+cOL/h23U95UqzNnCbMuoSQK3dxVvXeCH0yUcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 038/188] media: dvb_net: avoid speculation from net slot
-Date:   Mon, 19 Jul 2021 16:50:22 +0200
-Message-Id: <20210719144922.016641894@linuxfoundation.org>
+Subject: [PATCH 4.4 039/188] btrfs: disable build on platforms having page size 256K
+Date:   Mon, 19 Jul 2021 16:50:23 +0200
+Message-Id: <20210719144922.233593086@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,87 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit abc0226df64dc137b48b911c1fe4319aec5891bb ]
+[ Upstream commit b05fbcc36be1f8597a1febef4892053a0b2f3f60 ]
 
-The risk of especulation is actually almost-non-existing here,
-as there are very few users of TCP/IP using the DVB stack,
-as, this is mainly used with DVB-S/S2 cards, and only by people
-that receives TCP/IP from satellite connections, which limits
-a lot the number of users of such feature(*).
+With a config having PAGE_SIZE set to 256K, BTRFS build fails
+with the following message
 
-(*) In thesis, DVB-C cards could also benefit from it, but I'm
-yet to see a hardware that supports it.
+  include/linux/compiler_types.h:326:38: error: call to
+  '__compiletime_assert_791' declared with attribute error:
+  BUILD_BUG_ON failed: (BTRFS_MAX_COMPRESSED % PAGE_SIZE) != 0
 
-Yet, fixing it is trivial.
+BTRFS_MAX_COMPRESSED being 128K, BTRFS cannot support platforms with
+256K pages at the time being.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+There are two platforms that can select 256K pages:
+ - hexagon
+ - powerpc
+
+Disable BTRFS when 256K page size is selected. Supporting this would
+require changes to the subpage mode that's currently being developed.
+Given that 256K is many times larger than page sizes commonly used and
+for what the algorithms and structures have been tuned, it's out of
+scope and disabling build is a reasonable option.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[ update changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-core/dvb_net.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ fs/btrfs/Kconfig | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
-index ce4332e80a91..735baa74043c 100644
---- a/drivers/media/dvb-core/dvb_net.c
-+++ b/drivers/media/dvb-core/dvb_net.c
-@@ -57,6 +57,7 @@
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/netdevice.h>
-+#include <linux/nospec.h>
- #include <linux/etherdevice.h>
- #include <linux/dvb/net.h>
- #include <linux/uio.h>
-@@ -1350,14 +1351,20 @@ static int dvb_net_do_ioctl(struct file *file,
- 		struct net_device *netdev;
- 		struct dvb_net_priv *priv_data;
- 		struct dvb_net_if *dvbnetif = parg;
-+		int if_num = dvbnetif->if_num;
+diff --git a/fs/btrfs/Kconfig b/fs/btrfs/Kconfig
+index 80e9c18ea64f..fd6b67c40d9d 100644
+--- a/fs/btrfs/Kconfig
++++ b/fs/btrfs/Kconfig
+@@ -9,6 +9,8 @@ config BTRFS_FS
+ 	select RAID6_PQ
+ 	select XOR_BLOCKS
+ 	select SRCU
++	depends on !PPC_256K_PAGES	# powerpc
++	depends on !PAGE_SIZE_256KB	# hexagon
  
--		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
--		    !dvbnet->state[dvbnetif->if_num]) {
-+		if (if_num >= DVB_NET_DEVICES_MAX) {
- 			ret = -EINVAL;
- 			goto ioctl_error;
- 		}
-+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
- 
--		netdev = dvbnet->device[dvbnetif->if_num];
-+		if (!dvbnet->state[if_num]) {
-+			ret = -EINVAL;
-+			goto ioctl_error;
-+		}
-+
-+		netdev = dvbnet->device[if_num];
- 
- 		priv_data = netdev_priv(netdev);
- 		dvbnetif->pid=priv_data->pid;
-@@ -1410,14 +1417,20 @@ static int dvb_net_do_ioctl(struct file *file,
- 		struct net_device *netdev;
- 		struct dvb_net_priv *priv_data;
- 		struct __dvb_net_if_old *dvbnetif = parg;
-+		int if_num = dvbnetif->if_num;
-+
-+		if (if_num >= DVB_NET_DEVICES_MAX) {
-+			ret = -EINVAL;
-+			goto ioctl_error;
-+		}
-+		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
- 
--		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
--		    !dvbnet->state[dvbnetif->if_num]) {
-+		if (!dvbnet->state[if_num]) {
- 			ret = -EINVAL;
- 			goto ioctl_error;
- 		}
- 
--		netdev = dvbnet->device[dvbnetif->if_num];
-+		netdev = dvbnet->device[if_num];
- 
- 		priv_data = netdev_priv(netdev);
- 		dvbnetif->pid=priv_data->pid;
+ 	help
+ 	  Btrfs is a general purpose copy-on-write filesystem with extents,
 -- 
 2.30.2
 
