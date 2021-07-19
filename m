@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03D0E3CE45C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 547023CE436
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344045AbhGSPnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36334 "EHLO mail.kernel.org"
+        id S1346698AbhGSPmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240971AbhGSPhh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:37:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A237360FD7;
-        Mon, 19 Jul 2021 16:18:03 +0000 (UTC)
+        id S241408AbhGSPhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:37:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3604361380;
+        Mon, 19 Jul 2021 16:18:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711484;
-        bh=hDDzD76JYwZ7g0zfOG+sNBZgxh+bdim46FIsql9f0Zo=;
+        s=korg; t=1626711486;
+        bh=WkytOFR3fNcgD2ET0Dvpan4d2kyrn7ZpYHG422t3NAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bFMACrlq0yZjnEWrK6aBK+y0qEJ0tG3iHhwgrQSTokISkun5Mi9Px7+XeBQD3iu79
-         OhLHJqKqtQ2tzkHwMgjmIpmUfV14XYghu4ajP7d1wFAnKuQa1KUhboy7Cvwfm4vNB5
-         7XVseBPxDvdh3QbnmnAxZDpB2BqhOcO5ItpbffFY=
+        b=fGccNYBYzIm2IQqaVeeWl8QPkcESLivnkhRAVJVJGfT2EeAJ42g3wE9TsvY2jgCWZ
+         q4dXB8U3sqevCG7VIVyb2ragw6E2hJraoxhNdYSH5mUxkPwVJJr9YgEcW+CKmZdKCY
+         SToVTRLoHpKM5H2O/aABM0wtlq6uhFwnN/S6wEiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a3fcd59df1b372066f5a@syzkaller.appspotmail.com,
-        Joao Martins <joao.m.martins@oracle.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 020/292] mm/hugetlb: fix refs calculation from unaligned @vaddr
-Date:   Mon, 19 Jul 2021 16:51:22 +0200
-Message-Id: <20210719144943.196978800@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Huang <chenhuang5@huawei.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.12 021/292] arm64: Avoid premature usercopy failure
+Date:   Mon, 19 Jul 2021 16:51:23 +0200
+Message-Id: <20210719144943.227240168@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,45 +42,199 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joao Martins <joao.m.martins@oracle.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit d08af0a59684e18a51aa4bfd24c658994ea3fc5b upstream.
+commit 295cf156231ca3f9e3a66bde7fab5e09c41835e0 upstream.
 
-Commit 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording")
-refactored the count of subpages but missed an edge case when @vaddr is
-not aligned to PAGE_SIZE e.g.  when close to vma->vm_end.  It would then
-errousnly set @refs to 0 and record_subpages_vmas() wouldn't set the
-@pages array element to its value, consequently causing the reported
-null-deref by syzbot.
+Al reminds us that the usercopy API must only return complete failure
+if absolutely nothing could be copied. Currently, if userspace does
+something silly like giving us an unaligned pointer to Device memory,
+or a size which overruns MTE tag bounds, we may fail to honour that
+requirement when faulting on a multi-byte access even though a smaller
+access could have succeeded.
 
-Fix it by aligning down @vaddr by PAGE_SIZE in @refs calculation.
+Add a mitigation to the fixup routines to fall back to a single-byte
+copy if we faulted on a larger access before anything has been written
+to the destination, to guarantee making *some* forward progress. We
+needn't be too concerned about the overall performance since this should
+only occur when callers are doing something a bit dodgy in the first
+place. Particularly broken userspace might still be able to trick
+generic_perform_write() into an infinite loop by targeting write() at
+an mmap() of some read-only device register where the fault-in load
+succeeds but any store synchronously aborts such that copy_to_user() is
+genuinely unable to make progress, but, well, don't do that...
 
-Link: https://lkml.kernel.org/r/20210713152440.28650-1-joao.m.martins@oracle.com
-Fixes: 82e5d378b0e47 ("mm/hugetlb: refactor subpage recording")
-Reported-by: syzbot+a3fcd59df1b372066f5a@syzkaller.appspotmail.com
-Signed-off-by: Joao Martins <joao.m.martins@oracle.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+CC: stable@vger.kernel.org
+Reported-by: Chen Huang <chenhuang5@huawei.com>
+Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/dc03d5c675731a1f24a62417dba5429ad744234e.1626098433.git.robin.murphy@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm64/lib/copy_from_user.S |   13 ++++++++++---
+ arch/arm64/lib/copy_in_user.S   |   21 ++++++++++++++-------
+ arch/arm64/lib/copy_to_user.S   |   14 +++++++++++---
+ 3 files changed, 35 insertions(+), 13 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -5029,8 +5029,9 @@ long follow_hugetlb_page(struct mm_struc
- 			continue;
- 		}
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
+@@ -29,7 +29,7 @@
+ 	.endm
  
--		refs = min3(pages_per_huge_page(h) - pfn_offset,
--			    (vma->vm_end - vaddr) >> PAGE_SHIFT, remainder);
-+		/* vaddr may not be aligned to PAGE_SIZE */
-+		refs = min3(pages_per_huge_page(h) - pfn_offset, remainder,
-+		    (vma->vm_end - ALIGN_DOWN(vaddr, PAGE_SIZE)) >> PAGE_SHIFT);
+ 	.macro ldrh1 reg, ptr, val
+-	user_ldst 9998f, ldtrh, \reg, \ptr, \val
++	user_ldst 9997f, ldtrh, \reg, \ptr, \val
+ 	.endm
  
- 		if (pages || vmas)
- 			record_subpages_vmas(mem_map_offset(page, pfn_offset),
+ 	.macro strh1 reg, ptr, val
+@@ -37,7 +37,7 @@
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+-	user_ldst 9998f, ldtr, \reg, \ptr, \val
++	user_ldst 9997f, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+@@ -45,7 +45,7 @@
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	user_ldp 9998f, \reg1, \reg2, \ptr, \val
++	user_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+@@ -53,8 +53,10 @@
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_from_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0				// Nothing to copy
+ 	ret
+@@ -63,6 +65,11 @@ EXPORT_SYMBOL(__arch_copy_from_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++	strb	tmp1w, [dst], #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+--- a/arch/arm64/lib/copy_in_user.S
++++ b/arch/arm64/lib/copy_in_user.S
+@@ -30,33 +30,34 @@
+ 	.endm
+ 
+ 	.macro ldrh1 reg, ptr, val
+-	user_ldst 9998f, ldtrh, \reg, \ptr, \val
++	user_ldst 9997f, ldtrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	user_ldst 9998f, sttrh, \reg, \ptr, \val
++	user_ldst 9997f, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+-	user_ldst 9998f, ldtr, \reg, \ptr, \val
++	user_ldst 9997f, ldtr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	user_ldst 9998f, sttr, \reg, \ptr, \val
++	user_ldst 9997f, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+-	user_ldp 9998f, \reg1, \reg2, \ptr, \val
++	user_ldp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	user_stp 9998f, \reg1, \reg2, \ptr, \val
++	user_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
+-
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_in_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -65,6 +66,12 @@ EXPORT_SYMBOL(__arch_copy_in_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++USER(9998f, ldtrb tmp1w, [srcin])
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -32,7 +32,7 @@
+ 	.endm
+ 
+ 	.macro strh1 reg, ptr, val
+-	user_ldst 9998f, sttrh, \reg, \ptr, \val
++	user_ldst 9997f, sttrh, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldr1 reg, ptr, val
+@@ -40,7 +40,7 @@
+ 	.endm
+ 
+ 	.macro str1 reg, ptr, val
+-	user_ldst 9998f, sttr, \reg, \ptr, \val
++	user_ldst 9997f, sttr, \reg, \ptr, \val
+ 	.endm
+ 
+ 	.macro ldp1 reg1, reg2, ptr, val
+@@ -48,12 +48,14 @@
+ 	.endm
+ 
+ 	.macro stp1 reg1, reg2, ptr, val
+-	user_stp 9998f, \reg1, \reg2, \ptr, \val
++	user_stp 9997f, \reg1, \reg2, \ptr, \val
+ 	.endm
+ 
+ end	.req	x5
++srcin	.req	x15
+ SYM_FUNC_START(__arch_copy_to_user)
+ 	add	end, x0, x2
++	mov	srcin, x1
+ #include "copy_template.S"
+ 	mov	x0, #0
+ 	ret
+@@ -62,6 +64,12 @@ EXPORT_SYMBOL(__arch_copy_to_user)
+ 
+ 	.section .fixup,"ax"
+ 	.align	2
++9997:	cmp	dst, dstin
++	b.ne	9998f
++	// Before being absolutely sure we couldn't copy anything, try harder
++	ldrb	tmp1w, [srcin]
++USER(9998f, sttrb tmp1w, [dst])
++	add	dst, dst, #1
+ 9998:	sub	x0, end, dst			// bytes not copied
+ 	ret
+ 	.previous
 
 
