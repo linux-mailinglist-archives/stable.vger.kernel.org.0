@@ -2,36 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB803CD763
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:57:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D32283CD75E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241543AbhGSOQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:16:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48426 "EHLO mail.kernel.org"
+        id S241562AbhGSOQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:16:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241485AbhGSOQN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:16:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D4DB610F7;
-        Mon, 19 Jul 2021 14:56:52 +0000 (UTC)
+        id S241505AbhGSOQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:16:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C187D61003;
+        Mon, 19 Jul 2021 14:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706613;
-        bh=FAzYmYsss1pbrGsEmD/nkM6Aop2UQEWpOl/NDVl0/hk=;
+        s=korg; t=1626706615;
+        bh=d1YeHnAYCSCX86FB15LjiCMM2stS15QsqSkTGYZKgIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bxNrof0wOmY3eE9xyVpgOYYp2o3Nnblr9xZjkYBd9OXHe6lxcP9j+ldE0paRH1Myw
-         6Z4zsAzS0ioDCRAlZI2hAZF+x2fpt7jWrJesGC1CLuYxVQgQrpmlTXL0cPabTX5BYd
-         A9O5e6M3Ql1SGILIyXD8vcMPXcx6AGpruSFBUxec=
+        b=p6sG+TOWoaUMnSPauqU/UOhIPEbEhLoSPvNyBvX8GYewSgW0lnMA7k7aUDoX7EXZv
+         Rc/rvpreWw0neC8ajJLNm9EekjlHnbDVZ+nEsmaw9UtOxKnMfKkhNYMUjQdqGGAHPB
+         PpjVxf6xwXrB4NXbKWEobtuMx0rOoOuXHcOj6w0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 4.4 021/188] iio: ltr501: ltr501_read_ps(): add missing endianness conversion
-Date:   Mon, 19 Jul 2021 16:50:05 +0200
-Message-Id: <20210719144918.041544881@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Zary <linux@zary.sk>
+Subject: [PATCH 4.4 022/188] serial_cs: Add Option International GSM-Ready 56K/ISDN modem
+Date:   Mon, 19 Jul 2021 16:50:06 +0200
+Message-Id: <20210719144918.243336899@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -43,51 +38,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Ondrej Zary <linux@zary.sk>
 
-commit 71b33f6f93ef9462c84560e2236ed22209d26a58 upstream.
+commit d495dd743d5ecd47288156e25c4d9163294a0992 upstream.
 
-The PS ADC Channel data is spread over 2 registers in little-endian
-form. This patch adds the missing endianness conversion.
+Add support for Option International GSM-Ready 56K/ISDN PCMCIA modem
+card.
 
-Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-4-mkl@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Ondrej Zary <linux@zary.sk>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210611201940.23898-2-linux@zary.sk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/ltr501.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/tty/serial/8250/serial_cs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -411,18 +411,19 @@ static int ltr501_read_als(struct ltr501
- 
- static int ltr501_read_ps(struct ltr501_data *data)
- {
--	int ret, status;
-+	__le16 status;
-+	int ret;
- 
- 	ret = ltr501_drdy(data, LTR501_STATUS_PS_RDY);
- 	if (ret < 0)
- 		return ret;
- 
- 	ret = regmap_bulk_read(data->regmap, LTR501_PS_DATA,
--			       &status, 2);
-+			       &status, sizeof(status));
- 	if (ret < 0)
- 		return ret;
- 
--	return status;
-+	return le16_to_cpu(status);
- }
- 
- static int ltr501_read_intr_prst(struct ltr501_data *data,
+--- a/drivers/tty/serial/8250/serial_cs.c
++++ b/drivers/tty/serial/8250/serial_cs.c
+@@ -771,6 +771,7 @@ static const struct pcmcia_device_id ser
+ 	PCMCIA_DEVICE_PROD_ID12("Multi-Tech", "MT2834LT", 0x5f73be51, 0x4cd7c09e),
+ 	PCMCIA_DEVICE_PROD_ID12("OEM      ", "C288MX     ", 0xb572d360, 0xd2385b7a),
+ 	PCMCIA_DEVICE_PROD_ID12("Option International", "V34bis GSM/PSTN Data/Fax Modem", 0x9d7cd6f5, 0x5cb8bf41),
++	PCMCIA_DEVICE_PROD_ID12("Option International", "GSM-Ready 56K/ISDN", 0x9d7cd6f5, 0xb23844aa),
+ 	PCMCIA_DEVICE_PROD_ID12("PCMCIA   ", "C336MX     ", 0x99bcafe9, 0xaa25bcab),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "PCMCIA Dual RS-232 Serial Port Card", 0xc4420b35, 0x92abc92f),
+ 	PCMCIA_DEVICE_PROD_ID12("Quatech Inc", "Dual RS-232 Serial Port PC Card", 0xc4420b35, 0x031a380d),
 
 
