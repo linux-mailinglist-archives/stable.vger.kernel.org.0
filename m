@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA9B3CDF2B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C28123CDC1F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345131AbhGSPIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
+        id S238549AbhGSOv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345582AbhGSPEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91DA561002;
-        Mon, 19 Jul 2021 15:44:23 +0000 (UTC)
+        id S1344278AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FB8461073;
+        Mon, 19 Jul 2021 15:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709464;
-        bh=MsuFiYr1B/vBs+rZ9Sy8lx3c5KEKHFIwYu/WAIBpf6w=;
+        s=korg; t=1626708450;
+        bh=erJ9aSIfprXFO6o/cmgrtnUepYazan/PLqTzcf7Z+N0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MROTOiw85dvUhNdfUpSmWoTqAZajXVrHw2KyZISTp3gEZXwKOEWOa0yLq+ADNYnlC
-         a8Re1EM+iDzg433lFElXFGtYVqnSTay59DCQL9h8A8ihk5tY9CIBF1FgwEgMn1zWY5
-         UUdk/7sahjqyQ3rl+fn2+4tOiRyRStOhfdOyq4ek=
+        b=z/otOqxcOtWtCIGigywYvsE5ilguSBqZbRqFDTi4ljy0XqmLQoYAYYHv5IQfVD7YL
+         lCFnO3RMbiIXFbHwLwvcwE+4RQyKDfuTGtP0Wq5vnHC+x/V+g/qdmV/JNyNGQkCeYO
+         N5IefJRjL75jKajaoHcDRTuB39vaXGyXFWpo2LqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 393/421] virtio_net: move tx vq operation under tx queue lock
+        stable@vger.kernel.org, Nikolay Aleksandrov <nikolay@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 315/315] net: bridge: multicast: fix PIM hello router port marking race
 Date:   Mon, 19 Jul 2021 16:53:24 +0200
-Message-Id: <20210719144959.997457901@linuxfoundation.org>
+Message-Id: <20210719144953.844806034@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,71 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Nikolay Aleksandrov <nikolay@nvidia.com>
 
-[ Upstream commit 5a2f966d0f3fa0ef6dada7ab9eda74cacee96b8a ]
+commit 04bef83a3358946bfc98a5ecebd1b0003d83d882 upstream.
 
-It's unsafe to operate a vq from multiple threads.
-Unfortunately this is exactly what we do when invoking
-clean tx poll from rx napi.
-Same happens with napi-tx even without the
-opportunistic cleaning from the receive interrupt: that races
-with processing the vq in start_xmit.
+When a PIM hello packet is received on a bridge port with multicast
+snooping enabled, we mark it as a router port automatically, that
+includes adding that port the router port list. The multicast lock
+protects that list, but it is not acquired in the PIM message case
+leading to a race condition, we need to take it to fix the race.
 
-As a fix move everything that deals with the vq to under tx lock.
-
-Fixes: b92f1e6751a6 ("virtio-net: transmit napi")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 91b02d3d133b ("bridge: mcast: add router port on PIM hello message")
+Signed-off-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ net/bridge/br_multicast.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index bb11a1e30646..5e8b40630286 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1506,6 +1506,8 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	unsigned int index = vq2txq(sq->vq);
- 	struct netdev_queue *txq;
-+	int opaque;
-+	bool done;
+--- a/net/bridge/br_multicast.c
++++ b/net/bridge/br_multicast.c
+@@ -1763,7 +1763,9 @@ static void br_multicast_pim(struct net_
+ 	    pim_hdr_type(pimhdr) != PIM_TYPE_HELLO)
+ 		return;
  
- 	if (unlikely(is_xdp_raw_buffer_queue(vi, index))) {
- 		/* We don't need to enable cb for XDP */
-@@ -1515,10 +1517,28 @@ static int virtnet_poll_tx(struct napi_struct *napi, int budget)
++	spin_lock(&br->multicast_lock);
+ 	br_multicast_mark_router(br, port);
++	spin_unlock(&br->multicast_lock);
+ }
  
- 	txq = netdev_get_tx_queue(vi->dev, index);
- 	__netif_tx_lock(txq, raw_smp_processor_id());
-+	virtqueue_disable_cb(sq->vq);
- 	free_old_xmit_skbs(sq, true);
-+
-+	opaque = virtqueue_enable_cb_prepare(sq->vq);
-+
-+	done = napi_complete_done(napi, 0);
-+
-+	if (!done)
-+		virtqueue_disable_cb(sq->vq);
-+
- 	__netif_tx_unlock(txq);
- 
--	virtqueue_napi_complete(napi, sq->vq, 0);
-+	if (done) {
-+		if (unlikely(virtqueue_poll(sq->vq, opaque))) {
-+			if (napi_schedule_prep(napi)) {
-+				__netif_tx_lock(txq, raw_smp_processor_id());
-+				virtqueue_disable_cb(sq->vq);
-+				__netif_tx_unlock(txq);
-+				__napi_schedule(napi);
-+			}
-+		}
-+	}
- 
- 	if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
- 		netif_tx_wake_queue(txq);
--- 
-2.30.2
-
+ static int br_multicast_ipv4_rcv(struct net_bridge *br,
 
 
