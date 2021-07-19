@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6019A3CDECE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0A53CDC1C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245225AbhGSPGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:06:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
+        id S238258AbhGSOvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245597AbhGSPEF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:04:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B501D6121F;
-        Mon, 19 Jul 2021 15:43:23 +0000 (UTC)
+        id S1344286AbhGSOso (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90DB96121F;
+        Mon, 19 Jul 2021 15:27:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709404;
-        bh=HzeovM7VAqG9IHKAhS7VZd/73DqujE/7DQQFHvPr5ms=;
+        s=korg; t=1626708458;
+        bh=TnTtTq4bNkNe5j4Zh8ZgsaHqO3yYo2zneElUalXvHIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a+WTe8uYv5XeVmiXbvrTz7xvwqVnMLkY6xL5cmm+7A3uEcLNa6kcmEBK+44uicsny
-         Jv1V0UTBfmqMDSd7qfUFjnXu1wabN4ZOeZmunQ2y8wlkXhceYIbdbBPvS9SoQ6w6s5
-         NzsCqH4PfXR5hy2yPRep8AZo+3Zaqnht4YYWN568=
+        b=anRG7pc+jOXLkuuGsqu4Lxk9kPn0nrvG25CIC6WaOt+zY8z4oQ1VHSbT53Bk+lR2q
+         o7J7TGuUuG3U42eWNPUHxCNIzTRvnamcLYW7Nnqd3jLCI9Fqa1x+mFifBXNxhBszJJ
+         4ObDsxnZxsyE8lTKmqKG8pZ1Avb0+hR0Dc5noRhQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <anna.schumaker@netapp.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 371/421] ceph: remove bogus checks and WARN_ONs from ceph_set_page_dirty
+Subject: [PATCH 4.14 293/315] nfs: fix acl memory leak of posix_acl_create()
 Date:   Mon, 19 Jul 2021 16:53:02 +0200
-Message-Id: <20210719144959.112091593@linuxfoundation.org>
+Message-Id: <20210719144953.098170829@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Gao Xiang <hsiangkao@linux.alibaba.com>
 
-[ Upstream commit 22d41cdcd3cfd467a4af074165357fcbea1c37f5 ]
+[ Upstream commit 1fcb6fcd74a222d9ead54d405842fc763bb86262 ]
 
-The checks for page->mapping are odd, as set_page_dirty is an
-address_space operation, and I don't see where it would be called on a
-non-pagecache page.
+When looking into another nfs xfstests report, I found acl and
+default_acl in nfs3_proc_create() and nfs3_proc_mknod() error
+paths are possibly leaked. Fix them in advance.
 
-The warning about the page lock also seems bogus.  The comment over
-set_page_dirty() says that it can be called without the page lock in
-some rare cases. I don't think we want to warn if that's the case.
-
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+Fixes: 013cdf1088d7 ("nfs: use generic posix ACL infrastructure for v3 Posix ACLs")
+Cc: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Anna Schumaker <anna.schumaker@netapp.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/addr.c | 10 +---------
- 1 file changed, 1 insertion(+), 9 deletions(-)
+ fs/nfs/nfs3proc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index e59b2f53a81f..de10899da837 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -75,10 +75,6 @@ static int ceph_set_page_dirty(struct page *page)
- 	struct inode *inode;
- 	struct ceph_inode_info *ci;
- 	struct ceph_snap_context *snapc;
--	int ret;
--
--	if (unlikely(!mapping))
--		return !TestSetPageDirty(page);
+diff --git a/fs/nfs/nfs3proc.c b/fs/nfs/nfs3proc.c
+index bc673fb47fb3..65f9a8ae2845 100644
+--- a/fs/nfs/nfs3proc.c
++++ b/fs/nfs/nfs3proc.c
+@@ -357,7 +357,7 @@ nfs3_proc_create(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
+ 				break;
  
- 	if (PageDirty(page)) {
- 		dout("%p set_page_dirty %p idx %lu -- already dirty\n",
-@@ -124,11 +120,7 @@ static int ceph_set_page_dirty(struct page *page)
- 	page->private = (unsigned long)snapc;
- 	SetPagePrivate(page);
+ 			case NFS3_CREATE_UNCHECKED:
+-				goto out;
++				goto out_release_acls;
+ 		}
+ 		nfs_fattr_init(data->res.dir_attr);
+ 		nfs_fattr_init(data->res.fattr);
+@@ -702,7 +702,7 @@ nfs3_proc_mknod(struct inode *dir, struct dentry *dentry, struct iattr *sattr,
+ 		break;
+ 	default:
+ 		status = -EINVAL;
+-		goto out;
++		goto out_release_acls;
+ 	}
  
--	ret = __set_page_dirty_nobuffers(page);
--	WARN_ON(!PageLocked(page));
--	WARN_ON(!page->mapping);
--
--	return ret;
-+	return __set_page_dirty_nobuffers(page);
- }
- 
- /*
+ 	status = nfs3_do_create(dir, dentry, data);
 -- 
 2.30.2
 
