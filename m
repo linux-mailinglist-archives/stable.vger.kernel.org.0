@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0AFD3CDE3A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 008563CE05F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345298AbhGSPCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51812 "EHLO mail.kernel.org"
+        id S1346165AbhGSPQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:16:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344006AbhGSO71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02F3A6135D;
-        Mon, 19 Jul 2021 15:38:16 +0000 (UTC)
+        id S1346053AbhGSPNf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:13:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D045361396;
+        Mon, 19 Jul 2021 15:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709097;
-        bh=ou5BlBKgsSyBQbDyhJTEU4sn/fWCLFCHkXKi8FaOd4c=;
+        s=korg; t=1626709999;
+        bh=8s8TEK/Xbj+pB8AdCTlyVxz3O5KUi40VYYY3jTVFzuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BEK5FUVHjOQlJ3UWHOc69NK5tBaXWSopnbof+KT75p6552pniaGpF86nhHhiHuZYQ
-         kunztzBhl7BYfVCQr8/OeD71thnr4rFWJAbNkNeTJsmjjtVV+Kbajzl3TX3dKAn0u0
-         PjN92YQ/W8qUm7qLgDkZdYvFlwCRBXWl5wWgk93Q=
+        b=qRwgaurjKxy5mSsp6I2qshAXbnR3luNuc4BxyuNUZwimvKq32JT7sjiyWdBS45Fx2
+         gczQq06QgaE4u0/M3GyDS5JPoXXHSYCmU/Al8zJkyyWScppsa1uV5/aVtNuQOjFq6X
+         CcP/1UbZxtoUjaZOCvmQEwQJxFA2bg8U4LlS6Klo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 250/421] net: mvpp2: check return value after calling platform_get_resource()
+Subject: [PATCH 5.10 032/243] misc: alcor_pci: fix null-ptr-deref when there is no PCI bridge
 Date:   Mon, 19 Jul 2021 16:51:01 +0200
-Message-Id: <20210719144955.065864895@linuxfoundation.org>
+Message-Id: <20210719144941.971534536@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +39,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 0bb51a3a385790a4be20085494cf78f70dadf646 ]
+[ Upstream commit 3ce3e45cc333da707d4d6eb433574b990bcc26f5 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+There is an issue with the ASPM(optional) capability checking function.
+A device might be attached to root complex directly, in this case,
+bus->self(bridge) will be NULL, thus priv->parent_pdev is NULL.
+Since alcor_pci_init_check_aspm(priv->parent_pdev) checks the PCI link's
+ASPM capability and populate parent_cap_off, which will be used later by
+alcor_pci_aspm_ctrl() to dynamically turn on/off device, what we can do
+here is to avoid checking the capability if we are on the root complex.
+This will make pdev_cap_off 0 and alcor_pci_aspm_ctrl() will simply
+return when bring called, effectively disable ASPM for the device.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[    1.246492] BUG: kernel NULL pointer dereference, address: 00000000000000c0
+[    1.248731] RIP: 0010:pci_read_config_byte+0x5/0x40
+[    1.253998] Call Trace:
+[    1.254131]  ? alcor_pci_find_cap_offset.isra.0+0x3a/0x100 [alcor_pci]
+[    1.254476]  alcor_pci_probe+0x169/0x2d5 [alcor_pci]
+
+Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210513040732.1310159-1-ztong0001@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/misc/cardreader/alcor_pci.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index e65750b3c44f..52fdb200a0c7 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -5157,6 +5157,10 @@ static int mvpp2_probe(struct platform_device *pdev)
- 			return PTR_ERR(priv->lms_base);
- 	} else {
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
-+		if (!res) {
-+			dev_err(&pdev->dev, "Invalid resource\n");
-+			return -EINVAL;
-+		}
- 		if (has_acpi_companion(&pdev->dev)) {
- 			/* In case the MDIO memory region is declared in
- 			 * the ACPI, it can already appear as 'in-use'
+diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
+index cd402c89189e..0a62307f7ffb 100644
+--- a/drivers/misc/cardreader/alcor_pci.c
++++ b/drivers/misc/cardreader/alcor_pci.c
+@@ -139,7 +139,13 @@ static void alcor_pci_init_check_aspm(struct alcor_pci_priv *priv)
+ 	u32 val32;
+ 
+ 	priv->pdev_cap_off    = alcor_pci_find_cap_offset(priv, priv->pdev);
+-	priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
++	/*
++	 * A device might be attached to root complex directly and
++	 * priv->parent_pdev will be NULL. In this case we don't check its
++	 * capability and disable ASPM completely.
++	 */
++	if (!priv->parent_pdev)
++		priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
+ 							 priv->parent_pdev);
+ 
+ 	if ((priv->pdev_cap_off == 0) || (priv->parent_cap_off == 0)) {
 -- 
 2.30.2
 
