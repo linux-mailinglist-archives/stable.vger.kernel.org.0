@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E724F3CE359
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC643CE1AB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240339AbhGSPhf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S1347335AbhGSP1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242681AbhGSPek (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:34:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE3BF60FD7;
-        Mon, 19 Jul 2021 16:11:31 +0000 (UTC)
+        id S1347481AbhGSPRp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:17:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B66C6120A;
+        Mon, 19 Jul 2021 15:57:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711092;
-        bh=/6P/yh1GrLehfkA0U3vm5g25urVZMcCG+tR3K6Xmti8=;
+        s=korg; t=1626710259;
+        bh=OBUDEwLW8QxBiAPrBetZCJEGlhRS5cHmP3/lfv6A0Yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1oh7h/hJQDZnXme4w3Xtv3WMmFFvrD3lbQdTqi+SOstf71+lIsKE6J9eJpIIC0h2+
-         z2hA4+ClJRaEXSL+OGPw8i/ZpuudI82keoqyVh5RVb5593odMVg+8CrIiN2Uh0SGf1
-         3Jot1W2TfPDvSL+gI/yKCPUz+hDOTMNCK4/tEdu0=
+        b=OzJ0v8JK4RI21TVI5/TnZyO/eVKZFLi4pHwAsL+jeNk378dwawWMpD6qcr0eCvuQm
+         FGlPRXndIP9jsBll90QdQWXBQLfUkRTVdgH8G8yXOAOffezbM/sVVG0MffSFPOB7IE
+         9BvDGVemKzm5wfWd3GOyG6JKkWpA5R5QKsUFmZGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kris Pan <kris.pan@intel.com>,
-        Shruthi Sanil <shruthi.sanil@intel.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 224/351] watchdog: keembay: Remove timeout update in the WDT start function
+Subject: [PATCH 5.10 141/243] ACPI: video: Add quirk for the Dell Vostro 3350
 Date:   Mon, 19 Jul 2021 16:52:50 +0200
-Message-Id: <20210719144952.369144356@linuxfoundation.org>
+Message-Id: <20210719144945.468472625@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shruthi Sanil <shruthi.sanil@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 9eb25269271c679e8cfcc7df5c0c5e9d0572fc27 ]
+[ Upstream commit 9249c32ec9197e8d34fe5179c9e31668a205db04 ]
 
-Removed set timeout from the start WDT function. There is a function
-defined to set the timeout. Hence no need to set the timeout again in
-start function as the timeout would have been already updated
-before calling the start/enable.
+The Dell Vostro 3350 ACPI video-bus device reports spurious
+ACPI_VIDEO_NOTIFY_CYCLE events resulting in spurious KEY_SWITCHVIDEOMODE
+events being reported to userspace (and causing trouble there).
 
-Fixes: fa0f8d51e90d ("watchdog: Add watchdog driver for Intel Keembay Soc")
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Kris Pan <kris.pan@intel.com>
-Signed-off-by: Shruthi Sanil <shruthi.sanil@intel.com>
-Link: https://lore.kernel.org/r/20210517174953.19404-6-shruthi.sanil@intel.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Add a quirk setting the report_key_events mask to
+REPORT_BRIGHTNESS_KEY_EVENTS so that the ACPI_VIDEO_NOTIFY_CYCLE
+events will be ignored, while still reporting brightness up/down
+hotkey-presses to userspace normally.
+
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1911763
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/keembay_wdt.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/acpi/acpi_video.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/watchdog/keembay_wdt.c b/drivers/watchdog/keembay_wdt.c
-index f2a16c9933c3..039753b9932b 100644
---- a/drivers/watchdog/keembay_wdt.c
-+++ b/drivers/watchdog/keembay_wdt.c
-@@ -84,7 +84,6 @@ static int keembay_wdt_start(struct watchdog_device *wdog)
- {
- 	struct keembay_wdt *wdt = watchdog_get_drvdata(wdog);
- 
--	keembay_wdt_set_timeout_reg(wdog);
- 	keembay_wdt_writel(wdt, TIM_WDOG_EN, 1);
- 
- 	return 0;
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index a322a7bd286b..eb04b2f828ee 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -543,6 +543,15 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
+ 		},
+ 	},
++	{
++	 .callback = video_set_report_key_events,
++	 .driver_data = (void *)((uintptr_t)REPORT_BRIGHTNESS_KEY_EVENTS),
++	 .ident = "Dell Vostro 3350",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 3350"),
++		},
++	},
+ 	/*
+ 	 * Some machines change the brightness themselves when a brightness
+ 	 * hotkey gets pressed, despite us telling them not to. In this case
 -- 
 2.30.2
 
