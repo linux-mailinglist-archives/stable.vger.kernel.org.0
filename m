@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D5F3CD8E7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5895C3CDAEC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243487AbhGSO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
+        id S1344188AbhGSOkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243880AbhGSOYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 954226128C;
-        Mon, 19 Jul 2021 15:04:20 +0000 (UTC)
+        id S244361AbhGSOh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:37:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 140FE6113E;
+        Mon, 19 Jul 2021 15:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707061;
-        bh=FmAVlWNamuC3GE2YBzJqk0R5gjzAnQP1bm5KdpmSjkA=;
+        s=korg; t=1626707838;
+        bh=v7iF50Bzn4if2LlZ1Ia8/TQL6XSxe8GjQb6u9hcTzT4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sP1zy07YTY+cvbz04QAAKVUXdEIpJYfJmLCqiVcqAxSPWoNMrr5tRpvzE0XGfq6ds
-         HccEy7NJteLDv9KCrwgKEp/GsrAFZpwf57/NX3JV/x2G/cfNr8J0xqw47ymAo45XVx
-         wQR6Xxthvg1WNbk3QliFhINQ3U2DfzaH75ZXtTKw=
+        b=1kVmDFgekQ1a8me8Xiws4JGUYmuL/uRHs9ud4WxVx9bzkYked/gTJlaf9R2RR6MUq
+         DW9rpxXJdxQigFpATG/qyhN3flmyjGdiK6HKFbPxg25jXGVjeFJlgxonAD7WzEP+qG
+         dPP8C5eLejvUVHXMI/WzgacfaIlZmNN2bQ9Uak/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 016/245] SUNRPC: Fix the batch tasks count wraparound.
-Date:   Mon, 19 Jul 2021 16:49:18 +0200
-Message-Id: <20210719144940.913158919@linuxfoundation.org>
+        stable@vger.kernel.org, Hanjun Guo <guohanjun@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 070/315] ACPI: bus: Call kobject_put() in acpi_init() error path
+Date:   Mon, 19 Jul 2021 16:49:19 +0200
+Message-Id: <20210719144945.159653639@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Hanjun Guo <guohanjun@huawei.com>
 
-commit fcb170a9d825d7db4a3fb870b0300f5a40a8d096 upstream.
+[ Upstream commit 4ac7a817f1992103d4e68e9837304f860b5e7300 ]
 
-The 'queue->nr' will wraparound from 0 to 255 when only current
-priority queue has tasks. This maybe lead a deadlock same as commit
-dfe1fe75e00e ("NFSv4: Fix deadlock between nfs4_evict_inode()
-and nfs4_opendata_get_inode()"):
+Although the system will not be in a good condition or it will not
+boot if acpi_bus_init() fails, it is still necessary to put the
+kobject in the error path before returning to avoid leaking memory.
 
-Privileged delegreturn task is queued to privileged list because all
-the slots are assigned. When non-privileged task complete and release
-the slot, a non-privileged maybe picked out. It maybe allocate slot
-failed when the session on draining.
-
-If the 'queue->nr' has wraparound to 255, and no enough slot to
-service it, then the privileged delegreturn will lost to wake up.
-
-So we should avoid the wraparound on 'queue->nr'.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 5fcdfacc01f3 ("NFSv4: Return delegations synchronously in evict_inode")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
+[ rjw: Subject and changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/sched.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/bus.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sunrpc/sched.c
-+++ b/net/sunrpc/sched.c
-@@ -490,7 +490,8 @@ static struct rpc_task *__rpc_find_next_
- 	 * Service a batch of tasks from a single owner.
- 	 */
- 	q = &queue->tasks[queue->priority];
--	if (!list_empty(q) && --queue->nr) {
-+	if (!list_empty(q) && queue->nr) {
-+		queue->nr--;
- 		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
- 		goto out;
+diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+index 1cb7c6a52f61..7ea02bb50c73 100644
+--- a/drivers/acpi/bus.c
++++ b/drivers/acpi/bus.c
+@@ -1249,6 +1249,7 @@ static int __init acpi_init(void)
+ 	init_acpi_device_notify();
+ 	result = acpi_bus_init();
+ 	if (result) {
++		kobject_put(acpi_kobj);
+ 		disable_acpi();
+ 		return result;
  	}
+-- 
+2.30.2
+
 
 
