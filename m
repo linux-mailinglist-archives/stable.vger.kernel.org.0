@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0A7A3CE2E9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA723CE105
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238554AbhGSPcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:32:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
+        id S1347338AbhGSPTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:19:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346705AbhGSP2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D49E6128E;
-        Mon, 19 Jul 2021 16:08:25 +0000 (UTC)
+        id S1347217AbhGSPPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:15:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7032601FD;
+        Mon, 19 Jul 2021 15:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710906;
-        bh=v6UqtFtjG4iruUiQJF78ThgQFAMWAej5WqbCRUipamI=;
+        s=korg; t=1626710192;
+        bh=IxaehiJGGRFs1bfaxinZIXvUNI2hkK+ktz7VylF8d7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gsTSnXrhx1HvGuh52WbJlah/Foe2kLcDv+LiCHUnRTZK7kdOVHffVYMKyWL5tI+XI
-         ZWwbKpqfAWyeaDlZQeHJhFX868YTAbxopecaJX01x2dc2fS87jnYrAgY65R/0DRLEc
-         yLAFmpC8lyf3B1krRpMXtAdRQVymp7Zil7nNp5Q8=
+        b=DuEIMsw9J0YGFkuCEMHSx3ZEx9id/kIZdj+n4pKaRR7dSUygDy3qbblmZgHFqrO6u
+         DUAH5JuBSNfP0q82P9TOh0/Wni4n+KtWUF5Fm4mGzOZWYBUi1iONau+pM3ICIv+KQh
+         YirDQ5WpT0RISXVOSVjYRJqJZVOhcJ55u19/npy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org,
+        Fabrice Fontaine <fontaine.fabrice@gmail.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 153/351] power: supply: ab8500: Avoid NULL pointers
+Subject: [PATCH 5.10 070/243] s390: disable SSP when needed
 Date:   Mon, 19 Jul 2021 16:51:39 +0200
-Message-Id: <20210719144950.038235048@linuxfoundation.org>
+Message-Id: <20210719144943.170500431@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Fabrice Fontaine <fontaine.fabrice@gmail.com>
 
-[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
+[ Upstream commit 42e8d652438f5ddf04e5dac299cb5e623d113dc0 ]
 
-Sometimes the code will crash because we haven't enabled
-AC or USB charging and thus not created the corresponding
-psy device. Fix it by checking that it is there before
-notifying.
+Though -nostdlib is passed in PURGATORY_LDFLAGS and -ffreestanding in
+KBUILD_CFLAGS_DECOMPRESSOR, -fno-stack-protector must also be passed to
+avoid linking errors related to undefined references to
+'__stack_chk_guard' and '__stack_chk_fail' if toolchain enforces
+-fstack-protector.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes
+ - https://gitlab.com/kubu93/buildroot/-/jobs/1247043361
+
+Signed-off-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Reviewed-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210510053133.1220167-1-fontaine.fabrice@gmail.com
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_charger.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/s390/Makefile           | 1 +
+ arch/s390/purgatory/Makefile | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index af32cfae9f19..57fbfe3d8c03 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -415,6 +415,14 @@ disable_otp:
- static void ab8500_power_supply_changed(struct ab8500_charger *di,
- 					struct power_supply *psy)
- {
-+	/*
-+	 * This happens if we get notifications or interrupts and
-+	 * the platform has been configured not to support one or
-+	 * other type of charging.
-+	 */
-+	if (!psy)
-+		return;
-+
- 	if (di->autopower_cfg) {
- 		if (!di->usb.charger_connected &&
- 		    !di->ac.charger_connected &&
-@@ -441,7 +449,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
- 		if (!connected)
- 			di->flags.vbus_drop_end = false;
- 
--		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
-+		/*
-+		 * Sometimes the platform is configured not to support
-+		 * USB charging and no psy has been created, but we still
-+		 * will get these notifications.
-+		 */
-+		if (di->usb_chg.psy) {
-+			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
-+				     "present");
-+		}
- 
- 		if (connected) {
- 			mutex_lock(&di->charger_attached_mutex);
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index ba94b03c8b2f..92506918da63 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -28,6 +28,7 @@ KBUILD_CFLAGS_DECOMPRESSOR += -DDISABLE_BRANCH_PROFILING -D__NO_FORTIFY
+ KBUILD_CFLAGS_DECOMPRESSOR += -fno-delete-null-pointer-checks -msoft-float
+ KBUILD_CFLAGS_DECOMPRESSOR += -fno-asynchronous-unwind-tables
+ KBUILD_CFLAGS_DECOMPRESSOR += -ffreestanding
++KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+diff --git a/arch/s390/purgatory/Makefile b/arch/s390/purgatory/Makefile
+index c57f8c40e992..21c4ebe29b9a 100644
+--- a/arch/s390/purgatory/Makefile
++++ b/arch/s390/purgatory/Makefile
+@@ -24,6 +24,7 @@ KBUILD_CFLAGS := -fno-strict-aliasing -Wall -Wstrict-prototypes
+ KBUILD_CFLAGS += -Wno-pointer-sign -Wno-sign-compare
+ KBUILD_CFLAGS += -fno-zero-initialized-in-bss -fno-builtin -ffreestanding
+ KBUILD_CFLAGS += -c -MD -Os -m64 -msoft-float -fno-common
++KBUILD_CFLAGS += -fno-stack-protector
+ KBUILD_CFLAGS += $(CLANG_FLAGS)
+ KBUILD_CFLAGS += $(call cc-option,-fno-PIE)
+ KBUILD_AFLAGS := $(filter-out -DCC_USING_EXPOLINE,$(KBUILD_AFLAGS))
 -- 
 2.30.2
 
