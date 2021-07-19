@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D6CD3CDB7A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 908283CDAF5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242737AbhGSOnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S244097AbhGSOk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245305AbhGSOiO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:38:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D199061248;
-        Mon, 19 Jul 2021 15:17:54 +0000 (UTC)
+        id S242781AbhGSOih (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:38:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B12C961263;
+        Mon, 19 Jul 2021 15:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707875;
-        bh=SgxVTqg3TOEmf5WCKocn+ohWTqbmvn+yxTfwJ7zmAnQ=;
+        s=korg; t=1626707878;
+        bh=Tsbza4aPmHAn+cZbhrOMidKuZfIB/13F/TXDGOY30Ec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RvL8dzUgRq4EsGzNKUAY4zg4RVfEFddNLsPdiIQ6uMoyc9Zje4V/oBshXJwuStJGT
-         XcBrzBh6QLIIX+E8m/kCKvSQH7Wsl5g+12B37NcIrBLM7KyrL1+yBpFjXIYUTTdt4Y
-         c0dIdsGGfnuoOTE0Qj7NS3tMUQ3Ud9z+N23Bvtoc=
+        b=EqUdBX5ZhoKjlCZbJP6kDV8ZVRm0DEKZ2qmOZU13HTz33ONj6VtoMbRhoyhDKk0Mm
+         mQCV+s8nxdlHtKBRCCPgD7LYvlACKZMjPMcE4CjTY+Z32JGZMPx4B0VurhjzYqJHUB
+         4fYIcAqXQeHaQVoq5FQeJjZ9co5Axg3bgVubxHCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Mirko Vogt <mirko-dev|linux@nanl.de>,
+        Ralf Schlatterbeck <rsc@runtux.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/315] btrfs: clear log tree recovering status if starting transaction fails
-Date:   Mon, 19 Jul 2021 16:49:40 +0200
-Message-Id: <20210719144945.868251942@linuxfoundation.org>
+Subject: [PATCH 4.14 092/315] spi: spi-sun6i: Fix chipselect/clock bug
+Date:   Mon, 19 Jul 2021 16:49:41 +0200
+Message-Id: <20210719144945.905243633@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -41,42 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Mirko Vogt <mirko-dev|linux@nanl.de>
 
-[ Upstream commit 1aeb6b563aea18cd55c73cf666d1d3245a00f08c ]
+[ Upstream commit 0d7993b234c9fad8cb6bec6adfaa74694ba85ecb ]
 
-When a log recovery is in progress, lots of operations have to take that
-into account, so we keep this status per tree during the operation. Long
-time ago error handling revamp patch 79787eaab461 ("btrfs: replace many
-BUG_ONs with proper error handling") removed clearing of the status in
-an error branch. Add it back as was intended in e02119d5a7b4 ("Btrfs:
-Add a write ahead tree log to optimize synchronous operations").
+The current sun6i SPI implementation initializes the transfer too early,
+resulting in SCK going high before the transfer. When using an additional
+(gpio) chipselect with sun6i, the chipselect is asserted at a time when
+clock is high, making the SPI transfer fail.
 
-There are probably no visible effects, log replay is done only during
-mount and if it fails all structures are cleared so the stale status
-won't be kept.
+This is due to SUN6I_GBL_CTL_BUS_ENABLE being written into
+SUN6I_GBL_CTL_REG at an early stage. Moving that to the transfer
+function, hence, right before the transfer starts, mitigates that
+problem.
 
-Fixes: 79787eaab461 ("btrfs: replace many BUG_ONs with proper error handling")
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 3558fe900e8af (spi: sunxi: Add Allwinner A31 SPI controller driver)
+Signed-off-by: Mirko Vogt <mirko-dev|linux@nanl.de>
+Signed-off-by: Ralf Schlatterbeck <rsc@runtux.com>
+Link: https://lore.kernel.org/r/20210614144507.y3udezjfbko7eavv@runtux.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-sun6i.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index f890fdb59915..fbcfee38583b 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5957,6 +5957,7 @@ next:
- error:
- 	if (wc.trans)
- 		btrfs_end_transaction(wc.trans);
-+	clear_bit(BTRFS_FS_LOG_RECOVERING, &fs_info->flags);
- 	btrfs_free_path(path);
- 	return ret;
- }
+diff --git a/drivers/spi/spi-sun6i.c b/drivers/spi/spi-sun6i.c
+index 21a22d42818c..ef62366899ad 100644
+--- a/drivers/spi/spi-sun6i.c
++++ b/drivers/spi/spi-sun6i.c
+@@ -301,6 +301,10 @@ static int sun6i_spi_transfer_one(struct spi_master *master,
+ 	}
+ 
+ 	sun6i_spi_write(sspi, SUN6I_CLK_CTL_REG, reg);
++	/* Finally enable the bus - doing so before might raise SCK to HIGH */
++	reg = sun6i_spi_read(sspi, SUN6I_GBL_CTL_REG);
++	reg |= SUN6I_GBL_CTL_BUS_ENABLE;
++	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG, reg);
+ 
+ 	/* Setup the transfer now... */
+ 	if (sspi->tx_buf)
+@@ -409,7 +413,7 @@ static int sun6i_spi_runtime_resume(struct device *dev)
+ 	}
+ 
+ 	sun6i_spi_write(sspi, SUN6I_GBL_CTL_REG,
+-			SUN6I_GBL_CTL_BUS_ENABLE | SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
++			SUN6I_GBL_CTL_MASTER | SUN6I_GBL_CTL_TP);
+ 
+ 	return 0;
+ 
 -- 
 2.30.2
 
