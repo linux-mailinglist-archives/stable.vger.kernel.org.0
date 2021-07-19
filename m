@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B583CE0D2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C963CE31C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346905AbhGSPST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:18:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48928 "EHLO mail.kernel.org"
+        id S1350080AbhGSPgh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:36:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346549AbhGSPOv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C99E5613D8;
-        Mon, 19 Jul 2021 15:55:14 +0000 (UTC)
+        id S237093AbhGSPcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:32:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51C126140C;
+        Mon, 19 Jul 2021 16:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710115;
-        bh=R33XyEw5FxFRJKtNMFHKwlWrVCVD5vApTROxi9XpiP4=;
+        s=korg; t=1626711009;
+        bh=xWCCHaF5NQH3bwlPXq7cZGPq7DcVswBFm6vzcPVvN44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5gitPeBVaaQJ0y5G8+wZvu7hrt1Y2fD1tR7/TYTRuc+rWOcSaeeCVDBv1FHju81C
-         SWVp9Q+jtH3ydAx/ET4a5Oti8TnsvP66SfQASK1aUlb091EnXDcNzYJ3tGngvZifZw
-         glK1tPH5kpLBsuycN0PAkvTzSzxGUxCoJ1SvRehI=
+        b=YKX0DC6nelSa9v41Z8cI6s3sy5A+RBujFMifpMkjygkmvGsdteD3qrnhtpQONXQPT
+         xxakNkm/59YnKgUZQJeYRp3SDqwZTQKYEWI9lz3yhR6LZIN0hVnvR1LcGKWU45ZF5i
+         ty/I3DJ/jgBq2tEXYVyWjN9GWST9gxmm7wYwtFh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 083/243] powerpc/mm/book3s64: Fix possible build error
+Subject: [PATCH 5.13 166/351] watchdog: sc520_wdt: Fix possible use-after-free in wdt_turnoff()
 Date:   Mon, 19 Jul 2021 16:51:52 +0200
-Message-Id: <20210719144943.580791941@linuxfoundation.org>
+Message-Id: <20210719144950.456387952@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,86 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 07d8ad6fd8a3d47f50595ca4826f41dbf4f3a0c6 ]
+[ Upstream commit 90b7c141132244e8e49a34a4c1e445cce33e07f4 ]
 
-Update _tlbiel_pid() such that we can avoid build errors like below when
-using this function in other places.
+This module's remove path calls del_timer(). However, that function
+does not wait until the timer handler finishes. This means that the
+timer handler may still be running after the driver's remove function
+has finished, which would result in a use-after-free.
 
-arch/powerpc/mm/book3s64/radix_tlb.c: In function ‘__radix__flush_tlb_range_psize’:
-arch/powerpc/mm/book3s64/radix_tlb.c:114:2: warning: ‘asm’ operand 3 probably does not match constraints
-  114 |  asm volatile(PPC_TLBIEL(%0, %4, %3, %2, %1)
-      |  ^~~
-arch/powerpc/mm/book3s64/radix_tlb.c:114:2: error: impossible constraint in ‘asm’
-make[4]: *** [scripts/Makefile.build:271: arch/powerpc/mm/book3s64/radix_tlb.o] Error 1
-m
+Fix by calling del_timer_sync(), which makes sure the timer handler
+has finished, and unable to re-schedule itself.
 
-With this fix, we can also drop the __always_inline in __radix_flush_tlb_range_psize
-which was added by commit e12d6d7d46a6 ("powerpc/mm/radix: mark __radix__flush_tlb_range_psize() as __always_inline")
-
-Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210610083639.387365-1-aneesh.kumar@linux.ibm.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/1620716691-108460-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/book3s64/radix_tlb.c | 26 +++++++++++++++++---------
- 1 file changed, 17 insertions(+), 9 deletions(-)
+ drivers/watchdog/sc520_wdt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-index b487b489d4b6..4c2f75916a7e 100644
---- a/arch/powerpc/mm/book3s64/radix_tlb.c
-+++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-@@ -282,22 +282,30 @@ static inline void fixup_tlbie_lpid(unsigned long lpid)
- /*
-  * We use 128 set in radix mode and 256 set in hpt mode.
-  */
--static __always_inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
-+static inline void _tlbiel_pid(unsigned long pid, unsigned long ric)
+diff --git a/drivers/watchdog/sc520_wdt.c b/drivers/watchdog/sc520_wdt.c
+index e66e6b905964..ca65468f4b9c 100644
+--- a/drivers/watchdog/sc520_wdt.c
++++ b/drivers/watchdog/sc520_wdt.c
+@@ -186,7 +186,7 @@ static int wdt_startup(void)
+ static int wdt_turnoff(void)
  {
- 	int set;
+ 	/* Stop the timer */
+-	del_timer(&timer);
++	del_timer_sync(&timer);
  
- 	asm volatile("ptesync": : :"memory");
- 
--	/*
--	 * Flush the first set of the TLB, and if we're doing a RIC_FLUSH_ALL,
--	 * also flush the entire Page Walk Cache.
--	 */
--	__tlbiel_pid(pid, 0, ric);
-+	switch (ric) {
-+	case RIC_FLUSH_PWC:
- 
--	/* For PWC, only one flush is needed */
--	if (ric == RIC_FLUSH_PWC) {
-+		/* For PWC, only one flush is needed */
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_PWC);
- 		ppc_after_tlbiel_barrier();
- 		return;
-+	case RIC_FLUSH_TLB:
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_TLB);
-+		break;
-+	case RIC_FLUSH_ALL:
-+	default:
-+		/*
-+		 * Flush the first set of the TLB, and if
-+		 * we're doing a RIC_FLUSH_ALL, also flush
-+		 * the entire Page Walk Cache.
-+		 */
-+		__tlbiel_pid(pid, 0, RIC_FLUSH_ALL);
- 	}
- 
- 	/* For the remaining sets, just flush the TLB */
-@@ -1068,7 +1076,7 @@ void radix__tlb_flush(struct mmu_gather *tlb)
- 	}
- }
- 
--static __always_inline void __radix__flush_tlb_range_psize(struct mm_struct *mm,
-+static void __radix__flush_tlb_range_psize(struct mm_struct *mm,
- 				unsigned long start, unsigned long end,
- 				int psize, bool also_pwc)
- {
+ 	/* Stop the watchdog */
+ 	wdt_config(0);
 -- 
 2.30.2
 
