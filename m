@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67EE43CD773
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A239D3CD772
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241726AbhGSOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241721AbhGSOQt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 10:16:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241616AbhGSOQi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:16:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22B8961003;
-        Mon, 19 Jul 2021 14:57:16 +0000 (UTC)
+        id S241628AbhGSOQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:16:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5129B61164;
+        Mon, 19 Jul 2021 14:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706637;
-        bh=Q25BYiiSCoZKDqHfS0tDwl2kMXeirGVjKY4WUW/NYOA=;
+        s=korg; t=1626706639;
+        bh=sIpER712sv6eBtjFWmg3Kr1E2xDX5xxB6GI1FCCgIyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcR2O270Nw1RQ/FEjYBqZL6z/ODaVYghFqcuIQRopDgrWsJb9ytOBU0GfSvh6gDI9
-         94zwidTFXZxz12EOYCZWMKuKTD2ZDBK+Wpvvb5ouZqnlACRFSblyejDsnfi/lVFwb4
-         btimhQWUYOA4K9joAefWkSySTXeWzzgDD6U5m92I=
+        b=hKDSwl8FhzHXbCMNevai4v8X0xwRrViJtuN40taqrCF10Z4+/Uvyuh6kV0wqK7zSD
+         GdjWmzanHGkemRp0zK82tgzl3bP/vbWhtC8bITeY6/+REk0QEP4lWApo5NTEzQeyOQ
+         gtbW+oInBB7T4vc5omIyN92+X21Xl1bCfXCoHTn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
+        Zhehui Xiang <zhehui.xiang@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 031/188] media: pvrusb2: fix warning in pvr2_i2c_core_done
-Date:   Mon, 19 Jul 2021 16:50:15 +0200
-Message-Id: <20210719144920.309944451@linuxfoundation.org>
+Subject: [PATCH 4.4 032/188] crypto: qat - check return code of qat_hal_rd_rel_reg()
+Date:   Mon, 19 Jul 2021 16:50:16 +0200
+Message-Id: <20210719144920.566487323@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -43,58 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Jack Xu <jack.xu@intel.com>
 
-[ Upstream commit f8194e5e63fdcb349e8da9eef9e574d5b1d687cb ]
+[ Upstream commit 96b57229209490c8bca4335b01a426a96173dc56 ]
 
-syzbot has reported the following warning in pvr2_i2c_done:
+Check the return code of the function qat_hal_rd_rel_reg() and return it
+to the caller.
 
-	sysfs group 'power' not found for kobject '1-0043'
+This is to fix the following warning when compiling the driver with
+clang scan-build:
 
-When the device is disconnected (pvr_hdw_disconnect), the i2c adapter is
-not unregistered along with the USB and v4l2 teardown. As part of the USB
-device disconnect, the sysfs files of the subdevices are also deleted.
-So, by the time pvr_i2c_core_done is called by pvr_context_destroy, the
-sysfs files have been deleted.
+    drivers/crypto/qat/qat_common/qat_hal.c:1436:2: warning: 6th function call argument is an uninitialized value
 
-To fix this, unregister the i2c adapter too in pvr_hdw_disconnect. Make
-the device deregistration code shared by calling pvr_hdw_disconnect from
-pvr2_hdw_destroy.
-
-Reported-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
-Tested-by: syzbot+e74a998ca8f1df9cc332@syzkaller.appspotmail.com
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Jack Xu <jack.xu@intel.com>
+Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
+Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/crypto/qat/qat_common/qat_hal.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-index 232b0fd3e478..ba3b0141538d 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -2731,9 +2731,8 @@ void pvr2_hdw_destroy(struct pvr2_hdw *hdw)
- 		pvr2_stream_destroy(hdw->vid_stream);
- 		hdw->vid_stream = NULL;
+diff --git a/drivers/crypto/qat/qat_common/qat_hal.c b/drivers/crypto/qat/qat_common/qat_hal.c
+index 380e761801a7..5e5003379281 100644
+--- a/drivers/crypto/qat/qat_common/qat_hal.c
++++ b/drivers/crypto/qat/qat_common/qat_hal.c
+@@ -1210,7 +1210,11 @@ static int qat_hal_put_rel_wr_xfer(struct icp_qat_fw_loader_handle *handle,
+ 		pr_err("QAT: bad xfrAddr=0x%x\n", xfr_addr);
+ 		return -EINVAL;
  	}
--	pvr2_i2c_core_done(hdw);
- 	v4l2_device_unregister(&hdw->v4l2_dev);
--	pvr2_hdw_remove_usb_stuff(hdw);
-+	pvr2_hdw_disconnect(hdw);
- 	mutex_lock(&pvr2_unit_mtx);
- 	do {
- 		if ((hdw->unit_number >= 0) &&
-@@ -2760,6 +2759,7 @@ void pvr2_hdw_disconnect(struct pvr2_hdw *hdw)
- {
- 	pvr2_trace(PVR2_TRACE_INIT,"pvr2_hdw_disconnect(hdw=%p)",hdw);
- 	LOCK_TAKE(hdw->big_lock);
-+	pvr2_i2c_core_done(hdw);
- 	LOCK_TAKE(hdw->ctl_lock);
- 	pvr2_hdw_remove_usb_stuff(hdw);
- 	LOCK_GIVE(hdw->ctl_lock);
+-	qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
++	status = qat_hal_rd_rel_reg(handle, ae, ctx, ICP_GPB_REL, gprnum, &gprval);
++	if (status) {
++		pr_err("QAT: failed to read register");
++		return status;
++	}
+ 	gpr_addr = qat_hal_get_reg_addr(ICP_GPB_REL, gprnum);
+ 	data16low = 0xffff & data;
+ 	data16hi = 0xffff & (data >> 0x10);
 -- 
 2.30.2
 
