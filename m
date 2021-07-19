@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE26C3CDFD1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79023CDF0B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245756AbhGSPMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46478 "EHLO mail.kernel.org"
+        id S1344645AbhGSPH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245743AbhGSPKL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7402D60FED;
-        Mon, 19 Jul 2021 15:50:50 +0000 (UTC)
+        id S1345760AbhGSPE6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6F6761166;
+        Mon, 19 Jul 2021 15:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709851;
-        bh=SqMSKcVET3eL/CjFpttP+c/eX1PAOvEaZL+V4uhj9J0=;
+        s=korg; t=1626709527;
+        bh=TNFVtHoJc3PqwJwXyaoHT9IFm9G1RO35rNOmgMwLZag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUmIW4DnsV6LzVjeL6jyUuLC5MAuSwS5F80VwMKLJnXz31iWzrXgBfYNwVcLTJOh9
-         QQU10XDbEQYE2fzIHBdq7xuit0+rfVa8gufVvigKtI39yRip4kJ7PRDQVqWyTs+Jri
-         QPQWaU32t70JOA+c4RYeCX4U3O5yt6g1+3dFDq0U=
+        b=jqRME4eMjR7zx5Khbb6vdwWemHB8JWOeqmU9EIa9IEzq017sVeATKrTlVkWtsO7QE
+         zz98Anm04XJDh7gYaAxWQJPa1VnjKZtr9l35+76s3V16IjIMme6tU5swDax42UZpcF
+         lxRD95He1TFBVDHBJmcOpmDuXGuhe/vqRVNQkcxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/149] reset: brcmstb: Add missing MODULE_DEVICE_TABLE
+Subject: [PATCH 4.19 419/421] MIPS: vdso: Invalid GIC access through VDSO
 Date:   Mon, 19 Jul 2021 16:53:50 +0200
-Message-Id: <20210719144930.270901127@linuxfoundation.org>
+Message-Id: <20210719145000.848021850@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Martin Fäcknitz <faecknitz@hotsplots.de>
 
-[ Upstream commit e207457f9045343a24d936fbb67eb4b412f1c6ad ]
+[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
+doesn't return the correct time when using the GIC as clock source.
+The address of the GIC mapped page is in this case not calculated
+correctly. The GIC mapped page is calculated from the VDSO data by
+subtracting PAGE_SIZE:
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 77750bc089e4 ("reset: Add Broadcom STB SW_INIT reset controller driver")
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1620789283-15048-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+  void *get_gic(const struct vdso_data *data) {
+    return (void __iomem *)data - PAGE_SIZE;
+  }
+
+However, the data pointer is not page aligned for raw clock sources.
+This is because the VDSO data for raw clock sources (CS_RAW = 1) is
+stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
+Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
+
+  +--------------------+
+  |                    |
+  | vd[CS_RAW]         | ---+
+  | vd[CS_HRES_COARSE] |    |
+  +--------------------+    | -PAGE_SIZE
+  |                    |    |
+  |  GIC mapped page   | <--+
+  |                    |
+  +--------------------+
+
+When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
+the wrong address (somewhere inside the GIC mapped page). The GIC counter
+values are not returned which results in an invalid time.
+
+Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
+Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-brcmstb.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/mips/vdso/vdso.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/reset/reset-brcmstb.c b/drivers/reset/reset-brcmstb.c
-index f213264c8567..42c9d5241c53 100644
---- a/drivers/reset/reset-brcmstb.c
-+++ b/drivers/reset/reset-brcmstb.c
-@@ -111,6 +111,7 @@ static const struct of_device_id brcmstb_reset_of_match[] = {
- 	{ .compatible = "brcm,brcmstb-reset" },
- 	{ /* sentinel */ }
- };
-+MODULE_DEVICE_TABLE(of, brcmstb_reset_of_match);
+diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
+index cfb1be441dec..921589b45bc2 100644
+--- a/arch/mips/vdso/vdso.h
++++ b/arch/mips/vdso/vdso.h
+@@ -81,7 +81,7 @@ static inline const union mips_vdso_data *get_vdso_data(void)
  
- static struct platform_driver brcmstb_reset_driver = {
- 	.probe	= brcmstb_reset_probe,
+ static inline void __iomem *get_gic(const union mips_vdso_data *data)
+ {
+-	return (void __iomem *)data - PAGE_SIZE;
++	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+ }
+ 
+ #endif /* CONFIG_CLKSRC_MIPS_GIC */
 -- 
 2.30.2
 
