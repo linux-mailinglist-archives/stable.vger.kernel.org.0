@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AC533CE3EF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81673CE28A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234861AbhGSPlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
+        id S1347476AbhGSPat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:30:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348266AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A69B2600EF;
-        Mon, 19 Jul 2021 16:13:26 +0000 (UTC)
+        id S1348018AbhGSPYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA5C66124B;
+        Mon, 19 Jul 2021 16:00:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711207;
-        bh=GnEbgjOoesj4kucC4ZvqxRU4x6/Bv7moaBcaNisZGas=;
+        s=korg; t=1626710440;
+        bh=DyTMdCdsxsbTLR7vRnnYoeE6C/G6Kd7Q4U0wr8X/eWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGhPY88LLopeAoJJXs9rsbrItfSWLptnxv/LQdTxdoSJ6mXEUQFxBbfRc3AZYQTsR
-         Xfqcq0jl8DgYP7WsqPdDAbftauXnSrWiOUGuNfv1OVzvU1OexixD/4caQ13ZyKyB4N
-         zOzv1KDOb5GTCxqzxm4lcqqOTt/8u7hVIGgrWJ9M=
+        b=IafVxC1zmoGRuHEgRXkewTUH2z21p0yi87MxRAGX2x0ifuP3lKYvg1sv8wVVSL0S1
+         7mYSM9U9CX3dVj7v0XbADtGjO2qFx2F6rSu02ebZaZje5Hn+WHcRmZ8Fd0C9UXcrg+
+         BXd4Kemrs5gbzzPm2rb9XzDu85A5UXbywTEG5OuE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 266/351] NFSv4/pnfs: Fix layoutget behaviour after invalidation
+Subject: [PATCH 5.10 183/243] NFSv4/pNFS: Dont call _nfs4_pnfs_v3_ds_connect multiple times
 Date:   Mon, 19 Jul 2021 16:53:32 +0200
-Message-Id: <20210719144953.741323387@linuxfoundation.org>
+Message-Id: <20210719144946.831800649@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +42,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 0b77f97a7e42adc72bd566ff8cb733ea426f74f6 ]
+[ Upstream commit f46f84931a0aa344678efe412d4b071d84d8a805 ]
 
-If the layout gets invalidated, we should wait for any outstanding
-layoutget requests for that layout to complete, and we should resend
-them only after re-establishing the layout stateid.
+After we grab the lock in nfs4_pnfs_ds_connect(), there is no check for
+whether or not ds->ds_clp has already been initialised, so we can end up
+adding the same transports multiple times.
 
-Fixes: d29b468da4f9 ("pNFS/NFSv4: Improve rejection of out-of-order layouts")
+Fixes: fc821d59209d ("pnfs/NFSv4.1: Add multipath capabilities to pNFS flexfiles servers over NFSv3")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/nfs/pnfs_nfs.c | 52 +++++++++++++++++++++++------------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/fs/nfs/pnfs.c b/fs/nfs/pnfs.c
-index ffe02e43f8c0..be960e47d7f6 100644
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -2014,7 +2014,7 @@ lookup_again:
- 	 * If the layout segment list is empty, but there are outstanding
- 	 * layoutget calls, then they might be subject to a layoutrecall.
- 	 */
--	if (list_empty(&lo->plh_segs) &&
-+	if ((list_empty(&lo->plh_segs) || !pnfs_layout_is_valid(lo)) &&
- 	    atomic_read(&lo->plh_outstanding) != 0) {
- 		spin_unlock(&ino->i_lock);
- 		lseg = ERR_PTR(wait_var_event_killable(&lo->plh_outstanding,
-@@ -2390,11 +2390,13 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
- 		goto out_forget;
+diff --git a/fs/nfs/pnfs_nfs.c b/fs/nfs/pnfs_nfs.c
+index e3b25822e0bb..251c4a3aef9a 100644
+--- a/fs/nfs/pnfs_nfs.c
++++ b/fs/nfs/pnfs_nfs.c
+@@ -791,19 +791,16 @@ out:
+ }
+ EXPORT_SYMBOL_GPL(nfs4_pnfs_ds_add);
+ 
+-static void nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
++static int nfs4_wait_ds_connect(struct nfs4_pnfs_ds *ds)
+ {
+ 	might_sleep();
+-	wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING,
+-			TASK_KILLABLE);
++	return wait_on_bit(&ds->ds_state, NFS4DS_CONNECTING, TASK_KILLABLE);
+ }
+ 
+ static void nfs4_clear_ds_conn_bit(struct nfs4_pnfs_ds *ds)
+ {
+ 	smp_mb__before_atomic();
+-	clear_bit(NFS4DS_CONNECTING, &ds->ds_state);
+-	smp_mb__after_atomic();
+-	wake_up_bit(&ds->ds_state, NFS4DS_CONNECTING);
++	clear_and_wake_up_bit(NFS4DS_CONNECTING, &ds->ds_state);
+ }
+ 
+ static struct nfs_client *(*get_v3_ds_connect)(
+@@ -969,30 +966,33 @@ int nfs4_pnfs_ds_connect(struct nfs_server *mds_srv, struct nfs4_pnfs_ds *ds,
+ {
+ 	int err;
+ 
+-again:
+-	err = 0;
+-	if (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) == 0) {
+-		if (version == 3) {
+-			err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo,
+-						       retrans);
+-		} else if (version == 4) {
+-			err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo,
+-						       retrans, minor_version);
+-		} else {
+-			dprintk("%s: unsupported DS version %d\n", __func__,
+-				version);
+-			err = -EPROTONOSUPPORT;
+-		}
++	do {
++		err = nfs4_wait_ds_connect(ds);
++		if (err || ds->ds_clp)
++			goto out;
++		if (nfs4_test_deviceid_unavailable(devid))
++			return -ENODEV;
++	} while (test_and_set_bit(NFS4DS_CONNECTING, &ds->ds_state) != 0);
+ 
+-		nfs4_clear_ds_conn_bit(ds);
+-	} else {
+-		nfs4_wait_ds_connect(ds);
++	if (ds->ds_clp)
++		goto connect_done;
+ 
+-		/* what was waited on didn't connect AND didn't mark unavail */
+-		if (!ds->ds_clp && !nfs4_test_deviceid_unavailable(devid))
+-			goto again;
++	switch (version) {
++	case 3:
++		err = _nfs4_pnfs_v3_ds_connect(mds_srv, ds, timeo, retrans);
++		break;
++	case 4:
++		err = _nfs4_pnfs_v4_ds_connect(mds_srv, ds, timeo, retrans,
++					       minor_version);
++		break;
++	default:
++		dprintk("%s: unsupported DS version %d\n", __func__, version);
++		err = -EPROTONOSUPPORT;
  	}
  
-+	if (!pnfs_layout_is_valid(lo) && !pnfs_is_first_layoutget(lo))
-+		goto out_forget;
-+
- 	if (nfs4_stateid_match_other(&lo->plh_stateid, &res->stateid)) {
- 		/* existing state ID, make sure the sequence number matches. */
- 		if (pnfs_layout_stateid_blocked(lo, &res->stateid)) {
--			if (!pnfs_layout_is_valid(lo) &&
--			    pnfs_is_first_layoutget(lo))
-+			if (!pnfs_layout_is_valid(lo))
- 				lo->plh_barrier = 0;
- 			dprintk("%s forget reply due to sequence\n", __func__);
- 			goto out_forget;
-@@ -2413,8 +2415,6 @@ pnfs_layout_process(struct nfs4_layoutget *lgp)
- 		goto out_forget;
- 	} else {
- 		/* We have a completely new layout */
--		if (!pnfs_is_first_layoutget(lo))
--			goto out_forget;
- 		pnfs_set_layout_stateid(lo, &res->stateid, lgp->cred, true);
- 	}
- 
++connect_done:
++	nfs4_clear_ds_conn_bit(ds);
++out:
+ 	/*
+ 	 * At this point the ds->ds_clp should be ready, but it might have
+ 	 * hit an error.
 -- 
 2.30.2
 
