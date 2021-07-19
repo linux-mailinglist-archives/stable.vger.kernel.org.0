@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 473053CDBE4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 272473CDA46
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238994AbhGSOuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
+        id S242810AbhGSOfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344059AbhGSOsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B08BB613EB;
-        Mon, 19 Jul 2021 15:26:14 +0000 (UTC)
+        id S244579AbhGSOeN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2D3E61002;
+        Mon, 19 Jul 2021 15:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708375;
-        bh=3HQ9wMVGRFD8/R5uZMqXYBhCBBu1BfO9S4JiZLoCwT4=;
+        s=korg; t=1626707608;
+        bh=MvPgqGi4tTT5o/ehOAay5tYuvqFudz92RH0/8OHz31k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eE8fZuxuuaOpjeE9YfAiC9VL8hc638+uZ/vVB9PPXSAwhMDT5HRqymSkJQWj6s2Ap
-         nWYNepsENOyICFvkQwKEV9sx5LFF6gXRzLnOd9LNtIijDHoallw5WL0PJAT588aZXN
-         hQcg9vg6hpTOOH6FxWNhzrMbpLx5nItL84OkL4b0=
+        b=RFrqwQlA9uoqt/paG8FRMbPmqq2OF5eFUMhYBo6ExJEb6OflRTXjsuEQHwF9I+z0i
+         vBJtI0QQ5BYhrak4jgcroVd9m4RAbnthchN+8N1WBSn054ROJ0/DacTzZjUzwP+2kt
+         ASthgXGrKLtjrHRa1njOvl20jCZjLkOGOZHc077o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 285/315] virtio_net: Fix error handling in virtnet_restore()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 232/245] ALSA: isa: Fix error return code in snd_cmi8330_probe()
 Date:   Mon, 19 Jul 2021 16:52:54 +0200
-Message-Id: <20210719144952.807666691@linuxfoundation.org>
+Message-Id: <20210719144947.882384930@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 3f2869cace829fb4b80fc53b3ddaa7f4ba9acbf1 ]
+[ Upstream commit 31028cbed26a8afa25533a10425ffa2ab794c76c ]
 
-Do some cleanups in virtnet_restore() when virtnet_cpu_notif_add() failed.
+When 'SB_HW_16' check fails, the error code -ENODEV instead of 0 should be
+returned, which is the same as that returned when 'WSS_HW_CMI8330' check
+fails.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: https://lore.kernel.org/r/20210517084516.332-1-xieyongji@bytedance.com
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 43bcd973d6d0 ("[ALSA] Add snd_card_set_generic_dev() call to ISA drivers")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210707074051.2663-1-thunder.leizhen@huawei.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ sound/isa/cmi8330.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 71052d17c9ae..c8abbf81ef52 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2765,8 +2765,11 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
- 	virtnet_set_queues(vi, vi->curr_queue_pairs);
+diff --git a/sound/isa/cmi8330.c b/sound/isa/cmi8330.c
+index dfedfd85f205..463906882b95 100644
+--- a/sound/isa/cmi8330.c
++++ b/sound/isa/cmi8330.c
+@@ -564,7 +564,7 @@ static int snd_cmi8330_probe(struct snd_card *card, int dev)
+ 	}
+ 	if (acard->sb->hardware != SB_HW_16) {
+ 		snd_printk(KERN_ERR PFX "SB16 not found during probe\n");
+-		return err;
++		return -ENODEV;
+ 	}
  
- 	err = virtnet_cpu_notif_add(vi);
--	if (err)
-+	if (err) {
-+		virtnet_freeze_down(vdev);
-+		remove_vq_common(vi);
- 		return err;
-+	}
- 
- 	return 0;
- }
+ 	snd_wss_out(acard->wss, CS4231_MISC_INFO, 0x40); /* switch on MODE2 */
 -- 
 2.30.2
 
