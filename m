@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C25F3CDAD2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F013CD8E6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245386AbhGSOic (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:38:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55638 "EHLO mail.kernel.org"
+        id S243753AbhGSOZ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244400AbhGSOgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:36:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8047F6120C;
-        Mon, 19 Jul 2021 15:16:59 +0000 (UTC)
+        id S243871AbhGSOYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C43B661287;
+        Mon, 19 Jul 2021 15:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707820;
-        bh=lbYxqRQqaL2rsRK7+nPGpfIHnAPhEYU8gnkgmXGuNmY=;
+        s=korg; t=1626707058;
+        bh=2cj57QhkvUfRxKbwrHmZUz2KpRz8mxUdCYhyEkAQwMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHUuRkezgKJJobVUes4ye1BBREOIc3QDljQSElrToB3oaRcM+jy9ckTeMlQrC6+eC
-         1iD9t4uhxCDNkuZnIHHJ4xdAtllr9h9wCdWiAH8LIVEziW9PxJxVxcXeidVhjmgmon
-         tOAYy5uWBFieCWlv/czG+s13fRbg8jRV/wqalglM=
+        b=QX3uaSYboy4VwQ0Kv+Gc1PzMaPTKp60pK9IPL4gxSReoftX2IWeEEvrHdH2iyH89u
+         WIuhOOINRBk+BIOYJ24CYUfdtTIKauM8g/gOEVg5mzGLkWDZX7tt3DEkuvp8dQl2Kw
+         YaMAYRrD7Z/1JR3YVqx08ttjHSsyLBM+eX08gloI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/315] fs: dlm: fix memory leak when fenced
+        stable@vger.kernel.org, stable@kernel.org,
+        Pan Dong <pandong.peter@bytedance.com>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.9 015/245] ext4: fix avefreec in find_group_orlov
 Date:   Mon, 19 Jul 2021 16:49:17 +0200
-Message-Id: <20210719144945.091301379@linuxfoundation.org>
+Message-Id: <20210719144940.881726332@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Pan Dong <pandong.peter@bytedance.com>
 
-[ Upstream commit 700ab1c363c7b54c9ea3222379b33fc00ab02f7b ]
+commit c89849cc0259f3d33624cc3bd127685c3c0fa25d upstream.
 
-I got some kmemleak report when a node was fenced. The user space tool
-dlm_controld will therefore run some rmdir() in dlm configfs which was
-triggering some memleaks. This patch stores the sps and cms attributes
-which stores some handling for subdirectories of the configfs cluster
-entry and free them if they get released as the parent directory gets
-freed.
+The avefreec should be average free clusters instead
+of average free blocks, otherwize Orlov's allocator
+will not work properly when bigalloc enabled.
 
-unreferenced object 0xffff88810d9e3e00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 73 70 61 63 65 73 00 00  ........spaces..
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000db8b640b>] make_cluster+0x5d/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
-unreferenced object 0xffff88810d9e3a00 (size 192):
-  comm "dlm_controld", pid 342, jiffies 4294698126 (age 55438.801s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 63 6f 6d 6d 73 00 00 00  ........comms...
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a7ef6ad2>] make_cluster+0x82/0x360
-    [<000000006a571db4>] configfs_mkdir+0x274/0x730
-    [<00000000b094501c>] vfs_mkdir+0x27e/0x340
-    [<0000000058b0adaf>] do_mkdirat+0xff/0x1b0
-    [<00000000d1ffd156>] do_syscall_64+0x40/0x80
-    [<00000000ab1408c8>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+Cc: stable@kernel.org
+Signed-off-by: Pan Dong <pandong.peter@bytedance.com>
+Link: https://lore.kernel.org/r/20210525073656.31594-1-pandong.peter@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ fs/ext4/ialloc.c |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 472f4f835d3e..4fb070b7f00f 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -80,6 +80,9 @@ struct dlm_cluster {
- 	unsigned int cl_new_rsb_count;
- 	unsigned int cl_recover_callbacks;
- 	char cl_cluster_name[DLM_LOCKSPACE_LEN];
-+
-+	struct dlm_spaces *sps;
-+	struct dlm_comms *cms;
- };
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -405,7 +405,7 @@ static void get_orlov_stats(struct super
+  *
+  * We always try to spread first-level directories.
+  *
+- * If there are blockgroups with both free inodes and free blocks counts
++ * If there are blockgroups with both free inodes and free clusters counts
+  * not worse than average we return one with smallest directory count.
+  * Otherwise we simply return a random group.
+  *
+@@ -414,7 +414,7 @@ static void get_orlov_stats(struct super
+  * It's OK to put directory into a group unless
+  * it has too many directories already (max_dirs) or
+  * it has too few free inodes left (min_inodes) or
+- * it has too few free blocks left (min_blocks) or
++ * it has too few free clusters left (min_clusters) or
+  * Parent's group is preferred, if it doesn't satisfy these
+  * conditions we search cyclically through the rest. If none
+  * of the groups look good we just look for a group with more
+@@ -430,7 +430,7 @@ static int find_group_orlov(struct super
+ 	ext4_group_t real_ngroups = ext4_get_groups_count(sb);
+ 	int inodes_per_group = EXT4_INODES_PER_GROUP(sb);
+ 	unsigned int freei, avefreei, grp_free;
+-	ext4_fsblk_t freeb, avefreec;
++	ext4_fsblk_t freec, avefreec;
+ 	unsigned int ndirs;
+ 	int max_dirs, min_inodes;
+ 	ext4_grpblk_t min_clusters;
+@@ -449,9 +449,8 @@ static int find_group_orlov(struct super
  
- static struct dlm_cluster *config_item_to_cluster(struct config_item *i)
-@@ -356,6 +359,9 @@ static struct config_group *make_cluster(struct config_group *g,
- 	if (!cl || !sps || !cms)
- 		goto fail;
+ 	freei = percpu_counter_read_positive(&sbi->s_freeinodes_counter);
+ 	avefreei = freei / ngroups;
+-	freeb = EXT4_C2B(sbi,
+-		percpu_counter_read_positive(&sbi->s_freeclusters_counter));
+-	avefreec = freeb;
++	freec = percpu_counter_read_positive(&sbi->s_freeclusters_counter);
++	avefreec = freec;
+ 	do_div(avefreec, ngroups);
+ 	ndirs = percpu_counter_read_positive(&sbi->s_dirs_counter);
  
-+	cl->sps = sps;
-+	cl->cms = cms;
-+
- 	config_group_init_type_name(&cl->group, name, &cluster_type);
- 	config_group_init_type_name(&sps->ss_group, "spaces", &spaces_type);
- 	config_group_init_type_name(&cms->cs_group, "comms", &comms_type);
-@@ -405,6 +411,9 @@ static void drop_cluster(struct config_group *g, struct config_item *i)
- static void release_cluster(struct config_item *i)
- {
- 	struct dlm_cluster *cl = config_item_to_cluster(i);
-+
-+	kfree(cl->sps);
-+	kfree(cl->cms);
- 	kfree(cl);
- }
- 
--- 
-2.30.2
-
 
 
