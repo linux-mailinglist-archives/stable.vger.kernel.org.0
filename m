@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DB13CD77B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0EA3CD7C5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241671AbhGSOQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:16:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S242218AbhGSOSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232228AbhGSOQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:16:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED19E61002;
-        Mon, 19 Jul 2021 14:57:25 +0000 (UTC)
+        id S241505AbhGSOS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9072F610F7;
+        Mon, 19 Jul 2021 14:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706646;
-        bh=3Atcb+ZXwwJ52WrjbTl1/RCm42zpjGj5F8AglVM2PuU=;
+        s=korg; t=1626706746;
+        bh=MizJOt40eSFT2KNYAkVlwfO4pJmJMkjVesUYdvsuoxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rKWWEsbV0FOmjKGppBGRxP0BoVXDHp76ii6m3T2l34OGSAGZ/VAAUQXBH0igNA+IK
-         qjH4I74SeT70RuQdSgbsAUFRYFX37AJfOGlgagG5O+GyvDlNwQ3H1AXr7MqoWKZVRX
-         KzvMLUgGgtM9FxNnyLOB1/C/lDcWtFRRtFsmFP6o=
+        b=XHSWTVuLdatcofnzHJNAQ4yYEMJC3F8rmw3fP/pd7juYiTQlKQcyf+qTSTaXlYgfw
+         TcTwnGLBncTjJ3n5/Z4yfdY8cf8Ni6jk2Bk+2e6uveiO1YyntKSj5/9Gm1/k44s6lc
+         sLhEkIfY63qNKn2Dyod5uQRyk5hyirITzBUtKgDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/188] media: bt8xx: Fix a missing check bug in bt878_probe
-Date:   Mon, 19 Jul 2021 16:50:19 +0200
-Message-Id: <20210719144921.303302601@linuxfoundation.org>
+Subject: [PATCH 4.4 036/188] mmc: via-sdmmc: add a check against NULL pointer dereference
+Date:   Mon, 19 Jul 2021 16:50:20 +0200
+Message-Id: <20210719144921.543369250@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -43,118 +42,136 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 1a4520090681853e6b850cbe54b27247a013e0e5 ]
+[ Upstream commit 45c8ddd06c4b729c56a6083ab311bfbd9643f4a6 ]
 
-In 'bt878_irq', the driver calls 'tasklet_schedule', but this tasklet is
-set in 'dvb_bt8xx_load_card' of another driver 'dvb-bt8xx'.
-However, this two drivers are separate. The user may not load the
-'dvb-bt8xx' driver when loading the 'bt8xx' driver, that is, the tasklet
-has not been initialized when 'tasklet_schedule' is called, so it is
-necessary to check whether the tasklet is initialized in 'bt878_probe'.
+Before referencing 'host->data', the driver needs to check whether it is
+null pointer, otherwise it will cause a null pointer reference.
 
-Fix this by adding a check at the end of bt878_probe.
+This log reveals it:
 
-The KASAN's report reveals it:
+[   29.355199] BUG: kernel NULL pointer dereference, address:
+0000000000000014
+[   29.357323] #PF: supervisor write access in kernel mode
+[   29.357706] #PF: error_code(0x0002) - not-present page
+[   29.358088] PGD 0 P4D 0
+[   29.358280] Oops: 0002 [#1] PREEMPT SMP PTI
+[   29.358595] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.12.4-
+g70e7f0549188-dirty #102
+[   29.359164] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[   29.359978] RIP: 0010:via_sdc_isr+0x21f/0x410
+[   29.360314] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
+10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
+18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
+[   29.361661] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
+[   29.362042] RAX: 0000000000000000 RBX: ffff888107d77880
+RCX: 0000000000000000
+[   29.362564] RDX: 0000000000000000 RSI: ffffffff835d20bb
+RDI: 00000000ffffffff
+[   29.363085] RBP: ffffc90000118ed8 R08: 0000000000000001
+R09: 0000000000000001
+[   29.363604] R10: 0000000000000000 R11: 0000000000000001
+R12: 0000000000008600
+[   29.364128] R13: ffff888107d779c8 R14: ffffc90009c00200
+R15: 0000000000008000
+[   29.364651] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
+knlGS:0000000000000000
+[   29.365235] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.365655] CR2: 0000000000000014 CR3: 0000000005a2e000
+CR4: 00000000000006e0
+[   29.366170] DR0: 0000000000000000 DR1: 0000000000000000
+DR2: 0000000000000000
+[   29.366683] DR3: 0000000000000000 DR6: 00000000fffe0ff0
+DR7: 0000000000000400
+[   29.367197] Call Trace:
+[   29.367381]  <IRQ>
+[   29.367537]  __handle_irq_event_percpu+0x53/0x3e0
+[   29.367916]  handle_irq_event_percpu+0x35/0x90
+[   29.368247]  handle_irq_event+0x39/0x60
+[   29.368632]  handle_fasteoi_irq+0xc2/0x1d0
+[   29.368950]  __common_interrupt+0x7f/0x150
+[   29.369254]  common_interrupt+0xb4/0xd0
+[   29.369547]  </IRQ>
+[   29.369708]  asm_common_interrupt+0x1e/0x40
+[   29.370016] RIP: 0010:native_safe_halt+0x17/0x20
+[   29.370360] Code: 07 0f 00 2d db 80 43 00 f4 5d c3 0f 1f 84 00 00 00
+00 00 8b 05 c2 37 e5 01 55 48 89 e5 85 c0 7e 07 0f 00 2d bb 80 43 00 fb
+f4 <5d> c3 cc cc cc cc cc cc cc 55 48 89 e5 e8 67 53 ff ff 8b 0d f9 91
+[   29.371696] RSP: 0018:ffffc9000008fe90 EFLAGS: 00000246
+[   29.372079] RAX: 0000000000000000 RBX: 0000000000000002
+RCX: 0000000000000000
+[   29.372595] RDX: 0000000000000000 RSI: ffffffff854f67a4
+RDI: ffffffff85403406
+[   29.373122] RBP: ffffc9000008fe90 R08: 0000000000000001
+R09: 0000000000000001
+[   29.373646] R10: 0000000000000000 R11: 0000000000000001
+R12: ffffffff86009188
+[   29.374160] R13: 0000000000000000 R14: 0000000000000000
+R15: ffff888100258000
+[   29.374690]  default_idle+0x9/0x10
+[   29.374944]  arch_cpu_idle+0xa/0x10
+[   29.375198]  default_idle_call+0x6e/0x250
+[   29.375491]  do_idle+0x1f0/0x2d0
+[   29.375740]  cpu_startup_entry+0x18/0x20
+[   29.376034]  start_secondary+0x11f/0x160
+[   29.376328]  secondary_startup_64_no_verify+0xb0/0xbb
+[   29.376705] Modules linked in:
+[   29.376939] Dumping ftrace buffer:
+[   29.377187]    (ftrace buffer empty)
+[   29.377460] CR2: 0000000000000014
+[   29.377712] ---[ end trace 51a473dffb618c47 ]---
+[   29.378056] RIP: 0010:via_sdc_isr+0x21f/0x410
+[   29.378380] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
+10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
+18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
+[   29.379714] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
+[   29.380098] RAX: 0000000000000000 RBX: ffff888107d77880
+RCX: 0000000000000000
+[   29.380614] RDX: 0000000000000000 RSI: ffffffff835d20bb
+RDI: 00000000ffffffff
+[   29.381134] RBP: ffffc90000118ed8 R08: 0000000000000001
+R09: 0000000000000001
+[   29.381653] R10: 0000000000000000 R11: 0000000000000001
+R12: 0000000000008600
+[   29.382176] R13: ffff888107d779c8 R14: ffffc90009c00200
+R15: 0000000000008000
+[   29.382697] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
+knlGS:0000000000000000
+[   29.383277] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.383697] CR2: 0000000000000014 CR3: 0000000005a2e000
+CR4: 00000000000006e0
+[   29.384223] DR0: 0000000000000000 DR1: 0000000000000000
+DR2: 0000000000000000
+[   29.384736] DR3: 0000000000000000 DR6: 00000000fffe0ff0
+DR7: 0000000000000400
+[   29.385260] Kernel panic - not syncing: Fatal exception in interrupt
+[   29.385882] Dumping ftrace buffer:
+[   29.386135]    (ftrace buffer empty)
+[   29.386401] Kernel Offset: disabled
+[   29.386656] Rebooting in 1 seconds..
 
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
-PGD 800000006aab2067 P4D 800000006aab2067 PUD 6b2ea067 PMD 0
-Oops: 0010 [#1] PREEMPT SMP KASAN PTI
-CPU: 2 PID: 8724 Comm: syz-executor.0 Not tainted 4.19.177-
-gdba4159c14ef-dirty #40
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-59-
-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-RIP: 0010:          (null)
-Code: Bad RIP value.
-RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
-RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
-RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
-R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
-R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
-FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- tasklet_action_common.isra.17+0x141/0x420 kernel/softirq.c:522
- tasklet_action+0x50/0x70 kernel/softirq.c:540
- __do_softirq+0x224/0x92c kernel/softirq.c:292
- invoke_softirq kernel/softirq.c:372 [inline]
- irq_exit+0x15a/0x180 kernel/softirq.c:412
- exiting_irq arch/x86/include/asm/apic.h:535 [inline]
- do_IRQ+0x123/0x1e0 arch/x86/kernel/irq.c:260
- common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
- </IRQ>
-RIP: 0010:__do_sys_interrupt kernel/sys.c:2593 [inline]
-RIP: 0010:__se_sys_interrupt kernel/sys.c:2584 [inline]
-RIP: 0010:__x64_sys_interrupt+0x5b/0x80 kernel/sys.c:2584
-Code: ba 00 04 00 00 48 c7 c7 c0 99 31 8c e8 ae 76 5e 01 48 85 c0 75 21 e8
-14 ae 24 00 48 c7 c3 c0 99 31 8c b8 0c 00 00 00 0f 01 c1 <31> db e8 fe ad
-24 00 48 89 d8 5b 5d c3 48 c7 c3 ea ff ff ff eb ec
-RSP: 0018:ffff888054167f10 EFLAGS: 00000212 ORIG_RAX: ffffffffffffffde
-RAX: 000000000000000c RBX: ffffffff8c3199c0 RCX: ffffc90001ca6000
-RDX: 000000000000001a RSI: ffffffff813478fc RDI: ffffffff8c319dc0
-RBP: ffff888054167f18 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000080 R11: fffffbfff18633b7 R12: ffff888054167f58
-R13: ffff88805f638000 R14: 0000000000000000 R15: 0000000000000000
- do_syscall_64+0xb0/0x4e0 arch/x86/entry/common.c:293
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4692a9
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
-ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f6b550e5c48 EFLAGS: 00000246 ORIG_RAX: 000000000000014f
-RAX: ffffffffffffffda RBX: 000000000077bf60 RCX: 00000000004692a9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000140
-RBP: 00000000004cf7eb R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000000000077bf60
-R13: 0000000000000000 R14: 000000000077bf60 R15: 00007fff55a1dca0
-Modules linked in:
-Dumping ftrace buffer:
-   (ftrace buffer empty)
-CR2: 0000000000000000
----[ end trace 68e5849c3f77cbb6 ]---
-RIP: 0010:          (null)
-Code: Bad RIP value.
-RSP: 0018:ffff88806c287ea0 EFLAGS: 00010246
-RAX: fffffbfff1b01774 RBX: dffffc0000000000 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 1ffffffff1b01775 RDI: 0000000000000000
-RBP: ffff88806c287f00 R08: fffffbfff1b01774 R09: fffffbfff1b01774
-R10: 0000000000000001 R11: fffffbfff1b01773 R12: 0000000000000000
-R13: ffff88806c29f530 R14: ffffffff8d80bb88 R15: ffffffff8d80bb90
-FS:  00007f6b550e6700(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffffffffd6 CR3: 000000005ec98000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://lore.kernel.org/r/1622727200-15808-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/bt8xx/bt878.c | 3 +++
+ drivers/mmc/host/via-sdmmc.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/pci/bt8xx/bt878.c b/drivers/media/pci/bt8xx/bt878.c
-index 90fcccc05b56..c678d7120727 100644
---- a/drivers/media/pci/bt8xx/bt878.c
-+++ b/drivers/media/pci/bt8xx/bt878.c
-@@ -494,6 +494,9 @@ static int bt878_probe(struct pci_dev *dev, const struct pci_device_id *pci_id)
- 	btwrite(0, BT878_AINT_MASK);
- 	bt878_num++;
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index b455e9cf95af..a3472127bea3 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -859,6 +859,9 @@ static void via_sdc_data_isr(struct via_crdr_mmc_host *host, u16 intmask)
+ {
+ 	BUG_ON(intmask == 0);
  
-+	if (!bt->tasklet.func)
-+		tasklet_disable(&bt->tasklet);
++	if (!host->data)
++		return;
 +
- 	return 0;
- 
-       fail2:
+ 	if (intmask & VIA_CRDR_SDSTS_DT)
+ 		host->data->error = -ETIMEDOUT;
+ 	else if (intmask & (VIA_CRDR_SDSTS_RC | VIA_CRDR_SDSTS_WC))
 -- 
 2.30.2
 
