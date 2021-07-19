@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 309603CDCF3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296DA3CDCFA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239486AbhGSOyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:54:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45268 "EHLO mail.kernel.org"
+        id S238009AbhGSOyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:54:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244055AbhGSOwX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:52:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2BE601FD;
-        Mon, 19 Jul 2021 15:32:17 +0000 (UTC)
+        id S244330AbhGSOwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:52:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5764D6135B;
+        Mon, 19 Jul 2021 15:32:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708738;
-        bh=tLzq40I5rp2sftIpF6kx7cinp4UMtxwfUEqPR7i3oVc=;
+        s=korg; t=1626708740;
+        bh=qhTj9uSII5ZOyscOWtIA1ByZou17aKyjeerJ5d4Q/6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBwHbshv8AsaXiRI2UtTCDyT1GTfuSPTvoq+SVHQKNbxD/spw7eHul6DtbVL0Y5bm
-         cbx8P6DnN72+SFsGAG453LxRv+5eo4J5RDvtF4drLRbdPOL2SglO9MHvFgKGv20Fkx
-         5yRLe3O44J4qiOD4v9wIBtVSxHpxJvvCcQOIxN8c=
+        b=anFiyriJHSz1l+71vqNF+nwxrtWb7xT8Wxb1S9daQguUh1bo+AItc74bVlziy1xot
+         gx8LKDxt471suEoqGrbVI6uXR1YNoM5exK8NpeCt+uglcsldukX5Z62pFFmLzWgTgd
+         wt/qljLfP7++0NTr8jU1ZyKcnwLvrw+0kttoEfzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/421] HID: do not use down_interruptible() when unbinding devices
-Date:   Mon, 19 Jul 2021 16:48:08 +0200
-Message-Id: <20210719144948.812760175@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Borislav Petkov <bp@suse.de>, Tero Kristo <kristo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 078/421] EDAC/ti: Add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:48:09 +0200
+Message-Id: <20210719144948.843386249@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,51 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit f2145f8dc566c4f3b5a8deb58dcd12bed4e20194 ]
+[ Upstream commit 0a37f32ba5272b2d4ec8c8d0f6b212b81b578f7e ]
 
-Action of unbinding driver from a device is not cancellable and should not
-fail, and driver core does not pay attention to the result of "remove"
-method, therefore using down_interruptible() in hid_device_remove() does
-not make sense.
+The module misses MODULE_DEVICE_TABLE() for of_device_id tables and thus
+never autoloads on ID matches.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Add the missing declaration.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tero Kristo <kristo@kernel.org>
+Link: https://lkml.kernel.org/r/20210512033727.26701-1-cuibixuan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/edac/ti_edac.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index acbbc21e6233..4549fbb74156 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2124,12 +2124,8 @@ static int hid_device_remove(struct device *dev)
+diff --git a/drivers/edac/ti_edac.c b/drivers/edac/ti_edac.c
+index 324768946743..9ab9fa0a911b 100644
+--- a/drivers/edac/ti_edac.c
++++ b/drivers/edac/ti_edac.c
+@@ -197,6 +197,7 @@ static const struct of_device_id ti_edac_of_match[] = {
+ 	{ .compatible = "ti,emif-dra7xx", .data = (void *)EMIF_TYPE_DRA7 },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, ti_edac_of_match);
+ 
+ static int _emif_get_id(struct device_node *node)
  {
- 	struct hid_device *hdev = to_hid_device(dev);
- 	struct hid_driver *hdrv;
--	int ret = 0;
- 
--	if (down_interruptible(&hdev->driver_input_lock)) {
--		ret = -EINTR;
--		goto end;
--	}
-+	down(&hdev->driver_input_lock);
- 	hdev->io_started = false;
- 
- 	hdrv = hdev->driver;
-@@ -2144,8 +2140,8 @@ static int hid_device_remove(struct device *dev)
- 
- 	if (!hdev->io_started)
- 		up(&hdev->driver_input_lock);
--end:
--	return ret;
-+
-+	return 0;
- }
- 
- static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
 -- 
 2.30.2
 
