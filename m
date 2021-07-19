@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B25DB3CDB5C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6EF3CD908
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343507AbhGSOm1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S242120AbhGSO00 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239505AbhGSOi5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:38:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0062B60720;
-        Mon, 19 Jul 2021 15:18:07 +0000 (UTC)
+        id S244193AbhGSOYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E418A60FDC;
+        Mon, 19 Jul 2021 15:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707888;
-        bh=i1GhNBxdRdtwBVkRFEdH+UrbvrI/rlWNQSWg3bAIQl8=;
+        s=korg; t=1626707134;
+        bh=f8njHHel1zt2TRdsVjS12iRp6xCGoCT+iAk6JB6cDoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxlU63F6UMboulzueF2gph0jlyrUOq8lfL7vBVQ0qlg6g7T7Xdb1x0uMMtKXrlFss
-         8Vpy1doowFviNzPZmsQN2AbKy2ttkcc5LhTiW9lWWDc0UbpapJaXPNtjwj+GWmntQh
-         5HYPdIvMOt1rOihMZbiO1Djz6cqADP8BXJ8kmw5Q=
+        b=qp5qpGxLyvZr1urZxC1A757q8XZjmcLyjuU70W5OAo5XGSQZFO0/OpWbuaG54r2/g
+         UXcufmAvWEuZOCEWlNqKm/80mSWuMohO6/6sykrhRq+R9/rpBLc6iutlDWbyNrlLMI
+         81F8eOjzPhuxrWfLtbKjIFtoNzcas2pNnLSGQk0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Flavio Suligoi <f.suligoi@asem.it>,
-        "David S. Miller" <davem@davemloft.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/315] net: pch_gbe: Propagate error from devm_gpio_request_one()
+Subject: [PATCH 4.9 043/245] media: dvb_net: avoid speculation from net slot
 Date:   Mon, 19 Jul 2021 16:49:45 +0200
-Message-Id: <20210719144946.039313326@linuxfoundation.org>
+Message-Id: <20210719144941.794763720@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 9e3617a7b84512bf96c04f9cf82d1a7257d33794 ]
+[ Upstream commit abc0226df64dc137b48b911c1fe4319aec5891bb ]
 
-If GPIO controller is not available yet we need to defer
-the probe of GBE until provider will become available.
+The risk of especulation is actually almost-non-existing here,
+as there are very few users of TCP/IP using the DVB stack,
+as, this is mainly used with DVB-S/S2 cards, and only by people
+that receives TCP/IP from satellite connections, which limits
+a lot the number of users of such feature(*).
 
-While here, drop GPIOF_EXPORT because it's deprecated and
-may not be available.
+(*) In thesis, DVB-C cards could also benefit from it, but I'm
+yet to see a hardware that supports it.
 
-Fixes: f1a26fdf5944 ("pch_gbe: Add MinnowBoard support")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Flavio Suligoi <f.suligoi@asem.it>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Yet, fixing it is trivial.
+
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/media/dvb-core/dvb_net.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-index 5ae9681a2da7..cb16f86ab90a 100644
---- a/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-+++ b/drivers/net/ethernet/oki-semi/pch_gbe/pch_gbe_main.c
-@@ -2599,9 +2599,13 @@ static int pch_gbe_probe(struct pci_dev *pdev,
- 	adapter->pdev = pdev;
- 	adapter->hw.back = adapter;
- 	adapter->hw.reg = pcim_iomap_table(pdev)[PCH_GBE_PCI_BAR];
+diff --git a/drivers/media/dvb-core/dvb_net.c b/drivers/media/dvb-core/dvb_net.c
+index 9914f69a4a02..f133489af9b9 100644
+--- a/drivers/media/dvb-core/dvb_net.c
++++ b/drivers/media/dvb-core/dvb_net.c
+@@ -57,6 +57,7 @@
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/netdevice.h>
++#include <linux/nospec.h>
+ #include <linux/etherdevice.h>
+ #include <linux/dvb/net.h>
+ #include <linux/uio.h>
+@@ -1350,14 +1351,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct dvb_net_if *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
+ 
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (if_num >= DVB_NET_DEVICES_MAX) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
+ 
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		if (!dvbnet->state[if_num]) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
 +
- 	adapter->pdata = (struct pch_gbe_privdata *)pci_id->driver_data;
--	if (adapter->pdata && adapter->pdata->platform_init)
--		adapter->pdata->platform_init(pdev);
-+	if (adapter->pdata && adapter->pdata->platform_init) {
-+		ret = adapter->pdata->platform_init(pdev);
-+		if (ret)
-+			goto err_free_netdev;
-+	}
++		netdev = dvbnet->device[if_num];
  
- 	adapter->ptp_pdev = pci_get_bus_and_slot(adapter->pdev->bus->number,
- 					       PCI_DEVFN(12, 4));
-@@ -2696,7 +2700,7 @@ err_free_netdev:
-  */
- static int pch_gbe_minnow_platform_init(struct pci_dev *pdev)
- {
--	unsigned long flags = GPIOF_DIR_OUT | GPIOF_INIT_HIGH | GPIOF_EXPORT;
-+	unsigned long flags = GPIOF_OUT_INIT_HIGH;
- 	unsigned gpio = MINNOW_PHY_RESET_GPIO;
- 	int ret;
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
+@@ -1410,14 +1417,20 @@ static int dvb_net_do_ioctl(struct file *file,
+ 		struct net_device *netdev;
+ 		struct dvb_net_priv *priv_data;
+ 		struct __dvb_net_if_old *dvbnetif = parg;
++		int if_num = dvbnetif->if_num;
++
++		if (if_num >= DVB_NET_DEVICES_MAX) {
++			ret = -EINVAL;
++			goto ioctl_error;
++		}
++		if_num = array_index_nospec(if_num, DVB_NET_DEVICES_MAX);
  
+-		if (dvbnetif->if_num >= DVB_NET_DEVICES_MAX ||
+-		    !dvbnet->state[dvbnetif->if_num]) {
++		if (!dvbnet->state[if_num]) {
+ 			ret = -EINVAL;
+ 			goto ioctl_error;
+ 		}
+ 
+-		netdev = dvbnet->device[dvbnetif->if_num];
++		netdev = dvbnet->device[if_num];
+ 
+ 		priv_data = netdev_priv(netdev);
+ 		dvbnetif->pid=priv_data->pid;
 -- 
 2.30.2
 
