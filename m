@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A978E3CE17C
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD053CE39F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349230AbhGSP0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59754 "EHLO mail.kernel.org"
+        id S1346298AbhGSPip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:38:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347852AbhGSPWG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:22:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4A306113A;
-        Mon, 19 Jul 2021 15:59:35 +0000 (UTC)
+        id S1348738AbhGSPf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A79160E0C;
+        Mon, 19 Jul 2021 16:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710376;
-        bh=dQXRwl+jaHmxdeLPAIHrajF3etZ4p+FU8NlpsilrVhM=;
+        s=korg; t=1626711273;
+        bh=Z6ZydqLjlMDD66kySE5xSLlnlFJ4OA8zpDyXLTtJ/IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLzTSOI+92XnnUKaW3NdBQwFFnIu8SQK8+AvfU4lNxnSGPfuHbXkycOELsX21r0PF
-         d2x4Rt7q1CkQN1xgCdtsodBdkhtuAY+Ut51armSMlfJHEzMqzGOPU1IBQEtmumipaR
-         SYPhNoNHaTBd4KdyZW0LOb3h+bJyToSBxJ1H+6y8=
+        b=xv216PckF6VZX7Sh4snI2cB92OhndIMXcpje2c5WJ6U8btKJOk8rsJ1WQmMfWcT32
+         +5Q2WntAq1sarPQwW5dNKWhsxJfWikkZTU87PhKcTp8v0A/u6OyjC9fi82mRrc+sOl
+         JY+v0zZV/5EwR93ND/ndOWx9lIeCD3JN1szv9qSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 191/243] ARM: dts: exynos: fix PWM LED max brightness on Odroid XU/XU3
-Date:   Mon, 19 Jul 2021 16:53:40 +0200
-Message-Id: <20210719144947.083992436@linuxfoundation.org>
+Subject: [PATCH 5.13 275/351] reset: a10sr: add missing of_match_table reference
+Date:   Mon, 19 Jul 2021 16:53:41 +0200
+Message-Id: <20210719144954.044640898@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +43,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit 75121e1dc9fe4def41e63d57f6a53749b88006ed ]
+[ Upstream commit 466ba3c8ff4fae39e455ff8d080b3d5503302765 ]
 
-There is no "max_brightness" property.  This brings the intentional
-brightness reduce of green LED and dtschema checks as well:
+The driver defined of_device_id table but did not use it with
+of_match_table.  This prevents usual matching via devicetree and causes
+a W=1 warning:
 
-  arch/arm/boot/dts/exynos5410-odroidxu.dt.yaml: led-controller-1: led-1: 'max-brightness' is a required property
+  drivers/reset/reset-a10sr.c:111:34: warning:
+    ‘a10sr_reset_of_match’ defined but not used [-Wunused-const-variable=]
 
-Fixes: 719f39fec586 ("ARM: dts: exynos5422-odroidxu3: Hook up PWM and use it for LEDs")
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 627006820268 ("reset: Add Altera Arria10 SR Reset Controller")
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210505135941.59898-3-krzysztof.kozlowski@canonical.com
+Link: https://lore.kernel.org/r/20210507112803.20012-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos54xx-odroidxu-leds.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/reset/reset-a10sr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/exynos54xx-odroidxu-leds.dtsi b/arch/arm/boot/dts/exynos54xx-odroidxu-leds.dtsi
-index 56acd832f0b3..16e1087ec717 100644
---- a/arch/arm/boot/dts/exynos54xx-odroidxu-leds.dtsi
-+++ b/arch/arm/boot/dts/exynos54xx-odroidxu-leds.dtsi
-@@ -22,7 +22,7 @@
- 			 * Green LED is much brighter than the others
- 			 * so limit its max brightness
- 			 */
--			max_brightness = <127>;
-+			max-brightness = <127>;
- 			linux,default-trigger = "mmc0";
- 		};
- 
-@@ -30,7 +30,7 @@
- 			label = "blue:heartbeat";
- 			pwms = <&pwm 2 2000000 0>;
- 			pwm-names = "pwm2";
--			max_brightness = <255>;
-+			max-brightness = <255>;
- 			linux,default-trigger = "heartbeat";
- 		};
- 	};
+diff --git a/drivers/reset/reset-a10sr.c b/drivers/reset/reset-a10sr.c
+index 7eacc89382f8..99b3bc8382f3 100644
+--- a/drivers/reset/reset-a10sr.c
++++ b/drivers/reset/reset-a10sr.c
+@@ -118,6 +118,7 @@ static struct platform_driver a10sr_reset_driver = {
+ 	.probe	= a10sr_reset_probe,
+ 	.driver = {
+ 		.name		= "altr_a10sr_reset",
++		.of_match_table	= a10sr_reset_of_match,
+ 	},
+ };
+ module_platform_driver(a10sr_reset_driver);
 -- 
 2.30.2
 
