@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C436D3CD984
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AED63CDB2F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243817AbhGSOad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39180 "EHLO mail.kernel.org"
+        id S244951AbhGSOlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243580AbhGSO2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:28:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4D746121E;
-        Mon, 19 Jul 2021 15:08:13 +0000 (UTC)
+        id S1343596AbhGSOje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2653B61357;
+        Mon, 19 Jul 2021 15:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707294;
-        bh=sX/1dpxLfrkwkd8GfgqXXons5CRaM2BzMnnGYZmHzvM=;
+        s=korg; t=1626707951;
+        bh=wv0LDD+qxEZBezU6yT5sICcU8IDI9B89j4+nuL1tHMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxCMR6+jLLob/wllaGQNaT3ODLUjVuUmYof2c6rYsKcooavRU0YpZs3Hlhiij7eO7
-         P3rdBGlg0+kgmtdjgo/weYVa7UxHNF5UlDtpBNQoKniOxrS7l00I3StciDAbnzcp2P
-         pIFsrUhLZk0hCFcWz4IwQMY7qHcOq2OpVl4+5esw=
+        b=rFKjtKgRYmhEgrrgZHgofoOasOhYuuxOBEmIRfRvQsKskW3kjVGl/0oll9LEV9Ivs
+         5DYULXWXJpf0JPRxSbUZwVpdqfNuvzqrbXY0gHbQXzUnqT6whtijHi7dSvWsqRrtbY
+         l28YcfG8JVg43ov/qWc4tdEOM8pmQs/Vd//9TnbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 069/245] hwmon: (max31722) Remove non-standard ACPI device IDs
+Subject: [PATCH 4.14 122/315] iio: accel: bma220: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 19 Jul 2021 16:50:11 +0200
-Message-Id: <20210719144942.632865524@linuxfoundation.org>
+Message-Id: <20210719144946.878000133@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,56 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 97387c2f06bcfd79d04a848d35517b32ee6dca7c ]
+[ Upstream commit 151dbf0078da98206817ee0b87d499035479ef11 ]
 
-Valid Maxim Integrated ACPI device IDs would start with MXIM,
-not with MAX1. On top of that, ACPI device IDs reflecting chip names
-are almost always invalid.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Remove the invalid ACPI IDs.
+Found during an audit of all calls of this function.
 
-Fixes: 04e1e70afec6 ("hwmon: (max31722) Add support for MAX31722/MAX31723 temperature sensors")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 194dc4c71413 ("iio: accel: Add triggered buffer support for BMA220")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-3-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/max31722.c | 9 ---------
- 1 file changed, 9 deletions(-)
+ drivers/iio/accel/bma220_spi.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/max31722.c b/drivers/hwmon/max31722.c
-index 30a100e70a0d..877c3d7dca01 100644
---- a/drivers/hwmon/max31722.c
-+++ b/drivers/hwmon/max31722.c
-@@ -9,7 +9,6 @@
-  * directory of this archive for more details.
-  */
- 
--#include <linux/acpi.h>
- #include <linux/hwmon.h>
- #include <linux/hwmon-sysfs.h>
- #include <linux/kernel.h>
-@@ -138,20 +137,12 @@ static const struct spi_device_id max31722_spi_id[] = {
- 	{"max31723", 0},
- 	{}
+diff --git a/drivers/iio/accel/bma220_spi.c b/drivers/iio/accel/bma220_spi.c
+index 5099f295dd37..a96f2d530ae3 100644
+--- a/drivers/iio/accel/bma220_spi.c
++++ b/drivers/iio/accel/bma220_spi.c
+@@ -76,7 +76,11 @@ static const int bma220_scale_table[][4] = {
+ struct bma220_data {
+ 	struct spi_device *spi_device;
+ 	struct mutex lock;
+-	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 8x8 timestamp */
++	struct {
++		s8 chans[3];
++		/* Ensure timestamp is naturally aligned. */
++		s64 timestamp __aligned(8);
++	} scan;
+ 	u8 tx_buf[2] ____cacheline_aligned;
  };
--
--static const struct acpi_device_id __maybe_unused max31722_acpi_id[] = {
--	{"MAX31722", 0},
--	{"MAX31723", 0},
--	{}
--};
--
- MODULE_DEVICE_TABLE(spi, max31722_spi_id);
  
- static struct spi_driver max31722_driver = {
- 	.driver = {
- 		.name = "max31722",
- 		.pm = &max31722_pm_ops,
--		.acpi_match_table = ACPI_PTR(max31722_acpi_id),
- 	},
- 	.probe =            max31722_probe,
- 	.remove =           max31722_remove,
+@@ -107,12 +111,12 @@ static irqreturn_t bma220_trigger_handler(int irq, void *p)
+ 
+ 	mutex_lock(&data->lock);
+ 	data->tx_buf[0] = BMA220_REG_ACCEL_X | BMA220_READ_MASK;
+-	ret = spi_write_then_read(spi, data->tx_buf, 1, data->buffer,
++	ret = spi_write_then_read(spi, data->tx_buf, 1, &data->scan.chans,
+ 				  ARRAY_SIZE(bma220_channels) - 1);
+ 	if (ret < 0)
+ 		goto err;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
+ err:
+ 	mutex_unlock(&data->lock);
 -- 
 2.30.2
 
