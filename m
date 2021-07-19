@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC0B73CD7C6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6110D3CD7EA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:00:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242188AbhGSOS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:18:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53094 "EHLO mail.kernel.org"
+        id S242294AbhGSOTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:19:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242017AbhGSOSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:18:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C1F4F61164;
-        Mon, 19 Jul 2021 14:58:49 +0000 (UTC)
+        id S242322AbhGSOSy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:18:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A760A60FDC;
+        Mon, 19 Jul 2021 14:59:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706730;
-        bh=1lYLeTgNQJM2d5pmWy+rC3KLcs4gGOmYby3BAeXihoI=;
+        s=korg; t=1626706774;
+        bh=3BCe4+Z8RxNVK5gi1KlTtwLqAnInCNoxtrPH5pPTyJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5i2sQ8Q1KhOCOnlpjgfreIol/8fmoyDm3uJstJyZJj0o9xMwDp3n5APA5TEoS1/E
-         Nm/Zj6htRD2QwsalmDfXBdfD4hO/yo79C9EKkpKhyPS0vtPxBVNifQQReOp0dlmmIx
-         rCOXAevrNAGU/JsoRfNCSvu5LHBpE/Mvk18a/C0o=
+        b=vQ9gcAGfZQ9nqTgDypmMwivgz43IhUjuDh8FDCL5C0LaB3yeLVhStL4/oOdqI3aFC
+         91Vy8A3/a1mRmK4hLwsh1imCYC2OipJe+LfZkDCccJlrwmbYQUINkRoM9T6qurxX1L
+         nQEHJ0ezUGOMTgiEd0bVAj0Q/qwSSjDyAy24XkT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 072/188] net: ethernet: ezchip: fix error handling
-Date:   Mon, 19 Jul 2021 16:50:56 +0200
-Message-Id: <20210719144929.793162859@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Michal Hocko <mhocko@suse.com>, Tejun Heo <tj@kernel.org>,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 075/188] writeback: fix obtain a reference to a freeing memcg css
+Date:   Mon, 19 Jul 2021 16:50:59 +0200
+Message-Id: <20210719144930.532905872@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,42 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 0de449d599594f5472e00267d651615c7f2c6c1d ]
+[ Upstream commit 8b0ed8443ae6458786580d36b7d5f8125535c5d4 ]
 
-As documented at drivers/base/platform.c for platform_get_irq:
+The caller of wb_get_create() should pin the memcg, because
+wb_get_create() relies on this guarantee. The rcu read lock
+only can guarantee that the memcg css returned by css_from_id()
+cannot be released, but the reference of the memcg can be zero.
 
- * Gets an IRQ for a platform device and prints an error message if finding the
- * IRQ fails. Device drivers should check the return value for errors so as to
- * not pass a negative integer value to the request_irq() APIs.
+  rcu_read_lock()
+  memcg_css = css_from_id()
+  wb_get_create(memcg_css)
+      cgwb_create(memcg_css)
+          // css_get can change the ref counter from 0 back to 1
+          css_get(memcg_css)
+  rcu_read_unlock()
 
-So, the driver should check that platform_get_irq() return value
-is _negative_, not that it's equal to zero, because -ENXIO (return
-value from request_irq() if irq was not found) will
-pass this check and it leads to passing negative irq to request_irq()
+Fix it by holding a reference to the css before calling
+wb_get_create(). This is not a problem I encountered in the
+real world. Just the result of a code review.
 
-Fixes: 0dd077093636 ("NET: Add ezchip ethernet driver")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 682aa8e1a6a1 ("writeback: implement unlocked_inode_to_wb transaction and use it for stat updates")
+Link: https://lore.kernel.org/r/20210402091145.80635-1-songmuchun@bytedance.com
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ezchip/nps_enet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fs-writeback.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ezchip/nps_enet.c b/drivers/net/ethernet/ezchip/nps_enet.c
-index 73d2bc349b2f..2cb20d8e6bdf 100644
---- a/drivers/net/ethernet/ezchip/nps_enet.c
-+++ b/drivers/net/ethernet/ezchip/nps_enet.c
-@@ -586,7 +586,7 @@ static s32 nps_enet_probe(struct platform_device *pdev)
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 958a1bd0b5fc..0ce7ff7a2ce8 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -512,9 +512,14 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
+ 	/* find and pin the new wb */
+ 	rcu_read_lock();
+ 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
+-	if (memcg_css)
+-		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	if (memcg_css && !css_tryget(memcg_css))
++		memcg_css = NULL;
+ 	rcu_read_unlock();
++	if (!memcg_css)
++		goto out_free;
++
++	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
++	css_put(memcg_css);
+ 	if (!isw->new_wb)
+ 		goto out_free;
  
- 	/* Get IRQ number */
- 	priv->irq = platform_get_irq(pdev, 0);
--	if (!priv->irq) {
-+	if (priv->irq < 0) {
- 		dev_err(dev, "failed to retrieve <irq Rx-Tx> value from device tree\n");
- 		err = -ENODEV;
- 		goto out_netdev;
 -- 
 2.30.2
 
