@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E866C3CDF66
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:51:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CE03CDE65
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344050AbhGSPKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40562 "EHLO mail.kernel.org"
+        id S1343815AbhGSPCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344689AbhGSPH3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:07:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC4760FD7;
-        Mon, 19 Jul 2021 15:47:44 +0000 (UTC)
+        id S244906AbhGSPAl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:00:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6471360FE7;
+        Mon, 19 Jul 2021 15:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709665;
-        bh=iifnX91AN+L2jLWiw4nnHxUcq6QolYgUh6Mjh5RIBdw=;
+        s=korg; t=1626709280;
+        bh=r+M3zOy7GZ20JsmL9xp7kVqnIUH2+pLIMF/YTLY/DbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sag/CqF36LXrylHrL/ay/u5V/od+g5MTZwGeW+Uxurnt3G/pbHyJGlyRPgnoHHf9/
-         UJbIQNTAW2hB5HHpwwUD7gHlVG5W+O1anFOyTupY8K3Cz/D4sVxEBADHlIVQfvU1h4
-         oNGB+S7qSfzfdX0043U4/nP9Ihx+AnXOLyXPxnH8=
+        b=ddV7BZ/MCphYUiOG3CdLu81FhC/B9IWE5EQTYUgmaTCB52jdRbDPrHB82Y96A8zP0
+         y23LpRQwQ7yuR7xjKn5vc1LmjbJEJAtlxUmNf4UgRw5MXIhm3bGj5UE7y/HWFCk9P/
+         VPsSCRZssjdY1doXPXRWRf0Et8vVYVSMWvnkZMDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 022/149] scsi: core: Cap scsi_host cmd_per_lun at can_queue
+        Tyrel Datwyler <tyreld@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 319/421] scsi: core: Fix bad pointer dereference when ehandler kthread is invalid
 Date:   Mon, 19 Jul 2021 16:52:10 +0200
-Message-Id: <20210719144906.767188521@linuxfoundation.org>
+Message-Id: <20210719144957.366846091@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Garry <john.garry@huawei.com>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit ea2f0f77538c50739b9fb4de4700cee5535e1f77 ]
+commit 93aa71ad7379900e61c8adff6a710a4c18c7c99b upstream.
 
-The sysfs handling function sdev_store_queue_depth() enforces that the sdev
-queue depth cannot exceed shost can_queue. The initial sdev queue depth
-comes from shost cmd_per_lun. However, the LLDD may manually set
-cmd_per_lun to be larger than can_queue, which leads to an initial sdev
-queue depth greater than can_queue.
+Commit 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
+changed the allocation logic to call put_device() to perform host cleanup
+with the assumption that IDA removal and stopping the kthread would
+properly be performed in scsi_host_dev_release(). However, in the unlikely
+case that the error handler thread fails to spawn, shost->ehandler is set
+to ERR_PTR(-ENOMEM).
 
-Such an issue was reported in [0], which caused a hang. That has since been
-fixed in commit fc09acb7de31 ("scsi: scsi_debug: Fix cmd_per_lun, set to
-max_queue").
+The error handler cleanup code in scsi_host_dev_release() will call
+kthread_stop() if shost->ehandler != NULL which will always be the case
+whether the kthread was successfully spawned or not. In the case that it
+failed to spawn this has the nasty side effect of trying to dereference an
+invalid pointer when kthread_stop() is called. The following splat provides
+an example of this behavior in the wild:
 
-Stop this possibly happening for other drivers by capping shost cmd_per_lun
-at shost can_queue.
+scsi host11: error handler thread failed to spawn, error = -4
+Kernel attempted to read user page (10c) - exploit attempt? (uid: 0)
+BUG: Kernel NULL pointer dereference on read at 0x0000010c
+Faulting instruction address: 0xc00000000818e9a8
+Oops: Kernel access of bad area, sig: 11 [#1]
+LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
+Modules linked in: ibmvscsi(+) scsi_transport_srp dm_multipath dm_mirror dm_region
+ hash dm_log dm_mod fuse overlay squashfs loop
+CPU: 12 PID: 274 Comm: systemd-udevd Not tainted 5.13.0-rc7 #1
+NIP:  c00000000818e9a8 LR: c0000000089846e8 CTR: 0000000000007ee8
+REGS: c000000037d12ea0 TRAP: 0300   Not tainted  (5.13.0-rc7)
+MSR:  800000000280b033 &lt;SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE&gt;  CR: 28228228
+XER: 20040001
+CFAR: c0000000089846e4 DAR: 000000000000010c DSISR: 40000000 IRQMASK: 0
+GPR00: c0000000089846e8 c000000037d13140 c000000009cc1100 fffffffffffffffc
+GPR04: 0000000000000001 0000000000000000 0000000000000000 c000000037dc0000
+GPR08: 0000000000000000 c000000037dc0000 0000000000000001 00000000fffff7ff
+GPR12: 0000000000008000 c00000000a049000 c000000037d13d00 000000011134d5a0
+GPR16: 0000000000001740 c0080000190d0000 c0080000190d1740 c000000009129288
+GPR20: c000000037d13bc0 0000000000000001 c000000037d13bc0 c0080000190b7898
+GPR24: c0080000190b7708 0000000000000000 c000000033bb2c48 0000000000000000
+GPR28: c000000046b28280 0000000000000000 000000000000010c fffffffffffffffc
+NIP [c00000000818e9a8] kthread_stop+0x38/0x230
+LR [c0000000089846e8] scsi_host_dev_release+0x98/0x160
+Call Trace:
+[c000000033bb2c48] 0xc000000033bb2c48 (unreliable)
+[c0000000089846e8] scsi_host_dev_release+0x98/0x160
+[c00000000891e960] device_release+0x60/0x100
+[c0000000087e55c4] kobject_release+0x84/0x210
+[c00000000891ec78] put_device+0x28/0x40
+[c000000008984ea4] scsi_host_alloc+0x314/0x430
+[c0080000190b38bc] ibmvscsi_probe+0x54/0xad0 [ibmvscsi]
+[c000000008110104] vio_bus_probe+0xa4/0x4b0
+[c00000000892a860] really_probe+0x140/0x680
+[c00000000892aefc] driver_probe_device+0x15c/0x200
+[c00000000892b63c] device_driver_attach+0xcc/0xe0
+[c00000000892b740] __driver_attach+0xf0/0x200
+[c000000008926f28] bus_for_each_dev+0xa8/0x130
+[c000000008929ce4] driver_attach+0x34/0x50
+[c000000008928fc0] bus_add_driver+0x1b0/0x300
+[c00000000892c798] driver_register+0x98/0x1a0
+[c00000000810eb60] __vio_register_driver+0x80/0xe0
+[c0080000190b4a30] ibmvscsi_module_init+0x9c/0xdc [ibmvscsi]
+[c0000000080121d0] do_one_initcall+0x60/0x2d0
+[c000000008261abc] do_init_module+0x7c/0x320
+[c000000008265700] load_module+0x2350/0x25b0
+[c000000008265cb4] __do_sys_finit_module+0xd4/0x160
+[c000000008031110] system_call_exception+0x150/0x2d0
+[c00000000800d35c] system_call_common+0xec/0x278
 
-[0] https://lore.kernel.org/linux-scsi/YHaez6iN2HHYxYOh@T590/
+Fix this be nulling shost->ehandler when the kthread fails to spawn.
 
-Link: https://lore.kernel.org/r/1621434662-173079-1-git-send-email-john.garry@huawei.com
+Link: https://lore.kernel.org/r/20210701195659.3185475-1-tyreld@linux.ibm.com
+Fixes: 66a834d09293 ("scsi: core: Fix error handling of scsi_host_alloc()")
+Cc: stable@vger.kernel.org
 Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hosts.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/scsi/hosts.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
-index 119c292cdb8f..7c736e4ddafe 100644
 --- a/drivers/scsi/hosts.c
 +++ b/drivers/scsi/hosts.c
-@@ -219,6 +219,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+@@ -497,6 +497,7 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 		shost_printk(KERN_WARNING, shost,
+ 			"error handler thread failed to spawn, error = %ld\n",
+ 			PTR_ERR(shost->ehandler));
++		shost->ehandler = NULL;
  		goto fail;
  	}
  
-+	shost->cmd_per_lun = min_t(short, shost->cmd_per_lun,
-+				   shost->can_queue);
-+
- 	error = scsi_init_sense_cache(shost);
- 	if (error)
- 		goto fail;
--- 
-2.30.2
-
 
 
