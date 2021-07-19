@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2180B3CDB09
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E2A73CD921
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244554AbhGSOko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S242954AbhGSO0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343942AbhGSOjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAC7F61205;
-        Mon, 19 Jul 2021 15:20:08 +0000 (UTC)
+        id S243278AbhGSOZk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:25:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D59960FDC;
+        Mon, 19 Jul 2021 15:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708009;
-        bh=gorQrorFtXbNKpvFCDK8T4hudm0AkyiV0w3rGmTQsos=;
+        s=korg; t=1626707179;
+        bh=xnjET/Trwr2cVpggPTyztG7IRupkwlr0+K1Z3NIvbYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMAQoax0WP5k5xveLfVLkdjtrJg/NRIfmgePYU2g0MKmY+kMlzZN+vCLcqDpBnXNu
-         OHcogbS9ggaR10OQToinQyGQkxvKeozNKKtI7MfU+ACzEEajtVbPrBGOeUILz+S/lL
-         eFvs2FU7MhEKIoFDpu7SPqhKhxFGNc8rTXnqFnJM=
+        b=Ie8GQ/QPZL+QWoVosbyj6bBYxJ6ZZ71834ZzDDErQNxO5gpZt7OAaMd64T24wkLoV
+         Wl4QRkUHCdEifrV7MetYiY6qwxKDdTE0CXF1ezZvGorC/tP9vQAX5Rdjseg+Ada8LB
+         HoY3u7u330vbPUAbMJRqRviPn2nBGHqKCqEdUjpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 111/315] vxlan: add missing rcu_read_lock() in neigh_reduce()
+Subject: [PATCH 4.9 058/245] crypto: ixp4xx - dma_unmap the correct address
 Date:   Mon, 19 Jul 2021 16:50:00 +0200
-Message-Id: <20210719144946.522755885@linuxfoundation.org>
+Message-Id: <20210719144942.280219433@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Corentin Labbe <clabbe@baylibre.com>
 
-[ Upstream commit 85e8b032d6ebb0f698a34dd22c2f13443d905888 ]
+[ Upstream commit 9395c58fdddd79cdd3882132cdd04e8ac7ad525f ]
 
-syzbot complained in neigh_reduce(), because rcu_read_lock_bh()
-is treated differently than rcu_read_lock()
+Testing ixp4xx_crypto with CONFIG_DMA_API_DEBUG lead to the following error:
+DMA-API: platform ixp4xx_crypto.0: device driver tries to free DMA memory it has not allocated [device address=0x0000000000000000] [size=24 bytes]
 
-WARNING: suspicious RCU usage
-5.13.0-rc6-syzkaller #0 Not tainted
------------------------------
-include/net/addrconf.h:313 suspicious rcu_dereference_check() usage!
+This is due to dma_unmap using the wrong address.
 
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-3 locks held by kworker/0:0/5:
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: arch_atomic64_set arch/x86/include/asm/atomic64_64.h:34 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic64_set include/asm-generic/atomic-instrumented.h:856 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: atomic_long_set include/asm-generic/atomic-long.h:41 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_data kernel/workqueue.c:617 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: set_work_pool_and_clear_pending kernel/workqueue.c:644 [inline]
- #0: ffff888011064d38 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x871/0x1600 kernel/workqueue.c:2247
- #1: ffffc90000ca7da8 ((work_completion)(&port->wq)){+.+.}-{0:0}, at: process_one_work+0x8a5/0x1600 kernel/workqueue.c:2251
- #2: ffffffff8bf795c0 (rcu_read_lock_bh){....}-{1:2}, at: __dev_queue_xmit+0x1da/0x3130 net/core/dev.c:4180
-
-stack backtrace:
-CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.13.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events ipvlan_process_multicast
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- __in6_dev_get include/net/addrconf.h:313 [inline]
- __in6_dev_get include/net/addrconf.h:311 [inline]
- neigh_reduce drivers/net/vxlan.c:2167 [inline]
- vxlan_xmit+0x34d5/0x4c30 drivers/net/vxlan.c:2919
- __netdev_start_xmit include/linux/netdevice.h:4944 [inline]
- netdev_start_xmit include/linux/netdevice.h:4958 [inline]
- xmit_one net/core/dev.c:3654 [inline]
- dev_hard_start_xmit+0x1eb/0x920 net/core/dev.c:3670
- __dev_queue_xmit+0x2133/0x3130 net/core/dev.c:4246
- ipvlan_process_multicast+0xa99/0xd70 drivers/net/ipvlan/ipvlan_core.c:287
- process_one_work+0x98d/0x1600 kernel/workqueue.c:2276
- worker_thread+0x64c/0x1120 kernel/workqueue.c:2422
- kthread+0x3b1/0x4a0 kernel/kthread.c:313
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Fixes: f564f45c4518 ("vxlan: add ipv6 proxy support")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0d44dc59b2b4 ("crypto: ixp4xx - Fix handling of chained sg buffers")
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vxlan.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/ixp4xx_crypto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/vxlan.c b/drivers/net/vxlan.c
-index 94a9add2fc87..066a4654e838 100644
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -1681,6 +1681,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 	struct neighbour *n;
- 	struct nd_msg *msg;
+diff --git a/drivers/crypto/ixp4xx_crypto.c b/drivers/crypto/ixp4xx_crypto.c
+index a54de1299e9e..81b61e256f7c 100644
+--- a/drivers/crypto/ixp4xx_crypto.c
++++ b/drivers/crypto/ixp4xx_crypto.c
+@@ -334,7 +334,7 @@ static void free_buf_chain(struct device *dev, struct buffer_desc *buf,u32 phys)
  
-+	rcu_read_lock();
- 	in6_dev = __in6_dev_get(dev);
- 	if (!in6_dev)
- 		goto out;
-@@ -1732,6 +1733,7 @@ static int neigh_reduce(struct net_device *dev, struct sk_buff *skb, __be32 vni)
- 	}
- 
- out:
-+	rcu_read_unlock();
- 	consume_skb(skb);
- 	return NETDEV_TX_OK;
- }
+ 		buf1 = buf->next;
+ 		phys1 = buf->phys_next;
+-		dma_unmap_single(dev, buf->phys_next, buf->buf_len, buf->dir);
++		dma_unmap_single(dev, buf->phys_addr, buf->buf_len, buf->dir);
+ 		dma_pool_free(buffer_pool, buf, phys);
+ 		buf = buf1;
+ 		phys = phys1;
 -- 
 2.30.2
 
