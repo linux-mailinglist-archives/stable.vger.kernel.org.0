@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAE943CDE61
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC903CDF3C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343531AbhGSPCw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
+        id S1344401AbhGSPIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345337AbhGSPAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 336856023D;
-        Mon, 19 Jul 2021 15:41:12 +0000 (UTC)
+        id S1344264AbhGSPGZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:06:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EE096121F;
+        Mon, 19 Jul 2021 15:46:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709273;
-        bh=lD/RpgTJr4UPVzUZRLn83PXa2Y+l4B7TEyvf1VIMAb8=;
+        s=korg; t=1626709608;
+        bh=0LIP5qKIYPKgyLpH3K4NFeCwIuVJD7wjkrRIpCICnDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjJMyRe0CUW1OfxnY6L02yYV22I4MjmXnnNucJlIvIVWBvFcG67FSW0g2In/q5G1O
-         Q4B9trk+oois1z+bifBuvDINs24xae+LkydKCUtAbQqV5CBldGD9yxhL8Y8h5HUJQ/
-         rLJHUce0IwYBDyQR+6LoYMOLTtPCpuyU9msUNlns=
+        b=PYbXMHMfaYyk8VqgAnjrnhl6Q0MEBy4dLwRExH3PaUIHI1iWxDw2263D1JL0Vu8QA
+         1Z3z4onAoyKzh1HXQEHEaDe3nlg/F5RD/PyjTi/MNZV4Guh552SjB91nAm7SLyBrkL
+         WNne1AgYubZtNFeBAkvb+F0yKhGO624BA1Uv2W58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.19 317/421] KVM: x86: Use guest MAXPHYADDR from CPUID.0x8000_0008 iff TDP is enabled
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 020/149] scsi: lpfc: Fix "Unexpected timeout" error in direct attach topology
 Date:   Mon, 19 Jul 2021 16:52:08 +0200
-Message-Id: <20210719144957.296617337@linuxfoundation.org>
+Message-Id: <20210719144906.253245006@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 4bf48e3c0aafd32b960d341c4925b48f416f14a5 upstream.
+[ Upstream commit e30d55137edef47434c40d7570276a0846fe922c ]
 
-Ignore the guest MAXPHYADDR reported by CPUID.0x8000_0008 if TDP, i.e.
-NPT, is disabled, and instead use the host's MAXPHYADDR.  Per AMD'S APM:
+An 'unexpected timeout' message may be seen in a point-2-point topology.
+The message occurs when a PLOGI is received before the driver is notified
+of FLOGI completion. The FLOGI completion failure causes discovery to be
+triggered for a second time. The discovery timer is restarted but no new
+discovery activity is initiated, thus the timeout message eventually
+appears.
 
-  Maximum guest physical address size in bits. This number applies only
-  to guests using nested paging. When this field is zero, refer to the
-  PhysAddrSize field for the maximum guest physical address size.
+In point-2-point, when discovery has progressed before the FLOGI completion
+is processed, it is not a failure. Add code to FLOGI completion to detect
+that discovery has progressed and exit the FLOGI handling (noop'ing it).
 
-Fixes: 24c82e576b78 ("KVM: Sanitize cpuid")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210623230552.4027702-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210514195559.119853-4-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/cpuid.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -666,8 +666,14 @@ static inline int __do_cpuid_ent(struct
- 		unsigned virt_as = max((entry->eax >> 8) & 0xff, 48U);
- 		unsigned phys_as = entry->eax & 0xff;
- 
--		if (!g_phys_as)
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index 4e994a693e3f..2040affa0887 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -1179,6 +1179,15 @@ stop_rr_fcf_flogi:
+ 			phba->fcf.fcf_redisc_attempted = 0; /* reset */
+ 			goto out;
+ 		}
++	} else if (vport->port_state > LPFC_FLOGI &&
++		   vport->fc_flag & FC_PT2PT) {
 +		/*
-+		 * Use bare metal's MAXPHADDR if the CPU doesn't report guest
-+		 * MAXPHYADDR separately, or if TDP (NPT) is disabled, as the
-+		 * guest version "applies only to guests using nested paging".
++		 * In a p2p topology, it is possible that discovery has
++		 * already progressed, and this completion can be ignored.
++		 * Recheck the indicated topology.
 +		 */
-+		if (!g_phys_as || !tdp_enabled)
- 			g_phys_as = phys_as;
-+
- 		entry->eax = g_phys_as | (virt_as << 8);
- 		entry->edx = 0;
- 		/*
++		if (!sp->cmn.fPort)
++			goto out;
+ 	}
+ 
+ flogifail:
+-- 
+2.30.2
+
 
 
