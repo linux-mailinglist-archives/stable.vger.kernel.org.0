@@ -2,36 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D56D3CE059
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:57:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC5B3CDE02
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346002AbhGSPQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:16:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
+        id S1343864AbhGSPBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345535AbhGSPNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:13:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3602F61363;
-        Mon, 19 Jul 2021 15:53:11 +0000 (UTC)
+        id S1344065AbhGSO72 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:59:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBC2E61407;
+        Mon, 19 Jul 2021 15:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709991;
-        bh=gkXu3sbTGyTrqtfgG5j2rg5rnTqyL/1tASBndj4S7fY=;
+        s=korg; t=1626709108;
+        bh=utFl06T4H838if/gzcl7vFQzazaButfFXwmcYFAzzf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDIbpyhm4jdBzqB+QQBWG2papbxYjGSHsLhpim6uIxtFohTvtfMWd1Ah4ISB9ub0P
-         iVuOWCvTzSBdfkEBcQlU1qa2acII/58rkFrMn6cX3TZ4bva6h8XyM3fK1gsmnfdRLE
-         z7UD8mV+YK0tYmTGnCvueG/qcjb2/7K2UOA+ZdGw=
+        b=Fc9yUvrn/VlibPQ3vieuaodqiiJT8QkCzdkzXAY90OCgt5qQBTdpTqB22yu0dX+Zr
+         tf8BVYagobvUWb6eDKdQnP1NDu/mq5XLt1dPyLDw79yP2VCBNrT44g4FGgJ/DH0FY6
+         WWIM12hQjLDPKD+u/OMMH25ZOWXDwXuRTnbO1EaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        kvm@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>
-Subject: [PATCH 5.10 003/243] KVM: mmio: Fix use-after-free Read in kvm_vm_ioctl_unregister_coalesced_mmio
-Date:   Mon, 19 Jul 2021 16:50:32 +0200
-Message-Id: <20210719144941.027466727@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Shi <shy828301@gmail.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Hugh Dickins <hughd@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Minchan Kim <minchan@kernel.org>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        Rik van Riel <riel@surriel.com>,
+        Song Liu <songliubraving@fb.com>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Zi Yan <ziy@nvidia.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 222/421] mm/huge_memory.c: dont discard hugepage if other processes are mapping it
+Date:   Mon, 19 Jul 2021 16:50:33 +0200
+Message-Id: <20210719144954.033617970@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,128 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-commit 23fa2e46a5556f787ce2ea1a315d3ab93cced204 upstream.
+[ Upstream commit babbbdd08af98a59089334eb3effbed5a7a0cf7f ]
 
-BUG: KASAN: use-after-free in kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
-Read of size 8 at addr ffff0000c03a2500 by task syz-executor083/4269
+If other processes are mapping any other subpages of the hugepage, i.e.
+in pte-mapped thp case, page_mapcount() will return 1 incorrectly.  Then
+we would discard the page while other processes are still mapping it.  Fix
+it by using total_mapcount() which can tell whether other processes are
+still mapping it.
 
-CPU: 5 PID: 4269 Comm: syz-executor083 Not tainted 5.10.0 #7
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
- show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x110/0x164 lib/dump_stack.c:118
- print_address_description+0x78/0x5c8 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x148/0x1e4 mm/kasan/report.c:562
- check_memory_region_inline mm/kasan/generic.c:183 [inline]
- __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
- kvm_vm_ioctl_unregister_coalesced_mmio+0x7c/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:183
- kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
-
-Allocated by task 4269:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
- kmem_cache_alloc_trace include/linux/slab.h:450 [inline]
- kmalloc include/linux/slab.h:552 [inline]
- kzalloc include/linux/slab.h:664 [inline]
- kvm_vm_ioctl_register_coalesced_mmio+0x78/0x1cc arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:146
- kvm_vm_ioctl+0x7e8/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3746
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
-
-Freed by task 4269:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x38/0x6c mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
- __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
- kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
- slab_free_hook mm/slub.c:1544 [inline]
- slab_free_freelist_hook mm/slub.c:1577 [inline]
- slab_free mm/slub.c:3142 [inline]
- kfree+0x104/0x38c mm/slub.c:4124
- coalesced_mmio_destructor+0x94/0xa4 arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:102
- kvm_iodevice_destructor include/kvm/iodev.h:61 [inline]
- kvm_io_bus_unregister_dev+0x248/0x280 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:4374
- kvm_vm_ioctl_unregister_coalesced_mmio+0x158/0x1ec arch/arm64/kvm/../../../virt/kvm/coalesced_mmio.c:186
- kvm_vm_ioctl+0xe30/0x14c4 arch/arm64/kvm/../../../virt/kvm/kvm_main.c:3755
- vfs_ioctl fs/ioctl.c:48 [inline]
- __do_sys_ioctl fs/ioctl.c:753 [inline]
- __se_sys_ioctl fs/ioctl.c:739 [inline]
- __arm64_sys_ioctl+0xf88/0x131c fs/ioctl.c:739
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:220
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
-
-If kvm_io_bus_unregister_dev() return -ENOMEM, we already call kvm_iodevice_destructor()
-inside this function to delete 'struct kvm_coalesced_mmio_dev *dev' from list
-and free the dev, but kvm_iodevice_destructor() is called again, it will lead
-the above issue.
-
-Let's check the the return value of kvm_io_bus_unregister_dev(), only call
-kvm_iodevice_destructor() if the return value is 0.
-
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: kvm@vger.kernel.org
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Message-Id: <20210626070304.143456-1-wangkefeng.wang@huawei.com>
-Cc: stable@vger.kernel.org
-Fixes: 5d3c4c79384a ("KVM: Stop looking for coalesced MMIO zones if the bus is destroyed", 2021-04-20)
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lkml.kernel.org/r/20210511134857.1581273-6-linmiaohe@huawei.com
+Fixes: b8d3c4c3009d ("mm/huge_memory.c: don't split THP page when MADV_FREE syscall is called")
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: "Aneesh Kumar K . V" <aneesh.kumar@linux.ibm.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/coalesced_mmio.c |    2 +-
+ mm/huge_memory.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/virt/kvm/coalesced_mmio.c
-+++ b/virt/kvm/coalesced_mmio.c
-@@ -186,7 +186,6 @@ int kvm_vm_ioctl_unregister_coalesced_mm
- 		    coalesced_mmio_in_range(dev, zone->addr, zone->size)) {
- 			r = kvm_io_bus_unregister_dev(kvm,
- 				zone->pio ? KVM_PIO_BUS : KVM_MMIO_BUS, &dev->dev);
--			kvm_iodevice_destructor(&dev->dev);
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 4400957d8e4e..800d7de32af8 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1692,7 +1692,7 @@ bool madvise_free_huge_pmd(struct mmu_gather *tlb, struct vm_area_struct *vma,
+ 	 * If other processes are mapping this page, we couldn't discard
+ 	 * the page unless they all do MADV_FREE so let's skip the page.
+ 	 */
+-	if (page_mapcount(page) != 1)
++	if (total_mapcount(page) != 1)
+ 		goto out;
  
- 			/*
- 			 * On failure, unregister destroys all devices on the
-@@ -196,6 +195,7 @@ int kvm_vm_ioctl_unregister_coalesced_mm
- 			 */
- 			if (r)
- 				break;
-+			kvm_iodevice_destructor(&dev->dev);
- 		}
- 	}
- 
+ 	if (!trylock_page(page))
+-- 
+2.30.2
+
 
 
