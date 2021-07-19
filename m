@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15B73CDFDB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2193CDF16
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344921AbhGSPMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47200 "EHLO mail.kernel.org"
+        id S1345050AbhGSPHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345346AbhGSPKh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:10:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72235610FB;
-        Mon, 19 Jul 2021 15:51:16 +0000 (UTC)
+        id S1346098AbhGSPFO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:05:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 962D8601FD;
+        Mon, 19 Jul 2021 15:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709876;
-        bh=0DJlWJfdKqNbqEU2AQwB7Aaptgw22xYq1L3YmblnEFo=;
+        s=korg; t=1626709554;
+        bh=kgOQcQcZkxo0yO2UGtK/dmDKkNSk1YJLXcaCsGyLF88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmNBksV4FYJgFVgMfD+Pl6qj5WpzbF65eDPBVrYdzRfovliG2v5sKunrXXHmv2VAg
-         TW+Z71xooCuRR7zZAtEAviotPKMv3wYC0uyJnKHJy/ykTHAaWeHryIQF4B+GK27Bi9
-         I8JspVmgQIIF7OJfMfwAXNZvfOUp7HBptamao81s=
+        b=EWZgYJZCR31Zg4dfhYVnTYKpeWMVH93uwISGdBHxzCZhwn45X1YBatueh5rYuXBQW
+         bqKvSQgJZVfaGYfz1h3IBx9WZepLwWZp9TRQiwQuKskD8x/d8n4G9grI7bygDFO+Rd
+         HP/rNNXD+/WV2TK0By6QKqv1AAGWoHyJAYECR3M0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Wakabayashi <mwakabayashi@vmware.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 100/149] NFSv4: Initialise connection to the server in nfs4_alloc_client()
+Subject: [PATCH 4.19 397/421] reset: a10sr: add missing of_match_table reference
 Date:   Mon, 19 Jul 2021 16:53:28 +0200
-Message-Id: <20210719144925.083812186@linuxfoundation.org>
+Message-Id: <20210719145000.128577738@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,138 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit dd99e9f98fbf423ff6d365b37a98e8879170f17c ]
+[ Upstream commit 466ba3c8ff4fae39e455ff8d080b3d5503302765 ]
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+The driver defined of_device_id table but did not use it with
+of_match_table.  This prevents usual matching via devicetree and causes
+a W=1 warning:
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles connection setup to the DS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+  drivers/reset/reset-a10sr.c:111:34: warning:
+    ‘a10sr_reset_of_match’ defined but not used [-Wunused-const-variable=]
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 627006820268 ("reset: Add Altera Arria10 SR Reset Controller")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210507112803.20012-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ drivers/reset/reset-a10sr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 5a69dbd01a6c..8cace8350fa3 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -197,8 +197,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
- 
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *clp = nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
- 
-@@ -222,6 +225,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
- 	INIT_LIST_HEAD(&clp->pending_cb_stateids);
-+
-+	if (cl_init->minorversion != 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err == -EINVAL)
-+		err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr= option was specified, find a usable cb address */
-+	if (ip_addr == NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
-+
-+		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err = rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr = (const char *)buf;
-+	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
-+
-+	err = nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error = %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
- 
- error:
-@@ -372,8 +413,6 @@ static int nfs4_init_client_minor_version(struct nfs_client *clp)
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
- 
-@@ -381,43 +420,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 		/* the client is initialised already */
- 		return clp;
- 
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops = &nfs_v4_clientops;
--
--	if (clp->cl_minorversion != 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error == -EINVAL)
--		error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr= option was specified, find a usable cb address */
--	if (ip_addr == NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
--
--		error = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error = rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr = (const char *)buf;
--	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error = nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error = %d\n",
--			__func__, error);
--		goto error;
--	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error = nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+diff --git a/drivers/reset/reset-a10sr.c b/drivers/reset/reset-a10sr.c
+index 37496bd27fa2..306fba5b3519 100644
+--- a/drivers/reset/reset-a10sr.c
++++ b/drivers/reset/reset-a10sr.c
+@@ -129,6 +129,7 @@ static struct platform_driver a10sr_reset_driver = {
+ 	.probe	= a10sr_reset_probe,
+ 	.driver = {
+ 		.name		= "altr_a10sr_reset",
++		.of_match_table	= a10sr_reset_of_match,
+ 	},
+ };
+ module_platform_driver(a10sr_reset_driver);
 -- 
 2.30.2
 
