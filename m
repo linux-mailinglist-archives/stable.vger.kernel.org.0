@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 081AA3CE0F3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09C283CE2F2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347107AbhGSPTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
+        id S236193AbhGSPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346874AbhGSPPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:15:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B176A60FD7;
-        Mon, 19 Jul 2021 15:55:57 +0000 (UTC)
+        id S1346211AbhGSP2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 794406128A;
+        Mon, 19 Jul 2021 16:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710158;
-        bh=7OMGQHovSHqEfqr3GzUmZ7OZb7ckknSuqjlhS9W7XGw=;
+        s=korg; t=1626710914;
+        bh=Jxp4XfILcSlnmavtHA8DR7HbSTaJRkfBAiSUv4lxPXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=awen43p8KqzVefnIA5VCG/yV6+Ywb8WRIeKg0GiKEeJ/BcZIjIii8yTn+9SRoIwk2
-         crE2lX53j5XhmdWS+o1d4g4pSOhJ6724jB0jpAZu1cjue8FTjpNYTFLPs/Mm8JUqil
-         AQ9jxVQDgsplymHtgrvNZysnN3jIgfcYqLsvbog4=
+        b=nahOlIdi6c+591ogRV7m8F6+l4e6nkNB85z3thi5BE9GMntRneCTSBSe69jWQ2LCr
+         RBxPGPiLSLfPDEGvxISnhNtclmCvnfM/WhL3L98FTnrn84qisVdWo3rxpwBHIQ3190
+         IEtm3wFnlsw4YHQ1iRgDpc+/Dl8o0Ay0PObxO2ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geoff Levand <geoff@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Clemens Gruber <clemens.gruber@pqgruber.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/243] powerpc/ps3: Add dma_mask to ps3_dma_region
+Subject: [PATCH 5.13 156/351] pwm: pca9685: Restrict period change for enabled PWMs
 Date:   Mon, 19 Jul 2021 16:51:42 +0200
-Message-Id: <20210719144943.264225020@linuxfoundation.org>
+Message-Id: <20210719144950.136567558@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,91 +41,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoff Levand <geoff@infradead.org>
+From: Clemens Gruber <clemens.gruber@pqgruber.com>
 
-[ Upstream commit 9733862e50fdba55e7f1554e4286fcc5302ff28e ]
+[ Upstream commit 6d6e7050276d40b5de97aa950d5d71057f2e2a25 ]
 
-Commit f959dcd6ddfd29235030e8026471ac1b022ad2b0 (dma-direct: Fix
-potential NULL pointer dereference) added a null check on the
-dma_mask pointer of the kernel's device structure.
+Previously, the last used PWM channel could change the global prescale
+setting, even if other channels are already in use.
 
-Add a dma_mask variable to the ps3_dma_region structure and set
-the device structure's dma_mask pointer to point to this new variable.
+Fix it by only allowing the first enabled PWM to change the global
+chip-wide prescale setting. If there is more than one channel in use,
+the prescale settings resulting from the chosen periods must match.
 
-Fixes runtime errors like these:
-# WARNING: Fixes tag on line 10 doesn't match correct format
-# WARNING: Fixes tag on line 10 doesn't match correct format
+GPIOs do not count as enabled PWMs as they are not using the prescaler
+and can't change it.
 
-  ps3_system_bus_match:349: dev=8.0(sb_01), drv=8.0(ps3flash): match
-  WARNING: CPU: 0 PID: 1 at kernel/dma/mapping.c:151 .dma_map_page_attrs+0x34/0x1e0
-  ps3flash sb_01: ps3stor_setup:193: map DMA region failed
-
-Signed-off-by: Geoff Levand <geoff@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/562d0c9ea0100a30c3b186bcc7adb34b0bbd2cd7.1622746428.git.geoff@infradead.org
+Signed-off-by: Clemens Gruber <clemens.gruber@pqgruber.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/ps3.h  |  2 ++
- arch/powerpc/platforms/ps3/mm.c | 12 ++++++++++++
- 2 files changed, 14 insertions(+)
+ drivers/pwm/pwm-pca9685.c | 74 +++++++++++++++++++++++++++++++++------
+ 1 file changed, 64 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/ps3.h b/arch/powerpc/include/asm/ps3.h
-index cb89e4bf55ce..964063765662 100644
---- a/arch/powerpc/include/asm/ps3.h
-+++ b/arch/powerpc/include/asm/ps3.h
-@@ -71,6 +71,7 @@ struct ps3_dma_region_ops;
-  * @bus_addr: The 'translated' bus address of the region.
-  * @len: The length in bytes of the region.
-  * @offset: The offset from the start of memory of the region.
-+ * @dma_mask: Device dma_mask.
-  * @ioid: The IOID of the device who owns this region
-  * @chunk_list: Opaque variable used by the ioc page manager.
-  * @region_ops: struct ps3_dma_region_ops - dma region operations
-@@ -85,6 +86,7 @@ struct ps3_dma_region {
- 	enum ps3_dma_region_type region_type;
- 	unsigned long len;
- 	unsigned long offset;
-+	u64 dma_mask;
+diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
+index 7c9f174de64e..ec9f93006654 100644
+--- a/drivers/pwm/pwm-pca9685.c
++++ b/drivers/pwm/pwm-pca9685.c
+@@ -23,11 +23,11 @@
+ #include <linux/bitmap.h>
  
- 	/* driver variables  (set by ps3_dma_region_create) */
- 	unsigned long bus_addr;
-diff --git a/arch/powerpc/platforms/ps3/mm.c b/arch/powerpc/platforms/ps3/mm.c
-index d094321964fb..a81eac35d900 100644
---- a/arch/powerpc/platforms/ps3/mm.c
-+++ b/arch/powerpc/platforms/ps3/mm.c
-@@ -6,6 +6,7 @@
-  *  Copyright 2006 Sony Corp.
+ /*
+- * Because the PCA9685 has only one prescaler per chip, changing the period of
+- * one channel affects the period of all 16 PWM outputs!
+- * However, the ratio between each configured duty cycle and the chip-wide
+- * period remains constant, because the OFF time is set in proportion to the
+- * counter range.
++ * Because the PCA9685 has only one prescaler per chip, only the first channel
++ * that is enabled is allowed to change the prescale register.
++ * PWM channels requested afterwards must use a period that results in the same
++ * prescale setting as the one set by the first requested channel.
++ * GPIOs do not count as enabled PWMs as they are not using the prescaler.
   */
  
-+#include <linux/dma-mapping.h>
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/memblock.h>
-@@ -1118,6 +1119,7 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
- 	enum ps3_dma_region_type region_type, void *addr, unsigned long len)
+ #define PCA9685_MODE1		0x00
+@@ -78,8 +78,9 @@
+ struct pca9685 {
+ 	struct pwm_chip chip;
+ 	struct regmap *regmap;
+-#if IS_ENABLED(CONFIG_GPIOLIB)
+ 	struct mutex lock;
++	DECLARE_BITMAP(pwms_enabled, PCA9685_MAXCHAN + 1);
++#if IS_ENABLED(CONFIG_GPIOLIB)
+ 	struct gpio_chip gpio;
+ 	DECLARE_BITMAP(pwms_inuse, PCA9685_MAXCHAN + 1);
+ #endif
+@@ -90,6 +91,22 @@ static inline struct pca9685 *to_pca(struct pwm_chip *chip)
+ 	return container_of(chip, struct pca9685, chip);
+ }
+ 
++/* This function is supposed to be called with the lock mutex held */
++static bool pca9685_prescaler_can_change(struct pca9685 *pca, int channel)
++{
++	/* No PWM enabled: Change allowed */
++	if (bitmap_empty(pca->pwms_enabled, PCA9685_MAXCHAN + 1))
++		return true;
++	/* More than one PWM enabled: Change not allowed */
++	if (bitmap_weight(pca->pwms_enabled, PCA9685_MAXCHAN + 1) > 1)
++		return false;
++	/*
++	 * Only one PWM enabled: Change allowed if the PWM about to
++	 * be changed is the one that is already enabled
++	 */
++	return test_bit(channel, pca->pwms_enabled);
++}
++
+ /* Helper function to set the duty cycle ratio to duty/4096 (e.g. duty=2048 -> 50%) */
+ static void pca9685_pwm_set_duty(struct pca9685 *pca, int channel, unsigned int duty)
  {
- 	unsigned long lpar_addr;
-+	int result;
+@@ -240,8 +257,6 @@ static int pca9685_pwm_gpio_probe(struct pca9685 *pca)
+ {
+ 	struct device *dev = pca->chip.dev;
  
- 	lpar_addr = addr ? ps3_mm_phys_to_lpar(__pa(addr)) : 0;
+-	mutex_init(&pca->lock);
+-
+ 	pca->gpio.label = dev_name(dev);
+ 	pca->gpio.parent = dev;
+ 	pca->gpio.request = pca9685_pwm_gpio_request;
+@@ -285,8 +300,8 @@ static void pca9685_set_sleep_mode(struct pca9685 *pca, bool enable)
+ 	}
+ }
  
-@@ -1129,6 +1131,16 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
- 		r->offset -= map.r1.offset;
- 	r->len = len ? len : ALIGN(map.total, 1 << r->page_size);
+-static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+-			     const struct pwm_state *state)
++static int __pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
++			       const struct pwm_state *state)
+ {
+ 	struct pca9685 *pca = to_pca(chip);
+ 	unsigned long long duty, prescale;
+@@ -309,6 +324,12 @@ static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
  
-+	dev->core.dma_mask = &r->dma_mask;
+ 	regmap_read(pca->regmap, PCA9685_PRESCALE, &val);
+ 	if (prescale != val) {
++		if (!pca9685_prescaler_can_change(pca, pwm->hwpwm)) {
++			dev_err(chip->dev,
++				"pwm not changed: periods of enabled pwms must match!\n");
++			return -EBUSY;
++		}
 +
-+	result = dma_set_mask_and_coherent(&dev->core, DMA_BIT_MASK(32));
+ 		/*
+ 		 * Putting the chip briefly into SLEEP mode
+ 		 * at this point won't interfere with the
+@@ -331,6 +352,25 @@ static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	return 0;
+ }
+ 
++static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
++			     const struct pwm_state *state)
++{
++	struct pca9685 *pca = to_pca(chip);
++	int ret;
 +
-+	if (result < 0) {
-+		dev_err(&dev->core, "%s:%d: dma_set_mask_and_coherent failed: %d\n",
-+			__func__, __LINE__, result);
-+		return result;
++	mutex_lock(&pca->lock);
++	ret = __pca9685_pwm_apply(chip, pwm, state);
++	if (ret == 0) {
++		if (state->enabled)
++			set_bit(pwm->hwpwm, pca->pwms_enabled);
++		else
++			clear_bit(pwm->hwpwm, pca->pwms_enabled);
++	}
++	mutex_unlock(&pca->lock);
++
++	return ret;
++}
++
+ static void pca9685_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 				  struct pwm_state *state)
+ {
+@@ -372,6 +412,14 @@ static int pca9685_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+ 
+ 	if (pca9685_pwm_test_and_set_inuse(pca, pwm->hwpwm))
+ 		return -EBUSY;
++
++	if (pwm->hwpwm < PCA9685_MAXCHAN) {
++		/* PWMs - except the "all LEDs" channel - default to enabled */
++		mutex_lock(&pca->lock);
++		set_bit(pwm->hwpwm, pca->pwms_enabled);
++		mutex_unlock(&pca->lock);
 +	}
 +
- 	switch (dev->dev_type) {
- 	case PS3_DEVICE_TYPE_SB:
- 		r->region_ops =  (USE_DYNAMIC_DMA)
+ 	pm_runtime_get_sync(chip->dev);
+ 
+ 	return 0;
+@@ -381,7 +429,11 @@ static void pca9685_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
+ {
+ 	struct pca9685 *pca = to_pca(chip);
+ 
++	mutex_lock(&pca->lock);
+ 	pca9685_pwm_set_duty(pca, pwm->hwpwm, 0);
++	clear_bit(pwm->hwpwm, pca->pwms_enabled);
++	mutex_unlock(&pca->lock);
++
+ 	pm_runtime_put(chip->dev);
+ 	pca9685_pwm_clear_inuse(pca, pwm->hwpwm);
+ }
+@@ -422,6 +474,8 @@ static int pca9685_pwm_probe(struct i2c_client *client,
+ 
+ 	i2c_set_clientdata(client, pca);
+ 
++	mutex_init(&pca->lock);
++
+ 	regmap_read(pca->regmap, PCA9685_MODE2, &reg);
+ 
+ 	if (device_property_read_bool(&client->dev, "invert"))
 -- 
 2.30.2
 
