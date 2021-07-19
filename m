@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CEC3CE144
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DD33CE2F6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:17:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346300AbhGSPZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
+        id S238702AbhGSPdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345705AbhGSPQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:16:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7ECA60FDA;
-        Mon, 19 Jul 2021 15:57:00 +0000 (UTC)
+        id S1345258AbhGSPa6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:30:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C9DF361412;
+        Mon, 19 Jul 2021 16:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710221;
-        bh=+uFTDpvKhWHlQ5H7ysMc7Ohh59fU2zT9cKN7k1vT62k=;
+        s=korg; t=1626711007;
+        bh=VnO9V1vts4XCQdUt/BmZGoFWhKTVp6brh8h1ZcivbiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FIWz1ZoOqnM96yRRTBhvTDd/6a0j05IOv2ISY/gDOC5K/1ztqWYDVoZwcORgFRel6
-         D0LVdbP9u6L2AGuABz1AIVjfTepRfGeYjHbhlzfg9ld6WZeGRd9xXaQD/8qYZf6FBX
-         Lri8e1XuUiIze2HVLuvbNYXMSKpJOKFS7kAkHW+g=
+        b=uog499BmdB6CNWGBQ48U8vhN1b792Hs+ssb36ea8UHFV53Gh/nm6BObSPKtBaSIZF
+         39wNbG1B1MzvJERppVfVzOL4wBFmQtPGLKoUtqcXLEPVaZWoBSba9/uvb/87pP+2Hx
+         oFsEoZvc74zzaDzMpq+xv9KXp87o9gJsQGROwxfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 109/243] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
+Subject: [PATCH 5.13 192/351] ACPI: video: Add quirk for the Dell Vostro 3350
 Date:   Mon, 19 Jul 2021 16:52:18 +0200
-Message-Id: <20210719144944.420276893@linuxfoundation.org>
+Message-Id: <20210719144951.320456669@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
+[ Upstream commit 9249c32ec9197e8d34fe5179c9e31668a205db04 ]
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+The Dell Vostro 3350 ACPI video-bus device reports spurious
+ACPI_VIDEO_NOTIFY_CYCLE events resulting in spurious KEY_SWITCHVIDEOMODE
+events being reported to userspace (and causing trouble there).
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
+Add a quirk setting the report_key_events mask to
+REPORT_BRIGHTNESS_KEY_EVENTS so that the ACPI_VIDEO_NOTIFY_CYCLE
+events will be ignored, while still reporting brightness up/down
+hotkey-presses to userspace normally.
 
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
-
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
-
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
-
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
-
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
-
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
-
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1911763
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/acpi/acpi_video.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index c0cfcfd486be..e6327391b6b6 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -112,6 +112,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
- 
- 		chunksize = get_unaligned_le32(inp);
-@@ -125,6 +128,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
- 
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
- 
- 		if (posp)
- 			*posp += 4;
-@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
- 
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
+diff --git a/drivers/acpi/acpi_video.c b/drivers/acpi/acpi_video.c
+index 0c884020f74b..08a51dd285c4 100644
+--- a/drivers/acpi/acpi_video.c
++++ b/drivers/acpi/acpi_video.c
+@@ -540,6 +540,15 @@ static const struct dmi_system_id video_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro V131"),
+ 		},
+ 	},
++	{
++	 .callback = video_set_report_key_events,
++	 .driver_data = (void *)((uintptr_t)REPORT_BRIGHTNESS_KEY_EVENTS),
++	 .ident = "Dell Vostro 3350",
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Vostro 3350"),
++		},
++	},
+ 	/*
+ 	 * Some machines change the brightness themselves when a brightness
+ 	 * hotkey gets pressed, despite us telling them not to. In this case
 -- 
 2.30.2
 
