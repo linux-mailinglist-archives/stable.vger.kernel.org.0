@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D445C3CDA33
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA6C3CD857
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242343AbhGSOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47530 "EHLO mail.kernel.org"
+        id S242139AbhGSOVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242358AbhGSOcf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:32:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 103E16120C;
-        Mon, 19 Jul 2021 15:12:47 +0000 (UTC)
+        id S242437AbhGSOUe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5316C611F2;
+        Mon, 19 Jul 2021 15:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707568;
-        bh=C1ShubNXVTEITTM499ROiCEtSal1Awt21Bbup50aTP8=;
+        s=korg; t=1626706865;
+        bh=DicTgpPqhZr/i6spxuOj5ERWvvj9fiLdAcdUwi3iu88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2S/07cahvD6z+H0TrX4emEl5ZbAVoLanOeV0Q5ctN18WRsokzjS3SBFVVO09ZPl5H
-         dM+H/aLs5/Yqos5YOK3DmnnusJ8xqHkWQwJPUgZIeBpmmXDhXtmRQ3xyKAvSbL3wI2
-         UC80zcM2ATxU+VIoAKwtEngMfmKBjp1NOTYXcX74=
+        b=YxGOXnubZNBLgXmDiEyXg2LhreQTjlMPISkN0AF8VCEN0khn8T8S8gwdi4zKtLNdE
+         Yzd+UuIPt2CRJu970lM9NwjxphNcJosgetX1JgtKMNTdl6FL1gVeXiQCJd6yy0xq/1
+         8hycrf5uBZiANNRYSxOtTLw8X5jMnsMOkwKr3CQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.9 172/245] dm btree remove: assign new_root only when removal succeeds
-Date:   Mon, 19 Jul 2021 16:51:54 +0200
-Message-Id: <20210719144945.958742777@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Pavlu <petr.pavlu@suse.com>,
+        Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH 4.4 131/188] ipmi/watchdog: Stop watchdog timer when the current action is none
+Date:   Mon, 19 Jul 2021 16:51:55 +0200
+Message-Id: <20210719144940.777935347@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-commit b6e58b5466b2959f83034bead2e2e1395cca8aeb upstream.
+commit 2253042d86f57d90a621ac2513a7a7a13afcf809 upstream.
 
-remove_raw() in dm_btree_remove() may fail due to IO read error
-(e.g. read the content of origin block fails during shadowing),
-and the value of shadow_spine::root is uninitialized, but
-the uninitialized value is still assign to new_root in the
-end of dm_btree_remove().
+When an IPMI watchdog timer is being stopped in ipmi_close() or
+ipmi_ioctl(WDIOS_DISABLECARD), the current watchdog action is updated to
+WDOG_TIMEOUT_NONE and _ipmi_set_timeout(IPMI_SET_TIMEOUT_NO_HB) is called
+to install this action. The latter function ends up invoking
+__ipmi_set_timeout() which makes the actual 'Set Watchdog Timer' IPMI
+request.
 
-For dm-thin, the value of pmd->details_root or pmd->root will become
-an uninitialized value, so if trying to read details_info tree again
-out-of-bound memory may occur as showed below:
+For IPMI 1.0, this operation results in fully stopping the watchdog timer.
+For IPMI >= 1.5, function __ipmi_set_timeout() always specifies the "don't
+stop" flag in the prepared 'Set Watchdog Timer' IPMI request. This causes
+that the watchdog timer has its action correctly updated to 'none' but the
+timer continues to run. A problem is that IPMI firmware can then still log
+an expiration event when the configured timeout is reached, which is
+unexpected because the watchdog timer was requested to be stopped.
 
-  general protection fault, probably for non-canonical address 0x3fdcb14c8d7520
-  CPU: 4 PID: 515 Comm: dmsetup Not tainted 5.13.0-rc6
-  Hardware name: QEMU Standard PC
-  RIP: 0010:metadata_ll_load_ie+0x14/0x30
-  Call Trace:
-   sm_metadata_count_is_more_than_one+0xb9/0xe0
-   dm_tm_shadow_block+0x52/0x1c0
-   shadow_step+0x59/0xf0
-   remove_raw+0xb2/0x170
-   dm_btree_remove+0xf4/0x1c0
-   dm_pool_delete_thin_device+0xc3/0x140
-   pool_message+0x218/0x2b0
-   target_message+0x251/0x290
-   ctl_ioctl+0x1c4/0x4d0
-   dm_ctl_ioctl+0xe/0x20
-   __x64_sys_ioctl+0x7b/0xb0
-   do_syscall_64+0x40/0xb0
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+The patch fixes this problem by not setting the "don't stop" flag in
+__ipmi_set_timeout() when the current action is WDOG_TIMEOUT_NONE which
+results in stopping the watchdog timer. This makes the behaviour for
+IPMI >= 1.5 consistent with IPMI 1.0. It also matches the logic in
+__ipmi_heartbeat() which does not allow to reset the watchdog if the
+current action is WDOG_TIMEOUT_NONE as that would start the timer.
 
-Fixing it by only assign new_root when removal succeeds
-
-Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Message-Id: <10a41bdc-9c99-089c-8d89-fa98ce5ea080@suse.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/md/persistent-data/dm-btree-remove.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/persistent-data/dm-btree-remove.c
-+++ b/drivers/md/persistent-data/dm-btree-remove.c
-@@ -549,7 +549,8 @@ int dm_btree_remove(struct dm_btree_info
- 		delete_at(n, index);
+---
+ drivers/char/ipmi/ipmi_watchdog.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
+
+--- a/drivers/char/ipmi/ipmi_watchdog.c
++++ b/drivers/char/ipmi/ipmi_watchdog.c
+@@ -393,16 +393,18 @@ static int i_ipmi_set_timeout(struct ipm
+ 	data[0] = 0;
+ 	WDOG_SET_TIMER_USE(data[0], WDOG_TIMER_USE_SMS_OS);
+ 
+-	if ((ipmi_version_major > 1)
+-	    || ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
+-		/* This is an IPMI 1.5-only feature. */
+-		data[0] |= WDOG_DONT_STOP_ON_SET;
+-	} else if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
+-		/*
+-		 * In ipmi 1.0, setting the timer stops the watchdog, we
+-		 * need to start it back up again.
+-		 */
+-		hbnow = 1;
++	if (ipmi_watchdog_state != WDOG_TIMEOUT_NONE) {
++		if ((ipmi_version_major > 1) ||
++		    ((ipmi_version_major == 1) && (ipmi_version_minor >= 5))) {
++			/* This is an IPMI 1.5-only feature. */
++			data[0] |= WDOG_DONT_STOP_ON_SET;
++		} else {
++			/*
++			 * In ipmi 1.0, setting the timer stops the watchdog, we
++			 * need to start it back up again.
++			 */
++			hbnow = 1;
++		}
  	}
  
--	*new_root = shadow_root(&spine);
-+	if (!r)
-+		*new_root = shadow_root(&spine);
- 	exit_shadow_spine(&spine);
- 
- 	return r;
+ 	data[1] = 0;
 
 
