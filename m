@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 072463CD9EC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0D473CD840
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243214AbhGSOcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
+        id S241934AbhGSOVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245107AbhGSOaT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:30:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BECDA60720;
-        Mon, 19 Jul 2021 15:10:57 +0000 (UTC)
+        id S242321AbhGSOU2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42FA461002;
+        Mon, 19 Jul 2021 15:01:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707458;
-        bh=nzdydNYmLflCaFutndl1RJtdrTqtelCnjdq+dPZ1GI8=;
+        s=korg; t=1626706860;
+        bh=aYmCmLwlanssdjfVPHfag2Uu6KXtTJuNJ4MyqSbVFVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fd6V93SjWoExGtRJOGbqmpYLYyzicvBjrbmB2Uku4euEG3i0Rp/vJSVqq+09ZTEPq
-         t/Uq3jjrqWbhwvyB+jI7g0kYZl2MVeNcFOT0sqJPVU1DHtTuxVNsS46rWJ1NU0Ka2C
-         eJGzhYERebq4by+qjr/J6WPxavozmnPomxvtq8y0=
+        b=OfbR2hbqGkw4uAnXLypAx5mpxeDkiV91pbamojqvAo6dVdJDA/EszwSOdaZARRWXR
+         Bk4jbGT4JkTJqSTW/vn6XVuqH8jJOqzuUHsWYM2q98RiM+wVQC8dNZpWCrHqw2JB5K
+         qTC7uWZGHX0NM+jAhehCR7C8cpcizU1kXDa2AVXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
-        Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Subject: [PATCH 4.9 171/245] ipack/carriers/tpci200: Fix a double free in tpci200_pci_probe
+        Timo Sigurdsson <public_timo.s@silentcreek.de>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 129/188] ata: ahci_sunxi: Disable DIPM
 Date:   Mon, 19 Jul 2021 16:51:53 +0200
-Message-Id: <20210719144945.929352762@linuxfoundation.org>
+Message-Id: <20210719144940.713635883@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Timo Sigurdsson <public_timo.s@silentcreek.de>
 
-commit 9272e5d0028d45a3b45b58c9255e6e0df53f7ad9 upstream.
+commit f6bca4d91b2ea052e917cca3f9d866b5cc1d500a upstream.
 
-In the out_err_bus_register error branch of tpci200_pci_probe,
-tpci200->info->cfg_regs is freed by tpci200_uninstall()->
-tpci200_unregister()->pci_iounmap(..,tpci200->info->cfg_regs)
-in the first time.
+DIPM is unsupported or broken on sunxi. Trying to enable the power
+management policy med_power_with_dipm on an Allwinner A20 SoC based board
+leads to immediate I/O errors and the attached SATA disk disappears from
+the /dev filesystem. A reset (power cycle) is required to make the SATA
+controller or disk work again. The A10 and A20 SoC data sheets and manuals
+don't mention DIPM at all [1], so it's fair to assume that it's simply not
+supported. But even if it was, it should be considered broken and best be
+disabled in the ahci_sunxi driver.
 
-But later, iounmap() is called to free tpci200->info->cfg_regs
-again.
+[1] https://github.com/allwinner-zh/documents/tree/master/
 
-My patch sets tpci200->info->cfg_regs to NULL after tpci200_uninstall()
-to avoid the double free.
-
-Fixes: cea2f7cdff2af ("Staging: ipack/bridges/tpci200: Use the TPCI200 in big endian mode")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Samuel Iglesias Gonsalvez <siglesias@igalia.com>
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Link: https://lore.kernel.org/r/20210524093205.8333-1-lyl2019@mail.ustc.edu.cn
+Fixes: c5754b5220f0 ("ARM: sunxi: Add support for Allwinner SUNXi SoCs sata to ahci_platform")
+Cc: stable@vger.kernel.org
+Signed-off-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Tested-by: Timo Sigurdsson <public_timo.s@silentcreek.de>
+Link: https://lore.kernel.org/r/20210614072539.3307-1-public_timo.s@silentcreek.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/ipack/carriers/tpci200.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/ipack/carriers/tpci200.c
-+++ b/drivers/ipack/carriers/tpci200.c
-@@ -591,8 +591,11 @@ static int tpci200_pci_probe(struct pci_
+---
+ drivers/ata/ahci_sunxi.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/ata/ahci_sunxi.c
++++ b/drivers/ata/ahci_sunxi.c
+@@ -165,7 +165,7 @@ static void ahci_sunxi_start_engine(stru
+ }
  
- out_err_bus_register:
- 	tpci200_uninstall(tpci200);
-+	/* tpci200->info->cfg_regs is unmapped in tpci200_uninstall */
-+	tpci200->info->cfg_regs = NULL;
- out_err_install:
--	iounmap(tpci200->info->cfg_regs);
-+	if (tpci200->info->cfg_regs)
-+		iounmap(tpci200->info->cfg_regs);
- out_err_ioremap:
- 	pci_release_region(pdev, TPCI200_CFG_MEM_BAR);
- out_err_pci_request:
+ static const struct ata_port_info ahci_sunxi_port_info = {
+-	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ,
++	.flags		= AHCI_FLAG_COMMON | ATA_FLAG_NCQ | ATA_FLAG_NO_DIPM,
+ 	.pio_mask	= ATA_PIO4,
+ 	.udma_mask	= ATA_UDMA6,
+ 	.port_ops	= &ahci_platform_ops,
 
 
