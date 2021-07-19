@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 586933CE220
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 785F13CE1CF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347780AbhGSP3J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
+        id S1347587AbhGSP1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348326AbhGSPYn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348324AbhGSPYn (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9ACF601FD;
-        Mon, 19 Jul 2021 16:04:28 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DEBA610D2;
+        Mon, 19 Jul 2021 16:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710669;
-        bh=HXXsm6bDL23ZwcCamIIW0m6ncof559sel1rCAX8ztzU=;
+        s=korg; t=1626710671;
+        bh=GALYTMi0q4oqnQg08S1v1yOu2ngih8jxNsM0/bWku4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeBMSaK4suRFS++5+Kn5N5dFDIMqpQWcglPd5a5R8W9THmlxrfUa/Jq4UATkUbCQv
-         2PwW5h6VIjRuMcN6ZkQdUxklr34u6vTyoMc7/1cW4E4tpDRkYBj5VTvJIGjVZKMrHt
-         C3gcLbUtrZ8ftVZ9+l6mLEeeFsdEFOumu8/cgb2o=
+        b=0ktQZ/8EtMAsvOl+A4RgLVE8Ha8VN5fW7aBSmuUKAWBhthjWvXYAnUaLXdZU6S/Jo
+         nopav+QdiPVsVGXfprFWhxVabG7Twn3nBlJhhEfNBU6R4uoZlPW7aceWB875qmVOlr
+         VR+i0DuLLairCfwtWnFXNpXaVl5hUMZf/xI5HMJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ching Huang <ching2048@areca.com.tw>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 065/351] scsi: arcmsr: Fix doorbell status being updated late on ARC-1886
-Date:   Mon, 19 Jul 2021 16:50:11 +0200
-Message-Id: <20210719144946.673074472@linuxfoundation.org>
+Subject: [PATCH 5.13 066/351] scsi: hisi_sas: Propagate errors in interrupt_init_v1_hw()
+Date:   Mon, 19 Jul 2021 16:50:12 +0200
+Message-Id: <20210719144946.702285149@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,46 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ching Huang <ching2048@areca.com.tw>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit d9a231226f28261a787535e08d0c78669e1ad010 ]
+[ Upstream commit ab17122e758ef68fb21033e25c041144067975f5 ]
 
-It is possible for the IOP to be delayed in updating the doorbell
-status. The doorbell status should not be 0 so loop until the value
-changes.
+After commit 6c11dc060427 ("scsi: hisi_sas: Fix IRQ checks") we have the
+error codes returned by platform_get_irq() ready for the propagation
+upsream in interrupt_init_v1_hw() -- that will fix still broken deferred
+probing. Let's propagate the error codes from devm_request_irq() as well
+since I don't see the reason to override them with -ENOENT...
 
-Link: https://lore.kernel.org/r/afdfdf7eabecf14632492c4987a6b9ac6312a7ad.camel@areca.com.tw
-Signed-off-by: ching Huang <ching2048@areca.com.tw>
+Link: https://lore.kernel.org/r/49ba93a3-d427-7542-d85a-b74fe1a33a73@omp.ru
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/arcmsr/arcmsr_hba.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_v1_hw.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
-index 930972cda38c..42e494a7106c 100644
---- a/drivers/scsi/arcmsr/arcmsr_hba.c
-+++ b/drivers/scsi/arcmsr/arcmsr_hba.c
-@@ -2419,10 +2419,17 @@ static void arcmsr_hbaD_doorbell_isr(struct AdapterControlBlock *pACB)
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+index 3e359ac752fd..3cba7bfba296 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v1_hw.c
+@@ -1649,7 +1649,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			if (irq < 0) {
+ 				dev_err(dev, "irq init: fail map phy interrupt %d\n",
+ 					idx);
+-				return -ENOENT;
++				return irq;
+ 			}
  
- static void arcmsr_hbaE_doorbell_isr(struct AdapterControlBlock *pACB)
- {
--	uint32_t outbound_doorbell, in_doorbell, tmp;
-+	uint32_t outbound_doorbell, in_doorbell, tmp, i;
- 	struct MessageUnit_E __iomem *reg = pACB->pmuE;
+ 			rc = devm_request_irq(dev, irq, phy_interrupts[j], 0,
+@@ -1657,7 +1657,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 			if (rc) {
+ 				dev_err(dev, "irq init: could not request phy interrupt %d, rc=%d\n",
+ 					irq, rc);
+-				return -ENOENT;
++				return rc;
+ 			}
+ 		}
+ 	}
+@@ -1668,7 +1668,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map cq interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
  
--	in_doorbell = readl(&reg->iobound_doorbell);
-+	if (pACB->adapter_type == ACB_ADAPTER_TYPE_F) {
-+		for (i = 0; i < 5; i++) {
-+			in_doorbell = readl(&reg->iobound_doorbell);
-+			if (in_doorbell != 0)
-+				break;
-+		}
-+	} else
-+		in_doorbell = readl(&reg->iobound_doorbell);
- 	outbound_doorbell = in_doorbell ^ pACB->in_doorbell;
- 	do {
- 		writel(0, &reg->host_int_status); /* clear interrupt */
+ 		rc = devm_request_irq(dev, irq, cq_interrupt_v1_hw, 0,
+@@ -1676,7 +1676,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request cq interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
+@@ -1686,7 +1686,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (irq < 0) {
+ 			dev_err(dev, "irq init: could not map fatal interrupt %d\n",
+ 				idx);
+-			return -ENOENT;
++			return irq;
+ 		}
+ 
+ 		rc = devm_request_irq(dev, irq, fatal_interrupts[i], 0,
+@@ -1694,7 +1694,7 @@ static int interrupt_init_v1_hw(struct hisi_hba *hisi_hba)
+ 		if (rc) {
+ 			dev_err(dev, "irq init: could not request fatal interrupt %d, rc=%d\n",
+ 				irq, rc);
+-			return -ENOENT;
++			return rc;
+ 		}
+ 	}
+ 
 -- 
 2.30.2
 
