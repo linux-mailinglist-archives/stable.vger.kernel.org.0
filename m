@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF363CE246
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF83A3CE0AF
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347946AbhGSP3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
+        id S1343732AbhGSPRw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347382AbhGSP1Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:27:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 914DB611ED;
-        Mon, 19 Jul 2021 16:08:03 +0000 (UTC)
+        id S1346433AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C9E61003;
+        Mon, 19 Jul 2021 15:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710884;
-        bh=nro3MGa7h3qaKoTs4yw4efAa7zU3Ahe3U9SERvsOMXQ=;
+        s=korg; t=1626710070;
+        bh=rAYbW2UqpPZ9JX4gxQTDr5MbWh0vAa4y18WI67hklA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEf0At+o/l5WCA5k8oebE3GEDXolSNHINw9KOvKa2wRfT1rNAOw9z9aa8SdE+EYgL
-         E8IkksZX6bkoXbxt0Js/WSZEZf4lbKKB0tPjBc2pJuW2O/eG5IQpFP3RitUt969MjW
-         ULZsSYboWa8GP94QXevDwKrsZWFHJXa81SEf6yCs=
+        b=Twvp9qvWmFg+brdLMj1CjB9QaKVIHx4GlP6xI4mZVGvV/f9CMhm6nHbtpCI7lxTCk
+         po61C7pIQIhZfP8JzZQuL9snK6FcP0Yd3ZuCiCx7GzulWfjpaOyNKOBWggwlITgbZc
+         roa6Yqfwu4hvUPNB+mf5681/fb/llJKqDyAs8iA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rashmi A <rashmi.a@intel.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 145/351] phy: intel: Fix for warnings due to EMMC clock 175Mhz change in FIP
-Date:   Mon, 19 Jul 2021 16:51:31 +0200
-Message-Id: <20210719144949.276473799@linuxfoundation.org>
+Subject: [PATCH 5.10 063/243] scsi: qedi: Fix cleanup session block/unblock use
+Date:   Mon, 19 Jul 2021 16:51:32 +0200
+Message-Id: <20210719144942.955976459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +41,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rashmi A <rashmi.a@intel.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 2f2b73a29d2aabf5ad0150856c3e5cb6e04dcfc1 ]
+[ Upstream commit 0c72191da68638a479602dd515b587ada913184a ]
 
-Since the EMMC clock was changed from 200Mhz to 175Mhz in FIP,
-there were some warnings introduced, as the frequency values
-being checked was still wrt 200Mhz in code. Hence, the frequency
-checks are now updated based on the current 175Mhz EMMC clock changed
-in FIP.
+Drivers shouldn't be calling block/unblock session for cmd cleanup because
+the functions can change the session state from under libiscsi.  This adds
+a new a driver level bit so it can block all I/O the host while it drains
+the card.
 
-Spamming kernel log msg:
-"phy phy-20290000.mmc_phy.2: Unsupported rate: 43750000"
-
-Signed-off-by: Rashmi A <rashmi.a@intel.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210603182242.25733-3-rashmi.a@intel.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20210525181821.7617-26-michael.christie@oracle.com
+Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/intel/phy-intel-keembay-emmc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qedi/qedi.h       |  1 +
+ drivers/scsi/qedi/qedi_iscsi.c | 17 +++++++++++++++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/intel/phy-intel-keembay-emmc.c b/drivers/phy/intel/phy-intel-keembay-emmc.c
-index eb7c635ed89a..0eb11ac7c2e2 100644
---- a/drivers/phy/intel/phy-intel-keembay-emmc.c
-+++ b/drivers/phy/intel/phy-intel-keembay-emmc.c
-@@ -95,7 +95,8 @@ static int keembay_emmc_phy_power(struct phy *phy, bool on_off)
- 	else
- 		freqsel = 0x0;
+diff --git a/drivers/scsi/qedi/qedi.h b/drivers/scsi/qedi/qedi.h
+index c342defc3f52..ce199a7a16b8 100644
+--- a/drivers/scsi/qedi/qedi.h
++++ b/drivers/scsi/qedi/qedi.h
+@@ -284,6 +284,7 @@ struct qedi_ctx {
+ #define QEDI_IN_RECOVERY	5
+ #define QEDI_IN_OFFLINE		6
+ #define QEDI_IN_SHUTDOWN	7
++#define QEDI_BLOCK_IO		8
  
--	if (mhz < 50 || mhz > 200)
-+	/* Check for EMMC clock rate*/
-+	if (mhz > 175)
- 		dev_warn(&phy->dev, "Unsupported rate: %d MHz\n", mhz);
+ 	u8 mac[ETH_ALEN];
+ 	u32 src_ip[4];
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 604c4f408bc1..f51723e2d522 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -330,12 +330,22 @@ free_conn:
  
- 	/*
+ void qedi_mark_device_missing(struct iscsi_cls_session *cls_session)
+ {
+-	iscsi_block_session(cls_session);
++	struct iscsi_session *session = cls_session->dd_data;
++	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
++
++	spin_lock_bh(&session->frwd_lock);
++	set_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
++	spin_unlock_bh(&session->frwd_lock);
+ }
+ 
+ void qedi_mark_device_available(struct iscsi_cls_session *cls_session)
+ {
+-	iscsi_unblock_session(cls_session);
++	struct iscsi_session *session = cls_session->dd_data;
++	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
++
++	spin_lock_bh(&session->frwd_lock);
++	clear_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
++	spin_unlock_bh(&session->frwd_lock);
+ }
+ 
+ static int qedi_bind_conn_to_iscsi_cid(struct qedi_ctx *qedi,
+@@ -789,6 +799,9 @@ static int qedi_task_xmit(struct iscsi_task *task)
+ 	if (test_bit(QEDI_IN_SHUTDOWN, &qedi_conn->qedi->flags))
+ 		return -ENODEV;
+ 
++	if (test_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags))
++		return -EACCES;
++
+ 	cmd->state = 0;
+ 	cmd->task = NULL;
+ 	cmd->use_slowpath = false;
 -- 
 2.30.2
 
