@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4C93CDA86
+	by mail.lfdr.de (Postfix) with ESMTP id 7796B3CDA85
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244650AbhGSOgS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:36:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47530 "EHLO mail.kernel.org"
+        id S244641AbhGSOgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343548AbhGSOfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343552AbhGSOfD (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:35:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA11B6120D;
-        Mon, 19 Jul 2021 15:15:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B93B61221;
+        Mon, 19 Jul 2021 15:15:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707717;
-        bh=FAzYmYsss1pbrGsEmD/nkM6Aop2UQEWpOl/NDVl0/hk=;
+        s=korg; t=1626707719;
+        bh=k/bT1qAkZX640jeKQc0YiLQbC/GXZcqW7Jp09ezVbBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aX9vgM169jqPwp43TOu2r/DMsEqaQKOy1X+7MK1T8l7z3YR7erYyMFk7pa7KS5hW
-         ilAOL12P/155VoqIcn2nQQL9qxnE+Tc11PgXVJN4X3u4oyX1NH9PEqFPYQn1s5/kjm
-         rWcUPMgnU9R3800MkUNQMNeR2oK+H20TPXtbz+F0=
+        b=mSQID4nIrIHn6pf3U91ZAJotmMVdHWG83xlrkz94tuWTAqJWmK7egsFKi/65bsWkM
+         BnWWLtSa1/wHp2O+dy8Xaqn6J/AY8IEH3c/uOVMUYr7Ji4f94lmpHSl1L09m5OdCqD
+         Swc2wseevCEqgNBnXh1QFEweyQwO9YbE2gUjxiqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 4.14 028/315] iio: ltr501: ltr501_read_ps(): add missing endianness conversion
-Date:   Mon, 19 Jul 2021 16:48:37 +0200
-Message-Id: <20210719144943.810579535@linuxfoundation.org>
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 4.14 029/315] serial: sh-sci: Stop dmaengine transfer in sci_stop_tx()
+Date:   Mon, 19 Jul 2021 16:48:38 +0200
+Message-Id: <20210719144943.842543190@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -43,51 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 71b33f6f93ef9462c84560e2236ed22209d26a58 upstream.
+commit 08a84410a04f05c7c1b8e833f552416d8eb9f6fe upstream.
 
-The PS ADC Channel data is spread over 2 registers in little-endian
-form. This patch adds the missing endianness conversion.
+Stop dmaengine transfer in sci_stop_tx(). Otherwise, the following
+message is possible output when system enters suspend and while
+transferring data, because clearing TIE bit in SCSCR is not able to
+stop any dmaengine transfer.
 
-Fixes: 2690be905123 ("iio: Add Lite-On ltr501 ambient light / proximity sensor driver")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-4-mkl@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+    sh-sci e6550000.serial: ttySC1: Unable to drain transmitter
+
+Note that this driver has already used some #ifdef in the .c file
+so that this patch also uses #ifdef to fix the issue. Otherwise,
+build errors happens if the CONFIG_SERIAL_SH_SCI_DMA is disabled.
+
+Fixes: 73a19e4c0301 ("serial: sh-sci: Add DMA support.")
+Cc: <stable@vger.kernel.org> # v4.9+
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210610110806.277932-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/light/ltr501.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/tty/serial/sh-sci.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -411,18 +411,19 @@ static int ltr501_read_als(struct ltr501
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -581,6 +581,14 @@ static void sci_stop_tx(struct uart_port
+ 	ctrl &= ~SCSCR_TIE;
  
- static int ltr501_read_ps(struct ltr501_data *data)
- {
--	int ret, status;
-+	__le16 status;
-+	int ret;
- 
- 	ret = ltr501_drdy(data, LTR501_STATUS_PS_RDY);
- 	if (ret < 0)
- 		return ret;
- 
- 	ret = regmap_bulk_read(data->regmap, LTR501_PS_DATA,
--			       &status, 2);
-+			       &status, sizeof(status));
- 	if (ret < 0)
- 		return ret;
- 
--	return status;
-+	return le16_to_cpu(status);
+ 	serial_port_out(port, SCSCR, ctrl);
++
++#ifdef CONFIG_SERIAL_SH_SCI_DMA
++	if (to_sci_port(port)->chan_tx &&
++	    !dma_submit_error(to_sci_port(port)->cookie_tx)) {
++		dmaengine_terminate_async(to_sci_port(port)->chan_tx);
++		to_sci_port(port)->cookie_tx = -EINVAL;
++	}
++#endif
  }
  
- static int ltr501_read_intr_prst(struct ltr501_data *data,
+ static void sci_start_rx(struct uart_port *port)
 
 
