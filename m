@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A57D13CE23B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 278093CE0A8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346617AbhGSP3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43790 "EHLO mail.kernel.org"
+        id S1346629AbhGSPRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346482AbhGSP1K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:27:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA66C61376;
-        Mon, 19 Jul 2021 16:07:47 +0000 (UTC)
+        id S1346373AbhGSPOk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A1E61249;
+        Mon, 19 Jul 2021 15:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710868;
-        bh=OZCGgr3XprkfVHRrqA7cgB8cdfnTEjpNRBiCCaIoY78=;
+        s=korg; t=1626710056;
+        bh=I45dtag+J1PoOjSB8UHx4UxJ9uHlnXyXicKKDSfBxyQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhdSxd/Ruu6ZS/o92xxozOJFnjGYOi4FKfHIdLZPc6lgzVOlYgwHhHC+mLH5cN/j2
-         nlkw0QnGjeK35KYlbdbl4pxAJ7RXOj++D6R1gAq8w7M8SJs4Dubz9hfNaP2Zw/SdVG
-         kHTiqIXwOuE+dDODR6TtGPxFBDiGLi4C6ofxpcZk=
+        b=dtmmpMl2FRh6ZgURbgbc2ZkQn6VOUFlrLRJJhZ3WPC3wHkXDIWMVRE6Sm1pVhPWtS
+         SQzffn0g25k1hjcSSb5TR5pzVwfe4GyqEaJzODZJJFvK5GuZ+aUACRzgYBOgi7mMXB
+         DDYVqd20eAqwOFpiP/ZRuh3iNMtvr8NvqKUg5WVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 139/351] ALSA: firewire-motu: fix detection for S/PDIF source on optical interface in v2 protocol
-Date:   Mon, 19 Jul 2021 16:51:25 +0200
-Message-Id: <20210719144949.083071942@linuxfoundation.org>
+        stable@vger.kernel.org, Lee Duncan <lduncan@suse.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 057/243] scsi: iscsi: Add iscsi_cls_conn refcount helpers
+Date:   Mon, 19 Jul 2021 16:51:26 +0200
+Message-Id: <20210719144942.756546692@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,62 +41,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit fa4db23233eb912234bdfb0b26a38be079c6b5ea ]
+[ Upstream commit b1d19e8c92cfb0ded180ef3376c20e130414e067 ]
 
-The devices in protocol version 2 has a register with flag for IEC 60958
-signal detection as source of sampling clock without discrimination
-between coaxial and optical interfaces. On the other hand, current
-implementation of driver manage to interpret type of signal on optical
-interface instead.
+There are a couple places where we could free the iscsi_cls_conn while it's
+still in use. This adds some helpers to get/put a refcount on the struct
+and converts an exiting user. Subsequent commits will then use the helpers
+to fix 2 bugs in the eh code.
 
-This commit fixes the detection of optical/coaxial interface for S/PDIF
-signal.
-
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210623075941.72562-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210525181821.7617-11-michael.christie@oracle.com
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/motu/motu-protocol-v2.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/scsi/libiscsi.c             |  7 ++-----
+ drivers/scsi/scsi_transport_iscsi.c | 12 ++++++++++++
+ include/scsi/scsi_transport_iscsi.h |  2 ++
+ 3 files changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/sound/firewire/motu/motu-protocol-v2.c b/sound/firewire/motu/motu-protocol-v2.c
-index 784073aa1026..f0a0ecad4d74 100644
---- a/sound/firewire/motu/motu-protocol-v2.c
-+++ b/sound/firewire/motu/motu-protocol-v2.c
-@@ -86,24 +86,23 @@ static int detect_clock_source_optical_model(struct snd_motu *motu, u32 data,
- 		*src = SND_MOTU_CLOCK_SOURCE_INTERNAL;
- 		break;
- 	case 1:
-+		*src = SND_MOTU_CLOCK_SOURCE_ADAT_ON_OPT;
-+		break;
-+	case 2:
- 	{
- 		__be32 reg;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 41023fc4bf2d..8c65fc268a40 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -1348,7 +1348,6 @@ void iscsi_session_failure(struct iscsi_session *session,
+ 			   enum iscsi_err err)
+ {
+ 	struct iscsi_conn *conn;
+-	struct device *dev;
  
- 		// To check the configuration of optical interface.
--		int err = snd_motu_transaction_read(motu, V2_IN_OUT_CONF_OFFSET,
--						    &reg, sizeof(reg));
-+		int err = snd_motu_transaction_read(motu, V2_IN_OUT_CONF_OFFSET, &reg, sizeof(reg));
- 		if (err < 0)
- 			return err;
- 
--		if (be32_to_cpu(reg) & 0x00000200)
-+		if (((data & V2_OPT_IN_IFACE_MASK) >> V2_OPT_IN_IFACE_SHIFT) == V2_OPT_IFACE_MODE_SPDIF)
- 			*src = SND_MOTU_CLOCK_SOURCE_SPDIF_ON_OPT;
- 		else
--			*src = SND_MOTU_CLOCK_SOURCE_ADAT_ON_OPT;
-+			*src = SND_MOTU_CLOCK_SOURCE_SPDIF_ON_COAX;
- 		break;
+ 	spin_lock_bh(&session->frwd_lock);
+ 	conn = session->leadconn;
+@@ -1357,10 +1356,8 @@ void iscsi_session_failure(struct iscsi_session *session,
+ 		return;
  	}
--	case 2:
--		*src = SND_MOTU_CLOCK_SOURCE_SPDIF_ON_COAX;
--		break;
- 	case 3:
- 		*src = SND_MOTU_CLOCK_SOURCE_SPH;
- 		break;
+ 
+-	dev = get_device(&conn->cls_conn->dev);
++	iscsi_get_conn(conn->cls_conn);
+ 	spin_unlock_bh(&session->frwd_lock);
+-	if (!dev)
+-	        return;
+ 	/*
+ 	 * if the host is being removed bypass the connection
+ 	 * recovery initialization because we are going to kill
+@@ -1370,7 +1367,7 @@ void iscsi_session_failure(struct iscsi_session *session,
+ 		iscsi_conn_error_event(conn->cls_conn, err);
+ 	else
+ 		iscsi_conn_failure(conn, err);
+-	put_device(dev);
++	iscsi_put_conn(conn->cls_conn);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_session_failure);
+ 
+diff --git a/drivers/scsi/scsi_transport_iscsi.c b/drivers/scsi/scsi_transport_iscsi.c
+index 2735178f15c7..2171dab3e5dc 100644
+--- a/drivers/scsi/scsi_transport_iscsi.c
++++ b/drivers/scsi/scsi_transport_iscsi.c
+@@ -2353,6 +2353,18 @@ int iscsi_destroy_conn(struct iscsi_cls_conn *conn)
+ }
+ EXPORT_SYMBOL_GPL(iscsi_destroy_conn);
+ 
++void iscsi_put_conn(struct iscsi_cls_conn *conn)
++{
++	put_device(&conn->dev);
++}
++EXPORT_SYMBOL_GPL(iscsi_put_conn);
++
++void iscsi_get_conn(struct iscsi_cls_conn *conn)
++{
++	get_device(&conn->dev);
++}
++EXPORT_SYMBOL_GPL(iscsi_get_conn);
++
+ /*
+  * iscsi interface functions
+  */
+diff --git a/include/scsi/scsi_transport_iscsi.h b/include/scsi/scsi_transport_iscsi.h
+index fc5a39839b4b..f28bb20d6271 100644
+--- a/include/scsi/scsi_transport_iscsi.h
++++ b/include/scsi/scsi_transport_iscsi.h
+@@ -434,6 +434,8 @@ extern void iscsi_remove_session(struct iscsi_cls_session *session);
+ extern void iscsi_free_session(struct iscsi_cls_session *session);
+ extern struct iscsi_cls_conn *iscsi_create_conn(struct iscsi_cls_session *sess,
+ 						int dd_size, uint32_t cid);
++extern void iscsi_put_conn(struct iscsi_cls_conn *conn);
++extern void iscsi_get_conn(struct iscsi_cls_conn *conn);
+ extern int iscsi_destroy_conn(struct iscsi_cls_conn *conn);
+ extern void iscsi_unblock_session(struct iscsi_cls_session *session);
+ extern void iscsi_block_session(struct iscsi_cls_session *session);
 -- 
 2.30.2
 
