@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE493CE371
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCFA3CE3FE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245420AbhGSPiF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S1347533AbhGSPli (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348470AbhGSPfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348466AbhGSPfZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:35:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24BFB6161F;
-        Mon, 19 Jul 2021 16:13:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF5686162C;
+        Mon, 19 Jul 2021 16:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711227;
-        bh=QhB3fuEgoUJggLBXEFnE+5pmiY1T3OzUYbMVISNzp6M=;
+        s=korg; t=1626711230;
+        bh=0PlvzfLiJ+k98d3szNpOOpxdwIBwSKvyIySsNoeI9Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEBoH40W3mC4tIsJ28E9bXKzfxY6vGKVaeRnEURQ9rewE+AV30oJBIXAMlvU8CI0h
-         cshdyndEj+VF36o2tlk+LR7T2b8BtT+zbg4IL3XJwTwkp/arkBmGDHoMTlx5gcGUrJ
-         gVJv7Xosde5DJ7DedAwdUVGT9oOiie3nOdfnLS54=
+        b=URhUmJANGbzwdfLojIQPTSe0mXcA8zmtE02H7PBMhBLQbQBs8LzSibb2BGzPgCZrl
+         PJhHMSjljzAbOGvmBaqs8bdZTip68/CUB1o5lpEt3V+g1+jkon0O+0f580LgsXItu1
+         tUkU406vpuBi46t1RjMd4cfbZlD3e4FJfpUlYotA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ionela Voinescu <ionela.voinescu@arm.com>,
-        Qian Cai <quic_qiancai@quicinc.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 241/351] arch_topology: Avoid use-after-free for scale_freq_data
-Date:   Mon, 19 Jul 2021 16:53:07 +0200
-Message-Id: <20210719144952.920595699@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 242/351] block: grab a device refcount in disk_uevent
+Date:   Mon, 19 Jul 2021 16:53:08 +0200
+Message-Id: <20210719144952.951063295@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -43,115 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 83150f5d05f065fb5c12c612f119015cabdcc124 ]
+[ Upstream commit 498dcc13fd6463de29b94e160f40ed04d5477cd8 ]
 
-Currently topology_scale_freq_tick() (which gets called from
-scheduler_tick()) may end up using a pointer to "struct
-scale_freq_data", which was previously cleared by
-topology_clear_scale_freq_source(), as there is no protection in place
-here. The users of topology_clear_scale_freq_source() though needs a
-guarantee that the previously cleared scale_freq_data isn't used
-anymore, so they can free the related resources.
+Sending uevents requires the struct device to be alive.  To
+ensure that grab the device refcount instead of just an inode
+reference.
 
-Since topology_scale_freq_tick() is called from scheduler tick, we don't
-want to add locking in there. Use the RCU update mechanism instead
-(which is already used by the scheduler's utilization update path) to
-guarantee race free updates here.
-
-synchronize_rcu() makes sure that all RCU critical sections that started
-before it is called, will finish before it returns. And so the callers
-of topology_clear_scale_freq_source() don't need to worry about their
-callback getting called anymore.
-
-Cc: Paul E. McKenney <paulmck@kernel.org>
-Fixes: 01e055c120a4 ("arch_topology: Allow multiple entities to provide sched_freq_tick() callback")
-Tested-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Ionela Voinescu <ionela.voinescu@arm.com>
-Tested-by: Qian Cai <quic_qiancai@quicinc.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: bc359d03c7ec ("block: add a disk_uevent helper")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210701081638.246552-2-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/arch_topology.c | 27 +++++++++++++++++++++------
- 1 file changed, 21 insertions(+), 6 deletions(-)
+ block/genhd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/arch_topology.c b/drivers/base/arch_topology.c
-index c1179edc0f3b..921312a8d957 100644
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -18,10 +18,11 @@
- #include <linux/cpumask.h>
- #include <linux/init.h>
- #include <linux/percpu.h>
-+#include <linux/rcupdate.h>
- #include <linux/sched.h>
- #include <linux/smp.h>
+diff --git a/block/genhd.c b/block/genhd.c
+index 9f8cb7beaad1..ad7436bd60c1 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -402,12 +402,12 @@ void disk_uevent(struct gendisk *disk, enum kobject_action action)
+ 	xa_for_each(&disk->part_tbl, idx, part) {
+ 		if (bdev_is_partition(part) && !bdev_nr_sectors(part))
+ 			continue;
+-		if (!bdgrab(part))
++		if (!kobject_get_unless_zero(&part->bd_device.kobj))
+ 			continue;
  
--static DEFINE_PER_CPU(struct scale_freq_data *, sft_data);
-+static DEFINE_PER_CPU(struct scale_freq_data __rcu *, sft_data);
- static struct cpumask scale_freq_counters_mask;
- static bool scale_freq_invariant;
- 
-@@ -66,16 +67,20 @@ void topology_set_scale_freq_source(struct scale_freq_data *data,
- 	if (cpumask_empty(&scale_freq_counters_mask))
- 		scale_freq_invariant = topology_scale_freq_invariant();
- 
-+	rcu_read_lock();
-+
- 	for_each_cpu(cpu, cpus) {
--		sfd = per_cpu(sft_data, cpu);
-+		sfd = rcu_dereference(*per_cpu_ptr(&sft_data, cpu));
- 
- 		/* Use ARCH provided counters whenever possible */
- 		if (!sfd || sfd->source != SCALE_FREQ_SOURCE_ARCH) {
--			per_cpu(sft_data, cpu) = data;
-+			rcu_assign_pointer(per_cpu(sft_data, cpu), data);
- 			cpumask_set_cpu(cpu, &scale_freq_counters_mask);
- 		}
+ 		rcu_read_unlock();
+ 		kobject_uevent(bdev_kobj(part), action);
+-		bdput(part);
++		put_device(&part->bd_device);
+ 		rcu_read_lock();
  	}
- 
-+	rcu_read_unlock();
-+
- 	update_scale_freq_invariant(true);
- }
- EXPORT_SYMBOL_GPL(topology_set_scale_freq_source);
-@@ -86,22 +91,32 @@ void topology_clear_scale_freq_source(enum scale_freq_source source,
- 	struct scale_freq_data *sfd;
- 	int cpu;
- 
-+	rcu_read_lock();
-+
- 	for_each_cpu(cpu, cpus) {
--		sfd = per_cpu(sft_data, cpu);
-+		sfd = rcu_dereference(*per_cpu_ptr(&sft_data, cpu));
- 
- 		if (sfd && sfd->source == source) {
--			per_cpu(sft_data, cpu) = NULL;
-+			rcu_assign_pointer(per_cpu(sft_data, cpu), NULL);
- 			cpumask_clear_cpu(cpu, &scale_freq_counters_mask);
- 		}
- 	}
- 
-+	rcu_read_unlock();
-+
-+	/*
-+	 * Make sure all references to previous sft_data are dropped to avoid
-+	 * use-after-free races.
-+	 */
-+	synchronize_rcu();
-+
- 	update_scale_freq_invariant(false);
- }
- EXPORT_SYMBOL_GPL(topology_clear_scale_freq_source);
- 
- void topology_scale_freq_tick(void)
- {
--	struct scale_freq_data *sfd = *this_cpu_ptr(&sft_data);
-+	struct scale_freq_data *sfd = rcu_dereference_sched(*this_cpu_ptr(&sft_data));
- 
- 	if (sfd)
- 		sfd->set_freq_scale();
+ 	rcu_read_unlock();
 -- 
 2.30.2
 
