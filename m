@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B6A3CD81E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DDF3CD9DE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbhGSOUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56686 "EHLO mail.kernel.org"
+        id S244001AbhGSObz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242452AbhGSOTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:19:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14F6E61166;
-        Mon, 19 Jul 2021 15:00:32 +0000 (UTC)
+        id S244674AbhGSO34 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 962FF60720;
+        Mon, 19 Jul 2021 15:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706833;
-        bh=GezdSB+vhv6+73BBnXMo04oga3ezmusXwbjqm0pi+vw=;
+        s=korg; t=1626707434;
+        bh=dzUmIq12fF2dKtwlaOT5NC2ik15fCjQoocesGLO6r1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1Hh0JiVRQu2QT2MNDZ//jgRrCQ3vp5uvFn/NZogDyITMAvx75WfckaFKq+BnD7qC
-         hPWTLj+J963AiatDBo/0Mgp2ShGojP9VaQOfh4u5/OMoH0Rw1VQUI8GGfdioEPLZ++
-         nC5THAN6zktqYfko95EtwaPIKXpslKvt1lwYDhuc=
+        b=khG9pfDruaEiJXIuoJyHYQOuqGpdAp4TbgJBdXFaslmdOJjjL++uwPJneyoJZzpmr
+         X6gqjej9H2p2q+7gW8ZpI32vaNkhmRvxEsZ/fUqpvBl5XQGqQtiEZyM+BsB1a6oh32
+         BHufOS3thU2wudmQCYf1nsQ5UqBrw8cw1A78M/KA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
-        Yu Liu <yudiliu@google.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 119/188] Bluetooth: Fix the HCI to MGMT status conversion table
-Date:   Mon, 19 Jul 2021 16:51:43 +0200
-Message-Id: <20210719144940.307433869@linuxfoundation.org>
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.9 162/245] pinctrl/amd: Add device HID for new AMD GPIO controller
+Date:   Mon, 19 Jul 2021 16:51:44 +0200
+Message-Id: <20210719144945.650027921@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Liu <yudiliu@google.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 4ef36a52b0e47c80bbfd69c0cce61c7ae9f541ed ]
+commit 1ca46d3e43569186bd1decfb02a6b4c4ddb4304b upstream.
 
-0x2B, 0x31 and 0x33 are reserved for future use but were not present in
-the HCI to MGMT conversion table, this caused the conversion to be
-incorrect for the HCI status code greater than 0x2A.
+Add device HID AMDI0031 to the AMD GPIO controller driver match table.
+This controller can be found on Microsoft Surface Laptop 4 devices and
+seems similar enough that we can just copy the existing AMDI0030 entry.
 
-Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
-Signed-off-by: Yu Liu <yudiliu@google.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 5.10+
+Tested-by: Sachi King <nakato@nakato.io>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20210512210316.1982416-1-luzmaximilian@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/bluetooth/mgmt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pinctrl/pinctrl-amd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
-index ee761fb09559..4a95c89d8506 100644
---- a/net/bluetooth/mgmt.c
-+++ b/net/bluetooth/mgmt.c
-@@ -212,12 +212,15 @@ static u8 mgmt_status_table[] = {
- 	MGMT_STATUS_TIMEOUT,		/* Instant Passed */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Pairing Not Supported */
- 	MGMT_STATUS_FAILED,		/* Transaction Collision */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Unacceptable Parameter */
- 	MGMT_STATUS_REJECTED,		/* QoS Rejected */
- 	MGMT_STATUS_NOT_SUPPORTED,	/* Classification Not Supported */
- 	MGMT_STATUS_REJECTED,		/* Insufficient Security */
- 	MGMT_STATUS_INVALID_PARAMS,	/* Parameter Out Of Range */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_BUSY,		/* Role Switch Pending */
-+	MGMT_STATUS_FAILED,		/* Reserved for future use */
- 	MGMT_STATUS_FAILED,		/* Slot Violation */
- 	MGMT_STATUS_FAILED,		/* Role Switch Failed */
- 	MGMT_STATUS_INVALID_PARAMS,	/* EIR Too Large */
--- 
-2.30.2
-
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -896,6 +896,7 @@ static int amd_gpio_remove(struct platfo
+ static const struct acpi_device_id amd_gpio_acpi_match[] = {
+ 	{ "AMD0030", 0 },
+ 	{ "AMDI0030", 0},
++	{ "AMDI0031", 0},
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(acpi, amd_gpio_acpi_match);
 
 
