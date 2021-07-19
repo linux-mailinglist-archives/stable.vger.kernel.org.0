@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA993CDA07
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 357BE3CD8D3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243975AbhGSOcf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:32:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47530 "EHLO mail.kernel.org"
+        id S243398AbhGSOZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243994AbhGSObP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:31:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4AF6A61186;
-        Mon, 19 Jul 2021 15:11:54 +0000 (UTC)
+        id S243495AbhGSOYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 402EB6024A;
+        Mon, 19 Jul 2021 15:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707514;
-        bh=HEIBJJApYYZzZSWhZnZhlesaWt2iUNUwso9VDYORhBM=;
+        s=korg; t=1626707013;
+        bh=nUxGMQqHm9yb+vu8fgdJkJHZjO37fR9cJd0naFbPlAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esyvGfbZqVj1KyW8oAsqnjZtgZvnPdX2h8UsPIU5/NESPcou/nQubSrIPtrjs+cBH
-         CKeRq09glCqbOr044Hs9NWy463aTkgNSI1+ZzhPoQuJCCdI89xygB6Nv5MfFpN/Jwg
-         eT5wZVfo1fuTck8lkarELbrSixYjohC1NbPPRbJc=
+        b=L8BGebIA7t1xBVMRJkXZjONpGy/Ivtlks/CvcuD7qv4aP8TymnMo7cEInFKPwMqmQ
+         NnJiKEqrR1l/KdUfORGFkQ9Wa97hztN7m4Oc/M1KpOd8joixmN8kfb/foNX+UPFOft
+         +Og0E0Qj0/UYUZiU8YSzmn7wMMb1ery6l68/wXR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geoff Levand <geoff@infradead.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Srinivas Neeli <srinivas.neeli@xilinx.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 195/245] powerpc/ps3: Add dma_mask to ps3_dma_region
+Subject: [PATCH 4.4 153/188] gpio: zynq: Check return value of pm_runtime_get_sync
 Date:   Mon, 19 Jul 2021 16:52:17 +0200
-Message-Id: <20210719144946.704569280@linuxfoundation.org>
+Message-Id: <20210719144941.496218069@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,91 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoff Levand <geoff@infradead.org>
+From: Srinivas Neeli <srinivas.neeli@xilinx.com>
 
-[ Upstream commit 9733862e50fdba55e7f1554e4286fcc5302ff28e ]
+[ Upstream commit a51b2fb94b04ab71e53a71b9fad03fa826941254 ]
 
-Commit f959dcd6ddfd29235030e8026471ac1b022ad2b0 (dma-direct: Fix
-potential NULL pointer dereference) added a null check on the
-dma_mask pointer of the kernel's device structure.
+Return value of "pm_runtime_get_sync" API was neither captured nor checked.
+Fixed it by capturing the return value and then checking for any warning.
 
-Add a dma_mask variable to the ps3_dma_region structure and set
-the device structure's dma_mask pointer to point to this new variable.
-
-Fixes runtime errors like these:
-# WARNING: Fixes tag on line 10 doesn't match correct format
-# WARNING: Fixes tag on line 10 doesn't match correct format
-
-  ps3_system_bus_match:349: dev=8.0(sb_01), drv=8.0(ps3flash): match
-  WARNING: CPU: 0 PID: 1 at kernel/dma/mapping.c:151 .dma_map_page_attrs+0x34/0x1e0
-  ps3flash sb_01: ps3stor_setup:193: map DMA region failed
-
-Signed-off-by: Geoff Levand <geoff@infradead.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/562d0c9ea0100a30c3b186bcc7adb34b0bbd2cd7.1622746428.git.geoff@infradead.org
+Addresses-Coverity: "check_return"
+Signed-off-by: Srinivas Neeli <srinivas.neeli@xilinx.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/ps3.h  |  2 ++
- arch/powerpc/platforms/ps3/mm.c | 12 ++++++++++++
- 2 files changed, 14 insertions(+)
+ drivers/gpio/gpio-zynq.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/ps3.h b/arch/powerpc/include/asm/ps3.h
-index a19f831a4cc9..83a6d99e9994 100644
---- a/arch/powerpc/include/asm/ps3.h
-+++ b/arch/powerpc/include/asm/ps3.h
-@@ -83,6 +83,7 @@ struct ps3_dma_region_ops;
-  * @bus_addr: The 'translated' bus address of the region.
-  * @len: The length in bytes of the region.
-  * @offset: The offset from the start of memory of the region.
-+ * @dma_mask: Device dma_mask.
-  * @ioid: The IOID of the device who owns this region
-  * @chunk_list: Opaque variable used by the ioc page manager.
-  * @region_ops: struct ps3_dma_region_ops - dma region operations
-@@ -97,6 +98,7 @@ struct ps3_dma_region {
- 	enum ps3_dma_region_type region_type;
- 	unsigned long len;
- 	unsigned long offset;
-+	u64 dma_mask;
- 
- 	/* driver variables  (set by ps3_dma_region_create) */
- 	unsigned long bus_addr;
-diff --git a/arch/powerpc/platforms/ps3/mm.c b/arch/powerpc/platforms/ps3/mm.c
-index 19bae78b1f25..76cbf1be9962 100644
---- a/arch/powerpc/platforms/ps3/mm.c
-+++ b/arch/powerpc/platforms/ps3/mm.c
-@@ -18,6 +18,7 @@
-  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  */
- 
-+#include <linux/dma-mapping.h>
- #include <linux/kernel.h>
- #include <linux/export.h>
- #include <linux/memblock.h>
-@@ -1132,6 +1133,7 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
- 	enum ps3_dma_region_type region_type, void *addr, unsigned long len)
+diff --git a/drivers/gpio/gpio-zynq.c b/drivers/gpio/gpio-zynq.c
+index 8abeacac5885..ccfdf5a45998 100644
+--- a/drivers/gpio/gpio-zynq.c
++++ b/drivers/gpio/gpio-zynq.c
+@@ -764,8 +764,11 @@ err_disable_clk:
+ static int zynq_gpio_remove(struct platform_device *pdev)
  {
- 	unsigned long lpar_addr;
-+	int result;
+ 	struct zynq_gpio *gpio = platform_get_drvdata(pdev);
++	int ret;
  
- 	lpar_addr = addr ? ps3_mm_phys_to_lpar(__pa(addr)) : 0;
- 
-@@ -1143,6 +1145,16 @@ int ps3_dma_region_init(struct ps3_system_bus_device *dev,
- 		r->offset -= map.r1.offset;
- 	r->len = len ? len : _ALIGN_UP(map.total, 1 << r->page_size);
- 
-+	dev->core.dma_mask = &r->dma_mask;
-+
-+	result = dma_set_mask_and_coherent(&dev->core, DMA_BIT_MASK(32));
-+
-+	if (result < 0) {
-+		dev_err(&dev->core, "%s:%d: dma_set_mask_and_coherent failed: %d\n",
-+			__func__, __LINE__, result);
-+		return result;
-+	}
-+
- 	switch (dev->dev_type) {
- 	case PS3_DEVICE_TYPE_SB:
- 		r->region_ops =  (USE_DYNAMIC_DMA)
+-	pm_runtime_get_sync(&pdev->dev);
++	ret = pm_runtime_get_sync(&pdev->dev);
++	if (ret < 0)
++		dev_warn(&pdev->dev, "pm_runtime_get_sync() Failed\n");
+ 	gpiochip_remove(&gpio->chip);
+ 	clk_disable_unprepare(gpio->clk);
+ 	device_set_wakeup_capable(&pdev->dev, 0);
 -- 
 2.30.2
 
