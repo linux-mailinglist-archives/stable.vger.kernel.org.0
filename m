@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C714C3CE258
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 502103CE390
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346763AbhGSPaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
+        id S237051AbhGSPkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:40:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348083AbhGSPYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7531961421;
-        Mon, 19 Jul 2021 16:01:30 +0000 (UTC)
+        id S1349015AbhGSPfk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D8EA610D2;
+        Mon, 19 Jul 2021 16:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710491;
-        bh=RU3k0Z0HBpTjvUzhHGjfHYIslttXtXdKwuqO741+84o=;
+        s=korg; t=1626711348;
+        bh=Uw4znneNdE3+jEIxxj3FTsKuwbyYOUj7XuRGv0103cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+yM4kHUMdAM0wGB1rI7e9exR/FS4mEKVy9I/OVvgCOzJH5dSm9VMegXFaXKxyh5q
-         1SLnDLX8tcFXfz2ON9SbCauqzwDLUes6XqekhnxFrUX/wekCL/SEwbUzKHOhsgxxUF
-         AoYalq0xiku5eDEsLsp9RiOz3Zd0AEKCw9hehOlQ=
+        b=ly1eom7jUaZ+2EOS+5HM0apeLxMEqKgbZ5CdTvSVSDZn59Yip2KrMlE1yCct/H51i
+         d/vs/b6akin0XUw058V9qZwJ01jmXI4rNo212sLYnksXeZCpliS+dO6SQliEoDuRpC
+         VE5t05leI8/6OrHV3nwYS5dSV/0hygLafjECoFEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 238/243] static_call: Fix static_call_text_reserved() vs __init
+Subject: [PATCH 5.13 321/351] ARM: dts: am437x: align ti,pindir-d0-out-d1-in property with dt-shema
 Date:   Mon, 19 Jul 2021 16:54:27 +0200
-Message-Id: <20210719144948.607712484@linuxfoundation.org>
+Message-Id: <20210719144955.671995652@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,69 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 2bee6d16e4379326b1eea454e68c98b17456769e ]
+[ Upstream commit 9b11fec7345f21995f4ea4bafb0e108b9a620238 ]
 
-It turns out that static_call_text_reserved() was reporting __init
-text as being reserved past the time when the __init text was freed
-and re-used.
+ti,pindir-d0-out-d1-in property is expected to be of type boolean.
+Therefore, fix the property accordingly.
 
-This is mostly harmless and will at worst result in refusing a kprobe.
-
-Fixes: 6333e8f73b83 ("static_call: Avoid kprobes on inline static_call()s")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20210628113045.106211657@infradead.org
+Fixes: b0b039515445 ("ARM: dts: am43x-epos-evm: set data pin directions for spi0 and spi1")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/static_call.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/am43x-epos-evm.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/static_call.c b/kernel/static_call.c
-index f59089a12231..b62a0c41c905 100644
---- a/kernel/static_call.c
-+++ b/kernel/static_call.c
-@@ -292,13 +292,15 @@ static int addr_conflict(struct static_call_site *site, void *start, void *end)
+diff --git a/arch/arm/boot/dts/am43x-epos-evm.dts b/arch/arm/boot/dts/am43x-epos-evm.dts
+index f517d1e843cf..8b696107eef8 100644
+--- a/arch/arm/boot/dts/am43x-epos-evm.dts
++++ b/arch/arm/boot/dts/am43x-epos-evm.dts
+@@ -860,7 +860,7 @@
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&spi0_pins_default>;
+ 	pinctrl-1 = <&spi0_pins_sleep>;
+-	ti,pindir-d0-out-d1-in = <1>;
++	ti,pindir-d0-out-d1-in;
+ };
  
- static int __static_call_text_reserved(struct static_call_site *iter_start,
- 				       struct static_call_site *iter_stop,
--				       void *start, void *end)
-+				       void *start, void *end, bool init)
- {
- 	struct static_call_site *iter = iter_start;
+ &spi1 {
+@@ -868,7 +868,7 @@
+ 	pinctrl-names = "default", "sleep";
+ 	pinctrl-0 = <&spi1_pins_default>;
+ 	pinctrl-1 = <&spi1_pins_sleep>;
+-	ti,pindir-d0-out-d1-in = <1>;
++	ti,pindir-d0-out-d1-in;
+ };
  
- 	while (iter < iter_stop) {
--		if (addr_conflict(iter, start, end))
--			return 1;
-+		if (init || !static_call_is_init(iter)) {
-+			if (addr_conflict(iter, start, end))
-+				return 1;
-+		}
- 		iter++;
- 	}
- 
-@@ -324,7 +326,7 @@ static int __static_call_mod_text_reserved(void *start, void *end)
- 
- 	ret = __static_call_text_reserved(mod->static_call_sites,
- 			mod->static_call_sites + mod->num_static_call_sites,
--			start, end);
-+			start, end, mod->state == MODULE_STATE_COMING);
- 
- 	module_put(mod);
- 
-@@ -459,8 +461,9 @@ static inline int __static_call_mod_text_reserved(void *start, void *end)
- 
- int static_call_text_reserved(void *start, void *end)
- {
-+	bool init = system_state < SYSTEM_RUNNING;
- 	int ret = __static_call_text_reserved(__start_static_call_sites,
--			__stop_static_call_sites, start, end);
-+			__stop_static_call_sites, start, end, init);
- 
- 	if (ret)
- 		return ret;
+ &usb2_phy1 {
 -- 
 2.30.2
 
