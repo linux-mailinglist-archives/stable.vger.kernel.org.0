@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58E833CDB17
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF17A3CDB62
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244695AbhGSOkt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
+        id S243750AbhGSOmi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344043AbhGSOjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 994E9610A5;
-        Mon, 19 Jul 2021 15:20:22 +0000 (UTC)
+        id S243396AbhGSOkT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:40:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E6BE61003;
+        Mon, 19 Jul 2021 15:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708023;
-        bh=0h2qSmuEsCssLFk/1RU6+0pu9TVerLTrCLKPhf+uXW4=;
+        s=korg; t=1626708051;
+        bh=2++qUXzGHmc5icuBqQoFxmJH5h/5aS1s2oKrjMNj+gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rehk7oVzaA1egC1XUr2JbPhdu2rFTmvZTj/BkqWOvg2eVxH3q+UiyDnLm/EOPIHe3
-         VcUeWu4OHgt3vUYlgrIaIGmeBnoBemVu49EHDFCxxsD45VV5VqVceXQ20xrs8NERcQ
-         dm0bnuo8fVFjNMT5osklEVSoGisDEUARFyz4v7oM=
+        b=ipzzQFLr0/aGlgsVYXN/vqGSmzWX+M+INlEupg0o0ZnMW6WeAPqNV44BFCTo8B0VO
+         pCA3HVKXS5vA0HKIkZQ2aSzDgKcgKhWDQG9ZViKdnpF3en77QH+3Bfe94ZVQtdrIg1
+         E+TM6W0mSi4RJCn0VCAlbHAu3bs7SQdPFSSgHofw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huy Duong <qhuyduong@hotmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andreas Klinger <ak@it-klinger.de>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 143/315] eeprom: idt_89hpesx: Put fwnode in matching case during ->probe()
-Date:   Mon, 19 Jul 2021 16:50:32 +0200
-Message-Id: <20210719144947.592438358@linuxfoundation.org>
+Subject: [PATCH 4.14 144/315] iio: adc: mxs-lradc: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:50:33 +0200
+Message-Id: <20210719144947.621629345@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -40,35 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3f6ee1c095156a74ab2df605af13020f1ce3e600 ]
+[ Upstream commit 6a6be221b8bd561b053f0701ec752a5ed9007f69 ]
 
-device_get_next_child_node() bumps a reference counting of a returned variable.
-We have to balance it whenever we return to the caller.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
+Add a comment on why the buffer is the size it is as not immediately
+obvious.
 
-Fixes: db15d73e5f0e ("eeprom: idt_89hpesx: Support both ACPI and OF probing")
-Cc: Huy Duong <qhuyduong@hotmail.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210607221757.81465-1-andy.shevchenko@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Found during an audit of all calls of this function.
+
+Fixes: 6dd112b9f85e ("iio: adc: mxs-lradc: Add support for ADC driver")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Andreas Klinger <ak@it-klinger.de>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20210613152301.571002-4-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/idt_89hpesx.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/iio/adc/mxs-lradc-adc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/misc/eeprom/idt_89hpesx.c b/drivers/misc/eeprom/idt_89hpesx.c
-index 34a5a41578d7..b972b5425654 100644
---- a/drivers/misc/eeprom/idt_89hpesx.c
-+++ b/drivers/misc/eeprom/idt_89hpesx.c
-@@ -1165,6 +1165,7 @@ static void idt_get_fw_data(struct idt_89hpesx_dev *pdev)
- 	else /* if (!fwnode_property_read_bool(node, "read-only")) */
- 		pdev->eero = false;
+diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
+index d32b34638c2f..8c193d006967 100644
+--- a/drivers/iio/adc/mxs-lradc-adc.c
++++ b/drivers/iio/adc/mxs-lradc-adc.c
+@@ -124,7 +124,8 @@ struct mxs_lradc_adc {
+ 	struct device		*dev;
  
-+	fwnode_handle_put(fwnode);
- 	dev_info(dev, "EEPROM of %d bytes found by 0x%x",
- 		pdev->eesize, pdev->eeaddr);
- }
+ 	void __iomem		*base;
+-	u32			buffer[10];
++	/* Maximum of 8 channels + 8 byte ts */
++	u32			buffer[10] __aligned(8);
+ 	struct iio_trigger	*trig;
+ 	struct completion	completion;
+ 	spinlock_t		lock;
 -- 
 2.30.2
 
