@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4193CE414
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B7BB3CE187
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347759AbhGSPmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59802 "EHLO mail.kernel.org"
+        id S239720AbhGSP0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348958AbhGSPfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0FE661355;
-        Mon, 19 Jul 2021 16:15:42 +0000 (UTC)
+        id S1348085AbhGSPYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05ACE61422;
+        Mon, 19 Jul 2021 16:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711343;
-        bh=Y6/GUeuMad5FiLq+fvHnrAuMdO/GG+zSuEHNyBwYqC4=;
+        s=korg; t=1626710488;
+        bh=bzAJFaqA633qEJK6/CJXsDy9zhJaM2uv59iOV6xizyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdM+a310uaznWkrZl+hBYual4pzap/g2YpxdZhCOEM7W9G+iJr/R1/ePju0Wy9UBo
-         GLmEQ+J7YZhWdUs+vbpuoexs6wYynq2U4uYNNS/4axST/Fv/loe6SYArmA8MJb/gPN
-         yNPJnjXwbthEtUokgzoUR9/4wQqrHAO4v5TCAd+E=
+        b=rohONbfbyl2HOdYUpDkkqrWZExtBc+c7FBknZ7uUauCTiyx0OlZ9yPJ6ZxpZHRArM
+         51bpEwyYsrFXYt+Hrpw5sGoeLCVqG0u+gmQ5wIsJGp3KaoPrMHRn6W8fhhs2DczKRS
+         F3tr6dwoTd+ka386N1DeDEbCh5hq6R9OA4ox/BwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gowtham Tammana <g-tammana@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 319/351] ARM: dts: dra7: Fix duplicate USB4 target module node
-Date:   Mon, 19 Jul 2021 16:54:25 +0200
-Message-Id: <20210719144955.609005577@linuxfoundation.org>
+Subject: [PATCH 5.10 237/243] jump_label: Fix jump_label_text_reserved() vs __init
+Date:   Mon, 19 Jul 2021 16:54:26 +0200
+Message-Id: <20210719144948.573397991@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,226 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gowtham Tammana <g-tammana@ti.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 78b4b165280d3d70e7a217599f0c06a4c0bb11f9 ]
+[ Upstream commit 9e667624c291753b8a5128f620f493d0b5226063 ]
 
-With [1] USB4 target-module node got defined in dra74x.dtsi file.
-However, the earlier definition in [2] was not removed, and this
-duplication of the target module is causing boot failure on dra74
-variant boards - dra7-evm, dra76-evm.
+It turns out that jump_label_text_reserved() was reporting __init text
+as being reserved past the time when the __init text was freed and
+re-used.
 
-USB4 is only present in DRA74x variants, so keeping the entry in
-dra74x.dtsi and removing it from the top level interconnect hierarchy
-dra7-l4.dtsi file. This change makes the USB4 target module no longer
-visible to AM5718, DRA71x and DRA72x so removing references to it in
-their respective dts files.
+For a long time, this resulted in, at worst, not being able to kprobe
+text that happened to land at the re-used address. However a recent
+commit e7bf1ba97afd ("jump_label, x86: Emit short JMP") made it a
+fatal mistake because it now needs to read the instruction in order to
+determine the conflict -- an instruction that's no longer there.
 
-[1]: commit c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for
-dra7 dwc3")
-[2]: commit 549fce068a311 ("ARM: dts: dra7: Add l4 interconnect
-hierarchy and ti-sysc data")
-
-Fixes: c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for dra7 dwc3")
-Signed-off-by: Gowtham Tammana <g-tammana@ti.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 4c3ef6d79328 ("jump label: Add jump_label_text_reserved() to reserve jump points")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Link: https://lore.kernel.org/r/20210628113045.045141693@infradead.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am5718.dtsi  |  6 +--
- arch/arm/boot/dts/dra7-l4.dtsi | 22 --------
- arch/arm/boot/dts/dra71x.dtsi  |  4 --
- arch/arm/boot/dts/dra72x.dtsi  |  4 --
- arch/arm/boot/dts/dra74x.dtsi  | 92 ++++++++++++++++++----------------
- 5 files changed, 50 insertions(+), 78 deletions(-)
+ kernel/jump_label.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am5718.dtsi b/arch/arm/boot/dts/am5718.dtsi
-index ebf4d3cc1cfb..6d7530a48c73 100644
---- a/arch/arm/boot/dts/am5718.dtsi
-+++ b/arch/arm/boot/dts/am5718.dtsi
-@@ -17,17 +17,13 @@
-  * VCP1, VCP2
-  * MLB
-  * ISS
-- * USB3, USB4
-+ * USB3
+diff --git a/kernel/jump_label.c b/kernel/jump_label.c
+index a0c325664190..4ae693ce71a4 100644
+--- a/kernel/jump_label.c
++++ b/kernel/jump_label.c
+@@ -316,14 +316,16 @@ static int addr_conflict(struct jump_entry *entry, void *start, void *end)
+ }
+ 
+ static int __jump_label_text_reserved(struct jump_entry *iter_start,
+-		struct jump_entry *iter_stop, void *start, void *end)
++		struct jump_entry *iter_stop, void *start, void *end, bool init)
+ {
+ 	struct jump_entry *iter;
+ 
+ 	iter = iter_start;
+ 	while (iter < iter_stop) {
+-		if (addr_conflict(iter, start, end))
+-			return 1;
++		if (init || !jump_entry_is_init(iter)) {
++			if (addr_conflict(iter, start, end))
++				return 1;
++		}
+ 		iter++;
+ 	}
+ 
+@@ -561,7 +563,7 @@ static int __jump_label_mod_text_reserved(void *start, void *end)
+ 
+ 	ret = __jump_label_text_reserved(mod->jump_entries,
+ 				mod->jump_entries + mod->num_jump_entries,
+-				start, end);
++				start, end, mod->state == MODULE_STATE_COMING);
+ 
+ 	module_put(mod);
+ 
+@@ -786,8 +788,9 @@ early_initcall(jump_label_init_module);
   */
+ int jump_label_text_reserved(void *start, void *end)
+ {
++	bool init = system_state < SYSTEM_RUNNING;
+ 	int ret = __jump_label_text_reserved(__start___jump_table,
+-			__stop___jump_table, start, end);
++			__stop___jump_table, start, end, init);
  
- &usb3_tm {
- 	status = "disabled";
- };
- 
--&usb4_tm {
--	status = "disabled";
--};
--
- &atl_tm {
- 	status = "disabled";
- };
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 149144cdff35..648d23f7f748 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -4129,28 +4129,6 @@
- 			};
- 		};
- 
--		usb4_tm: target-module@140000 {		/* 0x48940000, ap 75 3c.0 */
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x140000 0x4>,
--			      <0x140010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x140000 0x20000>;
--		};
--
- 		target-module@170000 {			/* 0x48970000, ap 21 0a.0 */
- 			compatible = "ti,sysc-omap4", "ti,sysc";
- 			reg = <0x170010 0x4>;
-diff --git a/arch/arm/boot/dts/dra71x.dtsi b/arch/arm/boot/dts/dra71x.dtsi
-index cad0e4a2bd8d..9c270d8f75d5 100644
---- a/arch/arm/boot/dts/dra71x.dtsi
-+++ b/arch/arm/boot/dts/dra71x.dtsi
-@@ -11,7 +11,3 @@
- &rtctarget {
- 	status = "disabled";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
-index d403acc754b6..f3e934ef7d3e 100644
---- a/arch/arm/boot/dts/dra72x.dtsi
-+++ b/arch/arm/boot/dts/dra72x.dtsi
-@@ -108,7 +108,3 @@
- &pcie2_rc {
- 	compatible = "ti,dra726-pcie-rc", "ti,dra7-pcie";
- };
--
--&usb4_tm {
--	status = "disabled";
--};
-diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
-index e1850d6c841a..b4e07d99ffde 100644
---- a/arch/arm/boot/dts/dra74x.dtsi
-+++ b/arch/arm/boot/dts/dra74x.dtsi
-@@ -49,49 +49,6 @@
- 			reg = <0x41500000 0x100>;
- 		};
- 
--		target-module@48940000 {
--			compatible = "ti,sysc-omap4", "ti,sysc";
--			reg = <0x48940000 0x4>,
--			      <0x48940010 0x4>;
--			reg-names = "rev", "sysc";
--			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
--			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>,
--					<SYSC_IDLE_SMART_WKUP>;
--			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
--			clock-names = "fck";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x0 0x48940000 0x20000>;
--
--			omap_dwc3_4: omap_dwc3_4@0 {
--				compatible = "ti,dwc3";
--				reg = <0 0x10000>;
--				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--				#address-cells = <1>;
--				#size-cells = <1>;
--				utmi-mode = <2>;
--				ranges;
--				status = "disabled";
--				usb4: usb@10000 {
--					compatible = "snps,dwc3";
--					reg = <0x10000 0x17000>;
--					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
--						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
--					interrupt-names = "peripheral",
--							  "host",
--							  "otg";
--					maximum-speed = "high-speed";
--					dr_mode = "otg";
--				};
--			};
--		};
- 
- 		target-module@41501000 {
- 			compatible = "ti,sysc-omap2", "ti,sysc";
-@@ -224,3 +181,52 @@
- &pcie2_rc {
- 	compatible = "ti,dra746-pcie-rc", "ti,dra7-pcie";
- };
-+
-+&l4_per3 {
-+	segment@0 {
-+		usb4_tm: target-module@140000 {         /* 0x48940000, ap 75 3c.0 */
-+			compatible = "ti,sysc-omap4", "ti,sysc";
-+			reg = <0x140000 0x4>,
-+			      <0x140010 0x4>;
-+			reg-names = "rev", "sysc";
-+			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
-+			ti,sysc-midle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
-+					<SYSC_IDLE_NO>,
-+					<SYSC_IDLE_SMART>,
-+					<SYSC_IDLE_SMART_WKUP>;
-+			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
-+			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
-+			clock-names = "fck";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ranges = <0x0 0x140000 0x20000>;
-+
-+			omap_dwc3_4: omap_dwc3_4@0 {
-+				compatible = "ti,dwc3";
-+				reg = <0 0x10000>;
-+				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+				#address-cells = <1>;
-+				#size-cells = <1>;
-+				utmi-mode = <2>;
-+				ranges;
-+				status = "disabled";
-+				usb4: usb@10000 {
-+					compatible = "snps,dwc3";
-+					reg = <0x10000 0x17000>;
-+					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
-+						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupt-names = "peripheral",
-+							  "host",
-+							  "otg";
-+					maximum-speed = "high-speed";
-+					dr_mode = "otg";
-+				};
-+			};
-+		};
-+	};
-+};
+ 	if (ret)
+ 		return ret;
 -- 
 2.30.2
 
