@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4B83CE33D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B0453CE160
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235882AbhGSPhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
+        id S1349177AbhGSPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239677AbhGSPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDC756141C;
-        Mon, 19 Jul 2021 16:10:24 +0000 (UTC)
+        id S1346663AbhGSPRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:17:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E4FD61285;
+        Mon, 19 Jul 2021 15:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711025;
-        bh=EayQJH41HGe9eO8a/AV/J7oH9DzSjk/fgRTLlqVfSI8=;
+        s=korg; t=1626710272;
+        bh=UeCvVDPoh1OLSrZIlpm701XxGHZ0KFMRQimJk6/CQhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vylTQSlIXXusVyWUkEa7ZvVqXv6irPTzFo5W4nZ+YxOZtHQjg9nFdt2db+tpmWVc4
-         9tGaqiRhFC+XPBaEBDW2Uw1g0aBQNyHDxgA3934aZKBYFDBYs/J7L+LX+w4nQRnHwk
-         gsUN7DHeJbEiEr+WkhExNFv/0qbm59WqyM/y22yA=
+        b=D+pkC8ODCdUMTEltCr+/lwerMxLusdt1GYzXwGEDRwqh43hK5H7bRebdLgincANjQ
+         0YFK4vKoL13rOIZvMvniYg3uoUzzENCc/eQ3802DPWtMbjpvX8UaoKJ3Fpc4mFFZo8
+         JbMZ2Gpf9ftycYJcCs0NNIO/bYXF2r4FmZA7n7jY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 198/351] block: fix the problem of io_ticks becoming smaller
+Subject: [PATCH 5.10 115/243] power: supply: ab8500: Avoid NULL pointers
 Date:   Mon, 19 Jul 2021 16:52:24 +0200
-Message-Id: <20210719144951.514220664@linuxfoundation.org>
+Message-Id: <20210719144944.620412444@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunguang Xu <brookxu@tencent.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit d80c228d44640f0b47b57a2ca4afa26ef87e16b0 ]
+[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
 
-On the IO submission path, blk_account_io_start() may interrupt
-the system interruption. When the interruption returns, the value
-of part->stamp may have been updated by other cores, so the time
-value collected before the interruption may be less than part->
-stamp. So when this happens, we should do nothing to make io_ticks
-more accurate? For kernels less than 5.0, this may cause io_ticks
-to become smaller, which in turn may cause abnormal ioutil values.
+Sometimes the code will crash because we haven't enabled
+AC or USB charging and thus not created the corresponding
+psy device. Fix it by checking that it is there before
+notifying.
 
-Signed-off-by: Chunguang Xu <brookxu@tencent.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/1625521646-1069-1-git-send-email-brookxu.cn@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/supply/ab8500_charger.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 9bcdae93f6d4..ce0125efbaa7 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -1253,7 +1253,7 @@ static void update_io_ticks(struct block_device *part, unsigned long now,
- 	unsigned long stamp;
- again:
- 	stamp = READ_ONCE(part->bd_stamp);
--	if (unlikely(stamp != now)) {
-+	if (unlikely(time_after(now, stamp))) {
- 		if (likely(cmpxchg(&part->bd_stamp, stamp, now) == stamp))
- 			__part_stat_add(part, io_ticks, end ? now - stamp : 1);
- 	}
+diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
+index db65be026920..6765d0901320 100644
+--- a/drivers/power/supply/ab8500_charger.c
++++ b/drivers/power/supply/ab8500_charger.c
+@@ -413,6 +413,14 @@ disable_otp:
+ static void ab8500_power_supply_changed(struct ab8500_charger *di,
+ 					struct power_supply *psy)
+ {
++	/*
++	 * This happens if we get notifications or interrupts and
++	 * the platform has been configured not to support one or
++	 * other type of charging.
++	 */
++	if (!psy)
++		return;
++
+ 	if (di->autopower_cfg) {
+ 		if (!di->usb.charger_connected &&
+ 		    !di->ac.charger_connected &&
+@@ -439,7 +447,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
+ 		if (!connected)
+ 			di->flags.vbus_drop_end = false;
+ 
+-		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
++		/*
++		 * Sometimes the platform is configured not to support
++		 * USB charging and no psy has been created, but we still
++		 * will get these notifications.
++		 */
++		if (di->usb_chg.psy) {
++			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
++				     "present");
++		}
+ 
+ 		if (connected) {
+ 			mutex_lock(&di->charger_attached_mutex);
 -- 
 2.30.2
 
