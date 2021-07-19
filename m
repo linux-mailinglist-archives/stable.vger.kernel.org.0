@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D7383CE396
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 751A53CE15F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236316AbhGSPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
+        id S1349171AbhGSPZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234455AbhGSPcQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:32:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7030C61422;
-        Mon, 19 Jul 2021 16:10:27 +0000 (UTC)
+        id S1346665AbhGSPRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:17:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA03461351;
+        Mon, 19 Jul 2021 15:57:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711028;
-        bh=SnAOl7fKWjhe20IC1l1tJmqdbQ16Q/mHPq4YJDqkeLA=;
+        s=korg; t=1626710274;
+        bh=bokSFhtE64DNscl+L3fbLyFGcgNLs6XOG1XnZLEP0hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RGAepVItK7Slc7thB6ZC4yJDsvNTpXiys5UCKY7LtKl88ggDnLDJs4/BPpWM6eJMJ
-         6e+FUDKAcI8bvmGWBUa2NeB4ZbrCFuGXOG4C+864mZ/ZH4ZQPy+Ymx8yOFtEfHvhHn
-         j8b5EnmygfzJqd+MoElZprc9f/i9tZIr3PmvyA6Q=
+        b=R+lPKooqdAseWDaZcA6fnNwI/i2uSbtgIknVQjyoG1vu4vhzxMMKUYdnydA1qnc2T
+         9XfkfzQKbyckDgSXhwx/O5nW7Ek6BPjswOzhqo6wARzoSiT9YpPrdoijcPB4LTm/6s
+         gVCNOlcagUwFzuDgKGAKElkvuB8aQLVmNA23fqjc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Long Li <longli@microsoft.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Michael Kelley <mikelley@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 199/351] power: supply: surface_battery: Fix battery event handling
+Subject: [PATCH 5.10 116/243] PCI: hv: Fix a race condition when removing the device
 Date:   Mon, 19 Jul 2021 16:52:25 +0200
-Message-Id: <20210719144951.546574054@linuxfoundation.org>
+Message-Id: <20210719144944.654371841@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +41,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Long Li <longli@microsoft.com>
 
-[ Upstream commit e633f33d2669cb54db2846f9cde08662d254dbd3 ]
+[ Upstream commit 94d22763207ac6633612b8d8e0ca4fba0f7aa139 ]
 
-The battery subsystem of the Surface Aggregator Module EC requires us to
-register the battery notifier with instance ID 0. However, battery
-events are actually sent with the instance ID corresponding to the
-device, which is nonzero. Thus, the strict-matching approach doesn't
-work here and will discard events that the driver is expected to handle.
+On removing the device, any work item (hv_pci_devices_present() or
+hv_pci_eject_device()) scheduled on workqueue hbus->wq may still be running
+and race with hv_pci_remove().
 
-To fix this we have to fall back on notifier matching by target-category
-only and have to manually check the instance ID in the notifier
-callback.
+This can happen because the host may send PCI_EJECT or PCI_BUS_RELATIONS(2)
+and decide to rescind the channel immediately after that.
 
-Fixes: 167f77f7d0b3 ("power: supply: Add battery driver for Surface Aggregator Module")
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fix this by flushing/destroying the workqueue of hbus before doing hbus remove.
+
+Link: https://lore.kernel.org/r/1620806800-30983-1-git-send-email-longli@linuxonhyperv.com
+Signed-off-by: Long Li <longli@microsoft.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/surface_battery.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-hyperv.c | 30 ++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/power/supply/surface_battery.c b/drivers/power/supply/surface_battery.c
-index 7efa431a62b2..5ec2e6bb2465 100644
---- a/drivers/power/supply/surface_battery.c
-+++ b/drivers/power/supply/surface_battery.c
-@@ -345,6 +345,16 @@ static u32 spwr_notify_bat(struct ssam_event_notifier *nf, const struct ssam_eve
- 	struct spwr_battery_device *bat = container_of(nf, struct spwr_battery_device, notif);
- 	int status;
+diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
+index d57c538bbb2d..44e15f0e3a2e 100644
+--- a/drivers/pci/controller/pci-hyperv.c
++++ b/drivers/pci/controller/pci-hyperv.c
+@@ -444,7 +444,6 @@ enum hv_pcibus_state {
+ 	hv_pcibus_probed,
+ 	hv_pcibus_installed,
+ 	hv_pcibus_removing,
+-	hv_pcibus_removed,
+ 	hv_pcibus_maximum
+ };
  
-+	/*
-+	 * We cannot use strict matching when registering the notifier as the
-+	 * EC expects us to register it against instance ID 0. Strict matching
-+	 * would thus drop events, as those may have non-zero instance IDs in
-+	 * this subsystem. So we need to check the instance ID of the event
-+	 * here manually.
-+	 */
-+	if (event->instance_id != bat->sdev->uid.instance)
-+		return 0;
+@@ -3247,8 +3246,9 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
+ 		struct pci_packet teardown_packet;
+ 		u8 buffer[sizeof(struct pci_message)];
+ 	} pkt;
+-	struct hv_dr_state *dr;
+ 	struct hv_pci_compl comp_pkt;
++	struct hv_pci_dev *hpdev, *tmp;
++	unsigned long flags;
+ 	int ret;
+ 
+ 	/*
+@@ -3260,9 +3260,16 @@ static int hv_pci_bus_exit(struct hv_device *hdev, bool keep_devs)
+ 
+ 	if (!keep_devs) {
+ 		/* Delete any children which might still exist. */
+-		dr = kzalloc(sizeof(*dr), GFP_KERNEL);
+-		if (dr && hv_pci_start_relations_work(hbus, dr))
+-			kfree(dr);
++		spin_lock_irqsave(&hbus->device_list_lock, flags);
++		list_for_each_entry_safe(hpdev, tmp, &hbus->children, list_entry) {
++			list_del(&hpdev->list_entry);
++			if (hpdev->pci_slot)
++				pci_destroy_slot(hpdev->pci_slot);
++			/* For the two refs got in new_pcichild_device() */
++			put_pcichild(hpdev);
++			put_pcichild(hpdev);
++		}
++		spin_unlock_irqrestore(&hbus->device_list_lock, flags);
+ 	}
+ 
+ 	ret = hv_send_resources_released(hdev);
+@@ -3305,13 +3312,23 @@ static int hv_pci_remove(struct hv_device *hdev)
+ 
+ 	hbus = hv_get_drvdata(hdev);
+ 	if (hbus->state == hv_pcibus_installed) {
++		tasklet_disable(&hdev->channel->callback_event);
++		hbus->state = hv_pcibus_removing;
++		tasklet_enable(&hdev->channel->callback_event);
++		destroy_workqueue(hbus->wq);
++		hbus->wq = NULL;
++		/*
++		 * At this point, no work is running or can be scheduled
++		 * on hbus-wq. We can't race with hv_pci_devices_present()
++		 * or hv_pci_eject_device(), it's safe to proceed.
++		 */
 +
- 	dev_dbg(&bat->sdev->dev, "power event (cid = %#04x, iid = %#04x, tid = %#04x)\n",
- 		event->command_id, event->instance_id, event->target_id);
+ 		/* Remove the bus from PCI's point of view. */
+ 		pci_lock_rescan_remove();
+ 		pci_stop_root_bus(hbus->pci_bus);
+ 		hv_pci_remove_slots(hbus);
+ 		pci_remove_root_bus(hbus->pci_bus);
+ 		pci_unlock_rescan_remove();
+-		hbus->state = hv_pcibus_removed;
+ 	}
  
-@@ -720,8 +730,8 @@ static void spwr_battery_init(struct spwr_battery_device *bat, struct ssam_devic
- 	bat->notif.base.fn = spwr_notify_bat;
- 	bat->notif.event.reg = registry;
- 	bat->notif.event.id.target_category = sdev->uid.category;
--	bat->notif.event.id.instance = 0;
--	bat->notif.event.mask = SSAM_EVENT_MASK_STRICT;
-+	bat->notif.event.id.instance = 0;	/* need to register with instance 0 */
-+	bat->notif.event.mask = SSAM_EVENT_MASK_TARGET;
- 	bat->notif.event.flags = SSAM_EVENT_SEQUENCED;
+ 	ret = hv_pci_bus_exit(hdev, false);
+@@ -3326,7 +3343,6 @@ static int hv_pci_remove(struct hv_device *hdev)
+ 	irq_domain_free_fwnode(hbus->sysdata.fwnode);
+ 	put_hvpcibus(hbus);
+ 	wait_for_completion(&hbus->remove_event);
+-	destroy_workqueue(hbus->wq);
  
- 	bat->psy_desc.name = bat->name;
+ 	hv_put_dom_num(hbus->sysdata.domain);
+ 
 -- 
 2.30.2
 
