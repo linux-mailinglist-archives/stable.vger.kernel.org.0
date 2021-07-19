@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0A613CE51B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B99853CE557
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239639AbhGSPrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46056 "EHLO mail.kernel.org"
+        id S1347748AbhGSPsq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349620AbhGSPpN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:45:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB8D160C40;
-        Mon, 19 Jul 2021 16:25:48 +0000 (UTC)
+        id S1349624AbhGSPpP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:45:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DD5C610C7;
+        Mon, 19 Jul 2021 16:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711949;
-        bh=2rR0rVgLaARphT4nDKLGrLJwcXz84IRtKSSnkhgnpcQ=;
+        s=korg; t=1626711952;
+        bh=j4v5bf/wFIPeGXrivdJqrxD4COA5DL2k+uD4+wcYois=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kjeSZ2JhcjJ2XTSOllvdo95+V8lryR2AmvN2yBINk+ywoylcvEQxtK2yjVNsoxces
-         Nfh//3EJ4GUNLX1fJVemCb1+/LF655EIAeEktg3pxicVk2lLRy4MaDXtnT45majmh1
-         OeDbCSS6DFgZwd1JsXdCLgQvLUm0vBhJSG/xw2KQ=
+        b=DRwXPayjIpym6pjN9Vc90ktyw0JNU9FWfpubgALX5ZG2Oomtjby9hAkwQmc0mnZ5l
+         IfKJch68c/v7ne4d5/npR1NwE+In49RfE/iCaJesnVNp5diJiLRJgmYsxMNSbK+1oJ
+         T6UAUyrJBbvufGWlNRKvG9Rr6hzfnZ5QXnubpiNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 159/292] power: supply: ab8500: add missing MODULE_DEVICE_TABLE
-Date:   Mon, 19 Jul 2021 16:53:41 +0200
-Message-Id: <20210719144947.723808593@linuxfoundation.org>
+Subject: [PATCH 5.12 160/292] power: supply: axp288_fuel_gauge: Make "T3 MRD" no_battery_list DMI entry more generic
+Date:   Mon, 19 Jul 2021 16:53:42 +0200
+Message-Id: <20210719144947.754926033@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,60 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit dfe52db13ab8d24857a9840ec7ca75eef800c26c ]
+[ Upstream commit 3a06b912a5ce494d7b7300b12719c562be7b566f ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+It turns out that the "T3 MRD" DMI_BOARD_NAME value is used in a lot of
+different Cherry Trail x5-z8300 / x5-z8350 based Mini-PC / HDMI-stick
+models from Ace PC / Meegopad / MinisForum / Wintel (and likely also
+other vendors).
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Most of the other DMI strings on these boxes unfortunately contain various
+generic values like "Default string" or "$(DEFAULT_STRING)", so we cannot
+match on them. These devices do have their chassis-type correctly set to a
+value of "3" (desktop) which is a pleasant surprise, so also match on that.
+
+This should avoid the quirk accidentally also getting applied to laptops /
+tablets (which do actually have a battery). Although in my quite large
+database of Bay and Cherry Trail based devices DMIdecode dumps I don't
+have any laptops / tables with a board-name of "T3 MRD", so this should
+not be an issue.
+
+BugLink: https://askubuntu.com/questions/1206714/how-can-a-mini-pc-be-stopped-from-being-detected-as-a-laptop-with-a-battery/
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_btemp.c   | 1 +
- drivers/power/supply/ab8500_charger.c | 1 +
- drivers/power/supply/ab8500_fg.c      | 1 +
- 3 files changed, 3 insertions(+)
+ drivers/power/supply/axp288_fuel_gauge.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_btemp.c b/drivers/power/supply/ab8500_btemp.c
-index d20345386b1e..69f67edf83c5 100644
---- a/drivers/power/supply/ab8500_btemp.c
-+++ b/drivers/power/supply/ab8500_btemp.c
-@@ -1135,6 +1135,7 @@ static const struct of_device_id ab8500_btemp_match[] = {
- 	{ .compatible = "stericsson,ab8500-btemp", },
- 	{ },
+diff --git a/drivers/power/supply/axp288_fuel_gauge.c b/drivers/power/supply/axp288_fuel_gauge.c
+index 39e16ecb7638..37af0e216bc3 100644
+--- a/drivers/power/supply/axp288_fuel_gauge.c
++++ b/drivers/power/supply/axp288_fuel_gauge.c
+@@ -723,15 +723,6 @@ static const struct dmi_system_id axp288_fuel_gauge_blacklist[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "MEEGOPAD T02"),
+ 		},
+ 	},
+-	{
+-		/* Meegopad T08 */
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Default string"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "To be filled by OEM."),
+-			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
+-			DMI_MATCH(DMI_BOARD_VERSION, "V1.1"),
+-		},
+-	},
+ 	{	/* Mele PCG03 Mini PC */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "Mini PC"),
+@@ -745,6 +736,15 @@ static const struct dmi_system_id axp288_fuel_gauge_blacklist[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Z83-4"),
+ 		}
+ 	},
++	{
++		/* Various Ace PC/Meegopad/MinisForum/Wintel Mini-PCs/HDMI-sticks */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "T3 MRD"),
++			DMI_MATCH(DMI_CHASSIS_TYPE, "3"),
++			DMI_MATCH(DMI_BIOS_VENDOR, "American Megatrends Inc."),
++			DMI_MATCH(DMI_BIOS_VERSION, "5.11"),
++		},
++	},
+ 	{}
  };
-+MODULE_DEVICE_TABLE(of, ab8500_btemp_match);
  
- static struct platform_driver ab8500_btemp_driver = {
- 	.probe = ab8500_btemp_probe,
-diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
-index 893185448284..163d6098e8e0 100644
---- a/drivers/power/supply/ab8500_charger.c
-+++ b/drivers/power/supply/ab8500_charger.c
-@@ -3667,6 +3667,7 @@ static const struct of_device_id ab8500_charger_match[] = {
- 	{ .compatible = "stericsson,ab8500-charger", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_charger_match);
- 
- static struct platform_driver ab8500_charger_driver = {
- 	.probe = ab8500_charger_probe,
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 06ff42c71f24..2fe41091fa03 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -3218,6 +3218,7 @@ static const struct of_device_id ab8500_fg_match[] = {
- 	{ .compatible = "stericsson,ab8500-fg", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ab8500_fg_match);
- 
- static struct platform_driver ab8500_fg_driver = {
- 	.probe = ab8500_fg_probe,
 -- 
 2.30.2
 
