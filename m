@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 575B53CDC6F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABCFC3CDEBC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238278AbhGSOwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40448 "EHLO mail.kernel.org"
+        id S1344497AbhGSPFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:05:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343723AbhGSOsc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A112461370;
-        Mon, 19 Jul 2021 15:24:42 +0000 (UTC)
+        id S1344204AbhGSPCY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:02:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A91E961006;
+        Mon, 19 Jul 2021 15:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708283;
-        bh=FyrjZ1RTao5syKYtfJ/7HgX6cs7d7hvz3SfCLP7np0A=;
+        s=korg; t=1626709367;
+        bh=LNZ1ijcxAOXZk3ir46ecIESQwnCMYx5b6Fj+uI4mPiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rb3wPMeA65k3E7ds4lfEAlkLWPJoGp9le5XIcNOLHnt798t/6UPXTqqN0EfXq1r0d
-         rMzURiTghtx970iGzau82NDPzvimFnU8/0QUuYvU9MCv5OlEhJAl8LMpdDiu02HZyn
-         IR2pACmqBf9WnpxvUV2aOg1hHKgh/j7qmKqPZW3g=
+        b=p7NmdT/9FETds0Wvxgf35uh4qK3mXBDnoxHPtD3cWXunrTj1kSOL7XVbM+OnN4pOL
+         D6ya16rR+2JDl/NOizCXVo54qjlVb9aJ1sePH+hsqev5sCeoK06WXA7fjCurbfq0VW
+         MJP4YgexfoB9T37BqrIYkWDrty4XLYp6jjlCJgpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 250/315] ALSA: sb: Fix potential double-free of CSP mixer elements
+Subject: [PATCH 4.19 328/421] scsi: lpfc: Fix crash when lpfc_sli4_hba_setup() fails to initialize the SGLs
 Date:   Mon, 19 Jul 2021 16:52:19 +0200
-Message-Id: <20210719144951.648450205@linuxfoundation.org>
+Message-Id: <20210719144957.663254971@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit c305366a37441c2ac90b08711cb6f032b43672f2 ]
+[ Upstream commit 5aa615d195f1e142c662cb2253f057c9baec7531 ]
 
-snd_sb_qsound_destroy() contains the calls of removing the previously
-created mixer controls, but it doesn't clear the pointers.  As
-snd_sb_qsound_destroy() itself may be repeatedly called via ioctl,
-this could lead to double-free potentially.
+The driver is encountering a crash in lpfc_free_iocb_list() while
+performing initial attachment.
 
-Fix it by clearing the struct fields properly afterwards.
+Code review found this to be an errant failure path that was taken, jumping
+to a tag that then referenced structures that were uninitialized.
 
-Link: https://lore.kernel.org/r/20210608140540.17885-4-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix the failure path.
+
+Link: https://lore.kernel.org/r/20210514195559.119853-9-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/sb/sb16_csp.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_sli.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/isa/sb/sb16_csp.c b/sound/isa/sb/sb16_csp.c
-index 5450f58e4f2e..69f392cf67b6 100644
---- a/sound/isa/sb/sb16_csp.c
-+++ b/sound/isa/sb/sb16_csp.c
-@@ -1086,10 +1086,14 @@ static void snd_sb_qsound_destroy(struct snd_sb_csp * p)
- 	card = p->chip->card;	
- 	
- 	down_write(&card->controls_rwsem);
--	if (p->qsound_switch)
-+	if (p->qsound_switch) {
- 		snd_ctl_remove(card, p->qsound_switch);
--	if (p->qsound_space)
-+		p->qsound_switch = NULL;
-+	}
-+	if (p->qsound_space) {
- 		snd_ctl_remove(card, p->qsound_space);
-+		p->qsound_space = NULL;
-+	}
- 	up_write(&card->controls_rwsem);
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index f4633c9f8183..40d6537e64dd 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -7281,7 +7281,7 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phba)
+ 				"0393 Error %d during rpi post operation\n",
+ 				rc);
+ 		rc = -ENODEV;
+-		goto out_destroy_queue;
++		goto out_free_iocblist;
+ 	}
+ 	lpfc_sli4_node_prep(phba);
  
- 	/* cancel pending transfer of QSound parameters */
+@@ -7406,8 +7406,9 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phba)
+ out_unset_queue:
+ 	/* Unset all the queues set up in this routine when error out */
+ 	lpfc_sli4_queue_unset(phba);
+-out_destroy_queue:
++out_free_iocblist:
+ 	lpfc_free_iocb_list(phba);
++out_destroy_queue:
+ 	lpfc_sli4_queue_destroy(phba);
+ out_stop_timers:
+ 	lpfc_stop_hba_timers(phba);
 -- 
 2.30.2
 
