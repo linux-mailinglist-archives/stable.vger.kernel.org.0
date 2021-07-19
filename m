@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 317A23CDBEC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BDC63CDF91
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232414AbhGSOue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40436 "EHLO mail.kernel.org"
+        id S1344570AbhGSPKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343963AbhGSOsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B57C3613CF;
-        Mon, 19 Jul 2021 15:25:45 +0000 (UTC)
+        id S1345457AbhGSPJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:09:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3507606A5;
+        Mon, 19 Jul 2021 15:48:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708346;
-        bh=Qov3NdALQaJngH7UvnuSSQKyNioJNZNNRlHpZDfJudE=;
+        s=korg; t=1626709729;
+        bh=+UwK8f6qFkk6sE0w4N68AeWGB7dIv3vu+bt6wlyxoVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VC/8a1zHTl69GcIAWemXtiHaZ+wQN58djOEsk4e5ALpaYHLiLtJXI86qiTfvnawDy
-         mVwx/xyd9a73esLtqXPx39n6qya5gGhjajyTIa482uPWJkIFEK4RVAq6hC/ZGN/zfd
-         l3XuIVhq/7MO7WLjnkW2HK16E1Bz1FaS0K6VTov0=
+        b=Us3kd1aYvfatwzrXVPcWkhWeo6WAdJUhLG4z0+UepDIdIvi/6ooOBhOOJK+OtpJ+I
+         TChOVGy6+RkcIyEStjyyfgMweezG0iUGLPxDpUQPL6BtPt0uzY1vjN7ZcJAorCuL5G
+         jlhS3aa+WtlxTLpl2hm27JHTCEwR7IHeB1NRLjXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 275/315] x86/fpu: Return proper error codes from user access functions
-Date:   Mon, 19 Jul 2021 16:52:44 +0200
-Message-Id: <20210719144952.464562001@linuxfoundation.org>
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 057/149] ALSA: usb-audio: scarlett2: Fix scarlett2_*_ctl_put() return values
+Date:   Mon, 19 Jul 2021 16:52:45 +0200
+Message-Id: <20210719144914.919988622@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +39,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
+[ Upstream commit c5d8e008032f3cd5f266d552732973a960b0bd4b ]
 
-When *RSTOR from user memory raises an exception, there is no way to
-differentiate them. That's bad because it forces the slow path even when
-the failure was not a fault. If the operation raised eg. #GP then going
-through the slow path is pointless.
+Mixer control put callbacks should return 1 if the value is changed.
+Fix the sw_hw, level, pad, and button controls accordingly.
 
-Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
-fixup return the negated trap number as error.
-
-This allows to separate the fast path and let it handle faults directly and
-avoid the slow path for all other exceptions.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
+Link: https://lore.kernel.org/r/20210620164645.GA9221@m.b4.vu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ sound/usb/mixer_scarlett_gen2.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index fa2c93cb42a2..b8c935033d21 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -103,6 +103,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
- }
- extern void fpstate_sanitize_xstate(struct fpu *fpu);
+diff --git a/sound/usb/mixer_scarlett_gen2.c b/sound/usb/mixer_scarlett_gen2.c
+index 9c98d5b79011..322dc5b6be63 100644
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -1184,6 +1184,8 @@ static int scarlett2_sw_hw_enum_ctl_put(struct snd_kcontrol *kctl,
+ 	/* Send SW/HW switch change to the device */
+ 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_SW_HW_SWITCH,
+ 				       index, val);
++	if (err == 0)
++		err = 1;
  
-+/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
- #define user_insn(insn, output, input...)				\
- ({									\
- 	int err;							\
-@@ -110,14 +111,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
- 	might_fault();							\
- 									\
- 	asm volatile(ASM_STAC "\n"					\
--		     "1:" #insn "\n\t"					\
-+		     "1: " #insn "\n"					\
- 		     "2: " ASM_CLAC "\n"				\
- 		     ".section .fixup,\"ax\"\n"				\
--		     "3:  movl $-1,%[err]\n"				\
-+		     "3:  negl %%eax\n"					\
- 		     "    jmp  2b\n"					\
- 		     ".previous\n"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err), output				\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err), output				\
- 		     : "0"(0), input);					\
- 	err;								\
- })
-@@ -221,16 +222,20 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
- #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
- #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
+ unlock:
+ 	mutex_unlock(&private->data_mutex);
+@@ -1244,6 +1246,8 @@ static int scarlett2_level_enum_ctl_put(struct snd_kcontrol *kctl,
+ 	/* Send switch change to the device */
+ 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_LEVEL_SWITCH,
+ 				       index, val);
++	if (err == 0)
++		err = 1;
  
-+/*
-+ * After this @err contains 0 on success or the negated trap number when
-+ * the operation raises an exception. For faults this results in -EFAULT.
-+ */
- #define XSTATE_OP(op, st, lmask, hmask, err)				\
- 	asm volatile("1:" op "\n\t"					\
- 		     "xor %[err], %[err]\n"				\
- 		     "2:\n\t"						\
- 		     ".pushsection .fixup,\"ax\"\n\t"			\
--		     "3: movl $-2,%[err]\n\t"				\
-+		     "3: negl %%eax\n\t"				\
- 		     "jmp 2b\n\t"					\
- 		     ".popsection\n\t"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err)					\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err)					\
- 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
- 		     : "memory")
+ unlock:
+ 	mutex_unlock(&private->data_mutex);
+@@ -1294,6 +1298,8 @@ static int scarlett2_pad_ctl_put(struct snd_kcontrol *kctl,
+ 	/* Send switch change to the device */
+ 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_PAD_SWITCH,
+ 				       index, val);
++	if (err == 0)
++		err = 1;
  
+ unlock:
+ 	mutex_unlock(&private->data_mutex);
+@@ -1349,6 +1355,8 @@ static int scarlett2_button_ctl_put(struct snd_kcontrol *kctl,
+ 	/* Send switch change to the device */
+ 	err = scarlett2_usb_set_config(mixer, SCARLETT2_CONFIG_BUTTONS,
+ 				       index, val);
++	if (err == 0)
++		err = 1;
+ 
+ unlock:
+ 	mutex_unlock(&private->data_mutex);
 -- 
 2.30.2
 
