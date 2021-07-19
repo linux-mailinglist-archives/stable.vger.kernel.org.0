@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB02A3CDA45
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECF383CD8D9
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242451AbhGSOfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46720 "EHLO mail.kernel.org"
+        id S243504AbhGSOZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243793AbhGSOd6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:33:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE5136124C;
-        Mon, 19 Jul 2021 15:13:16 +0000 (UTC)
+        id S243550AbhGSOYI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44A206120C;
+        Mon, 19 Jul 2021 15:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707597;
-        bh=XQCY9+AJ5ndMmYvPR15VS9nWHiumdO1wsM96Mx27Wzk=;
+        s=korg; t=1626707031;
+        bh=+hnt326u6KahrNWR5EAQqr78GZbHzAxkOOoZn0JySks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XvajK87vtF01PGDzXaEvPfxT0CFt44spCJ+mCl4QWujFArHfNvZ+6u2jE2JMzE6G4
-         5u+Lg/oZ6uPDIYg1YIvMUhpXhc/jG+kbxaK4dpXqvcX69ouQBigxhy7vaGCFs8daDo
-         BlcFEvX3HadSgTqzYKvwXRgEpNjzGKFrUihM24Lw=
+        b=cxPJvplqsUNoREXdLDQ8eZYsF4/bvsTLY85zZSDvmHJkh0sxLbttxDHN5EGAmXg/T
+         lFoECk9V+nYsjGpIstIhC9O2lxGqMUWM32khq3tPhU+s3Q/M8T2qLthbuVrUqKtRld
+         /dUZbu+OdX/lq0unudRhqRy/7ZsExV3yLcJmjGOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amithash Prasad <amithash@fb.com>,
-        Tao Ren <rentao.bupt@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 228/245] watchdog: aspeed: fix hardware timeout calculation
+Subject: [PATCH 4.4 186/188] scsi: be2iscsi: Fix an error handling path in beiscsi_dev_probe()
 Date:   Mon, 19 Jul 2021 16:52:50 +0200
-Message-Id: <20210719144947.759785112@linuxfoundation.org>
+Message-Id: <20210719144942.577641024@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tao Ren <rentao.bupt@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e7dc481c92060f9ce872878b0b7a08c24713a7e5 ]
+[ Upstream commit 030e4138d11fced3b831c2761e4cecf347bae99c ]
 
-Fix hardware timeout calculation in aspeed_wdt_set_timeout function to
-ensure the reload value does not exceed the hardware limit.
+If an error occurs after a pci_enable_pcie_error_reporting() call, it must
+be undone by a corresponding pci_disable_pcie_error_reporting() call, as
+already done in the remove function.
 
-Fixes: efa859f7d786 ("watchdog: Add Aspeed watchdog driver")
-Reported-by: Amithash Prasad <amithash@fb.com>
-Signed-off-by: Tao Ren <rentao.bupt@gmail.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210417034249.5978-1-rentao.bupt@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Link: https://lore.kernel.org/r/77adb02cfea7f1364e5603ecf3930d8597ae356e.1623482155.git.christophe.jaillet@wanadoo.fr
+Fixes: 3567f36a09d1 ("[SCSI] be2iscsi: Fix AER handling in driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/aspeed_wdt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/be2iscsi/be_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/watchdog/aspeed_wdt.c b/drivers/watchdog/aspeed_wdt.c
-index f5ad8023c2e6..1c47e6345b57 100644
---- a/drivers/watchdog/aspeed_wdt.c
-+++ b/drivers/watchdog/aspeed_wdt.c
-@@ -100,7 +100,7 @@ static int aspeed_wdt_set_timeout(struct watchdog_device *wdd,
- 
- 	wdd->timeout = timeout;
- 
--	actual = min(timeout, wdd->max_hw_heartbeat_ms * 1000);
-+	actual = min(timeout, wdd->max_hw_heartbeat_ms / 1000);
- 
- 	writel(actual * WDT_RATE_1MHZ, wdt->base + WDT_RELOAD_VALUE);
- 	writel(WDT_RESTART_MAGIC, wdt->base + WDT_RESTART);
+diff --git a/drivers/scsi/be2iscsi/be_main.c b/drivers/scsi/be2iscsi/be_main.c
+index 758f76e88704..c89aab5e0ef8 100644
+--- a/drivers/scsi/be2iscsi/be_main.c
++++ b/drivers/scsi/be2iscsi/be_main.c
+@@ -5812,6 +5812,7 @@ hba_free:
+ 		pci_disable_msix(phba->pcidev);
+ 	pci_dev_put(phba->pcidev);
+ 	iscsi_host_free(phba->shost);
++	pci_disable_pcie_error_reporting(pcidev);
+ 	pci_set_drvdata(pcidev, NULL);
+ disable_pci:
+ 	pci_release_regions(pcidev);
 -- 
 2.30.2
 
