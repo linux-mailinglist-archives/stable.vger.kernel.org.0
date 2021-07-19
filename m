@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1C613CDDEC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CCE93CDC9F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345218AbhGSPBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
+        id S244815AbhGSOxN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344270AbhGSO7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B443E6120E;
-        Mon, 19 Jul 2021 15:39:30 +0000 (UTC)
+        id S237751AbhGSOoY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ABD76121F;
+        Mon, 19 Jul 2021 15:22:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709171;
-        bh=r+uNq6xVPeeHYVlzTAA+XS2FUy5VsF2CtQiRgnyg8CA=;
+        s=korg; t=1626708153;
+        bh=XUwDBV44ClTF8/YLsdYrF24Rh0dJD/re0h0QpAYYk6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgY6ZYy6Gh+CoaCcTGojVpopEUBqCSQ26cxcRDe7lB+h3TOwPnDQwP1gJsYC+gtuh
-         vxALoQdsFceQ5C2RP4CYQIGm96fJRdqTDdivoKnfrJ8WZv7Yzh02ZRkjxH4w2LP3jQ
-         hW+DBViSY7b3ChQ8CYgvMJxOteULSNg9XZ/M1Pdg=
+        b=Q5DVHWyvNgFZVhFwZ6DkZgQKRwD9Noh6lYzy9qIUo+xHsPEzl4LOL0Q4GIGvLVMAz
+         NvN6twcpC+IC9dO0pBHYkSPpji1+G5VEMU8PoO5XbsLZs7ss1c7WFJkW+vTj8kAeZP
+         VoZ8bPeMt5AT2IgqGkOvqp2nmHVuJhMkfxHhghOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 279/421] fscrypt: dont ignore minor_hash when hash is 0
+        stable@vger.kernel.org,
+        Ilja Van Sprundel <ivansprundel@ioactive.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 201/315] sctp: add size validation when walking chunks
 Date:   Mon, 19 Jul 2021 16:51:30 +0200
-Message-Id: <20210719144956.015619907@linuxfoundation.org>
+Message-Id: <20210719144950.038069549@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,59 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit 77f30bfcfcf484da7208affd6a9e63406420bf91 upstream.
+[ Upstream commit 50619dbf8db77e98d821d615af4f634d08e22698 ]
 
-When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
-minor_hash to 0 if the (major) hash is 0.
+The first chunk in a packet is ensured to be present at the beginning of
+sctp_rcv(), as a packet needs to have at least 1 chunk. But the second
+one, may not be completely available and ch->length can be over
+uninitialized memory.
 
-This doesn't make sense because 0 is a valid hash code, so we shouldn't
-ignore the filesystem-provided minor_hash in that case.  Fix this by
-removing the special case for 'hash == 0'.
+Fix here is by only trying to walk on the next chunk if there is enough to
+hold at least the header, and then proceed with the ch->length validation
+that is already there.
 
-This is an old bug that appears to have originated when the encryption
-code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
-f2fs code passed the hash by pointer instead of by value.  So
-'if (hash)' actually made sense then, as it was checking whether a
-pointer was NULL.  But now the hashes are passed by value, and
-filesystems just pass 0 for any hashes they don't have.  There is no
-need to handle this any differently from the hashes actually being 0.
-
-It is difficult to reproduce this bug, as it only made a difference in
-the case where a filename's 32-bit major hash happened to be 0.
-However, it probably had the largest chance of causing problems on
-ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
-addition to using it as a readdir cookie.  ext4 only uses minor_hash as
-a readdir cookie, and f2fs doesn't use minor_hash at all.
-
-Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
-Cc: <stable@vger.kernel.org> # v4.6+
-Link: https://lore.kernel.org/r/20210527235236.2376556-1-ebiggers@kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/crypto/fname.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/sctp/input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/crypto/fname.c
-+++ b/fs/crypto/fname.c
-@@ -275,13 +275,8 @@ int fscrypt_fname_disk_to_usr(struct ino
- 					   oname->name);
- 		return 0;
- 	}
--	if (hash) {
--		digested_name.hash = hash;
--		digested_name.minor_hash = minor_hash;
--	} else {
--		digested_name.hash = 0;
--		digested_name.minor_hash = 0;
--	}
-+	digested_name.hash = hash;
-+	digested_name.minor_hash = minor_hash;
- 	memcpy(digested_name.digest,
- 	       FSCRYPT_FNAME_DIGEST(iname->name, iname->len),
- 	       FSCRYPT_FNAME_DIGEST_SIZE);
+diff --git a/net/sctp/input.c b/net/sctp/input.c
+index 7380f0a5949b..1af35b69e99e 100644
+--- a/net/sctp/input.c
++++ b/net/sctp/input.c
+@@ -1197,7 +1197,7 @@ static struct sctp_association *__sctp_rcv_walk_lookup(struct net *net,
+ 
+ 		ch = (struct sctp_chunkhdr *)ch_end;
+ 		chunk_num++;
+-	} while (ch_end < skb_tail_pointer(skb));
++	} while (ch_end + sizeof(*ch) < skb_tail_pointer(skb));
+ 
+ 	return asoc;
+ }
+-- 
+2.30.2
+
 
 
