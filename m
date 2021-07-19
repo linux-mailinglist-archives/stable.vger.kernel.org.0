@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4283CDA71
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C54E3CD8C1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245005AbhGSOf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
+        id S242949AbhGSOZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245543AbhGSOeo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DCEF6128D;
-        Mon, 19 Jul 2021 15:14:09 +0000 (UTC)
+        id S242037AbhGSOWu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:22:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0ED306124C;
+        Mon, 19 Jul 2021 15:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707650;
-        bh=zOkvkDVVrsYdslozqi9IrXBmgGJDkAGaU2YsKa2eYnc=;
+        s=korg; t=1626706979;
+        bh=rzyprTXoujcTc1uUtwZJEXB6M9vxG1VTdx4qM9kIjVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lBO/BO47hp9CTBzaRCZqwnRqCu5XaUS5olj3LyBia4hKDY3Zt0onVEjA/b2e5SX6V
-         BsF5IF48hKh9bkeiBvpEgpOFiUN9/8LnsFZQNOP1AKLW9Id6ZrEo/xWut/cBjcaAZx
-         gxf7v20UZdk84H+v4cboQhoRG8lDycWC3EjcS0Bc=
+        b=h8ULVPKhjLtGx1mS7tQZSVMTb3Tq310zSTfXhmHb1u2mfp8xo133xpN94TsBX2eKR
+         Kgn6DQWYJynkS1UQg2Mv7kdXwyqQUTFetF7SmHyhudKXpT37SQQWMLyMenP1cdmLVt
+         LxOQUxW/wewPNW4DA023+Z23cxtUp0kbdbvdgfB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 215/245] x86/fpu: Return proper error codes from user access functions
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 173/188] power: supply: ab8500: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:37 +0200
-Message-Id: <20210719144947.340502148@linuxfoundation.org>
+Message-Id: <20210719144942.147474600@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
+[ Upstream commit dfe52db13ab8d24857a9840ec7ca75eef800c26c ]
 
-When *RSTOR from user memory raises an exception, there is no way to
-differentiate them. That's bad because it forces the slow path even when
-the failure was not a fault. If the operation raised eg. #GP then going
-through the slow path is pointless.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
-fixup return the negated trap number as error.
-
-This allows to separate the fast path and let it handle faults directly and
-avoid the slow path for all other exceptions.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/power/ab8500_btemp.c   | 1 +
+ drivers/power/ab8500_charger.c | 1 +
+ drivers/power/ab8500_fg.c      | 1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index 21d6fa27b4a9..ebda4718eb8f 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -94,6 +94,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
- }
- extern void fpstate_sanitize_xstate(struct fpu *fpu);
+diff --git a/drivers/power/ab8500_btemp.c b/drivers/power/ab8500_btemp.c
+index 8f8044e1acf3..24732df01cf9 100644
+--- a/drivers/power/ab8500_btemp.c
++++ b/drivers/power/ab8500_btemp.c
+@@ -1186,6 +1186,7 @@ static const struct of_device_id ab8500_btemp_match[] = {
+ 	{ .compatible = "stericsson,ab8500-btemp", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, ab8500_btemp_match);
  
-+/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
- #define user_insn(insn, output, input...)				\
- ({									\
- 	int err;							\
-@@ -101,14 +102,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
- 	might_fault();							\
- 									\
- 	asm volatile(ASM_STAC "\n"					\
--		     "1:" #insn "\n\t"					\
-+		     "1: " #insn "\n"					\
- 		     "2: " ASM_CLAC "\n"				\
- 		     ".section .fixup,\"ax\"\n"				\
--		     "3:  movl $-1,%[err]\n"				\
-+		     "3:  negl %%eax\n"					\
- 		     "    jmp  2b\n"					\
- 		     ".previous\n"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err), output				\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err), output				\
- 		     : "0"(0), input);					\
- 	err;								\
- })
-@@ -227,16 +228,20 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
- #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
- #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
+ static struct platform_driver ab8500_btemp_driver = {
+ 	.probe = ab8500_btemp_probe,
+diff --git a/drivers/power/ab8500_charger.c b/drivers/power/ab8500_charger.c
+index 98724c3a28e5..1a7013ec0caf 100644
+--- a/drivers/power/ab8500_charger.c
++++ b/drivers/power/ab8500_charger.c
+@@ -3756,6 +3756,7 @@ static const struct of_device_id ab8500_charger_match[] = {
+ 	{ .compatible = "stericsson,ab8500-charger", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, ab8500_charger_match);
  
-+/*
-+ * After this @err contains 0 on success or the negated trap number when
-+ * the operation raises an exception. For faults this results in -EFAULT.
-+ */
- #define XSTATE_OP(op, st, lmask, hmask, err)				\
- 	asm volatile("1:" op "\n\t"					\
- 		     "xor %[err], %[err]\n"				\
- 		     "2:\n\t"						\
- 		     ".pushsection .fixup,\"ax\"\n\t"			\
--		     "3: movl $-2,%[err]\n\t"				\
-+		     "3: negl %%eax\n\t"				\
- 		     "jmp 2b\n\t"					\
- 		     ".popsection\n\t"					\
--		     _ASM_EXTABLE(1b, 3b)				\
--		     : [err] "=r" (err)					\
-+		     _ASM_EXTABLE_FAULT(1b, 3b)				\
-+		     : [err] "=a" (err)					\
- 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
- 		     : "memory")
+ static struct platform_driver ab8500_charger_driver = {
+ 	.probe = ab8500_charger_probe,
+diff --git a/drivers/power/ab8500_fg.c b/drivers/power/ab8500_fg.c
+index d91111200dde..c58b496ca05a 100644
+--- a/drivers/power/ab8500_fg.c
++++ b/drivers/power/ab8500_fg.c
+@@ -3239,6 +3239,7 @@ static const struct of_device_id ab8500_fg_match[] = {
+ 	{ .compatible = "stericsson,ab8500-fg", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, ab8500_fg_match);
  
+ static struct platform_driver ab8500_fg_driver = {
+ 	.probe = ab8500_fg_probe,
 -- 
 2.30.2
 
