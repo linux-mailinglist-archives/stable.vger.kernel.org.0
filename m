@@ -2,572 +2,344 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CE103CD8D1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 834893CD811
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243374AbhGSOZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:42 -0400
-Received: from mo4-p02-ob.smtp.rzone.de ([85.215.255.84]:34617 "EHLO
-        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243449AbhGSOYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 10:24:05 -0400
-X-Greylist: delayed 362 seconds by postgrey-1.27 at vger.kernel.org; Mon, 19 Jul 2021 10:24:04 EDT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1626706717;
-    s=strato-dkim-0002; d=xenosoft.de;
-    h=In-Reply-To:Date:Message-ID:Cc:From:References:To:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=sx2vrmfDvvvj7kJR3fj66Sk4qrh4YEKWZtRTH9rRFxQ=;
-    b=dqE00bhMucVYMm/1AbSatNBGCh1d9RKDr3QHUbrzOO2qu2yVz4632Dksf2anx3Wk7W
-    aBLpUdVeZYrz+7ufC6IdD1sXEf1fEOlp0f0gxXrfVYqwzrlqjRlCKOgPljT/aceaW2Xd
-    QohWGhRHhff0NM5QeRf1ZUgiiiYBNm0tS+ZwDh6KCJoz+KzKIwMfvbQHFmLAt9coWUEV
-    SYeVRWCILoW2C5uLpW1jPZAwE4QuaDN7YH1sjCHoIPN1lR7SKx42QAQc0HRDeTQf3bzi
-    PSOHNVSHQLsUb9Un3STZUv2RYVq9gdwXsz1ZTkMIB6F+EeixZvPqP5RybFw2etVSDSIU
-    4iTw==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":L2QefEenb+UdBJSdRCXu93KJ1bmSGnhMdmOod1DhGM4l4Hio94KKxRySfLxnHfJ+Dkjp5DdBJSrwuuqxvPhQJ/n7Igzyv3xSK1rTi/pQ6tTwxQ=="
-X-RZG-CLASS-ID: mo00
-Received: from Christians-iMac.fritz.box
-    by smtp.strato.de (RZmta 47.28.1 AUTH)
-    with ESMTPSA id j0889bx6JEwaTi3
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Mon, 19 Jul 2021 16:58:36 +0200 (CEST)
-Subject: FAILED: patch "[PATCH] drm/radeon/ni_dpm: Fix booting bug" failed to
- apply to 5.13-stable tree
-To:     Stan Johnson <userm57@yahoo.com>
-References: <b1f812d2-5600-28d6-59fa-a060b2feecf4.ref@yahoo.com>
- <b1f812d2-5600-28d6-59fa-a060b2feecf4@yahoo.com>
- <3473a47e-6eed-b06e-f23d-11dd96fff16f@xenosoft.de>
- <51f4531c-fc97-4176-616f-fd972834bdae@yahoo.com>
-From:   Christian Zigotzky <chzigotzky@xenosoft.de>
-Cc:     stable@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Debian PowerPC <debian-powerpc@lists.debian.org>,
-        Alex Deucher <alexander.deucher@amd.com>, gustavoars@kernel.org
-Message-ID: <b7e99e02-c2ed-1d11-4f7d-5b0bc9ac8043@xenosoft.de>
-Date:   Mon, 19 Jul 2021 16:58:35 +0200
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+        id S241959AbhGSOUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:20:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242063AbhGSOTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:19:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F32B61003;
+        Mon, 19 Jul 2021 15:00:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626706812;
+        bh=Tt5uBhgXzIaB+C3QWLhUpxAZdG5SkyPJ7d3afc94PZY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=E+eTXrvyHCI7kNhe3T9EGxCSOi9VRS144O5W6UJBNsLJv3V3lNJn4ZWodYplLSYkl
+         WuHP8u2F80L3XvcApclRhXhloe2GDuoywQEHhsxH4M/T6grgx6OhcgBNeqYILnDDOJ
+         0sPUtOPCyj4/MOrpMf04hKu2iHm9lAu4ehgfb7nHrKE/5MS+3wbT3ow5GVTPGVVqxP
+         +97iaeTp4U2IXVbU+3+PAzGi/XHH9hOUvbm0mZgTSxNEAxw1O5pXWikUzTVB/TwVfb
+         sR7hnWPfb3J6FKsbXx41WpH+K5tJLzZkDcFsHySVdUwiBCneNaTbFCK+mMbVxjBu/9
+         8sqyhm6O1goOg==
+Date:   Mon, 19 Jul 2021 18:00:04 +0300
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com, bp@alien8.de,
+        david@redhat.com, robert.shteynfeld@gmail.com, rppt@linux.ibm.com,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        vbabka@suse.cz
+Subject: Re: FAILED: patch "[PATCH] mm/page_alloc: fix memory map
+ initialization for descending" failed to apply to 5.10-stable tree
+Message-ID: <YPWTdETYFq+MdlEL@kernel.org>
+References: <16264592686170@kroah.com>
+ <YPO+i7eeByNMMJiA@kernel.org>
+ <YPUWXjzX/wnsUC/h@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <51f4531c-fc97-4176-616f-fd972834bdae@yahoo.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: de-DE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YPUWXjzX/wnsUC/h@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 19 July 2021 at 04:32 pm, Stan Johnson wrote:
-> On 7/18/21 10:23 PM, Christian Zigotzky wrote:
->> Hello Stan,
->>
->> We had the same issue during the 5.14 merge window. Please look in the
->> following thread:
->>
->> https://forum.hyperion-entertainment.com/viewtopic.php?p=53511#p53511
->>
->> There is a patch available. Please try it.
->>
->> Thanks,
->> Christian
->> ...
-> Hello Christian,
->
-> Thanks. There were some errors applying the patch, so it wasn't fully
-> applied (see below). Of course, I'm using 5.13.2, not 5.14, so maybe
-> that's expected.
->
-> The patched 5.13.2 kernel still results in a blank screen while trying
-> to run wdm. On this attempt, wdm has died (oddly the screen remains
-> blank; it should display a text login after X dies). The Xorg.0.log
-> looks reasonable enough.
->
-> I tried disabling wdm, then rebooted, logged in at the console and ran
-> "startx". The screen goes blank, X is running, startx is running:
->
-> johnson   1392  0.0  0.2   2572  1452 tty1     S+   08:06   0:00 /bin/sh
-> /usr/bin/startx
-> johnson   1414  0.0  0.4   4904  2096 tty1     S+   08:06   0:00 xinit
-> /etc/X11/xinit/xinitrc -- /etc/X11/xinit/xserverrc :0 vt1 -keeptty -auth
-> /tmp/serverauth.dJ7lSnzjjo
-> johnson   1415  1.0  8.2 128436 41924 tty1     Sl   08:06   0:04
-> /usr/lib/xorg/Xorg -nolisten tcp :0 vt1 -keeptty -auth
-> /tmp/serverauth.dJ7lSnzjjo
->
-> I had to use "kill -KILL" to kill the startx, xinit and Xorg processes.
-> After those were killed, the screen was still blank, and even though
-> nothing was running, the load average was still around 1.00 several
-> minutes later, so something is still taking CPU time:
->
-> $ uptime
->   08:25:15 up 20 min,  2 users,  load average: 1.00, 1.00, 0.84
->
-> I can attempt a git bisect, though that will take some time.
->
-> -Stan
->
-> ----------
-> $ patch -p1
-> <../v3-drm-radeon-Fix-NULL-dereference-when-updating-memory-stats.patch
-> patching file drivers/gpu/drm/radeon/radeon_object.c
-> Hunk #2 FAILED at 76.
-> Hunk #3 FAILED at 727.
-> 2 out of 3 hunks FAILED -- saving rejects to file
-> drivers/gpu/drm/radeon/radeon_object.c.rej
-> patching file drivers/gpu/drm/radeon/radeon_object.h
-> patching file drivers/gpu/drm/radeon/radeon_ttm.c
-> Hunk #1 FAILED at 199.
-> Hunk #2 succeeded at 227 (offset 11 lines).
-> Hunk #3 succeeded at 275 (offset 11 lines).
-> Hunk #4 succeeded at 697 (offset 12 lines).
-> 1 out of 4 hunks FAILED -- saving rejects to file
-> drivers/gpu/drm/radeon/radeon_ttm.c.rej
-> johnson@mac-server:/data/software/working/linux-5.13.2$ cat
-> drivers/gpu/drm/radeon/radeon_ttm.c.rej
-> --- drivers/gpu/drm/radeon/radeon_ttm.c
-> +++ drivers/gpu/drm/radeon/radeon_ttm.c
-> @@ -199,7 +199,7 @@ static int radeon_bo_move(struct ttm_buffer_object
-> *bo, bool evict,
->   	struct ttm_resource *old_mem = bo->resource;
->   	struct radeon_device *rdev;
->   	struct radeon_bo *rbo;
-> -	int r;
-> +	int r, old_type;
->
->   	if (new_mem->mem_type == TTM_PL_TT) {
->   		r = radeon_ttm_tt_bind(bo->bdev, bo->ttm, new_mem);
->
-> ---------
-Hello Stan,
+On Mon, Jul 19, 2021 at 08:06:22AM +0200, Greg KH wrote:
+> On Sun, Jul 18, 2021 at 08:39:23AM +0300, Mike Rapoport wrote:
+> > Hi,
+> > 
+> > On Fri, Jul 16, 2021 at 08:14:28PM +0200, gregkh@linuxfoundation.org wrote:
+> > > 
+> > > The patch below does not apply to the 5.10-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > 
+> > I'm confused. I've sent a version that applied cleanly to 5.10.49:
+> > 
+> > https://lore.kernel.org/stable/YOr4DMQITU8yzBNT@kernel.org
+> > 
+> > and I've got an email that it was added to the stable tree and the email
+> > with the patch for stable preview:
+> > 
+> > https://lore.kernel.org/lkml/20210715182623.942552790@linuxfoundation.org
+> > 
+> > Was anything wrong with the patch?
+> 
+> Yes, it broke the build on ia64 due to duplicated function names :(
 
-Greg has the same issue with patching the kernel 5.13 [1]. We have to 
-wait for a solution.
+The version below takes care of compatibility with ia64 in the least
+intrusive way I could think of. 
 
-- Christian
+From ee3a273719e1372a447a91a20c8145cdb1b4792a Mon Sep 17 00:00:00 2001
+From: Mike Rapoport <rppt@linux.ibm.com>
+Date: Mon, 28 Jun 2021 19:33:26 -0700
+Subject: [PATCH v2] mm/page_alloc: fix memory map initialization for descending nodes
 
-[1]
+On systems with memory nodes sorted in descending order, for instance Dell
+Precision WorkStation T5500, the struct pages for higher PFNs and
+respectively lower nodes, could be overwritten by the initialization of
+struct pages corresponding to the holes in the memory sections.
 
-The patch below does not apply to the 5.13-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+For example for the below memory layout
 
-thanks,
+[    0.245624] Early memory node ranges
+[    0.248496]   node   1: [mem 0x0000000000001000-0x0000000000090fff]
+[    0.251376]   node   1: [mem 0x0000000000100000-0x00000000dbdf8fff]
+[    0.254256]   node   1: [mem 0x0000000100000000-0x0000001423ffffff]
+[    0.257144]   node   0: [mem 0x0000001424000000-0x0000002023ffffff]
 
-greg k-h
+the range 0x1424000000 - 0x1428000000 in the beginning of node 0 starts in
+the middle of a section and will be considered as a hole during the
+initialization of the last section in node 1.
 
------------------- original commit in Linus's tree ------------------
+The wrong initialization of the memory map causes panic on boot when
+CONFIG_DEBUG_VM is enabled.
 
- >From 293774413a3f519c826d4eb5313ef02e20515700 Mon Sep 17 00:00:00 2001
-From: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Date: Sun, 9 May 2021 17:49:26 -0500
-Subject: [PATCH] drm/radeon/ni_dpm: Fix booting bug
+Reorder loop order of the memory map initialization so that the outer loop
+will always iterate over populated memory regions in the ascending order
+and the inner loop will select the zone corresponding to the PFN range.
 
-Create new structure NISLANDS_SMC_SWSTATE_SINGLE, as initialState.levels
-and ACPIState.levels are never actually used as flexible arrays. Those
-arrays can be used as simple objects of type
-NISLANDS_SMC_HW_PERFORMANCE_LEVEL, instead.
+This way initialization of the struct pages for the memory holes will be
+always done for the ranges that are actually not populated.
 
-Currently, the code fails because flexible array _levels_ in
-struct NISLANDS_SMC_SWSTATE doesn't allow for code that access
-the first element of initialState.levels and ACPIState.levels
-arrays:
+[akpm@linux-foundation.org: coding style fixes]
 
-drivers/gpu/drm/radeon/ni_dpm.c:
-1690 table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL =
-1691 cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl);
-...
-1903:   table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL = 
-cpu_to_be32(mpll_ad_func_cntl);
-1904:   table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 = 
-cpu_to_be32(mpll_ad_func_cntl_2);
+Link: https://lkml.kernel.org/r/YNXlMqBbL+tBG7yq@kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213073
+Link: https://lkml.kernel.org/r/20210624062305.10940-1-rppt@kernel.org
+Fixes: 0740a50b9baa ("mm/page_alloc.c: refactor initialization of struct page for holes in memory layout")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Boris Petkov <bp@alien8.de>
+Cc: Robert Shteynfeld <robert.shteynfeld@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[rppt: tweak for compatibility with IA64's override of memmap_init]
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ arch/ia64/include/asm/pgtable.h |   5 +-
+ arch/ia64/mm/init.c             |   6 +-
+ mm/page_alloc.c                 | 106 ++++++++++++++++++++------------
+ 3 files changed, 75 insertions(+), 42 deletions(-)
 
-because such element cannot exist without previously allocating
-any dynamic memory for it (which never actually happens).
-
-That's why struct NISLANDS_SMC_SWSTATE should only be used as type
-for object driverState and new struct SISLANDS_SMC_SWSTATE_SINGLE is
-created as type for objects initialState, ACPIState and ULVState.
-
-Also, with the change from one-element array to flexible-array member
-in commit 434fb1e7444a ("drm/radeon/nislands_smc.h: Replace one-element
-array with flexible-array member in struct NISLANDS_SMC_SWSTATE"), the
-size of dpmLevels in struct NISLANDS_SMC_STATETABLE should be fixed to
-be NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE instead of
-NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE - 1.
-
-Bug: 
-https://lore.kernel.org/dri-devel/3eedbe78-1fbd-4763-a7f3-ac5665e76a4a@xenosoft.de/
-Fixes: 434fb1e7444a ("drm/radeon/nislands_smc.h: Replace one-element 
-array with flexible-array member in struct NISLANDS_SMC_SWSTATE")
-Cc: stable@vger.kernel.org
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Tested-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Link: 
-https://lore.kernel.org/dri-devel/9bb5fcbd-daf5-1669-b3e7-b8624b3c36f9@xenosoft.de/
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-
-diff --git a/drivers/gpu/drm/radeon/ni_dpm.c 
-b/drivers/gpu/drm/radeon/ni_dpm.c
-index dd5ef6493723..769f666335ac 100644
---- a/drivers/gpu/drm/radeon/ni_dpm.c
-+++ b/drivers/gpu/drm/radeon/ni_dpm.c
-@@ -1687,102 +1687,102 @@ static int 
-ni_populate_smc_initial_state(struct radeon_device *rdev,
-      u32 reg;
-      int ret;
-
--    table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL =
-+    table->initialState.level.mclk.vMPLL_AD_FUNC_CNTL =
-          cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl);
--    table->initialState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 =
-+    table->initialState.level.mclk.vMPLL_AD_FUNC_CNTL_2 =
-          cpu_to_be32(ni_pi->clock_registers.mpll_ad_func_cntl_2);
--    table->initialState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL =
-+    table->initialState.level.mclk.vMPLL_DQ_FUNC_CNTL =
-          cpu_to_be32(ni_pi->clock_registers.mpll_dq_func_cntl);
--    table->initialState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL_2 =
-+    table->initialState.level.mclk.vMPLL_DQ_FUNC_CNTL_2 =
-          cpu_to_be32(ni_pi->clock_registers.mpll_dq_func_cntl_2);
--    table->initialState.levels[0].mclk.vMCLK_PWRMGT_CNTL =
-+    table->initialState.level.mclk.vMCLK_PWRMGT_CNTL =
-          cpu_to_be32(ni_pi->clock_registers.mclk_pwrmgt_cntl);
--    table->initialState.levels[0].mclk.vDLL_CNTL =
-+    table->initialState.level.mclk.vDLL_CNTL =
-          cpu_to_be32(ni_pi->clock_registers.dll_cntl);
--    table->initialState.levels[0].mclk.vMPLL_SS =
-+    table->initialState.level.mclk.vMPLL_SS =
-          cpu_to_be32(ni_pi->clock_registers.mpll_ss1);
--    table->initialState.levels[0].mclk.vMPLL_SS2 =
-+    table->initialState.level.mclk.vMPLL_SS2 =
-          cpu_to_be32(ni_pi->clock_registers.mpll_ss2);
--    table->initialState.levels[0].mclk.mclk_value =
-+    table->initialState.level.mclk.mclk_value =
-          cpu_to_be32(initial_state->performance_levels[0].mclk);
-
--    table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL =
-+    table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL =
-          cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl);
--    table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_2 =
-+    table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_2 =
-          cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_2);
--    table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_3 =
-+    table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_3 =
-          cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_3);
--    table->initialState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_4 =
-+    table->initialState.level.sclk.vCG_SPLL_FUNC_CNTL_4 =
-          cpu_to_be32(ni_pi->clock_registers.cg_spll_func_cntl_4);
--    table->initialState.levels[0].sclk.vCG_SPLL_SPREAD_SPECTRUM =
-+    table->initialState.level.sclk.vCG_SPLL_SPREAD_SPECTRUM =
-cpu_to_be32(ni_pi->clock_registers.cg_spll_spread_spectrum);
-- table->initialState.levels[0].sclk.vCG_SPLL_SPREAD_SPECTRUM_2 =
-+    table->initialState.level.sclk.vCG_SPLL_SPREAD_SPECTRUM_2 =
-cpu_to_be32(ni_pi->clock_registers.cg_spll_spread_spectrum_2);
--    table->initialState.levels[0].sclk.sclk_value =
-+    table->initialState.level.sclk.sclk_value =
-          cpu_to_be32(initial_state->performance_levels[0].sclk);
--    table->initialState.levels[0].arbRefreshState =
-+    table->initialState.level.arbRefreshState =
-          NISLANDS_INITIAL_STATE_ARB_INDEX;
-
--    table->initialState.levels[0].ACIndex = 0;
-+    table->initialState.level.ACIndex = 0;
-
-      ret = ni_populate_voltage_value(rdev, &eg_pi->vddc_voltage_table,
-                      initial_state->performance_levels[0].vddc,
--                    &table->initialState.levels[0].vddc);
-+                    &table->initialState.level.vddc);
-      if (!ret) {
-          u16 std_vddc;
-
-          ret = ni_get_std_voltage_value(rdev,
-- &table->initialState.levels[0].vddc,
-+                           &table->initialState.level.vddc,
-                             &std_vddc);
-          if (!ret)
-              ni_populate_std_voltage_value(rdev, std_vddc,
-- table->initialState.levels[0].vddc.index,
-- &table->initialState.levels[0].std_vddc);
-+ table->initialState.level.vddc.index,
-+ &table->initialState.level.std_vddc);
-      }
-
-      if (eg_pi->vddci_control)
-          ni_populate_voltage_value(rdev,
-                        &eg_pi->vddci_voltage_table,
-initial_state->performance_levels[0].vddci,
--                      &table->initialState.levels[0].vddci);
-+                      &table->initialState.level.vddci);
-
--    ni_populate_initial_mvdd_value(rdev, 
-&table->initialState.levels[0].mvdd);
-+    ni_populate_initial_mvdd_value(rdev, &table->initialState.level.mvdd);
-
-      reg = CG_R(0xffff) | CG_L(0);
--    table->initialState.levels[0].aT = cpu_to_be32(reg);
-+    table->initialState.level.aT = cpu_to_be32(reg);
-
--    table->initialState.levels[0].bSP = cpu_to_be32(pi->dsp);
-+    table->initialState.level.bSP = cpu_to_be32(pi->dsp);
-
-      if (pi->boot_in_gen2)
--        table->initialState.levels[0].gen2PCIE = 1;
-+        table->initialState.level.gen2PCIE = 1;
-      else
--        table->initialState.levels[0].gen2PCIE = 0;
-+        table->initialState.level.gen2PCIE = 0;
-
-      if (pi->mem_gddr5) {
--        table->initialState.levels[0].strobeMode =
-+        table->initialState.level.strobeMode =
-              cypress_get_strobe_mode_settings(rdev,
-  initial_state->performance_levels[0].mclk);
-
-          if (initial_state->performance_levels[0].mclk > 
-pi->mclk_edc_enable_threshold)
--            table->initialState.levels[0].mcFlags = 
-NISLANDS_SMC_MC_EDC_RD_FLAG | NISLANDS_SMC_MC_EDC_WR_FLAG;
-+            table->initialState.level.mcFlags = 
-NISLANDS_SMC_MC_EDC_RD_FLAG | NISLANDS_SMC_MC_EDC_WR_FLAG;
-          else
--            table->initialState.levels[0].mcFlags =  0;
-+            table->initialState.level.mcFlags =  0;
-      }
-
-      table->initialState.levelCount = 1;
-
-      table->initialState.flags |= PPSMC_SWSTATE_FLAG_DC;
-
--    table->initialState.levels[0].dpm2.MaxPS = 0;
--    table->initialState.levels[0].dpm2.NearTDPDec = 0;
--    table->initialState.levels[0].dpm2.AboveSafeInc = 0;
--    table->initialState.levels[0].dpm2.BelowSafeInc = 0;
-+    table->initialState.level.dpm2.MaxPS = 0;
-+    table->initialState.level.dpm2.NearTDPDec = 0;
-+    table->initialState.level.dpm2.AboveSafeInc = 0;
-+    table->initialState.level.dpm2.BelowSafeInc = 0;
-
-      reg = MIN_POWER_MASK | MAX_POWER_MASK;
--    table->initialState.levels[0].SQPowerThrottle = cpu_to_be32(reg);
-+    table->initialState.level.SQPowerThrottle = cpu_to_be32(reg);
-
-      reg = MAX_POWER_DELTA_MASK | STI_SIZE_MASK | LTI_RATIO_MASK;
--    table->initialState.levels[0].SQPowerThrottle_2 = cpu_to_be32(reg);
-+    table->initialState.level.SQPowerThrottle_2 = cpu_to_be32(reg);
-
-      return 0;
-  }
-@@ -1813,43 +1813,43 @@ static int ni_populate_smc_acpi_state(struct 
-radeon_device *rdev,
-      if (pi->acpi_vddc) {
-          ret = ni_populate_voltage_value(rdev,
-                          &eg_pi->vddc_voltage_table,
--                        pi->acpi_vddc, &table->ACPIState.levels[0].vddc);
-+                        pi->acpi_vddc, &table->ACPIState.level.vddc);
-          if (!ret) {
-              u16 std_vddc;
-
-              ret = ni_get_std_voltage_value(rdev,
-- &table->ACPIState.levels[0].vddc, &std_vddc);
-+                               &table->ACPIState.level.vddc, &std_vddc);
-              if (!ret)
-                  ni_populate_std_voltage_value(rdev, std_vddc,
-- table->ACPIState.levels[0].vddc.index,
-- &table->ACPIState.levels[0].std_vddc);
-+ table->ACPIState.level.vddc.index,
-+ &table->ACPIState.level.std_vddc);
-          }
-
-          if (pi->pcie_gen2) {
-              if (pi->acpi_pcie_gen2)
--                table->ACPIState.levels[0].gen2PCIE = 1;
-+                table->ACPIState.level.gen2PCIE = 1;
-              else
--                table->ACPIState.levels[0].gen2PCIE = 0;
-+                table->ACPIState.level.gen2PCIE = 0;
-          } else {
--            table->ACPIState.levels[0].gen2PCIE = 0;
-+            table->ACPIState.level.gen2PCIE = 0;
-          }
-      } else {
-          ret = ni_populate_voltage_value(rdev,
-                          &eg_pi->vddc_voltage_table,
-                          pi->min_vddc_in_table,
--                        &table->ACPIState.levels[0].vddc);
-+                        &table->ACPIState.level.vddc);
-          if (!ret) {
-              u16 std_vddc;
-
-              ret = ni_get_std_voltage_value(rdev,
-- &table->ACPIState.levels[0].vddc,
-+                               &table->ACPIState.level.vddc,
-                                 &std_vddc);
-              if (!ret)
-                  ni_populate_std_voltage_value(rdev, std_vddc,
-- table->ACPIState.levels[0].vddc.index,
-- &table->ACPIState.levels[0].std_vddc);
-+ table->ACPIState.level.vddc.index,
-+ &table->ACPIState.level.std_vddc);
-          }
--        table->ACPIState.levels[0].gen2PCIE = 0;
-+        table->ACPIState.level.gen2PCIE = 0;
-      }
-
-      if (eg_pi->acpi_vddci) {
-@@ -1857,7 +1857,7 @@ static int ni_populate_smc_acpi_state(struct 
-radeon_device *rdev,
-              ni_populate_voltage_value(rdev,
-                            &eg_pi->vddci_voltage_table,
-                            eg_pi->acpi_vddci,
-- &table->ACPIState.levels[0].vddci);
-+                          &table->ACPIState.level.vddci);
-      }
-
-
-@@ -1900,37 +1900,37 @@ static int ni_populate_smc_acpi_state(struct 
-radeon_device *rdev,
-      spll_func_cntl_2 &= ~SCLK_MUX_SEL_MASK;
-      spll_func_cntl_2 |= SCLK_MUX_SEL(4);
-
--    table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL = 
-cpu_to_be32(mpll_ad_func_cntl);
--    table->ACPIState.levels[0].mclk.vMPLL_AD_FUNC_CNTL_2 = 
-cpu_to_be32(mpll_ad_func_cntl_2);
--    table->ACPIState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL = 
-cpu_to_be32(mpll_dq_func_cntl);
--    table->ACPIState.levels[0].mclk.vMPLL_DQ_FUNC_CNTL_2 = 
-cpu_to_be32(mpll_dq_func_cntl_2);
--    table->ACPIState.levels[0].mclk.vMCLK_PWRMGT_CNTL = 
-cpu_to_be32(mclk_pwrmgt_cntl);
--    table->ACPIState.levels[0].mclk.vDLL_CNTL = cpu_to_be32(dll_cntl);
-+    table->ACPIState.level.mclk.vMPLL_AD_FUNC_CNTL = 
-cpu_to_be32(mpll_ad_func_cntl);
-+    table->ACPIState.level.mclk.vMPLL_AD_FUNC_CNTL_2 = 
-cpu_to_be32(mpll_ad_func_cntl_2);
-+    table->ACPIState.level.mclk.vMPLL_DQ_FUNC_CNTL = 
-cpu_to_be32(mpll_dq_func_cntl);
-+    table->ACPIState.level.mclk.vMPLL_DQ_FUNC_CNTL_2 = 
-cpu_to_be32(mpll_dq_func_cntl_2);
-+    table->ACPIState.level.mclk.vMCLK_PWRMGT_CNTL = 
-cpu_to_be32(mclk_pwrmgt_cntl);
-+    table->ACPIState.level.mclk.vDLL_CNTL = cpu_to_be32(dll_cntl);
-
--    table->ACPIState.levels[0].mclk.mclk_value = 0;
-+    table->ACPIState.level.mclk.mclk_value = 0;
-
--    table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL = 
-cpu_to_be32(spll_func_cntl);
--    table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_2 = 
-cpu_to_be32(spll_func_cntl_2);
--    table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_3 = 
-cpu_to_be32(spll_func_cntl_3);
--    table->ACPIState.levels[0].sclk.vCG_SPLL_FUNC_CNTL_4 = 
-cpu_to_be32(spll_func_cntl_4);
-+    table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL = 
-cpu_to_be32(spll_func_cntl);
-+    table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_2 = 
-cpu_to_be32(spll_func_cntl_2);
-+    table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_3 = 
-cpu_to_be32(spll_func_cntl_3);
-+    table->ACPIState.level.sclk.vCG_SPLL_FUNC_CNTL_4 = 
-cpu_to_be32(spll_func_cntl_4);
-
--    table->ACPIState.levels[0].sclk.sclk_value = 0;
-+    table->ACPIState.level.sclk.sclk_value = 0;
-
--    ni_populate_mvdd_value(rdev, 0, &table->ACPIState.levels[0].mvdd);
-+    ni_populate_mvdd_value(rdev, 0, &table->ACPIState.level.mvdd);
-
-      if (eg_pi->dynamic_ac_timing)
--        table->ACPIState.levels[0].ACIndex = 1;
-+        table->ACPIState.level.ACIndex = 1;
-
--    table->ACPIState.levels[0].dpm2.MaxPS = 0;
--    table->ACPIState.levels[0].dpm2.NearTDPDec = 0;
--    table->ACPIState.levels[0].dpm2.AboveSafeInc = 0;
--    table->ACPIState.levels[0].dpm2.BelowSafeInc = 0;
-+    table->ACPIState.level.dpm2.MaxPS = 0;
-+    table->ACPIState.level.dpm2.NearTDPDec = 0;
-+    table->ACPIState.level.dpm2.AboveSafeInc = 0;
-+    table->ACPIState.level.dpm2.BelowSafeInc = 0;
-
-      reg = MIN_POWER_MASK | MAX_POWER_MASK;
--    table->ACPIState.levels[0].SQPowerThrottle = cpu_to_be32(reg);
-+    table->ACPIState.level.SQPowerThrottle = cpu_to_be32(reg);
-
-      reg = MAX_POWER_DELTA_MASK | STI_SIZE_MASK | LTI_RATIO_MASK;
--    table->ACPIState.levels[0].SQPowerThrottle_2 = cpu_to_be32(reg);
-+    table->ACPIState.level.SQPowerThrottle_2 = cpu_to_be32(reg);
-
-      return 0;
-  }
-@@ -1980,7 +1980,9 @@ static int ni_init_smc_table(struct radeon_device 
-*rdev)
-      if (ret)
-          return ret;
-
--    table->driverState = table->initialState;
-+    table->driverState.flags = table->initialState.flags;
-+    table->driverState.levelCount = table->initialState.levelCount;
-+    table->driverState.levels[0] = table->initialState.level;
-
-      table->ULVState = table->initialState;
-
-diff --git a/drivers/gpu/drm/radeon/nislands_smc.h 
-b/drivers/gpu/drm/radeon/nislands_smc.h
-index 7395cb6b3cac..42f3bab0f9ee 100644
---- a/drivers/gpu/drm/radeon/nislands_smc.h
-+++ b/drivers/gpu/drm/radeon/nislands_smc.h
-@@ -143,6 +143,14 @@ struct NISLANDS_SMC_SWSTATE
-
-  typedef struct NISLANDS_SMC_SWSTATE NISLANDS_SMC_SWSTATE;
-
-+struct NISLANDS_SMC_SWSTATE_SINGLE {
-+    uint8_t                             flags;
-+    uint8_t                             levelCount;
-+    uint8_t                             padding2;
-+    uint8_t                             padding3;
-+    NISLANDS_SMC_HW_PERFORMANCE_LEVEL   level;
-+};
+diff --git a/arch/ia64/include/asm/pgtable.h b/arch/ia64/include/asm/pgtable.h
+index 779b6972aa84..9f64fdfbf275 100644
+--- a/arch/ia64/include/asm/pgtable.h
++++ b/arch/ia64/include/asm/pgtable.h
+@@ -520,8 +520,9 @@ extern struct page *zero_page_memmap_ptr;
+ 
+ #  ifdef CONFIG_VIRTUAL_MEM_MAP
+   /* arch mem_map init routine is needed due to holes in a virtual mem_map */
+-    extern void memmap_init (unsigned long size, int nid, unsigned long zone,
+-			     unsigned long start_pfn);
++void memmap_init(void);
++void arch_memmap_init(unsigned long size, int nid, unsigned long zone,
++		      unsigned long start_pfn);
+ #  endif /* CONFIG_VIRTUAL_MEM_MAP */
+ # endif /* !__ASSEMBLY__ */
+ 
+diff --git a/arch/ia64/mm/init.c b/arch/ia64/mm/init.c
+index 27ca549ff47e..f316a833b703 100644
+--- a/arch/ia64/mm/init.c
++++ b/arch/ia64/mm/init.c
+@@ -542,7 +542,7 @@ virtual_memmap_init(u64 start, u64 end, void *arg)
+ }
+ 
+ void __meminit
+-memmap_init (unsigned long size, int nid, unsigned long zone,
++arch_memmap_init (unsigned long size, int nid, unsigned long zone,
+ 	     unsigned long start_pfn)
+ {
+ 	if (!vmem_map) {
+@@ -562,6 +562,10 @@ memmap_init (unsigned long size, int nid, unsigned long zone,
+ 	}
+ }
+ 
++void __init memmap_init(void)
++{
++}
 +
-  #define NISLANDS_SMC_VOLTAGEMASK_VDDC  0
-  #define NISLANDS_SMC_VOLTAGEMASK_MVDD  1
-  #define NISLANDS_SMC_VOLTAGEMASK_VDDCI 2
-@@ -160,19 +168,19 @@ typedef struct NISLANDS_SMC_VOLTAGEMASKTABLE 
-NISLANDS_SMC_VOLTAGEMASKTABLE;
+ int
+ ia64_pfn_valid (unsigned long pfn)
+ {
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index e30d88efd7fb..0166558d3d64 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6129,7 +6129,7 @@ void __ref memmap_init_zone_device(struct zone *zone,
+ 		return;
+ 
+ 	/*
+-	 * The call to memmap_init_zone should have already taken care
++	 * The call to memmap_init should have already taken care
+ 	 * of the pages reserved for the memmap, so we can just jump to
+ 	 * the end of that region and start processing the device pages.
+ 	 */
+@@ -6194,7 +6194,7 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+ /*
+  * Only struct pages that correspond to ranges defined by memblock.memory
+  * are zeroed and initialized by going through __init_single_page() during
+- * memmap_init_zone().
++ * memmap_init_zone_range().
+  *
+  * But, there could be struct pages that correspond to holes in
+  * memblock.memory. This can happen because of the following reasons:
+@@ -6213,9 +6213,9 @@ static void __meminit zone_init_free_lists(struct zone *zone)
+  *   zone/node above the hole except for the trailing pages in the last
+  *   section that will be appended to the zone/node below.
+  */
+-static u64 __meminit init_unavailable_range(unsigned long spfn,
+-					    unsigned long epfn,
+-					    int zone, int node)
++static void __init init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
+ {
+ 	unsigned long pfn;
+ 	u64 pgcnt = 0;
+@@ -6231,58 +6231,84 @@ static u64 __meminit init_unavailable_range(unsigned long spfn,
+ 		pgcnt++;
+ 	}
+ 
+-	return pgcnt;
++	if (pgcnt)
++		pr_info("On node %d, zone %s: %lld pages in unavailable ranges",
++			node, zone_names[zone], pgcnt);
+ }
+ #else
+-static inline u64 init_unavailable_range(unsigned long spfn, unsigned long epfn,
+-					 int zone, int node)
++static inline void init_unavailable_range(unsigned long spfn,
++					  unsigned long epfn,
++					  int zone, int node)
+ {
+-	return 0;
+ }
+ #endif
+ 
+-void __meminit __weak memmap_init(unsigned long size, int nid,
+-				  unsigned long zone,
+-				  unsigned long range_start_pfn)
++static void __init memmap_init_zone_range(struct zone *zone,
++					  unsigned long start_pfn,
++					  unsigned long end_pfn,
++					  unsigned long *hole_pfn)
++{
++	unsigned long zone_start_pfn = zone->zone_start_pfn;
++	unsigned long zone_end_pfn = zone_start_pfn + zone->spanned_pages;
++	int nid = zone_to_nid(zone), zone_id = zone_idx(zone);
++
++	start_pfn = clamp(start_pfn, zone_start_pfn, zone_end_pfn);
++	end_pfn = clamp(end_pfn, zone_start_pfn, zone_end_pfn);
++
++	if (start_pfn >= end_pfn)
++		return;
++
++	memmap_init_zone(end_pfn - start_pfn, nid, zone_id, start_pfn,
++			  zone_end_pfn, MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
++
++	if (*hole_pfn < start_pfn)
++		init_unavailable_range(*hole_pfn, start_pfn, zone_id, nid);
++
++	*hole_pfn = end_pfn;
++}
++
++void __init __weak memmap_init(void)
+ {
+-	static unsigned long hole_pfn;
+ 	unsigned long start_pfn, end_pfn;
+-	unsigned long range_end_pfn = range_start_pfn + size;
+-	int i;
+-	u64 pgcnt = 0;
++	unsigned long hole_pfn = 0;
++	int i, j, zone_id, nid;
+ 
+-	for_each_mem_pfn_range(i, nid, &start_pfn, &end_pfn, NULL) {
+-		start_pfn = clamp(start_pfn, range_start_pfn, range_end_pfn);
+-		end_pfn = clamp(end_pfn, range_start_pfn, range_end_pfn);
++	for_each_mem_pfn_range(i, MAX_NUMNODES, &start_pfn, &end_pfn, &nid) {
++		struct pglist_data *node = NODE_DATA(nid);
+ 
+-		if (end_pfn > start_pfn) {
+-			size = end_pfn - start_pfn;
+-			memmap_init_zone(size, nid, zone, start_pfn, range_end_pfn,
+-					 MEMINIT_EARLY, NULL, MIGRATE_MOVABLE);
+-		}
++		for (j = 0; j < MAX_NR_ZONES; j++) {
++			struct zone *zone = node->node_zones + j;
++
++			if (!populated_zone(zone))
++				continue;
+ 
+-		if (hole_pfn < start_pfn)
+-			pgcnt += init_unavailable_range(hole_pfn, start_pfn,
+-							zone, nid);
+-		hole_pfn = end_pfn;
++			memmap_init_zone_range(zone, start_pfn, end_pfn,
++					       &hole_pfn);
++			zone_id = j;
++		}
+ 	}
+ 
+ #ifdef CONFIG_SPARSEMEM
+ 	/*
+-	 * Initialize the hole in the range [zone_end_pfn, section_end].
+-	 * If zone boundary falls in the middle of a section, this hole
+-	 * will be re-initialized during the call to this function for the
+-	 * higher zone.
++	 * Initialize the memory map for hole in the range [memory_end,
++	 * section_end].
++	 * Append the pages in this hole to the highest zone in the last
++	 * node.
++	 * The call to init_unavailable_range() is outside the ifdef to
++	 * silence the compiler warining about zone_id set but not used;
++	 * for FLATMEM it is a nop anyway
+ 	 */
+-	end_pfn = round_up(range_end_pfn, PAGES_PER_SECTION);
++	end_pfn = round_up(end_pfn, PAGES_PER_SECTION);
+ 	if (hole_pfn < end_pfn)
+-		pgcnt += init_unavailable_range(hole_pfn, end_pfn,
+-						zone, nid);
+ #endif
++		init_unavailable_range(hole_pfn, end_pfn, zone_id, nid);
++}
+ 
+-	if (pgcnt)
+-		pr_info("  %s zone: %llu pages in unavailable ranges\n",
+-			zone_names[zone], pgcnt);
++/* A stub for backwards compatibility with custom implementatin on IA-64 */
++void __meminit __weak arch_memmap_init(unsigned long size, int nid,
++				       unsigned long zone,
++				       unsigned long range_start_pfn)
++{
+ }
+ 
+ static int zone_batchsize(struct zone *zone)
+@@ -6981,7 +7007,7 @@ static void __init free_area_init_core(struct pglist_data *pgdat)
+ 		set_pageblock_order();
+ 		setup_usemap(pgdat, zone, zone_start_pfn, size);
+ 		init_currently_empty_zone(zone, zone_start_pfn, size);
+-		memmap_init(size, nid, j, zone_start_pfn);
++		arch_memmap_init(size, nid, j, zone_start_pfn);
+ 	}
+ }
+ 
+@@ -7507,6 +7533,8 @@ void __init free_area_init(unsigned long *max_zone_pfn)
+ 			node_set_state(nid, N_MEMORY);
+ 		check_for_memory(pgdat, nid);
+ 	}
++
++	memmap_init();
+ }
+ 
+ static int __init cmdline_parse_core(char *p, unsigned long *core,
+-- 
+2.28.0
 
-  struct NISLANDS_SMC_STATETABLE
-  {
--    uint8_t                             thermalProtectType;
--    uint8_t                             systemFlags;
--    uint8_t                             maxVDDCIndexInPPTable;
--    uint8_t                             extraFlags;
--    uint8_t highSMIO[NISLANDS_MAX_NO_VREG_STEPS];
--    uint32_t lowSMIO[NISLANDS_MAX_NO_VREG_STEPS];
--    NISLANDS_SMC_VOLTAGEMASKTABLE       voltageMaskTable;
--    PP_NIslands_DPM2Parameters          dpm2Params;
--    NISLANDS_SMC_SWSTATE                initialState;
--    NISLANDS_SMC_SWSTATE                ACPIState;
--    NISLANDS_SMC_SWSTATE                ULVState;
--    NISLANDS_SMC_SWSTATE                driverState;
--    NISLANDS_SMC_HW_PERFORMANCE_LEVEL 
-dpmLevels[NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE - 1];
-+    uint8_t                             thermalProtectType;
-+    uint8_t                             systemFlags;
-+    uint8_t                             maxVDDCIndexInPPTable;
-+    uint8_t                             extraFlags;
-+    uint8_t highSMIO[NISLANDS_MAX_NO_VREG_STEPS];
-+    uint32_t lowSMIO[NISLANDS_MAX_NO_VREG_STEPS];
-+    NISLANDS_SMC_VOLTAGEMASKTABLE       voltageMaskTable;
-+    PP_NIslands_DPM2Parameters          dpm2Params;
-+    struct NISLANDS_SMC_SWSTATE_SINGLE  initialState;
-+    struct NISLANDS_SMC_SWSTATE_SINGLE  ACPIState;
-+    struct NISLANDS_SMC_SWSTATE_SINGLE  ULVState;
-+    NISLANDS_SMC_SWSTATE                driverState;
-+    NISLANDS_SMC_HW_PERFORMANCE_LEVEL 
-dpmLevels[NISLANDS_MAX_SMC_PERFORMANCE_LEVELS_PER_SWSTATE];
-  };
-
-  typedef struct NISLANDS_SMC_STATETABLE NISLANDS_SMC_STATETABLE;
+-- 
+Sincerely yours,
+Mike.
