@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5393CE3F2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5AD83CE36D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344299AbhGSPlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
+        id S244505AbhGSPh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348228AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348268AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:35:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BBCB61603;
-        Mon, 19 Jul 2021 16:13:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C15E61625;
+        Mon, 19 Jul 2021 16:13:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711217;
-        bh=dQ6jBxel0zs8R32fG0TfjmV0geTMvOiuEXZIOSy8qzA=;
+        s=korg; t=1626711220;
+        bh=ZGTCVaMWRWgDhzNB2GUFnf+Pg1+nHhjQr+lTpUYSymI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wx3+KdsnmoqafvBsaYIK+qBVu/SQ+LZWj2MncmhJ3mWKuuEySMZydQYPpdRLI/XKQ
-         quT6N2JObKXfw7qBUu4VkTmxpTeHJXbrF7JtczRY62J06GAoDDqzlmYWoyzeKW5xYV
-         1CYb4Ft9LPZDhabclRBobQlWyJpsHOUBYykypEkA=
+        b=QbpJvlHyEWH5shlKXg1Qy6Ah0hQ1GmPT11MW5tSxF2f276rxm5FywjTsjNuZ259wF
+         lTL90FAJLJ+TC9cpZVF6mSytRG7XDrJcxJ/4A8cr9OMlEdaRzBPmdkMocv7Du1mLBI
+         eQd1FgS835QdHS5XogUZl3p/5zMKfF0VtS/hKBvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
+        Tianling Shen <cnsztl@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 270/351] ARM: dts: gemini-rut1xx: remove duplicate ethernet node
-Date:   Mon, 19 Jul 2021 16:53:36 +0200
-Message-Id: <20210719144953.872275455@linuxfoundation.org>
+Subject: [PATCH 5.13 271/351] arm64: dts: rockchip: rename LED label for NanoPi R4S
+Date:   Mon, 19 Jul 2021 16:53:37 +0200
+Message-Id: <20210719144953.903548504@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,47 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corentin Labbe <clabbe@baylibre.com>
+From: Tianling Shen <cnsztl@gmail.com>
 
-[ Upstream commit 3d3bb3d27cd371d3edb43eeb1beb8ae4e92a356d ]
+[ Upstream commit 6a11ffc2cc54d89719d5b2f3ca44244cebd7ed2e ]
 
-Two ethernet node was added by
-commit 95220046a62c ("ARM: dts: Add ethernet to a bunch of platforms")
-and commit d6d0cef55e5b ("ARM: dts: Add the FOTG210 USB host to Gemini boards")
+However "sys" is not a valid function, and it is always on.
+Let's keep existing functions.
 
-This patch removes the duplicate one.
+Fixes: db792e9adbf85f ("rockchip: rk3399: Add support for FriendlyARM NanoPi R4S")
 
-Fixes: d6d0cef55e5b ("ARM: dts: Add the FOTG210 USB host to Gemini boards")
-Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Suggested-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Tianling Shen <cnsztl@gmail.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Link: https://lore.kernel.org/r/20210426114652.29542-1-cnsztl@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/gemini-rut1xx.dts | 12 ------------
- 1 file changed, 12 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/gemini-rut1xx.dts b/arch/arm/boot/dts/gemini-rut1xx.dts
-index 9611ddf06792..08091d2a64e1 100644
---- a/arch/arm/boot/dts/gemini-rut1xx.dts
-+++ b/arch/arm/boot/dts/gemini-rut1xx.dts
-@@ -125,18 +125,6 @@
- 			};
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts b/arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts
+index fa5809887643..cef4d18b599d 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-nanopi-r4s.dts
+@@ -33,7 +33,7 @@
+ 
+ 		sys_led: led-sys {
+ 			gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+-			label = "red:sys";
++			label = "red:power";
+ 			default-state = "on";
  		};
  
--		ethernet@60000000 {
--			status = "okay";
--
--			ethernet-port@0 {
--				phy-mode = "rgmii";
--				phy-handle = <&phy0>;
--			};
--			ethernet-port@1 {
--				/* Not used in this platform */
--			};
--		};
--
- 		usb@68000000 {
- 			status = "okay";
- 		};
 -- 
 2.30.2
 
