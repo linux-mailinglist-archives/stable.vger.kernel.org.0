@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90AE03CE3A7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84DEB3CE195
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346455AbhGSPit (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
+        id S1349353AbhGSP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348883AbhGSPfe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76F38611EF;
-        Mon, 19 Jul 2021 16:15:05 +0000 (UTC)
+        id S1348112AbhGSPYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C679C6143A;
+        Mon, 19 Jul 2021 16:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711306;
-        bh=YhXSwoh8bMN8/Mbo0txirRqP3/npuOXCLagUFhi2wV0=;
+        s=korg; t=1626710509;
+        bh=lMXqqgo3Fi6EqGKVYChvs0Q6edpm5Mnt9CW+CR7CCnw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKjfAIUwxHSRRLY+vOmGO7w7O0JbYVBkHqkJIPWRYVJTCAL9ky6+IfWEGym/8cGE8
-         MjWFJu9rkNxWkEASnjNo4vQcqMDlAXHEOd8znfCYGpMBGheiJsDY6I7T5izaP/6e+I
-         GogPPzszfKacSbjepi1J95npWzur/AvDOLKSCZWk=
+        b=QgKLrY1GLqDdR6kSWSQyf7Q2yQ3U6CM5qBct0NrvGmyYdgZ3DBrmTLGdyefJTIw+Q
+         EKb6OMtIpldXiyZe1JUGaxLhVXbeqtCbGwo8o8luvLfmV2DfMfX/58nIAaQ5GCcDOg
+         Z1ddgYtDVVvvL/K02eZ18sFulAKUYeIN/c65bF2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Gowtham Tammana <g-tammana@ti.com>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 303/351] firmware: tegra: Fix error return code in tegra210_bpmp_init()
-Date:   Mon, 19 Jul 2021 16:54:09 +0200
-Message-Id: <20210719144955.077091721@linuxfoundation.org>
+Subject: [PATCH 5.10 221/243] ARM: dts: dra7: Fix duplicate USB4 target module node
+Date:   Mon, 19 Jul 2021 16:54:10 +0200
+Message-Id: <20210719144948.061679916@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Gowtham Tammana <g-tammana@ti.com>
 
-[ Upstream commit 7fea67710e9f6a111a2c9440576f2396ccd92d57 ]
+[ Upstream commit 78b4b165280d3d70e7a217599f0c06a4c0bb11f9 ]
 
-When call irq_get_irq_data() to get the IRQ's irq_data failed, an
-appropriate error code -ENOENT should be returned. However, we directly
-return 'err', which records the IRQ number instead of the error code.
+With [1] USB4 target-module node got defined in dra74x.dtsi file.
+However, the earlier definition in [2] was not removed, and this
+duplication of the target module is causing boot failure on dra74
+variant boards - dra7-evm, dra76-evm.
 
-Fixes: 139251fc2208 ("firmware: tegra: add bpmp driver for Tegra210")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+USB4 is only present in DRA74x variants, so keeping the entry in
+dra74x.dtsi and removing it from the top level interconnect hierarchy
+dra7-l4.dtsi file. This change makes the USB4 target module no longer
+visible to AM5718, DRA71x and DRA72x so removing references to it in
+their respective dts files.
+
+[1]: commit c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for
+dra7 dwc3")
+[2]: commit 549fce068a311 ("ARM: dts: dra7: Add l4 interconnect
+hierarchy and ti-sysc data")
+
+Fixes: c7b72abca61ec ("ARM: OMAP2+: Drop legacy platform data for dra7 dwc3")
+Signed-off-by: Gowtham Tammana <g-tammana@ti.com>
+Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/tegra/bpmp-tegra210.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/am5718.dtsi  |  6 +--
+ arch/arm/boot/dts/dra7-l4.dtsi | 22 --------
+ arch/arm/boot/dts/dra71x.dtsi  |  4 --
+ arch/arm/boot/dts/dra72x.dtsi  |  4 --
+ arch/arm/boot/dts/dra74x.dtsi  | 92 ++++++++++++++++++----------------
+ 5 files changed, 50 insertions(+), 78 deletions(-)
 
-diff --git a/drivers/firmware/tegra/bpmp-tegra210.c b/drivers/firmware/tegra/bpmp-tegra210.c
-index ae15940a078e..c32754055c60 100644
---- a/drivers/firmware/tegra/bpmp-tegra210.c
-+++ b/drivers/firmware/tegra/bpmp-tegra210.c
-@@ -210,7 +210,7 @@ static int tegra210_bpmp_init(struct tegra_bpmp *bpmp)
- 	priv->tx_irq_data = irq_get_irq_data(err);
- 	if (!priv->tx_irq_data) {
- 		dev_err(&pdev->dev, "failed to get IRQ data for TX IRQ\n");
--		return err;
-+		return -ENOENT;
- 	}
+diff --git a/arch/arm/boot/dts/am5718.dtsi b/arch/arm/boot/dts/am5718.dtsi
+index ebf4d3cc1cfb..6d7530a48c73 100644
+--- a/arch/arm/boot/dts/am5718.dtsi
++++ b/arch/arm/boot/dts/am5718.dtsi
+@@ -17,17 +17,13 @@
+  * VCP1, VCP2
+  * MLB
+  * ISS
+- * USB3, USB4
++ * USB3
+  */
  
- 	err = platform_get_irq_byname(pdev, "rx");
+ &usb3_tm {
+ 	status = "disabled";
+ };
+ 
+-&usb4_tm {
+-	status = "disabled";
+-};
+-
+ &atl_tm {
+ 	status = "disabled";
+ };
+diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
+index a294a02f2d23..1dafce92fc76 100644
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -4095,28 +4095,6 @@
+ 			};
+ 		};
+ 
+-		usb4_tm: target-module@140000 {		/* 0x48940000, ap 75 3c.0 */
+-			compatible = "ti,sysc-omap4", "ti,sysc";
+-			reg = <0x140000 0x4>,
+-			      <0x140010 0x4>;
+-			reg-names = "rev", "sysc";
+-			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
+-			ti,sysc-midle = <SYSC_IDLE_FORCE>,
+-					<SYSC_IDLE_NO>,
+-					<SYSC_IDLE_SMART>,
+-					<SYSC_IDLE_SMART_WKUP>;
+-			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
+-					<SYSC_IDLE_NO>,
+-					<SYSC_IDLE_SMART>,
+-					<SYSC_IDLE_SMART_WKUP>;
+-			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
+-			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
+-			clock-names = "fck";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			ranges = <0x0 0x140000 0x20000>;
+-		};
+-
+ 		target-module@170000 {			/* 0x48970000, ap 21 0a.0 */
+ 			compatible = "ti,sysc-omap4", "ti,sysc";
+ 			reg = <0x170010 0x4>;
+diff --git a/arch/arm/boot/dts/dra71x.dtsi b/arch/arm/boot/dts/dra71x.dtsi
+index cad0e4a2bd8d..9c270d8f75d5 100644
+--- a/arch/arm/boot/dts/dra71x.dtsi
++++ b/arch/arm/boot/dts/dra71x.dtsi
+@@ -11,7 +11,3 @@
+ &rtctarget {
+ 	status = "disabled";
+ };
+-
+-&usb4_tm {
+-	status = "disabled";
+-};
+diff --git a/arch/arm/boot/dts/dra72x.dtsi b/arch/arm/boot/dts/dra72x.dtsi
+index d403acc754b6..f3e934ef7d3e 100644
+--- a/arch/arm/boot/dts/dra72x.dtsi
++++ b/arch/arm/boot/dts/dra72x.dtsi
+@@ -108,7 +108,3 @@
+ &pcie2_rc {
+ 	compatible = "ti,dra726-pcie-rc", "ti,dra7-pcie";
+ };
+-
+-&usb4_tm {
+-	status = "disabled";
+-};
+diff --git a/arch/arm/boot/dts/dra74x.dtsi b/arch/arm/boot/dts/dra74x.dtsi
+index e1850d6c841a..b4e07d99ffde 100644
+--- a/arch/arm/boot/dts/dra74x.dtsi
++++ b/arch/arm/boot/dts/dra74x.dtsi
+@@ -49,49 +49,6 @@
+ 			reg = <0x41500000 0x100>;
+ 		};
+ 
+-		target-module@48940000 {
+-			compatible = "ti,sysc-omap4", "ti,sysc";
+-			reg = <0x48940000 0x4>,
+-			      <0x48940010 0x4>;
+-			reg-names = "rev", "sysc";
+-			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
+-			ti,sysc-midle = <SYSC_IDLE_FORCE>,
+-					<SYSC_IDLE_NO>,
+-					<SYSC_IDLE_SMART>,
+-					<SYSC_IDLE_SMART_WKUP>;
+-			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
+-					<SYSC_IDLE_NO>,
+-					<SYSC_IDLE_SMART>,
+-					<SYSC_IDLE_SMART_WKUP>;
+-			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
+-			clock-names = "fck";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			ranges = <0x0 0x48940000 0x20000>;
+-
+-			omap_dwc3_4: omap_dwc3_4@0 {
+-				compatible = "ti,dwc3";
+-				reg = <0 0x10000>;
+-				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
+-				#address-cells = <1>;
+-				#size-cells = <1>;
+-				utmi-mode = <2>;
+-				ranges;
+-				status = "disabled";
+-				usb4: usb@10000 {
+-					compatible = "snps,dwc3";
+-					reg = <0x10000 0x17000>;
+-					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
+-						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
+-						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
+-					interrupt-names = "peripheral",
+-							  "host",
+-							  "otg";
+-					maximum-speed = "high-speed";
+-					dr_mode = "otg";
+-				};
+-			};
+-		};
+ 
+ 		target-module@41501000 {
+ 			compatible = "ti,sysc-omap2", "ti,sysc";
+@@ -224,3 +181,52 @@
+ &pcie2_rc {
+ 	compatible = "ti,dra746-pcie-rc", "ti,dra7-pcie";
+ };
++
++&l4_per3 {
++	segment@0 {
++		usb4_tm: target-module@140000 {         /* 0x48940000, ap 75 3c.0 */
++			compatible = "ti,sysc-omap4", "ti,sysc";
++			reg = <0x140000 0x4>,
++			      <0x140010 0x4>;
++			reg-names = "rev", "sysc";
++			ti,sysc-mask = <SYSC_OMAP4_DMADISABLE>;
++			ti,sysc-midle = <SYSC_IDLE_FORCE>,
++					<SYSC_IDLE_NO>,
++					<SYSC_IDLE_SMART>,
++					<SYSC_IDLE_SMART_WKUP>;
++			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
++					<SYSC_IDLE_NO>,
++					<SYSC_IDLE_SMART>,
++					<SYSC_IDLE_SMART_WKUP>;
++			/* Domains (P, C): l3init_pwrdm, l3init_clkdm */
++			clocks = <&l3init_clkctrl DRA7_L3INIT_USB_OTG_SS4_CLKCTRL 0>;
++			clock-names = "fck";
++			#address-cells = <1>;
++			#size-cells = <1>;
++			ranges = <0x0 0x140000 0x20000>;
++
++			omap_dwc3_4: omap_dwc3_4@0 {
++				compatible = "ti,dwc3";
++				reg = <0 0x10000>;
++				interrupts = <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				utmi-mode = <2>;
++				ranges;
++				status = "disabled";
++				usb4: usb@10000 {
++					compatible = "snps,dwc3";
++					reg = <0x10000 0x17000>;
++					interrupts = <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
++						     <GIC_SPI 345 IRQ_TYPE_LEVEL_HIGH>,
++						     <GIC_SPI 346 IRQ_TYPE_LEVEL_HIGH>;
++					interrupt-names = "peripheral",
++							  "host",
++							  "otg";
++					maximum-speed = "high-speed";
++					dr_mode = "otg";
++				};
++			};
++		};
++	};
++};
 -- 
 2.30.2
 
