@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C25AA3CDE32
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 736213CDC75
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:33:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345286AbhGSPCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58644 "EHLO mail.kernel.org"
+        id S238611AbhGSOwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:52:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41930 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345276AbhGSPA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 04B4C60241;
-        Mon, 19 Jul 2021 15:41:07 +0000 (UTC)
+        id S1343696AbhGSOsc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F792613C3;
+        Mon, 19 Jul 2021 15:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709268;
-        bh=tWVXGu/HX1v3G1LQMW2of1bw8eLUL8rFjcAstOR9S8A=;
+        s=korg; t=1626708246;
+        bh=BTyrjFiua/CxfBSblJdUvPsO0YJUfCx8TmcslF45QeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYs4JLfRt6pCyyYAPfpSXQ/io7lrMsjkGhHxiUiRJ9ApEdJCdcCXmVph59ifJXm7q
-         J0e092xwdsen8F/A4k2FMX+p23mA3fVjhTWrjjR6rlk3pSc4C77+ABWxEXMHmN1LWl
-         2GKSEky0T/uSeR0/XNkSfBydlfWjddMID9s7NuTA=
+        b=Nwn+xu02lVZoqwnrV1rGbO16vbSOW+ZClv3OaE+yD/o5Ewr7IJzQ+JH8CeyKm13nk
+         aWVuEbX3LFGNa+j2fBbuZQ4QnzXixFtbSzVuprYTGZw8vImzdxhJLg05UPHKPa6J1Y
+         i58aElEvW1tyCTNDLPtmxjoPzOD+4M0bzQj5+cPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 315/421] jfs: fix GPF in diFree
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 237/315] misc/libmasm/module: Fix two use after free in ibmasm_init_one
 Date:   Mon, 19 Jul 2021 16:52:06 +0200
-Message-Id: <20210719144957.235331538@linuxfoundation.org>
+Message-Id: <20210719144951.213146114@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 9d574f985fe33efd6911f4d752de6f485a1ea732 upstream.
+[ Upstream commit 7272b591c4cb9327c43443f67b8fbae7657dd9ae ]
 
-Avoid passing inode with
-JFS_SBI(inode->i_sb)->ipimap == NULL to
-diFree()[1]. GFP will appear:
+In ibmasm_init_one, it calls ibmasm_init_remote_input_dev().
+Inside ibmasm_init_remote_input_dev, mouse_dev and keybd_dev are
+allocated by input_allocate_device(), and assigned to
+sp->remote.mouse_dev and sp->remote.keybd_dev respectively.
 
-	struct inode *ipimap = JFS_SBI(ip->i_sb)->ipimap;
-	struct inomap *imap = JFS_IP(ipimap)->i_imap;
+In the err_free_devices error branch of ibmasm_init_one,
+mouse_dev and keybd_dev are freed by input_free_device(), and return
+error. Then the execution runs into error_send_message error branch
+of ibmasm_init_one, where ibmasm_free_remote_input_dev(sp) is called
+to unregister the freed sp->remote.mouse_dev and sp->remote.keybd_dev.
 
-JFS_IP() will return invalid pointer when ipimap == NULL
+My patch add a "error_init_remote" label to handle the error of
+ibmasm_init_remote_input_dev(), to avoid the uaf bugs.
 
-Call Trace:
- diFree+0x13d/0x2dc0 fs/jfs/jfs_imap.c:853 [1]
- jfs_evict_inode+0x2c9/0x370 fs/jfs/inode.c:154
- evict+0x2ed/0x750 fs/inode.c:578
- iput_final fs/inode.c:1654 [inline]
- iput.part.0+0x3fe/0x820 fs/inode.c:1680
- iput+0x58/0x70 fs/inode.c:1670
-
-Reported-and-tested-by: syzbot+0a89a7b56db04c21a656@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Dave Kleikamp <dave.kleikamp@oracle.com>
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Link: https://lore.kernel.org/r/20210426170620.10546-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jfs/inode.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/ibmasm/module.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/jfs/inode.c
-+++ b/fs/jfs/inode.c
-@@ -161,7 +161,8 @@ void jfs_evict_inode(struct inode *inode
- 			if (test_cflag(COMMIT_Freewmap, inode))
- 				jfs_free_zero_link(inode);
+diff --git a/drivers/misc/ibmasm/module.c b/drivers/misc/ibmasm/module.c
+index c5a456b0a564..5bd62eebbb8a 100644
+--- a/drivers/misc/ibmasm/module.c
++++ b/drivers/misc/ibmasm/module.c
+@@ -123,7 +123,7 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	result = ibmasm_init_remote_input_dev(sp);
+ 	if (result) {
+ 		dev_err(sp->dev, "Failed to initialize remote queue\n");
+-		goto error_send_message;
++		goto error_init_remote;
+ 	}
  
--			diFree(inode);
-+			if (JFS_SBI(inode->i_sb)->ipimap)
-+				diFree(inode);
+ 	result = ibmasm_send_driver_vpd(sp);
+@@ -143,8 +143,9 @@ static int ibmasm_init_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
  
- 			/*
- 			 * Free the inode from the quota allocation.
+ error_send_message:
+-	disable_sp_interrupts(sp->base_address);
+ 	ibmasm_free_remote_input_dev(sp);
++error_init_remote:
++	disable_sp_interrupts(sp->base_address);
+ 	free_irq(sp->irq, (void *)sp);
+ error_request_irq:
+ 	iounmap(sp->base_address);
+-- 
+2.30.2
+
 
 
