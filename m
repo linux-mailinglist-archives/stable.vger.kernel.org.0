@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64753CE2FA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EEA93CE2F8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234541AbhGSPdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57556 "EHLO mail.kernel.org"
+        id S235879AbhGSPdM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:33:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347525AbhGSPTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347522AbhGSPTb (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:19:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C3BC61414;
-        Mon, 19 Jul 2021 15:58:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B4A3361415;
+        Mon, 19 Jul 2021 15:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710298;
-        bh=FL1PTp73Fvj1PbY80kEq4ykA3rIwBqcs8t7Gm9YEcew=;
+        s=korg; t=1626710301;
+        bh=E2RmQRbNJXBzx2Ef1fGcsPlJ5wyQTnwudubQj9I9VXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FjStnsa0h7WDDUwBS6Q2gU+c6UvvbhL/z/jqqpflEnzukL8tdCUFJjvgt2vJ00Esu
-         ly8Vokxdf4rOLXOi95ydxIAV5R9a5PNJl4o82lqWP5Lsg3D0jh/Jm+/UL/axgaM6I2
-         /fKZqXdFV7bmEs3n+TfQBxAAcvg87R0pR22GyB2A=
+        b=oLHl5tNk/VQjOkkeHZafLSeff/lxMYTDD76U8gQaGCCTzGqr5EAMqnyPvBOPu0OOh
+         w+I3dodxPSIF/xv+iQDoEt53oVSenkKK6kU5VcdFqwu9hRm/iLoA+2Mmqv4vwgdeG8
+         d0kLN1ASL16YYY10BctnXEl6f184AuDZhYPx41qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/243] ubifs: Fix off-by-one error
-Date:   Mon, 19 Jul 2021 16:53:08 +0200
-Message-Id: <20210719144946.037816548@linuxfoundation.org>
+Subject: [PATCH 5.10 160/243] ubifs: journal: Fix error return code in ubifs_jnl_write_inode()
+Date:   Mon, 19 Jul 2021 16:53:09 +0200
+Message-Id: <20210719144946.068152235@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
 References: <20210719144940.904087935@linuxfoundation.org>
@@ -40,50 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sascha Hauer <s.hauer@pengutronix.de>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit d984bcf5766dbdbe95d325bb8a1b49a996fecfd4 ]
+[ Upstream commit a2c2a622d41168f9fea2aa3f76b9fbaa88531aac ]
 
-An inode is allowed to have ubifs_xattr_max_cnt() xattrs, so we must
-complain only when an inode has more xattrs, having exactly
-ubifs_xattr_max_cnt() xattrs is fine.
-With this the maximum number of xattrs can be created without hitting
-the "has too many xattrs" warning when removing it.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Fixes: 9ca2d7326444 ("ubifs: Limit number of xattrs per inode")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/journal.c | 2 +-
- fs/ubifs/xattr.c   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/ubifs/journal.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/fs/ubifs/journal.c b/fs/ubifs/journal.c
-index 091c2ad8f211..7927dea2baba 100644
+index 7927dea2baba..7274bd23881b 100644
 --- a/fs/ubifs/journal.c
 +++ b/fs/ubifs/journal.c
-@@ -881,7 +881,7 @@ int ubifs_jnl_write_inode(struct ubifs_info *c, const struct inode *inode)
- 		struct inode *xino;
+@@ -882,6 +882,7 @@ int ubifs_jnl_write_inode(struct ubifs_info *c, const struct inode *inode)
  		struct ubifs_dent_node *xent, *pxent = NULL;
  
--		if (ui->xattr_cnt >= ubifs_xattr_max_cnt(c)) {
-+		if (ui->xattr_cnt > ubifs_xattr_max_cnt(c)) {
+ 		if (ui->xattr_cnt > ubifs_xattr_max_cnt(c)) {
++			err = -EPERM;
  			ubifs_err(c, "Cannot delete inode, it has too much xattrs!");
  			goto out_release;
  		}
-diff --git a/fs/ubifs/xattr.c b/fs/ubifs/xattr.c
-index 09280796fc61..17745f5462f0 100644
---- a/fs/ubifs/xattr.c
-+++ b/fs/ubifs/xattr.c
-@@ -512,7 +512,7 @@ int ubifs_purge_xattrs(struct inode *host)
- 	struct fscrypt_name nm = {0};
- 	int err;
- 
--	if (ubifs_inode(host)->xattr_cnt < ubifs_xattr_max_cnt(c))
-+	if (ubifs_inode(host)->xattr_cnt <= ubifs_xattr_max_cnt(c))
- 		return 0;
- 
- 	ubifs_warn(c, "inode %lu has too many xattrs, doing a non-atomic deletion",
 -- 
 2.30.2
 
