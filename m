@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DF713CE1EC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1369A3CE1F1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346223AbhGSP21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:28:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
+        id S1347026AbhGSP2b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:28:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349175AbhGSPZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:25:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF8B6608FC;
-        Mon, 19 Jul 2021 16:06:27 +0000 (UTC)
+        id S239968AbhGSPZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:25:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 401D9600EF;
+        Mon, 19 Jul 2021 16:06:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710788;
-        bh=H65BQimBAwbH5n7kbcYzCOuiT8nnBa5h2f5AOhcpIMw=;
+        s=korg; t=1626710795;
+        bh=9zY3xMgQT4AeEHLyvTQjoZoyHJvvalLEv9eMVRj/HMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OhgPciLZrGGQlrH/MC52cOqnNnMNTnTCHKeU2N/uIs2RSpimD8VnwcOZUSCjdOgkw
-         nLY+c2/Ah0Jz6QR2eSWxV3HnvB0QXAH79TdQdCiuXnRszf2MZU9dGjkH76EuR31ynP
-         73I/1XHpsh0Qn9LPGCkew3jHkOjfR58asPX7KKsY=
+        b=kuFfJVCEM23RDj82tFLSPLL5h1bI+ZwTt6MvWxwEtrjG21I7Tt6fuZlwZQ3W+zm4R
+         bhfY0bfswnuSnpKDiQxkkbNH8fKnDy1j3nu5L86Q/JmSQFCd1R0dwKjrxMDC95mKly
+         ve1zyjfvNVULSJu3g4+WV3LrIUZn9ChGVAzjyJDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 109/351] ALSA: ppc: fix error return code in snd_pmac_probe()
-Date:   Mon, 19 Jul 2021 16:50:55 +0200
-Message-Id: <20210719144948.096753133@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 111/351] gpio: pca953x: Add support for the On Semi pca9655
+Date:   Mon, 19 Jul 2021 16:50:57 +0200
+Message-Id: <20210719144948.159945657@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,39 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 80b9c1be567c3c6bbe0d4b290af578e630485b5d ]
+[ Upstream commit 6d49b3a0f351925b5ea5047166c112b7590b918a ]
 
-If snd_pmac_tumbler_init() or snd_pmac_tumbler_post_init() fails,
-snd_pmac_probe() need return error code.
+The On Semi pca9655 is a 16 bit variant of the On Semi pca9654 GPIO
+expander, with 16 GPIOs and interrupt functionality.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210616021121.1991502-1-yangyingliang@huawei.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+[Bartosz: fixed indentation as noted by Andy]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/ppc/powermac.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-pca953x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/ppc/powermac.c b/sound/ppc/powermac.c
-index 9fb51ebafde1..8088f77d5a74 100644
---- a/sound/ppc/powermac.c
-+++ b/sound/ppc/powermac.c
-@@ -76,7 +76,11 @@ static int snd_pmac_probe(struct platform_device *devptr)
- 		sprintf(card->shortname, "PowerMac %s", name_ext);
- 		sprintf(card->longname, "%s (Dev %d) Sub-frame %d",
- 			card->shortname, chip->device_id, chip->subframe);
--		if ( snd_pmac_tumbler_init(chip) < 0 || snd_pmac_tumbler_post_init() < 0)
-+		err = snd_pmac_tumbler_init(chip);
-+		if (err < 0)
-+			goto __error;
-+		err = snd_pmac_tumbler_post_init();
-+		if (err < 0)
- 			goto __error;
- 		break;
- 	case PMAC_AWACS:
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index c91d05651596..f5cfc0698799 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -1241,6 +1241,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
+ 
+ 	{ .compatible = "onnn,cat9554", .data = OF_953X( 8, PCA_INT), },
+ 	{ .compatible = "onnn,pca9654", .data = OF_953X( 8, PCA_INT), },
++	{ .compatible = "onnn,pca9655", .data = OF_953X(16, PCA_INT), },
+ 
+ 	{ .compatible = "exar,xra1202", .data = OF_953X( 8, 0), },
+ 	{ }
 -- 
 2.30.2
 
