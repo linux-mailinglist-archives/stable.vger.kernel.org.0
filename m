@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5CA83CD9D7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F9C63CD87E
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245307AbhGSObu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S242904AbhGSOWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:22:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244634AbhGSO3y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E5986113C;
-        Mon, 19 Jul 2021 15:10:18 +0000 (UTC)
+        id S242952AbhGSOVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28ECC61186;
+        Mon, 19 Jul 2021 15:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707418;
-        bh=FQQIFpnAiR23hT4T3lXEcnFdqObycTksY+X948lJ45A=;
+        s=korg; t=1626706911;
+        bh=n0U+kvtwUQr9ljXpuCRdRPhENSLFS5UKC6+L6CU1qVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BGZYjLOdY7O9XXnX5I8FSIu8nvLtmdFDg+is4pZ0XinJiNCudhH5Y/dVLTFGTHxqG
-         HNfN0S2pc6XAlbJeuiP639I26RngngjWt/dmV3Pxoj5z7/MFYvV6lqGugzV+9EdOSc
-         TKjZMIX2YZp51QqfboELrJv0ZhTxtfBnlXrDYTFA=
+        b=QPyOK8Rz4bphLh8h/vxWE2C89COXX78zJA4KTWL4+eK76ih6yXkFoSbid6xnLLsYa
+         G8+pt8Gq8pIb10bDLPO5WdcXuzvxXJ642iStP5Il1jRSEkDZZmdK0qpJhbA1gulrwz
+         T0Ll+wsNFLYvh4n3Tw1eKR3RWvR1hxdOaooU3c+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ilja Van Sprundel <ivansprundel@ioactive.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 156/245] sctp: add size validation when walking chunks
+Subject: [PATCH 4.4 114/188] atm: nicstar: register the interrupt handler in the right place
 Date:   Mon, 19 Jul 2021 16:51:38 +0200
-Message-Id: <20210719144945.448079004@linuxfoundation.org>
+Message-Id: <20210719144939.703109897@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 50619dbf8db77e98d821d615af4f634d08e22698 ]
+[ Upstream commit 70b639dc41ad499384e41e106fce72e36805c9f2 ]
 
-The first chunk in a packet is ensured to be present at the beginning of
-sctp_rcv(), as a packet needs to have at least 1 chunk. But the second
-one, may not be completely available and ch->length can be over
-uninitialized memory.
+Because the error handling is sequential, the application of resources
+should be carried out in the order of error handling, so the operation
+of registering the interrupt handler should be put in front, so as not
+to free the unregistered interrupt handler during error handling.
 
-Fix here is by only trying to walk on the next chunk if there is enough to
-hold at least the header, and then proceed with the ch->length validation
-that is already there.
+This log reveals it:
 
-Reported-by: Ilja Van Sprundel <ivansprundel@ioactive.com>
-Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+[    3.438724] Trying to free already-free IRQ 23
+[    3.439060] WARNING: CPU: 5 PID: 1 at kernel/irq/manage.c:1825 free_irq+0xfb/0x480
+[    3.440039] Modules linked in:
+[    3.440257] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
+[    3.440793] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.441561] RIP: 0010:free_irq+0xfb/0x480
+[    3.441845] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
+[    3.443121] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
+[    3.443483] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
+[    3.443972] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
+[    3.444462] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
+[    3.444950] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
+[    3.444994] FS:  0000000000000000(0000) GS:ffff88817bd40000(0000) knlGS:0000000000000000
+[    3.444994] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.444994] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.444994] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.444994] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.444994] Call Trace:
+[    3.444994]  ns_init_card_error+0x18e/0x250
+[    3.444994]  nicstar_init_one+0x10d2/0x1130
+[    3.444994]  local_pci_probe+0x4a/0xb0
+[    3.444994]  pci_device_probe+0x126/0x1d0
+[    3.444994]  ? pci_device_remove+0x100/0x100
+[    3.444994]  really_probe+0x27e/0x650
+[    3.444994]  driver_probe_device+0x84/0x1d0
+[    3.444994]  ? mutex_lock_nested+0x16/0x20
+[    3.444994]  device_driver_attach+0x63/0x70
+[    3.444994]  __driver_attach+0x117/0x1a0
+[    3.444994]  ? device_driver_attach+0x70/0x70
+[    3.444994]  bus_for_each_dev+0xb6/0x110
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  driver_attach+0x22/0x30
+[    3.444994]  bus_add_driver+0x1e6/0x2a0
+[    3.444994]  driver_register+0xa4/0x180
+[    3.444994]  __pci_register_driver+0x77/0x80
+[    3.444994]  ? uPD98402_module_init+0xd/0xd
+[    3.444994]  nicstar_init+0x1f/0x75
+[    3.444994]  do_one_initcall+0x7a/0x3d0
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  kernel_init+0x13/0x180
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ret_from_fork+0x1f/0x30
+[    3.444994] Kernel panic - not syncing: panic_on_warn set ...
+[    3.444994] CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #142
+[    3.444994] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.444994] Call Trace:
+[    3.444994]  dump_stack+0xba/0xf5
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  panic+0x155/0x3ed
+[    3.444994]  ? __warn+0xed/0x150
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  __warn+0x103/0x150
+[    3.444994]  ? free_irq+0xfb/0x480
+[    3.444994]  report_bug+0x119/0x1c0
+[    3.444994]  handle_bug+0x3b/0x80
+[    3.444994]  exc_invalid_op+0x18/0x70
+[    3.444994]  asm_exc_invalid_op+0x12/0x20
+[    3.444994] RIP: 0010:free_irq+0xfb/0x480
+[    3.444994] Code: 6e 08 74 6f 4d 89 f4 e8 c3 78 09 00 4d 8b 74 24 18 4d 85 f6 75 e3 e8 b4 78 09 00 8b 75 c8 48 c7 c7 a0 ac d5 85 e8 95 d7 f5 ff <0f> 0b 48 8b 75 c0 4c 89 ff e8 87 c5 90 03 48 8b 43 40 4c 8b a0 80
+[    3.444994] RSP: 0000:ffffc90000017b50 EFLAGS: 00010086
+[    3.444994] RAX: 0000000000000000 RBX: ffff888107c6f000 RCX: 0000000000000000
+[    3.444994] RDX: 0000000000000000 RSI: ffffffff8123f301 RDI: 00000000ffffffff
+[    3.444994] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000003
+[    3.444994] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+[    3.444994] R13: ffff888107dc0000 R14: ffff888104f6bf00 R15: ffff888107c6f0a8
+[    3.444994]  ? vprintk_func+0x71/0x110
+[    3.444994]  ns_init_card_error+0x18e/0x250
+[    3.444994]  nicstar_init_one+0x10d2/0x1130
+[    3.444994]  local_pci_probe+0x4a/0xb0
+[    3.444994]  pci_device_probe+0x126/0x1d0
+[    3.444994]  ? pci_device_remove+0x100/0x100
+[    3.444994]  really_probe+0x27e/0x650
+[    3.444994]  driver_probe_device+0x84/0x1d0
+[    3.444994]  ? mutex_lock_nested+0x16/0x20
+[    3.444994]  device_driver_attach+0x63/0x70
+[    3.444994]  __driver_attach+0x117/0x1a0
+[    3.444994]  ? device_driver_attach+0x70/0x70
+[    3.444994]  bus_for_each_dev+0xb6/0x110
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  driver_attach+0x22/0x30
+[    3.444994]  bus_add_driver+0x1e6/0x2a0
+[    3.444994]  driver_register+0xa4/0x180
+[    3.444994]  __pci_register_driver+0x77/0x80
+[    3.444994]  ? uPD98402_module_init+0xd/0xd
+[    3.444994]  nicstar_init+0x1f/0x75
+[    3.444994]  do_one_initcall+0x7a/0x3d0
+[    3.444994]  ? rdinit_setup+0x40/0x40
+[    3.444994]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.444994]  kernel_init_freeable+0x2a7/0x2f9
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  kernel_init+0x13/0x180
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ? rest_init+0x2c0/0x2c0
+[    3.444994]  ret_from_fork+0x1f/0x30
+[    3.444994] Dumping ftrace buffer:
+[    3.444994]    (ftrace buffer empty)
+[    3.444994] Kernel Offset: disabled
+[    3.444994] Rebooting in 1 seconds..
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/atm/nicstar.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/net/sctp/input.c b/net/sctp/input.c
-index 12d821ea8a1f..8f4574c4aa6c 100644
---- a/net/sctp/input.c
-+++ b/net/sctp/input.c
-@@ -1165,7 +1165,7 @@ static struct sctp_association *__sctp_rcv_walk_lookup(struct net *net,
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index 86f3e72e686f..56d464b58768 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -525,6 +525,15 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
+ 	/* Set the VPI/VCI MSb mask to zero so we can receive OAM cells */
+ 	writel(0x00000000, card->membase + VPM);
  
- 		ch = (sctp_chunkhdr_t *) ch_end;
- 		chunk_num++;
--	} while (ch_end < skb_tail_pointer(skb));
-+	} while (ch_end + sizeof(*ch) < skb_tail_pointer(skb));
++	card->intcnt = 0;
++	if (request_irq
++	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
++		pr_err("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
++		error = 9;
++		ns_init_card_error(card, error);
++		return error;
++	}
++
+ 	/* Initialize TSQ */
+ 	card->tsq.org = dma_alloc_coherent(&card->pcidev->dev,
+ 					   NS_TSQSIZE + NS_TSQ_ALIGNMENT,
+@@ -751,15 +760,6 @@ static int ns_init_card(int i, struct pci_dev *pcidev)
  
- 	return asoc;
- }
+ 	card->efbie = 1;
+ 
+-	card->intcnt = 0;
+-	if (request_irq
+-	    (pcidev->irq, &ns_irq_handler, IRQF_SHARED, "nicstar", card) != 0) {
+-		printk("nicstar%d: can't allocate IRQ %d.\n", i, pcidev->irq);
+-		error = 9;
+-		ns_init_card_error(card, error);
+-		return error;
+-	}
+-
+ 	/* Register device */
+ 	card->atmdev = atm_dev_register("nicstar", &card->pcidev->dev, &atm_ops,
+ 					-1, NULL);
 -- 
 2.30.2
 
