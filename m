@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 713183CDBBF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8073A3CD8B5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238581AbhGSOtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40436 "EHLO mail.kernel.org"
+        id S242167AbhGSOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344112AbhGSOsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E117C613F8;
-        Mon, 19 Jul 2021 15:26:35 +0000 (UTC)
+        id S241972AbhGSOWm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:22:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3355161248;
+        Mon, 19 Jul 2021 15:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708396;
-        bh=L97dLeP6erxCCovARaRHBZiyyAeRSD+wLyweSRUnot8=;
+        s=korg; t=1626706960;
+        bh=vGFioSWvtRgICLzoYPoDXxpPQu2d3N5bConmOJySD3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylxI6tqiWWmaux+bex6bFioynKY4Xt+Ui6E8Ba3jPq5CjHqORWrhdG0raNVQ7+oec
-         hxFLgn7biC29YiELVRcrO8l1u1b83gHPy2tcEud2xLhtzO10pwk3ebT+TGgZjuStoI
-         kkd48PADom6QW8jtkatI4q1yh56zbKLLK/M+eVb8=
+        b=wO09r9q6oxkB4QeI4bHowq6wox86XTTUJS4eZoCAZfVjkdI1dPz2Oq0n1AhFuxRzx
+         P0h7Q7SCXWPbPpeHsec4qY6mA+0yF0QNPgmVk3plfra3cpyD9cFqtoierM28w7gZRh
+         siKwqTKE7M3SuKn+WTZNHaGGtgtsMQXqgr+ZpzM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiajun Cao <jjcao20@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 261/315] ALSA: hda: Add IRQ check for platform_get_irq()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 166/188] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:30 +0200
-Message-Id: <20210719144951.998370138@linuxfoundation.org>
+Message-Id: <20210719144941.924827676@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,43 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiajun Cao <jjcao20@fudan.edu.cn>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 8c13212443230d03ff25014514ec0d53498c0912 ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-The function hda_tegra_first_init() neglects to check the return
-value after executing platform_get_irq().
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-hda_tegra_first_init() should check the return value (if negative
-error number) for errors so as to not pass a negative value to
-the devm_request_irq().
-
-Fix it by adding a check for the return value irq_id.
-
-Signed-off-by: Jiajun Cao <jjcao20@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Reviewed-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20210622131947.94346-1-jjcao20@fudan.edu.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_tegra.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_tegra.c b/sound/pci/hda/hda_tegra.c
-index e85fb04ec7be..b567c4bdae00 100644
---- a/sound/pci/hda/hda_tegra.c
-+++ b/sound/pci/hda/hda_tegra.c
-@@ -363,6 +363,9 @@ static int hda_tegra_first_init(struct azx *chip, struct platform_device *pdev)
- 	unsigned short gcap;
- 	int irq_id = platform_get_irq(pdev, 0);
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index be3d81ff51cc..a44e3427fdeb 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -84,6 +84,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
-+	if (irq_id < 0)
-+		return irq_id;
-+
- 	err = hda_tegra_init_chip(chip, pdev);
- 	if (err)
- 		return err;
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
