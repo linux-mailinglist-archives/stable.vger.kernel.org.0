@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE8C3CDCFD
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E267B3CDCFC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244893AbhGSOxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244907AbhGSOxx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 19 Jul 2021 10:53:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44576 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239053AbhGSOua (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:50:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 849C661221;
-        Mon, 19 Jul 2021 15:31:07 +0000 (UTC)
+        id S239081AbhGSOud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:50:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 654EF6120C;
+        Mon, 19 Jul 2021 15:31:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708668;
-        bh=iOiTZk4TXHOX8IjPxj0AzqSMvpzu7iV7iJ7wVQTMQ7A=;
+        s=korg; t=1626708671;
+        bh=9h0CprquX1g9A7j6CnX7NeSuPZHKUXyWGs+BKLvJ/e8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOso8oflA818i2CMgFK0gUDx+bELGr1RPIKnCD+Wn0YS3K6kQhGaCfUPI7nSoNtfE
-         9Tx68q7Br/d8wz0lVmHH8LTieyGyEpm4Q59Zb9A526uEHXI7QvqC2aOs4IRiA39/OO
-         eKPCkrJPnlN+zhnN+f7/z+8gP86zpQQfy4TCSQPA=
+        b=U91tklx0JKV1UcPan85MB9pxS98Y6A7GrKoFdDI70bb8coZFiFawlbfYz2Vtx5ZBx
+         V9DBr78VfgHfnOr9MStDwwLtDBQqHWt8DANEObFQ4k3U4xYk11sZtuOKmTHqSPRHFg
+         jriryDsHiT1z+XOR1zzEN0gs4fHDxaMna57Vr5Oo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Chiu <chris.chiu@canonical.com>,
-        Jian-Hong Pan <jhp@endlessos.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 082/421] ACPI: EC: Make more Asus laptops use ECDT _GPE
-Date:   Mon, 19 Jul 2021 16:48:13 +0200
-Message-Id: <20210719144948.976168142@linuxfoundation.org>
+        stable@vger.kernel.org, "zhangyi (F)" <yi.zhang@huawei.com>,
+        Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 083/421] block_dump: remove block_dump feature in mark_inode_dirty()
+Date:   Mon, 19 Jul 2021 16:48:14 +0200
+Message-Id: <20210719144949.005682336@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -41,52 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: zhangyi (F) <yi.zhang@huawei.com>
 
-[ Upstream commit 6306f0431914beaf220634ad36c08234006571d5 ]
+[ Upstream commit 12e0613715e1cf305fffafaf0e89d810d9a85cc0 ]
 
-More ASUS laptops have the _GPE define in the DSDT table with a
-different value than the _GPE number in the ECDT.
+block_dump is an old debugging interface, one of it's functions is used
+to print the information about who write which file on disk. If we
+enable block_dump through /proc/sys/vm/block_dump and turn on debug log
+level, we can gather information about write process name, target file
+name and disk from kernel message. This feature is realized in
+block_dump___mark_inode_dirty(), it print above information into kernel
+message directly when marking inode dirty, so it is noisy and can easily
+trigger log storm. At the same time, get the dentry refcount is also not
+safe, we found it will lead to deadlock on ext4 file system with
+data=journal mode.
 
-This is causing media keys not working on ASUS X505BA/BP, X542BA/BP
+After tracepoints has been introduced into the kernel, we got a
+tracepoint in __mark_inode_dirty(), which is a better replacement of
+block_dump___mark_inode_dirty(). The only downside is that it only trace
+the inode number and not a file name, but it probably doesn't matter
+because the original printed file name in block_dump is not accurate in
+some cases, and we can still find it through the inode number and device
+id. So this patch delete the dirting inode part of block_dump feature.
 
-Add model info to the quirks list.
-
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Signed-off-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20210313030146.2882027-2-yi.zhang@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ fs/fs-writeback.c | 25 -------------------------
+ 1 file changed, 25 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index 9415a0041aaf..e3df3dda0332 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -1904,6 +1904,22 @@ static const struct dmi_system_id ec_dmi_table[] __initconst = {
- 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 	DMI_MATCH(DMI_PRODUCT_NAME, "GL702VMK"),}, NULL},
- 	{
-+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BA", {
-+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+	DMI_MATCH(DMI_PRODUCT_NAME, "X505BA"),}, NULL},
-+	{
-+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X505BP", {
-+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+	DMI_MATCH(DMI_PRODUCT_NAME, "X505BP"),}, NULL},
-+	{
-+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BA", {
-+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+	DMI_MATCH(DMI_PRODUCT_NAME, "X542BA"),}, NULL},
-+	{
-+	ec_honor_ecdt_gpe, "ASUSTeK COMPUTER INC. X542BP", {
-+	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+	DMI_MATCH(DMI_PRODUCT_NAME, "X542BP"),}, NULL},
-+	{
- 	ec_honor_ecdt_gpe, "ASUS X550VXK", {
- 	DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 	DMI_MATCH(DMI_PRODUCT_NAME, "X550VXK"),}, NULL},
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index a247cb4b00e2..fc9167e65287 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -2115,28 +2115,6 @@ int dirtytime_interval_handler(struct ctl_table *table, int write,
+ 	return ret;
+ }
+ 
+-static noinline void block_dump___mark_inode_dirty(struct inode *inode)
+-{
+-	if (inode->i_ino || strcmp(inode->i_sb->s_id, "bdev")) {
+-		struct dentry *dentry;
+-		const char *name = "?";
+-
+-		dentry = d_find_alias(inode);
+-		if (dentry) {
+-			spin_lock(&dentry->d_lock);
+-			name = (const char *) dentry->d_name.name;
+-		}
+-		printk(KERN_DEBUG
+-		       "%s(%d): dirtied inode %lu (%s) on %s\n",
+-		       current->comm, task_pid_nr(current), inode->i_ino,
+-		       name, inode->i_sb->s_id);
+-		if (dentry) {
+-			spin_unlock(&dentry->d_lock);
+-			dput(dentry);
+-		}
+-	}
+-}
+-
+ /**
+  * __mark_inode_dirty -	internal function
+  *
+@@ -2196,9 +2174,6 @@ void __mark_inode_dirty(struct inode *inode, int flags)
+ 	    (dirtytime && (inode->i_state & I_DIRTY_INODE)))
+ 		return;
+ 
+-	if (unlikely(block_dump))
+-		block_dump___mark_inode_dirty(inode);
+-
+ 	spin_lock(&inode->i_lock);
+ 	if (dirtytime && (inode->i_state & I_DIRTY_INODE))
+ 		goto out_unlock_inode;
 -- 
 2.30.2
 
