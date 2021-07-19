@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4793CE383
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:20:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8953CE2A1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346673AbhGSPi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57408 "EHLO mail.kernel.org"
+        id S1345967AbhGSPbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348938AbhGSPfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0286B6128A;
-        Mon, 19 Jul 2021 16:15:31 +0000 (UTC)
+        id S1347873AbhGSPXA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:23:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F16EC61376;
+        Mon, 19 Jul 2021 15:59:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711332;
-        bh=jgg0uQosO6yAVi5yQtfEpZjl7nko8NRs6L7+JDAfTC4=;
+        s=korg; t=1626710393;
+        bh=LDL4Bqi17LueZ8n7BQx1SbwuFjKuWJ/E8uFrCXGqHxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ORnHDct3MPuC9cujidI7UVxe4mUqIr2bHCmmsU5ENZPhZpYEDB/bc69Y/3LcXFmrF
-         UtqcTTCN872+Rh6ldBQLXlM4t/Qv2F+TOlxiIEvEuh7jOrp19JNYFRyceGqVVXqII7
-         6jPK+NevHLW8heHBzljH/Vev4xeWYQBpvWy9LWg4=
+        b=yOUFcPV6Odtn75YLh3BQ5zCJ7Svf00gduqB+aYx7o5IVISjEGV6VVJGPraZacfJOH
+         lcoYAc4Aqo0lImXGHPfq65DhZSI5k8IqOqoJ3cIpAFx6rlZu+ZwAXjiFHYi9Qwon/e
+         GoQBeTEM2FVv+i5H0RONIkJKEqMe9ZcT8MkOThBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, "B.R. Oake" <broake@mailfence.com>,
+        Vagrant Cascadian <vagrant@reproducible-builds.org>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 281/351] memory: atmel-ebi: add missing of_node_put for loop iteration
+Subject: [PATCH 5.10 198/243] ARM: dts: sun8i: h3: orangepi-plus: Fix ethernet phy-mode
 Date:   Mon, 19 Jul 2021 16:53:47 +0200
-Message-Id: <20210719144954.257087007@linuxfoundation.org>
+Message-Id: <20210719144947.321830593@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Salvatore Bonaccorso <carnil@debian.org>
 
-[ Upstream commit 907c5bbb514a4676160e79764522fff56ce3448e ]
+[ Upstream commit b19d3479f25e8a0ff24df0b46c82e50ef0f900dd ]
 
-Early exits from for_each_available_child_of_node() should decrement the
-node reference counter.  Reported by Coccinelle:
+Commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay
+config") sets the RX/TX delay according to the phy-mode property in the
+device tree. For the Orange Pi Plus board this is "rgmii", which is the
+wrong setting.
 
-  drivers/memory/atmel-ebi.c:593:1-33: WARNING:
-    Function "for_each_available_child_of_node" should have of_node_put() before return around line 604.
+Following the example of a900cac3750b ("ARM: dts: sun7i: a20: bananapro:
+Fix ethernet phy-mode") the phy-mode is changed to "rgmii-id" which gets
+the Ethernet working again on this board.
 
-Fixes: 6a4ec4cd0888 ("memory: add Atmel EBI (External Bus Interface) driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210423101815.119341-2-krzysztof.kozlowski@canonical.com
+Fixes: bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx delay config")
+Reported-by: "B.R. Oake" <broake@mailfence.com>
+Reported-by: Vagrant Cascadian <vagrant@reproducible-builds.org>
+Link: https://bugs.debian.org/988574
+Signed-off-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://lore.kernel.org/r/20210524122111.416885-1-carnil@debian.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/atmel-ebi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/atmel-ebi.c b/drivers/memory/atmel-ebi.c
-index 14386d0b5f57..c267283b01fd 100644
---- a/drivers/memory/atmel-ebi.c
-+++ b/drivers/memory/atmel-ebi.c
-@@ -600,8 +600,10 @@ static int atmel_ebi_probe(struct platform_device *pdev)
- 				child);
+diff --git a/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts b/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
+index 97f497854e05..d05fa679dcd3 100644
+--- a/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
++++ b/arch/arm/boot/dts/sun8i-h3-orangepi-plus.dts
+@@ -85,7 +85,7 @@
+ 	pinctrl-0 = <&emac_rgmii_pins>;
+ 	phy-supply = <&reg_gmac_3v3>;
+ 	phy-handle = <&ext_rgmii_phy>;
+-	phy-mode = "rgmii";
++	phy-mode = "rgmii-id";
  
- 			ret = atmel_ebi_dev_disable(ebi, child);
--			if (ret)
-+			if (ret) {
-+				of_node_put(child);
- 				return ret;
-+			}
- 		}
- 	}
- 
+ 	status = "okay";
+ };
 -- 
 2.30.2
 
