@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D01D03CE4ED
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B38A3CE546
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbhGSPrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46042 "EHLO mail.kernel.org"
+        id S1347073AbhGSPs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349391AbhGSPpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349388AbhGSPpC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56F5A613CC;
-        Mon, 19 Jul 2021 16:24:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0713A613B0;
+        Mon, 19 Jul 2021 16:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711884;
-        bh=ncThU5zyVA1NFSuV3h44VcPp/1yXnnu1Kuh07jhcWIA=;
+        s=korg; t=1626711887;
+        bh=SlIeBwGAAJ/eYlwVLrKmTH7lzNfL1PotuC4Ic6N5HSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/eg4QGj0QW9oPgXlJJ9lXEtIDwKtk4j4t3I0CApTPInUHMGezBV1rLJVngkxTbEC
-         Jd2l/9D5XasOgdIXnzhGWT020k/9HNrFUFv934kHqDGBss6xUPFvSgPvY4lLvYncso
-         9VHfaDDIRXRsHBpdZuqZN8gO16ms9XOklqTycKYE=
+        b=hqcc1nNiI/D5z3wHuXLo2pBxSVxm8UdxWWMIoMVNy6WktVeZUrSP5q2rEknDndivj
+         UGb2cpiz3uKFHZUrvwhzUjLYXN5bhbHAUkdRtU7l++qoJEXlf8ENMgVjUO2JNQEzBk
+         hX1HeDIffFVZ28yq6hXEi2sCX22wPWnVKmud0DRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jason Wang <jasowang@redhat.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 169/292] virtio-blk: Fix memory leak among suspend/resume procedure
-Date:   Mon, 19 Jul 2021 16:53:51 +0200
-Message-Id: <20210719144948.055480868@linuxfoundation.org>
+Subject: [PATCH 5.12 170/292] virtio_net: Fix error handling in virtnet_restore()
+Date:   Mon, 19 Jul 2021 16:53:52 +0200
+Message-Id: <20210719144948.090926692@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,33 +43,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
+[ Upstream commit 3f2869cace829fb4b80fc53b3ddaa7f4ba9acbf1 ]
 
-The vblk->vqs should be freed before we call init_vqs()
-in virtblk_restore().
+Do some cleanups in virtnet_restore() when virtnet_cpu_notif_add() failed.
 
 Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
+Link: https://lore.kernel.org/r/20210517084516.332-1-xieyongji@bytedance.com
 Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/virtio_net.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index b9fa3ef5b57c..425bae618131 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -948,6 +948,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
- 	blk_mq_quiesce_queue(vblk->disk->queue);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f7ce341bb328..db9a876035ec 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -3229,8 +3229,11 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
+ 	virtnet_set_queues(vi, vi->curr_queue_pairs);
  
- 	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
-+
+ 	err = virtnet_cpu_notif_add(vi);
+-	if (err)
++	if (err) {
++		virtnet_freeze_down(vdev);
++		remove_vq_common(vi);
+ 		return err;
++	}
+ 
  	return 0;
  }
- 
 -- 
 2.30.2
 
