@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B4D3CDAED
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:21:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D7E3CD900
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242960AbhGSOkG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54558 "EHLO mail.kernel.org"
+        id S243166AbhGSO0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244217AbhGSOho (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:37:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DC6461220;
-        Mon, 19 Jul 2021 15:17:25 +0000 (UTC)
+        id S244129AbhGSOYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:24:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B3D861181;
+        Mon, 19 Jul 2021 15:05:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707846;
-        bh=fAySR2GxltjBMCs0mwVQzIM8EBH+3hm24OaJlIaGlVA=;
+        s=korg; t=1626707115;
+        bh=6n5sxH6TLCkHVBS8XWxoUBmCml3j7SUf5EA0kGP6Tx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A4fqghTIRK/8eDQkItgpU/EZPHrVNt9hxTEu8BukIgrG7HCCt0jqV1S13gXIqqkMo
-         1lWYzvD9I6SddKW7eyObhBHVrS6jOaYZxw/8o/zUdTIV/lH8bdMUcEx+Pt2f+rQvPf
-         OOGW2DOkSw6hTIuoTlCjf0KbG1cuBuxW2akNclFc=
+        b=qdUCbD5ILE/mDYPqJvGzoOIRc1zDGeq3WAVFhnvtYdW6Mqu5cBEVRMmOxBhfsi0sc
+         UmCBpRUaTQ6cKEHT7rf0BYjdffaoam1K2/9cgcDD8j1jnCiwCWhoSYTgQWj/FXZtnm
+         Tc1AlJn2ft+75VQfarqxRKH1PIN4uqmsSzCwH5pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/315] pata_octeon_cf: avoid WARN_ON() in ata_host_activate()
+        stable@vger.kernel.org, Pradeep P V K <pragalla@codeaurora.org>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.9 028/245] fuse: check connected before queueing on fpq->io
 Date:   Mon, 19 Jul 2021 16:49:30 +0200
-Message-Id: <20210719144945.539114445@linuxfoundation.org>
+Message-Id: <20210719144941.315466725@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit bfc1f378c8953e68ccdbfe0a8c20748427488b80 ]
+commit 80ef08670d4c28a06a3de954bd350368780bcfef upstream.
 
-Iff platform_get_irq() fails (or returns IRQ0) and thus the polling mode
-has to be used, ata_host_activate() hits the WARN_ON() due to 'irq_handler'
-parameter being non-NULL if the polling mode is selected.  Let's only set
-the pointer to the driver's IRQ handler if platform_get_irq() returns a
-valid IRQ # -- this should avoid the unnecessary WARN_ON()...
+A request could end up on the fpq->io list after fuse_abort_conn() has
+reset fpq->connected and aborted requests on that list:
 
-Fixes: 43f01da0f279 ("MIPS/OCTEON/ata: Convert pata_octeon_cf.c to use device tree.")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/3a241167-f84d-1d25-5b9b-be910afbe666@omp.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Thread-1			  Thread-2
+========			  ========
+->fuse_simple_request()           ->shutdown
+  ->__fuse_request_send()
+    ->queue_request()		->fuse_abort_conn()
+->fuse_dev_do_read()                ->acquire(fpq->lock)
+  ->wait_for(fpq->lock) 	  ->set err to all req's in fpq->io
+				  ->release(fpq->lock)
+  ->acquire(fpq->lock)
+  ->add req to fpq->io
+
+After the userspace copy is done the request will be ended, but
+req->out.h.error will remain uninitialized.  Also the copy might block
+despite being already aborted.
+
+Fix both issues by not allowing the request to be queued on the fpq->io
+list after fuse_abort_conn() has processed this list.
+
+Reported-by: Pradeep P V K <pragalla@codeaurora.org>
+Fixes: fd22d62ed0c3 ("fuse: no fc->lock for iqueue parts")
+Cc: <stable@vger.kernel.org> # v4.2
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/ata/pata_octeon_cf.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/fuse/dev.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/ata/pata_octeon_cf.c b/drivers/ata/pata_octeon_cf.c
-index d3d851b014a3..ac3b1fda820f 100644
---- a/drivers/ata/pata_octeon_cf.c
-+++ b/drivers/ata/pata_octeon_cf.c
-@@ -898,10 +898,11 @@ static int octeon_cf_probe(struct platform_device *pdev)
- 					return -EINVAL;
- 				}
- 
--				irq_handler = octeon_cf_interrupt;
- 				i = platform_get_irq(dma_dev, 0);
--				if (i > 0)
-+				if (i > 0) {
- 					irq = i;
-+					irq_handler = octeon_cf_interrupt;
-+				}
- 			}
- 			of_node_put(dma_node);
- 		}
--- 
-2.30.2
-
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -1298,6 +1298,15 @@ static ssize_t fuse_dev_do_read(struct f
+ 		goto restart;
+ 	}
+ 	spin_lock(&fpq->lock);
++	/*
++	 *  Must not put request on fpq->io queue after having been shut down by
++	 *  fuse_abort_conn()
++	 */
++	if (!fpq->connected) {
++		req->out.h.error = err = -ECONNABORTED;
++		goto out_end;
++
++	}
+ 	list_add(&req->list, &fpq->io);
+ 	spin_unlock(&fpq->lock);
+ 	cs->req = req;
 
 
