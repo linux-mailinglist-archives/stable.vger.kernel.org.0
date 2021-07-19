@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8AE3CDA17
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564593CDBCE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244260AbhGSOdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:33:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46606 "EHLO mail.kernel.org"
+        id S238521AbhGSOts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:49:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245287AbhGSObo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:31:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D12561073;
-        Mon, 19 Jul 2021 15:12:19 +0000 (UTC)
+        id S1344101AbhGSOsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81B4E613F0;
+        Mon, 19 Jul 2021 15:26:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707540;
-        bh=p58epB/5XPf9VoPg+aVuld8nvvB+GnyYnomEpyTlmtw=;
+        s=korg; t=1626708386;
+        bh=eGypJuKBfiwtYZyFp2YvA7vPL8SEaM2BpjpZPLQbBUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JhD9ovaCUZeS7h2uLwuAAdBqLE1BadozmoAI6VGT7MhEaMLpOlYRzvy7l3+9GOaK6
-         cEJQEm1p9j7MZby7C75fomS2LlnGnbjsGSVU0fmR8aK4H/QoqY/YIryM28vdx1UtPx
-         kV/3Kz9oFJ1lCLTvlwXivLPtp/Cnr/jy9POILtqs=
+        b=Eut0ofG0Dd5r8s/o13jO4zxmib/yVX541XTSfYfRWyOFoPd0rcN+HKj0u3zodSOuB
+         fB+BLWKxnZAbVPv1rn+c64PC++7hVnSsKeulQb2aexFez5hyDReXnvjqoXxPccJQca
+         BqNQBqHsHIaySc89EN2tGm18ftGF/ny3UGHdbc2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        Fabien Chouteau <fabien.chouteau@barco.com>,
+        Segiy Stetsyuk <serg_stetsuk@ukr.net>,
+        Ruslan Bilovol <ruslan.bilovol@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 204/245] backlight: lm3630a: Fix return code of .update_status() callback
+Subject: [PATCH 4.14 257/315] usb: gadget: f_hid: fix endianness issue with descriptors
 Date:   Mon, 19 Jul 2021 16:52:26 +0200
-Message-Id: <20210719144947.002040850@linuxfoundation.org>
+Message-Id: <20210719144951.873059252@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Ruslan Bilovol <ruslan.bilovol@gmail.com>
 
-[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
+[ Upstream commit 33cb46c4676d01956811b68a29157ea969a5df70 ]
 
-According to <linux/backlight.h> .update_status() is supposed to
-return 0 on success and a negative error code otherwise. Adapt
-lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
-actually do it.
+Running sparse checker it shows warning message about
+incorrect endianness used for descriptor initialization:
 
-While touching that also add the error code to the failure message.
+| f_hid.c:91:43: warning: incorrect type in initializer (different base types)
+| f_hid.c:91:43:    expected restricted __le16 [usertype] bcdHID
+| f_hid.c:91:43:    got int
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixing issue with cpu_to_le16() macro, however this is not a real issue
+as the value is the same both endians.
+
+Cc: Fabien Chouteau <fabien.chouteau@barco.com>
+Cc: Segiy Stetsyuk <serg_stetsuk@ukr.net>
+Signed-off-by: Ruslan Bilovol <ruslan.bilovol@gmail.com>
+Link: https://lore.kernel.org/r/20210617162755.29676-1-ruslan.bilovol@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/gadget/function/f_hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index 1771220b2437..90a24b975240 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -183,7 +183,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
- 
- 	/* disable sleep */
-@@ -203,8 +203,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
-@@ -260,7 +260,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
- 
- 	/* disable sleep */
-@@ -280,8 +280,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
+diff --git a/drivers/usb/gadget/function/f_hid.c b/drivers/usb/gadget/function/f_hid.c
+index 77d1183775ef..e9b772a9902b 100644
+--- a/drivers/usb/gadget/function/f_hid.c
++++ b/drivers/usb/gadget/function/f_hid.c
+@@ -92,7 +92,7 @@ static struct usb_interface_descriptor hidg_interface_desc = {
+ static struct hid_descriptor hidg_desc = {
+ 	.bLength			= sizeof hidg_desc,
+ 	.bDescriptorType		= HID_DT_HID,
+-	.bcdHID				= 0x0101,
++	.bcdHID				= cpu_to_le16(0x0101),
+ 	.bCountryCode			= 0x00,
+ 	.bNumDescriptors		= 0x1,
+ 	/*.desc[0].bDescriptorType	= DYNAMIC */
 -- 
 2.30.2
 
