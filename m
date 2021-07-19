@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C4CD3CDC0A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C103CDE87
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237640AbhGSOvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
+        id S1344719AbhGSPDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343894AbhGSOsf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 018586127C;
-        Mon, 19 Jul 2021 15:25:24 +0000 (UTC)
+        id S1345060AbhGSPBr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2B9D6120A;
+        Mon, 19 Jul 2021 15:42:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708325;
-        bh=pfH0Ji+8ZDpSskIgX+PwG5GckvMLIe/0t8YKozXpRVo=;
+        s=korg; t=1626709344;
+        bh=4TsRwoe2ro7D8QzGFv+I3O7ZQ9kjnMVzdT1a+YTSFPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTa7V+bHeTAMYg0WPoeT4LMrY+r3FtFcoJxY+lW+DY1wnKL/ugWOpYBcxssKHoDRQ
-         6Tqy5RP1+QLXKT+SyHLbt6g8fQg10ASMzpcj2ezODAjC2w1YgtIRfQRjHNn9b0fbKH
-         T7Ncp4fKWrJIeb5LM7c+rw4WSbYiDI5kI8ItyUyo=
+        b=DLDCCrFtf9VVo0jlygWHZ3i5OL7IsPT8/+7GQ/pcMtkSRgcM6zNqgBzX5dQfLciXX
+         Yl36WZzn+miaVVAFuCSeGfAu9RyO42On4ImlDGfUy+av2mIsmVfQVoqn8t2Yh4XxVF
+         vGPW3kg5HIWUskKmNXKzqA3sZEt7d6kWzkZsM9YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 268/315] power: supply: max17042: Do not enforce (incorrect) interrupt trigger type
+Subject: [PATCH 4.19 346/421] gpio: pca953x: Add support for the On Semi pca9655
 Date:   Mon, 19 Jul 2021 16:52:37 +0200
-Message-Id: <20210719144952.236851829@linuxfoundation.org>
+Message-Id: <20210719144958.282648747@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Peter Robinson <pbrobinson@gmail.com>
 
-[ Upstream commit 7fbf6b731bca347700e460d94b130f9d734b33e9 ]
+[ Upstream commit 6d49b3a0f351925b5ea5047166c112b7590b918a ]
 
-Interrupt line can be configured on different hardware in different way,
-even inverted.  Therefore driver should not enforce specific trigger
-type - edge falling - but instead rely on Devicetree to configure it.
+The On Semi pca9655 is a 16 bit variant of the On Semi pca9654 GPIO
+expander, with 16 GPIOs and interrupt functionality.
 
-The Maxim 17047/77693 datasheets describe the interrupt line as active
-low with a requirement of acknowledge from the CPU therefore the edge
-falling is not correct.
-
-The interrupt line is shared between PMIC and RTC driver, so using level
-sensitive interrupt is here especially important to avoid races.  With
-an edge configuration in case if first PMIC signals interrupt followed
-shortly after by the RTC, the interrupt might not be yet cleared/acked
-thus the second one would not be noticed.
-
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
+[Bartosz: fixed indentation as noted by Andy]
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max17042_battery.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-pca953x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 9c7eaaeda343..911d42366ef1 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -1051,7 +1051,7 @@ static int max17042_probe(struct i2c_client *client,
- 	}
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 0232c25a1586..dc4088a47ab2 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -980,6 +980,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
+ 	{ .compatible = "ti,tca6424", .data = OF_953X(24, PCA_INT), },
  
- 	if (client->irq) {
--		unsigned int flags = IRQF_TRIGGER_FALLING | IRQF_ONESHOT;
-+		unsigned int flags = IRQF_ONESHOT;
+ 	{ .compatible = "onnn,pca9654", .data = OF_953X( 8, PCA_INT), },
++	{ .compatible = "onnn,pca9655", .data = OF_953X(16, PCA_INT), },
  
- 		/*
- 		 * On ACPI systems the IRQ may be handled by ACPI-event code,
+ 	{ .compatible = "exar,xra1202", .data = OF_953X( 8, 0), },
+ 	{ }
 -- 
 2.30.2
 
