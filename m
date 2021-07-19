@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59BCB3CDBEE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 763C83CDE80
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239164AbhGSOuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40440 "EHLO mail.kernel.org"
+        id S1344865AbhGSPDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:03:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343923AbhGSOsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09CC560FE4;
-        Mon, 19 Jul 2021 15:25:08 +0000 (UTC)
+        id S1345037AbhGSPBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:01:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9501661001;
+        Mon, 19 Jul 2021 15:42:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708309;
-        bh=DnrVDy5JaOtvangCBXvUq8ErllhIlW9ZoxLwMrRuQ54=;
+        s=korg; t=1626709330;
+        bh=e56wCNtzipbCruyvGQJOp9CBwWPfNJuoSaIZ7Nckhbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRHjxvU3SgQo/g2P9NDHisL7mTaQ/SWZDjulzB5dDNmUv15atUm73r8NC21leBBfw
-         DhZCLKeq0Lejv9sCGsQ6m2kxmnu/cvplxwF7nUDrRGTPmSkiekJ0KC93ihBwHmLI1o
-         mZOHjYMa1sYODp/U57J6TNkMZiZfuioXuybsfIVE=
+        b=kgeU7vq+QOJePTIYCneakTlSJ83o5KkVCvtyOVQEhoF09n2T4lzv6AN4xQGR99rGu
+         FF7N0EfCFD1i3ghL9eUasAZYqspRMLqyjvz8Co0e1Wi2KiTCOi3je88twUYBM4cHOw
+         9CYyhAU+zHkBYNvSWNsgOY0hN7xt2TRK8OAQYiyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 262/315] staging: rtl8723bs: fix macro value for 2.4Ghz only device
-Date:   Mon, 19 Jul 2021 16:52:31 +0200
-Message-Id: <20210719144952.029224330@linuxfoundation.org>
+Subject: [PATCH 4.19 341/421] ALSA: sb: Fix potential double-free of CSP mixer elements
+Date:   Mon, 19 Jul 2021 16:52:32 +0200
+Message-Id: <20210719144958.123991100@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Aiuto <fabioaiuto83@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 6d490a27e23c5fb79b766530016ab8665169498e ]
+[ Upstream commit c305366a37441c2ac90b08711cb6f032b43672f2 ]
 
-fix IQK_Matrix_Settings_NUM macro value to 14 which is
-the max channel number value allowed in a 2.4Ghz device.
+snd_sb_qsound_destroy() contains the calls of removing the previously
+created mixer controls, but it doesn't clear the pointers.  As
+snd_sb_qsound_destroy() itself may be repeatedly called via ioctl,
+this could lead to double-free potentially.
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Fabio Aiuto <fabioaiuto83@gmail.com>
-Link: https://lore.kernel.org/r/0b4a876929949248aa18cb919da3583c65e4ee4e.1624367072.git.fabioaiuto83@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix it by clearing the struct fields properly afterwards.
+
+Link: https://lore.kernel.org/r/20210608140540.17885-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/hal/odm.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ sound/isa/sb/sb16_csp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8723bs/hal/odm.h b/drivers/staging/rtl8723bs/hal/odm.h
-index 87a76bafecb3..7424c25b52ce 100644
---- a/drivers/staging/rtl8723bs/hal/odm.h
-+++ b/drivers/staging/rtl8723bs/hal/odm.h
-@@ -209,10 +209,7 @@ typedef struct _ODM_RATE_ADAPTIVE {
+diff --git a/sound/isa/sb/sb16_csp.c b/sound/isa/sb/sb16_csp.c
+index 2e00b64ef13b..b3eecde0b612 100644
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1086,10 +1086,14 @@ static void snd_sb_qsound_destroy(struct snd_sb_csp * p)
+ 	card = p->chip->card;	
+ 	
+ 	down_write(&card->controls_rwsem);
+-	if (p->qsound_switch)
++	if (p->qsound_switch) {
+ 		snd_ctl_remove(card, p->qsound_switch);
+-	if (p->qsound_space)
++		p->qsound_switch = NULL;
++	}
++	if (p->qsound_space) {
+ 		snd_ctl_remove(card, p->qsound_space);
++		p->qsound_space = NULL;
++	}
+ 	up_write(&card->controls_rwsem);
  
- #define AVG_THERMAL_NUM		8
- #define IQK_Matrix_REG_NUM	8
--#define IQK_Matrix_Settings_NUM	(14 + 24 + 21) /*   Channels_2_4G_NUM
--						* + Channels_5G_20M_NUM
--						* + Channels_5G
--						*/
-+#define IQK_Matrix_Settings_NUM	14 /* Channels_2_4G_NUM */
- 
- #define		DM_Type_ByFW			0
- #define		DM_Type_ByDriver		1
+ 	/* cancel pending transfer of QSound parameters */
 -- 
 2.30.2
 
