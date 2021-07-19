@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AF43CE269
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18DF83CE0AE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348409AbhGSPaR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47362 "EHLO mail.kernel.org"
+        id S1343693AbhGSPRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345776AbhGSP1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:27:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E879D6120D;
-        Mon, 19 Jul 2021 16:08:17 +0000 (UTC)
+        id S1346445AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EFC861029;
+        Mon, 19 Jul 2021 15:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710898;
-        bh=dr/RxNerB3iZPvigGjF9oT3gndKmVCtkZP8nkwtjB+Y=;
+        s=korg; t=1626710082;
+        bh=5T1+u/UZZRnxJkBO2cDXT6ztaO3Z8BSsius4MCuBJHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f38S+RMWYwcUn0QHy40u8quribu2/kWoufnDhZIKfRgsGpvqYPOiFpXhC4niyqZyG
-         nUKlWyX2nQz2D8mm3hdY8FKXWX4lorDhyHq/Vg2sFsxsCdamQBXblfxY2QBCsnV5SY
-         2eOvV/DYnVzaj4FCDpchK8c+ipkEtH+aFjuf7GCY=
+        b=HJoVf54fJyIGfyKPDOiBZZ21ilzQS93N47ZvDyqYxLNlUdFJ070YvAZ+271hKUTlF
+         wBGwKkwEh8akLl1eqnUyKDgge11JW64Mk3c4gIPDg8wAx/565CATdTqx2sLrJN4Eao
+         192qgm3zgvfBdjhcUWNj/PCffhCLH0ZkH6O4K358=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>, Joel Stanley <joel@jms.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 150/351] pwm: spear: Dont modify HW state in .remove callback
+Subject: [PATCH 5.10 067/243] fsi: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:51:36 +0200
-Message-Id: <20210719144949.937615237@linuxfoundation.org>
+Message-Id: <20210719144943.078891895@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit b601a18f12383001e7a8da238de7ca1559ebc450 ]
+[ Upstream commit 19a52178125c1e8b84444d85f2ce34c0964b4a91 ]
 
-A consumer is expected to disable a PWM before calling pwm_put(). And if
-they didn't there is hopefully a good reason (or the consumer needs
-fixing). Also if disabling an enabled PWM was the right thing to do,
-this should better be done in the framework instead of in each low level
-driver.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-So drop the hardware modification from the .remove() callback.
-
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620896249-52769-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-spear.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/fsi/fsi-master-aspeed.c | 1 +
+ drivers/fsi/fsi-master-ast-cf.c | 1 +
+ drivers/fsi/fsi-master-gpio.c   | 1 +
+ drivers/fsi/fsi-occ.c           | 1 +
+ 4 files changed, 4 insertions(+)
 
-diff --git a/drivers/pwm/pwm-spear.c b/drivers/pwm/pwm-spear.c
-index 1a1cedfd11ce..6879b49581b3 100644
---- a/drivers/pwm/pwm-spear.c
-+++ b/drivers/pwm/pwm-spear.c
-@@ -228,10 +228,6 @@ static int spear_pwm_probe(struct platform_device *pdev)
- static int spear_pwm_remove(struct platform_device *pdev)
- {
- 	struct spear_pwm_chip *pc = platform_get_drvdata(pdev);
--	int i;
--
--	for (i = 0; i < NUM_PWM; i++)
--		pwm_disable(&pc->chip.pwms[i]);
+diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
+index 90dbe58ca1ed..dbad73162c83 100644
+--- a/drivers/fsi/fsi-master-aspeed.c
++++ b/drivers/fsi/fsi-master-aspeed.c
+@@ -645,6 +645,7 @@ static const struct of_device_id fsi_master_aspeed_match[] = {
+ 	{ .compatible = "aspeed,ast2600-fsi-master" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_aspeed_match);
  
- 	/* clk was prepared in probe, hence unprepare it here */
- 	clk_unprepare(pc->clk);
+ static struct platform_driver fsi_master_aspeed_driver = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-master-ast-cf.c b/drivers/fsi/fsi-master-ast-cf.c
+index 57a779a89b07..70c03e304d6c 100644
+--- a/drivers/fsi/fsi-master-ast-cf.c
++++ b/drivers/fsi/fsi-master-ast-cf.c
+@@ -1427,6 +1427,7 @@ static const struct of_device_id fsi_master_acf_match[] = {
+ 	{ .compatible = "aspeed,ast2500-cf-fsi-master" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_acf_match);
+ 
+ static struct platform_driver fsi_master_acf = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-master-gpio.c b/drivers/fsi/fsi-master-gpio.c
+index aa97c4a250cb..7d5f29b4b595 100644
+--- a/drivers/fsi/fsi-master-gpio.c
++++ b/drivers/fsi/fsi-master-gpio.c
+@@ -882,6 +882,7 @@ static const struct of_device_id fsi_master_gpio_match[] = {
+ 	{ .compatible = "fsi-master-gpio" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, fsi_master_gpio_match);
+ 
+ static struct platform_driver fsi_master_gpio_driver = {
+ 	.driver = {
+diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
+index a691f9732a13..a9beef2ae5a0 100644
+--- a/drivers/fsi/fsi-occ.c
++++ b/drivers/fsi/fsi-occ.c
+@@ -579,6 +579,7 @@ static const struct of_device_id occ_match[] = {
+ 	{ .compatible = "ibm,p9-occ" },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, occ_match);
+ 
+ static struct platform_driver occ_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
