@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CE23CE5BF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F603CE5AE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236780AbhGSPxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:53:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49766 "EHLO mail.kernel.org"
+        id S1348105AbhGSPwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346819AbhGSPrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 003FF61405;
-        Mon, 19 Jul 2021 16:27:38 +0000 (UTC)
+        id S1347039AbhGSPrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:47:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9124561415;
+        Mon, 19 Jul 2021 16:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712059;
-        bh=SqMSKcVET3eL/CjFpttP+c/eX1PAOvEaZL+V4uhj9J0=;
+        s=korg; t=1626712062;
+        bh=AKVM094S9hETqyUbQn8sr7ctprk28CH6Lm3lAlLO+U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ieTTqVDcqgN7w8DAgGqM0ZvAjXBgvMZxEcskE+RpARZwuwLs0fe/iRQm0OxEtaKY
-         Du7TlWlCw+qnoxt6ngxLktwJYtS1OMY3KeRlFIyTUf+A94Xvz0f5JiBWvdTfDjVgV3
-         RNABnmXIr9R/taPi4iCqIlpNvHrBjZ7A+LbV3U8s=
+        b=wr+fSoGLkVjKpzwjz6y/91ldsCA/OiDwD14VIuJdtiMWwAZcqIPTu+mkm3Vd40Dw0
+         9P4BC+8wojL8T4zehSftA0yqPpYyeugRlraQwZhOFFbOuoFa/QxZRLNr+a9JxUPToY
+         hYekcg+ytzYaOEl9cABxKfNyqclGCbO4n//y5H1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 235/292] reset: brcmstb: Add missing MODULE_DEVICE_TABLE
-Date:   Mon, 19 Jul 2021 16:54:57 +0200
-Message-Id: <20210719144950.691486942@linuxfoundation.org>
+Subject: [PATCH 5.12 236/292] memory: pl353: Fix error return code in pl353_smc_probe()
+Date:   Mon, 19 Jul 2021 16:54:58 +0200
+Message-Id: <20210719144950.721717720@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,36 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit e207457f9045343a24d936fbb67eb4b412f1c6ad ]
+[ Upstream commit 76e5624f3f9343a621dd3f4006f4e4d9c3f91e33 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+When no child nodes are matched, an appropriate error code -ENODEV should
+be returned. However, we currently do not explicitly assign this error
+code to 'err'. As a result, 0 was incorrectly returned.
 
+Fixes: fee10bd22678 ("memory: pl353: Add driver for arm pl353 static memory controller")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 77750bc089e4 ("reset: Add Broadcom STB SW_INIT reset controller driver")
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Link: https://lore.kernel.org/r/1620789283-15048-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Link: https://lore.kernel.org/r/20210515040004.6983-1-thunder.leizhen@huawei.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-brcmstb.c | 1 +
+ drivers/memory/pl353-smc.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/reset/reset-brcmstb.c b/drivers/reset/reset-brcmstb.c
-index f213264c8567..42c9d5241c53 100644
---- a/drivers/reset/reset-brcmstb.c
-+++ b/drivers/reset/reset-brcmstb.c
-@@ -111,6 +111,7 @@ static const struct of_device_id brcmstb_reset_of_match[] = {
- 	{ .compatible = "brcm,brcmstb-reset" },
- 	{ /* sentinel */ }
- };
-+MODULE_DEVICE_TABLE(of, brcmstb_reset_of_match);
- 
- static struct platform_driver brcmstb_reset_driver = {
- 	.probe	= brcmstb_reset_probe,
+diff --git a/drivers/memory/pl353-smc.c b/drivers/memory/pl353-smc.c
+index 9c0a28416777..b0b251bb207f 100644
+--- a/drivers/memory/pl353-smc.c
++++ b/drivers/memory/pl353-smc.c
+@@ -407,6 +407,7 @@ static int pl353_smc_probe(struct amba_device *adev, const struct amba_id *id)
+ 		break;
+ 	}
+ 	if (!match) {
++		err = -ENODEV;
+ 		dev_err(&adev->dev, "no matching children\n");
+ 		goto out_clk_disable;
+ 	}
 -- 
 2.30.2
 
