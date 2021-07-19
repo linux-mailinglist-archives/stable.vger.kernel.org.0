@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4543CD7A3
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 029A73CD7A4
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 16:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241834AbhGSORu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51824 "EHLO mail.kernel.org"
+        id S242066AbhGSORw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:17:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241876AbhGSORe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:17:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C9C6113C;
-        Mon, 19 Jul 2021 14:58:13 +0000 (UTC)
+        id S241981AbhGSORh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:17:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C91366113E;
+        Mon, 19 Jul 2021 14:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706694;
-        bh=IfQ+6XhX+XSWDe++IxnkzQxz7AJBoKZP595+xEwmzRs=;
+        s=korg; t=1626706696;
+        bh=7dFL7hQpsqbewXitbbFDDP6hOtMenWxFnzoeU1K3+1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mr6tYNI5NSn40I9HrP8Xx4u1cdTvYk+L3XBAaSh4muT7Ff4THFl5wVpwoIZnlkP3q
-         /4cqkuKoNAcvS2tpLdxryKrGIGhXX7GEV14BR7Jr8YE8CYZxe80mZNjTMORKepRjsa
-         5hA6qObb+/G6lXZEz0FTddS4r7veFaiANMd1ayck=
+        b=VXfpTDCIUoBS+DdVCR5mlxfo1OMfHxYYg5oIidZrKZ4P3Xez6e5AIqhARsV4BqD9E
+         AwBuDSJ767XYEAWb50jaeZxUJgS/2zwOe7J+NDq6A0wOTehspe/cGVlJdDa8Ch1FDX
+         aW8OMjyJuLCmJ46HwENjQlldsuyxjx9luzsM5AdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 057/188] mmc: usdhi6rol0: fix error return code in usdhi6_probe()
-Date:   Mon, 19 Jul 2021 16:50:41 +0200
-Message-Id: <20210719144926.340059214@linuxfoundation.org>
+Subject: [PATCH 4.4 058/188] media: s5p-g2d: Fix a memory leak on ctx->fh.m2m_ctx
+Date:   Mon, 19 Jul 2021 16:50:42 +0200
+Message-Id: <20210719144926.543430599@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -41,35 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit 2f9ae69e5267f53e89e296fccee291975a85f0eb ]
+[ Upstream commit 5d11e6aad1811ea293ee2996cec9124f7fccb661 ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+The m2m_ctx resources was allocated by v4l2_m2m_ctx_init() in g2d_open()
+should be freed from g2d_release() when it's not used.
 
-Fixes: 75fa9ea6e3c0 ("mmc: add a driver for the Renesas usdhi6rol0 SD/SDIO host controller")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210508020321.1677-1-thunder.leizhen@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fix it
+
+Fixes: 918847341af0 ("[media] v4l: add G2D driver for s5p device family")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/usdhi6rol0.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/platform/s5p-g2d/g2d.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/host/usdhi6rol0.c b/drivers/mmc/host/usdhi6rol0.c
-index 2b6a9c6a6e96..49798a68299e 100644
---- a/drivers/mmc/host/usdhi6rol0.c
-+++ b/drivers/mmc/host/usdhi6rol0.c
-@@ -1751,6 +1751,7 @@ static int usdhi6_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/s5p-g2d/g2d.c b/drivers/media/platform/s5p-g2d/g2d.c
+index 2b939555cccb..21968ef9dc45 100644
+--- a/drivers/media/platform/s5p-g2d/g2d.c
++++ b/drivers/media/platform/s5p-g2d/g2d.c
+@@ -282,6 +282,9 @@ static int g2d_release(struct file *file)
+ 	struct g2d_dev *dev = video_drvdata(file);
+ 	struct g2d_ctx *ctx = fh2ctx(file->private_data);
  
- 	version = usdhi6_read(host, USDHI6_VERSION);
- 	if ((version & 0xfff) != 0xa0d) {
-+		ret = -EPERM;
- 		dev_err(dev, "Version not recognized %x\n", version);
- 		goto e_clk_off;
- 	}
++	mutex_lock(&dev->mutex);
++	v4l2_m2m_ctx_release(ctx->fh.m2m_ctx);
++	mutex_unlock(&dev->mutex);
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_handler);
+ 	v4l2_fh_del(&ctx->fh);
+ 	v4l2_fh_exit(&ctx->fh);
 -- 
 2.30.2
 
