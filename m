@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7A23CDCAB
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF6D3CDCB1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242713AbhGSOxX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:53:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
+        id S237598AbhGSOx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238048AbhGSOti (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:49:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 400DE60E0C;
-        Mon, 19 Jul 2021 15:30:17 +0000 (UTC)
+        id S238401AbhGSOtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:49:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 075B260FED;
+        Mon, 19 Jul 2021 15:30:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708617;
-        bh=YNE87x3dW6Wqycoe5tTp/rWbfZKiosqjDcU+YXDRDSE=;
+        s=korg; t=1626708620;
+        bh=cI5LLAM5nefWM04Pfqy3C8ErZrx7Aie9D1pLLstIDS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m7IRcaKxxZPJ+S39YhQGLcaYfNGks0XBESu6Of7o70mhdLNdR9n9zsGPpWl+pEtpS
-         uU6TB90BLnsZwvK8OGzRU1F0vzFUtAwbofnmAaFTb/QXDHca0SGywFfB067n9wjqsA
-         8coZiIQ3jtWBXYty8HmSl+3LUpOqup+hzjVVFaR0=
+        b=BfFDM3OXw0IEv2tpxRulumD5KMIgbD5kOSrvMzqe4NzIIaTHu7hSnZU8QKQEKBa3w
+         QyW1yL6RaCEGzYShZhsBrrxRyEKWsTUR7BLoufnairM4EpjimKHivFOpju9SDvbUqt
+         FgoBsWA8RKqVcZqutvU4HVAy8jfeBGLXHd9+YVCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jack Xu <jack.xu@intel.com>,
-        Zhehui Xiang <zhehui.xiang@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/421] crypto: qat - remove unused macro in FW loader
-Date:   Mon, 19 Jul 2021 16:47:52 +0200
-Message-Id: <20210719144948.312471675@linuxfoundation.org>
+Subject: [PATCH 4.19 062/421] sched/fair: Fix ascii art by relpacing tabs
+Date:   Mon, 19 Jul 2021 16:47:53 +0200
+Message-Id: <20210719144948.342625703@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,40 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Xu <jack.xu@intel.com>
+From: Odin Ugedal <odin@uged.al>
 
-[ Upstream commit 9afe77cf25d9670e61b489fd52cc6f75fd7f6803 ]
+[ Upstream commit 08f7c2f4d0e9f4283f5796b8168044c034a1bfcb ]
 
-Remove the unused macro ICP_DH895XCC_PESRAM_BAR_SIZE in the firmware
-loader.
+When using something other than 8 spaces per tab, this ascii art
+makes not sense, and the reader might end up wondering what this
+advanced equation "is".
 
-This is to fix the following warning when compiling the driver using the
-clang compiler with CC=clang W=2:
-
-    drivers/crypto/qat/qat_common/qat_uclo.c:345:9: warning: macro is not used [-Wunused-macros]
-
-Signed-off-by: Jack Xu <jack.xu@intel.com>
-Co-developed-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Signed-off-by: Zhehui Xiang <zhehui.xiang@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210518125202.78658-4-odin@uged.al
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/qat_uclo.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/sched/fair.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_uclo.c b/drivers/crypto/qat/qat_common/qat_uclo.c
-index aeb03081415c..9542423bb7ca 100644
---- a/drivers/crypto/qat/qat_common/qat_uclo.c
-+++ b/drivers/crypto/qat/qat_common/qat_uclo.c
-@@ -385,7 +385,6 @@ static int qat_uclo_init_umem_seg(struct icp_qat_fw_loader_handle *handle,
- 	return 0;
- }
- 
--#define ICP_DH895XCC_PESRAM_BAR_SIZE 0x80000
- static int qat_uclo_init_ae_memory(struct icp_qat_fw_loader_handle *handle,
- 				   struct icp_qat_uof_initmem *init_mem)
- {
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index acb34e9df551..9cdbc07bb70f 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -2940,7 +2940,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------               (1)
+- *			  \Sum grq->load.weight
++ *                       \Sum grq->load.weight
+  *
+  * Now, because computing that sum is prohibitively expensive to compute (been
+  * there, done that) we approximate it with this average stuff. The average
+@@ -2954,7 +2954,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->avg.load_avg
+  *   ge->load.weight = ------------------------------              (3)
+- *				tg->load_avg
++ *                             tg->load_avg
+  *
+  * Where: tg->load_avg ~= \Sum grq->avg.load_avg
+  *
+@@ -2970,7 +2970,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = ----------------------------- = tg->weight   (4)
+- *			    grp->load.weight
++ *                         grp->load.weight
+  *
+  * That is, the sum collapses because all other CPUs are idle; the UP scenario.
+  *
+@@ -2989,7 +2989,7 @@ void reweight_task(struct task_struct *p, int prio)
+  *
+  *                     tg->weight * grq->load.weight
+  *   ge->load.weight = -----------------------------		   (6)
+- *				tg_load_avg'
++ *                             tg_load_avg'
+  *
+  * Where:
+  *
 -- 
 2.30.2
 
