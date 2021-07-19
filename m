@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A04A23CDDD7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 700223CE003
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344297AbhGSPBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53314 "EHLO mail.kernel.org"
+        id S1345867AbhGSPNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:13:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343993AbhGSO71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC4B061166;
-        Mon, 19 Jul 2021 15:38:03 +0000 (UTC)
+        id S1344280AbhGSPLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0C2161248;
+        Mon, 19 Jul 2021 15:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709084;
-        bh=LZm0IwAXZP96iYJ8I9rte18foCwRy3g/casIoW6Apgc=;
+        s=korg; t=1626709939;
+        bh=MZJStAWkc9toouQJGxD6XdV11GOUg3Sb8Tk+To+341k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HlZDCem/ZsoqlyLVVnGE0iI7cDG6pNMWbJgh/JPwVwK0YzXWszEgINO3o7ojGb6d4
-         RafYgtjPMa649f8TqInkRs4A51/rZ2fEkjnmHHmc71dO5sqoVUaRczkrflwgluMcCU
-         WQU5MVfPRUPG+Z+Ckp5HBblJ6YjVUbD6mkDsfPvg=
+        b=2JxZAZ3FjLTHE4d9pyiGYTHbQ07bUXAgzgNHryYCkNwKdQ6jMnxHfnh8OuTtXz1Uq
+         k6r1ADYGEBgi+IBA3UJqgSCEgeh+8u5uour3GGboCHZNXA11TjyzxtrQCKaO5CP4MQ
+         U2KVVZHNVF+100qTkeOHBihf/Si9seph2HvY4mvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 219/421] serial: mvebu-uart: correctly calculate minimal possible baudrate
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 001/243] certs: add x509_revocation_list to gitignore
 Date:   Mon, 19 Jul 2021 16:50:30 +0200
-Message-Id: <20210719144953.929281990@linuxfoundation.org>
+Message-Id: <20210719144940.956376089@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,63 +41,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit deeaf963569a0d9d1b08babb771f61bb501a5704 ]
+commit 81f202315856edb75a371f3376aa3a47543c16f0 upstream.
 
-For default (x16) scheme which is currently used by mvebu-uart.c driver,
-maximal divisor of UART base clock is 1023*16. Therefore there is limit for
-minimal supported baudrate. This change calculate it correctly and prevents
-setting invalid divisor 0 into hardware registers.
+Commit d1f044103dad ("certs: Add ability to preload revocation certs")
+created a new generated file for revocation certs, but didn't tell git
+to ignore it.  Thus causing unnecessary "git status" noise after a
+kernel build with CONFIG_SYSTEM_REVOCATION_LIST enabled.
 
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Fixes: 68a0db1d7da2 ("serial: mvebu-uart: add function to change baudrate")
-Link: https://lore.kernel.org/r/20210624224909.6350-4-pali@kernel.org
+Add the proper gitignore magic.
+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mvebu-uart.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ certs/.gitignore |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/mvebu-uart.c b/drivers/tty/serial/mvebu-uart.c
-index 0515b5e6326d..9369b4d42d24 100644
---- a/drivers/tty/serial/mvebu-uart.c
-+++ b/drivers/tty/serial/mvebu-uart.c
-@@ -471,7 +471,7 @@ static void mvebu_uart_set_termios(struct uart_port *port,
- 				   struct ktermios *old)
- {
- 	unsigned long flags;
--	unsigned int baud;
-+	unsigned int baud, min_baud, max_baud;
- 
- 	spin_lock_irqsave(&port->lock, flags);
- 
-@@ -490,16 +490,21 @@ static void mvebu_uart_set_termios(struct uart_port *port,
- 		port->ignore_status_mask |= STAT_RX_RDY(port) | STAT_BRK_ERR;
- 
- 	/*
-+	 * Maximal divisor is 1023 * 16 when using default (x16) scheme.
- 	 * Maximum achievable frequency with simple baudrate divisor is 230400.
- 	 * Since the error per bit frame would be of more than 15%, achieving
- 	 * higher frequencies would require to implement the fractional divisor
- 	 * feature.
- 	 */
--	baud = uart_get_baud_rate(port, termios, old, 0, 230400);
-+	min_baud = DIV_ROUND_UP(port->uartclk, 1023 * 16);
-+	max_baud = 230400;
-+
-+	baud = uart_get_baud_rate(port, termios, old, min_baud, max_baud);
- 	if (mvebu_uart_baud_rate_set(port, baud)) {
- 		/* No clock available, baudrate cannot be changed */
- 		if (old)
--			baud = uart_get_baud_rate(port, old, NULL, 0, 230400);
-+			baud = uart_get_baud_rate(port, old, NULL,
-+						  min_baud, max_baud);
- 	} else {
- 		tty_termios_encode_baud_rate(termios, baud, baud);
- 		uart_update_timeout(port, termios->c_cflag, baud);
--- 
-2.30.2
-
+--- a/certs/.gitignore
++++ b/certs/.gitignore
+@@ -1,2 +1,3 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ x509_certificate_list
++x509_revocation_list
 
 
