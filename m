@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B9983CDC4E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EF103CDED8
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243904AbhGSOwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:52:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
+        id S1344589AbhGSPGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344196AbhGSOsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACEC8613FD;
-        Mon, 19 Jul 2021 15:26:45 +0000 (UTC)
+        id S1345102AbhGSPES (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:04:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 340316127C;
+        Mon, 19 Jul 2021 15:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708406;
-        bh=kgOQcQcZkxo0yO2UGtK/dmDKkNSk1YJLXcaCsGyLF88=;
+        s=korg; t=1626709421;
+        bh=NtwPwY13+UkNy05MJKmtncoXJxnnGqWgemsC1i4b/Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KAlK85bFW6bXZORu6HpzNb/Sy4w0rv9W4gHRYg0CYRaexcRuFAHU+iMo5iwHtXJRH
-         byPMvJeBul1hVC0bIfQm+jeAWuoVa6XXv95AKw5nsFWaU3FCXYkbGnpAQZBuSHO2Ow
-         GU46O9QIeaJBKMtfkK6ESQLp+QO5G/ENncNt8xgE=
+        b=ILnsk7z4ebUWuPIs3ZRwPfnTVBqGau2fAwKYWsSCuG6dTO4YLVxywUbnLTsGvo+au
+         /E4TeniVHQy0ms/hh+QQhGcvhXk8TRnx4+BJH7OicxV0IEaq4kOHeIXt/wHx31dkf8
+         EY17ziahFPItHbo9dfA53k2t92oeZbTI9312UFJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 299/315] reset: a10sr: add missing of_match_table reference
-Date:   Mon, 19 Jul 2021 16:53:08 +0200
-Message-Id: <20210719144953.303970443@linuxfoundation.org>
+Subject: [PATCH 4.19 378/421] virtio-blk: Fix memory leak among suspend/resume procedure
+Date:   Mon, 19 Jul 2021 16:53:09 +0200
+Message-Id: <20210719144959.484056562@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 466ba3c8ff4fae39e455ff8d080b3d5503302765 ]
+[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
 
-The driver defined of_device_id table but did not use it with
-of_match_table.  This prevents usual matching via devicetree and causes
-a W=1 warning:
+The vblk->vqs should be freed before we call init_vqs()
+in virtblk_restore().
 
-  drivers/reset/reset-a10sr.c:111:34: warning:
-    ‘a10sr_reset_of_match’ defined but not used [-Wunused-const-variable=]
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 627006820268 ("reset: Add Altera Arria10 SR Reset Controller")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210507112803.20012-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/reset/reset-a10sr.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/reset/reset-a10sr.c b/drivers/reset/reset-a10sr.c
-index 37496bd27fa2..306fba5b3519 100644
---- a/drivers/reset/reset-a10sr.c
-+++ b/drivers/reset/reset-a10sr.c
-@@ -129,6 +129,7 @@ static struct platform_driver a10sr_reset_driver = {
- 	.probe	= a10sr_reset_probe,
- 	.driver = {
- 		.name		= "altr_a10sr_reset",
-+		.of_match_table	= a10sr_reset_of_match,
- 	},
- };
- module_platform_driver(a10sr_reset_driver);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c2d9459ec5d1..dac1769146d7 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -944,6 +944,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
+ 	blk_mq_quiesce_queue(vblk->disk->queue);
+ 
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
++
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
