@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 017E03CD84B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F14763CD9DA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242988AbhGSOVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55944 "EHLO mail.kernel.org"
+        id S243520AbhGSObx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242302AbhGSOU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C9A06024A;
-        Mon, 19 Jul 2021 15:00:57 +0000 (UTC)
+        id S244609AbhGSO3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53EBD6112D;
+        Mon, 19 Jul 2021 15:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706858;
-        bh=JVs+USAqbQwyWosver9IEvaSkLoC7t8CAAanoNskeOs=;
+        s=korg; t=1626707408;
+        bh=/ipI3NIR6k+HOgDX7jUT4v6stWOk4kxW8w0+NBsAYLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFgkJS537Qm/NmBoJ9zpaGmpseXZffyHqTn5MN83eo5Z8ZdxzUui6ay1gCwIXgfX0
-         7ZhyId4ARs4Odcglk6v2DF/doSF/nhZU1Q/2m0Jgq9DXTgZPVN01hVdYddUU1PHH3U
-         OCGHqBf5KcNmYclFUa9R10JehMQBlEA9U4JDbP9Y=
+        b=WsEz+WSG1vU3NKmQ7WO+PDQLyFd7QfS9dWe7OisNt/jI21n1QhA2VU3zQDgo36Xk4
+         Ko+hULItnRePKxnIo3+hbRuSEhkFzSDsap/8iMitxe2nVC6NNKTxmYup6dSLnYnnW0
+         42JU8eVdqVefjnPPgln6bwRqd8Xz/KfkCUPQntVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Gibson <leegib@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
+        Yu Liu <yudiliu@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 111/188] wl1251: Fix possible buffer overflow in wl1251_cmd_scan
+Subject: [PATCH 4.9 153/245] Bluetooth: Fix the HCI to MGMT status conversion table
 Date:   Mon, 19 Jul 2021 16:51:35 +0200
-Message-Id: <20210719144939.003177231@linuxfoundation.org>
+Message-Id: <20210719144945.350862185@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Gibson <leegib@gmail.com>
+From: Yu Liu <yudiliu@google.com>
 
-[ Upstream commit d10a87a3535cce2b890897914f5d0d83df669c63 ]
+[ Upstream commit 4ef36a52b0e47c80bbfd69c0cce61c7ae9f541ed ]
 
-Function wl1251_cmd_scan calls memcpy without checking the length.
-Harden by checking the length is within the maximum allowed size.
+0x2B, 0x31 and 0x33 are reserved for future use but were not present in
+the HCI to MGMT conversion table, this caused the conversion to be
+incorrect for the HCI status code greater than 0x2A.
 
-Signed-off-by: Lee Gibson <leegib@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210428115508.25624-1-leegib@gmail.com
+Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
+Signed-off-by: Yu Liu <yudiliu@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ti/wl1251/cmd.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/bluetooth/mgmt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/ti/wl1251/cmd.c b/drivers/net/wireless/ti/wl1251/cmd.c
-index ede31f048ef9..247f4310a38f 100644
---- a/drivers/net/wireless/ti/wl1251/cmd.c
-+++ b/drivers/net/wireless/ti/wl1251/cmd.c
-@@ -465,9 +465,12 @@ int wl1251_cmd_scan(struct wl1251 *wl, u8 *ssid, size_t ssid_len,
- 		cmd->channels[i].channel = channels[i]->hw_value;
- 	}
- 
--	cmd->params.ssid_len = ssid_len;
--	if (ssid)
--		memcpy(cmd->params.ssid, ssid, ssid_len);
-+	if (ssid) {
-+		int len = clamp_val(ssid_len, 0, IEEE80211_MAX_SSID_LEN);
-+
-+		cmd->params.ssid_len = len;
-+		memcpy(cmd->params.ssid, ssid, len);
-+	}
- 
- 	ret = wl1251_cmd_send(wl, CMD_SCAN, cmd, sizeof(*cmd));
- 	if (ret < 0) {
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index fa9526712b0a..7aef6d23bc77 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -219,12 +219,15 @@ static u8 mgmt_status_table[] = {
+ 	MGMT_STATUS_TIMEOUT,		/* Instant Passed */
+ 	MGMT_STATUS_NOT_SUPPORTED,	/* Pairing Not Supported */
+ 	MGMT_STATUS_FAILED,		/* Transaction Collision */
++	MGMT_STATUS_FAILED,		/* Reserved for future use */
+ 	MGMT_STATUS_INVALID_PARAMS,	/* Unacceptable Parameter */
+ 	MGMT_STATUS_REJECTED,		/* QoS Rejected */
+ 	MGMT_STATUS_NOT_SUPPORTED,	/* Classification Not Supported */
+ 	MGMT_STATUS_REJECTED,		/* Insufficient Security */
+ 	MGMT_STATUS_INVALID_PARAMS,	/* Parameter Out Of Range */
++	MGMT_STATUS_FAILED,		/* Reserved for future use */
+ 	MGMT_STATUS_BUSY,		/* Role Switch Pending */
++	MGMT_STATUS_FAILED,		/* Reserved for future use */
+ 	MGMT_STATUS_FAILED,		/* Slot Violation */
+ 	MGMT_STATUS_FAILED,		/* Role Switch Failed */
+ 	MGMT_STATUS_INVALID_PARAMS,	/* EIR Too Large */
 -- 
 2.30.2
 
