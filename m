@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 304A43CDE38
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A8983CDE18
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245569AbhGSPCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
+        id S1344043AbhGSPBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343856AbhGSO7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343861AbhGSO7X (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:59:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9216D61289;
-        Mon, 19 Jul 2021 15:37:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 727F66128D;
+        Mon, 19 Jul 2021 15:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709050;
-        bh=MB9zlgkJnCKies2mtTgzKmFoPVEsNrYGrm3alODX5fQ=;
+        s=korg; t=1626709053;
+        bh=QxMsqh2Dtak9GW1fH42izSg9EdwGEWoPHdlqZYEFBgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVKEdcSJpQvMf/a61LxAKmPaRTRxbFGFsf46N3K281U0zk61bK397rVKlV+G5G3up
-         N0gnrJtnXQZJ/JuVFs9s0z+mroVma6ebMYHZfMycT4VJG7s1rIfNXrwk3PMn5o3W4t
-         NcnSQ4wPQuymrrAvIA7v4JJl3hzMIZyBjfXEv/kg=
+        b=eifdSgjoNcRcVgLnMjlU3noDpeLtAMPawVbcseRuy0jqXsiuOixO8gq1aXRxKXyVG
+         zokkcxiSnjSNJGw0fhRUXxMUhxFychbgXiO0jJ5Z7kIK1kI3+jOLMGMiguLCLqgXOJ
+         fsijpwwg5B5KOzV5GLHtqBnHVzZCkste1dWDsj7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Zou Wei <zou_wei@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 234/421] mISDN: fix possible use-after-free in HFC_cleanup()
-Date:   Mon, 19 Jul 2021 16:50:45 +0200
-Message-Id: <20210719144954.534821272@linuxfoundation.org>
+Subject: [PATCH 4.19 235/421] atm: nicstar: Fix possible use-after-free in nicstar_cleanup()
+Date:   Mon, 19 Jul 2021 16:50:46 +0200
+Message-Id: <20210719144954.566056631@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -43,7 +43,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 009fc857c5f6fda81f2f7dd851b2d54193a8e733 ]
+[ Upstream commit 34e7434ba4e97f4b85c1423a59b2922ba7dff2ea ]
 
 This module's remove path calls del_timer(). However, that function
 does not wait until the timer handler finishes. This means that the
@@ -58,22 +58,22 @@ Signed-off-by: Zou Wei <zou_wei@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcpci.c | 2 +-
+ drivers/atm/nicstar.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcpci.c b/drivers/isdn/hardware/mISDN/hfcpci.c
-index ebb3fa2e1d00..53349850f866 100644
---- a/drivers/isdn/hardware/mISDN/hfcpci.c
-+++ b/drivers/isdn/hardware/mISDN/hfcpci.c
-@@ -2348,7 +2348,7 @@ static void __exit
- HFC_cleanup(void)
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index 0d3754a4ac20..5281db3d6783 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -296,7 +296,7 @@ static void __exit nicstar_cleanup(void)
  {
- 	if (timer_pending(&hfc_tl))
--		del_timer(&hfc_tl);
-+		del_timer_sync(&hfc_tl);
+ 	XPRINTK("nicstar: nicstar_cleanup() called.\n");
  
- 	pci_unregister_driver(&hfc_driver);
- }
+-	del_timer(&ns_timer);
++	del_timer_sync(&ns_timer);
+ 
+ 	pci_unregister_driver(&nicstar_driver);
+ 
 -- 
 2.30.2
 
