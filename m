@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481783CD83E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D445C3CDA33
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242361AbhGSOVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56038 "EHLO mail.kernel.org"
+        id S242343AbhGSOfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242694AbhGSOU2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D624F611EF;
-        Mon, 19 Jul 2021 15:01:02 +0000 (UTC)
+        id S242358AbhGSOcf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:32:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 103E16120C;
+        Mon, 19 Jul 2021 15:12:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706863;
-        bh=GMxS9DfMtnmP7n3N51meeAEyDGM3GJ/tnF8tGL7WL7Y=;
+        s=korg; t=1626707568;
+        bh=C1ShubNXVTEITTM499ROiCEtSal1Awt21Bbup50aTP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpdNXDOgcE+/p0f7Bkglk6EKcBVNgWiQeqhSJzHplpE+oIhVO3CnBbWTCIzDGk+og
-         0em1ycYPR41pKeSwh8WRT1DObSMH3/Rpgqi9rEGqKpIM2dfshorUsxVfvNT3/yuhoh
-         2IfCzB0b6LUtpsd2GUcuIIKUWaSRiiSzVbqLjWLs=
+        b=2S/07cahvD6z+H0TrX4emEl5ZbAVoLanOeV0Q5ctN18WRsokzjS3SBFVVO09ZPl5H
+         dM+H/aLs5/Yqos5YOK3DmnnusJ8xqHkWQwJPUgZIeBpmmXDhXtmRQ3xyKAvSbL3wI2
+         UC80zcM2ATxU+VIoAKwtEngMfmKBjp1NOTYXcX74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 4.4 130/188] ASoC: tegra: Set driver_name=tegra for all machine drivers
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 172/245] dm btree remove: assign new_root only when removal succeeds
 Date:   Mon, 19 Jul 2021 16:51:54 +0200
-Message-Id: <20210719144940.745823014@linuxfoundation.org>
+Message-Id: <20210719144945.958742777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,120 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-commit f6eb84fa596abf28959fc7e0b626f925eb1196c7 upstream.
+commit b6e58b5466b2959f83034bead2e2e1395cca8aeb upstream.
 
-The driver_name="tegra" is now required by the newer ALSA UCMs, otherwise
-Tegra UCMs don't match by the path/name.
+remove_raw() in dm_btree_remove() may fail due to IO read error
+(e.g. read the content of origin block fails during shadowing),
+and the value of shadow_spine::root is uninitialized, but
+the uninitialized value is still assign to new_root in the
+end of dm_btree_remove().
 
-All Tegra machine drivers are specifying the card's name, but it has no
-effect if model name is specified in the device-tree since it overrides
-the card's name. We need to set the driver_name to "tegra" in order to
-get a usable lookup path for the updated ALSA UCMs. The new UCM lookup
-path has a form of driver_name/card_name.
+For dm-thin, the value of pmd->details_root or pmd->root will become
+an uninitialized value, so if trying to read details_info tree again
+out-of-bound memory may occur as showed below:
 
-The old lookup paths that are based on driver module name continue to
-work as before. Note that UCM matching never worked for Tegra ASoC drivers
-if they were compiled as built-in, this is fixed by supporting the new
-naming scheme.
+  general protection fault, probably for non-canonical address 0x3fdcb14c8d7520
+  CPU: 4 PID: 515 Comm: dmsetup Not tainted 5.13.0-rc6
+  Hardware name: QEMU Standard PC
+  RIP: 0010:metadata_ll_load_ie+0x14/0x30
+  Call Trace:
+   sm_metadata_count_is_more_than_one+0xb9/0xe0
+   dm_tm_shadow_block+0x52/0x1c0
+   shadow_step+0x59/0xf0
+   remove_raw+0xb2/0x170
+   dm_btree_remove+0xf4/0x1c0
+   dm_pool_delete_thin_device+0xc3/0x140
+   pool_message+0x218/0x2b0
+   target_message+0x251/0x290
+   ctl_ioctl+0x1c4/0x4d0
+   dm_ctl_ioctl+0xe/0x20
+   __x64_sys_ioctl+0x7b/0xb0
+   do_syscall_64+0x40/0xb0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
+Fixing it by only assign new_root when removal succeeds
+
+Signed-off-by: Hou Tao <houtao1@huawei.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210529154649.25936-2-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- sound/soc/tegra/tegra_alc5632.c  |    1 +
- sound/soc/tegra/tegra_max98090.c |    1 +
- sound/soc/tegra/tegra_rt5640.c   |    1 +
- sound/soc/tegra/tegra_rt5677.c   |    1 +
- sound/soc/tegra/tegra_wm8753.c   |    1 +
- sound/soc/tegra/tegra_wm8903.c   |    1 +
- sound/soc/tegra/tegra_wm9712.c   |    1 +
- sound/soc/tegra/trimslice.c      |    1 +
- 8 files changed, 8 insertions(+)
+ drivers/md/persistent-data/dm-btree-remove.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/soc/tegra/tegra_alc5632.c
-+++ b/sound/soc/tegra/tegra_alc5632.c
-@@ -149,6 +149,7 @@ static struct snd_soc_dai_link tegra_alc
+--- a/drivers/md/persistent-data/dm-btree-remove.c
++++ b/drivers/md/persistent-data/dm-btree-remove.c
+@@ -549,7 +549,8 @@ int dm_btree_remove(struct dm_btree_info
+ 		delete_at(n, index);
+ 	}
  
- static struct snd_soc_card snd_soc_tegra_alc5632 = {
- 	.name = "tegra-alc5632",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.remove = tegra_alc5632_card_remove,
- 	.dai_link = &tegra_alc5632_dai,
---- a/sound/soc/tegra/tegra_max98090.c
-+++ b/sound/soc/tegra/tegra_max98090.c
-@@ -205,6 +205,7 @@ static struct snd_soc_dai_link tegra_max
+-	*new_root = shadow_root(&spine);
++	if (!r)
++		*new_root = shadow_root(&spine);
+ 	exit_shadow_spine(&spine);
  
- static struct snd_soc_card snd_soc_tegra_max98090 = {
- 	.name = "tegra-max98090",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.remove = tegra_max98090_card_remove,
- 	.dai_link = &tegra_max98090_dai,
---- a/sound/soc/tegra/tegra_rt5640.c
-+++ b/sound/soc/tegra/tegra_rt5640.c
-@@ -150,6 +150,7 @@ static struct snd_soc_dai_link tegra_rt5
- 
- static struct snd_soc_card snd_soc_tegra_rt5640 = {
- 	.name = "tegra-rt5640",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.remove = tegra_rt5640_card_remove,
- 	.dai_link = &tegra_rt5640_dai,
---- a/sound/soc/tegra/tegra_rt5677.c
-+++ b/sound/soc/tegra/tegra_rt5677.c
-@@ -198,6 +198,7 @@ static struct snd_soc_dai_link tegra_rt5
- 
- static struct snd_soc_card snd_soc_tegra_rt5677 = {
- 	.name = "tegra-rt5677",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.remove = tegra_rt5677_card_remove,
- 	.dai_link = &tegra_rt5677_dai,
---- a/sound/soc/tegra/tegra_wm8753.c
-+++ b/sound/soc/tegra/tegra_wm8753.c
-@@ -110,6 +110,7 @@ static struct snd_soc_dai_link tegra_wm8
- 
- static struct snd_soc_card snd_soc_tegra_wm8753 = {
- 	.name = "tegra-wm8753",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8753_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm8903.c
-+++ b/sound/soc/tegra/tegra_wm8903.c
-@@ -227,6 +227,7 @@ static struct snd_soc_dai_link tegra_wm8
- 
- static struct snd_soc_card snd_soc_tegra_wm8903 = {
- 	.name = "tegra-wm8903",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm8903_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/tegra_wm9712.c
-+++ b/sound/soc/tegra/tegra_wm9712.c
-@@ -59,6 +59,7 @@ static struct snd_soc_dai_link tegra_wm9
- 
- static struct snd_soc_card snd_soc_tegra_wm9712 = {
- 	.name = "tegra-wm9712",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &tegra_wm9712_dai,
- 	.num_links = 1,
---- a/sound/soc/tegra/trimslice.c
-+++ b/sound/soc/tegra/trimslice.c
-@@ -103,6 +103,7 @@ static struct snd_soc_dai_link trimslice
- 
- static struct snd_soc_card snd_soc_trimslice = {
- 	.name = "tegra-trimslice",
-+	.driver_name = "tegra",
- 	.owner = THIS_MODULE,
- 	.dai_link = &trimslice_tlv320aic23_dai,
- 	.num_links = 1,
+ 	return r;
 
 
