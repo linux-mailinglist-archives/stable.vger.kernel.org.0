@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D27573CDB49
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C7283CD959
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242667AbhGSOmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
+        id S241461AbhGSO2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:28:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343551AbhGSOjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C32561221;
-        Mon, 19 Jul 2021 15:19:02 +0000 (UTC)
+        id S243567AbhGSO1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:27:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 86D7E6113E;
+        Mon, 19 Jul 2021 15:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707942;
-        bh=0C9uuqB1dFJzprdnF7w86hJ0Q0f8gYo6yYcSZaejqIc=;
+        s=korg; t=1626707241;
+        bh=/+zANuZD7GSycPJuIsy/hZVkRkb/BLayizqF8RYNenQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kS66jWFxTA+vac/vWU5vy66kzHcWEdLrqqiZMHsT7jFrbhwDXVq5+GfD84zMAHZmm
-         wxxrg9DLp5NlUawL/NuCTpLPSDXdtSZU9N2jVEqvtqM3DtIdeWOmOj6i9RZWnOfQSn
-         IncXl/zRGfR0x/b0pfk5DUbb4ZLp7X0+v/sAwX14=
+        b=wEgkJ6FVi0BFv2G/clAMyTvXgHPVnsIZ/7MmC+FJvmGlCS6yLuIclWXAQURMjSKC9
+         o74gREt57ypCLR3Nt7+u9K+okZZtdGoQoBE0lk0zJQ8y1Eq52r+Bb4nA9jAL1lzgn0
+         JKl4S1RCwOoDHcWDCA2KG3DIhbL8/xnohbVkJ9KE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 118/315] tty: nozomi: Fix a resource leak in an error handling function
+Subject: [PATCH 4.9 065/245] media: tc358743: Fix error return code in tc358743_probe_of()
 Date:   Mon, 19 Jul 2021 16:50:07 +0200
-Message-Id: <20210719144946.754205766@linuxfoundation.org>
+Message-Id: <20210719144942.507369080@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 31a9a318255960d32ae183e95d0999daf2418608 ]
+[ Upstream commit a6b1e7093f0a099571fc8836ab4a589633f956a8 ]
 
-A 'request_irq()' call is not balanced by a corresponding 'free_irq()' in
-the error handling path, as already done in the remove function.
+When the CSI bps per lane is not in the valid range, an appropriate error
+code -EINVAL should be returned. However, we currently do not explicitly
+assign this error code to 'ret'. As a result, 0 was incorrectly returned.
 
-Add it.
-
-Fixes: 9842c38e9176 ("kfifo: fix warn_unused_result")
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4f0d2b3038e82f081d370ccb0cade3ad88463fe7.1620580838.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 256148246852 ("[media] tc358743: support probe from device tree")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/nozomi.c | 1 +
+ drivers/media/i2c/tc358743.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/nozomi.c b/drivers/tty/nozomi.c
-index 39b3723a32a6..d19acddc3cf3 100644
---- a/drivers/tty/nozomi.c
-+++ b/drivers/tty/nozomi.c
-@@ -1458,6 +1458,7 @@ err_free_tty:
- 		tty_unregister_device(ntty_driver, dc->index_start + i);
- 		tty_port_destroy(&dc->port[i].port);
+diff --git a/drivers/media/i2c/tc358743.c b/drivers/media/i2c/tc358743.c
+index 3e47b432d0f4..c799071be66f 100644
+--- a/drivers/media/i2c/tc358743.c
++++ b/drivers/media/i2c/tc358743.c
+@@ -1763,6 +1763,7 @@ static int tc358743_probe_of(struct tc358743_state *state)
+ 	bps_pr_lane = 2 * endpoint->link_frequencies[0];
+ 	if (bps_pr_lane < 62500000U || bps_pr_lane > 1000000000U) {
+ 		dev_err(dev, "unsupported bps per lane: %u bps\n", bps_pr_lane);
++		ret = -EINVAL;
+ 		goto disable_clk;
  	}
-+	free_irq(pdev->irq, dc);
- err_free_kfifo:
- 	for (i = 0; i < MAX_PORT; i++)
- 		kfifo_free(&dc->port[i].fifo_ul);
+ 
 -- 
 2.30.2
 
