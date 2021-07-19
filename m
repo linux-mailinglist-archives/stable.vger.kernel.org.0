@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 632F43CE4EC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3AA43CE547
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbhGSPrD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:47:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43678 "EHLO mail.kernel.org"
+        id S1347187AbhGSPsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349385AbhGSPpC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1349384AbhGSPpC (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:45:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53D7661376;
-        Mon, 19 Jul 2021 16:24:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A06A6128A;
+        Mon, 19 Jul 2021 16:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711879;
-        bh=usjltRtEuFp8h2ICKIOczpm839/NnubVdwqvLBLU3LI=;
+        s=korg; t=1626711882;
+        bh=LsHDi6CslwZgzmYCNzGFxwgo8Be3CRGOUldpcJqzgn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ymmK+LZ1eN59icaisqbp62xx1ZGALwj4i0reXYxRGsZIsD4WVziNmanBi9Ed0eG70
-         HVNLYqOnlD8W1kNW8bUa4guYCfmRrNYbPrZ9J7qAHtVGQZAw72zpCwx7DzkUAbTLze
-         McVtSLirWA2H26BP09t4YXeX1DG9gxzF28I3/4js=
+        b=fvaGCfoQXntA9XAo4LHWsKoeQhkhY6I1SBCvx+V+NV9lIkNfdEOGrY6DaCkfrUYa0
+         7aSS/72ZQSj1ECtUOWUoWqozttAhaddF2wfscX3Sm/A4Edcrm/7LRJYq+5a6+dFkZp
+         zyboezuZuKKOpY+N9uiorvJVfzUXJTKImMmyo/Js=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 167/292] PCI: rockchip: Register IRQ handlers after device and data are ready
-Date:   Mon, 19 Jul 2021 16:53:49 +0200
-Message-Id: <20210719144947.992885729@linuxfoundation.org>
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 168/292] ext4: fix WARN_ON_ONCE(!buffer_uptodate) after an error writing the superblock
+Date:   Mon, 19 Jul 2021 16:53:50 +0200
+Message-Id: <20210719144948.024941453@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -43,79 +39,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit 3cf5f7ab230e2b886e493c7a8449ed50e29d2b98 ]
+[ Upstream commit 558d6450c7755aa005d89021204b6cdcae5e848f ]
 
-An IRQ handler may be called at any time after it is registered, so
-anything it relies on must be ready before registration.
+If a writeback of the superblock fails with an I/O error, the buffer
+is marked not uptodate.  However, this can cause a WARN_ON to trigger
+when we attempt to write superblock a second time.  (Which might
+succeed this time, for cerrtain types of block devices such as iSCSI
+devices over a flaky network.)
 
-rockchip_pcie_subsys_irq_handler() and rockchip_pcie_client_irq_handler()
-read registers in the PCIe controller, but we registered them before
-turning on clocks to the controller.  If either is called before the clocks
-are turned on, the register reads fail and the machine hangs.
+Try to detect this case in flush_stashed_error_work(), and also change
+__ext4_handle_dirty_metadata() so we always set the uptodate flag, not
+just in the nojournal case.
 
-Similarly, rockchip_pcie_legacy_int_handler() uses rockchip->irq_domain,
-but we installed it before initializing irq_domain.
+Before this commit, this problem can be repliciated via:
 
-Register IRQ handlers after their data structures are initialized and
-clocks are enabled.
+1. dmsetup  create dust1 --table  '0 2097152 dust /dev/sdc 0 4096'
+2. mount  /dev/mapper/dust1  /home/test
+3. dmsetup message dust1 0 addbadblock 0 10
+4. cd /home/test
+5. echo "XXXXXXX" > t
 
-Found by enabling CONFIG_DEBUG_SHIRQ, which calls the IRQ handler when it
-is being unregistered.  An error during the probe path might cause this
-unregistration and IRQ handler execution before the device or data
-structure init has finished.
+After a few seconds, we got following warning:
 
-[bhelgaas: commit log]
-Link: https://lore.kernel.org/r/20210608080409.1729276-1-javierm@redhat.com
-Reported-by: Peter Robinson <pbrobinson@gmail.com>
-Tested-by: Peter Robinson <pbrobinson@gmail.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Shawn Lin <shawn.lin@rock-chips.com>
+[   80.654487] end_buffer_async_write: bh=0xffff88842f18bdd0
+[   80.656134] Buffer I/O error on dev dm-0, logical block 0, lost async page write
+[   85.774450] EXT4-fs error (device dm-0): ext4_check_bdev_write_error:193: comm kworker/u16:8: Error while async write back metadata
+[   91.415513] mark_buffer_dirty: bh=0xffff88842f18bdd0
+[   91.417038] ------------[ cut here ]------------
+[   91.418450] WARNING: CPU: 1 PID: 1944 at fs/buffer.c:1092 mark_buffer_dirty.cold+0x1c/0x5e
+[   91.440322] Call Trace:
+[   91.440652]  __jbd2_journal_temp_unlink_buffer+0x135/0x220
+[   91.441354]  __jbd2_journal_unfile_buffer+0x24/0x90
+[   91.441981]  __jbd2_journal_refile_buffer+0x134/0x1d0
+[   91.442628]  jbd2_journal_commit_transaction+0x249a/0x3240
+[   91.443336]  ? put_prev_entity+0x2a/0x200
+[   91.443856]  ? kjournald2+0x12e/0x510
+[   91.444324]  kjournald2+0x12e/0x510
+[   91.444773]  ? woken_wake_function+0x30/0x30
+[   91.445326]  kthread+0x150/0x1b0
+[   91.445739]  ? commit_timeout+0x20/0x20
+[   91.446258]  ? kthread_flush_worker+0xb0/0xb0
+[   91.446818]  ret_from_fork+0x1f/0x30
+[   91.447293] ---[ end trace 66f0b6bf3d1abade ]---
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Link: https://lore.kernel.org/r/20210615090537.3423231-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rockchip-host.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ fs/ext4/ext4_jbd2.c |  2 +-
+ fs/ext4/super.c     | 12 ++++++++++--
+ 2 files changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/pcie-rockchip-host.c b/drivers/pci/controller/pcie-rockchip-host.c
-index f1d08a1b1591..78d04ac29cd5 100644
---- a/drivers/pci/controller/pcie-rockchip-host.c
-+++ b/drivers/pci/controller/pcie-rockchip-host.c
-@@ -592,10 +592,6 @@ static int rockchip_pcie_parse_host_dt(struct rockchip_pcie *rockchip)
- 	if (err)
- 		return err;
+diff --git a/fs/ext4/ext4_jbd2.c b/fs/ext4/ext4_jbd2.c
+index be799040a415..b96ecba91899 100644
+--- a/fs/ext4/ext4_jbd2.c
++++ b/fs/ext4/ext4_jbd2.c
+@@ -327,6 +327,7 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
  
--	err = rockchip_pcie_setup_irq(rockchip);
--	if (err)
--		return err;
--
- 	rockchip->vpcie12v = devm_regulator_get_optional(dev, "vpcie12v");
- 	if (IS_ERR(rockchip->vpcie12v)) {
- 		if (PTR_ERR(rockchip->vpcie12v) != -ENODEV)
-@@ -973,8 +969,6 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
- 	if (err)
- 		goto err_vpcie;
- 
--	rockchip_pcie_enable_interrupts(rockchip);
--
- 	err = rockchip_pcie_init_irq_domain(rockchip);
- 	if (err < 0)
- 		goto err_deinit_port;
-@@ -992,6 +986,12 @@ static int rockchip_pcie_probe(struct platform_device *pdev)
- 	bridge->sysdata = rockchip;
- 	bridge->ops = &rockchip_pcie_ops;
- 
-+	err = rockchip_pcie_setup_irq(rockchip);
-+	if (err)
-+		goto err_remove_irq_domain;
+ 	set_buffer_meta(bh);
+ 	set_buffer_prio(bh);
++	set_buffer_uptodate(bh);
+ 	if (ext4_handle_valid(handle)) {
+ 		err = jbd2_journal_dirty_metadata(handle, bh);
+ 		/* Errors can only happen due to aborted journal or a nasty bug */
+@@ -355,7 +356,6 @@ int __ext4_handle_dirty_metadata(const char *where, unsigned int line,
+ 					 err);
+ 		}
+ 	} else {
+-		set_buffer_uptodate(bh);
+ 		if (inode)
+ 			mark_buffer_dirty_inode(bh, inode);
+ 		else
+diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+index 62dd98189e32..265745154945 100644
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -705,15 +705,23 @@ static void flush_stashed_error_work(struct work_struct *work)
+ 	 * ext4 error handling code during handling of previous errors.
+ 	 */
+ 	if (!sb_rdonly(sbi->s_sb) && journal) {
++		struct buffer_head *sbh = sbi->s_sbh;
+ 		handle = jbd2_journal_start(journal, 1);
+ 		if (IS_ERR(handle))
+ 			goto write_directly;
+-		if (jbd2_journal_get_write_access(handle, sbi->s_sbh)) {
++		if (jbd2_journal_get_write_access(handle, sbh)) {
+ 			jbd2_journal_stop(handle);
+ 			goto write_directly;
+ 		}
+ 		ext4_update_super(sbi->s_sb);
+-		if (jbd2_journal_dirty_metadata(handle, sbi->s_sbh)) {
++		if (buffer_write_io_error(sbh) || !buffer_uptodate(sbh)) {
++			ext4_msg(sbi->s_sb, KERN_ERR, "previous I/O error to "
++				 "superblock detected");
++			clear_buffer_write_io_error(sbh);
++			set_buffer_uptodate(sbh);
++		}
 +
-+	rockchip_pcie_enable_interrupts(rockchip);
-+
- 	err = pci_host_probe(bridge);
- 	if (err < 0)
- 		goto err_remove_irq_domain;
++		if (jbd2_journal_dirty_metadata(handle, sbh)) {
+ 			jbd2_journal_stop(handle);
+ 			goto write_directly;
+ 		}
 -- 
 2.30.2
 
