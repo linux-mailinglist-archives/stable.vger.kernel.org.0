@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 387743CE350
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B8D13CE14B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235214AbhGSPhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:37:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S1346556AbhGSPZe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:25:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236033AbhGSPeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:34:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94A406142F;
-        Mon, 19 Jul 2021 16:11:07 +0000 (UTC)
+        id S1346069AbhGSPQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:16:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D06A61249;
+        Mon, 19 Jul 2021 15:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711068;
-        bh=+b1FT6sIZ/j2qD1KYh+WhRUaNVp0EPOv8Jc6wfGu2sM=;
+        s=korg; t=1626710237;
+        bh=2Y87ANqT1IR8S1xi4zUf0mMImWInqGSIW0qfOzPDjc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/0FW7H5fbtjfxodfdpMdhAZQk2XR3+TPELhLByOTTaCeZVOnYN3s30ktAACVCG9x
-         QYVf0RcqaLVQ2VJJ+fBGpcyPRp+Fde9vHrIZhn8ZegHFmwcxrW00JDsAayLajLrzm+
-         0+I6BdZPtV78KOZuAUbxyo1zlwW2qzeDH2jc5O6o=
+        b=OI26XxVOQ5KuarmrRTp3kAuvpVyaGi1qvtMZn5rRFUizbcf65+LhlxhYJhFHwyo5G
+         CE2Y4QVSrDwOegMTWtHULgRXNLKoV6X/xSOI7rlAvZUBfbq/+JrdkvXzaZhm6wULIH
+         g8fHDRfM2KFKzF2X9y1QXr9DsRngCpluRM+VHQ2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YiFei Zhu <zhuyifei1999@gmail.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Jing Xiangfeng <jingxiangfeng@huawei.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 216/351] um: Fix stack pointer alignment
+Subject: [PATCH 5.10 133/243] drm/gma500: Add the missed drm_gem_object_put() in psb_user_framebuffer_create()
 Date:   Mon, 19 Jul 2021 16:52:42 +0200
-Message-Id: <20210719144952.102472060@linuxfoundation.org>
+Message-Id: <20210719144945.209433073@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,172 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YiFei Zhu <zhuyifei1999@gmail.com>
+From: Jing Xiangfeng <jingxiangfeng@huawei.com>
 
-[ Upstream commit 558f9b2f94dbd2d5c5c8292aa13e081cc11ea7d9 ]
+[ Upstream commit cd8f318fbd266b127ffc93cc4c1eaf9a5196fafb ]
 
-GCC assumes that stack is aligned to 16-byte on call sites [1].
-Since GCC 8, GCC began using 16-byte aligned SSE instructions to
-implement assignments to structs on stack. When
-CC_OPTIMIZE_FOR_PERFORMANCE is enabled, this affects
-os-Linux/sigio.c, write_sigio_thread:
+psb_user_framebuffer_create() misses to call drm_gem_object_put() in an
+error path. Add the missed function call to fix it.
 
-  struct pollfds *fds, tmp;
-  tmp = current_poll;
-
-Note that struct pollfds is exactly 16 bytes in size.
-GCC 8+ generates assembly similar to:
-
-  movdqa (%rdi),%xmm0
-  movaps %xmm0,-0x50(%rbp)
-
-This is an issue, because movaps will #GP if -0x50(%rbp) is not
-aligned to 16 bytes [2], and how rbp gets assigned to is via glibc
-clone thread_start, then function prologue, going though execution
-trace similar to (showing only relevant instructions):
-
-  sub    $0x10,%rsi
-  mov    %rcx,0x8(%rsi)
-  mov    %rdi,(%rsi)
-  syscall
-  pop    %rax
-  pop    %rdi
-  callq  *%rax
-  push   %rbp
-  mov    %rsp,%rbp
-
-The stack pointer always points to the topmost element on stack,
-rather then the space right above the topmost. On push, the
-pointer decrements first before writing to the memory pointed to
-by it. Therefore, there is no need to have the stack pointer
-pointer always point to valid memory unless the stack is poped;
-so the `- sizeof(void *)` in the code is unnecessary.
-
-On the other hand, glibc reserves the 16 bytes it needs on stack
-and pops itself, so by the call instruction the stack pointer
-is exactly the caller-supplied sp. It then push the 16 bytes of
-the return address and the saved stack pointer, so the base
-pointer will be 16-byte aligned if and only if the caller
-supplied sp is 16-byte aligned. Therefore, the caller must supply
-a 16-byte aligned pointer, which `stack + UM_KERN_PAGE_SIZE`
-already satisfies.
-
-On a side note, musl is unaffected by this issue because it forces
-16 byte alignment via `and $-16,%rsi` in its clone wrapper.
-Similarly, glibc i386 is also unaffected because it has
-`andl $0xfffffff0, %ecx`.
-
-To reproduce this bug, enable CONFIG_UML_RTC and
-CC_OPTIMIZE_FOR_PERFORMANCE. uml_rtc will call
-add_sigio_fd which will then cause write_sigio_thread to either go
-into segfault loop or panic with "Segfault with no mm".
-
-Similarly, signal stacks will be aligned by the host kernel upon
-signal delivery. `- sizeof(void *)` to sigaltstack is
-unconventional and extraneous.
-
-On a related note, initialization of longjmp buffers do require
-`- sizeof(void *)`. This is to account for the return address
-that would have been pushed to the stack at the call site.
-
-The reason for uml to respect 16-byte alignment, rather than
-telling GCC to assume 8-byte alignment like the host kernel since
-commit d9b0cde91c60 ("x86-64, gcc: Use
--mpreferred-stack-boundary=3 if supported"), is because uml links
-against libc. There is no reason to assume libc is also compiled
-with that flag and assumes 8-byte alignment rather than 16-byte.
-
-[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=40838
-[2] https://c9x.me/x86/html/file_module_x86_id_180.html
-
-Signed-off-by: YiFei Zhu <zhuyifei1999@gmail.com>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Jing Xiangfeng <jingxiangfeng@huawei.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210629115956.15160-1-jingxiangfeng@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/ubd_kern.c      | 3 +--
- arch/um/kernel/skas/clone.c     | 2 +-
- arch/um/os-Linux/helper.c       | 4 ++--
- arch/um/os-Linux/signal.c       | 2 +-
- arch/um/os-Linux/skas/process.c | 2 +-
- 5 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/gma500/framebuffer.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
-index 8e0b43cf089f..cbd4f00fe77e 100644
---- a/arch/um/drivers/ubd_kern.c
-+++ b/arch/um/drivers/ubd_kern.c
-@@ -1242,8 +1242,7 @@ static int __init ubd_driver_init(void){
- 		 * enough. So use anyway the io thread. */
- 	}
- 	stack = alloc_stack(0, 0);
--	io_pid = start_io_thread(stack + PAGE_SIZE - sizeof(void *),
--				 &thread_fd);
-+	io_pid = start_io_thread(stack + PAGE_SIZE, &thread_fd);
- 	if(io_pid < 0){
- 		printk(KERN_ERR
- 		       "ubd : Failed to start I/O thread (errno = %d) - "
-diff --git a/arch/um/kernel/skas/clone.c b/arch/um/kernel/skas/clone.c
-index 592cdb138441..5afac0fef24e 100644
---- a/arch/um/kernel/skas/clone.c
-+++ b/arch/um/kernel/skas/clone.c
-@@ -29,7 +29,7 @@ stub_clone_handler(void)
- 	long err;
+diff --git a/drivers/gpu/drm/gma500/framebuffer.c b/drivers/gpu/drm/gma500/framebuffer.c
+index 54d9876b5305..6ef4ea07d1bb 100644
+--- a/drivers/gpu/drm/gma500/framebuffer.c
++++ b/drivers/gpu/drm/gma500/framebuffer.c
+@@ -435,6 +435,7 @@ static struct drm_framebuffer *psb_user_framebuffer_create
+ 			 const struct drm_mode_fb_cmd2 *cmd)
+ {
+ 	struct drm_gem_object *obj;
++	struct drm_framebuffer *fb;
  
- 	err = stub_syscall2(__NR_clone, CLONE_PARENT | CLONE_FILES | SIGCHLD,
--			    (unsigned long)data + UM_KERN_PAGE_SIZE / 2 - sizeof(void *));
-+			    (unsigned long)data + UM_KERN_PAGE_SIZE / 2);
- 	if (err) {
- 		data->parent_err = err;
- 		goto done;
-diff --git a/arch/um/os-Linux/helper.c b/arch/um/os-Linux/helper.c
-index 9fa6e4187d4f..32e88baf18dd 100644
---- a/arch/um/os-Linux/helper.c
-+++ b/arch/um/os-Linux/helper.c
-@@ -64,7 +64,7 @@ int run_helper(void (*pre_exec)(void *), void *pre_data, char **argv)
- 		goto out_close;
- 	}
+ 	/*
+ 	 *	Find the GEM object and thus the gtt range object that is
+@@ -445,7 +446,11 @@ static struct drm_framebuffer *psb_user_framebuffer_create
+ 		return ERR_PTR(-ENOENT);
  
--	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
-+	sp = stack + UM_KERN_PAGE_SIZE;
- 	data.pre_exec = pre_exec;
- 	data.pre_data = pre_data;
- 	data.argv = argv;
-@@ -120,7 +120,7 @@ int run_helper_thread(int (*proc)(void *), void *arg, unsigned int flags,
- 	if (stack == 0)
- 		return -ENOMEM;
+ 	/* Let the core code do all the work */
+-	return psb_framebuffer_create(dev, cmd, obj);
++	fb = psb_framebuffer_create(dev, cmd, obj);
++	if (IS_ERR(fb))
++		drm_gem_object_put(obj);
++
++	return fb;
+ }
  
--	sp = stack + UM_KERN_PAGE_SIZE - sizeof(void *);
-+	sp = stack + UM_KERN_PAGE_SIZE;
- 	pid = clone(proc, (void *) sp, flags, arg);
- 	if (pid < 0) {
- 		err = -errno;
-diff --git a/arch/um/os-Linux/signal.c b/arch/um/os-Linux/signal.c
-index 96f511d1aabe..e283f130aadc 100644
---- a/arch/um/os-Linux/signal.c
-+++ b/arch/um/os-Linux/signal.c
-@@ -129,7 +129,7 @@ void set_sigstack(void *sig_stack, int size)
- 	stack_t stack = {
- 		.ss_flags = 0,
- 		.ss_sp = sig_stack,
--		.ss_size = size - sizeof(void *)
-+		.ss_size = size
- 	};
- 
- 	if (sigaltstack(&stack, NULL) != 0)
-diff --git a/arch/um/os-Linux/skas/process.c b/arch/um/os-Linux/skas/process.c
-index fba674fac8b7..87d3129e7362 100644
---- a/arch/um/os-Linux/skas/process.c
-+++ b/arch/um/os-Linux/skas/process.c
-@@ -327,7 +327,7 @@ int start_userspace(unsigned long stub_stack)
- 	}
- 
- 	/* set stack pointer to the end of the stack page, so it can grow downwards */
--	sp = (unsigned long) stack + UM_KERN_PAGE_SIZE - sizeof(void *);
-+	sp = (unsigned long)stack + UM_KERN_PAGE_SIZE;
- 
- 	flags = CLONE_FILES | SIGCHLD;
- 
+ static int psbfb_probe(struct drm_fb_helper *fb_helper,
 -- 
 2.30.2
 
