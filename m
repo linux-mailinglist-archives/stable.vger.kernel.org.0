@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C389A3CE1D2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E6C3CE1D5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348106AbhGSP1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:27:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
+        id S1346475AbhGSP16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348355AbhGSPYo (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348356AbhGSPYo (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:24:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24DC66112D;
-        Mon, 19 Jul 2021 16:04:48 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFA9B6113A;
+        Mon, 19 Jul 2021 16:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710688;
-        bh=4BiZY+nNpgM9MbaYIV9qiVOy9KbOgnJyZKrMWwHUU0k=;
+        s=korg; t=1626710691;
+        bh=XGcfWV4/3WtZAaJ8qqR2xCbqYtIF7MC75pOb2pc+MwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rI7IrM6Vh3JDu59A/iHeXRtPyM1gFskQ64QKEvJup33fEolwLaUiFg7QfaPy2wskN
-         dlMq47h9ubvcy9RHmd0HKP4dvTaP0a6R25sAIianYb/3Re4nrV5YkFZ4Rkkw0UwUAN
-         ID5w5GypFrRpayP1ftPoqPi3lzOfPFN0zoNAQ4HI=
+        b=ATBxLIkrK29IZN8+LdBCR/cRbjDyn3CTHVUYhQKrgplT/i8jD8pVgI3i9Xlpi8pHH
+         Ce+OYE31wkuxGpNoGJtSz6ExUnTEhWtHg57coOoO5pol5zHsSJAHkFWi/9ygRwyxMy
+         FVTMSFw7bx2/5ZZ4XjI8rwxf8fhK8EttV4M6yPlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 072/351] tty: serial: 8250: serial_cs: Fix a memory leak in error handling path
-Date:   Mon, 19 Jul 2021 16:50:18 +0200
-Message-Id: <20210719144946.887747092@linuxfoundation.org>
+Subject: [PATCH 5.13 073/351] scsi: mpt3sas: Fix deadlock while cancelling the running firmware event
+Date:   Mon, 19 Jul 2021 16:50:19 +0200
+Message-Id: <20210719144946.919580937@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,52 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit fad92b11047a748c996ebd6cfb164a63814eeb2e ]
+[ Upstream commit e2fac6c44ae06e58ac02181b048af31195883c31 ]
 
-In the probe function, if the final 'serial_config()' fails, 'info' is
-leaking.
+Do not cancel current running firmware event work if the event type is
+different from MPT3SAS_REMOVE_UNRESPONDING_DEVICES.  Otherwise a deadlock
+can be observed while cancelling the current firmware event work if a hard
+reset operation is called as part of processing the current event.
 
-Add a resource handling path to free this memory.
-
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/dc25f96b7faebf42e60fe8d02963c941cf4d8124.1621971720.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210518051625.1596742-2-suganath-prabu.subramani@broadcom.com
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/serial_cs.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/serial_cs.c b/drivers/tty/serial/8250/serial_cs.c
-index 53f2697014a0..dc2ef05a10eb 100644
---- a/drivers/tty/serial/8250/serial_cs.c
-+++ b/drivers/tty/serial/8250/serial_cs.c
-@@ -306,6 +306,7 @@ static int serial_resume(struct pcmcia_device *link)
- static int serial_probe(struct pcmcia_device *link)
- {
- 	struct serial_info *info;
-+	int ret;
- 
- 	dev_dbg(&link->dev, "serial_attach()\n");
- 
-@@ -320,7 +321,15 @@ static int serial_probe(struct pcmcia_device *link)
- 	if (do_sound)
- 		link->config_flags |= CONF_ENABLE_SPKR;
- 
--	return serial_config(link);
-+	ret = serial_config(link);
-+	if (ret)
-+		goto free_info;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index a5f70f0e0287..b48f10f7cf31 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3697,6 +3697,28 @@ _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
+ 	ioc->fw_events_cleanup = 1;
+ 	while ((fw_event = dequeue_next_fw_event(ioc)) ||
+ 	     (fw_event = ioc->current_event)) {
 +
-+	return 0;
++		/*
++		 * Don't call cancel_work_sync() for current_event
++		 * other than MPT3SAS_REMOVE_UNRESPONDING_DEVICES;
++		 * otherwise we may observe deadlock if current
++		 * hard reset issued as part of processing the current_event.
++		 *
++		 * Orginal logic of cleaning the current_event is added
++		 * for handling the back to back host reset issued by the user.
++		 * i.e. during back to back host reset, driver use to process
++		 * the two instances of MPT3SAS_REMOVE_UNRESPONDING_DEVICES
++		 * event back to back and this made the drives to unregister
++		 * the devices from SML.
++		 */
 +
-+free_info:
-+	kfree(info);
-+	return ret;
- }
- 
- static void serial_detach(struct pcmcia_device *link)
++		if (fw_event == ioc->current_event &&
++		    ioc->current_event->event !=
++		    MPT3SAS_REMOVE_UNRESPONDING_DEVICES) {
++			ioc->current_event = NULL;
++			continue;
++		}
++
+ 		/*
+ 		 * Wait on the fw_event to complete. If this returns 1, then
+ 		 * the event was never executed, and we need a put for the
 -- 
 2.30.2
 
