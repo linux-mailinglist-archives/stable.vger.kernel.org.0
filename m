@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF8513CE28D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E9CA3CE37B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:19:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346641AbhGSPaw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38168 "EHLO mail.kernel.org"
+        id S1346236AbhGSPim (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:38:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348023AbhGSPYR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7571C61285;
-        Mon, 19 Jul 2021 16:00:37 +0000 (UTC)
+        id S1348802AbhGSPfb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 013B36113C;
+        Mon, 19 Jul 2021 16:14:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710437;
-        bh=lM2NNGhFOap9Ge7Zbdmeb3ROKWQFkb2O3i6fBKw4400=;
+        s=korg; t=1626711289;
+        bh=xH72XGf4gwCjdR1DxaLNWh2qSNKwdXjrVbEHoQeWhuU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qykTzXRNYwt2r1Q5zjrueGQQsvD/Q4UQAId2ICZt5wZYVkQdi2bDVIWSQpCbXbPn
-         PRnT/GEbOUELAsipNJZzxUzpLd3fSCzlRs8ApUPZZVyb/LoEXo8Blr6RbtcDxsrjoF
-         1AKQ3amtBdKFQAx7+cgydnZZE5URtmzBU20bFbLM=
+        b=hac8/QiIfMYYTvKizVzvP/1unRrmLt4r3jpfsadfsN7X17kisLbd3cI/PHmTtTXLm
+         cZLhIxSMhHu4YBjDwSbqJAqcvhhNNKdt+LfxU3R8mzVHW+NOp5U+JpXYLO0i7E8eTb
+         kxUpKSOvf0qII4aFlqoLC1CS6zP8mWJicDwX8mwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Aswath Govindraju <a-govindraju@ti.com>,
-        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 215/243] arm64: dts: ti: k3-j721e-main: Fix external refclk input to SERDES
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Patrick Delaunay <patrick.delaunay@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 298/351] ARM: dts: stm32: Rework LAN8710Ai PHY reset on DHCOM SoM
 Date:   Mon, 19 Jul 2021 16:54:04 +0200
-Message-Id: <20210719144947.859742099@linuxfoundation.org>
+Message-Id: <20210719144954.906011067@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,220 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 5c6d0b55b46aeb91355e6a9616decf50a3778c91 ]
+[ Upstream commit 1cebcf9932ab76102e8cfc555879574693ba8956 ]
 
-Rename the external refclk inputs to the SERDES from
-dummy_cmn_refclk/dummy_cmn_refclk1 to cmn_refclk/cmn_refclk1
-respectively. Also move the external refclk DT nodes outside the
-cbass_main DT node. Since in j721e common processor board, only the
-cmn_refclk1 is connected to 100MHz clock, fix the clock frequency.
+The Microchip LAN8710Ai PHY requires XTAL1/CLKIN external clock to be
+enabled when the nRST is toggled according to datasheet Microchip
+LAN8710A/LAN8710Ai DS00002164B page 35 section 3.8.5.1 Hardware Reset:
+  "
+  A Hardware reset is asserted by driving the nRST input pin low. When
+  driven, nRST should be held low for the minimum time detailed in
+  Section 5.5.3, "Power-On nRST & Configuration Strap Timing," on page
+  59 to ensure a proper transceiver reset. During a Hardware reset, an
+  external clock must be supplied to the XTAL1/CLKIN signal.
+  "
+This is accidentally fulfilled in the current setup, where ETHCK_K is used
+to supply both PHY XTAL1/CLKIN and is also fed back through eth_clk_fb to
+supply ETHRX clock of the DWMAC. Hence, the DWMAC enables ETHRX clock,
+that has ETHCK_K as parent, so ETHCK_K clock are also enabled, and then
+the PHY reset toggles.
 
-Fixes: afd094ebe69f ("arm64: dts: ti: k3-j721e-main: Add WIZ and SERDES PHY nodes")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20210603143427.28735-2-kishon@ti.com
+However, this is not always the case, e.g. in case the PHY XTAL1/CLKIN
+clock are supplied by some other clock source than ETHCK_K or in case
+ETHRX clock are not supplied by ETHCK_K. In the later case, ETHCK_K would
+be kept disabled, while ETHRX clock would be enabled, so the PHY would
+not be receiving XTAL1/CLKIN clock and the reset would fail.
+
+Improve the DT by adding the PHY clock phandle into the PHY node, which
+then also requires moving the PHY reset GPIO specifier in the same place
+and that then also requires correct PHY reset GPIO timing, so add that
+too.
+
+A brief note regarding the timing, the datasheet says the reset should
+stay asserted for at least 100uS and software should wait at least 200nS
+after deassertion. Set both delays to 500uS which should be plenty.
+
+Fixes: 34e0c7847dcf ("ARM: dts: stm32: Add DH Electronics DHCOM STM32MP1 SoM and PDK2 board")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Patrick Delaunay <patrick.delaunay@st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../dts/ti/k3-j721e-common-proc-board.dts     |  4 ++
- arch/arm64/boot/dts/ti/k3-j721e-main.dtsi     | 58 ++++++++++---------
- 2 files changed, 34 insertions(+), 28 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-index 52e121155563..7cd31ac67f88 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
-@@ -560,6 +560,10 @@
- 	status = "okay";
- };
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+index 272a1a67a9ad..31d08423a32f 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+@@ -123,7 +123,6 @@
+ 	max-speed = <100>;
+ 	phy-handle = <&phy0>;
+ 	st,eth-ref-clk-sel;
+-	phy-reset-gpios = <&gpioh 3 GPIO_ACTIVE_LOW>;
  
-+&cmn_refclk1 {
-+	clock-frequency = <100000000>;
-+};
-+
- &serdes0 {
- 	serdes0_pcie_link: link@0 {
- 		reg = <0>;
-diff --git a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-index c66ded9079be..6ffdebd60122 100644
---- a/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-j721e-main.dtsi
-@@ -8,6 +8,20 @@
- #include <dt-bindings/mux/mux.h>
- #include <dt-bindings/mux/ti-serdes.h>
- 
-+/ {
-+	cmn_refclk: clock-cmnrefclk {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <0>;
-+	};
-+
-+	cmn_refclk1: clock-cmnrefclk1 {
-+		#clock-cells = <0>;
-+		compatible = "fixed-clock";
-+		clock-frequency = <0>;
-+	};
-+};
-+
- &cbass_main {
- 	msmc_ram: sram@70000000 {
- 		compatible = "mmio-sram";
-@@ -369,24 +383,12 @@
- 		pinctrl-single,function-mask = <0xffffffff>;
- 	};
- 
--	dummy_cmn_refclk: dummy-cmn-refclk {
--		#clock-cells = <0>;
--		compatible = "fixed-clock";
--		clock-frequency = <100000000>;
--	};
--
--	dummy_cmn_refclk1: dummy-cmn-refclk1 {
--		#clock-cells = <0>;
--		compatible = "fixed-clock";
--		clock-frequency = <100000000>;
--	};
--
- 	serdes_wiz0: wiz@5000000 {
- 		compatible = "ti,j721e-wiz-16g";
+ 	mdio0 {
  		#address-cells = <1>;
- 		#size-cells = <1>;
- 		power-domains = <&k3_pds 292 TI_SCI_PD_EXCLUSIVE>;
--		clocks = <&k3_clks 292 5>, <&k3_clks 292 11>, <&dummy_cmn_refclk>;
-+		clocks = <&k3_clks 292 5>, <&k3_clks 292 11>, <&cmn_refclk>;
- 		clock-names = "fck", "core_ref_clk", "ext_ref_clk";
- 		assigned-clocks = <&k3_clks 292 11>, <&k3_clks 292 0>;
- 		assigned-clock-parents = <&k3_clks 292 15>, <&k3_clks 292 4>;
-@@ -395,21 +397,21 @@
- 		ranges = <0x5000000 0x0 0x5000000 0x10000>;
+@@ -132,6 +131,13 @@
  
- 		wiz0_pll0_refclk: pll0-refclk {
--			clocks = <&k3_clks 292 11>, <&dummy_cmn_refclk>;
-+			clocks = <&k3_clks 292 11>, <&cmn_refclk>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz0_pll0_refclk>;
- 			assigned-clock-parents = <&k3_clks 292 11>;
+ 		phy0: ethernet-phy@1 {
+ 			reg = <1>;
++			/* LAN8710Ai */
++			compatible = "ethernet-phy-id0007.c0f0",
++				     "ethernet-phy-ieee802.3-c22";
++			clocks = <&rcc ETHCK_K>;
++			reset-gpios = <&gpioh 3 GPIO_ACTIVE_LOW>;
++			reset-assert-us = <500>;
++			reset-deassert-us = <500>;
+ 			interrupt-parent = <&gpioi>;
+ 			interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
  		};
- 
- 		wiz0_pll1_refclk: pll1-refclk {
--			clocks = <&k3_clks 292 0>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 292 0>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz0_pll1_refclk>;
- 			assigned-clock-parents = <&k3_clks 292 0>;
- 		};
- 
- 		wiz0_refclk_dig: refclk-dig {
--			clocks = <&k3_clks 292 11>, <&k3_clks 292 0>, <&dummy_cmn_refclk>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 292 11>, <&k3_clks 292 0>, <&cmn_refclk>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz0_refclk_dig>;
- 			assigned-clock-parents = <&k3_clks 292 11>;
-@@ -443,7 +445,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		power-domains = <&k3_pds 293 TI_SCI_PD_EXCLUSIVE>;
--		clocks = <&k3_clks 293 5>, <&k3_clks 293 13>, <&dummy_cmn_refclk>;
-+		clocks = <&k3_clks 293 5>, <&k3_clks 293 13>, <&cmn_refclk>;
- 		clock-names = "fck", "core_ref_clk", "ext_ref_clk";
- 		assigned-clocks = <&k3_clks 293 13>, <&k3_clks 293 0>;
- 		assigned-clock-parents = <&k3_clks 293 17>, <&k3_clks 293 4>;
-@@ -452,21 +454,21 @@
- 		ranges = <0x5010000 0x0 0x5010000 0x10000>;
- 
- 		wiz1_pll0_refclk: pll0-refclk {
--			clocks = <&k3_clks 293 13>, <&dummy_cmn_refclk>;
-+			clocks = <&k3_clks 293 13>, <&cmn_refclk>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz1_pll0_refclk>;
- 			assigned-clock-parents = <&k3_clks 293 13>;
- 		};
- 
- 		wiz1_pll1_refclk: pll1-refclk {
--			clocks = <&k3_clks 293 0>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 293 0>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz1_pll1_refclk>;
- 			assigned-clock-parents = <&k3_clks 293 0>;
- 		};
- 
- 		wiz1_refclk_dig: refclk-dig {
--			clocks = <&k3_clks 293 13>, <&k3_clks 293 0>, <&dummy_cmn_refclk>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 293 13>, <&k3_clks 293 0>, <&cmn_refclk>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz1_refclk_dig>;
- 			assigned-clock-parents = <&k3_clks 293 13>;
-@@ -500,7 +502,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		power-domains = <&k3_pds 294 TI_SCI_PD_EXCLUSIVE>;
--		clocks = <&k3_clks 294 5>, <&k3_clks 294 11>, <&dummy_cmn_refclk>;
-+		clocks = <&k3_clks 294 5>, <&k3_clks 294 11>, <&cmn_refclk>;
- 		clock-names = "fck", "core_ref_clk", "ext_ref_clk";
- 		assigned-clocks = <&k3_clks 294 11>, <&k3_clks 294 0>;
- 		assigned-clock-parents = <&k3_clks 294 15>, <&k3_clks 294 4>;
-@@ -509,21 +511,21 @@
- 		ranges = <0x5020000 0x0 0x5020000 0x10000>;
- 
- 		wiz2_pll0_refclk: pll0-refclk {
--			clocks = <&k3_clks 294 11>, <&dummy_cmn_refclk>;
-+			clocks = <&k3_clks 294 11>, <&cmn_refclk>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz2_pll0_refclk>;
- 			assigned-clock-parents = <&k3_clks 294 11>;
- 		};
- 
- 		wiz2_pll1_refclk: pll1-refclk {
--			clocks = <&k3_clks 294 0>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 294 0>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz2_pll1_refclk>;
- 			assigned-clock-parents = <&k3_clks 294 0>;
- 		};
- 
- 		wiz2_refclk_dig: refclk-dig {
--			clocks = <&k3_clks 294 11>, <&k3_clks 294 0>, <&dummy_cmn_refclk>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 294 11>, <&k3_clks 294 0>, <&cmn_refclk>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz2_refclk_dig>;
- 			assigned-clock-parents = <&k3_clks 294 11>;
-@@ -557,7 +559,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <1>;
- 		power-domains = <&k3_pds 295 TI_SCI_PD_EXCLUSIVE>;
--		clocks = <&k3_clks 295 5>, <&k3_clks 295 9>, <&dummy_cmn_refclk>;
-+		clocks = <&k3_clks 295 5>, <&k3_clks 295 9>, <&cmn_refclk>;
- 		clock-names = "fck", "core_ref_clk", "ext_ref_clk";
- 		assigned-clocks = <&k3_clks 295 9>, <&k3_clks 295 0>;
- 		assigned-clock-parents = <&k3_clks 295 13>, <&k3_clks 295 4>;
-@@ -566,21 +568,21 @@
- 		ranges = <0x5030000 0x0 0x5030000 0x10000>;
- 
- 		wiz3_pll0_refclk: pll0-refclk {
--			clocks = <&k3_clks 295 9>, <&dummy_cmn_refclk>;
-+			clocks = <&k3_clks 295 9>, <&cmn_refclk>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz3_pll0_refclk>;
- 			assigned-clock-parents = <&k3_clks 295 9>;
- 		};
- 
- 		wiz3_pll1_refclk: pll1-refclk {
--			clocks = <&k3_clks 295 0>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 295 0>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz3_pll1_refclk>;
- 			assigned-clock-parents = <&k3_clks 295 0>;
- 		};
- 
- 		wiz3_refclk_dig: refclk-dig {
--			clocks = <&k3_clks 295 9>, <&k3_clks 295 0>, <&dummy_cmn_refclk>, <&dummy_cmn_refclk1>;
-+			clocks = <&k3_clks 295 9>, <&k3_clks 295 0>, <&cmn_refclk>, <&cmn_refclk1>;
- 			#clock-cells = <0>;
- 			assigned-clocks = <&wiz3_refclk_dig>;
- 			assigned-clock-parents = <&k3_clks 295 9>;
 -- 
 2.30.2
 
