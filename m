@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0EE3CE5D6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7BCA3CE5E6
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350224AbhGSPyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:54:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49522 "EHLO mail.kernel.org"
+        id S1348682AbhGSPz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1350526AbhGSPvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1350520AbhGSPvI (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:51:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 475E66135F;
-        Mon, 19 Jul 2021 16:29:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE3B76127C;
+        Mon, 19 Jul 2021 16:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712197;
-        bh=7odciAydSk5Q3z51rIbPwPstVSNzJouMg7/OKx7znec=;
+        s=korg; t=1626712200;
+        bh=wrAXyTUu8iaEYGFgf4AL1J9lnFaFjPOR7mr8+BQtH7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZVhuJoj53Ih7YUefIqIeDFjtpgXORCZRMEOjYieDUMModtbRLkg6uijLCxNkRmzH
-         Zt/uVd5NRYGJDNsN2HEbGbZuZao20jGorVb00k9z5tiMwKtD9EZBFUZf3sQobO5Cbz
-         6i+KKfofcPTwg5lVLWEn3F/MGZAXWHbzjZ6SwAJs=
+        b=ool7iYE8MI6vCsqKD1V8BZenb5SApiqTe3S6TYs55vie7p2yIPZvZSekUmrfJBP/T
+         HA/1iGuHAWqI3dFXdAczA6lYi/vOSDgLqMCPg+jCnSy2WNAtTOVfucQmOumH4v88YP
+         nIF7uzvd81EQzcDLcVaocCcIccL9LE47tyE+T9io=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 287/292] s390/irq: remove HAVE_IRQ_EXIT_ON_IRQ_STACK
-Date:   Mon, 19 Jul 2021 16:55:49 +0200
-Message-Id: <20210719144952.355189462@linuxfoundation.org>
+Subject: [PATCH 5.12 288/292] MIPS: vdso: Invalid GIC access through VDSO
+Date:   Mon, 19 Jul 2021 16:55:50 +0200
+Message-Id: <20210719144952.387046837@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,35 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Martin Fäcknitz <faecknitz@hotsplots.de>
 
-[ Upstream commit 0aa4ff7688632a86bdb133fa106f2ccd514b91a7 ]
+[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
 
-This is no longer true since we switched to generic entry. The code
-switches to the IRQ stack before calling do_IRQ, but switches back
-to the kernel stack before calling irq_exit().
+Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
+doesn't return the correct time when using the GIC as clock source.
+The address of the GIC mapped page is in this case not calculated
+correctly. The GIC mapped page is calculated from the VDSO data by
+subtracting PAGE_SIZE:
 
-Fixes: 56e62a737028 ("s390: convert to generic entry")
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+  void *get_gic(const struct vdso_data *data) {
+    return (void __iomem *)data - PAGE_SIZE;
+  }
+
+However, the data pointer is not page aligned for raw clock sources.
+This is because the VDSO data for raw clock sources (CS_RAW = 1) is
+stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
+Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
+
+  +--------------------+
+  |                    |
+  | vd[CS_RAW]         | ---+
+  | vd[CS_HRES_COARSE] |    |
+  +--------------------+    | -PAGE_SIZE
+  |                    |    |
+  |  GIC mapped page   | <--+
+  |                    |
+  +--------------------+
+
+When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
+the wrong address (somewhere inside the GIC mapped page). The GIC counter
+values are not returned which results in an invalid time.
+
+Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
+Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/include/asm/vdso/vdso.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-index 4fcd460f496e..0cf31cb872e5 100644
---- a/arch/s390/Kconfig
-+++ b/arch/s390/Kconfig
-@@ -161,7 +161,6 @@ config S390
- 	select HAVE_GCC_PLUGINS
- 	select HAVE_GENERIC_VDSO
- 	select HAVE_IOREMAP_PROT if PCI
--	select HAVE_IRQ_EXIT_ON_IRQ_STACK
- 	select HAVE_KERNEL_BZIP2
- 	select HAVE_KERNEL_GZIP
- 	select HAVE_KERNEL_LZ4
+diff --git a/arch/mips/include/asm/vdso/vdso.h b/arch/mips/include/asm/vdso/vdso.h
+index 737ddfc3411c..a327ca21270e 100644
+--- a/arch/mips/include/asm/vdso/vdso.h
++++ b/arch/mips/include/asm/vdso/vdso.h
+@@ -67,7 +67,7 @@ static inline const struct vdso_data *get_vdso_data(void)
+ 
+ static inline void __iomem *get_gic(const struct vdso_data *data)
+ {
+-	return (void __iomem *)data - PAGE_SIZE;
++	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+ }
+ 
+ #endif /* CONFIG_CLKSRC_MIPS_GIC */
 -- 
 2.30.2
 
