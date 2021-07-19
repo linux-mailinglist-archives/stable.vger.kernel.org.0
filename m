@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E0D73CDB6E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D39393CD98F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245080AbhGSOmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32808 "EHLO mail.kernel.org"
+        id S244221AbhGSOaq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242909AbhGSOkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 295816120C;
-        Mon, 19 Jul 2021 15:21:13 +0000 (UTC)
+        id S244100AbhGSO3T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6755061285;
+        Mon, 19 Jul 2021 15:08:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708073;
-        bh=NUWXJAG9t8t5vv1woG+PvvuFN4sHR+aXdOr3MJvzHxI=;
+        s=korg; t=1626707329;
+        bh=so5s9QIfoDE8+8ZjuiUwgMCqr1/3RjEGVOxsxfQ07JA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOGrAGVvTVNBc3JvV+txnqSfNrBSM9q9xap/9fa7Ao9A3fe2pcrQDyRVWF9FR2ICt
-         Wn+H6Ic9DAcIFEAplmZSBusuDf7tVOKXn/90OGW04M90JRNMPNQek+N95jhgw1gsKC
-         pIpE7D7AjDzQ3srpgRs18fR0O6QRFJY4TI3mMS5E=
+        b=TIWw6VGUlT65omBv0C5nLGsO9aBOvqERoaJswZ/r81dV7RJ23FvEEm3zf1y/Ik2qZ
+         tnczDO+qunM+i65wWBiqY0tXO3z5wUiFn8Bl0bq2Hxg/Rw4rvF5T9aXuZQhGUkSm69
+         Ho2V6iDREkF8JjjULv7D0Z6Krfhdm5M/MvtU3oK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
-        Gerd Hoffmann <kraxel@redhat.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 170/315] drm/virtio: Fix double free on probe failure
+Subject: [PATCH 4.9 117/245] extcon: max8997: Add missing modalias string
 Date:   Mon, 19 Jul 2021 16:50:59 +0200
-Message-Id: <20210719144948.483158972@linuxfoundation.org>
+Message-Id: <20210719144944.191894777@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit cec7f1774605a5ef47c134af62afe7c75c30b0ee ]
+[ Upstream commit dc11fc2991e9efbceef93912b83e333d2835fb19 ]
 
-The virtio_gpu_init() will free vgdev and vgdev->vbufs on failure.
-But such failure will be caught by virtio_gpu_probe() and then
-virtio_gpu_release() will be called to do some cleanup which
-will free vgdev and vgdev->vbufs again. So let's set dev->dev_private
-to NULL to avoid double free.
+The platform device driver name is "max8997-muic", so advertise it
+properly in the modalias string. This fixes automated module loading when
+this driver is compiled as a module.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-2-xieyongji@bytedance.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Fixes: b76668ba8a77 ("Extcon: add MAX8997 extcon driver")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c | 1 +
+ drivers/extcon/extcon-max8997.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index bed450fbb216..5251c29966d3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -237,6 +237,7 @@ err_ttm:
- err_vbufs:
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
- err_vqs:
-+	dev->dev_private = NULL;
- 	kfree(vgdev);
- 	return ret;
- }
+diff --git a/drivers/extcon/extcon-max8997.c b/drivers/extcon/extcon-max8997.c
+index b9b48d45a6dc..17d426829f5d 100644
+--- a/drivers/extcon/extcon-max8997.c
++++ b/drivers/extcon/extcon-max8997.c
+@@ -783,3 +783,4 @@ module_platform_driver(max8997_muic_driver);
+ MODULE_DESCRIPTION("Maxim MAX8997 Extcon driver");
+ MODULE_AUTHOR("Donggeun Kim <dg77.kim@samsung.com>");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:max8997-muic");
 -- 
 2.30.2
 
