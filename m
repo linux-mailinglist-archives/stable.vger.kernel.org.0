@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0ED93CE480
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BE83CE66F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 19:00:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348488AbhGSPn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:43:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34444 "EHLO mail.kernel.org"
+        id S235711AbhGSQGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 12:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347045AbhGSPka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:40:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD2DA613AE;
-        Mon, 19 Jul 2021 16:20:41 +0000 (UTC)
+        id S243325AbhGSQEL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 12:04:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFF3061209;
+        Mon, 19 Jul 2021 16:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711642;
-        bh=4cmWkVFhdTzQWY9usqWWMyf40gKiTVqMUh3jZzfwEhU=;
+        s=korg; t=1626713091;
+        bh=nrRvggJviXFfdy9LsU0DWs5Wxc2DOv6ikzovAtFzfGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EDnb78vnfRZLq8FVfwTIRfmhZif+xj+aNUpTLm/g/y9ma6t6mtpzIXE/l0ziCc008
-         kJDjw7lla82sMzyrPiE/Z438jmoZ/THnLHJ04z9qf+cWZghOhtu8L0pjaG2dUiUunx
-         tLE0+Y3LqK7k9F7vEcrGErasHOf8L2KE73zWGlMU=
+        b=d2QQ3R6usORd+9jdGq4tklRxXNr3o0QeuIDCLJNZVot5pNXvK6j+GDcwZ1TILQkOY
+         GHVx9sw2J/4HpWfAIexO2EeMZcUO810H8CBGkHz9LpHb6Xn0VBMAUAy42F/3u1P6xL
+         d16totePRmQDOfOE4zdWjxUiz6WsBDmDfKS+xhQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>, Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Shirisha Ganta <shirisha.ganta1@ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 077/292] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
+Subject: [PATCH 4.4 155/188] selftests/powerpc: Fix "no_handler" EBB selftest
 Date:   Mon, 19 Jul 2021 16:52:19 +0200
-Message-Id: <20210719144945.056275251@linuxfoundation.org>
+Message-Id: <20210719144941.565589960@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
-References: <20210719144942.514164272@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
+[ Upstream commit 45677c9aebe926192e59475b35a1ff35ff2d4217 ]
 
-This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The "no_handler_test" in ebb selftests attempts to read the PMU
+registers twice via helper function "dump_ebb_state". First dump is
+just before closing of event and the second invocation is done after
+closing of the event. The original intention of second
+dump_ebb_state was to dump the state of registers at the end of
+the test when the counters are frozen. But this will be achieved
+with the first call itself since sample period is set to low value
+and PMU will be frozen by then. Hence patch removes the
+dump which was done before closing of the event.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Reported-by: Shirisha Ganta <shirisha.ganta1@ibm.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com <mailto:rnsastry@linux.ibm.com>>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1621950703-1532-2-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/da9052-i2c.c | 1 +
- drivers/mfd/stmpe-i2c.c  | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
-index 47556d2d9abe..8ebfc7bbe4e0 100644
---- a/drivers/mfd/da9052-i2c.c
-+++ b/drivers/mfd/da9052-i2c.c
-@@ -113,6 +113,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
- 	{"da9053-bc", DA9053_BC},
- 	{}
- };
-+MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
+diff --git a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
+index 8341d7778d5e..87630d44fb4c 100644
+--- a/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
++++ b/tools/testing/selftests/powerpc/pmu/ebb/no_handler_test.c
+@@ -50,8 +50,6 @@ static int no_handler_test(void)
  
- #ifdef CONFIG_OF
- static const struct of_device_id dialog_dt_ids[] = {
-diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
-index 61aa020199f5..cd2f45257dc1 100644
---- a/drivers/mfd/stmpe-i2c.c
-+++ b/drivers/mfd/stmpe-i2c.c
-@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
- 	{ "stmpe2403", STMPE2403 },
- 	{ }
- };
--MODULE_DEVICE_TABLE(i2c, stmpe_id);
-+MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
+ 	event_close(&event);
  
- static struct i2c_driver stmpe_i2c_driver = {
- 	.driver = {
+-	dump_ebb_state();
+-
+ 	/* The real test is that we never took an EBB at 0x0 */
+ 
+ 	return 0;
 -- 
 2.30.2
 
