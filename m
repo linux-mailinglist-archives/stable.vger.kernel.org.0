@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 095DB3CDF73
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B443CDECD
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:49:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345208AbhGSPK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S245320AbhGSPGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:06:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245211AbhGSPIa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:08:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B0C661165;
-        Mon, 19 Jul 2021 15:48:23 +0000 (UTC)
+        id S1343928AbhGSPDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:03:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A2B9613AF;
+        Mon, 19 Jul 2021 15:43:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709704;
-        bh=tGoSPbNe/BAyKJJ0zzYq7WZad+nya4dN++5YmE21xRQ=;
+        s=korg; t=1626709401;
+        bh=i2xcg7LDNc4FohGMAy1rqLeDVKbCzPkt+EzbS/bbETo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hk4lo+gLglaF8DinQKIEmetPYiMUH9WPBNoL6oxG/NG6wtjoyDZngQQweiILqNG20
-         SOpgeU36Zpf06Gx3e0Dh+XDVoPb9NLo6UP8aWvHhuxp0pqOHzgJRVaystmKJ+s1vd2
-         AyiDZtieGvb0UU3gRnF0TE7e8HQctydBFdd/6D2M=
+        b=mPE1o11gARO7U1L6EioY9BmB8cFLCsK7gr4WZq8vHhgBWoq5/amQnXAQW42O94/0r
+         8dcREyK7XlzEzb2MHc6HRhaHXJk8WQhtkGb15Wwc+ZLhZePvItNGhxlcCoRLWonATD
+         RpNV1ZpJlX4et83/249u80+VLrSYmxFt30JvIsxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/149] staging: rtl8723bs: fix macro value for 2.4Ghz only device
+Subject: [PATCH 4.19 362/421] power: reset: gpio-poweroff: add missing MODULE_DEVICE_TABLE
 Date:   Mon, 19 Jul 2021 16:52:53 +0200
-Message-Id: <20210719144916.723198571@linuxfoundation.org>
+Message-Id: <20210719144958.801121525@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
+References: <20210719144946.310399455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Aiuto <fabioaiuto83@gmail.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 6d490a27e23c5fb79b766530016ab8665169498e ]
+[ Upstream commit ed3443fb4df4e140a22f65144546c8a8e1e27f4e ]
 
-fix IQK_Matrix_Settings_NUM macro value to 14 which is
-the max channel number value allowed in a 2.4Ghz device.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Fabio Aiuto <fabioaiuto83@gmail.com>
-Link: https://lore.kernel.org/r/0b4a876929949248aa18cb919da3583c65e4ee4e.1624367072.git.fabioaiuto83@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/hal/odm.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/power/reset/gpio-poweroff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/staging/rtl8723bs/hal/odm.h b/drivers/staging/rtl8723bs/hal/odm.h
-index fba3b9e1491b..ee867621aed9 100644
---- a/drivers/staging/rtl8723bs/hal/odm.h
-+++ b/drivers/staging/rtl8723bs/hal/odm.h
-@@ -197,10 +197,7 @@ typedef struct _ODM_RATE_ADAPTIVE {
+diff --git a/drivers/power/reset/gpio-poweroff.c b/drivers/power/reset/gpio-poweroff.c
+index 38206c39b3bf..5f2fa9c0f526 100644
+--- a/drivers/power/reset/gpio-poweroff.c
++++ b/drivers/power/reset/gpio-poweroff.c
+@@ -88,6 +88,7 @@ static const struct of_device_id of_gpio_poweroff_match[] = {
+ 	{ .compatible = "gpio-poweroff", },
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, of_gpio_poweroff_match);
  
- #define AVG_THERMAL_NUM		8
- #define IQK_Matrix_REG_NUM	8
--#define IQK_Matrix_Settings_NUM	(14 + 24 + 21) /*   Channels_2_4G_NUM
--						* + Channels_5G_20M_NUM
--						* + Channels_5G
--						*/
-+#define IQK_Matrix_Settings_NUM	14 /* Channels_2_4G_NUM */
- 
- #define		DM_Type_ByFW			0
- #define		DM_Type_ByDriver		1
+ static struct platform_driver gpio_poweroff_driver = {
+ 	.probe = gpio_poweroff_probe,
 -- 
 2.30.2
 
