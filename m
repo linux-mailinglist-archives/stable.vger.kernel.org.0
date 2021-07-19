@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EFA3CDB23
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0472D3CD955
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:09:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244654AbhGSOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56372 "EHLO mail.kernel.org"
+        id S243600AbhGSO2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343864AbhGSOjr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B38461380;
-        Mon, 19 Jul 2021 15:19:44 +0000 (UTC)
+        id S243316AbhGSO1B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:27:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECB0661175;
+        Mon, 19 Jul 2021 15:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707984;
-        bh=xZofZf6Zv1XFkByyxAtrDNXrtsrmbvjOyMpOqXaMx64=;
+        s=korg; t=1626707238;
+        bh=CpzXt+lfrnSovxqdtnIv2d5ThXXtW+36repH0EzOvdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SIsWJAiv60u8c2zRXY2wX469BnCyc8DRhsH8rN/upjADRQYiXz3LuPIhTvRoodxiU
-         XgBz/74ybdNl5MM1hZsnXStl+XazxM1D1VZFUQPOSiUNH2gwDQh3lrhiwQWlzWup1r
-         c2ChGdyBsZezYVU1gX1fUd1IBSFQYV9UHhvf9Ci0=
+        b=papgqpv98sxCDt39EUm8Vv0WdAmOS/USZioGDnFYuk/RH1Cj/KbsldrtKX3N+7/TJ
+         RdR5+bjQu6VVUFUE92g5nq2JnydUNr/5YmLMsAgRYtSqXDr8o+eR40VDGu50gxW5Hh
+         A6B9zNZ0Wi+9Cfz75V/P0tIo91kFmMPNkbbOQfRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Liu Shixin <liushixin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 134/315] iio: light: isl29125: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:23 +0200
-Message-Id: <20210719144947.285239458@linuxfoundation.org>
+Subject: [PATCH 4.9 082/245] netlabel: Fix memory leak in netlbl_mgmt_add_common
+Date:   Mon, 19 Jul 2021 16:50:24 +0200
+Message-Id: <20210719144943.056959498@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +41,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Liu Shixin <liushixin2@huawei.com>
 
-[ Upstream commit 3d4725194de6935dba2ad7c9cc075c885008f747 ]
+[ Upstream commit b8f6b0522c298ae9267bd6584e19b942a0636910 ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+Hulk Robot reported memory leak in netlbl_mgmt_add_common.
+The problem is non-freed map in case of netlbl_domhsh_add() failed.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp()
+BUG: memory leak
+unreferenced object 0xffff888100ab7080 (size 96):
+  comm "syz-executor537", pid 360, jiffies 4294862456 (age 22.678s)
+  hex dump (first 32 bytes):
+    05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    fe 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01  ................
+  backtrace:
+    [<0000000008b40026>] netlbl_mgmt_add_common.isra.0+0xb2a/0x1b40
+    [<000000003be10950>] netlbl_mgmt_add+0x271/0x3c0
+    [<00000000c70487ed>] genl_family_rcv_msg_doit.isra.0+0x20e/0x320
+    [<000000001f2ff614>] genl_rcv_msg+0x2bf/0x4f0
+    [<0000000089045792>] netlink_rcv_skb+0x134/0x3d0
+    [<0000000020e96fdd>] genl_rcv+0x24/0x40
+    [<0000000042810c66>] netlink_unicast+0x4a0/0x6a0
+    [<000000002e1659f0>] netlink_sendmsg+0x789/0xc70
+    [<000000006e43415f>] sock_sendmsg+0x139/0x170
+    [<00000000680a73d7>] ____sys_sendmsg+0x658/0x7d0
+    [<0000000065cbb8af>] ___sys_sendmsg+0xf8/0x170
+    [<0000000019932b6c>] __sys_sendmsg+0xd3/0x190
+    [<00000000643ac172>] do_syscall_64+0x37/0x90
+    [<000000009b79d6dc>] entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: 6c25539cbc46 ("iio: Add Intersil isl29125 digital color light sensor driver")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-18-jic23@kernel.org
+Fixes: 63c416887437 ("netlabel: Add network address selectors to the NetLabel/LSM domain mapping")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Liu Shixin <liushixin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/isl29125.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/netlabel/netlabel_mgmt.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/light/isl29125.c b/drivers/iio/light/isl29125.c
-index 1d2c0c8a1d4f..207b856cef8c 100644
---- a/drivers/iio/light/isl29125.c
-+++ b/drivers/iio/light/isl29125.c
-@@ -54,7 +54,11 @@
- struct isl29125_data {
- 	struct i2c_client *client;
- 	u8 conf1;
--	u16 buffer[8]; /* 3x 16-bit, padding, 8 bytes timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		u16 chans[3];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
+diff --git a/net/netlabel/netlabel_mgmt.c b/net/netlabel/netlabel_mgmt.c
+index f85d0e07af2d..9be851ce97c2 100644
+--- a/net/netlabel/netlabel_mgmt.c
++++ b/net/netlabel/netlabel_mgmt.c
+@@ -96,6 +96,7 @@ static const struct nla_policy netlbl_mgmt_genl_policy[NLBL_MGMT_A_MAX + 1] = {
+ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 				  struct netlbl_audit *audit_info)
+ {
++	void *pmap = NULL;
+ 	int ret_val = -EINVAL;
+ 	struct netlbl_domaddr_map *addrmap = NULL;
+ 	struct cipso_v4_doi *cipsov4 = NULL;
+@@ -195,6 +196,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			ret_val = -ENOMEM;
+ 			goto add_free_addrmap;
+ 		}
++		pmap = map;
+ 		map->list.addr = addr->s_addr & mask->s_addr;
+ 		map->list.mask = mask->s_addr;
+ 		map->list.valid = 1;
+@@ -203,10 +205,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			map->def.cipso = cipsov4;
  
- #define ISL29125_CHANNEL(_color, _si) { \
-@@ -187,10 +191,10 @@ static irqreturn_t isl29125_trigger_handler(int irq, void *p)
- 		if (ret < 0)
- 			goto done;
+ 		ret_val = netlbl_af4list_add(&map->list, &addrmap->list4);
+-		if (ret_val != 0) {
+-			kfree(map);
+-			goto add_free_addrmap;
+-		}
++		if (ret_val != 0)
++			goto add_free_map;
  
--		data->buffer[j++] = ret;
-+		data->scan.chans[j++] = ret;
- 	}
+ 		entry->family = AF_INET;
+ 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
+@@ -243,6 +243,7 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			ret_val = -ENOMEM;
+ 			goto add_free_addrmap;
+ 		}
++		pmap = map;
+ 		map->list.addr = *addr;
+ 		map->list.addr.s6_addr32[0] &= mask->s6_addr32[0];
+ 		map->list.addr.s6_addr32[1] &= mask->s6_addr32[1];
+@@ -255,10 +256,8 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 			map->def.calipso = calipso;
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 		iio_get_time_ns(indio_dev));
+ 		ret_val = netlbl_af6list_add(&map->list, &addrmap->list6);
+-		if (ret_val != 0) {
+-			kfree(map);
+-			goto add_free_addrmap;
+-		}
++		if (ret_val != 0)
++			goto add_free_map;
  
- done:
+ 		entry->family = AF_INET6;
+ 		entry->def.type = NETLBL_NLTYPE_ADDRSELECT;
+@@ -268,10 +267,12 @@ static int netlbl_mgmt_add_common(struct genl_info *info,
+ 
+ 	ret_val = netlbl_domhsh_add(entry, audit_info);
+ 	if (ret_val != 0)
+-		goto add_free_addrmap;
++		goto add_free_map;
+ 
+ 	return 0;
+ 
++add_free_map:
++	kfree(pmap);
+ add_free_addrmap:
+ 	kfree(addrmap);
+ add_doi_put_def:
 -- 
 2.30.2
 
