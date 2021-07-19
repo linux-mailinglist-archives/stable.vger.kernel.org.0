@@ -2,146 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 117263CD56E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 15:05:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD0943CD59C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 15:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237046AbhGSMY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 08:24:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53732 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236883AbhGSMYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 08:24:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF97D610A5;
-        Mon, 19 Jul 2021 13:05:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626699905;
-        bh=35IH1Be/xn27F8mXBOPo5R8WaCBnv5MW7j4hM992ZeU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=onoAm0NSVStQeP9V4wR6k8eqWvO+KFUNnqtYFgRjuMLbse6Or2MUtp13xliIfe1qk
-         YEO/YIMZ9PAd3PDh9IHJHSZJ4GPoXzRkn+VC2DvhrbCM7WeN/Ta2k3GeMGbM67RtZV
-         qojNHhN5gTjV5jrCbHL+ZEJrkuPXOgdchTbUWM88=
-Date:   Mon, 19 Jul 2021 15:05:02 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Xiaotian Feng <xtfeng@gmail.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>,
-        kernel test robot <lkp@intel.com>,
-        Dave Airlie <airlied@redhat.com>,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 5.12 237/242] drm/ast: Remove reference to struct
- drm_device.pdev
-Message-ID: <YPV4fkUjqWcqhrRY@kroah.com>
-References: <20210715182551.731989182@linuxfoundation.org>
- <20210715182634.577299401@linuxfoundation.org>
- <CAJn8CcF+gfXToErpZv=pWmBKF-i--oVWmaM=6AQ8YZCb21X=oA@mail.gmail.com>
- <YPVgtybrZLxe3XeW@kroah.com>
- <CAJn8CcHHKSo7GF29Z1ufXJJpMUzn6+fdvwiqe9=JvgpcfvnbHQ@mail.gmail.com>
+        id S237160AbhGSMf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 08:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237111AbhGSMf5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 19 Jul 2021 08:35:57 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F4AC061574
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 05:36:54 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id u8-20020a7bcb080000b02901e44e9caa2aso10483772wmj.4
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 06:16:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=ZiroQn6QiWdPLyhoJtyIyqZTTN56blVdeogfk3QJX8M=;
+        b=eXX4KdugNywIot7Dls558pifE7JhAQpZGib41eDIC0LDu0+DbdlLXaI/4h+KtK5Hbe
+         1OjMQbeRz4emLNAqgPRQg/Hl/QiMoWm4WKH2HZEjjb0EpIkoUP+GrlNc76lFDDn1PfaB
+         Vx4i8GhmIrzJmtsy7GEhHv79T4F/Ye7tfVFT6VdqmPG1uxlyFVTBROMV5ql5EfL6hITw
+         Dp/x5DhZLYeNwob2kxLEZY2+mlM3YijZBd80o12FsqPlaxF729F4Gtq1HgT3thAbvopA
+         LgWcKb6olrZcQxUoyM2YSy0xir9KZq2rFYvEV2s+cBeftsw7+QOgVhyiK4QQGqcNpwSW
+         bDOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=ZiroQn6QiWdPLyhoJtyIyqZTTN56blVdeogfk3QJX8M=;
+        b=pyMWkfu6MQDPDr70lpdmwtKf/U5SHJ4Ug24ASdCEN7gB7lMxPAVI84BUbXk+Jadvhh
+         xM6VO5ibatuvAiu1ufOKmA2TmUUVXBGak0oAkRgp/m4AeA+DPRWCoKpYZxivUu8lg8xh
+         3OQx2Oz2y1w+k224gv2ttrfVPWtV4BT8cTTkfE4/Y2DCFy5QkLlB1F9mlghP1zIdDULN
+         G+TvOxsFbj9hd3yZO1hUZWhacmN5BHtDW5dqad4mGq8Wf5XzarynJAVVuwzRH/+VgQcx
+         eew8asula6Avrg2nCyNs097aQPQmy1CVZXkKFfE42M/aRa5kPMOjB9V/GeD42zTRyXu3
+         CfvQ==
+X-Gm-Message-State: AOAM532e2M/HG/5suK8AvcmwSEHg7hmiBcHuZZPed4Av/uyxUGLR9DHF
+        lF9DBqzXenxIqpmEicEmXRQ=
+X-Google-Smtp-Source: ABdhPJzlluXg5pWQLJ1WzRHkFQsK6tYHlYJYMxTInXwC/hfkqn10aH7cmTnZM0TpWQA6VN15Q2alBQ==
+X-Received: by 2002:a05:600c:4285:: with SMTP id v5mr12613511wmc.189.1626700594102;
+        Mon, 19 Jul 2021 06:16:34 -0700 (PDT)
+Received: from [192.168.8.197] ([148.252.132.204])
+        by smtp.gmail.com with ESMTPSA id p9sm19503209wrx.59.2021.07.19.06.16.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 19 Jul 2021 06:16:33 -0700 (PDT)
+Subject: Re: [PATCH 0/2] stable-5.12 backport fixes
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+References: <cover.1626651114.git.asml.silence@gmail.com>
+ <YPV2pX0pmsOrW337@kroah.com>
+From:   Pavel Begunkov <asml.silence@gmail.com>
+Message-ID: <d8762b17-d13b-8abe-d35d-ff0164383c34@gmail.com>
+Date:   Mon, 19 Jul 2021 14:16:12 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJn8CcHHKSo7GF29Z1ufXJJpMUzn6+fdvwiqe9=JvgpcfvnbHQ@mail.gmail.com>
+In-Reply-To: <YPV2pX0pmsOrW337@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 07:43:39PM +0800, Xiaotian Feng wrote:
-> On Mon, Jul 19, 2021 at 7:23 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Mon, Jul 19, 2021 at 05:57:30PM +0800, Xiaotian Feng wrote:
-> > > On Fri, Jul 16, 2021 at 5:13 AM Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > From: Thomas Zimmermann <tzimmermann@suse.de>
-> > > >
-> > > > commit 0ecb51824e838372e01330752503ddf9c0430ef7 upstream.
-> > > >
-> > > > Using struct drm_device.pdev is deprecated. Upcast with to_pci_dev()
-> > > > from struct drm_device.dev to get the PCI device structure.
-> > > >
-> > > > v9:
-> > > >         * fix remaining pdev references
-> > > >
-> > > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> > > > Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-> > > > Fixes: ba4e0339a6a3 ("drm/ast: Fixed CVE for DP501")
-> > > > Cc: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
-> > > > Cc: kernel test robot <lkp@intel.com>
-> > > > Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> > > > Cc: Dave Airlie <airlied@redhat.com>
-> > > > Cc: dri-devel@lists.freedesktop.org
-> > > > Link: https://patchwork.freedesktop.org/patch/msgid/20210429105101.25667-2-tzimmermann@suse.de
-> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > ---
-> > > >  drivers/gpu/drm/ast/ast_main.c |    5 ++---
-> > > >  1 file changed, 2 insertions(+), 3 deletions(-)
-> > > >
-> > > > --- a/drivers/gpu/drm/ast/ast_main.c
-> > > > +++ b/drivers/gpu/drm/ast/ast_main.c
-> > > > @@ -411,7 +411,6 @@ struct ast_private *ast_device_create(co
-> > > >                 return ast;
-> > > >         dev = &ast->base;
-> > > >
-> > > > -       dev->pdev = pdev;
-> > > >         pci_set_drvdata(pdev, dev);
-> > > >
-> > > >         ast->regs = pcim_iomap(pdev, 1, 0);
-> > > > @@ -453,8 +452,8 @@ struct ast_private *ast_device_create(co
-> > > >
-> > > >         /* map reserved buffer */
-> > > >         ast->dp501_fw_buf = NULL;
-> > > > -       if (dev->vram_mm->vram_size < pci_resource_len(dev->pdev, 0)) {
-> > > > -               ast->dp501_fw_buf = pci_iomap_range(dev->pdev, 0, dev->vram_mm->vram_size, 0);
-> > > > +       if (dev->vram_mm->vram_size < pci_resource_len(pdev, 0)) {
-> > > > +               ast->dp501_fw_buf = pci_iomap_range(pdev, 0, dev->vram_mm->vram_size, 0);
-> > > >                 if (!ast->dp501_fw_buf)
-> > > >                         drm_info(dev, "failed to map reserved buffer!\n");
-> > > >         }
-> > > >
-> > >
-> > > Hi Greg,
-> > >
-> > >      This backport is incomplete for 5.10 kernel,  kernel is panicked
-> > > on RIP: ast_device_create+0x7d.  When I look into the crash code, I
-> > > found
-> > >
-> > > struct ast_private *ast_device_create(struct drm_driver *drv,
-> > >                                       struct pci_dev *pdev,
-> > >                                       unsigned long flags)
-> > > {
-> > > .......
-> > >         dev->pdev = pdev;  // This is removed
-> > >         pci_set_drvdata(pdev, dev);
-> > >
-> > >         ast->regs = pcim_iomap(pdev, 1, 0);
-> > >         if (!ast->regs)
-> > >                 return ERR_PTR(-EIO);
-> > >
-> > >         /*
-> > >          * If we don't have IO space at all, use MMIO now and
-> > >          * assume the chip has MMIO enabled by default (rev 0x20
-> > >          * and higher).
-> > >          */
-> > >         if (!(pci_resource_flags(dev->pdev, 2) & IORESOURCE_IO)) { //
-> > > dev->pdev is in used here.
-> > >                 drm_info(dev, "platform has no IO space, trying MMIO\n");
-> > >                 ast->ioregs = ast->regs + AST_IO_MM_OFFSET;
-> > >         }
-> > >
-> > >         That's because commit 46fb883c3d0d8a823ef995ddb1f9b0817dea6882
-> > > is not backported to 5.10 kernel.
-> >
-> > So what should I do here?  Backport that commit (was was not called
-> > out), or just revert this?
-> >
-> I think we can just simply revert the patch. Because commit 46fb883c
-> removed drm_device.pdev usage,
-> then commit ba4e0339 used drm_device.pdev again. Since commit 46fb883c
-> is not in 5.10.50 kernel,
-> it's not a stable fix.
+On 7/19/21 1:57 PM, Greg KH wrote:
+> On Mon, Jul 19, 2021 at 12:54:21AM +0100, Pavel Begunkov wrote:
+>> a298232ee6b9a1 ("io_uring: fix link timeout refs") was backported,
+>> however the second chunk of it got discarded, which breaks io_uring.
+>> It depends on another patch, so backport it first (patch 1/2) and
+>> then apply a298232ee6b9a1 again (patch 2/2).
+>>
+>> It's a bit messy, the patch will be in the tree twice. Let me
+>> know if there is a better way.
+>>
+>> Pavel Begunkov (2):
+>>   io_uring: put link timeout req consistently
+>>   io_uring: fix link timeout refs
+>>
+>>  fs/io_uring.c | 9 ++-------
+>>  1 file changed, 2 insertions(+), 7 deletions(-)
+> 
+> Not a problem, thanks for these.  This is going to be the last 5.12.y
+> release, so it shouldn't be that confusing.
 
-Now qropped, thanks.
+Perfect, thanks Greg
 
-greg k-h
+-- 
+Pavel Begunkov
