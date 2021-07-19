@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3FFE3CE4D7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1944F3CE4DB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235415AbhGSPqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45328 "EHLO mail.kernel.org"
+        id S244138AbhGSPql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348946AbhGSPoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:44:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D227E6157F;
-        Mon, 19 Jul 2021 16:23:31 +0000 (UTC)
+        id S1348991AbhGSPol (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:44:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A1A361107;
+        Mon, 19 Jul 2021 16:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711812;
-        bh=yZ19D2EA1OUhyCLOW/hS71/J5T/SbBrNsg3xivWuV4A=;
+        s=korg; t=1626711815;
+        bh=ybvUtNuGypjJFWfgp/sKHdVTtpWTQZCCW8JhunagGBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKv/bH1KGvbn4Ok4loYvIsq0vBEzOlA1rq5qd7AG1h4fnq+foEeTFeuaLEnBjG3hd
-         K+WaqVOrAN1fDMt5ntPON95rGik4hJVHN4VcyhUN+dNhznC2OebJzzP8A0B0xqmFH5
-         pKhAFaaDx5G8Jc6tx9YurmKLaeQsowPxqhyC9yQg=
+        b=lvng9EEaIjac3duRLbIxp5gR7Hx2SbWdISE+TA/vK9AgxcaUPPXs3mXrhyBtT2jUY
+         UT/NiCi6ltIZDFRu7T0/0lfYZZjmnaLLL7P7aThxDBaptSiI0ZJpDZ/yk9fsm17HMB
+         L9pqEt/uWdujpVfeaH20780cKAwp/0VcCzMxszB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Logan Gunthorpe <logang@deltatee.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 141/292] PCI/P2PDMA: Avoid pci_get_slot(), which may sleep
-Date:   Mon, 19 Jul 2021 16:53:23 +0200
-Message-Id: <20210719144947.119718289@linuxfoundation.org>
+Subject: [PATCH 5.12 142/292] NFSv4: Fix delegation return in cases where we have to retry
+Date:   Mon, 19 Jul 2021 16:53:24 +0200
+Message-Id: <20210719144947.150706430@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,85 +40,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 3ec0c3ec2d92c09465534a1ff9c6f9d9506ffef6 ]
+[ Upstream commit be20037725d17935ec669044bd2b15bc40c3b5ab ]
 
-In order to use upstream_bridge_distance_warn() from a dma_map function, it
-must not sleep. However, pci_get_slot() takes the pci_bus_sem so it might
-sleep.
+If we're unable to immediately recover all locks because the server is
+unable to immediately service our reclaim calls, then we want to retry
+after we've finished servicing all the other asynchronous delegation
+returns on our queue.
 
-In order to avoid this, try to get the host bridge's device from the first
-element in the device list. It should be impossible for the host bridge's
-device to go away while references are held on child devices, so the first
-element should not be able to change and, thus, this should be safe.
-
-Introduce a static function called pci_host_bridge_dev() to obtain the host
-bridge's root device.
-
-Link: https://lore.kernel.org/r/20210610160609.28447-7-logang@deltatee.com
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/p2pdma.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+ fs/nfs/delegation.c | 71 +++++++++++++++++++++++++++++++++++----------
+ fs/nfs/delegation.h |  1 +
+ fs/nfs/nfs4_fs.h    |  1 +
+ 3 files changed, 58 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/pci/p2pdma.c b/drivers/pci/p2pdma.c
-index 196382630363..c49c13a5fedc 100644
---- a/drivers/pci/p2pdma.c
-+++ b/drivers/pci/p2pdma.c
-@@ -308,10 +308,41 @@ static const struct pci_p2pdma_whitelist_entry {
- 	{}
- };
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 04bf8066980c..d6ac2c4f88b6 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -75,6 +75,13 @@ void nfs_mark_delegation_referenced(struct nfs_delegation *delegation)
+ 	set_bit(NFS_DELEGATION_REFERENCED, &delegation->flags);
+ }
  
-+/*
-+ * This lookup function tries to find the PCI device corresponding to a given
-+ * host bridge.
-+ *
-+ * It assumes the host bridge device is the first PCI device in the
-+ * bus->devices list and that the devfn is 00.0. These assumptions should hold
-+ * for all the devices in the whitelist above.
-+ *
-+ * This function is equivalent to pci_get_slot(host->bus, 0), however it does
-+ * not take the pci_bus_sem lock seeing __host_bridge_whitelist() must not
-+ * sleep.
-+ *
-+ * For this to be safe, the caller should hold a reference to a device on the
-+ * bridge, which should ensure the host_bridge device will not be freed
-+ * or removed from the head of the devices list.
-+ */
-+static struct pci_dev *pci_host_bridge_dev(struct pci_host_bridge *host)
++static void nfs_mark_return_delegation(struct nfs_server *server,
++				       struct nfs_delegation *delegation)
 +{
-+	struct pci_dev *root;
-+
-+	root = list_first_entry_or_null(&host->bus->devices,
-+					struct pci_dev, bus_list);
-+
-+	if (!root)
-+		return NULL;
-+	if (root->devfn != PCI_DEVFN(0, 0))
-+		return NULL;
-+
-+	return root;
++	set_bit(NFS_DELEGATION_RETURN, &delegation->flags);
++	set_bit(NFS4CLNT_DELEGRETURN, &server->nfs_client->cl_state);
 +}
 +
- static bool __host_bridge_whitelist(struct pci_host_bridge *host,
- 				    bool same_host_bridge)
+ static bool
+ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
+ 		fmode_t flags)
+@@ -293,6 +300,7 @@ nfs_start_delegation_return_locked(struct nfs_inode *nfsi)
+ 		goto out;
+ 	spin_lock(&delegation->lock);
+ 	if (!test_and_set_bit(NFS_DELEGATION_RETURNING, &delegation->flags)) {
++		clear_bit(NFS_DELEGATION_RETURN_DELAYED, &delegation->flags);
+ 		/* Refcount matched in nfs_end_delegation_return() */
+ 		ret = nfs_get_delegation(delegation);
+ 	}
+@@ -314,16 +322,17 @@ nfs_start_delegation_return(struct nfs_inode *nfsi)
+ 	return delegation;
+ }
+ 
+-static void
+-nfs_abort_delegation_return(struct nfs_delegation *delegation,
+-		struct nfs_client *clp)
++static void nfs_abort_delegation_return(struct nfs_delegation *delegation,
++					struct nfs_client *clp, int err)
  {
--	struct pci_dev *root = pci_get_slot(host->bus, PCI_DEVFN(0, 0));
-+	struct pci_dev *root = pci_host_bridge_dev(host);
- 	const struct pci_p2pdma_whitelist_entry *entry;
- 	unsigned short vendor, device;
  
-@@ -320,7 +351,6 @@ static bool __host_bridge_whitelist(struct pci_host_bridge *host,
+ 	spin_lock(&delegation->lock);
+ 	clear_bit(NFS_DELEGATION_RETURNING, &delegation->flags);
+-	set_bit(NFS_DELEGATION_RETURN, &delegation->flags);
++	if (err == -EAGAIN) {
++		set_bit(NFS_DELEGATION_RETURN_DELAYED, &delegation->flags);
++		set_bit(NFS4CLNT_DELEGRETURN_DELAYED, &clp->cl_state);
++	}
+ 	spin_unlock(&delegation->lock);
+-	set_bit(NFS4CLNT_DELEGRETURN, &clp->cl_state);
+ }
  
- 	vendor = root->vendor;
- 	device = root->device;
--	pci_dev_put(root);
+ static struct nfs_delegation *
+@@ -528,7 +537,7 @@ static int nfs_end_delegation_return(struct inode *inode, struct nfs_delegation
+ 	} while (err == 0);
  
- 	for (entry = pci_p2pdma_whitelist; entry->vendor; entry++) {
- 		if (vendor != entry->vendor || device != entry->device)
+ 	if (err) {
+-		nfs_abort_delegation_return(delegation, clp);
++		nfs_abort_delegation_return(delegation, clp, err);
+ 		goto out;
+ 	}
+ 
+@@ -557,6 +566,7 @@ static bool nfs_delegation_need_return(struct nfs_delegation *delegation)
+ 	if (ret)
+ 		clear_bit(NFS_DELEGATION_RETURN_IF_CLOSED, &delegation->flags);
+ 	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags) ||
++	    test_bit(NFS_DELEGATION_RETURN_DELAYED, &delegation->flags) ||
+ 	    test_bit(NFS_DELEGATION_REVOKED, &delegation->flags))
+ 		ret = false;
+ 
+@@ -636,6 +646,38 @@ out:
+ 	return err;
+ }
+ 
++static bool nfs_server_clear_delayed_delegations(struct nfs_server *server)
++{
++	struct nfs_delegation *d;
++	bool ret = false;
++
++	list_for_each_entry_rcu (d, &server->delegations, super_list) {
++		if (!test_bit(NFS_DELEGATION_RETURN_DELAYED, &d->flags))
++			continue;
++		nfs_mark_return_delegation(server, d);
++		clear_bit(NFS_DELEGATION_RETURN_DELAYED, &d->flags);
++		ret = true;
++	}
++	return ret;
++}
++
++static bool nfs_client_clear_delayed_delegations(struct nfs_client *clp)
++{
++	struct nfs_server *server;
++	bool ret = false;
++
++	if (!test_and_clear_bit(NFS4CLNT_DELEGRETURN_DELAYED, &clp->cl_state))
++		goto out;
++	rcu_read_lock();
++	list_for_each_entry_rcu (server, &clp->cl_superblocks, client_link) {
++		if (nfs_server_clear_delayed_delegations(server))
++			ret = true;
++	}
++	rcu_read_unlock();
++out:
++	return ret;
++}
++
+ /**
+  * nfs_client_return_marked_delegations - return previously marked delegations
+  * @clp: nfs_client to process
+@@ -648,8 +690,14 @@ out:
+  */
+ int nfs_client_return_marked_delegations(struct nfs_client *clp)
+ {
+-	return nfs_client_for_each_server(clp,
+-			nfs_server_return_marked_delegations, NULL);
++	int err = nfs_client_for_each_server(
++		clp, nfs_server_return_marked_delegations, NULL);
++	if (err)
++		return err;
++	/* If a return was delayed, sleep to prevent hard looping */
++	if (nfs_client_clear_delayed_delegations(clp))
++		ssleep(1);
++	return 0;
+ }
+ 
+ /**
+@@ -764,13 +812,6 @@ static void nfs_mark_return_if_closed_delegation(struct nfs_server *server,
+ 	set_bit(NFS4CLNT_DELEGRETURN, &server->nfs_client->cl_state);
+ }
+ 
+-static void nfs_mark_return_delegation(struct nfs_server *server,
+-		struct nfs_delegation *delegation)
+-{
+-	set_bit(NFS_DELEGATION_RETURN, &delegation->flags);
+-	set_bit(NFS4CLNT_DELEGRETURN, &server->nfs_client->cl_state);
+-}
+-
+ static bool nfs_server_mark_return_all_delegations(struct nfs_server *server)
+ {
+ 	struct nfs_delegation *delegation;
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index 9b00a0b7f832..26f57a99da84 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -36,6 +36,7 @@ enum {
+ 	NFS_DELEGATION_REVOKED,
+ 	NFS_DELEGATION_TEST_EXPIRED,
+ 	NFS_DELEGATION_INODE_FREEING,
++	NFS_DELEGATION_RETURN_DELAYED,
+ };
+ 
+ int nfs_inode_set_delegation(struct inode *inode, const struct cred *cred,
+diff --git a/fs/nfs/nfs4_fs.h b/fs/nfs/nfs4_fs.h
+index 543d916f79ab..3e344bec3647 100644
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -45,6 +45,7 @@ enum nfs4_client_state {
+ 	NFS4CLNT_RECALL_RUNNING,
+ 	NFS4CLNT_RECALL_ANY_LAYOUT_READ,
+ 	NFS4CLNT_RECALL_ANY_LAYOUT_RW,
++	NFS4CLNT_DELEGRETURN_DELAYED,
+ };
+ 
+ #define NFS4_RENEW_TIMEOUT		0x01
 -- 
 2.30.2
 
