@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B45C03CDB55
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FEF13CD9CC
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245621AbhGSOmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:42:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
+        id S243298AbhGSObn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344104AbhGSOj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:39:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E41806113C;
-        Mon, 19 Jul 2021 15:20:31 +0000 (UTC)
+        id S244436AbhGSO3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:29:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 265D860FDC;
+        Mon, 19 Jul 2021 15:09:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708032;
-        bh=dNMDX0yeP7Lhgmi9O4rPagiGeruxu2zsPOFAHtUz8tg=;
+        s=korg; t=1626707373;
+        bh=kEwWaMOI6TJiRC7j1KouIgmDwjJioPK5FYgLyi3eNGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K5IDehaG9b+QQOswg5RW+kthWiNMDJrC4Oo47XUedT/EhdUV1ILyD5epuPws+SuWw
-         Lpz6s3xB54E4t19I/710ewlRlE0pLTaOrMS9Bj2tQmyyI2nVIa5aPfNPHUeSwZ8JYA
-         zGR/djn02zkn8JrZB6gzWmEcbHFQszHx7b95v+tM=
+        b=x6+kgbD+5Q81f5a/HMiVhoIOfezNS6oXIzKxe4ev98JQfWlyoGfUrc1RScEIWAZPj
+         v5zMeHky1bblpS3yauplYypQR+ynlp6J7ur6LxfUiOHtht7JogIpLs+04it21DZtgj
+         F22luKlrm9gWZO43O8gsL3+0Ct65y1jva90bdrnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 155/315] leds: ktd2692: Fix an error handling path
-Date:   Mon, 19 Jul 2021 16:50:44 +0200
-Message-Id: <20210719144947.984062003@linuxfoundation.org>
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Matt Ranostay <matt.ranostay@konsulko.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 103/245] iio: prox: pulsed-light: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:50:45 +0200
+Message-Id: <20210719144943.752092403@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit ee78b9360e14c276f5ceaa4a0d06f790f04ccdad ]
+[ Upstream commit 679cc377a03ff1944491eafc7355c1eb1fad4109 ]
 
-In 'ktd2692_parse_dt()', if an error occurs after a successful
-'regulator_enable()' call, we should call 'regulator_enable()'.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-This is the same in 'ktd2692_probe()', if an error occurs after a
-successful 'ktd2692_parse_dt()' call.
+Found during an audit of all calls of uses of
+iio_push_to_buffers_with_timestamp()
 
-Instead of adding 'regulator_enable()' in several places, implement a
-resource managed solution and simplify the remove function accordingly.
-
-Fixes: b7da8c5c725c ("leds: Add ktd2692 flash LED driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+Fixes: cb119d535083 ("iio: proximity: add support for PulsedLight LIDAR")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Matt Ranostay <matt.ranostay@konsulko.com>
+Acked-by: Matt Ranostay <matt.ranostay@konsulko.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-14-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-ktd2692.c | 27 ++++++++++++++++++---------
- 1 file changed, 18 insertions(+), 9 deletions(-)
+ drivers/iio/proximity/pulsedlight-lidar-lite-v2.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/leds/leds-ktd2692.c b/drivers/leds/leds-ktd2692.c
-index 45296aaca9da..02738b5b1dbf 100644
---- a/drivers/leds/leds-ktd2692.c
-+++ b/drivers/leds/leds-ktd2692.c
-@@ -259,6 +259,17 @@ static void ktd2692_setup(struct ktd2692_context *led)
- 				 | KTD2692_REG_FLASH_CURRENT_BASE);
- }
+diff --git a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
+index 46e969a3a9b7..ed7397f0b4c8 100644
+--- a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
++++ b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
+@@ -51,7 +51,11 @@ struct lidar_data {
+ 	int (*xfer)(struct lidar_data *data, u8 reg, u8 *val, int len);
+ 	int i2c_enabled;
  
-+static void regulator_disable_action(void *_data)
-+{
-+	struct device *dev = _data;
-+	struct ktd2692_context *led = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = regulator_disable(led->regulator);
-+	if (ret)
-+		dev_err(dev, "Failed to disable supply: %d\n", ret);
-+}
-+
- static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
- 			    struct ktd2692_led_config_data *cfg)
- {
-@@ -289,8 +300,14 @@ static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
+-	u16 buffer[8]; /* 2 byte distance + 8 byte timestamp */
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		u16 chan;
++		s64 timestamp __aligned(8);
++	} scan;
+ };
  
- 	if (led->regulator) {
- 		ret = regulator_enable(led->regulator);
--		if (ret)
-+		if (ret) {
- 			dev_err(dev, "Failed to enable supply: %d\n", ret);
-+		} else {
-+			ret = devm_add_action_or_reset(dev,
-+						regulator_disable_action, dev);
-+			if (ret)
-+				return ret;
-+		}
- 	}
+ static const struct iio_chan_spec lidar_channels[] = {
+@@ -236,9 +240,9 @@ static irqreturn_t lidar_trigger_handler(int irq, void *private)
+ 	struct lidar_data *data = iio_priv(indio_dev);
+ 	int ret;
  
- 	child_node = of_get_next_available_child(np, NULL);
-@@ -380,17 +397,9 @@ static int ktd2692_probe(struct platform_device *pdev)
- static int ktd2692_remove(struct platform_device *pdev)
- {
- 	struct ktd2692_context *led = platform_get_drvdata(pdev);
--	int ret;
- 
- 	led_classdev_flash_unregister(&led->fled_cdev);
- 
--	if (led->regulator) {
--		ret = regulator_disable(led->regulator);
--		if (ret)
--			dev_err(&pdev->dev,
--				"Failed to disable supply: %d\n", ret);
--	}
--
- 	mutex_destroy(&led->lock);
- 
- 	return 0;
+-	ret = lidar_get_measurement(data, data->buffer);
++	ret = lidar_get_measurement(data, &data->scan.chan);
+ 	if (!ret) {
+-		iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++		iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 						   iio_get_time_ns(indio_dev));
+ 	} else if (ret != -EINVAL) {
+ 		dev_err(&data->client->dev, "cannot read LIDAR measurement");
 -- 
 2.30.2
 
