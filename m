@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05DB93CDFBA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83C773CDC10
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345241AbhGSPLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:11:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39250 "EHLO mail.kernel.org"
+        id S237519AbhGSOvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345908AbhGSPJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:09:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A9F9611C1;
-        Mon, 19 Jul 2021 15:49:43 +0000 (UTC)
+        id S1344049AbhGSOsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D12D4613DF;
+        Mon, 19 Jul 2021 15:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709784;
-        bh=D6yXtrvX5n8nxlPpbKMnOyF6N///vAhnqCMPmQr5p68=;
+        s=korg; t=1626708362;
+        bh=DPYLXDBQlJ4xCJUeTqh/3nUbSMOGFtVr9aV+f0tGoH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htsjXwpPCyIoIg7lR970hw3ZA2VMCv9+OMIvkFjEWdNTrWz1SL2sdgSbbGYxToagI
-         Dcmq6ZQq4WmIXqZfiYOMmxdAhT5oBff+SzbYRjSkyVGo0zbppfvF1YMnT8vl3NROMo
-         E03BBkGuiXjLf0rutBfItVRdM2ZRNcn53t26nLAM=
+        b=y8jSsDM1041BDPaVe5B/4ZZASlcStd7tfIzYfm72a5Pft6TnmaP+FEvlZ6PYPKjBL
+         FtKhVQ1+MOrSntmL4GSEBLf7wOkwR2OWZebJi1H+pZyLNFgUytgtWqaGQ8LqjHziQU
+         Qz7pHpGg7bq6CCb3d6ZqffItD33x6cKilsIdWAkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/149] backlight: lm3630a: Fix return code of .update_status() callback
+Subject: [PATCH 4.14 281/315] pwm: tegra: Dont modify HW state in .remove callback
 Date:   Mon, 19 Jul 2021 16:52:50 +0200
-Message-Id: <20210719144916.073153059@linuxfoundation.org>
+Message-Id: <20210719144952.663313904@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit b9481a667a90ec739995e85f91f3672ca44d6ffa ]
+[ Upstream commit 86f7fa71cd830d18d7ebcaf719dffd5ddfe1acdd ]
 
-According to <linux/backlight.h> .update_status() is supposed to
-return 0 on success and a negative error code otherwise. Adapt
-lm3630a_bank_a_update_status() and lm3630a_bank_b_update_status() to
-actually do it.
+A consumer is expected to disable a PWM before calling pwm_put(). And if
+they didn't there is hopefully a good reason (or the consumer needs
+fixing). Also if disabling an enabled PWM was the right thing to do,
+this should better be done in the framework instead of in each low level
+driver.
 
-While touching that also add the error code to the failure message.
+So drop the hardware modification from the .remove() callback.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3630a_bl.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/pwm/pwm-tegra.c | 13 -------------
+ 1 file changed, 13 deletions(-)
 
-diff --git a/drivers/video/backlight/lm3630a_bl.c b/drivers/video/backlight/lm3630a_bl.c
-index f03ffe2bb237..8096202fbe5d 100644
---- a/drivers/video/backlight/lm3630a_bl.c
-+++ b/drivers/video/backlight/lm3630a_bl.c
-@@ -188,7 +188,7 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_A) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
+diff --git a/drivers/pwm/pwm-tegra.c b/drivers/pwm/pwm-tegra.c
+index f8ebbece57b7..6be14e0f1dc3 100644
+--- a/drivers/pwm/pwm-tegra.c
++++ b/drivers/pwm/pwm-tegra.c
+@@ -245,7 +245,6 @@ static int tegra_pwm_probe(struct platform_device *pdev)
+ static int tegra_pwm_remove(struct platform_device *pdev)
+ {
+ 	struct tegra_pwm_chip *pc = platform_get_drvdata(pdev);
+-	unsigned int i;
+ 	int err;
  
- 	/* disable sleep */
-@@ -208,8 +208,8 @@ static int lm3630a_bank_a_update_status(struct backlight_device *bl)
- 	return 0;
+ 	if (WARN_ON(!pc))
+@@ -255,18 +254,6 @@ static int tegra_pwm_remove(struct platform_device *pdev)
+ 	if (err < 0)
+ 		return err;
  
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
+-	for (i = 0; i < pc->chip.npwm; i++) {
+-		struct pwm_device *pwm = &pc->chip.pwms[i];
+-
+-		if (!pwm_is_enabled(pwm))
+-			if (clk_prepare_enable(pc->clk) < 0)
+-				continue;
+-
+-		pwm_writel(pc, i, 0);
+-
+-		clk_disable_unprepare(pc->clk);
+-	}
+-
+ 	reset_control_assert(pc->rst);
+ 	clk_disable_unprepare(pc->clk);
  
- static int lm3630a_bank_a_get_brightness(struct backlight_device *bl)
-@@ -265,7 +265,7 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	if ((pwm_ctrl & LM3630A_PWM_BANK_B) != 0) {
- 		lm3630a_pwm_ctrl(pchip, bl->props.brightness,
- 				 bl->props.max_brightness);
--		return bl->props.brightness;
-+		return 0;
- 	}
- 
- 	/* disable sleep */
-@@ -285,8 +285,8 @@ static int lm3630a_bank_b_update_status(struct backlight_device *bl)
- 	return 0;
- 
- out_i2c_err:
--	dev_err(pchip->dev, "i2c failed to access REG_CTRL\n");
--	return bl->props.brightness;
-+	dev_err(pchip->dev, "i2c failed to access (%pe)\n", ERR_PTR(ret));
-+	return ret;
- }
- 
- static int lm3630a_bank_b_get_brightness(struct backlight_device *bl)
 -- 
 2.30.2
 
