@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89FE53CCFF0
+	by mail.lfdr.de (Postfix) with ESMTP id D25543CCFF1
 	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 11:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235677AbhGSIXs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 04:23:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41426 "EHLO mail.kernel.org"
+        id S235834AbhGSIXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 04:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235847AbhGSIXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235850AbhGSIXr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 04:23:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 244B16120A;
-        Mon, 19 Jul 2021 08:54:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CD4761242;
+        Mon, 19 Jul 2021 08:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626684877;
-        bh=EwRvoM7GHgyImrArR+idpr1CQ5IHk2ZGx71D0L5F96g=;
+        s=korg; t=1626684879;
+        bh=PH0R+av5ninKwuxSekRlzrJGZdQCal5aNDS3p2ubq88=;
         h=Subject:To:Cc:From:Date:From;
-        b=BiQl5gGazFXGoYWpyZdBrGqfM7WN0YMndTv/420Ci6VJ0TxVZvLQb6xdg+mC+cW9Q
-         5E5cMGYZ+BOpXiwmAOI83FgWqhEyvd+TLaNKED1zHPjS2XSGDDRz4WBz7a4dsdU2Bg
-         i3aRarzdcpR9e4m83WGnI4ExTb/+1CxB/MZk1pSE=
-Subject: FAILED: patch "[PATCH] KVM: SVM: Revert clearing of C-bit on GPA in #NPF handler" failed to apply to 5.4-stable tree
+        b=kV6bT4CcjHu6uZS7eQ1WuTi8NAbOfflUaHqn9vwFUjaNCm9TgY7ITJwN6mZBwWQPZ
+         EoVc2Q9HvnFtu+3hQA5TrGEGCoSyJJ3pqDVstlSuRtSiH/9CSa60+VdhIh1sBRi8tZ
+         O7DIM+rJV2sKV8YbOFQGqk1rFNqmXCxl239l6zTA=
+Subject: FAILED: patch "[PATCH] KVM: SVM: Revert clearing of C-bit on GPA in #NPF handler" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, brijesh.singh@amd.com, pbonzini@redhat.com,
         pgonda@google.com, thomas.lendacky@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 19 Jul 2021 10:54:06 +0200
-Message-ID: <1626684846116119@kroah.com>
+Date:   Mon, 19 Jul 2021 10:54:07 +0200
+Message-ID: <1626684847136243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
