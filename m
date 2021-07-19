@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B69043CDAA0
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B323CDAA1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244100AbhGSOgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
+        id S244627AbhGSOgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:36:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244246AbhGSOfg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S244372AbhGSOfg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:35:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7906610D2;
-        Mon, 19 Jul 2021 15:16:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7B116113E;
+        Mon, 19 Jul 2021 15:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707772;
-        bh=CwCNt3yYNT3YccVLM099YhA2gJ/GSS2zbts+Qyv2fxY=;
+        s=korg; t=1626707775;
+        bh=hRFKIK6k3TvBRNhZs6G6KD7/pPjulXOjkSzZ6JsNB/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smeegIKFUwwyRHmB7S1ADyB3DQwHOn/YLTjFHBiMBqQiUlF5Lr68um1v+Z0pgggLY
-         jO7TCkD4PeLaZvVor5Q/CRljihC1ANiews77Ht29UVIwkgkdyY+laQf8F9DbWA1dt4
-         TOCucfHUMGmyyPXEZkVKPST7ZJlS8PB5wua1iLds=
+        b=k/16PZFtm60VdXe1m/UN/Ym8Wtvgwy1cZu9ogN2oGWxHBL9BSxwcQPBxTvCxBy+7k
+         +xA/PLfPPknpPDoG+oYJu9FC42zeMvK8KJXr7nqqGOfu4swC3+EPhTHHWSNXioSgfp
+         NzzAnprDsIVODUkrs1y/rd/ffmHUKGdeQWsacc6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 051/315] media: dvd_usb: memory leak in cinergyt2_fe_attach
-Date:   Mon, 19 Jul 2021 16:49:00 +0200
-Message-Id: <20210719144944.537307497@linuxfoundation.org>
+Subject: [PATCH 4.14 052/315] mmc: via-sdmmc: add a check against NULL pointer dereference
+Date:   Mon, 19 Jul 2021 16:49:01 +0200
+Message-Id: <20210719144944.567938892@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -43,50 +40,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 9ad1efee086e0e913914fa2b2173efb830bad68c ]
+[ Upstream commit 45c8ddd06c4b729c56a6083ab311bfbd9643f4a6 ]
 
-When the driver fails to talk with the hardware with dvb_usb_generic_rw,
-it will return an error to dvb_usb_adapter_frontend_init. However, the
-driver forgets to free the resource (e.g., struct cinergyt2_fe_state),
-which leads to a memory leak.
+Before referencing 'host->data', the driver needs to check whether it is
+null pointer, otherwise it will cause a null pointer reference.
 
-Fix this by freeing struct cinergyt2_fe_state when dvb_usb_generic_rw
-fails in cinergyt2_frontend_attach.
+This log reveals it:
 
-backtrace:
-  [<0000000056e17b1a>] kmalloc include/linux/slab.h:552 [inline]
-  [<0000000056e17b1a>] kzalloc include/linux/slab.h:682 [inline]
-  [<0000000056e17b1a>] cinergyt2_fe_attach+0x21/0x80 drivers/media/usb/dvb-usb/cinergyT2-fe.c:271
-  [<00000000ae0b1711>] cinergyt2_frontend_attach+0x21/0x70 drivers/media/usb/dvb-usb/cinergyT2-core.c:74
-  [<00000000d0254861>] dvb_usb_adapter_frontend_init+0x11b/0x1b0 drivers/media/usb/dvb-usb/dvb-usb-dvb.c:290
-  [<0000000002e08ac6>] dvb_usb_adapter_init drivers/media/usb/dvb-usb/dvb-usb-init.c:84 [inline]
-  [<0000000002e08ac6>] dvb_usb_init drivers/media/usb/dvb-usb/dvb-usb-init.c:173 [inline]
-  [<0000000002e08ac6>] dvb_usb_device_init.cold+0x4d0/0x6ae drivers/media/usb/dvb-usb/dvb-usb-init.c:287
+[   29.355199] BUG: kernel NULL pointer dereference, address:
+0000000000000014
+[   29.357323] #PF: supervisor write access in kernel mode
+[   29.357706] #PF: error_code(0x0002) - not-present page
+[   29.358088] PGD 0 P4D 0
+[   29.358280] Oops: 0002 [#1] PREEMPT SMP PTI
+[   29.358595] CPU: 2 PID: 0 Comm: swapper/2 Not tainted 5.12.4-
+g70e7f0549188-dirty #102
+[   29.359164] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[   29.359978] RIP: 0010:via_sdc_isr+0x21f/0x410
+[   29.360314] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
+10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
+18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
+[   29.361661] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
+[   29.362042] RAX: 0000000000000000 RBX: ffff888107d77880
+RCX: 0000000000000000
+[   29.362564] RDX: 0000000000000000 RSI: ffffffff835d20bb
+RDI: 00000000ffffffff
+[   29.363085] RBP: ffffc90000118ed8 R08: 0000000000000001
+R09: 0000000000000001
+[   29.363604] R10: 0000000000000000 R11: 0000000000000001
+R12: 0000000000008600
+[   29.364128] R13: ffff888107d779c8 R14: ffffc90009c00200
+R15: 0000000000008000
+[   29.364651] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
+knlGS:0000000000000000
+[   29.365235] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.365655] CR2: 0000000000000014 CR3: 0000000005a2e000
+CR4: 00000000000006e0
+[   29.366170] DR0: 0000000000000000 DR1: 0000000000000000
+DR2: 0000000000000000
+[   29.366683] DR3: 0000000000000000 DR6: 00000000fffe0ff0
+DR7: 0000000000000400
+[   29.367197] Call Trace:
+[   29.367381]  <IRQ>
+[   29.367537]  __handle_irq_event_percpu+0x53/0x3e0
+[   29.367916]  handle_irq_event_percpu+0x35/0x90
+[   29.368247]  handle_irq_event+0x39/0x60
+[   29.368632]  handle_fasteoi_irq+0xc2/0x1d0
+[   29.368950]  __common_interrupt+0x7f/0x150
+[   29.369254]  common_interrupt+0xb4/0xd0
+[   29.369547]  </IRQ>
+[   29.369708]  asm_common_interrupt+0x1e/0x40
+[   29.370016] RIP: 0010:native_safe_halt+0x17/0x20
+[   29.370360] Code: 07 0f 00 2d db 80 43 00 f4 5d c3 0f 1f 84 00 00 00
+00 00 8b 05 c2 37 e5 01 55 48 89 e5 85 c0 7e 07 0f 00 2d bb 80 43 00 fb
+f4 <5d> c3 cc cc cc cc cc cc cc 55 48 89 e5 e8 67 53 ff ff 8b 0d f9 91
+[   29.371696] RSP: 0018:ffffc9000008fe90 EFLAGS: 00000246
+[   29.372079] RAX: 0000000000000000 RBX: 0000000000000002
+RCX: 0000000000000000
+[   29.372595] RDX: 0000000000000000 RSI: ffffffff854f67a4
+RDI: ffffffff85403406
+[   29.373122] RBP: ffffc9000008fe90 R08: 0000000000000001
+R09: 0000000000000001
+[   29.373646] R10: 0000000000000000 R11: 0000000000000001
+R12: ffffffff86009188
+[   29.374160] R13: 0000000000000000 R14: 0000000000000000
+R15: ffff888100258000
+[   29.374690]  default_idle+0x9/0x10
+[   29.374944]  arch_cpu_idle+0xa/0x10
+[   29.375198]  default_idle_call+0x6e/0x250
+[   29.375491]  do_idle+0x1f0/0x2d0
+[   29.375740]  cpu_startup_entry+0x18/0x20
+[   29.376034]  start_secondary+0x11f/0x160
+[   29.376328]  secondary_startup_64_no_verify+0xb0/0xbb
+[   29.376705] Modules linked in:
+[   29.376939] Dumping ftrace buffer:
+[   29.377187]    (ftrace buffer empty)
+[   29.377460] CR2: 0000000000000014
+[   29.377712] ---[ end trace 51a473dffb618c47 ]---
+[   29.378056] RIP: 0010:via_sdc_isr+0x21f/0x410
+[   29.378380] Code: ff ff e8 84 aa d0 fd 66 45 89 7e 28 66 41 f7 c4 00
+10 75 56 e8 72 aa d0 fd 66 41 f7 c4 00 c0 74 10 e8 65 aa d0 fd 48 8b 43
+18 <c7> 40 14 ac ff ff ff e8 55 aa d0 fd 48 89 df e8 ad fb ff ff e9 77
+[   29.379714] RSP: 0018:ffffc90000118e98 EFLAGS: 00010046
+[   29.380098] RAX: 0000000000000000 RBX: ffff888107d77880
+RCX: 0000000000000000
+[   29.380614] RDX: 0000000000000000 RSI: ffffffff835d20bb
+RDI: 00000000ffffffff
+[   29.381134] RBP: ffffc90000118ed8 R08: 0000000000000001
+R09: 0000000000000001
+[   29.381653] R10: 0000000000000000 R11: 0000000000000001
+R12: 0000000000008600
+[   29.382176] R13: ffff888107d779c8 R14: ffffc90009c00200
+R15: 0000000000008000
+[   29.382697] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000)
+knlGS:0000000000000000
+[   29.383277] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   29.383697] CR2: 0000000000000014 CR3: 0000000005a2e000
+CR4: 00000000000006e0
+[   29.384223] DR0: 0000000000000000 DR1: 0000000000000000
+DR2: 0000000000000000
+[   29.384736] DR3: 0000000000000000 DR6: 00000000fffe0ff0
+DR7: 0000000000000400
+[   29.385260] Kernel panic - not syncing: Fatal exception in interrupt
+[   29.385882] Dumping ftrace buffer:
+[   29.386135]    (ftrace buffer empty)
+[   29.386401] Kernel Offset: disabled
+[   29.386656] Rebooting in 1 seconds..
 
-Reported-by: syzbot+e1de8986786b3722050e@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1622727200-15808-1-git-send-email-zheyuma97@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/cinergyT2-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/via-sdmmc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/cinergyT2-core.c b/drivers/media/usb/dvb-usb/cinergyT2-core.c
-index 6131aa7914a9..fb59dda7547a 100644
---- a/drivers/media/usb/dvb-usb/cinergyT2-core.c
-+++ b/drivers/media/usb/dvb-usb/cinergyT2-core.c
-@@ -88,6 +88,8 @@ static int cinergyt2_frontend_attach(struct dvb_usb_adapter *adap)
+diff --git a/drivers/mmc/host/via-sdmmc.c b/drivers/mmc/host/via-sdmmc.c
+index 8c0e348c6053..4e5043657ee2 100644
+--- a/drivers/mmc/host/via-sdmmc.c
++++ b/drivers/mmc/host/via-sdmmc.c
+@@ -865,6 +865,9 @@ static void via_sdc_data_isr(struct via_crdr_mmc_host *host, u16 intmask)
+ {
+ 	BUG_ON(intmask == 0);
  
- 	ret = dvb_usb_generic_rw(d, st->data, 1, st->data, 3, 0);
- 	if (ret < 0) {
-+		if (adap->fe_adap[0].fe)
-+			adap->fe_adap[0].fe->ops.release(adap->fe_adap[0].fe);
- 		deb_rc("cinergyt2_power_ctrl() Failed to retrieve sleep state info\n");
- 	}
- 	mutex_unlock(&d->data_mutex);
++	if (!host->data)
++		return;
++
+ 	if (intmask & VIA_CRDR_SDSTS_DT)
+ 		host->data->error = -ETIMEDOUT;
+ 	else if (intmask & (VIA_CRDR_SDSTS_RC | VIA_CRDR_SDSTS_WC))
 -- 
 2.30.2
 
