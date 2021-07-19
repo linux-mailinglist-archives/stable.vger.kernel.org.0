@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE0933CE229
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4803CE1CB
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346527AbhGSP3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S1346015AbhGSP1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348265AbhGSPYl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348278AbhGSPYl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:24:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1B596146B;
-        Mon, 19 Jul 2021 16:03:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 990C761476;
+        Mon, 19 Jul 2021 16:04:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710639;
-        bh=8s8TEK/Xbj+pB8AdCTlyVxz3O5KUi40VYYY3jTVFzuk=;
+        s=korg; t=1626710642;
+        bh=F3Rgq7wpO6PlPYF5bPYKKBwJI5/HgM/vLo9ss8e2UzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vPS2bbhq3eqgvNCDpiBuGQE12aReudFvawRaf32RKrVFQo3lxV1QA6jQmjQ4pi1mq
-         pZF2Dqd1Om+vihj/NoQnBb/o4B+WFH7a5LkU1nESOOlNJpNRbxNzdwYJHgEpTeFkad
-         1T3izOgLBP4QSG/1h/4S/V5W3fBKuBu7GpHHMndg=
+        b=hj2fF+xIX7dAkOCQMR2+peTqdQcgQoTzYfzF0hlpShJ8OtMWNKQ4HSI+v/djtfZjZ
+         b+WTbhHA3m8UsfWgfqou4nh+Re5Y9spuso3OsE0ZErUvAERWUWs26hzlL6TrW77nYj
+         /NK5i87m3/8ZG2N6HVRyrzBlvOvHfoIkt32MqHoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 052/351] misc: alcor_pci: fix null-ptr-deref when there is no PCI bridge
-Date:   Mon, 19 Jul 2021 16:49:58 +0200
-Message-Id: <20210719144946.265970755@linuxfoundation.org>
+Subject: [PATCH 5.13 053/351] ASoC: intel/boards: add missing MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:49:59 +0200
+Message-Id: <20210719144946.295913367@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -39,54 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 3ce3e45cc333da707d4d6eb433574b990bcc26f5 ]
+[ Upstream commit a75e5cdf4dd1307bb1541edbb0c008f40896644c ]
 
-There is an issue with the ASPM(optional) capability checking function.
-A device might be attached to root complex directly, in this case,
-bus->self(bridge) will be NULL, thus priv->parent_pdev is NULL.
-Since alcor_pci_init_check_aspm(priv->parent_pdev) checks the PCI link's
-ASPM capability and populate parent_cap_off, which will be used later by
-alcor_pci_aspm_ctrl() to dynamically turn on/off device, what we can do
-here is to avoid checking the capability if we are on the root complex.
-This will make pdev_cap_off 0 and alcor_pci_aspm_ctrl() will simply
-return when bring called, effectively disable ASPM for the device.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-[    1.246492] BUG: kernel NULL pointer dereference, address: 00000000000000c0
-[    1.248731] RIP: 0010:pci_read_config_byte+0x5/0x40
-[    1.253998] Call Trace:
-[    1.254131]  ? alcor_pci_find_cap_offset.isra.0+0x3a/0x100 [alcor_pci]
-[    1.254476]  alcor_pci_probe+0x169/0x2d5 [alcor_pci]
-
-Co-developed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210513040732.1310159-1-ztong0001@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620791647-16024-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cardreader/alcor_pci.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ sound/soc/intel/boards/sof_da7219_max98373.c | 1 +
+ sound/soc/intel/boards/sof_rt5682.c          | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/misc/cardreader/alcor_pci.c b/drivers/misc/cardreader/alcor_pci.c
-index cd402c89189e..0a62307f7ffb 100644
---- a/drivers/misc/cardreader/alcor_pci.c
-+++ b/drivers/misc/cardreader/alcor_pci.c
-@@ -139,7 +139,13 @@ static void alcor_pci_init_check_aspm(struct alcor_pci_priv *priv)
- 	u32 val32;
+diff --git a/sound/soc/intel/boards/sof_da7219_max98373.c b/sound/soc/intel/boards/sof_da7219_max98373.c
+index f3cb0773e70e..8d1ad892e86b 100644
+--- a/sound/soc/intel/boards/sof_da7219_max98373.c
++++ b/sound/soc/intel/boards/sof_da7219_max98373.c
+@@ -440,6 +440,7 @@ static const struct platform_device_id board_ids[] = {
+ 	},
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(platform, board_ids);
  
- 	priv->pdev_cap_off    = alcor_pci_find_cap_offset(priv, priv->pdev);
--	priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
-+	/*
-+	 * A device might be attached to root complex directly and
-+	 * priv->parent_pdev will be NULL. In this case we don't check its
-+	 * capability and disable ASPM completely.
-+	 */
-+	if (!priv->parent_pdev)
-+		priv->parent_cap_off = alcor_pci_find_cap_offset(priv,
- 							 priv->parent_pdev);
+ static struct platform_driver audio = {
+ 	.probe = audio_probe,
+diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
+index 58548ea0d915..cf1d053733e2 100644
+--- a/sound/soc/intel/boards/sof_rt5682.c
++++ b/sound/soc/intel/boards/sof_rt5682.c
+@@ -968,6 +968,7 @@ static const struct platform_device_id board_ids[] = {
+ 	},
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(platform, board_ids);
  
- 	if ((priv->pdev_cap_off == 0) || (priv->parent_cap_off == 0)) {
+ static struct platform_driver sof_audio = {
+ 	.probe = sof_audio_probe,
 -- 
 2.30.2
 
