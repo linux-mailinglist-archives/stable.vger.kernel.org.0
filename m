@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 928ED3CE3F4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD38A3CE415
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344362AbhGSPlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:41:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59680 "EHLO mail.kernel.org"
+        id S239836AbhGSPmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348223AbhGSPfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11BA061601;
-        Mon, 19 Jul 2021 16:13:41 +0000 (UTC)
+        id S1348952AbhGSPfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A867061357;
+        Mon, 19 Jul 2021 16:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711222;
-        bh=pZcMXx1l67f2NROb7JPoPMqXFjUa20hfB2QYR1czKLs=;
+        s=korg; t=1626711338;
+        bh=AbZH4p2U8ibvuC2y8pD0XrY1m5aa8+CyFw9KC251fw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVRUPUodp+9n7qmHcB+dl6g0jlJgTVpNtlqgWUWpfFs/v7GdTXfn6zmYMA6G3hrkO
-         Xz9bgT/MX8Qwx2bl1FTnXWroxn6pA2PnjIS3MiQYNlugPxAhfvcaSiZNYiR9nAxacW
-         VVThobiqg0fXCDWPb7DoL1DhIHTDqcCepU/7/ewQ=
+        b=O6fQqYvYkz733Scy9M7ujkzH5sv/aEQUZjebU91kYpMFeeODVXDnKxBF2F00IvDu0
+         jBdrtf0/HzQNj/0Ur0nRBW6tU4f+7rQlf4+xqyKfoZqGD2hQ6zm+5GSrvzCisHPnNx
+         c5CKBckoA9Ylm9njZTe9fd/7yoVpri4GKEl7z+W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 272/351] arm64: dts: rockchip: Drop fephy pinctrl from gmac2phy on rk3328 rock-pi-e
-Date:   Mon, 19 Jul 2021 16:53:38 +0200
-Message-Id: <20210719144953.937405562@linuxfoundation.org>
+Subject: [PATCH 5.13 273/351] reset: RESET_BRCMSTB_RESCAL should depend on ARCH_BRCMSTB
+Date:   Mon, 19 Jul 2021 16:53:39 +0200
+Message-Id: <20210719144953.982260938@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -40,37 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen-Yu Tsai <wens@csie.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit e6526f90696e6a7d722d04b958f15b97d6fd9ce6 ]
+[ Upstream commit 42f6a76fbe85e5243f83a3ed76809b1ebbb7087e ]
 
-Turns out the fephy pins are already claimed in the phy node, which is
-rightfully where they should be claimed.
+The Broadcom STB RESCAL reset controller is only present on Broadcom
+BCM7216 platforms.  Hence add a dependency on ARCH_BRCMSTB, to prevent
+asking the user about this driver when configuring a kernel without
+BCM7216 support.
 
-Drop the pinctrl properties from the gmac2phy node for the ROCK Pi E.
+Also, merely enabling CONFIG_COMPILE_TEST should not enable additional
+code, and thus should not enable this driver by default.
 
-Fixes: b918e81f2145 ("arm64: dts: rockchip: rk3328: Add Radxa ROCK Pi E")
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Link: https://lore.kernel.org/r/20210426095916.14574-1-wens@kernel.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: 4cf176e52397853e ("reset: Add Broadcom STB RESCAL reset controller")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/reset/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts b/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
-index c7e31efdd2e1..c02059c0a954 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-rock-pi-e.dts
-@@ -177,8 +177,6 @@
- };
- 
- &gmac2phy {
--	pinctrl-names = "default";
--	pinctrl-0 = <&fephyled_linkm1>, <&fephyled_rxm1>;
- 	status = "okay";
- };
- 
+diff --git a/drivers/reset/Kconfig b/drivers/reset/Kconfig
+index 3e7f55e44d84..312b7064cdb4 100644
+--- a/drivers/reset/Kconfig
++++ b/drivers/reset/Kconfig
+@@ -59,7 +59,8 @@ config RESET_BRCMSTB
+ config RESET_BRCMSTB_RESCAL
+ 	bool "Broadcom STB RESCAL reset controller"
+ 	depends on HAS_IOMEM
+-	default ARCH_BRCMSTB || COMPILE_TEST
++	depends on ARCH_BRCMSTB || COMPILE_TEST
++	default ARCH_BRCMSTB
+ 	help
+ 	  This enables the RESCAL reset controller for SATA, PCIe0, or PCIe1 on
+ 	  BCM7216.
 -- 
 2.30.2
 
