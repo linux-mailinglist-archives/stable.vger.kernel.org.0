@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 767243CE2C2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 758403CE098
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbhGSPbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:31:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47112 "EHLO mail.kernel.org"
+        id S1346143AbhGSPR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346311AbhGSP2l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 768F7611ED;
-        Mon, 19 Jul 2021 16:08:59 +0000 (UTC)
+        id S1345412AbhGSPOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5780A60FED;
+        Mon, 19 Jul 2021 15:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710939;
-        bh=sk5rvFib5S+/tFVACJhPL3D9r+kcEJmN/zFpx1YCRI4=;
+        s=korg; t=1626710037;
+        bh=ErCzIOUUHRmr2apH+JUozLXERiJyC25HMDTIDWLKDzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eqBFMO/3j4F3C9jm4hjDoez376WWkDTWmGpym6v2JuZ802Bq95fZjj8zNyZFFPRg
-         UOS8fVpz4viqqPMwNjaecvJ/llEX+p+7xkl/NP97YfEbrBfhgbNxddRLaajHgviE5w
-         Rgarh1LC5EjJZCwNsJK8p6ms1YY8Pl4GeDSaOsE0=
+        b=aMcNcGFRjrZsgdY0ZQaumpv8LQMkZCRH/9OswwemhHvZWYOch7D+zynyA4oGqkV8F
+         BLKoWF6aCwx1hlM13vbe0LT4PFjCWwiZ6QJTUKIklK8mLZ4I3+MR5XrdCA+mRTVsjS
+         ehDSHL88HoLpmeAemRrvapr5SFnZbWX2RXQma274=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Segher Boessenkool <segher@kernel.crashing.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        Suganath Prabu S <suganath-prabu.subramani@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 133/351] powerpc/boot: Fixup device-tree on little endian
+Subject: [PATCH 5.10 050/243] scsi: mpt3sas: Fix deadlock while cancelling the running firmware event
 Date:   Mon, 19 Jul 2021 16:51:19 +0200
-Message-Id: <20210719144948.882809750@linuxfoundation.org>
+Message-Id: <20210719144942.538340411@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,241 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit c93f80849bdd9b45d834053ae1336e28f0026c84 ]
+[ Upstream commit e2fac6c44ae06e58ac02181b048af31195883c31 ]
 
-This fixes the core devtree.c functions and the ns16550 UART backend.
+Do not cancel current running firmware event work if the event type is
+different from MPT3SAS_REMOVE_UNRESPONDING_DEVICES.  Otherwise a deadlock
+can be observed while cancelling the current firmware event work if a hard
+reset operation is called as part of processing the current event.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Reviewed-by: Segher Boessenkool <segher@kernel.crashing.org>
-Acked-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/YMwXrPT8nc4YUdJ9@thinks.paulus.ozlabs.org
+Link: https://lore.kernel.org/r/20210518051625.1596742-2-suganath-prabu.subramani@broadcom.com
+Signed-off-by: Suganath Prabu S <suganath-prabu.subramani@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/devtree.c | 59 +++++++++++++++++++++----------------
- arch/powerpc/boot/ns16550.c |  9 ++++--
- 2 files changed, 41 insertions(+), 27 deletions(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/arch/powerpc/boot/devtree.c b/arch/powerpc/boot/devtree.c
-index 5d91036ad626..58fbcfcc98c9 100644
---- a/arch/powerpc/boot/devtree.c
-+++ b/arch/powerpc/boot/devtree.c
-@@ -13,6 +13,7 @@
- #include "string.h"
- #include "stdio.h"
- #include "ops.h"
-+#include "of.h"
- 
- void dt_fixup_memory(u64 start, u64 size)
- {
-@@ -23,21 +24,25 @@ void dt_fixup_memory(u64 start, u64 size)
- 	root = finddevice("/");
- 	if (getprop(root, "#address-cells", &naddr, sizeof(naddr)) < 0)
- 		naddr = 2;
-+	else
-+		naddr = be32_to_cpu(naddr);
- 	if (naddr < 1 || naddr > 2)
- 		fatal("Can't cope with #address-cells == %d in /\n\r", naddr);
- 
- 	if (getprop(root, "#size-cells", &nsize, sizeof(nsize)) < 0)
- 		nsize = 1;
-+	else
-+		nsize = be32_to_cpu(nsize);
- 	if (nsize < 1 || nsize > 2)
- 		fatal("Can't cope with #size-cells == %d in /\n\r", nsize);
- 
- 	i = 0;
- 	if (naddr == 2)
--		memreg[i++] = start >> 32;
--	memreg[i++] = start & 0xffffffff;
-+		memreg[i++] = cpu_to_be32(start >> 32);
-+	memreg[i++] = cpu_to_be32(start & 0xffffffff);
- 	if (nsize == 2)
--		memreg[i++] = size >> 32;
--	memreg[i++] = size & 0xffffffff;
-+		memreg[i++] = cpu_to_be32(size >> 32);
-+	memreg[i++] = cpu_to_be32(size & 0xffffffff);
- 
- 	memory = finddevice("/memory");
- 	if (! memory) {
-@@ -45,9 +50,9 @@ void dt_fixup_memory(u64 start, u64 size)
- 		setprop_str(memory, "device_type", "memory");
- 	}
- 
--	printf("Memory <- <0x%x", memreg[0]);
-+	printf("Memory <- <0x%x", be32_to_cpu(memreg[0]));
- 	for (i = 1; i < (naddr + nsize); i++)
--		printf(" 0x%x", memreg[i]);
-+		printf(" 0x%x", be32_to_cpu(memreg[i]));
- 	printf("> (%ldMB)\n\r", (unsigned long)(size >> 20));
- 
- 	setprop(memory, "reg", memreg, (naddr + nsize)*sizeof(u32));
-@@ -65,10 +70,10 @@ void dt_fixup_cpu_clocks(u32 cpu, u32 tb, u32 bus)
- 		printf("CPU bus-frequency <- 0x%x (%dMHz)\n\r", bus, MHZ(bus));
- 
- 	while ((devp = find_node_by_devtype(devp, "cpu"))) {
--		setprop_val(devp, "clock-frequency", cpu);
--		setprop_val(devp, "timebase-frequency", tb);
-+		setprop_val(devp, "clock-frequency", cpu_to_be32(cpu));
-+		setprop_val(devp, "timebase-frequency", cpu_to_be32(tb));
- 		if (bus > 0)
--			setprop_val(devp, "bus-frequency", bus);
-+			setprop_val(devp, "bus-frequency", cpu_to_be32(bus));
- 	}
- 
- 	timebase_period_ns = 1000000000 / tb;
-@@ -80,7 +85,7 @@ void dt_fixup_clock(const char *path, u32 freq)
- 
- 	if (devp) {
- 		printf("%s: clock-frequency <- %x (%dMHz)\n\r", path, freq, MHZ(freq));
--		setprop_val(devp, "clock-frequency", freq);
-+		setprop_val(devp, "clock-frequency", cpu_to_be32(freq));
- 	}
- }
- 
-@@ -133,8 +138,12 @@ void dt_get_reg_format(void *node, u32 *naddr, u32 *nsize)
- {
- 	if (getprop(node, "#address-cells", naddr, 4) != 4)
- 		*naddr = 2;
-+	else
-+		*naddr = be32_to_cpu(*naddr);
- 	if (getprop(node, "#size-cells", nsize, 4) != 4)
- 		*nsize = 1;
-+	else
-+		*nsize = be32_to_cpu(*nsize);
- }
- 
- static void copy_val(u32 *dest, u32 *src, int naddr)
-@@ -163,9 +172,9 @@ static int add_reg(u32 *reg, u32 *add, int naddr)
- 	int i, carry = 0;
- 
- 	for (i = MAX_ADDR_CELLS - 1; i >= MAX_ADDR_CELLS - naddr; i--) {
--		u64 tmp = (u64)reg[i] + add[i] + carry;
-+		u64 tmp = (u64)be32_to_cpu(reg[i]) + be32_to_cpu(add[i]) + carry;
- 		carry = tmp >> 32;
--		reg[i] = (u32)tmp;
-+		reg[i] = cpu_to_be32((u32)tmp);
- 	}
- 
- 	return !carry;
-@@ -180,18 +189,18 @@ static int compare_reg(u32 *reg, u32 *range, u32 *rangesize)
- 	u32 end;
- 
- 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
--		if (reg[i] < range[i])
-+		if (be32_to_cpu(reg[i]) < be32_to_cpu(range[i]))
- 			return 0;
--		if (reg[i] > range[i])
-+		if (be32_to_cpu(reg[i]) > be32_to_cpu(range[i]))
- 			break;
- 	}
- 
- 	for (i = 0; i < MAX_ADDR_CELLS; i++) {
--		end = range[i] + rangesize[i];
-+		end = be32_to_cpu(range[i]) + be32_to_cpu(rangesize[i]);
- 
--		if (reg[i] < end)
-+		if (be32_to_cpu(reg[i]) < end)
- 			break;
--		if (reg[i] > end)
-+		if (be32_to_cpu(reg[i]) > end)
- 			return 0;
- 	}
- 
-@@ -240,7 +249,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 		return 0;
- 
- 	dt_get_reg_format(parent, &naddr, &nsize);
--
- 	if (nsize > 2)
- 		return 0;
- 
-@@ -252,10 +260,10 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 
- 	copy_val(last_addr, prop_buf + offset, naddr);
- 
--	ret_size = prop_buf[offset + naddr];
-+	ret_size = be32_to_cpu(prop_buf[offset + naddr]);
- 	if (nsize == 2) {
- 		ret_size <<= 32;
--		ret_size |= prop_buf[offset + naddr + 1];
-+		ret_size |= be32_to_cpu(prop_buf[offset + naddr + 1]);
- 	}
- 
- 	for (;;) {
-@@ -278,7 +286,6 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 
- 		offset = find_range(last_addr, prop_buf, prev_naddr,
- 		                    naddr, prev_nsize, buflen / 4);
--
- 		if (offset < 0)
- 			return 0;
- 
-@@ -296,8 +303,7 @@ static int dt_xlate(void *node, int res, int reglen, unsigned long *addr,
- 	if (naddr > 2)
- 		return 0;
- 
--	ret_addr = ((u64)last_addr[2] << 32) | last_addr[3];
--
-+	ret_addr = ((u64)be32_to_cpu(last_addr[2]) << 32) | be32_to_cpu(last_addr[3]);
- 	if (sizeof(void *) == 4 &&
- 	    (ret_addr >= 0x100000000ULL || ret_size > 0x100000000ULL ||
- 	     ret_addr + ret_size > 0x100000000ULL))
-@@ -350,11 +356,14 @@ int dt_is_compatible(void *node, const char *compat)
- int dt_get_virtual_reg(void *node, void **addr, int nres)
- {
- 	unsigned long xaddr;
--	int n;
-+	int n, i;
- 
- 	n = getprop(node, "virtual-reg", addr, nres * 4);
--	if (n > 0)
-+	if (n > 0) {
-+		for (i = 0; i < n/4; i ++)
-+			((u32 *)addr)[i] = be32_to_cpu(((u32 *)addr)[i]);
- 		return n / 4;
-+	}
- 
- 	for (n = 0; n < nres; n++) {
- 		if (!dt_xlate_reg(node, n, &xaddr, NULL))
-diff --git a/arch/powerpc/boot/ns16550.c b/arch/powerpc/boot/ns16550.c
-index b0da4466d419..f16d2be1d0f3 100644
---- a/arch/powerpc/boot/ns16550.c
-+++ b/arch/powerpc/boot/ns16550.c
-@@ -15,6 +15,7 @@
- #include "stdio.h"
- #include "io.h"
- #include "ops.h"
-+#include "of.h"
- 
- #define UART_DLL	0	/* Out: Divisor Latch Low */
- #define UART_DLM	1	/* Out: Divisor Latch High */
-@@ -58,16 +59,20 @@ int ns16550_console_init(void *devp, struct serial_console_data *scdp)
- 	int n;
- 	u32 reg_offset;
- 
--	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1)
-+	if (dt_get_virtual_reg(devp, (void **)&reg_base, 1) < 1) {
-+		printf("virt reg parse fail...\r\n");
- 		return -1;
-+	}
- 
- 	n = getprop(devp, "reg-offset", &reg_offset, sizeof(reg_offset));
- 	if (n == sizeof(reg_offset))
--		reg_base += reg_offset;
-+		reg_base += be32_to_cpu(reg_offset);
- 
- 	n = getprop(devp, "reg-shift", &reg_shift, sizeof(reg_shift));
- 	if (n != sizeof(reg_shift))
- 		reg_shift = 0;
-+	else
-+		reg_shift = be32_to_cpu(reg_shift);
- 
- 	scdp->open = ns16550_open;
- 	scdp->putc = ns16550_putc;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index 008f734698f7..31c384108bc9 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3526,6 +3526,28 @@ _scsih_fw_event_cleanup_queue(struct MPT3SAS_ADAPTER *ioc)
+ 	ioc->fw_events_cleanup = 1;
+ 	while ((fw_event = dequeue_next_fw_event(ioc)) ||
+ 	     (fw_event = ioc->current_event)) {
++
++		/*
++		 * Don't call cancel_work_sync() for current_event
++		 * other than MPT3SAS_REMOVE_UNRESPONDING_DEVICES;
++		 * otherwise we may observe deadlock if current
++		 * hard reset issued as part of processing the current_event.
++		 *
++		 * Orginal logic of cleaning the current_event is added
++		 * for handling the back to back host reset issued by the user.
++		 * i.e. during back to back host reset, driver use to process
++		 * the two instances of MPT3SAS_REMOVE_UNRESPONDING_DEVICES
++		 * event back to back and this made the drives to unregister
++		 * the devices from SML.
++		 */
++
++		if (fw_event == ioc->current_event &&
++		    ioc->current_event->event !=
++		    MPT3SAS_REMOVE_UNRESPONDING_DEVICES) {
++			ioc->current_event = NULL;
++			continue;
++		}
++
+ 		/*
+ 		 * Wait on the fw_event to complete. If this returns 1, then
+ 		 * the event was never executed, and we need a put for the
 -- 
 2.30.2
 
