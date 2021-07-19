@@ -2,100 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF213CCBFE
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 03:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 844653CCC13
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 03:53:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233720AbhGSBlL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 18 Jul 2021 21:41:11 -0400
-Received: from szxga03-in.huawei.com ([45.249.212.189]:11338 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbhGSBlL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 18 Jul 2021 21:41:11 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4GSkrc73BFz7vYm;
-        Mon, 19 Jul 2021 09:33:36 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 19 Jul 2021 09:38:10 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 19 Jul 2021 09:38:09 +0800
-Subject: Re: [PATCH 5.4 000/119] 5.4.133-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210716182029.878765454@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <8652aeaf-a20e-e2dc-5cb5-0a42122a4f06@huawei.com>
-Date:   Mon, 19 Jul 2021 09:38:09 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S233807AbhGSB4P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 18 Jul 2021 21:56:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52434 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233713AbhGSB4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 18 Jul 2021 21:56:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A4A7A6101E;
+        Mon, 19 Jul 2021 01:53:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626659593;
+        bh=GYBuop9qpLcVug/DJr2XcYTGfTFztJPHFoMtB+R8IyM=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=lzfp1xKh+lqP0S4ywihx2NGS/TyZK1whI0V1SnVScfApXQlWsZgweLgd1sRXViMBd
+         K4L5Cn8+snuCKroNpstGiKYHWW4XTGkN6wgukG6empMjzcMDJfgDmP87yHOpLB5eyR
+         og5qz7wRaeCOj1WbKZQMa1W0+H8JvGYATouQgHXmQ9MypfnCRx36qgZZKehOZbySLE
+         8mWCEZVy1RP0ZFif7V+rkXO4zNdGLIPWzP1qqQtbzUBHBvKy/5U/oIoap33rix7ufd
+         7W+0Xxhyhcr+pfMyv9sXHh54NIJmvc7I5S/bMazWBfuV4iwDCCyQiVk05tK2LER4Dv
+         xI8qrAL//1GCA==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 74CA95C2BEE; Sun, 18 Jul 2021 18:53:13 -0700 (PDT)
+Date:   Sun, 18 Jul 2021 18:53:13 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Matthew Wilcox <willy@infradead.org>
+Cc:     Oleksandr Natalenko <oleksandr@natalenko.name>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chris Clayton <chris2553@googlemail.com>,
+        Chris Rankin <rankincj@gmail.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>, rcu@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
+Subject: Re: linux-5.13.2: warning from kernel/rcu/tree_plugin.h:359
+Message-ID: <20210719015313.GS4397@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <c9fd1311-662c-f993-c8ef-54af036f2f78@googlemail.com>
+ <2245518.LNIG0phfVR@natalenko.name>
+ <6698965.kvI7vG0SvZ@natalenko.name>
+ <20210718215914.GQ4397@paulmck-ThinkPad-P17-Gen-1>
+ <YPSweHyCrD2q2Pue@casper.infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <20210716182029.878765454@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YPSweHyCrD2q2Pue@casper.infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/7/17 2:28, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.133 release.
-> There are 119 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sun, Jul 18, 2021 at 11:51:36PM +0100, Matthew Wilcox wrote:
+> On Sun, Jul 18, 2021 at 02:59:14PM -0700, Paul E. McKenney wrote:
+> > > > https://lore.kernel.org/lkml/CAK2bqVK0Q9YcpakE7_Rc6nr-E4e2GnMOgi5jJj=_Eh_1k
+> > > > EHLHA@mail.gmail.com/
+> > 
+> > But this one does show this warning in v5.12.17:
+> > 
+> > 	WARN_ON_ONCE(!preempt && rcu_preempt_depth() > 0);
+> > 
+> > This is in rcu_note_context_switch(), and could be caused by something
+> > like a schedule() within an RCU read-side critical section.  This would
+> > of course be RCU-usage bugs, given that you are not permitted to block
+> > within an RCU read-side critical section.
+> > 
+> > I suggest checking the functions in the stack trace to see where the
+> > rcu_read_lock() is hiding.  CONFIG_PROVE_LOCKING might also be helpful.
 > 
-> Responses should be made by Sun, 18 Jul 2021 18:16:27 +0000.
-> Anything received after that time might be too late.
+> I'm not sure I see it in this stack trace.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.133-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Is it possible that there's something taking the rcu read lock in an
+> interrupt handler, then returning from the interrupt handler without
+> releasing the rcu lock?  Do we have debugging that would fire if
+> somebody did this?
 
-Tested on arm64 and x86 for 5.4.133-rc2,
+Lockdep should complain, but in the absence of lockdep I don't know
+that anything would gripe in this situation.
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.133-rc2
-Commit: 017fed873b8e6dc52381e14f3fd58bda603e54d6
-Compiler: gcc version 7.3.0 (GCC)
+Also, this is a preemptible kernel, so it is possible to trace
+__rcu_read_lock(), if that helps.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8905
-passed: 8905
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+							Thanx, Paul
