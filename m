@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 098123CD987
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D68F3CDB28
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243892AbhGSOah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37472 "EHLO mail.kernel.org"
+        id S243332AbhGSOl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243126AbhGSO2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:28:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 992866124C;
-        Mon, 19 Jul 2021 15:08:21 +0000 (UTC)
+        id S1343671AbhGSOjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D5A261242;
+        Mon, 19 Jul 2021 15:19:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707302;
-        bh=NX6T+JQ4U5W0efBTMO+eLxTbyA6wx5uiLGWaPQPm6QA=;
+        s=korg; t=1626707964;
+        bh=we0Z8Qb5CRePw6IZiHrDko5jgmXm6I7fIZBCO5nZ510=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OelRV7AlRuuMQv9acS5+f9bKQkgReEi0V42W4HN+ORawDpYwjGfPNe6awaVUOL5Ue
-         rbsJkyD58tyAKkhc9gIX7cfhGPIxt9bu6/VSnyQ7hY2M2Y3LxnfEjpLWMsRxN11Y37
-         toD5/nk2b2tJLKuXLW+HS8CMwlcrG+j38nHcRjas=
+        b=03ZDyBOhRSXUBKUK2mYvScJZXDn/lLsFuzL1mTmFEBanNcf48YVPKTN7iDYjLYVHc
+         0/qhpb/i+7ejipKpf4mUMvAUeJ4tARVZfI2dODl7hNrs4aiFAK2hikjn01Qf8yj7vZ
+         fQuDljnzfa7v3rXqKjRChK/4xP0OGixq9TGXRLlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 072/245] crypto: nx - Fix RCU warning in nx842_OF_upd_status
-Date:   Mon, 19 Jul 2021 16:50:14 +0200
-Message-Id: <20210719144942.741900185@linuxfoundation.org>
+Subject: [PATCH 4.14 126/315] iio: accel: stk8ba50: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:50:15 +0200
+Message-Id: <20210719144947.026074719@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,59 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 2a96726bd0ccde4f12b9b9a9f61f7b1ac5af7e10 ]
+[ Upstream commit 334883894bc1e145a1e0f5de1b0d1b6a1133f0e6 ]
 
-The function nx842_OF_upd_status triggers a sparse RCU warning when
-it directly dereferences the RCU-protected devdata.  This appears
-to be an accident as there was another variable of the same name
-that was passed in from the caller.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-After it was removed (because the main purpose of using it, to
-update the status member was itself removed) the global variable
-unintenionally stood in as its replacement.
+Found during an audit of all calls of this function.
 
-This patch restores the devdata parameter.
-
-Fixes: 90fd73f912f0 ("crypto: nx - remove pSeries NX 'status' field")
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: db6a19b8251f ("iio: accel: Add trigger support for STK8BA50")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/nx/nx-842-pseries.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/iio/accel/stk8ba50.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/crypto/nx/nx-842-pseries.c b/drivers/crypto/nx/nx-842-pseries.c
-index 2e5b4004f0ee..1b8c87770645 100644
---- a/drivers/crypto/nx/nx-842-pseries.c
-+++ b/drivers/crypto/nx/nx-842-pseries.c
-@@ -553,13 +553,15 @@ static int nx842_OF_set_defaults(struct nx842_devdata *devdata)
-  * The status field indicates if the device is enabled when the status
-  * is 'okay'.  Otherwise the device driver will be disabled.
-  *
-- * @prop - struct property point containing the maxsyncop for the update
-+ * @devdata: struct nx842_devdata to use for dev_info
-+ * @prop: struct property point containing the maxsyncop for the update
-  *
-  * Returns:
-  *  0 - Device is available
-  *  -ENODEV - Device is not available
-  */
--static int nx842_OF_upd_status(struct property *prop)
-+static int nx842_OF_upd_status(struct nx842_devdata *devdata,
-+			       struct property *prop)
- {
- 	const char *status = (const char *)prop->value;
+diff --git a/drivers/iio/accel/stk8ba50.c b/drivers/iio/accel/stk8ba50.c
+index 300d955bad00..5ca179cea2fb 100644
+--- a/drivers/iio/accel/stk8ba50.c
++++ b/drivers/iio/accel/stk8ba50.c
+@@ -94,12 +94,11 @@ struct stk8ba50_data {
+ 	u8 sample_rate_idx;
+ 	struct iio_trigger *dready_trig;
+ 	bool dready_trigger_on;
+-	/*
+-	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
+-	 * 1 x 16 padding +
+-	 * 4 x 16 64-bit timestamp
+-	 */
+-	s16 buffer[8];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s16 chans[3];
++		s64 timetamp __aligned(8);
++	} scan;
+ };
  
-@@ -773,7 +775,7 @@ static int nx842_OF_upd(struct property *new_prop)
- 		goto out;
+ #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
+@@ -329,7 +328,7 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8BA50_REG_XOUT,
+ 						    STK8BA50_ALL_CHANNEL_SIZE,
+-						    (u8 *)data->buffer);
++						    (u8 *)data->scan.chans);
+ 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			goto err;
+@@ -342,10 +341,10 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 			if (ret < 0)
+ 				goto err;
  
- 	/* Perform property updates */
--	ret = nx842_OF_upd_status(status);
-+	ret = nx842_OF_upd_status(new_devdata, status);
- 	if (ret)
- 		goto error_out;
- 
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
+ err:
+ 	mutex_unlock(&data->lock);
 -- 
 2.30.2
 
