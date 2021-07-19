@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67FE43CDFF7
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4373CDFFA
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345295AbhGSPMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:12:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48928 "EHLO mail.kernel.org"
+        id S1345244AbhGSPMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:12:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345018AbhGSPLY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:11:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 757BD6121F;
-        Mon, 19 Jul 2021 15:52:03 +0000 (UTC)
+        id S1344209AbhGSPL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:11:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E688A61289;
+        Mon, 19 Jul 2021 15:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709923;
-        bh=/wZIUOc6f2D2E9mZ+eXRiL36s4Azl6vkcOBQJtrWnWw=;
+        s=korg; t=1626709926;
+        bh=spfPdnhIfKp4uD+T2JuAKB8/FPv1Njd2W7rbM6DLFyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vF9vvufNbg85uEB6D+kX85htVPsFP+cgviwGlToujp8H0YtfIPVfrkhvAaN162K2U
-         lBJsAyvfJDFf4iILOzaZI4bnwNwwGBGh2iJu9A79gbfDjEGWcHfnR2V5RpMpFJPDqy
-         cOG8+jFJpKMaEq8YCMVX+I1/+jDRq8drcFGkGGKQ=
+        b=Pq5aCtbB0jg4q7klEM0Pu9FP4y498PIn7OPhvdJwZVMqr8Jwne9nMEnBEN+ppO4cf
+         AcAJ0cZMa/7IlXkCj/+r9OcSQHVQSH07rLJYUtXXDegZVHElha2BnBIGzJCzjbbjKh
+         cQpocuYwIXDGRIgbGAMfCUqAiZiBw75t2YcXYkLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 133/149] memory: fsl_ifc: fix leak of private memory on probe failure
-Date:   Mon, 19 Jul 2021 16:54:01 +0200
-Message-Id: <20210719144932.859847314@linuxfoundation.org>
+Subject: [PATCH 5.4 134/149] ARM: dts: am335x: align ti,pindir-d0-out-d1-in property with dt-shema
+Date:   Mon, 19 Jul 2021 16:54:02 +0200
+Message-Id: <20210719144933.097458274@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
 References: <20210719144901.370365147@linuxfoundation.org>
@@ -40,43 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Aswath Govindraju <a-govindraju@ti.com>
 
-[ Upstream commit 8e0d09b1232d0538066c40ed4c13086faccbdff6 ]
+[ Upstream commit 414bfe1d26b60ef20b58e36efd5363188a694bab ]
 
-On probe error the driver should free the memory allocated for private
-structure.  Fix this by using resource-managed allocation.
+ti,pindir-d0-out-d1-in property is expected to be of type boolean.
+Therefore, fix the property accordingly.
 
-Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20210527154322.81253-2-krzysztof.kozlowski@canonical.com
+Fixes: 444d66fafab8 ("ARM: dts: add spi wifi support to cm-t335")
+Signed-off-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/fsl_ifc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/am335x-cm-t335.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
-index 90aa658797af..279025834607 100644
---- a/drivers/memory/fsl_ifc.c
-+++ b/drivers/memory/fsl_ifc.c
-@@ -96,7 +96,6 @@ static int fsl_ifc_ctrl_remove(struct platform_device *dev)
- 	iounmap(ctrl->gregs);
- 
- 	dev_set_drvdata(&dev->dev, NULL);
--	kfree(ctrl);
- 
- 	return 0;
- }
-@@ -208,7 +207,8 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
- 
- 	dev_info(&dev->dev, "Freescale Integrated Flash Controller\n");
- 
--	fsl_ifc_ctrl_dev = kzalloc(sizeof(*fsl_ifc_ctrl_dev), GFP_KERNEL);
-+	fsl_ifc_ctrl_dev = devm_kzalloc(&dev->dev, sizeof(*fsl_ifc_ctrl_dev),
-+					GFP_KERNEL);
- 	if (!fsl_ifc_ctrl_dev)
- 		return -ENOMEM;
- 
+diff --git a/arch/arm/boot/dts/am335x-cm-t335.dts b/arch/arm/boot/dts/am335x-cm-t335.dts
+index 1fe3b566ba3d..09b36df140e5 100644
+--- a/arch/arm/boot/dts/am335x-cm-t335.dts
++++ b/arch/arm/boot/dts/am335x-cm-t335.dts
+@@ -516,7 +516,7 @@ status = "okay";
+ 	status = "okay";
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&spi0_pins>;
+-	ti,pindir-d0-out-d1-in = <1>;
++	ti,pindir-d0-out-d1-in;
+ 	/* WLS1271 WiFi */
+ 	wlcore: wlcore@1 {
+ 		compatible = "ti,wl1271";
 -- 
 2.30.2
 
