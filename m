@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DC863CE22B
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE7E3CE1C3
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346535AbhGSP3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1345471AbhGSP1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348220AbhGSPYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1348211AbhGSPYj (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:24:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C63F613F0;
-        Mon, 19 Jul 2021 16:03:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A5D061407;
+        Mon, 19 Jul 2021 16:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710583;
-        bh=kR4rGXaj+fSyBhupG/0kvtljqdtyArO3zLmYzlaCnbE=;
+        s=korg; t=1626710585;
+        bh=mhhkwe1B7toKpvKFSN71soUIGso39L1OA/sprNGE4S8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mXmJQHnVgOO4ue7Tb4F806tGOw2NtG35G+6/+GHBzGnf5+myuoX9sWNx2Lg1EdGk
-         caxTaO1ic3p47jgBldlQZWn2t2eQV9lRTuRPw9ClGL6xVX8MOttBe+AW8CVzUFY25n
-         dCSyBRqwN1VfElLX+CN7sWY0RdcgguOwblSobS5U=
+        b=fxlSNzzOW39eYMMZJL5mOvSepASzSlhxQGwHFHoIuVQt09W9jQuGa5mGZRKTRxWZL
+         F64XdNFJ8BxhABRW3mRUR0fc2IwhtDk28fLvXjI/DhlQF0O7DsFEQBIQ9f2nEVVYs9
+         uvAFnV+pbRCY7vb3EzY9SDlu5Jx2fGT9BQaUDx48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.13 033/351] btrfs: zoned: fix wrong mutex unlock on failure to allocate log root tree
-Date:   Mon, 19 Jul 2021 16:49:39 +0200
-Message-Id: <20210719144945.622596059@linuxfoundation.org>
+        stable@vger.kernel.org, Wayne Lin <Wayne.Lin@amd.com>,
+        Lyude Paul <lyude@redhat.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH 5.13 034/351] drm/dp_mst: Do not set proposed vcpi directly
+Date:   Mon, 19 Jul 2021 16:49:40 +0200
+Message-Id: <20210719144945.655814083@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -41,43 +43,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-commit ea32af47f00a046a1f953370514d6d946efe0152 upstream.
+commit 35d3e8cb35e75450f87f87e3d314e2d418b6954b upstream.
 
-When syncing the log, if we fail to allocate the root node for the log
-root tree:
+[Why]
+When we receive CSN message to notify one port is disconnected, we will
+implicitly set its corresponding num_slots to 0. Later on, we will
+eventually call drm_dp_update_payload_part1() to arrange down streams.
 
-1) We are unlocking fs_info->tree_log_mutex, but at this point we have
-   not yet locked this mutex;
+In drm_dp_update_payload_part1(), we iterate over all proposed_vcpis[]
+to do the update. Not specific to a target sink only. For example, if we
+light up 2 monitors, Monitor_A and Monitor_B, and then we unplug
+Monitor_B. Later on, when we call drm_dp_update_payload_part1() to try
+to update payload for Monitor_A, we'll also implicitly clean payload for
+Monitor_B at the same time. And finally, when we try to call
+drm_dp_update_payload_part1() to clean payload for Monitor_B, we will do
+nothing at this time since payload for Monitor_B has been cleaned up
+previously.
 
-2) We have locked fs_info->tree_root->log_mutex, but we end up not
-   unlocking it;
+For StarTech 1to3 DP hub, it seems like if we didn't update DPCD payload
+ID table then polling for "ACT Handled"(BIT_1 of DPCD 002C0h) will fail
+and this polling will last for 3 seconds.
 
-So fix this by unlocking fs_info->tree_root->log_mutex instead of
-fs_info->tree_log_mutex.
+Therefore, guess the best way is we don't set the proposed_vcpi[]
+diretly. Let user of these herlper functions to set the proposed_vcpi
+directly.
 
-Fixes: e75f9fd194090e ("btrfs: zoned: move log tree node allocation out of log_root_tree->log_mutex")
-CC: stable@vger.kernel.org # 5.13+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[How]
+1. Revert commit 7617e9621bf2 ("drm/dp_mst: clear time slots for ports
+invalid")
+2. Tackle the issue in previous commit by skipping those trasient
+proposed VCPIs. These stale VCPIs shoulde be explicitly cleared by
+user later on.
+
+Changes since v1:
+* Change debug macro to use drm_dbg_kms() instead
+* Amend the commit message to add Fixed & Cc tags
+
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Fixes: 7617e9621bf2 ("drm/dp_mst: clear time slots for ports invalid")
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Wayne Lin <Wayne.Lin@amd.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: dri-devel@lists.freedesktop.org
+Cc: <stable@vger.kernel.org> # v5.5+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210616035501.3776-2-Wayne.Lin@amd.com
+Reviewed-by: Lyude Paul <lyude@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/drm_dp_mst_topology.c |   36 +++++++++-------------------------
+ 1 file changed, 10 insertions(+), 26 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3173,7 +3173,7 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 		if (!log_root_tree->node) {
- 			ret = btrfs_alloc_log_tree_node(trans, log_root_tree);
- 			if (ret) {
--				mutex_unlock(&fs_info->tree_log_mutex);
-+				mutex_unlock(&fs_info->tree_root->log_mutex);
- 				goto out;
+--- a/drivers/gpu/drm/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/drm_dp_mst_topology.c
+@@ -2497,7 +2497,7 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+ {
+ 	struct drm_dp_mst_topology_mgr *mgr = mstb->mgr;
+ 	struct drm_dp_mst_port *port;
+-	int old_ddps, old_input, ret, i;
++	int old_ddps, ret;
+ 	u8 new_pdt;
+ 	bool new_mcs;
+ 	bool dowork = false, create_connector = false;
+@@ -2529,7 +2529,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+ 	}
+ 
+ 	old_ddps = port->ddps;
+-	old_input = port->input;
+ 	port->input = conn_stat->input_port;
+ 	port->ldps = conn_stat->legacy_device_plug_status;
+ 	port->ddps = conn_stat->displayport_device_plug_status;
+@@ -2552,28 +2551,6 @@ drm_dp_mst_handle_conn_stat(struct drm_d
+ 		dowork = false;
+ 	}
+ 
+-	if (!old_input && old_ddps != port->ddps && !port->ddps) {
+-		for (i = 0; i < mgr->max_payloads; i++) {
+-			struct drm_dp_vcpi *vcpi = mgr->proposed_vcpis[i];
+-			struct drm_dp_mst_port *port_validated;
+-
+-			if (!vcpi)
+-				continue;
+-
+-			port_validated =
+-				container_of(vcpi, struct drm_dp_mst_port, vcpi);
+-			port_validated =
+-				drm_dp_mst_topology_get_port_validated(mgr, port_validated);
+-			if (!port_validated) {
+-				mutex_lock(&mgr->payload_lock);
+-				vcpi->num_slots = 0;
+-				mutex_unlock(&mgr->payload_lock);
+-			} else {
+-				drm_dp_mst_topology_put_port(port_validated);
+-			}
+-		}
+-	}
+-
+ 	if (port->connector)
+ 		drm_modeset_unlock(&mgr->base.lock);
+ 	else if (create_connector)
+@@ -3404,8 +3381,15 @@ int drm_dp_update_payload_part1(struct d
+ 				port = drm_dp_mst_topology_get_port_validated(
+ 				    mgr, port);
+ 				if (!port) {
+-					mutex_unlock(&mgr->payload_lock);
+-					return -EINVAL;
++					if (vcpi->num_slots == payload->num_slots) {
++						cur_slots += vcpi->num_slots;
++						payload->start_slot = req_payload.start_slot;
++						continue;
++					} else {
++						drm_dbg_kms("Fail:set payload to invalid sink");
++						mutex_unlock(&mgr->payload_lock);
++						return -EINVAL;
++					}
+ 				}
+ 				put_port = true;
  			}
- 		}
 
 
