@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE703CD9CF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:13:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 439683CD87A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244536AbhGSObo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40116 "EHLO mail.kernel.org"
+        id S242699AbhGSOWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:22:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244587AbhGSO3w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BEACE61003;
-        Mon, 19 Jul 2021 15:10:10 +0000 (UTC)
+        id S241620AbhGSOVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C8CF61073;
+        Mon, 19 Jul 2021 15:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707411;
-        bh=jmijt9u96o0JZ1MXQilbbIV75am6jPpEis0YNdyl0vA=;
+        s=korg; t=1626706908;
+        bh=DIAZYGwP7FXn7SSDJIxs9qI+y7AHBjPQMw9cjBo8+iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGCdpfGA/TouC9PkG7uA3+zcQcDbLOVdrHjiD3ENRto4Nbv+7fGYRdkXB5lr6CNug
-         UFELAaVhSYLtcvYOkL4cwcS2D1B051byVijsI4Gp1ZN6h8fc6oD5yBqc4nZpAplGF0
-         kiiqE6RfL2POAAlVA25+KyaXMYpxEEfmNslwXzBc=
+        b=XH3kuYM3UiafJXKpRYjJUEM5sriw5qKxUqjANGPMELW/eMx84QHRLB0Zck0kMO4LE
+         NvGkFNJFgutkQCt2LN50CTZA7J/Wi6dysAwCz8DwuzV3w+CDy1gsgcdBTu6hwMvsKH
+         7XL44dSI/7ao9XBl29TWhbAeSdQKlRLQVUpWOsds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 154/245] Bluetooth: Shutdown controller after workqueues are flushed or cancelled
-Date:   Mon, 19 Jul 2021 16:51:36 +0200
-Message-Id: <20210719144945.380183920@linuxfoundation.org>
+Subject: [PATCH 4.4 113/188] atm: nicstar: use dma_free_coherent instead of kfree
+Date:   Mon, 19 Jul 2021 16:51:37 +0200
+Message-Id: <20210719144939.466669528@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
+References: <20210719144913.076563739@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,113 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 0ea9fd001a14ebc294f112b0361a4e601551d508 ]
+[ Upstream commit 6a1e5a4af17e440dd82a58a2c5f40ff17a82b722 ]
 
-Rfkill block and unblock Intel USB Bluetooth [8087:0026] may make it
-stops working:
-[  509.691509] Bluetooth: hci0: HCI reset during shutdown failed
-[  514.897584] Bluetooth: hci0: MSFT filter_enable is already on
-[  530.044751] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
-[  545.660350] usb 3-10: device descriptor read/64, error -110
-[  561.283530] usb 3-10: device descriptor read/64, error -110
-[  561.519682] usb 3-10: reset full-speed USB device number 5 using xhci_hcd
-[  566.686650] Bluetooth: hci0: unexpected event for opcode 0x0500
-[  568.752452] Bluetooth: hci0: urb 0000000096cd309b failed to resubmit (113)
-[  578.797955] Bluetooth: hci0: Failed to read MSFT supported features (-110)
-[  586.286565] Bluetooth: hci0: urb 00000000c522f633 failed to resubmit (113)
-[  596.215302] Bluetooth: hci0: Failed to read MSFT supported features (-110)
+When 'nicstar_init_one' fails, 'ns_init_card_error' will be executed for
+error handling, but the correct memory free function should be used,
+otherwise it will cause an error. Since 'card->rsq.org' and
+'card->tsq.org' are allocated using 'dma_alloc_coherent' function, they
+should be freed using 'dma_free_coherent'.
 
-Or kernel panics because other workqueues already freed skb:
-[ 2048.663763] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[ 2048.663775] #PF: supervisor read access in kernel mode
-[ 2048.663779] #PF: error_code(0x0000) - not-present page
-[ 2048.663782] PGD 0 P4D 0
-[ 2048.663787] Oops: 0000 [#1] SMP NOPTI
-[ 2048.663793] CPU: 3 PID: 4491 Comm: rfkill Tainted: G        W         5.13.0-rc1-next-20210510+ #20
-[ 2048.663799] Hardware name: HP HP EliteBook 850 G8 Notebook PC/8846, BIOS T76 Ver. 01.01.04 12/02/2020
-[ 2048.663801] RIP: 0010:__skb_ext_put+0x6/0x50
-[ 2048.663814] Code: 8b 1b 48 85 db 75 db 5b 41 5c 5d c3 be 01 00 00 00 e8 de 13 c0 ff eb e7 be 02 00 00 00 e8 d2 13 c0 ff eb db 0f 1f 44 00 00 55 <8b> 07 48 89 e5 83 f8 01 74 14 b8 ff ff ff ff f0 0f c1
-07 83 f8 01
-[ 2048.663819] RSP: 0018:ffffc1d105b6fd80 EFLAGS: 00010286
-[ 2048.663824] RAX: 0000000000000000 RBX: ffff9d9ac5649000 RCX: 0000000000000000
-[ 2048.663827] RDX: ffffffffc0d1daf6 RSI: 0000000000000206 RDI: 0000000000000000
-[ 2048.663830] RBP: ffffc1d105b6fd98 R08: 0000000000000001 R09: ffff9d9ace8ceac0
-[ 2048.663834] R10: ffff9d9ace8ceac0 R11: 0000000000000001 R12: ffff9d9ac5649000
-[ 2048.663838] R13: 0000000000000000 R14: 00007ffe0354d650 R15: 0000000000000000
-[ 2048.663843] FS:  00007fe02ab19740(0000) GS:ffff9d9e5f8c0000(0000) knlGS:0000000000000000
-[ 2048.663849] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 2048.663853] CR2: 0000000000000000 CR3: 0000000111a52004 CR4: 0000000000770ee0
-[ 2048.663856] PKRU: 55555554
-[ 2048.663859] Call Trace:
-[ 2048.663865]  ? skb_release_head_state+0x5e/0x80
-[ 2048.663873]  kfree_skb+0x2f/0xb0
-[ 2048.663881]  btusb_shutdown_intel_new+0x36/0x60 [btusb]
-[ 2048.663905]  hci_dev_do_close+0x48c/0x5e0 [bluetooth]
-[ 2048.663954]  ? __cond_resched+0x1a/0x50
-[ 2048.663962]  hci_rfkill_set_block+0x56/0xa0 [bluetooth]
-[ 2048.664007]  rfkill_set_block+0x98/0x170
-[ 2048.664016]  rfkill_fop_write+0x136/0x1e0
-[ 2048.664022]  vfs_write+0xc7/0x260
-[ 2048.664030]  ksys_write+0xb1/0xe0
-[ 2048.664035]  ? exit_to_user_mode_prepare+0x37/0x1c0
-[ 2048.664042]  __x64_sys_write+0x1a/0x20
-[ 2048.664048]  do_syscall_64+0x40/0xb0
-[ 2048.664055]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 2048.664060] RIP: 0033:0x7fe02ac23c27
-[ 2048.664066] Code: 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b7 0f 1f 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
-[ 2048.664070] RSP: 002b:00007ffe0354d638 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-[ 2048.664075] RAX: ffffffffffffffda RBX: 0000000000000001 RCX: 00007fe02ac23c27
-[ 2048.664078] RDX: 0000000000000008 RSI: 00007ffe0354d650 RDI: 0000000000000003
-[ 2048.664081] RBP: 0000000000000000 R08: 0000559b05998440 R09: 0000559b05998440
-[ 2048.664084] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000003
-[ 2048.664086] R13: 0000000000000000 R14: ffffffff00000000 R15: 00000000ffffffff
+Fix this by using 'dma_free_coherent' instead of 'kfree'
 
-So move the shutdown callback to a place where workqueues are either
-flushed or cancelled to resolve the issue.
+This log reveals it:
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+[    3.440294] kernel BUG at mm/slub.c:4206!
+[    3.441059] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[    3.441430] CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #141
+[    3.441986] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.442780] RIP: 0010:kfree+0x26a/0x300
+[    3.443065] Code: e8 3a c3 b9 ff e9 d6 fd ff ff 49 8b 45 00 31 db a9 00 00 01 00 75 4d 49 8b 45 00 a9 00 00 01 00 75 0a 49 8b 45 08 a8 01 75 02 <0f> 0b 89 d9 b8 00 10 00 00 be 06 00 00 00 48 d3 e0 f7 d8 48 63 d0
+[    3.443396] RSP: 0000:ffffc90000017b70 EFLAGS: 00010246
+[    3.443396] RAX: dead000000000100 RBX: 0000000000000000 RCX: 0000000000000000
+[    3.443396] RDX: 0000000000000000 RSI: ffffffff85d3df94 RDI: ffffffff85df38e6
+[    3.443396] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000001
+[    3.443396] R10: 0000000000000000 R11: 0000000000000001 R12: ffff888107dc0000
+[    3.443396] R13: ffffea00001f0100 R14: ffff888101a8bf00 R15: ffff888107dc0160
+[    3.443396] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000) knlGS:0000000000000000
+[    3.443396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.443396] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.443396] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.443396] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.443396] Call Trace:
+[    3.443396]  ns_init_card_error+0x12c/0x220
+[    3.443396]  nicstar_init_one+0x10d2/0x1130
+[    3.443396]  local_pci_probe+0x4a/0xb0
+[    3.443396]  pci_device_probe+0x126/0x1d0
+[    3.443396]  ? pci_device_remove+0x100/0x100
+[    3.443396]  really_probe+0x27e/0x650
+[    3.443396]  driver_probe_device+0x84/0x1d0
+[    3.443396]  ? mutex_lock_nested+0x16/0x20
+[    3.443396]  device_driver_attach+0x63/0x70
+[    3.443396]  __driver_attach+0x117/0x1a0
+[    3.443396]  ? device_driver_attach+0x70/0x70
+[    3.443396]  bus_for_each_dev+0xb6/0x110
+[    3.443396]  ? rdinit_setup+0x40/0x40
+[    3.443396]  driver_attach+0x22/0x30
+[    3.443396]  bus_add_driver+0x1e6/0x2a0
+[    3.443396]  driver_register+0xa4/0x180
+[    3.443396]  __pci_register_driver+0x77/0x80
+[    3.443396]  ? uPD98402_module_init+0xd/0xd
+[    3.443396]  nicstar_init+0x1f/0x75
+[    3.443396]  do_one_initcall+0x7a/0x3d0
+[    3.443396]  ? rdinit_setup+0x40/0x40
+[    3.443396]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.443396]  kernel_init_freeable+0x2a7/0x2f9
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  kernel_init+0x13/0x180
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  ret_from_fork+0x1f/0x30
+[    3.443396] Modules linked in:
+[    3.443396] Dumping ftrace buffer:
+[    3.443396]    (ftrace buffer empty)
+[    3.458593] ---[ end trace 3c6f8f0d8ef59bcd ]---
+[    3.458922] RIP: 0010:kfree+0x26a/0x300
+[    3.459198] Code: e8 3a c3 b9 ff e9 d6 fd ff ff 49 8b 45 00 31 db a9 00 00 01 00 75 4d 49 8b 45 00 a9 00 00 01 00 75 0a 49 8b 45 08 a8 01 75 02 <0f> 0b 89 d9 b8 00 10 00 00 be 06 00 00 00 48 d3 e0 f7 d8 48 63 d0
+[    3.460499] RSP: 0000:ffffc90000017b70 EFLAGS: 00010246
+[    3.460870] RAX: dead000000000100 RBX: 0000000000000000 RCX: 0000000000000000
+[    3.461371] RDX: 0000000000000000 RSI: ffffffff85d3df94 RDI: ffffffff85df38e6
+[    3.461873] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000001
+[    3.462372] R10: 0000000000000000 R11: 0000000000000001 R12: ffff888107dc0000
+[    3.462871] R13: ffffea00001f0100 R14: ffff888101a8bf00 R15: ffff888107dc0160
+[    3.463368] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000) knlGS:0000000000000000
+[    3.463949] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.464356] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.464856] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.465356] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.465860] Kernel panic - not syncing: Fatal exception
+[    3.466370] Dumping ftrace buffer:
+[    3.466616]    (ftrace buffer empty)
+[    3.466871] Kernel Offset: disabled
+[    3.467122] Rebooting in 1 seconds..
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/atm/nicstar.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 839c534bdcdb..50b9a0bbe5df 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1533,14 +1533,6 @@ int hci_dev_do_close(struct hci_dev *hdev)
- 
- 	BT_DBG("%s %p", hdev->name, hdev);
- 
--	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
--	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
--	    test_bit(HCI_UP, &hdev->flags)) {
--		/* Execute vendor specific shutdown routine */
--		if (hdev->shutdown)
--			hdev->shutdown(hdev);
--	}
--
- 	cancel_delayed_work(&hdev->power_off);
- 
- 	hci_request_cancel_all(hdev);
-@@ -1608,6 +1600,14 @@ int hci_dev_do_close(struct hci_dev *hdev)
- 		clear_bit(HCI_INIT, &hdev->flags);
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index 486d7a114031..86f3e72e686f 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -837,10 +837,12 @@ static void ns_init_card_error(ns_dev *card, int error)
+ 			dev_kfree_skb_any(hb);
  	}
- 
-+	if (!hci_dev_test_flag(hdev, HCI_UNREGISTER) &&
-+	    !hci_dev_test_flag(hdev, HCI_USER_CHANNEL) &&
-+	    test_bit(HCI_UP, &hdev->flags)) {
-+		/* Execute vendor specific shutdown routine */
-+		if (hdev->shutdown)
-+			hdev->shutdown(hdev);
-+	}
-+
- 	/* flush cmd  work */
- 	flush_work(&hdev->cmd_work);
- 
+ 	if (error >= 12) {
+-		kfree(card->rsq.org);
++		dma_free_coherent(&card->pcidev->dev, NS_RSQSIZE + NS_RSQ_ALIGNMENT,
++				card->rsq.org, card->rsq.dma);
+ 	}
+ 	if (error >= 11) {
+-		kfree(card->tsq.org);
++		dma_free_coherent(&card->pcidev->dev, NS_TSQSIZE + NS_TSQ_ALIGNMENT,
++				card->tsq.org, card->tsq.dma);
+ 	}
+ 	if (error >= 10) {
+ 		free_irq(card->pcidev->irq, card);
 -- 
 2.30.2
 
