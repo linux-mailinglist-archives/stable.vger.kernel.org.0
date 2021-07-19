@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FD03CE21A
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A62B23CE1A5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346384AbhGSP3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1345850AbhGSP1H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:27:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348465AbhGSPYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A23DC600EF;
-        Mon, 19 Jul 2021 16:05:28 +0000 (UTC)
+        id S1348487AbhGSPYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FAAD6008E;
+        Mon, 19 Jul 2021 16:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710729;
-        bh=bx2NjaHIi7EIzUuk5t5pEMwJV/11m704jcJmZ6JoNMI=;
+        s=korg; t=1626710731;
+        bh=RtrY9dta6t2Gy46Bp1K5cieSkMwQ1R440dKMjGmESQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z57cLzvrVQVThpThVhZ4L/0GxAEgCwNDlNp7KQuiQP3iWvWhlAnZK5oO73OjT4Yua
-         XA5d/kNO9GXQU7qxnJu0jt21lKiI/Wy4HbiTe+3IoliXbLO+F+XBnxK73ROmZbXEOA
-         NJVoock7359skrernl+xjt3RjpLYFcxbVfpdvViA=
+        b=JxStiMj1beC9DITGlEfS8dnpwsGDP9k2jBMig1zc+xDLYi8jmJrFOYaDE7tID6KZc
+         gG3Q71uJGalImBvmIxw8Agp9uxmSyEs0JmjTDB2Ot0V5qWokgForfM0qbcfsbGY5Ky
+         dYATBQmKYA0B0QZUdQLUcltst856Z9S83yvZ/ekQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mike Christie <michael.christie@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 085/351] scsi: qedi: Fix TMF session block/unblock use
-Date:   Mon, 19 Jul 2021 16:50:31 +0200
-Message-Id: <20210719144947.319964909@linuxfoundation.org>
+Subject: [PATCH 5.13 086/351] scsi: qedi: Fix cleanup session block/unblock use
+Date:   Mon, 19 Jul 2021 16:50:32 +0200
+Message-Id: <20210719144947.350282466@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -43,44 +43,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 2819b4ae2873d50fd55292877b0231ec936c3b2e ]
+[ Upstream commit 0c72191da68638a479602dd515b587ada913184a ]
 
-Drivers shouldn't be calling block/unblock session for tmf handling because
-the functions can change the session state from under libiscsi.
-iscsi_queuecommand's call to iscsi_prep_scsi_cmd_pdu->
-iscsi_check_tmf_restrictions will prevent new cmds from being sent to qedi
-after we've started handling a TMF. So we don't need to try and block it in
-the driver, and we can remove these block calls.
+Drivers shouldn't be calling block/unblock session for cmd cleanup because
+the functions can change the session state from under libiscsi.  This adds
+a new a driver level bit so it can block all I/O the host while it drains
+the card.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-25-michael.christie@oracle.com
+Link: https://lore.kernel.org/r/20210525181821.7617-26-michael.christie@oracle.com
 Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/scsi/qedi/qedi.h       |  1 +
+ drivers/scsi/qedi/qedi_iscsi.c | 17 +++++++++++++++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index c12bb2dd5ff9..4c87640e6a91 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -159,14 +159,9 @@ static void qedi_tmf_resp_work(struct work_struct *work)
- 	set_bit(QEDI_CONN_FW_CLEANUP, &qedi_conn->flags);
- 	resp_hdr_ptr =  (struct iscsi_tm_rsp *)qedi_cmd->tmf_resp_buf;
+diff --git a/drivers/scsi/qedi/qedi.h b/drivers/scsi/qedi/qedi.h
+index c342defc3f52..ce199a7a16b8 100644
+--- a/drivers/scsi/qedi/qedi.h
++++ b/drivers/scsi/qedi/qedi.h
+@@ -284,6 +284,7 @@ struct qedi_ctx {
+ #define QEDI_IN_RECOVERY	5
+ #define QEDI_IN_OFFLINE		6
+ #define QEDI_IN_SHUTDOWN	7
++#define QEDI_BLOCK_IO		8
  
--	iscsi_block_session(session->cls_session);
- 	rval = qedi_cleanup_all_io(qedi, qedi_conn, qedi_cmd->task, true);
--	if (rval) {
--		iscsi_unblock_session(session->cls_session);
-+	if (rval)
- 		goto exit_tmf_resp;
--	}
--
--	iscsi_unblock_session(session->cls_session);
+ 	u8 mac[ETH_ALEN];
+ 	u32 src_ip[4];
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 4acc12111330..5f7e62f19d83 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -330,12 +330,22 @@ free_conn:
  
- 	spin_lock(&session->back_lock);
- 	__iscsi_complete_pdu(conn, (struct iscsi_hdr *)resp_hdr_ptr, NULL, 0);
+ void qedi_mark_device_missing(struct iscsi_cls_session *cls_session)
+ {
+-	iscsi_block_session(cls_session);
++	struct iscsi_session *session = cls_session->dd_data;
++	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
++
++	spin_lock_bh(&session->frwd_lock);
++	set_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
++	spin_unlock_bh(&session->frwd_lock);
+ }
+ 
+ void qedi_mark_device_available(struct iscsi_cls_session *cls_session)
+ {
+-	iscsi_unblock_session(cls_session);
++	struct iscsi_session *session = cls_session->dd_data;
++	struct qedi_conn *qedi_conn = session->leadconn->dd_data;
++
++	spin_lock_bh(&session->frwd_lock);
++	clear_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags);
++	spin_unlock_bh(&session->frwd_lock);
+ }
+ 
+ static int qedi_bind_conn_to_iscsi_cid(struct qedi_ctx *qedi,
+@@ -800,6 +810,9 @@ static int qedi_task_xmit(struct iscsi_task *task)
+ 	if (test_bit(QEDI_IN_SHUTDOWN, &qedi_conn->qedi->flags))
+ 		return -ENODEV;
+ 
++	if (test_bit(QEDI_BLOCK_IO, &qedi_conn->qedi->flags))
++		return -EACCES;
++
+ 	cmd->state = 0;
+ 	cmd->task = NULL;
+ 	cmd->use_slowpath = false;
 -- 
 2.30.2
 
