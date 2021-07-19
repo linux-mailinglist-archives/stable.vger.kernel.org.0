@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CE3F3CDBAF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:30:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 929F23CD981
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238025AbhGSOte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:49:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60724 "EHLO mail.kernel.org"
+        id S243486AbhGSOaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:30:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245539AbhGSOmU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:42:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1423F611ED;
-        Mon, 19 Jul 2021 15:21:51 +0000 (UTC)
+        id S243434AbhGSO20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:28:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03ABD61003;
+        Mon, 19 Jul 2021 15:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708112;
-        bh=ooSgrh4n6u4sT9NbWb51NcpG7rkmKIhEGtw/nWabSKY=;
+        s=korg; t=1626707286;
+        bh=we0Z8Qb5CRePw6IZiHrDko5jgmXm6I7fIZBCO5nZ510=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JR9O5vWvIIxhsqfEJwCLMSuDdlb1Rkhtlzawa4SnVHOhbNjyC9l5X3Ik6LBgS83nu
-         gmPLQqr7azhY+bwGV+dHDfHlyOYJV5E6NYemEKsUiMqLQj/qCjW1O2NeCn42I6f1TX
-         BnAeH/s/GgiLghMeEjrdiICnfXo2krG+R5UcLx0M=
+        b=TW92bWT6fmfC8uMUZIFwG7upQXZajqk2LSL6m+SZ/jh9SLPDremC3O3zSrH5ISFqp
+         3onjabk3Lts5ATGzVpg2Q99YuhaDpUfSoDeBK3SN11oDrNspoVQRluks9Do1nb7F70
+         tgQvaS6/6ZJxLj8AkGDUrxMjn8KYeqmnXiWk9qZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 151/315] extcon: sm5502: Drop invalid register write in sm5502_reg_data
+Subject: [PATCH 4.9 098/245] iio: accel: stk8ba50: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
 Date:   Mon, 19 Jul 2021 16:50:40 +0200
-Message-Id: <20210719144947.859736219@linuxfoundation.org>
+Message-Id: <20210719144943.586728592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
-References: <20210719144942.861561397@linuxfoundation.org>
+In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
+References: <20210719144940.288257948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Gerhold <stephan@gerhold.net>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit d25b224f8e5507879b36a769a6d1324cf163466c ]
+[ Upstream commit 334883894bc1e145a1e0f5de1b0d1b6a1133f0e6 ]
 
-When sm5502_init_dev_type() iterates over sm5502_reg_data to
-initialize the registers it is limited by ARRAY_SIZE(sm5502_reg_data).
-There is no need to add another empty element to sm5502_reg_data.
+To make code more readable, use a structure to express the channel
+layout and ensure the timestamp is 8 byte aligned.
 
-Having the additional empty element in sm5502_reg_data will just
-result in writing 0xff to register 0x00, which does not really
-make sense.
+Found during an audit of all calls of this function.
 
-Fixes: 914b881f9452 ("extcon: sm5502: Add support new SM5502 extcon device driver")
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Fixes: db6a19b8251f ("iio: accel: Add trigger support for STK8BA50")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501170121.512209-8-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-sm5502.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/accel/stk8ba50.c | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/extcon/extcon-sm5502.c b/drivers/extcon/extcon-sm5502.c
-index 1a1ee3db3455..431538a14ec8 100644
---- a/drivers/extcon/extcon-sm5502.c
-+++ b/drivers/extcon/extcon-sm5502.c
-@@ -92,7 +92,6 @@ static struct reg_data sm5502_reg_data[] = {
- 			| SM5502_REG_INTM2_MHL_MASK,
- 		.invert = true,
- 	},
--	{ }
+diff --git a/drivers/iio/accel/stk8ba50.c b/drivers/iio/accel/stk8ba50.c
+index 300d955bad00..5ca179cea2fb 100644
+--- a/drivers/iio/accel/stk8ba50.c
++++ b/drivers/iio/accel/stk8ba50.c
+@@ -94,12 +94,11 @@ struct stk8ba50_data {
+ 	u8 sample_rate_idx;
+ 	struct iio_trigger *dready_trig;
+ 	bool dready_trigger_on;
+-	/*
+-	 * 3 x 16-bit channels (10-bit data, 6-bit padding) +
+-	 * 1 x 16 padding +
+-	 * 4 x 16 64-bit timestamp
+-	 */
+-	s16 buffer[8];
++	/* Ensure timestamp is naturally aligned */
++	struct {
++		s16 chans[3];
++		s64 timetamp __aligned(8);
++	} scan;
  };
  
- /* List of detectable cables */
+ #define STK8BA50_ACCEL_CHANNEL(index, reg, axis) {			\
+@@ -329,7 +328,7 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8BA50_REG_XOUT,
+ 						    STK8BA50_ALL_CHANNEL_SIZE,
+-						    (u8 *)data->buffer);
++						    (u8 *)data->scan.chans);
+ 		if (ret < STK8BA50_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			goto err;
+@@ -342,10 +341,10 @@ static irqreturn_t stk8ba50_trigger_handler(int irq, void *p)
+ 			if (ret < 0)
+ 				goto err;
+ 
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
+-	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
++	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
+ 					   pf->timestamp);
+ err:
+ 	mutex_unlock(&data->lock);
 -- 
 2.30.2
 
