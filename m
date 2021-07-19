@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C53853CDE4F
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FF83CDF39
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:50:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345403AbhGSPCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58390 "EHLO mail.kernel.org"
+        id S245003AbhGSPIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344931AbhGSPAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:00:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7DA160E0C;
-        Mon, 19 Jul 2021 15:40:41 +0000 (UTC)
+        id S1344521AbhGSPGD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:06:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58B496113A;
+        Mon, 19 Jul 2021 15:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709242;
-        bh=nb2cG0ZOtGDTPTLxzDCCwgcdA88QdL9quUUV+v7jMmg=;
+        s=korg; t=1626709602;
+        bh=kWGsgISN7lcqmtjugESr6/bNe397iyJKqWDj4dYdleo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbLRmr1Tqgvq1t4tAWEmZ5SbwPL2deTwPJIr7QPpRkjlSYObOksMm7oSnlqhHpLBU
-         tMpHRLtld2826ZNIFX7eoMBuvwzio+a7SczJfYv7smWxmXUvY7qmhkSb2CCJdBVEL6
-         CG1AadG58QTzgaQbYyti/GmbtICcBBTcnnEkNiJ4=
+        b=IwwjkUraWKwXGb7qSHVNLjBtHWdaehCY62OYGwYZmwP1/9ZoyCdVIgRfylfURL051
+         u+hpxWupo4aZQ0ri5xyWgoVllT5lKlTGHYjAYeXfrWeTmc6W2jxSq4HiUibjChcQG/
+         Bhxr+y7Gs7cievYwCneFMTlh23bMKu8gPV5Gv8JQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Konstantin Kharlamov <Hi-Angel@yandex.ru>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 4.19 306/421] PCI: Leave Apple Thunderbolt controllers on for s2idle or standby
+        stable@vger.kernel.org, Robin Gong <yibin.gong@nxp.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 009/149] dmaengine: fsl-qdma: check dma_set_mask return value
 Date:   Mon, 19 Jul 2021 16:51:57 +0200
-Message-Id: <20210719144956.936554419@linuxfoundation.org>
+Message-Id: <20210719144903.619395261@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
+References: <20210719144901.370365147@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,65 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Kharlamov <Hi-Angel@yandex.ru>
+From: Robin Gong <yibin.gong@nxp.com>
 
-commit 4694ae373dc2114f9a82f6ae15737e65af0c6dea upstream.
+[ Upstream commit f0c07993af0acf5545d5c1445798846565f4f147 ]
 
-On Macbook 2013, resuming from suspend-to-idle or standby resulted in the
-external monitor no longer being detected, a stacktrace, and errors like
-this in dmesg:
+For fix below warning reported by static code analysis tool like Coverity
+from Synopsys:
 
-  pcieport 0000:06:00.0: can't change power state from D3hot to D0 (config space inaccessible)
-
-The reason is that we know how to turn power to the Thunderbolt controller
-*off* via the SXIO/SXFP/SXLF methods, but we don't know how to turn power
-back on.  We have to rely on firmware to turn the power back on.
-
-When going to the "suspend-to-idle" or "standby" system sleep states,
-firmware is not involved either on the suspend side or the resume side, so
-we can't use SXIO/SXFP/SXLF to turn the power off.
-
-Skip SXIO/SXFP/SXLF when firmware isn't involved in suspend, e.g., when
-we're going to the "suspend-to-idle" or "standby" system sleep states.
-
-Fixes: 1df5172c5c25 ("PCI: Suspend/resume quirks for Apple thunderbolt")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212767
-Link: https://lore.kernel.org/r/20210520235501.917397-1-Hi-Angel@yandex.ru
-Signed-off-by: Konstantin Kharlamov <Hi-Angel@yandex.ru>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Robin Gong <yibin.gong@nxp.com>
+Addresses-Coverity-ID: 12285639 ("Unchecked return value")
+Link: https://lore.kernel.org/r/1619427549-20498-1-git-send-email-yibin.gong@nxp.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/dma/fsl-qdma.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -28,6 +28,7 @@
- #include <linux/nvme.h>
- #include <linux/platform_data/x86/apple.h>
- #include <linux/pm_runtime.h>
-+#include <linux/suspend.h>
- #include <linux/switchtec.h>
- #include <asm/dma.h>	/* isa_dma_bridge_buggy */
- #include "pci.h"
-@@ -3573,6 +3574,16 @@ static void quirk_apple_poweroff_thunder
- 		return;
- 	if (pci_pcie_type(dev) != PCI_EXP_TYPE_UPSTREAM)
- 		return;
-+
-+	/*
-+	 * SXIO/SXFP/SXLF turns off power to the Thunderbolt controller.
-+	 * We don't know how to turn it back on again, but firmware does,
-+	 * so we can only use SXIO/SXFP/SXLF if we're suspending via
-+	 * firmware.
-+	 */
-+	if (!pm_suspend_via_firmware())
-+		return;
-+
- 	bridge = ACPI_HANDLE(&dev->dev);
- 	if (!bridge)
- 		return;
+diff --git a/drivers/dma/fsl-qdma.c b/drivers/dma/fsl-qdma.c
+index 95cc0256b387..f5a1ae164193 100644
+--- a/drivers/dma/fsl-qdma.c
++++ b/drivers/dma/fsl-qdma.c
+@@ -1184,7 +1184,11 @@ static int fsl_qdma_probe(struct platform_device *pdev)
+ 	fsl_qdma->dma_dev.device_synchronize = fsl_qdma_synchronize;
+ 	fsl_qdma->dma_dev.device_terminate_all = fsl_qdma_terminate_all;
+ 
+-	dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
++	ret = dma_set_mask(&pdev->dev, DMA_BIT_MASK(40));
++	if (ret) {
++		dev_err(&pdev->dev, "dma_set_mask failure.\n");
++		return ret;
++	}
+ 
+ 	platform_set_drvdata(pdev, fsl_qdma);
+ 
+-- 
+2.30.2
+
 
 
