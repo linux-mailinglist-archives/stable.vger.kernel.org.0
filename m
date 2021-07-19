@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09C283CE2F2
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78C333CE0FE
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:10:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236193AbhGSPc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:32:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48626 "EHLO mail.kernel.org"
+        id S1343642AbhGSPTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346211AbhGSP2M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 794406128A;
-        Mon, 19 Jul 2021 16:08:33 +0000 (UTC)
+        id S1347148AbhGSPPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:15:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 141C2600EF;
+        Mon, 19 Jul 2021 15:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710914;
-        bh=Jxp4XfILcSlnmavtHA8DR7HbSTaJRkfBAiSUv4lxPXw=;
+        s=korg; t=1626710177;
+        bh=LTVGr3f4WlwQKL+UpiRVjG7mfst75GqkV/0rmOgPNRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nahOlIdi6c+591ogRV7m8F6+l4e6nkNB85z3thi5BE9GMntRneCTSBSe69jWQ2LCr
-         RBxPGPiLSLfPDEGvxISnhNtclmCvnfM/WhL3L98FTnrn84qisVdWo3rxpwBHIQ3190
-         IEtm3wFnlsw4YHQ1iRgDpc+/Dl8o0Ay0PObxO2ik=
+        b=PDTdCQx5RYxXKuMivod2PjsFVpFnfXq4T1QGY2oeUyiR4xdRqQzhVz4Wchh9k9jyz
+         6AhgP2jNIxMtkF0JY7rsJGE9EfxJDaADXQCaZ4XL7JpBEXFkeI5DhjnHdhX9izHMKv
+         Jqc3iyPjWouNn4wFE+iwQVHhXiEicauaMCUv2Aeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Clemens Gruber <clemens.gruber@pqgruber.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        stable@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 156/351] pwm: pca9685: Restrict period change for enabled PWMs
-Date:   Mon, 19 Jul 2021 16:51:42 +0200
-Message-Id: <20210719144950.136567558@linuxfoundation.org>
+Subject: [PATCH 5.10 074/243] iommu/arm-smmu: Fix arm_smmu_device refcount leak when arm_smmu_rpm_get fails
+Date:   Mon, 19 Jul 2021 16:51:43 +0200
+Message-Id: <20210719144943.296807839@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,177 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Clemens Gruber <clemens.gruber@pqgruber.com>
+From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 
-[ Upstream commit 6d6e7050276d40b5de97aa950d5d71057f2e2a25 ]
+[ Upstream commit 1adf30f198c26539a62d761e45af72cde570413d ]
 
-Previously, the last used PWM channel could change the global prescale
-setting, even if other channels are already in use.
+arm_smmu_rpm_get() invokes pm_runtime_get_sync(), which increases the
+refcount of the "smmu" even though the return value is less than 0.
 
-Fix it by only allowing the first enabled PWM to change the global
-chip-wide prescale setting. If there is more than one channel in use,
-the prescale settings resulting from the chosen periods must match.
+The reference counting issue happens in some error handling paths of
+arm_smmu_rpm_get() in its caller functions. When arm_smmu_rpm_get()
+fails, the caller functions forget to decrease the refcount of "smmu"
+increased by arm_smmu_rpm_get(), causing a refcount leak.
 
-GPIOs do not count as enabled PWMs as they are not using the prescaler
-and can't change it.
+Fix this issue by calling pm_runtime_resume_and_get() instead of
+pm_runtime_get_sync() in arm_smmu_rpm_get(), which can keep the refcount
+balanced in case of failure.
 
-Signed-off-by: Clemens Gruber <clemens.gruber@pqgruber.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Link: https://lore.kernel.org/r/1623293672-17954-1-git-send-email-xiyuyang19@fudan.edu.cn
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-pca9685.c | 74 +++++++++++++++++++++++++++++++++------
- 1 file changed, 64 insertions(+), 10 deletions(-)
+ drivers/iommu/arm/arm-smmu/arm-smmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pwm/pwm-pca9685.c b/drivers/pwm/pwm-pca9685.c
-index 7c9f174de64e..ec9f93006654 100644
---- a/drivers/pwm/pwm-pca9685.c
-+++ b/drivers/pwm/pwm-pca9685.c
-@@ -23,11 +23,11 @@
- #include <linux/bitmap.h>
- 
- /*
-- * Because the PCA9685 has only one prescaler per chip, changing the period of
-- * one channel affects the period of all 16 PWM outputs!
-- * However, the ratio between each configured duty cycle and the chip-wide
-- * period remains constant, because the OFF time is set in proportion to the
-- * counter range.
-+ * Because the PCA9685 has only one prescaler per chip, only the first channel
-+ * that is enabled is allowed to change the prescale register.
-+ * PWM channels requested afterwards must use a period that results in the same
-+ * prescale setting as the one set by the first requested channel.
-+ * GPIOs do not count as enabled PWMs as they are not using the prescaler.
-  */
- 
- #define PCA9685_MODE1		0x00
-@@ -78,8 +78,9 @@
- struct pca9685 {
- 	struct pwm_chip chip;
- 	struct regmap *regmap;
--#if IS_ENABLED(CONFIG_GPIOLIB)
- 	struct mutex lock;
-+	DECLARE_BITMAP(pwms_enabled, PCA9685_MAXCHAN + 1);
-+#if IS_ENABLED(CONFIG_GPIOLIB)
- 	struct gpio_chip gpio;
- 	DECLARE_BITMAP(pwms_inuse, PCA9685_MAXCHAN + 1);
- #endif
-@@ -90,6 +91,22 @@ static inline struct pca9685 *to_pca(struct pwm_chip *chip)
- 	return container_of(chip, struct pca9685, chip);
- }
- 
-+/* This function is supposed to be called with the lock mutex held */
-+static bool pca9685_prescaler_can_change(struct pca9685 *pca, int channel)
-+{
-+	/* No PWM enabled: Change allowed */
-+	if (bitmap_empty(pca->pwms_enabled, PCA9685_MAXCHAN + 1))
-+		return true;
-+	/* More than one PWM enabled: Change not allowed */
-+	if (bitmap_weight(pca->pwms_enabled, PCA9685_MAXCHAN + 1) > 1)
-+		return false;
-+	/*
-+	 * Only one PWM enabled: Change allowed if the PWM about to
-+	 * be changed is the one that is already enabled
-+	 */
-+	return test_bit(channel, pca->pwms_enabled);
-+}
-+
- /* Helper function to set the duty cycle ratio to duty/4096 (e.g. duty=2048 -> 50%) */
- static void pca9685_pwm_set_duty(struct pca9685 *pca, int channel, unsigned int duty)
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+index bcbacf22331d..052f0a1bf037 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -74,7 +74,7 @@ static bool using_legacy_binding, using_generic_binding;
+ static inline int arm_smmu_rpm_get(struct arm_smmu_device *smmu)
  {
-@@ -240,8 +257,6 @@ static int pca9685_pwm_gpio_probe(struct pca9685 *pca)
- {
- 	struct device *dev = pca->chip.dev;
+ 	if (pm_runtime_enabled(smmu->dev))
+-		return pm_runtime_get_sync(smmu->dev);
++		return pm_runtime_resume_and_get(smmu->dev);
  
--	mutex_init(&pca->lock);
--
- 	pca->gpio.label = dev_name(dev);
- 	pca->gpio.parent = dev;
- 	pca->gpio.request = pca9685_pwm_gpio_request;
-@@ -285,8 +300,8 @@ static void pca9685_set_sleep_mode(struct pca9685 *pca, bool enable)
- 	}
- }
- 
--static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
--			     const struct pwm_state *state)
-+static int __pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
-+			       const struct pwm_state *state)
- {
- 	struct pca9685 *pca = to_pca(chip);
- 	unsigned long long duty, prescale;
-@@ -309,6 +324,12 @@ static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 
- 	regmap_read(pca->regmap, PCA9685_PRESCALE, &val);
- 	if (prescale != val) {
-+		if (!pca9685_prescaler_can_change(pca, pwm->hwpwm)) {
-+			dev_err(chip->dev,
-+				"pwm not changed: periods of enabled pwms must match!\n");
-+			return -EBUSY;
-+		}
-+
- 		/*
- 		 * Putting the chip briefly into SLEEP mode
- 		 * at this point won't interfere with the
-@@ -331,6 +352,25 @@ static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
  	return 0;
  }
- 
-+static int pca9685_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
-+			     const struct pwm_state *state)
-+{
-+	struct pca9685 *pca = to_pca(chip);
-+	int ret;
-+
-+	mutex_lock(&pca->lock);
-+	ret = __pca9685_pwm_apply(chip, pwm, state);
-+	if (ret == 0) {
-+		if (state->enabled)
-+			set_bit(pwm->hwpwm, pca->pwms_enabled);
-+		else
-+			clear_bit(pwm->hwpwm, pca->pwms_enabled);
-+	}
-+	mutex_unlock(&pca->lock);
-+
-+	return ret;
-+}
-+
- static void pca9685_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
- 				  struct pwm_state *state)
- {
-@@ -372,6 +412,14 @@ static int pca9685_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
- 
- 	if (pca9685_pwm_test_and_set_inuse(pca, pwm->hwpwm))
- 		return -EBUSY;
-+
-+	if (pwm->hwpwm < PCA9685_MAXCHAN) {
-+		/* PWMs - except the "all LEDs" channel - default to enabled */
-+		mutex_lock(&pca->lock);
-+		set_bit(pwm->hwpwm, pca->pwms_enabled);
-+		mutex_unlock(&pca->lock);
-+	}
-+
- 	pm_runtime_get_sync(chip->dev);
- 
- 	return 0;
-@@ -381,7 +429,11 @@ static void pca9685_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
- {
- 	struct pca9685 *pca = to_pca(chip);
- 
-+	mutex_lock(&pca->lock);
- 	pca9685_pwm_set_duty(pca, pwm->hwpwm, 0);
-+	clear_bit(pwm->hwpwm, pca->pwms_enabled);
-+	mutex_unlock(&pca->lock);
-+
- 	pm_runtime_put(chip->dev);
- 	pca9685_pwm_clear_inuse(pca, pwm->hwpwm);
- }
-@@ -422,6 +474,8 @@ static int pca9685_pwm_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, pca);
- 
-+	mutex_init(&pca->lock);
-+
- 	regmap_read(pca->regmap, PCA9685_MODE2, &reg);
- 
- 	if (device_property_read_bool(&client->dev, "invert"))
 -- 
 2.30.2
 
