@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A7763CD995
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:12:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B45C03CDB55
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242822AbhGSOay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38396 "EHLO mail.kernel.org"
+        id S245621AbhGSOmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244329AbhGSO3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:29:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C64C461165;
-        Mon, 19 Jul 2021 15:09:17 +0000 (UTC)
+        id S1344104AbhGSOj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E41806113C;
+        Mon, 19 Jul 2021 15:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707358;
-        bh=+mPVfOcxAxvOn4g1UTVHi39fRgRmaymEHJL+MrSZeuE=;
+        s=korg; t=1626708032;
+        bh=dNMDX0yeP7Lhgmi9O4rPagiGeruxu2zsPOFAHtUz8tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tBOwiWBodg/ShZQ2Z5ttz4mL3D9zL4JFjEKjcuRzw83Oemcprwwy8Vg+98fyP13qD
-         wf8xiM3guenZiczocvt3/m3n+BHcHh1uu4LkX3YQBh7n6j28MEzx0W1Ss9Vs+STusD
-         bWuWVxbg8028t/3FSB5IYNPcUPLwQX+M4PSGBKZ8=
+        b=K5IDehaG9b+QQOswg5RW+kthWiNMDJrC4Oo47XUedT/EhdUV1ILyD5epuPws+SuWw
+         Lpz6s3xB54E4t19I/710ewlRlE0pLTaOrMS9Bj2tQmyyI2nVIa5aPfNPHUeSwZ8JYA
+         zGR/djn02zkn8JrZB6gzWmEcbHFQszHx7b95v+tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 102/245] iio: humidity: am2315: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 155/315] leds: ktd2692: Fix an error handling path
 Date:   Mon, 19 Jul 2021 16:50:44 +0200
-Message-Id: <20210719144943.722446760@linuxfoundation.org>
+Message-Id: <20210719144947.984062003@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +40,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit f4ca2e2595d9fee65d5ce0d218b22ce00e5b2915 ]
+[ Upstream commit ee78b9360e14c276f5ceaa4a0d06f790f04ccdad ]
 
-To make code more readable, use a structure to express the channel
-layout and ensure the timestamp is 8 byte aligned.
+In 'ktd2692_parse_dt()', if an error occurs after a successful
+'regulator_enable()' call, we should call 'regulator_enable()'.
 
-Found during an audit of all calls of uses of
-iio_push_to_buffers_with_timestamp()
+This is the same in 'ktd2692_probe()', if an error occurs after a
+successful 'ktd2692_parse_dt()' call.
 
-Fixes: 0d96d5ead3f7 ("iio: humidity: Add triggered buffer support for AM2315")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-12-jic23@kernel.org
+Instead of adding 'regulator_enable()' in several places, implement a
+resource managed solution and simplify the remove function accordingly.
+
+Fixes: b7da8c5c725c ("leds: Add ktd2692 flash LED driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Pavel Machek <pavel@ucw.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/humidity/am2315.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/leds/leds-ktd2692.c | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iio/humidity/am2315.c b/drivers/iio/humidity/am2315.c
-index ff96b6d0fdae..77513fd84b99 100644
---- a/drivers/iio/humidity/am2315.c
-+++ b/drivers/iio/humidity/am2315.c
-@@ -36,7 +36,11 @@
- struct am2315_data {
- 	struct i2c_client *client;
- 	struct mutex lock;
--	s16 buffer[8]; /* 2x16-bit channels + 2x16 padding + 4x16 timestamp */
-+	/* Ensure timestamp is naturally aligned */
-+	struct {
-+		s16 chans[2];
-+		s64 timestamp __aligned(8);
-+	} scan;
- };
+diff --git a/drivers/leds/leds-ktd2692.c b/drivers/leds/leds-ktd2692.c
+index 45296aaca9da..02738b5b1dbf 100644
+--- a/drivers/leds/leds-ktd2692.c
++++ b/drivers/leds/leds-ktd2692.c
+@@ -259,6 +259,17 @@ static void ktd2692_setup(struct ktd2692_context *led)
+ 				 | KTD2692_REG_FLASH_CURRENT_BASE);
+ }
  
- struct am2315_sensor_data {
-@@ -170,20 +174,20 @@ static irqreturn_t am2315_trigger_handler(int irq, void *p)
++static void regulator_disable_action(void *_data)
++{
++	struct device *dev = _data;
++	struct ktd2692_context *led = dev_get_drvdata(dev);
++	int ret;
++
++	ret = regulator_disable(led->regulator);
++	if (ret)
++		dev_err(dev, "Failed to disable supply: %d\n", ret);
++}
++
+ static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
+ 			    struct ktd2692_led_config_data *cfg)
+ {
+@@ -289,8 +300,14 @@ static int ktd2692_parse_dt(struct ktd2692_context *led, struct device *dev,
  
- 	mutex_lock(&data->lock);
- 	if (*(indio_dev->active_scan_mask) == AM2315_ALL_CHANNEL_MASK) {
--		data->buffer[0] = sensor_data.hum_data;
--		data->buffer[1] = sensor_data.temp_data;
-+		data->scan.chans[0] = sensor_data.hum_data;
-+		data->scan.chans[1] = sensor_data.temp_data;
- 	} else {
- 		i = 0;
- 		for_each_set_bit(bit, indio_dev->active_scan_mask,
- 				 indio_dev->masklength) {
--			data->buffer[i] = (bit ? sensor_data.temp_data :
--						 sensor_data.hum_data);
-+			data->scan.chans[i] = (bit ? sensor_data.temp_data :
-+					       sensor_data.hum_data);
- 			i++;
- 		}
+ 	if (led->regulator) {
+ 		ret = regulator_enable(led->regulator);
+-		if (ret)
++		if (ret) {
+ 			dev_err(dev, "Failed to enable supply: %d\n", ret);
++		} else {
++			ret = devm_add_action_or_reset(dev,
++						regulator_disable_action, dev);
++			if (ret)
++				return ret;
++		}
  	}
- 	mutex_unlock(&data->lock);
  
--	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
-+	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   pf->timestamp);
- err:
- 	iio_trigger_notify_done(indio_dev->trig);
+ 	child_node = of_get_next_available_child(np, NULL);
+@@ -380,17 +397,9 @@ static int ktd2692_probe(struct platform_device *pdev)
+ static int ktd2692_remove(struct platform_device *pdev)
+ {
+ 	struct ktd2692_context *led = platform_get_drvdata(pdev);
+-	int ret;
+ 
+ 	led_classdev_flash_unregister(&led->fled_cdev);
+ 
+-	if (led->regulator) {
+-		ret = regulator_disable(led->regulator);
+-		if (ret)
+-			dev_err(&pdev->dev,
+-				"Failed to disable supply: %d\n", ret);
+-	}
+-
+ 	mutex_destroy(&led->lock);
+ 
+ 	return 0;
 -- 
 2.30.2
 
