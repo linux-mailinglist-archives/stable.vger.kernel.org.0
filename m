@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EBB3CE3A5
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CE93CE19C
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239694AbhGSPir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59808 "EHLO mail.kernel.org"
+        id S241222AbhGSP0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348817AbhGSPfc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F29B6120A;
-        Mon, 19 Jul 2021 16:14:56 +0000 (UTC)
+        id S1348132AbhGSPYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52C936143D;
+        Mon, 19 Jul 2021 16:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711297;
-        bh=COFsRCR5FAvmzhR4K9/J+3u2Pp14fMhkJTNqHmAebXY=;
+        s=korg; t=1626710504;
+        bh=z4KeSNDkN7Hq+Zvi4NxPHsyEx/NrKFmg+97Q72eo0kE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHeHF+M5j7+FyjKE/KqVGJRdhEpK30+0MA3aPW77biMmwDjq6H+oU2u19DAprGKif
-         Y/Vs1awc7Bdb+gHSzfv+hmBIKO11ADbNjFmkDpUUhQrfGAHfFG7DO+5sBfG3RbQuZS
-         z0pCDuUQBd6kG/Q2OpzeRwI5F0w/wa/g5AvhLNpw=
+        b=1g2wq3kRcD4Htjabx2y3qXOEvwWgFO5tve5gBrmagSXUD6QKO0j+HjUGsccAtWXNy
+         xPJOyxCQrvP3jKBH7BogH/EZDZZWQf+DOnw1LeBu0s3YxB+Fmw04Q/LG2QfLlD7jb1
+         ysAUvfdzfU9tfAorL7D+PMEufY52hNFhhxovpOm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Steev Klimaszewski <steev@kali.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 301/351] arm64: dts: qcom: c630: Add no-hpd to DSI bridge node
-Date:   Mon, 19 Jul 2021 16:54:07 +0200
-Message-Id: <20210719144955.011324919@linuxfoundation.org>
+Subject: [PATCH 5.10 219/243] memory: fsl_ifc: fix leak of private memory on probe failure
+Date:   Mon, 19 Jul 2021 16:54:08 +0200
+Message-Id: <20210719144948.001504197@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-[ Upstream commit c0dcfe6a784fdf7fcc0fdc74bfbb06e9f77de964 ]
+[ Upstream commit 8e0d09b1232d0538066c40ed4c13086faccbdff6 ]
 
-We should indicate that we're not using the HPD pin on this device, per
-the binding document. Otherwise if code in the future wants to enable
-HPD in the bridge when this property is absent we'll be enabling HPD
-when it isn't supposed to be used. Presumably this board isn't using hpd
-on the bridge.
+On probe error the driver should free the memory allocated for private
+structure.  Fix this by using resource-managed allocation.
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Cc: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Steev Klimaszewski <steev@kali.org>
-Fixes: 956e9c85f47b ("arm64: dts: qcom: c630: Define eDP bridge and panel")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Link: https://lore.kernel.org/r/20210324231424.2890039-1-swboyd@chromium.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: a20cbdeffce2 ("powerpc/fsl: Add support for Integrated Flash Controller")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210527154322.81253-2-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/memory/fsl_ifc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-index 140db2d5ba31..c2a709a384e9 100644
---- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-@@ -376,6 +376,8 @@
- 		clocks = <&sn65dsi86_refclk>;
- 		clock-names = "refclk";
+diff --git a/drivers/memory/fsl_ifc.c b/drivers/memory/fsl_ifc.c
+index a6324044a085..d062c2f8250f 100644
+--- a/drivers/memory/fsl_ifc.c
++++ b/drivers/memory/fsl_ifc.c
+@@ -97,7 +97,6 @@ static int fsl_ifc_ctrl_remove(struct platform_device *dev)
+ 	iounmap(ctrl->gregs);
  
-+		no-hpd;
-+
- 		ports {
- 			#address-cells = <1>;
- 			#size-cells = <0>;
+ 	dev_set_drvdata(&dev->dev, NULL);
+-	kfree(ctrl);
+ 
+ 	return 0;
+ }
+@@ -209,7 +208,8 @@ static int fsl_ifc_ctrl_probe(struct platform_device *dev)
+ 
+ 	dev_info(&dev->dev, "Freescale Integrated Flash Controller\n");
+ 
+-	fsl_ifc_ctrl_dev = kzalloc(sizeof(*fsl_ifc_ctrl_dev), GFP_KERNEL);
++	fsl_ifc_ctrl_dev = devm_kzalloc(&dev->dev, sizeof(*fsl_ifc_ctrl_dev),
++					GFP_KERNEL);
+ 	if (!fsl_ifc_ctrl_dev)
+ 		return -ENOMEM;
+ 
 -- 
 2.30.2
 
