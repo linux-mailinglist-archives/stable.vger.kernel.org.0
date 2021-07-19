@@ -2,36 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81BBF3CDA53
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:17:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A4283CDA71
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:18:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241663AbhGSOff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46936 "EHLO mail.kernel.org"
+        id S245005AbhGSOf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:35:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245527AbhGSOen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:34:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6EBB61289;
-        Mon, 19 Jul 2021 15:14:06 +0000 (UTC)
+        id S245543AbhGSOeo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:34:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DCEF6128D;
+        Mon, 19 Jul 2021 15:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707647;
-        bh=zsX6P8+wsgbmqJgIM2hsJSHm4Qlrw2k1kf5DeSgcSvU=;
+        s=korg; t=1626707650;
+        bh=zOkvkDVVrsYdslozqi9IrXBmgGJDkAGaU2YsKa2eYnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncnFTARPOA4CU4iHGD0C+dVPE/qJv5zow2sDiSuJeWieEZdZRoD0IaBtIcAjlWGQA
-         4U3+1BjO04wy5cMO4L2ZnuVf8nAgp4Yc7XPStAqUg+8Ev58Jye3kzksPiXpPDZM8Dc
-         Bju07KtOT8/NWoJH5KgV+ssUyRJUWgOtL8ktXXvg=
+        b=lBO/BO47hp9CTBzaRCZqwnRqCu5XaUS5olj3LyBia4hKDY3Zt0onVEjA/b2e5SX6V
+         BsF5IF48hKh9bkeiBvpEgpOFiUN9/8LnsFZQNOP1AKLW9Id6ZrEo/xWut/cBjcaAZx
+         gxf7v20UZdk84H+v4cboQhoRG8lDycWC3EjcS0Bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Vladimir Zapolskiy <vz@mleia.com>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 214/245] watchdog: Fix possible use-after-free by calling del_timer_sync()
-Date:   Mon, 19 Jul 2021 16:52:36 +0200
-Message-Id: <20210719144947.310361020@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 215/245] x86/fpu: Return proper error codes from user access functions
+Date:   Mon, 19 Jul 2021 16:52:37 +0200
+Message-Id: <20210719144947.340502148@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
 References: <20210719144940.288257948@linuxfoundation.org>
@@ -43,56 +39,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit d0212f095ab56672f6f36aabc605bda205e1e0bf ]
+[ Upstream commit aee8c67a4faa40a8df4e79316dbfc92d123989c1 ]
 
-This driver's remove path calls del_timer(). However, that function
-does not wait until the timer handler finishes. This means that the
-timer handler may still be running after the driver's remove function
-has finished, which would result in a use-after-free.
+When *RSTOR from user memory raises an exception, there is no way to
+differentiate them. That's bad because it forces the slow path even when
+the failure was not a fault. If the operation raised eg. #GP then going
+through the slow path is pointless.
 
-Fix by calling del_timer_sync(), which makes sure the timer handler
-has finished, and unable to re-schedule itself.
+Use _ASM_EXTABLE_FAULT() which stores the trap number and let the exception
+fixup return the negated trap number as error.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Vladimir Zapolskiy <vz@mleia.com>
-Link: https://lore.kernel.org/r/1620802676-19701-1-git-send-email-zou_wei@huawei.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+This allows to separate the fast path and let it handle faults directly and
+avoid the slow path for all other exceptions.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lkml.kernel.org/r/20210623121457.601480369@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/lpc18xx_wdt.c | 2 +-
- drivers/watchdog/w83877f_wdt.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/watchdog/lpc18xx_wdt.c b/drivers/watchdog/lpc18xx_wdt.c
-index fd171e6caa16..1b63d1d85aa0 100644
---- a/drivers/watchdog/lpc18xx_wdt.c
-+++ b/drivers/watchdog/lpc18xx_wdt.c
-@@ -300,7 +300,7 @@ static int lpc18xx_wdt_remove(struct platform_device *pdev)
- 	struct lpc18xx_wdt_dev *lpc18xx_wdt = platform_get_drvdata(pdev);
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 21d6fa27b4a9..ebda4718eb8f 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -94,6 +94,7 @@ static inline void fpstate_init_fxstate(struct fxregs_state *fx)
+ }
+ extern void fpstate_sanitize_xstate(struct fpu *fpu);
  
- 	dev_warn(&pdev->dev, "I quit now, hardware will probably reboot!\n");
--	del_timer(&lpc18xx_wdt->timer);
-+	del_timer_sync(&lpc18xx_wdt->timer);
++/* Returns 0 or the negated trap number, which results in -EFAULT for #PF */
+ #define user_insn(insn, output, input...)				\
+ ({									\
+ 	int err;							\
+@@ -101,14 +102,14 @@ extern void fpstate_sanitize_xstate(struct fpu *fpu);
+ 	might_fault();							\
+ 									\
+ 	asm volatile(ASM_STAC "\n"					\
+-		     "1:" #insn "\n\t"					\
++		     "1: " #insn "\n"					\
+ 		     "2: " ASM_CLAC "\n"				\
+ 		     ".section .fixup,\"ax\"\n"				\
+-		     "3:  movl $-1,%[err]\n"				\
++		     "3:  negl %%eax\n"					\
+ 		     "    jmp  2b\n"					\
+ 		     ".previous\n"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err), output				\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err), output				\
+ 		     : "0"(0), input);					\
+ 	err;								\
+ })
+@@ -227,16 +228,20 @@ static inline void copy_fxregs_to_kernel(struct fpu *fpu)
+ #define XRSTOR		".byte " REX_PREFIX "0x0f,0xae,0x2f"
+ #define XRSTORS		".byte " REX_PREFIX "0x0f,0xc7,0x1f"
  
- 	watchdog_unregister_device(&lpc18xx_wdt->wdt_dev);
- 	clk_disable_unprepare(lpc18xx_wdt->wdt_clk);
-diff --git a/drivers/watchdog/w83877f_wdt.c b/drivers/watchdog/w83877f_wdt.c
-index f0483c75ed32..4b52cf321747 100644
---- a/drivers/watchdog/w83877f_wdt.c
-+++ b/drivers/watchdog/w83877f_wdt.c
-@@ -170,7 +170,7 @@ static void wdt_startup(void)
- static void wdt_turnoff(void)
- {
- 	/* Stop the timer */
--	del_timer(&timer);
-+	del_timer_sync(&timer);
- 
- 	wdt_change(WDT_DISABLE);
++/*
++ * After this @err contains 0 on success or the negated trap number when
++ * the operation raises an exception. For faults this results in -EFAULT.
++ */
+ #define XSTATE_OP(op, st, lmask, hmask, err)				\
+ 	asm volatile("1:" op "\n\t"					\
+ 		     "xor %[err], %[err]\n"				\
+ 		     "2:\n\t"						\
+ 		     ".pushsection .fixup,\"ax\"\n\t"			\
+-		     "3: movl $-2,%[err]\n\t"				\
++		     "3: negl %%eax\n\t"				\
+ 		     "jmp 2b\n\t"					\
+ 		     ".popsection\n\t"					\
+-		     _ASM_EXTABLE(1b, 3b)				\
+-		     : [err] "=r" (err)					\
++		     _ASM_EXTABLE_FAULT(1b, 3b)				\
++		     : [err] "=a" (err)					\
+ 		     : "D" (st), "m" (*st), "a" (lmask), "d" (hmask)	\
+ 		     : "memory")
  
 -- 
 2.30.2
