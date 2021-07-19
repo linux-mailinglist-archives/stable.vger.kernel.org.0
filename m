@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71AA13CE0A9
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C9643CE23F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346660AbhGSPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:17:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48928 "EHLO mail.kernel.org"
+        id S1346647AbhGSP3j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:29:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1346391AbhGSPOk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:14:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E86A36127C;
-        Mon, 19 Jul 2021 15:54:22 +0000 (UTC)
+        id S243361AbhGSP1T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:27:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6D4161287;
+        Mon, 19 Jul 2021 16:07:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710063;
-        bh=/Ywzl3YnQBCIkG6s/ugnov4Z859kjCR/5Z0M6eTuF58=;
+        s=korg; t=1626710879;
+        bh=uj+ORLF5pISP46S1mI5o10kGfkNTzBTePAF3/5vtGTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOpaXoextBWnjqSHaFdJTwNgoFphu+fEA28yLbWt78633R6ov4Q+rsfLOLYtEfDXC
-         oMXt8h/5d4/Oxep12oL17CJFUmlrQHMaBmIWHgKG2XOrlGr2c2blX/EREXIyXSlHNK
-         idANIXKJM+jFZGtwpigrp7X79d3/u+PhFpNYPew4=
+        b=ifH1a0rwILirfo7oVoBxw0W6QucWEbESF9KkFut+XCDYMfUzS8VZf97M2mlg1PIrz
+         xopCoXiayaxk2+22KH4xxSkA+QcgdWAtN3ErQpNQyVGgKuGHxvE8zsTrMkcwLK2kAU
+         1zbboyWUJ5P7hALNpJTuP8RviGBcQrZ3QpQSCtWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/243] scsi: qedi: Fix null ref during abort handling
+Subject: [PATCH 5.13 143/351] intel_th: Wait until port is in reset before programming it
 Date:   Mon, 19 Jul 2021 16:51:29 +0200
-Message-Id: <20210719144942.854998522@linuxfoundation.org>
+Message-Id: <20210719144949.213140027@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Christie <michael.christie@oracle.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 5777b7f0f03ce49372203b6521631f62f2810c8f ]
+[ Upstream commit ab1afed701d2db7eb35c1a2526a29067a38e93d1 ]
 
-If qedi_process_cmd_cleanup_resp finds the cmd it frees the work and sets
-list_tmf_work to NULL, so qedi_tmf_work should check if list_tmf_work is
-non-NULL when it wants to force cleanup.
+Some devices don't drain their pipelines if we don't make sure that
+the corresponding output port is in reset before programming it for
+a new trace capture, resulting in bits of old trace appearing in the
+new trace capture. Fix that by explicitly making sure the reset is
+asserted before programming new trace capture.
 
-Link: https://lore.kernel.org/r/20210525181821.7617-20-michael.christie@oracle.com
-Reviewed-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20210621151246.31891-5-alexander.shishkin@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwtracing/intel_th/core.c     | 17 +++++++++++++++++
+ drivers/hwtracing/intel_th/gth.c      | 16 ++++++++++++++++
+ drivers/hwtracing/intel_th/intel_th.h |  3 +++
+ 3 files changed, 36 insertions(+)
 
-diff --git a/drivers/scsi/qedi/qedi_fw.c b/drivers/scsi/qedi/qedi_fw.c
-index 440ddd2309f1..cf57b4e49700 100644
---- a/drivers/scsi/qedi/qedi_fw.c
-+++ b/drivers/scsi/qedi/qedi_fw.c
-@@ -1453,7 +1453,7 @@ abort_ret:
+diff --git a/drivers/hwtracing/intel_th/core.c b/drivers/hwtracing/intel_th/core.c
+index 24d0c974bfd5..1b44d86af9c2 100644
+--- a/drivers/hwtracing/intel_th/core.c
++++ b/drivers/hwtracing/intel_th/core.c
+@@ -215,6 +215,22 @@ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
  
- ldel_exit:
- 	spin_lock_bh(&qedi_conn->tmf_work_lock);
--	if (!qedi_cmd->list_tmf_work) {
-+	if (qedi_cmd->list_tmf_work) {
- 		list_del_init(&list_work->list);
- 		qedi_cmd->list_tmf_work = NULL;
- 		kfree(list_work);
+ static DEVICE_ATTR_RO(port);
+ 
++static void intel_th_trace_prepare(struct intel_th_device *thdev)
++{
++	struct intel_th_device *hub = to_intel_th_hub(thdev);
++	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
++
++	if (hub->type != INTEL_TH_SWITCH)
++		return;
++
++	if (thdev->type != INTEL_TH_OUTPUT)
++		return;
++
++	pm_runtime_get_sync(&thdev->dev);
++	hubdrv->prepare(hub, &thdev->output);
++	pm_runtime_put(&thdev->dev);
++}
++
+ static int intel_th_output_activate(struct intel_th_device *thdev)
+ {
+ 	struct intel_th_driver *thdrv =
+@@ -235,6 +251,7 @@ static int intel_th_output_activate(struct intel_th_device *thdev)
+ 	if (ret)
+ 		goto fail_put;
+ 
++	intel_th_trace_prepare(thdev);
+ 	if (thdrv->activate)
+ 		ret = thdrv->activate(thdev);
+ 	else
+diff --git a/drivers/hwtracing/intel_th/gth.c b/drivers/hwtracing/intel_th/gth.c
+index 28509b02a0b5..b3308934a687 100644
+--- a/drivers/hwtracing/intel_th/gth.c
++++ b/drivers/hwtracing/intel_th/gth.c
+@@ -564,6 +564,21 @@ static void gth_tscu_resync(struct gth_device *gth)
+ 	iowrite32(reg, gth->base + REG_TSCU_TSUCTRL);
+ }
+ 
++static void intel_th_gth_prepare(struct intel_th_device *thdev,
++				 struct intel_th_output *output)
++{
++	struct gth_device *gth = dev_get_drvdata(&thdev->dev);
++	int count;
++
++	/*
++	 * Wait until the output port is in reset before we start
++	 * programming it.
++	 */
++	for (count = GTH_PLE_WAITLOOP_DEPTH;
++	     count && !(gth_output_get(gth, output->port) & BIT(5)); count--)
++		cpu_relax();
++}
++
+ /**
+  * intel_th_gth_enable() - enable tracing to an output device
+  * @thdev:	GTH device
+@@ -815,6 +830,7 @@ static struct intel_th_driver intel_th_gth_driver = {
+ 	.assign		= intel_th_gth_assign,
+ 	.unassign	= intel_th_gth_unassign,
+ 	.set_output	= intel_th_gth_set_output,
++	.prepare	= intel_th_gth_prepare,
+ 	.enable		= intel_th_gth_enable,
+ 	.trig_switch	= intel_th_gth_switch,
+ 	.disable	= intel_th_gth_disable,
+diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
+index 89c67e0e1d34..0ffb42990175 100644
+--- a/drivers/hwtracing/intel_th/intel_th.h
++++ b/drivers/hwtracing/intel_th/intel_th.h
+@@ -143,6 +143,7 @@ intel_th_output_assigned(struct intel_th_device *thdev)
+  * @remove:	remove method
+  * @assign:	match a given output type device against available outputs
+  * @unassign:	deassociate an output type device from an output port
++ * @prepare:	prepare output port for tracing
+  * @enable:	enable tracing for a given output device
+  * @disable:	disable tracing for a given output device
+  * @irq:	interrupt callback
+@@ -164,6 +165,8 @@ struct intel_th_driver {
+ 					  struct intel_th_device *othdev);
+ 	void			(*unassign)(struct intel_th_device *thdev,
+ 					    struct intel_th_device *othdev);
++	void			(*prepare)(struct intel_th_device *thdev,
++					   struct intel_th_output *output);
+ 	void			(*enable)(struct intel_th_device *thdev,
+ 					  struct intel_th_output *output);
+ 	void			(*trig_switch)(struct intel_th_device *thdev,
 -- 
 2.30.2
 
