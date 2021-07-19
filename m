@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7BA23CE4D1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:35:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437AF3CE52D
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:40:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244888AbhGSPqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:46:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45840 "EHLO mail.kernel.org"
+        id S1347432AbhGSPsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:48:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348635AbhGSPoO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:44:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D0CBC6145C;
-        Mon, 19 Jul 2021 16:22:48 +0000 (UTC)
+        id S1348728AbhGSPoX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:44:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF1FE6143E;
+        Mon, 19 Jul 2021 16:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711769;
-        bh=JZXQHFg4/VJ/jucyBM7SkBKJjHxpQUEN45s+FDtcn6s=;
+        s=korg; t=1626711772;
+        bh=YrfJ8dKNlutmPddgbdWUgLKsXiT8/9F7vm9xuBCNROM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMs97Cr+iyZDv8npt/UTXPmkfPzV9Zd9kDUbIx4CSpeORmeCBXLBtjFmLJGZ8WkZR
-         1NVf5F00ilDmGwOs5m97T+6tugrel5xGgqQRyjo5VJTlytVfbEAGn34R9v0UdcNI5n
-         YpIMN+JpXSPyEHOC0dtYoAzYth37wc9j4lLlZLBY=
+        b=qXt6DmvucDfh2e/qMfudahAPAW2LnG3Dk5oFCc/e0cSZFIXyuznXfhvMkHFA7wef5
+         zSUOJL02HZPvrDNWd2HeH+snzwC46d56CJB23eNDSZVXNlVvK9S2pSRY0c+1O3NYas
+         6tsDdW7MblUaKhz0xUqirhF85M9Zu2A0h9kmC+HI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Fabio Aiuto <fabioaiuto83@gmail.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 126/292] staging: rtl8723bs: fix macro value for 2.4Ghz only device
-Date:   Mon, 19 Jul 2021 16:53:08 +0200
-Message-Id: <20210719144946.623717824@linuxfoundation.org>
+Subject: [PATCH 5.12 127/292] intel_th: Wait until port is in reset before programming it
+Date:   Mon, 19 Jul 2021 16:53:09 +0200
+Message-Id: <20210719144946.657947818@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -40,38 +41,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Aiuto <fabioaiuto83@gmail.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 6d490a27e23c5fb79b766530016ab8665169498e ]
+[ Upstream commit ab1afed701d2db7eb35c1a2526a29067a38e93d1 ]
 
-fix IQK_Matrix_Settings_NUM macro value to 14 which is
-the max channel number value allowed in a 2.4Ghz device.
+Some devices don't drain their pipelines if we don't make sure that
+the corresponding output port is in reset before programming it for
+a new trace capture, resulting in bits of old trace appearing in the
+new trace capture. Fix that by explicitly making sure the reset is
+asserted before programming new trace capture.
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Fabio Aiuto <fabioaiuto83@gmail.com>
-Link: https://lore.kernel.org/r/0b4a876929949248aa18cb919da3583c65e4ee4e.1624367072.git.fabioaiuto83@gmail.com
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Link: https://lore.kernel.org/r/20210621151246.31891-5-alexander.shishkin@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8723bs/hal/odm.h | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/hwtracing/intel_th/core.c     | 17 +++++++++++++++++
+ drivers/hwtracing/intel_th/gth.c      | 16 ++++++++++++++++
+ drivers/hwtracing/intel_th/intel_th.h |  3 +++
+ 3 files changed, 36 insertions(+)
 
-diff --git a/drivers/staging/rtl8723bs/hal/odm.h b/drivers/staging/rtl8723bs/hal/odm.h
-index 16e8f66a3171..a8d232245227 100644
---- a/drivers/staging/rtl8723bs/hal/odm.h
-+++ b/drivers/staging/rtl8723bs/hal/odm.h
-@@ -197,10 +197,7 @@ typedef struct _ODM_RATE_ADAPTIVE {
+diff --git a/drivers/hwtracing/intel_th/core.c b/drivers/hwtracing/intel_th/core.c
+index c9ac3dc65113..9cb8c7d13d46 100644
+--- a/drivers/hwtracing/intel_th/core.c
++++ b/drivers/hwtracing/intel_th/core.c
+@@ -215,6 +215,22 @@ static ssize_t port_show(struct device *dev, struct device_attribute *attr,
  
- #define AVG_THERMAL_NUM		8
- #define IQK_Matrix_REG_NUM	8
--#define IQK_Matrix_Settings_NUM	(14 + 24 + 21) /*   Channels_2_4G_NUM
--						* + Channels_5G_20M_NUM
--						* + Channels_5G
--						*/
-+#define IQK_Matrix_Settings_NUM	14 /* Channels_2_4G_NUM */
+ static DEVICE_ATTR_RO(port);
  
- #define		DM_Type_ByFW			0
- #define		DM_Type_ByDriver		1
++static void intel_th_trace_prepare(struct intel_th_device *thdev)
++{
++	struct intel_th_device *hub = to_intel_th_hub(thdev);
++	struct intel_th_driver *hubdrv = to_intel_th_driver(hub->dev.driver);
++
++	if (hub->type != INTEL_TH_SWITCH)
++		return;
++
++	if (thdev->type != INTEL_TH_OUTPUT)
++		return;
++
++	pm_runtime_get_sync(&thdev->dev);
++	hubdrv->prepare(hub, &thdev->output);
++	pm_runtime_put(&thdev->dev);
++}
++
+ static int intel_th_output_activate(struct intel_th_device *thdev)
+ {
+ 	struct intel_th_driver *thdrv =
+@@ -235,6 +251,7 @@ static int intel_th_output_activate(struct intel_th_device *thdev)
+ 	if (ret)
+ 		goto fail_put;
+ 
++	intel_th_trace_prepare(thdev);
+ 	if (thdrv->activate)
+ 		ret = thdrv->activate(thdev);
+ 	else
+diff --git a/drivers/hwtracing/intel_th/gth.c b/drivers/hwtracing/intel_th/gth.c
+index 28509b02a0b5..b3308934a687 100644
+--- a/drivers/hwtracing/intel_th/gth.c
++++ b/drivers/hwtracing/intel_th/gth.c
+@@ -564,6 +564,21 @@ static void gth_tscu_resync(struct gth_device *gth)
+ 	iowrite32(reg, gth->base + REG_TSCU_TSUCTRL);
+ }
+ 
++static void intel_th_gth_prepare(struct intel_th_device *thdev,
++				 struct intel_th_output *output)
++{
++	struct gth_device *gth = dev_get_drvdata(&thdev->dev);
++	int count;
++
++	/*
++	 * Wait until the output port is in reset before we start
++	 * programming it.
++	 */
++	for (count = GTH_PLE_WAITLOOP_DEPTH;
++	     count && !(gth_output_get(gth, output->port) & BIT(5)); count--)
++		cpu_relax();
++}
++
+ /**
+  * intel_th_gth_enable() - enable tracing to an output device
+  * @thdev:	GTH device
+@@ -815,6 +830,7 @@ static struct intel_th_driver intel_th_gth_driver = {
+ 	.assign		= intel_th_gth_assign,
+ 	.unassign	= intel_th_gth_unassign,
+ 	.set_output	= intel_th_gth_set_output,
++	.prepare	= intel_th_gth_prepare,
+ 	.enable		= intel_th_gth_enable,
+ 	.trig_switch	= intel_th_gth_switch,
+ 	.disable	= intel_th_gth_disable,
+diff --git a/drivers/hwtracing/intel_th/intel_th.h b/drivers/hwtracing/intel_th/intel_th.h
+index 5fe694708b7a..595615b79108 100644
+--- a/drivers/hwtracing/intel_th/intel_th.h
++++ b/drivers/hwtracing/intel_th/intel_th.h
+@@ -143,6 +143,7 @@ intel_th_output_assigned(struct intel_th_device *thdev)
+  * @remove:	remove method
+  * @assign:	match a given output type device against available outputs
+  * @unassign:	deassociate an output type device from an output port
++ * @prepare:	prepare output port for tracing
+  * @enable:	enable tracing for a given output device
+  * @disable:	disable tracing for a given output device
+  * @irq:	interrupt callback
+@@ -164,6 +165,8 @@ struct intel_th_driver {
+ 					  struct intel_th_device *othdev);
+ 	void			(*unassign)(struct intel_th_device *thdev,
+ 					    struct intel_th_device *othdev);
++	void			(*prepare)(struct intel_th_device *thdev,
++					   struct intel_th_output *output);
+ 	void			(*enable)(struct intel_th_device *thdev,
+ 					  struct intel_th_output *output);
+ 	void			(*trig_switch)(struct intel_th_device *thdev,
 -- 
 2.30.2
 
