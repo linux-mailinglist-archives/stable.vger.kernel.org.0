@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FEB83CD8DC
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:06:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153CA3CDBE7
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243539AbhGSOZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:25:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56772 "EHLO mail.kernel.org"
+        id S237204AbhGSOu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243674AbhGSOYU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE42D61221;
-        Mon, 19 Jul 2021 15:03:56 +0000 (UTC)
+        id S1344035AbhGSOsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 247DD613D2;
+        Mon, 19 Jul 2021 15:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707037;
-        bh=TNFVtHoJc3PqwJwXyaoHT9IFm9G1RO35rNOmgMwLZag=;
+        s=korg; t=1626708372;
+        bh=WRHelRLjnMA4hAxyeEiTdQ/LDMsClhlPHHEvqM4oXR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BdESDIcChGQhFVdFBbSnFIkeNF9KMEjmVlOUXKQR4mSlB9WnikV5Nx33XWRglCKPh
-         qpJxoI6eqqkLtZ6N4UnFMnnMqkWzcIY5OqbFzW3XpHN1PvcFO4pYf8WvwE4SbjK0X1
-         NGAAElZhXl1ElpinUqeSkOewv+xtuIXUN8UQQLFY=
+        b=hLvXabEQeN7YxoDUBjJK0u86OCgpKNOhzaIf4rPTGWsRvnmnnTFKHRjL2g/OvYD1y
+         T9suuTUroy9Tqq4hNGrXQgLfFRuKgQY2fJli9wEyFoJzf30+b3PxufwmlIh8mR+omb
+         D5TLMpubD2pdxzLp2v/ikmW3yecYH6nMBALAmEfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Martin=20F=C3=A4cknitz?= <faecknitz@hotsplots.de>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+        Jason Wang <jasowang@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 188/188] MIPS: vdso: Invalid GIC access through VDSO
-Date:   Mon, 19 Jul 2021 16:52:52 +0200
-Message-Id: <20210719144942.638725545@linuxfoundation.org>
+Subject: [PATCH 4.14 284/315] virtio-blk: Fix memory leak among suspend/resume procedure
+Date:   Mon, 19 Jul 2021 16:52:53 +0200
+Message-Id: <20210719144952.774611166@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
-References: <20210719144913.076563739@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fäcknitz <faecknitz@hotsplots.de>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 47ce8527fbba145a7723685bc9a27d9855e06491 ]
+[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
 
-Accessing raw timers (currently only CLOCK_MONOTONIC_RAW) through VDSO
-doesn't return the correct time when using the GIC as clock source.
-The address of the GIC mapped page is in this case not calculated
-correctly. The GIC mapped page is calculated from the VDSO data by
-subtracting PAGE_SIZE:
+The vblk->vqs should be freed before we call init_vqs()
+in virtblk_restore().
 
-  void *get_gic(const struct vdso_data *data) {
-    return (void __iomem *)data - PAGE_SIZE;
-  }
-
-However, the data pointer is not page aligned for raw clock sources.
-This is because the VDSO data for raw clock sources (CS_RAW = 1) is
-stored after the VDSO data for coarse clock sources (CS_HRES_COARSE = 0).
-Therefore, only the VDSO data for CS_HRES_COARSE is page aligned:
-
-  +--------------------+
-  |                    |
-  | vd[CS_RAW]         | ---+
-  | vd[CS_HRES_COARSE] |    |
-  +--------------------+    | -PAGE_SIZE
-  |                    |    |
-  |  GIC mapped page   | <--+
-  |                    |
-  +--------------------+
-
-When __arch_get_hw_counter() is called with &vd[CS_RAW], get_gic returns
-the wrong address (somewhere inside the GIC mapped page). The GIC counter
-values are not returned which results in an invalid time.
-
-Fixes: a7f4df4e21dd ("MIPS: VDSO: Add implementations of gettimeofday() and clock_gettime()")
-Signed-off-by: Martin Fäcknitz <faecknitz@hotsplots.de>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/vdso/vdso.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/vdso/vdso.h b/arch/mips/vdso/vdso.h
-index cfb1be441dec..921589b45bc2 100644
---- a/arch/mips/vdso/vdso.h
-+++ b/arch/mips/vdso/vdso.h
-@@ -81,7 +81,7 @@ static inline const union mips_vdso_data *get_vdso_data(void)
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index 2f15e38fb3f8..437d43747c6d 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -931,6 +931,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
+ 	blk_mq_quiesce_queue(vblk->disk->queue);
  
- static inline void __iomem *get_gic(const union mips_vdso_data *data)
- {
--	return (void __iomem *)data - PAGE_SIZE;
-+	return (void __iomem *)((unsigned long)data & PAGE_MASK) - PAGE_SIZE;
+ 	vdev->config->del_vqs(vdev);
++	kfree(vblk->vqs);
++
+ 	return 0;
  }
  
- #endif /* CONFIG_CLKSRC_MIPS_GIC */
 -- 
 2.30.2
 
