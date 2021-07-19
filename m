@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CB383CDBCA
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C43B73CDBD2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238742AbhGSOuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:50:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S238759AbhGSOuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344338AbhGSOsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1344351AbhGSOsq (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:48:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90EC76140C;
-        Mon, 19 Jul 2021 15:28:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E62D61411;
+        Mon, 19 Jul 2021 15:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708491;
-        bh=RXuGvN4EG/5/HGSDGhKuFi742Ltwhgn7me/a9zNM5/A=;
+        s=korg; t=1626708493;
+        bh=Fb6rK56T3ft3BzmG1MSgtFVr1wywqiQLynqGw7g5JGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QF5sWStn2oA7g/Zv0Fp1iJNb5zWs0DJ49bm5vhpm6tVynt58Sn5aj4/DDm+nno6Ag
-         NwEkKT7uoyfeweRT3Ra/C29nhW+yYndz72EzyFy2+6aRs+Z7XDgUHaeeDMX3nJuQ5u
-         XKWDbbsqQRvCzqwtL/VTVsrc+GVk9CqRid9/cyLw=
+        b=BZdQFdgYI7BuOSt6Zqji8KvVXJLJ/BnZaujRPb890iPZZvdLT2m59s37g35XhpYEL
+         AzZrXR6aA/CW/taIQHf21DJZ/LbMpkVMhMMYEDLh5k5Ik5qvToOJCXSkL/8+1wuPn1
+         JKqBQ1kEOdx1IkVjSodkJThz9pEh9mPmoGANunaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Murray McAllister <murray.mcallister@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexander Larkin <avlarkin82@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 014/421] Input: joydev - prevent use of not validated data in JSIOCSBTNMAP ioctl
-Date:   Mon, 19 Jul 2021 16:47:05 +0200
-Message-Id: <20210719144946.779558854@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Jihong <yangjihong1@huawei.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 015/421] arm_pmu: Fix write counter incorrect in ARMv7 big-endian mode
+Date:   Mon, 19 Jul 2021 16:47:06 +0200
+Message-Id: <20210719144946.810274738@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -42,54 +40,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Larkin <avlarkin82@gmail.com>
+From: Yang Jihong <yangjihong1@huawei.com>
 
-commit f8f84af5da9ee04ef1d271528656dac42a090d00 upstream.
+commit fdbef8c4e68ad423416aa6cc93d1616d6f8ac5b3 upstream.
 
-Even though we validate user-provided inputs we then traverse past
-validated data when applying the new map. The issue was originally
-discovered by Murray McAllister with this simple POC (if the following
-is executed by an unprivileged user it will instantly panic the system):
+Commit 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
+changes the input "value" type from 32-bit to 64-bit, which introduces the
+following problem: ARMv7 PMU counters is 32-bit width, in big-endian mode,
+write counter uses high 32-bit, which writes an incorrect value.
 
-int main(void) {
-	int fd, ret;
-	unsigned int buffer[10000];
+Before:
 
-	fd = open("/dev/input/js0", O_RDONLY);
-	if (fd == -1)
-		printf("Error opening file\n");
+ Performance counter stats for 'ls':
 
-	ret = ioctl(fd, JSIOCSBTNMAP & ~IOCSIZE_MASK, &buffer);
-	printf("%d\n", ret);
-}
+              2.22 msec task-clock                #    0.675 CPUs utilized
+                 0      context-switches          #    0.000 K/sec
+                 0      cpu-migrations            #    0.000 K/sec
+                49      page-faults               #    0.022 M/sec
+        2150476593      cycles                    #  966.663 GHz
+        2148588788      instructions              #    1.00  insn per cycle
+        2147745484      branches                  # 965435.074 M/sec
+        2147508540      branch-misses             #   99.99% of all branches
 
-The solution is to traverse internal buffer which is guaranteed to only
-contain valid date when constructing the map.
+None of the above hw event counters are correct.
 
-Fixes: 182d679b2298 ("Input: joydev - prevent potential read overflow in ioctl")
-Fixes: 999b874f4aa3 ("Input: joydev - validate axis/button maps before clobbering current ones")
-Reported-by: Murray McAllister <murray.mcallister@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Alexander Larkin <avlarkin82@gmail.com>
-Link: https://lore.kernel.org/r/20210620120030.1513655-1-avlarkin82@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Solution:
+
+"value" forcibly converted to 32-bit type before being written to PMU register.
+
+After:
+
+ Performance counter stats for 'ls':
+
+              2.09 msec task-clock                #    0.681 CPUs utilized
+                 0      context-switches          #    0.000 K/sec
+                 0      cpu-migrations            #    0.000 K/sec
+                46      page-faults               #    0.022 M/sec
+           2807301      cycles                    #    1.344 GHz
+           1060159      instructions              #    0.38  insn per cycle
+            250496      branches                  #  119.914 M/sec
+             23192      branch-misses             #    9.26% of all branches
+
+Fixes: 3a95200d3f89 ("arm_pmu: Change API to support 64bit counter values")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yang Jihong <yangjihong1@huawei.com>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20210430012659.232110-1-yangjihong1@huawei.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/input/joydev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -504,7 +504,7 @@ static int joydev_handle_JSIOCSBTNMAP(st
- 	memcpy(joydev->keypam, keypam, len);
+diff --git a/arch/arm/kernel/perf_event_v7.c b/arch/arm/kernel/perf_event_v7.c
+index 2924d7910b10..eb2190477da1 100644
+--- a/arch/arm/kernel/perf_event_v7.c
++++ b/arch/arm/kernel/perf_event_v7.c
+@@ -773,10 +773,10 @@ static inline void armv7pmu_write_counter(struct perf_event *event, u64 value)
+ 		pr_err("CPU%u writing wrong counter %d\n",
+ 			smp_processor_id(), idx);
+ 	} else if (idx == ARMV7_IDX_CYCLE_COUNTER) {
+-		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" (value));
++		asm volatile("mcr p15, 0, %0, c9, c13, 0" : : "r" ((u32)value));
+ 	} else {
+ 		armv7_pmnc_select_counter(idx);
+-		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" (value));
++		asm volatile("mcr p15, 0, %0, c9, c13, 2" : : "r" ((u32)value));
+ 	}
+ }
  
- 	for (i = 0; i < joydev->nkey; i++)
--		joydev->keymap[keypam[i] - BTN_MISC] = i;
-+		joydev->keymap[joydev->keypam[i] - BTN_MISC] = i;
- 
-  out:
- 	kfree(keypam);
 
 
