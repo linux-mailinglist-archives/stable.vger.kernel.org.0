@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 613BF3CDE75
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F28093CDC95
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:34:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245449AbhGSPDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:03:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60298 "EHLO mail.kernel.org"
+        id S244723AbhGSOxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:53:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344882AbhGSPBM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:01:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7BF610A5;
-        Mon, 19 Jul 2021 15:41:50 +0000 (UTC)
+        id S237897AbhGSOo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:44:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5761B6024A;
+        Mon, 19 Jul 2021 15:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709310;
-        bh=Yk4C3BLLAdIEdYekruoz0XI+8YhRHT61p0DV1dBQjYY=;
+        s=korg; t=1626708180;
+        bh=5e8KczDTaAgS3l6dTQWA6tnWWADjJe1wyCKZv2zxxNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NH4Tr0ztz6q19i1Zkj/YCMxSHb/IFiiRtrotkgye6lexEROWu5J0HZAWLCxMVywSR
-         Ll+rlM+MjHxxb9PHjY8id4gBSzmr+oLh2Zk2CXNZ2GENYp4UzFwY1AyUxNr9984SKy
-         EcQ24w2TRgMhqJVAA2mj6sCq7rjfvMNhEahhCafo=
+        b=2lYrWRL86Q67NsfKm1jfcO150TtIPetKCDuV7O3+Bj+PIBcxfOPscDuwuSG2sQWXi
+         WRs1krJ9QNr6mbNKePOn7SeUOxuPlREoP0x19jq6ybRDmas8Owq9yvE6xQCZ8fA2p/
+         2DoJqrVAf53oiVwPz4x28nan4yXXU4vdels/KWbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pekka Paalanen <pekka.paalanen@collabora.com>,
-        Lyude Paul <lyude@redhat.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Jordan Crouse <jordan@cosmicpenguin.net>,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 4.19 289/421] drm/msm/mdp4: Fix modifier support enabling
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 211/315] mmc: core: clear flags before allowing to retune
 Date:   Mon, 19 Jul 2021 16:51:40 +0200
-Message-Id: <20210719144956.351860614@linuxfoundation.org>
+Message-Id: <20210719144950.365238372@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-commit 35cbb8c91e9cf310277d3dfb4d046df8edf2df33 upstream.
+commit 77347eda64ed5c9383961d1de9165f9d0b7d8df6 upstream.
 
-Setting the cap without the modifier list is very confusing to
-userspace. Fix that by listing the ones we support explicitly.
+It might be that something goes wrong during tuning so the MMC core will
+immediately trigger a retune. In our case it was:
 
-Stable backport so that userspace can rely on this working in a
-reasonable way, i.e. that the cap set implies IN_FORMATS is available.
+ - we sent a tuning block
+ - there was an error so we need to send an abort cmd to the eMMC
+ - the abort cmd had a CRC error
+ - retune was set by the MMC core
 
-Acked-by: Pekka Paalanen <pekka.paalanen@collabora.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
+This lead to a vicious circle causing a performance regression of 75%.
+So, clear retuning flags before we enable retuning to start with a known
+cleared state.
+
+Reported-by Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Suggested-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Tested-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Fixes: bd11e8bd03ca ("mmc: core: Flag re-tuning is needed on CRC errors")
 Cc: stable@vger.kernel.org
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: Jordan Crouse <jordan@cosmicpenguin.net>
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210427092018.832258-5-daniel.vetter@ffwll.ch
+Link: https://lore.kernel.org/r/20210624151616.38770-2-wsa+renesas@sang-engineering.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c   |    2 --
- drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c |    8 +++++++-
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/mmc/core/core.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_kms.c
-@@ -96,8 +96,6 @@ static int mdp4_hw_init(struct msm_kms *
- 	if (mdp4_kms->rev > 1)
- 		mdp4_write(mdp4_kms, REG_MDP4_RESET_STATUS, 1);
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -992,11 +992,14 @@ int mmc_execute_tuning(struct mmc_card *
  
--	dev->mode_config.allow_fb_modifiers = true;
--
- out:
- 	pm_runtime_put_sync(dev->dev);
+ 	err = host->ops->execute_tuning(host, opcode);
  
---- a/drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c
-+++ b/drivers/gpu/drm/msm/disp/mdp4/mdp4_plane.c
-@@ -356,6 +356,12 @@ enum mdp4_pipe mdp4_plane_pipe(struct dr
- 	return mdp4_plane->pipe;
+-	if (err)
++	if (err) {
+ 		pr_err("%s: tuning execution failed: %d\n",
+ 			mmc_hostname(host), err);
+-	else
++	} else {
++		host->retune_now = 0;
++		host->need_retune = 0;
+ 		mmc_retune_enable(host);
++	}
+ 
+ 	return err;
  }
- 
-+static const uint64_t supported_format_modifiers[] = {
-+	DRM_FORMAT_MOD_SAMSUNG_64_32_TILE,
-+	DRM_FORMAT_MOD_LINEAR,
-+	DRM_FORMAT_MOD_INVALID
-+};
-+
- /* initialize plane */
- struct drm_plane *mdp4_plane_init(struct drm_device *dev,
- 		enum mdp4_pipe pipe_id, bool private_plane)
-@@ -384,7 +390,7 @@ struct drm_plane *mdp4_plane_init(struct
- 	type = private_plane ? DRM_PLANE_TYPE_PRIMARY : DRM_PLANE_TYPE_OVERLAY;
- 	ret = drm_universal_plane_init(dev, plane, 0xff, &mdp4_plane_funcs,
- 				 mdp4_plane->formats, mdp4_plane->nformats,
--				 NULL, type, NULL);
-+				 supported_format_modifiers, type, NULL);
- 	if (ret)
- 		goto fail;
- 
 
 
