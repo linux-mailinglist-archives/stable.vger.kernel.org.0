@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0253CDE4D
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:48:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9FA73CDBED
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345396AbhGSPCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58232 "EHLO mail.kernel.org"
+        id S239101AbhGSOuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:50:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344543AbhGSO7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D6A2160241;
-        Mon, 19 Jul 2021 15:40:27 +0000 (UTC)
+        id S1343906AbhGSOsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ECF6613C1;
+        Mon, 19 Jul 2021 15:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709228;
-        bh=N+LHaN51vzbIfD0cSh7WV3bQGaxS5dgOMOT/aHV2rnw=;
+        s=korg; t=1626708298;
+        bh=UneAK/DRjDNfyR8fmzdC+wouinMrBxCTvyD8NB2tdLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aPByiCYQbD+FLaKYOw2kPoRrROnOE0DOKBCwV56ySLG38vlS0D3C9pOv0LAnvEO8
-         1foHZ9W3Gj7dOjop/i2PJ8uvfndrlNPnQ06c7YtcUTIVq6I3MgZm0xGAOpfXixiPqD
-         8L2PDDGOsh4vKrVzG6gGqsCpgh3vC37OxeD+7HwM=
+        b=ug4IaOLJTHu4IBWEFcuPiIvIkNnH2MxI1p5jUhdP2sSfPXemJVqHEw90CBKxJn55U
+         2aRyz4gWCjCOFdq+uF/zEN5eZNdFdZHWHPnSv0vkZhzPjzosp47ZNSqsoqC9jTteWM
+         DLFRCZRy/mP5H75tF+ZXGKV9kPbUX3pXNXJsOB7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Paul Burton <paulburton@google.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 301/421] tracing: Simplify & fix saved_tgids logic
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.14 223/315] media: dtv5100: fix control-request directions
 Date:   Mon, 19 Jul 2021 16:51:52 +0200
-Message-Id: <20210719144956.751010106@linuxfoundation.org>
+Message-Id: <20210719144950.760279779@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,111 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paulburton@google.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit b81b3e959adb107cd5b36c7dc5ba1364bbd31eb2 upstream.
+commit 8c8b9a9be2afa8bd6a72ad1130532baab9fab89d upstream.
 
-The tgid_map array records a mapping from pid to tgid, where the index
-of an entry within the array is the pid & the value stored at that index
-is the tgid.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-The saved_tgids_next() function iterates over pointers into the tgid_map
-array & dereferences the pointers which results in the tgid, but then it
-passes that dereferenced value to trace_find_tgid() which treats it as a
-pid & does a further lookup within the tgid_map array. It seems likely
-that the intent here was to skip over entries in tgid_map for which the
-recorded tgid is zero, but instead we end up skipping over entries for
-which the thread group leader hasn't yet had its own tgid recorded in
-tgid_map.
+Fix the control requests which erroneously used usb_rcvctrlpipe().
 
-A minimal fix would be to remove the call to trace_find_tgid, turning:
-
-  if (trace_find_tgid(*ptr))
-
-into:
-
-  if (*ptr)
-
-..but it seems like this logic can be much simpler if we simply let
-seq_read() iterate over the whole tgid_map array & filter out empty
-entries by returning SEQ_SKIP from saved_tgids_show(). Here we take that
-approach, removing the incorrect logic here entirely.
-
-Link: https://lkml.kernel.org/r/20210630003406.4013668-1-paulburton@google.com
-
-Fixes: d914ba37d714 ("tracing: Add support for recording tgid of tasks")
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joel Fernandes <joelaf@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Burton <paulburton@google.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: 8466028be792 ("V4L/DVB (8734): Initial support for AME DTV-5100 USB2.0 DVB-T")
+Cc: stable@vger.kernel.org      # 2.6.28
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |   38 +++++++++++++-------------------------
- 1 file changed, 13 insertions(+), 25 deletions(-)
+ drivers/media/usb/dvb-usb/dtv5100.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -4752,37 +4752,20 @@ static const struct file_operations trac
- 
- static void *saved_tgids_next(struct seq_file *m, void *v, loff_t *pos)
+--- a/drivers/media/usb/dvb-usb/dtv5100.c
++++ b/drivers/media/usb/dvb-usb/dtv5100.c
+@@ -35,6 +35,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 			   u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
  {
--	int *ptr = v;
-+	int pid = ++(*pos);
+ 	struct dtv5100_state *st = d->priv;
++	unsigned int pipe;
+ 	u8 request;
+ 	u8 type;
+ 	u16 value;
+@@ -43,6 +44,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 	switch (wlen) {
+ 	case 1:
+ 		/* write { reg }, read { value } */
++		pipe = usb_rcvctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_READ :
+ 							DTV5100_TUNER_READ);
+ 		type = USB_TYPE_VENDOR | USB_DIR_IN;
+@@ -50,6 +52,7 @@ static int dtv5100_i2c_msg(struct dvb_us
+ 		break;
+ 	case 2:
+ 		/* write { reg, value } */
++		pipe = usb_sndctrlpipe(d->udev, 0);
+ 		request = (addr == DTV5100_DEMOD_ADDR ? DTV5100_DEMOD_WRITE :
+ 							DTV5100_TUNER_WRITE);
+ 		type = USB_TYPE_VENDOR | USB_DIR_OUT;
+@@ -63,7 +66,7 @@ static int dtv5100_i2c_msg(struct dvb_us
  
--	if (*pos || m->count)
--		ptr++;
--
--	(*pos)++;
--
--	for (; ptr <= &tgid_map[PID_MAX_DEFAULT]; ptr++) {
--		if (trace_find_tgid(*ptr))
--			return ptr;
--	}
-+	if (pid > PID_MAX_DEFAULT)
-+		return NULL;
- 
--	return NULL;
-+	return &tgid_map[pid];
+ 	memcpy(st->data, rbuf, rlen);
+ 	msleep(1); /* avoid I2C errors */
+-	return usb_control_msg(d->udev, usb_rcvctrlpipe(d->udev, 0), request,
++	return usb_control_msg(d->udev, pipe, request,
+ 			       type, value, index, st->data, rlen,
+ 			       DTV5100_USB_TIMEOUT);
  }
+@@ -150,7 +153,7 @@ static int dtv5100_probe(struct usb_inte
  
- static void *saved_tgids_start(struct seq_file *m, loff_t *pos)
- {
--	void *v;
--	loff_t l = 0;
--
--	if (!tgid_map)
-+	if (!tgid_map || *pos > PID_MAX_DEFAULT)
- 		return NULL;
- 
--	v = &tgid_map[0];
--	while (l <= *pos) {
--		v = saved_tgids_next(m, v, &l);
--		if (!v)
--			return NULL;
--	}
--
--	return v;
-+	return &tgid_map[*pos];
- }
- 
- static void saved_tgids_stop(struct seq_file *m, void *v)
-@@ -4791,9 +4774,14 @@ static void saved_tgids_stop(struct seq_
- 
- static int saved_tgids_show(struct seq_file *m, void *v)
- {
--	int pid = (int *)v - tgid_map;
-+	int *entry = (int *)v;
-+	int pid = entry - tgid_map;
-+	int tgid = *entry;
-+
-+	if (tgid == 0)
-+		return SEQ_SKIP;
- 
--	seq_printf(m, "%d %d\n", pid, trace_find_tgid(pid));
-+	seq_printf(m, "%d %d\n", pid, tgid);
- 	return 0;
- }
- 
+ 	/* initialize non qt1010/zl10353 part? */
+ 	for (i = 0; dtv5100_init[i].request; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      dtv5100_init[i].request,
+ 				      USB_TYPE_VENDOR | USB_DIR_OUT,
+ 				      dtv5100_init[i].value,
 
 
