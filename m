@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7003CE3B6
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:29:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66183CE41F
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:31:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241753AbhGSPkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:40:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59626 "EHLO mail.kernel.org"
+        id S1347774AbhGSPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:42:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1349079AbhGSPfn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:35:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9832E600EF;
-        Mon, 19 Jul 2021 16:16:09 +0000 (UTC)
+        id S1349573AbhGSPgA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:36:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AC06606A5;
+        Mon, 19 Jul 2021 16:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626711370;
-        bh=IBFI/NsLvnTDeENW4eAkcR1g8Z5XrQLd0HQjdND6skg=;
+        s=korg; t=1626711399;
+        bh=XxzsSAGT5XBhcastd2f42P6HDuqOoGveJIdex9VjQdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vlgzuDPbum3QBiJeMNEp3Bel4k2VQCV5p6BZjVyCJSJUr+yDArFzVh2iXmCBjd9m1
-         gYQg6KwJABpZtXDz7073kaiCG3h28afswntCm2441a5ukOfmm1jKwW0VkLoZGA9YiO
-         YXFLvs2qapEZx4F6oqZx8xeKtQ02eJFe1QuBvLC0=
+        b=xYOVyluaFEuVyGTPBGRAERSRm18qUqwHgorkmadxeWjSAiMCHlAVy3h/R004/VKkZ
+         n7owoAS2fspwIDcmXpjEryZMIEQUSNA534uMIED993LDRVWedxD5BOMoa/Hx63PZta
+         Gg+okp7wmzQgYpX9500tr7MnNGh/2B05zV04k4jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Pavel Hofman <pavel.hofman@ivitera.com>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        stable@vger.kernel.org,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 311/351] Revert "ARM: dts: bcm283x: increase dwc2s RX FIFO size"
-Date:   Mon, 19 Jul 2021 16:54:17 +0200
-Message-Id: <20210719144955.344076935@linuxfoundation.org>
+Subject: [PATCH 5.13 312/351] firmware: arm_scmi: Add delayed response status check
+Date:   Mon, 19 Jul 2021 16:54:18 +0200
+Message-Id: <20210719144955.377101780@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -41,53 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit 77daceabedb42482bb6200fa26047c5591716e45 ]
+[ Upstream commit f1748b1ee1fa0fd1a074504045b530b62f949188 ]
 
-This reverts commit 278407a53c3b33fb820332c4d39eb39316c3879a.
+A successfully received delayed response could anyway report a failure at
+the protocol layer in the message status field.
 
-The original change breaks USB config on Raspberry Pi Zero and Pi 4 B,
-because it exceeds the total fifo size of 4080. A naive attempt to reduce
-g-tx-fifo-size doesn't help on Raspberry Pi Zero. So better go back.
+Add a check also for this error condition.
 
-Fixes: 278407a53c3b ("ARM: dts: bcm283x: increase dwc2's RX FIFO size")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Cc: Pavel Hofman <pavel.hofman@ivitera.com>
-Link: https://lore.kernel.org/r/1622293371-5997-1-git-send-email-stefan.wahren@i2se.com
-Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Link: https://lore.kernel.org/r/20210608103056.3388-1-cristian.marussi@arm.com
+Fixes: 58ecdf03dbb9 ("firmware: arm_scmi: Add support for asynchronous commands and delayed response")
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi        | 2 +-
- arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi b/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
-index 20322de2f8bf..e2fd9610e125 100644
---- a/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
-+++ b/arch/arm/boot/dts/bcm283x-rpi-usb-otg.dtsi
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- &usb {
- 	dr_mode = "otg";
--	g-rx-fifo-size = <558>;
-+	g-rx-fifo-size = <256>;
- 	g-np-tx-fifo-size = <32>;
- 	/*
- 	 * According to dwc2 the sum of all device EP
-diff --git a/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi b/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
-index 1409d1b559c1..0ff0e9e25327 100644
---- a/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
-+++ b/arch/arm/boot/dts/bcm283x-rpi-usb-peripheral.dtsi
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- &usb {
- 	dr_mode = "peripheral";
--	g-rx-fifo-size = <558>;
-+	g-rx-fifo-size = <256>;
- 	g-np-tx-fifo-size = <32>;
- 	g-tx-fifo-size = <256 256 512 512 512 768 768>;
- };
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index 5e8e9337adc7..c2983ed53494 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -517,8 +517,12 @@ static int do_xfer_with_response(const struct scmi_protocol_handle *ph,
+ 	xfer->async_done = &async_response;
+ 
+ 	ret = do_xfer(ph, xfer);
+-	if (!ret && !wait_for_completion_timeout(xfer->async_done, timeout))
+-		ret = -ETIMEDOUT;
++	if (!ret) {
++		if (!wait_for_completion_timeout(xfer->async_done, timeout))
++			ret = -ETIMEDOUT;
++		else if (xfer->hdr.status)
++			ret = scmi_to_linux_errno(xfer->hdr.status);
++	}
+ 
+ 	xfer->async_done = NULL;
+ 	return ret;
 -- 
 2.30.2
 
