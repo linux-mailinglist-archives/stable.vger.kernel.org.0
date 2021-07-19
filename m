@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 168163CD8F1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6CB3CDB45
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:23:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243864AbhGSO0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:26:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56368 "EHLO mail.kernel.org"
+        id S245373AbhGSOmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:42:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243964AbhGSOYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72CA2610D2;
-        Mon, 19 Jul 2021 15:04:34 +0000 (UTC)
+        id S245574AbhGSOjS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:39:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7A6860249;
+        Mon, 19 Jul 2021 15:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707075;
-        bh=doA43jU7VRwYOD5DuWNYzw0OlFolT1d59g5c6krnckY=;
+        s=korg; t=1626707919;
+        bh=b4Yuh9ZXGTBdk6of/NfxeZDGAlGbAWPMhlBaB7ZNN9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E5qIi0bNnME+2Scby3R4+PU0+YhswwaXc2RPZU1jg2fjUBCLgcZjVu0m38zFQ49nx
-         wJtxroWcFVW2vw9mxBRBeoJofzxnzZuDUuJHfYU67+mYsSS1nAsPOAMWds801IKhxC
-         LQDamcV3iTchCxhph0FBNuA1eYXY879LgsPc3CRc=
+        b=wakVNW2UgdSuG+Ml91QC5NfDziwzaT/xeQnPiLzWuYcrhkIHjmGxeoPT2PwHBtahI
+         VBjpfCQVeNTKrcHBMjJQFyJSe/v4evoHvuOJXIP2WKT2UKBoz32MdHGk474tf2wDQe
+         yn3yOlw1g5D0dhyrBZKTiQisKbYkcZCwgAOBDKbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oliver Lang <Oliver.Lang@gossenmetrawatt.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Nikita Travkin <nikita@trvn.ru>
-Subject: [PATCH 4.9 020/245] iio: ltr501: ltr559: fix initialization of LTR501_ALS_CONTR
-Date:   Mon, 19 Jul 2021 16:49:22 +0200
-Message-Id: <20210719144941.055104346@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 074/315] ia64: mca_drv: fix incorrect array size calculation
+Date:   Mon, 19 Jul 2021 16:49:23 +0200
+Message-Id: <20210719144945.300910321@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.288257948@linuxfoundation.org>
-References: <20210719144940.288257948@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 421a26f3d7a7c3ca43f3a9dc0f3cb0f562d5bd95 upstream.
+[ Upstream commit c5f320ff8a79501bb59338278336ec43acb9d7e2 ]
 
-The ltr559 chip uses only the lowest bit of the ALS_CONTR register to
-configure between active and stand-by mode. In the original driver
-BIT(1) is used, which does a software reset instead.
+gcc points out a mistake in the mca driver that goes back to before the
+git history:
 
-This patch fixes the problem by using BIT(0) as als_mode_active for
-the ltr559 chip.
+arch/ia64/kernel/mca_drv.c: In function 'init_record_index_pools':
+arch/ia64/kernel/mca_drv.c:346:54: error: expression does not compute the number of elements in this array; element typ
+e is 'int', not 'size_t' {aka 'long unsigned int'} [-Werror=sizeof-array-div]
+  346 |         for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
+      |                                                      ^
 
-Fixes: 8592a7eefa54 ("iio: ltr501: Add support for ltr559 chip")
-Signed-off-by: Oliver Lang <Oliver.Lang@gossenmetrawatt.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Tested-by: Nikita Travkin <nikita@trvn.ru> # ltr559
-Link: https://lore.kernel.org/r/20210610134619.2101372-3-mkl@pengutronix.de
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is the same as sizeof(size_t), which is two shorter than the actual
+array.  Use the ARRAY_SIZE() macro to get the correct calculation instead.
 
+Link: https://lkml.kernel.org/r/20210514214123.875971-1-arnd@kernel.org
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/light/ltr501.c |    2 +-
+ arch/ia64/kernel/mca_drv.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/light/ltr501.c
-+++ b/drivers/iio/light/ltr501.c
-@@ -1183,7 +1183,7 @@ static struct ltr501_chip_info ltr501_ch
- 		.als_gain_tbl_size = ARRAY_SIZE(ltr559_als_gain_tbl),
- 		.ps_gain = ltr559_ps_gain_tbl,
- 		.ps_gain_tbl_size = ARRAY_SIZE(ltr559_ps_gain_tbl),
--		.als_mode_active = BIT(1),
-+		.als_mode_active = BIT(0),
- 		.als_gain_mask = BIT(2) | BIT(3) | BIT(4),
- 		.als_gain_shift = 2,
- 		.info = &ltr501_info,
+diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
+index 94f8bf777afa..3503d488e9b3 100644
+--- a/arch/ia64/kernel/mca_drv.c
++++ b/arch/ia64/kernel/mca_drv.c
+@@ -343,7 +343,7 @@ init_record_index_pools(void)
+ 
+ 	/* - 2 - */
+ 	sect_min_size = sal_log_sect_min_sizes[0];
+-	for (i = 1; i < sizeof sal_log_sect_min_sizes/sizeof(size_t); i++)
++	for (i = 1; i < ARRAY_SIZE(sal_log_sect_min_sizes); i++)
+ 		if (sect_min_size > sal_log_sect_min_sizes[i])
+ 			sect_min_size = sal_log_sect_min_sizes[i];
+ 
+-- 
+2.30.2
+
 
 
