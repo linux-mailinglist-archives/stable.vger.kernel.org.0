@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05A983CDD9E
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8AAD3CDDA2
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245735AbhGSO7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:59:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
+        id S245748AbhGSO7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:59:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245317AbhGSO6O (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245319AbhGSO6O (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:58:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65B9B613E3;
-        Mon, 19 Jul 2021 15:35:50 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1F746023D;
+        Mon, 19 Jul 2021 15:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626708950;
-        bh=YS150Zw3EMrfbg7HTU/kACgheRdPjXylbhg3QzhH4fA=;
+        s=korg; t=1626708953;
+        bh=SQN+3Kulvivgnq/wgeiUCuPyJFYyEXXhyjhCJeuXMio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hz9Ml3WAziLtrLzPwgnP4OHzbM1vYUtNu9ibEwQTqNZoPQ58P1J44MhL3AwQsANQ+
-         n9SU5J1gug3LWtJZUW3RGS5MJw+CbUn6/Ct/E5cY7mfwIcw+FLluyGTHkMmlYxl3QV
-         Rth7g7/xGFC4yiQed0PcmEqbKQ2GD/Kz9vtyMiVo=
+        b=sKne27s7zJSgVxdMsaIacx8rftdC8plecNsXrgF35+HWF7eb3afjIBH41vXTGsHhQ
+         ZLZmh3UtekkH3P6zDvCKGW5B5w0+FRa1oJGsnYmt4HyDdVfdUxafXQzaYRvpl1PV7+
+         puvtcudb2Kn8Dql0fRBaRzP8oEu4+HPxEy2kenRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/421] visorbus: fix error return code in visorchipset_init()
-Date:   Mon, 19 Jul 2021 16:50:06 +0200
-Message-Id: <20210719144953.156227594@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-s390@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 196/421] s390: appldata depends on PROC_SYSCTL
+Date:   Mon, 19 Jul 2021 16:50:07 +0200
+Message-Id: <20210719144953.187732532@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
 References: <20210719144946.310399455@linuxfoundation.org>
@@ -40,56 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit ce52ec5beecc1079c251f60e3973b3758f60eb59 ]
+[ Upstream commit 5d3516b3647621d5a1180672ea9e0817fb718ada ]
 
-Commit 1366a3db3dcf ("staging: unisys: visorbus: visorchipset_init clean
-up gotos") assigns the initial value -ENODEV to the local variable 'err',
-and the first several error branches will return this value after "goto
-error". But commit f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate
-controlvm channel creation.") overwrites 'err' in the middle of the way.
-As a result, some error branches do not successfully return the initial
-value -ENODEV of 'err', but return 0.
+APPLDATA_BASE should depend on PROC_SYSCTL instead of PROC_FS.
+Building with PROC_FS but not PROC_SYSCTL causes a build error,
+since appldata_base.c uses data and APIs from fs/proc/proc_sysctl.c.
 
-In addition, when kzalloc() fails, -ENOMEM should be returned instead of
--ENODEV.
+arch/s390/appldata/appldata_base.o: in function `appldata_generic_handler':
+appldata_base.c:(.text+0x192): undefined reference to `sysctl_vals'
 
-Fixes: f1f537c2e7f5 ("staging: unisys: visorbus: Consolidate controlvm channel creation.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210528082614.9337-1-thunder.leizhen@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c185b783b099 ("[S390] Remove config options.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: linux-s390@vger.kernel.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210528002420.17634-1-rdunlap@infradead.org
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/visorbus/visorchipset.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/s390/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/visorbus/visorchipset.c b/drivers/visorbus/visorchipset.c
-index cb1eb7e05f87..5668cad86e37 100644
---- a/drivers/visorbus/visorchipset.c
-+++ b/drivers/visorbus/visorchipset.c
-@@ -1561,7 +1561,7 @@ schedule_out:
- 
- static int visorchipset_init(struct acpi_device *acpi_device)
- {
--	int err = -ENODEV;
-+	int err = -ENOMEM;
- 	struct visorchannel *controlvm_channel;
- 
- 	chipset_dev = kzalloc(sizeof(*chipset_dev), GFP_KERNEL);
-@@ -1584,8 +1584,10 @@ static int visorchipset_init(struct acpi_device *acpi_device)
- 				 "controlvm",
- 				 sizeof(struct visor_controlvm_channel),
- 				 VISOR_CONTROLVM_CHANNEL_VERSIONID,
--				 VISOR_CHANNEL_SIGNATURE))
-+				 VISOR_CHANNEL_SIGNATURE)) {
-+		err = -ENODEV;
- 		goto error_delete_groups;
-+	}
- 	/* if booting in a crash kernel */
- 	if (is_kdump_kernel())
- 		INIT_DELAYED_WORK(&chipset_dev->periodic_controlvm_work,
+diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+index 9a9c7a6fe925..ce4c3b659f70 100644
+--- a/arch/s390/Kconfig
++++ b/arch/s390/Kconfig
+@@ -867,7 +867,7 @@ config CMM_IUCV
+ config APPLDATA_BASE
+ 	def_bool n
+ 	prompt "Linux - VM Monitor Stream, base infrastructure"
+-	depends on PROC_FS
++	depends on PROC_SYSCTL
+ 	help
+ 	  This provides a kernel interface for creating and updating z/VM APPLDATA
+ 	  monitor records. The monitor records are updated at certain time
 -- 
 2.30.2
 
