@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 224483CDF62
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:51:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF413CDC0B
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343923AbhGSPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:10:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42188 "EHLO mail.kernel.org"
+        id S241018AbhGSOvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344152AbhGSPHX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:07:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 029D861006;
-        Mon, 19 Jul 2021 15:47:39 +0000 (UTC)
+        id S1343891AbhGSOsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:48:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CC7061263;
+        Mon, 19 Jul 2021 15:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709660;
-        bh=KSb5fyDRzgf/RSbM09GKm1qwFWLZ1xYtmQj6I0EBBqc=;
+        s=korg; t=1626708322;
+        bh=RHz1293Or9glW9h0I1wJ0BaHJz6pfTXd6PQSHZjnH6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tdx0hr5/RmBvocvc1ak0q7cEw5E+E6QXraIDyLX4Xtcf9LWvJhkRCLEshCr4ADQk7
-         lTSt8pR08PTmNV+jheUJeVE5Z3CKvWbSW0gBHXNpGrVZzweQWCUj1dQVUKzF3/W4C7
-         /tjsJgtQuVaVApMCpjC0VFeh4BarMniXT+CITVZ4=
+        b=CmzjmZTPjdwqgz6dXhwlgcow/5q8f/v+SQcufMQpLnK8rcT8s8I1RidsewlIgQUEh
+         vfGTvRhn6haLNrElrcaLPVPv14Q/vsoSCC2/Bqiv2HP9cdSPynTbuOEricZpFIIHjB
+         EdarMzrwwoa6d/GtzDtKACU+dSciERNkZArorTIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Robinson <pbrobinson@gmail.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/149] gpio: pca953x: Add support for the On Semi pca9655
-Date:   Mon, 19 Jul 2021 16:52:35 +0200
-Message-Id: <20210719144912.609670390@linuxfoundation.org>
+Subject: [PATCH 4.14 267/315] power: supply: ab8500: Avoid NULL pointers
+Date:   Mon, 19 Jul 2021 16:52:36 +0200
+Message-Id: <20210719144952.196381447@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144901.370365147@linuxfoundation.org>
-References: <20210719144901.370365147@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Robinson <pbrobinson@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 6d49b3a0f351925b5ea5047166c112b7590b918a ]
+[ Upstream commit 5bcb5087c9dd3dca1ff0ebd8002c5313c9332b56 ]
 
-The On Semi pca9655 is a 16 bit variant of the On Semi pca9654 GPIO
-expander, with 16 GPIOs and interrupt functionality.
+Sometimes the code will crash because we haven't enabled
+AC or USB charging and thus not created the corresponding
+psy device. Fix it by checking that it is there before
+notifying.
 
-Signed-off-by: Peter Robinson <pbrobinson@gmail.com>
-[Bartosz: fixed indentation as noted by Andy]
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-pca953x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/power/supply/ab8500_charger.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index 9a24dce3c262..d9193ffa17a1 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -1272,6 +1272,7 @@ static const struct of_device_id pca953x_dt_ids[] = {
+diff --git a/drivers/power/supply/ab8500_charger.c b/drivers/power/supply/ab8500_charger.c
+index 5a76c6d343de..8e74d27fad29 100644
+--- a/drivers/power/supply/ab8500_charger.c
++++ b/drivers/power/supply/ab8500_charger.c
+@@ -409,6 +409,14 @@ disable_otp:
+ static void ab8500_power_supply_changed(struct ab8500_charger *di,
+ 					struct power_supply *psy)
+ {
++	/*
++	 * This happens if we get notifications or interrupts and
++	 * the platform has been configured not to support one or
++	 * other type of charging.
++	 */
++	if (!psy)
++		return;
++
+ 	if (di->autopower_cfg) {
+ 		if (!di->usb.charger_connected &&
+ 		    !di->ac.charger_connected &&
+@@ -435,7 +443,15 @@ static void ab8500_charger_set_usb_connected(struct ab8500_charger *di,
+ 		if (!connected)
+ 			di->flags.vbus_drop_end = false;
  
- 	{ .compatible = "onnn,cat9554", .data = OF_953X( 8, PCA_INT), },
- 	{ .compatible = "onnn,pca9654", .data = OF_953X( 8, PCA_INT), },
-+	{ .compatible = "onnn,pca9655", .data = OF_953X(16, PCA_INT), },
+-		sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL, "present");
++		/*
++		 * Sometimes the platform is configured not to support
++		 * USB charging and no psy has been created, but we still
++		 * will get these notifications.
++		 */
++		if (di->usb_chg.psy) {
++			sysfs_notify(&di->usb_chg.psy->dev.kobj, NULL,
++				     "present");
++		}
  
- 	{ .compatible = "exar,xra1202", .data = OF_953X( 8, 0), },
- 	{ }
+ 		if (connected) {
+ 			mutex_lock(&di->charger_attached_mutex);
 -- 
 2.30.2
 
