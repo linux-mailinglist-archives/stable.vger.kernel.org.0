@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 433283CDAFF
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A9E3CDB29
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:22:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243639AbhGSOkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54776 "EHLO mail.kernel.org"
+        id S243962AbhGSOlb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:41:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343658AbhGSOjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1343633AbhGSOjg (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 10:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1E876136D;
-        Mon, 19 Jul 2021 15:19:15 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A3976120D;
+        Mon, 19 Jul 2021 15:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626707956;
-        bh=Ip4PFNYgAgOYdRfYsnEQM/KWJK9ccauOKw+KTrCE1DE=;
+        s=korg; t=1626707959;
+        bh=VEgMdwBiQktzj/sMFwJdWP+QRa95aVvG5rso1E1ngQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a3YEIPY282xmH+IdmhsP+xY77aXC6e0CGBonf27x17JXel9uBuLemXTnIGfH3esfc
-         11vBCOOe6CV8zp9PqtkLioTN9ja8mVhGD5LuWtl/OwkKoxPG9XNWsE5iYmMrBS+dSV
-         ctBffW++OZwkNkUUgZQibxVg3hc8s+rfAedyFqbs=
+        b=v2H2D5REP3WcvWYOH+TRJs4Z3fTWjZo+MUi5Pi2OJ8jK2Ht45Qj/ZAOWAn6g6P2/K
+         FDAugVWQlaQwLj0BmolWiBHoxBARFtD5afzDL7NmBNXXtjXUNeeEY1eiufqxe/NOBo
+         mf5khTSEFjLOcAo8AT9Tb8F/HjQdQ5C5HRFALbnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 124/315] iio: accel: kxcjk-1013: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
-Date:   Mon, 19 Jul 2021 16:50:13 +0200
-Message-Id: <20210719144946.949346939@linuxfoundation.org>
+Subject: [PATCH 4.14 125/315] iio: accel: stk8312: Fix buffer alignment in iio_push_to_buffers_with_timestamp()
+Date:   Mon, 19 Jul 2021 16:50:14 +0200
+Message-Id: <20210719144946.981175383@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
 References: <20210719144942.861561397@linuxfoundation.org>
@@ -44,79 +43,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 3ab3aa2e7bd57497f9a7c6275c00dce237d2c9ba ]
+[ Upstream commit f40a71ffec808e7e51848f63f0c0d3c32d65081b ]
 
 To make code more readable, use a structure to express the channel
 layout and ensure the timestamp is 8 byte aligned.
 
 Found during an audit of all calls of this function.
 
-Fixes: 1a4fbf6a9286 ("iio: accel: kxcjk1013 3-axis accelerometer driver")
+Fixes: 95c12bba51c3 ("iio: accel: Add buffer mode for Sensortek STK8312")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/20210501170121.512209-5-jic23@kernel.org
+Link: https://lore.kernel.org/r/20210501170121.512209-7-jic23@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/kxcjk-1013.c | 24 ++++++++++++++----------
- 1 file changed, 14 insertions(+), 10 deletions(-)
+ drivers/iio/accel/stk8312.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-index 92a73ada8e4a..296fd00f0e97 100644
---- a/drivers/iio/accel/kxcjk-1013.c
-+++ b/drivers/iio/accel/kxcjk-1013.c
-@@ -97,12 +97,23 @@ enum kx_acpi_type {
- 	ACPI_KIOX010A,
- };
- 
-+enum kxcjk1013_axis {
-+	AXIS_X,
-+	AXIS_Y,
-+	AXIS_Z,
-+	AXIS_MAX
-+};
-+
- struct kxcjk1013_data {
- 	struct i2c_client *client;
+diff --git a/drivers/iio/accel/stk8312.c b/drivers/iio/accel/stk8312.c
+index e31023dc5f1b..24a7499049f1 100644
+--- a/drivers/iio/accel/stk8312.c
++++ b/drivers/iio/accel/stk8312.c
+@@ -106,7 +106,11 @@ struct stk8312_data {
+ 	u8 mode;
  	struct iio_trigger *dready_trig;
- 	struct iio_trigger *motion_trig;
- 	struct mutex mutex;
--	s16 buffer[8];
-+	/* Ensure timestamp naturally aligned */
+ 	bool dready_trigger_on;
+-	s8 buffer[16]; /* 3x8-bit channels + 5x8 padding + 64-bit timestamp */
++	/* Ensure timestamp is naturally aligned */
 +	struct {
-+		s16 chans[AXIS_MAX];
++		s8 chans[3];
 +		s64 timestamp __aligned(8);
 +	} scan;
- 	u8 odr_bits;
- 	u8 range;
- 	int wake_thres;
-@@ -116,13 +127,6 @@ struct kxcjk1013_data {
- 	enum kx_acpi_type acpi_type;
  };
  
--enum kxcjk1013_axis {
--	AXIS_X,
--	AXIS_Y,
--	AXIS_Z,
--	AXIS_MAX,
--};
--
- enum kxcjk1013_mode {
- 	STANDBY,
- 	OPERATION,
-@@ -1005,12 +1009,12 @@ static irqreturn_t kxcjk1013_trigger_handler(int irq, void *p)
- 	ret = i2c_smbus_read_i2c_block_data_or_emulated(data->client,
- 							KXCJK1013_REG_XOUT_L,
- 							AXIS_MAX * 2,
--							(u8 *)data->buffer);
-+							(u8 *)data->scan.chans);
- 	mutex_unlock(&data->mutex);
- 	if (ret < 0)
- 		goto err;
+ static IIO_CONST_ATTR(in_accel_scale_available, STK8312_SCALE_AVAIL);
+@@ -443,7 +447,7 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 		ret = i2c_smbus_read_i2c_block_data(data->client,
+ 						    STK8312_REG_XOUT,
+ 						    STK8312_ALL_CHANNEL_SIZE,
+-						    data->buffer);
++						    data->scan.chans);
+ 		if (ret < STK8312_ALL_CHANNEL_SIZE) {
+ 			dev_err(&data->client->dev, "register read failed\n");
+ 			mutex_unlock(&data->lock);
+@@ -457,12 +461,12 @@ static irqreturn_t stk8312_trigger_handler(int irq, void *p)
+ 				mutex_unlock(&data->lock);
+ 				goto err;
+ 			}
+-			data->buffer[i++] = ret;
++			data->scan.chans[i++] = ret;
+ 		}
+ 	}
+ 	mutex_unlock(&data->lock);
  
 -	iio_push_to_buffers_with_timestamp(indio_dev, data->buffer,
 +	iio_push_to_buffers_with_timestamp(indio_dev, &data->scan,
- 					   data->timestamp);
+ 					   pf->timestamp);
  err:
  	iio_trigger_notify_done(indio_dev->trig);
 -- 
