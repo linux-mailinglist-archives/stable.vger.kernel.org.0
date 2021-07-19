@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 170AD3CE2C1
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:15:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF13A3CE099
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:08:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235406AbhGSPbs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:31:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
+        id S1346553AbhGSPRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49596 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238946AbhGSP2l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:28:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E91E861287;
-        Mon, 19 Jul 2021 16:09:01 +0000 (UTC)
+        id S1345825AbhGSPOF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9461D61248;
+        Mon, 19 Jul 2021 15:53:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710942;
-        bh=0WNpUPYCiCvAiu+8gEFe1FqgDIa9C+QUv1qkqbpVoiE=;
+        s=korg; t=1626710040;
+        bh=JsEWXYDKQZcs1K0eNc2aH3Vw+HC/cKAg+WHGj06rWzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnJtc0SDBHHUQZobgYQf9vdxfh+9zGUuNWcmPKMV2vQtFcsmSZ7AQ1Aeqx/H9ubBx
-         ttwOnlnI8+xFOzsjQUZRJ9586Tm2F2cnmYNgMolbLUp9lvO8AvtssXyNK/rSgpkEp7
-         5mbmrxduII7gWo70i7WYwnk0paoRA3dyFz+zMQos=
+        b=RFXo7VvaydQ+uDclp1RJXEsvKQZuk4zrA54cHC3UtkKNtFwQQm83mCiZUfPCzlufJ
+         KMlm3zFlKkeuRyiMOygJxHQJM8RHW7wcDdS2QbhaEq4HROffJY9fgVFoSdVbMp69Xe
+         kkWTsCsxP7de35mhLDyykyVW2KSkd5k9DmiJhQTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 134/351] ASoC: fsl_xcvr: check return value after calling platform_get_resource_byname()
+Subject: [PATCH 5.10 051/243] scsi: core: Fixup calling convention for scsi_mode_sense()
 Date:   Mon, 19 Jul 2021 16:51:20 +0200
-Message-Id: <20210719144948.917951317@linuxfoundation.org>
+Message-Id: <20210719144942.570640082@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +41,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit a2f6ed4a44721d3a9fdf4da7e0743cb13866bf61 ]
+[ Upstream commit 8793613de913e03e7c884f4cc56e350bc716431e ]
 
-It will cause null-ptr-deref if platform_get_resource_byname() returns NULL,
-we need check the return value.
+The description for scsi_mode_sense() claims to return the number of valid
+bytes on success, which is not what the code does.  Additionally there is
+no gain in returning the SCSI status, as everything the callers do is to
+check against scsi_result_is_good(), which is what scsi_mode_sense() does
+already.  So change the calling convention to return a standard error code
+on failure, and 0 on success, and adapt the description and all callers.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210615013922.784296-10-yangyingliang@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210427083046.31620-4-hare@suse.de
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_xcvr.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/scsi_lib.c           | 10 ++++++----
+ drivers/scsi/scsi_transport_sas.c |  9 ++++-----
+ drivers/scsi/sd.c                 | 12 ++++++------
+ drivers/scsi/sr.c                 |  2 +-
+ 4 files changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_xcvr.c b/sound/soc/fsl/fsl_xcvr.c
-index 46f3f2c68756..535e17251a35 100644
---- a/sound/soc/fsl/fsl_xcvr.c
-+++ b/sound/soc/fsl/fsl_xcvr.c
-@@ -1202,6 +1202,10 @@ static int fsl_xcvr_probe(struct platform_device *pdev)
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index a045d00509d5..d89db29fa829 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -2072,9 +2072,7 @@ EXPORT_SYMBOL_GPL(scsi_mode_select);
+  *	@sshdr: place to put sense data (or NULL if no sense to be collected).
+  *		must be SCSI_SENSE_BUFFERSIZE big.
+  *
+- *	Returns zero if unsuccessful, or the header offset (either 4
+- *	or 8 depending on whether a six or ten byte command was
+- *	issued) if successful.
++ *	Returns zero if successful, or a negative error number on failure
+  */
+ int
+ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
+@@ -2121,6 +2119,8 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
  
- 	rx_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "rxfifo");
- 	tx_res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "txfifo");
-+	if (!rx_res || !tx_res) {
-+		dev_err(dev, "could not find rxfifo or txfifo resource\n");
-+		return -EINVAL;
-+	}
- 	xcvr->dma_prms_rx.chan_name = "rx";
- 	xcvr->dma_prms_tx.chan_name = "tx";
- 	xcvr->dma_prms_rx.addr = rx_res->start;
+ 	result = scsi_execute_req(sdev, cmd, DMA_FROM_DEVICE, buffer, len,
+ 				  sshdr, timeout, retries, NULL);
++	if (result < 0)
++		return result;
+ 
+ 	/* This code looks awful: what it's doing is making sure an
+ 	 * ILLEGAL REQUEST sense return identifies the actual command
+@@ -2165,13 +2165,15 @@ scsi_mode_sense(struct scsi_device *sdev, int dbd, int modepage,
+ 			data->block_descriptor_length = buffer[3];
+ 		}
+ 		data->header_length = header_length;
++		result = 0;
+ 	} else if ((status_byte(result) == CHECK_CONDITION) &&
+ 		   scsi_sense_valid(sshdr) &&
+ 		   sshdr->sense_key == UNIT_ATTENTION && retry_count) {
+ 		retry_count--;
+ 		goto retry;
+ 	}
+-
++	if (result > 0)
++		result = -EIO;
+ 	return result;
+ }
+ EXPORT_SYMBOL(scsi_mode_sense);
+diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
+index c9abed8429c9..4a96fb05731d 100644
+--- a/drivers/scsi/scsi_transport_sas.c
++++ b/drivers/scsi/scsi_transport_sas.c
+@@ -1229,16 +1229,15 @@ int sas_read_port_mode_page(struct scsi_device *sdev)
+ 	char *buffer = kzalloc(BUF_SIZE, GFP_KERNEL), *msdata;
+ 	struct sas_end_device *rdev = sas_sdev_to_rdev(sdev);
+ 	struct scsi_mode_data mode_data;
+-	int res, error;
++	int error;
+ 
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
+-	res = scsi_mode_sense(sdev, 1, 0x19, buffer, BUF_SIZE, 30*HZ, 3,
+-			      &mode_data, NULL);
++	error = scsi_mode_sense(sdev, 1, 0x19, buffer, BUF_SIZE, 30*HZ, 3,
++				&mode_data, NULL);
+ 
+-	error = -EINVAL;
+-	if (!scsi_status_is_good(res))
++	if (error)
+ 		goto out;
+ 
+ 	msdata = buffer +  mode_data.header_length +
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 01f87bcab3dd..f0c0935d7909 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -2687,18 +2687,18 @@ sd_read_write_protect_flag(struct scsi_disk *sdkp, unsigned char *buffer)
+ 		 * 5: Illegal Request, Sense Code 24: Invalid field in
+ 		 * CDB.
+ 		 */
+-		if (!scsi_status_is_good(res))
++		if (res < 0)
+ 			res = sd_do_mode_sense(sdkp, 0, 0, buffer, 4, &data, NULL);
+ 
+ 		/*
+ 		 * Third attempt: ask 255 bytes, as we did earlier.
+ 		 */
+-		if (!scsi_status_is_good(res))
++		if (res < 0)
+ 			res = sd_do_mode_sense(sdkp, 0, 0x3F, buffer, 255,
+ 					       &data, NULL);
+ 	}
+ 
+-	if (!scsi_status_is_good(res)) {
++	if (res < 0) {
+ 		sd_first_printk(KERN_WARNING, sdkp,
+ 			  "Test WP failed, assume Write Enabled\n");
+ 	} else {
+@@ -2759,7 +2759,7 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
+ 	res = sd_do_mode_sense(sdkp, dbd, modepage, buffer, first_len,
+ 			&data, &sshdr);
+ 
+-	if (!scsi_status_is_good(res))
++	if (res < 0)
+ 		goto bad_sense;
+ 
+ 	if (!data.header_length) {
+@@ -2791,7 +2791,7 @@ sd_read_cache_type(struct scsi_disk *sdkp, unsigned char *buffer)
+ 		res = sd_do_mode_sense(sdkp, dbd, modepage, buffer, len,
+ 				&data, &sshdr);
+ 
+-	if (scsi_status_is_good(res)) {
++	if (!res) {
+ 		int offset = data.header_length + data.block_descriptor_length;
+ 
+ 		while (offset < len) {
+@@ -2909,7 +2909,7 @@ static void sd_read_app_tag_own(struct scsi_disk *sdkp, unsigned char *buffer)
+ 	res = scsi_mode_sense(sdp, 1, 0x0a, buffer, 36, SD_TIMEOUT,
+ 			      sdkp->max_retries, &data, &sshdr);
+ 
+-	if (!scsi_status_is_good(res) || !data.header_length ||
++	if (res < 0 || !data.header_length ||
+ 	    data.length < 6) {
+ 		sd_first_printk(KERN_WARNING, sdkp,
+ 			  "getting Control mode page failed, assume no ATO\n");
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 77961f058367..726b7048a767 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -930,7 +930,7 @@ static void get_capabilities(struct scsi_cd *cd)
+ 	rc = scsi_mode_sense(cd->device, 0, 0x2a, buffer, ms_len,
+ 			     SR_TIMEOUT, 3, &data, NULL);
+ 
+-	if (!scsi_status_is_good(rc) || data.length > ms_len ||
++	if (rc < 0 || data.length > ms_len ||
+ 	    data.header_length + data.block_descriptor_length > data.length) {
+ 		/* failed, drive doesn't have capabilities mode page */
+ 		cd->cdi.speed = 1;
 -- 
 2.30.2
 
