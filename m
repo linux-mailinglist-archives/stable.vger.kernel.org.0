@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30F0B3CE5F4
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C3E3CE5F1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347312AbhGSPzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49524 "EHLO mail.kernel.org"
+        id S1343856AbhGSPzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347955AbhGSPss (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1347961AbhGSPss (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 19 Jul 2021 11:48:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 987846147D;
-        Mon, 19 Jul 2021 16:28:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F31E61582;
+        Mon, 19 Jul 2021 16:28:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626712098;
-        bh=YhXSwoh8bMN8/Mbo0txirRqP3/npuOXCLagUFhi2wV0=;
+        s=korg; t=1626712100;
+        bh=NX+XniBkaOZOUpU6smko+YGbqSaqgsrVV5bBgbwVegQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaHSJNDDYIWCrvkiWefGv3TOfjXP2J4EFdqhyaCo84gYIAoVezyFjZmjYl6DHnGTA
-         FzrJsG+2zyQqLDaPjZ/fqRanHjU3bX4ba6Cn8mP6Q5NlEaxC0B8xFYPIE0cg8AXaHY
-         rfDxrzwYBj3byXjIs9WmXo8jDSpt6Y6gUtJhLx7k=
+        b=HjDijLAnEwD26rhAxApZjD/Kj487bv8HqOCbXh5M283na2Tx+ge2UTqofOL/bN6uD
+         6hVW4sCFHmvNPLiVc8kAepGCpJPz48fD/AgG1/C6vkVMUoA7J9WDE+lYNoNue42mXo
+         LDxWpOMso1Eom5tVyiOH8nFuB+phlAVamEVAnVBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Hsin-Yi Wang <hsinyi@chromium.org>,
+        "chun-jie.chen" <chun-jie.chen@mediatek.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 249/292] firmware: tegra: Fix error return code in tegra210_bpmp_init()
-Date:   Mon, 19 Jul 2021 16:55:11 +0200
-Message-Id: <20210719144951.136336744@linuxfoundation.org>
+Subject: [PATCH 5.12 250/292] soc: mtk-pm-domains: do not register smi node as syscon
+Date:   Mon, 19 Jul 2021 16:55:12 +0200
+Message-Id: <20210719144951.166395323@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144942.514164272@linuxfoundation.org>
 References: <20210719144942.514164272@linuxfoundation.org>
@@ -41,36 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Hsin-Yi Wang <hsinyi@chromium.org>
 
-[ Upstream commit 7fea67710e9f6a111a2c9440576f2396ccd92d57 ]
+[ Upstream commit eed6ff1bb2da65067d928f4ab322c7d75f944fa4 ]
 
-When call irq_get_irq_data() to get the IRQ's irq_data failed, an
-appropriate error code -ENOENT should be returned. However, we directly
-return 'err', which records the IRQ number instead of the error code.
+Mediatek requires mmsys clocks to be unprepared during suspend,
+otherwise system has chances to hang.
 
-Fixes: 139251fc2208 ("firmware: tegra: add bpmp driver for Tegra210")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+syscon_regmap_lookup_by_phandle_optional() will attach and prepare the
+first clock in smi node, leading to additional prepare to the clock
+which is not balanced with the prepare/unprepare pair in resume/suspend
+callbacks.
+
+If a power domain node requests an smi node and the smi node's first
+clock is an mmsys clock, it will results in an unstable suspend resume.
+
+Fixes: f414854c8843 ("soc: mediatek: pm-domains: Add SMI block as bus protection block")
+Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Reviewed-by: chun-jie.chen <chun-jie.chen@mediatek.com>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Link: https://lore.kernel.org/r/20210601035905.2970384-2-hsinyi@chromium.org
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/tegra/bpmp-tegra210.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/mediatek/mtk-pm-domains.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/tegra/bpmp-tegra210.c b/drivers/firmware/tegra/bpmp-tegra210.c
-index ae15940a078e..c32754055c60 100644
---- a/drivers/firmware/tegra/bpmp-tegra210.c
-+++ b/drivers/firmware/tegra/bpmp-tegra210.c
-@@ -210,7 +210,7 @@ static int tegra210_bpmp_init(struct tegra_bpmp *bpmp)
- 	priv->tx_irq_data = irq_get_irq_data(err);
- 	if (!priv->tx_irq_data) {
- 		dev_err(&pdev->dev, "failed to get IRQ data for TX IRQ\n");
--		return err;
-+		return -ENOENT;
- 	}
+diff --git a/drivers/soc/mediatek/mtk-pm-domains.c b/drivers/soc/mediatek/mtk-pm-domains.c
+index 0af00efa0ef8..22fa52f0e86e 100644
+--- a/drivers/soc/mediatek/mtk-pm-domains.c
++++ b/drivers/soc/mediatek/mtk-pm-domains.c
+@@ -297,6 +297,7 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
+ 	const struct scpsys_domain_data *domain_data;
+ 	struct scpsys_domain *pd;
+ 	struct device_node *root_node = scpsys->dev->of_node;
++	struct device_node *smi_node;
+ 	struct property *prop;
+ 	const char *clk_name;
+ 	int i, ret, num_clks;
+@@ -352,9 +353,13 @@ generic_pm_domain *scpsys_add_one_domain(struct scpsys *scpsys, struct device_no
+ 	if (IS_ERR(pd->infracfg))
+ 		return ERR_CAST(pd->infracfg);
  
- 	err = platform_get_irq_byname(pdev, "rx");
+-	pd->smi = syscon_regmap_lookup_by_phandle_optional(node, "mediatek,smi");
+-	if (IS_ERR(pd->smi))
+-		return ERR_CAST(pd->smi);
++	smi_node = of_parse_phandle(node, "mediatek,smi", 0);
++	if (smi_node) {
++		pd->smi = device_node_to_regmap(smi_node);
++		of_node_put(smi_node);
++		if (IS_ERR(pd->smi))
++			return ERR_CAST(pd->smi);
++	}
+ 
+ 	num_clks = of_clk_get_parent_count(node);
+ 	if (num_clks > 0) {
 -- 
 2.30.2
 
