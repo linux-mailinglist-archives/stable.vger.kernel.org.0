@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A33E43CE232
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0123CE1A1
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347788AbhGSP32 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:29:28 -0400
+        id S1349375AbhGSP0r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:26:47 -0400
 Received: from mail.kernel.org ([198.145.29.99]:40604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1348190AbhGSPYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:24:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C50B6141A;
-        Mon, 19 Jul 2021 16:03:19 +0000 (UTC)
+        id S1348251AbhGSPYk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:24:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 024DB61466;
+        Mon, 19 Jul 2021 16:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710600;
-        bh=jg12mOpK9egcCR1Yae1/JahDu+SCbslYM283RCMqhis=;
+        s=korg; t=1626710628;
+        bh=HV1MLfedn3XT6CZHdODiskzqRmk01XBA4SoaqgvM40A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tw4d3mJ7ySw3Eyz9qXk2Ms3F6gFwg5SVoDXF0wdLktQpJCmUsD7jvTeYVtzJgHDwR
-         BDvg18ckrLWkLkVcOczrf0JBV5f713BCYvkzt7VZtHocbU3N2zr7HC5dfWogj4QbZW
-         wcy3BVJQeW8TB4HoYHm2+Nv8tOMrYqYAnM3mw/c8=
+        b=UzZmBKh7NVVdVxJ8nHUX52VQjvT6wubKsyJxIpwkwHFDfgrnKNSqhUUhuOMiHp1gc
+         scsp75n3iM4cjZwTDy9wggqvbMmf34u2Y3u6ojpXxfPvfhQ+4y6ehUmazuWEUdpPQk
+         AN1dCM+6TcZIDppd9I50218OTn1zq89foeHmQQZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= <thomas.hellstrom@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.13 021/351] drm/i915/gt: Fix -EDEADLK handling regression
-Date:   Mon, 19 Jul 2021 16:49:27 +0200
-Message-Id: <20210719144945.229301158@linuxfoundation.org>
+        syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com,
+        Christoph Hellwig <hch@lst.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Dmitry Vyukov <dvyukov@google.com>, stable@kernel.org,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.13 022/351] cgroup: verify that source is a string
+Date:   Mon, 19 Jul 2021 16:49:28 +0200
+Message-Id: <20210719144945.261826497@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
 References: <20210719144944.537151528@linuxfoundation.org>
@@ -43,57 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit 2feeb52859fc1ab94cd35b61ada3a6ac4ff24243 upstream.
+commit 3b0462726e7ef281c35a7a4ae33e93ee2bc9975b upstream.
 
-The conversion to ww mutexes failed to address the fence code which
-already returns -EDEADLK when we run out of fences. Ww mutexes on
-the other hand treat -EDEADLK as an internal errno value indicating
-a need to restart the operation due to a deadlock. So now when the
-fence code returns -EDEADLK the higher level code erroneously
-restarts everything instead of returning the error to userspace
-as is expected.
+The following sequence can be used to trigger a UAF:
 
-To remedy this let's switch the fence code to use a different errno
-value for this. -ENOBUFS seems like a semi-reasonable unique choice.
-Apart from igt the only user of this I could find is sna, and even
-there all we do is dump the current fence registers from debugfs
-into the X server log. So no user visible functionality is affected.
-If we really cared about preserving this we could of course convert
-back to -EDEADLK higher up, but doesn't seem like that's worth
-the hassle here.
+    int fscontext_fd = fsopen("cgroup");
+    int fd_null = open("/dev/null, O_RDONLY);
+    int fsconfig(fscontext_fd, FSCONFIG_SET_FD, "source", fd_null);
+    close_range(3, ~0U, 0);
 
-Not quite sure which commit specifically broke this, but I'll
-just attribute it to the general gem ww mutex work.
+The cgroup v1 specific fs parser expects a string for the "source"
+parameter.  However, it is perfectly legitimate to e.g.  specify a file
+descriptor for the "source" parameter.  The fs parser doesn't know what
+a filesystem allows there.  So it's a bug to assume that "source" is
+always of type fs_value_is_string when it can reasonably also be
+fs_value_is_file.
 
-Cc: stable@vger.kernel.org
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Thomas Hellström <thomas.hellstrom@intel.com>
-Testcase: igt/gem_pread/exhaustion
-Testcase: igt/gem_pwrite/basic-exhaustion
-Testcase: igt/gem_fenced_exec_thrash/too-many-fences
-Fixes: 80f0b679d6f0 ("drm/i915: Add an implementation for i915_gem_ww_ctx locking, v2.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210630164413.25481-1-ville.syrjala@linux.intel.com
-Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-(cherry picked from commit 78d2ad7eb4e1f0e9cd5d79788446b6092c21d3e0)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+This assumption in the cgroup code causes a UAF because struct
+fs_parameter uses a union for the actual value.  Access to that union is
+guarded by the param->type member.  Since the cgroup paramter parser
+didn't check param->type but unconditionally moved param->string into
+fc->source a close on the fscontext_fd would trigger a UAF during
+put_fs_context() which frees fc->source thereby freeing the file stashed
+in param->file causing a UAF during a close of the fd_null.
+
+Fix this by verifying that param->type is actually a string and report
+an error if not.
+
+In follow up patches I'll add a new generic helper that can be used here
+and by other filesystems instead of this error-prone copy-pasta fix.
+But fixing it in here first makes backporting a it to stable a lot
+easier.
+
+Fixes: 8d2451f4994f ("cgroup1: switch to option-by-option parsing")
+Reported-by: syzbot+283ce5a46486d6acdbaf@syzkaller.appspotmail.com
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: <stable@kernel.org>
+Cc: syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/cgroup/cgroup-v1.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt_fencing.c
-@@ -348,7 +348,7 @@ static struct i915_fence_reg *fence_find
- 	if (intel_has_pending_fb_unpin(ggtt->vm.i915))
- 		return ERR_PTR(-EAGAIN);
- 
--	return ERR_PTR(-EDEADLK);
-+	return ERR_PTR(-ENOBUFS);
- }
- 
- int __i915_vma_pin_fence(struct i915_vma *vma)
+--- a/kernel/cgroup/cgroup-v1.c
++++ b/kernel/cgroup/cgroup-v1.c
+@@ -912,6 +912,8 @@ int cgroup1_parse_param(struct fs_contex
+ 	opt = fs_parse(fc, cgroup1_fs_parameters, param, &result);
+ 	if (opt == -ENOPARAM) {
+ 		if (strcmp(param->key, "source") == 0) {
++			if (param->type != fs_value_is_string)
++				return invalf(fc, "Non-string source");
+ 			if (fc->source)
+ 				return invalf(fc, "Multiple sources not supported");
+ 			fc->source = param->string;
 
 
