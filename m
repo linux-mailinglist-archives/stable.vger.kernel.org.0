@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E13E23CDE21
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:47:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8F9B3CE066
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343611AbhGSPCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:02:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S1346389AbhGSPRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:17:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343768AbhGSO7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A15F6128A;
-        Mon, 19 Jul 2021 15:37:08 +0000 (UTC)
+        id S1345674AbhGSPNm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:13:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E0E4613E3;
+        Mon, 19 Jul 2021 15:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709028;
-        bh=LSGBd2qAcVElvuCTmbDwTC8hjEwRQP2ObI3OjJiakdE=;
+        s=korg; t=1626710016;
+        bh=YE3aL0P/ukx86rH/nOPjZS+oU/mYIqW7gQhYJcpmOYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03LUEXu9CRBXVcTZRUeupFR9QeVOKuCFD8jXQzS7hBBzTXPLIIPElKIlBakAsZx3T
-         sdKYyKv+xvUbgsDI/+bzNmrSN/ak7iOfAL3zXXBFnC7nqOEa6mlQtJS/yrtW0OpF2l
-         SUG1ETqnFUCf3tHHWsZXolaQZ3eIyMBYTnrH9z8A=
+        b=NJxxKqcFOYnxvQDberwBbDbfW0j+QGTjwMYc4IUe4hQyLDqu5obnnyFIDYXzpYXzD
+         rtLyIofoOh57Mtzm/gt5zwA9u2RrnoE/J9LmS+8RgMDawCcm0HhlSsCWwo04XV5b6y
+         zhTgNmO0u/xYU56NoYRfDwcSvuVnCyegaXHVBXkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.19 226/421] mmc: vub3000: fix control-request direction
-Date:   Mon, 19 Jul 2021 16:50:37 +0200
-Message-Id: <20210719144954.164629218@linuxfoundation.org>
+        stable@vger.kernel.org, Benjamin Block <bblock@linux.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 009/243] scsi: zfcp: Report port fc_security as unknown early during remote cable pull
+Date:   Mon, 19 Jul 2021 16:50:38 +0200
+Message-Id: <20210719144941.219405096@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit 3c0bb3107703d2c58f7a0a7a2060bb57bc120326 upstream.
+commit 8b3bdd99c092bbaeaa7d9eecb1a3e5dc9112002b upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+On remote cable pull, a zfcp_port keeps its status and only gets
+ZFCP_STATUS_PORT_LINK_TEST added. Only after an ADISC timeout, we would
+actually start port recovery and remove ZFCP_STATUS_COMMON_UNBLOCKED which
+zfcp_sysfs_port_fc_security_show() detected and reported as "unknown"
+instead of the old and possibly stale zfcp_port->connection_info.
 
-Fix the SET_ROM_WAIT_STATES request which erroneously used
-usb_rcvctrlpipe().
+Add check for ZFCP_STATUS_PORT_LINK_TEST for timely "unknown" report.
 
-Fixes: 88095e7b473a ("mmc: Add new VUB300 USB-to-SD/SDIO/MMC driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210521133026.17296-1-johan@kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20210702160922.2667874-1-maier@linux.ibm.com
+Fixes: a17c78460093 ("scsi: zfcp: report FC Endpoint Security in sysfs")
+Cc: <stable@vger.kernel.org> #5.7+
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/mmc/host/vub300.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/scsi/zfcp_sysfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/mmc/host/vub300.c
-+++ b/drivers/mmc/host/vub300.c
-@@ -2289,7 +2289,7 @@ static int vub300_probe(struct usb_inter
- 	if (retval < 0)
- 		goto error5;
- 	retval =
--		usb_control_msg(vub300->udev, usb_rcvctrlpipe(vub300->udev, 0),
-+		usb_control_msg(vub300->udev, usb_sndctrlpipe(vub300->udev, 0),
- 				SET_ROM_WAIT_STATES,
- 				USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				firmware_rom_wait_states, 0x0000, NULL, 0, HZ);
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -487,6 +487,7 @@ static ssize_t zfcp_sysfs_port_fc_securi
+ 	if (0 == (status & ZFCP_STATUS_COMMON_OPEN) ||
+ 	    0 == (status & ZFCP_STATUS_COMMON_UNBLOCKED) ||
+ 	    0 == (status & ZFCP_STATUS_PORT_PHYS_OPEN) ||
++	    0 != (status & ZFCP_STATUS_PORT_LINK_TEST) ||
+ 	    0 != (status & ZFCP_STATUS_COMMON_ERP_FAILED) ||
+ 	    0 != (status & ZFCP_STATUS_COMMON_ACCESS_BOXED))
+ 		i = sprintf(buf, "unknown\n");
 
 
