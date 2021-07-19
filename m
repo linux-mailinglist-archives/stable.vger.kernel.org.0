@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE3ED3CE163
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:11:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145073CE401
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349197AbhGSPZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:25:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58058 "EHLO mail.kernel.org"
+        id S1347557AbhGSPln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1347591AbhGSPT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:19:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE83C613F8;
-        Mon, 19 Jul 2021 15:58:45 +0000 (UTC)
+        id S1347672AbhGSPfO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:35:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BC061613DF;
+        Mon, 19 Jul 2021 16:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710326;
-        bh=uwDMjewfI8k3UJwX37rZyzWvABNcpfVjpQmK6E2ahG8=;
+        s=korg; t=1626711164;
+        bh=nmDQb14vqsWx45S6KLOXM72coRqCzzmh9BgKba6W3uY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yh4PUDjTFUd882jI/TM5MHdEnhKR/jclLdMW0veYVIgoEtTJD6h9ewCAJAthHkl+j
-         ZgjbZV23KCCclYZEoTX4+Ek99nKeDCxd2rxKGeuR25YTNzLcvG/iK2b/ZjGHzbTTFo
-         YTf++VmZPddn29YicZ5/PKHs6ED5FwkoflMxXZ34=
+        b=ot/xvJFbFGZ8f8ha2UwiGxOLb67CKBMPHlWcPzbLbVa3ZnmeZVAkM10b/UWIHDS+5
+         J0tFNt4Hl7itQlLy8HHhAPEMcAXi2/9HoF8Jr8i9m4vPtgwvSlNTCLew+l+AvZDea9
+         a2KF7QUklu4cI11nwt9P279Ucj0uFbgxHxCUQVwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 169/243] x86/fpu: Fix copy_xstate_to_kernel() gap handling
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 252/351] vdp/mlx5: Fix setting the correct dma_device
 Date:   Mon, 19 Jul 2021 16:53:18 +0200
-Message-Id: <20210719144946.363350195@linuxfoundation.org>
+Message-Id: <20210719144953.290541145@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
-References: <20210719144940.904087935@linuxfoundation.org>
+In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
+References: <20210719144944.537151528@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,182 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 9625895011d130033d1bc7aac0d77a9bf68ff8a6 ]
+[ Upstream commit 7d23dcdf213c2e5f097eb7eec3148c26eb01d59f ]
 
-The gap handling in copy_xstate_to_kernel() is wrong when XSAVES is in
-use.
+Before SF support was introduced, the DMA device was equal to
+mdev->device which was in essence equal to pdev->dev.
 
-Using init_fpstate for copying the init state of features which are
-not set in the xstate header is only correct for the legacy area, but
-not for the extended features area because when XSAVES is in use then
-init_fpstate is in compacted form which means the xstate offsets which
-are used to copy from init_fpstate are not valid.
+With SF introduction this is no longer true. It has already been
+handled for vhost_vdpa since the reference to the dma device can from
+within mlx5_vdpa. With virtio_vdpa this broke. To fix this we set the
+real dma device when initializing the device.
 
-Fortunately, this is not a real problem today because all extended
-features in use have an all-zeros init state, but it is wrong
-nevertheless and with a potentially dynamically sized init_fpstate this
-would result in an access outside of the init_fpstate.
+In addition, for the sake of consistency, previous references in the
+code to the dma device are changed to vdev->dma_dev.
 
-Fix this by keeping track of the last copied state in the target buffer and
-explicitly zero it when there is a feature or alignment gap.
-
-Use the compacted offset when accessing the extended feature space in
-init_fpstate.
-
-As this is not a functional issue on older kernels this is intentionally
-not tagged for stable.
-
-Fixes: b8be15d58806 ("x86/fpu/xstate: Re-enable XSAVES")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210623121451.294282032@linutronix.de
+Fixes: d13a15d544ce5 ("vdpa/mlx5: Use the correct dma device when registering memory")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20210606053150.170489-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/fpu/xstate.c | 105 ++++++++++++++++++++---------------
- 1 file changed, 61 insertions(+), 44 deletions(-)
+ drivers/vdpa/mlx5/core/mr.c       | 9 ++-------
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
+ 2 files changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kernel/fpu/xstate.c b/arch/x86/kernel/fpu/xstate.c
-index 80dcf0417f30..80836b94189e 100644
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1084,20 +1084,10 @@ static inline bool xfeatures_mxcsr_quirk(u64 xfeatures)
- 	return true;
+diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+index 800cfd1967ad..cfa56a58b271 100644
+--- a/drivers/vdpa/mlx5/core/mr.c
++++ b/drivers/vdpa/mlx5/core/mr.c
+@@ -219,11 +219,6 @@ static void destroy_indirect_key(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_m
+ 	mlx5_vdpa_destroy_mkey(mvdev, &mkey->mkey);
  }
  
--static void fill_gap(struct membuf *to, unsigned *last, unsigned offset)
-+static void copy_feature(bool from_xstate, struct membuf *to, void *xstate,
-+			 void *init_xstate, unsigned int size)
- {
--	if (*last >= offset)
--		return;
--	membuf_write(to, (void *)&init_fpstate.xsave + *last, offset - *last);
--	*last = offset;
+-static struct device *get_dma_device(struct mlx5_vdpa_dev *mvdev)
+-{
+-	return &mvdev->mdev->pdev->dev;
 -}
 -
--static void copy_part(struct membuf *to, unsigned *last, unsigned offset,
--		      unsigned size, void *from)
--{
--	fill_gap(to, last, offset);
--	membuf_write(to, from, size);
--	*last = offset + size;
-+	membuf_write(to, from_xstate ? xstate : init_xstate, size);
- }
- 
- /*
-@@ -1109,10 +1099,10 @@ static void copy_part(struct membuf *to, unsigned *last, unsigned offset,
-  */
- void copy_xstate_to_kernel(struct membuf to, struct xregs_state *xsave)
+ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr *mr,
+ 			 struct vhost_iotlb *iotlb)
  {
-+	const unsigned int off_mxcsr = offsetof(struct fxregs_state, mxcsr);
-+	struct xregs_state *xinit = &init_fpstate.xsave;
- 	struct xstate_header header;
--	const unsigned off_mxcsr = offsetof(struct fxregs_state, mxcsr);
--	unsigned size = to.left;
--	unsigned last = 0;
-+	unsigned int zerofrom;
- 	int i;
+@@ -239,7 +234,7 @@ static int map_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr
+ 	u64 pa;
+ 	u64 paend;
+ 	struct scatterlist *sg;
+-	struct device *dma = get_dma_device(mvdev);
++	struct device *dma = mvdev->vdev.dma_dev;
  
- 	/*
-@@ -1122,41 +1112,68 @@ void copy_xstate_to_kernel(struct membuf to, struct xregs_state *xsave)
- 	header.xfeatures = xsave->header.xfeatures;
- 	header.xfeatures &= xfeatures_mask_user();
+ 	for (map = vhost_iotlb_itree_first(iotlb, mr->start, mr->end - 1);
+ 	     map; map = vhost_iotlb_itree_next(map, start, mr->end - 1)) {
+@@ -298,7 +293,7 @@ err_map:
  
--	if (header.xfeatures & XFEATURE_MASK_FP)
--		copy_part(&to, &last, 0, off_mxcsr, &xsave->i387);
--	if (header.xfeatures & (XFEATURE_MASK_SSE | XFEATURE_MASK_YMM))
--		copy_part(&to, &last, off_mxcsr,
--			  MXCSR_AND_FLAGS_SIZE, &xsave->i387.mxcsr);
--	if (header.xfeatures & XFEATURE_MASK_FP)
--		copy_part(&to, &last, offsetof(struct fxregs_state, st_space),
--			  128, &xsave->i387.st_space);
--	if (header.xfeatures & XFEATURE_MASK_SSE)
--		copy_part(&to, &last, xstate_offsets[XFEATURE_SSE],
--			  256, &xsave->i387.xmm_space);
--	/*
--	 * Fill xsave->i387.sw_reserved value for ptrace frame:
--	 */
--	copy_part(&to, &last, offsetof(struct fxregs_state, sw_reserved),
--		  48, xstate_fx_sw_bytes);
--	/*
--	 * Copy xregs_state->header:
--	 */
--	copy_part(&to, &last, offsetof(struct xregs_state, header),
--		  sizeof(header), &header);
-+	/* Copy FP state up to MXCSR */
-+	copy_feature(header.xfeatures & XFEATURE_MASK_FP, &to, &xsave->i387,
-+		     &xinit->i387, off_mxcsr);
-+
-+	/* Copy MXCSR when SSE or YMM are set in the feature mask */
-+	copy_feature(header.xfeatures & (XFEATURE_MASK_SSE | XFEATURE_MASK_YMM),
-+		     &to, &xsave->i387.mxcsr, &xinit->i387.mxcsr,
-+		     MXCSR_AND_FLAGS_SIZE);
-+
-+	/* Copy the remaining FP state */
-+	copy_feature(header.xfeatures & XFEATURE_MASK_FP,
-+		     &to, &xsave->i387.st_space, &xinit->i387.st_space,
-+		     sizeof(xsave->i387.st_space));
-+
-+	/* Copy the SSE state - shared with YMM, but independently managed */
-+	copy_feature(header.xfeatures & XFEATURE_MASK_SSE,
-+		     &to, &xsave->i387.xmm_space, &xinit->i387.xmm_space,
-+		     sizeof(xsave->i387.xmm_space));
-+
-+	/* Zero the padding area */
-+	membuf_zero(&to, sizeof(xsave->i387.padding));
-+
-+	/* Copy xsave->i387.sw_reserved */
-+	membuf_write(&to, xstate_fx_sw_bytes, sizeof(xsave->i387.sw_reserved));
-+
-+	/* Copy the user space relevant state of @xsave->header */
-+	membuf_write(&to, &header, sizeof(header));
-+
-+	zerofrom = offsetof(struct xregs_state, extended_state_area);
+ static void unmap_direct_mr(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_direct_mr *mr)
+ {
+-	struct device *dma = get_dma_device(mvdev);
++	struct device *dma = mvdev->vdev.dma_dev;
  
- 	for (i = FIRST_EXTENDED_XFEATURE; i < XFEATURE_MAX; i++) {
- 		/*
--		 * Copy only in-use xstates:
-+		 * The ptrace buffer is in non-compacted XSAVE format.
-+		 * In non-compacted format disabled features still occupy
-+		 * state space, but there is no state to copy from in the
-+		 * compacted init_fpstate. The gap tracking will zero this
-+		 * later.
- 		 */
--		if ((header.xfeatures >> i) & 1) {
--			void *src = __raw_xsave_addr(xsave, i);
-+		if (!(xfeatures_mask_user() & BIT_ULL(i)))
-+			continue;
- 
--			copy_part(&to, &last, xstate_offsets[i],
--				  xstate_sizes[i], src);
--		}
-+		/*
-+		 * If there was a feature or alignment gap, zero the space
-+		 * in the destination buffer.
-+		 */
-+		if (zerofrom < xstate_offsets[i])
-+			membuf_zero(&to, xstate_offsets[i] - zerofrom);
-+
-+		copy_feature(header.xfeatures & BIT_ULL(i), &to,
-+			     __raw_xsave_addr(xsave, i),
-+			     __raw_xsave_addr(xinit, i),
-+			     xstate_sizes[i]);
- 
-+		/*
-+		 * Keep track of the last copied state in the non-compacted
-+		 * target buffer for gap zeroing.
-+		 */
-+		zerofrom = xstate_offsets[i] + xstate_sizes[i];
+ 	destroy_direct_mr(mvdev, mr);
+ 	dma_unmap_sg_attrs(dma, mr->sg_head.sgl, mr->nsg, DMA_BIDIRECTIONAL, 0);
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 01eb6c100d2d..2b74e34fbdec 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -2032,7 +2032,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name)
+ 			goto err_mtu;
  	}
--	fill_gap(&to, &last, size);
-+
-+	if (to.left)
-+		membuf_zero(&to, to.left);
- }
  
- /*
+-	mvdev->vdev.dma_dev = mdev->device;
++	mvdev->vdev.dma_dev = &mdev->pdev->dev;
+ 	err = mlx5_vdpa_alloc_resources(&ndev->mvdev);
+ 	if (err)
+ 		goto err_mpfs;
 -- 
 2.30.2
 
