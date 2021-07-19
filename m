@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5941E3CDDE8
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 672EB3CDC04
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244561AbhGSPBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:01:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S240854AbhGSOvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344166AbhGSO7a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:59:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26A0D61375;
-        Mon, 19 Jul 2021 15:38:52 +0000 (UTC)
+        id S245160AbhGSOr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:47:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3024D6120C;
+        Mon, 19 Jul 2021 15:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626709133;
-        bh=kjGmUYlKIALHdH2NW/foryJJYrzDOhvO50awcgOngG0=;
+        s=korg; t=1626708203;
+        bh=A83FRVSo6F+diaBzL3hQzAQEi7LOLnR0Fl6Xy51eJhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPmgFH9RUOkz0zsPw9bb6DkSPA+81kEbupELHGPn9QnmmjBbyvJVpwAQHOo2iI5MD
-         4Z/jWfITqY3H/kCUo4mCG9Fu7v9FN1N+Ud8UvvMkaQ55qoxolxrnQ2hCjwrGnvW2Ft
-         U9T8XXdZYTTG2mkg7cuw6l3qEUABbEQ/28ITao4Q=
+        b=BY9MZRaqkWvRIEYWwP7YpIjCxjWxZ+187vqWoQm5v0oMI2I2nvBxb/dAbLy38xnSQ
+         o0dHHqPbmy77ZEHEvUT+yXE54bom/+diMZWvwjNRdP2xLNXRGoofBMCPFLfVEF/txK
+         UdcqXdfhtAnQw5nsHyOWBmyN+ujq4P0+CbJBTAJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 266/421] iwlwifi: pcie: free IML DMA memory allocation
+Subject: [PATCH 4.14 188/315] atm: nicstar: use dma_free_coherent instead of kfree
 Date:   Mon, 19 Jul 2021 16:51:17 +0200
-Message-Id: <20210719144955.602752889@linuxfoundation.org>
+Message-Id: <20210719144949.087613763@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144946.310399455@linuxfoundation.org>
-References: <20210719144946.310399455@linuxfoundation.org>
+In-Reply-To: <20210719144942.861561397@linuxfoundation.org>
+References: <20210719144942.861561397@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,89 +40,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 310f60f53a86eba680d9bc20a371e13b06a5f903 ]
+[ Upstream commit 6a1e5a4af17e440dd82a58a2c5f40ff17a82b722 ]
 
-In the case of gen3 devices with image loader (IML) support,
-we were leaking the IML DMA allocation and never freeing it.
-Fix that.
+When 'nicstar_init_one' fails, 'ns_init_card_error' will be executed for
+error handling, but the correct memory free function should be used,
+otherwise it will cause an error. Since 'card->rsq.org' and
+'card->tsq.org' are allocated using 'dma_alloc_coherent' function, they
+should be freed using 'dma_free_coherent'.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210618105614.07e117dbedb7.I7bb9ebbe0617656986c2a598ea5e827b533bd3b9@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fix this by using 'dma_free_coherent' instead of 'kfree'
+
+This log reveals it:
+
+[    3.440294] kernel BUG at mm/slub.c:4206!
+[    3.441059] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[    3.441430] CPU: 2 PID: 1 Comm: swapper/0 Not tainted 5.12.4-g70e7f0549188-dirty #141
+[    3.441986] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+[    3.442780] RIP: 0010:kfree+0x26a/0x300
+[    3.443065] Code: e8 3a c3 b9 ff e9 d6 fd ff ff 49 8b 45 00 31 db a9 00 00 01 00 75 4d 49 8b 45 00 a9 00 00 01 00 75 0a 49 8b 45 08 a8 01 75 02 <0f> 0b 89 d9 b8 00 10 00 00 be 06 00 00 00 48 d3 e0 f7 d8 48 63 d0
+[    3.443396] RSP: 0000:ffffc90000017b70 EFLAGS: 00010246
+[    3.443396] RAX: dead000000000100 RBX: 0000000000000000 RCX: 0000000000000000
+[    3.443396] RDX: 0000000000000000 RSI: ffffffff85d3df94 RDI: ffffffff85df38e6
+[    3.443396] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000001
+[    3.443396] R10: 0000000000000000 R11: 0000000000000001 R12: ffff888107dc0000
+[    3.443396] R13: ffffea00001f0100 R14: ffff888101a8bf00 R15: ffff888107dc0160
+[    3.443396] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000) knlGS:0000000000000000
+[    3.443396] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.443396] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.443396] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.443396] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.443396] Call Trace:
+[    3.443396]  ns_init_card_error+0x12c/0x220
+[    3.443396]  nicstar_init_one+0x10d2/0x1130
+[    3.443396]  local_pci_probe+0x4a/0xb0
+[    3.443396]  pci_device_probe+0x126/0x1d0
+[    3.443396]  ? pci_device_remove+0x100/0x100
+[    3.443396]  really_probe+0x27e/0x650
+[    3.443396]  driver_probe_device+0x84/0x1d0
+[    3.443396]  ? mutex_lock_nested+0x16/0x20
+[    3.443396]  device_driver_attach+0x63/0x70
+[    3.443396]  __driver_attach+0x117/0x1a0
+[    3.443396]  ? device_driver_attach+0x70/0x70
+[    3.443396]  bus_for_each_dev+0xb6/0x110
+[    3.443396]  ? rdinit_setup+0x40/0x40
+[    3.443396]  driver_attach+0x22/0x30
+[    3.443396]  bus_add_driver+0x1e6/0x2a0
+[    3.443396]  driver_register+0xa4/0x180
+[    3.443396]  __pci_register_driver+0x77/0x80
+[    3.443396]  ? uPD98402_module_init+0xd/0xd
+[    3.443396]  nicstar_init+0x1f/0x75
+[    3.443396]  do_one_initcall+0x7a/0x3d0
+[    3.443396]  ? rdinit_setup+0x40/0x40
+[    3.443396]  ? rcu_read_lock_sched_held+0x4a/0x70
+[    3.443396]  kernel_init_freeable+0x2a7/0x2f9
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  kernel_init+0x13/0x180
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  ? rest_init+0x2c0/0x2c0
+[    3.443396]  ret_from_fork+0x1f/0x30
+[    3.443396] Modules linked in:
+[    3.443396] Dumping ftrace buffer:
+[    3.443396]    (ftrace buffer empty)
+[    3.458593] ---[ end trace 3c6f8f0d8ef59bcd ]---
+[    3.458922] RIP: 0010:kfree+0x26a/0x300
+[    3.459198] Code: e8 3a c3 b9 ff e9 d6 fd ff ff 49 8b 45 00 31 db a9 00 00 01 00 75 4d 49 8b 45 00 a9 00 00 01 00 75 0a 49 8b 45 08 a8 01 75 02 <0f> 0b 89 d9 b8 00 10 00 00 be 06 00 00 00 48 d3 e0 f7 d8 48 63 d0
+[    3.460499] RSP: 0000:ffffc90000017b70 EFLAGS: 00010246
+[    3.460870] RAX: dead000000000100 RBX: 0000000000000000 RCX: 0000000000000000
+[    3.461371] RDX: 0000000000000000 RSI: ffffffff85d3df94 RDI: ffffffff85df38e6
+[    3.461873] RBP: ffffc90000017b90 R08: 0000000000000001 R09: 0000000000000001
+[    3.462372] R10: 0000000000000000 R11: 0000000000000001 R12: ffff888107dc0000
+[    3.462871] R13: ffffea00001f0100 R14: ffff888101a8bf00 R15: ffff888107dc0160
+[    3.463368] FS:  0000000000000000(0000) GS:ffff88817bc80000(0000) knlGS:0000000000000000
+[    3.463949] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.464356] CR2: 0000000000000000 CR3: 000000000642e000 CR4: 00000000000006e0
+[    3.464856] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[    3.465356] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[    3.465860] Kernel panic - not syncing: Fatal exception
+[    3.466370] Dumping ftrace buffer:
+[    3.466616]    (ftrace buffer empty)
+[    3.466871] Kernel Offset: disabled
+[    3.467122] Rebooting in 1 seconds..
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c  | 15 ++++++++++-----
- .../net/wireless/intel/iwlwifi/pcie/internal.h    |  3 +++
- 2 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/atm/nicstar.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-index a1cecf4a0e82..addf786fbcaf 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/ctxt-info-gen3.c
-@@ -63,7 +63,6 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	struct iwl_prph_scratch *prph_scratch;
- 	struct iwl_prph_scratch_ctrl_cfg *prph_sc_ctrl;
- 	struct iwl_prph_info *prph_info;
--	void *iml_img;
- 	u32 control_flags = 0;
- 	int ret;
- 
-@@ -157,14 +156,15 @@ int iwl_pcie_ctxt_info_gen3_init(struct iwl_trans *trans,
- 	trans_pcie->prph_scratch = prph_scratch;
- 
- 	/* Allocate IML */
--	iml_img = dma_alloc_coherent(trans->dev, trans->iml_len,
--				     &trans_pcie->iml_dma_addr, GFP_KERNEL);
--	if (!iml_img) {
-+	trans_pcie->iml = dma_alloc_coherent(trans->dev, trans->iml_len,
-+					     &trans_pcie->iml_dma_addr,
-+					     GFP_KERNEL);
-+	if (!trans_pcie->iml) {
- 		ret = -ENOMEM;
- 		goto err_free_ctxt_info;
+diff --git a/drivers/atm/nicstar.c b/drivers/atm/nicstar.c
+index 2c1a81b85816..d62ec533087e 100644
+--- a/drivers/atm/nicstar.c
++++ b/drivers/atm/nicstar.c
+@@ -838,10 +838,12 @@ static void ns_init_card_error(ns_dev *card, int error)
+ 			dev_kfree_skb_any(hb);
  	}
- 
--	memcpy(iml_img, trans->iml, trans->iml_len);
-+	memcpy(trans_pcie->iml, trans->iml, trans->iml_len);
- 
- 	iwl_enable_fw_load_int_ctx_info(trans);
- 
-@@ -212,6 +212,11 @@ void iwl_pcie_ctxt_info_gen3_free(struct iwl_trans *trans)
- 	trans_pcie->ctxt_info_dma_addr = 0;
- 	trans_pcie->ctxt_info_gen3 = NULL;
- 
-+	dma_free_coherent(trans->dev, trans->iml_len, trans_pcie->iml,
-+			  trans_pcie->iml_dma_addr);
-+	trans_pcie->iml_dma_addr = 0;
-+	trans_pcie->iml = NULL;
-+
- 	iwl_pcie_ctxt_info_free_fw_img(trans);
- 
- 	dma_free_coherent(trans->dev, sizeof(*trans_pcie->prph_scratch),
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-index e9d67ba3e56d..f581822b2a7d 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/internal.h
-@@ -447,6 +447,8 @@ struct iwl_self_init_dram {
-  *	Context information addresses will be taken from here.
-  *	This is driver's local copy for keeping track of size and
-  *	count for allocating and freeing the memory.
-+ * @iml: image loader image virtual address
-+ * @iml_dma_addr: image loader image DMA address
-  * @trans: pointer to the generic transport area
-  * @scd_base_addr: scheduler sram base address in SRAM
-  * @scd_bc_tbls: pointer to the byte count table of the scheduler
-@@ -492,6 +494,7 @@ struct iwl_trans_pcie {
- 	};
- 	struct iwl_prph_info *prph_info;
- 	struct iwl_prph_scratch *prph_scratch;
-+	void *iml;
- 	dma_addr_t ctxt_info_dma_addr;
- 	dma_addr_t prph_info_dma_addr;
- 	dma_addr_t prph_scratch_dma_addr;
+ 	if (error >= 12) {
+-		kfree(card->rsq.org);
++		dma_free_coherent(&card->pcidev->dev, NS_RSQSIZE + NS_RSQ_ALIGNMENT,
++				card->rsq.org, card->rsq.dma);
+ 	}
+ 	if (error >= 11) {
+-		kfree(card->tsq.org);
++		dma_free_coherent(&card->pcidev->dev, NS_TSQSIZE + NS_TSQ_ALIGNMENT,
++				card->tsq.org, card->tsq.dma);
+ 	}
+ 	if (error >= 10) {
+ 		free_irq(card->pcidev->irq, card);
 -- 
 2.30.2
 
