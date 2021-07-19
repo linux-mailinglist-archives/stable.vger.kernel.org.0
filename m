@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 804383CE253
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:14:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A07B33CE0B5
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 18:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348075AbhGSPaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 11:30:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45468 "EHLO mail.kernel.org"
+        id S238256AbhGSPSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 11:18:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243148AbhGSP11 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 11:27:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E002261249;
-        Mon, 19 Jul 2021 16:08:05 +0000 (UTC)
+        id S1346448AbhGSPOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 11:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D73AC610D2;
+        Mon, 19 Jul 2021 15:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626710886;
-        bh=+uFTDpvKhWHlQ5H7ysMc7Ohh59fU2zT9cKN7k1vT62k=;
+        s=korg; t=1626710075;
+        bh=4cmWkVFhdTzQWY9usqWWMyf40gKiTVqMUh3jZzfwEhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GgaBdJt0Az1Y2dkpI0UbkK8bkTk/o+L5mcNdhfYLFOHJ5qsH9rMy4TDaeFgmZcoTL
-         8fw+2mC9DQv+MSd1Bs8oi2NQiSkeQg2nTJlRnp1M6o3ekkIKTbBiq4l0oOHf/unWSa
-         PeqtVV+BvowIE4n/rN/4mg5sdssCT59WzQ2WU5i4=
+        b=I7M1wQVLjRmn2dV1OkG+r8vjBqixCoykZehV58r2WbCzdT0h7OFNkgT4mQEwZ5dxv
+         9JQOEn8m6dHG8uUcBJ0mraRc6j+REMXDZcD54AFzWu0Z4zJDzcNpIAT4sbqHFI8NHj
+         WWFOuco3f1sUbjoxVqB3J2s/0q9C3yCcJkVf6B5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dimitri John Ledkov <dimitri.ledkov@canonical.com>,
-        Kyungsik Lee <kyungsik.lee@lge.com>,
-        Yinghai Lu <yinghai@kernel.org>,
-        Bongkyu Kim <bongkyu.kim@lge.com>,
-        Kees Cook <keescook@chromium.org>,
-        Sven Schmidt <4sschmid@informatik.uni-hamburg.de>,
-        Rajat Asthana <thisisrast7@gmail.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Gao Xiang <hsiangkao@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>, Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 146/351] lib/decompress_unlz4.c: correctly handle zero-padding around initrds.
-Date:   Mon, 19 Jul 2021 16:51:32 +0200
-Message-Id: <20210719144949.810047891@linuxfoundation.org>
+Subject: [PATCH 5.10 064/243] mfd: da9052/stmpe: Add and modify MODULE_DEVICE_TABLE
+Date:   Mon, 19 Jul 2021 16:51:33 +0200
+Message-Id: <20210719144942.985925961@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210719144944.537151528@linuxfoundation.org>
-References: <20210719144944.537151528@linuxfoundation.org>
+In-Reply-To: <20210719144940.904087935@linuxfoundation.org>
+References: <20210719144940.904087935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,97 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 2c484419efc09e7234c667aa72698cb79ba8d8ed ]
+[ Upstream commit 4700ef326556ed74aba188f12396740a8c1c21dd ]
 
-lz4 compatible decompressor is simple.  The format is underspecified and
-relies on EOF notification to determine when to stop.  Initramfs buffer
-format[1] explicitly states that it can have arbitrary number of zero
-padding.  Thus when operating without a fill function, be extra careful to
-ensure that sizes less than 4, or apperantly empty chunksizes are treated
-as EOF.
+This patch adds/modifies MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-To test this I have created two cpio initrds, first a normal one,
-main.cpio.  And second one with just a single /test-file with content
-"second" second.cpio.  Then i compressed both of them with gzip, and with
-lz4 -l.  Then I created a padding of 4 bytes (dd if=/dev/zero of=pad4 bs=1
-count=4).  To create four testcase initrds:
-
- 1) main.cpio.gzip + extra.cpio.gzip = pad0.gzip
- 2) main.cpio.lz4  + extra.cpio.lz4 = pad0.lz4
- 3) main.cpio.gzip + pad4 + extra.cpio.gzip = pad4.gzip
- 4) main.cpio.lz4  + pad4 + extra.cpio.lz4 = pad4.lz4
-
-The pad4 test-cases replicate the initrd load by grub, as it pads and
-aligns every initrd it loads.
-
-All of the above boot, however /test-file was not accessible in the initrd
-for the testcase #4, as decoding in lz4 decompressor failed.  Also an
-error message printed which usually is harmless.
-
-Whith a patched kernel, all of the above testcases now pass, and
-/test-file is accessible.
-
-This fixes lz4 initrd decompress warning on every boot with grub.  And
-more importantly this fixes inability to load multiple lz4 compressed
-initrds with grub.  This patch has been shipping in Ubuntu kernels since
-January 2021.
-
-[1] ./Documentation/driver-api/early-userspace/buffer-format.rst
-
-BugLink: https://bugs.launchpad.net/bugs/1835660
-Link: https://lore.kernel.org/lkml/20210114200256.196589-1-xnox@ubuntu.com/ # v0
-Link: https://lkml.kernel.org/r/20210513104831.432975-1-dimitri.ledkov@canonical.com
-Signed-off-by: Dimitri John Ledkov <dimitri.ledkov@canonical.com>
-Cc: Kyungsik Lee <kyungsik.lee@lge.com>
-Cc: Yinghai Lu <yinghai@kernel.org>
-Cc: Bongkyu Kim <bongkyu.kim@lge.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sven Schmidt <4sschmid@informatik.uni-hamburg.de>
-Cc: Rajat Asthana <thisisrast7@gmail.com>
-Cc: Nick Terrell <terrelln@fb.com>
-Cc: Gao Xiang <hsiangkao@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/decompress_unlz4.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mfd/da9052-i2c.c | 1 +
+ drivers/mfd/stmpe-i2c.c  | 2 +-
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/lib/decompress_unlz4.c b/lib/decompress_unlz4.c
-index c0cfcfd486be..e6327391b6b6 100644
---- a/lib/decompress_unlz4.c
-+++ b/lib/decompress_unlz4.c
-@@ -112,6 +112,9 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 				error("data corrupted");
- 				goto exit_2;
- 			}
-+		} else if (size < 4) {
-+			/* empty or end-of-file */
-+			goto exit_3;
- 		}
+diff --git a/drivers/mfd/da9052-i2c.c b/drivers/mfd/da9052-i2c.c
+index 47556d2d9abe..8ebfc7bbe4e0 100644
+--- a/drivers/mfd/da9052-i2c.c
++++ b/drivers/mfd/da9052-i2c.c
+@@ -113,6 +113,7 @@ static const struct i2c_device_id da9052_i2c_id[] = {
+ 	{"da9053-bc", DA9053_BC},
+ 	{}
+ };
++MODULE_DEVICE_TABLE(i2c, da9052_i2c_id);
  
- 		chunksize = get_unaligned_le32(inp);
-@@ -125,6 +128,10 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 			continue;
- 		}
+ #ifdef CONFIG_OF
+ static const struct of_device_id dialog_dt_ids[] = {
+diff --git a/drivers/mfd/stmpe-i2c.c b/drivers/mfd/stmpe-i2c.c
+index 61aa020199f5..cd2f45257dc1 100644
+--- a/drivers/mfd/stmpe-i2c.c
++++ b/drivers/mfd/stmpe-i2c.c
+@@ -109,7 +109,7 @@ static const struct i2c_device_id stmpe_i2c_id[] = {
+ 	{ "stmpe2403", STMPE2403 },
+ 	{ }
+ };
+-MODULE_DEVICE_TABLE(i2c, stmpe_id);
++MODULE_DEVICE_TABLE(i2c, stmpe_i2c_id);
  
-+		if (!fill && chunksize == 0) {
-+			/* empty or end-of-file */
-+			goto exit_3;
-+		}
- 
- 		if (posp)
- 			*posp += 4;
-@@ -184,6 +191,7 @@ STATIC inline int INIT unlz4(u8 *input, long in_len,
- 		}
- 	}
- 
-+exit_3:
- 	ret = 0;
- exit_2:
- 	if (!input)
+ static struct i2c_driver stmpe_i2c_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
