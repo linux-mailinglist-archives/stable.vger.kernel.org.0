@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B506D3CD833
-	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EED63CD84A
+	for <lists+stable@lfdr.de>; Mon, 19 Jul 2021 17:02:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241533AbhGSOVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 19 Jul 2021 10:21:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55086 "EHLO mail.kernel.org"
+        id S242970AbhGSOVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 19 Jul 2021 10:21:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242153AbhGSOUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 19 Jul 2021 10:20:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5000C611C1;
-        Mon, 19 Jul 2021 15:00:52 +0000 (UTC)
+        id S242104AbhGSOUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 19 Jul 2021 10:20:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1D4C6128A;
+        Mon, 19 Jul 2021 15:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626706852;
-        bh=7b4kQ3frdkLozzWz2WbAPeNubGN3rPCGqNgqGd8tXH0=;
+        s=korg; t=1626706855;
+        bh=XULeIKO58KM06kqQ/XPeBJWpa8SchSLl8yxE/fnaWqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdw1EddkQMByQgXi+aw/g5OAceRZwHOqNSCIOeQ+ROks6WWbel4Dhk6Xp6KavX8iG
-         8z6Kw7B/7I33Sz8tNMsEkIm0cDfexWIlyDlS2CG507IrN5ttvy8oPMFRm+mxZDmawo
-         3U/hpFgtDbOokKOYk530HvYN9tMSOJsYu5Jq3zBs=
+        b=g9fHOmOEJnG1Ybz24yBjs0YeTvoqKIMKAeJ1Vx5VDj36lXw2sIp21VvUvZ2JhzmL9
+         clwxn05W/lsWHmuUOa990Obb1S9F/jFxjTx6/Te9CdxAkUHCQzGg+xbE0JUxnt1nCh
+         pr9FJpJSGLUubDF3oELs3og6E1d8S75rNkrJrSaU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.4 127/188] powerpc/barrier: Avoid collision with clangs __lwsync macro
-Date:   Mon, 19 Jul 2021 16:51:51 +0200
-Message-Id: <20210719144940.650247691@linuxfoundation.org>
+        stable@vger.kernel.org, Al Cooper <alcooperx@gmail.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.4 128/188] mmc: sdhci: Fix warning message when accessing RPMB in HS400 mode
+Date:   Mon, 19 Jul 2021 16:51:52 +0200
+Message-Id: <20210719144940.681641460@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210719144913.076563739@linuxfoundation.org>
 References: <20210719144913.076563739@linuxfoundation.org>
@@ -40,57 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Al Cooper <alcooperx@gmail.com>
 
-commit 015d98149b326e0f1f02e44413112ca8b4330543 upstream.
+commit d0244847f9fc5e20df8b7483c8a4717fe0432d38 upstream.
 
-A change in clang 13 results in the __lwsync macro being defined as
-__builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
-the target supports. This breaks the build because of -Werror in
-arch/powerpc, along with thousands of warnings:
+When an eMMC device is being run in HS400 mode, any access to the
+RPMB device will cause the error message "mmc1: Invalid UHS-I mode
+selected". This happens as a result of tuning being disabled before
+RPMB access and then re-enabled after the RPMB access is complete.
+When tuning is re-enabled, the system has to switch from HS400
+to HS200 to do the tuning and then back to HS400. As part of
+sequence to switch from HS400 to HS200 the system is temporarily
+put into HS mode. When switching to HS mode, sdhci_get_preset_value()
+is called and does not have support for HS mode and prints the warning
+message and returns the preset for SDR12. The fix is to add support
+for MMC and SD HS modes to sdhci_get_preset_value().
 
- In file included from arch/powerpc/kernel/pmc.c:12:
- In file included from include/linux/bug.h:5:
- In file included from arch/powerpc/include/asm/bug.h:109:
- In file included from include/asm-generic/bug.h:20:
- In file included from include/linux/kernel.h:12:
- In file included from include/linux/bitops.h:32:
- In file included from arch/powerpc/include/asm/bitops.h:62:
- arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
- #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
-        ^
- <built-in>:308:9: note: previous definition is here
- #define __lwsync __builtin_ppc_lwsync
-        ^
- 1 error generated.
+This can be reproduced on any system running eMMC in HS400 mode
+(not HS400ES) by using the "mmc" utility to run the following
+command: "mmc rpmb read-counter /dev/mmcblk0rpmb".
 
-Undefine this macro so that the runtime patching introduced by
-commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
-work properly with clang and the build no longer breaks.
-
+Signed-off-by: Al Cooper <alcooperx@gmail.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 52983382c74f ("mmc: sdhci: enhance preset value function")
 Cc: stable@vger.kernel.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1386
-Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
-Link: https://lore.kernel.org/r/20210528182752.1852002-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20210624163045.33651-1-alcooperx@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/include/asm/barrier.h |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci.c |    4 ++++
+ drivers/mmc/host/sdhci.h |    1 +
+ 2 files changed, 5 insertions(+)
 
---- a/arch/powerpc/include/asm/barrier.h
-+++ b/arch/powerpc/include/asm/barrier.h
-@@ -43,6 +43,8 @@
- #    define SMPWMB      eieio
- #endif
+--- a/drivers/mmc/host/sdhci.c
++++ b/drivers/mmc/host/sdhci.c
+@@ -1134,6 +1134,10 @@ static u16 sdhci_get_preset_value(struct
+ 	u16 preset = 0;
  
-+/* clang defines this macro for a builtin, which will not work with runtime patching */
-+#undef __lwsync
- #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
- #define dma_rmb()	__lwsync()
- #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
+ 	switch (host->timing) {
++	case MMC_TIMING_MMC_HS:
++	case MMC_TIMING_SD_HS:
++		preset = sdhci_readw(host, SDHCI_PRESET_FOR_HIGH_SPEED);
++		break;
+ 	case MMC_TIMING_UHS_SDR12:
+ 		preset = sdhci_readw(host, SDHCI_PRESET_FOR_SDR12);
+ 		break;
+--- a/drivers/mmc/host/sdhci.h
++++ b/drivers/mmc/host/sdhci.h
+@@ -232,6 +232,7 @@
+ 
+ /* 60-FB reserved */
+ 
++#define SDHCI_PRESET_FOR_HIGH_SPEED	0x64
+ #define SDHCI_PRESET_FOR_SDR12 0x66
+ #define SDHCI_PRESET_FOR_SDR25 0x68
+ #define SDHCI_PRESET_FOR_SDR50 0x6A
 
 
