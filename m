@@ -2,380 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD7293CF3D9
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:10:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE1463CF40B
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240724AbhGTE3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 00:29:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57332 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240562AbhGTE3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 00:29:49 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FC41C061574
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 22:10:27 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so1785552pjo.3
-        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 22:10:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=HJrAhsIkAVqPuH1BM/tCvpHq2bYuWY8/izmUbBwR/gQ=;
-        b=HpCsgJEG6Y4ahM1pekSVVKWnzMBESZYUd03ubPq36j6YTIh+mI4JMgTG+FXFVvYTMx
-         vThcx9uokkU9EsWk2EQVkTgfpHdmHM99w/IqU/sqnuCC6Uub80OIfGWs5b7YnG5vEC5t
-         nvfm4Gl/tA4C+P6QXB37wE2aZt/2iktoH1H2QsgqcusKlVgTNTa6U/xnYYJD7O9GAq91
-         FbGvzsTUPXpxuXp4DeVsrseyYAvinewkps4VoGs4gjiFnVob+xX0l/v/Kj5Cl4gcf2qv
-         kZHA3cPNaoWsnXrc/AwQCmAEruS/q+1whhJhW78vIjeMtZQfzt1/c2Rc+qFdN8iEOIzm
-         ly7g==
+        id S238152AbhGTE6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 00:58:06 -0400
+Received: from mail-pj1-f41.google.com ([209.85.216.41]:44773 "EHLO
+        mail-pj1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237648AbhGTE6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 00:58:03 -0400
+Received: by mail-pj1-f41.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so1816275pjo.3;
+        Mon, 19 Jul 2021 22:38:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=HJrAhsIkAVqPuH1BM/tCvpHq2bYuWY8/izmUbBwR/gQ=;
-        b=X1MvJBd4AePZz2ekcoPsaMFibINrTw+v8Nt9pVc7o1nEUuWsa3ETyNoiH73jHsWzaE
-         diBjNvaVfF/OCzcF5gSerpkFP5JFnPTTTPe6IP5CSlLvCTDIwYU7l38zwii1N+3WJcNu
-         7bgtt/hqdGxphTjPXTFIVHnk2KpZVlP+mxh91U0evqnYb6I7yyZ6aRx4CvhsB2n9H3sE
-         Xz9aNXe8Pbfw1fs0XEjFSqXUhaEke50K/HzauS6e0IyOQDRtURW226YupRBstVey8e9v
-         xNiBimN3Agvr6p7WNtfHM4HSIc4lwPVVjbdQviHT3okUB+U2TbzmjUFn5QboSOa5e02S
-         f28w==
-X-Gm-Message-State: AOAM530G4/tKm4aBVK75ZTu2nOiL1KQqSnXezTEqqce315PPW4HexQBE
-        nof8PgM2FKf0Db0XYiBIo8Tk+X/Avpgvlw==
-X-Google-Smtp-Source: ABdhPJxvxQKglYPt9Rzu1Gq/tEeoYogmGgeH0tVFR7+weKIAL1WcOJJWJCFU/W9vnDJ/82I9rGguZw==
-X-Received: by 2002:a17:90a:7a86:: with SMTP id q6mr34480117pjf.141.1626757826891;
-        Mon, 19 Jul 2021 22:10:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e4sm25999652pgi.94.2021.07.19.22.10.26
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=H6FMY36ifoVcSW+eRrx8urOcqQvcESIiNUaCo0mYNkk=;
+        b=rgAJmyzEzCvy4zhFESu3jOuAc3d6SMFB0kJnSvNpgG1QV6jacx/9WlePrBh2berJcC
+         EPyvXEWG+rbXGlsSmi7CvsaS5RbALvgVQEWfacbvdgWwwZGqIIP9SIdr+fhIL5OTOBCi
+         fhbbBkWAhNlAKRt+bAVwU0fcLbQKLeStQ3k/SoJ94LGe6S9Xk2QHwYPHPQEX8xbdvXf7
+         iTG0MRbHro2uk5x+3VZSw6IrCoVdLLUlhqG29aKt7N+HHzB4ewagVtqP3/vr/+f0PlCJ
+         RnuMX7WE65HP9BJraDWQnznFtp/D4k59X7BO1uBOideEUCVW5t26n5JrmLTjPZxh8/xz
+         uX7w==
+X-Gm-Message-State: AOAM531gn1Fujbct7iumTJEgUrZpW19fzbF257vWA91JIV+gpdn/Khdl
+        wH4mM8SYEq7waQnmryC7DIc=
+X-Google-Smtp-Source: ABdhPJwYgAyPPkoCWeF1bvYsckKE51nqjFwi21AE8/C4xiCNJZLa2ylcJzslBc4P4xyB78pVapKS/g==
+X-Received: by 2002:a17:902:684a:b029:12b:8d3e:68dc with SMTP id f10-20020a170902684ab029012b8d3e68dcmr6177240pln.79.1626759521913;
+        Mon, 19 Jul 2021 22:38:41 -0700 (PDT)
+Received: from localhost ([2601:647:5b00:6f70:be34:681b:b1e9:776f])
+        by smtp.gmail.com with ESMTPSA id b9sm20591709pfm.124.2021.07.19.22.38.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jul 2021 22:10:26 -0700 (PDT)
-Message-ID: <60f65ac2.1c69fb81.143e7.c479@mx.google.com>
-Date:   Mon, 19 Jul 2021 22:10:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 19 Jul 2021 22:38:41 -0700 (PDT)
+Date:   Mon, 19 Jul 2021 22:38:40 -0700
+From:   Moritz Fischer <mdf@kernel.org>
+To:     Justin Forbes <jmforbes@linuxtx.org>
+Cc:     Moritz Fischer <mdf@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stable <stable@vger.kernel.org>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: Re: [PATCH 5.13 024/800] usb: renesas-xhci: Fix handling of unknown
+ ROM state
+Message-ID: <YPZhYAbzdQvZqfV+@epycbox.lan>
+References: <20210712060912.995381202@linuxfoundation.org>
+ <20210712060916.499546891@linuxfoundation.org>
+ <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
+ <YPNavEl340mxcNVd@epycbox.lan>
+ <CAFxkdApGaw30O2HEkTA8r6g4_dLZEbykVjnnDnfTiX=3hVQwvw@mail.gmail.com>
+ <CAFxkdAqd69oXdhUBEmMRvmfuk2YpWS7qsDKLjUEAEg8rhQkTyQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.275-189-g9a5ee5f15ce7
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y baseline: 115 runs,
- 8 regressions (v4.4.275-189-g9a5ee5f15ce7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFxkdAqd69oXdhUBEmMRvmfuk2YpWS7qsDKLjUEAEg8rhQkTyQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 115 runs, 8 regressions (v4.4.275-189-g9a5e=
-e5f15ce7)
-
-Regressions Summary
--------------------
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.275-189-g9a5ee5f15ce7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.275-189-g9a5ee5f15ce7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9a5ee5f15ce7173e76ab3da5a14b374eab0af960 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv2 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f6251c7522149be011609d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f6251c7522149be0116=
-09e
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv2 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f62603220e9e4cbb11609a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f62603220e9e4cbb116=
-09b
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv2 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f625277b73347d511160a2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f625277b73347d51116=
-0a3
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv2 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f62746cfd6a76ee81160b9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f62746cfd6a76ee8116=
-0ba
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv3 | arm  | lab-baylibre  | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f62594b41777b9eb1160bd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f62594b41777b9eb116=
-0be
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv3 | arm  | lab-broonie   | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f626a305f29ddb2c1160ab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f626a305f29ddb2c116=
-0ac
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv3 | arm  | lab-cip       | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f6258684a2716de91160ab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-irt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-irt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f6258684a2716de9116=
-0ac
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =
-
-
-
-platform            | arch | lab           | compiler | defconfig          =
-| regressions
---------------------+------+---------------+----------+--------------------=
-+------------
-qemu_arm-virt-gicv3 | arm  | lab-collabora | gcc-8    | multi_v7_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f62829d768aba3cf1160ab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.275=
--189-g9a5ee5f15ce7/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f62829d768aba3cf116=
-0ac
-        failing since 247 days (last pass: v4.4.243-14-gcb8e837cb602, first=
- fail: v4.4.243-20-g3c35b64319c2) =
-
- =20
+On Mon, Jul 19, 2021 at 09:57:00PM -0500, Justin Forbes wrote:
+> On Mon, Jul 19, 2021 at 10:33 AM Justin Forbes <jmforbes@linuxtx.org> wrote:
+> >
+> > On Sat, Jul 17, 2021 at 5:33 PM Moritz Fischer <mdf@kernel.org> wrote:
+> > >
+> > > Justin,
+> > >
+> > > On Sat, Jul 17, 2021 at 08:39:19AM -0500, Justin Forbes wrote:
+> > > > On Mon, Jul 12, 2021 at 2:31 AM Greg Kroah-Hartman
+> > > > <gregkh@linuxfoundation.org> wrote:
+> > > > >
+> > > > > From: Moritz Fischer <mdf@kernel.org>
+> > > > >
+> > > > > commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
+> > > > >
+> > > > > The ROM load sometimes seems to return an unknown status
+> > > > > (RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
+> > > > >
+> > > > > If the ROM load indeed failed this leads to failures when trying to
+> > > > > communicate with the controller later on.
+> > > > >
+> > > > > Attempt to load firmware using RAM load in those cases.
+> > > > >
+> > > > > Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
+> > > > > Cc: stable@vger.kernel.org
+> > > > > Cc: Mathias Nyman <mathias.nyman@intel.com>
+> > > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > Cc: Vinod Koul <vkoul@kernel.org>
+> > > > > Tested-by: Vinod Koul <vkoul@kernel.org>
+> > > > > Reviewed-by: Vinod Koul <vkoul@kernel.org>
+> > > > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
+> > > > > Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
+> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > >
+> > > >
+> > > > After sending out 5.12.17 for testing, we had a user complain that all
+> > > > of their USB devices disappeared with the error:
+> > > >
+> > > > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: Direct firmware load
+> > > > for renesas_usb_fw.mem failed with error -2
+> > > > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: request_firmware failed: -2
+> > > > Jul 15 23:18:53 kernel: xhci_hcd: probe of 0000:04:00.0 failed with error -2
+> > >
+> > > This looks like it fails finding the actual firmware file (ENOENT). Any
+> > > chance you could give this a whirl on top of the original patch?
+> > >
+> >
+> > Sure. test kernel building now, will let you know when the user reports back.
+> 
+> The original user reports success with this patch on top of the original patch.
+
+That's good news I guess.
+
+After reading through the datasheet once more I'm even more convinced
+that the original code with the early return in
+renesas_check_fw_running() is *very* shady.
+
+There are three statuses to be investigated
+- FW load status (fw_state)
+- ROM download status (rom_status)
+- Firmware version as reported by chip
+
+Currently there the code takes an early return if the latter says the
+external ROM is there and the 'write firmware to external ROM'
+worked out, which I think shouldn't be happening, since it doesn't tell
+us anything about the firmware state at all. In fact I think the early
+return should not exist at all (a path that the original patch made more
+likely to happen).
+
+The FW load status indicates whether firmware has been runtime loaded
+and returns 'No result yet' in your case, too I suspect, which *might*
+happen if the chip configured itself from external ROM?
+
+So the part that is unclear to me somewhat is should we use either of
+them at all in trying to determine whether we should load firmware?
+
+Maybe what we should do is:
+- Attempt to request_firmware()
+- If fail -> proceed and hope for the best
+- If success
+  - Compare the firmware file version with the version reported by the
+    controller
+  - If they don't match, load firmware, otherwise leave it alone?
+
+- Moritz
+
+
+> 
+> Justin
+> 
+> >
+> > Justin
+> >
+> > > diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
+> > > index 18c2bbddf080..cde8f6f1ec5d 100644
+> > > --- a/drivers/usb/host/xhci-pci.c
+> > > +++ b/drivers/usb/host/xhci-pci.c
+> > > @@ -379,7 +379,11 @@ static int xhci_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
+> > >         driver_data = (struct xhci_driver_data *)id->driver_data;
+> > >         if (driver_data && driver_data->quirks & XHCI_RENESAS_FW_QUIRK) {
+> > >                 retval = renesas_xhci_check_request_fw(dev, id);
+> > > -               if (retval)
+> > > +               /*
+> > > +                * If firmware wasn't found there's still a chance this might work without
+> > > +                * loading firmware on some systems, so let's try at least.
+> > > +                */
+> > > +               if (retval && retval != -ENOENT)
+> > >                         return retval;
+> > >         }
+> > >
+> > >
+> > > Thanks,
+> > > Moritz
