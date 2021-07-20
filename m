@@ -2,78 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 285E93CF7B4
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 12:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF7B23CF7D1
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 12:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235590AbhGTJkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 05:40:21 -0400
-Received: from foss.arm.com ([217.140.110.172]:55304 "EHLO foss.arm.com"
+        id S236530AbhGTJm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 05:42:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236690AbhGTJjH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Jul 2021 05:39:07 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id B1FD36D;
-        Tue, 20 Jul 2021 03:18:41 -0700 (PDT)
-Received: from [10.57.6.251] (unknown [10.57.6.251])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 8AD943F73D;
-        Tue, 20 Jul 2021 03:18:38 -0700 (PDT)
-Subject: Re: [PATCH v2 1/1] PM: EM: Increase energy calculation precision
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, Chris.Redpath@arm.com,
-        dietmar.eggemann@arm.com, morten.rasmussen@arm.com,
-        qperret@google.com, linux-pm@vger.kernel.org,
-        stable@vger.kernel.org, peterz@infradead.org, rjw@rjwysocki.net,
-        viresh.kumar@linaro.org, vincent.guittot@linaro.org,
-        mingo@redhat.com, juri.lelli@redhat.com, rostedt@goodmis.org,
-        segall@google.com, mgorman@suse.de, bristot@redhat.com,
-        CCj.Yeh@mediatek.com
-References: <20210720094153.31097-1-lukasz.luba@arm.com>
- <20210720094153.31097-2-lukasz.luba@arm.com> <YPabR/dfllPVZbzu@kroah.com>
-From:   Lukasz Luba <lukasz.luba@arm.com>
-Message-ID: <3578f5dc-fc6c-da1d-9bf5-092522a35f97@arm.com>
-Date:   Tue, 20 Jul 2021 11:18:36 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S236936AbhGTJlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 05:41:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C474D60FE9;
+        Tue, 20 Jul 2021 10:22:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626776543;
+        bh=8VKFt6lQcOHIqn7zxMC8HiQxuY7TKewOXFwLW8jygDE=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=XwMv/5quJCFkNlkHXbqVP1Euji05zX+9xp8KGwF1CD036JcdibYFL9/L+bLCbk1Pp
+         wMeGlAVGanJRlMThSci/7O1NxXtnotWAbt48OFBdoFpyqF1Mmo/n6bjlf27eqGw6uy
+         I/04jkg8P1kKnN/TEBKdTXvf26MSeG5HeLdbGTU1aHgJb40MMCRVA7g4QHK8/msIiL
+         PpeJewOMzJkDGDDYMkHPmT0xIWO1bfdCaU9XPfxwygPeVvkTLxbcWgC+5cxHRYs/5Z
+         lmbfkpJxF932OxzdiNJP8CV6lWFMJycU3YiabzvnnqWffdpljRG6j7ftSFXybGFaEx
+         Ygq5nGajtz4YQ==
+Date:   Tue, 20 Jul 2021 12:22:15 +0200
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Georgi Valkov <gvalkov@abv.bg>
+Cc:     davem@davemloft.net, mhabets@solarflare.com,
+        luc.vanoostenryck@gmail.com, snelson@pensando.io, mst@redhat.com,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, corsac@corsac.net,
+        matti.vuorela@bitfactor.fi, stable@vger.kernel.org
+Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+Message-ID: <20210720122215.54abaf53@cakuba>
+In-Reply-To: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
+References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
 MIME-Version: 1.0
-In-Reply-To: <YPabR/dfllPVZbzu@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-On 7/20/21 10:45 AM, Greg KH wrote:
-> On Tue, Jul 20, 2021 at 10:41:53AM +0100, Lukasz Luba wrote:
-
-[snip]
-
->>
->> Fixes: 27871f7a8a341ef ("PM: Introduce an Energy Model management framework")
->> Reported-by: CCJ Yeh <CCj.Yeh@mediatek.com>
->> Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
->> ---
->>   include/linux/energy_model.h | 16 ++++++++++++++++
->>   kernel/power/energy_model.c  |  3 ++-
->>   2 files changed, 18 insertions(+), 1 deletion(-)
->>
+On Tue, 20 Jul 2021 12:37:43 +0300, Georgi Valkov wrote:
+> ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+> https://github.com/openwrt/openwrt/pull/4084
 > 
-> <formletter>
 > 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
-> 
+> From dd109ded2b526636fff438d33433ab64ffd21583 Mon Sep 17 00:00:00 2001
+> From: Georgi Valkov <gvalkov@abv.bg>
+> Date: Fri, 16 Apr 2021 20:44:36 +0300
+> Subject: [PATCH] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
 
-I shouldn't have sent to CC -stable for now.
-I will create and send a dedicated patch for stable
-with proper commit ID after it's merged (like I did last time).
-We are heading to stable 5.4+ (so the Android could get it).
-
-Regards,
-Lukasz
+This is all unnecessary, IIUC you're submitting this patch for upstream
+inclusion, please rebase it on the netdev/net tree, and try git
+send-email on a file generated by git format-patch. Before that please
+correct the fixes tag to the common format (you'll find it in docs or
+follow what others do).
