@@ -2,89 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3EB43D0435
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 00:05:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EACAD3D0498
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 00:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231262AbhGTVYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 17:24:19 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:44250 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230336AbhGTVYK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 17:24:10 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 96D981C0B77; Wed, 21 Jul 2021 00:04:46 +0200 (CEST)
-Date:   Wed, 21 Jul 2021 00:04:46 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>, Will Deacon <will@kernel.org>,
+        id S229667AbhGTVp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 17:45:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55562 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231339AbhGTVpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 17:45:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A22506101B;
+        Tue, 20 Jul 2021 22:26:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626819961;
+        bh=N/QVPaoMJEJ5+FFJpuBm9gxMMZrk9cnFnG+T9svgsmg=;
+        h=Date:From:To:Cc:Subject:From;
+        b=ZTY2JHE6nB8vAT3ikPBbw9hDct1zHKz27pU55/OvgoHOTUpFGja4sbPsvjeVVs2YC
+         Qeb1pirpFc+ld2Os7hJFuUyxbRZuDtldEmJ4kHfUJzWDrF8v1xOAd38A7xX3Z0YY+u
+         aUVCsPhqPgdAzRlB25m5+WPtF+wML+GwC0q/R1ePKJTfpV/+2ez7f8BUdXXDQdJOIP
+         FvSAN1HhoxnEUrcIuETkYpRGDZoVmWKCe6fCEskURGXclWnaZpZQ83Hs8UkUBQhbzY
+         WBR1a4NmgQN6YHtAic0QaiK8q9f6nV4X7ryooqOLX1U4fcifz3ikmIOWCIRtJUXK4x
+         KHhtLYGdsIYtQ==
+Received: by pali.im (Postfix)
+        id 55325871; Wed, 21 Jul 2021 00:25:59 +0200 (CEST)
+Date:   Wed, 21 Jul 2021 00:25:59 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 074/243] iommu/arm-smmu: Fix arm_smmu_device
- refcount leak when arm_smmu_rpm_get fails
-Message-ID: <20210720220445.GA1557@amd>
-References: <20210719144940.904087935@linuxfoundation.org>
- <20210719144943.296807839@linuxfoundation.org>
+Cc:     Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>,
+        stable@vger.kernel.org
+Subject: Backporting armada-3700-rwtm-firmware DTS changes to stable kernel
+Message-ID: <20210720222559.k4zoqr2rk62pj7ky@pali>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210719144943.296807839@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Greg & Sasha, I would like to ask you for your opinion about
+backporting DTS patches to stable kernel which allows usage of hwrng on
+Marvell Armada 3700 devices.
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Driver is already part of 5.4 kernel, just DTS bindings are not there.
+I do not know if such backport is suitable for stable kernels. In file
+https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+is written that "New device IDs and quirks are also accepted" where
+"device id" could mean also small DTS change...
 
-Hi!
-
-> From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
->=20
-> [ Upstream commit 1adf30f198c26539a62d761e45af72cde570413d ]
->=20
-> arm_smmu_rpm_get() invokes pm_runtime_get_sync(), which increases the
-> refcount of the "smmu" even though the return value is less than 0.
-
-Yes.
-
-> The reference counting issue happens in some error handling paths of
-> arm_smmu_rpm_get() in its caller functions. When arm_smmu_rpm_get()
-> fails, the caller functions forget to decrease the refcount of "smmu"
-> increased by arm_smmu_rpm_get(), causing a refcount leak.
-
-Yes, some error paths do that. But some callers (arm_smmu_map,
-arm_smmu_unmap, arm_smmu_flush_iotlb_all, ...) ignore return value of
-arm_smmu_rpm_get().
-
-> Fix this issue by calling pm_runtime_resume_and_get() instead of
-> pm_runtime_get_sync() in arm_smmu_rpm_get(), which can keep the refcount
-> balanced in case of failure.
-
-So no, this is not fixed; it is just unbalanced in the other (more
-dangerous) direction now.
-
-Best regards,
-								Pavel
-							=09
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmD3SH0ACgkQMOfwapXb+vIWAgCeM843/S/by8WDaeHAteRRms3m
-9BUAniOph6NCoPFAm4gdwPuWcs3S3XGR
-=88E1
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+What do you think? Question is about these 3 small commits:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=90ae47215de3fec862aeb1a0f0e28bb505ab1351
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=46d2f6d0c99f7f95600e633c7dc727745faaf95e
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3a52a48973b355b3aac5add92ef50650ae37c2bd
