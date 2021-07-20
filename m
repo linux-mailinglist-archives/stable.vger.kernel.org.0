@@ -2,100 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FC23CF979
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 14:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F23483CF9D6
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 14:47:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236193AbhGTLkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 07:40:10 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:7404 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235590AbhGTLkK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 07:40:10 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GTd4d4FHSz7w4x;
-        Tue, 20 Jul 2021 20:17:05 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Tue, 20 Jul 2021 20:20:44 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Tue, 20 Jul 2021 20:20:43 +0800
-Subject: Re: [PATCH 4.19 000/420] 4.19.198-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210719184335.198051502@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <de52d937-fd3f-7b19-9976-724614ae9c64@huawei.com>
-Date:   Tue, 20 Jul 2021 20:20:42 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <20210719184335.198051502@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+        id S238178AbhGTMG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 08:06:29 -0400
+Received: from pop31.abv.bg ([194.153.145.221]:52826 "EHLO pop31.abv.bg"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238265AbhGTMGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 08:06:18 -0400
+Received: from smtp.abv.bg (localhost [127.0.0.1])
+        by pop31.abv.bg (Postfix) with ESMTP id 63D6A1805D3D;
+        Tue, 20 Jul 2021 15:46:33 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abv.bg; s=smtp-out;
+        t=1626785193; bh=3n+oId2CcuiY7DARlUQCYAgosiVIv3DRNqh5ePKuPW0=;
+        h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+        b=VtfzwQisc+8A4Ov4xUN8PZpgmEG4NFE8oXQss9vBcGS3w5OOVAeD9ijRIUbrpcyTJ
+         dsYqs/CCU3Hu4RvY282vwL+DdPUVKxeOOtuI3v2ywSNVs0movGQO1cvUC56uefkqTY
+         xfmNlKD6D1JPjPFrCiVPNbPxHLMzE0gQTVBPNdR4=
+X-HELO: smtpclient.apple
+Authentication-Results: smtp.abv.bg; auth=pass (plain) smtp.auth=gvalkov@abv.bg
+Received: from 212-39-89-148.ip.btc-net.bg (HELO smtpclient.apple) (212.39.89.148)
+ by smtp.abv.bg (qpsmtpd/0.96) with ESMTPSA (ECDHE-RSA-AES256-GCM-SHA384 encrypted); Tue, 20 Jul 2021 15:46:33 +0300
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.100.0.2.22\))
+Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+From:   Georgi Valkov <gvalkov@abv.bg>
+In-Reply-To: <YPa4ZelG2k8Z826E@kroah.com>
+Date:   Tue, 20 Jul 2021 15:46:11 +0300
+Cc:     Jakub Kicinski <kuba@kernel.org>, davem@davemloft.net,
+        mhabets@solarflare.com, luc.vanoostenryck@gmail.com,
+        snelson@pensando.io, mst@redhat.com, linux-usb@vger.kernel.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        corsac@corsac.net, matti.vuorela@bitfactor.fi,
+        stable@vger.kernel.org,
+        =?utf-8?B?0JPQtdC+0YDQs9C4INCT0LXQvtGA0LPQuNC10LIg0JLRitC70LrQvtCy?= 
+        <gvalkov@abv.bg>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <C6AA954F-8382-461D-835F-E5CA03363D84@abv.bg>
+References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
+ <20210720122215.54abaf53@cakuba>
+ <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg> <YPa4ZelG2k8Z826E@kroah.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+X-Mailer: Apple Mail (2.3654.100.0.2.22)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Yes, I read it, and before my previous e-mail that I also read the link =
+from Jakub,
+which essentially provides the same information.
 
+There is only one patch =
+0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
+The command I used from the example also generated a 0000-cover-letter, =
+so
+I included it as well.
 
-On 2021/7/20 2:45, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.198 release.
-> There are 420 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 21 Jul 2021 18:42:43 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.198-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
+I still have no clue what exactly I should do. Can you please help me?
+
+Georgi Valkov
+
+> On 2021-07-20, at 2:49 PM, Greg KH <gregkh@linuxfoundation.org> wrote:
+>=20
+> On Tue, Jul 20, 2021 at 02:39:49PM +0300, Georgi Valkov wrote:
+>> I am doing this for the first time, so any help would be appreciated!
+>=20
+> Have you read Documentation/process/submitting-patches.rst yet?  If =
+not,
+> please do so.
+>=20
+> And look at examples on this list, you have to send individual =
+patches,
+> not everything all crammed into one email.
+>=20
 > thanks,
-> 
+>=20
 > greg k-h
-> 
+>=20
 
-Tested on arm64 and x86 for 4.19.198-rc2,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.198-rc2
-Commit: dfee0ece72748f6e5a717edb5eaedcb8fa3060ed
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8858
-passed: 8858
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8858
-passed: 8858
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
