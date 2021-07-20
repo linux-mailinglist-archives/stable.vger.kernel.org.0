@@ -2,85 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349D23D02BC
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 22:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDDA03D02C2
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 22:39:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234619AbhGTT3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 15:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35166 "EHLO
+        id S230030AbhGTTb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 15:31:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234001AbhGTT3W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 15:29:22 -0400
-Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AE96C061574;
-        Tue, 20 Jul 2021 13:09:59 -0700 (PDT)
-Received: by mail-oi1-x22b.google.com with SMTP id y66so475129oie.7;
-        Tue, 20 Jul 2021 13:09:59 -0700 (PDT)
+        with ESMTP id S234778AbhGTTaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 15:30:07 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD87C061762
+        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 13:10:44 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id l18-20020a1ced120000b029014c1adff1edso2170990wmh.4
+        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 13:10:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=in4rObE1pwud251ir7z9cBXTRiRwT/ZWVHLmDJqnJe8=;
-        b=J8z/crIdnCb592BAp4QRHCKkFnAIWXUqQI1ty4EqN/kchqk6QHzermRmlyX62HaXTX
-         eo52Lakwu6wAGSi8qBs8CuUmfbbx0HzaUyIvATjq6VQEhWGVU6YGW6DZEz1CQVISNI9M
-         K2uwGgAhchfAnKFyabKCazL8zbOzSvxloJ3YMqY9Agq9hpWHeik95unGCs7I9gZxPL/K
-         TtvIkYVAA+bL7MeqS00XtuvcJb86nE7C+8TV1HLeJZPPUkr0KqGCJWSb34cNO589v/hO
-         yJR4QEeC/TC9NqjhgBXloSjNLbJB1pJe5JSeWlt0w1bdO1T6YYHgMW+bNw5VIRMVzkkw
-         3PUQ==
+        d=jakma-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:mime-version;
+        bh=ujpcn5xxbqKrLHJ8YgF2WLu43nbvYoHOnJdrAYEpQQM=;
+        b=x6o4hLvBjsk6d1FsJXb1rVZElaXMb6sOmmKe/ym5NXIDhJlihVDacDgdsP2Uy/JTUG
+         Unf+8hh5YEuoz6YabvMyehZYKLApn8jOsZJBaW4T78wrPXl5o2GD2wovZ+av5RFc5Sc4
+         uPhRmjjB/zD/owemRSYR2ykyYjart+tARWfbX5CD+pchQ8qce1wZt+jrzn6a8ssy84zd
+         mv59GQPYmTqiSDkh/FQpy+TK1/x3msx0SO+Q0X72I287J04wUDuanZOjqPZtHTo490Qe
+         FjEI1h/u6iN2cKiuaLgdAwbe4boSO4vpNqBpnvdlOylWeXQqwaXLJTdHx/hYj5+eWEi1
+         L1bQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=in4rObE1pwud251ir7z9cBXTRiRwT/ZWVHLmDJqnJe8=;
-        b=Ocs8yWUNMIki9BAdvvB7uV3Yypx9q0KmHCMjWKeSWZuMOCPxk/Vr72wKbhs1F+2hf1
-         mTtRNfV3Xy2qxDZ8wKza4TEjBGyUYIal0AYq0V5wnXBcehwtanHO8RfHqgjcydXdZ0uR
-         9n0Cz3+jI/jXSu62WlW5L4/39h3i8+wzcJzNYShIh+V3HT9TnYlFp7W3figZJfEjsnt7
-         inToRIEKy53W2gLSx532mysWUxorGP627uRqg/e+2q8GlMPABsPjmuF9BV+NKqVv1PC8
-         ZTZv/f5Hst10Sjha0vIMWpi1rA3KPXq8VrVHPI7Na/1ejBSmtHq3yulzifJSYIWHTlh5
-         342Q==
-X-Gm-Message-State: AOAM530ed7SIl/U/U2E/Ajw1lJvBa7SvBCgpMm+slomIPopGw0OOw0gQ
-        sXCUyJv2dzgBnx0Z2290dvA=
-X-Google-Smtp-Source: ABdhPJzyN1G+ClvoLlnxgL9cSeRS3fsh7rLTACtWyD7CB7gp0tZpVlIXHpfu5IjotCLNXhw/MOy4/g==
-X-Received: by 2002:aca:43c6:: with SMTP id q189mr104503oia.81.1626811798918;
-        Tue, 20 Jul 2021 13:09:58 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id t64sm4627445oig.48.2021.07.20.13.09.57
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version;
+        bh=ujpcn5xxbqKrLHJ8YgF2WLu43nbvYoHOnJdrAYEpQQM=;
+        b=CqLyR526s2v6RNPRamvKtS2KVVGPLWyhjzFL2DdakXsi8bh/0ZZ0EfA9RNxwLkE7cF
+         STZ8axd32oyT5pUxvW9+HSC8X7KHFZGZhcKno0dtBfWKIdSFmVr1OKu9Roa7OafjQ3ka
+         n74vvjBF47K1fz+53icmGD+C/jpPPBNOn3Ndox2kR62UoGwcGV/h+BcSYEmoOWo/4MWl
+         IYDYA+ubSDuqxjwrqOzjC4WG0voEE6Kgp9BJzGtXLd11rr1f0+09iLQQ/poW5lHC/DDZ
+         LeV6pD9NsU19yQO7yAdP1LcEwNlGoTOouJtzf2B5WZ79vxAwzezLIUGGhG1Fm1O0RqvK
+         6/LA==
+X-Gm-Message-State: AOAM533hs7n+nW3V9ak7a4WQaTEQSaLCTPo3gs2dGAm0tgjI/Vl3HktS
+        NCLT6AAEdpbtk2N/j7EypjyQJg==
+X-Google-Smtp-Source: ABdhPJwt/LOTIwAERnRJYlrINSgEPJmfuzoV4romOusCIQD5auVitI9ZtFYxwdCovVvYzfPlDiTXFQ==
+X-Received: by 2002:a1c:cc02:: with SMTP id h2mr33055501wmb.39.1626811843185;
+        Tue, 20 Jul 2021 13:10:43 -0700 (PDT)
+Received: from sagan.jakma.org ([2a01:ac:1000:100::ab])
+        by smtp.gmail.com with ESMTPSA id y11sm3432161wmi.33.2021.07.20.13.10.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 13:09:58 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 20 Jul 2021 13:09:57 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 000/239] 5.10.52-rc2 review
-Message-ID: <20210720200957.GF2360284@roeck-us.net>
-References: <20210719184320.888029606@linuxfoundation.org>
+        Tue, 20 Jul 2021 13:10:42 -0700 (PDT)
+Date:   Tue, 20 Jul 2021 21:10:37 +0100 (BST)
+From:   Paul Jakma <paul@jakma.org>
+To:     davem@davemloft.net
+cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        netdev@vger.kernel.org, stable <stable@vger.kernel.org>,
+        Kangjie Lu <kjlu@umn.edu>
+Subject: [PATCH] NIU: fix missing revert of return and fix the driver
+Message-ID: <70d84870-2d7a-77b2-175b-ef1ff3cb6c38@jakma.org>
+X-Snooper: A life spent reading others private email is a sad and wasted one
+X-NSA:  nitrate toxic DNDO hostage al aqsar fluffy jihad DHS cute musharef kittens jet-A1 ear avgas wax ammonium bad qran dog inshallah allah al-akbar martyr iraq hammas hisballah rabin ayatollah korea revolt mustard gas x-ray british airways hydrogen washington peroxide cool FEMA emergency four lions encryption ricin table pandemic scanner power sleet catalyst injection acetone toluene amatol
+X-KEYSCORE: The greatest long-term threats to freedom and democracy are based in Langley and Fort Meade and Cheltenham
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210719184320.888029606@linuxfoundation.org>
+Content-Type: text/plain; format=flowed; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 08:45:28PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.52 release.
-> There are 239 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 21 Jul 2021 18:42:46 +0000.
-> Anything received after that time might be too late.
-> 
+The revert of commit 26fd962 missed out on reverting an incorrect change 
+to a return value. The niu_pci_vpd_scan_props(..) == 1 case appears to 
+be a normal path - treating it as an error and return -EINVAL was 
+breaking VPD_SCAN and causing the driver to fail to load.
 
-Build results:
-	total: 159 pass: 159 fail: 0
-Qemu test results:
-	total: 458 pass: 458 fail: 0
+Fix it, so my Neptune card works again.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7930742d ('Revert "niu: fix missing checks of niu_pci_eeprom_read"')
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Paul Jakma <paul@jakma.org>
+---
 
-Guenter
+--- e6e337708c22f80824b82d4af645f20715730ad0/drivers/net/ethernet/sun/niu.c	2021-07-20 20:51:52.054770659 +0100
++++ fix/drivers/net/ethernet/sun/niu.c	2021-07-20 20:49:02.194870695 +0100
+@@ -8192,7 +8192,7 @@
+  		if (err < 0)
+  			return err;
+  		if (err == 1)
+-			return -EINVAL;
++			return 0;
+  	}
+  	return 0;
+  }
+-- 
+Paul Jakma | paul@jakma.org | @pjakma | Key ID: 0xD86BF79464A2FF6A
+Fortune:
+How sharper than a serpent's tooth is a sister's "See?"
+ 		-- Linus Van Pelt
