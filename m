@@ -2,122 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 352DB3CF8EC
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 13:37:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E9E3CF8F6
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 13:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236395AbhGTK5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 06:57:00 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40348 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236461AbhGTK4w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 06:56:52 -0400
-Date:   Tue, 20 Jul 2021 11:37:19 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1626781039;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=ZC9D6on5M3V9NKbfuRjdCy1uKWGTOjYynoMjv4pWtos=;
-        b=jo/4MN5HfnInN2PskYnYV2ymcIMvr1dV3Lu6yiqxtavt/zkmpBfU4Xm6TA0PEjbQ7Cc4d2
-        XC75rI5KJmmtnzbO9jWqUlsy4/d2N7DPvEl3viJ3VEFZ2tGfcSuLYepVcOnOg/3wlHJNCS
-        j8o+VrQfGmOZXhkQ3QDi4BVwf+ZO70jtbOa5bz1wbDjirA6ivAkyMvfyQxBj4Jx9x+F6L3
-        7MA/xT4sTiboFxvz/RQ6YW2R1nyRM7GzsXPPCXaT3o0AwbK1YWUInLJywlZ+qFPdtzp39X
-        YKOEC6x6Urz1iSqUU2oeCS/hatGnnFB/8sM3nVtQZKxKpqMLSpkRyD6LYLfLwA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1626781039;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=ZC9D6on5M3V9NKbfuRjdCy1uKWGTOjYynoMjv4pWtos=;
-        b=daq6/yEW6Hi7KdvwruSIlumyseFC/0fuF76rEsU4oE2dhlEo6mFE8sR0h/jiS6YFLF+75J
-        1naUoKYqZP7JV3BA==
-From:   "tip-bot2 for Marc Zyngier" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: efi/urgent] firmware/efi: Tell memblock about EFI iomem reservations
-Cc:     Moritz Fischer <mdf@kernel.org>, Marc Zyngier <maz@kernel.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Message-ID: <162678103917.395.13758847379699183265.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+        id S235590AbhGTK7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 06:59:25 -0400
+Received: from pop31.abv.bg ([194.153.145.221]:39728 "EHLO pop31.abv.bg"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233914AbhGTK7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 06:59:23 -0400
+Received: from smtp.abv.bg (localhost [127.0.0.1])
+        by pop31.abv.bg (Postfix) with ESMTP id 76F091805D3B;
+        Tue, 20 Jul 2021 14:39:58 +0300 (EEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abv.bg; s=smtp-out;
+        t=1626781198; bh=dD4UUjFyJU+H/nb01M25DvrioANn5x42FGEb+GYWFec=;
+        h=Subject:From:In-Reply-To:Date:Cc:References:To:From;
+        b=YpDAr2e9D4CHrBEEh8SvLFnRo/6hoaj61G3Zd5Fy330sn60N1DnTqgq/67pmkceLz
+         tFX562mWxO9Kx1Hqj9C+K73CzCqHevqyvaWo7Np48reZiFHTcQldLl6VPWldDAElmc
+         6jQisT3nxYJQNSgFUhkbTWFTaT83C9jZBmQwawok=
+X-HELO: smtpclient.apple
+Authentication-Results: smtp.abv.bg; auth=pass (plain) smtp.auth=gvalkov@abv.bg
+Received: from 212-39-89-148.ip.btc-net.bg (HELO smtpclient.apple) (212.39.89.148)
+ by smtp.abv.bg (qpsmtpd/0.96) with ESMTPSA (ECDHE-RSA-AES256-GCM-SHA384 encrypted); Tue, 20 Jul 2021 14:39:58 +0300
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.100.0.2.22\))
+Subject: Re: ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+From:   Georgi Valkov <gvalkov@abv.bg>
+In-Reply-To: <20210720122215.54abaf53@cakuba>
+Date:   Tue, 20 Jul 2021 14:39:49 +0300
+Cc:     davem@davemloft.net, mhabets@solarflare.com,
+        luc.vanoostenryck@gmail.com, snelson@pensando.io, mst@redhat.com,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, corsac@corsac.net,
+        matti.vuorela@bitfactor.fi, stable@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <5D0CFF83-439B-4A10-A276-D2D17B037704@abv.bg>
+References: <B60B8A4B-92A0-49B3-805D-809A2433B46C@abv.bg>
+ <20210720122215.54abaf53@cakuba>
+To:     Jakub Kicinski <kuba@kernel.org>
+X-Mailer: Apple Mail (2.3654.100.0.2.22)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the efi/urgent branch of tip:
+I am doing this for the first time, so any help would be appreciated!
+What is to rebase on the netdev/net tree? The patch from my previous =
+e-mail was
+generated by `git format-patch -1`. I can=E2=80=99t notice any =
+difference when compared to
+to the newly generated patch, which I rebased on the latest master.
 
-Commit-ID:     2bab693a608bdf614b9fcd44083c5100f34b9f77
-Gitweb:        https://git.kernel.org/tip/2bab693a608bdf614b9fcd44083c5100f34b9f77
-Author:        Marc Zyngier <maz@kernel.org>
-AuthorDate:    Tue, 13 Jul 2021 19:43:26 +01:00
-Committer:     Ard Biesheuvel <ardb@kernel.org>
-CommitterDate: Fri, 16 Jul 2021 18:05:49 +02:00
+According to the description from the link below, I ran the following =
+commands:
+=
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html#pro=
+viding-base-tree-information
 
-firmware/efi: Tell memblock about EFI iomem reservations
+git clone =
+git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
+cd linux
+git checkout -t -b ipheth-fix-RX-EOVERFLOW master
+git am --signoff < =
+0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
+git format-patch --base=3Dauto --cover-letter -o drivers/net/ master
 
-kexec_load_file() relies on the memblock infrastructure to avoid
-stamping over regions of memory that are essential to the survival
-of the system.
 
-However, nobody seems to agree how to flag these regions as reserved,
-and (for example) EFI only publishes its reservations in /proc/iomem
-for the benefit of the traditional, userspace based kexec tool.
+drivers/net/0000-cover-letter.patch
 
-On arm64 platforms with GICv3, this can result in the payload being
-placed at the location of the LPI tables. Shock, horror!
+=46rom cd18496373e28af570dc382f618edd442d705252 Mon Sep 17 00:00:00 2001
+From: Georgi Valkov <gvalkov@abv.bg>
+Date: Tue, 20 Jul 2021 14:15:58 +0300
+Subject: [PATCH 0/1] *** SUBJECT HERE ***
 
-Let's augment the EFI reservation code with a memblock_reserve() call,
-protecting our dear tables from the secondary kernel invasion.
+*** BLURB HERE ***
 
-Reported-by: Moritz Fischer <mdf@kernel.org>
-Tested-by: Moritz Fischer <mdf@kernel.org>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Georgi Valkov (1):
+  ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+
+ drivers/net/usb/ipheth.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+
+base-commit: 2734d6c1b1a089fb593ef6a23d4b70903526fe0c
+--=20
+2.32.0
+
+
+drivers/net/0001-ipheth-fix-EOVERFLOW-in-ipheth_rcvbulk_callback.patch
+
+=46rom cd18496373e28af570dc382f618edd442d705252 Mon Sep 17 00:00:00 2001
+From: Georgi Valkov <gvalkov@abv.bg>
+Date: Fri, 16 Apr 2021 20:44:36 +0300
+Subject: [PATCH 1/1] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+
+When rx_buf is allocated we need to account for IPHETH_IP_ALIGN,
+which reduces the usable size by 2 bytes. Otherwise we have 1512
+bytes usable instead of 1514, and if we receive more than 1512
+bytes, ipheth_rcvbulk_callback is called with status -EOVERFLOW,
+after which the driver malfunctiones and all communication stops.
+
+Fixes: ipheth 2-1:4.2: ipheth_rcvbulk_callback: urb status: -75
+
+Signed-off-by: Georgi Valkov <gvalkov@abv.bg>
 ---
- drivers/firmware/efi/efi.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/net/usb/ipheth.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 4b7ee3f..847f33f 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -896,6 +896,7 @@ static int __init efi_memreserve_map_root(void)
- static int efi_mem_reserve_iomem(phys_addr_t addr, u64 size)
+diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
+index 207e59e74935..06d9f19ca142 100644
+--- a/drivers/net/usb/ipheth.c
++++ b/drivers/net/usb/ipheth.c
+@@ -121,7 +121,7 @@ static int ipheth_alloc_urbs(struct ipheth_device =
+*iphone)
+ 	if (tx_buf =3D=3D NULL)
+ 		goto free_rx_urb;
+=20
+-	rx_buf =3D usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE,
++	rx_buf =3D usb_alloc_coherent(iphone->udev, IPHETH_BUF_SIZE + =
+IPHETH_IP_ALIGN,
+ 				    GFP_KERNEL, &rx_urb->transfer_dma);
+ 	if (rx_buf =3D=3D NULL)
+ 		goto free_tx_buf;
+@@ -146,7 +146,7 @@ static int ipheth_alloc_urbs(struct ipheth_device =
+*iphone)
+=20
+ static void ipheth_free_urbs(struct ipheth_device *iphone)
  {
- 	struct resource *res, *parent;
-+	int ret;
- 
- 	res = kzalloc(sizeof(struct resource), GFP_ATOMIC);
- 	if (!res)
-@@ -908,7 +909,17 @@ static int efi_mem_reserve_iomem(phys_addr_t addr, u64 size)
- 
- 	/* we expect a conflict with a 'System RAM' region */
- 	parent = request_resource_conflict(&iomem_resource, res);
--	return parent ? request_resource(parent, res) : 0;
-+	ret = parent ? request_resource(parent, res) : 0;
-+
-+	/*
-+	 * Given that efi_mem_reserve_iomem() can be called at any
-+	 * time, only call memblock_reserve() if the architecture
-+	 * keeps the infrastructure around.
-+	 */
-+	if (IS_ENABLED(CONFIG_ARCH_KEEP_MEMBLOCK) && !ret)
-+		memblock_reserve(addr, size);
-+
-+	return ret;
- }
- 
- int __ref efi_mem_reserve_persistent(phys_addr_t addr, u64 size)
+-	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->rx_buf,
++	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE + =
+IPHETH_IP_ALIGN, iphone->rx_buf,
+ 			  iphone->rx_urb->transfer_dma);
+ 	usb_free_coherent(iphone->udev, IPHETH_BUF_SIZE, iphone->tx_buf,
+ 			  iphone->tx_urb->transfer_dma);
+@@ -317,7 +317,7 @@ static int ipheth_rx_submit(struct ipheth_device =
+*dev, gfp_t mem_flags)
+=20
+ 	usb_fill_bulk_urb(dev->rx_urb, udev,
+ 			  usb_rcvbulkpipe(udev, dev->bulk_in),
+-			  dev->rx_buf, IPHETH_BUF_SIZE,
++			  dev->rx_buf, IPHETH_BUF_SIZE + =
+IPHETH_IP_ALIGN,
+ 			  ipheth_rcvbulk_callback,
+ 			  dev);
+ 	dev->rx_urb->transfer_flags |=3D URB_NO_TRANSFER_DMA_MAP;
+--=20
+2.32.0
+
+
+
+My patch corrects the following commit, which changes IPHETH_BUF_SIZE =
+from 1516 to 1514:
+=
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/=
+drivers/net/usb/ipheth.c?id=3Df33d9e2b48a34e1558b67a473a1fc1d6e793f93c
+
+
+
+> On 2021-07-20, at 1:22 PM, Jakub Kicinski <kuba@kernel.org> wrote:
+>=20
+> On Tue, 20 Jul 2021 12:37:43 +0300, Georgi Valkov wrote:
+>> ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+>> https://github.com/openwrt/openwrt/pull/4084
+>>=20
+>>=20
+>> =46rom dd109ded2b526636fff438d33433ab64ffd21583 Mon Sep 17 00:00:00 =
+2001
+>> From: Georgi Valkov <gvalkov@abv.bg>
+>> Date: Fri, 16 Apr 2021 20:44:36 +0300
+>> Subject: [PATCH] ipheth: fix EOVERFLOW in ipheth_rcvbulk_callback
+>=20
+> This is all unnecessary, IIUC you're submitting this patch for =
+upstream
+> inclusion, please rebase it on the netdev/net tree, and try git
+> send-email on a file generated by git format-patch. Before that please
+> correct the fixes tag to the common format (you'll find it in docs or
+> follow what others do).
+>=20
+
