@@ -2,98 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C95C3D0404
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 23:44:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8B93D0411
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 23:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232986AbhGTVEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 17:04:05 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:41514 "EHLO
+        id S230465AbhGTVI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 17:08:29 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:42104 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232902AbhGTVEE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 17:04:04 -0400
+        with ESMTP id S231262AbhGTVIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 17:08:11 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 3D63E1C0B77; Tue, 20 Jul 2021 23:44:39 +0200 (CEST)
-Date:   Tue, 20 Jul 2021 23:44:38 +0200
+        id 6CED81C0B7C; Tue, 20 Jul 2021 23:48:48 +0200 (CEST)
+Date:   Tue, 20 Jul 2021 23:48:47 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Xie Yongji <xieyongji@bytedance.com>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        David Wysochanski <dwysocha@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        "J. Bruce Fields" <bfields@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.4 175/188] virtio_console: Assure used length from
- device is limited
-Message-ID: <20210720214438.GA704@amd>
-References: <20210719144913.076563739@linuxfoundation.org>
- <20210719144942.209087475@linuxfoundation.org>
+Subject: Re: [PATCH 5.10 147/243] NFSD: Fix TP_printk() format specifier in
+ nfsd_clid_class
+Message-ID: <20210720214847.GB704@amd>
+References: <20210719144940.904087935@linuxfoundation.org>
+ <20210719144945.657682587@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
 Content-Disposition: inline
-In-Reply-To: <20210719144942.209087475@linuxfoundation.org>
+In-Reply-To: <20210719144945.657682587@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Xie Yongji <xieyongji@bytedance.com>
+> [ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
 >=20
-> [ Upstream commit d00d8da5869a2608e97cfede094dfc5e11462a46 ]
+> Since commit 9a6944fee68e ("tracing: Add a verifier to check string
+> pointers for trace events"), which was merged in v5.13-rc1,
+> TP_printk() no longer tacitly supports the "%.*s" format specifier.
 >=20
-> The buf->len might come from an untrusted device. This
-> ensures the value would not exceed the size of the buffer
-> to avoid data corruption or loss.
+> These are low value tracepoints, so just remove them.
 
-Since we are not trusting the other side, do we need to use _nospec
-variants to prevent speculation attacks?
+So I understand we want this for mainline, but AFAICT 5.10 does not
+have 9a6944fee68e ("tracing: Add a verifier to check string pointers
+for trace events") commit, so this does not fix any bug and removal of
+tracepoints can be surprising.
 
 Best regards,
 								Pavel
-
-> +++ b/drivers/char/virtio_console.c
-> @@ -487,7 +487,7 @@ static struct port_buffer *get_inbuf(struct port *por=
-t)
-> =20
->  	buf =3D virtqueue_get_buf(port->in_vq, &len);
->  	if (buf) {
-> -		buf->len =3D len;
-> +		buf->len =3D min_t(size_t, len, buf->size);
->  		buf->offset =3D 0;
->  		port->stats.bytes_received +=3D len;
->  	}
-> @@ -1752,7 +1752,7 @@ static void control_work_handler(struct work_struct=
- *work)
->  	while ((buf =3D virtqueue_get_buf(vq, &len))) {
->  		spin_unlock(&portdev->c_ivq_lock);
-> =20
-> -		buf->len =3D len;
-> +		buf->len =3D min_t(size_t, len, buf->size);
->  		buf->offset =3D 0;
-> =20
->  		handle_control_message(vq->vdev, portdev, buf);
-
+							=09
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---mP3DRpeJDSE+ciuQ
+--cvVnyQ+4j833TQvp
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmD3Q8YACgkQMOfwapXb+vKqCwCffZCpFKyIt0tiFNZIsq+ffY/j
-7g0AnRf+GBNJfgmaVNDDa+qTu3JoZttl
-=KJz6
+iEYEARECAAYFAmD3RL8ACgkQMOfwapXb+vLDrACfW36vdkRGR10QmAgw0nCLoBdW
+ZOcAoMBcL8dJt95haFYQmrnDcyNMEAxj
+=+twP
 -----END PGP SIGNATURE-----
 
---mP3DRpeJDSE+ciuQ--
+--cvVnyQ+4j833TQvp--
