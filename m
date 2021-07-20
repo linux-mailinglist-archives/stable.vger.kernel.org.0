@@ -2,173 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE1463CF40B
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5D13CF410
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:43:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238152AbhGTE6G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 00:58:06 -0400
-Received: from mail-pj1-f41.google.com ([209.85.216.41]:44773 "EHLO
-        mail-pj1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237648AbhGTE6D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 00:58:03 -0400
-Received: by mail-pj1-f41.google.com with SMTP id p4-20020a17090a9304b029016f3020d867so1816275pjo.3;
-        Mon, 19 Jul 2021 22:38:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=H6FMY36ifoVcSW+eRrx8urOcqQvcESIiNUaCo0mYNkk=;
-        b=rgAJmyzEzCvy4zhFESu3jOuAc3d6SMFB0kJnSvNpgG1QV6jacx/9WlePrBh2berJcC
-         EPyvXEWG+rbXGlsSmi7CvsaS5RbALvgVQEWfacbvdgWwwZGqIIP9SIdr+fhIL5OTOBCi
-         fhbbBkWAhNlAKRt+bAVwU0fcLbQKLeStQ3k/SoJ94LGe6S9Xk2QHwYPHPQEX8xbdvXf7
-         iTG0MRbHro2uk5x+3VZSw6IrCoVdLLUlhqG29aKt7N+HHzB4ewagVtqP3/vr/+f0PlCJ
-         RnuMX7WE65HP9BJraDWQnznFtp/D4k59X7BO1uBOideEUCVW5t26n5JrmLTjPZxh8/xz
-         uX7w==
-X-Gm-Message-State: AOAM531gn1Fujbct7iumTJEgUrZpW19fzbF257vWA91JIV+gpdn/Khdl
-        wH4mM8SYEq7waQnmryC7DIc=
-X-Google-Smtp-Source: ABdhPJwYgAyPPkoCWeF1bvYsckKE51nqjFwi21AE8/C4xiCNJZLa2ylcJzslBc4P4xyB78pVapKS/g==
-X-Received: by 2002:a17:902:684a:b029:12b:8d3e:68dc with SMTP id f10-20020a170902684ab029012b8d3e68dcmr6177240pln.79.1626759521913;
-        Mon, 19 Jul 2021 22:38:41 -0700 (PDT)
-Received: from localhost ([2601:647:5b00:6f70:be34:681b:b1e9:776f])
-        by smtp.gmail.com with ESMTPSA id b9sm20591709pfm.124.2021.07.19.22.38.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Jul 2021 22:38:41 -0700 (PDT)
-Date:   Mon, 19 Jul 2021 22:38:40 -0700
-From:   Moritz Fischer <mdf@kernel.org>
-To:     Justin Forbes <jmforbes@linuxtx.org>
-Cc:     Moritz Fischer <mdf@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Mathias Nyman <mathias.nyman@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: Re: [PATCH 5.13 024/800] usb: renesas-xhci: Fix handling of unknown
- ROM state
-Message-ID: <YPZhYAbzdQvZqfV+@epycbox.lan>
-References: <20210712060912.995381202@linuxfoundation.org>
- <20210712060916.499546891@linuxfoundation.org>
- <CAFxkdApAJ2i_Bg6Ghd38Tw9Lz5s6FTKP=3-+pSWM-cDT427i2g@mail.gmail.com>
- <YPNavEl340mxcNVd@epycbox.lan>
- <CAFxkdApGaw30O2HEkTA8r6g4_dLZEbykVjnnDnfTiX=3hVQwvw@mail.gmail.com>
- <CAFxkdAqd69oXdhUBEmMRvmfuk2YpWS7qsDKLjUEAEg8rhQkTyQ@mail.gmail.com>
+        id S229684AbhGTFDO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 01:03:14 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38092 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230477AbhGTFDB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 01:03:01 -0400
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16K5YhL2072274;
+        Tue, 20 Jul 2021 01:43:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : references : date : in-reply-to : message-id : content-type :
+ mime-version; s=pp1; bh=f7Q5yspJe6r0GqwG/nqAUZN5kcItfRIYBbEwe620rc4=;
+ b=JeDNi3bmnJR8nIPEvfMD5SxoZUMz/M9DZ/OYfq7JH3uCrgh1Mc/XhoK24+RFb+PITBkS
+ UYCXnOZsx9v8eriLFza9ZLrwgGYtQDdCDI4/axao3xCHnj6rm/ufr7ySolyfM4zmJ9Ug
+ PUEMZPvBEHDaqjnMkXXbGa6QxyiYkVnRaujJaXRXFXD2prkcz7VBKf+1NZS9cNOSzHs2
+ 0Em6e4s+q5Aa1jxu0/LMEkZmDiuLecr4dnqXtlPOOhU4jykjSqXx+xzFzrXLZ/t1JS2/
+ ygEXLbVDuy4IzNUhikwk9jI4D0XcsoAnR8KjcAu1ohOPA0+1JWgTsCWHqWY8lJsnztcS bQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39wngubydy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jul 2021 01:43:18 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16K5ZEP5075470;
+        Tue, 20 Jul 2021 01:43:18 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 39wngubydd-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jul 2021 01:43:17 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16K5b29F006997;
+        Tue, 20 Jul 2021 05:43:16 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma06fra.de.ibm.com with ESMTP id 39upfh8m7a-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 20 Jul 2021 05:43:15 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16K5hDKR21889510
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 20 Jul 2021 05:43:13 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A8A9611C04A;
+        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2172511C054;
+        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
+Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
+        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
+From:   Sven Schnelle <svens@linux.ibm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Daniel =?utf-8?Q?D=C3=ADaz?= <daniel.diaz@linaro.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        linux- stable <stable@vger.kernel.org>, hca@linux.ibm.com
+Subject: Re: [PATCH 5.12 000/242] 5.12.18-rc1 review
+References: <20210715182551.731989182@linuxfoundation.org>
+        <CAEUSe7_+8fQZ=1+jcxJVTRw0DYttGmR-aBdobZ0GWYQi3Vg97w@mail.gmail.com>
+        <yt9dim16lv3u.fsf@linux.ibm.com> <YPUXPEiTrpKoKf+t@kroah.com>
+Date:   Tue, 20 Jul 2021 07:43:12 +0200
+In-Reply-To: <YPUXPEiTrpKoKf+t@kroah.com> (Greg Kroah-Hartman's message of
+        "Mon, 19 Jul 2021 08:10:04 +0200")
+Message-ID: <yt9d4kcp1qxb.fsf@linux.ibm.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: SXYwiLKqLJLZYYD1-cHgywxYB8wqlGx5
+X-Proofpoint-GUID: T9LCOnltkCscTYODk6h6WUIIWTlF-WHY
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFxkdAqd69oXdhUBEmMRvmfuk2YpWS7qsDKLjUEAEg8rhQkTyQ@mail.gmail.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
+ definitions=2021-07-20_01:2021-07-19,2021-07-20 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
+ clxscore=1015 malwarescore=0 bulkscore=0 adultscore=0 mlxlogscore=999
+ priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107200030
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 09:57:00PM -0500, Justin Forbes wrote:
-> On Mon, Jul 19, 2021 at 10:33 AM Justin Forbes <jmforbes@linuxtx.org> wrote:
-> >
-> > On Sat, Jul 17, 2021 at 5:33 PM Moritz Fischer <mdf@kernel.org> wrote:
-> > >
-> > > Justin,
-> > >
-> > > On Sat, Jul 17, 2021 at 08:39:19AM -0500, Justin Forbes wrote:
-> > > > On Mon, Jul 12, 2021 at 2:31 AM Greg Kroah-Hartman
-> > > > <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > From: Moritz Fischer <mdf@kernel.org>
-> > > > >
-> > > > > commit d143825baf15f204dac60acdf95e428182aa3374 upstream.
-> > > > >
-> > > > > The ROM load sometimes seems to return an unknown status
-> > > > > (RENESAS_ROM_STATUS_NO_RESULT) instead of success / fail.
-> > > > >
-> > > > > If the ROM load indeed failed this leads to failures when trying to
-> > > > > communicate with the controller later on.
-> > > > >
-> > > > > Attempt to load firmware using RAM load in those cases.
-> > > > >
-> > > > > Fixes: 2478be82de44 ("usb: renesas-xhci: Add ROM loader for uPD720201")
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Cc: Mathias Nyman <mathias.nyman@intel.com>
-> > > > > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > > Cc: Vinod Koul <vkoul@kernel.org>
-> > > > > Tested-by: Vinod Koul <vkoul@kernel.org>
-> > > > > Reviewed-by: Vinod Koul <vkoul@kernel.org>
-> > > > > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > > > > Link: https://lore.kernel.org/r/20210615153758.253572-1-mdf@kernel.org
-> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > >
-> > > >
-> > > > After sending out 5.12.17 for testing, we had a user complain that all
-> > > > of their USB devices disappeared with the error:
-> > > >
-> > > > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: Direct firmware load
-> > > > for renesas_usb_fw.mem failed with error -2
-> > > > Jul 15 23:18:53 kernel: xhci_hcd 0000:04:00.0: request_firmware failed: -2
-> > > > Jul 15 23:18:53 kernel: xhci_hcd: probe of 0000:04:00.0 failed with error -2
-> > >
-> > > This looks like it fails finding the actual firmware file (ENOENT). Any
-> > > chance you could give this a whirl on top of the original patch?
-> > >
-> >
-> > Sure. test kernel building now, will let you know when the user reports back.
-> 
-> The original user reports success with this patch on top of the original patch.
+Hi Greg,
 
-That's good news I guess.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
 
-After reading through the datasheet once more I'm even more convinced
-that the original code with the early return in
-renesas_check_fw_running() is *very* shady.
+> On Mon, Jul 19, 2021 at 07:40:21AM +0200, Sven Schnelle wrote:
+>> If https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1428532107
+>> is the logfile for this problem, than i see the following in the log:
+>> 
+>> make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc' 'HOSTCC=sccache gcc'
+>> /bin/sh: 1: /builds/linux/arch/s390/kernel/vdso64/gen_vdso_offsets.sh: Permission denied
+>> 
+>> However, in the patch this script is 755, and other architecture are
+>> using this for a while now - can you check what the permission are when
+>> you're trying to build the kernel?
+>
+> Yes, the problem is that when handling patches, we can not change the
+> permissions on files.  That causes this file to not be added with
+> execute permissions.  This has generally been considered a bad thing
+> anyway, and other scripts that relied on being executable have been
+> changed over time to not be that way and be explicitly run by the
+> calling script.
 
-There are three statuses to be investigated
-- FW load status (fw_state)
-- ROM download status (rom_status)
-- Firmware version as reported by chip
+Hmm, right. I didn't thought about patches. So i'll adjust the patch and
+sent it again. I guess prefixing it with $(CONFIG_SHELL) is then the way
+to do it, at least i see a lot of location doing it that way.
 
-Currently there the code takes an early return if the latter says the
-external ROM is there and the 'write firmware to external ROM'
-worked out, which I think shouldn't be happening, since it doesn't tell
-us anything about the firmware state at all. In fact I think the early
-return should not exist at all (a path that the original patch made more
-likely to happen).
+> But it looks like th gen_vdso_offsets.sh script has not been changed on
+> any arch to do that yet.  It is one of the few hold outs.
+>
+> Also, this feels like a HUGE change for a stable tree, adding new
+> features like this, are you sure it's all needed?
 
-The FW load status indicates whether firmware has been runtime loaded
-and returns 'No result yet' in your case, too I suspect, which *might*
-happen if the chip configured itself from external ROM?
+Yes. This fixes syscall restarting in combination with signals coming in
+on s390, which is broken since the conversion to generic entry. There's
+no easy way to fix that, and we don't want to introduce another
+workaround that is userspace visible, as we would have to carry that
+forever.
 
-So the part that is unclear to me somewhat is should we use either of
-them at all in trying to determine whether we should load firmware?
-
-Maybe what we should do is:
-- Attempt to request_firmware()
-- If fail -> proceed and hope for the best
-- If success
-  - Compare the firmware file version with the version reported by the
-    controller
-  - If they don't match, load firmware, otherwise leave it alone?
-
-- Moritz
-
-
-> 
-> Justin
-> 
-> >
-> > Justin
-> >
-> > > diff --git a/drivers/usb/host/xhci-pci.c b/drivers/usb/host/xhci-pci.c
-> > > index 18c2bbddf080..cde8f6f1ec5d 100644
-> > > --- a/drivers/usb/host/xhci-pci.c
-> > > +++ b/drivers/usb/host/xhci-pci.c
-> > > @@ -379,7 +379,11 @@ static int xhci_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
-> > >         driver_data = (struct xhci_driver_data *)id->driver_data;
-> > >         if (driver_data && driver_data->quirks & XHCI_RENESAS_FW_QUIRK) {
-> > >                 retval = renesas_xhci_check_request_fw(dev, id);
-> > > -               if (retval)
-> > > +               /*
-> > > +                * If firmware wasn't found there's still a chance this might work without
-> > > +                * loading firmware on some systems, so let's try at least.
-> > > +                */
-> > > +               if (retval && retval != -ENOENT)
-> > >                         return retval;
-> > >         }
-> > >
-> > >
-> > > Thanks,
-> > > Moritz
+Sven
