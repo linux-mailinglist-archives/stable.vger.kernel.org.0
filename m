@@ -2,197 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 74BCB3CF584
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 09:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 815383CF5E7
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 10:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbhGTHJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 03:09:44 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:7403 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230135AbhGTHJd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 03:09:33 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GTW4R2pSrz7xBj;
-        Tue, 20 Jul 2021 15:46:31 +0800 (CST)
-Received: from dggpemm000001.china.huawei.com (7.185.36.245) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2176.2; Tue, 20 Jul 2021 15:50:09 +0800
-Received: from huawei.com (10.175.113.32) by dggpemm000001.china.huawei.com
- (7.185.36.245) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2176.2; Tue, 20 Jul
- 2021 15:50:08 +0800
-From:   Nanyong Sun <sunnanyong@huawei.com>
-To:     <songmuchun@bytedance.com>, <cl@linux.com>, <penberg@kernel.org>,
-        <rientjes@google.com>, <iamjoonsoo.kim@lge.com>,
-        <akpm@linux-foundation.org>
-CC:     <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v4.19.y,v5.4.y] mm: slab: fix kmem_cache_create failed when sysfs node not destroyed
-Date:   Tue, 20 Jul 2021 16:20:48 +0800
-Message-ID: <20210720082048.2797315-1-sunnanyong@huawei.com>
-X-Mailer: git-send-email 2.18.0.huawei.25
+        id S233414AbhGTHgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 03:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234509AbhGTHfi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 03:35:38 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7B8C0613DE;
+        Tue, 20 Jul 2021 01:15:48 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id f17so25025858wrt.6;
+        Tue, 20 Jul 2021 01:15:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:reply-to:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ql1dPCLTKbbcS6/GHPVv78v3bVThvgbYbc34CpuUIL0=;
+        b=ffLyLY1/JAL7wmQS2W2DoShIdUns/9l1AiXt1wEe3BUKTUc88JoACXEPl3J6IRBCFJ
+         Og2uPlKAD/WnjV3cX8YUTJJ/KWxYz9FC+2OyCGY8x47xlp8s0LGQV8t/4TbcDu9uafVH
+         m92x+higKKO3druYA9RBT/Jod6LHeWpLf+P2CURLTriPMA4GH0mlvDwfq/+mwp7fYECv
+         5Rla3UkzZ48vDC8oyJ1Rkw6qHOkr1M+IjuOLxvTUpnsb7PymqG7S90xZh4H6gOGDUyET
+         fuO+/BVv5JMcyiezAirdVpW6TF9bu3hATNDNuoe6wCfg2kQjfGTsLx1bN28ta4MOK6nB
+         Tqpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=ql1dPCLTKbbcS6/GHPVv78v3bVThvgbYbc34CpuUIL0=;
+        b=CR8Gwi9l70vazlGiH0ICSbwJ/Iw0DuX+iGOdycuqp3loLACpa3945u9VJZmqpQIVsg
+         uJPEp2ouTapFBiBhcbtPBEMR668redRRECsAykBwytGg/VWhFtj3mE28eS996xIAFXxI
+         /0oI7xt8J7ZBPAe8BCcgegRDBga8tvqGebjnnQWGO7y/fOuRn0MDtps2YYdHpLEIys5G
+         j6kU5z56p/9LFxxoB2P5x9TX8qMiXJHUV0wB3zTEVKVZyR5Lrcitt2wckIfs7e7GVun/
+         HSNwkiCjaj5oxPxgwhTq4XFkBogjljizInPvRMZ8/uy1L9aPJDM27wX24+YS7jx9ICiM
+         MDug==
+X-Gm-Message-State: AOAM532YmEzCooHJHElzaA0PLQ4Fk4oCYUGTz7BFiNwNQWM/btcNezvx
+        dfyDFzyW2vE10QUXosmgWCs=
+X-Google-Smtp-Source: ABdhPJx9PjfIc8KKJoLAm/nwv9afljCvFz2qGCXfHFrlTSQ81Lcbriz7tucU92+5o1rHPb04wo2mvQ==
+X-Received: by 2002:adf:d1cd:: with SMTP id b13mr35045256wrd.200.1626768945210;
+        Tue, 20 Jul 2021 01:15:45 -0700 (PDT)
+Received: from pevik (gw.ms-free.net. [95.85.240.250])
+        by smtp.gmail.com with ESMTPSA id f7sm22692887wru.11.2021.07.20.01.15.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 20 Jul 2021 01:15:44 -0700 (PDT)
+Date:   Tue, 20 Jul 2021 10:15:42 +0200
+From:   Petr Vorel <petr.vorel@gmail.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org
+Subject: Re: [PATCH 4.14 305/315] arm64: dts: qcom: msm8994-angler: Fix
+ gpio-reserved-ranges 85-88
+Message-ID: <YPaGLgPhdYuFGGxo@pevik>
+Reply-To: Petr Vorel <petr.vorel@gmail.com>
+References: <20210719144942.861561397@linuxfoundation.org>
+ <20210719144953.504491331@linuxfoundation.org>
+ <CA+G9fYvqW9ZG8PFMyUobaiT2a_nAYyuJeWvRr0AuwB6eWMa+cQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.113.32]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggpemm000001.china.huawei.com (7.185.36.245)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYvqW9ZG8PFMyUobaiT2a_nAYyuJeWvRr0AuwB6eWMa+cQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit d38a2b7a9c93 ("mm: memcg/slab: fix memory leak at non-root
-kmem_cache destroy") introduced a problem: If one thread destroy a
-kmem_cache A and another thread concurrently create a kmem_cache B,
-which is mergeable with A and has same size with A, the B may fail to
-create due to the duplicate sysfs node.
-The scenario in detail:
-1) Thread 1 uses kmem_cache_destroy() to destroy kmem_cache A which is
-mergeable, it decreases A's refcount and if refcount is 0, then call
-memcg_set_kmem_cache_dying() which set A->memcg_params.dying = true,
-then unlock the slab_mutex and call flush_memcg_workqueue(), it may cost
-a while.
-Note: now the sysfs node(like '/kernel/slab/:0000248') of A is still
-present, it will be deleted in shutdown_cache() which will be called
-after flush_memcg_workqueue() is done and lock the slab_mutex again.
-2) Now if thread 2 is coming, it use kmem_cache_create() to create B, which
-is mergeable with A(their size is same), it gain the lock of slab_mutex,
-then call __kmem_cache_alias() trying to find a mergeable node, because
-of the below added code in commit d38a2b7a9c93 ("mm: memcg/slab: fix
-memory leak at non-root kmem_cache destroy"), B is not mergeable with
-A whose memcg_params.dying is true.
+> On Mon, 19 Jul 2021 at 21:01, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
 
-int slab_unmergeable(struct kmem_cache *s)
- 	if (s->refcount < 0)
- 		return 1;
+> > From: Petr Vorel <petr.vorel@gmail.com>
 
-	/*
-	 * Skip the dying kmem_cache.
-	 */
-	if (s->memcg_params.dying)
-		return 1;
+> > [ Upstream commit f890f89d9a80fffbfa7ca791b78927e5b8aba869 ]
 
- 	return 0;
- }
+> > Reserve GPIO pins 85-88 as these aren't meant to be accessible from the
+> > application CPUs (causes reboot). Yet another fix similar to
+> > 9134586715e3, 5f8d3ab136d0, which is needed to allow angler to boot after
+> > 3edfb7bd76bd ("gpiolib: Show correct direction from the beginning").
 
-So B has to create its own sysfs node by calling:
- create_cache->
-	__kmem_cache_create->
-		sysfs_slab_add->
-			kobject_init_and_add
-Because B is mergeable itself, its filename of sysfs node is based on its size,
-like '/kernel/slab/:0000248', which is duplicate with A, and the sysfs
-node of A is still present now, so kobject_init_and_add() will return
-fail and result in kmem_cache_create() fail.
+> > Fixes: feeaf56ac78d ("arm64: dts: msm8994 SoC and Huawei Angler (Nexus 6P) support")
 
-Concurrently modprobe and rmmod the two modules below can reproduce the issue
-quickly: nf_conntrack_expect, se_sess_cache. See call trace in the end.
+> > Signed-off-by: Petr Vorel <petr.vorel@gmail.com>
+> > Reviewed-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+> > Link: https://lore.kernel.org/r/20210415193913.1836153-1-petr.vorel@gmail.com
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >  arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts | 4 ++++
+> >  1 file changed, 4 insertions(+)
 
-LTS versions of v4.19.y and v5.4.y have this problem, whereas linux versions after
-v5.9 do not have this problem because the patchset: ("The new cgroup slab memory
-controller") almost refactored memcg slab.
+> > diff --git a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+> > index dfa08f513dc4..e5850c4d3334 100644
+> > --- a/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+> > +++ b/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts
+> > @@ -38,3 +38,7 @@
+> >                 };
+> >         };
+> >  };
+> > +
+> > +&tlmm {
+> > +       gpio-reserved-ranges = <85 4>;
+> > +};
 
-A potential solution(this patch belongs): Just let the dying kmem_cache be mergeable,
-the slab_mutex lock can prevent the race between alias kmem_cache creating thread
-and root kmem_cache destroying thread. In the destroying thread, after
-flush_memcg_workqueue() is done, judge the refcount again, if someone
-reference it again during un-lock time, we don't need to destroy the kmem_cache
-completely, we can reuse it.
+> Following build errors noticed on arm64 architecture on on
+> stable-rc linux-4.19.y
+> stable-rc linux-4.14.y
 
-Another potential solution: revert the commit d38a2b7a9c93 ("mm: memcg/slab:
-fix memory leak at non-root kmem_cache destroy"), compare to the fail of
-kmem_cache_create, the memory leak in special scenario seems less harmful.
 
-Call trace:
- sysfs: cannot create duplicate filename '/kernel/slab/:0000248'
- Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
- Call trace:
-  dump_backtrace+0x0/0x198
-  show_stack+0x24/0x30
-  dump_stack+0xb0/0x100
-  sysfs_warn_dup+0x6c/0x88
-  sysfs_create_dir_ns+0x104/0x120
-  kobject_add_internal+0xd0/0x378
-  kobject_init_and_add+0x90/0xd8
-  sysfs_slab_add+0x16c/0x2d0
-  __kmem_cache_create+0x16c/0x1d8
-  create_cache+0xbc/0x1f8
-  kmem_cache_create_usercopy+0x1a0/0x230
-  kmem_cache_create+0x50/0x68
-  init_se_kmem_caches+0x38/0x258 [target_core_mod]
-  target_core_init_configfs+0x8c/0x390 [target_core_mod]
-  do_one_initcall+0x54/0x230
-  do_init_module+0x64/0x1ec
-  load_module+0x150c/0x16f0
-  __se_sys_finit_module+0xf0/0x108
-  __arm64_sys_finit_module+0x24/0x30
-  el0_svc_common+0x80/0x1c0
-  el0_svc_handler+0x78/0xe0
-  el0_svc+0x10/0x260
- kobject_add_internal failed for :0000248 with -EEXIST, don't try to register things with the same name in the same directory.
- kmem_cache_create(se_sess_cache) failed with error -17
- Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
- Call trace:
-  dump_backtrace+0x0/0x198
-  show_stack+0x24/0x30
-  dump_stack+0xb0/0x100
-  kmem_cache_create_usercopy+0xa8/0x230
-  kmem_cache_create+0x50/0x68
-  init_se_kmem_caches+0x38/0x258 [target_core_mod]
-  target_core_init_configfs+0x8c/0x390 [target_core_mod]
-  do_one_initcall+0x54/0x230
-  do_init_module+0x64/0x1ec
-  load_module+0x150c/0x16f0
-  __se_sys_finit_module+0xf0/0x108
-  __arm64_sys_finit_module+0x24/0x30
-  el0_svc_common+0x80/0x1c0
-  el0_svc_handler+0x78/0xe0
-  el0_svc+0x10/0x260
+> make --silent --keep-going --jobs=8
+> O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm64
+> CROSS_COMPILE=aarch64-linux-gnu- 'CC=sccache aarch64-linux-gnu-gcc'
+> 'HOSTCC=sccache gcc'
+> Error: /builds/linux/arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dts:42.1-6
+> Label or path tlmm not found
+> FATAL ERROR: Syntax error parsing input tree
+> make[3]: *** [scripts/Makefile.lib:294:
+> arch/arm64/boot/dts/qcom/msm8994-angler-rev-101.dtb] Error 1
+> make[3]: Target '__build' not remade because of errors.
+> make[2]: *** [/builds/linux/scripts/Makefile.build:544:
+> arch/arm64/boot/dts/qcom] Error 2
 
-Fixes: d38a2b7a9c93 ("mm: memcg/slab: fix memory leak at non-root kmem_cache destroy")
-Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
-Cc: stable@vger.kernel.org
----
- mm/slab_common.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/mm/slab_common.c b/mm/slab_common.c
-index d208b47e01a8..acc743315bb5 100644
---- a/mm/slab_common.c
-+++ b/mm/slab_common.c
-@@ -326,14 +326,6 @@ int slab_unmergeable(struct kmem_cache *s)
- 	if (s->refcount < 0)
- 		return 1;
- 
--#ifdef CONFIG_MEMCG_KMEM
--	/*
--	 * Skip the dying kmem_cache.
--	 */
--	if (s->memcg_params.dying)
--		return 1;
--#endif
--
- 	return 0;
- }
- 
-@@ -947,6 +939,16 @@ void kmem_cache_destroy(struct kmem_cache *s)
- 	get_online_mems();
- 
- 	mutex_lock(&slab_mutex);
-+
-+	/*
-+	 *Another thread referenced it again
-+	 */
-+	if (READ_ONCE(s->refcount)) {
-+		spin_lock_irq(&memcg_kmem_wq_lock);
-+		s->memcg_params.dying = false;
-+		spin_unlock_irq(&memcg_kmem_wq_lock);
-+		goto out_unlock;
-+	}
- #endif
- 
- 	err = shutdown_memcg_caches(s);
--- 
-2.18.0.huawei.25
+Yes, this patch needs modification, because tlmm was added in v5.9 in
+7c865b09b0a1 ("arm64: dts: qcom: msm8994: Modernize the DTS style").
+Before it was msmgpio, thus substitute to it should fix it. I can verify it and
+send correct patches, but this problem started since 3edfb7bd76bd (v4.20), thus
+I'd prefer just skip linux-4.19.y and linux-4.14.y (unless 3edfb7bd76bd is
+planning to be backported to it, which I don't think so).
 
+Kind regards,
+Petr
+
+
+> reference build link,
+> build: https://builds.tuxbuild.com/1vXT4jBYUbNdKdLS1wz6gmXPVLM/
+> config: https://builds.tuxbuild.com/1vXT4jBYUbNdKdLS1wz6gmXPVLM/config
+
+
+> steps to reproduce:
+> ---------------------
+> # TuxMake is a command line tool and Python library that provides
+> # portable and repeatable Linux kernel builds across a variety of
+> # architectures, toolchains, kernel configurations, and make targets.
+
+> # TuxMake supports the concept of runtimes.
+> # See https://docs.tuxmake.org/runtimes/, for that to work it requires
+> # that you install podman or docker on your system.
+
+> # To install tuxmake on your system globally:
+> # sudo pip3 install -U tuxmake
+
+> # See https://docs.tuxmake.org/ for complete documentation.
+
+
+> tuxmake --runtime podman --target-arch arm64 --toolchain gcc-11
+> --kconfig defconfig --kconfig-add
+> https://builds.tuxbuild.com/1vXT4jBYUbNdKdLS1wz6gmXPVLM/config
