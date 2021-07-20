@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C08F3CF46A
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 08:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 895BC3CF46C
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 08:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237386AbhGTFlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 01:41:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48730 "EHLO mail.kernel.org"
+        id S234999AbhGTFlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 01:41:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234999AbhGTFky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Jul 2021 01:40:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2F1D61164;
-        Tue, 20 Jul 2021 06:21:31 +0000 (UTC)
+        id S236203AbhGTFk5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 01:40:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A9A861165;
+        Tue, 20 Jul 2021 06:21:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626762092;
-        bh=0LZ8nVWmZH9fFOoqTi6sVUUghxczVQrYtrdf+7uA4vU=;
+        s=korg; t=1626762095;
+        bh=NlK4EZIxPVnGHwwyQsiSnTYC1NbU286PuS+csD+m6/w=;
         h=Subject:To:Cc:From:Date:From;
-        b=0BIAHTzvSOuMYh9XE6/eq3BmwqAHJWo4ZPgjdNZ+8dhUWx+1SOZtafqqgxsBtoyJ3
-         wXlXBnox0p+GbCPuaCc0X2N1M5JkGm2GN6cVKJokKd5oOP0IUiNveTxR1iVSKacEX8
-         6ZiOUu653tn7rJmA9QCDdksQTrfX1g7h/1mX/3bs=
-Subject: FAILED: patch "[PATCH] perf report: Fix --task and --stat with pipe input" failed to apply to 5.13-stable tree
+        b=U1Pcdp2ToByz3w1vca6PHpEQe5di3DZa/CrhTNzbUwILUqxe96Oo6bMwa0MfoXXGb
+         RMev/6YXMZOVoRw/b+wyumijgEgYsMIfsJX+eGMUwvOmKD/Z1pW3N2E6x92q08hxzi
+         aMzshaeOFOBXf60+C/xpeGMbRJRvjy84Dtz7gBQc=
+Subject: FAILED: patch "[PATCH] perf report: Fix --task and --stat with pipe input" failed to apply to 4.19-stable tree
 To:     namhyung@kernel.org, acme@redhat.com, ak@linux.intel.com,
         irogers@google.com, jolsa@redhat.com, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 20 Jul 2021 08:21:17 +0200
-Message-ID: <1626762077171134@kroah.com>
+Date:   Tue, 20 Jul 2021 08:21:18 +0200
+Message-ID: <1626762078105@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
