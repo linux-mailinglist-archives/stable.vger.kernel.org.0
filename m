@@ -2,61 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8B93D0411
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 23:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3EB43D0435
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 00:05:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbhGTVI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 17:08:29 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:42104 "EHLO
+        id S231262AbhGTVYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 17:24:19 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:44250 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231262AbhGTVIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 17:08:11 -0400
+        with ESMTP id S230336AbhGTVYK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 17:24:10 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6CED81C0B7C; Tue, 20 Jul 2021 23:48:48 +0200 (CEST)
-Date:   Tue, 20 Jul 2021 23:48:47 +0200
+        id 96D981C0B77; Wed, 21 Jul 2021 00:04:46 +0200 (CEST)
+Date:   Wed, 21 Jul 2021 00:04:46 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Wysochanski <dwysocha@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>, Will Deacon <will@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 147/243] NFSD: Fix TP_printk() format specifier in
- nfsd_clid_class
-Message-ID: <20210720214847.GB704@amd>
+Subject: Re: [PATCH 5.10 074/243] iommu/arm-smmu: Fix arm_smmu_device
+ refcount leak when arm_smmu_rpm_get fails
+Message-ID: <20210720220445.GA1557@amd>
 References: <20210719144940.904087935@linuxfoundation.org>
- <20210719144945.657682587@linuxfoundation.org>
+ <20210719144943.296807839@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
 Content-Disposition: inline
-In-Reply-To: <20210719144945.657682587@linuxfoundation.org>
+In-Reply-To: <20210719144943.296807839@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---cvVnyQ+4j833TQvp
+--n8g4imXOkfNTN/H1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> [ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
+> From: Xiyu Yang <xiyuyang19@fudan.edu.cn>
 >=20
-> Since commit 9a6944fee68e ("tracing: Add a verifier to check string
-> pointers for trace events"), which was merged in v5.13-rc1,
-> TP_printk() no longer tacitly supports the "%.*s" format specifier.
+> [ Upstream commit 1adf30f198c26539a62d761e45af72cde570413d ]
 >=20
-> These are low value tracepoints, so just remove them.
+> arm_smmu_rpm_get() invokes pm_runtime_get_sync(), which increases the
+> refcount of the "smmu" even though the return value is less than 0.
 
-So I understand we want this for mainline, but AFAICT 5.10 does not
-have 9a6944fee68e ("tracing: Add a verifier to check string pointers
-for trace events") commit, so this does not fix any bug and removal of
-tracepoints can be surprising.
+Yes.
+
+> The reference counting issue happens in some error handling paths of
+> arm_smmu_rpm_get() in its caller functions. When arm_smmu_rpm_get()
+> fails, the caller functions forget to decrease the refcount of "smmu"
+> increased by arm_smmu_rpm_get(), causing a refcount leak.
+
+Yes, some error paths do that. But some callers (arm_smmu_map,
+arm_smmu_unmap, arm_smmu_flush_iotlb_all, ...) ignore return value of
+arm_smmu_rpm_get().
+
+> Fix this issue by calling pm_runtime_resume_and_get() instead of
+> pm_runtime_get_sync() in arm_smmu_rpm_get(), which can keep the refcount
+> balanced in case of failure.
+
+So no, this is not fixed; it is just unbalanced in the other (more
+dangerous) direction now.
 
 Best regards,
 								Pavel
@@ -65,16 +75,16 @@ Best regards,
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---cvVnyQ+4j833TQvp
+--n8g4imXOkfNTN/H1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmD3RL8ACgkQMOfwapXb+vLDrACfW36vdkRGR10QmAgw0nCLoBdW
-ZOcAoMBcL8dJt95haFYQmrnDcyNMEAxj
-=+twP
+iEYEARECAAYFAmD3SH0ACgkQMOfwapXb+vIWAgCeM843/S/by8WDaeHAteRRms3m
+9BUAniOph6NCoPFAm4gdwPuWcs3S3XGR
+=88E1
 -----END PGP SIGNATURE-----
 
---cvVnyQ+4j833TQvp--
+--n8g4imXOkfNTN/H1--
