@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1741C3CF877
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 12:57:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 352DB3CF8EC
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 13:37:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238062AbhGTKQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 06:16:50 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40024 "EHLO
+        id S236395AbhGTK5A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 06:57:00 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:40348 "EHLO
         galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238099AbhGTKOu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 06:14:50 -0400
-Date:   Tue, 20 Jul 2021 10:55:22 -0000
+        with ESMTP id S236461AbhGTK4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 06:56:52 -0400
+Date:   Tue, 20 Jul 2021 11:37:19 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1626778523;
+        s=2020; t=1626781039;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=8lPvVTbfOrGyEFM7yYBrV80a7op6U6jWP3hzLmgYm+s=;
-        b=zQUB1sj4GIj19ZOx/gxtR850gJ+PwFmi7U5/hXgeLDkTf45lyJPU1XsGZZyJ4oFBSTo1Q9
-        g3sRTzcqrNL9De2nFRHoAdFC8YtiwJeODmlWWd559aKoqdQKbXr9Zjy6IVGi7e/BhLkTib
-        laXjr0mGczzNFNzKJ0yIJAOPoNvRB3+mIXEnLSbnagZ0V5ceR3pvJbU7PEo4t/ZE4RfdCt
-        cEpgQGq05ReZKkoUobMRsD9i8HwMGVv4wfC2dkp60B9CFjNfk4Nu0GvFiNDYbCbTNKkXN3
-        XfaMNwC3sXc5v0xvaLWMM+i+Cupcj2SXwTxcptBMhCL2ErW0yDw4kSohQzWQPQ==
+        bh=ZC9D6on5M3V9NKbfuRjdCy1uKWGTOjYynoMjv4pWtos=;
+        b=jo/4MN5HfnInN2PskYnYV2ymcIMvr1dV3Lu6yiqxtavt/zkmpBfU4Xm6TA0PEjbQ7Cc4d2
+        XC75rI5KJmmtnzbO9jWqUlsy4/d2N7DPvEl3viJ3VEFZ2tGfcSuLYepVcOnOg/3wlHJNCS
+        j8o+VrQfGmOZXhkQ3QDi4BVwf+ZO70jtbOa5bz1wbDjirA6ivAkyMvfyQxBj4Jx9x+F6L3
+        7MA/xT4sTiboFxvz/RQ6YW2R1nyRM7GzsXPPCXaT3o0AwbK1YWUInLJywlZ+qFPdtzp39X
+        YKOEC6x6Urz1iSqUU2oeCS/hatGnnFB/8sM3nVtQZKxKpqMLSpkRyD6LYLfLwA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1626778523;
+        s=2020e; t=1626781039;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:  content-transfer-encoding:content-transfer-encoding;
-        bh=8lPvVTbfOrGyEFM7yYBrV80a7op6U6jWP3hzLmgYm+s=;
-        b=JiK0WDNi0VXxHudpdLy+iu6vAS7IiLoJVG5YYjg0ghVNWp/i8NNamR2Bs06v2felms8V1C
-        TkYOgRGO909LoCBw==
-From:   "tip-bot2 for Frederic Weisbecker" <tip-bot2@linutronix.de>
+        bh=ZC9D6on5M3V9NKbfuRjdCy1uKWGTOjYynoMjv4pWtos=;
+        b=daq6/yEW6Hi7KdvwruSIlumyseFC/0fuF76rEsU4oE2dhlEo6mFE8sR0h/jiS6YFLF+75J
+        1naUoKYqZP7JV3BA==
+From:   "tip-bot2 for Marc Zyngier" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] posix-cpu-timers: Fix rearm racing against process tick
-Cc:     "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>, x86@kernel.org,
+Subject: [tip: efi/urgent] firmware/efi: Tell memblock about EFI iomem reservations
+Cc:     Moritz Fischer <mdf@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        James Morse <james.morse@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, x86@kernel.org,
         linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Message-ID: <162677852264.395.4295146742807519075.tip-bot2@tip-bot2>
+Message-ID: <162678103917.395.13758847379699183265.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
@@ -53,79 +52,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+The following commit has been merged into the efi/urgent branch of tip:
 
-Commit-ID:     1a3402d93c73bf6bb4df6d7c2aac35abfc3c50e2
-Gitweb:        https://git.kernel.org/tip/1a3402d93c73bf6bb4df6d7c2aac35abfc3c50e2
-Author:        Frederic Weisbecker <frederic@kernel.org>
-AuthorDate:    Thu, 03 Jun 2021 01:15:59 +02:00
-Committer:     Frederic Weisbecker <frederic@kernel.org>
-CommitterDate: Thu, 15 Jul 2021 01:20:10 +02:00
+Commit-ID:     2bab693a608bdf614b9fcd44083c5100f34b9f77
+Gitweb:        https://git.kernel.org/tip/2bab693a608bdf614b9fcd44083c5100f34b9f77
+Author:        Marc Zyngier <maz@kernel.org>
+AuthorDate:    Tue, 13 Jul 2021 19:43:26 +01:00
+Committer:     Ard Biesheuvel <ardb@kernel.org>
+CommitterDate: Fri, 16 Jul 2021 18:05:49 +02:00
 
-posix-cpu-timers: Fix rearm racing against process tick
+firmware/efi: Tell memblock about EFI iomem reservations
 
-Since the process wide cputime counter is started locklessly from
-posix_cpu_timer_rearm(), it can be concurrently stopped by operations
-on other timers from the same thread group, such as in the following
-unlucky scenario:
+kexec_load_file() relies on the memblock infrastructure to avoid
+stamping over regions of memory that are essential to the survival
+of the system.
 
-         CPU 0                                CPU 1
-         -----                                -----
-                                           timer_settime(TIMER B)
-   posix_cpu_timer_rearm(TIMER A)
-       cpu_clock_sample_group()
-           (pct->timers_active already true)
+However, nobody seems to agree how to flag these regions as reserved,
+and (for example) EFI only publishes its reservations in /proc/iomem
+for the benefit of the traditional, userspace based kexec tool.
 
-                                           handle_posix_cpu_timers()
-                                               check_process_timers()
-                                                   stop_process_timers()
-                                                       pct->timers_active = false
-       arm_timer(TIMER A)
+On arm64 platforms with GICv3, this can result in the payload being
+placed at the location of the LPI tables. Shock, horror!
 
-   tick -> run_posix_cpu_timers()
-       // sees !pct->timers_active, ignore
-       // our TIMER A
+Let's augment the EFI reservation code with a memblock_reserve() call,
+protecting our dear tables from the secondary kernel invasion.
 
-Fix this with simply locking process wide cputime counting start and
-timer arm in the same block.
-
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Fixes: 60f2ceaa8111 ("posix-cpu-timers: Remove unnecessary locking around cpu_clock_sample_group")
+Reported-by: Moritz Fischer <mdf@kernel.org>
+Tested-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: James Morse <james.morse@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- kernel/time/posix-cpu-timers.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/firmware/efi/efi.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/time/posix-cpu-timers.c b/kernel/time/posix-cpu-timers.c
-index 29a5e54..517be7f 100644
---- a/kernel/time/posix-cpu-timers.c
-+++ b/kernel/time/posix-cpu-timers.c
-@@ -991,6 +991,11 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
- 	if (!p)
- 		goto out;
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index 4b7ee3f..847f33f 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -896,6 +896,7 @@ static int __init efi_memreserve_map_root(void)
+ static int efi_mem_reserve_iomem(phys_addr_t addr, u64 size)
+ {
+ 	struct resource *res, *parent;
++	int ret;
  
-+	/* Protect timer list r/w in arm_timer() */
-+	sighand = lock_task_sighand(p, &flags);
-+	if (unlikely(sighand == NULL))
-+		goto out;
+ 	res = kzalloc(sizeof(struct resource), GFP_ATOMIC);
+ 	if (!res)
+@@ -908,7 +909,17 @@ static int efi_mem_reserve_iomem(phys_addr_t addr, u64 size)
+ 
+ 	/* we expect a conflict with a 'System RAM' region */
+ 	parent = request_resource_conflict(&iomem_resource, res);
+-	return parent ? request_resource(parent, res) : 0;
++	ret = parent ? request_resource(parent, res) : 0;
 +
- 	/*
- 	 * Fetch the current sample and update the timer's expiry time.
- 	 */
-@@ -1001,11 +1006,6 @@ static void posix_cpu_timer_rearm(struct k_itimer *timer)
++	/*
++	 * Given that efi_mem_reserve_iomem() can be called at any
++	 * time, only call memblock_reserve() if the architecture
++	 * keeps the infrastructure around.
++	 */
++	if (IS_ENABLED(CONFIG_ARCH_KEEP_MEMBLOCK) && !ret)
++		memblock_reserve(addr, size);
++
++	return ret;
+ }
  
- 	bump_cpu_timer(timer, now);
- 
--	/* Protect timer list r/w in arm_timer() */
--	sighand = lock_task_sighand(p, &flags);
--	if (unlikely(sighand == NULL))
--		goto out;
--
- 	/*
- 	 * Now re-arm for the new expiry time.
- 	 */
+ int __ref efi_mem_reserve_persistent(phys_addr_t addr, u64 size)
