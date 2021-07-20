@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6B503CFEA8
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500F93CFEAB
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:06:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238110AbhGTPZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 11:25:47 -0400
-Received: from mail-bn8nam12on2062.outbound.protection.outlook.com ([40.107.237.62]:49088
-        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        id S237368AbhGTP0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 11:26:05 -0400
+Received: from mail-mw2nam12on2058.outbound.protection.outlook.com ([40.107.244.58]:26641
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231994AbhGTPZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Jul 2021 11:25:32 -0400
+        id S235344AbhGTPZj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 20 Jul 2021 11:25:39 -0400
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LzUUToDaQu7IiX3fFr3juviuZ5qMCB0JEo30nM+Cn6ABlkOVmE/dujD8zKSdNbGq3R4PH+FrX20wft0XIyXheyZbOOKxlIO+yrT9+3lLlbRFFqIjDiVlBnBUsfLlqH3E5zLD6RwXO9c18qAdRoHatBj3WoW/YcU9KpIQ1+GM6R9TN3Qp6OhZQdR9FDz3dZPzYH4V9dOoHGZoOsefXBoF/5QrBkQq6IiGKgm+zAt2CAKxkYH4S6FKBOKSo52f43kFL8AKqOqUkCe3wAC/WnQmwVM1t3q0LasG4T4LM5bkwoVsCRsJVIFpHktjWWnpep3tKc7G39nUOCKTVNPHluTqaA==
+ b=Kg7zCDULrDcI1VQ7v1MQmjAr7aqLAcHtrSJu3Uy7zQvyBt/DClsiFHagukPOsczxw1ca4W8gPYlbvOjj8a1V0VSoodVthHJJOYjbw5moJyAVTxC+W1jNKgtHxOGfnMgfyO9qjVkj4VeAD+KS+HDva0f4KNI0E6+3X/RQveomwImavEUxoA8vUC57zXMYidKskr7V6iQzKXNt0ZTPpvvgcYthNzTohbbeDCz8SjXljgloQNcDmuK6zxHLwScHFfyy/0cP0hFFPd+Ik8ZY2MzxwYDcGYddallHkgMAmy6iMr/bNFYZDQWvUNvF9OOmUABUB0QQepztWEztJNLJo/d2XQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KUx3xJryiElpCd2Vfr3UJIk072flXKARwVt2myM4U14=;
- b=RlFdV4ExChKLDDqWts5Lw5Wv+a0x/CCBFuS8zOBna4TdLvbEdNWTiHNbVSwvo2jnhvHz6HVoxgtPXuuPGtKRJYdpGPcH/51DtCn5pGj29Bmnv96r0bwzebfwwnA++s7d5JnqmZXuKVcOBS78MCQ1ZnY7GZ6vX2KcZsDHDlylOPnnE9YD4j+D6izqT1EX0KgRbTTOQaOKdQQWaBqKFmzv48n9RTGVKGU61hzoApH1aeaH84DnT0/HfUf/5i4RzKkO1JaHwbo6Hmi4pH4Y4+M/7h9srh2+E8g9sEgQ2LIfsvHFr5IsveU2V9EM/APt9DYputdYKQh+OpMG71RO5NyVnA==
+ bh=GgRe0gwAxm8zAhn2oH+DKrNQWBlzFisJWCi9QjmF0L0=;
+ b=JGhJugk54OZt/C0/F3Yq1Ub56OyUg0PCZ5fEbklKKSE/D09sR8cbHF8i1y3jD2uOp+3EgaNYKKEdAbSoVz/RU7Z0Ycq/NlaWwv5HMJVdEvr4Ynx36gs7vqIvt1FnTEXLUVGxj7iKYFkbBh/ziTFAsW6ijuesqgeKf1rfVlJeIFrrFOfdJYSBUiTa2Syv6yggo1dADwslbqcQ/x3SuhgOYTneodeSXD4aYVe6jvLyVjsrbwm5QQ8zYI9YkBpvU93Bi5sVNPz5fRyp3asniaQjCwoVF829/YOTz81eMDzXVbXnmfOgseEgSFHsSihLhARWGfBwL/H/m66zwTDkL+35jQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=lists.freedesktop.org smtp.mailfrom=amd.com;
  dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
  header.from=amd.com; dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KUx3xJryiElpCd2Vfr3UJIk072flXKARwVt2myM4U14=;
- b=BtCpK0zv2tczREBCuFof4LXc6MywNTy3A2u8OlkF8IQdWKVw50g2BdwLP2Ya0ScteEFJGw20vv6xy4dhdT6DlIqVINiFZpMcdZ4aQsBQezHn9Bsor0sP7JPrV1xoQOC+ACVE9zt0LHvMVThiwuOTyHBFm8kKfaOJ3o/TzW1q6Wc=
-Received: from BN0PR03CA0050.namprd03.prod.outlook.com (2603:10b6:408:e7::25)
- by CH0PR12MB5123.namprd12.prod.outlook.com (2603:10b6:610:be::12) with
+ bh=GgRe0gwAxm8zAhn2oH+DKrNQWBlzFisJWCi9QjmF0L0=;
+ b=3QDVbMT+s7y6c/b2dVC8Dq6sGChss00/CTIQthk3tCryb9+ADUncimJCIKHMptK8kGzUz9Mli5C84OoBvkBWGziml96IyF7IU1eJfMZ806q9lqZAEyuq+QfmP77ACo4sDa6QO1F+KCxb4MqNO8ReOn1ThuDAy6ERP30RyqUpEu4=
+Received: from BN0PR03CA0049.namprd03.prod.outlook.com (2603:10b6:408:e7::24)
+ by BL0PR12MB2482.namprd12.prod.outlook.com (2603:10b6:207:4a::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.21; Tue, 20 Jul
- 2021 16:06:09 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.26; Tue, 20 Jul
+ 2021 16:06:10 +0000
 Received: from BN8NAM11FT021.eop-nam11.prod.protection.outlook.com
- (2603:10b6:408:e7:cafe::b2) by BN0PR03CA0050.outlook.office365.com
- (2603:10b6:408:e7::25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.24 via Frontend
- Transport; Tue, 20 Jul 2021 16:06:09 +0000
+ (2603:10b6:408:e7:cafe::2e) by BN0PR03CA0049.outlook.office365.com
+ (2603:10b6:408:e7::24) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.21 via Frontend
+ Transport; Tue, 20 Jul 2021 16:06:10 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; lists.freedesktop.org; dkim=none (message not signed)
  header.d=none;lists.freedesktop.org; dmarc=pass action=none
@@ -47,34 +47,50 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB03.amd.com (165.204.84.17) by
  BN8NAM11FT021.mail.protection.outlook.com (10.13.177.114) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4352.24 via Frontend Transport; Tue, 20 Jul 2021 16:06:09 +0000
-Received: from SATLEXMB05.amd.com (10.181.40.146) by SATLEXMB03.amd.com
+ 15.20.4352.24 via Frontend Transport; Tue, 20 Jul 2021 16:06:10 +0000
+Received: from SATLEXMB08.amd.com (10.181.40.132) by SATLEXMB03.amd.com
  (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Tue, 20 Jul
- 2021 11:05:52 -0500
-Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB05.amd.com
- (10.181.40.146) with Microsoft SMTP Server (version=TLS1_2,
+ 2021 11:06:05 -0500
+Received: from SATLEXMB03.amd.com (10.181.40.144) by SATLEXMB08.amd.com
+ (10.181.40.132) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Tue, 20 Jul
- 2021 11:05:52 -0500
+ 2021 09:06:04 -0700
 Received: from wayne-System-Product-Name.amd.com (10.180.168.240) by
  SATLEXMB03.amd.com (10.181.40.144) with Microsoft SMTP Server id 15.1.2242.4
- via Frontend Transport; Tue, 20 Jul 2021 11:05:48 -0500
+ via Frontend Transport; Tue, 20 Jul 2021 11:05:53 -0500
 From:   Wayne Lin <Wayne.Lin@amd.com>
 To:     <dri-devel@lists.freedesktop.org>
 CC:     <lyude@redhat.com>, <Nicholas.Kazlauskas@amd.com>,
         <harry.wentland@amd.com>, <jerry.zuo@amd.com>,
         <hersenxs.wu@amd.com>, "Wayne Lin" <Wayne.Lin@amd.com>,
-        Sean Paul <sean@poorly.run>,
+        Juston Li <juston.li@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, <stable@vger.kernel.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        <ville.syrjala@linux.intel.com>, Harry Wentland <hwentlan@amd.com>,
+        "Daniel Vetter" <daniel.vetter@ffwll.ch>,
+        Sean Paul <sean@poorly.run>,
+        "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
         Maxime Ripard <mripard@kernel.org>,
         Thomas Zimmermann <tzimmermann@suse.de>,
         David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH 1/4] drm/dp_mst: Put malloc_kref of vcpi pointing port when disable MST
-Date:   Wed, 21 Jul 2021 00:03:39 +0800
-Message-ID: <20210720160342.11415-2-Wayne.Lin@amd.com>
+        Daniel Vetter <daniel@ffwll.ch>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Eryk Brol <eryk.brol@amd.com>,
+        Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>,
+        Nikola Cornij <nikola.cornij@amd.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Manasi Navare <manasi.d.navare@intel.com>,
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
+        "Sean Paul" <seanpaul@chromium.org>,
+        Ben Skeggs <bskeggs@redhat.com>, <stable@vger.kernel.org>
+Subject: [PATCH 2/4] drm/dp_mst: Only create connector for connected end device
+Date:   Wed, 21 Jul 2021 00:03:40 +0800
+Message-ID: <20210720160342.11415-3-Wayne.Lin@amd.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20210720160342.11415-1-Wayne.Lin@amd.com>
 References: <20210720160342.11415-1-Wayne.Lin@amd.com>
@@ -83,86 +99,104 @@ Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c0a8d6ed-e247-47aa-1570-08d94b9849c2
-X-MS-TrafficTypeDiagnostic: CH0PR12MB5123:
-X-Microsoft-Antispam-PRVS: <CH0PR12MB51230FFE1EED134163E00E08FCE29@CH0PR12MB5123.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
+X-MS-Office365-Filtering-Correlation-Id: 49015f0e-f2e1-4f6d-8aa6-08d94b984a3c
+X-MS-TrafficTypeDiagnostic: BL0PR12MB2482:
+X-Microsoft-Antispam-PRVS: <BL0PR12MB2482FE304E8EC057AA81BA9EFCE29@BL0PR12MB2482.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: TvEiNe09POf0c6i1lolKCK/arv7f5nkFqKZm4FQ4yowDMrQ9Z6d6cjoy245s6noWCjhUTb9GgYr1qT67uIpDZLN1iZB30fQV9etUt9iYiglBHXxxp4Hh38aI5pViuIq7LSV7KeWYWR5mPh8OquaHrWB1mzsifYEOKXKSkdS3AUq0Y27iNJ6aw55YQ+p3MMqbhTnLAN3/Qvyf+mAMrfQkKVeVvR6oqWWR/0bIql1DRXUvCINEjRiiCrTw0otLr9nf8zQm3kPFhG/5G52DmYVle+wFwNZNSa8LgKRVind0WQ45ssxtiEtsDV1JRLjh7F4aZSppfRtIeRWsOyePd84XTS0InrkQzF+jhwXoZTDYW8UTTRbOt4tfhnP1Q/vFxVw90U1usbwdoV//1qYq2mt2ob/u9Xuiq7+Bfk2QokobNHUxQCBw5sllO8qJMuod5Ak2B2pkF2UuojE1bJXkFGJRSc1DWUWhEqm5pdwbTzmImuB5oYOPNz2btT7Ix3NhH6pZohsgYtrlqTGbTHPIyNTkj898IiBSQhoGGP3i3KEgT1JHIaLiWJeOeVN/7APvqWrWLWNjwMWLLpq56eAKuB8b/OtD4jJNcPn9U5c8hOxG8Be6cOBWQ3AolXVIVEcEGj6ZO3K+ENpHV65Jzxt7/Hp3jNFg8hGAeavgkUvVS7b1Yf9gVex4mP7qw+JVuIOW1L9erpRaZmz+DzN1fnNmc5Po0ZSORBknDdfuuRjTTPbxH1U=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(396003)(136003)(39860400002)(346002)(376002)(36840700001)(46966006)(336012)(86362001)(36756003)(54906003)(2906002)(82740400003)(8936002)(186003)(26005)(4326008)(6666004)(36860700001)(7696005)(7416002)(8676002)(478600001)(70586007)(5660300002)(70206006)(47076005)(316002)(82310400003)(81166007)(1076003)(426003)(2616005)(356005)(6916009)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: gADEMcPxn1UnejJ5OE5GgmoxzRJ6BeCWQcSCsPdge5bHDOTCIOdC3gG77iOicdRFtfSzREvFyOyQfxJDnwYOrB/WWJwU0W4DCpmKD2xX9k3Sd0+TTYb8gtphgBSI0edqLQJXIbrFmeS8U0ZX9f+7INieqJ2tpzcV10CxQffjq5QOOuMOHxpeXeSo7U27EsYb0C033LD8x8+Q/Ku0+rai60usenrsBXfKTNtxVtL1NApmm0PoMIZD4e/Tx8UhjTAHi0EmwR8qBDfAiA8RE2xgxi/zDYdK2YiSLqH5qLOKciqdYsx2FXevqqjMIHhp3KzuF7nf0yLwPCgJ1n0iffOzvm/beBPAKf38frclhnm03W89WxiPTl6OdmjmwQfpyqNTufIQLLw36YXRuBwezkwaQ/KIqa98MBB5ccFGu/+AXilWoQMThagQ/IDwB98oG3F+XAzFUs6QrIpLJnW6BVOKwsHYyiBcPG3cZjwNiRuTcsjOIvOP36PbTIR4QADlnrjUzszATy/jsF4+sRzz5EXMWYIcTsfOaRaaIhd37P3oyfeThiEfsk1zT36QglC70DnzgY6GifteBC/G7pt9MKC8LZwisQGZ3hU4v33zacdK8aLyJMN1rFOzuE9VoX3uIwpmqSrbkmWm67UHZOvnE6iR3Sxo86d6SsYC3euph6xeDWX7TjWruOYVJBCpqPZeTL+CluSlrXKrkWYh9kRdob+CpatXOPcgFl4aiRTK3U8LaLM=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB03.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(346002)(39860400002)(376002)(396003)(136003)(46966006)(36840700001)(356005)(1076003)(83380400001)(478600001)(36860700001)(26005)(82740400003)(186003)(316002)(426003)(6666004)(7416002)(336012)(81166007)(8936002)(2906002)(86362001)(2616005)(36756003)(4326008)(5660300002)(66574015)(6916009)(54906003)(47076005)(82310400003)(7696005)(70206006)(8676002)(70586007)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2021 16:06:09.3684
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2021 16:06:10.1699
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c0a8d6ed-e247-47aa-1570-08d94b9849c2
+X-MS-Exchange-CrossTenant-Network-Message-Id: 49015f0e-f2e1-4f6d-8aa6-08d94b984a3c
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB03.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: BN8NAM11FT021.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5123
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2482
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 [Why]
-We directlly clean up proposed_vcpis[] but forget to put malloc_kref of
-ports which the proposed_vcpis[] are pointing to.
+Currently, we will create connectors for all output ports no matter
+it's connected or not. However, in MST, we can only determine
+whether an output port really stands for a "connector" till it is
+connected and check its peer device type as an end device.
+
+In current code, we have chance to create connectors for output ports
+connected with branch device and these are redundant connectors. e.g.
+StarTech 1-to-4 DP hub is constructed by internal 2 layer 1-to-2 branch
+devices. Creating connectors for such internal output ports are
+redundant.
 
 [How]
-Iterate over proposed_vcpis[] and put malloc_kref of ports which used to
-have allocated payloads.
+Put constraint on creating connector for connected end device only.
 
-Fixes: 8732fe46b20c ("drm/dp_mst: Fix clearing payload state on topology disable")
-Cc: Sean Paul <sean@poorly.run>
-Cc: Wayne Lin <Wayne.Lin@amd.com>
+Fixes: 6f85f73821f6 ("drm/dp_mst: Add basic topology reprobing when resuming")
+Cc: Juston Li <juston.li@intel.com>
+Cc: Imre Deak <imre.deak@intel.com>
 Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: stable@vger.kernel.org # v4.4+
+Cc: Harry Wentland <hwentlan@amd.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Sean Paul <sean@poorly.run>
 Cc: Lyude Paul <lyude@redhat.com>
 Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Cc: Maxime Ripard <mripard@kernel.org>
 Cc: Thomas Zimmermann <tzimmermann@suse.de>
 Cc: David Airlie <airlied@linux.ie>
 Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Cc: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Cc: Eryk Brol <eryk.brol@amd.com>
+Cc: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Cc: Nikola Cornij <nikola.cornij@amd.com>
+Cc: Wayne Lin <Wayne.Lin@amd.com>
+Cc: "Ville Syrjälä" <ville.syrjala@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Manasi Navare <manasi.d.navare@intel.com>
+Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Cc: "José Roberto de Souza" <jose.souza@intel.com>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Ben Skeggs <bskeggs@redhat.com>
 Cc: dri-devel@lists.freedesktop.org
-Cc: <stable@vger.kernel.org> # v5.7+
+Cc: <stable@vger.kernel.org> # v5.5+
 Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/gpu/drm/drm_dp_mst_topology.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/gpu/drm/drm_dp_mst_topology.c b/drivers/gpu/drm/drm_dp_mst_topology.c
-index ad0795afc21c..51cd7f74f026 100644
+index 51cd7f74f026..f13c7187b07f 100644
 --- a/drivers/gpu/drm/drm_dp_mst_topology.c
 +++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -3765,12 +3765,26 @@ int drm_dp_mst_topology_mgr_set_mst(struct drm_dp_mst_topology_mgr *mgr, bool ms
+@@ -2474,7 +2474,8 @@ drm_dp_mst_handle_link_address_port(struct drm_dp_mst_branch *mstb,
  
- 		ret = 0;
- 	} else {
-+		int i;
-+		struct drm_dp_vcpi *vcpi;
-+		struct drm_dp_mst_port *port;
- 		/* disable MST on the device */
- 		mstb = mgr->mst_primary;
- 		mgr->mst_primary = NULL;
- 		/* this can fail if the device is gone */
- 		drm_dp_dpcd_writeb(mgr->aux, DP_MSTM_CTRL, 0);
- 		ret = 0;
+ 	if (port->connector)
+ 		drm_modeset_unlock(&mgr->base.lock);
+-	else if (!port->input)
++	else if (!port->input && port->pdt != DP_PEER_DEVICE_NONE &&
++		 drm_dp_mst_is_end_device(port->pdt, port->mcs))
+ 		drm_dp_mst_port_add_connector(mstb, port);
+ 
+ 	if (send_link_addr && port->mstb) {
+@@ -2557,6 +2558,10 @@ drm_dp_mst_handle_conn_stat(struct drm_dp_mst_branch *mstb,
+ 		dowork = false;
+ 	}
+ 
++	if (!port->input && !port->connector && new_pdt != DP_PEER_DEVICE_NONE &&
++	    drm_dp_mst_is_end_device(new_pdt, new_mcs))
++		create_connector = true;
 +
-+		for (i = 0; i < mgr->max_payloads; i++) {
-+			vcpi = mgr->proposed_vcpis[i];
-+			if (vcpi) {
-+				port = container_of(vcpi, struct drm_dp_mst_port,
-+						    vcpi);
-+				if (port)
-+					drm_dp_mst_put_port_malloc(port);
-+			}
-+		}
-+
- 		memset(mgr->payloads, 0,
- 		       mgr->max_payloads * sizeof(mgr->payloads[0]));
- 		memset(mgr->proposed_vcpis, 0,
+ 	if (port->connector)
+ 		drm_modeset_unlock(&mgr->base.lock);
+ 	else if (create_connector)
 -- 
 2.17.1
 
