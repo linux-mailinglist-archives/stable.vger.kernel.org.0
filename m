@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B40203CFE9F
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:06:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E36483CFE9E
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:06:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239227AbhGTPZg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 11:25:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:49359 "EHLO
+        id S239014AbhGTPZf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 11:25:35 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:50735 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S242664AbhGTPL0 (ORCPT
+        by vger.kernel.org with ESMTP id S242668AbhGTPL0 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 11:11:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1626796319;
+        s=mimecast20190719; t=1626796320;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=wvbgt8bgFi4UrfnwLKyGLkkhsgSh4h/OpNZ9UZYODgk=;
-        b=PlSlq6XyoJ+9k6GI/G7RrlrgaNELWEDRfW8qoQ2R5x3SxM+QbcqRR9Dl+GrcCRELV2cEaB
-        V1GFQsqH0hM3vXX2KoX6SYJ0l7jWjJhjw++3r+HG7LPmrXFlBSC1CyVmqBNnc3JWXL+wsN
-        AW7VA0cC3AFc2JmwPK8uMXrakXUa6Lg=
-Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
- [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-589-k_KHYd1ZPcGNs8ZnsnwKnQ-1; Tue, 20 Jul 2021 11:51:55 -0400
-X-MC-Unique: k_KHYd1ZPcGNs8ZnsnwKnQ-1
-Received: by mail-qv1-f69.google.com with SMTP id l4-20020a0ce0840000b02902cec39ab618so19683695qvk.5
-        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 08:51:55 -0700 (PDT)
+        bh=7D01Sf7WyFpDy5iBOSB8keAwNmDOKVpIqWY7HiG+shw=;
+        b=C6a/310s97+82dKUivh9JgPDxEy6rbvJaSY8T7IxsCxnURsi5eBxkvvCzdGkxcBSitwHlZ
+        DCZz8A2CqDSSGNPYfEVE5L1l9rDkrajWZyc658t5o+zcI8w19cZ/wbZVFdJkNav+cqqDcF
+        zBy/vnl0/w4u1Nqeny846NL42zxCWjA=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-271-qaFhCR9zO9G7FZhzUVXWWg-1; Tue, 20 Jul 2021 11:51:57 -0400
+X-MC-Unique: qaFhCR9zO9G7FZhzUVXWWg-1
+Received: by mail-qt1-f198.google.com with SMTP id 44-20020aed30af0000b029024e8ccfcd07so12740348qtf.11
+        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 08:51:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wvbgt8bgFi4UrfnwLKyGLkkhsgSh4h/OpNZ9UZYODgk=;
-        b=ND2Q99WJR0Tv9d5442MjvsiEqu1q0nyR/Ei+fXF6gV6id6oF8T/ikr11V5u2e9Fa18
-         YhSUZclxhj4z0u2lnafSH9oEBwQrMYvGaj1Ca39Qe0VrxpoKvWAwyFAxFWHVM0LH5oZX
-         WS8qyw6cDaCbSqKxM+vjnbOypCtXuGgmMmziRr15cACgqlrP5xQ95/B4Mg3Ze7GgiRZW
-         45RoQYjqRJO6DoL+nGpeU1GHZNA/n1jTf+Zkcn2gb5GQay3UpcGtD1uBhlw+esxmOlH0
-         C5IantezmFmXzBvGtfTqzvy666JQihr2aihyFGs+k08pm36W1UWD7j5DwzgB/amU88m9
-         k3zw==
-X-Gm-Message-State: AOAM531f9N9kVEqbW5YzDgzIRe4bKOxR6R5EhCDJqlAQLyFb+oBrJmHJ
-        XLr0cQb+Oy5/ErlNCtJ/tzPyLB74/s04dOauFmzsfQkN/FtGzfzUuFTbu/4Rr4+ua9wk7JN61OX
-        U3zPlr/pNLE36FlMoT8WlrfvooL/A/GytIdQvBxo+6YdDoqJva3hOqTsN2o5UzG6agw==
-X-Received: by 2002:a0c:d644:: with SMTP id e4mr30635666qvj.45.1626796314928;
-        Tue, 20 Jul 2021 08:51:54 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJymDLQmLR+blSgDutF8KFkpIvwzykam2LvSQx6L0vHZY/+hXiJy/TeBhG10JKapZoYVDhgeUQ==
-X-Received: by 2002:a0c:d644:: with SMTP id e4mr30635629qvj.45.1626796314654;
-        Tue, 20 Jul 2021 08:51:54 -0700 (PDT)
+        bh=7D01Sf7WyFpDy5iBOSB8keAwNmDOKVpIqWY7HiG+shw=;
+        b=q28aWs2VvsC2QZwIjjVAGAkEYvRGF7yuxjUf6qb82C2o/zXxsolGBpwGulvrwD8Cs3
+         N0NravXpYAQ83lS65hEzgvv3Lbdb1tOCniAX9c4UMP48nPpB4hjLWWn9Hg1Vg0LQRBym
+         856m/soeeQq3AMjzSNeG+OXhQs1pGDbtuuAxsKPpfi/4vHNwy+17xgP+oIEvVLerjyl+
+         g4eNXhIsDddWZEajyv/o74U5JGTPKuREz1uItG99U+ZLuskPBwXS/QVzno0mYLXx66la
+         kHBReBNDLbkKBFDoW0yg0onh3IFlOIStG+1dsOkSJEDk2AA7RxZ5lO/FXH8oUrWqv9U6
+         cOsw==
+X-Gm-Message-State: AOAM533+m8vZxdkgxw/va20d1f2g7o2FIq+q/CepI1Gf7fM+wE15ozqf
+        Y/QOdBxI12Z8+wrxiQEOPkhz21uSNyLAajakqSfS8JnRDhYYt/A6x2qQXkCeyjeMvO/Q1ReF1I9
+        v+dlLnx7/Z0D5TuTGtcPDWMN5FulU+AOLvDepFD190cxyd4SqrmfQY07COJ9toHDnmQ==
+X-Received: by 2002:a37:dcc2:: with SMTP id v185mr29847468qki.167.1626796316499;
+        Tue, 20 Jul 2021 08:51:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx9NUWZkskDEWU7mGn9bqckF/hMB20JHvsawHIkAgaxaveiacbm2PLft2c6YquFp8IjnR6I+Q==
+X-Received: by 2002:a37:dcc2:: with SMTP id v185mr29847443qki.167.1626796316237;
+        Tue, 20 Jul 2021 08:51:56 -0700 (PDT)
 Received: from localhost.localdomain (bras-base-toroon474qw-grc-65-184-144-111-238.dsl.bell.ca. [184.144.111.238])
-        by smtp.gmail.com with ESMTPSA id c15sm5467012qtc.37.2021.07.20.08.51.53
+        by smtp.gmail.com with ESMTPSA id c15sm5467012qtc.37.2021.07.20.08.51.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 08:51:53 -0700 (PDT)
+        Tue, 20 Jul 2021 08:51:55 -0700 (PDT)
 From:   Peter Xu <peterx@redhat.com>
 To:     stable@vger.kernel.org, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org
@@ -57,64 +57,116 @@ Cc:     Hugh Dickins <hughd@google.com>,
         Axel Rasmussen <axelrasmussen@google.com>,
         Andrew Morton <akpm@linux-foundation.org>, peterx@redhat.com,
         Hillf Danton <hdanton@sina.com>, Igor Raits <igor@gooddata.com>
-Subject: [PATCH stable 5.13.y/5.12.y 0/2] mm/thp: Fix uffd-wp with fork(); crash on pmd migration entry on fork
-Date:   Tue, 20 Jul 2021 11:51:48 -0400
-Message-Id: <20210720155150.497148-1-peterx@redhat.com>
+Subject: [PATCH stable 5.13.y/5.12.y 1/2] mm/thp: simplify copying of huge zero page pmd when fork
+Date:   Tue, 20 Jul 2021 11:51:49 -0400
+Message-Id: <20210720155150.497148-2-peterx@redhat.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <796cbb7-5a1c-1ba0-dde5-479aba8224f2@google.com>
+In-Reply-To: <20210720155150.497148-1-peterx@redhat.com>
 References: <796cbb7-5a1c-1ba0-dde5-479aba8224f2@google.com>
-Content-Type: text/plain; charset="utf-8"
+ <20210720155150.497148-1-peterx@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In summary: this series should be needed for 5.10/5.12/5.13. This is the=0D
-5.13.y/5.12.y backport of the series, and it should be able to be applied o=
-n=0D
-both of the branches.  Patch 1 is a dependency of patch 2, while patch 2 sh=
-ould=0D
-be the real fix.=0D
-=0D
-This series should be able to fix a rare race that mentioned in thread:=0D
-=0D
-https://lore.kernel.org/linux-mm/796cbb7-5a1c-1ba0-dde5-479aba8224f2@google=
-.com/=0D
-=0D
-This fact wasn't discovered when the fix got proposed and merged, because t=
-he=0D
-fix was originally about uffd-wp and its fork event.  However it turns out =
-that=0D
-the problematic commit b569a1760782f3d is also causing crashing on fork() o=
-f=0D
-pmd migration entries which is even more severe than the original uffd-wp=0D
-problem.=0D
-=0D
-Stable kernels at least on 5.12.y has the crash reproduced, and it's possib=
-le=0D
-5.13.y and 5.10.y could hit it due to having the problematic commit=0D
-b569a1760782f3d but lacking of the uffd-wp fix patch (8f34f1eac382, which i=
-s=0D
-also patch 2 of this series).=0D
-=0D
-The pmd entry crash problem was reported by Igor Raits <igor@gooddata.com> =
-and=0D
-debugged by Hugh Dickins <hughd@google.com>.=0D
-=0D
-Please review, thanks.=0D
-=0D
-Peter Xu (2):=0D
-  mm/thp: simplify copying of huge zero page pmd when fork=0D
-  mm/userfaultfd: fix uffd-wp special cases for fork()=0D
-=0D
- include/linux/huge_mm.h |  2 +-=0D
- include/linux/swapops.h |  2 ++=0D
- mm/huge_memory.c        | 36 +++++++++++++++++-------------------=0D
- mm/memory.c             | 25 +++++++++++++------------=0D
- 4 files changed, 33 insertions(+), 32 deletions(-)=0D
-=0D
--- =0D
-2.31.1=0D
-=0D
+Patch series "mm/uffd: Misc fix for uffd-wp and one more test".
+
+This series tries to fix some corner case bugs for uffd-wp on either thp
+or fork().  Then it introduced a new test with pagemap/pageout.
+
+Patch layout:
+
+Patch 1:    cleanup for THP, it'll slightly simplify the follow up patches
+Patch 2-4:  misc fixes for uffd-wp here and there; please refer to each patch
+Patch 5:    add pagemap support for uffd-wp
+Patch 6:    add pagemap/pageout test for uffd-wp
+
+The last test introduced can also verify some of the fixes in previous
+patches, as the test will fail without the fixes.  However it's not easy
+to verify all the changes in patch 2-4, but hopefully they can still be
+properly reviewed.
+
+Note that if considering the ongoing uffd-wp shmem & hugetlbfs work, patch
+5 will be incomplete as it's missing e.g.  hugetlbfs part or the special
+swap pte detection.  However that's not needed in this series, and since
+that series is still during review, this series does not depend on that
+one (the last test only runs with anonymous memory, not file-backed).  So
+this series can be merged even before that series.
+
+This patch (of 6):
+
+Huge zero page is handled in a special path in copy_huge_pmd(), however it
+should share most codes with a normal thp page.  Trying to share more code
+with it by removing the special path.  The only leftover so far is the
+huge zero page refcounting (mm_get_huge_zero_page()), because that's
+separately done with a global counter.
+
+This prepares for a future patch to modify the huge pmd to be installed,
+so that we don't need to duplicate it explicitly into huge zero page case
+too.
+
+Link: https://lkml.kernel.org/r/20210428225030.9708-1-peterx@redhat.com
+Link: https://lkml.kernel.org/r/20210428225030.9708-2-peterx@redhat.com
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Cc: Kirill A. Shutemov <kirill@shutemov.name>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>, peterx@redhat.com
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Brian Geffon <bgeffon@google.com>
+Cc: "Dr . David Alan Gilbert" <dgilbert@redhat.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: Lokesh Gidra <lokeshgidra@google.com>
+Cc: Mina Almasry <almasrymina@google.com>
+Cc: Oliver Upton <oupton@google.com>
+Cc: Shaohua Li <shli@fb.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Wang Qing <wangqing@vivo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+(cherry picked from commit 5fc7a5f6fd04bc18f309d9f979b32ef7d1d0a997)
+Signed-off-by: Peter Xu <peterx@redhat.com>
+---
+ mm/huge_memory.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 8857ef1543eb..4cea1e218b48 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1088,17 +1088,13 @@ int copy_huge_pmd(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 	 * a page table.
+ 	 */
+ 	if (is_huge_zero_pmd(pmd)) {
+-		struct page *zero_page;
+ 		/*
+ 		 * get_huge_zero_page() will never allocate a new page here,
+ 		 * since we already have a zero page to copy. It just takes a
+ 		 * reference.
+ 		 */
+-		zero_page = mm_get_huge_zero_page(dst_mm);
+-		set_huge_zero_page(pgtable, dst_mm, vma, addr, dst_pmd,
+-				zero_page);
+-		ret = 0;
+-		goto out_unlock;
++		mm_get_huge_zero_page(dst_mm);
++		goto out_zero_page;
+ 	}
+ 
+ 	src_page = pmd_page(pmd);
+@@ -1122,6 +1118,7 @@ int copy_huge_pmd(struct mm_struct *dst_mm, struct mm_struct *src_mm,
+ 	get_page(src_page);
+ 	page_dup_rmap(src_page, true);
+ 	add_mm_counter(dst_mm, MM_ANONPAGES, HPAGE_PMD_NR);
++out_zero_page:
+ 	mm_inc_nr_ptes(dst_mm);
+ 	pgtable_trans_huge_deposit(dst_mm, dst_pmd, pgtable);
+ 
+-- 
+2.31.1
 
