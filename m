@@ -2,85 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D26683CFF20
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E18FD3CFFC9
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 18:55:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234394AbhGTPiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 11:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54620 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235501AbhGTPgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Jul 2021 11:36:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D697960C41;
-        Tue, 20 Jul 2021 16:17:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626797848;
-        bh=Azt+aCxOrhW4mvJZGqsih/lMcmX0ScC4JNUUFxCyA+g=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Br/WFtKzj1jVBkzSw8/bSorWfXCMilMpjZo76SfJdn4xEi1GZK26Gp2HM5ZAyY56T
-         34KMZawN5DsjeSLqQ+26Lo29H8E65kCTF1wGcYGLZyqcy+f92Zr+VQm2mjycLk7gG6
-         WsYErgg/4qlccFiB2AIbetBY55NUjndpiiAlLT2eVSEeds0EzNWEjA1y5bsd03b31P
-         wBQnJl+5lQ9xukyPcHBiWDPCad/wj+ZjJd8ciqZ/GxX7sm4fYXK9Xj7ngLiuIyMZie
-         eX/egmVojhKoWqdhsCryaRb3PFQe+bbA3/+Npzlv9TmG/5noS/dI2URxwj/p/3yV/w
-         Zj50SMbWj99MQ==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        Daniel Rosenberg <drosen@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4] f2fs: Show casefolding support only when supported
-Date:   Tue, 20 Jul 2021 09:17:09 -0700
-Message-Id: <20210720161709.1919109-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.32.0.402.g57bb445576-goog
+        id S229643AbhGTQNd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 12:13:33 -0400
+Received: from shelob.surriel.com ([96.67.55.147]:59302 "EHLO
+        shelob.surriel.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229631AbhGTQNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 12:13:24 -0400
+X-Greylist: delayed 597 seconds by postgrey-1.27 at vger.kernel.org; Tue, 20 Jul 2021 12:13:08 EDT
+Received: from imladris.surriel.com ([96.67.55.152])
+        by shelob.surriel.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <riel@shelob.surriel.com>)
+        id 1m5sqC-0001wX-Mu; Tue, 20 Jul 2021 12:43:32 -0400
+Message-ID: <db2f01ee70c6436364e0efd7c65a11bdb14be73c.camel@surriel.com>
+Subject: Re: [PATCH v2] xhci: add quirk for host controllers that don't
+ update endpoint DCS
+From:   Rik van Riel <riel@surriel.com>
+To:     =?ISO-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>,
+        Mathias Nyman <mathias.nyman@intel.com>
+Cc:     linux-usb@vger.kernel.org,
+        Jonathan Bell <jonathan@raspberrypi.org>,
+        stable@vger.kernel.org
+Date:   Tue, 20 Jul 2021 12:43:32 -0400
+In-Reply-To: <20210720150937.325469-1-bjorn@mork.no>
+References: <87h7hdf5dy.fsf@miraculix.mork.no>
+         <20210720150937.325469-1-bjorn@mork.no>
+Content-Type: multipart/signed; micalg="pgp-sha256";
+        protocol="application/pgp-signature"; boundary="=-QA1xLfceTjX4dEdy9vIv"
+User-Agent: Evolution 3.40.2 (3.40.2-1.fc34) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Sender: riel@shelob.surriel.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Rosenberg <drosen@google.com>
 
-commit 39307f8ee3539478c28e71b4909b5b028cce14b1 upstream.
-[Please apply to 5.4-stable.]
+--=-QA1xLfceTjX4dEdy9vIv
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 
-The casefolding feature is only supported when CONFIG_UNICODE is set.
-This modifies the feature list f2fs presents under sysfs accordingly.
+T24gVHVlLCAyMDIxLTA3LTIwIGF0IDE3OjA5ICswMjAwLCBCasO4cm4gTW9yayB3cm90ZToKPiBG
+cm9tOiBKb25hdGhhbiBCZWxsIDxqb25hdGhhbkByYXNwYmVycnlwaS5vcmc+Cj4gCj4gU2VlbiBv
+biBhIFZMSSBWTDgwNSBQQ0llIHRvIFVTQiBjb250cm9sbGVyLiBGb3Igbm9uLXN0cmVhbSBlbmRw
+b2ludHMKPiBhdCBsZWFzdCwgaWYgdGhlIHhIQyBoYWx0cyBvbiBhIHBhcnRpY3VsYXIgVFJCIGR1
+ZSB0byBhbiBlcnJvciB0aGVuCj4gdGhlIERDUyBmaWVsZCBpbiB0aGUgT3V0IEVuZHBvaW50IENv
+bnRleHQgbWFpbnRhaW5lZCBieSB0aGUgaGFyZHdhcmUKPiBpcyBub3QgdXBkYXRlZCB3aXRoIHRo
+ZSBjdXJyZW50IGN5Y2xlIHN0YXRlLgoKSSB3b25kZXIgaWYgInNvbWUgdGhpbmdzIGdldHRpbmcg
+b3V0IG9mIHN5bmMiIChwcm9iYWJseSBub3QgdGhlCnNhbWUgdGhpbmdzKSBhcmUgdGhlIGNhdXNl
+IG9mIHRoZSBVU0IgaXNzdWVzIEkgc2VlIGhlcmUgd2l0aCBhCm5vaXN5IGJ1cyBhbmQgdGhlIFBD
+TTIzMDlCIGNoaXAuLi4KCj4gQEAgLTU5OCw3ICs2MDEsMjcgQEAgc3RhdGljIGludCB4aGNpX21v
+dmVfZGVxdWV1ZV9wYXN0X3RkKHN0cnVjdAo+IHhoY2lfaGNkICp4aGNpLAo+IMKgwqDCoMKgwqDC
+oMKgwqBod19kZXF1ZXVlID0geGhjaV9nZXRfaHdfZGVxKHhoY2ksIGRldiwgZXBfaW5kZXgsIHN0
+cmVhbV9pZCk7Cj4gwqDCoMKgwqDCoMKgwqDCoG5ld19zZWcgPSBlcF9yaW5nLT5kZXFfc2VnOwo+
+IMKgwqDCoMKgwqDCoMKgwqBuZXdfZGVxID0gZXBfcmluZy0+ZGVxdWV1ZTsKPiAtwqDCoMKgwqDC
+oMKgwqBuZXdfY3ljbGUgPSBod19kZXF1ZXVlICYgMHgxOwo+ICsKPiArwqDCoMKgwqDCoMKgwqAv
+Kgo+ICvCoMKgwqDCoMKgwqDCoCAqIFF1aXJrOiB4SEMgd3JpdGUtYmFjayBvZiB0aGUgRENTIGZp
+ZWxkIGluIHRoZSBoYXJkd2FyZQo+IGRlcXVldWUKPiArwqDCoMKgwqDCoMKgwqAgKiBwb2ludGVy
+IGlzIHdyb25nIC0gdXNlIHRoZSBjeWNsZSBzdGF0ZSBvZiB0aGUgVFJCIHBvaW50ZWQKPiB0byBi
+eQo+ICvCoMKgwqDCoMKgwqDCoCAqIHRoZSBkZXF1ZXVlIHBvaW50ZXIuCj4gK8KgwqDCoMKgwqDC
+oMKgICovCj4gK8KgwqDCoMKgwqDCoMKgaWYgKHhoY2ktPnF1aXJrcyAmIFhIQ0lfRVBfQ1RYX0JS
+T0tFTl9EQ1MgJiYKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqAgIShlcC0+ZXBfc3RhdGUgJiBFUF9I
+QVNfU1RSRUFNUykpCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGhhbHRlZF9zZWcg
+PSB0cmJfaW5fdGQoeGhjaSwgdGQtPnN0YXJ0X3NlZywKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdGQt
+PmZpcnN0X3RyYiwgdGQtPmxhc3RfdHJiLAo+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBod19kZXF1ZXVl
+ICYgfjB4ZiwgZmFsc2UpOwo+ICvCoMKgwqDCoMKgwqDCoGlmIChoYWx0ZWRfc2VnKSB7Cj4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGluZGV4ID0gKChkbWFfYWRkcl90KShod19kZXF1
+ZXVlICYgfjB4ZikgLQo+IGhhbHRlZF9zZWctPmRtYSkgLwo+ICvCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHNpemVvZigqaGFsdGVkX3RyYik7Cj4gK8KgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGhhbHRlZF90cmIgPSAmaGFsdGVkX3NlZy0+dHJic1tp
+bmRleF07Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoG5ld19jeWNsZSA9IGhhbHRl
+ZF90cmItPmdlbmVyaWMuZmllbGRbM10gJiAweDE7Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoHhoY2lfZGJnKHhoY2ksICJFbmRwb2ludCBEQ1MgPSAlZCBUUkIgaW5kZXggPSAlZAo+
+IGN5Y2xlID0gJWRcbiIsCj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgKHU4KShod19kZXF1ZXVlICYgMHgxKSwgaW5kZXgsIG5ld19jeWNsZSk7Cj4gK8Kg
+wqDCoMKgwqDCoMKgfSBlbHNlIHsKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbmV3
+X2N5Y2xlID0gaHdfZGVxdWV1ZSAmIDB4MTsKPiArwqDCoMKgwqDCoMKgwqB9CgpJcyB0aGVyZSBl
+dmVyIGEgY2FzZSB3aGVyZSB0aGUgY3ljbGUgc3RhdGUgaXMgaW5jb3JyZWN0LAphbmQgd2Ugc2hv
+dWxkIGJlIHVzaW5nIHRoZSBEQ1MgZmllbGQsIGluc3RlYWQ/CgpJIHdvbmRlciBpZiB0aGlzIGlz
+IGEgcXVpcmsgdGhhdCBzaG91bGQganVzdCBiZSB1c2VkCmV2ZXJ5d2hlcmUsIGluc3RlYWQgb2Yg
+b25seSBvbiBhIGZldyBzeXN0ZW1zIHdoZXJlIHdlIGtub3cKdGhlIGhhcmR3YXJlIGRvZXNuJ3Qg
+YWx3YXlzIGJlaGF2ZSByaWdodD8KCkFyZSB0aGVyZSBvdGhlciBwbGFjZXMgd2hlcmUgdGhlIGhh
+cmR3YXJlIGlzIHN1cHBvc2VkIHRvCnRyYWNrIHRoZSBzYW1lIGluZm9ybWF0aW9uIGluIG11bHRp
+cGxlIHBsYWNlcywgYnV0IG1pZ2h0CnNvbWV0aW1lcyBnZXQgdGhlbSBvdXQgb2Ygc3luYz8KCklm
+IHNvLCBkb2VzIHRoZSBjb2RlIGhhdmUgYW55IGRldGVjdGlvbiBvZiBzdWNoIGlzc3Vlcz8KCi0t
+IApBbGwgUmlnaHRzIFJldmVyc2VkLgo=
 
-Fixes: 5aba54302a46 ("f2fs: include charset encoding information in the superblock")
-Cc: stable@vger.kernel.org # v5.4+
-Signed-off-by: Daniel Rosenberg <drosen@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/f2fs/sysfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index 029e693e201c..3a5360e045cf 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -499,7 +499,9 @@ F2FS_FEATURE_RO_ATTR(lost_found, FEAT_LOST_FOUND);
- F2FS_FEATURE_RO_ATTR(verity, FEAT_VERITY);
- #endif
- F2FS_FEATURE_RO_ATTR(sb_checksum, FEAT_SB_CHECKSUM);
-+#ifdef CONFIG_UNICODE
- F2FS_FEATURE_RO_ATTR(casefold, FEAT_CASEFOLD);
-+#endif
- 
- #define ATTR_LIST(name) (&f2fs_attr_##name.attr)
- static struct attribute *f2fs_attrs[] = {
-@@ -568,7 +570,9 @@ static struct attribute *f2fs_feat_attrs[] = {
- 	ATTR_LIST(verity),
- #endif
- 	ATTR_LIST(sb_checksum),
-+#ifdef CONFIG_UNICODE
- 	ATTR_LIST(casefold),
-+#endif
- 	NULL,
- };
- ATTRIBUTE_GROUPS(f2fs_feat);
--- 
-2.32.0.402.g57bb445576-goog
+--=-QA1xLfceTjX4dEdy9vIv
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEKR73pCCtJ5Xj3yADznnekoTE3oMFAmD2/TQACgkQznnekoTE
+3oND/AgAgHd0ArGlY+UfYaihMh+X4ddsa6s6/mWA2qnR3ph5QTVBCgWXaekfE3gm
+LpEdMmN0sa5jjJqZjDPohd22xjQwHBOJqffoGyNAdbRoRmojbytkuEGdYHhTpXlZ
+YZW9GHyoA3Z+jbW47WEm0XDv35AT6aDbkbAY7otFUFY+HmfyJ79Jx0qYZ9tEaAsG
+3WPPOlodjgi7ADbfKIMc06mgzHfYPoy0OxyiZ53+xhNKBzE2te5EtOBfurN0HCKv
+g9HKdv0gTl+konVESeV8zdbMcGgsWtbGjEwYmcso1GRdS9JnKpMGfAPM7n/5O4nq
+JfFIdgG2VPdPP5I5bsa6jIxX9beaZg==
+=U55k
+-----END PGP SIGNATURE-----
+
+--=-QA1xLfceTjX4dEdy9vIv--
 
