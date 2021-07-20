@@ -2,130 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D5D13CF410
-	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:43:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF7743CF422
+	for <lists+stable@lfdr.de>; Tue, 20 Jul 2021 07:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229684AbhGTFDO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 01:03:14 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:38092 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230477AbhGTFDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 01:03:01 -0400
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16K5YhL2072274;
-        Tue, 20 Jul 2021 01:43:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : references : date : in-reply-to : message-id : content-type :
- mime-version; s=pp1; bh=f7Q5yspJe6r0GqwG/nqAUZN5kcItfRIYBbEwe620rc4=;
- b=JeDNi3bmnJR8nIPEvfMD5SxoZUMz/M9DZ/OYfq7JH3uCrgh1Mc/XhoK24+RFb+PITBkS
- UYCXnOZsx9v8eriLFza9ZLrwgGYtQDdCDI4/axao3xCHnj6rm/ufr7ySolyfM4zmJ9Ug
- PUEMZPvBEHDaqjnMkXXbGa6QxyiYkVnRaujJaXRXFXD2prkcz7VBKf+1NZS9cNOSzHs2
- 0Em6e4s+q5Aa1jxu0/LMEkZmDiuLecr4dnqXtlPOOhU4jykjSqXx+xzFzrXLZ/t1JS2/
- ygEXLbVDuy4IzNUhikwk9jI4D0XcsoAnR8KjcAu1ohOPA0+1JWgTsCWHqWY8lJsnztcS bQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39wngubydy-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jul 2021 01:43:18 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 16K5ZEP5075470;
-        Tue, 20 Jul 2021 01:43:18 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 39wngubydd-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jul 2021 01:43:17 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 16K5b29F006997;
-        Tue, 20 Jul 2021 05:43:16 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma06fra.de.ibm.com with ESMTP id 39upfh8m7a-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 20 Jul 2021 05:43:15 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 16K5hDKR21889510
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 20 Jul 2021 05:43:13 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A8A9611C04A;
-        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2172511C054;
-        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
-Received: from tuxmaker.linux.ibm.com (unknown [9.152.85.9])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTPS;
-        Tue, 20 Jul 2021 05:43:13 +0000 (GMT)
-From:   Sven Schnelle <svens@linux.ibm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Daniel =?utf-8?Q?D=C3=ADaz?= <daniel.diaz@linaro.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        linux- stable <stable@vger.kernel.org>, hca@linux.ibm.com
-Subject: Re: [PATCH 5.12 000/242] 5.12.18-rc1 review
-References: <20210715182551.731989182@linuxfoundation.org>
-        <CAEUSe7_+8fQZ=1+jcxJVTRw0DYttGmR-aBdobZ0GWYQi3Vg97w@mail.gmail.com>
-        <yt9dim16lv3u.fsf@linux.ibm.com> <YPUXPEiTrpKoKf+t@kroah.com>
-Date:   Tue, 20 Jul 2021 07:43:12 +0200
-In-Reply-To: <YPUXPEiTrpKoKf+t@kroah.com> (Greg Kroah-Hartman's message of
-        "Mon, 19 Jul 2021 08:10:04 +0200")
-Message-ID: <yt9d4kcp1qxb.fsf@linux.ibm.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.0.50 (gnu/linux)
-Content-Type: text/plain
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: SXYwiLKqLJLZYYD1-cHgywxYB8wqlGx5
-X-Proofpoint-GUID: T9LCOnltkCscTYODk6h6WUIIWTlF-WHY
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S234441AbhGTFO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 01:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233052AbhGTFO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 01:14:57 -0400
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4665DC061762
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 22:55:35 -0700 (PDT)
+Received: by mail-ed1-x52a.google.com with SMTP id x17so26998553edd.12
+        for <stable@vger.kernel.org>; Mon, 19 Jul 2021 22:55:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=W+eCdobjn3+ulB5NKygDiZMliBbGEgLHHiAuMSuNm64=;
+        b=jx0WhC+Qq5yZySQNzp4alTyVk+wJPmhKKMji4+PDuJC07+xX+GmAXtN4vN7nWFCpvo
+         i2ssSret5TX0qeToyf8gMQ+eWhA4v05eZLCosJFtjFFgeaWdLcE7NqjSEfNYiRKIpZ10
+         LFW+88TtPi3vrrjByxYUQifxp91Li2eNmszWGQA1nTQ/tIhTQ+2V5FAnwwfKIbLs2enm
+         o5NLuCyhSUFKJNFt0vtSYlE/z0WA1wfcxrGrLoU17nOlB/F6cK9I4kb0glTTawC38an9
+         l3wyt/aqXzEaO/aetwZjPaaT/g52rK4BKsxVejWPA2BxsKN/7HvuxcslaKxO8H7gPGrE
+         o0ZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=W+eCdobjn3+ulB5NKygDiZMliBbGEgLHHiAuMSuNm64=;
+        b=kZIxLBX5shnx2JBahQEuvr/ejgyiJWWZ2mOLvWHBzH1WzM49BDMdboiAQUFm1U/2c1
+         FGWuqGI94G8L+0DP0vm5Xrw0tPXVPsxqEVwc1tARHCg9gjlkRC+TI2YvqN81bhX5wxXv
+         TgP7+uLDTAwLac87ODK+nGUS+6NsFeldU9V9x39rT5EejgGXpWHYlN1gVHmIBs5p3x1/
+         wTjf9xFhuXR8GmnDteoyQk7WCyo882DormN9wcKta4lymcM7I3UuAu3/QLHe/wnOZUjs
+         csJzyrdAzdEAy/pWtscNRB1i7TjqE3lZ3MSFmRdsPgXlqqf6zAzuYRSVrxs0Zm5kufva
+         MVMg==
+X-Gm-Message-State: AOAM531xSTZ+tMeBaGfVqY28BymfIIxtdk1Pqmriam9zZEf6+Sh+k0Ln
+        umv+IMelgpYSn4OvSWltvpCmObSailx5z/LcJsqMKw==
+X-Google-Smtp-Source: ABdhPJzyXpQN+izTAyFJ9JUPxr3rEHure5nCgtKyRzus+QckOhGYE5oXxwOr7hjftM0k4cNfxQyG86a1Wt0Y8mDvvDE=
+X-Received: by 2002:a05:6402:1771:: with SMTP id da17mr38850996edb.23.1626760533288;
+ Mon, 19 Jul 2021 22:55:33 -0700 (PDT)
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.790
- definitions=2021-07-20_01:2021-07-19,2021-07-20 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 lowpriorityscore=0
- clxscore=1015 malwarescore=0 bulkscore=0 adultscore=0 mlxlogscore=999
- priorityscore=1501 impostorscore=0 spamscore=0 phishscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2107200030
+References: <20210719184335.198051502@linuxfoundation.org>
+In-Reply-To: <20210719184335.198051502@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 20 Jul 2021 11:25:22 +0530
+Message-ID: <CA+G9fYtAN7y5Z82nO59daxD=AtYOyu2J7ECFjY2P64JR9Fqifg@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/420] 4.19.198-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> writes:
-
-> On Mon, Jul 19, 2021 at 07:40:21AM +0200, Sven Schnelle wrote:
->> If https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/1428532107
->> is the logfile for this problem, than i see the following in the log:
->> 
->> make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- 'CC=sccache s390x-linux-gnu-gcc' 'HOSTCC=sccache gcc'
->> /bin/sh: 1: /builds/linux/arch/s390/kernel/vdso64/gen_vdso_offsets.sh: Permission denied
->> 
->> However, in the patch this script is 755, and other architecture are
->> using this for a while now - can you check what the permission are when
->> you're trying to build the kernel?
+On Tue, 20 Jul 2021 at 00:15, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Yes, the problem is that when handling patches, we can not change the
-> permissions on files.  That causes this file to not be added with
-> execute permissions.  This has generally been considered a bad thing
-> anyway, and other scripts that relied on being executable have been
-> changed over time to not be that way and be explicitly run by the
-> calling script.
-
-Hmm, right. I didn't thought about patches. So i'll adjust the patch and
-sent it again. I guess prefixing it with $(CONFIG_SHELL) is then the way
-to do it, at least i see a lot of location doing it that way.
-
-> But it looks like th gen_vdso_offsets.sh script has not been changed on
-> any arch to do that yet.  It is one of the few hold outs.
+> This is the start of the stable review cycle for the 4.19.198 release.
+> There are 420 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Also, this feels like a HUGE change for a stable tree, adding new
-> features like this, are you sure it's all needed?
+> Responses should be made by Wed, 21 Jul 2021 18:42:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.198-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes. This fixes syscall restarting in combination with signals coming in
-on s390, which is broken since the conversion to generic entry. There's
-no easy way to fix that, and we don't want to introduce another
-workaround that is userspace visible, as we would have to carry that
-forever.
+Perf fails to compile in 4.19 on Arm, Arm64, i386 and x86 with gcc 7.3
+It was also reported on 5.4.134-rc2.
 
-Sven
+  perf-1.0/perf-in.o: In function `tasks_setup':
+  tools/perf/builtin-report.c:664: undefined reference to `process_attr'
+  perf-in.o: In function `stats_setup':
+  tools/perf/builtin-report.c:644: undefined reference to `process_attr'
+
+Bisection points to ee7531fb817c ("perf report: Fix --task and --stat
+with pipe input" [upstream commit
+892ba7f18621a02af4428c58d97451f64685dba4]).
+
+
+> Namhyung Kim <namhyung@kernel.org>
+>     perf report: Fix --task and --stat with pipe input
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+--
+Linaro LKFT
+https://lkft.linaro.org
