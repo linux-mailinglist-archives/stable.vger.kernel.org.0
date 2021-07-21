@@ -2,192 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B5A3D1213
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 17:13:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3513D1228
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 17:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239543AbhGUOdC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 10:33:02 -0400
-Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.166]:12932 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239436AbhGUOdC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 10:33:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1626880394;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=9TOOFJtYcxyvoohpzVlG4nhQVpdpMTEyMSMQeyKKi+c=;
-    b=rHgwrvdoQv9AjciiQbQMGeUMAnhN2ZzrnO0jRc3pgkLZv5xb+Y0vR85rFZGGLFPmG9
-    YeXdetO5CvmYb0xIs08YkjFBSeMg2Gs51MGowLrh59XSgFuVcJzwMQYSbUzEZm2Da+lh
-    LnCPk+YQsqasvSCzWxThMSpAvQvf4yCwICGGfE+/et3+Cx6Vt15j8HeTS/YSqeKkVMSW
-    jXYW2gYD2htKGaxA30VZgkjpJSisOx88r6bDqnF2h3YbSgSOqmVLR9D+y8x2XRzUDpuu
-    PJR1+gx/DwF3TCtbdSeQeABMNlr6/LcDLYVI2/MKuzRQ9C3V8hw/A06r9RSa6genZ4pm
-    KUfg==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1qCHSa1GLptZHusx3htNmYasgbo6AhaFdcg=="
-X-RZG-CLASS-ID: mo00
-Received: from [IPv6:2a00:6020:1cee:8300::b82]
-    by smtp.strato.de (RZmta 47.28.1 AUTH)
-    with ESMTPSA id Z03199x6LFDEIcT
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Wed, 21 Jul 2021 17:13:14 +0200 (CEST)
-Subject: Re: [PATCH net] can: raw: fix raw_rcv panic for sock UAF
-To:     "Ziyang Xuan (William)" <william.xuanziyang@huawei.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     davem@davemloft.net, kuba@kernel.org, mkl@pengutronix.de,
-        netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20210721010937.670275-1-william.xuanziyang@huawei.com>
- <YPeoQG19PSh3B3Dc@kroah.com>
- <44c3e0e2-03c5-80e5-001c-03e7e9758bca@hartkopp.net>
- <11822417-5931-b2d8-ae77-ec4a84b8b895@hartkopp.net>
- <d5eb8e8d-bce9-cccd-a102-b60692c242f0@huawei.com>
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-Message-ID: <fc68ffdf-50f0-9cc7-6943-4b16b1447a9b@hartkopp.net>
-Date:   Wed, 21 Jul 2021 17:13:08 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        id S239769AbhGUOi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 10:38:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33488 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S238083AbhGUOiZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 10:38:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D9D861245;
+        Wed, 21 Jul 2021 15:19:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1626880742;
+        bh=iyJmmnRrmq3NjJ0o9+o2VxFl1R0JWz/x6crIEc3pGdc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bztUAqqMxqi/SzVRjgbhD2sJ8CieKxas0xnNwFaILxOp3EoCBq3Waf/Va5tII0mwJ
+         4wdTIg4KizMLZcLI/V38eZAAgf7a8gxfkS8ScDn5xK5w0XGb3f9qtGahOTvZ7d4Bk4
+         cVrnyNhrO9KsGeSo4aoMC+Q3PN2E19SIWeC6YO/bkFflFZgjpgu1xKzo545Vg5+hc2
+         2yhnpji+iBW9SIO9Vc5GQ/FNNS5C2/+l8hUhBbp4D23zSZGkPDzQs5/BLbBvJd9mrb
+         zUJ987dbD9oYOQFoS5FSU0Ivex0N53tYBs0cJV09Euxnsh19p7ENC96XMFMLzj+Jeo
+         jRKH1gb/918nw==
+Date:   Wed, 21 Jul 2021 11:19:01 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        David Wysochanski <dwysocha@redhat.com>,
+        Chuck Lever <chuck.lever@oracle.com>,
+        "J. Bruce Fields" <bfields@redhat.com>
+Subject: Re: [PATCH 5.10 147/243] NFSD: Fix TP_printk() format specifier in
+ nfsd_clid_class
+Message-ID: <YPg65XyiPf+A/2yi@sashalap>
+References: <20210719144940.904087935@linuxfoundation.org>
+ <20210719144945.657682587@linuxfoundation.org>
+ <20210720214847.GB704@amd>
+ <20210721100413.227fd0cb@oasis.local.home>
 MIME-Version: 1.0
-In-Reply-To: <d5eb8e8d-bce9-cccd-a102-b60692c242f0@huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20210721100413.227fd0cb@oasis.local.home>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 21.07.21 13:37, Ziyang Xuan (William) wrote:
-> On 7/21/2021 5:24 PM, Oliver Hartkopp wrote:
-
+On Wed, Jul 21, 2021 at 10:04:13AM -0400, Steven Rostedt wrote:
+>On Tue, 20 Jul 2021 23:48:47 +0200
+>Pavel Machek <pavel@denx.de> wrote:
+>
+>> Hi!
 >>
->> Can you please resend the below patch as suggested by Greg KH and add my
+>> > [ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
+>> >
+>> > Since commit 9a6944fee68e ("tracing: Add a verifier to check string
+>> > pointers for trace events"), which was merged in v5.13-rc1,
+>> > TP_printk() no longer tacitly supports the "%.*s" format specifier.
+>> >
+>> > These are low value tracepoints, so just remove them.
 >>
->> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+>> So I understand we want this for mainline, but AFAICT 5.10 does not
+>> have 9a6944fee68e ("tracing: Add a verifier to check string pointers
+>> for trace events") commit, so this does not fix any bug and removal of
+>> tracepoints can be surprising.
 >>
->> as it also adds the dev_get_by_index() return check.
->>
->> diff --git a/net/can/raw.c b/net/can/raw.c
->> index ed4fcb7ab0c3..d3cbc32036c7 100644
->> --- a/net/can/raw.c
->> +++ b/net/can/raw.c
->> @@ -544,14 +544,18 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
->>           } else if (count == 1) {
->>               if (copy_from_sockptr(&sfilter, optval, sizeof(sfilter)))
->>                   return -EFAULT;
->>           }
->>
->> +        rtnl_lock();
->>           lock_sock(sk);
->>
->> -        if (ro->bound && ro->ifindex)
->> +        if (ro->bound && ro->ifindex) {
->>               dev = dev_get_by_index(sock_net(sk), ro->ifindex);
->> +            if (!dev)
->> +                goto out_fil;
->> +        }
-> At first, I also use this modification. After discussion with my partner, we found that
-> it is impossible scenario if we use rtnl_lock to protect net_device object.
-> We can see two sequences:
-> 1. raw_setsockopt first get rtnl_lock, unregister_netdevice_many later.
-> It can be simplified to add the filter in raw_setsockopt, then remove the filter in raw_notify.
-> 
-> 2. unregister_netdevice_many first get rtnl_lock, raw_setsockopt later.
-> raw_notify will set ro->ifindex, ro->bound and ro->count to zero firstly. The filter will not
-> be added to any filter_list in raw_notify.
-> 
-> So I selected the current modification. Do you think so?
-> 
-> My first modification as following:
-> 
-> diff --git a/net/can/raw.c b/net/can/raw.c
-> index ed4fcb7ab0c3..a0ce4908317f 100644
-> --- a/net/can/raw.c
-> +++ b/net/can/raw.c
-> @@ -546,10 +546,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
->                                  return -EFAULT;
->                  }
-> 
-> +               rtnl_lock();
->                  lock_sock(sk);
-> 
-> -               if (ro->bound && ro->ifindex)
-> +               if (ro->bound && ro->ifindex) {
->                          dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-> +                       if (!dev) {
-> +                               err = -ENODEV;
-> +                               goto out_fil;
-> +                       }
-> +               }
-> 
->                  if (ro->bound) {
->                          /* (try to) register the new filters */
-> @@ -559,11 +565,8 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
->                          else
->                                  err = raw_enable_filters(sock_net(sk), dev, sk,
->                                                           filter, count);
-> -                       if (err) {
-> -                               if (count > 1)
-> -                                       kfree(filter);
-> +                       if (err)
->                                  goto out_fil;
-> -                       }
-> 
->                          /* remove old filter registrations */
->                          raw_disable_filters(sock_net(sk), dev, sk, ro->filter,
-> @@ -584,10 +587,14 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
->                  ro->count  = count;
-> 
->    out_fil:
-> +               if (err && count > 1)
-> +                       kfree(filter);
-> +
+>
+>Thanks for pointing this out. I get so many stable patches, I don't
+>have time to look at all of them.
+>
+>Greg, I don't think this should be backported. The verifier code had a
+>bug in it that broke the '%.*s' formats. This patch removed the good
+>code because of the broken code.
+>
+>See eb01f5353bdaa ("tracing: Handle %.*s in trace_check_vprintf()")
 
-Setting the err variable to -ENODEV is a good idea but I do not like the 
-movement of kfree(filter).
+Uh, yes, I'll drop it. Thanks for catching this!
 
-The kfree() has a tight relation inside the if-statement for ro->bound 
-which makes it easier to understand.
-
-Regards,
-Oliver
-
-ps. your patches have less context than mine. Do you have different 
-settings for -U<n>, --unified=<n> for 'git diff' ?
-
->                  if (dev)
->                          dev_put(dev);
-> 
->                  release_sock(sk);
-> +               rtnl_unlock();
-> 
->                  break;
-> 
-> @@ -600,10 +607,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
-> 
->                  err_mask &= CAN_ERR_MASK;
-> 
-> +               rtnl_lock();
->                  lock_sock(sk);
-> 
-> -               if (ro->bound && ro->ifindex)
-> +               if (ro->bound && ro->ifindex) {
->                          dev = dev_get_by_index(sock_net(sk), ro->ifindex);
-> +                       if (!dev) {
-> +                               err = -ENODEV;
-> +                               goto out_err;
-> +                       }
-> +               }
-> 
->                  /* remove current error mask */
->                  if (ro->bound) {
-> @@ -627,6 +640,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
->                          dev_put(dev);
-> 
->                  release_sock(sk);
-> +               rtnl_unlock();
-> 
->                  break;
-> 
+-- 
+Thanks,
+Sasha
