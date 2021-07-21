@@ -2,235 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CFED3D06DC
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 05:01:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F2C43D07F4
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 06:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhGUCUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 22:20:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41606 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbhGUCUi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 22:20:38 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC96CC061574
-        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 20:01:15 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id o201so1173013pfd.1
-        for <stable@vger.kernel.org>; Tue, 20 Jul 2021 20:01:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qzRheJ1yd/T051y6G6TL1D1h4cWfihRMTspMAPR++FI=;
-        b=sqn8jgdY9dm5X0mZlp9+bfvHtz/uTFpQ57xBohLwV4a4JX1VYaiimz5t7mNst+zJ7e
-         /laRn9/TD9IyBqS1stFu0IdsvGXisb1MCCt986Je4GNbeIlLl0if+zRyDG35lqXmmc0y
-         qGNFSX8hfzeI9lbnKTvco920diSkk+2mmXr2zppLyJoKJ4L6oFWJEYEN89/qbOpUPI1r
-         aa7GKkWeyr7thtI2Gy5cCx9eJQ/a77vfONqswF18BYfOk2BCYsQztkZTIQ8C+0VxDMks
-         e8anBGAJMdS76i2Sz8jZwZ7s9RZTS8uGHEdD89/HgXl1yYInSlOJY/KghuYkbn00J676
-         2sVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qzRheJ1yd/T051y6G6TL1D1h4cWfihRMTspMAPR++FI=;
-        b=aCbSh3YaYpfTXJ7b3dKCcmRqroVQ0KziUqtGMNEe+FAxoihzQ1Sqk0wWVJRgrRNWX9
-         X8KaNCzd72+84PWR+9KxjMVu2G9HvXHDLQ3rLOt0axWBDp+HdlofUv65rU5EAdiidXHI
-         jZjCEue2MSMA1LT356WfMBiEKQBj1MWVmXWdENOiKGHehpa36pAB7N+osyLb3lFhHPQL
-         GGYil9yOphKW4OCIO2u7zvGVra9qui3sdqB48h/JIu2+6XL+tNj4oyZgXJs1OooOWsyD
-         3NjhE0HtkxummsOhcbivYwMne6no7VyFbXemtXUuxSbrQ4DI9t3NO4Tlbx+/sZ9EXnL4
-         RZsg==
-X-Gm-Message-State: AOAM532lEx4uheZi+I+k3+49dVvjVFo1mos8fKWJO8M2+eX0tfLACYYD
-        /4tDtVVYHTa8BS0bmP2D2S/uKpS3avt13N+i
-X-Google-Smtp-Source: ABdhPJyylGrGlbYA2ymaNSzFm9orYlCYnS11OH5WZjs9wGYOX88IHSqUb4YOEF3OoHcf3VLL/LC8XA==
-X-Received: by 2002:aa7:8696:0:b029:32a:75ef:8f6c with SMTP id d22-20020aa786960000b029032a75ef8f6cmr34478122pfo.69.1626836475055;
-        Tue, 20 Jul 2021 20:01:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a21sm4145824pjq.2.2021.07.20.20.01.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 Jul 2021 20:01:14 -0700 (PDT)
-Message-ID: <60f78dfa.1c69fb81.1f144.e6d1@mx.google.com>
-Date:   Tue, 20 Jul 2021 20:01:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232220AbhGUENB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 00:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43682 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232111AbhGUEMs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 00:12:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BAB660FEA;
+        Wed, 21 Jul 2021 04:53:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626843203;
+        bh=mDa1rDfrIXtro6deqjsDirToTVzuK/l7EiZ3+TqwAso=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=l5Ul9FUS17/5PvN/tQ+Xwxel/pAGSVH99WSsdoehD3yHfMtazCk7byFEmb07ozMPU
+         o5nUOcd3BVdbh+AaMHLGeMcBck5zpWNWnD4/YE0Wq7puiG3w//vUYNpU1HtuzYMvYZ
+         mbaCH3Kh39+1E22oo+KGlEej+IEHXwEOK94ybCjI=
+Date:   Wed, 21 Jul 2021 06:53:20 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ziyang Xuan <william.xuanziyang@huawei.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, socketcan@hartkopp.net,
+        mkl@pengutronix.de, netdev@vger.kernel.org,
+        linux-can@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net] can: raw: fix raw_rcv panic for sock UAF
+Message-ID: <YPeoQG19PSh3B3Dc@kroah.com>
+References: <20210721010937.670275-1-william.xuanziyang@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.13
-X-Kernelci-Kernel: v5.13.3-350-g04f08469f404
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.13 baseline: 148 runs,
- 4 regressions (v5.13.3-350-g04f08469f404)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210721010937.670275-1-william.xuanziyang@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.13 baseline: 148 runs, 4 regressions (v5.13.3-350-g04f084=
-69f404)
-
-Regressions Summary
--------------------
-
-platform  | arch   | lab          | compiler | defconfig                   =
- | regressions
-----------+--------+--------------+----------+-----------------------------=
--+------------
-beagle-xm | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig          =
- | 1          =
-
-beagle-xm | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig         =
- | 1          =
-
-d2500cc   | x86_64 | lab-clabbe   | gcc-8    | x86_64_defconfig            =
- | 1          =
-
-d2500cc   | x86_64 | lab-clabbe   | gcc-8    | x86_64_defcon...6-chromebook=
- | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.13/ker=
-nel/v5.13.3-350-g04f08469f404/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.13
-  Describe: v5.13.3-350-g04f08469f404
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      04f08469f4043127c84dd4657ee9897ce1ebb60a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch   | lab          | compiler | defconfig                   =
- | regressions
-----------+--------+--------------+----------+-----------------------------=
--+------------
-beagle-xm | arm    | lab-baylibre | gcc-8    | multi_v7_defconfig          =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f75b57fbfd6541df85c265
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-beagle-=
-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f75b57fbfd6541df85c=
-266
-        new failure (last pass: v5.13.3-349-g948be23c1d3d3) =
-
- =
-
-
-
-platform  | arch   | lab          | compiler | defconfig                   =
- | regressions
-----------+--------+--------------+----------+-----------------------------=
--+------------
-beagle-xm | arm    | lab-baylibre | gcc-8    | omap2plus_defconfig         =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f75e14c2b800de2885c276
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/arm/omap2plus_defconfig/gcc-8/lab-baylibre/baseline-beagle=
--xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f75e14c2b800de2885c=
-277
-        failing since 6 days (last pass: v5.13.1-804-gbeca113be88f, first f=
-ail: v5.13.1-802-gbf2d96d8a7b0) =
-
- =
-
-
-
-platform  | arch   | lab          | compiler | defconfig                   =
- | regressions
-----------+--------+--------------+----------+-----------------------------=
--+------------
-d2500cc   | x86_64 | lab-clabbe   | gcc-8    | x86_64_defconfig            =
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f753dd205e439b5d85c272
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d2500cc.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f753dd205e439b5d85c=
-273
-        failing since 9 days (last pass: v5.13.1, first fail: v5.13.1-782-g=
-e04a16db1cc5) =
-
- =
+On Wed, Jul 21, 2021 at 09:09:37AM +0800, Ziyang Xuan wrote:
+> We get a bug during ltp can_filter test as following.
+> 
+> ===========================================
+> [60919.264984] BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+> [60919.265223] PGD 8000003dda726067 P4D 8000003dda726067 PUD 3dda727067 PMD 0
+> [60919.265443] Oops: 0000 [#1] SMP PTI
+> [60919.265550] CPU: 30 PID: 3638365 Comm: can_filter Kdump: loaded Tainted: G        W         4.19.90+ #1
+> [60919.266068] RIP: 0010:selinux_socket_sock_rcv_skb+0x3e/0x200
+> [60919.293289] RSP: 0018:ffff8d53bfc03cf8 EFLAGS: 00010246
+> [60919.307140] RAX: 0000000000000000 RBX: 000000000000001d RCX: 0000000000000007
+> [60919.320756] RDX: 0000000000000001 RSI: ffff8d5104a8ed00 RDI: ffff8d53bfc03d30
+> [60919.334319] RBP: ffff8d9338056800 R08: ffff8d53bfc29d80 R09: 0000000000000001
+> [60919.347969] R10: ffff8d53bfc03ec0 R11: ffffb8526ef47c98 R12: ffff8d53bfc03d30
+> [60919.350320] perf: interrupt took too long (3063 > 2500), lowering kernel.perf_event_max_sample_rate to 65000
+> [60919.361148] R13: 0000000000000001 R14: ffff8d53bcf90000 R15: 0000000000000000
+> [60919.361151] FS:  00007fb78b6b3600(0000) GS:ffff8d53bfc00000(0000) knlGS:0000000000000000
+> [60919.400812] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [60919.413730] CR2: 0000000000000010 CR3: 0000003e3f784006 CR4: 00000000007606e0
+> [60919.426479] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> [60919.439339] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> [60919.451608] PKRU: 55555554
+> [60919.463622] Call Trace:
+> [60919.475617]  <IRQ>
+> [60919.487122]  ? update_load_avg+0x89/0x5d0
+> [60919.498478]  ? update_load_avg+0x89/0x5d0
+> [60919.509822]  ? account_entity_enqueue+0xc5/0xf0
+> [60919.520709]  security_sock_rcv_skb+0x2a/0x40
+> [60919.531413]  sk_filter_trim_cap+0x47/0x1b0
+> [60919.542178]  ? kmem_cache_alloc+0x38/0x1b0
+> [60919.552444]  sock_queue_rcv_skb+0x17/0x30
+> [60919.562477]  raw_rcv+0x110/0x190 [can_raw]
+> [60919.572539]  can_rcv_filter+0xbc/0x1b0 [can]
+> [60919.582173]  can_receive+0x6b/0xb0 [can]
+> [60919.591595]  can_rcv+0x31/0x70 [can]
+> [60919.600783]  __netif_receive_skb_one_core+0x5a/0x80
+> [60919.609864]  process_backlog+0x9b/0x150
+> [60919.618691]  net_rx_action+0x156/0x400
+> [60919.627310]  ? sched_clock_cpu+0xc/0xa0
+> [60919.635714]  __do_softirq+0xe8/0x2e9
+> [60919.644161]  do_softirq_own_stack+0x2a/0x40
+> [60919.652154]  </IRQ>
+> [60919.659899]  do_softirq.part.17+0x4f/0x60
+> [60919.667475]  __local_bh_enable_ip+0x60/0x70
+> [60919.675089]  __dev_queue_xmit+0x539/0x920
+> [60919.682267]  ? finish_wait+0x80/0x80
+> [60919.689218]  ? finish_wait+0x80/0x80
+> [60919.695886]  ? sock_alloc_send_pskb+0x211/0x230
+> [60919.702395]  ? can_send+0xe5/0x1f0 [can]
+> [60919.708882]  can_send+0xe5/0x1f0 [can]
+> [60919.715037]  raw_sendmsg+0x16d/0x268 [can_raw]
+> 
+> It's because raw_setsockopt() concurrently with
+> unregister_netdevice_many(). Concurrent scenario as following.
+> 
+> 	cpu0						cpu1
+> raw_bind
+> raw_setsockopt					unregister_netdevice_many
+> 						unlist_netdevice
+> dev_get_by_index				raw_notifier
+> raw_enable_filters				......
+> can_rx_register
+> can_rcv_list_find(..., net->can.rx_alldev_list)
+> 
+> ......
+> 
+> sock_close
+> raw_release(sock_a)
+> 
+> ......
+> 
+> can_receive
+> can_rcv_filter(net->can.rx_alldev_list, ...)
+> raw_rcv(skb, sock_a)
+> BUG
+> 
+> After unlist_netdevice(), dev_get_by_index() return NULL in
+> raw_setsockopt(). Function raw_enable_filters() will add sock
+> and can_filter to net->can.rx_alldev_list. Then the sock is closed.
+> Followed by, we sock_sendmsg() to a new vcan device use the same
+> can_filter. Protocol stack match the old receiver whose sock has
+> been released on net->can.rx_alldev_list in can_rcv_filter().
+> Function raw_rcv() uses the freed sock. UAF BUG is triggered.
+> 
+> We can find that the key issue is that net_device has not been
+> protected in raw_setsockopt(). Use rtnl_lock to protect net_device
+> in raw_setsockopt().
+> 
+> Fixes: c18ce101f2e4 ("[CAN]: Add raw protocol")
+> Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+> ---
+>  net/can/raw.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/net/can/raw.c b/net/can/raw.c
+> index ed4fcb7ab0c3..a63e9915c66a 100644
+> --- a/net/can/raw.c
+> +++ b/net/can/raw.c
+> @@ -546,6 +546,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>  				return -EFAULT;
+>  		}
+>  
+> +		rtnl_lock();
+>  		lock_sock(sk);
+>  
+>  		if (ro->bound && ro->ifindex)
+> @@ -588,6 +589,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>  			dev_put(dev);
+>  
+>  		release_sock(sk);
+> +		rtnl_unlock();
+>  
+>  		break;
+>  
+> @@ -600,6 +602,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>  
+>  		err_mask &= CAN_ERR_MASK;
+>  
+> +		rtnl_lock();
+>  		lock_sock(sk);
+>  
+>  		if (ro->bound && ro->ifindex)
+> @@ -627,6 +630,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>  			dev_put(dev);
+>  
+>  		release_sock(sk);
+> +		rtnl_unlock();
+>  
+>  		break;
+>  
+> -- 
+> 2.25.1
+> 
 
 
+<formletter>
 
-platform  | arch   | lab          | compiler | defconfig                   =
- | regressions
-----------+--------+--------------+----------+-----------------------------=
--+------------
-d2500cc   | x86_64 | lab-clabbe   | gcc-8    | x86_64_defcon...6-chromebook=
- | 1          =
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-
-  Details:     https://kernelci.org/test/plan/id/60f7556dc4a0f2ad5285c2d8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.13/v5.13.3-3=
-50-g04f08469f404/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabbe/ba=
-seline-d2500cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f7556dc4a0f2ad5285c=
-2d9
-        failing since 9 days (last pass: v5.13.1, first fail: v5.13.1-782-g=
-e04a16db1cc5) =
-
- =20
+</formletter>
