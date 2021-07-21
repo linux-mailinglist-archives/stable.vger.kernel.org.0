@@ -2,105 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6883D0F3D
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 15:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EDAF3D0F61
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 15:22:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234380AbhGUM3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 08:29:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60168 "EHLO mail.kernel.org"
+        id S237499AbhGUMlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 08:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236534AbhGUM3N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 08:29:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6D5A60E08;
-        Wed, 21 Jul 2021 13:09:45 +0000 (UTC)
+        id S232494AbhGUMlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 08:41:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3265061241;
+        Wed, 21 Jul 2021 13:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626872985;
-        bh=0cKN38H5QwtYtjSBi1Vxzqbnp5z74e0BfgWfrJuLPA0=;
+        s=k20201202; t=1626873719;
+        bh=gNFceyOne/t+iza4smxFjp2g49d5EgQN9HSlDf37VI4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jQ+IqBMfJVMb52jT89kNU14QdMO3JM6YHHJwvO4KEvBFPgwg4npPj9UMPmZPdMzoa
-         +b5Qmm8iVjDItVzZ8R8EnzkQwiNd2jXBXEKJT7ywecbOX0YIcIUlLxng7Wkjjd36A/
-         vgBjd9/GRVuyk7crZuH3ISRMgBOy/obAVYFiB1852RL7aipXVX2uLTktQW8OkgO1KG
-         wy0vmW9RtKEziO2U9rK1YXmKiLU9DDNpb+jXJ2VZVJPfJpkMALRPGtYmSVqbPq2Odc
-         JZMBZ4oCnmVIiFysYquhd8HZ2byhfkq6R8hm3pQynB4VDXGuRVsru6KgXjdgWLIi88
-         /6ND2azVNT4Cw==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1m6ByT-00018a-DS; Wed, 21 Jul 2021 15:09:21 +0200
-Date:   Wed, 21 Jul 2021 15:09:21 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Dongliang Mu <mudongliangabcd@gmail.com>
+        b=DSiUX3+YUXnZdaa7j97Bb+/ug7HGjJhPFkzm7KXvJ6ICL7s9by89jmxqvTYuFd1MZ
+         SShXpo4QPO3DMAAf0loGMk0p1D6ZolShSNUKYLhsZla9Ztoax+885rIuI9Mo84LxfY
+         uaqcMAHf/CeaeAntF5Rf1GhGV/WNFTjQaykq7Qda7C9B9lj0J72EBZEEvnchy7hHhd
+         p9IxjlKtMFq37u3xZFnjYFpN7/6G+sXJurxLRNiK6MC2AvB3qFqBG+XhTTiRWBXla3
+         EJ1gND1QGlYdwtmS34wYMRgbMSY6PdKEiYVUqCA6axj5HOzChDgrz/2sMe2fUCtwTA
+         XjXxe3BNtxMsg==
+Received: by pali.im (Postfix)
+        id 8AF4779B; Wed, 21 Jul 2021 15:21:56 +0200 (CEST)
+Date:   Wed, 21 Jul 2021 15:21:56 +0200
+From:   Pali =?utf-8?B?Um9ow6Fy?= <pali@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>, stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@suse.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2] tty: nozomi: tty_unregister_device ->
- tty_port_unregister_device
-Message-ID: <YPgcgahQ458ndT1j@hovoldconsulting.com>
-References: <20210721113305.1524059-1-mudongliangabcd@gmail.com>
- <YPgMZBK/FWLRD1Ic@hovoldconsulting.com>
- <CAD-N9QVLshn_A=S+Nqemc9BRUdW432VrLJCAb=t35WaoL-C3=Q@mail.gmail.com>
+        Marek =?utf-8?B?QmVow7pu?= <kabel@kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: Backporting armada-3700-rwtm-firmware DTS changes to stable
+ kernel
+Message-ID: <20210721132156.qsgodbs53glltijh@pali>
+References: <20210720222559.k4zoqr2rk62pj7ky@pali>
+ <YPdWVTB0tWvsgKR3@sashalap>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAD-N9QVLshn_A=S+Nqemc9BRUdW432VrLJCAb=t35WaoL-C3=Q@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YPdWVTB0tWvsgKR3@sashalap>
+User-Agent: NeoMutt/20180716
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 21, 2021 at 08:53:47PM +0800, Dongliang Mu wrote:
-> On Wed, Jul 21, 2021 at 8:01 PM Johan Hovold <johan@kernel.org> wrote:
-> >
-> > On Wed, Jul 21, 2021 at 07:33:04PM +0800, Dongliang Mu wrote:
-> > > The pairwise api invocation of tty_port_register_device should be
-> > > tty_port_unregister_device, other than tty_unregister_device.
-> >
-> > Are you sure about that? Please explain why you think this to be the
-> > case and why this change is needed.
+On Tuesday 20 July 2021 19:03:49 Sasha Levin wrote:
+> On Wed, Jul 21, 2021 at 12:25:59AM +0200, Pali Rohár wrote:
+> > Hello Greg & Sasha, I would like to ask you for your opinion about
+> > backporting DTS patches to stable kernel which allows usage of hwrng on
+> > Marvell Armada 3700 devices.
+> > 
+> > Driver is already part of 5.4 kernel, just DTS bindings are not there.
+> > I do not know if such backport is suitable for stable kernels. In file
+> > https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> > is written that "New device IDs and quirks are also accepted" where
+> > "device id" could mean also small DTS change...
 > 
-> I am sure about this.
-
-I'm afraid you are mistaken. There is a bit of inconsistency in the API,
-but it is *not* a requirement to use the port helper for deregistration
-here.
-
-> 1. From the implementation,
->     tty_port_register_device -> tty_port_register_device_attr ->
-> tty_port_link_device; tty_register_device_attr
->     tty_register_device -> tty_register_device_attr
+> We could, that's how I've been parsing that rule.
 > 
->     tty_port_unregister_device -> serdev_tty_port_unregister;
-> tty_unregister_device
->     tty_unregister_device
-
->     As to the functionability, tty_port_register_device pairs with
-> tty_port_unregister_device; meanwhile, the same to tty_register_device
-> and tty_unregister_device.
-
-Again, this is not an explanation. Why do think it is needed? What could
-possibly go wrong if you don't change the code like you propose?
-
-> 2. From the function naming style,
+> > What do you think? Question is about these 3 small commits:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=90ae47215de3fec862aeb1a0f0e28bb505ab1351
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=46d2f6d0c99f7f95600e633c7dc727745faaf95e
+> > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=3a52a48973b355b3aac5add92ef50650ae37c2bd
 > 
->     tty_port_register_device - tty_port_unregister_device;
-> tty_register_device - tty_unregister_device
+> If it was actually tested on 5.4, I could queue it up for the next
+> release cycle.
 
-Yes, the naming suggests you should be using the port helper and it is
-ok to do so, but again, it is not a requirement (unless you're using the
-serdev variant).
-
-> > > Fixes: a6afd9f3e819 ("tty: move a number of tty drivers from drivers/char/ to drivers/tty/")
-> >
-> > Please try a little harder, that's clearly not the commit that changed
-> > to the port registration helper.
-> >
-> > > Cc: stable@vger.kernel.org
-> >
-> > Why do you think this is stable material? (hint: it is not)
-> 
-> From the documentation, this label could make the patch automatically
-> go to stable tree. And stable tree is also using the incorrect api.
-
-No, it is not using an "incorrect api". There is nothing wrong with
-current code. And it certainly does not need to be changed in stable.
-
-Johan
+Hello Sasha! Now I tested these patches on top of stable 5.4 and hwrng
+is working fine.
