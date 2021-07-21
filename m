@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 418673D0991
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4583D0995
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234875AbhGUGgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 02:36:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56958 "EHLO mail.kernel.org"
+        id S233002AbhGUGg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 02:36:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235119AbhGUGfd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 02:35:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4572E61175;
-        Wed, 21 Jul 2021 07:16:07 +0000 (UTC)
+        id S234526AbhGUGgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 02:36:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A219860232;
+        Wed, 21 Jul 2021 07:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626851767;
-        bh=1nrDlPRhL3DGLp39ZZob+TX98E0e1xL1fQzBIfrxd9U=;
+        s=korg; t=1626851817;
+        bh=Pb+4tSpYWfZKPRJBA96GwYoW0o3klM7b3wLYBof2orw=;
         h=Subject:To:From:Date:From;
-        b=X8+HugTLmvejUJ08K1cAWRXV/Iv6MoTn4FVc2PHqRkMwjn59BY8VpepCCUmYpknZg
-         dpQLv+ShHr8AHtH7kj+q8ocmD0ayoEKM4w2hOHnQ2xV9I5XJ0fQovHidUHSdp1v700
-         qfBlosuPbZc3eDyT2zn47ZTkLHDw1H+Cxg8tr4G8=
-Subject: patch "USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS" added to usb-linus
-To:     belegdol@gmail.com, belegdol+github@gmail.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=SIHe3OW1DCSBiss24Yvn3SP+BWJTE8UARLH5uw/5eJmWGf+S1MP2km7m1lJqMXLPJ
+         04yY8UAVCObY36Mpc4ebRRl0Y/4rLput1ULyu2T8Q3NfiW9mF/pz1oDUCUlqROQKYe
+         INPo1V6uhUIylz5/m25l70gfcgqsvNPwmgYhzots=
+Subject: patch "usb: typec: stusb160x: register role switch before interrupt" added to usb-linus
+To:     amelie.delaunay@foss.st.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 09:16:05 +0200
-Message-ID: <162685176526155@kroah.com>
+Date:   Wed, 21 Jul 2021 09:16:54 +0200
+Message-ID: <1626851814161161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
+    usb: typec: stusb160x: register role switch before interrupt
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,46 +51,68 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 6abf2fe6b4bf6e5256b80c5817908151d2d33e9f Mon Sep 17 00:00:00 2001
-From: Julian Sikorski <belegdol@gmail.com>
-Date: Tue, 20 Jul 2021 19:19:10 +0200
-Subject: USB: usb-storage: Add LaCie Rugged USB3-FW to IGNORE_UAS
+From 86762ad4abcc549deb7a155c8e5e961b9755bcf0 Mon Sep 17 00:00:00 2001
+From: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Date: Fri, 16 Jul 2021 14:07:17 +0200
+Subject: usb: typec: stusb160x: register role switch before interrupt
+ registration
 
-LaCie Rugged USB3-FW appears to be incompatible with UAS. It generates
-errors like:
-[ 1151.582598] sd 14:0:0:0: tag#16 uas_eh_abort_handler 0 uas-tag 1 inflight: IN
-[ 1151.582602] sd 14:0:0:0: tag#16 CDB: Report supported operation codes a3 0c 01 12 00 00 00 00 02 00 00 00
-[ 1151.588594] scsi host14: uas_eh_device_reset_handler start
-[ 1151.710482] usb 2-4: reset SuperSpeed Gen 1 USB device number 2 using xhci_hcd
-[ 1151.741398] scsi host14: uas_eh_device_reset_handler success
-[ 1181.785534] scsi host14: uas_eh_device_reset_handler start
+During interrupt registration, attach state is checked. If attached,
+then the Type-C state is updated with typec_set_xxx functions and role
+switch is set with usb_role_switch_set_role().
 
-Signed-off-by: Julian Sikorski <belegdol+github@gmail.com>
+If the usb_role_switch parameter is error or null, the function simply
+returns 0.
+
+So, to update usb_role_switch role if a device is attached before the
+irq is registered, usb_role_switch must be registered before irq
+registration.
+
+Fixes: da0cb6310094 ("usb: typec: add support for STUSB160x Type-C controller family")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210720171910.36497-1-belegdol+github@gmail.com
+Signed-off-by: Amelie Delaunay <amelie.delaunay@foss.st.com>
+Link: https://lore.kernel.org/r/20210716120718.20398-2-amelie.delaunay@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_uas.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/typec/stusb160x.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/storage/unusual_uas.h b/drivers/usb/storage/unusual_uas.h
-index f9677a5ec31b..c35a6db993f1 100644
---- a/drivers/usb/storage/unusual_uas.h
-+++ b/drivers/usb/storage/unusual_uas.h
-@@ -45,6 +45,13 @@ UNUSUAL_DEV(0x059f, 0x105f, 0x0000, 0x9999,
- 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
- 		US_FL_NO_REPORT_OPCODES | US_FL_NO_SAME),
+diff --git a/drivers/usb/typec/stusb160x.c b/drivers/usb/typec/stusb160x.c
+index 6eaeba9b096e..3d3848e7c2c2 100644
+--- a/drivers/usb/typec/stusb160x.c
++++ b/drivers/usb/typec/stusb160x.c
+@@ -739,10 +739,6 @@ static int stusb160x_probe(struct i2c_client *client)
+ 	typec_set_pwr_opmode(chip->port, chip->pwr_opmode);
  
-+/* Reported-by: Julian Sikorski <belegdol@gmail.com> */
-+UNUSUAL_DEV(0x059f, 0x1061, 0x0000, 0x9999,
-+		"LaCie",
-+		"Rugged USB3-FW",
-+		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
-+		US_FL_IGNORE_UAS),
+ 	if (client->irq) {
+-		ret = stusb160x_irq_init(chip, client->irq);
+-		if (ret)
+-			goto port_unregister;
+-
+ 		chip->role_sw = fwnode_usb_role_switch_get(fwnode);
+ 		if (IS_ERR(chip->role_sw)) {
+ 			ret = PTR_ERR(chip->role_sw);
+@@ -752,6 +748,10 @@ static int stusb160x_probe(struct i2c_client *client)
+ 					ret);
+ 			goto port_unregister;
+ 		}
 +
- /*
-  * Apricorn USB3 dongle sometimes returns "USBSUSBSUSBS" in response to SCSI
-  * commands in UAS mode.  Observed with the 1.28 firmware; are there others?
++		ret = stusb160x_irq_init(chip, client->irq);
++		if (ret)
++			goto role_sw_put;
+ 	} else {
+ 		/*
+ 		 * If Source or Dual power role, need to enable VDD supply
+@@ -775,6 +775,9 @@ static int stusb160x_probe(struct i2c_client *client)
+ 
+ 	return 0;
+ 
++role_sw_put:
++	if (chip->role_sw)
++		usb_role_switch_put(chip->role_sw);
+ port_unregister:
+ 	typec_unregister_port(chip->port);
+ all_reg_disable:
 -- 
 2.32.0
 
