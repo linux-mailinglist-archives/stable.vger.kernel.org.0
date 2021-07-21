@@ -2,297 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 370733D0CFA
+	by mail.lfdr.de (Postfix) with ESMTP id 804953D0CFB
 	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 13:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239534AbhGUKQr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 06:16:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238293AbhGUJ5Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 05:57:16 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23B3C061767
-        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 03:37:53 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id o201so1926017pfd.1
-        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 03:37:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=cbhd67jqz2L1lJcAFfPUhKnpkEywQstFSG8CylrRZNM=;
-        b=SkWjPxI/Y3aoqxoDHf0/4pBxyaOEja8U5Tyd29eiZHbfc1zXBLabLYZRZxwEoxugxD
-         DuycXaJxIh0bSmqUaniAHVZRQhszxWZScDUf9GuLvmbZTopl6KVx6N8qJ1ZeRiBmIoEN
-         XHYdTJezZtaRu6lVNF4orsYKStmmOl4tBK3N/GGCjza+ttnHcWJ0IhJwhsjUrgtZuJsV
-         N40sGE7ExkfTTj86vCpg+EIoLaKm0RvqXruJplGAsoZthb7To7Dwn8Z4aNxlyrX2kOdR
-         PQilo0c/ePtyodpEug6VoGf4/EmcMETOTG1UoaQaMRjeCD6xVAuOQVY6eNxBtIi11aKH
-         gxpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=cbhd67jqz2L1lJcAFfPUhKnpkEywQstFSG8CylrRZNM=;
-        b=HqjJgeRq6+J/OJlg6mTeZY/PhoYYF2Qm2qCutp41lEE72CqWAm1KV9KuxMdIs6XyFC
-         VlP/5uKn++jEHtt0HnZg9junzomPbeYc1QsLIhfqFOHreFRBgeS0hqmtR9aDlnX8iSJ1
-         MnzVYrVv59LJTnOn2GqHKUVlnezjiqXlenmtDv4J7uAORfhrkanmypupIH5z1ALNlzOe
-         33PHMPAGZ0HDbYRuryZ4xd4lofZ9rVDw6k7yVtbA6vAfcwldYap9Nhz2B17A4+O7uK9p
-         p5I91Hz6LbCAaJ0w+Tqe/spH58dNL3LKghAPkY6vcNSOvTLvz6JYJRIH4i3OBFjBrfQJ
-         tNFA==
-X-Gm-Message-State: AOAM533kQyAnZWmUVft/xL0UD/+48bmEMvbw2ImWyR9T+SsSAR4NA8bI
-        x14pTPGDBEd8+vYQkAgdwuWtugn2rSpoqkMU
-X-Google-Smtp-Source: ABdhPJwQ7yri1KCzAhH7dkOYuvCYU9/WKc9QjhvyhuxEhD6LnbHKLxUiq4UT8bP5MOX8syXL5GNtKg==
-X-Received: by 2002:a05:6a00:24c2:b029:32e:424c:53ac with SMTP id d2-20020a056a0024c2b029032e424c53acmr35779728pfv.17.1626863872941;
-        Wed, 21 Jul 2021 03:37:52 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q125sm20432192pga.87.2021.07.21.03.37.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jul 2021 03:37:52 -0700 (PDT)
-Message-ID: <60f7f900.1c69fb81.ec8e7.c564@mx.google.com>
-Date:   Wed, 21 Jul 2021 03:37:52 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S235424AbhGUKQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 06:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57638 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239002AbhGUKBn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 06:01:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB80961009;
+        Wed, 21 Jul 2021 10:42:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626864128;
+        bh=f51bf7ScK9jN7XnyGwgVdlPyyuIzZuzZJOxILPTPQY0=;
+        h=Subject:To:From:Date:From;
+        b=K2dBoHLrY+0Qq/wh6qUkPbNm+eDhkGdypv9i+8vfdLqc38OINulGipcAq/J41WESj
+         7DL8qWicZQoZNTBLnC4OR+5xt0Z0ZYEEaVJRIfZt1yfg+ppl1fWeeBrm6KaW4YatNG
+         Iwc2kgmRty4OGwaDfP8pr1GWuCQdz9dU4hPdjx2Y=
+Subject: patch "tty: Fix out-of-bound vmalloc access in imageblit" added to tty-testing
+To:     igormtorrente@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 21 Jul 2021 12:41:58 +0200
+Message-ID: <1626864118165226@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.197-420-g9ec1965d618f
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 157 runs,
- 7 regressions (v4.19.197-420-g9ec1965d618f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 157 runs, 7 regressions (v4.19.197-420-g9e=
-c1965d618f)
 
-Regressions Summary
--------------------
+This is a note to let you know that I've just added the patch titled
+
+    tty: Fix out-of-bound vmalloc access in imageblit
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the tty-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 3b0c406124719b625b1aba431659f5cdc24a982c Mon Sep 17 00:00:00 2001
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Date: Mon, 28 Jun 2021 10:45:09 -0300
+Subject: tty: Fix out-of-bound vmalloc access in imageblit
+
+This issue happens when a userspace program does an ioctl
+FBIOPUT_VSCREENINFO passing the fb_var_screeninfo struct
+containing only the fields xres, yres, and bits_per_pixel
+with values.
+
+If this struct is the same as the previous ioctl, the
+vc_resize() detects it and doesn't call the resize_screen(),
+leaving the fb_var_screeninfo incomplete. And this leads to
+the updatescrollmode() calculates a wrong value to
+fbcon_display->vrows, which makes the real_y() return a
+wrong value of y, and that value, eventually, causes
+the imageblit to access an out-of-bound address value.
+
+To solve this issue I made the resize_screen() be called
+even if the screen does not need any resizing, so it will
+"fix and fill" the fb_var_screeninfo independently.
+
+Cc: stable <stable@vger.kernel.org> # after 5.15-rc2 is out, give it time to bake
+Reported-and-tested-by: syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210628134509.15895-1-igormtorrente@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/vt/vt.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index ef981d3b7bb4..484eda1958f5 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1219,8 +1219,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	new_row_size = new_cols << 1;
+ 	new_screen_size = new_row_size * new_rows;
+ 
+-	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+-		return 0;
++	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows) {
++		/*
++		 * This function is being called here to cover the case
++		 * where the userspace calls the FBIOPUT_VSCREENINFO twice,
++		 * passing the same fb_var_screeninfo containing the fields
++		 * yres/xres equal to a number non-multiple of vc_font.height
++		 * and yres_virtual/xres_virtual equal to number lesser than the
++		 * vc_font.height and yres/xres.
++		 * In the second call, the struct fb_var_screeninfo isn't
++		 * being modified by the underlying driver because of the
++		 * if above, and this causes the fbcon_display->vrows to become
++		 * negative and it eventually leads to out-of-bound
++		 * access by the imageblit function.
++		 * To give the correct values to the struct and to not have
++		 * to deal with possible errors from the code below, we call
++		 * the resize_screen here as well.
++		 */
++		return resize_screen(vc, new_cols, new_rows, user);
++	}
+ 
+ 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
+-- 
+2.32.0
 
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
-   | 1          =
 
-qemu_arm-versatilepb  | arm  | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb  | arm  | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb  | arm  | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-rk3288-veyron-jaq     | arm  | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 3          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.197-420-g9ec1965d618f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.197-420-g9ec1965d618f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9ec1965d618f6ee0de12cfed19640954abd387ae =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-at91-sama5d4_xplained | arm  | lab-baylibre  | gcc-8    | sama5_defconfig  =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f7be1d0c2cdf3db885c25c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: sama5_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/sama5_defconfig/gcc-8/lab-baylibre/baseline-at91-s=
-ama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f7be1d0c2cdf3db885c=
-25d
-        failing since 400 days (last pass: v4.19.126-55-gf6c346f2d42d, firs=
-t fail: v4.19.126-113-gd694d4388e88) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb  | arm  | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f7c72aa66df8e2f785c25c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f7c72aa66df8e2f785c=
-25d
-        failing since 244 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb  | arm  | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f7be50bda6b9a64d85c270
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f7be50bda6b9a64d85c=
-271
-        failing since 244 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb  | arm  | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f7bdf37452b5d3d285c258
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60f7bdf37452b5d3d285c=
-259
-        failing since 244 days (last pass: v4.19.157-26-ga8e7fec1fea1, firs=
-t fail: v4.19.157-102-g1d674327c1b7) =
-
- =
-
-
-
-platform              | arch | lab           | compiler | defconfig        =
-   | regressions
-----------------------+------+---------------+----------+------------------=
----+------------
-rk3288-veyron-jaq     | arm  | lab-collabora | gcc-8    | multi_v7_defconfi=
-g  | 3          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60f7e79bc0f9d5a36485c2b4
-
-  Results:     64 PASS, 6 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk=
-3288-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.1=
-97-420-g9ec1965d618f/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-rk=
-3288-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-6-g8983f3b738df/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-iodomain-grf-probed: https://kernelci.org/test=
-/case/id/60f7e79bc0f9d5a36485c2c8
-        failing since 36 days (last pass: v4.19.194, first fail: v4.19.194-=
-68-g3c1f7bd17074)
-
-    2021-07-21T09:23:27.723586  /lava-4223918/1/../bin/lava-test-case
-    2021-07-21T09:23:27.740531  <8>[   17.386098] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-iodomain-grf-probed RESULT=3Dfail>
-    2021-07-21T09:23:27.740864  /lava-4223918/1/../bin/lava-test-case   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdio0-probed: https://kernelci.org/test/=
-case/id/60f7e79bc0f9d5a36485c2e0
-        failing since 36 days (last pass: v4.19.194, first fail: v4.19.194-=
-68-g3c1f7bd17074)
-
-    2021-07-21T09:23:25.282592  /lava-4223918/1/../bin/lava-test-case
-    2021-07-21T09:23:25.299533  <8>[   14.944205] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdio0-probed RESULT=3Dfail>   =
-
-
-  * baseline.bootrr.dwmmc_rockchip-sdmmc-probed: https://kernelci.org/test/=
-case/id/60f7e79bc0f9d5a36485c2e1
-        failing since 36 days (last pass: v4.19.194, first fail: v4.19.194-=
-68-g3c1f7bd17074)
-
-    2021-07-21T09:23:24.262482  /lava-4223918/1/../bin/lava-test-case
-    2021-07-21T09:23:24.267874  <8>[   13.924806] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Ddwmmc_rockchip-sdmmc-probed RESULT=3Dfail>   =
-
- =20
