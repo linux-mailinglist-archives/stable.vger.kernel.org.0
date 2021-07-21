@@ -2,101 +2,1682 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4127E3D0A12
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F673D0A50
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 10:08:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235937AbhGUHMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 03:12:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40082 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235853AbhGUHKr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 03:10:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A8C600D1;
-        Wed, 21 Jul 2021 07:51:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626853881;
-        bh=SUPuerpeQ6ra7zkWsgJOsNChyYcE8CLJkaefuyRublw=;
-        h=Subject:To:From:Date:From;
-        b=zDWoc3L/2IeYuEEsNeqLERdhwliv5rCk+kUJ/zL1KabvR/i6tb1kFmPW1fH3YwHXK
-         Bv8d93vuHjypNSx3wXew27lZTNeZxa0HIKmwhLMwi+zbIiunqH5Qdg0Dk989NKV/gm
-         WHRLohCMiw8Oo+hB9wJzegkEFbi4A4WToMDhcriY=
-Subject: patch "usb: dwc2: gadget: Fix sending zero length packet in DDMA mode." added to usb-linus
-To:     Minas.Harutyunyan@synopsys.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 09:51:09 +0200
-Message-ID: <1626853869235198@kroah.com>
+        id S235238AbhGUH2C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 03:28:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54300 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235877AbhGUH1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 03:27:43 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A097C061574
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 01:08:18 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id o201so1662840pfd.1
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 01:08:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CoeRAJq6eFhv6HK0fIe2gLFB8vg7eqBv/z3wG1BySj8=;
+        b=aQ1jRyAj1ubXHRNhLvpc0+bW8ykDXAP5ZDplDCrpt0DqALJZWmeqyuyx17rDw40ubU
+         a9SVejoI0H99DnEgR43ju4thQogxWHoGPaZOjrZr6XFIZGZ7OykNC4/cS2TTAxFnlU3+
+         YLUYP2AlQmAyR1eQwX/tLAmszuS/Zbj4I7gCvQpb1PMsO2DVsKr5RScmt0QfqsjC+qQ8
+         3SYwn/KngISpTkKZUPHcpOAnZmF170krtmG+cYcGgo/nM9w2zbIsPze5vYuwEqmjprph
+         qkTIVGNYEQWOf7mjr4rJfax3SMHDXSnle3LciCNY05uIStfwEey8F96AIPY/lxlUgG63
+         zqSg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CoeRAJq6eFhv6HK0fIe2gLFB8vg7eqBv/z3wG1BySj8=;
+        b=GQMzd295+7onqwuvNNjCa4BZ3L5s9XXsVlF39+P4ffSF8AzhRCUMae8kxUD3nIXetg
+         nA8xNLsX9H4om/PCs9cHS40zj8k7ni00v3NBJewnl8fcM2yhSn7BYywoUwYbQ2DBCzd0
+         3//a4HL+oMwjUMPxMMajukfzxQOr4AOy1X28IItVGi/IQeclapaecTdAVgEcTJy31ZN8
+         piGHxtjltDdMY/xA5fAQZBcYgGgOTX1nrmo3vmsQBaWtRNX0bRLItHTBs+iXGMY3ZdH7
+         dyHMtonMVafvV4jIoyhXUDhz4G18JOoXlu3bi97/D4oc4glJl2XghLn3KlTX47d7H7K6
+         pKjw==
+X-Gm-Message-State: AOAM531qwbYIjjAvoqFVoXj7ZJvCUjRrk24MeazzikLx85ZtMWdnujx7
+        uRQlE12V8DSrH2k3E8vfO4jUIXF7tVhH7V6e
+X-Google-Smtp-Source: ABdhPJzGJJPOPT46Jkz4bKW2IEBO2DkoRSDJsNHRpZa27+Y/47q5H/ovEMsVJj8AkfVk5y6/+/fuxQ==
+X-Received: by 2002:a63:ce14:: with SMTP id y20mr34125366pgf.432.1626854897416;
+        Wed, 21 Jul 2021 01:08:17 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p3sm3203253pfw.171.2021.07.21.01.08.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jul 2021 01:08:17 -0700 (PDT)
+Message-ID: <60f7d5f1.1c69fb81.53f67.ad69@mx.google.com>
+Date:   Wed, 21 Jul 2021 01:08:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.12.y
+X-Kernelci-Kernel: v5.12.18-288-gaa783473cf1e0
+X-Kernelci-Report-Type: build
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.12.y build: 175 builds: 0 failed, 175 passed,
+ 143 warnings (v5.12.18-288-gaa783473cf1e0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.12.y build: 175 builds: 0 failed, 175 passed, 143 warning=
+s (v5.12.18-288-gaa783473cf1e0)
 
-This is a note to let you know that I've just added the patch titled
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.12.=
+y/kernel/v5.12.18-288-gaa783473cf1e0/
 
-    usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
+Tree: stable-rc
+Branch: linux-5.12.y
+Git Describe: v5.12.18-288-gaa783473cf1e0
+Git Commit: aa783473cf1e00e4344531089962861c6bbbb818
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Warnings Detected:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+arc:
+    axs103_defconfig (gcc-8): 1 warning
+    axs103_smp_defconfig (gcc-8): 1 warning
+    haps_hs_defconfig (gcc-8): 1 warning
+    haps_hs_smp_defconfig (gcc-8): 1 warning
+    hsdk_defconfig (gcc-8): 1 warning
+    nsimosci_hs_defconfig (gcc-8): 1 warning
+    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
+    vdk_hs38_defconfig (gcc-8): 1 warning
+    vdk_hs38_smp_defconfig (gcc-8): 1 warning
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+arm64:
+    defconfig (gcc-8): 1 warning
 
-If you have any questions about this process, please let me know.
+arm:
+    assabet_defconfig (gcc-8): 1 warning
+    axm55xx_defconfig (gcc-8): 1 warning
+    badge4_defconfig (gcc-8): 1 warning
+    bcm2835_defconfig (gcc-8): 1 warning
+    cerfcube_defconfig (gcc-8): 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    corgi_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    dove_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    exynos_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 1 warning
+    footbridge_defconfig (gcc-8): 1 warning
+    h3600_defconfig (gcc-8): 1 warning
+    hisi_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v4_v5_defconfig (gcc-8): 1 warning
+    imx_v6_v7_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    iop32x_defconfig (gcc-8): 1 warning
+    ixp4xx_defconfig (gcc-8): 1 warning
+    keystone_defconfig (gcc-8): 1 warning
+    lart_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
+    lubbock_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 warning
+    mini2440_defconfig (gcc-8): 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    mps2_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
+    mvebu_v5_defconfig (gcc-8): 1 warning
+    mvebu_v7_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    netwinder_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    omap1_defconfig (gcc-8): 2 warnings
+    omap2plus_defconfig (gcc-8): 1 warning
+    orion5x_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    pleb_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa255-idp_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    pxa_defconfig (gcc-8): 1 warning
+    qcom_defconfig (gcc-8): 1 warning
+    realview_defconfig (gcc-8): 1 warning
+    rpc_defconfig (gcc-8): 1 warning
+    s3c2410_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    shmobile_defconfig (gcc-8): 1 warning
+    simpad_defconfig (gcc-8): 1 warning
+    socfpga_defconfig (gcc-8): 1 warning
+    spear13xx_defconfig (gcc-8): 1 warning
+    spitz_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 warning
+    u8500_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
+    viper_defconfig (gcc-8): 1 warning
+    vt8500_v6_v7_defconfig (gcc-8): 1 warning
+    xcep_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
+
+i386:
+    i386_defconfig (gcc-8): 1 warning
+
+mips:
+    32r2el_defconfig (gcc-8): 2 warnings
+    bigsur_defconfig (gcc-8): 1 warning
+    bmips_be_defconfig (gcc-8): 1 warning
+    bmips_stb_defconfig (gcc-8): 1 warning
+    capcella_defconfig (gcc-8): 1 warning
+    cavium_octeon_defconfig (gcc-8): 1 warning
+    ci20_defconfig (gcc-8): 1 warning
+    cobalt_defconfig (gcc-8): 1 warning
+    cu1000-neo_defconfig (gcc-8): 1 warning
+    cu1830-neo_defconfig (gcc-8): 1 warning
+    db1xxx_defconfig (gcc-8): 1 warning
+    decstation_64_defconfig (gcc-8): 1 warning
+    decstation_defconfig (gcc-8): 1 warning
+    decstation_r4k_defconfig (gcc-8): 1 warning
+    fuloong2e_defconfig (gcc-8): 1 warning
+    gpr_defconfig (gcc-8): 1 warning
+    ip22_defconfig (gcc-8): 1 warning
+    ip32_defconfig (gcc-8): 1 warning
+    jazz_defconfig (gcc-8): 1 warning
+    jmr3927_defconfig (gcc-8): 1 warning
+    lemote2f_defconfig (gcc-8): 1 warning
+    loongson1b_defconfig (gcc-8): 1 warning
+    loongson1c_defconfig (gcc-8): 1 warning
+    loongson3_defconfig (gcc-8): 1 warning
+    malta_defconfig (gcc-8): 1 warning
+    malta_kvm_defconfig (gcc-8): 1 warning
+    malta_kvm_guest_defconfig (gcc-8): 1 warning
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+    maltaaprp_defconfig (gcc-8): 1 warning
+    maltasmvp_defconfig (gcc-8): 1 warning
+    maltasmvp_eva_defconfig (gcc-8): 1 warning
+    maltaup_defconfig (gcc-8): 1 warning
+    maltaup_xpa_defconfig (gcc-8): 1 warning
+    mpc30x_defconfig (gcc-8): 1 warning
+    mtx1_defconfig (gcc-8): 1 warning
+    nlm_xlp_defconfig (gcc-8): 1 warning
+    nlm_xlr_defconfig (gcc-8): 1 warning
+    pistachio_defconfig (gcc-8): 1 warning
+    rbtx49xx_defconfig (gcc-8): 1 warning
+    rm200_defconfig (gcc-8): 2 warnings
+    sb1250_swarm_defconfig (gcc-8): 1 warning
+    tb0219_defconfig (gcc-8): 1 warning
+    tb0226_defconfig (gcc-8): 1 warning
+    tb0287_defconfig (gcc-8): 1 warning
+    workpad_defconfig (gcc-8): 1 warning
+
+riscv:
+    defconfig (gcc-8): 1 warning
+    rv32_defconfig (gcc-8): 7 warnings
+
+x86_64:
+    allnoconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+    x86_64_defconfig (gcc-8): 1 warning
+    x86_64_defconfig+x86-chromebook (gcc-8): 1 warning
 
 
-From d53dc38857f6dbefabd9eecfcbf67b6eac9a1ef4 Mon Sep 17 00:00:00 2001
-From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Date: Tue, 20 Jul 2021 05:41:24 -0700
-Subject: usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
+Warnings summary:
 
-Sending zero length packet in DDMA mode perform by DMA descriptor
-by setting SP (short packet) flag.
+    132  fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined =
+but not used [-Wunused-label]
+    2    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=
+=E2=80=99 [-Wunused-variable]
+    2    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [=
+-Wcpp]
+    2    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
+-Wcpp]
+    2    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemente=
+d [-Wcpp]
+    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+    1    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98am=
+s_delta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+    1    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved sy=
+mbol check will be entirely skipped.
 
-For DDMA in function dwc2_hsotg_complete_in() does not need to send
-zlp.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-Tested by USBCV MSC tests.
+Detailed per-defconfig build reports:
 
-Fixes: f71b5e2533de ("usb: dwc2: gadget: fix zero length packet transfers")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Link: https://lore.kernel.org/r/967bad78c55dd2db1c19714eee3d0a17cf99d74a.1626777738.git.Minas.Harutyunyan@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+    WARNING: modpost: Symbol info of vmlinux is missing. Unresolved symbol =
+check will be entirely skipped.
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
+=80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cu1000-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+cu1830-neo_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+decstation_64_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+decstation_r4k_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+milbeaut_m10v_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nommu_k210_sdcard_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 0 warn=
+ings, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
+ 0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/arm/mach-omap1/board-ams-delta.c:462:12: warning: =E2=80=98ams_del=
+ta_camera_power=E2=80=99 defined but not used [-Wunused-function]
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+    drivers/block/paride/bpck.c:32: warning: "PC" redefined
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+rs90_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rv32_defconfig (riscv, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+    <stdin>:830:2: warning: #warning syscall fstat64 not implemented [-Wcpp]
+    <stdin>:1127:2: warning: #warning syscall fstatat64 not implemented [-W=
+cpp]
+    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0=
+ section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    kernel/static_call.c:153:18: warning: unused variable =E2=80=98mod=E2=
+=80=99 [-Wunused-variable]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1=
+ warning, 0 section mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/nfs/read.c:388:1: warning: label =E2=80=98out=E2=80=99 defined but n=
+ot used [-Wunused-label]
+
 ---
- drivers/usb/dwc2/gadget.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 74d25019272f..3146df6e6510 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -2749,12 +2749,14 @@ static void dwc2_hsotg_complete_in(struct dwc2_hsotg *hsotg,
- 		return;
- 	}
- 
--	/* Zlp for all endpoints, for ep0 only in DATA IN stage */
-+	/* Zlp for all endpoints in non DDMA, for ep0 only in DATA IN stage */
- 	if (hs_ep->send_zlp) {
--		dwc2_hsotg_program_zlp(hsotg, hs_ep);
- 		hs_ep->send_zlp = 0;
--		/* transfer will be completed on next complete interrupt */
--		return;
-+		if (!using_desc_dma(hsotg)) {
-+			dwc2_hsotg_program_zlp(hsotg, hs_ep);
-+			/* transfer will be completed on next complete interrupt */
-+			return;
-+		}
- 	}
- 
- 	if (hs_ep->index == 0 && hsotg->ep0_state == DWC2_EP0_DATA_IN) {
--- 
-2.32.0
-
-
+For more info write to <info@kernelci.org>
