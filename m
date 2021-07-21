@@ -2,70 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2233D1077
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 16:04:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 605253D1110
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 16:20:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236733AbhGUNXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 09:23:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236464AbhGUNXo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 09:23:44 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S239172AbhGUNkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 09:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53708 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239071AbhGUNkA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 09:40:00 -0400
+Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64248C061575;
+        Wed, 21 Jul 2021 07:20:36 -0700 (PDT)
+Received: from cap.home.8bytes.org (p4ff2b1ea.dip0.t-ipconnect.de [79.242.177.234])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1813761245;
-        Wed, 21 Jul 2021 14:04:20 +0000 (UTC)
-Date:   Wed, 21 Jul 2021 10:04:13 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        David Wysochanski <dwysocha@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        "J. Bruce Fields" <bfields@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 147/243] NFSD: Fix TP_printk() format specifier in
- nfsd_clid_class
-Message-ID: <20210721100413.227fd0cb@oasis.local.home>
-In-Reply-To: <20210720214847.GB704@amd>
-References: <20210719144940.904087935@linuxfoundation.org>
-        <20210719144945.657682587@linuxfoundation.org>
-        <20210720214847.GB704@amd>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        by theia.8bytes.org (Postfix) with ESMTPSA id A5417926;
+        Wed, 21 Jul 2021 16:20:23 +0200 (CEST)
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org, Eric Biederman <ebiederm@xmission.com>
+Cc:     kexec@lists.infradead.org, Joerg Roedel <jroedel@suse.de>,
+        stable@vger.kernel.org, hpa@zytor.com,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jiri Slaby <jslaby@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        David Rientjes <rientjes@google.com>,
+        Cfir Cohen <cfir@google.com>,
+        Erdem Aktas <erdemaktas@google.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mike Stunes <mstunes@vmware.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Martin Radev <martin.b.radev@gmail.com>,
+        Arvind Sankar <nivedita@alum.mit.edu>,
+        Joerg Roedel <joro@8bytes.org>, linux-coco@lists.linux.dev,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH 01/12] kexec: Allow architecture code to opt-out at runtime
+Date:   Wed, 21 Jul 2021 16:20:04 +0200
+Message-Id: <20210721142015.1401-2-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210721142015.1401-1-joro@8bytes.org>
+References: <20210721142015.1401-1-joro@8bytes.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 20 Jul 2021 23:48:47 +0200
-Pavel Machek <pavel@denx.de> wrote:
+From: Joerg Roedel <jroedel@suse.de>
 
-> Hi!
-> 
-> > [ Upstream commit a948b1142cae66785521a389cab2cce74069b547 ]
-> > 
-> > Since commit 9a6944fee68e ("tracing: Add a verifier to check string
-> > pointers for trace events"), which was merged in v5.13-rc1,
-> > TP_printk() no longer tacitly supports the "%.*s" format specifier.
-> > 
-> > These are low value tracepoints, so just remove them.  
-> 
-> So I understand we want this for mainline, but AFAICT 5.10 does not
-> have 9a6944fee68e ("tracing: Add a verifier to check string pointers
-> for trace events") commit, so this does not fix any bug and removal of
-> tracepoints can be surprising.
->
+Allow a runtime opt-out of kexec support for architecture code in case
+the kernel is running in an environment where kexec is not properly
+supported yet.
 
-Thanks for pointing this out. I get so many stable patches, I don't
-have time to look at all of them.
+This will be used on x86 when the kernel is running as an SEV-ES
+guest. SEV-ES guests need special handling for kexec to hand over all
+CPUs to the new kernel. This requires special hypervisor support and
+handling code in the guest which is not yet implemented.
 
-Greg, I don't think this should be backported. The verifier code had a
-bug in it that broke the '%.*s' formats. This patch removed the good
-code because of the broken code.
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ include/linux/kexec.h |  1 +
+ kernel/kexec.c        | 14 ++++++++++++++
+ kernel/kexec_file.c   |  9 +++++++++
+ 3 files changed, 24 insertions(+)
 
-See eb01f5353bdaa ("tracing: Handle %.*s in trace_check_vprintf()")
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 0c994ae37729..85c30dcd0bdc 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -201,6 +201,7 @@ int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 				 unsigned long buf_len);
+ #endif
+ int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
++bool arch_kexec_supported(void);
+ 
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
+diff --git a/kernel/kexec.c b/kernel/kexec.c
+index c82c6c06f051..d03134160458 100644
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -195,11 +195,25 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+  * that to happen you need to do that yourself.
+  */
+ 
++bool __weak arch_kexec_supported(void)
++{
++	return true;
++}
++
+ static inline int kexec_load_check(unsigned long nr_segments,
+ 				   unsigned long flags)
+ {
+ 	int result;
+ 
++	/*
++	 * The architecture may support kexec in general, but the kernel could
++	 * run in an environment where it is not (yet) possible to execute a new
++	 * kernel. Allow the architecture code to opt-out of kexec support when
++	 * it is running in such an environment.
++	 */
++	if (!arch_kexec_supported())
++		return -ENOSYS;
++
+ 	/* We only trust the superuser with rebooting the system. */
+ 	if (!capable(CAP_SYS_BOOT) || kexec_load_disabled)
+ 		return -EPERM;
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 33400ff051a8..96d08a512e9c 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -358,6 +358,15 @@ SYSCALL_DEFINE5(kexec_file_load, int, kernel_fd, int, initrd_fd,
+ 	int ret = 0, i;
+ 	struct kimage **dest_image, *image;
+ 
++	/*
++	 * The architecture may support kexec in general, but the kernel could
++	 * run in an environment where it is not (yet) possible to execute a new
++	 * kernel. Allow the architecture code to opt-out of kexec support when
++	 * it is running in such an environment.
++	 */
++	if (!arch_kexec_supported())
++		return -ENOSYS;
++
+ 	/* We only trust the superuser with rebooting the system. */
+ 	if (!capable(CAP_SYS_BOOT) || kexec_load_disabled)
+ 		return -EPERM;
+-- 
+2.31.1
 
--- Steve
