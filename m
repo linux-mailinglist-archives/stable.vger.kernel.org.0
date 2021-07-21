@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 390803D0982
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B713D098A
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234418AbhGUGdN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 02:33:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54910 "EHLO mail.kernel.org"
+        id S234448AbhGUGep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 02:34:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234513AbhGUGbW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 02:31:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9286761029;
-        Wed, 21 Jul 2021 07:11:46 +0000 (UTC)
+        id S235289AbhGUGeB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 21 Jul 2021 02:34:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67EDE60232;
+        Wed, 21 Jul 2021 07:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626851507;
-        bh=uSK7CAuGjdRaMv6B47FqQZRWNP0rYKLjY0Sd4aArpMY=;
+        s=korg; t=1626851678;
+        bh=hNYnGyH/70LIFsCnUhol5Uj21a7uHQc8GU7qx6Uo7ss=;
         h=Subject:To:From:Date:From;
-        b=TkGKJLTjZD0jOWXqUkzp5ous8sv26qy3jN1+qk3XBxPr679KTRpE6R9iZAOxZT/wg
-         kxmmJ5sKlXveuRLmQNiOteVowDAaT8ldJju1U5LeOGkggWgxAmgcS1SW6juhecfGp0
-         qRjZnTRi3j8hNx/E2nUi8OIMzf/pXkNpWxxuHgRI=
-Subject: patch "usb: hub: Disable USB 3 device initiated lpm if exit latency is too" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=ls+EVs5GbCw5Z8IqbLjsVvswSnJwi2yGglAEE+g2SDfF05Sn1X5+hjqyeLjvXusMH
+         Hnr6pDsuUWa0rga8p/upq947tvP5teUToEjppHKwlJ+ghHsiUuVlHC1tYdoYKJZ/NG
+         GLUdbqACSvL/UU1kkBczgrV9tRPvl8rPWUFd66QQ=
+Subject: patch "usb: ehci: Prevent missed ehci interrupts with edge-triggered MSI" added to usb-linus
+To:     djeffery@redhat.com, andriy.shevchenko@linux.intel.com,
+        gregkh@linuxfoundation.org, loberman@redhat.com,
+        stable@vger.kernel.org, stern@rowland.harvard.edu
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 09:11:37 +0200
-Message-ID: <162685149725010@kroah.com>
+Date:   Wed, 21 Jul 2021 09:14:36 +0200
+Message-ID: <16268516763148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: hub: Disable USB 3 device initiated lpm if exit latency is too
+    usb: ehci: Prevent missed ehci interrupts with edge-triggered MSI
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,124 +52,86 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 1b7f56fbc7a1b66967b6114d1b5f5a257c3abae6 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Thu, 15 Jul 2021 18:01:22 +0300
-Subject: usb: hub: Disable USB 3 device initiated lpm if exit latency is too
- high
+From 0b60557230adfdeb8164e0b342ac9cd469a75759 Mon Sep 17 00:00:00 2001
+From: David Jeffery <djeffery@redhat.com>
+Date: Thu, 15 Jul 2021 17:37:44 -0400
+Subject: usb: ehci: Prevent missed ehci interrupts with edge-triggered MSI
 
-The device initiated link power management U1/U2 states should not be
-enabled in case the system exit latency plus one bus interval (125us) is
-greater than the shortest service interval of any periodic endpoint.
+When MSI is used by the ehci-hcd driver, it can cause lost interrupts which
+results in EHCI only continuing to work due to a polling fallback. But the
+reliance of polling drastically reduces performance of any I/O through EHCI.
 
-This is the case for both U1 and U2 sytstem exit latencies and link states.
+Interrupts are lost as the EHCI interrupt handler does not safely handle
+edge-triggered interrupts. It fails to ensure all interrupt status bits are
+cleared, which works with level-triggered interrupts but not the
+edge-triggered interrupts typical from using MSI.
 
-See USB 3.2 section 9.4.9 "Set Feature" for more details
+To fix this problem, check if the driver may have raced with the hardware
+setting additional interrupt status bits and clear status until it is in a
+stable state.
 
-Note, before this patch the host and device initiated U1/U2 lpm states
-were both enabled with lpm. After this patch it's possible to end up with
-only host inititated U1/U2 lpm in case the exit latencies won't allow
-device initiated lpm.
-
-If this case we still want to set the udev->usb3_lpm_ux_enabled flag so
-that sysfs users can see the link may go to U1/U2.
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 306c54d0edb6 ("usb: hcd: Try MSI interrupts on PCI devices")
+Tested-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Link: https://lore.kernel.org/r/20210715213744.GA44506@redhat
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210715150122.1995966-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c | 68 ++++++++++++++++++++++++++++++++++--------
- 1 file changed, 56 insertions(+), 12 deletions(-)
+ drivers/usb/host/ehci-hcd.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index a35d0bedafa3..86658a81d284 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -4116,6 +4116,47 @@ static int usb_set_lpm_timeout(struct usb_device *udev,
- 	return 0;
- }
+diff --git a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
+index 36f5bf6a0752..10b0365f3439 100644
+--- a/drivers/usb/host/ehci-hcd.c
++++ b/drivers/usb/host/ehci-hcd.c
+@@ -703,24 +703,28 @@ EXPORT_SYMBOL_GPL(ehci_setup);
+ static irqreturn_t ehci_irq (struct usb_hcd *hcd)
+ {
+ 	struct ehci_hcd		*ehci = hcd_to_ehci (hcd);
+-	u32			status, masked_status, pcd_status = 0, cmd;
++	u32			status, current_status, masked_status, pcd_status = 0;
++	u32			cmd;
+ 	int			bh;
  
-+/*
-+ * Don't allow device intiated U1/U2 if the system exit latency + one bus
-+ * interval is greater than the minimum service interval of any active
-+ * periodic endpoint. See USB 3.2 section 9.4.9
-+ */
-+static bool usb_device_may_initiate_lpm(struct usb_device *udev,
-+					enum usb3_link_state state)
-+{
-+	unsigned int sel;		/* us */
-+	int i, j;
-+
-+	if (state == USB3_LPM_U1)
-+		sel = DIV_ROUND_UP(udev->u1_params.sel, 1000);
-+	else if (state == USB3_LPM_U2)
-+		sel = DIV_ROUND_UP(udev->u2_params.sel, 1000);
-+	else
-+		return false;
-+
-+	for (i = 0; i < udev->actconfig->desc.bNumInterfaces; i++) {
-+		struct usb_interface *intf;
-+		struct usb_endpoint_descriptor *desc;
-+		unsigned int interval;
-+
-+		intf = udev->actconfig->interface[i];
-+		if (!intf)
-+			continue;
-+
-+		for (j = 0; j < intf->cur_altsetting->desc.bNumEndpoints; j++) {
-+			desc = &intf->cur_altsetting->endpoint[j].desc;
-+
-+			if (usb_endpoint_xfer_int(desc) ||
-+			    usb_endpoint_xfer_isoc(desc)) {
-+				interval = (1 << (desc->bInterval - 1)) * 125;
-+				if (sel + 125 > interval)
-+					return false;
-+			}
-+		}
-+	}
-+	return true;
-+}
-+
- /*
-  * Enable the hub-initiated U1/U2 idle timeouts, and enable device-initiated
-  * U1/U2 entry.
-@@ -4188,20 +4229,23 @@ static void usb_enable_link_state(struct usb_hcd *hcd, struct usb_device *udev,
- 	 * U1/U2_ENABLE
- 	 */
- 	if (udev->actconfig &&
--	    usb_set_device_initiated_lpm(udev, state, true) == 0) {
--		if (state == USB3_LPM_U1)
--			udev->usb3_lpm_u1_enabled = 1;
--		else if (state == USB3_LPM_U2)
--			udev->usb3_lpm_u2_enabled = 1;
--	} else {
--		/* Don't request U1/U2 entry if the device
--		 * cannot transition to U1/U2.
--		 */
--		usb_set_lpm_timeout(udev, state, 0);
--		hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
-+	    usb_device_may_initiate_lpm(udev, state)) {
-+		if (usb_set_device_initiated_lpm(udev, state, true)) {
-+			/*
-+			 * Request to enable device initiated U1/U2 failed,
-+			 * better to turn off lpm in this case.
-+			 */
-+			usb_set_lpm_timeout(udev, state, 0);
-+			hcd->driver->disable_usb3_lpm_timeout(hcd, udev, state);
-+			return;
-+		}
+ 	spin_lock(&ehci->lock);
+ 
+-	status = ehci_readl(ehci, &ehci->regs->status);
++	status = 0;
++	current_status = ehci_readl(ehci, &ehci->regs->status);
++restart:
+ 
+ 	/* e.g. cardbus physical eject */
+-	if (status == ~(u32) 0) {
++	if (current_status == ~(u32) 0) {
+ 		ehci_dbg (ehci, "device removed\n");
+ 		goto dead;
  	}
--}
++	status |= current_status;
  
-+	if (state == USB3_LPM_U1)
-+		udev->usb3_lpm_u1_enabled = 1;
-+	else if (state == USB3_LPM_U2)
-+		udev->usb3_lpm_u2_enabled = 1;
-+}
- /*
-  * Disable the hub-initiated U1/U2 idle timeouts, and disable device-initiated
-  * U1/U2 entry.
+ 	/*
+ 	 * We don't use STS_FLR, but some controllers don't like it to
+ 	 * remain on, so mask it out along with the other status bits.
+ 	 */
+-	masked_status = status & (INTR_MASK | STS_FLR);
++	masked_status = current_status & (INTR_MASK | STS_FLR);
+ 
+ 	/* Shared IRQ? */
+ 	if (!masked_status || unlikely(ehci->rh_state == EHCI_RH_HALTED)) {
+@@ -730,6 +734,12 @@ static irqreturn_t ehci_irq (struct usb_hcd *hcd)
+ 
+ 	/* clear (just) interrupts */
+ 	ehci_writel(ehci, masked_status, &ehci->regs->status);
++
++	/* For edge interrupts, don't race with an interrupt bit being raised */
++	current_status = ehci_readl(ehci, &ehci->regs->status);
++	if (current_status & INTR_MASK)
++		goto restart;
++
+ 	cmd = ehci_readl(ehci, &ehci->regs->command);
+ 	bh = 0;
+ 
 -- 
 2.32.0
 
