@@ -2,151 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E85173D14AB
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 18:56:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 914223D166F
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 20:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231702AbhGUQPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 12:15:54 -0400
-Received: from mail-pl1-f175.google.com ([209.85.214.175]:37719 "EHLO
-        mail-pl1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbhGUQPx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 12:15:53 -0400
-Received: by mail-pl1-f175.google.com with SMTP id y3so1259047plp.4;
-        Wed, 21 Jul 2021 09:56:29 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=IBALwA0/lwQlCC9ArWBTvBN3bpZvZSDVrssut1ZL5To=;
-        b=G5Dl+E1P/ctIAYcJVuRw+G2ejfCTfQirlVGDkVMCeoZvKN/jWIGa61XeWhl7aegIGN
-         TitxiYIYCTrOH6ADBws9exWjLEbkaabzo5a/hZX6kA7PFfrHH+RnAlS2OPF5xFVV1aij
-         XcgOvxiacNyqtkDe03ZzmtYg6Kgkyu1BlsFx2/aRjxcnlL3yrLZNQn8tG+P0HFkDTOsd
-         GEMoGmARcGMUSZF772n5utr+I3oIvk49/0aUOcmqz3c9ErX7w3yuwOwekQpUwmPRqVGY
-         0c8zmgN6s/cJgzOJGMKXO0bbEtVChqBhoVnD/5jQ5DHJgJTLLnnyHqG6m0J/MnLB5KD+
-         NggQ==
-X-Gm-Message-State: AOAM532Oe4PrEizeq5VUU1OMW4/nRCMZuQaKtGf4Bj0/GhfSIcY84Mmr
-        J+brajI+yR0Qyteq4gIl8YpLwR/24dY=
-X-Google-Smtp-Source: ABdhPJzLT5UR89aJMp59XYiivG86/2UEWAPwE+X+74lT1yI7aGKnATCAT7OyluqUiTmtGSaHfB07sw==
-X-Received: by 2002:a17:902:7c18:b029:117:e575:473e with SMTP id x24-20020a1709027c18b0290117e575473emr28357351pll.37.1626886589063;
-        Wed, 21 Jul 2021 09:56:29 -0700 (PDT)
-Received: from localhost ([2601:647:5b00:6f70:be34:681b:b1e9:776f])
-        by smtp.gmail.com with ESMTPSA id q125sm21522998pga.87.2021.07.21.09.56.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jul 2021 09:56:28 -0700 (PDT)
-Date:   Wed, 21 Jul 2021 09:56:27 -0700
-From:   Moritz Fischer <mdf@kernel.org>
-To:     Matthias Schiffer <mschiffer@universe-factory.net>
-Cc:     Moritz Fischer <mdf@kernel.org>, linux-kernel@vger.kernel.org,
-        gabriel.kh.huang@fii-na.com, moritzf@google.com,
-        stable@vger.kernel.org, Mathias Nyman <mathias.nyman@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Justin Forbes <jmforbes@linuxtx.org>, linux-usb@vger.kernel.org
-Subject: Re: [PATCH] Revert "usb: renesas-xhci: Fix handling of unknown ROM
- state"
-Message-ID: <YPhRu/DWbs58hgvq@epycbox.lan>
-References: <20210719070519.41114-1-mdf@kernel.org>
- <c0f191cc-6400-7309-e8a4-eab0925a3d54@universe-factory.net>
+        id S238104AbhGURxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 13:53:19 -0400
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:9062 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230208AbhGURxS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 13:53:18 -0400
+Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 16LIWklT008439;
+        Wed, 21 Jul 2021 18:33:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=corp-2021-07-09;
+ bh=8pW+inlNHaYM8+hMzkLjqMex8Oqc0Kw17KUdUSmnGpo=;
+ b=TO7nBdNGi749Hp7rQHwpdDVWVW62fVU7mcyBduZsdYtK1TTnWEtLnKAQ2N8naNoaHvf8
+ cP55VFTJaxalbwRK90iIR08VC+fQZEn05qid9vWyzL4YiiaDKw4j0pjF2jUSDYb3gMQA
+ Mq4gSvHdS5po1oJt03KKGpKCIB/+zL70fdWrTt+W3IByOf9SmcKThGbCGeeT77ACv7ic
+ F63xuiWSVzLxJDIgKq37+2tpPUd1Ik2Ivo9z6BXn3n4jq/PWmK21jXvQDqEA/Rfh3iwC
+ AwgIJ4SyESF2glfZSto2En1zalnQs2pxksrihIAgprynO9guSP7LSNr16dpq8haqUt8l GQ== 
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : content-transfer-encoding : content-type :
+ mime-version; s=corp-2020-01-29;
+ bh=8pW+inlNHaYM8+hMzkLjqMex8Oqc0Kw17KUdUSmnGpo=;
+ b=MHEZe+bddBbOzH0+mcg7LTdNrjkOEVvBqUAS+bPeIPag3pSQTGk12HG3P2qMW2kHQbdO
+ ukmMFX1irp6xgzUDVQ8aDnjoivcSl2SXpF/n5KzkMA5VEp1ZFMHFQcvQ/GpgqyEopG8J
+ 0rS60FKK052e5LUbChGBE7o42bvia2sXflNgUBg1xJkT/ToytlySM9ZTCpWjmFJKZlWI
+ 7/IcqxwyC7NaGD/9D4pfePv3LxB85VPaQ681gOYfAWREGmxPDcEw4ItnJgDZzYOj5R8p
+ uzDHClL5IT9R65hCiSmh6UswlGu0DbC+2eb+tK++n3rdtIwk8gFLBy9Y+MtNGAHbwbxC hQ== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by mx0b-00069f02.pphosted.com with ESMTP id 39wvr8bju6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 21 Jul 2021 18:33:46 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 16LIUapx117162;
+        Wed, 21 Jul 2021 18:33:45 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2041.outbound.protection.outlook.com [104.47.66.41])
+        by userp3030.oracle.com with ESMTP id 39umb3a96n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 21 Jul 2021 18:33:45 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OgaOr+8YHunx1eW0mTUPK4qhQx0QBDXpF6jYxI1jVZOsOZN/qq0difORk9jGkTcRXWcRlWMinBZiJ5mMVNSbno9hVqtYma+5ri5yHJ+bWCE1H28LEVhgiOhdNA4vL645JwRdDMCQOO0DeI471YlqzIFh9mkcbx/LfRKzw0+IQu5AHleTfQEwAmBxi+0O4pgeesddaJ36++1ymYW/DZPaseHDKBzT4pC8yj5IR3LSdcyggmZeJawIZjLEwu5R3WfAV031GlHGkENI6er6WR9hVp/u1evGD7EHfpKpZkZje6GoAMVuw3E8/Ux/ZiuIuxBWreiejSzghxWjxgFIhQazHQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8pW+inlNHaYM8+hMzkLjqMex8Oqc0Kw17KUdUSmnGpo=;
+ b=npzd9fG5DVb6m0NfaoH8jOCKaXMRwVQa9nfhaO3KHDiVsmvsg+jgj004kVnODp1PxzJyrG8GKYaLVDqMZqGtDx+0A1C21cNdOA9VV41ZVJOsKOF734fsgosHVhVzCFHVImbkg3JOJSM6pnElfPutCZoso1jmZQaa7Wi9qy2Ya0k84v1OU9ea6R2pqY/8C4pBLqCTfC1xZWnFeg8YSqgAYGVCUJNt5Zlh2gVvF5dMPEv0UIM1GFU0De2+WOc4aj13uq5gSCKkjVvGAHdmk5bXnlLRMTSNeN5PXkNvx7zYUZhaEAPiqyDSLHKyzARYjPSZ7O1IU/iznnM0j0Qg+JiTtg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=8pW+inlNHaYM8+hMzkLjqMex8Oqc0Kw17KUdUSmnGpo=;
+ b=ubcVrO8Mb7McHHUY1WpI8YcXrQA8pMkokV2MuRRws+qsgLBRPvafRRqgwsR2ppVpbpvZ6nw3pTqRqk2y1RMAdoXKtEVXNbCgk3lAjdyOPWhjmK8Zy5jQjvMRfWZE8d4DVW1fDHAgFBrraWZARCOQVnbbG7t7vdDeQ6GyStPd3/8=
+Authentication-Results: kvack.org; dkim=none (message not signed)
+ header.d=none;kvack.org; dmarc=none action=none header.from=oracle.com;
+Received: from BY5PR10MB4196.namprd10.prod.outlook.com (2603:10b6:a03:20d::23)
+ by BY5PR10MB3810.namprd10.prod.outlook.com (2603:10b6:a03:1fb::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.25; Wed, 21 Jul
+ 2021 18:33:42 +0000
+Received: from BY5PR10MB4196.namprd10.prod.outlook.com
+ ([fe80::8d2a:558d:ab4a:9c2a]) by BY5PR10MB4196.namprd10.prod.outlook.com
+ ([fe80::8d2a:558d:ab4a:9c2a%5]) with mapi id 15.20.4331.034; Wed, 21 Jul 2021
+ 18:33:42 +0000
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+To:     linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Dennis Camera <bugs+kernel.org@dtnr.ch>, stable@vger.kernel.org
+Subject: [PATCH] hugetlbfs: fix mount mode command line processing
+Date:   Wed, 21 Jul 2021 11:33:26 -0700
+Message-Id: <20210721183326.102716-1-mike.kravetz@oracle.com>
+X-Mailer: git-send-email 2.31.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SJ0PR03CA0300.namprd03.prod.outlook.com
+ (2603:10b6:a03:39e::35) To BY5PR10MB4196.namprd10.prod.outlook.com
+ (2603:10b6:a03:20d::23)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c0f191cc-6400-7309-e8a4-eab0925a3d54@universe-factory.net>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from monkey.oracle.com (50.38.35.18) by SJ0PR03CA0300.namprd03.prod.outlook.com (2603:10b6:a03:39e::35) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.22 via Frontend Transport; Wed, 21 Jul 2021 18:33:42 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 04c03f11-73e1-43dd-3b6a-08d94c761113
+X-MS-TrafficTypeDiagnostic: BY5PR10MB3810:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BY5PR10MB381048EDD712DC2BF449BEF5E2E39@BY5PR10MB3810.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:422;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: OSZV2BUuGv0b7B36WAn6DRmKrvT3bh2PUEgZPEiFx4nmHe/T3cVqbyV3OEiPFTA1O6cgs6FxjnBPvf2DYYXyKmHfXjwC1VzCNA4m+gxUA+G43aGR/7Q9QaxXt+Nh1UJS2ui+8BjTR/fBcJyBg+JRTVILgQ7Urow7w5NnMwXF0VTH0uVTrxdWa8DvXvUqBU8mHPs4o+eP+yAKIhpePGyunOtXQU5JkRyWUmtXe8ZbVvbopV07oAhRzOE2/jWSaaRGGhyahO83HYSo/cxNzSqiXONIw08tADOUqj1tSsh+lUlkLQX5bwDX3J4SN7sf4vQcNrizcbVkfzNcnu7sJuRxdqDi6JXXavclhajXv/gVCIVz8WApkARw6b4B58lFtbCS3TAcpjWr5BI2HkvoUUMV1B1yOTv/4K6o0S/KOQAUJnbA6ofy8DlY1y3HWUG49j/2y+VASXV6YHpTgT55ow0YeCMHTzD2MgQnSpV9P+2lBGQAu7iSjNIsukXNk3aNrCeeO7ebklXYni1G6gd6QYXR9ap3Ys1mhxRWBsdbFCrgaw6949ZXrL8DfdcGDEhjHZhnmEJ4o+PbvP69qnh6L0VKDtSKiDN4eoHwR7DtXyeJ5PXQN15SC5rvUnJrwXshzd1VNdClRRRfswGi3zVCF4h78FFEg+lTttRR5Q5A5zRgSCiHKwnz3ZUX5jucsNURdLgj46F5g6Vn2Zw3Mi06uTEYNg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR10MB4196.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(66946007)(26005)(1076003)(38350700002)(38100700002)(508600001)(4326008)(44832011)(66476007)(6666004)(83380400001)(66556008)(7696005)(86362001)(316002)(2906002)(8936002)(52116002)(54906003)(5660300002)(6486002)(2616005)(8676002)(36756003)(186003)(956004);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?f0JW8R0chIOhNp7ftxMXDQ3d5ftC4XtjpaMrvVJx0aHTTd7FZjpL18rMtirA?=
+ =?us-ascii?Q?Cz9Rdb5fVMc3ThVL+c2ZRcttJNbk7i4qwuv8rGijWj54lZjdbx+GCfFmgMBg?=
+ =?us-ascii?Q?fRZkSWH05dseZ5QnJJSPk/AIL9ufOL1qB378oQhAC/tl/w0xHORZqWpnh6dc?=
+ =?us-ascii?Q?6o4Fd8UPUuVYDbd1fVgiJr1r0HhtZVUNmh70vvwxwqSZWhCEdTbKLTTtfT2F?=
+ =?us-ascii?Q?fSm3RdDvvbc6owsB29d1J5xZtLc5m3iE9yXsA2qySGHzGlcZyLpWiMflLUdQ?=
+ =?us-ascii?Q?41goqyoq4EjhL5OsdDVAblH2OKxy3TmzUI0TOeGzTVDHuVkbgQMGHKGZW6j+?=
+ =?us-ascii?Q?LM7UBx9pwb5uydg0MPDQcQtUbPP1PW72JuLNhe5m4vByaKIAmR6+dZ+8rzmv?=
+ =?us-ascii?Q?my/1aB8tYYYUrWMDMix/5y/5T8kkzj8bd/74UEla4DxmwR2YYQQqsgpyhkTk?=
+ =?us-ascii?Q?nbzkWYSbLKTeXe/ceudyRS6dP/2YaMz7XmRVZXLAwnXbrGhLvgFIHRIBTI3Z?=
+ =?us-ascii?Q?/GXdDBbwHO4RcAbEtGn7ojSWO1HXnGNIRncmSufW3Na/WZl89dOEZHwgRbuv?=
+ =?us-ascii?Q?rriBtoI8vLWZRQO9N52nsOen7+6QM8p6zaWKEO76FHA/cinUqZak9VAnXlnc?=
+ =?us-ascii?Q?MN2S2vDxobSQ3bw3mEquZL+Zj1cBMPvwOJaXyFb5j/d/ydos5LMlDZOYhuFx?=
+ =?us-ascii?Q?bol0oI/Eqh7JxE68ASB6y76u1iMIjOKbN9xQmE3IktbhlMx9l+ck4CD0zYGp?=
+ =?us-ascii?Q?0ZV4n78T+K+4BFReD4w1QPCCd5R7AYudDnhIGwpf0PmtmSZcEikb4rCtAhtz?=
+ =?us-ascii?Q?jCfFoY15dqPg2t/FT+/V9Qnf1fu8E9IJsd0nxRzyXD12mpsz8bjcu0nPpwpY?=
+ =?us-ascii?Q?e7MHjJWRQw4SoxeN7mZDtsgAcx4xLBj9t4I1cxIxXrThR6iY8XXpZV74o1j/?=
+ =?us-ascii?Q?gdYZaCJinQ+UNjgEsWLftCuCPxTRkmISMVkfUNlfpO9PjmwMd8hI//Rbx75N?=
+ =?us-ascii?Q?e3vop/FqPA7I+A5hBnnjxl1wlmOWTEWP+K6P7Dmbg6YrqquTv229Sk6OJ6ua?=
+ =?us-ascii?Q?FcNw68i/A9VcyyPqVA2FVKupDcSRqeR5ldX40PQsNby31DmjKCprwD0+HCES?=
+ =?us-ascii?Q?EFxit79vito7pwQwnktlaJYYoM5fHw6xVYcaPBvCo1dvAhJAhjN8i/x1IIIb?=
+ =?us-ascii?Q?y/LXG/82veCBxHm0Gxj7RgCjv5+0J3SxbFHueBukzVhMcxuBIERlAve14Y+s?=
+ =?us-ascii?Q?/Rta7csySWK6HFtc+3GYwmCse0NIrqLdoRnE9FmEXkm/iXrgZYVD0jSBLZA9?=
+ =?us-ascii?Q?QGFR+wN0K6XspJnFkprvN1zr?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 04c03f11-73e1-43dd-3b6a-08d94c761113
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR10MB4196.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jul 2021 18:33:42.7693
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: J76Bj9k1p3DpV1w770nEyvyYp9eAt7v8H9lkhgSXRytR74CKWeXfZEvuVKDgP5Vu7mOj+1wxTqKJsHnnz3KtrQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB3810
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10052 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 malwarescore=0 spamscore=0
+ mlxscore=0 adultscore=0 mlxlogscore=999 suspectscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107210109
+X-Proofpoint-GUID: EF7fkJvjWaBv4q8IezCFRuQ9ZoyX8AGf
+X-Proofpoint-ORIG-GUID: EF7fkJvjWaBv4q8IezCFRuQ9ZoyX8AGf
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 21, 2021 at 05:28:21PM +0200, Matthias Schiffer wrote:
-> On 7/19/21 9:05 AM, Moritz Fischer wrote:
-> > This reverts commit d143825baf15f204dac60acdf95e428182aa3374.
-> > 
-> > Justin reports some of his systems now fail as result of this commit:
-> > 
-> >   xhci_hcd 0000:04:00.0: Direct firmware load for renesas_usb_fw.mem failed with error -2
-> >   xhci_hcd 0000:04:00.0: request_firmware failed: -2
-> >   xhci_hcd: probe of 0000:04:00.0 failed with error -2
-> > 
-> > The revert brings back the original issue the commit tried to solve but
-> > at least unbreaks existing systems relying on previous behavior.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Mathias Nyman <mathias.nyman@intel.com>
-> > Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Cc: Vinod Koul <vkoul@kernel.org>
-> > Cc: Justin Forbes <jmforbes@linuxtx.org>
-> > Reported-by: Justin Forbes <jmforbes@linuxtx.org>
-> > Signed-off-by: Moritz Fischer <mdf@kernel.org>
-> > ---
-> > 
-> > Justin,
-> > 
-> > would you be able to help out testing follow up patches to this?
-> > 
-> > I don't have a machine to test your use-case and mine definitly requires
-> > a firmware load on RENESAS_ROM_STATUS_NO_RESULT.
-> > 
-> > Thanks
-> > - Moritz
-> 
-> 
-> Hi Moritz,
-> 
-> as an additional data point, here's the behaviour of my system, a Thinkpad
-> T14 AMD with:
+In commit 32021982a324 ("hugetlbfs: Convert to fs_context") processing
+of the mount mode string was changed from match_octal() to fsparam_u32.
+This changed existing behavior as match_octal does not require octal
+values to have a '0' prefix, but fsparam_u32 does.
 
-Thanks!
-> 
-> 06:00.0 USB controller [0c03]: Renesas Technology Corp. uPD720202 USB 3.0
-> Host Controller [1912:0015] (rev 02)
-> 
-> - On Kernel 5.13.1, no firmware: USB controller resets in an endless loop
-> when the system is running from battery
-> - On Kernel 5.13.4, no firmware: USB controller probe fails with the
-> mentioned firmware load error
-> - On Kernel 5.13.4, with renesas_usb_fw.mem: everything is working fine, the
-> reset issue is gone
-> 
-> So it seems to me that requiring a firmware is generally the correct driver
-> behaviour for this hardware. The firmware I found in the Arch User
-> Repository [1] unfortunately has a very restrictive license...
+Use fsparam_u32oct which provides the same behavior as match_octal.
 
-Yeah, the chip definitely needs the firmware. It can either initialize
-from external ROM or runtime loaded firmware.
+Reported-by: Dennis Camera <bugs+kernel.org@dtnr.ch>
+Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+CC: <stable@vger.kernel.org>
+---
+ fs/hugetlbfs/inode.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I think the problem really lies in how the current (and reverted) code
-detects the need for firmware loading.
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 926eeb9bf4eb..cdfb1ae78a3f 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -77,7 +77,7 @@ enum hugetlb_param {
+ static const struct fs_parameter_spec hugetlb_fs_parameters[] = {
+ 	fsparam_u32   ("gid",		Opt_gid),
+ 	fsparam_string("min_size",	Opt_min_size),
+-	fsparam_u32   ("mode",		Opt_mode),
++	fsparam_u32oct("mode",		Opt_mode),
+ 	fsparam_string("nr_inodes",	Opt_nr_inodes),
+ 	fsparam_string("pagesize",	Opt_pagesize),
+ 	fsparam_string("size",		Opt_size),
+-- 
+2.31.1
 
-The current code looks at two indicators:
-- Is there an external ROM and if so, did somebody try to program the
-  external ROM and succeed? (renesas_check_rom_state)
-- Did somebody try to runtime-load firmware, and if so did they succeed?
-  (renesas_fw_check_running, after the early return)
-
-The first one (and resulting early return) does *not* tell you whether
-the controller actually has firwmare. That's what breaks my systems.
-
-The second one is only really useful *if* we also check that FW_DOWNLOAD
-was locked.
-
-Neither of the above captures the case where you actually have an
-external ROM that is programmed with proper firmware and caused the chip
-to be loaded with said firmware.
-
-Now before the patch that was reverted, since nobody tried to program
-the ROM, it feel through to the "do nothing" in this case -- which
-worked since it configured itself from external ROM.
-
-Now how do we properly determine we do or don't need firwmare?
-
-Looking at the datasheet I see two options.
-- The version register? I need to investigate what that resets to with
-  an unprogrammed/corrupted ROM. If that reliably gives a detectable value
-  this could be used as an indicator.
-  
-- The USBSTS register according to the datasheet will report an error
-  through the HCE bit:
-  "If both uDP720201 and uDP720202 detect no correct firmware in Serial
-  ROM, this flag will be set"
-
-I'll put up an RFC in the next couple of days ...
-
-- Moritz
