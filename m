@@ -2,102 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0E63D11AE
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 16:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B5A3D1213
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 17:13:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbhGUON3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 10:13:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55490 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239299AbhGUON2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 10:13:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5234F61245;
-        Wed, 21 Jul 2021 14:54:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626879244;
-        bh=PWwe9/KwYeb/EUi0rOsgG9DcygED/OjA81VU93PhZ+8=;
-        h=Subject:To:From:Date:From;
-        b=pxXYhJujSI3L75psMYrRlv+37nT6lvjto8yQ++gI2MkGOQVZ2Fh3Qm37i2MOIf7Cf
-         zFr4h3kH3XDe8NT63o/9XqM1EOWwzzTJ1vMiSmnqkx549wrrBHXE3OoZGgam/g0sA/
-         WfAkktT49KiP0dwOvxBowA1fj70zqw9rHKf5k040=
-Subject: patch "driver core: auxiliary bus: Fix memory leak when driver_register()" added to driver-core-linus
-To:     peter.ujfalusi@linux.intel.com, dan.j.williams@intel.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 16:54:02 +0200
-Message-ID: <1626879242215223@kroah.com>
+        id S239543AbhGUOdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 10:33:02 -0400
+Received: from mo4-p01-ob.smtp.rzone.de ([81.169.146.166]:12932 "EHLO
+        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239436AbhGUOdC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 10:33:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1626880394;
+    s=strato-dkim-0002; d=hartkopp.net;
+    h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=9TOOFJtYcxyvoohpzVlG4nhQVpdpMTEyMSMQeyKKi+c=;
+    b=rHgwrvdoQv9AjciiQbQMGeUMAnhN2ZzrnO0jRc3pgkLZv5xb+Y0vR85rFZGGLFPmG9
+    YeXdetO5CvmYb0xIs08YkjFBSeMg2Gs51MGowLrh59XSgFuVcJzwMQYSbUzEZm2Da+lh
+    LnCPk+YQsqasvSCzWxThMSpAvQvf4yCwICGGfE+/et3+Cx6Vt15j8HeTS/YSqeKkVMSW
+    jXYW2gYD2htKGaxA30VZgkjpJSisOx88r6bDqnF2h3YbSgSOqmVLR9D+y8x2XRzUDpuu
+    PJR1+gx/DwF3TCtbdSeQeABMNlr6/LcDLYVI2/MKuzRQ9C3V8hw/A06r9RSa6genZ4pm
+    KUfg==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1qCHSa1GLptZHusx3htNmYasgbo6AhaFdcg=="
+X-RZG-CLASS-ID: mo00
+Received: from [IPv6:2a00:6020:1cee:8300::b82]
+    by smtp.strato.de (RZmta 47.28.1 AUTH)
+    with ESMTPSA id Z03199x6LFDEIcT
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Wed, 21 Jul 2021 17:13:14 +0200 (CEST)
+Subject: Re: [PATCH net] can: raw: fix raw_rcv panic for sock UAF
+To:     "Ziyang Xuan (William)" <william.xuanziyang@huawei.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     davem@davemloft.net, kuba@kernel.org, mkl@pengutronix.de,
+        netdev@vger.kernel.org, linux-can@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20210721010937.670275-1-william.xuanziyang@huawei.com>
+ <YPeoQG19PSh3B3Dc@kroah.com>
+ <44c3e0e2-03c5-80e5-001c-03e7e9758bca@hartkopp.net>
+ <11822417-5931-b2d8-ae77-ec4a84b8b895@hartkopp.net>
+ <d5eb8e8d-bce9-cccd-a102-b60692c242f0@huawei.com>
+From:   Oliver Hartkopp <socketcan@hartkopp.net>
+Message-ID: <fc68ffdf-50f0-9cc7-6943-4b16b1447a9b@hartkopp.net>
+Date:   Wed, 21 Jul 2021 17:13:08 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <d5eb8e8d-bce9-cccd-a102-b60692c242f0@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    driver core: auxiliary bus: Fix memory leak when driver_register()
+On 21.07.21 13:37, Ziyang Xuan (William) wrote:
+> On 7/21/2021 5:24 PM, Oliver Hartkopp wrote:
 
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
+>>
+>> Can you please resend the below patch as suggested by Greg KH and add my
+>>
+>> Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+>>
+>> as it also adds the dev_get_by_index() return check.
+>>
+>> diff --git a/net/can/raw.c b/net/can/raw.c
+>> index ed4fcb7ab0c3..d3cbc32036c7 100644
+>> --- a/net/can/raw.c
+>> +++ b/net/can/raw.c
+>> @@ -544,14 +544,18 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>>           } else if (count == 1) {
+>>               if (copy_from_sockptr(&sfilter, optval, sizeof(sfilter)))
+>>                   return -EFAULT;
+>>           }
+>>
+>> +        rtnl_lock();
+>>           lock_sock(sk);
+>>
+>> -        if (ro->bound && ro->ifindex)
+>> +        if (ro->bound && ro->ifindex) {
+>>               dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+>> +            if (!dev)
+>> +                goto out_fil;
+>> +        }
+> At first, I also use this modification. After discussion with my partner, we found that
+> it is impossible scenario if we use rtnl_lock to protect net_device object.
+> We can see two sequences:
+> 1. raw_setsockopt first get rtnl_lock, unregister_netdevice_many later.
+> It can be simplified to add the filter in raw_setsockopt, then remove the filter in raw_notify.
+> 
+> 2. unregister_netdevice_many first get rtnl_lock, raw_setsockopt later.
+> raw_notify will set ro->ifindex, ro->bound and ro->count to zero firstly. The filter will not
+> be added to any filter_list in raw_notify.
+> 
+> So I selected the current modification. Do you think so?
+> 
+> My first modification as following:
+> 
+> diff --git a/net/can/raw.c b/net/can/raw.c
+> index ed4fcb7ab0c3..a0ce4908317f 100644
+> --- a/net/can/raw.c
+> +++ b/net/can/raw.c
+> @@ -546,10 +546,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>                                  return -EFAULT;
+>                  }
+> 
+> +               rtnl_lock();
+>                  lock_sock(sk);
+> 
+> -               if (ro->bound && ro->ifindex)
+> +               if (ro->bound && ro->ifindex) {
+>                          dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+> +                       if (!dev) {
+> +                               err = -ENODEV;
+> +                               goto out_fil;
+> +                       }
+> +               }
+> 
+>                  if (ro->bound) {
+>                          /* (try to) register the new filters */
+> @@ -559,11 +565,8 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>                          else
+>                                  err = raw_enable_filters(sock_net(sk), dev, sk,
+>                                                           filter, count);
+> -                       if (err) {
+> -                               if (count > 1)
+> -                                       kfree(filter);
+> +                       if (err)
+>                                  goto out_fil;
+> -                       }
+> 
+>                          /* remove old filter registrations */
+>                          raw_disable_filters(sock_net(sk), dev, sk, ro->filter,
+> @@ -584,10 +587,14 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>                  ro->count  = count;
+> 
+>    out_fil:
+> +               if (err && count > 1)
+> +                       kfree(filter);
+> +
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Setting the err variable to -ENODEV is a good idea but I do not like the 
+movement of kfree(filter).
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
+The kfree() has a tight relation inside the if-statement for ro->bound 
+which makes it easier to understand.
 
-If you have any questions about this process, please let me know.
+Regards,
+Oliver
 
+ps. your patches have less context than mine. Do you have different 
+settings for -U<n>, --unified=<n> for 'git diff' ?
 
-From 4afa0c22eed33cfe0c590742387f0d16f32412f3 Mon Sep 17 00:00:00 2001
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Date: Tue, 13 Jul 2021 12:34:38 +0300
-Subject: driver core: auxiliary bus: Fix memory leak when driver_register()
- fail
-
-If driver_register() returns with error we need to free the memory
-allocated for auxdrv->driver.name before returning from
-__auxiliary_driver_register()
-
-Fixes: 7de3697e9cbd4 ("Add auxiliary bus support")
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20210713093438.3173-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/base/auxiliary.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/base/auxiliary.c b/drivers/base/auxiliary.c
-index adc199dfba3c..6a30264ab2ba 100644
---- a/drivers/base/auxiliary.c
-+++ b/drivers/base/auxiliary.c
-@@ -231,6 +231,8 @@ EXPORT_SYMBOL_GPL(auxiliary_find_device);
- int __auxiliary_driver_register(struct auxiliary_driver *auxdrv,
- 				struct module *owner, const char *modname)
- {
-+	int ret;
-+
- 	if (WARN_ON(!auxdrv->probe) || WARN_ON(!auxdrv->id_table))
- 		return -EINVAL;
- 
-@@ -246,7 +248,11 @@ int __auxiliary_driver_register(struct auxiliary_driver *auxdrv,
- 	auxdrv->driver.bus = &auxiliary_bus_type;
- 	auxdrv->driver.mod_name = modname;
- 
--	return driver_register(&auxdrv->driver);
-+	ret = driver_register(&auxdrv->driver);
-+	if (ret)
-+		kfree(auxdrv->driver.name);
-+
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(__auxiliary_driver_register);
- 
--- 
-2.32.0
-
-
+>                  if (dev)
+>                          dev_put(dev);
+> 
+>                  release_sock(sk);
+> +               rtnl_unlock();
+> 
+>                  break;
+> 
+> @@ -600,10 +607,16 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+> 
+>                  err_mask &= CAN_ERR_MASK;
+> 
+> +               rtnl_lock();
+>                  lock_sock(sk);
+> 
+> -               if (ro->bound && ro->ifindex)
+> +               if (ro->bound && ro->ifindex) {
+>                          dev = dev_get_by_index(sock_net(sk), ro->ifindex);
+> +                       if (!dev) {
+> +                               err = -ENODEV;
+> +                               goto out_err;
+> +                       }
+> +               }
+> 
+>                  /* remove current error mask */
+>                  if (ro->bound) {
+> @@ -627,6 +640,7 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+>                          dev_put(dev);
+> 
+>                  release_sock(sk);
+> +               rtnl_unlock();
+> 
+>                  break;
+> 
