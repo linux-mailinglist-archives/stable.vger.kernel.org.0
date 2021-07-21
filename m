@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2B83D0A10
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4127E3D0A12
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 09:55:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235907AbhGUHLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 03:11:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40030 "EHLO mail.kernel.org"
+        id S235937AbhGUHMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 03:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235680AbhGUHKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235853AbhGUHKr (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 21 Jul 2021 03:10:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE89660FE9;
-        Wed, 21 Jul 2021 07:51:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9A8C600D1;
+        Wed, 21 Jul 2021 07:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626853870;
-        bh=Ym6lw+Bkz+kfAK5lRKhs4BtLcKnFtX9Rl/0nsUjH6VM=;
+        s=korg; t=1626853881;
+        bh=SUPuerpeQ6ra7zkWsgJOsNChyYcE8CLJkaefuyRublw=;
         h=Subject:To:From:Date:From;
-        b=cedHbXDBTNg1Y8jY8CQE0MFQh5WkmP7SYJcP8Q6XcAcl5XGg2erpwZ8A5p6uFyC1z
-         kNb8ds52DTPOLmr1+yozqFl4nmUD8m0ir8CUEDTG0BGg8Z2W6akXjH+JumIGnmB30w
-         LPIEEygXYPz+VRAtMl72x/AwTZcl2iF2YkMwmxfE=
-Subject: patch "usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()" added to usb-linus
-To:     yoshihiro.shimoda.uh@renesas.com, gregkh@linuxfoundation.org,
+        b=zDWoc3L/2IeYuEEsNeqLERdhwliv5rCk+kUJ/zL1KabvR/i6tb1kFmPW1fH3YwHXK
+         Bv8d93vuHjypNSx3wXew27lZTNeZxa0HIKmwhLMwi+zbIiunqH5Qdg0Dk989NKV/gm
+         WHRLohCMiw8Oo+hB9wJzegkEFbi4A4WToMDhcriY=
+Subject: patch "usb: dwc2: gadget: Fix sending zero length packet in DDMA mode." added to usb-linus
+To:     Minas.Harutyunyan@synopsys.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 09:51:08 +0200
-Message-ID: <1626853868221163@kroah.com>
+Date:   Wed, 21 Jul 2021 09:51:09 +0200
+Message-ID: <1626853869235198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+    usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,55 +51,51 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 5719df243e118fb343725e8b2afb1637e1af1373 Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Thu, 24 Jun 2021 21:20:39 +0900
-Subject: usb: renesas_usbhs: Fix superfluous irqs happen after usb_pkt_pop()
+From d53dc38857f6dbefabd9eecfcbf67b6eac9a1ef4 Mon Sep 17 00:00:00 2001
+From: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Date: Tue, 20 Jul 2021 05:41:24 -0700
+Subject: usb: dwc2: gadget: Fix sending zero length packet in DDMA mode.
 
-This driver has a potential issue which this driver is possible to
-cause superfluous irqs after usb_pkt_pop() is called. So, after
-the commit 3af32605289e ("usb: renesas_usbhs: fix error return
-code of usbhsf_pkt_handler()") had been applied, we could observe
-the following error happened when we used g_audio.
+Sending zero length packet in DDMA mode perform by DMA descriptor
+by setting SP (short packet) flag.
 
-    renesas_usbhs e6590000.usb: irq_ready run_error 1 : -22
+For DDMA in function dwc2_hsotg_complete_in() does not need to send
+zlp.
 
-To fix the issue, disable the tx or rx interrupt in usb_pkt_pop().
+Tested by USBCV MSC tests.
 
-Fixes: 2743e7f90dc0 ("usb: renesas_usbhs: fix the usb_pkt_pop()")
-Cc: <stable@vger.kernel.org> # v4.4+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210624122039.596528-1-yoshihiro.shimoda.uh@renesas.com
+Fixes: f71b5e2533de ("usb: dwc2: gadget: fix zero length packet transfers")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Link: https://lore.kernel.org/r/967bad78c55dd2db1c19714eee3d0a17cf99d74a.1626777738.git.Minas.Harutyunyan@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/renesas_usbhs/fifo.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/dwc2/gadget.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/renesas_usbhs/fifo.c b/drivers/usb/renesas_usbhs/fifo.c
-index b5e7991dc7d9..a3c2b01ccf7b 100644
---- a/drivers/usb/renesas_usbhs/fifo.c
-+++ b/drivers/usb/renesas_usbhs/fifo.c
-@@ -101,6 +101,8 @@ static struct dma_chan *usbhsf_dma_chan_get(struct usbhs_fifo *fifo,
- #define usbhsf_dma_map(p)	__usbhsf_dma_map_ctrl(p, 1)
- #define usbhsf_dma_unmap(p)	__usbhsf_dma_map_ctrl(p, 0)
- static int __usbhsf_dma_map_ctrl(struct usbhs_pkt *pkt, int map);
-+static void usbhsf_tx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
-+static void usbhsf_rx_irq_ctrl(struct usbhs_pipe *pipe, int enable);
- struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
- {
- 	struct usbhs_priv *priv = usbhs_pipe_to_priv(pipe);
-@@ -123,6 +125,11 @@ struct usbhs_pkt *usbhs_pkt_pop(struct usbhs_pipe *pipe, struct usbhs_pkt *pkt)
- 		if (chan) {
- 			dmaengine_terminate_all(chan);
- 			usbhsf_dma_unmap(pkt);
-+		} else {
-+			if (usbhs_pipe_is_dir_in(pipe))
-+				usbhsf_rx_irq_ctrl(pipe, 0);
-+			else
-+				usbhsf_tx_irq_ctrl(pipe, 0);
- 		}
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index 74d25019272f..3146df6e6510 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -2749,12 +2749,14 @@ static void dwc2_hsotg_complete_in(struct dwc2_hsotg *hsotg,
+ 		return;
+ 	}
  
- 		usbhs_pipe_clear_without_sequence(pipe, 0, 0);
+-	/* Zlp for all endpoints, for ep0 only in DATA IN stage */
++	/* Zlp for all endpoints in non DDMA, for ep0 only in DATA IN stage */
+ 	if (hs_ep->send_zlp) {
+-		dwc2_hsotg_program_zlp(hsotg, hs_ep);
+ 		hs_ep->send_zlp = 0;
+-		/* transfer will be completed on next complete interrupt */
+-		return;
++		if (!using_desc_dma(hsotg)) {
++			dwc2_hsotg_program_zlp(hsotg, hs_ep);
++			/* transfer will be completed on next complete interrupt */
++			return;
++		}
+ 	}
+ 
+ 	if (hs_ep->index == 0 && hsotg->ep0_state == DWC2_EP0_DATA_IN) {
 -- 
 2.32.0
 
