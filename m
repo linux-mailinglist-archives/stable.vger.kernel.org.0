@@ -2,68 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 905573D05FA
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 02:03:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A52653D064A
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 03:10:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232727AbhGTXT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 20 Jul 2021 19:19:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55968 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232678AbhGTXT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 20 Jul 2021 19:19:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 61BF561019;
-        Wed, 21 Jul 2021 00:00:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1626825604;
-        bh=FcrnIFEXF/rbitskuoMbeow7tDokY+I/IO1rltasVQI=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=HNXZTKFqnaIvP0b9+d0rJl+niaY1gHSLXs70sEmhFbBXgZ0MRCnNu5Rw2KLyJDc/t
-         atYzra8nyAcYWAUWh0oBRWXxp2UfyeHcqzlIpmHj39goRYdh8WOg8C8VlhONBOXS9Z
-         TaTBHz0VayqlZg6DQzd8Mc+oG3RNa5Z8QLbn/IxoCmC1VNAkQb5vflj2HnHWxyeS9U
-         EOXtyZcLZEwe2h3xsE2gr8461b97gzlu+f0Nwn/JfA8E2f3UhvgasXHUGGPCSoG94d
-         x8+DthLLzkE6aLIwU22dehpKG1Rr3OArTMS/KmMtmezp4O4zp6ZcVutzyeb4fzHbdS
-         2aJFRfXHDIivg==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 53B1660C2A;
-        Wed, 21 Jul 2021 00:00:04 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S229629AbhGUA3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 20 Jul 2021 20:29:24 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:7406 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229531AbhGUA3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 20 Jul 2021 20:29:09 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4GTy7p6Zqfz7tHt;
+        Wed, 21 Jul 2021 09:05:58 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Wed, 21 Jul 2021 09:09:37 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Wed, 21 Jul 2021 09:09:37 +0800
+Subject: Re: [PATCH 5.4 000/148] 5.4.134-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210719184316.974243081@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <4f00ebfa-c01c-fa2b-81b2-f80487accb45@huawei.com>
+Date:   Wed, 21 Jul 2021 09:09:36 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 1/1] ixgbe: Fix packet corruption due to missing DMA sync
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162682560433.6038.5001734504344039121.git-patchwork-notify@kernel.org>
-Date:   Wed, 21 Jul 2021 00:00:04 +0000
-References: <20210720232619.3088791-1-anthony.l.nguyen@intel.com>
-In-Reply-To: <20210720232619.3088791-1-anthony.l.nguyen@intel.com>
-To:     Tony Nguyen <anthony.l.nguyen@intel.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, markubo@amazon.com,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        tonyx.brelinski@intel.com
+In-Reply-To: <20210719184316.974243081@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
 
-This patch was applied to netdev/net.git (refs/heads/master):
 
-On Tue, 20 Jul 2021 16:26:19 -0700 you wrote:
-> From: Markus Boehme <markubo@amazon.com>
+On 2021/7/20 2:45, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.134 release.
+> There are 148 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> When receiving a packet with multiple fragments, hardware may still
-> touch the first fragment until the entire packet has been received. The
-> driver therefore keeps the first fragment mapped for DMA until end of
-> packet has been asserted, and delays its dma_sync call until then.
+> Responses should be made by Wed, 21 Jul 2021 18:42:54 +0000.
+> Anything received after that time might be too late.
 > 
-> [...]
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.134-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Here is the summary with links:
-  - [net,1/1] ixgbe: Fix packet corruption due to missing DMA sync
-    https://git.kernel.org/netdev/net/c/09cfae9f13d5
+Tested on arm64 and x86 for 5.4.134-rc2,
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.134-rc2
+Commit: 5b0c31d40d771b5f47ddc5fc813761aa13c34944
+Compiler: gcc version 7.3.0 (GCC)
 
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8905
+passed: 8905
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8905
+passed: 8905
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
