@@ -2,88 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1341C3D1113
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 16:20:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D237D3D119F
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 16:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232419AbhGUNkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 09:40:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53718 "EHLO
+        id S232977AbhGUOIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 10:08:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239031AbhGUNkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 09:40:01 -0400
-Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35C27C061575;
-        Wed, 21 Jul 2021 07:20:38 -0700 (PDT)
-Received: from cap.home.8bytes.org (p4ff2b1ea.dip0.t-ipconnect.de [79.242.177.234])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by theia.8bytes.org (Postfix) with ESMTPSA id CCB49936;
-        Wed, 21 Jul 2021 16:20:24 +0200 (CEST)
-From:   Joerg Roedel <joro@8bytes.org>
-To:     x86@kernel.org, Eric Biederman <ebiederm@xmission.com>
-Cc:     kexec@lists.infradead.org, Joerg Roedel <jroedel@suse.de>,
-        stable@vger.kernel.org, hpa@zytor.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jiri Slaby <jslaby@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Juergen Gross <jgross@suse.com>,
-        Kees Cook <keescook@chromium.org>,
-        David Rientjes <rientjes@google.com>,
-        Cfir Cohen <cfir@google.com>,
-        Erdem Aktas <erdemaktas@google.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mike Stunes <mstunes@vmware.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Martin Radev <martin.b.radev@gmail.com>,
-        Arvind Sankar <nivedita@alum.mit.edu>,
-        Joerg Roedel <joro@8bytes.org>, linux-coco@lists.linux.dev,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-Subject: [PATCH 02/12] x86/kexec/64: Forbid kexec when running as an SEV-ES guest
-Date:   Wed, 21 Jul 2021 16:20:05 +0200
-Message-Id: <20210721142015.1401-3-joro@8bytes.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210721142015.1401-1-joro@8bytes.org>
-References: <20210721142015.1401-1-joro@8bytes.org>
+        with ESMTP id S232976AbhGUOIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 10:08:11 -0400
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com [IPv6:2607:f8b0:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6961FC061575
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 07:48:48 -0700 (PDT)
+Received: by mail-ot1-x331.google.com with SMTP id j1-20020a0568302701b02904d1f8b9db81so2244205otu.12
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 07:48:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=6ql2ECn7cezJEfRqzBduTSAmQUaRaUT19pW0jz2l/iU=;
+        b=Yf+e/n8baFKxqGC6hy+rAs0CgGHc6Q0ejhYIKnPHhRbF3zkQwDIEy2EuOocWExGuHX
+         VNBjVcpvlK+35FigbimJyoxBKOJVdhilMD1XVf69MAXMwLiVm0BMkPJYth+0naR1DUmm
+         d/0YIgVseMdWLCHCTpixpROYZ608s+vyXL71qdPpkq+nV48L0B/3TLWmPG+NT6Qc4VA/
+         SvcNopPHbKOIcBSoJo2Y1xnCuyyj2eULWYQfqkY5m5ZEeGr2lfleoNw/yik72vb28Kvx
+         zaUOvD0AbdE5voZlsB/BRVGGlI3n1fSp/gRxTvp/9Oce3Z3mkvpVedspcWZ5AD5uYeX0
+         I/cg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mime-version:content-disposition;
+        bh=6ql2ECn7cezJEfRqzBduTSAmQUaRaUT19pW0jz2l/iU=;
+        b=Rf/qMwC1UgPcLBqlBHeZ/bRn4oqO8ZY3HIRP9NhPnAFVhraIvRJ0udKUKIxgJMwKx3
+         BqLSB0WF7a+zESlduMpx4wT4DHZxEPe231O7ol2BVzbtsZA0pMmckNunvwun+3qbsNcs
+         85uLalzVirTV8eQ/yDzaFTtO/jrRO/VNYdcv6g/7RNQjIpVp+8WcHv9VBBB9/tMKg7L4
+         9vJgfOZJonA7sHVAKr7a/mQgutmQalf8PhJWxfNyMIEWGBfH3rlhrbNvnqcddnu9uEe2
+         mmatNCWj0VpeMmE6zah8DpF+9wOZv4P38uetQV5pm7lMufYXX3S9IsPpAXeCCvoeYhdP
+         nc6w==
+X-Gm-Message-State: AOAM531Lr52b+KBSCC+u8mfowf3BVMHGzQWSAis/VRqTTlUz9riTsTfG
+        Og25pvmbz80/F2nXI8fOX5NYlo3VSO0=
+X-Google-Smtp-Source: ABdhPJxeCQJtSgpIYAfEPEeGDkBAHuWU+g5Xo91YiJNb2YSeudbXoy1w6NQsOW9tKVTfanmXJ1aG2w==
+X-Received: by 2002:a05:6830:2413:: with SMTP id j19mr26630525ots.332.1626878927585;
+        Wed, 21 Jul 2021 07:48:47 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id x16sm134713ooj.1.2021.07.21.07.48.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jul 2021 07:48:47 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 21 Jul 2021 07:48:45 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: v4.4.276: Build failure for powerpc:mpc85xx_defconfig
+Message-ID: <20210721144845.GA3445926@roeck-us.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+Hi,
 
-For now, kexec is not supported when running as an SEV-ES guest. Doing
-so requires additional hypervisor support and special code to hand
-over the CPUs to the new kernel in a safe way.
+As of v4.4.276, linux-4.4.y fails to build powerpc:mpc85xx_defconfig and
+other powerpc images enabling the fsl_ifc driver.
 
-Until this is implemented, do not support kexec in SEV-ES guests.
+drivers/memory/fsl_ifc.c: In function 'fsl_ifc_ctrl_probe':
+drivers/memory/fsl_ifc.c:308:28: error:
+	'struct fsl_ifc_ctrl' has no member named 'gregs'; did you mean 'regs'?
 
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
----
- arch/x86/kernel/machine_kexec_64.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/arch/x86/kernel/machine_kexec_64.c b/arch/x86/kernel/machine_kexec_64.c
-index 131f30fdcfbd..a8e16a411b40 100644
---- a/arch/x86/kernel/machine_kexec_64.c
-+++ b/arch/x86/kernel/machine_kexec_64.c
-@@ -591,3 +591,11 @@ void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages)
- 	 */
- 	set_memory_encrypted((unsigned long)vaddr, pages);
- }
-+
-+/*
-+ * Kexec is not supported in SEV-ES guests yet
-+ */
-+bool arch_kexec_supported(void)
-+{
-+	return !sev_es_active();
-+}
--- 
-2.31.1
-
+Guenter
