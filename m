@@ -2,93 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DE73D0DD8
-	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 13:37:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD513D0DDA
+	for <lists+stable@lfdr.de>; Wed, 21 Jul 2021 13:37:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238524AbhGUKxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 21 Jul 2021 06:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37494 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239632AbhGUKT5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 21 Jul 2021 06:19:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24A2A608FE;
-        Wed, 21 Jul 2021 10:56:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626864993;
-        bh=R4UHaF8rCJwMyvxt2JM7z0jG/U4CvzvB2MMQ+bOOLzw=;
-        h=Subject:To:From:Date:From;
-        b=zCsFmIsDCYNtIOxZPSb33a5wlcGdpJfG/WMvlbHQKV9n1jMGjEaWLyOhNG2LS3X+X
-         oyYKBF4AaxMEShKrpvWlN2OZm3YpidfN39Q7oPxS97ZxdxJ1oDtb4dPH3yPoctMo3u
-         P2KICcmW9YL0U/8j2FgdKhPdMoz+Z8RVJlwhmZMc=
-Subject: patch "serial: 8250_pci: Enumerate Elkhart Lake UARTs via dedicated driver" added to tty-linus
-To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 21 Jul 2021 12:56:31 +0200
-Message-ID: <1626864991139225@kroah.com>
+        id S238575AbhGUKxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 21 Jul 2021 06:53:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36842 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239643AbhGUKZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 21 Jul 2021 06:25:32 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5AFC0613DC
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 04:04:36 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id gx2so1425664pjb.5
+        for <stable@vger.kernel.org>; Wed, 21 Jul 2021 04:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bHBVF1WpyuNWar1FP+FOKcHwMazg2EV+1a3F1h1g8wg=;
+        b=YbdCy73hcKraNHydYz/G9qYoPYSTDsGOW2HB/t8cMFBSv7T5p5NUxRe72WKNX8kP8L
+         HzX8L8xAOz6c9joSoEhEiNfrTsBZb0+B/jVjOZr9qr4T1hb83T55tWmCJIcjxdpUjW9Y
+         eLqYhJ1n7IV8WuZfT8h+wo7ySg3OkZVu7rzpOvszth5CvY+nqZgyDkNKua/01cmxnljQ
+         5OQEbgv71PakHaaWVohp/9nJv94KCLSuKmLVVwJEsWM8OvOV7xDUAc8Go0mEkybLxgu6
+         tcYavkaeAGs2D2SqjZyQIctZL6HpHb0U1W0ErTVYCasYYUy9nVGor8CqbQ9tbJcYYif6
+         35gw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bHBVF1WpyuNWar1FP+FOKcHwMazg2EV+1a3F1h1g8wg=;
+        b=LIKzy6AZfPAMij3pm484fsJThjJswJ0+r9t1BY5W1Oy2ss3T41YbUlaluGClR4mN+b
+         K5ct9gzVAhJU1rH2oYdsl9IFQ3iy5+oKMOVJyfhtWs3TCxi+iHJIswk1Z4Il4H+nvACS
+         sVUYNGTb0UHHrjtXiiJFTnLbWSfi9K1TRD7hRkIc6RlV535gs/t8Nv5R9uzTZqDaspAF
+         IxuVuZMrd6NMfNPRAPzB14i7F20MQe8SDzIBQqf+qrRVk246iB0vKh0wkb9E1kxRlGML
+         OnNg/ZNPDuv4qISiIUMSG6ZKp+GZpXm0D4+oa4A5uSKd95cIy49ngQEsXZTb8Y1uOW75
+         k1KA==
+X-Gm-Message-State: AOAM530buAe8FgxcpQI2P0Jfg36ZzP4TFHoENItT2b3KUl9PYvtRasWl
+        5zeMMQxBDpFfqv24hODtcaMzR5hynjgBUtHb
+X-Google-Smtp-Source: ABdhPJwjNou0clH9qUwzuqZtDUZeiOuM3mr7BWaJ+MZbtMHIHvvrfY3Zuu+ya+Yru3u+DiCsyGCdog==
+X-Received: by 2002:a17:90a:9ab:: with SMTP id 40mr3233529pjo.9.1626865475699;
+        Wed, 21 Jul 2021 04:04:35 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r15sm22331862pje.12.2021.07.21.04.04.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 21 Jul 2021 04:04:35 -0700 (PDT)
+Message-ID: <60f7ff43.1c69fb81.2aaae.36d6@mx.google.com>
+Date:   Wed, 21 Jul 2021 04:04:35 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Kernel: v5.10.51-239-gcf38e62a0dbb7
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.10.y baseline: 80 runs,
+ 2 regressions (v5.10.51-239-gcf38e62a0dbb7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.10.y baseline: 80 runs, 2 regressions (v5.10.51-239-gcf38=
+e62a0dbb7)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    serial: 8250_pci: Enumerate Elkhart Lake UARTs via dedicated driver
+platform | arch   | lab        | compiler | defconfig                    | =
+regressions
+---------+--------+------------+----------+------------------------------+-=
+-----------
+d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
+1          =
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 7f0909db761535aefafa77031062603a71557267 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Tue, 13 Jul 2021 13:17:39 +0300
-Subject: serial: 8250_pci: Enumerate Elkhart Lake UARTs via dedicated driver
-
-Elkhart Lake UARTs are PCI enumerated Synopsys DesignWare v4.0+ UART
-integrated with Intel iDMA 32-bit DMA controller. There is a specific
-driver to handle them, i.e. 8250_lpss. Hence, disable 8250_pci
-enumeration for these UARTs.
-
-Fixes: 1b91d97c66ef ("serial: 8250_lpss: Add ->setup() for Elkhart Lake ports")
-Fixes: 4f912b898dc2 ("serial: 8250_lpss: Enable HS UART on Elkhart Lake")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210713101739.36962-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_pci.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index 75827b608fdb..02985cf90ef2 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -3836,6 +3836,12 @@ static const struct pci_device_id blacklist[] = {
- 	{ PCI_VDEVICE(INTEL, 0x0f0c), },
- 	{ PCI_VDEVICE(INTEL, 0x228a), },
- 	{ PCI_VDEVICE(INTEL, 0x228c), },
-+	{ PCI_VDEVICE(INTEL, 0x4b96), },
-+	{ PCI_VDEVICE(INTEL, 0x4b97), },
-+	{ PCI_VDEVICE(INTEL, 0x4b98), },
-+	{ PCI_VDEVICE(INTEL, 0x4b99), },
-+	{ PCI_VDEVICE(INTEL, 0x4b9a), },
-+	{ PCI_VDEVICE(INTEL, 0x4b9b), },
- 	{ PCI_VDEVICE(INTEL, 0x9ce3), },
- 	{ PCI_VDEVICE(INTEL, 0x9ce4), },
- 
--- 
-2.32.0
+d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
+1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.51-239-gcf38e62a0dbb7/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.51-239-gcf38e62a0dbb7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cf38e62a0dbb761f5733ccb0906c619421631e57 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch   | lab        | compiler | defconfig                    | =
+regressions
+---------+--------+------------+----------+------------------------------+-=
+-----------
+d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defcon...6-chromebook | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f7c4d617ec80f77785c259
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.5=
+1-239-gcf38e62a0dbb7/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabb=
+e/baseline-d2500cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.5=
+1-239-gcf38e62a0dbb7/x86_64/x86_64_defconfig+x86-chromebook/gcc-8/lab-clabb=
+e/baseline-d2500cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f7c4d617ec80f77785c=
+25a
+        failing since 9 days (last pass: v5.10.49, first fail: v5.10.49-581=
+-g85a3429452df0) =
+
+ =
+
+
+
+platform | arch   | lab        | compiler | defconfig                    | =
+regressions
+---------+--------+------------+----------+------------------------------+-=
+-----------
+d2500cc  | x86_64 | lab-clabbe | gcc-8    | x86_64_defconfig             | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60f7c7ba26dbb1839e85c276
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.5=
+1-239-gcf38e62a0dbb7/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d250=
+0cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.5=
+1-239-gcf38e62a0dbb7/x86_64/x86_64_defconfig/gcc-8/lab-clabbe/baseline-d250=
+0cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-6-g8983f3b738df/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60f7c7ba26dbb1839e85c=
+277
+        failing since 9 days (last pass: v5.10.49, first fail: v5.10.49-581=
+-g85a3429452df0) =
+
+ =20
