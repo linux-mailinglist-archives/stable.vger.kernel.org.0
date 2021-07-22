@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E18753D28CE
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D72783D2999
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233219AbhGVP7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:59:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35290 "EHLO mail.kernel.org"
+        id S233385AbhGVQFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:05:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233018AbhGVP6P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:58:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B3D0613B4;
-        Thu, 22 Jul 2021 16:38:48 +0000 (UTC)
+        id S234224AbhGVQE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C4E961CDB;
+        Thu, 22 Jul 2021 16:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971929;
-        bh=7si2O6zdC7VFawOgOQIdgAqYPbP1V3w8lIKxpqt0XE4=;
+        s=korg; t=1626972299;
+        bh=Ku7uSZnj7uAJdkn25GMavaPclbpgg3WtBswFn6lJlu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKHwh5UCvdjiRvanc3tv56P1A9VsnWd+eaKQxoQgy6Hdiyl5HrwgFt54gKykRr8cy
-         FhF3829x7O3RIGYk4sTdDcVMTMU+chrPZsCoDA/6kP2l8MbSaPvJkOOcpv+WsiVFqZ
-         Opekx3TA6zvLno8ef2MMhgpvFbdnROUx8KjIbwDU=
+        b=yoQbyes/WX/gztRc9Wq+KAbroD5ySnpaHnPiv1N/p+Jyp19mtDf/2OfPA/MTPCfsn
+         UuOlCtSFeaDtlwm2ELHRnMUYSC0WxMDB3RTdQG0zukjO7iRsG8rGuWbizjryyhuBcN
+         C2jzmnmbyIIyFzAflDepl8kgj+HzUBuh9n+rYmPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/125] ARM: dts: stm32: fix timer nodes on STM32 MCU to prevent warnings
+Subject: [PATCH 5.13 061/156] ARM: dts: bcm283x: Fix up GPIO LED node names
 Date:   Thu, 22 Jul 2021 18:30:36 +0200
-Message-Id: <20210722155626.204983371@linuxfoundation.org>
+Message-Id: <20210722155630.380883431@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,126 +40,260 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Torgue <alexandre.torgue@foss.st.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 2388f14d8747f8304e26ee870790e188c9431efd ]
+[ Upstream commit 5f30dacf37bc93308e91e4d0fc94681ca73f0f91 ]
 
-Prevent warning seen with "make dtbs_check W=1" command:
+Fix the node names for the GPIO LEDs to conform to the standard node
+name led-..
 
-Warning (avoid_unnecessary_addr_size): /soc/timers@40001c00: unnecessary
-address-cells/size-cells without "ranges" or child "reg" property
-
-Reviewed-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1622981777-5023-6-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32f429.dtsi | 8 --------
- arch/arm/boot/dts/stm32f746.dtsi | 8 --------
- arch/arm/boot/dts/stm32h743.dtsi | 4 ----
- 3 files changed, 20 deletions(-)
+ arch/arm/boot/dts/bcm2711-rpi-4-b.dts      | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-a-plus.dts   | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-a.dts        | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b-plus.dts   | 4 ++--
+ arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts   | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-b.dts        | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi     | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero-w.dts   | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi-zero.dts     | 2 +-
+ arch/arm/boot/dts/bcm2835-rpi.dtsi         | 2 +-
+ arch/arm/boot/dts/bcm2836-rpi-2-b.dts      | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts | 4 ++--
+ arch/arm/boot/dts/bcm2837-rpi-3-b.dts      | 2 +-
+ arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi     | 2 +-
+ 15 files changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32f429.dtsi b/arch/arm/boot/dts/stm32f429.dtsi
-index 9adccd4209fb..0dc5fa94dbdf 100644
---- a/arch/arm/boot/dts/stm32f429.dtsi
-+++ b/arch/arm/boot/dts/stm32f429.dtsi
-@@ -283,8 +283,6 @@
+diff --git a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+index 3b4ab947492a..27d2f859adfc 100644
+--- a/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
++++ b/arch/arm/boot/dts/bcm2711-rpi-4-b.dts
+@@ -29,11 +29,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 42 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers13: timers@40001c00 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40001C00 0x400>;
- 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM13)>;
-@@ -299,8 +297,6 @@
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts b/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
+index 6c8ce39833bf..40b9405f1a8e 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-a-plus.dts
+@@ -14,11 +14,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers14: timers@40002000 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40002000 0x400>;
- 			clocks = <&rcc 0 STM32F4_APB1_CLOCK(TIM14)>;
-@@ -633,8 +629,6 @@
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-a.dts b/arch/arm/boot/dts/bcm2835-rpi-a.dts
+index 17fdd48346ff..11edb581dbaf 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-a.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-a.dts
+@@ -14,7 +14,7 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts b/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
+index b0355c229cdc..1b435c64bd9c 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b-plus.dts
+@@ -15,11 +15,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers10: timers@40014400 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40014400 0x400>;
- 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM10)>;
-@@ -649,8 +643,6 @@
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+index 33b3b5c02521..a23c25c00eea 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b-rev2.dts
+@@ -15,7 +15,7 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-b.dts b/arch/arm/boot/dts/bcm2835-rpi-b.dts
+index 2b69957e0113..1b63d6b19750 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-b.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-b.dts
+@@ -15,7 +15,7 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 16 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi b/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
+index 58059c2ce129..e4e6b6abbfc1 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi-cm1.dtsi
+@@ -5,7 +5,7 @@
+ 
+ / {
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+index f65448c01e31..33b2b77aa47d 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero-w.dts
+@@ -23,7 +23,7 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_LOW>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi-zero.dts b/arch/arm/boot/dts/bcm2835-rpi-zero.dts
+index 6dd93c6f4966..6f9b3a908f28 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi-zero.dts
++++ b/arch/arm/boot/dts/bcm2835-rpi-zero.dts
+@@ -18,7 +18,7 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
+ 		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2835-rpi.dtsi b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+index d94357b21f7e..87ddcad76083 100644
+--- a/arch/arm/boot/dts/bcm2835-rpi.dtsi
++++ b/arch/arm/boot/dts/bcm2835-rpi.dtsi
+@@ -4,7 +4,7 @@
+ 	leds {
+ 		compatible = "gpio-leds";
+ 
+-		act {
++		led-act {
+ 			label = "ACT";
+ 			default-state = "keep";
+ 			linux,default-trigger = "heartbeat";
+diff --git a/arch/arm/boot/dts/bcm2836-rpi-2-b.dts b/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
+index 0455a680394a..d8af8eeac7b6 100644
+--- a/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
++++ b/arch/arm/boot/dts/bcm2836-rpi-2-b.dts
+@@ -15,11 +15,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 47 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers11: timers@40014800 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40014800 0x400>;
- 			clocks = <&rcc 0 STM32F4_APB2_CLOCK(TIM11)>;
-diff --git a/arch/arm/boot/dts/stm32f746.dtsi b/arch/arm/boot/dts/stm32f746.dtsi
-index 640ff54ed00c..81a6fe653e66 100644
---- a/arch/arm/boot/dts/stm32f746.dtsi
-+++ b/arch/arm/boot/dts/stm32f746.dtsi
-@@ -265,8 +265,6 @@
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&gpio 35 GPIO_ACTIVE_HIGH>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
+index 28be0332c1c8..77099a7871b0 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-a-plus.dts
+@@ -19,11 +19,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers13: timers@40001c00 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40001C00 0x400>;
- 			clocks = <&rcc 0 STM32F7_APB1_CLOCK(TIM13)>;
-@@ -281,8 +279,6 @@
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+index 37343148643d..61010266ca9a 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b-plus.dts
+@@ -20,11 +20,11 @@
+ 	};
+ 
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&gpio 29 GPIO_ACTIVE_HIGH>;
  		};
  
- 		timers14: timers@40002000 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40002000 0x400>;
- 			clocks = <&rcc 0 STM32F7_APB1_CLOCK(TIM14)>;
-@@ -531,8 +527,6 @@
- 		};
+-		pwr {
++		led-pwr {
+ 			label = "PWR";
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_LOW>;
+ 			default-state = "keep";
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-3-b.dts b/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
+index 054ecaa355c9..dd4a48604097 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
++++ b/arch/arm/boot/dts/bcm2837-rpi-3-b.dts
+@@ -20,7 +20,7 @@
+ 	};
  
- 		timers10: timers@40014400 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40014400 0x400>;
- 			clocks = <&rcc 0 STM32F7_APB2_CLOCK(TIM10)>;
-@@ -547,8 +541,6 @@
+ 	leds {
+-		act {
++		led-act {
+ 			gpios = <&expgpio 2 GPIO_ACTIVE_HIGH>;
  		};
+ 	};
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+index 925cb37c22f0..828a20561b96 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
++++ b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+@@ -14,7 +14,7 @@
+ 		 * Since there is no upstream GPIO driver yet,
+ 		 * remove the incomplete node.
+ 		 */
+-		/delete-node/ act;
++		/delete-node/ led-act;
+ 	};
  
- 		timers11: timers@40014800 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-timers";
- 			reg = <0x40014800 0x400>;
- 			clocks = <&rcc 0 STM32F7_APB2_CLOCK(TIM11)>;
-diff --git a/arch/arm/boot/dts/stm32h743.dtsi b/arch/arm/boot/dts/stm32h743.dtsi
-index 7febe19e780d..1579707ea566 100644
---- a/arch/arm/boot/dts/stm32h743.dtsi
-+++ b/arch/arm/boot/dts/stm32h743.dtsi
-@@ -454,8 +454,6 @@
- 		};
- 
- 		lptimer4: timer@58002c00 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-lptimer";
- 			reg = <0x58002c00 0x400>;
- 			clocks = <&rcc LPTIM4_CK>;
-@@ -470,8 +468,6 @@
- 		};
- 
- 		lptimer5: timer@58003000 {
--			#address-cells = <1>;
--			#size-cells = <0>;
- 			compatible = "st,stm32-lptimer";
- 			reg = <0x58003000 0x400>;
- 			clocks = <&rcc LPTIM5_CK>;
+ 	reg_3v3: fixed-regulator {
 -- 
 2.30.2
 
