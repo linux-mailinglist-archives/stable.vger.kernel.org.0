@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B06AF3D28CB
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0AE63D29B6
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233176AbhGVP64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:58:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35056 "EHLO mail.kernel.org"
+        id S235046AbhGVQGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232859AbhGVP6I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:58:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A071E61369;
-        Thu, 22 Jul 2021 16:38:41 +0000 (UTC)
+        id S234204AbhGVQE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:04:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FA5B61C9B;
+        Thu, 22 Jul 2021 16:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971922;
-        bh=F2JytO9c1WB6KQLXbwzXwCJnwm4B9ZBXTwzvFgQcCFE=;
+        s=korg; t=1626972291;
+        bh=7QWhwlfYo8rg/I07HsV6QlOlBvbgeaZrfGVtDMLbItA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WEs0+FHJ22HrTaZOmvi9pO1PSbXLjA+/C+OFVA7z8u8mP08h131kKeDgEVk/spbgV
-         y+YETRvg3BCaKPfCqiote+chUEGzSacts8Qzl5qa93RPYieIUd4zD8/GhHhOCAOLRI
-         zLXJAr58+TxRBjysnBOKNGd07zg/CoPSbzuJktIs=
+        b=EHl4960nJ83JCURr+2jmz0ytiFKYD/k1h+m7HJy8kWLqMeoP2qyr3Vqq+AHqbJc9R
+         DULS9a1e8qYIYS6PvnLvQxHaq8JaEY203bu3QF/ZgpJqMglk91iOw7Du0QumiCfoGo
+         Mz/BeYBEhkugxA/945vIBNf6R1q8GPvzzTHYjmyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Szymaszek <gszymaszek@short.pl>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org,
+        Etienne Carriere <etienne.carriere@linaro.org>,
+        Cristian Marussi <cristian.marussi@arm.com>,
+        kernel test robot <lkp@intel.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/125] ARM: dts: stm32: fix stm32mp157c-odyssey card detect pin
+Subject: [PATCH 5.13 058/156] firmware: arm_scmi: Fix the build when CONFIG_MAILBOX is not selected
 Date:   Thu, 22 Jul 2021 18:30:33 +0200
-Message-Id: <20210722155626.093896000@linuxfoundation.org>
+Message-Id: <20210722155630.285420047@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Szymaszek <gszymaszek@short.pl>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 0171b07373cc8c2815ca5fa79a7308fdefa54ca4 ]
+[ Upstream commit ab7766b72855e6a68109b915d071181b93086e29 ]
 
-The microSD card detect pin is physically connected to the MPU pin PI3.
-The Device Tree configuration of the card detect pin was wrong—it was
-set to pin PB7 instead. If such configuration was used, the kernel would
-hang on “Waiting for root device” when booting from a microSD card.
+0day CI kernel test robot reported following build error with randconfig
 
-Signed-off-by: Grzegorz Szymaszek <gszymaszek@short.pl>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+aarch64-linux-ld: drivers/firmware/arm_scmi/driver.o:(.rodata+0x1e0):
+		undefined reference to `scmi_mailbox_desc'
+
+Fix the error by adding CONFIG_MAILBOX dependency for scmi_mailbox_desc.
+
+Link: https://lore.kernel.org/r/20210603072631.1660963-1-sudeep.holla@arm.com
+Cc: Etienne Carriere <etienne.carriere@linaro.org>
+Cc: Cristian Marussi <cristian.marussi@arm.com>
+Reviewed-by: Etienne Carriere <etienne.carriere@linaro.org>
+Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
+Tested-by: Cristian Marussi <cristian.marussi@arm.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157c-odyssey.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/arm_scmi/driver.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c-odyssey.dts b/arch/arm/boot/dts/stm32mp157c-odyssey.dts
-index a7ffec8f1516..be1dd5e9e744 100644
---- a/arch/arm/boot/dts/stm32mp157c-odyssey.dts
-+++ b/arch/arm/boot/dts/stm32mp157c-odyssey.dts
-@@ -64,7 +64,7 @@
- 	pinctrl-0 = <&sdmmc1_b4_pins_a>;
- 	pinctrl-1 = <&sdmmc1_b4_od_pins_a>;
- 	pinctrl-2 = <&sdmmc1_b4_sleep_pins_a>;
--	cd-gpios = <&gpiob 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-+	cd-gpios = <&gpioi 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
- 	disable-wp;
- 	st,neg-edge;
- 	bus-width = <4>;
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index c2983ed53494..74986bf96656 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -1575,7 +1575,9 @@ ATTRIBUTE_GROUPS(versions);
+ 
+ /* Each compatible listed below must have descriptor associated with it */
+ static const struct of_device_id scmi_of_match[] = {
++#ifdef CONFIG_MAILBOX
+ 	{ .compatible = "arm,scmi", .data = &scmi_mailbox_desc },
++#endif
+ #ifdef CONFIG_HAVE_ARM_SMCCC_DISCOVERY
+ 	{ .compatible = "arm,scmi-smc", .data = &scmi_smc_desc},
+ #endif
 -- 
 2.30.2
 
