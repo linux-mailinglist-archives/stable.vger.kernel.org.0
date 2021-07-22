@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 572403D294A
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5593D2944
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233874AbhGVQDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:03:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
+        id S233818AbhGVQC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233484AbhGVQCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:02:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C0461414;
-        Thu, 22 Jul 2021 16:42:33 +0000 (UTC)
+        id S233413AbhGVQCS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:02:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89E1361416;
+        Thu, 22 Jul 2021 16:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972153;
-        bh=IfgRyMBp5WCC5nAcdE+UyzPSeIZNOJjPD5cYqMbaiPc=;
+        s=korg; t=1626972156;
+        bh=P4TsWLQzzp23saKALdUXxxzi6dTa38+LKw2Xj+iEBWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fo/hE9kqZCGxSmoqdKSFWFylyJOzYiEwXKu/341UVZgdTnTSKH5UFPqgifXUVufRE
-         3z5vzNhpeSPNnnhS4D2jV5+jJ68T5CbEEXd7YCOSchj5OC7cjA4qCBImWrU+wwCyj1
-         bHXpA9rMgxEQ9vTPenUCAqboHkMKdUqlyDl9+ZQY=
+        b=Um6U/wPNv71UlgySyDlvUB9p7LeIh7iQ+MMkPFwAcItrCTXTb5Bgdb4jPQKThVPRO
+         xdL1mtPdEpvksM0RvOgQfsEboMZsThZG+37qXYr8Xkio/2AMEMeByyI1i3TPPR+G0d
+         gbwVHVhBrOZmAP2CbBIHEG8ny0V4sIlyvPosoQY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.10 120/125] tools: bpf: Fix error in make -C tools/ bpf_install
-Date:   Thu, 22 Jul 2021 18:31:51 +0200
-Message-Id: <20210722155628.697665746@linuxfoundation.org>
+        stable@vger.kernel.org, Gu Shengxian <gushengxian@yulong.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jiri Olsa <jolsa@redhat.com>
+Subject: [PATCH 5.10 121/125] bpftool: Properly close va_list ap by va_end() on error
+Date:   Thu, 22 Jul 2021 18:31:52 +0200
+Message-Id: <20210722155628.730033141@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -39,53 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Li <liwei391@huawei.com>
+From: Gu Shengxian <gushengxian@yulong.com>
 
-commit 1d719254c139fb62fb8056fb496b6fd007e71550 upstream.
+commit bc832065b60f973771ff3e657214bb21b559833c upstream.
 
-make[2]: *** No rule to make target 'install'.  Stop.
-make[1]: *** [Makefile:122: runqslower_install] Error 2
-make: *** [Makefile:116: bpf_install] Error 2
+va_list 'ap' was opened but not closed by va_end() in error case. It should
+be closed by va_end() before the return.
 
-There is no rule for target 'install' in tools/bpf/runqslower/Makefile,
-and there is no need to install it, so just remove 'runqslower_install'.
-
-Fixes: 9c01546d26d2 ("tools/bpf: Add runqslower tool to tools/bpf")
-Signed-off-by: Wei Li <liwei391@huawei.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210628030409.3459095-1-liwei391@huawei.com
+Fixes: aa52bcbe0e72 ("tools: bpftool: Fix json dump crash on powerpc")
+Signed-off-by: Gu Shengxian <gushengxian@yulong.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/bpf/20210706013543.671114-1-gushengxian507419@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/Makefile |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ tools/bpf/bpftool/jit_disasm.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/tools/bpf/Makefile
-+++ b/tools/bpf/Makefile
-@@ -97,7 +97,7 @@ clean: bpftool_clean runqslower_clean re
- 	$(Q)$(RM) -- $(OUTPUT)FEATURE-DUMP.bpf
- 	$(Q)$(RM) -r -- $(OUTPUT)feature
+--- a/tools/bpf/bpftool/jit_disasm.c
++++ b/tools/bpf/bpftool/jit_disasm.c
+@@ -43,11 +43,13 @@ static int fprintf_json(void *out, const
+ {
+ 	va_list ap;
+ 	char *s;
++	int err;
  
--install: $(PROGS) bpftool_install runqslower_install
-+install: $(PROGS) bpftool_install
- 	$(call QUIET_INSTALL, bpf_jit_disasm)
- 	$(Q)$(INSTALL) -m 0755 -d $(DESTDIR)$(prefix)/bin
- 	$(Q)$(INSTALL) $(OUTPUT)bpf_jit_disasm $(DESTDIR)$(prefix)/bin/bpf_jit_disasm
-@@ -118,9 +118,6 @@ bpftool_clean:
- runqslower:
- 	$(call descend,runqslower)
+ 	va_start(ap, fmt);
+-	if (vasprintf(&s, fmt, ap) < 0)
+-		return -1;
++	err = vasprintf(&s, fmt, ap);
+ 	va_end(ap);
++	if (err < 0)
++		return -1;
  
--runqslower_install:
--	$(call descend,runqslower,install)
--
- runqslower_clean:
- 	$(call descend,runqslower,clean)
- 
-@@ -131,5 +128,5 @@ resolve_btfids_clean:
- 	$(call descend,resolve_btfids,clean)
- 
- .PHONY: all install clean bpftool bpftool_install bpftool_clean \
--	runqslower runqslower_install runqslower_clean \
-+	runqslower runqslower_clean \
- 	resolve_btfids resolve_btfids_clean
+ 	if (!oper_count) {
+ 		int i;
 
 
