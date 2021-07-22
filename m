@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 683703D282A
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4936B3D282C
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbhGVPzd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:55:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59302 "EHLO mail.kernel.org"
+        id S230086AbhGVPzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232611AbhGVPzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E73761362;
-        Thu, 22 Jul 2021 16:35:43 +0000 (UTC)
+        id S232793AbhGVPzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:55:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B1C9161363;
+        Thu, 22 Jul 2021 16:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971743;
-        bh=w6Nht8sxPymQxqC3vIPn2yVvyNgJE4gluPqbE4+t/Ok=;
+        s=korg; t=1626971746;
+        bh=/MmbbZ2gtfgAbNhJYKCJ9dYB+zujD9MssojSTGCrGwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dw7cXZfYoR8LSWbNP6e8v63bjS1GeaX+2wMfY79QlKC4TSAufX/MCC8qynbkwJJEj
-         jIeSoVXHUh/F6yuvoct4EGyCrYvcGvXmWT2fzuFWKKaz9UYTUt0dmNxdv/BZ5CU5Ei
-         oxwrtVmmp9sBjQCNVtcxfYj441w03yJsn9r/kUVY=
+        b=wpun25WjOQOJexWnwJ/jhNeKjEBW0Q79Dgc5bQ0aNmoUVZRRHI2LyqqFeaWO2CZpM
+         tKRBsBmNZUVkC2DGbyMfSPx8ceCPamhRH4KQCsSMqT6GxBZuwl8Iarz35QFKL9ISRh
+         XCgnOnc8ehNUht36v1pHQ/yrmX2bCbavs6jeGc8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/125] ARM: dts: rockchip: Fix power-controller node names for rk3288
-Date:   Thu, 22 Jul 2021 18:30:01 +0200
-Message-Id: <20210722155625.025912822@linuxfoundation.org>
+Subject: [PATCH 5.10 011/125] arm64: dts: rockchip: Fix power-controller node names for px30
+Date:   Thu, 22 Jul 2021 18:30:02 +0200
+Message-Id: <20210722155625.056000572@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit 970cdc53cb1afa73602028c103dbfb6a230080be ]
+[ Upstream commit d5de0d688ac6e0202674577b05d0726b8a6af401 ]
 
 Use more generic names (as recommended in the device tree specification
 or the binding documentation)
@@ -52,53 +52,85 @@ or the binding documentation)
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-4-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20210417112952.8516-6-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/rockchip/px30.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 49b196546cdf..0d89ad274268 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -788,7 +788,7 @@
- 			 *	*_HDMI		HDMI
- 			 *	*_MIPI_*	MIPI
- 			 */
--			pd_vio@RK3288_PD_VIO {
-+			power-domain@RK3288_PD_VIO {
- 				reg = <RK3288_PD_VIO>;
- 				clocks = <&cru ACLK_IEP>,
+diff --git a/arch/arm64/boot/dts/rockchip/px30.dtsi b/arch/arm64/boot/dts/rockchip/px30.dtsi
+index 64193292d26c..0d6761074b11 100644
+--- a/arch/arm64/boot/dts/rockchip/px30.dtsi
++++ b/arch/arm64/boot/dts/rockchip/px30.dtsi
+@@ -244,20 +244,20 @@
+ 			#size-cells = <0>;
+ 
+ 			/* These power domains are grouped by VD_LOGIC */
+-			pd_usb@PX30_PD_USB {
++			power-domain@PX30_PD_USB {
+ 				reg = <PX30_PD_USB>;
+ 				clocks = <&cru HCLK_HOST>,
+ 					 <&cru HCLK_OTG>,
+ 					 <&cru SCLK_OTG_ADP>;
+ 				pm_qos = <&qos_usb_host>, <&qos_usb_otg>;
+ 			};
+-			pd_sdcard@PX30_PD_SDCARD {
++			power-domain@PX30_PD_SDCARD {
+ 				reg = <PX30_PD_SDCARD>;
+ 				clocks = <&cru HCLK_SDMMC>,
+ 					 <&cru SCLK_SDMMC>;
+ 				pm_qos = <&qos_sdmmc>;
+ 			};
+-			pd_gmac@PX30_PD_GMAC {
++			power-domain@PX30_PD_GMAC {
+ 				reg = <PX30_PD_GMAC>;
+ 				clocks = <&cru ACLK_GMAC>,
+ 					 <&cru PCLK_GMAC>,
+@@ -265,7 +265,7 @@
+ 					 <&cru SCLK_GMAC_RX_TX>;
+ 				pm_qos = <&qos_gmac>;
+ 			};
+-			pd_mmc_nand@PX30_PD_MMC_NAND {
++			power-domain@PX30_PD_MMC_NAND {
+ 				reg = <PX30_PD_MMC_NAND>;
+ 				clocks =  <&cru HCLK_NANDC>,
+ 					  <&cru HCLK_EMMC>,
+@@ -278,14 +278,14 @@
+ 				pm_qos = <&qos_emmc>, <&qos_nand>,
+ 					 <&qos_sdio>, <&qos_sfc>;
+ 			};
+-			pd_vpu@PX30_PD_VPU {
++			power-domain@PX30_PD_VPU {
+ 				reg = <PX30_PD_VPU>;
+ 				clocks = <&cru ACLK_VPU>,
+ 					 <&cru HCLK_VPU>,
+ 					 <&cru SCLK_CORE_VPU>;
+ 				pm_qos = <&qos_vpu>, <&qos_vpu_r128>;
+ 			};
+-			pd_vo@PX30_PD_VO {
++			power-domain@PX30_PD_VO {
+ 				reg = <PX30_PD_VO>;
+ 				clocks = <&cru ACLK_RGA>,
+ 					 <&cru ACLK_VOPB>,
+@@ -301,7 +301,7 @@
+ 				pm_qos = <&qos_rga_rd>, <&qos_rga_wr>,
+ 					 <&qos_vop_m0>, <&qos_vop_m1>;
+ 			};
+-			pd_vi@PX30_PD_VI {
++			power-domain@PX30_PD_VI {
+ 				reg = <PX30_PD_VI>;
+ 				clocks = <&cru ACLK_CIF>,
  					 <&cru ACLK_ISP>,
-@@ -830,7 +830,7 @@
- 			 * Note: The following 3 are HEVC(H.265) clocks,
- 			 * and on the ACLK_HEVC_NIU (NOC).
- 			 */
--			pd_hevc@RK3288_PD_HEVC {
-+			power-domain@RK3288_PD_HEVC {
- 				reg = <RK3288_PD_HEVC>;
- 				clocks = <&cru ACLK_HEVC>,
- 					 <&cru SCLK_HEVC_CABAC>,
-@@ -844,7 +844,7 @@
- 			 * (video endecoder & decoder) clocks that on the
- 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
- 			 */
--			pd_video@RK3288_PD_VIDEO {
-+			power-domain@RK3288_PD_VIDEO {
- 				reg = <RK3288_PD_VIDEO>;
- 				clocks = <&cru ACLK_VCODEC>,
- 					 <&cru HCLK_VCODEC>;
-@@ -855,7 +855,7 @@
- 			 * Note: ACLK_GPU is the GPU clock,
- 			 * and on the ACLK_GPU_NIU (NOC).
- 			 */
--			pd_gpu@RK3288_PD_GPU {
-+			power-domain@RK3288_PD_GPU {
- 				reg = <RK3288_PD_GPU>;
- 				clocks = <&cru ACLK_GPU>;
- 				pm_qos = <&qos_gpu_r>,
+@@ -312,7 +312,7 @@
+ 					 <&qos_isp_wr>, <&qos_isp_m1>,
+ 					 <&qos_vip>;
+ 			};
+-			pd_gpu@PX30_PD_GPU {
++			power-domain@PX30_PD_GPU {
+ 				reg = <PX30_PD_GPU>;
+ 				clocks = <&cru SCLK_GPU>;
+ 				pm_qos = <&qos_gpu>;
 -- 
 2.30.2
 
