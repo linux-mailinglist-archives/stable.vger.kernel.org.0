@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602EB3D28E3
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 428F03D2914
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232891AbhGVP75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35868 "EHLO mail.kernel.org"
+        id S233895AbhGVQA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233322AbhGVP6g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:58:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 026DD6139A;
-        Thu, 22 Jul 2021 16:39:10 +0000 (UTC)
+        id S233166AbhGVP6m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:58:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5894D613B6;
+        Thu, 22 Jul 2021 16:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971951;
-        bh=2pIckv4BVwMQtCRGfVe+YEZKYRt9j3RFqtHV8dMvDME=;
+        s=korg; t=1626971953;
+        bh=fr8G74vxfVdDeYwCGK08x6KBeyFJ+5YY1WDEsdVOqzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UssVYlZNOZQZLBVZBb/wsYk0DcATCCRTRQ5MikdBg2nsayxa4HKSfoqP6RVZs9ssa
-         +heqWJsF4PcTEpWV6zkzaA7nDttUKDBlVeByrzu+4/tY6Cs2Z7yEQj76fRNLBCrgr5
-         YNQqy7CT/gCe6/pGKcE6nHr7j04bukyiBcm2/Txg=
+        b=CCokn3GN3JS/PHedLK6fXvHEnJy/xXh7LCVUJhaam4aiR0Hh6yIN9Xgrz4GYR2VSU
+         HBvpyfq1biVApMzkFAQNfFn0ouGIq74uIPWe3TOd+ZSdtUO17GEbl4X5vy/k6CvQFX
+         FNMQiczzAH2Tv9a784zvbMRv5RbrvE08PvpZBR2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 090/125] net: dsa: mv88e6xxx: enable .port_set_policy() on Topaz
-Date:   Thu, 22 Jul 2021 18:31:21 +0200
-Message-Id: <20210722155627.681216765@linuxfoundation.org>
+Subject: [PATCH 5.10 091/125] net: dsa: mv88e6xxx: use correct .stats_set_histogram() on Topaz
+Date:   Thu, 22 Jul 2021 18:31:22 +0200
+Message-Id: <20210722155627.720987295@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -43,40 +43,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Behún <kabel@kernel.org>
 
-commit 7da467d82d1ed4fb317aff836f99709169e73f10 upstream.
+commit 11527f3c4725640e6c40a2b7654e303f45e82a6c upstream.
 
-Commit f3a2cd326e44 ("net: dsa: mv88e6xxx: introduce .port_set_policy")
-introduced .port_set_policy() method with implementation for several
-models, but forgot to add Topaz, which can use the 6352 implementation.
+Commit 40cff8fca9e3 ("net: dsa: mv88e6xxx: Fix stats histogram mode")
+introduced wrong .stats_set_histogram() method for Topaz family.
 
-Use the 6352 implementation of .port_set_policy() on Topaz.
+The Peridot method should be used instead.
 
 Signed-off-by: Marek Behún <kabel@kernel.org>
-Fixes: f3a2cd326e44 ("net: dsa: mv88e6xxx: introduce .port_set_policy")
+Fixes: 40cff8fca9e3 ("net: dsa: mv88e6xxx: Fix stats histogram mode")
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/dsa/mv88e6xxx/chip.c
 +++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3613,6 +3613,7 @@ static const struct mv88e6xxx_ops mv88e6
- 	.port_set_rgmii_delay = mv88e6352_port_set_rgmii_delay,
- 	.port_set_speed_duplex = mv88e6185_port_set_speed_duplex,
- 	.port_tag_remap = mv88e6095_port_tag_remap,
-+	.port_set_policy = mv88e6352_port_set_policy,
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
- 	.port_set_ether_type = mv88e6351_port_set_ether_type,
-@@ -4253,6 +4254,7 @@ static const struct mv88e6xxx_ops mv88e6
- 	.port_set_rgmii_delay = mv88e6352_port_set_rgmii_delay,
- 	.port_set_speed_duplex = mv88e6185_port_set_speed_duplex,
- 	.port_tag_remap = mv88e6095_port_tag_remap,
-+	.port_set_policy = mv88e6352_port_set_policy,
- 	.port_set_frame_mode = mv88e6351_port_set_frame_mode,
- 	.port_set_egress_floods = mv88e6352_port_set_egress_floods,
- 	.port_set_ether_type = mv88e6351_port_set_ether_type,
+@@ -3407,7 +3407,7 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.port_set_cmode = mv88e6341_port_set_cmode,
+ 	.port_setup_message_port = mv88e6xxx_setup_message_port,
+ 	.stats_snapshot = mv88e6390_g1_stats_snapshot,
+-	.stats_set_histogram = mv88e6095_g1_stats_set_histogram,
++	.stats_set_histogram = mv88e6390_g1_stats_set_histogram,
+ 	.stats_get_sset_count = mv88e6320_stats_get_sset_count,
+ 	.stats_get_strings = mv88e6320_stats_get_strings,
+ 	.stats_get_stats = mv88e6390_stats_get_stats,
+@@ -4174,7 +4174,7 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.port_set_cmode = mv88e6341_port_set_cmode,
+ 	.port_setup_message_port = mv88e6xxx_setup_message_port,
+ 	.stats_snapshot = mv88e6390_g1_stats_snapshot,
+-	.stats_set_histogram = mv88e6095_g1_stats_set_histogram,
++	.stats_set_histogram = mv88e6390_g1_stats_set_histogram,
+ 	.stats_get_sset_count = mv88e6320_stats_get_sset_count,
+ 	.stats_get_strings = mv88e6320_stats_get_strings,
+ 	.stats_get_stats = mv88e6390_stats_get_stats,
 
 
