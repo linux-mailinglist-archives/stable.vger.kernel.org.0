@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C533D296D
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F65D3D2970
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233993AbhGVQEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:04:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
+        id S233875AbhGVQEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:04:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233532AbhGVQDK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:03:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4612661C1B;
-        Thu, 22 Jul 2021 16:43:30 +0000 (UTC)
+        id S233878AbhGVQDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:03:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A931C61C1C;
+        Thu, 22 Jul 2021 16:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972210;
-        bh=PnPZDXgADJUV8APznhuiN6xl/pFDUWKsL2rCTClMoD8=;
+        s=korg; t=1626972213;
+        bh=ChoCLPaORruEzYVRHR51l1mCoUffPNci4QCyseaVt/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18qaEdTD0JkniOATVB7mmvd0HAibT3V5K65+i0q/t8YvcbPfT7TpvsAqeuFmB4hip
-         nk6wUDJaXFMQtPvv0I6JrioKS7bBIzPAksGuDLI8Pg8ZQKhg3xPkEphxnsckTOrZwR
-         n5RgPwD+3eGd99/8CR9vtDddkR4Ts4Vdzl2MR3x8=
+        b=cmlXuHG6EAC8NLBOQLAQZgHeUWyAKJXDs9G9GeqhX4h4vF5M9dB7ibcoZDsM2ySFe
+         PTD7zZD4PtBbu5B2ZEfmqqM+Pr4xOslWiNJdTqVk9FaH/uNYgLq/DbW1XvwxTuuIus
+         pmjd8FIoiULdc4gJCnshYPl2qmVRc91+TfLCpGVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 027/156] arm64: dts: rockchip: fix regulator-gpio states array
-Date:   Thu, 22 Jul 2021 18:30:02 +0200
-Message-Id: <20210722155629.285729729@linuxfoundation.org>
+Subject: [PATCH 5.13 028/156] ARM: dts: ux500: Fix interrupt cells
+Date:   Thu, 22 Jul 2021 18:30:03 +0200
+Message-Id: <20210722155629.323985868@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,108 +41,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit b82f8e2992534aab0fa762a37376be30df263701 ]
+[ Upstream commit e4ff0112a03c2e353c8457cd33c88feb89dfec41 ]
 
-A test with the command below gives this error:
+Fix interrupt cells in DT AB8500/AB8505 source files. The
+compiled DTB files will stay the same.
 
-/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dt.yaml:
-sdmmcio-regulator: states:0:
-[1800000, 1, 3300000, 0] is too long
-
-dtbs_check expects regulator-gpio states in a format
-of 2 per item, so fix them all.
-
-make ARCH=arm64 dtbs_check
-DT_SCHEMA_FILES=Documentation/devicetree/bindings/
-regulator/gpio-regulator.yaml
-
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210510215840.16270-1-jbx6244@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts       | 4 ++--
- arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts   | 4 ++--
- arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts       | 4 ++--
- arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet.dtsi | 2 +-
- arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi         | 4 ++--
- 5 files changed, 9 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/ste-ab8500.dtsi | 26 +++++++++++++-------------
+ arch/arm/boot/dts/ste-ab8505.dtsi | 22 +++++++++++-----------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts b/arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts
-index 3dddd4742c3a..665b2e69455d 100644
---- a/arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3308-roc-cc.dts
-@@ -84,8 +84,8 @@
- 		regulator-min-microvolt = <1800000>;
- 		regulator-max-microvolt = <3300000>;
- 		gpios = <&gpio0 RK_PA7 GPIO_ACTIVE_HIGH>;
--		states = <1800000 0x0
--			  3300000 0x1>;
-+		states = <1800000 0x0>,
-+			 <3300000 0x1>;
- 		vin-supply = <&vcc5v0_sys>;
- 	};
+diff --git a/arch/arm/boot/dts/ste-ab8500.dtsi b/arch/arm/boot/dts/ste-ab8500.dtsi
+index a16a00fb5fa5..f78b41002490 100644
+--- a/arch/arm/boot/dts/ste-ab8500.dtsi
++++ b/arch/arm/boot/dts/ste-ab8500.dtsi
+@@ -42,15 +42,15 @@
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts b/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
-index f807bc066ccb..d5001d13e374 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-nanopi-r2s.dts
-@@ -76,8 +76,8 @@
- 		regulator-settling-time-us = <5000>;
- 		regulator-type = "voltage";
- 		startup-delay-us = <2000>;
--		states = <1800000 0x1
--			  3300000 0x0>;
-+		states = <1800000 0x1>,
-+			 <3300000 0x0>;
- 		vin-supply = <&vcc_io_33>;
- 	};
+ 				ab8500-rtc {
+ 					compatible = "stericsson,ab8500-rtc";
+-					interrupts = <17 IRQ_TYPE_LEVEL_HIGH
+-						      18 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <17 IRQ_TYPE_LEVEL_HIGH>,
++						     <18 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "60S", "ALARM";
+ 				};
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-index a05732b59f38..a99979afd373 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-@@ -50,8 +50,8 @@
- 	vcc_sdio: sdmmcio-regulator {
- 		compatible = "regulator-gpio";
- 		gpios = <&grf_gpio 0 GPIO_ACTIVE_HIGH>;
--		states = <1800000 0x1
--			  3300000 0x0>;
-+		states = <1800000 0x1>,
-+			 <3300000 0x0>;
- 		regulator-name = "vcc_sdio";
- 		regulator-type = "voltage";
- 		regulator-min-microvolt = <1800000>;
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet.dtsi
-index beee5fbb3443..5d7a9d96d163 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru-scarlet.dtsi
-@@ -245,7 +245,7 @@ pp1800_pcie: &pp1800_s0 {
- };
+ 				gpadc: ab8500-gpadc {
+ 					compatible = "stericsson,ab8500-gpadc";
+-					interrupts = <32 IRQ_TYPE_LEVEL_HIGH
+-						      39 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <32 IRQ_TYPE_LEVEL_HIGH>,
++						     <39 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "HW_CONV_END", "SW_CONV_END";
+ 					vddadc-supply = <&ab8500_ldo_tvout_reg>;
+ 					#address-cells = <1>;
+@@ -219,13 +219,13 @@
  
- &ppvar_sd_card_io {
--	states = <1800000 0x0 3300000 0x1>;
-+	states = <1800000 0x0>, <3300000 0x1>;
- 	regulator-max-microvolt = <3300000>;
- };
+ 				ab8500_usb {
+ 					compatible = "stericsson,ab8500-usb";
+-					interrupts = < 90 IRQ_TYPE_LEVEL_HIGH
+-						       96 IRQ_TYPE_LEVEL_HIGH
+-						       14 IRQ_TYPE_LEVEL_HIGH
+-						       15 IRQ_TYPE_LEVEL_HIGH
+-						       79 IRQ_TYPE_LEVEL_HIGH
+-						       74 IRQ_TYPE_LEVEL_HIGH
+-						       75 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <90 IRQ_TYPE_LEVEL_HIGH>,
++						     <96 IRQ_TYPE_LEVEL_HIGH>,
++						     <14 IRQ_TYPE_LEVEL_HIGH>,
++						     <15 IRQ_TYPE_LEVEL_HIGH>,
++						     <79 IRQ_TYPE_LEVEL_HIGH>,
++						     <74 IRQ_TYPE_LEVEL_HIGH>,
++						     <75 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "ID_WAKEUP_R",
+ 							  "ID_WAKEUP_F",
+ 							  "VBUS_DET_F",
+@@ -242,8 +242,8 @@
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-index 4002742fed4c..c1bcc8ca3769 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi
-@@ -252,8 +252,8 @@
- 		enable-active-high;
- 		enable-gpio = <&gpio2 2 GPIO_ACTIVE_HIGH>;
- 		gpios = <&gpio2 28 GPIO_ACTIVE_HIGH>;
--		states = <1800000 0x1
--			  3000000 0x0>;
-+		states = <1800000 0x1>,
-+			 <3000000 0x0>;
+ 				ab8500-ponkey {
+ 					compatible = "stericsson,ab8500-poweron-key";
+-					interrupts = <6 IRQ_TYPE_LEVEL_HIGH
+-						      7 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <6 IRQ_TYPE_LEVEL_HIGH>,
++						     <7 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "ONKEY_DBF", "ONKEY_DBR";
+ 				};
  
- 		regulator-min-microvolt = <1800000>;
- 		regulator-max-microvolt = <3000000>;
+diff --git a/arch/arm/boot/dts/ste-ab8505.dtsi b/arch/arm/boot/dts/ste-ab8505.dtsi
+index cc045b2fc217..3380afa74c14 100644
+--- a/arch/arm/boot/dts/ste-ab8505.dtsi
++++ b/arch/arm/boot/dts/ste-ab8505.dtsi
+@@ -39,8 +39,8 @@
+ 
+ 				ab8500-rtc {
+ 					compatible = "stericsson,ab8500-rtc";
+-					interrupts = <17 IRQ_TYPE_LEVEL_HIGH
+-						      18 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <17 IRQ_TYPE_LEVEL_HIGH>,
++						     <18 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "60S", "ALARM";
+ 				};
+ 
+@@ -182,13 +182,13 @@
+ 
+ 				ab8500_usb: ab8500_usb {
+ 					compatible = "stericsson,ab8500-usb";
+-					interrupts = < 90 IRQ_TYPE_LEVEL_HIGH
+-						       96 IRQ_TYPE_LEVEL_HIGH
+-						       14 IRQ_TYPE_LEVEL_HIGH
+-						       15 IRQ_TYPE_LEVEL_HIGH
+-						       79 IRQ_TYPE_LEVEL_HIGH
+-						       74 IRQ_TYPE_LEVEL_HIGH
+-						       75 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <90 IRQ_TYPE_LEVEL_HIGH>,
++						     <96 IRQ_TYPE_LEVEL_HIGH>,
++						     <14 IRQ_TYPE_LEVEL_HIGH>,
++						     <15 IRQ_TYPE_LEVEL_HIGH>,
++						     <79 IRQ_TYPE_LEVEL_HIGH>,
++						     <74 IRQ_TYPE_LEVEL_HIGH>,
++						     <75 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "ID_WAKEUP_R",
+ 							  "ID_WAKEUP_F",
+ 							  "VBUS_DET_F",
+@@ -205,8 +205,8 @@
+ 
+ 				ab8500-ponkey {
+ 					compatible = "stericsson,ab8500-poweron-key";
+-					interrupts = <6 IRQ_TYPE_LEVEL_HIGH
+-						      7 IRQ_TYPE_LEVEL_HIGH>;
++					interrupts = <6 IRQ_TYPE_LEVEL_HIGH>,
++						     <7 IRQ_TYPE_LEVEL_HIGH>;
+ 					interrupt-names = "ONKEY_DBF", "ONKEY_DBR";
+ 				};
+ 
 -- 
 2.30.2
 
