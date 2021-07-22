@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CD883D27B7
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FDB3D27BA
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:36:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230003AbhGVPwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55448 "EHLO mail.kernel.org"
+        id S230102AbhGVPwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:52:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229976AbhGVPwW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:52:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61AD96135C;
-        Thu, 22 Jul 2021 16:32:56 +0000 (UTC)
+        id S229897AbhGVPw1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:52:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A7246135B;
+        Thu, 22 Jul 2021 16:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971577;
-        bh=pbGFywMX/HXgnVhLfPBMR6TlD4JSNwxkFicirbiQYdU=;
+        s=korg; t=1626971582;
+        bh=dydekw1/JdNtKj+p/nzgqhqzGkE8uOqo7BdpW50xPI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fPHyFPvbZA1jbsecobJ98XJnWI/Gzu0Jd2JHts+0CSpqc5FuiuYYPGli/TVul3C/8
-         ixQ2BWdytHVCr1OJgqJNgsFXWHayDbMnyOo/2wy+d0yyz+hDyVo7jf08e5ONy9vxNu
-         akhh9zvspow1bXPpidk6O5rUf0tISwUtZvOS8NRA=
+        b=osf/g4hhhpRRAoRzcXjceFR/us4w35cXcJH5aZbATi/WoqM0uoSwwH4vPzrtyfOD3
+         +JOfHzt3F0xXLUN3suayM39AYbWYH8p5ZHhTY5TJsPpOxMFJbgoNJ6UCpsOaEsBher
+         B8Jo9vxriU8wfN4Akx5cZWC0ucpiuHt71WUMtRcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 19/71] ARM: imx: pm-imx5: Fix references to imx5_cpu_suspend_info
-Date:   Thu, 22 Jul 2021 18:30:54 +0200
-Message-Id: <20210722155618.515211635@linuxfoundation.org>
+Subject: [PATCH 5.4 20/71] rtc: mxc_v2: add missing MODULE_DEVICE_TABLE
+Date:   Thu, 22 Jul 2021 18:30:55 +0200
+Message-Id: <20210722155618.546458686@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -42,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 89b759469d525f4d5f9c29cd3b1f490311c67f85 ]
+[ Upstream commit 206e04ec7539e7bfdde9aa79a7cde656c9eb308e ]
 
-The name of the struct, as defined in arch/arm/mach-imx/pm-imx5.c,
-is imx5_cpu_suspend_info.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210508031509.53735-1-cuibixuan@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/suspend-imx53.S | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-mxc_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-imx/suspend-imx53.S b/arch/arm/mach-imx/suspend-imx53.S
-index 41b8aad65363..46570ec2fbcf 100644
---- a/arch/arm/mach-imx/suspend-imx53.S
-+++ b/arch/arm/mach-imx/suspend-imx53.S
-@@ -28,11 +28,11 @@
-  *                              ^
-  *                              ^
-  *                      imx53_suspend code
-- *              PM_INFO structure(imx53_suspend_info)
-+ *              PM_INFO structure(imx5_cpu_suspend_info)
-  * ======================== low address =======================
-  */
+diff --git a/drivers/rtc/rtc-mxc_v2.c b/drivers/rtc/rtc-mxc_v2.c
+index 91534560fe2a..d349cef09cb7 100644
+--- a/drivers/rtc/rtc-mxc_v2.c
++++ b/drivers/rtc/rtc-mxc_v2.c
+@@ -373,6 +373,7 @@ static const struct of_device_id mxc_ids[] = {
+ 	{ .compatible = "fsl,imx53-rtc", },
+ 	{}
+ };
++MODULE_DEVICE_TABLE(of, mxc_ids);
  
--/* Offsets of members of struct imx53_suspend_info */
-+/* Offsets of members of struct imx5_cpu_suspend_info */
- #define SUSPEND_INFO_MX53_M4IF_V_OFFSET		0x0
- #define SUSPEND_INFO_MX53_IOMUXC_V_OFFSET	0x4
- #define SUSPEND_INFO_MX53_IO_COUNT_OFFSET	0x8
+ static struct platform_driver mxc_rtc_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
