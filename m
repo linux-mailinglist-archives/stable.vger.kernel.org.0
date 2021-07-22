@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA09D3D27B3
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8033D27B5
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:36:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229912AbhGVPwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55240 "EHLO mail.kernel.org"
+        id S229675AbhGVPwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:52:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229918AbhGVPwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:52:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD26261362;
-        Thu, 22 Jul 2021 16:32:50 +0000 (UTC)
+        id S229909AbhGVPwU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:52:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A42476135B;
+        Thu, 22 Jul 2021 16:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971571;
-        bh=MR2ahwnyeQLStcx9ju8Sn21ZRhAD3zF7Yb6YP56CFe8=;
+        s=korg; t=1626971574;
+        bh=BC0dfP9WWd0VX2RvzShIy9OFAX/jqBnjlmGxPO7r18A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HkeRps2jkQwf1H2ifjMmi3wqitFkpYuoXIuoX+NLD8ualGJBYYrGQxyx5ecMAQ6O6
-         h24oE/7RkobYflQ9Qs9oVmbFGE7PfA4h5qqVqOUBcAqQJCHcDJawXvRL90LFL5fkAk
-         W4M3ZMAJJ7ex8q4+nUX9cSlxEN6L9bARpVbobIn8=
+        b=hHROE1hF9Ixhha9zFRGFG9RpzzTfeZTWvJFr3mQjnl/cPLSsuGD9jsvoVeOUscrpk
+         24nBTI7O/EK6IB1YKzvSF1jWwWjST9YtI5n+b/7YQx++djgIevQVsQdJogzSknUHl+
+         /kCIvhnGnLHFX51VqAX3s3CtmxAaW0/XD28z9dWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Primoz Fiser <primoz.fiser@norik.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/71] ARM: dts: Hurricane 2: Fix NAND nodes names
-Date:   Thu, 22 Jul 2021 18:30:52 +0200
-Message-Id: <20210722155618.453157138@linuxfoundation.org>
+Subject: [PATCH 5.4 18/71] ARM: dts: imx6: phyFLEX: Fix UART hardware flow control
+Date:   Thu, 22 Jul 2021 18:30:53 +0200
+Message-Id: <20210722155618.484022151@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -41,32 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Primoz Fiser <primoz.fiser@norik.com>
 
-[ Upstream commit a4528d9029e2eda16e4fc9b9da1de1fbec10ab26 ]
+[ Upstream commit 14cdc1f243d79e0b46be150502b7dba9c5a6bdfd ]
 
-This matches nand-controller.yaml requirements.
+Serial interface uart3 on phyFLEX board is capable of 5-wire connection
+including signals RTS and CTS for hardware flow control.
 
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fix signals UART3_CTS_B and UART3_RTS_B padmux assignments and add
+missing property "uart-has-rtscts" to allow serial interface to be
+configured and used with the hardware flow control.
+
+Signed-off-by: Primoz Fiser <primoz.fiser@norik.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm-hr2.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/bcm-hr2.dtsi b/arch/arm/boot/dts/bcm-hr2.dtsi
-index dd71ab08136b..30574101471a 100644
---- a/arch/arm/boot/dts/bcm-hr2.dtsi
-+++ b/arch/arm/boot/dts/bcm-hr2.dtsi
-@@ -179,7 +179,7 @@
- 			status = "disabled";
+diff --git a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+index 6678b97b1007..3617089dbe36 100644
+--- a/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-phytec-pfla02.dtsi
+@@ -315,8 +315,8 @@
+ 			fsl,pins = <
+ 				MX6QDL_PAD_EIM_D24__UART3_TX_DATA	0x1b0b1
+ 				MX6QDL_PAD_EIM_D25__UART3_RX_DATA	0x1b0b1
+-				MX6QDL_PAD_EIM_D30__UART3_RTS_B		0x1b0b1
+-				MX6QDL_PAD_EIM_D31__UART3_CTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D31__UART3_RTS_B		0x1b0b1
++				MX6QDL_PAD_EIM_D30__UART3_CTS_B		0x1b0b1
+ 			>;
  		};
  
--		nand: nand@26000 {
-+		nand_controller: nand-controller@26000 {
- 			compatible = "brcm,nand-iproc", "brcm,brcmnand-v6.1";
- 			reg = <0x26000 0x600>,
- 			      <0x11b408 0x600>,
+@@ -403,6 +403,7 @@
+ &uart3 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart3>;
++	uart-has-rtscts;
+ 	status = "disabled";
+ };
+ 
 -- 
 2.30.2
 
