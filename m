@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 638BF3D269D
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6E53D269F
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:25:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232586AbhGVOni (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 10:43:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
+        id S232541AbhGVOoW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 10:44:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232593AbhGVOnh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 10:43:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCEFA6128D;
-        Thu, 22 Jul 2021 15:24:11 +0000 (UTC)
+        id S232588AbhGVOoV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 10:44:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EDFA6109D;
+        Thu, 22 Jul 2021 15:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626967452;
-        bh=g71XIQZNB+qbsdXqa4hHiwrF+31KjHSU7Yhjs9FRCKw=;
+        s=korg; t=1626967496;
+        bh=9/+qWw/gJoaAgjwyuADFiTREzRd//BeU9ZK/1xgQTW0=;
         h=Subject:To:Cc:From:Date:From;
-        b=H5a3wJKemIkC1hVs3EAlbBnHVdxOvHqaKYD8SQ8S56IdrI31Ln9nd/L0Z4qHBSTz5
-         w+wcO2XG+Pn+moMSh+bfdDSO+w+WE8xHOOJn22S19eScwf3NOOy+vN4KYyG84Ak4I6
-         6L1NhWbsxU5CPVeRwLjvPm3VBWkt133AzLSfq3Ts=
-Subject: FAILED: patch "[PATCH] net: dsa: sja1105: fix address learning getting disabled on" failed to apply to 5.13-stable tree
-To:     vladimir.oltean@nxp.com, davem@davemloft.net
+        b=ATN1JWCT7J0Hxri6jeJi6Wd0tMlZYcxHpaDqFeofbhsk4Ri6KUtKySDrpTkxliR4B
+         1AuE+1JJScAvWSbdkWSw5oVU48PjlPl1bpzK28ky5D5VaGcR+msQkaMU8MwM59ZnON
+         cBW698Ni6i4eTRPsKz2Ke+Hmax9Y1h0a9kWOi9RQ=
+Subject: FAILED: patch "[PATCH] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices" failed to apply to 4.19-stable tree
+To:     liuhangbin@gmail.com, davem@davemloft.net, jishi@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Jul 2021 17:24:09 +0200
-Message-ID: <162696744934157@kroah.com>
+Date:   Thu, 22 Jul 2021 17:24:54 +0200
+Message-ID: <1626967494217153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.13-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,61 +45,84 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b0b33b048dcfbd7da82c3cde4fab02751dfab4d6 Mon Sep 17 00:00:00 2001
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Tue, 13 Jul 2021 12:37:19 +0300
-Subject: [PATCH] net: dsa: sja1105: fix address learning getting disabled on
- the CPU port
+From 9992a078b1771da354ac1f9737e1e639b687caa2 Mon Sep 17 00:00:00 2001
+From: Hangbin Liu <liuhangbin@gmail.com>
+Date: Fri, 9 Jul 2021 11:45:02 +0800
+Subject: [PATCH] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
 
-In May 2019 when commit 640f763f98c2 ("net: dsa: sja1105: Add support
-for Spanning Tree Protocol") was introduced, the comment that "STP does
-not get called for the CPU port" was true. This changed after commit
-0394a63acfe2 ("net: dsa: enable and disable all ports") in August 2019
-and went largely unnoticed, because the sja1105_bridge_stp_state_set()
-method did nothing different compared to the static setup done by
-sja1105_init_mac_settings().
+Commit 28e104d00281 ("net: ip_tunnel: fix mtu calculation") removed
+dev->hard_header_len subtraction when calculate MTU for tunnel devices
+as there is an overhead for device that has header_ops.
 
-With the ability to turn address learning off introduced by the blamed
-commit, there is a new priv->learn_ena port mask in the driver. When
-sja1105_bridge_stp_state_set() gets called and we are in
-BR_STATE_LEARNING or later, address learning is enabled or not depending
-on priv->learn_ena & BIT(port).
+But there are ETHER tunnel devices, like gre_tap or erspan, which don't
+have header_ops but set dev->hard_header_len during setup. This makes
+pkts greater than (MTU - ETH_HLEN) could not be xmited. Fix it by
+subtracting the ETHER tunnel devices' dev->hard_header_len for MTU
+calculation.
 
-So what happens is that priv->learn_ena is not being set from anywhere
-for the CPU port, and the static configuration done by
-sja1105_init_mac_settings() is being overwritten.
-
-To solve this, acknowledge that the static configuration of STP state is
-no longer necessary because the STP state is being set by the DSA core
-now, but what is necessary is to set priv->learn_ena for the CPU port.
-
-Fixes: 4d9423549501 ("net: dsa: sja1105: offload bridge port flags to device")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: 28e104d00281 ("net: ip_tunnel: fix mtu calculation")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-index 4f0545605f6b..ced8c9cb29c2 100644
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -122,14 +122,12 @@ static int sja1105_init_mac_settings(struct sja1105_private *priv)
- 
- 	for (i = 0; i < ds->num_ports; i++) {
- 		mac[i] = default_mac;
--		if (i == dsa_upstream_port(priv->ds, i)) {
--			/* STP doesn't get called for CPU port, so we need to
--			 * set the I/O parameters statically.
--			 */
--			mac[i].dyn_learn = true;
--			mac[i].ingress = true;
--			mac[i].egress = true;
--		}
-+
-+		/* Let sja1105_bridge_stp_state_set() keep address learning
-+		 * enabled for the CPU port.
-+		 */
-+		if (dsa_is_cpu_port(ds, i))
-+			priv->learn_ena |= BIT(i);
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index f6cc26de5ed3..0dca00745ac3 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -317,7 +317,7 @@ static int ip_tunnel_bind_dev(struct net_device *dev)
  	}
  
- 	return 0;
+ 	dev->needed_headroom = t_hlen + hlen;
+-	mtu -= t_hlen;
++	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
+ 
+ 	if (mtu < IPV4_MIN_MTU)
+ 		mtu = IPV4_MIN_MTU;
+@@ -348,6 +348,9 @@ static struct ip_tunnel *ip_tunnel_create(struct net *net,
+ 	t_hlen = nt->hlen + sizeof(struct iphdr);
+ 	dev->min_mtu = ETH_MIN_MTU;
+ 	dev->max_mtu = IP_MAX_MTU - t_hlen;
++	if (dev->type == ARPHRD_ETHER)
++		dev->max_mtu -= dev->hard_header_len;
++
+ 	ip_tunnel_add(itn, nt);
+ 	return nt;
+ 
+@@ -489,11 +492,14 @@ static int tnl_update_pmtu(struct net_device *dev, struct sk_buff *skb,
+ 
+ 	tunnel_hlen = md ? tunnel_hlen : tunnel->hlen;
+ 	pkt_size = skb->len - tunnel_hlen;
++	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
+ 
+-	if (df)
++	if (df) {
+ 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel_hlen);
+-	else
++		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
++	} else {
+ 		mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
++	}
+ 
+ 	if (skb_valid_dst(skb))
+ 		skb_dst_update_pmtu_no_confirm(skb, mtu);
+@@ -972,6 +978,9 @@ int __ip_tunnel_change_mtu(struct net_device *dev, int new_mtu, bool strict)
+ 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+ 	int max_mtu = IP_MAX_MTU - t_hlen;
+ 
++	if (dev->type == ARPHRD_ETHER)
++		max_mtu -= dev->hard_header_len;
++
+ 	if (new_mtu < ETH_MIN_MTU)
+ 		return -EINVAL;
+ 
+@@ -1149,6 +1158,9 @@ int ip_tunnel_newlink(struct net_device *dev, struct nlattr *tb[],
+ 	if (tb[IFLA_MTU]) {
+ 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
+ 
++		if (dev->type == ARPHRD_ETHER)
++			max -= dev->hard_header_len;
++
+ 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
+ 	}
+ 
 
