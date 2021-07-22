@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66BE63D280D
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BBC3D2817
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231929AbhGVPyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S231239AbhGVPyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:54:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231152AbhGVPy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:54:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F376135A;
-        Thu, 22 Jul 2021 16:35:02 +0000 (UTC)
+        id S232206AbhGVPyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:54:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E00786135A;
+        Thu, 22 Jul 2021 16:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971702;
-        bh=9k1BIdPX0CC+8RIExlDw73dOwbK84xLdbE8koyqanis=;
+        s=korg; t=1626971708;
+        bh=v+5YbG7RD2Kmv7vSqTbhz0UAmndS57kDq6c8JJLUxjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Fv7t1haPeqG1c6FuHtcZuqvj0lqkDxqVna5PuqzZxLSV5T1ip90piBXbM1+BLbmB
-         nSaOzpOKk5oFyFUohhgW0ifdfl3M+UYDYkqqYwPC+rtHQzXv02d0G9MjEnc43dOud2
-         IqdrvCGBpKTgYJCcIEdb3TrdYnv2bJX4ys1bWd7k=
+        b=wst3Ftxw7ZB3KbppcybZahhhsx/Glu92BywXDwLnr6jlSuIiv8lz8qqX52EMgaCbo
+         pR6oTLli7/gEdgeF8u0wjVaFNPhZaMSNCB8bkreIT7GXPlpYDiIUyXg0BBENPUpsNT
+         fP4nxalrWv9T74ec4EJ+flt2YOPuT4FbUp02T7pU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Subject: [PATCH 5.4 66/71] dma-buf/sync_file: Dont leak fences on merge failure
-Date:   Thu, 22 Jul 2021 18:31:41 +0200
-Message-Id: <20210722155620.111203896@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 67/71] tcp: annotate data races around tp->mtu_info
+Date:   Thu, 22 Jul 2021 18:31:42 +0200
+Message-Id: <20210722155620.140885459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -40,70 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Eric Dumazet <edumazet@google.com>
 
-commit ffe000217c5068c5da07ccb1c0f8cce7ad767435 upstream.
+commit 561022acb1ce62e50f7a8258687a21b84282a4cb upstream.
 
-Each add_fence() call does a dma_fence_get() on the relevant fence.  In
-the error path, we weren't calling dma_fence_put() so all those fences
-got leaked.  Also, in the krealloc_array failure case, we weren't
-freeing the fences array.  Instead, ensure that i and fences are always
-zero-initialized and dma_fence_put() all the fences and kfree(fences) on
-every error path.
+While tp->mtu_info is read while socket is owned, the write
+sides happen from err handlers (tcp_v[46]_mtu_reduced)
+which only own the socket spinlock.
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
-Cc: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Cc: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210624174732.1754546-1-jason@jlekstrand.net
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: 563d34d05786 ("tcp: dont drop MTU reduction indications")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/sync_file.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ net/ipv4/tcp_ipv4.c |    4 ++--
+ net/ipv6/tcp_ipv6.c |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/dma-buf/sync_file.c
-+++ b/drivers/dma-buf/sync_file.c
-@@ -211,8 +211,8 @@ static struct sync_file *sync_file_merge
- 					 struct sync_file *b)
- {
- 	struct sync_file *sync_file;
--	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
--	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
-+	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
-+	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -343,7 +343,7 @@ void tcp_v4_mtu_reduced(struct sock *sk)
  
- 	sync_file = sync_file_alloc();
- 	if (!sync_file)
-@@ -236,7 +236,7 @@ static struct sync_file *sync_file_merge
- 	 * If a sync_file can only be created with sync_file_merge
- 	 * and sync_file_create, this is a reasonable assumption.
- 	 */
--	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
-+	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
- 		struct dma_fence *pt_a = a_fences[i_a];
- 		struct dma_fence *pt_b = b_fences[i_b];
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
+-	mtu = tcp_sk(sk)->mtu_info;
++	mtu = READ_ONCE(tcp_sk(sk)->mtu_info);
+ 	dst = inet_csk_update_pmtu(sk, mtu);
+ 	if (!dst)
+ 		return;
+@@ -512,7 +512,7 @@ int tcp_v4_err(struct sk_buff *icmp_skb,
+ 			if (sk->sk_state == TCP_LISTEN)
+ 				goto out;
  
-@@ -278,15 +278,16 @@ static struct sync_file *sync_file_merge
- 		fences = nfences;
- 	}
+-			tp->mtu_info = info;
++			WRITE_ONCE(tp->mtu_info, info);
+ 			if (!sock_owned_by_user(sk)) {
+ 				tcp_v4_mtu_reduced(sk);
+ 			} else {
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -347,7 +347,7 @@ static void tcp_v6_mtu_reduced(struct so
+ 	if ((1 << sk->sk_state) & (TCPF_LISTEN | TCPF_CLOSE))
+ 		return;
  
--	if (sync_file_set_fence(sync_file, fences, i) < 0) {
--		kfree(fences);
-+	if (sync_file_set_fence(sync_file, fences, i) < 0)
- 		goto err;
--	}
+-	dst = inet6_csk_update_pmtu(sk, tcp_sk(sk)->mtu_info);
++	dst = inet6_csk_update_pmtu(sk, READ_ONCE(tcp_sk(sk)->mtu_info));
+ 	if (!dst)
+ 		return;
  
- 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
- 	return sync_file;
+@@ -438,7 +438,7 @@ static int tcp_v6_err(struct sk_buff *sk
+ 		if (!ip6_sk_accept_pmtu(sk))
+ 			goto out;
  
- err:
-+	while (i)
-+		dma_fence_put(fences[--i]);
-+	kfree(fences);
- 	fput(sync_file->file);
- 	return NULL;
- 
+-		tp->mtu_info = ntohl(info);
++		WRITE_ONCE(tp->mtu_info, ntohl(info));
+ 		if (!sock_owned_by_user(sk))
+ 			tcp_v6_mtu_reduced(sk);
+ 		else if (!test_and_set_bit(TCP_MTU_REDUCED_DEFERRED,
 
 
