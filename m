@@ -2,86 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BFF53D2C1F
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 20:48:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3A03D2C20
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 20:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229585AbhGVSHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 14:07:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
+        id S229639AbhGVSIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 14:08:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229545AbhGVSHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 14:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5ED1C60EB6;
-        Thu, 22 Jul 2021 18:48:27 +0000 (UTC)
+        id S229545AbhGVSIP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 14:08:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21BB660EB2;
+        Thu, 22 Jul 2021 18:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626979707;
-        bh=0v/OHfCt6EhRpxblHKl8J7VV+RuXo5xKG1VOlDZz8hE=;
-        h=Subject:To:Cc:From:Date:From;
-        b=thbtnTejgqUqulT+q2OpnqBYhnA6axQ9SSmYtinx7JAhemKMvm5tijBV7s+Uf9prA
-         rQqdKTCcTy2Ba+MmOVCq59CxwSyg/2Ws7xi3zvaJTs1UU8j7YJqKu51wVihPCoRKu7
-         hcLtWtaKwcCI8kOHNxRd59Sifp7b4uR9ktvzwIFE=
-Subject: FAILED: patch "[PATCH] arm64: dts: renesas: beacon: Fix USB ref clock references" failed to apply to 5.10-stable tree
-To:     aford173@gmail.com, geert+renesas@glider.be
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Jul 2021 20:48:25 +0200
-Message-ID: <1626979705124214@kroah.com>
+        s=korg; t=1626979729;
+        bh=vTlLoa/WDToa1gbyQ50HnoiDPfOr9BoWi+Ir6ioBPVY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=mwZM5y9pw1lR0nx1LVm3RnI79TlByo7SkvDvJNttzEOY+hHwjZIgjxteZaNPxkK0V
+         euNhfCaBn/DOhY0M0GJ5gmc2CLQGCuIvG/podz1XuBk8xRn+PYTZt7PtUeL0u5dvgq
+         YH9wRkvtJLthxe3o568WvYVoRq9OKIqRDUV5ead8=
+Date:   Thu, 22 Jul 2021 20:48:47 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, aford173@gmail.com
+Subject: Re: [PATCH 5.10 000/125] 5.10.53-rc1 review
+Message-ID: <YPm9j7KqcRPnr+dP@kroah.com>
+References: <20210722155624.672583740@linuxfoundation.org>
+ <beeb7568-388f-38e4-eb1f-28b1557bc191@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <beeb7568-388f-38e4-eb1f-28b1557bc191@linaro.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jul 22, 2021 at 12:00:34PM -0500, Daniel Díaz wrote:
+> Hello!
+> 
+> On 7/22/21 11:29 AM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.10.53 release.
+> > There are 125 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
+> > Anything received after that time might be too late.
+> > 
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.53-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > and the diffstat can be found below.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> Build regressions detected on Arm64:
+> 
+>   make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- 'CC=sccache aarch64-linux-gnu-gcc' 'HOSTCC=sccache gcc' dtbs
+>   Error: /builds/linux/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi:298.1-13 Label or path usb2_clksel not found
+>   FATAL ERROR: Syntax error parsing input tree
+>   make[3]: *** [scripts/Makefile.lib:326: arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dtb] Error 1
+>   make[3]: Target '__build' not remade because of errors.
+>   make[2]: *** [/builds/linux/scripts/Makefile.build:497: arch/arm64/boot/dts/renesas] Error 2
+>   make[2]: Target '__build' not remade because of errors.
+>   make[1]: *** [/builds/linux/Makefile:1359: dtbs] Error 2
+>   make: *** [Makefile:185: __sub-make] Error 2
+>   make: Target 'dtbs' not remade because of errors.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+2 patches dropped should now fix this.  I will push out a -rc2 now.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ebc666f39ff67a01e748c34d670ddf05a9e45220 Mon Sep 17 00:00:00 2001
-From: Adam Ford <aford173@gmail.com>
-Date: Thu, 13 May 2021 06:46:16 -0500
-Subject: [PATCH] arm64: dts: renesas: beacon: Fix USB ref clock references
-
-The RZ/G2 boards expect there to be an external clock reference for
-USB2 EHCI controllers.  For the Beacon boards, this reference clock
-is controlled by a programmable versaclock.  Because the RZ/G2
-family has a special clock driver when using an external clock,
-the third clock reference in the EHCI node needs to point to this
-special clock, called usb2_clksel.
-
-Since the usb2_clksel does not keep the usb_extal clock enabled,
-the 4th clock entry for the EHCI nodes needs to reference it to
-keep the clock running and make USB functional.
-
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Link: https://lore.kernel.org/r/20210513114617.30191-2-aford173@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-diff --git a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-index d8046fedf9c1..e3c8b2fe143e 100644
---- a/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-+++ b/arch/arm64/boot/dts/renesas/beacon-renesom-baseboard.dtsi
-@@ -271,12 +271,12 @@ &du_out_rgb {
- &ehci0 {
- 	dr_mode = "otg";
- 	status = "okay";
--	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;
-+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&usb2_clksel>, <&versaclock5 3>;
- };
- 
- &ehci1 {
- 	status = "okay";
--	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>;
-+	clocks = <&cpg CPG_MOD 703>, <&cpg CPG_MOD 704>, <&usb2_clksel>, <&versaclock5 3>;
- };
- 
- &hdmi0 {
-
