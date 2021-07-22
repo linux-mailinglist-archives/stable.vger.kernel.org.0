@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA31E3D2A47
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60CCE3D2A4B
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233234AbhGVQKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44264 "EHLO mail.kernel.org"
+        id S234869AbhGVQK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:10:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235508AbhGVQJZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235510AbhGVQJZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Jul 2021 12:09:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 979806052B;
-        Thu, 22 Jul 2021 16:49:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C153760BD3;
+        Thu, 22 Jul 2021 16:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972566;
-        bh=e78d44QnUam4NLDY8FnNFh5NaRTvVLkssqfhpf8E44s=;
+        s=korg; t=1626972569;
+        bh=yxJeMTNyuxZ3hCdwhcRRqriilKxYjaCSr2KVSUNYvYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0GNvn0kg07I4X/IFytuEQzEjyPR+981AXeiqfZ5eTq646Nvrf/8nkb/MTGia83rJ
-         Ps9k46nODqhHpfH+3zmfw4An5DtcSay6C0ykh3BTFFdQ5vDsY5nj8CuOLrw3HHos4J
-         docONCtW8X9TNuM/87fqClrcVNW/aLwU0mbI5FbA=
+        b=lVyQy41ZlifFKHXCYqwkmNEIw07CxZhL8WQfco0rhC8d2oglTqFq9N1vh1VRoNqi9
+         lkaysTjhogtQ6UN0q/D6moNOKHOuZOzdgbcUELEn2SkJv8iES6T7qVHPNOvYkGKryA
+         Uk3V4HGxLnkWAANW6UszVgHoG/0cHZpkpGRs5KQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>
-Subject: [PATCH 5.13 153/156] firmware: arm_scmi: Avoid padding in sensor message structure
-Date:   Thu, 22 Jul 2021 18:32:08 +0200
-Message-Id: <20210722155633.303771342@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 154/156] udp: annotate data races around unix_sk(sk)->gso_size
+Date:   Thu, 22 Jul 2021 18:32:09 +0200
+Message-Id: <20210722155633.336431685@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,48 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 187a002b07e8089f0b5657eafec50b5d05625569 upstream.
+commit 18a419bad63b7f68a1979e28459782518e7b6bbe upstream.
 
-scmi_resp_sensor_reading_complete structure is meant to represent an
-SCMI asynchronous reading complete message. The readings field with
-a 64bit type forces padding and breaks reads in scmi_sensor_reading_get.
+Accesses to unix_sk(sk)->gso_size are lockless.
+Add READ_ONCE()/WRITE_ONCE() around them.
 
-Split it in two adjacent 32bit readings_low/high subfields to avoid the
-padding within the structure. Alternatively we could to mark the structure
-packed.
+BUG: KCSAN: data-race in udp_lib_setsockopt / udpv6_sendmsg
 
-Link: https://lore.kernel.org/r/20210628170042.34105-1-cristian.marussi@arm.com
-Fixes: e2083d3673916 ("firmware: arm_scmi: Add SCMI v3.0 sensors timestamped reads")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+write to 0xffff88812d78f47c of 2 bytes by task 10849 on cpu 1:
+ udp_lib_setsockopt+0x3b3/0x710 net/ipv4/udp.c:2696
+ udpv6_setsockopt+0x63/0x90 net/ipv6/udp.c:1630
+ sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3265
+ __sys_setsockopt+0x18f/0x200 net/socket.c:2104
+ __do_sys_setsockopt net/socket.c:2115 [inline]
+ __se_sys_setsockopt net/socket.c:2112 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2112
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88812d78f47c of 2 bytes by task 10852 on cpu 0:
+ udpv6_sendmsg+0x161/0x16b0 net/ipv6/udp.c:1299
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:642
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2337
+ ___sys_sendmsg net/socket.c:2391 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2477
+ __do_sys_sendmmsg net/socket.c:2506 [inline]
+ __se_sys_sendmmsg net/socket.c:2503 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2503
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000 -> 0x0005
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 10852 Comm: syz-executor.0 Not tainted 5.13.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: bec1f6f69736 ("udp: generate gso with UDP_SEGMENT")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/sensors.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/udp.c |    6 +++---
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/arm_scmi/sensors.c
-+++ b/drivers/firmware/arm_scmi/sensors.c
-@@ -166,7 +166,8 @@ struct scmi_msg_sensor_reading_get {
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1102,7 +1102,7 @@ int udp_sendmsg(struct sock *sk, struct
+ 	}
  
- struct scmi_resp_sensor_reading_complete {
- 	__le32 id;
--	__le64 readings;
-+	__le32 readings_low;
-+	__le32 readings_high;
- };
+ 	ipcm_init_sk(&ipc, inet);
+-	ipc.gso_size = up->gso_size;
++	ipc.gso_size = READ_ONCE(up->gso_size);
  
- struct scmi_sensor_reading_resp {
-@@ -717,7 +718,8 @@ static int scmi_sensor_reading_get(const
+ 	if (msg->msg_controllen) {
+ 		err = udp_cmsg_send(sk, msg, &ipc.gso_size);
+@@ -2695,7 +2695,7 @@ int udp_lib_setsockopt(struct sock *sk,
+ 	case UDP_SEGMENT:
+ 		if (val < 0 || val > USHRT_MAX)
+ 			return -EINVAL;
+-		up->gso_size = val;
++		WRITE_ONCE(up->gso_size, val);
+ 		break;
  
- 			resp = t->rx.buf;
- 			if (le32_to_cpu(resp->id) == sensor_id)
--				*value = get_unaligned_le64(&resp->readings);
-+				*value =
-+					get_unaligned_le64(&resp->readings_low);
- 			else
- 				ret = -EPROTO;
- 		}
+ 	case UDP_GRO:
+@@ -2790,7 +2790,7 @@ int udp_lib_getsockopt(struct sock *sk,
+ 		break;
+ 
+ 	case UDP_SEGMENT:
+-		val = up->gso_size;
++		val = READ_ONCE(up->gso_size);
+ 		break;
+ 
+ 	case UDP_GRO:
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1296,7 +1296,7 @@ int udpv6_sendmsg(struct sock *sk, struc
+ 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
+ 
+ 	ipcm6_init(&ipc6);
+-	ipc6.gso_size = up->gso_size;
++	ipc6.gso_size = READ_ONCE(up->gso_size);
+ 	ipc6.sockc.tsflags = sk->sk_tsflags;
+ 	ipc6.sockc.mark = sk->sk_mark;
+ 
 
 
