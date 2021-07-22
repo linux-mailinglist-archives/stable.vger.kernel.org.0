@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 045CA3D29A0
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E1A3D29A5
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234011AbhGVQFq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
+        id S234999AbhGVQFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:05:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234865AbhGVQFL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:05:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CCD7613D2;
-        Thu, 22 Jul 2021 16:45:44 +0000 (UTC)
+        id S233484AbhGVQDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:03:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E68B61CA2;
+        Thu, 22 Jul 2021 16:44:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972345;
-        bh=KNd4tw7QPhG653qvxc4a5L9+qxVTHp/FjuujZFmrzF4=;
+        s=korg; t=1626972249;
+        bh=jx/1t1Iq8e7GUNGcJw2QIdaffisGdgNPqkBjVcZL53w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzUvAkOvI9LNFLDCmOF3MFTccEf0azPgqoCsDHOcVinGn4lZiUgjIRK5Krz3R/sfR
-         ztwGy3LRq6migkzdeaxV1SkjBAfHPBIdM5F6z+72/khWrEDSnuu3szKsvu0Lhtqr7U
-         uyaxdW9V2+fKNvRZe8SKo9GpXAE+D4KvGh7ZaZec=
+        b=lPmgLezhTQLr6zE1a3NteJzDbxd6roMnY0nmiMPJ6QZLRpidTQssjhrGl/+NjjSXj
+         O9ZfcV2p8jCKCuem1PDgIqQJfsGy6lhHXh0g3B1ei8NVeBS7c1mj8Uhjogu/j0fE3p
+         2zW5mQziQ3dT/kFlLQfWLtdgI8mDUnAnzNbsakHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 042/156] arm64: tegra: Add PMU node for Tegra194
-Date:   Thu, 22 Jul 2021 18:30:17 +0200
-Message-Id: <20210722155629.776170831@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 043/156] arm64: dts: ti: k3-am654x/j721e/j7200-common-proc-board: Fix MCU_RGMII1_TXC direction
+Date:   Thu, 22 Jul 2021 18:30:18 +0200
+Message-Id: <20210722155629.806356008@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,47 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 9e79e58f330ea4860f2ced65a8a35dfb05fc03c1 ]
+[ Upstream commit 69db725cdb2b803af67897a08ea54467d11f6020 ]
 
-Populate the device-tree node for the PMU device on Tegra194. This also
-fixes the following warning that is observed on booting Tegra194.
+The MCU RGMII MCU_RGMII1_TXC pin is defined as input by mistake, although
+this does not make any difference functionality wise it's better to update
+to avoid confusion.
 
- ERR KERN kvm: pmu event creation failed -2
+Hence fix MCU RGMII MCU_RGMII1_TXC pin pinmux definitions to be an output
+in K3 am654x/j721e/j7200 board files.
 
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Reviewed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20210526132041.6104-1-grygorii.strashko@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm64/boot/dts/ti/k3-am654-base-board.dts        | 2 +-
+ arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts | 2 +-
+ arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 9449156fae39..2e40b6047283 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -2345,6 +2345,20 @@
- 		};
+diff --git a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+index 1b947e2c2e74..faa8e280cf2b 100644
+--- a/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-am654-base-board.dts
+@@ -136,7 +136,7 @@
+ 			AM65X_WKUP_IOPAD(0x007c, PIN_INPUT, 0) /* (L5) MCU_RGMII1_RD2 */
+ 			AM65X_WKUP_IOPAD(0x0080, PIN_INPUT, 0) /* (M6) MCU_RGMII1_RD1 */
+ 			AM65X_WKUP_IOPAD(0x0084, PIN_INPUT, 0) /* (L6) MCU_RGMII1_RD0 */
+-			AM65X_WKUP_IOPAD(0x0070, PIN_INPUT, 0) /* (N1) MCU_RGMII1_TXC */
++			AM65X_WKUP_IOPAD(0x0070, PIN_OUTPUT, 0) /* (N1) MCU_RGMII1_TXC */
+ 			AM65X_WKUP_IOPAD(0x0074, PIN_INPUT, 0) /* (M1) MCU_RGMII1_RXC */
+ 		>;
  	};
- 
-+	pmu {
-+		compatible = "arm,armv8-pmuv3";
-+		interrupts = <GIC_SPI 384 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 385 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 386 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 387 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 388 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 389 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 390 IRQ_TYPE_LEVEL_HIGH>,
-+			     <GIC_SPI 391 IRQ_TYPE_LEVEL_HIGH>;
-+		interrupt-affinity = <&cpu0_0 &cpu0_1 &cpu1_0 &cpu1_1
-+				      &cpu2_0 &cpu2_1 &cpu3_0 &cpu3_1>;
-+	};
-+
- 	psci {
- 		compatible = "arm,psci-1.0";
- 		status = "okay";
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+index bedd01b7a32c..d14f3c18b65f 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-j7200-common-proc-board.dts
+@@ -90,7 +90,7 @@
+ 			J721E_WKUP_IOPAD(0x008c, PIN_INPUT, 0) /* MCU_RGMII1_RD2 */
+ 			J721E_WKUP_IOPAD(0x0090, PIN_INPUT, 0) /* MCU_RGMII1_RD1 */
+ 			J721E_WKUP_IOPAD(0x0094, PIN_INPUT, 0) /* MCU_RGMII1_RD0 */
+-			J721E_WKUP_IOPAD(0x0080, PIN_INPUT, 0) /* MCU_RGMII1_TXC */
++			J721E_WKUP_IOPAD(0x0080, PIN_OUTPUT, 0) /* MCU_RGMII1_TXC */
+ 			J721E_WKUP_IOPAD(0x0084, PIN_INPUT, 0) /* MCU_RGMII1_RXC */
+ 		>;
+ 	};
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
+index ffccbc53f1e7..de3c3f7f2b7a 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
++++ b/arch/arm64/boot/dts/ti/k3-j721e-common-proc-board.dts
+@@ -238,7 +238,7 @@
+ 			J721E_WKUP_IOPAD(0x007c, PIN_INPUT, 0) /* MCU_RGMII1_RD2 */
+ 			J721E_WKUP_IOPAD(0x0080, PIN_INPUT, 0) /* MCU_RGMII1_RD1 */
+ 			J721E_WKUP_IOPAD(0x0084, PIN_INPUT, 0) /* MCU_RGMII1_RD0 */
+-			J721E_WKUP_IOPAD(0x0070, PIN_INPUT, 0) /* MCU_RGMII1_TXC */
++			J721E_WKUP_IOPAD(0x0070, PIN_OUTPUT, 0) /* MCU_RGMII1_TXC */
+ 			J721E_WKUP_IOPAD(0x0074, PIN_INPUT, 0) /* MCU_RGMII1_RXC */
+ 		>;
+ 	};
 -- 
 2.30.2
 
