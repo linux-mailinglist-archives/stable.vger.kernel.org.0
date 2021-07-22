@@ -2,62 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C64493D253C
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 16:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380C83D2541
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 16:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbhGVN3n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 09:29:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40286 "EHLO mail.kernel.org"
+        id S232200AbhGVNbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 09:31:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232105AbhGVN3n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 09:29:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 041DB6100C;
-        Thu, 22 Jul 2021 14:10:16 +0000 (UTC)
+        id S232118AbhGVNbn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 09:31:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4972B613AA;
+        Thu, 22 Jul 2021 14:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626963017;
-        bh=+4IS+LeqMBgAX5MpkMmGipXc+DhLhTwdc+5swEDFnik=;
+        s=korg; t=1626963137;
+        bh=Uws4FcnI2E78ZjWf4YvL6GyC8qkD43T2o2gKpCOur5c=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=r57Jwox2T9tgbYJaRisdfMxj6SyfbSMtlgKvA/Z7BIiKtL5pWZYz/s39Wvrpcw1vc
-         P9D+A6QiWsEeB2OWvEzbm8YYNlQcFbWkj8ExIjyoAsCTM1QoL9tl0xTdMtByfueDBv
-         nF6gsji/kNZdhvOWbY3hNZPDKlHgSk33FYYmHixw=
-Date:   Thu, 22 Jul 2021 16:10:14 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Deren Wu <Deren.Wu@mediatek.com>
-Cc:     stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Jimmy Hu <Jimmy.Hu@mediatek.com>
-Subject: Re: [PATCH] mt76: mt7921: fix the insmod hangs
-Message-ID: <YPl8Rijw12mQERlT@kroah.com>
-References: <20210721130918.4491-1-Deren.Wu@mediatek.com>
+        b=Tl4NKjzuSQpoHwqkt0rtf0GQ6qfD/Ge3rYMGIlWS1BSDX493/Sx5chHONM/07gMs2
+         HxrNrwqw/OwHpLk7QwSEkVWqqgcXL6/MceEVa1NCj6vL8LYn6YCdvffYwibTIYP5BM
+         pxiWDgVU2Af82hdRaBYgZtfB5vr4FOvYfv2xBKow=
+Date:   Thu, 22 Jul 2021 16:12:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Thomas Zimmermann <tzimmermann@suse.de>
+Cc:     Xiaotian Feng <xtfeng@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
+Subject: Re: [PATCH 5.12 237/242] drm/ast: Remove reference to struct
+ drm_device.pdev
+Message-ID: <YPl8v+FZ6PUl7XTl@kroah.com>
+References: <20210715182551.731989182@linuxfoundation.org>
+ <20210715182634.577299401@linuxfoundation.org>
+ <CAJn8CcF+gfXToErpZv=pWmBKF-i--oVWmaM=6AQ8YZCb21X=oA@mail.gmail.com>
+ <YPVgtybrZLxe3XeW@kroah.com>
+ <2ba3d853-f334-ba0e-3cdc-1e9a03f99b51@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210721130918.4491-1-Deren.Wu@mediatek.com>
+In-Reply-To: <2ba3d853-f334-ba0e-3cdc-1e9a03f99b51@suse.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jul 21, 2021 at 09:09:18PM +0800, Deren Wu wrote:
-> From: Sean Wang <sean.wang@mediatek.com>
+On Mon, Jul 19, 2021 at 04:35:21PM +0200, Thomas Zimmermann wrote:
+> hi
 > 
-> [ Upstream commit 49897c529f85504139a6e54417a65f26a07492d2 ]
+> Am 19.07.21 um 13:23 schrieb Greg Kroah-Hartman:
+> > On Mon, Jul 19, 2021 at 05:57:30PM +0800, Xiaotian Feng wrote:
+> > > On Fri, Jul 16, 2021 at 5:13 AM Greg Kroah-Hartman
+> > > <gregkh@linuxfoundation.org> wrote:
+> > > > 
+> > > > From: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > 
+> > > > commit 0ecb51824e838372e01330752503ddf9c0430ef7 upstream.
+> > > > 
+> > > > Using struct drm_device.pdev is deprecated. Upcast with to_pci_dev()
+> > > > from struct drm_device.dev to get the PCI device structure.
+> > > > 
+> > > > v9:
+> > > >          * fix remaining pdev references
+> > > > 
+> > > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+> > > > Fixes: ba4e0339a6a3 ("drm/ast: Fixed CVE for DP501")
+> > > > Cc: KuoHsiang Chou <kuohsiang_chou@aspeedtech.com>
+> > > > Cc: kernel test robot <lkp@intel.com>
+> > > > Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> > > > Cc: Dave Airlie <airlied@redhat.com>
+> > > > Cc: dri-devel@lists.freedesktop.org
+> > > > Link: https://patchwork.freedesktop.org/patch/msgid/20210429105101.25667-2-tzimmermann@suse.de
+> > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > ---
+> > > >   drivers/gpu/drm/ast/ast_main.c |    5 ++---
+> > > >   1 file changed, 2 insertions(+), 3 deletions(-)
+> > > > 
+> > > > --- a/drivers/gpu/drm/ast/ast_main.c
+> > > > +++ b/drivers/gpu/drm/ast/ast_main.c
+> > > > @@ -411,7 +411,6 @@ struct ast_private *ast_device_create(co
+> > > >                  return ast;
+> > > >          dev = &ast->base;
+> > > > 
+> > > > -       dev->pdev = pdev;
+> > > >          pci_set_drvdata(pdev, dev);
+> > > > 
+> > > >          ast->regs = pcim_iomap(pdev, 1, 0);
+> > > > @@ -453,8 +452,8 @@ struct ast_private *ast_device_create(co
+> > > > 
+> > > >          /* map reserved buffer */
+> > > >          ast->dp501_fw_buf = NULL;
+> > > > -       if (dev->vram_mm->vram_size < pci_resource_len(dev->pdev, 0)) {
+> > > > -               ast->dp501_fw_buf = pci_iomap_range(dev->pdev, 0, dev->vram_mm->vram_size, 0);
+> > > > +       if (dev->vram_mm->vram_size < pci_resource_len(pdev, 0)) {
+> > > > +               ast->dp501_fw_buf = pci_iomap_range(pdev, 0, dev->vram_mm->vram_size, 0);
+> > > >                  if (!ast->dp501_fw_buf)
+> > > >                          drm_info(dev, "failed to map reserved buffer!\n");
+> > > >          }
+> > > > 
+> > > 
+> > > Hi Greg,
+> > > 
+> > >       This backport is incomplete for 5.10 kernel,  kernel is panicked
+> > > on RIP: ast_device_create+0x7d.  When I look into the crash code, I
+> > > found
+> > > 
+> > > struct ast_private *ast_device_create(struct drm_driver *drv,
+> > >                                        struct pci_dev *pdev,
+> > >                                        unsigned long flags)
+> > > {
+> > > .......
+> > >          dev->pdev = pdev;  // This is removed
+> > >          pci_set_drvdata(pdev, dev);
+> > > 
+> > >          ast->regs = pcim_iomap(pdev, 1, 0);
+> > >          if (!ast->regs)
+> > >                  return ERR_PTR(-EIO);
+> > > 
+> > >          /*
+> > >           * If we don't have IO space at all, use MMIO now and
+> > >           * assume the chip has MMIO enabled by default (rev 0x20
+> > >           * and higher).
+> > >           */
+> > >          if (!(pci_resource_flags(dev->pdev, 2) & IORESOURCE_IO)) { //
+> > > dev->pdev is in used here.
+> > >                  drm_info(dev, "platform has no IO space, trying MMIO\n");
+> > >                  ast->ioregs = ast->regs + AST_IO_MM_OFFSET;
+> > >          }
+> > > 
+> > >          That's because commit 46fb883c3d0d8a823ef995ddb1f9b0817dea6882
+> > > is not backported to 5.10 kernel.
+> > 
+> > So what should I do here?  Backport that commit (was was not called
+> > out), or just revert this?
 > 
-> Fix the second insert module causing the device hangs after remove module.
-> 
-> Fixes: 1c099ab44727 ("mt76: mt7921: add MCU support")
-> Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> Link: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=49897c529f85504139a6e54417a65f26a07492d2
-> Signed-off-by: Deren Wu <deren.wu@mediatek.com>
-> Cc: <stable@vger.kernel.org> # 5.12
-> ---
->  drivers/net/wireless/mediatek/mt76/mt7921/init.c   |  2 --
->  drivers/net/wireless/mediatek/mt76/mt7921/mac.c    |  3 +--
->  drivers/net/wireless/mediatek/mt76/mt7921/mcu.c    | 13 +------------
->  drivers/net/wireless/mediatek/mt76/mt7921/mt7921.h |  1 +
->  4 files changed, 3 insertions(+), 16 deletions(-)
+> Best drop all these 'remove pdev' patches from stable. They are no bugfixes.
 
-5.12.y is now end-of-life, sorry.
+Which specific commits were they?
+
+thanks,
 
 greg k-h
