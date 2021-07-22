@@ -2,110 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95F793D2AB6
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:08:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A555A3D2B4D
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbhGVQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:20:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
+        id S229536AbhGVRBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 13:01:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235968AbhGVQUE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 12:20:04 -0400
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0685AC061575
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 10:00:38 -0700 (PDT)
-Received: by mail-oi1-x22f.google.com with SMTP id t143so7284896oie.8
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 10:00:37 -0700 (PDT)
+        with ESMTP id S229456AbhGVRBp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 13:01:45 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA79FC061575;
+        Thu, 22 Jul 2021 10:42:19 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id 59-20020a9d0ac10000b0290462f0ab0800so6027433otq.11;
+        Thu, 22 Jul 2021 10:42:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=VnQgrFKyL09FZWGvfGlkFGfOAsk4lk9cRxNnmKHljlc=;
-        b=qzx2csD+ZONV/WpNcx7ZKj3ZCYB712jM1U7zmNX/eyFMm0ONOb7Zqu7XFRah2ru8Rx
-         YN1ki3WqYr6ppOdU+jmhj9hUrh5S0tz7GS+F5EjmofH3Humhnmsdh8cN0n3sR91LAAQ3
-         bmymODYV7FQHWuGJrKVD+t+qqgKWeSXn1XrlRcLN87VMwpQulwOBh3kNuLpjuOpSKw7Y
-         7bYBC0XoueexAFyPZSg7xJ3o2UPr7E40+6mSzW9M9Rivow5+AnYc/IPU6zz1KzRhmJji
-         P/KWRoWPHb+xH4++ovBYdIASU2r62+l4Ukp32bZcols4T/aUikq5mJ1ukWNEeEuKQBA9
-         R4ng==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0CGpOumMEibr77QWwS4zy7AyFplRAoVkY0iJCco1AbQ=;
+        b=bTxcFfWXYM6eebt68kA0Uho+6Yz61JuKR7fhZ8IxGDseK8vu1H96oJNE3mq6DBAFov
+         13uHVs87HYpm2ILgkyU7JR+KAQjwDcZByzqjCHkf3MP26EiGhWCb9IKoE0pJs0IpIpSU
+         3mmqszdQVYn1lKS11AYzlZWNk+z8pryRSCu+K1ewLj1ei1kfhQtZzZnogYpuUziV5rJ3
+         Gn4/8E97324qU0cY1ETk1qtueGYVZ6+/LR1ANPaIEr/NR+Ef6Vp9DqMRc+/YhszYSkfM
+         O0hmJdyr4zWQ0KRVjYBVNAESyla10F+PnmSlP8MCg/qyhQ1AXzF84/2AG1XGCLpAjD5m
+         +CVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=VnQgrFKyL09FZWGvfGlkFGfOAsk4lk9cRxNnmKHljlc=;
-        b=HWIDPT+iFydw9LA+lVFP0BSNLLbF1EnjD7yRJUdKo7o2hVwINUG8L6X4j2Xv/dI3f4
-         nZuydt8Ktq52y/Afj/iZB/rXS1fmrB0fM8zI8xHqtt8NdToF5gFcJzWpPg9QxFEho0oo
-         VUT+lLoUMfWZW8JMfw2Q8u+LosCXzggEz567TcBOttgzlwCoed3leFzLIEcrZugsMUg2
-         u3mjCCmQtT4v8fcbEOmRVmZTYPLQOH65zJvQUrZ4nryjVl0ly7mJfxvaDWVXFWSngCFX
-         iWK5xPOCH5zgO+WKhw4z/YZAd4lyWRgL9cW2ZKTmRF0g9w9pwA0BHRVZ0ToKky4jJnfs
-         mRFA==
-X-Gm-Message-State: AOAM531TIgfONTymBb5gKpJZhAWHVZBm+1RPRYcJnqjvomIo7YUnL7U4
-        G1u+DsReOf1DrnAVLJrAeHZR6Q==
-X-Google-Smtp-Source: ABdhPJxCmixWOKi0mabBWT2LmHuw7Hr3B/1k5C/ebhNqD+gtPsOiV8bMW0JtgPNMuzfSMoPstxUGqQ==
-X-Received: by 2002:aca:a8cf:: with SMTP id r198mr634517oie.143.1626973237417;
-        Thu, 22 Jul 2021 10:00:37 -0700 (PDT)
-Received: from [192.168.17.50] ([189.219.74.83])
-        by smtp.gmail.com with ESMTPSA id t7sm489781otl.25.2021.07.22.10.00.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 22 Jul 2021 10:00:36 -0700 (PDT)
-Subject: Re: [PATCH 5.10 000/125] 5.10.53-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, aford173@gmail.com
-References: <20210722155624.672583740@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-Message-ID: <beeb7568-388f-38e4-eb1f-28b1557bc191@linaro.org>
-Date:   Thu, 22 Jul 2021 12:00:34 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0CGpOumMEibr77QWwS4zy7AyFplRAoVkY0iJCco1AbQ=;
+        b=jT+J/PsnzgQdxS2JH0Lgm+Zlh40wOsx9XEJUY4X6usOMb9hj0w/PxLwuaNJKHQmzhD
+         vXOBae8pfJHCfUMTcASD3l2eogxnGV1YQuZRMMtMpZ7OIK/iVZi2TbLGhjSWJQmzgE/S
+         +RZOBAeNrf205k3GBshOW3piKqs4vtSCHkiYBidHuIt/nRXyPokkvixj/aDJfCMO3Bft
+         +Kk8HcaJZ7jjl6WEccXOvvubhwKIcL3ZOM858prQ7h2EN3TeuRIozO1Dlaz4nTNoyYTM
+         y3BxZQeBprgFOJYZg0oN92tY0wO63zc3Dae/bVrRaj0UdACr4xPUPoKkFkXhILjN1eBP
+         s6tQ==
+X-Gm-Message-State: AOAM531LFrGKBWllsD3UVuT0pRkY4Qvfh9+pF64OVlwwhBk5MI8wCgFs
+        HBO3FB1iSsWNPNF63P+0LKQXJvKJIFih5yPWe1Q=
+X-Google-Smtp-Source: ABdhPJzkk91dUuIwWjikGhrLpWy2u4nHjEKnOJvDk4Nihpo/+0aGue2ZHLOJytSY2xu/UCB7fYWJ/Z4QodOLNAglm+k=
+X-Received: by 2002:a9d:6d83:: with SMTP id x3mr609456otp.110.1626975738738;
+ Thu, 22 Jul 2021 10:42:18 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <1626968964-17249-1-git-send-email-loic.poulain@linaro.org>
+ <CAHNKnsS1yQq9vbuLaa0XuKQ2PEmsw--tx-Fb8sEpzUmiybzuRA@mail.gmail.com> <CAMZdPi_7-2tXGu0fqE4-Dx7MQpL=9St3JTgfTwov402BXBF5hg@mail.gmail.com>
+In-Reply-To: <CAMZdPi_7-2tXGu0fqE4-Dx7MQpL=9St3JTgfTwov402BXBF5hg@mail.gmail.com>
+From:   Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Date:   Thu, 22 Jul 2021 20:42:07 +0300
+Message-ID: <CAHNKnsTskbtMYvZhSMW4FBE3NwbOyAQ73C6n__6wT7WoV_5HVw@mail.gmail.com>
+Subject: Re: [PATCH] wwan: core: Fix missing RTM_NEWLINK event
+To:     Loic Poulain <loic.poulain@linaro.org>
+Cc:     David Miller <davem@davemloft.net>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        Network Development <netdev@vger.kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
+On Thu, Jul 22, 2021 at 7:44 PM Loic Poulain <loic.poulain@linaro.org> wrote:
+> On Thu, 22 Jul 2021 at 18:14, Sergey Ryazanov <ryazanov.s.a@gmail.com> wrote:
+>> On Thu, Jul 22, 2021 at 6:39 PM Loic Poulain <loic.poulain@linaro.org> wrote:
+>>> By default there is no rtnetlink event generated when registering a
+>>> netdev with rtnl_link_ops until its rtnl_link_state is switched to
+>>> initialized (RTNL_LINK_INITIALIZED). This causes issues with user
+>>> tools like NetworkManager which relies on such event to manage links.
+>>>
+>>> Fix that by setting link to initialized (via rtnl_configure_link).
+>>
+>> Shouldn't the __rtnl_newlink() function call rtnl_configure_link()
+>> just after the newlink() callback invocation? Or I missed something?
+>
+> Ah right, but the first call of rtnl_configure_link() (uninitialized)
+> does not cause RTM_NEWLINK event (cf __dev_notify_flags). It however
+> seems to work for other link types (e,g, rmnet), so probably something
+> to clarify here.
 
-On 7/22/21 11:29 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.53 release.
-> There are 125 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.53-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Just check additional netdev creation with hwsim:
 
-Build regressions detected on Arm64:
+# ip link add wwan0.3 parentdev wwan0 type wwan linkid 3
 
-   make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- 'CC=sccache aarch64-linux-gnu-gcc' 'HOSTCC=sccache gcc' dtbs
-   Error: /builds/linux/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi:298.1-13 Label or path usb2_clksel not found
-   FATAL ERROR: Syntax error parsing input tree
-   make[3]: *** [scripts/Makefile.lib:326: arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dtb] Error 1
-   make[3]: Target '__build' not remade because of errors.
-   make[2]: *** [/builds/linux/scripts/Makefile.build:497: arch/arm64/boot/dts/renesas] Error 2
-   make[2]: Target '__build' not remade because of errors.
-   make[1]: *** [/builds/linux/Makefile:1359: dtbs] Error 2
-   make: *** [Makefile:185: __sub-make] Error 2
-   make: Target 'dtbs' not remade because of errors.
+On the other console:
 
+# ip -d mon
+6: wwan0.3: <POINTOPOINT,NOARP> mtu 1500 qdisc noop state DOWN group default
+    link/none  promiscuity 0 minmtu 68 maxmtu 65535
+    wwan numtxqueues 1 numrxqueues 1 gso_max_size 65536 gso_max_segs 65535
 
-Greetings!
+But I saw no notification at the moment of wwan_hwsim module loading.
+This happens since I missed the rtnl_configure_link() call in the
+wwan_create_default_link() after the default link successful creation
+:(
 
-Daniel Díaz
-daniel.diaz@linaro.org
+So we need your fix at least in the default link creation routine to
+fix ca374290aaad ("wwan: core: support default netdev creation").
+Something like this:
+
+diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
+index 3e16c318e705..374aa2cc884c 100644
+--- a/drivers/net/wwan/wwan_core.c
++++ b/drivers/net/wwan/wwan_core.c
+@@ -984,6 +984,8 @@ static void wwan_create_default_link(struct
+wwan_device *wwandev,
+  goto unlock;
+  }
+
++ rtnl_configure_link(dev, NULL); /* trigger the RTM_NEWLINK event */
++
+ unlock:
+  rtnl_unlock();
+
+--
+Sergey
