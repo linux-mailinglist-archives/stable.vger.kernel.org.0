@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D1C23D2A2D
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B29803D2948
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233418AbhGVQJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
+        id S233869AbhGVQDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:03:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233792AbhGVQHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:07:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E265361CBF;
-        Thu, 22 Jul 2021 16:47:52 +0000 (UTC)
+        id S233490AbhGVQCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:02:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A0861949;
+        Thu, 22 Jul 2021 16:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972473;
-        bh=mp11EiE24wDcNafm9JEypj8lxrQqDu93h6rWFarLp/U=;
+        s=korg; t=1626972160;
+        bh=XuBuvsbKt3ZHT7dCNLzqm+nESIX8YJil9iu7Ncu4/KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tuXMWkackHXWj7WXsv//KkBP3Ew4YFvfRxBDA22u0b7Us6dF22vENNM1qp+VB/NIU
-         v4AWJRm6I+Bl6kpnItRS157ZTm/zNJZPpxStpPm8LqfNBoh9CeE/tyV/rwdod5pnow
-         NY39260bj2EjjIZIiF1EQxW5kb+Dc8sdKUka4v+c=
+        b=Ip8CW0XcQcxl2X2HGCP6OhZPcveyE+XVxrOAwqdSOW3AXe1EZDYWRMv3XktKe92+z
+         2ERNot7VkhiM5ZEsJgt/IY4YOLgzyFoJzzkBbxKmv+kxbThlQUOAj3Y0LYdvkJJL/7
+         bLOngJSiHaaHMRp+X9Ox/Md4ZWOe/S2anICXGlWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 128/156] net: ti: fix UAF in tlan_remove_one
-Date:   Thu, 22 Jul 2021 18:31:43 +0200
-Message-Id: <20210722155632.499896238@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>
+Subject: [PATCH 5.10 113/125] ARM: dts: aspeed: Fix AST2600 machines line names
+Date:   Thu, 22 Jul 2021 18:31:44 +0200
+Message-Id: <20210722155628.468517108@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +38,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
 
-commit 0336f8ffece62f882ab3012820965a786a983f70 upstream.
+commit ca46ad2214473df1a6a9496be17156d65ba89b9f upstream.
 
-priv is netdev private data and it cannot be
-used after free_netdev() call. Using priv after free_netdev()
-can cause UAF bug. Fix it by moving free_netdev() at the end of the
-function.
+Tacoma and Rainier both have a line-names array that is too long:
 
-Fixes: 1e0a8b13d355 ("tlan: cancel work at remove path")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ gpio gpiochip0: gpio-line-names is length 232 but should be at most length 208
+
+This was probably copied from an AST2500 device tree that did have more
+GPIOs on the controller.
+
+Fixes: e9b24b55ca4f ("ARM: dts: aspeed: rainier: Add gpio line names")
+Fixes: 2f68e4e7df67 ("ARM: dts: aspeed: tacoma: Add gpio line names")
+Link: https://lore.kernel.org/r/20210624090742.56640-1-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/tlan.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts |    5 +----
+ arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts  |    5 +----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/ti/tlan.c
-+++ b/drivers/net/ethernet/ti/tlan.c
-@@ -313,9 +313,8 @@ static void tlan_remove_one(struct pci_d
- 	pci_release_regions(pdev);
- #endif
+--- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
+@@ -156,10 +156,7 @@
+ 	/*W0-W7*/	"","","","","","","","",
+ 	/*X0-X7*/	"","","","","","","","",
+ 	/*Y0-Y7*/	"","","","","","","","",
+-	/*Z0-Z7*/	"","","","","","","","",
+-	/*AA0-AA7*/	"","","","","","","","",
+-	/*AB0-AB7*/	"","","","","","","","",
+-	/*AC0-AC7*/	"","","","","","","","";
++	/*Z0-Z7*/	"","","","","","","","";
  
--	free_netdev(dev);
--
- 	cancel_work_sync(&priv->tlan_tqueue);
-+	free_netdev(dev);
- }
+ 	pin_mclr_vpp {
+ 		gpio-hog;
+--- a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
+@@ -127,10 +127,7 @@
+ 	/*W0-W7*/	"","","","","","","","",
+ 	/*X0-X7*/	"","","","","","","","",
+ 	/*Y0-Y7*/	"","","","","","","","",
+-	/*Z0-Z7*/	"","","","","","","","",
+-	/*AA0-AA7*/	"","","","","","","","",
+-	/*AB0-AB7*/	"","","","","","","","",
+-	/*AC0-AC7*/	"","","","","","","","";
++	/*Z0-Z7*/	"","","","","","","","";
+ };
  
- static void tlan_start(struct net_device *dev)
+ &fmc {
 
 
