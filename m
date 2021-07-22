@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8070E3D2906
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 460A83D2908
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbhGVQAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:00:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
+        id S233451AbhGVQAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232997AbhGVQAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:00:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6D760E0C;
-        Thu, 22 Jul 2021 16:40:37 +0000 (UTC)
+        id S233376AbhGVQAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:00:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57F83610CC;
+        Thu, 22 Jul 2021 16:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972038;
-        bh=bxp28ytE6JLkgpD5YkX0/KOLSOb7QxiwSiht3C8xOdc=;
+        s=korg; t=1626972040;
+        bh=XfXf3exzwzQAgYeduepYRS1Ke4hWObA/oZ+ochkmugI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rPBrPcrWOP20vT0LAVx+WaZ7PxCDOqY1o0cZxuUxwS6ObrRvL4kyKjj7am/3YpvrG
-         YWlsIzUoDF9pLiWkQnhaEA3I/SgMG+I49CFjuP1b621blMhKvoxeCci5nk2gAhD2xG
-         5RsXEr3SlH1bWhbONRcUiBQyN7OYegprMYlb3pxQ=
+        b=S9dVqSqOLHC5oQYe93UoQexlU68ftQMfLv/IVJ/tsWk/HHb6o35dzIp2VMn2jZsR8
+         /ucq3hEJifpX+21zKqCG5lEJkIdnOP+EZbbAqpt459G/sTo7D9WfYdD3j2TnVfc5d8
+         sG+lTHoaYPWsz8iMVG3bcAM7WlmpRCBeEPLkxy5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
-        newbyte@disroot.org, Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5.10 124/125] drm/panel: nt35510: Do not fail if DSI read fails
-Date:   Thu, 22 Jul 2021 18:31:55 +0200
-Message-Id: <20210722155628.826965016@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Willem de Bruijn <willemb@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 125/125] udp: annotate data races around unix_sk(sk)->gso_size
+Date:   Thu, 22 Jul 2021 18:31:56 +0200
+Message-Id: <20210722155628.857112484@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -39,42 +41,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1988e0d84161dabd99d1c27033fbd6ee439bf432 upstream.
+commit 18a419bad63b7f68a1979e28459782518e7b6bbe upstream.
 
-Failing to read the MTP over DSI should not bring down the
-system and make us bail out from using the display, it turns
-out that this happens when toggling the display off and on,
-and that write is often still working so the display output
-is just fine. Printing an error is enough.
+Accesses to unix_sk(sk)->gso_size are lockless.
+Add READ_ONCE()/WRITE_ONCE() around them.
 
-Tested by killing the Gnome session repeatedly on the
-Samsung Skomer.
+BUG: KCSAN: data-race in udp_lib_setsockopt / udpv6_sendmsg
 
-Fixes: 899f24ed8d3a ("drm/panel: Add driver for Novatek NT35510-based panels")
-Cc: Stephan Gerhold <stephan@gerhold.net>
-Reported-by: newbyte@disroot.org
-Acked-by: Stefan Hansson <newbyte@disroot.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210603231830.3200040-1-linus.walleij@linaro.org
+write to 0xffff88812d78f47c of 2 bytes by task 10849 on cpu 1:
+ udp_lib_setsockopt+0x3b3/0x710 net/ipv4/udp.c:2696
+ udpv6_setsockopt+0x63/0x90 net/ipv6/udp.c:1630
+ sock_common_setsockopt+0x5d/0x70 net/core/sock.c:3265
+ __sys_setsockopt+0x18f/0x200 net/socket.c:2104
+ __do_sys_setsockopt net/socket.c:2115 [inline]
+ __se_sys_setsockopt net/socket.c:2112 [inline]
+ __x64_sys_setsockopt+0x62/0x70 net/socket.c:2112
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffff88812d78f47c of 2 bytes by task 10852 on cpu 0:
+ udpv6_sendmsg+0x161/0x16b0 net/ipv6/udp.c:1299
+ inet6_sendmsg+0x5f/0x80 net/ipv6/af_inet6.c:642
+ sock_sendmsg_nosec net/socket.c:654 [inline]
+ sock_sendmsg net/socket.c:674 [inline]
+ ____sys_sendmsg+0x360/0x4d0 net/socket.c:2337
+ ___sys_sendmsg net/socket.c:2391 [inline]
+ __sys_sendmmsg+0x315/0x4b0 net/socket.c:2477
+ __do_sys_sendmmsg net/socket.c:2506 [inline]
+ __se_sys_sendmmsg net/socket.c:2503 [inline]
+ __x64_sys_sendmmsg+0x53/0x60 net/socket.c:2503
+ do_syscall_64+0x4a/0x90 arch/x86/entry/common.c:47
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0x0000 -> 0x0005
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 10852 Comm: syz-executor.0 Not tainted 5.13.0-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: bec1f6f69736 ("udp: generate gso with UDP_SEGMENT")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/panel/panel-novatek-nt35510.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/ipv4/udp.c |    6 +++---
+ net/ipv6/udp.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/panel/panel-novatek-nt35510.c
-+++ b/drivers/gpu/drm/panel/panel-novatek-nt35510.c
-@@ -706,9 +706,7 @@ static int nt35510_power_on(struct nt355
- 	if (ret)
- 		return ret;
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1097,7 +1097,7 @@ int udp_sendmsg(struct sock *sk, struct
+ 	}
  
--	ret = nt35510_read_id(nt);
--	if (ret)
--		return ret;
-+	nt35510_read_id(nt);
+ 	ipcm_init_sk(&ipc, inet);
+-	ipc.gso_size = up->gso_size;
++	ipc.gso_size = READ_ONCE(up->gso_size);
  
- 	/* Set up stuff in  manufacturer control, page 1 */
- 	ret = nt35510_send_long(nt, dsi, MCS_CMD_MAUCCTR,
+ 	if (msg->msg_controllen) {
+ 		err = udp_cmsg_send(sk, msg, &ipc.gso_size);
+@@ -2655,7 +2655,7 @@ int udp_lib_setsockopt(struct sock *sk,
+ 	case UDP_SEGMENT:
+ 		if (val < 0 || val > USHRT_MAX)
+ 			return -EINVAL;
+-		up->gso_size = val;
++		WRITE_ONCE(up->gso_size, val);
+ 		break;
+ 
+ 	case UDP_GRO:
+@@ -2750,7 +2750,7 @@ int udp_lib_getsockopt(struct sock *sk,
+ 		break;
+ 
+ 	case UDP_SEGMENT:
+-		val = up->gso_size;
++		val = READ_ONCE(up->gso_size);
+ 		break;
+ 
+ 	case UDP_GRO:
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -1294,7 +1294,7 @@ int udpv6_sendmsg(struct sock *sk, struc
+ 	int (*getfrag)(void *, char *, int, int, int, struct sk_buff *);
+ 
+ 	ipcm6_init(&ipc6);
+-	ipc6.gso_size = up->gso_size;
++	ipc6.gso_size = READ_ONCE(up->gso_size);
+ 	ipc6.sockc.tsflags = sk->sk_tsflags;
+ 	ipc6.sockc.mark = sk->sk_mark;
+ 
 
 
