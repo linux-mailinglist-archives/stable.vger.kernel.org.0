@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 814C93D2995
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4223D29B3
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbhGVQFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39712 "EHLO mail.kernel.org"
+        id S234190AbhGVQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234221AbhGVQE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:04:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0DFF61CD8;
-        Thu, 22 Jul 2021 16:44:53 +0000 (UTC)
+        id S234209AbhGVQE2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:04:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9182561CBF;
+        Thu, 22 Jul 2021 16:44:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972294;
-        bh=PqWs7fVbREsPcJyM0yVYpc7JRLXrbGHa4Ro020FmzzI=;
+        s=korg; t=1626972297;
+        bh=5GbnxnRz/alVXZRk6E3oCgK2dZ1Z3wbNbQf9Z27cDn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B/iJsiyebduWDvyKGEIoBxqnOBGG3CPjpRaddY5VLcYxcpSUpuHu+AjdVqgqPc5YM
-         8CHBNmh5n8up0NLZRFngpcIPAWI3QAH4ySCo6iS3GvBUetED/O9TatkbfA7J/EGA92
-         cwZ2ToaC7B8NWQhJY4rb+c/CiD0axthiVcENh1BA=
+        b=z31BMH1W3il/xeQGm69M1+KHQ7Xf0ElnLK1pLhfe3Y3fyovro3ZKvKsFhGnArPvYh
+         hVzcWFMKmE3ErUSa2xiPNqiCxAd2v0i6m24mhXgki1lOc/cJEczOJsa2ou2k4FoV4F
+         tZwcxga2Nz25LQFexvxZgDc75vLXjK3EuifpRTsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Santosh Puranik <santosh.puranik@in.ibm.com>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 059/156] ARM: dts: aspeed: Everest: Fix cable card PCA chips
-Date:   Thu, 22 Jul 2021 18:30:34 +0200
-Message-Id: <20210722155630.315475405@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.13 060/156] ARM: dts: bcm283x: Fix up MMC node names
+Date:   Thu, 22 Jul 2021 18:30:35 +0200
+Message-Id: <20210722155630.346271461@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,220 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Santosh Puranik <santosh.puranik@in.ibm.com>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-[ Upstream commit 010da3daf9278ed03d38b7dcb0422f1a7df1bdd3 ]
+[ Upstream commit f230c32349eb0a43a012a81c08a7f13859b86cbb ]
 
-Correct two PCA chips which were placed on the wrong I2C bus and
-address.
+Fix the node names for the MMC/SD card controller to conform
+to the standard node name mmc@..
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Signed-off-by: Santosh Puranik <santosh.puranik@in.ibm.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/1622981777-5023-2-git-send-email-stefan.wahren@i2se.com
+Signed-off-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts | 168 +++++++++----------
- 1 file changed, 83 insertions(+), 85 deletions(-)
+ arch/arm/boot/dts/bcm2711.dtsi | 2 +-
+ arch/arm/boot/dts/bcm283x.dtsi | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-index 3295c8c7c05c..27af28c8847d 100644
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-@@ -353,10 +353,47 @@
+diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
+index 720beec54d61..d872064db761 100644
+--- a/arch/arm/boot/dts/bcm2711.dtsi
++++ b/arch/arm/boot/dts/bcm2711.dtsi
+@@ -413,7 +413,7 @@
+ 		ranges = <0x0 0x7e000000  0x0 0xfe000000  0x01800000>;
+ 		dma-ranges = <0x0 0xc0000000  0x0 0x00000000  0x40000000>;
  
- &i2c1 {
- 	status = "okay";
-+};
-+
-+&i2c2 {
-+	status = "okay";
-+};
- 
--	pca2: pca9552@61 {
-+&i2c3 {
-+	status = "okay";
-+
-+	eeprom@54 {
-+		compatible = "atmel,24c128";
-+		reg = <0x54>;
-+	};
-+
-+	power-supply@68 {
-+		compatible = "ibm,cffps";
-+		reg = <0x68>;
-+	};
-+
-+	power-supply@69 {
-+		compatible = "ibm,cffps";
-+		reg = <0x69>;
-+	};
-+
-+	power-supply@6a {
-+		compatible = "ibm,cffps";
-+		reg = <0x6a>;
-+	};
-+
-+	power-supply@6b {
-+		compatible = "ibm,cffps";
-+		reg = <0x6b>;
-+	};
-+};
-+
-+&i2c4 {
-+	status = "okay";
-+
-+	pca2: pca9552@65 {
- 		compatible = "nxp,pca9552";
--		reg = <0x61>;
-+		reg = <0x65>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
-@@ -424,12 +461,54 @@
- 			reg = <9>;
- 			type = <PCA955X_TYPE_GPIO>;
+-		emmc2: emmc2@7e340000 {
++		emmc2: mmc@7e340000 {
+ 			compatible = "brcm,bcm2711-emmc2";
+ 			reg = <0x0 0x7e340000 0x100>;
+ 			interrupts = <GIC_SPI 126 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
+index b83a864e2e8b..0f3be55201a5 100644
+--- a/arch/arm/boot/dts/bcm283x.dtsi
++++ b/arch/arm/boot/dts/bcm283x.dtsi
+@@ -420,7 +420,7 @@
+ 			status = "disabled";
  		};
-+	};
  
-+	i2c-switch@70 {
-+		compatible = "nxp,pca9546";
-+		reg = <0x70>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		status = "okay";
-+		i2c-mux-idle-disconnect;
-+
-+		i2c4mux0chn0: i2c@0 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <0>;
-+			eeprom@52 {
-+				compatible = "atmel,24c64";
-+				reg = <0x52>;
-+			};
-+		};
-+
-+		i2c4mux0chn1: i2c@1 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <1>;
-+			eeprom@50 {
-+				compatible = "atmel,24c64";
-+				reg = <0x50>;
-+			};
-+		};
-+
-+		i2c4mux0chn2: i2c@2 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <2>;
-+			eeprom@51 {
-+				compatible = "atmel,24c64";
-+				reg = <0x51>;
-+			};
-+		};
- 	};
-+};
- 
--	pca3: pca9552@62 {
-+&i2c5 {
-+	status = "okay";
-+
-+	pca3: pca9552@66 {
- 		compatible = "nxp,pca9552";
--		reg = <0x62>;
-+		reg = <0x66>;
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
-@@ -512,87 +591,6 @@
- 
- 	};
- 
--};
--
--&i2c2 {
--	status = "okay";
--};
--
--&i2c3 {
--	status = "okay";
--
--	eeprom@54 {
--		compatible = "atmel,24c128";
--		reg = <0x54>;
--	};
--
--	power-supply@68 {
--		compatible = "ibm,cffps";
--		reg = <0x68>;
--	};
--
--	power-supply@69 {
--		compatible = "ibm,cffps";
--		reg = <0x69>;
--	};
--
--	power-supply@6a {
--		compatible = "ibm,cffps";
--		reg = <0x6a>;
--	};
--
--	power-supply@6b {
--		compatible = "ibm,cffps";
--		reg = <0x6b>;
--	};
--};
--
--&i2c4 {
--	status = "okay";
--
--	i2c-switch@70 {
--		compatible = "nxp,pca9546";
--		reg = <0x70>;
--		#address-cells = <1>;
--		#size-cells = <0>;
--		status = "okay";
--		i2c-mux-idle-disconnect;
--
--		i2c4mux0chn0: i2c@0 {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			reg = <0>;
--			eeprom@52 {
--				compatible = "atmel,24c64";
--				reg = <0x52>;
--			};
--		};
--
--		i2c4mux0chn1: i2c@1 {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			reg = <1>;
--			eeprom@50 {
--				compatible = "atmel,24c64";
--				reg = <0x50>;
--			};
--		};
--
--		i2c4mux0chn2: i2c@2 {
--			#address-cells = <1>;
--			#size-cells = <0>;
--			reg = <2>;
--			eeprom@51 {
--				compatible = "atmel,24c64";
--				reg = <0x51>;
--			};
--		};
--	};
--};
--
--&i2c5 {
--	status = "okay";
--
- 	i2c-switch@70 {
- 		compatible = "nxp,pca9546";
- 		reg = <0x70>;
+-		sdhci: sdhci@7e300000 {
++		sdhci: mmc@7e300000 {
+ 			compatible = "brcm,bcm2835-sdhci";
+ 			reg = <0x7e300000 0x100>;
+ 			interrupts = <2 30>;
 -- 
 2.30.2
 
