@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A10E3D2A57
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C0B43D28E8
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234311AbhGVQK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        id S233239AbhGVP77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:59:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233567AbhGVQIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:08:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10AE561DBB;
-        Thu, 22 Jul 2021 16:48:27 +0000 (UTC)
+        id S233396AbhGVP6x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:58:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1EE1610CC;
+        Thu, 22 Jul 2021 16:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972508;
-        bh=9JxbWpZnpb1n82uEG5CJzta3GX1lqw+YDx9gr2/Qvqk=;
+        s=korg; t=1626971968;
+        bh=bvQNfpQ830/h9p5eEFxitxbkDTvpV3Q2eq0TWFknLf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0Oux6e3IprC5wmKVTew80EFYoHSKQWiBKyybPrcASrAEdpMVENAspOWqq7hDboUr
-         7B0NhVLUhjqDVLW0q+HuDAmDahJ6Tk7N7zPv/ultiHbhOnA4YJLxObtFmiDBgKMvvD
-         XS6h8/YYCe1pRafv5IMw/yEBIjXFJtXiux5yJj+Y=
+        b=RqA33SLyDmyyZ9KSeOxFP+MLJkl9m75cTN+3jrzk2r6UMTlFYwYie3W84AgXaIMik
+         ydThzr7JTqqvGBmaTwJ+joP3xNN4lEYR9riGvk9x/GRl0QtCxgBohbXuoBwLIz3zA6
+         fNjjf4k2UUvtdMXPdyUYMXVlK+Vtn8/HW3Q6fIYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, wenxu <wenxu@ucloud.cn>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 112/156] net: dsa: mv88e6xxx: enable devlink ATU hash param for Topaz
+Subject: [PATCH 5.10 096/125] net/sched: act_ct: fix err check for nf_conntrack_confirm
 Date:   Thu, 22 Jul 2021 18:31:27 +0200
-Message-Id: <20210722155631.996636458@linuxfoundation.org>
+Message-Id: <20210722155627.880666502@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: wenxu <wenxu@ucloud.cn>
 
-commit c07fff3492acae41cedbabea395b644dd5872b8c upstream.
+commit 8955b90c3cdad199137809aac8ccbbb585355913 upstream.
 
-Commit 23e8b470c7788 ("net: dsa: mv88e6xxx: Add devlink param for ATU
-hash algorithm.") introduced ATU hash algorithm access via devlink, but
-did not enable it for Topaz.
+The confirm operation should be checked. If there are any failed,
+the packet should be dropped like in ovs and netfilter.
 
-Enable this feature also for Topaz.
-
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Fixes: 23e8b470c7788 ("net: dsa: mv88e6xxx: Add devlink param for ATU hash algorithm.")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
+Signed-off-by: wenxu <wenxu@ucloud.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/mv88e6xxx/chip.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/sched/act_ct.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -3608,6 +3608,8 @@ static const struct mv88e6xxx_ops mv88e6
- 	.pot_clear = mv88e6xxx_g2_pot_clear,
- 	.reset = mv88e6352_g1_reset,
- 	.rmu_disable = mv88e6390_g1_rmu_disable,
-+	.atu_get_hash = mv88e6165_g1_atu_get_hash,
-+	.atu_set_hash = mv88e6165_g1_atu_set_hash,
- 	.vtu_getnext = mv88e6352_g1_vtu_getnext,
- 	.vtu_loadpurge = mv88e6352_g1_vtu_loadpurge,
- 	.serdes_power = mv88e6390_serdes_power,
-@@ -4410,6 +4412,8 @@ static const struct mv88e6xxx_ops mv88e6
- 	.pot_clear = mv88e6xxx_g2_pot_clear,
- 	.reset = mv88e6352_g1_reset,
- 	.rmu_disable = mv88e6390_g1_rmu_disable,
-+	.atu_get_hash = mv88e6165_g1_atu_get_hash,
-+	.atu_set_hash = mv88e6165_g1_atu_set_hash,
- 	.vtu_getnext = mv88e6352_g1_vtu_getnext,
- 	.vtu_loadpurge = mv88e6352_g1_vtu_loadpurge,
- 	.serdes_power = mv88e6390_serdes_power,
+--- a/net/sched/act_ct.c
++++ b/net/sched/act_ct.c
+@@ -1023,7 +1023,8 @@ do_nat:
+ 		/* This will take care of sending queued events
+ 		 * even if the connection is already confirmed.
+ 		 */
+-		nf_conntrack_confirm(skb);
++		if (nf_conntrack_confirm(skb) != NF_ACCEPT)
++			goto drop;
+ 	}
+ 
+ 	if (!skip_add)
 
 
