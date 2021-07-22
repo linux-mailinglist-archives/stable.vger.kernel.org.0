@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B989C3D267B
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:21:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 638BF3D269D
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232397AbhGVOdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 10:33:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60158 "EHLO mail.kernel.org"
+        id S232586AbhGVOni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 10:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232317AbhGVOdD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 10:33:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A767461029;
-        Thu, 22 Jul 2021 15:13:35 +0000 (UTC)
+        id S232593AbhGVOnh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 10:43:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCEFA6128D;
+        Thu, 22 Jul 2021 15:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626966816;
-        bh=IJWpl5dKR+FWISYbcw+AYModhD4ziKPsZqNZo0zqJC0=;
+        s=korg; t=1626967452;
+        bh=g71XIQZNB+qbsdXqa4hHiwrF+31KjHSU7Yhjs9FRCKw=;
         h=Subject:To:Cc:From:Date:From;
-        b=lJJTXMEhBTHG3KjAYYrB4g/VvyOMRtuto/l43M348gdv87a1OGxNtjED421pkgVy2
-         LsDPBPpRMA2gKwc3hULJM5P47sg0Cgwtq3VcAp3Cv6XEtj81BjTycXCQp8PVI+HrLS
-         GR6o0JXxVQ9XXArl4u7nMjOmUWOOGhjGEg1iZVSU=
-Subject: FAILED: patch "[PATCH] net: bridge: sync fdb to new unicast-filtering ports" failed to apply to 4.4-stable tree
-To:     w.bumiller@proxmox.com, davem@davemloft.net, nikolay@nvidia.com
+        b=H5a3wJKemIkC1hVs3EAlbBnHVdxOvHqaKYD8SQ8S56IdrI31Ln9nd/L0Z4qHBSTz5
+         w+wcO2XG+Pn+moMSh+bfdDSO+w+WE8xHOOJn22S19eScwf3NOOy+vN4KYyG84Ak4I6
+         6L1NhWbsxU5CPVeRwLjvPm3VBWkt133AzLSfq3Ts=
+Subject: FAILED: patch "[PATCH] net: dsa: sja1105: fix address learning getting disabled on" failed to apply to 5.13-stable tree
+To:     vladimir.oltean@nxp.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Jul 2021 17:13:33 +0200
-Message-ID: <1626966813254147@kroah.com>
+Date:   Thu, 22 Jul 2021 17:24:09 +0200
+Message-ID: <162696744934157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.13-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -45,71 +45,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a019abd8022061b917da767cd1a66ed823724eab Mon Sep 17 00:00:00 2001
-From: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Date: Fri, 2 Jul 2021 14:07:36 +0200
-Subject: [PATCH] net: bridge: sync fdb to new unicast-filtering ports
+From b0b33b048dcfbd7da82c3cde4fab02751dfab4d6 Mon Sep 17 00:00:00 2001
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
+Date: Tue, 13 Jul 2021 12:37:19 +0300
+Subject: [PATCH] net: dsa: sja1105: fix address learning getting disabled on
+ the CPU port
 
-Since commit 2796d0c648c9 ("bridge: Automatically manage
-port promiscuous mode.")
-bridges with `vlan_filtering 1` and only 1 auto-port don't
-set IFF_PROMISC for unicast-filtering-capable ports.
+In May 2019 when commit 640f763f98c2 ("net: dsa: sja1105: Add support
+for Spanning Tree Protocol") was introduced, the comment that "STP does
+not get called for the CPU port" was true. This changed after commit
+0394a63acfe2 ("net: dsa: enable and disable all ports") in August 2019
+and went largely unnoticed, because the sja1105_bridge_stp_state_set()
+method did nothing different compared to the static setup done by
+sja1105_init_mac_settings().
 
-Normally on port changes `br_manage_promisc` is called to
-update the promisc flags and unicast filters if necessary,
-but it cannot distinguish between *new* ports and ones
-losing their promisc flag, and new ports end up not
-receiving the MAC address list.
+With the ability to turn address learning off introduced by the blamed
+commit, there is a new priv->learn_ena port mask in the driver. When
+sja1105_bridge_stp_state_set() gets called and we are in
+BR_STATE_LEARNING or later, address learning is enabled or not depending
+on priv->learn_ena & BIT(port).
 
-Fix this by calling `br_fdb_sync_static` in `br_add_if`
-after the port promisc flags are updated and the unicast
-filter was supposed to have been filled.
+So what happens is that priv->learn_ena is not being set from anywhere
+for the CPU port, and the static configuration done by
+sja1105_init_mac_settings() is being overwritten.
 
-Fixes: 2796d0c648c9 ("bridge: Automatically manage port promiscuous mode.")
-Signed-off-by: Wolfgang Bumiller <w.bumiller@proxmox.com>
-Acked-by: Nikolay Aleksandrov <nikolay@nvidia.com>
+To solve this, acknowledge that the static configuration of STP state is
+no longer necessary because the STP state is being set by the DSA core
+now, but what is necessary is to set priv->learn_ena for the CPU port.
+
+Fixes: 4d9423549501 ("net: dsa: sja1105: offload bridge port flags to device")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
-diff --git a/net/bridge/br_if.c b/net/bridge/br_if.c
-index f7d2f472ae24..6e4a32354a13 100644
---- a/net/bridge/br_if.c
-+++ b/net/bridge/br_if.c
-@@ -562,7 +562,7 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	struct net_bridge_port *p;
- 	int err = 0;
- 	unsigned br_hr, dev_hr;
--	bool changed_addr;
-+	bool changed_addr, fdb_synced = false;
+diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
+index 4f0545605f6b..ced8c9cb29c2 100644
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -122,14 +122,12 @@ static int sja1105_init_mac_settings(struct sja1105_private *priv)
  
- 	/* Don't allow bridging non-ethernet like devices. */
- 	if ((dev->flags & IFF_LOOPBACK) ||
-@@ -652,6 +652,19 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
- 	list_add_rcu(&p->list, &br->port_list);
- 
- 	nbp_update_port_count(br);
-+	if (!br_promisc_port(p) && (p->dev->priv_flags & IFF_UNICAST_FLT)) {
-+		/* When updating the port count we also update all ports'
-+		 * promiscuous mode.
-+		 * A port leaving promiscuous mode normally gets the bridge's
-+		 * fdb synced to the unicast filter (if supported), however,
-+		 * `br_port_clear_promisc` does not distinguish between
-+		 * non-promiscuous ports and *new* ports, so we need to
-+		 * sync explicitly here.
+ 	for (i = 0; i < ds->num_ports; i++) {
+ 		mac[i] = default_mac;
+-		if (i == dsa_upstream_port(priv->ds, i)) {
+-			/* STP doesn't get called for CPU port, so we need to
+-			 * set the I/O parameters statically.
+-			 */
+-			mac[i].dyn_learn = true;
+-			mac[i].ingress = true;
+-			mac[i].egress = true;
+-		}
++
++		/* Let sja1105_bridge_stp_state_set() keep address learning
++		 * enabled for the CPU port.
 +		 */
-+		fdb_synced = br_fdb_sync_static(br, p) == 0;
-+		if (!fdb_synced)
-+			netdev_err(dev, "failed to sync bridge static fdb addresses to this port\n");
-+	}
++		if (dsa_is_cpu_port(ds, i))
++			priv->learn_ena |= BIT(i);
+ 	}
  
- 	netdev_update_features(br->dev);
- 
-@@ -701,6 +714,8 @@ int br_add_if(struct net_bridge *br, struct net_device *dev,
  	return 0;
- 
- err7:
-+	if (fdb_synced)
-+		br_fdb_unsync_static(br, p);
- 	list_del_rcu(&p->list);
- 	br_fdb_delete_by_port(br, p, 0, 1);
- 	nbp_update_port_count(br);
 
