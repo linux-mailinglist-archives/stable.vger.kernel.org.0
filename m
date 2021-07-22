@@ -2,78 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF3793D2310
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 14:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E22B3D2365
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 14:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbhGVLV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 07:21:56 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:42586 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231773AbhGVLVv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 07:21:51 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1m6XPB-000aZN-Gy; Thu, 22 Jul 2021 12:02:21 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 22 Jul 2021 12:01:55 +0000
-Subject: [git:media_stage/master] media: stkwebcam: fix memory leak in stk_camera_probe
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Pavel Skripkin <paskripkin@gmail.com>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1m6XPB-000aZN-Gy@www.linuxtv.org>
+        id S231772AbhGVL4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 07:56:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47922 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231738AbhGVL4I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 07:56:08 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68505C061575;
+        Thu, 22 Jul 2021 05:36:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=NG4N/2H3vvAjRHdDWUczi40Y7/Fx7mV5GVuGOtkatQQ=; b=R0sVlJzxfmtaJ6WvW3j1P24Mck
+        t79mECEBGb+nkFlOvxz64p03TMuphOOxmn0+I8v1F1lRm+D/cvj3h/TA3u6WQWtpycj+xWBmNl9nf
+        s/ENwBtucNIFCdCkD2oLdVmzoypMgwjaur21zn9S/SI92T1qohIzy4OGR5WamZAF6p0SJAD3loC2N
+        99fCSQrJSH9Z8qV5tGB8/5FMZVFCVDRPmHwX1qge2T6Wv4i6xUoorsF2F804YyXkwklybkJJitkgl
+        NCQ6mxnpuTyUyw8tC8v/33aSpL3cX2VNztqLZNefTLOLH674JYKxAr5PoNIuoh0tn8hiohSCet+1h
+        RrZEAfCg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1m6Xvm-00AFjQ-FL; Thu, 22 Jul 2021 12:36:09 +0000
+Date:   Thu, 22 Jul 2021 13:36:02 +0100
+From:   Matthew Wilcox <willy@infradead.org>
+To:     Zhouyi Zhou <zhouzhouyi@gmail.com>
+Cc:     Chris Clayton <chris2553@googlemail.com>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Boqun Feng <boqun.feng@gmail.com>, paulmck@kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org, Chris Rankin <rankincj@gmail.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Lai Jiangshan <jiangshanlai@gmail.com>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        rcu <rcu@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux-MM <linux-mm@kvack.org>,
+        "Huang, Ying" <ying.huang@intel.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: linux-5.13.2: warning from kernel/rcu/tree_plugin.h:359
+Message-ID: <YPlmMnZKgkcLderp@casper.infradead.org>
+References: <c9fd1311-662c-f993-c8ef-54af036f2f78@googlemail.com>
+ <5812280.fcLxn8YiTP@natalenko.name>
+ <YPVtBBumSTMKGuld@casper.infradead.org>
+ <2237123.PRLUojbHBq@natalenko.name>
+ <CAABZP2w4VKRPjNz+TW1_n=NhGw=CBNccMp-WGVRy32XxAVobRg@mail.gmail.com>
+ <CAABZP2yh3J8+P=3PLZVaC47ymKC7PcfQCBBxjXJ9Ybn+HREbdg@mail.gmail.com>
+ <fb8b8639-bf2d-161e-dc9a-6a63bf9db46e@googlemail.com>
+ <CAABZP2xST9787xNujWeKODEW79KpjL7vHtqYjjGxOwoqXSWXDQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAABZP2xST9787xNujWeKODEW79KpjL7vHtqYjjGxOwoqXSWXDQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Thu, Jul 22, 2021 at 04:57:57PM +0800, Zhouyi Zhou wrote:
+> Thanks for reviewing,
+> 
+> What I have deduced from the dmesg  is:
+> In function do_swap_page,
+> after invoking
+> 3385        si = get_swap_device(entry); /* rcu_read_lock */
+> and before
+> 3561    out:
+> 3562        if (si)
+> 3563            put_swap_device(si);
+> The thread got scheduled out in
+> 3454        locked = lock_page_or_retry(page, vma->vm_mm, vmf->flags);
+> 
+> I am only familiar with Linux RCU subsystem, hope mm people can solve our
+> confusions.
 
-Subject: media: stkwebcam: fix memory leak in stk_camera_probe
-Author:  Pavel Skripkin <paskripkin@gmail.com>
-Date:    Wed Jul 7 19:54:30 2021 +0200
-
-My local syzbot instance hit memory leak in usb_set_configuration().
-The problem was in unputted usb interface. In case of errors after
-usb_get_intf() the reference should be putted to correclty free memory
-allocated for this interface.
-
-Fixes: ec16dae5453e ("V4L/DVB (7019): V4L: add support for Syntek DC1125 webcams")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/usb/stkwebcam/stk-webcam.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
----
-
-diff --git a/drivers/media/usb/stkwebcam/stk-webcam.c b/drivers/media/usb/stkwebcam/stk-webcam.c
-index a45d464427c4..0e231e576dc3 100644
---- a/drivers/media/usb/stkwebcam/stk-webcam.c
-+++ b/drivers/media/usb/stkwebcam/stk-webcam.c
-@@ -1346,7 +1346,7 @@ static int stk_camera_probe(struct usb_interface *interface,
- 	if (!dev->isoc_ep) {
- 		pr_err("Could not find isoc-in endpoint\n");
- 		err = -ENODEV;
--		goto error;
-+		goto error_put;
- 	}
- 	dev->vsettings.palette = V4L2_PIX_FMT_RGB565;
- 	dev->vsettings.mode = MODE_VGA;
-@@ -1359,10 +1359,12 @@ static int stk_camera_probe(struct usb_interface *interface,
- 
- 	err = stk_register_video_device(dev);
- 	if (err)
--		goto error;
-+		goto error_put;
- 
- 	return 0;
- 
-+error_put:
-+	usb_put_intf(interface);
- error:
- 	v4l2_ctrl_handler_free(hdl);
- 	v4l2_device_unregister(&dev->v4l2_dev);
+I don't understamd why you're still talking.  The problem is understood.
+You need to revert the unnecessary backport of 2799e77529c2 and
+2efa33fc7f6e
