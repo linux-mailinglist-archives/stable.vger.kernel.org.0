@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A24853D2835
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A67063D2853
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230382AbhGVPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59400 "EHLO mail.kernel.org"
+        id S230034AbhGVP4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230106AbhGVPzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:55:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DBB7860FDA;
-        Thu, 22 Jul 2021 16:36:19 +0000 (UTC)
+        id S230515AbhGVPzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:55:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A20896135B;
+        Thu, 22 Jul 2021 16:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971780;
-        bh=ClfQnMqqCvd/vla5GPdH8WFXKrvgkfmnCsXiKZgQpSg=;
+        s=korg; t=1626971783;
+        bh=TlRLwSPELQrGnxHrB4rRpXTyjtxLfNZRJ9jaw54dmIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=COEZbzZQ8FvsvoE+zciF6ETiXh9OCqwQl+oCZjLY2zc0eoY55y4x7tWNtX7WZ9/i7
-         5iaxjBHPLpc/YBg7/ibPHVPvHhGpY1XqW+VYaCHXFzbx9lexqZJi83ktr0FT1zBlW/
-         yb2U0JPI5Bhhg2TQ1EDJ+K3mJvDwuY4f/K7+4mgw=
+        b=vWzMrHsQU5aDFUtE/WkV5dUqyt8Z69FOq1zDDM5p/fWuQc4zyq5lVB43CqD0t6ic+
+         /s7OyaO34AzzOSx/NDkbBpLu3vyh52DCxARQiuonWaXwNtBgRc7/2Yw/1BfCAX9+gB
+         o2dmoTDsdZct75z6Re94g3QMyx4KCH7dF/dquTrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sebastian Reichel <sebastian.reichel@collabora.com>,
         Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 023/125] ARM: dts: ux500: Fix interrupt cells
-Date:   Thu, 22 Jul 2021 18:30:14 +0200
-Message-Id: <20210722155625.460741624@linuxfoundation.org>
+Subject: [PATCH 5.10 024/125] ARM: dts: ux500: Rename gpio-controller node
+Date:   Thu, 22 Jul 2021 18:30:15 +0200
+Message-Id: <20210722155625.502098714@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -43,122 +43,88 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-[ Upstream commit e4ff0112a03c2e353c8457cd33c88feb89dfec41 ]
+[ Upstream commit 4917b702818872fdf2a9973705af3aa7d3d1f19e ]
 
-Fix interrupt cells in DT AB8500/AB8505 source files. The
-compiled DTB files will stay the same.
+Rename the AB8500 gpio controller node from ab8500-gpio to
+ab8500-gpiocontroller, since -gpio is a common suffix for
+gpio consumers.
 
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-ab8500.dtsi | 26 +++++++++++++-------------
- arch/arm/boot/dts/ste-ab8505.dtsi | 22 +++++++++++-----------
- 2 files changed, 24 insertions(+), 24 deletions(-)
+ arch/arm/boot/dts/ste-ab8500.dtsi      | 2 +-
+ arch/arm/boot/dts/ste-ab8505.dtsi      | 2 +-
+ arch/arm/boot/dts/ste-href-ab8500.dtsi | 2 +-
+ arch/arm/boot/dts/ste-href.dtsi        | 2 +-
+ arch/arm/boot/dts/ste-snowball.dts     | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/boot/dts/ste-ab8500.dtsi b/arch/arm/boot/dts/ste-ab8500.dtsi
-index aab5719cc1a9..5fde474ade22 100644
+index 5fde474ade22..16d50369226a 100644
 --- a/arch/arm/boot/dts/ste-ab8500.dtsi
 +++ b/arch/arm/boot/dts/ste-ab8500.dtsi
-@@ -42,15 +42,15 @@
- 
- 				ab8500-rtc {
- 					compatible = "stericsson,ab8500-rtc";
--					interrupts = <17 IRQ_TYPE_LEVEL_HIGH
--						      18 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <17 IRQ_TYPE_LEVEL_HIGH>,
-+						     <18 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "60S", "ALARM";
+@@ -34,7 +34,7 @@
+ 					#clock-cells = <1>;
  				};
  
- 				gpadc: ab8500-gpadc {
- 					compatible = "stericsson,ab8500-gpadc";
--					interrupts = <32 IRQ_TYPE_LEVEL_HIGH
--						      39 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <32 IRQ_TYPE_LEVEL_HIGH>,
-+						     <39 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "HW_CONV_END", "SW_CONV_END";
- 					vddadc-supply = <&ab8500_ldo_tvout_reg>;
- 					#address-cells = <1>;
-@@ -169,13 +169,13 @@
- 
- 				ab8500_usb {
- 					compatible = "stericsson,ab8500-usb";
--					interrupts = < 90 IRQ_TYPE_LEVEL_HIGH
--						       96 IRQ_TYPE_LEVEL_HIGH
--						       14 IRQ_TYPE_LEVEL_HIGH
--						       15 IRQ_TYPE_LEVEL_HIGH
--						       79 IRQ_TYPE_LEVEL_HIGH
--						       74 IRQ_TYPE_LEVEL_HIGH
--						       75 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <90 IRQ_TYPE_LEVEL_HIGH>,
-+						     <96 IRQ_TYPE_LEVEL_HIGH>,
-+						     <14 IRQ_TYPE_LEVEL_HIGH>,
-+						     <15 IRQ_TYPE_LEVEL_HIGH>,
-+						     <79 IRQ_TYPE_LEVEL_HIGH>,
-+						     <74 IRQ_TYPE_LEVEL_HIGH>,
-+						     <75 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "ID_WAKEUP_R",
- 							  "ID_WAKEUP_F",
- 							  "VBUS_DET_F",
-@@ -192,8 +192,8 @@
- 
- 				ab8500-ponkey {
- 					compatible = "stericsson,ab8500-poweron-key";
--					interrupts = <6 IRQ_TYPE_LEVEL_HIGH
--						      7 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <6 IRQ_TYPE_LEVEL_HIGH>,
-+						     <7 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "ONKEY_DBF", "ONKEY_DBR";
- 				};
- 
+-				ab8500_gpio: ab8500-gpio {
++				ab8500_gpio: ab8500-gpiocontroller {
+ 					compatible = "stericsson,ab8500-gpio";
+ 					gpio-controller;
+ 					#gpio-cells = <2>;
 diff --git a/arch/arm/boot/dts/ste-ab8505.dtsi b/arch/arm/boot/dts/ste-ab8505.dtsi
-index 67bc69e67b33..dbaedda2824d 100644
+index dbaedda2824d..8d2cda0b4d62 100644
 --- a/arch/arm/boot/dts/ste-ab8505.dtsi
 +++ b/arch/arm/boot/dts/ste-ab8505.dtsi
-@@ -38,8 +38,8 @@
- 
- 				ab8500-rtc {
- 					compatible = "stericsson,ab8500-rtc";
--					interrupts = <17 IRQ_TYPE_LEVEL_HIGH
--						      18 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <17 IRQ_TYPE_LEVEL_HIGH>,
-+						     <18 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "60S", "ALARM";
+@@ -30,7 +30,7 @@
+ 					#clock-cells = <1>;
  				};
  
-@@ -131,13 +131,13 @@
+-				ab8505_gpio: ab8505-gpio {
++				ab8505_gpio: ab8505-gpiocontroller {
+ 					compatible = "stericsson,ab8505-gpio";
+ 					gpio-controller;
+ 					#gpio-cells = <2>;
+diff --git a/arch/arm/boot/dts/ste-href-ab8500.dtsi b/arch/arm/boot/dts/ste-href-ab8500.dtsi
+index 4946743de7b9..3ccb7b5c7162 100644
+--- a/arch/arm/boot/dts/ste-href-ab8500.dtsi
++++ b/arch/arm/boot/dts/ste-href-ab8500.dtsi
+@@ -9,7 +9,7 @@
+ 	soc {
+ 		prcmu@80157000 {
+ 			ab8500 {
+-				ab8500-gpio {
++				ab8500-gpiocontroller {
+ 					/* Hog a few default settings */
+ 					pinctrl-names = "default";
+ 					pinctrl-0 = <&gpio2_default_mode>,
+diff --git a/arch/arm/boot/dts/ste-href.dtsi b/arch/arm/boot/dts/ste-href.dtsi
+index 359c1219b0ba..3586b5d7876a 100644
+--- a/arch/arm/boot/dts/ste-href.dtsi
++++ b/arch/arm/boot/dts/ste-href.dtsi
+@@ -224,7 +224,7 @@
  
- 				ab8500_usb: ab8500_usb {
- 					compatible = "stericsson,ab8500-usb";
--					interrupts = < 90 IRQ_TYPE_LEVEL_HIGH
--						       96 IRQ_TYPE_LEVEL_HIGH
--						       14 IRQ_TYPE_LEVEL_HIGH
--						       15 IRQ_TYPE_LEVEL_HIGH
--						       79 IRQ_TYPE_LEVEL_HIGH
--						       74 IRQ_TYPE_LEVEL_HIGH
--						       75 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <90 IRQ_TYPE_LEVEL_HIGH>,
-+						     <96 IRQ_TYPE_LEVEL_HIGH>,
-+						     <14 IRQ_TYPE_LEVEL_HIGH>,
-+						     <15 IRQ_TYPE_LEVEL_HIGH>,
-+						     <79 IRQ_TYPE_LEVEL_HIGH>,
-+						     <74 IRQ_TYPE_LEVEL_HIGH>,
-+						     <75 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "ID_WAKEUP_R",
- 							  "ID_WAKEUP_F",
- 							  "VBUS_DET_F",
-@@ -154,8 +154,8 @@
- 
- 				ab8500-ponkey {
- 					compatible = "stericsson,ab8500-poweron-key";
--					interrupts = <6 IRQ_TYPE_LEVEL_HIGH
--						      7 IRQ_TYPE_LEVEL_HIGH>;
-+					interrupts = <6 IRQ_TYPE_LEVEL_HIGH>,
-+						     <7 IRQ_TYPE_LEVEL_HIGH>;
- 					interrupt-names = "ONKEY_DBF", "ONKEY_DBR";
+ 		prcmu@80157000 {
+ 			ab8500 {
+-				ab8500-gpio {
++				ab8500-gpiocontroller {
  				};
  
+ 				ab8500_usb {
+diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
+index 27d8a07718a0..f6e0d71f6c09 100644
+--- a/arch/arm/boot/dts/ste-snowball.dts
++++ b/arch/arm/boot/dts/ste-snowball.dts
+@@ -376,7 +376,7 @@
+ 
+ 		prcmu@80157000 {
+ 			ab8500 {
+-				ab8500-gpio {
++				ab8500-gpiocontroller {
+ 					/*
+ 					 * AB8500 GPIOs are numbered starting from 1, so the first
+ 					 * index 0 is what in the datasheet is called "GPIO1", and
 -- 
 2.30.2
 
