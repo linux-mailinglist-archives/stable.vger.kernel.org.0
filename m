@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B11933D28B4
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE7A53D28B7
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbhGVP6P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:58:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34626 "EHLO mail.kernel.org"
+        id S233071AbhGVP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:58:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233029AbhGVP5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:57:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 721766135B;
-        Thu, 22 Jul 2021 16:38:25 +0000 (UTC)
+        id S232960AbhGVP5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:57:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF14261378;
+        Thu, 22 Jul 2021 16:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971905;
-        bh=E+iOY2yzXNa/d+8Y+LyMMqT6lx3jzGNbC2lLNqo6/cM=;
+        s=korg; t=1626971908;
+        bh=3nQWxeAB87beCZKNA4PKkDHoR1yS12Zk9pLhwBjaa5I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6TSp7r3aVa3taFZsQGN3hrSBmv4bHhvGuRDdYraPYr+pfSr51QkglWIhLDlH4npq
-         Huz98/Ne19dy25qk1Bs222X7vyGAFIa9KfDagV6HBGftzDlytY4jsGZDGzBM58NpnW
-         oWmd3KmYpQe2zLy3NPhNIk8hbeGB9RqnQUpMYFsk=
+        b=yJc7qnjALebZSabnKboaVM299aCFIrDQeZiAolNde/WbdJYkRvFqoUB7XiqPJp6gT
+         b7et3HpoC6lchfH61C7uors6X7wAd3njILV7SlsR2bkb3qtQdbYLjat69PFeStAhkY
+         L0JRV4nwaW/aLO7p0amahD0WiEfXpA5ZjGGJfe8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/125] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
-Date:   Thu, 22 Jul 2021 18:31:01 +0200
-Message-Id: <20210722155627.013595559@linuxfoundation.org>
+Subject: [PATCH 5.10 071/125] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+Date:   Thu, 22 Jul 2021 18:31:02 +0200
+Message-Id: <20210722155627.044005265@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
 References: <20210722155624.672583740@linuxfoundation.org>
@@ -40,47 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 742b0d7e15c333303daad4856de0764f4bc83601 ]
+[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
 
-Interrupt line can be configured on different hardware in different way,
-even inverted.  Therefore driver should not enforce specific trigger
-type - edge falling - but instead rely on Devicetree to configure it.
+The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
+to the left will be promoted to a 32 bit signed int and then sign-extended
+to a u64. In the event that the top bit of the u8 is set then all then all
+the upper 32 bits of the u64 end up as also being set because of the
+sign-extension. Fix this by casting the u8 values to a u64 before the 24
+bit left shift.
 
-The Maxim 77686 datasheet describes the interrupt line as active low
-with a requirement of acknowledge from the CPU therefore the edge
-falling is not correct.
+[ This dates back to 2002, I found the offending commit from the git
+history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
+commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
 
-The interrupt line is shared between PMIC and RTC driver, so using level
-sensitive interrupt is here especially important to avoid races.  With
-an edge configuration in case if first PMIC signals interrupt followed
-shortly after by the RTC, the interrupt might not be yet cleared/acked
-thus the second one would not be noticed.
-
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210526172036.183223-6-krzysztof.kozlowski@canonical.com
+Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Addresses-Coverity: ("Unintended sign extension")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-max77686.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
-index d51cc12114cb..eae7cb9faf1e 100644
---- a/drivers/rtc/rtc-max77686.c
-+++ b/drivers/rtc/rtc-max77686.c
-@@ -717,8 +717,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
- 
- add_rtc_irq:
- 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
--				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
--				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
-+				  IRQF_ONESHOT | IRQF_SHARED,
-+				  0, info->drv_data->rtc_irq_chip,
- 				  &info->rtc_irq_data);
- 	if (ret < 0) {
- 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
+index 725bb7f58054..12fed15dec66 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_core.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
+@@ -493,7 +493,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
+ 	return ((ahc_inb(ahc, port))
+ 	      | (ahc_inb(ahc, port+1) << 8)
+ 	      | (ahc_inb(ahc, port+2) << 16)
+-	      | (ahc_inb(ahc, port+3) << 24)
++	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
+ 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
+ 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
+ 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
 -- 
 2.30.2
 
