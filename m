@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4534A3D2801
+	by mail.lfdr.de (Postfix) with ESMTP id 8FBDE3D2802
 	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbhGVPyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232052AbhGVPyS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Jul 2021 11:54:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57858 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229739AbhGVPyL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:54:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76CE660FDA;
-        Thu, 22 Jul 2021 16:34:45 +0000 (UTC)
+        id S230117AbhGVPyN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:54:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B44FF6135C;
+        Thu, 22 Jul 2021 16:34:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971686;
-        bh=FDKKSz/Ovyn1RrwWP4fwl9j5+VUOc+Gg4j/6gsr60v4=;
+        s=korg; t=1626971688;
+        bh=9svYroCqAikHkSj5CurQmI+qXmdbpMc+DVjWlYvkW8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vonEJq1969ep1PUi6EpokDntnRMgWjwmuEVWCT6ZNltqLNsLExR0tZ5f6E/xSu/eW
-         Gwr8OSc3KLYQb1Mr4al6POoaCxTDJPwcl9AVj88nh7NPLHAbt/prBmBZOLfy1/KPzB
-         eREWTO5xUrj9XMnF+FPOoOLoDBPNrxQvMLV4Fnn0=
+        b=i+oS6lawuXze+9zPXz3I2svRJRfdTKe7vHCLorvtSpVxMGlZ8pb06fe+X4DGPqr9R
+         JAZVg7R5nMu4wMdw/mlRDi8qLizg+FbVMUihxjSFZP+VkXxeri+PA1HbgHhI607T8i
+         44aNn96+ptYRyurqysNzLq7MD/yoLGhNk8SGx3+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 59/71] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
-Date:   Thu, 22 Jul 2021 18:31:34 +0200
-Message-Id: <20210722155619.870053526@linuxfoundation.org>
+Subject: [PATCH 5.4 60/71] net: moxa: fix UAF in moxart_mac_probe
+Date:   Thu, 22 Jul 2021 18:31:35 +0200
+Message-Id: <20210722155619.900579293@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -40,86 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit 9992a078b1771da354ac1f9737e1e639b687caa2 upstream.
+commit c78eaeebe855fd93f2e77142ffd0404a54070d84 upstream.
 
-Commit 28e104d00281 ("net: ip_tunnel: fix mtu calculation") removed
-dev->hard_header_len subtraction when calculate MTU for tunnel devices
-as there is an overhead for device that has header_ops.
+In case of netdev registration failure the code path will
+jump to init_fail label:
 
-But there are ETHER tunnel devices, like gre_tap or erspan, which don't
-have header_ops but set dev->hard_header_len during setup. This makes
-pkts greater than (MTU - ETH_HLEN) could not be xmited. Fix it by
-subtracting the ETHER tunnel devices' dev->hard_header_len for MTU
-calculation.
+init_fail:
+	netdev_err(ndev, "init failed\n");
+	moxart_mac_free_memory(ndev);
+irq_map_fail:
+	free_netdev(ndev);
+	return ret;
 
-Fixes: 28e104d00281 ("net: ip_tunnel: fix mtu calculation")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+So, there is no need to call free_netdev() before jumping
+to error handling path, since it can cause UAF or double-free
+bug.
+
+Fixes: 6c821bd9edc9 ("net: Add MOXA ART SoCs ethernet driver")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_tunnel.c |   18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/moxa/moxart_ether.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -317,7 +317,7 @@ static int ip_tunnel_bind_dev(struct net
- 	}
+--- a/drivers/net/ethernet/moxa/moxart_ether.c
++++ b/drivers/net/ethernet/moxa/moxart_ether.c
+@@ -545,10 +545,8 @@ static int moxart_mac_probe(struct platf
+ 	SET_NETDEV_DEV(ndev, &pdev->dev);
  
- 	dev->needed_headroom = t_hlen + hlen;
--	mtu -= t_hlen;
-+	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
+ 	ret = register_netdev(ndev);
+-	if (ret) {
+-		free_netdev(ndev);
++	if (ret)
+ 		goto init_fail;
+-	}
  
- 	if (mtu < IPV4_MIN_MTU)
- 		mtu = IPV4_MIN_MTU;
-@@ -348,6 +348,9 @@ static struct ip_tunnel *ip_tunnel_creat
- 	t_hlen = nt->hlen + sizeof(struct iphdr);
- 	dev->min_mtu = ETH_MIN_MTU;
- 	dev->max_mtu = IP_MAX_MTU - t_hlen;
-+	if (dev->type == ARPHRD_ETHER)
-+		dev->max_mtu -= dev->hard_header_len;
-+
- 	ip_tunnel_add(itn, nt);
- 	return nt;
- 
-@@ -495,11 +498,14 @@ static int tnl_update_pmtu(struct net_de
- 
- 	tunnel_hlen = md ? tunnel_hlen : tunnel->hlen;
- 	pkt_size = skb->len - tunnel_hlen;
-+	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
- 
--	if (df)
-+	if (df) {
- 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel_hlen);
--	else
-+		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
-+	} else {
- 		mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
-+	}
- 
- 	if (skb_valid_dst(skb))
- 		skb_dst_update_pmtu_no_confirm(skb, mtu);
-@@ -965,6 +971,9 @@ int __ip_tunnel_change_mtu(struct net_de
- 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
- 	int max_mtu = IP_MAX_MTU - t_hlen;
- 
-+	if (dev->type == ARPHRD_ETHER)
-+		max_mtu -= dev->hard_header_len;
-+
- 	if (new_mtu < ETH_MIN_MTU)
- 		return -EINVAL;
- 
-@@ -1142,6 +1151,9 @@ int ip_tunnel_newlink(struct net_device
- 	if (tb[IFLA_MTU]) {
- 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
- 
-+		if (dev->type == ARPHRD_ETHER)
-+			max -= dev->hard_header_len;
-+
- 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
- 	}
- 
+ 	netdev_dbg(ndev, "%s: IRQ=%d address=%pM\n",
+ 		   __func__, ndev->irq, ndev->dev_addr);
 
 
