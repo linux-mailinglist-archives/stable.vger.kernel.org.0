@@ -2,37 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2C53D29F1
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F223D28F9
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233618AbhGVQHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        id S233427AbhGVQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233645AbhGVQGB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:06:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84F1F61D61;
-        Thu, 22 Jul 2021 16:46:35 +0000 (UTC)
+        id S234028AbhGVP7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:59:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA37610CC;
+        Thu, 22 Jul 2021 16:40:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972396;
-        bh=I8MWdxlpoilUiaepOxNxmoIT1ZEjDxBOyK7pqD1/Bqc=;
+        s=korg; t=1626972024;
+        bh=HnNod2djNfv7zK0mtv2DoLbArs/EEOGHAzQi79gXess=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wu2GqoZWXmZyg2mfjG1saP1VnE/O/sXXQN/eCIhA8BQ0hECu7oHYsOhfONIgP1o+u
-         CaMWSiNRY/fJ7x4PNwfc4N4y/YtbWBa3voEeOg2ApWwa5CES74Fzc1o1eoFrcrQw6n
-         94ucD69ns7KcA2Xm7yqBQcCpGlaC3qoI0W/Cqu3I=
+        b=JByTj7iDenchjZ0e7VIvHI6LKvUZKk+yinF8NhXkaiSnM03u5djuW1HmWmsc3zgTT
+         j1E9Fl1/+sr04pRIShJOHQMpzf9mYScmEqa9X5VqnxsE6Xl1joV13/nEG/1p4ZklHu
+         yu3OzCTjxWGcQmyOwm5xAhYGmcGsnDEuJGIHWJmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilya Leoshkevich <iii@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        "From: Matthew Wilcox" <willy@infradead.org>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Ying Huang <ying.huang@intel.com>, Alex Shi <alexs@kernel.org>,
+        David Hildenbrand <david@redhat.com>,
+        Dennis Zhou <dennis@kernel.org>,
+        Hugh Dickins <hughd@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Yang Shi <shy828301@gmail.com>, Yu Zhao <yuzhao@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 098/156] s390/traps: do not test MONITOR CALL without CONFIG_BUG
-Date:   Thu, 22 Jul 2021 18:31:13 +0200
-Message-Id: <20210722155631.548022446@linuxfoundation.org>
+Subject: [PATCH 5.10 083/125] Revert "swap: fix do_swap_page() race with swapoff"
+Date:   Thu, 22 Jul 2021 18:31:14 +0200
+Message-Id: <20210722155627.451144121@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +54,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilya Leoshkevich <iii@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit b8e9cc20b808e26329090c19ff80b7f5098e98ff ]
+This reverts commit 8e4af3917bfc5e82f8010417c12b755ef256fa5e which is
+commit 2799e77529c2a25492a4395db93996e3dacd762d upstream.
 
-tinyconfig fails to boot, because without CONFIG_BUG report_bug()
-always returns BUG_TRAP_TYPE_BUG, which causes mc 0,0 in
-test_monitor_call() to panic. Fix by skipping the test without
-CONFIG_BUG.
+It should not have been added to the stable trees, sorry about that.
 
-Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
-Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/YPVgaY6uw59Fqg5x@casper.infradead.org
+Reported-by: From: Matthew Wilcox <willy@infradead.org>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Ying Huang <ying.huang@intel.com>
+Cc: Alex Shi <alexs@kernel.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Yu Zhao <yuzhao@google.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/traps.c | 2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/swap.h |    9 ---------
+ mm/memory.c          |   11 ++---------
+ 2 files changed, 2 insertions(+), 18 deletions(-)
 
-diff --git a/arch/s390/kernel/traps.c b/arch/s390/kernel/traps.c
-index 8dd23c703718..662f52eb7639 100644
---- a/arch/s390/kernel/traps.c
-+++ b/arch/s390/kernel/traps.c
-@@ -277,6 +277,8 @@ static void __init test_monitor_call(void)
- {
- 	int val = 1;
+--- a/include/linux/swap.h
++++ b/include/linux/swap.h
+@@ -503,15 +503,6 @@ static inline struct swap_info_struct *s
+ 	return NULL;
+ }
  
-+	if (!IS_ENABLED(CONFIG_BUG))
-+		return;
- 	asm volatile(
- 		"	mc	0,0\n"
- 		"0:	xgr	%0,%0\n"
--- 
-2.30.2
-
+-static inline struct swap_info_struct *get_swap_device(swp_entry_t entry)
+-{
+-	return NULL;
+-}
+-
+-static inline void put_swap_device(struct swap_info_struct *si)
+-{
+-}
+-
+ #define swap_address_space(entry)		(NULL)
+ #define get_nr_swap_pages()			0L
+ #define total_swap_pages			0L
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -3302,7 +3302,6 @@ vm_fault_t do_swap_page(struct vm_fault
+ {
+ 	struct vm_area_struct *vma = vmf->vma;
+ 	struct page *page = NULL, *swapcache;
+-	struct swap_info_struct *si = NULL;
+ 	swp_entry_t entry;
+ 	pte_t pte;
+ 	int locked;
+@@ -3330,16 +3329,14 @@ vm_fault_t do_swap_page(struct vm_fault
+ 		goto out;
+ 	}
+ 
+-	/* Prevent swapoff from happening to us. */
+-	si = get_swap_device(entry);
+-	if (unlikely(!si))
+-		goto out;
+ 
+ 	delayacct_set_flag(DELAYACCT_PF_SWAPIN);
+ 	page = lookup_swap_cache(entry, vma, vmf->address);
+ 	swapcache = page;
+ 
+ 	if (!page) {
++		struct swap_info_struct *si = swp_swap_info(entry);
++
+ 		if (data_race(si->flags & SWP_SYNCHRONOUS_IO) &&
+ 		    __swap_count(entry) == 1) {
+ 			/* skip swapcache */
+@@ -3510,8 +3507,6 @@ vm_fault_t do_swap_page(struct vm_fault
+ unlock:
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+ out:
+-	if (si)
+-		put_swap_device(si);
+ 	return ret;
+ out_nomap:
+ 	pte_unmap_unlock(vmf->pte, vmf->ptl);
+@@ -3523,8 +3518,6 @@ out_release:
+ 		unlock_page(swapcache);
+ 		put_page(swapcache);
+ 	}
+-	if (si)
+-		put_swap_device(si);
+ 	return ret;
+ }
+ 
 
 
