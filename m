@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B467E3D2A35
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 572403D294A
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233158AbhGVQKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42796 "EHLO mail.kernel.org"
+        id S233874AbhGVQDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:03:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234938AbhGVQIH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:08:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B9C161D25;
-        Thu, 22 Jul 2021 16:48:17 +0000 (UTC)
+        id S233484AbhGVQCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:02:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C0461414;
+        Thu, 22 Jul 2021 16:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972498;
-        bh=CZHBOBlM0zhVpnAQqrtkTIAtY48zTE2Z3A5VtAlzCiM=;
+        s=korg; t=1626972153;
+        bh=IfgRyMBp5WCC5nAcdE+UyzPSeIZNOJjPD5cYqMbaiPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trYm0tTLVqlHfK3hIYuRIRz/dUSEjZ6jsLhMwNFB5jbKweXPXZWCGb4bI+uSZ10Jo
-         vpgp2+y6M9lUt1fTw6gVIqN/ymP3X0NN1Ys9YzvGiFnKStALCiAJhlZlsSEKT5ivt7
-         OaCg5l70yE7m60BKo9gc5KPg7sd08zkDjYe7PP+A=
+        b=Fo/hE9kqZCGxSmoqdKSFWFylyJOzYiEwXKu/341UVZgdTnTSKH5UFPqgifXUVufRE
+         3z5vzNhpeSPNnnhS4D2jV5+jJ68T5CbEEXd7YCOSchj5OC7cjA4qCBImWrU+wwCyj1
+         bHXpA9rMgxEQ9vTPenUCAqboHkMKdUqlyDl9+ZQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 5.13 136/156] vboxsf: Honor excl flag to the dir-inode create op
+        stable@vger.kernel.org, Wei Li <liwei391@huawei.com>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 5.10 120/125] tools: bpf: Fix error in make -C tools/ bpf_install
 Date:   Thu, 22 Jul 2021 18:31:51 +0200
-Message-Id: <20210722155632.751108561@linuxfoundation.org>
+Message-Id: <20210722155628.697665746@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,72 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Wei Li <liwei391@huawei.com>
 
-commit cc3ddee97cff034cea4d095de4a484c92a219bf5 upstream.
+commit 1d719254c139fb62fb8056fb496b6fd007e71550 upstream.
 
-Honor the excl flag to the dir-inode create op, instead of behaving
-as if it is always set.
+make[2]: *** No rule to make target 'install'.  Stop.
+make[1]: *** [Makefile:122: runqslower_install] Error 2
+make: *** [Makefile:116: bpf_install] Error 2
 
-Note the old behavior still worked most of the time since a non-exclusive
-open only calls the create op, if there is a race and the file is created
-between the dentry lookup and the calling of the create call.
+There is no rule for target 'install' in tools/bpf/runqslower/Makefile,
+and there is no need to install it, so just remove 'runqslower_install'.
 
-While at it change the type of the is_dir parameter to the
-vboxsf_dir_create() helper from an int to a bool, to be consistent with
-the use of bool for the excl parameter.
-
-Fixes: 0fd169576648 ("fs: Add VirtualBox guest shared folder (vboxsf) support")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 9c01546d26d2 ("tools/bpf: Add runqslower tool to tools/bpf")
+Signed-off-by: Wei Li <liwei391@huawei.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210628030409.3459095-1-liwei391@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/vboxsf/dir.c |   16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ tools/bpf/Makefile |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/fs/vboxsf/dir.c
-+++ b/fs/vboxsf/dir.c
-@@ -253,7 +253,7 @@ static int vboxsf_dir_instantiate(struct
- }
+--- a/tools/bpf/Makefile
++++ b/tools/bpf/Makefile
+@@ -97,7 +97,7 @@ clean: bpftool_clean runqslower_clean re
+ 	$(Q)$(RM) -- $(OUTPUT)FEATURE-DUMP.bpf
+ 	$(Q)$(RM) -r -- $(OUTPUT)feature
  
- static int vboxsf_dir_create(struct inode *parent, struct dentry *dentry,
--			     umode_t mode, int is_dir)
-+			     umode_t mode, bool is_dir, bool excl)
- {
- 	struct vboxsf_inode *sf_parent_i = VBOXSF_I(parent);
- 	struct vboxsf_sbi *sbi = VBOXSF_SBI(parent->i_sb);
-@@ -261,10 +261,12 @@ static int vboxsf_dir_create(struct inod
- 	int err;
+-install: $(PROGS) bpftool_install runqslower_install
++install: $(PROGS) bpftool_install
+ 	$(call QUIET_INSTALL, bpf_jit_disasm)
+ 	$(Q)$(INSTALL) -m 0755 -d $(DESTDIR)$(prefix)/bin
+ 	$(Q)$(INSTALL) $(OUTPUT)bpf_jit_disasm $(DESTDIR)$(prefix)/bin/bpf_jit_disasm
+@@ -118,9 +118,6 @@ bpftool_clean:
+ runqslower:
+ 	$(call descend,runqslower)
  
- 	params.handle = SHFL_HANDLE_NIL;
--	params.create_flags = SHFL_CF_ACT_CREATE_IF_NEW |
--			      SHFL_CF_ACT_FAIL_IF_EXISTS |
--			      SHFL_CF_ACCESS_READWRITE |
--			      (is_dir ? SHFL_CF_DIRECTORY : 0);
-+	params.create_flags = SHFL_CF_ACT_CREATE_IF_NEW | SHFL_CF_ACCESS_READWRITE;
-+	if (is_dir)
-+		params.create_flags |= SHFL_CF_DIRECTORY;
-+	if (excl)
-+		params.create_flags |= SHFL_CF_ACT_FAIL_IF_EXISTS;
-+
- 	params.info.attr.mode = (mode & 0777) |
- 				(is_dir ? SHFL_TYPE_DIRECTORY : SHFL_TYPE_FILE);
- 	params.info.attr.additional = SHFLFSOBJATTRADD_NOTHING;
-@@ -292,14 +294,14 @@ static int vboxsf_dir_mkfile(struct user
- 			     struct inode *parent, struct dentry *dentry,
- 			     umode_t mode, bool excl)
- {
--	return vboxsf_dir_create(parent, dentry, mode, 0);
-+	return vboxsf_dir_create(parent, dentry, mode, false, excl);
- }
+-runqslower_install:
+-	$(call descend,runqslower,install)
+-
+ runqslower_clean:
+ 	$(call descend,runqslower,clean)
  
- static int vboxsf_dir_mkdir(struct user_namespace *mnt_userns,
- 			    struct inode *parent, struct dentry *dentry,
- 			    umode_t mode)
- {
--	return vboxsf_dir_create(parent, dentry, mode, 1);
-+	return vboxsf_dir_create(parent, dentry, mode, true, true);
- }
+@@ -131,5 +128,5 @@ resolve_btfids_clean:
+ 	$(call descend,resolve_btfids,clean)
  
- static int vboxsf_dir_unlink(struct inode *parent, struct dentry *dentry)
+ .PHONY: all install clean bpftool bpftool_install bpftool_clean \
+-	runqslower runqslower_install runqslower_clean \
++	runqslower runqslower_clean \
+ 	resolve_btfids resolve_btfids_clean
 
 
