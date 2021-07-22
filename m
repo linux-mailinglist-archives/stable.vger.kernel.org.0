@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6463D29BC
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6244F3D299E
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234238AbhGVQGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42418 "EHLO mail.kernel.org"
+        id S233934AbhGVQFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:05:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234472AbhGVQEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:04:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DFD861C1C;
-        Thu, 22 Jul 2021 16:45:23 +0000 (UTC)
+        id S234495AbhGVQEw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:04:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 547BA61C24;
+        Thu, 22 Jul 2021 16:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972323;
-        bh=RrB883tsRtXkWPyyZAEB+tXrMgeyKsyY0LbFGjanPSQ=;
+        s=korg; t=1626972326;
+        bh=wgVnSA9coDv9nQFOI6Vo3gvUyprsyL4rHQTob/cqICM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ohUb6YEweYY38Vk4rk2I1Ls7KKWv7b9SBG94cHPmbzQSya878H0AU78Zv5ENCTt/n
-         zXsRe46cj7NYqcLeUoYJ5oxj+acTi55ptL32BSz/RvbD/Dtbj3bG1xbHNMAorpMPaX
-         epHX1ER6dReeQE8WacNvLKXMxTdo40l+YUGZ6iig=
+        b=I+0BNedI+6xr5RKtmJc5cQoBixGzFJnot0XXpG/xah8YsQp1+ryGDJj4qEKuYqg+0
+         ubojeViwqbERNuJ3S4H3xre7AMJfbB+SvXU7Y/7o7eLip5RAeAthCK1xpUHiTpmdXA
+         VutS2/4geuE2+YDu4o4cZDLxnsgMnxLJC5kGt9qI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         kernel@dh-electronics.com,
         linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 069/156] ARM: dts: stm32: Drop unused linux,wakeup from touchscreen node on DHCOM SoM
-Date:   Thu, 22 Jul 2021 18:30:44 +0200
-Message-Id: <20210722155630.625145277@linuxfoundation.org>
+Subject: [PATCH 5.13 070/156] ARM: dts: stm32: Rename eth@N to ethernet@N on DHCOM SoM
+Date:   Thu, 22 Jul 2021 18:30:45 +0200
+Message-Id: <20210722155630.655106127@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -46,10 +46,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 5247a50c8b53ca214a488da648e1bb35c35c2597 ]
+[ Upstream commit b586250df24226f8a257e11e1f5953054c54fd35 ]
 
 Fix the following dtbs_check warning:
-touchscreen@38: 'linux,wakeup' does not match any of the regexes: 'pinctrl-[0-9]+'
+eth@1,0: $nodename:0: 'eth@1,0' does not match '^ethernet(@.*)?$'
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
@@ -61,21 +61,22 @@ To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-index b8c8f0b284c3..c5ea08fec535 100644
---- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-+++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
-@@ -187,7 +187,6 @@
- 		reg = <0x38>;
- 		interrupt-parent = <&gpiog>;
- 		interrupts = <2 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
--		linux,wakeup;
- 	};
- };
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+index 31d08423a32f..c3e3466dacaa 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-som.dtsi
+@@ -150,7 +150,7 @@
+ 	pinctrl-1 = <&fmc_sleep_pins_b>;
+ 	status = "okay";
  
+-	ksz8851: ks8851mll@1,0 {
++	ksz8851: ethernet@1,0 {
+ 		compatible = "micrel,ks8851-mll";
+ 		reg = <1 0x0 0x2>, <1 0x2 0x20000>;
+ 		interrupt-parent = <&gpioc>;
 -- 
 2.30.2
 
