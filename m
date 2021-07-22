@@ -2,74 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3845E3D2533
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 16:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E973D2536
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 16:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232320AbhGVNZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 09:25:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38490 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232201AbhGVNZn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 09:25:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0552B6128A;
-        Thu, 22 Jul 2021 14:06:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626962774;
-        bh=2XEDrYa/c7hz+y8g148HTZInCxH4lAnB1lTHv6Tvsd4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cCLNdazcEJS1sluJtwBxvOQYAD1Vym8YqmwuTd6L6PdSFYr/t0wJRqTeqHGAsiij4
-         C39kX2v7xLs0ee5nex5pJ2RtJQVrnDkCepZMrOJZXo47e8wr35/rGCC9I+mPET328y
-         CKxjJq9p2W70mVmKHJW8Yd0c60ByTx1L3SAHbjug=
-Date:   Thu, 22 Jul 2021 16:06:11 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mike Rapoport <rppt@kernel.org>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com, bp@alien8.de,
-        david@redhat.com, robert.shteynfeld@gmail.com, rppt@linux.ibm.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject: Re: FAILED: patch "[PATCH] mm/page_alloc: fix memory map
- initialization for descending" failed to apply to 5.10-stable tree
-Message-ID: <YPl7U8NgmeKoP6Q1@kroah.com>
-References: <16264592686170@kroah.com>
- <YPO+i7eeByNMMJiA@kernel.org>
- <YPUWXjzX/wnsUC/h@kroah.com>
- <YPWTdETYFq+MdlEL@kernel.org>
+        id S232263AbhGVN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 09:26:29 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:51027 "EHLO
+        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232166AbhGVN03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 09:26:29 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailnew.west.internal (Postfix) with ESMTP id 414BF2B011FE;
+        Thu, 22 Jul 2021 10:07:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Thu, 22 Jul 2021 10:07:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=prWACrJFXo8y1jrEMMR+3UsGDvF
+        jhhPhic6EAg8Shu8=; b=Aovg0XThHHqMgm5dfHwW8LWv/TBQCp732ZkT7NbUDqM
+        vZFy5tM/TQ6gAkqK9TjecDrsFtA+qg5bdsvCO5esupgoJpMlC8UQMJEf4+D709jU
+        BC64Z/qwUmOmMQ9HmAA/sEkqT+v0hlkkM4wemYGNGsXskLd0HNps3QpxE3331OS6
+        Dayh0YpFWywsIa2BBtR5USXj/W5QzgxBwiV22OsZIExoVg0OrMPgHRgo/oBmOcIr
+        92LdmWpQE7RhXcGGHybreEKMyh2Tqm51BVD9ws4YI1sNhCqlQd+9tD4Ly3MBJdn/
+        OMah87GFIavl3JI2cwN1m9MVhlUL6xQUFQQPbXFhWjg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=prWACr
+        JFXo8y1jrEMMR+3UsGDvFjhhPhic6EAg8Shu8=; b=IXn7WMQOI/JBPvPwCdFYdY
+        OEmfUIWXOngyh/3b2yMQNNWkJgqsTupy3T01T82FclshPj66S2WqX9A3MmGj9arP
+        FkO0xZZBFDMoWWU7kMal7B/QbWVcsN8Q26PUd0VbhTk5TJSs+K/FBSgkj0Z2WEnP
+        NqhvDD+Km/cy0HorPsDa4lx1EalPJwtnNYelbqqjjG1jN9ea+sxYghnv+TPCLG8N
+        kS9Em7A+SjE9sQv0pxr8oFCjRjyMcAJAicQ9CZwzS1k5qnaPc39hisZbAQDCPU64
+        UVJwNswtau/srA+JW6YK0bpAbfs9OOpjotcRSmrj9NEz7KHt24u/TPRONxtmCESA
+        ==
+X-ME-Sender: <xms:hXv5YPr8ejODVQfwyTP1Q0ZvV-msDwaAMvtQzOiUHETQREI_gGgCMQ>
+    <xme:hXv5YJpuFLUiZactFUJeoPEb8XUUmxtqmHRVdZRrIG7pDv4GeXaoXBTUqQ4aL-6DN
+    PM3HpjNFavTdA>
+X-ME-Received: <xmr:hXv5YMPLae4ylaJK7pHe7LtGHTzMkTxNDOXzSwwgoXJyYSWbWFcCDrdwOSoBy2dD8zr9d-OYrq-w_IFKmZQzgWVuVurZsJ6x>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvtddrfeeigdeilecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:hXv5YC5gxMai7SJx2LLToP0et-M-MNfz5bsMd2Qi5qc2KGt_ohbThA>
+    <xmx:hXv5YO4LstqeDol9Z3otPxNxuBznrHzf4tAYhcsjZrUdRvhmyFZB-Q>
+    <xmx:hXv5YKiE1fi-Rj3AMB91OFr5c5nyiBg6bfhQs5TJrzFb9T2gckUKvg>
+    <xmx:hnv5YLx1iyMOtKHIErRZzh5topAIJWMtT0rLyOCJYJx6td_buemKpriqX9o>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
+ 22 Jul 2021 10:07:01 -0400 (EDT)
+Date:   Thu, 22 Jul 2021 16:06:59 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        Daniel Rosenberg <drosen@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: Re: [PATCH 5.4] f2fs: Show casefolding support only when supported
+Message-ID: <YPl7g2Gpec2Lh3a6@kroah.com>
+References: <20210720161709.1919109-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YPWTdETYFq+MdlEL@kernel.org>
+In-Reply-To: <20210720161709.1919109-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jul 19, 2021 at 06:00:04PM +0300, Mike Rapoport wrote:
-> On Mon, Jul 19, 2021 at 08:06:22AM +0200, Greg KH wrote:
-> > On Sun, Jul 18, 2021 at 08:39:23AM +0300, Mike Rapoport wrote:
-> > > Hi,
-> > > 
-> > > On Fri, Jul 16, 2021 at 08:14:28PM +0200, gregkh@linuxfoundation.org wrote:
-> > > > 
-> > > > The patch below does not apply to the 5.10-stable tree.
-> > > > If someone wants it applied there, or to any other stable or longterm
-> > > > tree, then please email the backport, including the original git commit
-> > > > id to <stable@vger.kernel.org>.
-> > > 
-> > > I'm confused. I've sent a version that applied cleanly to 5.10.49:
-> > > 
-> > > https://lore.kernel.org/stable/YOr4DMQITU8yzBNT@kernel.org
-> > > 
-> > > and I've got an email that it was added to the stable tree and the email
-> > > with the patch for stable preview:
-> > > 
-> > > https://lore.kernel.org/lkml/20210715182623.942552790@linuxfoundation.org
-> > > 
-> > > Was anything wrong with the patch?
-> > 
-> > Yes, it broke the build on ia64 due to duplicated function names :(
+On Tue, Jul 20, 2021 at 09:17:09AM -0700, Eric Biggers wrote:
+> From: Daniel Rosenberg <drosen@google.com>
 > 
-> The version below takes care of compatibility with ia64 in the least
-> intrusive way I could think of. 
+> commit 39307f8ee3539478c28e71b4909b5b028cce14b1 upstream.
+> [Please apply to 5.4-stable.]
+> 
+> The casefolding feature is only supported when CONFIG_UNICODE is set.
+> This modifies the feature list f2fs presents under sysfs accordingly.
+> 
+> Fixes: 5aba54302a46 ("f2fs: include charset encoding information in the superblock")
+> Cc: stable@vger.kernel.org # v5.4+
+> Signed-off-by: Daniel Rosenberg <drosen@google.com>
+> Reviewed-by: Eric Biggers <ebiggers@google.com>
+> Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  fs/f2fs/sysfs.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
 
-Thanks, will go queue this up now.
+Now queued up, thanks.
 
 greg k-h
