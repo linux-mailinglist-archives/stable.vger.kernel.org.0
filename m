@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C1453D2949
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D21B33D294E
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233870AbhGVQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
+        id S233890AbhGVQDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:03:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233510AbhGVQCT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:02:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B62356196A;
-        Thu, 22 Jul 2021 16:42:45 +0000 (UTC)
+        id S233228AbhGVQCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:02:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55F7761977;
+        Thu, 22 Jul 2021 16:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972166;
-        bh=OvR16ZenqIElBgrXesiwLXN0ZP6Isg5Niqy5vJWWQbM=;
+        s=korg; t=1626972169;
+        bh=dwVDS+HMvbSPWWvecGQuvxBYqIQx/k5LcHgbqvbDnEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4QBIaNNbolZObfXUiAEfVORN8jczFsmj7V6mt6TCu22xTPx/4W1RK1bncwHQkfBt
-         Gc20ZtLGw1xESkQ+li9iHmsdddyKgZBxFlszPaPQANHFOA/1VLNICd1jEdYyrSV2+t
-         VdKH0tD+IEAuQUO8qqCLjY/tI15p25G9YiJHPPKc=
+        b=tjNMO+nVWRkqSLhZLdSKiAUKWME9iiuXpR8kXYcb+D5y9fQ8uA1qh8rAcaUJwJd/P
+         OS4VVfXojZ/EGJc/qiwQVjqA0t1W78VlzHAVRk/M1/P4wCzfKs6XBXiFmHHgtOFpoh
+         WWK2FqqsYysI5g9Wg9h1LZlaDHaQ8PV/Ot2rSUgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 010/156] ARM: dts: rockchip: Fix power-controller node names for rk3188
-Date:   Thu, 22 Jul 2021 18:29:45 +0200
-Message-Id: <20210722155628.721164744@linuxfoundation.org>
+Subject: [PATCH 5.13 011/156] ARM: dts: rockchip: Fix power-controller node names for rk3288
+Date:   Thu, 22 Jul 2021 18:29:46 +0200
+Message-Id: <20210722155628.755966524@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit d3bcbcd396175ac26aa54919c0b31c7d2878fc24 ]
+[ Upstream commit 970cdc53cb1afa73602028c103dbfb6a230080be ]
 
 Use more generic names (as recommended in the device tree specification
 or the binding documentation)
@@ -52,44 +52,53 @@ or the binding documentation)
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-3-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20210417112952.8516-4-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
-index 2c08ae60e4a1..b6bde9d12c2b 100644
---- a/arch/arm/boot/dts/rk3188.dtsi
-+++ b/arch/arm/boot/dts/rk3188.dtsi
-@@ -699,7 +699,7 @@
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
--		pd_vio@RK3188_PD_VIO {
-+		power-domain@RK3188_PD_VIO {
- 			reg = <RK3188_PD_VIO>;
- 			clocks = <&cru ACLK_LCDC0>,
- 				 <&cru ACLK_LCDC1>,
-@@ -721,7 +721,7 @@
- 				 <&qos_rga>;
- 		};
- 
--		pd_video@RK3188_PD_VIDEO {
-+		power-domain@RK3188_PD_VIDEO {
- 			reg = <RK3188_PD_VIDEO>;
- 			clocks = <&cru ACLK_VDPU>,
- 				 <&cru ACLK_VEPU>,
-@@ -730,7 +730,7 @@
- 			pm_qos = <&qos_vpu>;
- 		};
- 
--		pd_gpu@RK3188_PD_GPU {
-+		power-domain@RK3188_PD_GPU {
- 			reg = <RK3188_PD_GPU>;
- 			clocks = <&cru ACLK_GPU>;
- 			pm_qos = <&qos_gpu>;
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 1e6594f8a293..d6dbfbd99568 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -765,7 +765,7 @@
+ 			 *	*_HDMI		HDMI
+ 			 *	*_MIPI_*	MIPI
+ 			 */
+-			pd_vio@RK3288_PD_VIO {
++			power-domain@RK3288_PD_VIO {
+ 				reg = <RK3288_PD_VIO>;
+ 				clocks = <&cru ACLK_IEP>,
+ 					 <&cru ACLK_ISP>,
+@@ -807,7 +807,7 @@
+ 			 * Note: The following 3 are HEVC(H.265) clocks,
+ 			 * and on the ACLK_HEVC_NIU (NOC).
+ 			 */
+-			pd_hevc@RK3288_PD_HEVC {
++			power-domain@RK3288_PD_HEVC {
+ 				reg = <RK3288_PD_HEVC>;
+ 				clocks = <&cru ACLK_HEVC>,
+ 					 <&cru SCLK_HEVC_CABAC>,
+@@ -821,7 +821,7 @@
+ 			 * (video endecoder & decoder) clocks that on the
+ 			 * ACLK_VCODEC_NIU and HCLK_VCODEC_NIU (NOC).
+ 			 */
+-			pd_video@RK3288_PD_VIDEO {
++			power-domain@RK3288_PD_VIDEO {
+ 				reg = <RK3288_PD_VIDEO>;
+ 				clocks = <&cru ACLK_VCODEC>,
+ 					 <&cru HCLK_VCODEC>;
+@@ -832,7 +832,7 @@
+ 			 * Note: ACLK_GPU is the GPU clock,
+ 			 * and on the ACLK_GPU_NIU (NOC).
+ 			 */
+-			pd_gpu@RK3288_PD_GPU {
++			power-domain@RK3288_PD_GPU {
+ 				reg = <RK3288_PD_GPU>;
+ 				clocks = <&cru ACLK_GPU>;
+ 				pm_qos = <&qos_gpu_r>,
 -- 
 2.30.2
 
