@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 970A63D2A5A
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87D1C3D2A3A
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234914AbhGVQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51588 "EHLO mail.kernel.org"
+        id S234600AbhGVQKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:10:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235234AbhGVQIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234129AbhGVQIz (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Jul 2021 12:08:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DC7561DB0;
-        Thu, 22 Jul 2021 16:48:38 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CD6F61DAF;
+        Thu, 22 Jul 2021 16:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972518;
-        bh=3u9vpWa25zjBxq5IidMDYt9eUPZhUvlec/IPMhDqFts=;
+        s=korg; t=1626972522;
+        bh=K8+Q1lv9vsgYBDytnr10no5EHQMGDOxtlBJUJ8l692Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjKzm9Hhn7UItPyp641jpKtbCCTjjXn9MsQIYjXRbfeKMgeZbvuNACLb1Sxm6h5Lx
-         1wC9CUAtDKUUnqO3/xllibfltZElKl9hqwD588FbMkvDugTAEFN0uAjjjjJWzeohtG
-         w1zc3wo4s00mQSM57618b2Xe+FtBUNKdZTQecg+8=
+        b=eR+h40ekJOsOUnMhx9e/u59r4RHq4mZhnUlOCTsr0afrB+l/tZTThK2S30QMoIKVf
+         erLRw0JUaVDkMzWrdWLUfUO3beDC0i7kerHPH9A0kJmHmMM8VmAwVtil3EBMNwkGmz
+         ph3SVJOFzzy9HV1nLRO8PFQ+hlITaPgy9k9Rf/eE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.13 142/156] ARM: dts: everest: Add phase corrections for eMMC
-Date:   Thu, 22 Jul 2021 18:31:57 +0200
-Message-Id: <20210722155632.939875101@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.13 143/156] tcp: consistently disable header prediction for mptcp
+Date:   Thu, 22 Jul 2021 18:31:58 +0200
+Message-Id: <20210722155632.970065618@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -39,38 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Jeffery <andrew@aj.id.au>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit faffd1b2bde3ee428d6891961f6a60f8e08749d6 upstream.
+commit 71158bb1f2d2da61385c58fc1114e1a1c19984ba upstream.
 
-The values were determined experimentally via boot tests, not by
-measuring the bus behaviour with a scope. We plan to do scope
-measurements to confirm or refine the values and will update the
-devicetree if necessary once these have been obtained.
+The MPTCP receive path is hooked only into the TCP slow-path.
+The DSS presence allows plain MPTCP traffic to hit that
+consistently.
 
-However, with the patch we can write and read data without issue, where
-as booting the system without the patch failed at the point of mounting
-the rootfs.
+Since commit e1ff9e82e2ea ("net: mptcp: improve fallback to TCP"),
+when an MPTCP socket falls back to TCP, it can hit the TCP receive
+fast-path, and delay or stop triggering the event notification.
 
-Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20210628013605.1257346-1-andrew@aj.id.au
-Fixes: 2fc88f92359d ("mmc: sdhci-of-aspeed: Expose clock phase controls")
-Fixes: a5c5168478d7 ("ARM: dts: aspeed: Add Everest BMC machine")
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Address the issue explicitly disabling the header prediction
+for MPTCP sockets.
+
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/200
+Fixes: e1ff9e82e2ea ("net: mptcp: improve fallback to TCP")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts |    1 +
- 1 file changed, 1 insertion(+)
+ include/net/tcp.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
-@@ -1068,6 +1068,7 @@
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -682,6 +682,10 @@ static inline u32 __tcp_set_rto(const st
  
- &emmc {
- 	status = "okay";
-+	clk-phase-mmc-hs200 = <180>, <180>;
- };
- 
- &fsim0 {
+ static inline void __tcp_fast_path_on(struct tcp_sock *tp, u32 snd_wnd)
+ {
++	/* mptcp hooks are only on the slow path */
++	if (sk_is_mptcp((struct sock *)tp))
++		return;
++
+ 	tp->pred_flags = htonl((tp->tcp_header_len << 26) |
+ 			       ntohl(TCP_FLAG_ACK) |
+ 			       snd_wnd);
 
 
