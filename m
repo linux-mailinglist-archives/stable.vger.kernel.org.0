@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7673D27F3
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0BD3D27F5
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231401AbhGVPyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:54:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57424 "EHLO mail.kernel.org"
+        id S230481AbhGVPyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:54:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230462AbhGVPxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:53:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 507286136D;
-        Thu, 22 Jul 2021 16:34:16 +0000 (UTC)
+        id S231269AbhGVPxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:53:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6ADBD61362;
+        Thu, 22 Jul 2021 16:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971656;
-        bh=4aZJptTqWlA16PAO4vI+29Nei1TwtctOcE5r9/bZk5E=;
+        s=korg; t=1626971659;
+        bh=Li11OVnEzsGFFkdqfhAv+9smOX/fczU05cgI9HBSXH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGzz/pRpr+S62qQpxhqaU9RWf4jFQ4I/WTtn7wlRmoCC78m2Af/AjLAlsiJO0wsfc
-         I0SJpIaactCvzqGjzhjIMKbuswgFS99XOVNRFNIhgxrTDEHla0OZ2R002MyHVR4pjm
-         Wn/Bo0RGtV8zkw3ZLhfd+wcWGchvExewf6nkSUKg=
+        b=qF0ulFMQVd5xB6MLUGQzxM3/TAnLYt+Utf+ho13KO3KE7jP595F1yrhal0JCLq4aC
+         /cPG1V8QgeEjYKdb22v9DtjorzBxK3gfmMEl7yy+ck3+RTqucp1R73mjeRB/V3Wdd7
+         WzHvHyof++Q3vO+FbBvQqt9XjjzgP/N1uSTn5g44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aswath Govindraju <a-govindraju@ti.com>,
-        Sanket Parmar <sparmar@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH 5.4 49/71] usb: cdns3: Enable TDL_CHK only for OUT ep
-Date:   Thu, 22 Jul 2021 18:31:24 +0200
-Message-Id: <20210722155619.510041679@linuxfoundation.org>
+        stable@vger.kernel.org, Nanyong Sun <sunnanyong@huawei.com>
+Subject: [PATCH 5.4 50/71] mm: slab: fix kmem_cache_create failed when sysfs node not destroyed
+Date:   Thu, 22 Jul 2021 18:31:25 +0200
+Message-Id: <20210722155619.545713554@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -40,52 +38,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sanket Parmar <sparmar@cadence.com>
+From: Nanyong Sun <sunnanyong@huawei.com>
 
-commit d6eef886903c4bb5af41b9a31d4ba11dc7a6f8e8 upstream.
+The commit d38a2b7a9c93 ("mm: memcg/slab: fix memory leak at non-root
+kmem_cache destroy") introduced a problem: If one thread destroy a
+kmem_cache A and another thread concurrently create a kmem_cache B,
+which is mergeable with A and has same size with A, the B may fail to
+create due to the duplicate sysfs node.
+The scenario in detail:
+1) Thread 1 uses kmem_cache_destroy() to destroy kmem_cache A which is
+mergeable, it decreases A's refcount and if refcount is 0, then call
+memcg_set_kmem_cache_dying() which set A->memcg_params.dying = true,
+then unlock the slab_mutex and call flush_memcg_workqueue(), it may cost
+a while.
+Note: now the sysfs node(like '/kernel/slab/:0000248') of A is still
+present, it will be deleted in shutdown_cache() which will be called
+after flush_memcg_workqueue() is done and lock the slab_mutex again.
+2) Now if thread 2 is coming, it use kmem_cache_create() to create B, which
+is mergeable with A(their size is same), it gain the lock of slab_mutex,
+then call __kmem_cache_alias() trying to find a mergeable node, because
+of the below added code in commit d38a2b7a9c93 ("mm: memcg/slab: fix
+memory leak at non-root kmem_cache destroy"), B is not mergeable with
+A whose memcg_params.dying is true.
 
-ZLP gets stuck if TDL_CHK bit is set and TDL_FROM_TRB is used
-as TDL source for IN endpoints. To fix it, TDL_CHK is only
-enabled for OUT endpoints.
+int slab_unmergeable(struct kmem_cache *s)
+ 	if (s->refcount < 0)
+ 		return 1;
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-Reported-by: Aswath Govindraju <a-govindraju@ti.com>
-Signed-off-by: Sanket Parmar <sparmar@cadence.com>
-Link: https://lore.kernel.org/r/1621263912-13175-1-git-send-email-sparmar@cadence.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+	/*
+	 * Skip the dying kmem_cache.
+	 */
+	if (s->memcg_params.dying)
+		return 1;
+
+ 	return 0;
+ }
+
+So B has to create its own sysfs node by calling:
+ create_cache->
+	__kmem_cache_create->
+		sysfs_slab_add->
+			kobject_init_and_add
+Because B is mergeable itself, its filename of sysfs node is based on its size,
+like '/kernel/slab/:0000248', which is duplicate with A, and the sysfs
+node of A is still present now, so kobject_init_and_add() will return
+fail and result in kmem_cache_create() fail.
+
+Concurrently modprobe and rmmod the two modules below can reproduce the issue
+quickly: nf_conntrack_expect, se_sess_cache. See call trace in the end.
+
+LTS versions of v4.19.y and v5.4.y have this problem, whereas linux versions after
+v5.9 do not have this problem because the patchset: ("The new cgroup slab memory
+controller") almost refactored memcg slab.
+
+A potential solution(this patch belongs): Just let the dying kmem_cache be mergeable,
+the slab_mutex lock can prevent the race between alias kmem_cache creating thread
+and root kmem_cache destroying thread. In the destroying thread, after
+flush_memcg_workqueue() is done, judge the refcount again, if someone
+reference it again during un-lock time, we don't need to destroy the kmem_cache
+completely, we can reuse it.
+
+Another potential solution: revert the commit d38a2b7a9c93 ("mm: memcg/slab:
+fix memory leak at non-root kmem_cache destroy"), compare to the fail of
+kmem_cache_create, the memory leak in special scenario seems less harmful.
+
+Call trace:
+ sysfs: cannot create duplicate filename '/kernel/slab/:0000248'
+ Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+ Call trace:
+  dump_backtrace+0x0/0x198
+  show_stack+0x24/0x30
+  dump_stack+0xb0/0x100
+  sysfs_warn_dup+0x6c/0x88
+  sysfs_create_dir_ns+0x104/0x120
+  kobject_add_internal+0xd0/0x378
+  kobject_init_and_add+0x90/0xd8
+  sysfs_slab_add+0x16c/0x2d0
+  __kmem_cache_create+0x16c/0x1d8
+  create_cache+0xbc/0x1f8
+  kmem_cache_create_usercopy+0x1a0/0x230
+  kmem_cache_create+0x50/0x68
+  init_se_kmem_caches+0x38/0x258 [target_core_mod]
+  target_core_init_configfs+0x8c/0x390 [target_core_mod]
+  do_one_initcall+0x54/0x230
+  do_init_module+0x64/0x1ec
+  load_module+0x150c/0x16f0
+  __se_sys_finit_module+0xf0/0x108
+  __arm64_sys_finit_module+0x24/0x30
+  el0_svc_common+0x80/0x1c0
+  el0_svc_handler+0x78/0xe0
+  el0_svc+0x10/0x260
+ kobject_add_internal failed for :0000248 with -EEXIST, don't try to register things with the same name in the same directory.
+ kmem_cache_create(se_sess_cache) failed with error -17
+ Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+ Call trace:
+  dump_backtrace+0x0/0x198
+  show_stack+0x24/0x30
+  dump_stack+0xb0/0x100
+  kmem_cache_create_usercopy+0xa8/0x230
+  kmem_cache_create+0x50/0x68
+  init_se_kmem_caches+0x38/0x258 [target_core_mod]
+  target_core_init_configfs+0x8c/0x390 [target_core_mod]
+  do_one_initcall+0x54/0x230
+  do_init_module+0x64/0x1ec
+  load_module+0x150c/0x16f0
+  __se_sys_finit_module+0xf0/0x108
+  __arm64_sys_finit_module+0x24/0x30
+  el0_svc_common+0x80/0x1c0
+  el0_svc_handler+0x78/0xe0
+  el0_svc+0x10/0x260
+
+Fixes: d38a2b7a9c93 ("mm: memcg/slab: fix memory leak at non-root kmem_cache destroy")
+Signed-off-by: Nanyong Sun <sunnanyong@huawei.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/gadget.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ mm/slab_common.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/cdns3/gadget.c
-+++ b/drivers/usb/cdns3/gadget.c
-@@ -1531,7 +1531,7 @@ void cdns3_configure_dmult(struct cdns3_
- 		else
- 			mask = BIT(priv_ep->num);
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -325,14 +325,6 @@ int slab_unmergeable(struct kmem_cache *
+ 	if (s->refcount < 0)
+ 		return 1;
  
--		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC) {
-+		if (priv_ep->type != USB_ENDPOINT_XFER_ISOC  && !priv_ep->dir) {
- 			cdns3_set_register_bit(&regs->tdl_from_trb, mask);
- 			cdns3_set_register_bit(&regs->tdl_beh, mask);
- 			cdns3_set_register_bit(&regs->tdl_beh2, mask);
-@@ -1569,15 +1569,13 @@ void cdns3_ep_config(struct cdns3_endpoi
- 	case USB_ENDPOINT_XFER_INT:
- 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_INT);
+-#ifdef CONFIG_MEMCG_KMEM
+-	/*
+-	 * Skip the dying kmem_cache.
+-	 */
+-	if (s->memcg_params.dying)
+-		return 1;
+-#endif
+-
+ 	return 0;
+ }
  
--		if ((priv_dev->dev_ver == DEV_VER_V2 && !priv_ep->dir) ||
--		    priv_dev->dev_ver > DEV_VER_V2)
-+		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
- 			ep_cfg |= EP_CFG_TDL_CHK;
- 		break;
- 	case USB_ENDPOINT_XFER_BULK:
- 		ep_cfg = EP_CFG_EPTYPE(USB_ENDPOINT_XFER_BULK);
+@@ -973,6 +965,16 @@ void kmem_cache_destroy(struct kmem_cach
+ 	get_online_mems();
  
--		if ((priv_dev->dev_ver == DEV_VER_V2  && !priv_ep->dir) ||
--		    priv_dev->dev_ver > DEV_VER_V2)
-+		if (priv_dev->dev_ver >= DEV_VER_V2 && !priv_ep->dir)
- 			ep_cfg |= EP_CFG_TDL_CHK;
- 		break;
- 	default:
+ 	mutex_lock(&slab_mutex);
++
++	/*
++	 * Another thread referenced it again
++	 */
++	if (READ_ONCE(s->refcount)) {
++		spin_lock_irq(&memcg_kmem_wq_lock);
++		s->memcg_params.dying = false;
++		spin_unlock_irq(&memcg_kmem_wq_lock);
++		goto out_unlock;
++	}
+ #endif
+ 
+ 	err = shutdown_memcg_caches(s);
 
 
