@@ -2,33 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1644E3D299D
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6463D29BC
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233858AbhGVQFn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39688 "EHLO mail.kernel.org"
+        id S234238AbhGVQGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234465AbhGVQEt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:04:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2F216144E;
-        Thu, 22 Jul 2021 16:45:20 +0000 (UTC)
+        id S234472AbhGVQEv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:04:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DFD861C1C;
+        Thu, 22 Jul 2021 16:45:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972321;
-        bh=0TcEksb0S4SRI56JjLGAPblYLh9EjuKSotMt5Uz8RAo=;
+        s=korg; t=1626972323;
+        bh=RrB883tsRtXkWPyyZAEB+tXrMgeyKsyY0LbFGjanPSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1ggY6gDUtb1ZqQ5kNw+M7v+d/w4Lj30WT/C4iP/y68HixhnKSBOrJvo2f8IDtm9t
-         MZpD7u5HgghcPKq7AIJhlVs1ANWxsrJawauqiToYSSt1016SxrTUgnAbrx50nJwaS3
-         mgYj9a5V5HoSVdykIkKpKUJsqH4s4cNrWtHbVJ18=
+        b=ohUb6YEweYY38Vk4rk2I1Ls7KKWv7b9SBG94cHPmbzQSya878H0AU78Zv5ENCTt/n
+         zXsRe46cj7NYqcLeUoYJ5oxj+acTi55ptL32BSz/RvbD/Dtbj3bG1xbHNMAorpMPaX
+         epHX1ER6dReeQE8WacNvLKXMxTdo40l+YUGZ6iig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Szymaszek <gszymaszek@short.pl>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
         Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Patrick Delaunay <patrick.delaunay@foss.st.com>,
+        kernel@dh-electronics.com,
+        linux-stm32@st-md-mailman.stormreply.com,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 068/156] ARM: dts: stm32: fix the Odyssey SoM eMMC VQMMC supply
-Date:   Thu, 22 Jul 2021 18:30:43 +0200
-Message-Id: <20210722155630.595556046@linuxfoundation.org>
+Subject: [PATCH 5.13 069/156] ARM: dts: stm32: Drop unused linux,wakeup from touchscreen node on DHCOM SoM
+Date:   Thu, 22 Jul 2021 18:30:44 +0200
+Message-Id: <20210722155630.625145277@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,35 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Szymaszek <gszymaszek@short.pl>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit f493162319788802b6a49634f7268e691b4c10ec ]
+[ Upstream commit 5247a50c8b53ca214a488da648e1bb35c35c2597 ]
 
-The Seeed SoM-STM32MP157C device tree had the eMMC’s (SDMMC2) VQMMC
-supply set to v3v3 (buck4), the same as the VMMC supply. That was
-incorrect, as on the SoM, the VQMMC supply is provided from vdd (buck3)
-instead.
+Fix the following dtbs_check warning:
+touchscreen@38: 'linux,wakeup' does not match any of the regexes: 'pinctrl-[0-9]+'
 
-Signed-off-by: Grzegorz Szymaszek <gszymaszek@short.pl>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Patrice Chotard <patrice.chotard@foss.st.com>
+Cc: Patrick Delaunay <patrick.delaunay@foss.st.com>
+Cc: kernel@dh-electronics.com
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
 Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-index 6cf49a0a9e69..b5601d270c8f 100644
---- a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-@@ -269,7 +269,7 @@
- 	st,neg-edge;
- 	bus-width = <8>;
- 	vmmc-supply = <&v3v3>;
--	vqmmc-supply = <&v3v3>;
-+	vqmmc-supply = <&vdd>;
- 	mmc-ddr-3_3v;
- 	status = "okay";
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+index b8c8f0b284c3..c5ea08fec535 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+@@ -187,7 +187,6 @@
+ 		reg = <0x38>;
+ 		interrupt-parent = <&gpiog>;
+ 		interrupts = <2 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
+-		linux,wakeup;
+ 	};
  };
+ 
 -- 
 2.30.2
 
