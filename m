@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD563D26E9
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E76F63D2700
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbhGVPAu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:00:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40744 "EHLO mail.kernel.org"
+        id S232177AbhGVPGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:06:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231925AbhGVPAu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:00:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9988661003;
-        Thu, 22 Jul 2021 15:41:23 +0000 (UTC)
+        id S230343AbhGVPGP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:06:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E37F61279;
+        Thu, 22 Jul 2021 15:46:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626968484;
-        bh=PdD1pDOt790RF0O2hTFEKpSgh6/i5twVKh2ZRm36mYk=;
+        s=korg; t=1626968810;
+        bh=rgrXixkuvi+f7KfeX197ojMITJYQntKX985XVMCkmzA=;
         h=Subject:To:Cc:From:Date:From;
-        b=wFW1y/nMWJNfWUvHYhvRKZ14RUby4VBKd9S0C0QGkwbNCHIXHvBmaZ81tdpN/XkDf
-         7Tsv5xO84wOlYZYtFo849KvRZ4lIg+pNd6jUWVYsImMJZQokk9BjM0sATQ8ePIVOcL
-         5Dbcfsim+AK+w2P6XBst8DHXacgKwNXW0KNWs8TQ=
-Subject: FAILED: patch "[PATCH] tcp: call sk_wmem_schedule before sk_mem_charge in zerocopy" failed to apply to 4.19-stable tree
+        b=c/pQ3rYIS6StX0lb0f/oITAs5S9K1/qtfQf81axzSO2ocTFyqlwVWsGpFi5zwBh4e
+         +sVaXpwE6v+NrU1Z5Oui9G4QPn/8OwrN9xApHPL2CjIGoT2UYRX7w06Ev1cXbUjcPE
+         cPpMOaCf06Y9MWmjo1daGsEF5koS7mItA4uHS40Y=
+Subject: FAILED: patch "[PATCH] tcp: call sk_wmem_schedule before sk_mem_charge in zerocopy" failed to apply to 5.4-stable tree
 To:     talalahmad@google.com, davem@davemloft.net, edumazet@google.com,
         soheil@google.com, weiwan@google.com, willemb@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Jul 2021 17:41:13 +0200
-Message-ID: <1626968473173251@kroah.com>
+Date:   Thu, 22 Jul 2021 17:46:47 +0200
+Message-ID: <162696880718862@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -35,7 +35,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
