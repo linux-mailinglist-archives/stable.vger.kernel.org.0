@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DDA3D27D7
+	by mail.lfdr.de (Postfix) with ESMTP id DB0A93D27D9
 	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230327AbhGVPxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:53:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56564 "EHLO mail.kernel.org"
+        id S230298AbhGVPxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:53:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230346AbhGVPxJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:53:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6EF56135A;
-        Thu, 22 Jul 2021 16:33:43 +0000 (UTC)
+        id S230268AbhGVPxL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:53:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 08F9B6135B;
+        Thu, 22 Jul 2021 16:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971624;
-        bh=Dm44ZTuyFLTe7BC6WcffA5iHC3xPeWaJvcnAeXFd1bU=;
+        s=korg; t=1626971626;
+        bh=QW36ld2fStFSJxihXCR04GodtNzwukOib+jE0kNjqpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UeT53vCn9RdngqYhCPP4VkSY44jVKwb//AW66ERCbVTPWUJXLD+nznq6a6ALm8034
-         FFGia2Tx9FFpRESrLQUQmhOZViA8djAI1+oScCjg9zgo4/OJ9z/SXLsT+7Eju+bcTs
-         PFSgaLaIruIiChgEOf9JzWph194G31VvOaWVF094=
+        b=e6D9I0zpmQBB5+uk2maptvK4Bd5i1lJUGGiyU6uhVweLsPHP4D8altoogDax7yL/Y
+         xfUPiSgEFF4+Ocz5HnwDMa4pQzCyCZrDATBuYaFyqUNyE9oXe6T8m546NNieCITA20
+         M/qpZXTqMTpZOlq7NVJTL9OsD/wL1D7C1CAwt4kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Matthias Maennich <maennich@google.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 35/71] thermal/core: Correct function name thermal_zone_device_unregister()
-Date:   Thu, 22 Jul 2021 18:31:10 +0200
-Message-Id: <20210722155619.033835050@linuxfoundation.org>
+Subject: [PATCH 5.4 36/71] kbuild: mkcompile_h: consider timestamp if KBUILD_BUILD_TIMESTAMP is set
+Date:   Thu, 22 Jul 2021 18:31:11 +0200
+Message-Id: <20210722155619.067062070@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -40,35 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Matthias Maennich <maennich@google.com>
 
-[ Upstream commit a052b5118f13febac1bd901fe0b7a807b9d6b51c ]
+[ Upstream commit a979522a1a88556e42a22ce61bccc58e304cb361 ]
 
-Fix the following make W=1 kernel build warning:
+To avoid unnecessary recompilations, mkcompile_h does not regenerate
+compile.h if just the timestamp changed.
+Though, if KBUILD_BUILD_TIMESTAMP is set, an explicit timestamp for the
+build was requested, in which case we should not ignore it.
 
-  drivers/thermal/thermal_core.c:1376: warning: expecting prototype for thermal_device_unregister(). Prototype was for thermal_zone_device_unregister() instead
+If a user follows the documentation for reproducible builds [1] and
+defines KBUILD_BUILD_TIMESTAMP as the git commit timestamp, a clean
+build will have the correct timestamp. A subsequent cherry-pick (or
+amend) changes the commit timestamp and if an incremental build is done
+with a different KBUILD_BUILD_TIMESTAMP now, that new value is not taken
+into consideration. But it should for reproducibility.
 
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210517051020.3463536-1-yangyingliang@huawei.com
+Hence, whenever KBUILD_BUILD_TIMESTAMP is explicitly set, do not ignore
+UTS_VERSION when making a decision about whether the regenerated version
+of compile.h should be moved into place.
+
+[1] https://www.kernel.org/doc/html/latest/kbuild/reproducible-builds.html
+
+Signed-off-by: Matthias Maennich <maennich@google.com>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/mkcompile_h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index c28271817e43..f526ce31f5a2 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -1368,7 +1368,7 @@ free_tz:
- EXPORT_SYMBOL_GPL(thermal_zone_device_register);
+diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
+index d1d757c6edf4..06c1e9e3bc38 100755
+--- a/scripts/mkcompile_h
++++ b/scripts/mkcompile_h
+@@ -80,15 +80,23 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"
+ # Only replace the real compile.h if the new one is different,
+ # in order to preserve the timestamp and avoid unnecessary
+ # recompilations.
+-# We don't consider the file changed if only the date/time changed.
++# We don't consider the file changed if only the date/time changed,
++# unless KBUILD_BUILD_TIMESTAMP was explicitly set (e.g. for
++# reproducible builds with that value referring to a commit timestamp).
+ # A kernel config change will increase the generation number, thus
+ # causing compile.h to be updated (including date/time) due to the
+ # changed comment in the
+ # first line.
  
- /**
-- * thermal_device_unregister - removes the registered thermal zone device
-+ * thermal_zone_device_unregister - removes the registered thermal zone device
-  * @tz: the thermal zone device to remove
-  */
- void thermal_zone_device_unregister(struct thermal_zone_device *tz)
++if [ -z "$KBUILD_BUILD_TIMESTAMP" ]; then
++   IGNORE_PATTERN="UTS_VERSION"
++else
++   IGNORE_PATTERN="NOT_A_PATTERN_TO_BE_MATCHED"
++fi
++
+ if [ -r $TARGET ] && \
+-      grep -v 'UTS_VERSION' $TARGET > .tmpver.1 && \
+-      grep -v 'UTS_VERSION' .tmpcompile > .tmpver.2 && \
++      grep -v $IGNORE_PATTERN $TARGET > .tmpver.1 && \
++      grep -v $IGNORE_PATTERN .tmpcompile > .tmpver.2 && \
+       cmp -s .tmpver.1 .tmpver.2; then
+    rm -f .tmpcompile
+ else
 -- 
 2.30.2
 
