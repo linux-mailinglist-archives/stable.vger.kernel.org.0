@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 287D13D28A8
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31663D2A05
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232761AbhGVP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:57:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33718 "EHLO mail.kernel.org"
+        id S234078AbhGVQHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:07:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230000AbhGVP5f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:57:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40E126135F;
-        Thu, 22 Jul 2021 16:38:09 +0000 (UTC)
+        id S235113AbhGVQG4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:06:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 387AE61DD9;
+        Thu, 22 Jul 2021 16:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971889;
-        bh=+UnJFToStn6Zy5d8VSNkYrQbGPBofNFoARKKatCE95U=;
+        s=korg; t=1626972440;
+        bh=YkOZ46jkTySNfxBPuRR+1k4fuvV4mD24ccmUSE3uCJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uv6isEvk6nAi7lOKj0UHhTsXRtvFDWFw0PNSDKWFTe+syJpgSlRZqp4wf26o7zV2M
-         O2Qs0oBwEdHZbjyLmz+P3eLReH38iCFaDJenJgRYmZBiwlIOrgPbopTt9TOi24n1Nz
-         Ooj2X9by2Xc70qJP2T2iySDxdmTlBqpPWyAXdKPg=
+        b=H6n1ubbiY3y7SdLR1nmkXyiYRPP4BX3LFDzE4rGW4MOLFIZY+OEPCh72lG1Caok23
+         Fa8l1TyUD8GcZpV9Z3cIK4DVhQjcwfDRCy+pEpXyUw7+YL6VPKqGMm1wadw3q4kpyB
+         6+wJSv1Wpob0i82gWqZ5Xtq0/G3Uv43vmw58Rovg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Abel Vesa <abel.vesa@nxp.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 065/125] thermal/drivers/rcar_gen3_thermal: Do not shadow rcar_gen3_ths_tj_1
+Subject: [PATCH 5.13 081/156] arm64: dts: imx8: conn: fix enet clock setting
 Date:   Thu, 22 Jul 2021 18:30:56 +0200
-Message-Id: <20210722155626.852411130@linuxfoundation.org>
+Message-Id: <20210722155631.009546278@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Dong Aisheng <aisheng.dong@nxp.com>
 
-[ Upstream commit 3ae5950db617d1cc3eb4eb55750fa9d138529b49 ]
+[ Upstream commit dfda1fd16aa71c839e4002109b0cd15f61105ebb ]
 
-With -Wshadow:
+enet_clk_ref actually is sourced from internal gpr clocks
+which needs a default rate. Also update enet lpcg clock
+output names to be more straightforward.
 
-    drivers/thermal/rcar_gen3_thermal.c: In function ‘rcar_gen3_thermal_probe’:
-    drivers/thermal/rcar_gen3_thermal.c:310:13: warning: declaration of ‘rcar_gen3_ths_tj_1’ shadows a global declaration [-Wshadow]
-      310 |  const int *rcar_gen3_ths_tj_1 = of_device_get_match_data(dev);
-	  |             ^~~~~~~~~~~~~~~~~~
-    drivers/thermal/rcar_gen3_thermal.c:246:18: note: shadowed declaration is here
-      246 | static const int rcar_gen3_ths_tj_1 = 126;
-	  |                  ^~~~~~~~~~~~~~~~~~
-
-To add to the confusion, the local variable has a different type.
-
-Fix the shadowing by renaming the local variable to ths_tj_1.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/9ea7e65d0331daba96f9a7925cb3d12d2170efb1.1623076804.git.geert+renesas@glider.be
+Cc: Abel Vesa <abel.vesa@nxp.com>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_gen3_thermal.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ .../boot/dts/freescale/imx8-ss-conn.dtsi      | 50 ++++++++++++-------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index 8d724d92d57f..c4f28752d148 100644
---- a/drivers/thermal/rcar_gen3_thermal.c
-+++ b/drivers/thermal/rcar_gen3_thermal.c
-@@ -366,7 +366,7 @@ static int rcar_gen3_thermal_probe(struct platform_device *pdev)
- {
- 	struct rcar_gen3_thermal_priv *priv;
- 	struct device *dev = &pdev->dev;
--	const int *rcar_gen3_ths_tj_1 = of_device_get_match_data(dev);
-+	const int *ths_tj_1 = of_device_get_match_data(dev);
- 	struct resource *res;
- 	struct thermal_zone_device *zone;
- 	int ret, irq, i;
-@@ -434,8 +434,7 @@ static int rcar_gen3_thermal_probe(struct platform_device *pdev)
- 		priv->tscs[i] = tsc;
+diff --git a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
+index e1e81ca0ca69..a79f42a9618e 100644
+--- a/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8-ss-conn.dtsi
+@@ -77,9 +77,12 @@ conn_subsys: bus@5b000000 {
+ 			     <GIC_SPI 259 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&enet0_lpcg IMX_LPCG_CLK_4>,
+ 			 <&enet0_lpcg IMX_LPCG_CLK_2>,
+-			 <&enet0_lpcg IMX_LPCG_CLK_1>,
++			 <&enet0_lpcg IMX_LPCG_CLK_3>,
+ 			 <&enet0_lpcg IMX_LPCG_CLK_0>;
+ 		clock-names = "ipg", "ahb", "enet_clk_ref", "ptp";
++		assigned-clocks = <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
++				  <&clk IMX_SC_R_ENET_0 IMX_SC_C_CLKDIV>;
++		assigned-clock-rates = <250000000>, <125000000>;
+ 		fsl,num-tx-queues=<3>;
+ 		fsl,num-rx-queues=<3>;
+ 		power-domains = <&pd IMX_SC_R_ENET_0>;
+@@ -94,9 +97,12 @@ conn_subsys: bus@5b000000 {
+ 				<GIC_SPI 263 IRQ_TYPE_LEVEL_HIGH>;
+ 		clocks = <&enet1_lpcg IMX_LPCG_CLK_4>,
+ 			 <&enet1_lpcg IMX_LPCG_CLK_2>,
+-			 <&enet1_lpcg IMX_LPCG_CLK_1>,
++			 <&enet1_lpcg IMX_LPCG_CLK_3>,
+ 			 <&enet1_lpcg IMX_LPCG_CLK_0>;
+ 		clock-names = "ipg", "ahb", "enet_clk_ref", "ptp";
++		assigned-clocks = <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
++				  <&clk IMX_SC_R_ENET_1 IMX_SC_C_CLKDIV>;
++		assigned-clock-rates = <250000000>, <125000000>;
+ 		fsl,num-tx-queues=<3>;
+ 		fsl,num-rx-queues=<3>;
+ 		power-domains = <&pd IMX_SC_R_ENET_1>;
+@@ -152,15 +158,19 @@ conn_subsys: bus@5b000000 {
+ 		#clock-cells = <1>;
+ 		clocks = <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
+ 			 <&clk IMX_SC_R_ENET_0 IMX_SC_PM_CLK_PER>,
+-			 <&conn_axi_clk>, <&conn_ipg_clk>, <&conn_ipg_clk>;
++			 <&conn_axi_clk>,
++			 <&clk IMX_SC_R_ENET_0 IMX_SC_C_TXCLK>,
++			 <&conn_ipg_clk>,
++			 <&conn_ipg_clk>;
+ 		clock-indices = <IMX_LPCG_CLK_0>, <IMX_LPCG_CLK_1>,
+-				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_4>,
+-				<IMX_LPCG_CLK_5>;
+-		clock-output-names = "enet0_ipg_root_clk",
+-				     "enet0_tx_clk",
+-				     "enet0_ahb_clk",
+-				     "enet0_ipg_clk",
+-				     "enet0_ipg_s_clk";
++				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_3>,
++				<IMX_LPCG_CLK_4>, <IMX_LPCG_CLK_5>;
++		clock-output-names = "enet0_lpcg_timer_clk",
++				     "enet0_lpcg_txc_sampling_clk",
++				     "enet0_lpcg_ahb_clk",
++				     "enet0_lpcg_rgmii_txc_clk",
++				     "enet0_lpcg_ipg_clk",
++				     "enet0_lpcg_ipg_s_clk";
+ 		power-domains = <&pd IMX_SC_R_ENET_0>;
+ 	};
  
- 		priv->thermal_init(tsc);
--		rcar_gen3_thermal_calc_coefs(tsc, ptat, thcodes[i],
--					     *rcar_gen3_ths_tj_1);
-+		rcar_gen3_thermal_calc_coefs(tsc, ptat, thcodes[i], *ths_tj_1);
- 
- 		zone = devm_thermal_zone_of_sensor_register(dev, i, tsc,
- 							    &rcar_gen3_tz_of_ops);
+@@ -170,15 +180,19 @@ conn_subsys: bus@5b000000 {
+ 		#clock-cells = <1>;
+ 		clocks = <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
+ 			 <&clk IMX_SC_R_ENET_1 IMX_SC_PM_CLK_PER>,
+-			 <&conn_axi_clk>, <&conn_ipg_clk>, <&conn_ipg_clk>;
++			 <&conn_axi_clk>,
++			 <&clk IMX_SC_R_ENET_1 IMX_SC_C_TXCLK>,
++			 <&conn_ipg_clk>,
++			 <&conn_ipg_clk>;
+ 		clock-indices = <IMX_LPCG_CLK_0>, <IMX_LPCG_CLK_1>,
+-				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_4>,
+-				<IMX_LPCG_CLK_5>;
+-		clock-output-names = "enet1_ipg_root_clk",
+-				     "enet1_tx_clk",
+-				     "enet1_ahb_clk",
+-				     "enet1_ipg_clk",
+-				     "enet1_ipg_s_clk";
++				<IMX_LPCG_CLK_2>, <IMX_LPCG_CLK_3>,
++				<IMX_LPCG_CLK_4>, <IMX_LPCG_CLK_5>;
++		clock-output-names = "enet1_lpcg_timer_clk",
++				     "enet1_lpcg_txc_sampling_clk",
++				     "enet1_lpcg_ahb_clk",
++				     "enet1_lpcg_rgmii_txc_clk",
++				     "enet1_lpcg_ipg_clk",
++				     "enet1_lpcg_ipg_s_clk";
+ 		power-domains = <&pd IMX_SC_R_ENET_1>;
+ 	};
+ };
 -- 
 2.30.2
 
