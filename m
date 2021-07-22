@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 013A03D28ED
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BC353D2A62
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233303AbhGVQAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:00:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
+        id S234897AbhGVQLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233453AbhGVP7I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:59:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6D061370;
-        Thu, 22 Jul 2021 16:39:40 +0000 (UTC)
+        id S235383AbhGVQJO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:09:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C111061DD3;
+        Thu, 22 Jul 2021 16:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971981;
-        bh=Rq/EY8oFCZ7BlqYqQNhEDdyj539dRv67Ieb8OT9TQNY=;
+        s=korg; t=1626972552;
+        bh=8xLDXjQ/xNoMru2tZozrN8rqgrCS60aSCI41WcSiZfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qSklHl8qmX7OBP9hdGINgPTy2oCbxof+9zen32vbr0fgv425DXc0dkRpkEVs7VQtY
-         H+RFCGCOAzrzySydfwpI5BBgs2BRYqlX7W7z4b6so7MD8vzl1AQadaUCT2BclkmEdT
-         vSoZXgDeCNKY6DovqR1Op7q99lokKrZYAAaMKQ4k=
+        b=HwwRqGDvJBZ4OWXKrujRO3kIW3AAigOlJ1DXdiZO6b55qZ5CACKjL2/aTGJQ118BB
+         hwnd30eia3fqrXdHdSaC0208Kk7c5C5KOFH6Jd2KQu8pYDN0Rs8ygNh3/7L+14X+Ty
+         UuUzNd9jtWfDZksHCFlBb+Vc4Ptw4rqp8lIjtSTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 101/125] net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
-Date:   Thu, 22 Jul 2021 18:31:32 +0200
-Message-Id: <20210722155628.049855462@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.13 118/156] netfilter: nf_tables: Fix dereference of null pointer flow
+Date:   Thu, 22 Jul 2021 18:31:33 +0200
+Message-Id: <20210722155632.183087632@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit 2b452550a203d88112eaf0ba9fc4b750a000b496 upstream.
+commit 4ca041f919f13783b0b03894783deee00dbca19a upstream.
 
-Make sure that we disable each of the TX and RX queues in the TDMA and
-RDMA control registers. This is a correctness change to be symmetrical
-with the code that enables the TX and RX queues.
+In the case where chain->flags & NFT_CHAIN_HW_OFFLOAD is false then
+nft_flow_rule_create is not called and flow is NULL. The subsequent
+error handling execution via label err_destroy_flow_rule will lead
+to a null pointer dereference on flow when calling nft_flow_rule_destroy.
+Since the error path to err_destroy_flow_rule has to cater for null
+and non-null flows, only call nft_flow_rule_destroy if flow is non-null
+to fix this issue.
 
-Tested-by: Maxime Ripard <maxime@cerno.tech>
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Addresses-Coverity: ("Explicity null dereference")
+Fixes: 3c5e44622011 ("netfilter: nf_tables: memleak in hw offload abort path")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/netfilter/nf_tables_api.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3238,15 +3238,21 @@ static void bcmgenet_get_hw_addr(struct
- /* Returns a reusable dma control register value */
- static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
- {
-+	unsigned int i;
- 	u32 reg;
- 	u32 dma_ctrl;
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -3453,7 +3453,8 @@ static int nf_tables_newrule(struct sk_b
+ 	return 0;
  
- 	/* disable DMA */
- 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->tx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
- 
-+	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->rx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
+ err_destroy_flow_rule:
+-	nft_flow_rule_destroy(flow);
++	if (flow)
++		nft_flow_rule_destroy(flow);
+ err_release_rule:
+ 	nf_tables_rule_release(&ctx, rule);
+ err_release_expr:
 
 
