@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D138C3D29AE
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E95343D298D
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235031AbhGVQF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40494 "EHLO mail.kernel.org"
+        id S233160AbhGVQF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233975AbhGVQD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233228AbhGVQD6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Jul 2021 12:03:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A52A561C8C;
-        Thu, 22 Jul 2021 16:44:16 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BC4D61C9E;
+        Thu, 22 Jul 2021 16:44:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972257;
-        bh=cKbrKWrpak8L0uBM/FvyHSAiZzF4hb5RFwSKwT9B0Rg=;
+        s=korg; t=1626972260;
+        bh=2BJYWQC9ZJHJmSmudgur7zLKNJYhUoA8y6rCeo+c+OA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Io6VqEvgcQZ88AT0/Np6ENBES3TQAOP4rFVZ4ftti5guoGP6J3FkIqa6jlb6bjY0
-         eoGepDfN+F839ufSzRe5vsurFGhN41fzlYOSNKJB3NFD7RPmC9K7nZp20+/cbTeyvg
-         T6wl+IRadA1nT+xJh+sU+78GQed92kmMo9BJrK2E=
+        b=lJwkf1uNuxLXL1eJk7HfiBSc96a2+oEUalF+G3VW2kZ5kN2GvMANTq1Rd9uZ/HY22
+         kP1WImViDN8xrxpSRQ+VVMBe+RiXhFLt/tJ/8Q5vsfYjQ4S/7Yjt6O8jI2kC0g+MgF
+         0aO89onwI2Kf3b+gZyQ3bh/4mJcv+yTE9QJCN+xU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Foss <robert.foss@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 046/156] arm64: dts: qcom: sm8350: fix the node unit addresses
-Date:   Thu, 22 Jul 2021 18:30:21 +0200
-Message-Id: <20210722155629.897199540@linuxfoundation.org>
+Subject: [PATCH 5.13 047/156] arm64: dts: qcom: msm8996: Make CPUCC actually probe (and work)
+Date:   Thu, 22 Jul 2021 18:30:22 +0200
+Message-Id: <20210722155629.927514337@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -41,59 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 1dee9e3b0997fef7170f7ea2d8eab47d0cd334d8 ]
+[ Upstream commit 0a275a35ceab07cb622ff212c54d6866e246ac53 ]
 
-Some node unit addresses were put wrongly in the dts, resulting in
-below warning when run with W=1
+Fix the compatible to make the driver probe and tell the
+driver where to look for the "xo" clock to make sure everything
+works.
 
-arch/arm64/boot/dts/qcom/sm8350.dtsi:693.34-702.5: Warning (simple_bus_reg): /soc@0/thermal-sensor@c222000: simple-bus unit address format error, expected "c263000"
-arch/arm64/boot/dts/qcom/sm8350.dtsi:704.34-713.5: Warning (simple_bus_reg): /soc@0/thermal-sensor@c223000: simple-bus unit address format error, expected "c265000"
-arch/arm64/boot/dts/qcom/sm8350.dtsi:1180.32-1185.5: Warning (simple_bus_reg): /soc@0/interconnect@90e0000: simple-bus unit address format error, expected "90c0000"
+Then we get a happy (eh, happier) 8996:
 
-Fix by correcting to the correct address as given in reg node
+somainline-sdcard:/home/konrad# cat /sys/kernel/debug/clk/pwrcl_pll/clk_rate
+1152000000
 
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Link: https://lore.kernel.org/r/20210513060733.382420-1-vkoul@kernel.org
+Don't backport without "arm64: dts: qcom: msm8996: Add CPU opps", as
+the system fails to boot without consumers for these clocks.
+
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210527192958.775434-1-konrad.dybcio@somainline.org
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8350.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8996.dtsi | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-index ed0b51bc03ea..a2382eb8619b 100644
---- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
-@@ -689,7 +689,7 @@
- 			interrupt-controller;
- 		};
- 
--		tsens0: thermal-sensor@c222000 {
-+		tsens0: thermal-sensor@c263000 {
- 			compatible = "qcom,sm8350-tsens", "qcom,tsens-v2";
- 			reg = <0 0x0c263000 0 0x1ff>, /* TM */
- 			      <0 0x0c222000 0 0x8>; /* SROT */
-@@ -700,7 +700,7 @@
- 			#thermal-sensor-cells = <1>;
- 		};
- 
--		tsens1: thermal-sensor@c223000 {
-+		tsens1: thermal-sensor@c265000 {
- 			compatible = "qcom,sm8350-tsens", "qcom,tsens-v2";
- 			reg = <0 0x0c265000 0 0x1ff>, /* TM */
- 			      <0 0x0c223000 0 0x8>; /* SROT */
-@@ -1176,7 +1176,7 @@
+diff --git a/arch/arm64/boot/dts/qcom/msm8996.dtsi b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+index ce430ba9c118..dd89d3cb772b 100644
+--- a/arch/arm64/boot/dts/qcom/msm8996.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8996.dtsi
+@@ -1745,9 +1745,14 @@
+ 				};
  			};
  		};
++
+ 		kryocc: clock-controller@6400000 {
+-			compatible = "qcom,apcc-msm8996";
++			compatible = "qcom,msm8996-apcc";
+ 			reg = <0x06400000 0x90000>;
++
++			clock-names = "xo";
++			clocks = <&xo_board>;
++
+ 			#clock-cells = <1>;
+ 		};
  
--		dc_noc: interconnect@90e0000 {
-+		dc_noc: interconnect@90c0000 {
- 			compatible = "qcom,sm8350-dc-noc";
- 			reg = <0 0x090c0000 0 0x4200>;
- 			#interconnect-cells = <1>;
 -- 
 2.30.2
 
