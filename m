@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2987D3D29F6
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30AC3D289E
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233987AbhGVQHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:07:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
+        id S232849AbhGVP5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234363AbhGVQGe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:06:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 09FDC61363;
-        Thu, 22 Jul 2021 16:47:07 +0000 (UTC)
+        id S232963AbhGVP5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:57:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 47AE06135B;
+        Thu, 22 Jul 2021 16:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972428;
+        s=korg; t=1626971878;
         bh=IS1vLpPz6uocNDSd2Xrszaj7fRjp7DbJLKWZOOhIkb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X6tBH0i9XjtfvXtGyC4smGm4yeJJONwrRjfZirH+ngvRjM3ZxUfOGHtTpWqSQQxuK
-         B/0er2nOG/ME0Eghka6QlCP/i8ZmIudobwRz0pepokIHdk8bkZq0oA8EcFxzD/IHRR
-         DmO+IOOjx7z3ayeMRvX62LvqmmHjqKk0t/e9RgKg=
+        b=UYcjXMqt/PLVaerqO9bJEUycue2l5g0HPOFWqpacc6iU6A5NBYMEcPi+X1t0Dnptz
+         oUrguImsdY33HQw2wS+TcgjZ6axA1CgqtPwlE6wpcEz2tjpY8t/IQgbhPvKv0d5yJd
+         4jr0pphGIHLVBAUH0TdTt6EMJIPJ/EQRS1JrT7dM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 076/156] firmware: tegra: bpmp: Fix Tegra234-only builds
-Date:   Thu, 22 Jul 2021 18:30:51 +0200
-Message-Id: <20210722155630.850609367@linuxfoundation.org>
+Subject: [PATCH 5.10 061/125] firmware: tegra: bpmp: Fix Tegra234-only builds
+Date:   Thu, 22 Jul 2021 18:30:52 +0200
+Message-Id: <20210722155626.723179459@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
