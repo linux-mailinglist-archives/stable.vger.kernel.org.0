@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3A73D2A39
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8070E3D2906
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234359AbhGVQKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
+        id S233705AbhGVQAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233742AbhGVQIk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:08:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C5461DBA;
-        Thu, 22 Jul 2021 16:48:33 +0000 (UTC)
+        id S232997AbhGVQAD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:00:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6D760E0C;
+        Thu, 22 Jul 2021 16:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972513;
-        bh=iTw8AkC/KFpgWuZKgaxdDF+nxTLIUgiX5Y/A4mEKECs=;
+        s=korg; t=1626972038;
+        bh=bxp28ytE6JLkgpD5YkX0/KOLSOb7QxiwSiht3C8xOdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmDJRy/2LVzE5JphLFlQHy9QIrwikPjZSMVF1RRdmnByq5b+zxKPwyrt9pgimwaLa
-         P9uFpPp18oeTlyigQ2T6CGdvT4C2/Qo7s6MTRE+RH24uuLYptKyIcDOi3shoxQa0iU
-         tTeiV08Uk/6gwg+DpDIoYczVyTfD8qHXatDamhbA=
+        b=rPBrPcrWOP20vT0LAVx+WaZ7PxCDOqY1o0cZxuUxwS6ObrRvL4kyKjj7am/3YpvrG
+         YWlsIzUoDF9pLiWkQnhaEA3I/SgMG+I49CFjuP1b621blMhKvoxeCci5nk2gAhD2xG
+         5RsXEr3SlH1bWhbONRcUiBQyN7OYegprMYlb3pxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.13 140/156] ARM: dts: aspeed: Fix AST2600 machines line names
+        stable@vger.kernel.org, Stephan Gerhold <stephan@gerhold.net>,
+        newbyte@disroot.org, Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.10 124/125] drm/panel: nt35510: Do not fail if DSI read fails
 Date:   Thu, 22 Jul 2021 18:31:55 +0200
-Message-Id: <20210722155632.876965331@linuxfoundation.org>
+Message-Id: <20210722155628.826965016@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,54 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit ca46ad2214473df1a6a9496be17156d65ba89b9f upstream.
+commit 1988e0d84161dabd99d1c27033fbd6ee439bf432 upstream.
 
-Tacoma and Rainier both have a line-names array that is too long:
+Failing to read the MTP over DSI should not bring down the
+system and make us bail out from using the display, it turns
+out that this happens when toggling the display off and on,
+and that write is often still working so the display output
+is just fine. Printing an error is enough.
 
- gpio gpiochip0: gpio-line-names is length 232 but should be at most length 208
+Tested by killing the Gnome session repeatedly on the
+Samsung Skomer.
 
-This was probably copied from an AST2500 device tree that did have more
-GPIOs on the controller.
-
-Fixes: e9b24b55ca4f ("ARM: dts: aspeed: rainier: Add gpio line names")
-Fixes: 2f68e4e7df67 ("ARM: dts: aspeed: tacoma: Add gpio line names")
-Link: https://lore.kernel.org/r/20210624090742.56640-1-joel@jms.id.au
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+Fixes: 899f24ed8d3a ("drm/panel: Add driver for Novatek NT35510-based panels")
+Cc: Stephan Gerhold <stephan@gerhold.net>
+Reported-by: newbyte@disroot.org
+Acked-by: Stefan Hansson <newbyte@disroot.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210603231830.3200040-1-linus.walleij@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts |    5 +----
- arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts  |    5 +----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/panel/panel-novatek-nt35510.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
-@@ -280,10 +280,7 @@
- 	/*W0-W7*/	"","","","","","","","",
- 	/*X0-X7*/	"","","","","","","","",
- 	/*Y0-Y7*/	"","","","","","","","",
--	/*Z0-Z7*/	"","","","","","","","",
--	/*AA0-AA7*/	"","","","","","","","",
--	/*AB0-AB7*/	"","","","","","","","",
--	/*AC0-AC7*/	"","","","","","","","";
-+	/*Z0-Z7*/	"","","","","","","","";
+--- a/drivers/gpu/drm/panel/panel-novatek-nt35510.c
++++ b/drivers/gpu/drm/panel/panel-novatek-nt35510.c
+@@ -706,9 +706,7 @@ static int nt35510_power_on(struct nt355
+ 	if (ret)
+ 		return ret;
  
- 	pin_mclr_vpp {
- 		gpio-hog;
---- a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
-@@ -136,10 +136,7 @@
- 	/*W0-W7*/	"","","","","","","","",
- 	/*X0-X7*/	"","","","","","","","",
- 	/*Y0-Y7*/	"","","","","","","","",
--	/*Z0-Z7*/	"","","","","","","","",
--	/*AA0-AA7*/	"","","","","","","","",
--	/*AB0-AB7*/	"","","","","","","","",
--	/*AC0-AC7*/	"","","","","","","","";
-+	/*Z0-Z7*/	"","","","","","","","";
- };
+-	ret = nt35510_read_id(nt);
+-	if (ret)
+-		return ret;
++	nt35510_read_id(nt);
  
- &fmc {
+ 	/* Set up stuff in  manufacturer control, page 1 */
+ 	ret = nt35510_send_long(nt, dsi, MCS_CMD_MAUCCTR,
 
 
