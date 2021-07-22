@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2773D2A2E
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 997533D28F5
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234505AbhGVQJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:09:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52698 "EHLO mail.kernel.org"
+        id S233384AbhGVQAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233376AbhGVQHQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:07:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 134DD61D2F;
-        Thu, 22 Jul 2021 16:47:49 +0000 (UTC)
+        id S233847AbhGVP7f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:59:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48AA660E0C;
+        Thu, 22 Jul 2021 16:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972470;
-        bh=d1M0x49w8WIFJ0m9cEwCh1sdeHXQq5Jtzmrwe9B4Vio=;
+        s=korg; t=1626972009;
+        bh=9k1BIdPX0CC+8RIExlDw73dOwbK84xLdbE8koyqanis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1jK+fLQhFhDx2LhX1Iye2d/ogdTEf4mofrE0am5QSxGb090eOQ3uyoZ+R+oRDc4uq
-         LnOQbIYSNZ/Ez+k9y6i8UIW+/IevTTyD9hBcvK/Pp6C6DdGd4X/LyAFNoE2toFRSbM
-         zZr9HY9favss3L2Fy49PTSsx/GnBHoRJAn0b/Tmw=
+        b=l8d6G6Xx/HO3dAPuA0bWyDzX1dfAS7d+xt8SW6SlX5V6xXXVpG8D/w2Zdq0yUgon6
+         5/uReSdkZn7gGqnBlRU5L2yEg6RdCYan+NOMMnnY1N+KiHkiX+BuyiL3GW7cBY1Bms
+         /x3OaJ7oqEOXGXdsyEYm1rQSbt8rLusEKFpEI5Tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 127/156] net: qcom/emac: fix UAF in emac_remove
+        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+Subject: [PATCH 5.10 111/125] dma-buf/sync_file: Dont leak fences on merge failure
 Date:   Thu, 22 Jul 2021 18:31:42 +0200
-Message-Id: <20210722155632.467108686@linuxfoundation.org>
+Message-Id: <20210722155628.398162422@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jason Ekstrand <jason@jlekstrand.net>
 
-commit ad297cd2db8953e2202970e9504cab247b6c7cb4 upstream.
+commit ffe000217c5068c5da07ccb1c0f8cce7ad767435 upstream.
 
-adpt is netdev private data and it cannot be
-used after free_netdev() call. Using adpt after free_netdev()
-can cause UAF bug. Fix it by moving free_netdev() at the end of the
-function.
+Each add_fence() call does a dma_fence_get() on the relevant fence.  In
+the error path, we weren't calling dma_fence_put() so all those fences
+got leaked.  Also, in the krealloc_array failure case, we weren't
+freeing the fences array.  Instead, ensure that i and fences are always
+zero-initialized and dma_fence_put() all the fences and kfree(fences) on
+every error path.
 
-Fixes: 54e19bc74f33 ("net: qcom/emac: do not use devm on internal phy pdev")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
+Cc: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
+Cc: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210624174732.1754546-1-jason@jlekstrand.net
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qualcomm/emac/emac.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma-buf/sync_file.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/emac/emac.c
-+++ b/drivers/net/ethernet/qualcomm/emac/emac.c
-@@ -735,12 +735,13 @@ static int emac_remove(struct platform_d
+--- a/drivers/dma-buf/sync_file.c
++++ b/drivers/dma-buf/sync_file.c
+@@ -211,8 +211,8 @@ static struct sync_file *sync_file_merge
+ 					 struct sync_file *b)
+ {
+ 	struct sync_file *sync_file;
+-	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
+-	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
++	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
++	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
  
- 	put_device(&adpt->phydev->mdio.dev);
- 	mdiobus_unregister(adpt->mii_bus);
--	free_netdev(netdev);
+ 	sync_file = sync_file_alloc();
+ 	if (!sync_file)
+@@ -236,7 +236,7 @@ static struct sync_file *sync_file_merge
+ 	 * If a sync_file can only be created with sync_file_merge
+ 	 * and sync_file_create, this is a reasonable assumption.
+ 	 */
+-	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
++	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
+ 		struct dma_fence *pt_a = a_fences[i_a];
+ 		struct dma_fence *pt_b = b_fences[i_b];
  
- 	if (adpt->phy.digital)
- 		iounmap(adpt->phy.digital);
- 	iounmap(adpt->phy.base);
+@@ -278,15 +278,16 @@ static struct sync_file *sync_file_merge
+ 		fences = nfences;
+ 	}
  
-+	free_netdev(netdev);
-+
- 	return 0;
- }
+-	if (sync_file_set_fence(sync_file, fences, i) < 0) {
+-		kfree(fences);
++	if (sync_file_set_fence(sync_file, fences, i) < 0)
+ 		goto err;
+-	}
+ 
+ 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
+ 	return sync_file;
+ 
+ err:
++	while (i)
++		dma_fence_put(fences[--i]);
++	kfree(fences);
+ 	fput(sync_file->file);
+ 	return NULL;
  
 
 
