@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2923A3D2A59
+	by mail.lfdr.de (Postfix) with ESMTP id 970A63D2A5A
 	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234776AbhGVQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234914AbhGVQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Jul 2021 12:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234409AbhGVQIs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:08:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CF66E61DC4;
-        Thu, 22 Jul 2021 16:48:35 +0000 (UTC)
+        id S235234AbhGVQIz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:08:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DC7561DB0;
+        Thu, 22 Jul 2021 16:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972516;
-        bh=56C54re7AaBKrvgLt+YMW0rAGOyOEn9kcPJOeaNd6+g=;
+        s=korg; t=1626972518;
+        bh=3u9vpWa25zjBxq5IidMDYt9eUPZhUvlec/IPMhDqFts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dWGNrw9wEUN3I7EZ7c+leeIaCwvsLuyMJRbjZBGf6tYlwcNYXpa7SNBATb2sjScRS
-         +91A0dO99SamllWKtvncv34oTvmwiiZh+JyRFu42r0mQ9+qHycW1O2zkhLYbvGC7xO
-         YLpRx/X/RQvXI34OT7sBgUrinwzgQMNslVjt4Oww=
+        b=fjKzm9Hhn7UItPyp641jpKtbCCTjjXn9MsQIYjXRbfeKMgeZbvuNACLb1Sxm6h5Lx
+         1wC9CUAtDKUUnqO3/xllibfltZElKl9hqwD588FbMkvDugTAEFN0uAjjjjJWzeohtG
+         w1zc3wo4s00mQSM57618b2Xe+FtBUNKdZTQecg+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Andrew Jeffery <andrew@aj.id.au>,
         Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.13 141/156] ARM: dts: tacoma: Add phase corrections for eMMC
-Date:   Thu, 22 Jul 2021 18:31:56 +0200
-Message-Id: <20210722155632.908287671@linuxfoundation.org>
+Subject: [PATCH 5.13 142/156] ARM: dts: everest: Add phase corrections for eMMC
+Date:   Thu, 22 Jul 2021 18:31:57 +0200
+Message-Id: <20210722155632.939875101@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -41,31 +41,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrew Jeffery <andrew@aj.id.au>
 
-commit 2d6608b57c50c54c3e46649110e8ea5a40959c30 upstream.
+commit faffd1b2bde3ee428d6891961f6a60f8e08749d6 upstream.
 
-The degree values were reversed out from the magic tap values of 7 (in)
-and 15 + inversion (out) initially suggested by Aspeed.
+The values were determined experimentally via boot tests, not by
+measuring the bus behaviour with a scope. We plan to do scope
+measurements to confirm or refine the values and will update the
+devicetree if necessary once these have been obtained.
 
-With the patch tacoma survives several gigabytes of reads and writes
-using dd while without it locks up randomly during the boot process.
+However, with the patch we can write and read data without issue, where
+as booting the system without the patch failed at the point of mounting
+the rootfs.
 
 Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20210625061017.1149942-1-andrew@aj.id.au
+Link: https://lore.kernel.org/r/20210628013605.1257346-1-andrew@aj.id.au
 Fixes: 2fc88f92359d ("mmc: sdhci-of-aspeed: Expose clock phase controls")
-Fixes: 961216c135a8 ("ARM: dts: aspeed: Add Rainier system")
+Fixes: a5c5168478d7 ("ARM: dts: aspeed: Add Everest BMC machine")
 Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts |    1 +
+ arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
-+++ b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
-@@ -186,6 +186,7 @@
+--- a/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts
+@@ -1068,6 +1068,7 @@
  
  &emmc {
  	status = "okay";
-+	clk-phase-mmc-hs200 = <36>, <270>;
++	clk-phase-mmc-hs200 = <180>, <180>;
  };
  
  &fsim0 {
