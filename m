@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9851F3D2860
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07E7D3D27CF
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230102AbhGVP4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:56:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32884 "EHLO mail.kernel.org"
+        id S230166AbhGVPxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:53:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232833AbhGVP4o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:56:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EAE96135A;
-        Thu, 22 Jul 2021 16:37:18 +0000 (UTC)
+        id S230198AbhGVPwy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:52:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0258C6135C;
+        Thu, 22 Jul 2021 16:33:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971838;
-        bh=SZnq5VVEghT7dcss/neDjXEOAvWnzcf2v5dVXoj4GhU=;
+        s=korg; t=1626971608;
+        bh=9bDJHo/tbUob7FbJ8et6dojhK5vB9CjDQyeRHuWrhYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWu49i5r6XsU3SO/bL3DI9E+QGPKKt/pFj9V4hgNyScJCUIOohg7zzGKoA9IQ/6t5
-         SzSeC64LPFcgCKsw5NqtH+3wm82jB0vO3iluabeHS2lNfAECXP2OfAecLfB0L6J2FA
-         hJKGysE+HjQHj3QGekPvz8Xkzru0FjzizKjKWeBs=
+        b=cbdzhdIHPbuTVExhk1+RdwCFy5v6F8CSolA84pjqwnlv5nRAFCeyFzEnesZy4pT43
+         /xi0aTVVs/XEwtNuBXlHHhAh8zftOpDXn7r89xLLP0DkTiWG6Yz9tbZksB3YCno7wW
+         HKO2Z3S3ikBx200k3eIJh6cWGGz1ju+UovmgzAtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Etienne Carriere <etienne.carriere@linaro.org>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        stable@vger.kernel.org, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 047/125] firmware: arm_scmi: Add SMCCC discovery dependency in Kconfig
+Subject: [PATCH 5.4 03/71] ARM: dts: rockchip: fix pinctrl sleep nodename for rk3036-kylin and rk3288
 Date:   Thu, 22 Jul 2021 18:30:38 +0200
-Message-Id: <20210722155626.283159319@linuxfoundation.org>
+Message-Id: <20210722155617.978149140@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
+References: <20210722155617.865866034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Etienne Carriere <etienne.carriere@linaro.org>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit c05b07963e965ae34e75ee8c33af1095350cd87e ]
+[ Upstream commit dfbfb86a43f9a5bbd166d88bca9e07ee4e1bff31 ]
 
-ARM_SCMI_PROTOCOL depends on either MAILBOX or HAVE_ARM_SMCCC_DISCOVERY,
-not MAILBOX alone. Fix the depedency in Kconfig file and driver to
-reflect the same.
+A test with the command below aimed at powerpc generates
+notifications in the Rockchip ARM tree.
 
-Link: https://lore.kernel.org/r/20210521134055.24271-1-etienne.carriere@linaro.org
-Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Etienne Carriere <etienne.carriere@linaro.org>
-[sudeep.holla: Minor tweaks to subject and change log]
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Fix pinctrl "sleep" nodename by renaming it to "suspend"
+for rk3036-kylin and rk3288
+
+make ARCH=arm dtbs_check
+DT_SCHEMA_FILES=Documentation/devicetree/bindings/powerpc/sleep.yaml
+
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210126110221.10815-1-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/Kconfig           | 2 +-
- drivers/firmware/arm_scmi/common.h | 2 +-
+ arch/arm/boot/dts/rk3036-kylin.dts | 2 +-
+ arch/arm/boot/dts/rk3288.dtsi      | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index 5fa6b3ca0a38..c08968c5ddf8 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -9,7 +9,7 @@ menu "Firmware Drivers"
- config ARM_SCMI_PROTOCOL
- 	tristate "ARM System Control and Management Interface (SCMI) Message Protocol"
- 	depends on ARM || ARM64 || COMPILE_TEST
--	depends on MAILBOX
-+	depends on MAILBOX || HAVE_ARM_SMCCC_DISCOVERY
- 	help
- 	  ARM System Control and Management Interface (SCMI) protocol is a
- 	  set of operating system-independent software interfaces that are
-diff --git a/drivers/firmware/arm_scmi/common.h b/drivers/firmware/arm_scmi/common.h
-index 65063fa948d4..34b7ae7980a3 100644
---- a/drivers/firmware/arm_scmi/common.h
-+++ b/drivers/firmware/arm_scmi/common.h
-@@ -243,7 +243,7 @@ struct scmi_desc {
- };
+diff --git a/arch/arm/boot/dts/rk3036-kylin.dts b/arch/arm/boot/dts/rk3036-kylin.dts
+index fb3cf005cc90..2ef47ebeb0cb 100644
+--- a/arch/arm/boot/dts/rk3036-kylin.dts
++++ b/arch/arm/boot/dts/rk3036-kylin.dts
+@@ -390,7 +390,7 @@
+ 		};
+ 	};
  
- extern const struct scmi_desc scmi_mailbox_desc;
--#ifdef CONFIG_HAVE_ARM_SMCCC
-+#ifdef CONFIG_HAVE_ARM_SMCCC_DISCOVERY
- extern const struct scmi_desc scmi_smc_desc;
- #endif
+-	sleep {
++	suspend {
+ 		global_pwroff: global-pwroff {
+ 			rockchip,pins = <2 RK_PA7 1 &pcfg_pull_none>;
+ 		};
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index cc893e154fe5..a452d4ea3938 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1575,7 +1575,7 @@
+ 			drive-strength = <12>;
+ 		};
  
+-		sleep {
++		suspend {
+ 			global_pwroff: global-pwroff {
+ 				rockchip,pins = <0 RK_PA0 1 &pcfg_pull_none>;
+ 			};
 -- 
 2.30.2
 
