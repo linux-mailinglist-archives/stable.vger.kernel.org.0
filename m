@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3D53D266D
+	by mail.lfdr.de (Postfix) with ESMTP id 799093D266E
 	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232583AbhGVOaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232578AbhGVOaj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 22 Jul 2021 10:30:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58374 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232578AbhGVOaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232576AbhGVOaI (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 22 Jul 2021 10:30:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B160E61029;
-        Thu, 22 Jul 2021 15:10:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BC7F61289;
+        Thu, 22 Jul 2021 15:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626966628;
-        bh=FZiempDkpX96qUub8hilepz3mTxQUtkMQDR9lxqR8Es=;
+        s=korg; t=1626966633;
+        bh=XjHOtX9ffGv6EV2hysYdaTSBzLjvScEbgOwRQC/2Y98=;
         h=Subject:To:Cc:From:Date:From;
-        b=gLV+pkfn/4S0VlbepyOKatDUEmrGkUq4XdjY+dbGIuVRSQ9F5SiVrKfs/DdW4BcsY
-         pc7+G8NOB/frvXOcKQoBwdaiwmuIEyHo8a3YM8GWs5TA/6vfWBmE+Z4egNNPrF76t8
-         sJy6S0bYe9qsUiEV/O4kNYvdaLYLkwL4UB+iicOY=
-Subject: FAILED: patch "[PATCH] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear" failed to apply to 4.14-stable tree
+        b=xYU40u1CssXsvD/cIhrC+/rqe9O9mfQcob7WVxpjjahtlZ+E1NjZI2/03adFO+XKt
+         /z35C6FVuRTxQgU+WfpR24Wq6vYkh465I9ePlucflsnRl0Mxb8PScQVhxp6P6GHhaF
+         wYUaKa6H6iWum9CMq4rDTUTAy+swGXsAplfdFjbY=
+Subject: FAILED: patch "[PATCH] net: bcmgenet: ensure EXT_ENERGY_DET_MASK is clear" failed to apply to 4.19-stable tree
 To:     opendmb@gmail.com, davem@davemloft.net, f.fainelli@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 22 Jul 2021 17:10:15 +0200
-Message-ID: <162696661520662@kroah.com>
+Date:   Thu, 22 Jul 2021 17:10:16 +0200
+Message-ID: <1626966616197161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -34,7 +34,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
