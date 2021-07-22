@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A453D29B4
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 118F43D28C9
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234189AbhGVQF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39702 "EHLO mail.kernel.org"
+        id S233205AbhGVP6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234212AbhGVQE2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:04:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92C1E61976;
-        Thu, 22 Jul 2021 16:44:45 +0000 (UTC)
+        id S233178AbhGVP6G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:58:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1198E6135F;
+        Thu, 22 Jul 2021 16:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972286;
-        bh=Iwss8JYoBbpqgUvs4YSAKBztaA5tyR/Exo15fPg9GUs=;
+        s=korg; t=1626971919;
+        bh=r/Wqku1yiSU7HMaKZi7FiNF/b41U2VMNuPH/W1/npPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FHliflfkpqXD5A6gWg0S/HY2oWqZB4AmE2opBwhdcbun/9pwTjFI1lVfiXfSR8uXz
-         sfYKfm9yikqmDmDDrMoNTdWk1evn3OtUAb9qDYEV+9uXr1Gj0CBoc6142ohqNP+fCD
-         4H7YAYW185coae+ynGyQU/6ds0gNBl2aWcooUDa4=
+        b=JUhDhzPR62jQ+uTtALCa7Aq1xcbIuCUSSdrPIMerbJlpJCFmjDqBIKltyRVlJIg5f
+         wvM6CL4biV3+vhReGxRPqVT9045q0015vORTe5KN8S6vncMZFKr2bD++1WbSLUojs3
+         zUe4DvXMZU1bghOIj35cyc7rr8yblope0s+Zl6jI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Patrick Delaunay <patrick.delaunay@st.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 056/156] memory: tegra: Fix compilation warnings on 64bit platforms
-Date:   Thu, 22 Jul 2021 18:30:31 +0200
-Message-Id: <20210722155630.227064269@linuxfoundation.org>
+Subject: [PATCH 5.10 041/125] ARM: dts: stm32: Fix touchscreen node on dhcom-pdk2
+Date:   Thu, 22 Jul 2021 18:30:32 +0200
+Message-Id: <20210722155626.056970382@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit e0740fb869730110b36a4afcf05ad1b9d6f5fb6d ]
+[ Upstream commit 4b5fadef3fc2ab8863ffdf31eed6a745b1bf6e61 ]
 
-Fix compilation warning on 64bit platforms caused by implicit promotion
-of 32bit signed integer to a 64bit unsigned value which happens after
-enabling compile-testing of the EMC drivers.
+Fix make dtbs_check warning:
+arch/arm/boot/dts/stm32mp157c-dhcom-pdk2.dt.yaml:0:0: /soc/i2c@40015000/polytouch@38: failed to match any schema with compatible: ['edt,edt-ft5x06']
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Patrick Delaunay <patrick.delaunay@st.com>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-arm-kernel@lists.infradead.org
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/tegra/tegra124-emc.c | 4 ++--
- drivers/memory/tegra/tegra30-emc.c  | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra124-emc.c b/drivers/memory/tegra/tegra124-emc.c
-index 5699d909abc2..a21ca8e0841a 100644
---- a/drivers/memory/tegra/tegra124-emc.c
-+++ b/drivers/memory/tegra/tegra124-emc.c
-@@ -272,8 +272,8 @@
- #define EMC_PUTERM_ADJ				0x574
+diff --git a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+index 180a0187a956..a2d903c0d57f 100644
+--- a/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
++++ b/arch/arm/boot/dts/stm32mp15xx-dhcom-pdk2.dtsi
+@@ -182,8 +182,8 @@
  
- #define DRAM_DEV_SEL_ALL			0
--#define DRAM_DEV_SEL_0				(2 << 30)
--#define DRAM_DEV_SEL_1				(1 << 30)
-+#define DRAM_DEV_SEL_0				BIT(31)
-+#define DRAM_DEV_SEL_1				BIT(30)
+ 	};
  
- #define EMC_CFG_POWER_FEATURES_MASK		\
- 	(EMC_CFG_DYN_SREF | EMC_CFG_DRAM_ACPD | EMC_CFG_DRAM_CLKSTOP_SR | \
-diff --git a/drivers/memory/tegra/tegra30-emc.c b/drivers/memory/tegra/tegra30-emc.c
-index 829f6d673c96..a2f2738ccb94 100644
---- a/drivers/memory/tegra/tegra30-emc.c
-+++ b/drivers/memory/tegra/tegra30-emc.c
-@@ -150,8 +150,8 @@
- #define EMC_SELF_REF_CMD_ENABLED		BIT(0)
- 
- #define DRAM_DEV_SEL_ALL			(0 << 30)
--#define DRAM_DEV_SEL_0				(2 << 30)
--#define DRAM_DEV_SEL_1				(1 << 30)
-+#define DRAM_DEV_SEL_0				BIT(31)
-+#define DRAM_DEV_SEL_1				BIT(30)
- #define DRAM_BROADCAST(num) \
- 	((num) > 1 ? DRAM_DEV_SEL_ALL : DRAM_DEV_SEL_0)
- 
+-	polytouch@38 {
+-		compatible = "edt,edt-ft5x06";
++	touchscreen@38 {
++		compatible = "edt,edt-ft5406";
+ 		reg = <0x38>;
+ 		interrupt-parent = <&gpiog>;
+ 		interrupts = <2 IRQ_TYPE_EDGE_FALLING>; /* GPIO E */
 -- 
 2.30.2
 
