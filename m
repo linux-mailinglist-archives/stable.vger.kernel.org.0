@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2093D2904
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E3A73D2A39
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233691AbhGVQA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:00:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37540 "EHLO mail.kernel.org"
+        id S234359AbhGVQKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:10:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231411AbhGVQAB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:00:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 688C861369;
-        Thu, 22 Jul 2021 16:40:35 +0000 (UTC)
+        id S233742AbhGVQIk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:08:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C5461DBA;
+        Thu, 22 Jul 2021 16:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972035;
-        bh=OPmfSImN3GeoofV9ku3PvjGrjb8tYoUbuQozntxuDNg=;
+        s=korg; t=1626972513;
+        bh=iTw8AkC/KFpgWuZKgaxdDF+nxTLIUgiX5Y/A4mEKECs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CWEzff5Hxq16AaHgk+CxzaP3Ppwg0yqR4zsJvOmDU+2M3GGfcZfqM9KmiiS8BVJsP
-         FELrV2ScFlLv2xVz2vXN2sdEp1h+UZNGDzzuJG+be8gz1/gaHROOys1kgOQzQqE34o
-         CVyFyZ2F0nVRSdEHhCfE8YXrM5JP6uy3tV4PazUA=
+        b=DmDJRy/2LVzE5JphLFlQHy9QIrwikPjZSMVF1RRdmnByq5b+zxKPwyrt9pgimwaLa
+         P9uFpPp18oeTlyigQ2T6CGdvT4C2/Qo7s6MTRE+RH24uuLYptKyIcDOi3shoxQa0iU
+         tTeiV08Uk/6gwg+DpDIoYczVyTfD8qHXatDamhbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Riccardo Mancini <rickyman7@gmail.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 123/125] perf test bpf: Free obj_buf
-Date:   Thu, 22 Jul 2021 18:31:54 +0200
-Message-Id: <20210722155628.796007172@linuxfoundation.org>
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>
+Subject: [PATCH 5.13 140/156] ARM: dts: aspeed: Fix AST2600 machines line names
+Date:   Thu, 22 Jul 2021 18:31:55 +0200
+Message-Id: <20210722155632.876965331@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +38,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Riccardo Mancini <rickyman7@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
 
-commit 937654ce497fb6e977a8c52baee5f7d9616302d9 upstream.
+commit ca46ad2214473df1a6a9496be17156d65ba89b9f upstream.
 
-ASan reports some memory leaks when running:
+Tacoma and Rainier both have a line-names array that is too long:
 
-  # perf test "42: BPF filter"
+ gpio gpiochip0: gpio-line-names is length 232 but should be at most length 208
 
-The first of these leaks is caused by obj_buf never being deallocated in
-__test__bpf.
+This was probably copied from an AST2500 device tree that did have more
+GPIOs on the controller.
 
-This patch adds the missing free.
-
-Signed-off-by: Riccardo Mancini <rickyman7@gmail.com>
-Fixes: ba1fae431e74bb42 ("perf test: Add 'perf test BPF'")
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: http://lore.kernel.org/lkml/60f3ca935fe6672e7e866276ce6264c9e26e4c87.1626343282.git.rickyman7@gmail.com
-[ Added missing stdlib.h include ]
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: e9b24b55ca4f ("ARM: dts: aspeed: rainier: Add gpio line names")
+Fixes: 2f68e4e7df67 ("ARM: dts: aspeed: tacoma: Add gpio line names")
+Link: https://lore.kernel.org/r/20210624090742.56640-1-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/tests/bpf.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts |    5 +----
+ arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts  |    5 +----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
---- a/tools/perf/tests/bpf.c
-+++ b/tools/perf/tests/bpf.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- #include <errno.h>
- #include <stdio.h>
-+#include <stdlib.h>
- #include <sys/epoll.h>
- #include <sys/types.h>
- #include <sys/stat.h>
-@@ -283,6 +284,7 @@ static int __test__bpf(int idx)
- 	}
+--- a/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts
+@@ -280,10 +280,7 @@
+ 	/*W0-W7*/	"","","","","","","","",
+ 	/*X0-X7*/	"","","","","","","","",
+ 	/*Y0-Y7*/	"","","","","","","","",
+-	/*Z0-Z7*/	"","","","","","","","",
+-	/*AA0-AA7*/	"","","","","","","","",
+-	/*AB0-AB7*/	"","","","","","","","",
+-	/*AC0-AC7*/	"","","","","","","","";
++	/*Z0-Z7*/	"","","","","","","","";
  
- out:
-+	free(obj_buf);
- 	bpf__clear();
- 	return ret;
- }
+ 	pin_mclr_vpp {
+ 		gpio-hog;
+--- a/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
++++ b/arch/arm/boot/dts/aspeed-bmc-opp-tacoma.dts
+@@ -136,10 +136,7 @@
+ 	/*W0-W7*/	"","","","","","","","",
+ 	/*X0-X7*/	"","","","","","","","",
+ 	/*Y0-Y7*/	"","","","","","","","",
+-	/*Z0-Z7*/	"","","","","","","","",
+-	/*AA0-AA7*/	"","","","","","","","",
+-	/*AB0-AB7*/	"","","","","","","","",
+-	/*AC0-AC7*/	"","","","","","","","";
++	/*Z0-Z7*/	"","","","","","","","";
+ };
+ 
+ &fmc {
 
 
