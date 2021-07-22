@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4539C3D2976
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5B23D29C3
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234007AbhGVQEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:04:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40678 "EHLO mail.kernel.org"
+        id S234334AbhGVQGO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:06:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233171AbhGVQDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:03:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7248061976;
-        Thu, 22 Jul 2021 16:43:46 +0000 (UTC)
+        id S234900AbhGVQFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:05:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E80D661363;
+        Thu, 22 Jul 2021 16:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972227;
-        bh=9IwYoUA+yMUatCe2pkiZs9l8aiWjuGy0g91qBmcRMRA=;
+        s=korg; t=1626972347;
+        bh=icmE0/xpmce9z6I8441lIcrQBtxWtI/KuYzOMJ/JTd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XguSdecR0sSfB2E7o2+YvkWmzv0u/SwtehaOlU8Eb7Zi5X2YWIL5Tsszn5PL9rDMp
-         B/8XMLsQfDLgbUwm/lqUh6UsOLD2hFd04raXxnaIXPmxyEgpCEYr4Qpm1rVsdo7+/C
-         crh10ZwwCmqUXlu4yRxYTxz6CNetq2Gx0BA4cN7E=
+        b=13x5Ik0VPyjoJct7v8zVCvSn1oLRpwerr33565k+CixlzJdcByKTFusaVqwHws4jL
+         Oh8lzqytpZsjACdJn7Mofzz0bmwpsPcZMnw8bBNiaPR8sVwwUrB5jwFMTNOUgZg0D3
+         F12LqCCSLg7MdZbCb35EStpSV/wPS5yy06g54NVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Andrew Lunn <andrew@lunn.ch>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 032/156] ARM: dts: imx6dl-riotboard: configure PHY clock and set proper EEE value
-Date:   Thu, 22 Jul 2021 18:30:07 +0200
-Message-Id: <20210722155629.449870399@linuxfoundation.org>
+Subject: [PATCH 5.13 033/156] ARM: dts: ux500: Fix orientation of Janice accelerometer
+Date:   Thu, 22 Jul 2021 18:30:08 +0200
+Message-Id: <20210722155629.481234649@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,34 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 723de6a4126b2474a8106e943749e1554012dad6 ]
+[ Upstream commit e409c1e1d5cb164361229e3a3f084e4a32544fb6 ]
 
-Without SoC specific PHY fixups the network interface on this board will
-fail to work. Provide missing DT properties to make it work again.
+This fixes up the axis on the Janice accelerometer to give
+the right orientation according to tests.
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6dl-riotboard.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/ste-ux500-samsung-janice.dts | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6dl-riotboard.dts b/arch/arm/boot/dts/imx6dl-riotboard.dts
-index 065d3ab0f50a..e7d9bfbfd0e4 100644
---- a/arch/arm/boot/dts/imx6dl-riotboard.dts
-+++ b/arch/arm/boot/dts/imx6dl-riotboard.dts
-@@ -106,6 +106,8 @@
- 			reset-gpios = <&gpio3 31 GPIO_ACTIVE_LOW>;
- 			reset-assert-us = <10000>;
- 			reset-deassert-us = <1000>;
-+			qca,smarteee-tw-us-1g = <24>;
-+			qca,clk-out-frequency = <125000000>;
- 		};
- 	};
- };
+diff --git a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
+index eaf8039d10ad..25af066f6f3a 100644
+--- a/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
++++ b/arch/arm/boot/dts/ste-ux500-samsung-janice.dts
+@@ -583,10 +583,9 @@
+ 					accelerometer@08 {
+ 						compatible = "bosch,bma222";
+ 						reg = <0x08>;
+-						/* FIXME: no idea about this */
+-						mount-matrix = "1", "0", "0",
+-							       "0", "1", "0",
+-							       "0", "0", "1";
++						mount-matrix = "0", "1", "0",
++							       "-1", "0", "0",
++							       "0", "0", "-1";
+ 						vddio-supply = <&ab8500_ldo_aux2_reg>; // 1.8V
+ 						vdd-supply = <&ab8500_ldo_aux1_reg>; // 3V
+ 					};
 -- 
 2.30.2
 
