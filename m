@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B773D2875
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355403D27A5
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:36:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbhGVP5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33410 "EHLO mail.kernel.org"
+        id S229780AbhGVPwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:52:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232850AbhGVP5F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:57:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C1F66135B;
-        Thu, 22 Jul 2021 16:37:39 +0000 (UTC)
+        id S229742AbhGVPwB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:52:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6146861362;
+        Thu, 22 Jul 2021 16:32:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971860;
-        bh=0TcEksb0S4SRI56JjLGAPblYLh9EjuKSotMt5Uz8RAo=;
+        s=korg; t=1626971556;
+        bh=Y391DHEEi3GjMnJ6pEjTuTgy+n1u8kyICQyu1Er0vkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ajb4409UXmJhWsHJg6dG6dCNDpDRookoLq/66DmoUJFIEU2VYlT3ZHjy7z36A9Vc8
-         oBa4UVJcCa3LyGNhtoURUFvJPGJJe8aC8QH44DJtFuoIB/VergpuHp8EcT+Mvb2grd
-         GZuezxxxRbZ1D9ZLuBrCXkATBOd+PFxglBykVjZY=
+        b=LiEpW+1w4Lx03qrddGQbvwSu02ZfSWe/VT7ojUiqTqhnaRXyRrNfFQUmvSXNBIMyv
+         YBL+tsP81jeFuhhBuJe/nm1fNQVKNRxLSlwZ+QJHy+C5cPcxlCSsMZ9lAAh2iM5hL0
+         Fgh7hmK6Hc5PZYz4sCFJlC6CBvFnW3rbjoPoEIVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grzegorz Szymaszek <gszymaszek@short.pl>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 055/125] ARM: dts: stm32: fix the Odyssey SoM eMMC VQMMC supply
+Subject: [PATCH 5.4 11/71] arm64: dts: rockchip: Fix power-controller node names for rk3328
 Date:   Thu, 22 Jul 2021 18:30:46 +0200
-Message-Id: <20210722155626.537120470@linuxfoundation.org>
+Message-Id: <20210722155618.250627074@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
+References: <20210722155617.865866034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grzegorz Szymaszek <gszymaszek@short.pl>
+From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit f493162319788802b6a49634f7268e691b4c10ec ]
+[ Upstream commit 6e6a282b49c6db408d27231e3c709fbdf25e3c1b ]
 
-The Seeed SoM-STM32MP157C device tree had the eMMC’s (SDMMC2) VQMMC
-supply set to v3v3 (buck4), the same as the VMMC supply. That was
-incorrect, as on the SoM, the VQMMC supply is provided from vdd (buck3)
-instead.
+Use more generic names (as recommended in the device tree specification
+or the binding documentation)
 
-Signed-off-by: Grzegorz Szymaszek <gszymaszek@short.pl>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
+Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/20210417112952.8516-7-jbx6244@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3328.dtsi | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-index 6cf49a0a9e69..b5601d270c8f 100644
---- a/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-+++ b/arch/arm/boot/dts/stm32mp157c-odyssey-som.dtsi
-@@ -269,7 +269,7 @@
- 	st,neg-edge;
- 	bus-width = <8>;
- 	vmmc-supply = <&v3v3>;
--	vqmmc-supply = <&v3v3>;
-+	vqmmc-supply = <&vdd>;
- 	mmc-ddr-3_3v;
- 	status = "okay";
- };
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328.dtsi b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+index e0ed323935a4..44ad744c4710 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3328.dtsi
+@@ -270,13 +270,13 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 
+-			pd_hevc@RK3328_PD_HEVC {
++			power-domain@RK3328_PD_HEVC {
+ 				reg = <RK3328_PD_HEVC>;
+ 			};
+-			pd_video@RK3328_PD_VIDEO {
++			power-domain@RK3328_PD_VIDEO {
+ 				reg = <RK3328_PD_VIDEO>;
+ 			};
+-			pd_vpu@RK3328_PD_VPU {
++			power-domain@RK3328_PD_VPU {
+ 				reg = <RK3328_PD_VPU>;
+ 				clocks = <&cru ACLK_VPU>, <&cru HCLK_VPU>;
+ 			};
 -- 
 2.30.2
 
