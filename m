@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D99B3D29CB
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B11933D28B4
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234503AbhGVQGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:06:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43042 "EHLO mail.kernel.org"
+        id S232234AbhGVP6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:58:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232969AbhGVQF3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:05:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4548F61D30;
-        Thu, 22 Jul 2021 16:46:03 +0000 (UTC)
+        id S233029AbhGVP5v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:57:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 721766135B;
+        Thu, 22 Jul 2021 16:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972363;
-        bh=KCuGNY6fRK6iW8djSix/TvdpJ5X/PAcxyih/mY5iztQ=;
+        s=korg; t=1626971905;
+        bh=E+iOY2yzXNa/d+8Y+LyMMqT6lx3jzGNbC2lLNqo6/cM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HFbKyoh/AHs/3wwPiibUfmL2E/LUDd6uVptM/znDErlo+GFwBeG5HDMwFlP5toCEn
-         3xA6ZP0OlcXLe2QDGb4WK7xa5m0GIzOEp2Bs9EVJnR/DeAuBHJzfbZnLfzJDUP7GRa
-         VarmYfgYPSdcQZ5vOtqJXVzdG0w992W+kzptSy0A=
+        b=z6TSp7r3aVa3taFZsQGN3hrSBmv4bHhvGuRDdYraPYr+pfSr51QkglWIhLDlH4npq
+         Huz98/Ne19dy25qk1Bs222X7vyGAFIa9KfDagV6HBGftzDlytY4jsGZDGzBM58NpnW
+         oWmd3KmYpQe2zLy3NPhNIk8hbeGB9RqnQUpMYFsk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 086/156] arm64: dts: qcom: sm8250: Fix pcie2_lane unit address
+Subject: [PATCH 5.10 070/125] rtc: max77686: Do not enforce (incorrect) interrupt trigger type
 Date:   Thu, 22 Jul 2021 18:31:01 +0200
-Message-Id: <20210722155631.166164362@linuxfoundation.org>
+Message-Id: <20210722155627.013595559@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Dybcio <konrad.dybcio@somainline.org>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit dc2f86369b157dfe4dccd31497d2e3c541e7239d ]
+[ Upstream commit 742b0d7e15c333303daad4856de0764f4bc83601 ]
 
-The previous one was likely a mistaken copy from pcie1_lane.
+Interrupt line can be configured on different hardware in different way,
+even inverted.  Therefore driver should not enforce specific trigger
+type - edge falling - but instead rely on Devicetree to configure it.
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Link: https://lore.kernel.org/r/20210613185334.306225-1-konrad.dybcio@somainline.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+The Maxim 77686 datasheet describes the interrupt line as active low
+with a requirement of acknowledge from the CPU therefore the edge
+falling is not correct.
+
+The interrupt line is shared between PMIC and RTC driver, so using level
+sensitive interrupt is here especially important to avoid races.  With
+an edge configuration in case if first PMIC signals interrupt followed
+shortly after by the RTC, the interrupt might not be yet cleared/acked
+thus the second one would not be noticed.
+
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210526172036.183223-6-krzysztof.kozlowski@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sm8250.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-max77686.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-index 75f9476109e6..09b552396557 100644
---- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
-@@ -1470,7 +1470,7 @@
+diff --git a/drivers/rtc/rtc-max77686.c b/drivers/rtc/rtc-max77686.c
+index d51cc12114cb..eae7cb9faf1e 100644
+--- a/drivers/rtc/rtc-max77686.c
++++ b/drivers/rtc/rtc-max77686.c
+@@ -717,8 +717,8 @@ static int max77686_init_rtc_regmap(struct max77686_rtc_info *info)
  
- 			status = "disabled";
- 
--			pcie2_lane: lanes@1c0e200 {
-+			pcie2_lane: lanes@1c16200 {
- 				reg = <0 0x1c16200 0 0x170>, /* tx0 */
- 				      <0 0x1c16400 0 0x200>, /* rx0 */
- 				      <0 0x1c16a00 0 0x1f0>, /* pcs */
+ add_rtc_irq:
+ 	ret = regmap_add_irq_chip(info->rtc_regmap, info->rtc_irq,
+-				  IRQF_TRIGGER_FALLING | IRQF_ONESHOT |
+-				  IRQF_SHARED, 0, info->drv_data->rtc_irq_chip,
++				  IRQF_ONESHOT | IRQF_SHARED,
++				  0, info->drv_data->rtc_irq_chip,
+ 				  &info->rtc_irq_data);
+ 	if (ret < 0) {
+ 		dev_err(info->dev, "Failed to add RTC irq chip: %d\n", ret);
 -- 
 2.30.2
 
