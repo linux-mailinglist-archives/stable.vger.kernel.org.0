@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 335513D28A2
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0CC23D29FA
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbhGVP5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:57:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
+        id S234425AbhGVQHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:07:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232861AbhGVP51 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:57:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECD6D6135C;
-        Thu, 22 Jul 2021 16:38:00 +0000 (UTC)
+        id S234724AbhGVQGi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:06:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD5DE61DBB;
+        Thu, 22 Jul 2021 16:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971881;
-        bh=YY0oXdTuL+LSuP9s6tnJDlpe4PSvULyzOJO726GCEn8=;
+        s=korg; t=1626972433;
+        bh=b33whv90cBXAjsxVWLqFdVGyqSkVfOU3IOL43OTqb/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XPSURRQw1YtEI7RixynbBsgYJLqxO2D1ZVV/6eoaerYVjzjyluJrUakI6owmisbP3
-         5rT/XO+E75NFg+3viJBT9f1ZVbKNYzUJHFyJ4f7ctRLBUAoMOzlhn5MqD7tsmt4wv+
-         Z0vGggH4ljWo9oCt6AAtOHXe7thQEf4gC2wGoiUE=
+        b=UrA7VMahtEjc4nDHWQbis31e+Ql1SxA7TjlsKWNmoB/AP9PtxQ/0sa+pK/Kw92zJZ
+         gCcELaxWQoxeL+YfVwpHxEKh5rvpt+PeLD66zuF1oBPRw6lGTp2sfSB20cKHCOoQ7e
+         nCZIxooxZdo7aqjdXwR5jzKT31K0WZ2N1rYW15YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mian Yousaf Kaukab <ykaukab@suse.de>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/125] arm64: dts: ls208xa: remove bus-num from dspi node
+Subject: [PATCH 5.13 078/156] arm64: dts: ls208xa: remove bus-num from dspi node
 Date:   Thu, 22 Jul 2021 18:30:53 +0200
-Message-Id: <20210722155626.752593081@linuxfoundation.org>
+Message-Id: <20210722155630.917011166@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -69,11 +69,11 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index e7abb74bd816..4d34d82b898a 100644
+index 135ac8210871..801ba9612d36 100644
 --- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
 +++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -625,7 +625,6 @@
- 			clocks = <&clockgen 4 3>;
+@@ -929,7 +929,6 @@
+ 					    QORIQ_CLK_PLL_DIV(4)>;
  			clock-names = "dspi";
  			spi-num-chipselects = <5>;
 -			bus-num = <0>;
