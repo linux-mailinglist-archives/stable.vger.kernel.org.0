@@ -2,91 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 740993D26DA
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8043D2708
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 17:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbhGVO61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 10:58:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33642 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232488AbhGVO60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 10:58:26 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FB9AC061575
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 08:39:01 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id d12so6371216wre.13
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 08:39:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=xKWVpmeE7nCr9GO1CeUwVdvi6hi4Bp29rr9QRyAA1Ww=;
-        b=wDQQTWVK96UfIVUhX9vT1yuWJgVCA0E3PP6evwrTBKVqewB61BU0cfduNFdGIdQEB7
-         GEG2PEYiROkYoqdlT3YNWdscMRZWGWC8xynFn/PXZbE2M4t2VdUFGSWEG2MofWDpphpX
-         CJsFdNeYslebm704QB0cwoK3LwL+CxoidmO2grA9hmovkQNfhf9au5S2yYzFF2x4eQTK
-         hXwsB2FOFa9YotKfxsj1gtfmu1H2XAUsOfeDFzvW2u5jV4RdbV2AN62QDq1U4WlHjyOH
-         upK715wLs3//UZoDLWqt9xDH6HeHJo1fvwALukacT5ExgQfnSRBaUXq7yfgZRLuuGRlF
-         aMOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=xKWVpmeE7nCr9GO1CeUwVdvi6hi4Bp29rr9QRyAA1Ww=;
-        b=h++Oa9wnbjdtOkQnhk1IJWE3pi5uCvG/ZFgGvL+PQYqCpPoKWSTZHf+4lzqWw86yYm
-         lWq0TMWViWpqiYiG7eZXYi2m+g4Vy3CJPtkv5tn5Qm4Gq+f8PuUjGSWzFLoWMVy0zIwl
-         u7O6QGHRQMGZ+Qa3TG7MQ+PW0tGD3y2YJ/D50S3NNGV1V0kNPohByXQCPEi5uLA0XOId
-         FGSoJiEXaZiUEaVClYZfSXRtW7LPlhAs6gyrvzVb/+4cP0XMmXJhl4oXcv3mPyqNWXMT
-         s7LoA5zmWVlXQNjoGVP5NFpbBIvpWQfF1ES6l66M+rlKUo7XDOHlnLmbnBj3nnHOsBe8
-         EyrQ==
-X-Gm-Message-State: AOAM5314mKogHhukVrYPUq7E++1KCF9wQHb0dFtm6YPkl3rSbqz46bme
-        uTPpsym/92lMh4frsteJjOEvDg==
-X-Google-Smtp-Source: ABdhPJxjJcgpSUFc5l78Q7/3RcnMfW1PaXqB+r4b6qeS8npADaEx0YzHcETMJr1z8O8VKfXYmqXypQ==
-X-Received: by 2002:adf:e409:: with SMTP id g9mr654961wrm.66.1626968340078;
-        Thu, 22 Jul 2021 08:39:00 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:e0a:82c:5f0:69b5:b274:5cfc:ef2])
-        by smtp.gmail.com with ESMTPSA id o7sm22969127wrs.52.2021.07.22.08.38.59
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 22 Jul 2021 08:38:59 -0700 (PDT)
-From:   Loic Poulain <loic.poulain@linaro.org>
-To:     davem@davemloft.net, johannes@sipsolutions.net,
-        ryazanov.s.a@gmail.com
-Cc:     netdev@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] wwan: core: Fix missing RTM_NEWLINK event
-Date:   Thu, 22 Jul 2021 17:49:24 +0200
-Message-Id: <1626968964-17249-1-git-send-email-loic.poulain@linaro.org>
-X-Mailer: git-send-email 2.7.4
+        id S232377AbhGVPKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:10:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44434 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232371AbhGVPKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:10:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F04886101E;
+        Thu, 22 Jul 2021 15:51:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626969079;
+        bh=NS2HG67eJo0QJPvG56ydsIyK3T9kW4fm86QBjkuqcqo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=pnMt9Wks9Z55Atrfg8w59MJr4WLBzzWTFVVpsbwSnFuZaMx9KkoquUNK/hToMJWcR
+         aPcFqbpoD8+9oU+7ayqtKCyIEnnyzOe+5Ek0ndWSeblEBP8UDaHRr/gq0DfTSmFuMM
+         8uIpNaduAR7HmDPMnM83xp+YguapKkNR9I2t4/do=
+Subject: FAILED: patch "[PATCH] vboxsf: Add support for the atomic_open directory-inode op" failed to apply to 5.10-stable tree
+To:     hdegoede@redhat.com, bugreports@pouzenc.fr
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 22 Jul 2021 17:51:12 +0200
+Message-ID: <162696907216944@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-By default there is no rtnetlink event generated when registering a
-netdev with rtnl_link_ops until its rtnl_link_state is switched to
-initialized (RTNL_LINK_INITIALIZED). This causes issues with user
-tools like NetworkManager which relies on such event to manage links.
 
-Fix that by setting link to initialized (via rtnl_configure_link).
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cc: stable@vger.kernel.org
-Fixes: 88b710532e53 ("wwan: add interface creation support")
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
----
- drivers/net/wwan/wwan_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+thanks,
 
-diff --git a/drivers/net/wwan/wwan_core.c b/drivers/net/wwan/wwan_core.c
-index 3e16c31..409caf4 100644
---- a/drivers/net/wwan/wwan_core.c
-+++ b/drivers/net/wwan/wwan_core.c
-@@ -866,6 +866,10 @@ static int wwan_rtnl_newlink(struct net *src_net, struct net_device *dev,
- 	else
- 		ret = register_netdevice(dev);
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 52dfd86aa568e433b24357bb5fc725560f1e22d8 Mon Sep 17 00:00:00 2001
+From: Hans de Goede <hdegoede@redhat.com>
+Date: Thu, 21 Jan 2021 12:54:18 +0100
+Subject: [PATCH] vboxsf: Add support for the atomic_open directory-inode op
+
+Opening a new file is done in 2 steps on regular filesystems:
+
+1. Call the create inode-op on the parent-dir to create an inode
+to hold the meta-data related to the file.
+2. Call the open file-op to get a handle for the file.
+
+vboxsf however does not really use disk-backed inodes because it
+is based on passing through file-related system-calls through to
+the hypervisor. So both steps translate to an open(2) call being
+passed through to the hypervisor. With the handle returned by
+the first call immediately being closed again.
+
+Making 2 open calls for a single open(..., O_CREATE, ...) calls
+has 2 problems:
+
+a) It is not really efficient.
+b) It actually breaks some apps.
+
+An example of b) is doing a git clone inside a vboxsf mount.
+When git clone tries to create a tempfile to store the pak
+files which is downloading the following happens:
+
+1. vboxsf_dir_mkfile() gets called with a mode of 0444 and succeeds.
+2. vboxsf_file_open() gets called with file->f_flags containing
+O_RDWR. When the host is a Linux machine this fails because doing
+a open(..., O_RDWR) on a file which exists and has mode 0444 results
+in an -EPERM error.
+
+Other network-filesystems and fuse avoid the problem of needing to
+pass 2 open() calls to the other side by using the atomic_open
+directory-inode op.
+
+This commit fixes git clone not working inside a vboxsf mount,
+by adding support for the atomic_open directory-inode op.
+As an added bonus this should also make opening new files faster.
+
+The atomic_open implementation is modelled after the atomic_open
+implementations from the 9p and fuse code.
+
+Fixes: 0fd169576648 ("fs: Add VirtualBox guest shared folder (vboxsf) support")
+Reported-by: Ludovic Pouzenc <bugreports@pouzenc.fr>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+diff --git a/fs/vboxsf/dir.c b/fs/vboxsf/dir.c
+index 87d5b2fef592..c4769a9396c5 100644
+--- a/fs/vboxsf/dir.c
++++ b/fs/vboxsf/dir.c
+@@ -308,6 +308,53 @@ static int vboxsf_dir_mkdir(struct user_namespace *mnt_userns,
+ 	return vboxsf_dir_create(parent, dentry, mode, true, true, NULL);
+ }
  
-+	/* Link initialized, notify new link */
-+	if (!ret)
-+		rtnl_configure_link(dev, NULL);
++static int vboxsf_dir_atomic_open(struct inode *parent, struct dentry *dentry,
++				  struct file *file, unsigned int flags, umode_t mode)
++{
++	struct vboxsf_sbi *sbi = VBOXSF_SBI(parent->i_sb);
++	struct vboxsf_handle *sf_handle;
++	struct dentry *res = NULL;
++	u64 handle;
++	int err;
 +
- out:
- 	/* release the reference */
- 	put_device(&wwandev->dev);
--- 
-2.7.4
++	if (d_in_lookup(dentry)) {
++		res = vboxsf_dir_lookup(parent, dentry, 0);
++		if (IS_ERR(res))
++			return PTR_ERR(res);
++
++		if (res)
++			dentry = res;
++	}
++
++	/* Only creates */
++	if (!(flags & O_CREAT) || d_really_is_positive(dentry))
++		return finish_no_open(file, res);
++
++	err = vboxsf_dir_create(parent, dentry, mode, false, flags & O_EXCL, &handle);
++	if (err)
++		goto out;
++
++	sf_handle = vboxsf_create_sf_handle(d_inode(dentry), handle, SHFL_CF_ACCESS_READWRITE);
++	if (IS_ERR(sf_handle)) {
++		vboxsf_close(sbi->root, handle);
++		err = PTR_ERR(sf_handle);
++		goto out;
++	}
++
++	err = finish_open(file, dentry, generic_file_open);
++	if (err) {
++		/* This also closes the handle passed to vboxsf_create_sf_handle() */
++		vboxsf_release_sf_handle(d_inode(dentry), sf_handle);
++		goto out;
++	}
++
++	file->private_data = sf_handle;
++	file->f_mode |= FMODE_CREATED;
++out:
++	dput(res);
++	return err;
++}
++
+ static int vboxsf_dir_unlink(struct inode *parent, struct dentry *dentry)
+ {
+ 	struct vboxsf_sbi *sbi = VBOXSF_SBI(parent->i_sb);
+@@ -428,6 +475,7 @@ const struct inode_operations vboxsf_dir_iops = {
+ 	.lookup  = vboxsf_dir_lookup,
+ 	.create  = vboxsf_dir_mkfile,
+ 	.mkdir   = vboxsf_dir_mkdir,
++	.atomic_open = vboxsf_dir_atomic_open,
+ 	.rmdir   = vboxsf_dir_unlink,
+ 	.unlink  = vboxsf_dir_unlink,
+ 	.rename  = vboxsf_dir_rename,
 
