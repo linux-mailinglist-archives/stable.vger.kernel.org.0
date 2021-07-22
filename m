@@ -2,59 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F37283D1E31
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 08:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3887D3D1E3F
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 08:28:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231222AbhGVFn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 01:43:28 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:40638 "EHLO www.linuxtv.org"
+        id S230397AbhGVFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 01:48:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230334AbhGVFn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 01:43:27 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1m6S7m-000C7U-2b; Thu, 22 Jul 2021 06:24:02 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Thu, 22 Jul 2021 06:19:17 +0000
-Subject: [git:media_stage/master] media: rc-loopback: return number of emitters rather than error
-To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org, Sean Young <sean@mess.org>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1m6S7m-000C7U-2b@www.linuxtv.org>
+        id S230117AbhGVFsN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 01:48:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23E3D61279;
+        Thu, 22 Jul 2021 06:28:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1626935327;
+        bh=wkpHvC7qx/SeOirv1vh59xXap5MN1MSY2cfYLqGBHIM=;
+        h=Subject:To:From:Date:From;
+        b=D9mDP7JKrTioA/kDSYpuv5yzGdzILJ0hUT8YSormsVzCHS9wSAyb7nM4vJDqDiO6B
+         tNgzbVPHW4h3qvwg7NYfVCP+g/7RodwzkujEP4sNJIWM3kVBTanyGN74+wfeBcRsQV
+         R0Op/qMyuRJDiQu/4Q8xMsThPx6MgpJFLqVtzcJU=
+Subject: patch "tty: Fix out-of-bound vmalloc access in imageblit" added to tty-next
+To:     igormtorrente@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 22 Jul 2021 08:28:21 +0200
+Message-ID: <1626935301229106@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: rc-loopback: return number of emitters rather than error
-Author:  Sean Young <sean@mess.org>
-Date:    Sat Jul 3 15:37:17 2021 +0200
+This is a note to let you know that I've just added the patch titled
 
-The LIRC_SET_TRANSMITTER_MASK ioctl should return the number of emitters
-if an invalid list was set.
+    tty: Fix out-of-bound vmalloc access in imageblit
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-next branch.
 
- drivers/media/rc/rc-loopback.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 3b0c406124719b625b1aba431659f5cdc24a982c Mon Sep 17 00:00:00 2001
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Date: Mon, 28 Jun 2021 10:45:09 -0300
+Subject: tty: Fix out-of-bound vmalloc access in imageblit
+
+This issue happens when a userspace program does an ioctl
+FBIOPUT_VSCREENINFO passing the fb_var_screeninfo struct
+containing only the fields xres, yres, and bits_per_pixel
+with values.
+
+If this struct is the same as the previous ioctl, the
+vc_resize() detects it and doesn't call the resize_screen(),
+leaving the fb_var_screeninfo incomplete. And this leads to
+the updatescrollmode() calculates a wrong value to
+fbcon_display->vrows, which makes the real_y() return a
+wrong value of y, and that value, eventually, causes
+the imageblit to access an out-of-bound address value.
+
+To solve this issue I made the resize_screen() be called
+even if the screen does not need any resizing, so it will
+"fix and fill" the fb_var_screeninfo independently.
+
+Cc: stable <stable@vger.kernel.org> # after 5.15-rc2 is out, give it time to bake
+Reported-and-tested-by: syzbot+858dc7a2f7ef07c2c219@syzkaller.appspotmail.com
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210628134509.15895-1-igormtorrente@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
+ drivers/tty/vt/vt.c | 21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/rc/rc-loopback.c b/drivers/media/rc/rc-loopback.c
-index 1ba3f96ffa7d..40ab66c850f2 100644
---- a/drivers/media/rc/rc-loopback.c
-+++ b/drivers/media/rc/rc-loopback.c
-@@ -42,7 +42,7 @@ static int loop_set_tx_mask(struct rc_dev *dev, u32 mask)
+diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
+index ef981d3b7bb4..484eda1958f5 100644
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1219,8 +1219,25 @@ static int vc_do_resize(struct tty_struct *tty, struct vc_data *vc,
+ 	new_row_size = new_cols << 1;
+ 	new_screen_size = new_row_size * new_rows;
  
- 	if ((mask & (RXMASK_REGULAR | RXMASK_LEARNING)) != mask) {
- 		dprintk("invalid tx mask: %u\n", mask);
--		return -EINVAL;
-+		return 2;
- 	}
+-	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows)
+-		return 0;
++	if (new_cols == vc->vc_cols && new_rows == vc->vc_rows) {
++		/*
++		 * This function is being called here to cover the case
++		 * where the userspace calls the FBIOPUT_VSCREENINFO twice,
++		 * passing the same fb_var_screeninfo containing the fields
++		 * yres/xres equal to a number non-multiple of vc_font.height
++		 * and yres_virtual/xres_virtual equal to number lesser than the
++		 * vc_font.height and yres/xres.
++		 * In the second call, the struct fb_var_screeninfo isn't
++		 * being modified by the underlying driver because of the
++		 * if above, and this causes the fbcon_display->vrows to become
++		 * negative and it eventually leads to out-of-bound
++		 * access by the imageblit function.
++		 * To give the correct values to the struct and to not have
++		 * to deal with possible errors from the code below, we call
++		 * the resize_screen here as well.
++		 */
++		return resize_screen(vc, new_cols, new_rows, user);
++	}
  
- 	dprintk("setting tx mask: %u\n", mask);
+ 	if (new_screen_size > KMALLOC_MAX_SIZE || !new_screen_size)
+ 		return -EINVAL;
+-- 
+2.32.0
+
+
