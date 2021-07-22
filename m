@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409123D2A56
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BED3D2A34
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233781AbhGVQK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:10:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42674 "EHLO mail.kernel.org"
+        id S233884AbhGVQKC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:10:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234744AbhGVQHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43D6161D1A;
-        Thu, 22 Jul 2021 16:48:12 +0000 (UTC)
+        id S233849AbhGVQHz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:07:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAECF61D9B;
+        Thu, 22 Jul 2021 16:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972492;
-        bh=rEnJMih7c7qCwVmH0Nhd79TP9AADJe93o2uFvaEZPbA=;
+        s=korg; t=1626972495;
+        bh=uDNSXlZYLAvNnbXY0p9qvIw61xrMSiViPSL9yuDHU+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BuroIVoNIdq3zONKDRK61ajgUP63xh9FY7NAn5u1Ir+RBdwc0bkqmgAOtyDwn+4eD
-         E2LCydByE6uqwsqeM7RX8MDxkFEoNju74Eduii2btTP7Dg0wS8kemqbOR6eriy0Qz0
-         P7HymL+hj1dx6BKKFIZPAsJBuPH/WeNbEVOegyUE=
+        b=FMw9JU4a4TmWoq5sMhkP5Av9XuaVADlK9gdkQpNOe0Ib96asTVjTpfxZzinR3H+AO
+         cRbgA/C/nxaOmLroy5FFC7DFQV+R0xA+sx8MBSRUxNl74dBSB4/IKVyQ5FVOifZs/t
+         /9q9WrVaA2KSgYB4QcSjJuSPq7mwxdGyx9QP9aWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason@jlekstrand.net>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Subject: [PATCH 5.13 134/156] dma-buf/sync_file: Dont leak fences on merge failure
-Date:   Thu, 22 Jul 2021 18:31:49 +0200
-Message-Id: <20210722155632.686694580@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: [PATCH 5.13 135/156] kbuild: do not suppress Kconfig prompts for silent build
+Date:   Thu, 22 Jul 2021 18:31:50 +0200
+Message-Id: <20210722155632.719980299@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -40,70 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Ekstrand <jason@jlekstrand.net>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit ffe000217c5068c5da07ccb1c0f8cce7ad767435 upstream.
+commit d952cfaf0cffdbbb0433c67206b645131f17ca5f upstream.
 
-Each add_fence() call does a dma_fence_get() on the relevant fence.  In
-the error path, we weren't calling dma_fence_put() so all those fences
-got leaked.  Also, in the krealloc_array failure case, we weren't
-freeing the fences array.  Instead, ensure that i and fences are always
-zero-initialized and dma_fence_put() all the fences and kfree(fences) on
-every error path.
+When a new CONFIG option is available, Kbuild shows a prompt to get
+the user input.
 
-Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Fixes: a02b9dc90d84 ("dma-buf/sync_file: refactor fence storage in struct sync_file")
-Cc: Gustavo Padovan <gustavo.padovan@collabora.co.uk>
-Cc: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210624174732.1754546-1-jason@jlekstrand.net
-Signed-off-by: Christian König <christian.koenig@amd.com>
+  $ make
+  [ snip ]
+  Core Scheduling for SMT (SCHED_CORE) [N/y/?] (NEW)
+
+This is the only interactive place in the build process.
+
+Commit 174a1dcc9642 ("kbuild: sink stdout from cmd for silent build")
+suppressed Kconfig prompts as well because syncconfig is invoked by
+the 'cmd' macro. You cannot notice the fact that Kconfig is waiting
+for the user input.
+
+Use 'kecho' to show the equivalent short log without suppressing stdout
+from sub-make.
+
+Fixes: 174a1dcc9642 ("kbuild: sink stdout from cmd for silent build")
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Tested-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/sync_file.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ Makefile |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/dma-buf/sync_file.c
-+++ b/drivers/dma-buf/sync_file.c
-@@ -211,8 +211,8 @@ static struct sync_file *sync_file_merge
- 					 struct sync_file *b)
- {
- 	struct sync_file *sync_file;
--	struct dma_fence **fences, **nfences, **a_fences, **b_fences;
--	int i, i_a, i_b, num_fences, a_num_fences, b_num_fences;
-+	struct dma_fence **fences = NULL, **nfences, **a_fences, **b_fences;
-+	int i = 0, i_a, i_b, num_fences, a_num_fences, b_num_fences;
- 
- 	sync_file = sync_file_alloc();
- 	if (!sync_file)
-@@ -236,7 +236,7 @@ static struct sync_file *sync_file_merge
- 	 * If a sync_file can only be created with sync_file_merge
- 	 * and sync_file_create, this is a reasonable assumption.
- 	 */
--	for (i = i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
-+	for (i_a = i_b = 0; i_a < a_num_fences && i_b < b_num_fences; ) {
- 		struct dma_fence *pt_a = a_fences[i_a];
- 		struct dma_fence *pt_b = b_fences[i_b];
- 
-@@ -277,15 +277,16 @@ static struct sync_file *sync_file_merge
- 		fences = nfences;
- 	}
- 
--	if (sync_file_set_fence(sync_file, fences, i) < 0) {
--		kfree(fences);
-+	if (sync_file_set_fence(sync_file, fences, i) < 0)
- 		goto err;
--	}
- 
- 	strlcpy(sync_file->user_name, name, sizeof(sync_file->user_name));
- 	return sync_file;
- 
- err:
-+	while (i)
-+		dma_fence_put(fences[--i]);
-+	kfree(fences);
- 	fput(sync_file->file);
- 	return NULL;
- 
+--- a/Makefile
++++ b/Makefile
+@@ -721,11 +721,12 @@ $(KCONFIG_CONFIG):
+ # This exploits the 'multi-target pattern rule' trick.
+ # The syncconfig should be executed only once to make all the targets.
+ # (Note: use the grouped target '&:' when we bump to GNU Make 4.3)
+-quiet_cmd_syncconfig = SYNC    $@
+-      cmd_syncconfig = $(MAKE) -f $(srctree)/Makefile syncconfig
+-
++#
++# Do not use $(call cmd,...) here. That would suppress prompts from syncconfig,
++# so you cannot notice that Kconfig is waiting for the user input.
+ %/config/auto.conf %/config/auto.conf.cmd %/generated/autoconf.h: $(KCONFIG_CONFIG)
+-	+$(call cmd,syncconfig)
++	$(Q)$(kecho) "  SYNC    $@"
++	$(Q)$(MAKE) -f $(srctree)/Makefile syncconfig
+ else # !may-sync-config
+ # External modules and some install targets need include/generated/autoconf.h
+ # and include/config/auto.conf but do not care if they are up-to-date.
 
 
