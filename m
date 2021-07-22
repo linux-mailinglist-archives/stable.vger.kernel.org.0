@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 483203D29E4
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97FAE3D28FB
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235156AbhGVQHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:07:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44790 "EHLO mail.kernel.org"
+        id S231215AbhGVQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235049AbhGVQGH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:06:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DDD461D2F;
-        Thu, 22 Jul 2021 16:46:40 +0000 (UTC)
+        id S232927AbhGVP7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:59:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5188610F7;
+        Thu, 22 Jul 2021 16:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972400;
-        bh=WQ9EPAJ7CrgSFrkWPiibeHpRd47dc4J6YQW5PQBj6UE=;
+        s=korg; t=1626972027;
+        bh=MpoZvcM/5BK8c+vc/7urRevLkFZIw8q0tlEIgfHqjC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=td/zoivc7Jjd2mCOUcV2lSo021XKvvNmtXGaGbahc4pUO696xivtcTOh+ou6+zwr/
-         7RpFB6YXrh5+NuyQ6k8kXHyuOT8kdvwlPANLU/X64JSPOdBk69Yhj3t/NWqpKR532v
-         M4WB488TlYAMEcC7/VNjIcRprHMLq2e/vZVsn/kM=
+        b=iPPEymlAwXkC0XQoRm9onMkZOmsyW6pN/BFY5RZVR3cBRjecNeOxqgJ+NdV2+4y/+
+         rWP4zuCAkCXR2tiQk/L4Ln+KaHKhECkMf3lOTxVCQ78uyWyPmCSib78rkSYXnglV1o
+         DdrwdiqkI9RTAgLOrrr4F7RoSjT1FZX0QFzWsmes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 100/156] cifs: prevent NULL deref in cifs_compose_mount_options()
+        stable@vger.kernel.org, Daniel Rosenberg <drosen@google.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 084/125] f2fs: Show casefolding support only when supported
 Date:   Thu, 22 Jul 2021 18:31:15 +0200
-Message-Id: <20210722155631.610949097@linuxfoundation.org>
+Message-Id: <20210722155627.482328533@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
-References: <20210722155628.371356843@linuxfoundation.org>
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+References: <20210722155624.672583740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Daniel Rosenberg <drosen@google.com>
 
-[ Upstream commit 03313d1c3a2f086bb60920607ab79ac8f8578306 ]
+commit 39307f8ee3539478c28e71b4909b5b028cce14b1 upstream.
 
-The optional @ref parameter might contain an NULL node_name, so
-prevent dereferencing it in cifs_compose_mount_options().
+The casefolding feature is only supported when CONFIG_UNICODE is set.
+This modifies the feature list f2fs presents under sysfs accordingly.
 
-Addresses-Coverity: 1476408 ("Explicit null dereferenced")
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5aba54302a46 ("f2fs: include charset encoding information in the superblock")
+Cc: stable@vger.kernel.org # v5.4+
+Signed-off-by: Daniel Rosenberg <drosen@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/cifs/cifs_dfs_ref.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/sysfs.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/cifs/cifs_dfs_ref.c b/fs/cifs/cifs_dfs_ref.c
-index 8dec4edc8a9f..35a6007d88a9 100644
---- a/fs/cifs/cifs_dfs_ref.c
-+++ b/fs/cifs/cifs_dfs_ref.c
-@@ -151,6 +151,9 @@ char *cifs_compose_mount_options(const char *sb_mountdata,
- 		return ERR_PTR(-EINVAL);
- 
- 	if (ref) {
-+		if (WARN_ON_ONCE(!ref->node_name || ref->path_consumed < 0))
-+			return ERR_PTR(-EINVAL);
-+
- 		if (strlen(fullpath) - ref->path_consumed) {
- 			prepath = fullpath + ref->path_consumed;
- 			/* skip initial delimiter */
--- 
-2.30.2
-
+--- a/fs/f2fs/sysfs.c
++++ b/fs/f2fs/sysfs.c
+@@ -612,7 +612,9 @@ F2FS_FEATURE_RO_ATTR(lost_found, FEAT_LO
+ F2FS_FEATURE_RO_ATTR(verity, FEAT_VERITY);
+ #endif
+ F2FS_FEATURE_RO_ATTR(sb_checksum, FEAT_SB_CHECKSUM);
++#ifdef CONFIG_UNICODE
+ F2FS_FEATURE_RO_ATTR(casefold, FEAT_CASEFOLD);
++#endif
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+ F2FS_FEATURE_RO_ATTR(compression, FEAT_COMPRESSION);
+ #endif
+@@ -700,7 +702,9 @@ static struct attribute *f2fs_feat_attrs
+ 	ATTR_LIST(verity),
+ #endif
+ 	ATTR_LIST(sb_checksum),
++#ifdef CONFIG_UNICODE
+ 	ATTR_LIST(casefold),
++#endif
+ #ifdef CONFIG_F2FS_FS_COMPRESSION
+ 	ATTR_LIST(compression),
+ #endif
 
 
