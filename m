@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AA633D27FE
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4534A3D2801
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 18:37:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231579AbhGVPyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57636 "EHLO mail.kernel.org"
+        id S231993AbhGVPyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 11:54:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231153AbhGVPyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:54:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 091046135A;
-        Thu, 22 Jul 2021 16:34:42 +0000 (UTC)
+        id S229739AbhGVPyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 11:54:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76CE660FDA;
+        Thu, 22 Jul 2021 16:34:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971683;
-        bh=qfasVKEmYsDLajXsGNHUse+/BpdW2oqdgIRNXeT1/O4=;
+        s=korg; t=1626971686;
+        bh=FDKKSz/Ovyn1RrwWP4fwl9j5+VUOc+Gg4j/6gsr60v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aU2hRjoZwC8sL2KBT3edNgb3MrAZe+rz3tu1+S1yWjnf6IcqgCJyGhQ8Ug3sFD/Tq
-         6fwXukSZVoetUk5hZueCvVjPpwdhto95CuX8LYTWL138OknOyUArNrU5S9VvNhOiw+
-         FowZjdSCkmLEoZg5y7XQi2YeTp7zv0soRKzwXlGQ=
+        b=vonEJq1969ep1PUi6EpokDntnRMgWjwmuEVWCT6ZNltqLNsLExR0tZ5f6E/xSu/eW
+         Gwr8OSc3KLYQb1Mr4al6POoaCxTDJPwcl9AVj88nh7NPLHAbt/prBmBZOLfy1/KPzB
+         eREWTO5xUrj9XMnF+FPOoOLoDBPNrxQvMLV4Fnn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 58/71] net: bcmgenet: Ensure all TX/RX queues DMAs are disabled
-Date:   Thu, 22 Jul 2021 18:31:33 +0200
-Message-Id: <20210722155619.831991875@linuxfoundation.org>
+Subject: [PATCH 5.4 59/71] net: ip_tunnel: fix mtu calculation for ETHER tunnel devices
+Date:   Thu, 22 Jul 2021 18:31:34 +0200
+Message-Id: <20210722155619.870053526@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155617.865866034@linuxfoundation.org>
 References: <20210722155617.865866034@linuxfoundation.org>
@@ -40,46 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 2b452550a203d88112eaf0ba9fc4b750a000b496 upstream.
+commit 9992a078b1771da354ac1f9737e1e639b687caa2 upstream.
 
-Make sure that we disable each of the TX and RX queues in the TDMA and
-RDMA control registers. This is a correctness change to be symmetrical
-with the code that enables the TX and RX queues.
+Commit 28e104d00281 ("net: ip_tunnel: fix mtu calculation") removed
+dev->hard_header_len subtraction when calculate MTU for tunnel devices
+as there is an overhead for device that has header_ops.
 
-Tested-by: Maxime Ripard <maxime@cerno.tech>
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+But there are ETHER tunnel devices, like gre_tap or erspan, which don't
+have header_ops but set dev->hard_header_len during setup. This makes
+pkts greater than (MTU - ETH_HLEN) could not be xmited. Fix it by
+subtracting the ETHER tunnel devices' dev->hard_header_len for MTU
+calculation.
+
+Fixes: 28e104d00281 ("net: ip_tunnel: fix mtu calculation")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/ip_tunnel.c |   18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2783,15 +2783,21 @@ static void bcmgenet_set_hw_addr(struct
- /* Returns a reusable dma control register value */
- static u32 bcmgenet_dma_disable(struct bcmgenet_priv *priv)
- {
-+	unsigned int i;
- 	u32 reg;
- 	u32 dma_ctrl;
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -317,7 +317,7 @@ static int ip_tunnel_bind_dev(struct net
+ 	}
  
- 	/* disable DMA */
- 	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->tx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_tdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_tdma_writel(priv, reg, DMA_CTRL);
+ 	dev->needed_headroom = t_hlen + hlen;
+-	mtu -= t_hlen;
++	mtu -= t_hlen + (dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0);
  
-+	dma_ctrl = 1 << (DESC_INDEX + DMA_RING_BUF_EN_SHIFT) | DMA_EN;
-+	for (i = 0; i < priv->hw_params->rx_queues; i++)
-+		dma_ctrl |= (1 << (i + DMA_RING_BUF_EN_SHIFT));
- 	reg = bcmgenet_rdma_readl(priv, DMA_CTRL);
- 	reg &= ~dma_ctrl;
- 	bcmgenet_rdma_writel(priv, reg, DMA_CTRL);
+ 	if (mtu < IPV4_MIN_MTU)
+ 		mtu = IPV4_MIN_MTU;
+@@ -348,6 +348,9 @@ static struct ip_tunnel *ip_tunnel_creat
+ 	t_hlen = nt->hlen + sizeof(struct iphdr);
+ 	dev->min_mtu = ETH_MIN_MTU;
+ 	dev->max_mtu = IP_MAX_MTU - t_hlen;
++	if (dev->type == ARPHRD_ETHER)
++		dev->max_mtu -= dev->hard_header_len;
++
+ 	ip_tunnel_add(itn, nt);
+ 	return nt;
+ 
+@@ -495,11 +498,14 @@ static int tnl_update_pmtu(struct net_de
+ 
+ 	tunnel_hlen = md ? tunnel_hlen : tunnel->hlen;
+ 	pkt_size = skb->len - tunnel_hlen;
++	pkt_size -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
+ 
+-	if (df)
++	if (df) {
+ 		mtu = dst_mtu(&rt->dst) - (sizeof(struct iphdr) + tunnel_hlen);
+-	else
++		mtu -= dev->type == ARPHRD_ETHER ? dev->hard_header_len : 0;
++	} else {
+ 		mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
++	}
+ 
+ 	if (skb_valid_dst(skb))
+ 		skb_dst_update_pmtu_no_confirm(skb, mtu);
+@@ -965,6 +971,9 @@ int __ip_tunnel_change_mtu(struct net_de
+ 	int t_hlen = tunnel->hlen + sizeof(struct iphdr);
+ 	int max_mtu = IP_MAX_MTU - t_hlen;
+ 
++	if (dev->type == ARPHRD_ETHER)
++		max_mtu -= dev->hard_header_len;
++
+ 	if (new_mtu < ETH_MIN_MTU)
+ 		return -EINVAL;
+ 
+@@ -1142,6 +1151,9 @@ int ip_tunnel_newlink(struct net_device
+ 	if (tb[IFLA_MTU]) {
+ 		unsigned int max = IP_MAX_MTU - (nt->hlen + sizeof(struct iphdr));
+ 
++		if (dev->type == ARPHRD_ETHER)
++			max -= dev->hard_header_len;
++
+ 		mtu = clamp(dev->mtu, (unsigned int)ETH_MIN_MTU, max);
+ 	}
+ 
 
 
