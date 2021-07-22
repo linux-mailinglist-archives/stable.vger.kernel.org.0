@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F403D2911
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B94543D2A3E
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbhGVQAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35214 "EHLO mail.kernel.org"
+        id S234497AbhGVQKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:10:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233401AbhGVP66 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:58:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 767AC61353;
-        Thu, 22 Jul 2021 16:39:30 +0000 (UTC)
+        id S235284AbhGVQJG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:09:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B55061DD2;
+        Thu, 22 Jul 2021 16:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971971;
-        bh=HLNRvvBjnuN0Hz1wec5vFYjOiLsBF/h0EvcK+c+6Wi0=;
+        s=korg; t=1626972538;
+        bh=tLTbp2wQX4NklGSuRsACp62/NbPWgqYc852I8m2h6QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogFIJ5Z6jywxibLAI6+xKAVDt+SJq0oT/X+v205Ipux25jBO+KgG5n9eaNrSDK7La
-         XzC4CGk+WSnSrmIJZhFaNSZYZ1ucVxtua3ZYWUKULE7PclUapzTIGqr4s+7m4wn+P/
-         UhA4cIO3E7L7cdEywP0TyN3LVT2dvjB8C94rie0s=
+        b=frlMuEAtV0HYz6nUCDuA3ryeHT8yorS2XmGQJjw1sNqsXbuOiUgePb3ac1r7AsPtf
+         h/h1YiqIdLkVRQH/XxQcgx9HSbS7jImgHImdEphz+9lPlJ6hZvZFtj/2qlE6mgrixh
+         HorcaoiTDWlEEgTMit+fN0wz2tofUm3qa/m8Tr/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronak Doshi <doshir@vmware.com>,
-        Guolin Yang <gyang@vmware.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 097/125] vmxnet3: fix cksum offload issues for tunnels with non-default udp ports
+Subject: [PATCH 5.13 113/156] net: dsa: mv88e6xxx: enable SerDes RX stats for Topaz
 Date:   Thu, 22 Jul 2021 18:31:28 +0200
-Message-Id: <20210722155627.922823708@linuxfoundation.org>
+Message-Id: <20210722155632.028064148@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +40,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: Marek Behún <kabel@kernel.org>
 
-commit b22580233d473dbf7bbfa4f6549c09e2c80e9e64 upstream.
+commit a03b98d68367b18e5db6d6850e2cc18754fba94a upstream.
 
-Commit dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload
-support") added support for encapsulation offload. However, the inner
-offload capability is to be restricted to UDP tunnels with default
-Vxlan and Geneve ports.
+Commit 0df952873636a ("mv88e6xxx: Add serdes Rx statistics") added
+support for RX statistics on SerDes ports for Peridot.
 
-This patch fixes the issue for tunnels with non-default ports using
-features check capability and filtering appropriate features for such
-tunnels.
+This same implementation is also valid for Topaz, but was not enabled
+at the time.
 
-Fixes: dacce2be3312 ("vmxnet3: add geneve and vxlan tunnel offload support")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Guolin Yang <gyang@vmware.com>
+We need to use the generic .serdes_get_lane() method instead of the
+Peridot specific one in the stats methods so that on Topaz the proper
+one is used.
+
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 0df952873636a ("mv88e6xxx: Add serdes Rx statistics")
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vmxnet3/vmxnet3_ethtool.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c   |    6 ++++++
+ drivers/net/dsa/mv88e6xxx/serdes.c |    6 +++---
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
---- a/drivers/net/vmxnet3/vmxnet3_ethtool.c
-+++ b/drivers/net/vmxnet3/vmxnet3_ethtool.c
-@@ -1,7 +1,7 @@
- /*
-  * Linux driver for VMware's vmxnet3 ethernet NIC.
-  *
-- * Copyright (C) 2008-2020, VMware, Inc. All Rights Reserved.
-+ * Copyright (C) 2008-2021, VMware, Inc. All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License as published by the
-@@ -26,6 +26,10 @@
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -3623,6 +3623,9 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.serdes_irq_enable = mv88e6390_serdes_irq_enable,
+ 	.serdes_irq_status = mv88e6390_serdes_irq_status,
+ 	.gpio_ops = &mv88e6352_gpio_ops,
++	.serdes_get_sset_count = mv88e6390_serdes_get_sset_count,
++	.serdes_get_strings = mv88e6390_serdes_get_strings,
++	.serdes_get_stats = mv88e6390_serdes_get_stats,
+ 	.phylink_validate = mv88e6341_phylink_validate,
+ };
  
+@@ -4429,6 +4432,9 @@ static const struct mv88e6xxx_ops mv88e6
+ 	.gpio_ops = &mv88e6352_gpio_ops,
+ 	.avb_ops = &mv88e6390_avb_ops,
+ 	.ptp_ops = &mv88e6352_ptp_ops,
++	.serdes_get_sset_count = mv88e6390_serdes_get_sset_count,
++	.serdes_get_strings = mv88e6390_serdes_get_strings,
++	.serdes_get_stats = mv88e6390_serdes_get_stats,
+ 	.phylink_validate = mv88e6341_phylink_validate,
+ };
  
- #include "vmxnet3_int.h"
-+#include <net/vxlan.h>
-+#include <net/geneve.h>
-+
-+#define VXLAN_UDP_PORT 8472
+--- a/drivers/net/dsa/mv88e6xxx/serdes.c
++++ b/drivers/net/dsa/mv88e6xxx/serdes.c
+@@ -722,7 +722,7 @@ static struct mv88e6390_serdes_hw_stat m
  
- struct vmxnet3_stat_desc {
- 	char desc[ETH_GSTRING_LEN];
-@@ -277,6 +281,8 @@ netdev_features_t vmxnet3_features_check
- 	if (VMXNET3_VERSION_GE_4(adapter) &&
- 	    skb->encapsulation && skb->ip_summed == CHECKSUM_PARTIAL) {
- 		u8 l4_proto = 0;
-+		u16 port;
-+		struct udphdr *udph;
+ int mv88e6390_serdes_get_sset_count(struct mv88e6xxx_chip *chip, int port)
+ {
+-	if (mv88e6390_serdes_get_lane(chip, port) < 0)
++	if (mv88e6xxx_serdes_get_lane(chip, port) < 0)
+ 		return 0;
  
- 		switch (vlan_get_protocol(skb)) {
- 		case htons(ETH_P_IP):
-@@ -289,8 +295,20 @@ netdev_features_t vmxnet3_features_check
- 			return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
- 		}
+ 	return ARRAY_SIZE(mv88e6390_serdes_hw_stats);
+@@ -734,7 +734,7 @@ int mv88e6390_serdes_get_strings(struct
+ 	struct mv88e6390_serdes_hw_stat *stat;
+ 	int i;
  
--		if (l4_proto != IPPROTO_UDP)
-+		switch (l4_proto) {
-+		case IPPROTO_UDP:
-+			udph = udp_hdr(skb);
-+			port = be16_to_cpu(udph->dest);
-+			/* Check if offloaded port is supported */
-+			if (port != GENEVE_UDP_PORT &&
-+			    port != IANA_VXLAN_UDP_PORT &&
-+			    port != VXLAN_UDP_PORT) {
-+				return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
-+			}
-+			break;
-+		default:
- 			return features & ~(NETIF_F_CSUM_MASK | NETIF_F_GSO_MASK);
-+		}
- 	}
- 	return features;
- }
+-	if (mv88e6390_serdes_get_lane(chip, port) < 0)
++	if (mv88e6xxx_serdes_get_lane(chip, port) < 0)
+ 		return 0;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(mv88e6390_serdes_hw_stats); i++) {
+@@ -770,7 +770,7 @@ int mv88e6390_serdes_get_stats(struct mv
+ 	int lane;
+ 	int i;
+ 
+-	lane = mv88e6390_serdes_get_lane(chip, port);
++	lane = mv88e6xxx_serdes_get_lane(chip, port);
+ 	if (lane < 0)
+ 		return 0;
+ 
 
 
