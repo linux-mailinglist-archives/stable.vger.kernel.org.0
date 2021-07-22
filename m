@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE7A53D28B7
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6DB13D29D2
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbhGVP6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 11:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34698 "EHLO mail.kernel.org"
+        id S234649AbhGVQG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:06:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232960AbhGVP5x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 11:57:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DF14261378;
-        Thu, 22 Jul 2021 16:38:27 +0000 (UTC)
+        id S233912AbhGVQFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:05:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E85B661CA2;
+        Thu, 22 Jul 2021 16:46:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626971908;
-        bh=3nQWxeAB87beCZKNA4PKkDHoR1yS12Zk9pLhwBjaa5I=;
+        s=korg; t=1626972366;
+        bh=0STKWQC+Vj49YIn5F31YrtfI6IIFJAqpXKpo2sOYDLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJc7qnjALebZSabnKboaVM299aCFIrDQeZiAolNde/WbdJYkRvFqoUB7XiqPJp6gT
-         b7et3HpoC6lchfH61C7uors6X7wAd3njILV7SlsR2bkb3qtQdbYLjat69PFeStAhkY
-         L0JRV4nwaW/aLO7p0amahD0WiEfXpA5ZjGGJfe8U=
+        b=0jZuxnVB7E1Msy3aFQzSgbyHuHbpisJe8Rv3+AkNAUvWeJcF2UQRDmviamUiwlarQ
+         6XhqOENfCHGQarJbKeUlsg4/IyHsVyh2zzIS2dmcP2HKzmAXrboMKyVwjgaBBERXoI
+         O/g+esaAb4YtfTpZxPd960Wnkwi1Yv+2Wmodnh8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 071/125] scsi: aic7xxx: Fix unintentional sign extension issue on left shift of u8
+Subject: [PATCH 5.13 087/156] arm64: dts: qcom: sm8150: Disable Adreno and modem by default
 Date:   Thu, 22 Jul 2021 18:31:02 +0200
-Message-Id: <20210722155627.044005265@linuxfoundation.org>
+Message-Id: <20210722155631.198942373@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
-References: <20210722155624.672583740@linuxfoundation.org>
+In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
+References: <20210722155628.371356843@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +41,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit 332a9dd1d86f1e7203fc7f0fd7e82f0b304200fe ]
+[ Upstream commit b1dc3c6b3dabbedaf896a3c1a998da191c311c70 ]
 
-The shifting of the u8 integer returned fom ahc_inb(ahc, port+3) by 24 bits
-to the left will be promoted to a 32 bit signed int and then sign-extended
-to a u64. In the event that the top bit of the u8 is set then all then all
-the upper 32 bits of the u64 end up as also being set because of the
-sign-extension. Fix this by casting the u8 values to a u64 before the 24
-bit left shift.
+Components that rely on proprietary (not to mention signed!) firmware should
+not be enabled by default, as lack of the aforementioned firmware could cause
+various issues, from random errors to straight-up failing to boot.
 
-[ This dates back to 2002, I found the offending commit from the git
-history git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git,
-commit f58eb66c0b0a ("Update aic7xxx driver to 6.2.10...") ]
+Not enabling modem back on the HDK, as it uses a sa8150.
 
-Link: https://lore.kernel.org/r/20210621151727.20667-1-colin.king@canonical.com
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Addresses-Coverity: ("Unintended sign extension")
+Also fixed a sorting mistake in both boards' dt while at it.
+
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20210611203301.101067-1-konrad.dybcio@somainline.org
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/aic7xxx/aic7xxx_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8150-hdk.dts | 10 +++++++++-
+ arch/arm64/boot/dts/qcom/sm8150-mtp.dts | 10 +++++++++-
+ arch/arm64/boot/dts/qcom/sm8150.dtsi    |  6 ++++++
+ 3 files changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_core.c b/drivers/scsi/aic7xxx/aic7xxx_core.c
-index 725bb7f58054..12fed15dec66 100644
---- a/drivers/scsi/aic7xxx/aic7xxx_core.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_core.c
-@@ -493,7 +493,7 @@ ahc_inq(struct ahc_softc *ahc, u_int port)
- 	return ((ahc_inb(ahc, port))
- 	      | (ahc_inb(ahc, port+1) << 8)
- 	      | (ahc_inb(ahc, port+2) << 16)
--	      | (ahc_inb(ahc, port+3) << 24)
-+	      | (((uint64_t)ahc_inb(ahc, port+3)) << 24)
- 	      | (((uint64_t)ahc_inb(ahc, port+4)) << 32)
- 	      | (((uint64_t)ahc_inb(ahc, port+5)) << 40)
- 	      | (((uint64_t)ahc_inb(ahc, port+6)) << 48)
+diff --git a/arch/arm64/boot/dts/qcom/sm8150-hdk.dts b/arch/arm64/boot/dts/qcom/sm8150-hdk.dts
+index fb2cf3d987a1..50ee3bb97325 100644
+--- a/arch/arm64/boot/dts/qcom/sm8150-hdk.dts
++++ b/arch/arm64/boot/dts/qcom/sm8150-hdk.dts
+@@ -354,7 +354,11 @@
+ 	};
+ };
+ 
+-&qupv3_id_1 {
++&gmu {
++	status = "okay";
++};
++
++&gpu {
+ 	status = "okay";
+ };
+ 
+@@ -372,6 +376,10 @@
+ 	};
+ };
+ 
++&qupv3_id_1 {
++	status = "okay";
++};
++
+ &remoteproc_adsp {
+ 	status = "okay";
+ 
+diff --git a/arch/arm64/boot/dts/qcom/sm8150-mtp.dts b/arch/arm64/boot/dts/qcom/sm8150-mtp.dts
+index 3774f8e63416..7de54b2e497e 100644
+--- a/arch/arm64/boot/dts/qcom/sm8150-mtp.dts
++++ b/arch/arm64/boot/dts/qcom/sm8150-mtp.dts
+@@ -349,7 +349,11 @@
+ 	};
+ };
+ 
+-&qupv3_id_1 {
++&gmu {
++	status = "okay";
++};
++
++&gpu {
+ 	status = "okay";
+ };
+ 
+@@ -367,6 +371,10 @@
+ 	};
+ };
+ 
++&qupv3_id_1 {
++	status = "okay";
++};
++
+ &remoteproc_adsp {
+ 	status = "okay";
+ 	firmware-name = "qcom/sm8150/adsp.mdt";
+diff --git a/arch/arm64/boot/dts/qcom/sm8150.dtsi b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+index 51235a9521c2..618a1e64f808 100644
+--- a/arch/arm64/boot/dts/qcom/sm8150.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+@@ -1082,6 +1082,8 @@
+ 
+ 			qcom,gmu = <&gmu>;
+ 
++			status = "disabled";
++
+ 			zap-shader {
+ 				memory-region = <&gpu_mem>;
+ 			};
+@@ -1149,6 +1151,8 @@
+ 
+ 			operating-points-v2 = <&gmu_opp_table>;
+ 
++			status = "disabled";
++
+ 			gmu_opp_table: opp-table {
+ 				compatible = "operating-points-v2";
+ 
+@@ -1496,6 +1500,8 @@
+ 			qcom,smem-states = <&modem_smp2p_out 0>;
+ 			qcom,smem-state-names = "stop";
+ 
++			status = "disabled";
++
+ 			glink-edge {
+ 				interrupts = <GIC_SPI 449 IRQ_TYPE_EDGE_RISING>;
+ 				label = "modem";
 -- 
 2.30.2
 
