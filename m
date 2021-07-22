@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3233D29A6
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1453D2949
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234895AbhGVQFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:05:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
+        id S233870AbhGVQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233459AbhGVQDw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:03:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A443861C38;
-        Thu, 22 Jul 2021 16:44:01 +0000 (UTC)
+        id S233510AbhGVQCT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:02:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B62356196A;
+        Thu, 22 Jul 2021 16:42:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972242;
-        bh=JKsxh8nq2gGY4hZx7ezV437q+dXP/L4vEbHwpCV7SQ0=;
+        s=korg; t=1626972166;
+        bh=OvR16ZenqIElBgrXesiwLXN0ZP6Isg5Niqy5vJWWQbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N78C3l9qJw8NWIVfG58G7Tlxb8e0dN0wuNvYYQEFyHQtOrm6RUdWYTY3bd2dhIU2f
-         yIU58BpdGMY9hls3IGVjTiWK6vZD0tOr6EM0MgxdcNTeaiiR0JijHqbAslkKYcn1Ny
-         gmquBXxOun24LRDIZuP7QCkf/NAnzsZmwtgQlNqw=
+        b=X4QBIaNNbolZObfXUiAEfVORN8jczFsmj7V6mt6TCu22xTPx/4W1RK1bncwHQkfBt
+         Gc20ZtLGw1xESkQ+li9iHmsdddyKgZBxFlszPaPQANHFOA/1VLNICd1jEdYyrSV2+t
+         VdKH0tD+IEAuQUO8qqCLjY/tI15p25G9YiJHPPKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.13 009/156] ARM: dts: rockchip: Fix power-controller node names for rk3066a
-Date:   Thu, 22 Jul 2021 18:29:44 +0200
-Message-Id: <20210722155628.690506548@linuxfoundation.org>
+Subject: [PATCH 5.13 010/156] ARM: dts: rockchip: Fix power-controller node names for rk3188
+Date:   Thu, 22 Jul 2021 18:29:45 +0200
+Message-Id: <20210722155628.721164744@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-[ Upstream commit f2948781a72f0d8cf2adf31758c357f2f35e6c79 ]
+[ Upstream commit d3bcbcd396175ac26aa54919c0b31c7d2878fc24 ]
 
 Use more generic names (as recommended in the device tree specification
 or the binding documentation)
@@ -52,42 +52,42 @@ or the binding documentation)
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Reviewed-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/20210417112952.8516-2-jbx6244@gmail.com
+Link: https://lore.kernel.org/r/20210417112952.8516-3-jbx6244@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3066a.dtsi | 6 +++---
+ arch/arm/boot/dts/rk3188.dtsi | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3066a.dtsi b/arch/arm/boot/dts/rk3066a.dtsi
-index 252750c97f97..bbc3bff50856 100644
---- a/arch/arm/boot/dts/rk3066a.dtsi
-+++ b/arch/arm/boot/dts/rk3066a.dtsi
-@@ -755,7 +755,7 @@
+diff --git a/arch/arm/boot/dts/rk3188.dtsi b/arch/arm/boot/dts/rk3188.dtsi
+index 2c08ae60e4a1..b6bde9d12c2b 100644
+--- a/arch/arm/boot/dts/rk3188.dtsi
++++ b/arch/arm/boot/dts/rk3188.dtsi
+@@ -699,7 +699,7 @@
  		#address-cells = <1>;
  		#size-cells = <0>;
  
--		pd_vio@RK3066_PD_VIO {
-+		power-domain@RK3066_PD_VIO {
- 			reg = <RK3066_PD_VIO>;
+-		pd_vio@RK3188_PD_VIO {
++		power-domain@RK3188_PD_VIO {
+ 			reg = <RK3188_PD_VIO>;
  			clocks = <&cru ACLK_LCDC0>,
  				 <&cru ACLK_LCDC1>,
-@@ -782,7 +782,7 @@
+@@ -721,7 +721,7 @@
  				 <&qos_rga>;
  		};
  
--		pd_video@RK3066_PD_VIDEO {
-+		power-domain@RK3066_PD_VIDEO {
- 			reg = <RK3066_PD_VIDEO>;
+-		pd_video@RK3188_PD_VIDEO {
++		power-domain@RK3188_PD_VIDEO {
+ 			reg = <RK3188_PD_VIDEO>;
  			clocks = <&cru ACLK_VDPU>,
  				 <&cru ACLK_VEPU>,
-@@ -791,7 +791,7 @@
+@@ -730,7 +730,7 @@
  			pm_qos = <&qos_vpu>;
  		};
  
--		pd_gpu@RK3066_PD_GPU {
-+		power-domain@RK3066_PD_GPU {
- 			reg = <RK3066_PD_GPU>;
+-		pd_gpu@RK3188_PD_GPU {
++		power-domain@RK3188_PD_GPU {
+ 			reg = <RK3188_PD_GPU>;
  			clocks = <&cru ACLK_GPU>;
  			pm_qos = <&qos_gpu>;
 -- 
