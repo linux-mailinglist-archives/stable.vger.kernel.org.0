@@ -2,89 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 193963D2A21
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95F793D2AB6
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbhGVQJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:09:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49592 "EHLO
+        id S230126AbhGVQUj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:20:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234171AbhGVQHY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 12:07:24 -0400
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215D6C0619E1
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 09:44:56 -0700 (PDT)
-Received: by mail-pj1-x102b.google.com with SMTP id pf12-20020a17090b1d8cb0290175c085e7a5so5189972pjb.0
-        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 09:44:56 -0700 (PDT)
+        with ESMTP id S235968AbhGVQUE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 22 Jul 2021 12:20:04 -0400
+Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0685AC061575
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 10:00:38 -0700 (PDT)
+Received: by mail-oi1-x22f.google.com with SMTP id t143so7284896oie.8
+        for <stable@vger.kernel.org>; Thu, 22 Jul 2021 10:00:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1cJcgd2pbuDAvD6mxdCLmHUV42c/BmtCCqL70EuWCpA=;
-        b=e+HOMZagarSozD8bIXaYib9lPmwG9eY43uM8olXJgUY1lJKgwBPaPsatKS31Dk4J+S
-         24FWGf9hU6byFWj+uXoKYkj8leVwQvH5tKb5Sy2NxyMCvyd6cJjiigrFf6RXnr3aAt5r
-         egLCwmdjF2mbvutrpRFWriV3R9Beuk/SViCPuY92xG2OAD92B5xQ3WDAfVoe0hPvwkdF
-         gc6pi+SpttXPOLuV5UI77yRrKg0jTH8Pp2u6aI1JapfmgjlEk03jTUXW6KoTxQoyU8rY
-         Lh9u2aFyMFORKKOGIJfpIyKDhqAFxiwSi57azQCtsfjUNTO2zYX7IvGpb1BFXIa6oQby
-         RkLA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=VnQgrFKyL09FZWGvfGlkFGfOAsk4lk9cRxNnmKHljlc=;
+        b=qzx2csD+ZONV/WpNcx7ZKj3ZCYB712jM1U7zmNX/eyFMm0ONOb7Zqu7XFRah2ru8Rx
+         YN1ki3WqYr6ppOdU+jmhj9hUrh5S0tz7GS+F5EjmofH3Humhnmsdh8cN0n3sR91LAAQ3
+         bmymODYV7FQHWuGJrKVD+t+qqgKWeSXn1XrlRcLN87VMwpQulwOBh3kNuLpjuOpSKw7Y
+         7bYBC0XoueexAFyPZSg7xJ3o2UPr7E40+6mSzW9M9Rivow5+AnYc/IPU6zz1KzRhmJji
+         P/KWRoWPHb+xH4++ovBYdIASU2r62+l4Ukp32bZcols4T/aUikq5mJ1ukWNEeEuKQBA9
+         R4ng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1cJcgd2pbuDAvD6mxdCLmHUV42c/BmtCCqL70EuWCpA=;
-        b=CUac8jGdbbhtSnFBC5kC5D60xsbC5tBEgcAjAgH+zLcSeWWv52TyNwdriPEQZZBsyg
-         vSanszS90LRZlUaKWE8mMJqHEFyi6tK/HP4foaGaLcW6NtcjwpaSDV/c2AeShXfJ2BaN
-         sTZlWfcUE8zNESWNtvR7Bhci0WU9cyBqpJB4QE1HiGsYs2BTixT14HA6N77F/Rcvkk10
-         alfjOHoolzRZAI7LtBllOMwSuewLCsXTjAj4lFH9H8EShhR6wMbSeYaJXrwcN5gduDcS
-         OrcczX5Q1sO1Lhsn4uigCpsklS+7PxhZ+EMz1AH05QOIM3n16SPYqKCsod9Zr5UyEhnr
-         5dBQ==
-X-Gm-Message-State: AOAM530Rko0fWHiezVAvsKl4EQiJCAyOc/8sHhyzKJUrTUEjLEg5nLO2
-        P9qkeE64CJo66dHfxf8fdoVVDNV/hneppINClrspoA==
-X-Google-Smtp-Source: ABdhPJz9Uha/v0yX2FJeA+/t7j8I2y2VchBz+A+2WBfwhOQxvOMV5bTjEOkxNfOK/1/iP14pQEJmgco58qv6MLXMkE4=
-X-Received: by 2002:a62:30c5:0:b029:31e:fa6d:1738 with SMTP id
- w188-20020a6230c50000b029031efa6d1738mr488151pfw.55.1626972295586; Thu, 22
- Jul 2021 09:44:55 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=VnQgrFKyL09FZWGvfGlkFGfOAsk4lk9cRxNnmKHljlc=;
+        b=HWIDPT+iFydw9LA+lVFP0BSNLLbF1EnjD7yRJUdKo7o2hVwINUG8L6X4j2Xv/dI3f4
+         nZuydt8Ktq52y/Afj/iZB/rXS1fmrB0fM8zI8xHqtt8NdToF5gFcJzWpPg9QxFEho0oo
+         VUT+lLoUMfWZW8JMfw2Q8u+LosCXzggEz567TcBOttgzlwCoed3leFzLIEcrZugsMUg2
+         u3mjCCmQtT4v8fcbEOmRVmZTYPLQOH65zJvQUrZ4nryjVl0ly7mJfxvaDWVXFWSngCFX
+         iWK5xPOCH5zgO+WKhw4z/YZAd4lyWRgL9cW2ZKTmRF0g9w9pwA0BHRVZ0ToKky4jJnfs
+         mRFA==
+X-Gm-Message-State: AOAM531TIgfONTymBb5gKpJZhAWHVZBm+1RPRYcJnqjvomIo7YUnL7U4
+        G1u+DsReOf1DrnAVLJrAeHZR6Q==
+X-Google-Smtp-Source: ABdhPJxCmixWOKi0mabBWT2LmHuw7Hr3B/1k5C/ebhNqD+gtPsOiV8bMW0JtgPNMuzfSMoPstxUGqQ==
+X-Received: by 2002:aca:a8cf:: with SMTP id r198mr634517oie.143.1626973237417;
+        Thu, 22 Jul 2021 10:00:37 -0700 (PDT)
+Received: from [192.168.17.50] ([189.219.74.83])
+        by smtp.gmail.com with ESMTPSA id t7sm489781otl.25.2021.07.22.10.00.35
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 22 Jul 2021 10:00:36 -0700 (PDT)
+Subject: Re: [PATCH 5.10 000/125] 5.10.53-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, aford173@gmail.com
+References: <20210722155624.672583740@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+Message-ID: <beeb7568-388f-38e4-eb1f-28b1557bc191@linaro.org>
+Date:   Thu, 22 Jul 2021 12:00:34 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <1626968964-17249-1-git-send-email-loic.poulain@linaro.org> <CAHNKnsS1yQq9vbuLaa0XuKQ2PEmsw--tx-Fb8sEpzUmiybzuRA@mail.gmail.com>
-In-Reply-To: <CAHNKnsS1yQq9vbuLaa0XuKQ2PEmsw--tx-Fb8sEpzUmiybzuRA@mail.gmail.com>
-From:   Loic Poulain <loic.poulain@linaro.org>
-Date:   Thu, 22 Jul 2021 18:54:48 +0200
-Message-ID: <CAMZdPi_7-2tXGu0fqE4-Dx7MQpL=9St3JTgfTwov402BXBF5hg@mail.gmail.com>
-Subject: Re: [PATCH] wwan: core: Fix missing RTM_NEWLINK event
-To:     Sergey Ryazanov <ryazanov.s.a@gmail.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Network Development <netdev@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210722155624.672583740@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 22 Jul 2021 at 18:14, Sergey Ryazanov <ryazanov.s.a@gmail.com> wrote:
->
-> Hello Loic,
->
-> On Thu, Jul 22, 2021 at 6:39 PM Loic Poulain <loic.poulain@linaro.org> wrote:
-> > By default there is no rtnetlink event generated when registering a
-> > netdev with rtnl_link_ops until its rtnl_link_state is switched to
-> > initialized (RTNL_LINK_INITIALIZED). This causes issues with user
-> > tools like NetworkManager which relies on such event to manage links.
-> >
-> > Fix that by setting link to initialized (via rtnl_configure_link).
->
-> Shouldn't the __rtnl_newlink() function call rtnl_configure_link()
-> just after the newlink() callback invocation? Or I missed something?
+Hello!
 
-Ah right, but the first call of rtnl_configure_link() (uninitialized)
-does not cause RTM_NEWLINK event (cf __dev_notify_flags). It however
-seems to work for other link types (e,g, rmnet), so probably something
-to clarify here.
+On 7/22/21 11:29 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.53 release.
+> There are 125 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 24 Jul 2021 15:56:00 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.53-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Regards,
-Loic
+Build regressions detected on Arm64:
+
+   make --silent --keep-going --jobs=8 O=/home/tuxbuild/.cache/tuxmake/builds/current ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- 'CC=sccache aarch64-linux-gnu-gcc' 'HOSTCC=sccache gcc' dtbs
+   Error: /builds/linux/arch/arm64/boot/dts/renesas/beacon-renesom-som.dtsi:298.1-13 Label or path usb2_clksel not found
+   FATAL ERROR: Syntax error parsing input tree
+   make[3]: *** [scripts/Makefile.lib:326: arch/arm64/boot/dts/renesas/r8a774a1-beacon-rzg2m-kit.dtb] Error 1
+   make[3]: Target '__build' not remade because of errors.
+   make[2]: *** [/builds/linux/scripts/Makefile.build:497: arch/arm64/boot/dts/renesas] Error 2
+   make[2]: Target '__build' not remade because of errors.
+   make[1]: *** [/builds/linux/Makefile:1359: dtbs] Error 2
+   make: *** [Makefile:185: __sub-make] Error 2
+   make: Target 'dtbs' not remade because of errors.
 
 
->
-> --
-> Sergey
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
