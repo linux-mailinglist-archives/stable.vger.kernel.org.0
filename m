@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60C7A3D2A0F
-	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF8F23D2A17
+	for <lists+stable@lfdr.de>; Thu, 22 Jul 2021 19:07:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235216AbhGVQIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 22 Jul 2021 12:08:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44790 "EHLO mail.kernel.org"
+        id S234974AbhGVQIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 22 Jul 2021 12:08:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235146AbhGVQHD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 22 Jul 2021 12:07:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C72D6144E;
-        Thu, 22 Jul 2021 16:47:35 +0000 (UTC)
+        id S229731AbhGVQHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 22 Jul 2021 12:07:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADE3161D2C;
+        Thu, 22 Jul 2021 16:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1626972456;
-        bh=EFpnzNAE5hTcVD4qxLv0F2FRU29IaMMi9CYUaIANngw=;
+        s=korg; t=1626972459;
+        bh=Qvfjr4chl92hN6bxWW/vDQa324GuRuDpITR32cbDmEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlPgBQxYCGQdOjqVNRP42nZnUmotlbZvBi9iRoO8CBAhVppQzw/30eDw/+9dn8GMs
-         sbE8MiCYzdUr+/u0rCi4wnHZ4PQ2qIgM8D4/dMYeo4Ewhr/Dp0uI15hjzYgx+uBDg5
-         vLFWydC0ifZD8vDs9yH5kgFslqlirAr1c6C7Swaw=
+        b=PpBtL/Q+9mOjwY+xsnIjMe8CBeWeGAsnGMRR13OFRnTMiQtTpS7praIUXxLemC1jC
+         1dAsG7Afa/E31DVt1o9HI+A7KVwkvd3r3temrLVcLDqoe4Qz57qs8bmwW00HnikDBs
+         VNDtGyEMwxQyadW9JlvMETWMJZyBGFIfRQgykC70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.13 122/156] net: marvell: always set skb_shared_info in mvneta_swbm_add_rx_fragment
-Date:   Thu, 22 Jul 2021 18:31:37 +0200
-Message-Id: <20210722155632.309998555@linuxfoundation.org>
+Subject: [PATCH 5.13 123/156] net: netdevsim: use xso.real_dev instead of xso.dev in callback functions of struct xfrmdev_ops
+Date:   Thu, 22 Jul 2021 18:31:38 +0200
+Message-Id: <20210722155632.340342592@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210722155628.371356843@linuxfoundation.org>
 References: <20210722155628.371356843@linuxfoundation.org>
@@ -39,52 +39,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-commit 6ff63a150b5556012589ae59efac1b5eeb7d32c3 upstream.
+commit 09adf7566d436322ced595b166dea48b06852efe upstream.
 
-Always set skb_shared_info data structure in mvneta_swbm_add_rx_fragment
-routine even if the fragment contains only the ethernet FCS.
+There are two pointers in struct xfrm_state_offload, *dev, *real_dev.
+These are used in callback functions of struct xfrmdev_ops.
+The *dev points whether bonding interface or real interface.
+If bonding ipsec offload is used, it points bonding interface If not,
+it points real interface.
+And real_dev always points real interface.
+So, netdevsim should always use real_dev instead of dev.
+Of course, real_dev always not be null.
 
-Fixes: 039fbc47f9f1 ("net: mvneta: alloc skb_shared_info on the mvneta_rx_swbm stack")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Test commands:
+    ip netns add A
+    ip netns exec A bash
+    modprobe netdevsim
+    echo "1 1" > /sys/bus/netdevsim/new_device
+    ip link add bond0 type bond mode active-backup
+    ip link set eth0 master bond0
+    ip link set eth0 up
+    ip link set bond0 up
+    ip x s add proto esp dst 14.1.1.1 src 15.1.1.1 spi 0x07 mode \
+transport reqid 0x07 replay-window 32 aead 'rfc4106(gcm(aes))' \
+0x44434241343332312423222114131211f4f3f2f1 128 sel src 14.0.0.52/24 \
+dst 14.0.0.70/24 proto tcp offload dev bond0 dir in
+
+Splat looks like:
+BUG: spinlock bad magic on CPU#5, kworker/5:1/53
+ lock: 0xffff8881068c2cc8, .magic: 11121314, .owner: <none>/-1,
+.owner_cpu: -235736076
+CPU: 5 PID: 53 Comm: kworker/5:1 Not tainted 5.13.0-rc3+ #1168
+Workqueue: events linkwatch_event
+Call Trace:
+ dump_stack+0xa4/0xe5
+ do_raw_spin_lock+0x20b/0x270
+ ? rwlock_bug.part.1+0x90/0x90
+ _raw_spin_lock_nested+0x5f/0x70
+ bond_get_stats+0xe4/0x4c0 [bonding]
+ ? rcu_read_lock_sched_held+0xc0/0xc0
+ ? bond_neigh_init+0x2c0/0x2c0 [bonding]
+ ? dev_get_alias+0xe2/0x190
+ ? dev_get_port_parent_id+0x14a/0x360
+ ? rtnl_unregister+0x190/0x190
+ ? dev_get_phys_port_name+0xa0/0xa0
+ ? memset+0x1f/0x40
+ ? memcpy+0x38/0x60
+ ? rtnl_phys_switch_id_fill+0x91/0x100
+ dev_get_stats+0x8c/0x270
+ rtnl_fill_stats+0x44/0xbe0
+ ? nla_put+0xbe/0x140
+ rtnl_fill_ifinfo+0x1054/0x3ad0
+[ ... ]
+
+Fixes: 272c2330adc9 ("xfrm: bail early on slave pass over skb")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c |   20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/netdevsim/ipsec.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -2303,19 +2303,19 @@ mvneta_swbm_add_rx_fragment(struct mvnet
- 		skb_frag_off_set(frag, pp->rx_offset_correction);
- 		skb_frag_size_set(frag, data_len);
- 		__skb_frag_set_page(frag, page);
--
--		/* last fragment */
--		if (len == *size) {
--			struct skb_shared_info *sinfo;
--
--			sinfo = xdp_get_shared_info_from_buff(xdp);
--			sinfo->nr_frags = xdp_sinfo->nr_frags;
--			memcpy(sinfo->frags, xdp_sinfo->frags,
--			       sinfo->nr_frags * sizeof(skb_frag_t));
--		}
- 	} else {
- 		page_pool_put_full_page(rxq->page_pool, page, true);
- 	}
-+
-+	/* last fragment */
-+	if (len == *size) {
-+		struct skb_shared_info *sinfo;
-+
-+		sinfo = xdp_get_shared_info_from_buff(xdp);
-+		sinfo->nr_frags = xdp_sinfo->nr_frags;
-+		memcpy(sinfo->frags, xdp_sinfo->frags,
-+		       sinfo->nr_frags * sizeof(skb_frag_t));
-+	}
- 	*size -= len;
- }
+--- a/drivers/net/netdevsim/ipsec.c
++++ b/drivers/net/netdevsim/ipsec.c
+@@ -85,7 +85,7 @@ static int nsim_ipsec_parse_proto_keys(s
+ 				       u32 *mykey, u32 *mysalt)
+ {
+ 	const char aes_gcm_name[] = "rfc4106(gcm(aes))";
+-	struct net_device *dev = xs->xso.dev;
++	struct net_device *dev = xs->xso.real_dev;
+ 	unsigned char *key_data;
+ 	char *alg_name = NULL;
+ 	int key_len;
+@@ -134,7 +134,7 @@ static int nsim_ipsec_add_sa(struct xfrm
+ 	u16 sa_idx;
+ 	int ret;
  
+-	dev = xs->xso.dev;
++	dev = xs->xso.real_dev;
+ 	ns = netdev_priv(dev);
+ 	ipsec = &ns->ipsec;
+ 
+@@ -194,7 +194,7 @@ static int nsim_ipsec_add_sa(struct xfrm
+ 
+ static void nsim_ipsec_del_sa(struct xfrm_state *xs)
+ {
+-	struct netdevsim *ns = netdev_priv(xs->xso.dev);
++	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
+ 	struct nsim_ipsec *ipsec = &ns->ipsec;
+ 	u16 sa_idx;
+ 
+@@ -211,7 +211,7 @@ static void nsim_ipsec_del_sa(struct xfr
+ 
+ static bool nsim_ipsec_offload_ok(struct sk_buff *skb, struct xfrm_state *xs)
+ {
+-	struct netdevsim *ns = netdev_priv(xs->xso.dev);
++	struct netdevsim *ns = netdev_priv(xs->xso.real_dev);
+ 	struct nsim_ipsec *ipsec = &ns->ipsec;
+ 
+ 	ipsec->ok++;
 
 
